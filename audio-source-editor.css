@@ -105,7 +105,7 @@ audio-source-editor a:focus + ul.submenu {
     transform: scaleY(1);
     opacity: 1;
     /*max-height: 800px;*/
-    transition: all 0.1s 0s ease-out;
+    transition: all 0.1s 0.2s ease-out;
     /*transition: max-height 1s, opacity 0.3s;*/
     /*transition: max-height 2s;*/
 }

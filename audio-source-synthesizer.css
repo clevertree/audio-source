@@ -1,0 +1,104 @@
+
+
+audio-source-synthesizer {
+    background: #DDD;
+    position: relative;
+    vertical-align: top;
+    display: inline-block;
+    /* float: left; */
+    /*min-height: 60px;*/
+    /* margin: 4px; */
+    padding: 0px 2px 2px 2px;
+    border: 1px outset;
+}
+
+audio-source-synthesizer form {
+    /*display: inline-block;*/
+}
+
+audio-source-synthesizer form.instrument-setting {
+    display: inline-block;
+    margin: 0;
+    vertical-align: top;
+}
+audio-source-synthesizer form.instrument-setting > fieldset {
+    margin: 0;
+    padding: 1px;
+    border: 1px inset #FFF;
+    font-size: x-small;
+}
+
+audio-source-synthesizer form.instrument-name > label.label-instrument-name{
+    font-size: small;
+}
+
+/** Form Inputs **/
+
+audio-source-synthesizer input,
+audio-source-synthesizer select  {
+    font-size: x-small;
+}
+audio-source-synthesizer input:not(:hover):not([type=range]),
+audio-source-synthesizer select:not(:hover)  {
+    border-color: transparent !important;
+    background: transparent;
+}
+
+/** Sample Table **/
+audio-source-synthesizer table.sample-setting-list {
+    /* width: 100%; */
+    font-size: small;
+    text-align: left;
+}
+
+
+
+audio-source-synthesizer form.instrument-remove button.remove-instrument {
+    /* text-align: center; */
+    padding: 0px 6px 1px 6px;
+    /* margin: 0px 0px 1px 0px; */
+    border: 1px outset;
+    border-radius: 4px;
+    color: darkred;
+}
+
+
+/** Form Section **/
+audio-source-synthesizer div.form-section-header {
+    font-size: small;
+    border-bottom: 1px solid #BBB;
+    /* text-decoration-color: #AAA; */
+    margin-bottom: 1px;
+}
+
+
+audio-source-synthesizer div.form-section {
+    background: #DDD;
+    /* border: 1px outset #ffffff8a; */
+    padding: 6px 8px 2px 6px;
+    display: inline-block;
+    vertical-align: middle;
+    /* float: left; */
+    border: 1px inset #FFF;
+}
+
+/** Custom Inputs **/
+
+audio-source-synthesizer form.change-instrument >             select[name=instrumentURL]  {width: 136px;}
+audio-source-synthesizer form.change-instrument-preset >      select[name=preset]     { width: 79px;}
+audio-source-synthesizer form.instrument-name                 input[name=name]        { width: 108px; }
+
+audio-source-synthesizer form.instrument-setting-detune       input[name=detune]      { width: 60px; }
+audio-source-synthesizer form.instrument-setting-mixer        input[name=mixer]       { width: 60px; }
+
+audio-source-synthesizer form.instrument-setting-root         input[name=keyRoot]     { width: 40px; }
+audio-source-synthesizer form.instrument-setting-alias        input[name=keyAlias]    { width: 40px; }
+audio-source-synthesizer form.instrument-setting-range        input[name=keyLow]      { width: 40px; }
+audio-source-synthesizer form.instrument-setting-range        input[name=keyHigh]     { width: 40px; }
+audio-source-synthesizer form.instrument-setting-polyphony    input[name=polyphony]   { width: 51px;}
+
+/** Sample Editor **/
+
+audio-source-synthesizer table.sample-setting-list {
+    display: none;
+}

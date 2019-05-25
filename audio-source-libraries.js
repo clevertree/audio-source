@@ -29,9 +29,9 @@ class AudioSourceLibraries {
             return true;
         const sources = this.sources[libraryName];
         for(let i=0; i<sources.length; i++) {
+            await this.loadScript(sources[i]);
             if(test())
                 return true;
-            await this.loadScript(sources[i]);
         }
         throw new Error(`Failed to load ${libraryName} Library`);
 
