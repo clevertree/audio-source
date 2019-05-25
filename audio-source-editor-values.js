@@ -30,8 +30,8 @@ class AudioSourceEditorValues {
             //     break;
 
             case 'song-recent-list':
-                const songStorage = new SongStorage();
-                const songRecentUUIDs = songStorage.getRecentSongList() ;
+                const Storage = new AudioSourceStorage();
+                const songRecentUUIDs = Storage.getRecentSongList() ;
                 for(let i=0; i<songRecentUUIDs.length; i++)
                     valuesHTML += callback(songRecentUUIDs[i].guid, songRecentUUIDs[i].title);
                 break;

@@ -5,7 +5,7 @@
 class MusicPlayerElement extends HTMLElement {
     constructor() {
         super();
-        this.renderer = new AudiosourceRenderer();
+        this.renderer = new AudioSourceRenderer();
     }
 
     getAudioContext()               { return this.renderer.getAudioContext(); }
@@ -66,6 +66,6 @@ class MusicPlayerElement extends HTMLElement {
 MusicPlayerElement.DEFAULT_VOLUME = 0.3;
 
 // Define custom elements
-customElements.define('audiosource-player', MusicPlayerElement);
+customElements.define('audio-source-player', MusicPlayerElement);
 
-// MusicPlayerElement.loadStylesheet('client/player/audiosource-player.css');
+// MusicPlayerElement.loadStylesheet('client/player/audio-source-player.css');

@@ -51,7 +51,7 @@ class AudioSourceEditorElement extends HTMLElement {
         this.instruments = new AudioSourceEditorInstruments(this);
         this.instruments.loadInstrumentLibrary('/synthesizer/instrument.library.json');
 
-        this.renderer = new AudiosourceRenderer(this);
+        this.renderer = new AudioSourceRenderer(this);
     }
 
     get currentGroup()      { return this.status.currentGroup; }
@@ -129,14 +129,14 @@ class AudioSourceEditorElement extends HTMLElement {
 
 
     loadNewSongData() {
-        const storage = new SongStorage();
+        const storage = new AudioSourceStorage();
         let songData = storage.generateDefaultSong();
         this.renderer.loadSongData(songData);
     }
 
 
     loadRecentSongData() {
-        const storage = new SongStorage();
+        const storage = new AudioSourceStorage();
         let songRecentGUIDs = storage.getRecentSongList();
         if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
             this.loadSongFromMemory(songRecentGUIDs[0].guid);
@@ -146,20 +146,20 @@ class AudioSourceEditorElement extends HTMLElement {
     saveSongToMemory() {
         const songData = this.renderer.getSongData();
         const songHistory = this.renderer.getSongHistory();
-        const storage = new SongStorage();
+        const storage = new AudioSourceStorage();
         storage.saveSongToMemory(songData, songHistory);
     }
 
     saveSongToFile() {
         const songData = this.renderer.getSongData();
         // const songHistory = this.renderer.getSongHistory();
-        const storage = new SongStorage();
+        const storage = new AudioSourceStorage();
         storage.saveSongToFile(songData);
     }
 
 
     loadSongFromMemory(songGUID) {
-        const storage = new SongStorage();
+        const storage = new AudioSourceStorage();
         const songData = storage.loadSongFromMemory(songGUID);
         const songHistory = storage.loadSongHistoryFromMemory(songGUID);
         this.renderer.loadSongData(songData, songHistory);
@@ -172,7 +172,7 @@ class AudioSourceEditorElement extends HTMLElement {
     }
 
     async loadSongFromMIDIFileInput(inputFile) {
-        const storage = new SongStorage();
+        const storage = new AudioSourceStorage();
         const midiData = await storage.loadMIDIFile(inputFile);
         this.renderer.loadSongFromMIDIData(midiData);
         this.render();
@@ -384,4 +384,4 @@ class AudioSourceEditorElement extends HTMLElement {
     // }
 
 }
-customElements.define('audiosource-editor', AudioSourceEditorElement);
+customElements.define('audio-source-editor', AudioSourceEditorElement);

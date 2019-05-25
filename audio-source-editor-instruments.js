@@ -54,7 +54,7 @@ class AudioSourceEditorInstruments {
     // // get instrument() { return this.song.player.getInstrument(this.id);}
     //
     // connectedCallback() {
-    //     this.editor = this.closest('audiosource-editor'); // findParent(this, (p) => p.matches('music-song'));
+    //     this.editor = this.closest('audio-source-editor'); // findParent(this, (p) => p.matches('music-song'));
     //     // this.addEventListener('change', this.onSubmit);
     //     // this.addEventListener('input', this.onSubmit);
     //     this.addEventListener('submit', this.onSubmit);

@@ -2,7 +2,7 @@
  * Player requires a modern browser
  */
 
-class AudiosourceRenderer {
+class AudioSourceRenderer {
     constructor(dispatchElement=null) {
         this.dispatchElement = dispatchElement;
         this.audioContext = null;
@@ -54,7 +54,7 @@ class AudiosourceRenderer {
         if(!this.volumeGain) {
             const context = this.getAudioContext();
             let gain = context.createGain();
-            gain.gain.value = AudiosourceRenderer.DEFAULT_VOLUME;
+            gain.gain.value = AudioSourceRenderer.DEFAULT_VOLUME;
             gain.connect(context.destination);
             this.volumeGain = gain;
         }
@@ -62,7 +62,7 @@ class AudiosourceRenderer {
     }
 
     getVolume () {
-        return this.volumeGain ? this.volumeGain.gain.value * 100 : AudiosourceRenderer.DEFAULT_VOLUME * 100;
+        return this.volumeGain ? this.volumeGain.gain.value * 100 : AudioSourceRenderer.DEFAULT_VOLUME * 100;
     }
     setVolume (volume) {
         const gain = this.getVolumeGain();
@@ -909,7 +909,7 @@ class AudiosourceRenderer {
     insertDataPath(pathList, newData) {
         const pathInfo = this.findDataPath(pathList);
 
-        newData = AudiosourceRenderer.sanitizeInput(newData);
+        newData = AudioSourceRenderer.sanitizeInput(newData);
 
         if(typeof pathInfo.key !== 'number')
             throw new Error("Insert action requires numeric key");
@@ -941,7 +941,7 @@ class AudiosourceRenderer {
     replaceDataPath(pathList, newData) {
         const pathInfo = this.findDataPath(pathList);
 
-        newData = AudiosourceRenderer.sanitizeInput(newData);
+        newData = AudioSourceRenderer.sanitizeInput(newData);
         let oldData = null;
 
         if(typeof newData !== "undefined") {
@@ -1125,13 +1125,13 @@ class AudiosourceRenderer {
     static sanitizeInput(value) {
         if(Array.isArray(value)) {
             for(let i=0; i<value.length; i++)
-                value[i] = AudiosourceRenderer.sanitizeInput(value[i]);
+                value[i] = AudioSourceRenderer.sanitizeInput(value[i]);
             return value;
         }
         if(typeof value === 'object') {
             for(const key in value)
                 if(value.hasOwnProperty(key))
-                    value[key] = AudiosourceRenderer.sanitizeInput(value[key]);
+                    value[key] = AudioSourceRenderer.sanitizeInput(value[key]);
             return value;
         }
         if(typeof value !== 'string')
@@ -1176,7 +1176,7 @@ class AudiosourceRenderer {
 
 
 }
-AudiosourceRenderer.DEFAULT_VOLUME = 0.7;
+AudioSourceRenderer.DEFAULT_VOLUME = 0.7;
 
 class SongInstruction {
     constructor(instructionData) {
