@@ -12,8 +12,8 @@ class AudioSourceStorage {
 
     /** Loading **/
 
-    getRecentSongList() {
-        return this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+    async getRecentSongList() {
+        return await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
     }
 
     generateDefaultSong() {
@@ -36,41 +36,41 @@ class AudioSourceStorage {
     }
 
 
-    encodeForStorage(json, replacer=null, space=null) {
+    async encodeForStorage(json, replacer=null, space=null) {
         let encodedString = JSON.stringify(json, replacer, space);
         const Sources = new AudioSourceLibraries;
-        const LZString = Sources.getLZString();
+        const LZString = await Sources.getLZString();
         const compressedString = LZString.compress(encodedString);
 //             console.log(`Compression: ${compressedString.length} / ${encodedString.length} = ${Math.round((compressedString.length / encodedString.length)*100)/100}`);
         return compressedString;
     }
 
-    decodeForStorage(encodedString) {
+    async decodeForStorage(encodedString) {
         if(!encodedString)
             return null;
         const Sources = new AudioSourceLibraries;
-        const LZString = Sources.getLZString();
+        const LZString = await Sources.getLZString();
         encodedString = LZString.decompress(encodedString) || encodedString;
         return JSON.parse(encodedString);
     }
 
-    saveSongToMemory(songData, songHistory) {
+    async saveSongToMemory(songData, songHistory) {
         // const song = this.getSongData();
         if(!songData.guid)
             songData.guid = this.generateGUID();
         let songRecentGUIDs = [];
         try {
-            songRecentGUIDs = this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+            songRecentGUIDs = await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
         } catch (e) {
             console.error(e);
         }
         songRecentGUIDs = songRecentGUIDs.filter((entry) => entry.guid !== songData.guid);
         songRecentGUIDs.unshift({guid: songData.guid, title: songData.title});
-        localStorage.setItem('song-recent-list', this.encodeForStorage(songRecentGUIDs));
+        localStorage.setItem('song-recent-list', await this.encodeForStorage(songRecentGUIDs));
 
 
-        localStorage.setItem('song:' + songData.guid, this.encodeForStorage(songData));
-        localStorage.setItem('song-history:' + songData.guid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
+        localStorage.setItem('song:' + songData.guid, await this.encodeForStorage(songData));
+        localStorage.setItem('song-history:' + songData.guid, await this.encodeForStorage(songHistory)); // History stored separately due to memory limits
         // this.querySelector('.song-menu').outerHTML = renderEditorMenuContent(this);
         console.info("Song saved to memory: " + songData.guid, songData);
     }
@@ -93,11 +93,11 @@ class AudioSourceStorage {
     }
 
 
-    loadSongFromMemory(songGUID) {
+    async loadSongFromMemory(songGUID) {
         let songDataString = localStorage.getItem('song:' + songGUID);
         if(!songDataString)
             throw new Error("Song Data not found for guid: " + songGUID);
-        let songData = this.decodeForStorage(songDataString);
+        let songData = await this.decodeForStorage(songDataString);
         if(!songData)
             throw new Error("Invalid Song Data: " + songDataString);
         return songData;

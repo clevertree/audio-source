@@ -22,25 +22,30 @@ class AudioSourceLibraries {
         });
     }
 
-    async getMidiParser() {
-        const sources = this.sources.MidiParser;
+    async loadLibrary(libraryName, test=null) {
+        if(!test)
+            test = () => typeof window[libraryName] !== 'undefined';
+        if(test())
+            return true;
+        const sources = this.sources[libraryName];
         for(let i=0; i<sources.length; i++) {
-            if(typeof MidiParser !== "undefined")
-                return MidiParser;
+            if(test())
+                return true;
             await this.loadScript(sources[i]);
         }
-        throw new Error("Failed to load MidiParser Library");
+        throw new Error(`Failed to load ${libraryName} Library`);
+
+    }
+
+    async getMidiParser() {
+        await this.loadLibrary('MidiParser');
+        return MidiParser;
     }
 
 
     async getLZString() {
-        const sources = this.sources.LZString;
-        for(let i=0; i<sources.length; i++) {
-            if(typeof LZString !== "undefined")
-                return LZString;
-            await this.loadScript(sources[i]);
-        }
-        throw new Error("Failed to load MidiParser Library");
+        await this.loadLibrary('LZString');
+        return LZString;
     }
 
 

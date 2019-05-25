@@ -84,7 +84,6 @@ class AudioSourceEditorMenu {
                 e.preventDefault();
                 let uuid = menuTarget.getAttribute('data-uuid') || null;
                 this.editor.loadSongFromMemory(uuid);
-                this.editor.render();
                 break;
 
             case 'save:memory':

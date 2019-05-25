@@ -135,19 +135,19 @@ class AudioSourceEditorElement extends HTMLElement {
     }
 
 
-    loadRecentSongData() {
+    async loadRecentSongData() {
         const storage = new AudioSourceStorage();
         let songRecentGUIDs = storage.getRecentSongList();
         if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
-            this.loadSongFromMemory(songRecentGUIDs[0].guid);
+            await this.loadSongFromMemory(songRecentGUIDs[0].guid);
         }
     }
 
-    saveSongToMemory() {
+    async saveSongToMemory() {
         const songData = this.renderer.getSongData();
         const songHistory = this.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
-        storage.saveSongToMemory(songData, songHistory);
+        await storage.saveSongToMemory(songData, songHistory);
     }
 
     saveSongToFile() {
