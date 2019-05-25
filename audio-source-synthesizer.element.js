@@ -32,7 +32,8 @@ class SynthesizerInstrument extends HTMLElement {
         this.render();
     }
 
-    async loadSamples() {
+    loadSamples() {
+        this.samples = {};
         for(let sampleName in this.config.samples) {
             if (this.config.samples.hasOwnProperty(sampleName)) {
                 this.loadAudioSample(sampleName);
@@ -41,19 +42,27 @@ class SynthesizerInstrument extends HTMLElement {
     }
 
 
-    init(audioContext) {
+    async init(audioContext) {
+        const promises = [];
         this.audioContext = audioContext;
         for(let sampleName in this.samples) {
             if (this.samples.hasOwnProperty(sampleName)) {
                 // noinspection JSIgnoredPromiseFromCall
-                this.initSample(audioContext, sampleName);
+                const promise = this.initSample(audioContext, sampleName);
+                promises.push(promise);
             }
+        }
+
+        for(let i=0; i<promises.length; i++) {
+            await promises[i];
         }
     }
 
     // instruments receive audioContext only after user gesture
     async initSample(audioContext, sampleName) {
         const sampleData = this.samples[sampleName];
+        if(!sampleData)
+            throw new Error("Sample not loaded: " + sampleName);
         if(sampleData.onInit) {
             await sampleData.onInit(audioContext);
             delete sampleData.onInit;
@@ -82,12 +91,14 @@ class SynthesizerInstrument extends HTMLElement {
                 case 'wav':
                     xhr.responseType = 'arraybuffer';
 
-                    xhr.onload = function () {
-                        var audioData = xhr.response;
+                    xhr.onload = () => {
+                        let audioData = xhr.response;
                         sampleData.onInit = async (context) => {
+                            delete sampleData.onInit;
                             await new Promise((resolve, reject) => {
                                 context.decodeAudioData(audioData,
                                     (buffer) => {
+                                        audioData = null;
                                         sampleData.buffer = buffer;
                                         resolve();
                                     },
@@ -117,6 +128,7 @@ class SynthesizerInstrument extends HTMLElement {
                             return reject("Invalid JSON for periodic wave");
 
                         sampleData.onInit = async (context) => {
+                            delete sampleData.onInit;
                             sampleData.periodicWave = context.createPeriodicWave(
                                 new Float32Array(tables.real),
                                 new Float32Array(tables.imag)
@@ -139,6 +151,8 @@ class SynthesizerInstrument extends HTMLElement {
 
 
     async loadDefaultSampleLibrary() {
+        this.loadSamples();
+
         if(!this.sampleLibrary) {
             await this.loadSampleLibrary(this.config.libraryURL || this.DEFAULT_SAMPLE_LIBRARY_URL);
             this.render();
@@ -161,37 +175,41 @@ class SynthesizerInstrument extends HTMLElement {
                 const sampleInstrument = Object.keys(this.sampleLibrary.instruments)[0];
 
                 Object.assign(this.config, this.getInstrumentPresetConfig(sampleInstrument));
+                this.loadSamples();
 
 //                 console.info("Loaded default sample instrument: " + sampleInstrument, this.config);
 //                 if(this.audioContext)
 //                     await this.initSamples(this.audioContext);
             }
-            await this.loadSamples();
-            this.render();
         }
+
+        this.render();
     }
 
-    playSample(destination, sampleName, frequencyValue, startTime, duration, velocity) {
+    async playSample(destination, sampleName, frequencyValue, startTime, duration, velocity) {
         if (typeof this.samples[sampleName] === 'undefined')
             throw new Error("Sample not loaded: " + sampleName);
-        const sampleConfig = this.samples[sampleName];
+        const sampleData = this.samples[sampleName];
+        const sampleConfig = this.config.samples[sampleName];
+        if(sampleData.onInit)
+            await this.initSample(destination.context, sampleName);
 
         if(!frequencyValue)
             frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
 
         let source, sources=[];
-        if(sampleConfig.periodicWave) {
+        if(sampleData.periodicWave) {
             source = destination.context.createOscillator();   // instantiate an oscillator
             source.frequency.value = frequencyValue;    // set Frequency (hz)
 
-            source.setPeriodicWave(sampleConfig.periodicWave);
+            source.setPeriodicWave(sampleData.periodicWave);
             sources.push(source);
         }
 
-        if(sampleConfig.buffer) {
+        if(sampleData.buffer) {
             const playbackRate = frequencyValue / (sampleConfig.keyRoot ? this.getCommandFrequency(sampleConfig.keyRoot) : 440);
             source = destination.context.createBufferSource();
-            source.buffer = sampleConfig.buffer;
+            source.buffer = sampleData.buffer;
             source.loop = sampleConfig.loop || false;
             source.playbackRate.value = playbackRate; //  Math.random()*2;
             sources.push(source);
@@ -236,11 +254,13 @@ class SynthesizerInstrument extends HTMLElement {
 
     }
 
-    play(destination, commandFrequency, startTime, duration, velocity) {
+    async play(destination, commandFrequency, startTime, duration, velocity) {
+        // if(!this.audioContext)
+        //     this.init(destination.context);
 
         // const sources = [];
         if(this.config.samples.hasOwnProperty(commandFrequency)) {
-            this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
+            await this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
             return null;
         }
 
