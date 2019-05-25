@@ -13,12 +13,12 @@ class SynthesizerInstrument extends HTMLElement {
         if(!config.samples)
             config.samples = {};
         this.config = config;            // TODO: validate config
-        this.buffers = {};
+        this.samples = {};
         this.sampleLibrary = null;
         this.instrumentLibrary = null;
         this.libraryHistory = [];
         this.audioContext = null;
-        this.loadDefaultSampleLibrary();
+        this.loadDefaultSampleLibrary(); // TODO: load samples before audio source loads
         this.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
     }
 
@@ -32,24 +32,111 @@ class SynthesizerInstrument extends HTMLElement {
         this.render();
     }
 
-
-    async initSamples(audioContext) {
+    async loadSamples() {
         for(let sampleName in this.config.samples) {
             if (this.config.samples.hasOwnProperty(sampleName)) {
-                const sampleConfig = this.config.samples[sampleName];
-                if (!sampleConfig.url)
-                    throw new Error("Sample config is missing url");
-                this.buffers[sampleName] = await this.loadAudioSample(audioContext, sampleConfig.url);
+                this.loadAudioSample(sampleName);
             }
         }
     }
 
 
-    // instruments receive audioContext only after user gesture
     init(audioContext) {
         this.audioContext = audioContext;
-        this.initSamples(audioContext);
+        for(let sampleName in this.samples) {
+            if (this.samples.hasOwnProperty(sampleName)) {
+                // noinspection JSIgnoredPromiseFromCall
+                this.initSample(audioContext, sampleName);
+            }
+        }
     }
+
+    // instruments receive audioContext only after user gesture
+    async initSample(audioContext, sampleName) {
+        const sampleData = this.samples[sampleName];
+        if(sampleData.onInit) {
+            await sampleData.onInit(audioContext);
+            delete sampleData.onInit;
+        }
+    }
+
+
+    async loadAudioSample(sampleName) {
+        const sampleConfig = this.config.samples[sampleName];
+        let url = sampleConfig.url;
+        if (!url)
+            throw new Error("Sample config is missing url");
+        url = new URL(url, document.location) + '';
+
+        if(typeof this.samples[sampleName] === "undefined"){
+            this.samples[sampleName] = {}
+        }
+        const sampleData = this.samples[sampleName];
+
+        return await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('GET', url, true);
+            const ext = url.split('.').pop().toLowerCase();
+            switch(ext) {
+                case 'wav':
+                    xhr.responseType = 'arraybuffer';
+
+                    xhr.onload = function () {
+                        var audioData = xhr.response;
+                        sampleData.onInit = async (context) => {
+                            await new Promise((resolve, reject) => {
+                                context.decodeAudioData(audioData,
+                                    (buffer) => {
+                                        sampleData.buffer = buffer;
+                                        resolve();
+                                    },
+
+                                    (e) => {
+                                        reject("Error with decoding audio data" + e.error);
+                                    }
+                                );
+                            });
+                        };
+
+                        if(this.audioContext) // Try initiating new samples
+                            sampleData.onInit(this.audioContext);
+                        resolve();
+                    };
+
+                    xhr.send();
+                    break;
+                case 'json':
+                    xhr.responseType = 'json';
+                    xhr.onload = () => {
+                        if (xhr.status !== 200)
+                            return reject("Periodic wave file not found: " + url);
+
+                        const tables = xhr.response;
+                        if (!tables.real || !tables.imag)
+                            return reject("Invalid JSON for periodic wave");
+
+                        sampleData.onInit = async (context) => {
+                            sampleData.periodicWave = context.createPeriodicWave(
+                                new Float32Array(tables.real),
+                                new Float32Array(tables.imag)
+                            );
+                        };
+                        if(this.audioContext) // Try initiating new samples
+                            sampleData.onInit(this.audioContext);
+                        resolve();
+                    };
+                    xhr.send();
+                    break;
+                default:
+                    reject("Unknown extension: " + ext);
+            }
+        });
+    }
+
+
+
+
 
     async loadDefaultSampleLibrary() {
         if(!this.sampleLibrary) {
@@ -74,30 +161,86 @@ class SynthesizerInstrument extends HTMLElement {
                 const sampleInstrument = Object.keys(this.sampleLibrary.instruments)[0];
 
                 Object.assign(this.config, this.getInstrumentPresetConfig(sampleInstrument));
+
 //                 console.info("Loaded default sample instrument: " + sampleInstrument, this.config);
-                if(this.audioContext)
-                    await this.initSamples(this.audioContext);
-                this.render();
+//                 if(this.audioContext)
+//                     await this.initSamples(this.audioContext);
             }
+            await this.loadSamples();
+            this.render();
         }
     }
 
+    playSample(destination, sampleName, frequencyValue, startTime, duration, velocity) {
+        if (typeof this.samples[sampleName] === 'undefined')
+            throw new Error("Sample not loaded: " + sampleName);
+        const sampleConfig = this.samples[sampleName];
 
+        if(!frequencyValue)
+            frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
+
+        let source, sources=[];
+        if(sampleConfig.periodicWave) {
+            source = destination.context.createOscillator();   // instantiate an oscillator
+            source.frequency.value = frequencyValue;    // set Frequency (hz)
+
+            source.setPeriodicWave(sampleConfig.periodicWave);
+            sources.push(source);
+        }
+
+        if(sampleConfig.buffer) {
+            const playbackRate = frequencyValue / (sampleConfig.keyRoot ? this.getCommandFrequency(sampleConfig.keyRoot) : 440);
+            source = destination.context.createBufferSource();
+            source.buffer = sampleConfig.buffer;
+            source.loop = sampleConfig.loop || false;
+            source.playbackRate.value = playbackRate; //  Math.random()*2;
+            sources.push(source);
+            // source.playbackRate.linearRampToValueAtTime(3.0, startTime + 0.05)
+        }
+
+        if(sources.length === 0)
+            throw new Error("No sources were created");
+
+        if(typeof sampleConfig.detune !== "undefined")
+            source.detune.value = sampleConfig.detune;
+
+
+        for(let i=0; i<sources.length; i++) {
+            source = sources[i];
+            // songLength = buffer.duration;
+            // source.playbackRate.value = playbackControl.value;
+
+            const ADSR = sampleConfig.ADSR || [0, 0, 0, 0.1];
+
+            // Play note
+            if (startTime) {
+                source.start(startTime);
+                if (duration) {
+                    source.stop(startTime + duration + ADSR[3]);
+                }
+            }
+
+            let velocityGain = destination.context.createGain();
+            velocityGain.gain.value = parseFloat(velocity || 127) / 127;
+            velocityGain.connect(destination);
+            destination = velocityGain;
+
+            velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
+            velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + ADSR[3]);
+
+            source.connect(destination);
+        }
+
+        // console.log("Buffer Play: ", playbackRate);
+        return sources;
+
+    }
 
     play(destination, commandFrequency, startTime, duration, velocity) {
 
         // const sources = [];
         if(this.config.samples.hasOwnProperty(commandFrequency)) {
-            const sampleConfig = this.config.samples[commandFrequency];
-
-            if (typeof this.buffers[commandFrequency] === 'undefined')
-                return console.error("Sample not loaded: " + sampleConfig.url);
-            const buffer = this.buffers[commandFrequency];
-
-            let frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
-            this.playBuffer(buffer, destination, frequencyValue, sampleConfig.loop, startTime, duration, velocity);
-            // if (source)
-            //     sources.push(sources);
+            this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
             return null;
         }
 
@@ -122,13 +265,8 @@ class SynthesizerInstrument extends HTMLElement {
 
                 // TODO: polyphony
 
-
-                if (typeof this.buffers[sampleName] === 'undefined')
-                    return console.error("Sample not loaded: " + sampleConfig.url);
-                const buffer = this.buffers[sampleName];
-
-
-                 this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
+                this.playSample(destination, sampleName, frequencyValue, startTime, duration, velocity);
+                 // this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
                 // if (source)
                 //     sources.push(sources);
             }
@@ -137,60 +275,6 @@ class SynthesizerInstrument extends HTMLElement {
         // if(sources.length === 0)
         //     console.warn("No samples were played: ", commandFrequency, this.config);
         // return sources;
-    }
-
-
-    playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity) {
-
-
-        let source;
-        if(buffer instanceof PeriodicWave) {
-            source = destination.context.createOscillator();   // instantiate an oscillator
-            source.frequency.value = frequencyValue;    // set Frequency (hz)
-
-            source.setPeriodicWave(buffer);
-
-        } else if(buffer instanceof AudioBuffer) {
-            const playbackRate = frequencyValue / (sampleConfig.keyRoot ? this.getCommandFrequency(sampleConfig.keyRoot) : 440);
-            source = destination.context.createBufferSource();
-            source.buffer = buffer;
-            source.loop = sampleConfig.loop || false;
-            source.playbackRate.value = playbackRate; //  Math.random()*2;
-            // source.playbackRate.linearRampToValueAtTime(3.0, startTime + 0.05)
-        } else {
-            throw new Error("Unknown buffer type");
-        }
-
-        if(typeof sampleConfig.detune !== "undefined")
-            source.detune.value = sampleConfig.detune;
-
-
-        // songLength = buffer.duration;
-        // source.playbackRate.value = playbackControl.value;
-
-        const ADSR = sampleConfig.ADSR || [0,0,0,0.1];
-
-        // Play note
-        if(startTime) {
-            source.start(startTime);
-            if(duration) {
-                source.stop(startTime + duration + ADSR[3]);
-            }
-        }
-
-        let velocityGain = destination.context.createGain();
-        velocityGain.gain.value = parseFloat(velocity || 127) / 127;
-        velocityGain.connect(destination);
-        destination = velocityGain;
-
-        velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
-        velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + ADSR[3]);
-
-        source.connect(destination);
-
-
-        // console.log("Buffer Play: ", playbackRate);
-        return source;
     }
 
 
@@ -231,8 +315,6 @@ class SynthesizerInstrument extends HTMLElement {
 //         }
 //     }
 
-
-
     getInstrumentPresetConfig(presetName) {
         const urlPrefix = this.sampleLibrary.urlPrefix || '';
         const newConfig = Object.assign({}, this.config);
@@ -271,68 +353,6 @@ class SynthesizerInstrument extends HTMLElement {
         });
 
         return newConfig;
-    }
-
-    async loadAudioSample(context, url) {
-        if (!url)
-            throw new Error("Invalid url");
-        url = new URL(url, document.location) + '';
-
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-
-            xhr.open('GET', url, true);
-            const ext = url.split('.').pop().toLowerCase();
-            switch(ext) {
-                case 'wav':
-                    xhr.responseType = 'arraybuffer';
-
-                    xhr.onload = function () {
-                        var audioData = xhr.response;
-                        // Determine wave sample or periodic wave
-                        context.decodeAudioData(audioData,
-                            (buffer) => {
-                                resolve(buffer);
-                            },
-
-                            (e) => {
-                                reject("Error with decoding audio data" + e.error, null);
-                            }
-                        );
-                    };
-
-                    xhr.send();
-                    break;
-                case 'json':
-                    xhr.responseType = 'json';
-                    xhr.onload = () => {
-                        if (xhr.status !== 200)
-                            return reject("Periodic wave file not found: " + url);
-
-                        const tables = xhr.response;
-                        if (!tables.real || !tables.imag)
-                            return reject("Invalid JSON for periodic wave");
-                        // var c = tables.real.length;
-                        // var real = new Float32Array(c);
-                        // var imag = new Float32Array(c);
-                        // for (var i = 0; i < c; i++) {
-                        //     real[i] = tables.real[i];
-                        //     imag[i] = tables.imag[i];
-                        // }
-
-                        const periodicWave = context.createPeriodicWave(
-                            new Float32Array(tables.real),
-                            new Float32Array(tables.imag)
-                        );
-                        // console.info("Loaded Periodic wave: " + url);
-                        resolve(periodicWave);
-                    };
-                    xhr.send();
-                    break;
-                default:
-                    reject("Unknown extension: " + ext);
-            }
-        });
     }
 
     async loadSampleLibrary(url) {
@@ -593,8 +613,7 @@ class SynthesizerInstrument extends HTMLElement {
                     this.loadSampleLibrary(libraryURL);
                 } else {
                     Object.assign(this.config, this.getInstrumentPresetConfig(newPreset));
-                    if(this.audioContext)
-                        this.initSamples(this.audioContext);
+                    this.loadSamples();
                 }
                 this.render();
 
