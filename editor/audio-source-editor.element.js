@@ -49,7 +49,7 @@ class AudioSourceEditorElement extends HTMLElement {
         // this.modifier = new SongModifier(this);
 
         this.instruments = new AudioSourceEditorInstruments(this);
-        this.instruments.loadInstrumentLibrary('/audio-source/instrument.library.json');
+        this.instruments.loadInstrumentLibrary('/audio-source/instrument/instrument.library.json');
 
         this.renderer = new AudioSourceRenderer(this);
     }

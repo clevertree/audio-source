@@ -1,0 +1,9 @@
+{
+  "title": "Sample Library Index",
+  "libraries": [
+    {
+      "title": "General Midi Default Library",
+      "url": "gm/default.json"
+    }
+  ]
+}

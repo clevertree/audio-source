@@ -1,8 +1,8 @@
 
 class SynthesizerInstrument extends HTMLElement {
     // get DEFAULT_SAMPLE_LIBRARY_URL() { return '/sample/index.library.json'; }
-    get DEFAULT_SAMPLE_LIBRARY_URL() { return '/sample/sample.library.json'; }
-    get DEFAULT_INSTRUMENT_LIBRARY_URL() { return '/audio-source/instrument.library.json'; }
+    get DEFAULT_SAMPLE_LIBRARY_URL() { return 'sample/sample.library.json'; }
+    get DEFAULT_INSTRUMENT_LIBRARY_URL() { return 'instrument/instrument.library.json'; }
 
     constructor(config) {
         super();
@@ -705,7 +705,7 @@ class SynthesizerInstrument extends HTMLElement {
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
-        cssLink.setAttribute("href", '/audio-source/audio-source-synthesizer.css');
+        cssLink.setAttribute("href", '/audio-source/instrument/audio-source-synthesizer.css');
         document.head.appendChild(cssLink);
     }
 
@@ -715,6 +715,6 @@ customElements.define('audio-source-synthesizer', SynthesizerInstrument);
 document.dispatchEvent(new CustomEvent('instrument:loaded', {
     detail: {
         "class": SynthesizerInstrument,
-        "path": "/audio-source/audio-source-synthesizer.element.js"
+        "path": "/audio-source/instrument/audio-source-synthesizer.element.js"
     }
 }));
