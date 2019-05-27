@@ -708,7 +708,7 @@ class SynthesizerInstrument extends HTMLElement {
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
-        cssLink.setAttribute("href", '/audio-source/instrument/audio-source-synthesizer.css');
+        cssLink.setAttribute("href", 'instrument/audio-source-synthesizer.css');
         document.head.appendChild(cssLink);
     }
 
@@ -718,6 +718,6 @@ customElements.define('audio-source-synthesizer', SynthesizerInstrument);
 document.dispatchEvent(new CustomEvent('instrument:loaded', {
     detail: {
         "class": SynthesizerInstrument,
-        "path": "/audio-source/instrument/audio-source-synthesizer.element.js"
+        "file": "audio-source-synthesizer.js"
     }
 }));

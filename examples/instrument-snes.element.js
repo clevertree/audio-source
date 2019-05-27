@@ -38,7 +38,7 @@
         document.dispatchEvent(new CustomEvent('instrument:loaded', {
             detail: {
                 class: FFVIInstrument,
-                path: "/instrument/snes/instrument-snes.element.js"
+                file: "instrument-snes.element.js"
             }
         }));
         // console.info("Instrument Loaded: ", FFVIInstrument);

@@ -91,8 +91,8 @@ class AudioSourceRenderer {
         switch(e.type) {
             case 'instrument:loaded':
                 const instrumentClass = e.detail.class;
-                const instrumentClassPath = e.detail.path;
-                this.loadedInstrumentClasses[instrumentClassPath] = instrumentClass;
+                const instrumentClassFile = e.detail.file;
+                this.loadedInstrumentClasses[instrumentClassFile] = instrumentClass;
                 this.loadAllInstruments();
                 break;
         }
@@ -667,15 +667,15 @@ class AudioSourceRenderer {
     // TODO: async
     loadInstrumentClass(instrumentClassURL) {
         instrumentClassURL = new URL(instrumentClassURL, document.location);
-        const instrumentClassPath = instrumentClassURL.pathname;
-        if(typeof this.loadedInstrumentClasses[instrumentClassPath] !== 'undefined') {
-            if(this.loadedInstrumentClasses[instrumentClassPath] === null)
-                console.warn("Instrument class is loading: " + instrumentClassPath);
+        const instrumentClassFile = instrumentClassURL.pathname.split('/').pop();
+        if(typeof this.loadedInstrumentClasses[instrumentClassFile] !== 'undefined') {
+            if(this.loadedInstrumentClasses[instrumentClassFile] === null)
+                console.warn("Instrument class is loading: " + instrumentClassFile);
             else
-                throw new Error("Instrument class is already loaded: " + instrumentClassPath);
+                throw new Error("Instrument class is already loaded: " + instrumentClassFile);
             return;
         }
-        this.loadedInstrumentClasses[instrumentClassPath] = null;
+        this.loadedInstrumentClasses[instrumentClassFile] = null;
         const newScriptElm = document.createElement('script');
         newScriptElm.src = instrumentClassURL;
         document.head.appendChild(newScriptElm);
@@ -692,8 +692,8 @@ class AudioSourceRenderer {
 
         const instrumentPreset = this.getInstrumentConfig(instrumentID);
         const instrumentClassURL = new URL(instrumentPreset.url, document.location);
-        const instrumentClassPath = instrumentClassURL.pathname;
-        const instrumentClass = this.loadedInstrumentClasses[instrumentClassPath];
+        const instrumentClassFile = instrumentClassURL.pathname.split('/').pop();
+        const instrumentClass = this.loadedInstrumentClasses[instrumentClassFile];
         // const elementName = url.pathname.substring(url.pathname.lastIndexOf('/') + 1).split('.')[0];
 
         if (!instrumentClass) {
