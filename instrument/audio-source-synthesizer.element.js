@@ -88,6 +88,7 @@ class SynthesizerInstrument extends HTMLElement {
             xhr.open('GET', url, true);
             const ext = url.split('.').pop().toLowerCase();
             switch(ext) {
+                default:
                 case 'wav':
                     xhr.responseType = 'arraybuffer';
 
@@ -140,8 +141,8 @@ class SynthesizerInstrument extends HTMLElement {
                     };
                     xhr.send();
                     break;
-                default:
-                    reject("Unknown extension: " + ext);
+//                 default:
+//                     reject("Unknown extension: " + ext);
             }
         });
     }
@@ -350,9 +351,11 @@ class SynthesizerInstrument extends HTMLElement {
         // Object.assign(newConfig, presetConfig);
         Object.keys(presetConfig.samples).forEach((sampleName) => {
             const sampleConfig =
-                Object.assign({},
-                    presetConfig.samples[sampleName],
-                    this.sampleLibrary.samples[sampleName]);
+                Object.assign({
+                    url: sampleName
+                },
+                presetConfig.samples[sampleName],
+                this.sampleLibrary.samples[sampleName]);
             sampleConfig.url = new URL(urlPrefix + sampleConfig.url, this.sampleLibrary.url) + '';
             // if(sampleConfig.keyRoot)
             //     sampleConfig.keyRoot = this.getCommandFrequency(sampleConfig.keyRoot);

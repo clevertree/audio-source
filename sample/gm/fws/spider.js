@@ -76,7 +76,9 @@ function parseSampleConfig(fileName, sampleList, instrumentList) {
     if(!instrumentList[instrumentName])
         instrumentList[instrumentName] = {};
     const instrumentConfig = instrumentList[instrumentName];
-    instrumentConfig[fileName] = {};
+    if(!instrumentConfig.samples)
+        instrumentConfig.samples = {};
+    instrumentConfig.samples[fileName] = {};
     sampleList[fileName] = sampleConfig;
     return fileName;
 }

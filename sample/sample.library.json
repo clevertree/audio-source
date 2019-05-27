@@ -3,7 +3,7 @@
   "libraries": [
     {
       "title": "General Midi Default Library",
-      "url": "gm/default.json"
+      "url": "gm/fws/fws.library.json"
     }
   ]
 }
