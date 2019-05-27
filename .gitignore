@@ -1,0 +1,10 @@
+#JetBrains
+.idea
+
+# Dependency directories
+node_modules/
+.well-known/
+package-lock.json
+_cacache
+_locks
+anonymous-cli-metrics.json

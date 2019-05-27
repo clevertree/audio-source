@@ -1,5 +1,5 @@
 audio-source-editor {
-    /* color: #FFF; */
+    color: #000;
     background-color: #CCC;
     display: block;
     /* font-size: 14px; */
@@ -373,7 +373,7 @@ audio-source-editor .editor-grid {
     /*width: 100%;*/
     position: relative;
     clear: both;
-    max-height: 580px;
+    max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
     /* font-size: 12px; */

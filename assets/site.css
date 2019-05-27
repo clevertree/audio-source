@@ -1,0 +1,29 @@
+.as-theme {
+    max-width: 80em;
+    background: #222;
+    color: #FFF;
+    margin: auto;
+}
+
+.as-theme .choose-section {
+    display: flex;
+    justify-content: center;
+}
+
+.as-theme .choose-section > div {
+    text-align: center;
+    display: inline-block;
+    width: 40%;
+}
+
+.as-theme .choose-section img {
+    max-width: 70%;
+}
+
+.as-theme footer {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    /* background: linear-gradient(to bottom, #EEE 0%, #CCC 100%); */
+}
+

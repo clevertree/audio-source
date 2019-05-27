@@ -1,4 +1,3 @@
-
 <html>
 
 <head>
@@ -10,22 +9,64 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="assets/site.css" rel="stylesheet">
+
+
     <link href="editor/audio-source-editor.css" rel="stylesheet">
-    <script src="editor/audio-source-editor-forms.js"></script>
-    <script src="editor/audio-source-editor-grid.js"></script>
-    <script src="editor/audio-source-editor-instruments.js"></script>
-    <script src="editor/audio-source-editor-keyboard.js"></script>
-    <script src="editor/audio-source-editor-menu.js"></script>
-    <script src="editor/audio-source-editor-websocket.js"></script>
-    <script src="editor/audio-source-editor-values.js"></script>
-    <script src="common/audio-source-libraries.js"></script>
-    <script src="common/audio-source-renderer.js"></script>
-    <script src="common/audio-source-storage.js"></script>
-    <script src="editor/audio-source-editor.element.js"></script>
+    <script src="editor/audio-source-editor.min.js"></script>
 </head>
 
-<body>
-    <audio-source-editor src="examples/demo.json"></audio-source-editor>
+<body class="as-theme">
+<article>
+    <h1>Welcome to the Audio Source Network</h1>
+    <section>
+        <h2>Choose a Music Community</h2>
+        <div class="choose-section">
+            <div>
+                <h3>Listen to and Publish Remixes</h3>
+                <a href="https://music.snesology.net">
+                    <img src="assets/img/snesology.png" alt="SNESology Music Community" />
+                </a>
+            </div>
+            <div>
+                <h3>Listen to, Publish, and Sell Original Content</h3>
+                <a href="https://music.audiosource.io">
+                    <img src="assets/img/audiosource.png" alt="AudioSource Music Community" />
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2>Audio Source Editor (ASE)</h2>
+        <p>This is an early peak at the Audio Source Editor:</p>
+        <audio-source-editor src="examples/demo.json" class="demo"></audio-source-editor>
+
+        <h3>How to put the editor on your website</h3>
+        <code>
+            &lt;link href="https://audiosource.io/editor/audio-source-editor.css" rel="stylesheet"><br/>
+            &lt;script src="https://audiosource.io/editor/audio-source-editor.min.js">&lt;/script><br/>
+        </code>
+    </section>
+
+    <section>
+        <h2>Audio Source Player (ASP)</h2>
+        <p>Coming Soon!</p>
+        <audio-source-player src="examples/demo.json" class="demo"></audio-source-player>
+
+        <h3>How to put the player on your website</h3>
+        <code>
+            &lt;link href="https://audiosource.io/player/audio-source-player.css" rel="stylesheet"><br/>
+            &lt;script src="https://audiosource.io/player/audio-source-player.min.js">&lt;/script><br/>
+        </code>
+    </section>
+</article>
+<footer>
+    <div>
+        <h2>Created by </h2>
+        <div><a class="created-by" target="_blank" href="https://github.com/clevertree/audio-source">CleverTree</a></div>
+    </div>
+</footer>
 </body>
 
 </html>

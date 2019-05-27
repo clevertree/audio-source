@@ -1,0 +1,29 @@
+{
+  "name": "audio-source-editor",
+  "version": "0.0.1",
+  "description": "Audio Source Editor and Player",
+  "author": "Ari Asulin",
+  "license": "GPL-3.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "customURL": "git+ssh://git@github.com/clevertree/audio-source-editor.git"
+  },
+  "keywords": [
+    "song",
+    "music",
+    "editor",
+    "player"
+  ],
+  "bugs": {
+    "customURL": "https://github.com/clevertree/audio-source-editor/issues"
+  },
+  "homepage": "https://github.com/clevertree/audio-source-editor#readme",
+  "dependencies": {
+    "minify": "^4.1.1"
+  }
+}
