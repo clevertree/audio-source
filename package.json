@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/clevertree/audio-source-editor#readme",
   "dependencies": {
-    "minify": "^4.1.1"
+    "minify": "^4.1.1",
+    "jsdom": "^15.1.0"
   }
 }
