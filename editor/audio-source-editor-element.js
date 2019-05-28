@@ -71,6 +71,7 @@ class AudioSourceEditorElement extends HTMLElement {
 
 
     connectedCallback() {
+        this.loadCSS();
         this.addEventListener('submit', this.onInput);
         this.addEventListener('change', this.onInput);
         this.addEventListener('blur', this.onInput);
@@ -383,5 +384,15 @@ class AudioSourceEditorElement extends HTMLElement {
     //     this.grid.focus();
     // }
 
+
+    loadCSS() {
+        if(document.head.querySelector('link[href$="audio-source-editor.css"]'))
+            return;
+        let cssLink=document.createElement("link");
+        cssLink.setAttribute("rel", "stylesheet");
+        cssLink.setAttribute("type", "text/css");
+        cssLink.setAttribute("href", 'editor/audio-source-editor.css');
+        document.head.appendChild(cssLink);
+    }
 }
 customElements.define('audio-source-editor', AudioSourceEditorElement);
