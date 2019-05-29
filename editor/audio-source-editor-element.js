@@ -385,7 +385,8 @@ class AudioSourceEditorElement extends HTMLElement {
 
     getScriptDirectory(appendPath='') {
         const scriptElm = document.head.querySelector('script[src$="audio-source-editor-element.js"],script[src$="audio-source-editor.min.js"]');
-        const basePath = scriptElm.getAttribute('src').split('/').slice(0, -2).join('/') + '/';
+        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+        console.log("Base Path: ", basePath);
         return basePath + appendPath;
     }
 
