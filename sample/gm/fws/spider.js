@@ -141,10 +141,10 @@ function parseInstrumentConfig(instrumentName, sampleList, instrumentList) {
     }
 
     let currentSample = 0, currentRange = [0,0];
-    for (let i=0; i<12*8; i++) {
+    for (let i=0; i<12*12; i++) {
         const {keyNumber, sampleConfig} = keyNumberSamples[currentSample];
         currentRange[1] = i;
-        sampleConfig.keyRange = getNoteByKeyNumber(currentRange[0]) + '-' + getNoteByKeyNumber(currentRange[1]);
+        sampleConfig.keyRange = getNoteByKeyNumber(currentRange[0]) + ':' + getNoteByKeyNumber(currentRange[1]);
 
         if(!keyNumberSamples[currentSample+1])
             continue;
@@ -156,24 +156,26 @@ function parseInstrumentConfig(instrumentName, sampleList, instrumentList) {
     }
 
 }
-function getNoteKeyNumber (command) {
-    if(Number(command) === command && command % 1 !== 0)
-        return command;
-    if(!command)
+function getNoteKeyNumber (namedFrequency) {
+    if(Number(namedFrequency) === namedFrequency && namedFrequency % 1 !== 0)
+        return namedFrequency;
+    if(!namedFrequency)
         return null;
-
+    let octave = parseInt(namedFrequency.replace(/\D/g,''));
+    let freq = namedFrequency.replace(/\d/g,'').toUpperCase();
     const freqs = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    let octave = parseInt(command.length === 3 ? command.charAt(2) : command.charAt(1)),
-        keyNumber = freqs.indexOf(command.slice(0, -1));
-    if (keyNumber < 3)  keyNumber = keyNumber + 12 + ((octave - 1) * 12);
-    else                keyNumber = keyNumber + ((octave - 1) * 12);
+    let keyNumber = freqs.indexOf(freq);
+    if(keyNumber === -1)
+        throw new Error("Invalid note: " + namedFrequency);
+    if (keyNumber < 3)  keyNumber = keyNumber + 12 + ((octave + 1) * 12);
+    else                keyNumber = keyNumber + ((octave + 1) * 12);
     return keyNumber;
 }
 
 function getNoteByKeyNumber(keyNumber) {
     keyNumber = parseInt(keyNumber);
     const freqs = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const octave = Math.floor(keyNumber / 12);
+    const octave = Math.floor(keyNumber / 12) - 2;
     const freq = freqs[keyNumber % 12];
     return freq + octave;
 }

@@ -49,7 +49,7 @@ class AudioSourceEditorElement extends HTMLElement {
         // this.modifier = new SongModifier(this);
 
         this.instruments = new AudioSourceEditorInstruments(this);
-        this.instruments.loadInstrumentLibrary('instrument/instrument.library.json');
+        this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
 
         this.renderer = new AudioSourceRenderer(this);
     }
@@ -72,6 +72,7 @@ class AudioSourceEditorElement extends HTMLElement {
 
     connectedCallback() {
         this.loadCSS();
+
         this.addEventListener('submit', this.onInput);
         this.addEventListener('change', this.onInput);
         this.addEventListener('blur', this.onInput);
@@ -269,7 +270,7 @@ class AudioSourceEditorElement extends HTMLElement {
                 // this.forms.render();
 
                 clearTimeout(this.saveSongToMemoryTimer);
-                this.saveSongToMemoryTimer = setTimeout(this.saveSongToMemory, this.status.autoSaveTimeout);
+                this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.status.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
                 console.info("TODO: load instrument instances", e.detail);
@@ -382,14 +383,20 @@ class AudioSourceEditorElement extends HTMLElement {
     //     this.grid.focus();
     // }
 
+    getScriptDirectory(appendPath='') {
+        const scriptElm = document.head.querySelector('script[src$="audio-source-editor-element.js"],script[src$="audio-source-editor.min.js"]');
+        const basePath = scriptElm.getAttribute('src').split('/').slice(0, -2).join('/') + '/';
+        return basePath + appendPath;
+    }
 
     loadCSS() {
         if(document.head.querySelector('link[href$="audio-source-editor.css"]'))
             return;
+        const linkHRef = this.getScriptDirectory('editor/audio-source-editor.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
-        cssLink.setAttribute("href", 'editor/audio-source-editor.css');
+        cssLink.setAttribute("href", linkHRef);
         document.head.appendChild(cssLink);
     }
 }

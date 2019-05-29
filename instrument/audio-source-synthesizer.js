@@ -1,8 +1,8 @@
 
 class SynthesizerInstrument extends HTMLElement {
     // get DEFAULT_SAMPLE_LIBRARY_URL() { return '/sample/index.library.json'; }
-    get DEFAULT_SAMPLE_LIBRARY_URL() { return 'sample/sample.library.json'; }
-    get DEFAULT_INSTRUMENT_LIBRARY_URL() { return 'instrument/instrument.library.json'; }
+    get DEFAULT_SAMPLE_LIBRARY_URL() { return this.getScriptDirectory('sample/sample.library.json'); }
+    get DEFAULT_INSTRUMENT_LIBRARY_URL() { return this.getScriptDirectory('instrument/instrument.library.json'); }
 
     constructor(config) {
         super();
@@ -361,7 +361,7 @@ class SynthesizerInstrument extends HTMLElement {
             if(typeof sampleConfig.keyRange !== "undefined") {
                 let pair = sampleConfig.keyRange;
                 if(typeof pair === 'string')
-                    pair = pair.split('-');
+                    pair = pair.split(':');
                 sampleConfig.keyLow = pair[0];
                 sampleConfig.keyHigh = pair[1] || pair[0];
                 delete sampleConfig.keyRange;
@@ -697,14 +697,20 @@ class SynthesizerInstrument extends HTMLElement {
         return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
     }
 
+    getScriptDirectory(appendPath='') {
+        const scriptElm = document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');
+        const basePath = scriptElm.getAttribute('src').split('/').slice(0, -2).join('/') + '/';
+        return basePath + appendPath;
+    }
 
     loadCSS() {
         if(document.head.querySelector('link[href$="audio-source-synthesizer.css"]'))
             return;
+        const linkHRef = this.getScriptDirectory('instrument/audio-source-synthesizer.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
-        cssLink.setAttribute("href", 'instrument/audio-source-synthesizer.css');
+        cssLink.setAttribute("href", linkHRef);
         document.head.appendChild(cssLink);
     }
 
