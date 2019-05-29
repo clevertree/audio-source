@@ -12,6 +12,7 @@
     <link href="assets/site.css" rel="stylesheet">
 
     <script src="editor/audio-source-editor.min.js"></script>
+    <script src="instrument/audio-source-synthesizer.js"></script>
 </head>
 
 <body class="as-theme">
@@ -37,7 +38,20 @@
 
     <section>
         <h2>Audio Source Editor (ASE)</h2>
-        <p>This is an early peak at the Audio Source Editor:</p>
+        <p>
+            This is an early peak at the Audio Source Editor
+        </p>
+
+        <p>Planned Features:</p>
+        <ul>
+            <li>Works on any modern browser on any phone, tablet or pc</li>
+            <li>Real-time editing between multiple users (like Google Docs)</li>
+            <li>Tracker-style editor that works with midi notes</li>
+            <li>Server-side song rendering</li>
+            <li>Embeddable on any website with 2 lines of code</li>
+            <li>Import/Export MIDI files</li>
+        </ul>
+
         <audio-source-editor src="examples/demo.json" class="demo"></audio-source-editor>
 
         <h3>How to put the editor on your website</h3>
@@ -50,12 +64,39 @@
     <section>
         <h2>Audio Source Player (ASP)</h2>
         <p>Coming Soon!</p>
+
+        <p>Planned Features:</p>
+        <ul>
+            <li>Works on any modern browser on any phone, tablet or pc</li>
+            <li>Render song play-back in real-time for highest playback quality</li>
+            <li>Embeddable on any website with 2 lines of code</li>
+            <li>Plays MIDI files</li>
+        </ul>
+
         <audio-source-player src="examples/demo.json" class="demo"></audio-source-player>
 
         <h3>How to put the player on your website</h3>
         <code>
             &lt;script src="https://audiosource.io/player/audio-source-player.min.js">&lt;/script><br/>
             &lt;audio-source-player>&lt;/audio-source-player><br/>
+        </code>
+    </section>
+
+    <section>
+        <h2>Audio Source Synthesizer</h2>
+        <p>Planned Features:</p>
+        <ul>
+            <li>Works on any modern browser on any phone, tablet or pc</li>
+            <li>Stand-alone Synthesizer can be embeddable on any website</li>
+            <li>Supports MIDI input events</li>
+        </ul>
+
+        <audio-source-synthesizer class="demo"></audio-source-synthesizer>
+
+        <h3>How to put the synthesizer on your website</h3>
+        <code>
+            &lt;script src="https://audiosource.io/instrument/audio-source-synthesizer.js">&lt;/script><br/>
+            &lt;audio-source-synthesizer>&lt;/audio-source-synthesizer><br/>
         </code>
     </section>
 </article>
