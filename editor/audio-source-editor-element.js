@@ -265,13 +265,11 @@ class AudioSourceEditorElement extends HTMLElement {
                 this.classList.remove('playing');
                 break;
             case 'song:modified':
-                this.grid.render();
-                this.forms.render();
+                // this.grid.render();
+                // this.forms.render();
 
                 clearTimeout(this.saveSongToMemoryTimer);
-                this.saveSongToMemoryTimer = setTimeout(() => {
-                    this.saveSongToMemory();
-                }, this.status.autoSaveTimeout);
+                this.saveSongToMemoryTimer = setTimeout(this.saveSongToMemory, this.status.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
                 console.info("TODO: load instrument instances", e.detail);

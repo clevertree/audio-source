@@ -431,7 +431,9 @@ class AudioSourceRenderer {
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
         while(instruction) {
-            callback(instructionIterator.currentIndex, instruction, instructionIterator);
+            const ret = callback(instructionIterator.currentIndex, instruction, instructionIterator);
+            if(ret === false)
+                break;
             instruction = instructionIterator.nextInstruction();
         }
         return instructionIterator.groupPlaybackTime;
@@ -449,7 +451,9 @@ class AudioSourceRenderer {
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
         while(instruction) {
-            await callback(instructionIterator.currentIndex, instruction, instructionIterator);
+            const ret = await callback(instructionIterator.currentIndex, instruction, instructionIterator);
+            if(ret === false)
+                break;
             instruction = instructionIterator.nextInstruction();
         }
         return instructionIterator.groupPlaybackTime;

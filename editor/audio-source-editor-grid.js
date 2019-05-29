@@ -29,13 +29,14 @@ class AudioSourceEditorGrid {
 
     get selectedCells() { return this.renderElement.querySelectorAll('.instruction.selected'); }
     get cursorCell() { return this.renderElement.querySelector('.instruction.cursor'); }
+    get cursorRow() { return this.cursorCell.parentNode; }
+    get cursorPosition() {
+        return parseFloat(this.cursorRow.getAttribute('data-position'));
+    }
     get cursorInstruction() { return this.getInstruction(this.cursorCellIndex); }
     get cursorCellIndex() {
         const cellList = this.renderElement.querySelectorAll('.instruction');
         return this.cursorCell ? [].indexOf.call(cellList, this.cursorCell) : -1;
-    }
-    get cursorPosition() {
-        return parseFloat(this.cursorCell.getAttribute('data-position'));
     }
     get selectedIndicies() { return [].map.call(this.selectedCells, (elm => parseInt(elm.getAttribute('data-index')))); }
     // get selectedRows() { return this.renderElement.querySelectorAll('.grid-row.selected'); }
@@ -129,6 +130,7 @@ class AudioSourceEditorGrid {
                             e.preventDefault();
                             let newMIDICommand = this.editor.renderer.getCommandFromMIDINote(e.data[1]);
                             let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
+                            console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
                             if (this.cursorCell.matches('.new')) {
                                 let newInstruction = this.editor.forms.getInstructionFormValues(true);
@@ -151,8 +153,7 @@ class AudioSourceEditorGrid {
                                 }
                                 // this.editor.selectInstructions(this.selectedIndicies[0]); // TODO: select all
                             }
-
-                            // this.render();
+                            this.renderCursorRow();
                             this.playSelectedInstructions(e);
 
                             // song.gridSelectInstructions([selectedInstruction]);
@@ -179,7 +180,7 @@ class AudioSourceEditorGrid {
                             for(let i=0; i<selectedIndicies.length; i++) {
                                 this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
                             }
-                            // this.render();
+                            this.render();
                             // song.render(true);
                             break;
 
@@ -285,8 +286,8 @@ class AudioSourceEditorGrid {
                             }
 
                             // this.render();
-                            for(let i=0; i<selectedIndicies.length; i++)
-                                this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
+                            this.renderCursorRow();
+                            this.playSelectedInstructions(e);
 
                             // song.gridSelectInstructions([selectedInstruction]);
                             // e.preventDefault();
@@ -625,11 +626,40 @@ class AudioSourceEditorGrid {
                 </div>`;
     }
 
-    getRowHTML(songPositionInTicks, subDurationInTicks, rowHTML) {
+    getRowHTML(songPositionInTicks, subDurationInTicks, instructionList, startingIndex) {
+        const rowHTML = [];
+        let currentIndex = startingIndex;
+        for(let i=0; i<instructionList.length; i++)
+            rowHTML.push(this.getInstructionHTML(currentIndex++, instructionList[i]));
+
         return `<div data-position="${songPositionInTicks}">
-                   ${rowHTML}
+                   ${rowHTML.join('')}
                    <div class="delta">${this.editor.values.format(subDurationInTicks, 'duration')}</div>
                 </div>`;
+    }
+
+    renderCursorRow() {
+        const songPositionInTicks = parseInt(this.cursorRow.getAttribute('data-position'));
+        const instructionList = [];
+        let startingIndex = null;
+        let lastSongPositionInTicks = 0, lastSubDurationInTicks=0;
+
+        this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
+            if(lastSongPositionInTicks !== stats.groupPositionInTicks) {
+                lastSubDurationInTicks = stats.groupPositionInTicks - lastSongPositionInTicks;
+                lastSongPositionInTicks = stats.groupPositionInTicks;
+            }
+            if (stats.groupPositionInTicks === songPositionInTicks) {
+                if(startingIndex === null)
+                    startingIndex = index;
+                instructionList.push(instruction);
+            } else if (stats.groupPositionInTicks > songPositionInTicks) {
+                return false;
+            }
+        });
+
+        this.cursorRow.outerHTML = this.getRowHTML(songPositionInTicks, lastSubDurationInTicks, instructionList, startingIndex);
+        this.update();
     }
 
     // TODO: render only visible section. render total row count in single divs
@@ -643,15 +673,15 @@ class AudioSourceEditorGrid {
         const gridDuration = parseFloat(this.editor.forms.fieldRenderDuration.value);
 
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        let editorHTML = '', rowHTML='', songPositionInTicks=0, tickTotal=0, odd=false; // , lastPause = 0;
+        let editorHTML = '', rowInstructions = [], lastRowIndex=0, rowHTML='', songPositionInTicks=0, tickTotal=0, odd=false; // , lastPause = 0;
 
         const renderRow = (deltaDuration) => {
             for(let subPause=0; subPause<deltaDuration; subPause+=gridDuration) {
                 let subDurationInTicks = gridDuration;
                 if(subPause + gridDuration > deltaDuration)
                     subDurationInTicks = deltaDuration - subPause;
-                editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowHTML);
-                rowHTML = '';
+                editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, lastRowIndex);
+                rowInstructions = [];
                 songPositionInTicks += subDurationInTicks;
             }
         };
@@ -659,9 +689,10 @@ class AudioSourceEditorGrid {
         this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
             if (instruction.deltaDuration !== 0) {
                 renderRow(instruction.deltaDuration);
+                lastRowIndex = index;
             }
 
-            rowHTML += this.getInstructionHTML(index, instruction);
+            rowInstructions.push(instruction);
             tickTotal = stats.groupPositionInTicks;
         });
 
