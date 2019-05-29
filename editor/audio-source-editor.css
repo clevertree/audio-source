@@ -373,7 +373,7 @@ audio-source-editor .editor-grid {
     /*width: 100%;*/
     position: relative;
     clear: both;
-    max-height: 300px;
+    max-height: 314px;
     overflow-y: auto;
     overflow-x: hidden;
     /* font-size: 12px; */

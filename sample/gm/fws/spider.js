@@ -47,8 +47,6 @@ const LIBRARY_JSON = {
     await writeToFile(LIBRARY_FILE, JSON.stringify(libraryJSON, null, "\t"));
 })();
 
-const drumSampleNames = ['kick', 'tom', 'snare', 'drum', 'clap', 'hat', 'cowbell', 'crash', 'cymbal', 'bell', 'stick', 'doumbek'];
-const loopableSampleNames = ['loop'];
 
 function parseSampleConfig(fileName, sampleList, instrumentList) {
     fileName = fileName.replace(/\.(wav)$/, '');
@@ -63,15 +61,9 @@ function parseSampleConfig(fileName, sampleList, instrumentList) {
             .replace(/\W+$/, '');
     }
 
-    drumSampleNames.forEach((sampleName) => {
-        if(fileName.toLowerCase().indexOf(sampleName) !== -1)
-            sampleConfig.loop = false;
-    });
+    parseDrumSampleConfig(fileName, sampleConfig);
+    parseLoopSampleConfig(fileName, sampleConfig);
 
-    loopableSampleNames.forEach((sampleName) => {
-        if(fileName.toLowerCase().indexOf(sampleName) !== -1)
-            sampleConfig.loop = true;
-    });
 
     if(!instrumentList[instrumentName])
         instrumentList[instrumentName] = {};
@@ -80,7 +72,110 @@ function parseSampleConfig(fileName, sampleList, instrumentList) {
         instrumentConfig.samples = {};
     instrumentConfig.samples[fileName] = {};
     sampleList[fileName] = sampleConfig;
+
+    parseInstrumentConfig(instrumentName, sampleList, instrumentList);
     return fileName;
+}
+
+function parseDrumSampleConfig(fileName, sampleConfig) {
+    const drumSampleNotes = {
+        'kick': 'C3',
+        'tom': 'A2',
+        'snare': 'D3',
+        'drum': 'D3',
+        'clap': 'E3',
+        'hat': 'G#2',
+        'open': 'A#2',
+        'cowbell': 'D#3',
+        'crash': 'C#3',
+        'cymbal': 'C#3',
+        'bell': 'F3',
+        'stick': 'D3',
+        'doumbek': 'A2'
+    };
+    for(let drumSampleName in drumSampleNotes) {
+        if(drumSampleNotes.hasOwnProperty(drumSampleName)) {
+            if(fileName.toLowerCase().indexOf(drumSampleName) !== -1) {
+                sampleConfig.loop = false;
+                sampleConfig.keyAlias = drumSampleNotes[drumSampleName];
+            }
+        }
+    }
+}
+
+function parseLoopSampleConfig(fileName, sampleConfig) {
+    const loopSampleNames = [
+        'loop',
+    ];
+    for(let i=0; i<loopSampleNames.length; i++) {
+        const loopSampleName = loopSampleNames[i];
+        if(fileName.toLowerCase().indexOf(loopSampleName) !== -1) {
+            sampleConfig.loop = true;
+        }
+    }
+}
+
+function parseInstrumentConfig(instrumentName, sampleList, instrumentList) {
+    const instrumentConfig = instrumentList[instrumentName];
+
+    if(!instrumentConfig.samples)
+        throw new Error("Invalid instrument samples");
+    const instrumentSamples = instrumentConfig.samples;
+    const sampleValues = Object.values(instrumentSamples);
+    if(sampleValues.length === 1)
+        return;
+    // Check for drum samples
+    if(sampleValues.every(sampleEntry => typeof sampleEntry.keyAlias !== 'undefined'))
+        return;
+
+    // Span out the key zones
+    const keyNumberSamples = [];
+    for(let sampleName in instrumentSamples) {
+        if(instrumentSamples.hasOwnProperty(sampleName)) {
+            const combinedSampleConfig = Object.assign({}, instrumentSamples[sampleName], sampleList[sampleName]);
+            if(!combinedSampleConfig.keyRoot)
+                throw new Error("Multi sample instrument requires keyRoot");
+            const keyNumber = getNoteKeyNumber(combinedSampleConfig.keyRoot);
+            keyNumberSamples.push({keyNumber, sampleConfig: instrumentSamples[sampleName]});
+        }
+    }
+
+    let currentSample = 0, currentRange = [0,0];
+    for (let i=0; i<12*8; i++) {
+        const {keyNumber, sampleConfig} = keyNumberSamples[currentSample];
+        currentRange[1] = i;
+        sampleConfig.keyRange = getNoteByKeyNumber(currentRange[0]) + '-' + getNoteByKeyNumber(currentRange[1]);
+
+        if(!keyNumberSamples[currentSample+1])
+            continue;
+        const nextKeyNumber = keyNumberSamples[currentSample+1].keyNumber;
+        if(i > (keyNumber + nextKeyNumber) / 2) {
+            currentSample++;
+            currentRange = [i+1, i+1];
+        }
+    }
+
+}
+function getNoteKeyNumber (command) {
+    if(Number(command) === command && command % 1 !== 0)
+        return command;
+    if(!command)
+        return null;
+
+    const freqs = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    let octave = parseInt(command.length === 3 ? command.charAt(2) : command.charAt(1)),
+        keyNumber = freqs.indexOf(command.slice(0, -1));
+    if (keyNumber < 3)  keyNumber = keyNumber + 12 + ((octave - 1) * 12);
+    else                keyNumber = keyNumber + ((octave - 1) * 12);
+    return keyNumber;
+}
+
+function getNoteByKeyNumber(keyNumber) {
+    keyNumber = parseInt(keyNumber);
+    const freqs = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const octave = Math.floor(keyNumber / 12);
+    const freq = freqs[keyNumber % 12];
+    return freq + octave;
 }
 
 async function downloadFile(url, fileName) {

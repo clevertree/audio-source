@@ -79,9 +79,15 @@
 		},
 		"Alesis-Fusion-Bright-Acoustic-Piano": {
 			"samples": {
-				"Alesis-Fusion-Bright-Acoustic-Piano-C2": {},
-				"Alesis-Fusion-Bright-Acoustic-Piano-C4": {},
-				"Alesis-Fusion-Bright-Acoustic-Piano-C6": {}
+				"Alesis-Fusion-Bright-Acoustic-Piano-C2": {
+					"keyRange": "C0-C#3"
+				},
+				"Alesis-Fusion-Bright-Acoustic-Piano-C4": {
+					"keyRange": "D3-C#5"
+				},
+				"Alesis-Fusion-Bright-Acoustic-Piano-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Alesis-Fusion-Clean-Guitar": {
@@ -1591,8 +1597,12 @@
 		},
 		"Ensoniq-SQ-1-ClassicGuitar": {
 			"samples": {
-				"Ensoniq-SQ-1-ClassicGuitar-C3": {},
-				"Ensoniq-SQ-1-ClassicGuitar-C5": {}
+				"Ensoniq-SQ-1-ClassicGuitar-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Ensoniq-SQ-1-ClassicGuitar-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Ensoniq-SQ-1-Closed-Hi-Hat": {
@@ -1722,8 +1732,12 @@
 		},
 		"Ensoniq-SQ-2-Piano": {
 			"samples": {
-				"Ensoniq-SQ-2-Piano-C2": {},
-				"Ensoniq-SQ-2-Piano-C4": {}
+				"Ensoniq-SQ-2-Piano-C2": {
+					"keyRange": "C0-C#3"
+				},
+				"Ensoniq-SQ-2-Piano-C4": {
+					"keyRange": "D3-B7"
+				}
 			}
 		},
 		"Ensoniq-SQ-2-Piano-C7": {
@@ -1773,8 +1787,12 @@
 		},
 		"Ensoniq-SQ-80-Strings": {
 			"samples": {
-				"Ensoniq-SQ-80-Strings-C3": {},
-				"Ensoniq-SQ-80-Strings-C5": {}
+				"Ensoniq-SQ-80-Strings-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Ensoniq-SQ-80-Strings-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Ensoniq-SQ-80-Strings-C7": {
@@ -2899,9 +2917,15 @@
 		},
 		"Korg-01W-16Ft-Piano": {
 			"samples": {
-				"Korg-01W-16Ft-Piano-C1": {},
-				"Korg-01W-16Ft-Piano-C3": {},
-				"Korg-01W-16Ft-Piano-C5": {}
+				"Korg-01W-16Ft-Piano-C1": {
+					"keyRange": "C0-C#2"
+				},
+				"Korg-01W-16Ft-Piano-C3": {
+					"keyRange": "D2-C#4"
+				},
+				"Korg-01W-16Ft-Piano-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Korg-01W-50s-SciFi": {
@@ -3351,9 +3375,15 @@
 		},
 		"Korg-M3R-Grand-Piano": {
 			"samples": {
-				"Korg-M3R-Grand-Piano-C1": {},
-				"Korg-M3R-Grand-Piano-C3": {},
-				"Korg-M3R-Grand-Piano-C5": {}
+				"Korg-M3R-Grand-Piano-C1": {
+					"keyRange": "C0-C#2"
+				},
+				"Korg-M3R-Grand-Piano-C3": {
+					"keyRange": "D2-C#4"
+				},
+				"Korg-M3R-Grand-Piano-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Korg-M3R-Guitar": {
@@ -4093,8 +4123,12 @@
 		},
 		"Korg-NS5R-E-Piano-1": {
 			"samples": {
-				"Korg-NS5R-E-Piano-1-C4": {},
-				"Korg-NS5R-E-Piano-1-C6": {}
+				"Korg-NS5R-E-Piano-1-C4": {
+					"keyRange": "C0-C#5"
+				},
+				"Korg-NS5R-E-Piano-1-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Korg-NS5R-Explosion": {
@@ -4144,15 +4178,25 @@
 		},
 		"Korg-NS5R-Piano-2": {
 			"samples": {
-				"Korg-NS5R-Piano-2-C3": {},
-				"Korg-NS5R-Piano-2-C4": {},
-				"Korg-NS5R-Piano-2-C5": {}
+				"Korg-NS5R-Piano-2-C3": {
+					"keyRange": "C0-G3"
+				},
+				"Korg-NS5R-Piano-2-C4": {
+					"keyRange": "G#3-G4"
+				},
+				"Korg-NS5R-Piano-2-C5": {
+					"keyRange": "G#4-B7"
+				}
 			}
 		},
 		"Korg-NS5R-Piano-3": {
 			"samples": {
-				"Korg-NS5R-Piano-3-C3": {},
-				"Korg-NS5R-Piano-3-C5": {}
+				"Korg-NS5R-Piano-3-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Korg-NS5R-Piano-3-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Korg-NS5R-PickedBass": {
@@ -4307,9 +4351,15 @@
 		},
 		"Korg-NS5R-Xylophone": {
 			"samples": {
-				"Korg-NS5R-Xylophone-C3": {},
-				"Korg-NS5R-Xylophone-C4": {},
-				"Korg-NS5R-Xylophone-C5": {}
+				"Korg-NS5R-Xylophone-C3": {
+					"keyRange": "C0-G3"
+				},
+				"Korg-NS5R-Xylophone-C4": {
+					"keyRange": "G#3-G4"
+				},
+				"Korg-NS5R-Xylophone-C5": {
+					"keyRange": "G#4-B7"
+				}
 			}
 		},
 		"Korg-Poly-800-Brass": {
@@ -4399,8 +4449,12 @@
 		},
 		"Korg-TR-Rack-Finger-Pickin": {
 			"samples": {
-				"Korg-TR-Rack-Finger-Pickin-C3": {},
-				"Korg-TR-Rack-Finger-Pickin-C4": {}
+				"Korg-TR-Rack-Finger-Pickin-C3": {
+					"keyRange": "C0-G3"
+				},
+				"Korg-TR-Rack-Finger-Pickin-C4": {
+					"keyRange": "G#3-B7"
+				}
 			}
 		},
 		"Korg-TR-Rack-French-Horn-Ensemble": {
@@ -4760,16 +4814,28 @@
 		},
 		"Korg-Triton-Acoustic-Bass": {
 			"samples": {
-				"Korg-Triton-Acoustic-Bass-C2": {},
-				"Korg-Triton-Acoustic-Bass-C3": {},
-				"Korg-Triton-Acoustic-Bass-C4": {}
+				"Korg-Triton-Acoustic-Bass-C2": {
+					"keyRange": "C0-G2"
+				},
+				"Korg-Triton-Acoustic-Bass-C3": {
+					"keyRange": "G#2-G3"
+				},
+				"Korg-Triton-Acoustic-Bass-C4": {
+					"keyRange": "G#3-B7"
+				}
 			}
 		},
 		"Korg-Triton-Acoustic-Piano": {
 			"samples": {
-				"Korg-Triton-Acoustic-Piano-C1": {},
-				"Korg-Triton-Acoustic-Piano-C3": {},
-				"Korg-Triton-Acoustic-Piano-C5": {}
+				"Korg-Triton-Acoustic-Piano-C1": {
+					"keyRange": "C0-C#2"
+				},
+				"Korg-Triton-Acoustic-Piano-C3": {
+					"keyRange": "D2-C#4"
+				},
+				"Korg-Triton-Acoustic-Piano-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Korg-Triton-Harmonica": {
@@ -4784,8 +4850,12 @@
 		},
 		"Korg-Triton-Stein-Bass": {
 			"samples": {
-				"Korg-Triton-Stein-Bass-C2": {},
-				"Korg-Triton-Stein-Bass-C3": {}
+				"Korg-Triton-Stein-Bass-C2": {
+					"keyRange": "C0-G2"
+				},
+				"Korg-Triton-Stein-Bass-C3": {
+					"keyRange": "G#2-B7"
+				}
 			}
 		},
 		"Kurzweil-K2000-Big-Jupiter": {
@@ -4800,8 +4870,12 @@
 		},
 		"Kurzweil-K2000-Bright-Piano": {
 			"samples": {
-				"Kurzweil-K2000-Bright-Piano-C4": {},
-				"Kurzweil-K2000-Bright-Piano-C6": {}
+				"Kurzweil-K2000-Bright-Piano-C4": {
+					"keyRange": "C0-C#5"
+				},
+				"Kurzweil-K2000-Bright-Piano-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Kurzweil-K2000-Dual-Bass": {
@@ -4851,8 +4925,12 @@
 		},
 		"Kurzweil-K2000-Stereo-Grand": {
 			"samples": {
-				"Kurzweil-K2000-Stereo-Grand-C3": {},
-				"Kurzweil-K2000-Stereo-Grand-C5": {}
+				"Kurzweil-K2000-Stereo-Grand-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Kurzweil-K2000-Stereo-Grand-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Kurzweil-K2000-Tenor-Sax": {
@@ -5517,8 +5595,12 @@
 		},
 		"Roland-D-550-Organ": {
 			"samples": {
-				"Roland-D-550-Organ-C3": {},
-				"Roland-D-550-Organ-C5": {}
+				"Roland-D-550-Organ-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Roland-D-550-Organ-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Roland-D-550-Organ-C7": {
@@ -5853,8 +5935,12 @@
 		},
 		"Roland-JV-2080-Steel-Str-Gt": {
 			"samples": {
-				"Roland-JV-2080-Steel-Str-Gt-C3": {},
-				"Roland-JV-2080-Steel-Str-Gt-C4": {}
+				"Roland-JV-2080-Steel-Str-Gt-C3": {
+					"keyRange": "C0-G3"
+				},
+				"Roland-JV-2080-Steel-Str-Gt-C4": {
+					"keyRange": "G#3-B7"
+				}
 			}
 		},
 		"Roland-JV-2080-SynVox": {
@@ -6559,9 +6645,15 @@
 		},
 		"Roland-SC-88-Grand-Piano": {
 			"samples": {
-				"Roland-SC-88-Grand-Piano-C1": {},
-				"Roland-SC-88-Grand-Piano-C3": {},
-				"Roland-SC-88-Grand-Piano-C5": {}
+				"Roland-SC-88-Grand-Piano-C1": {
+					"keyRange": "C0-C#2"
+				},
+				"Roland-SC-88-Grand-Piano-C3": {
+					"keyRange": "D2-C#4"
+				},
+				"Roland-SC-88-Grand-Piano-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Roland-SC-88-Gunshot": {
@@ -6591,8 +6683,12 @@
 		},
 		"Roland-SC-88-Harpsichord": {
 			"samples": {
-				"Roland-SC-88-Harpsichord-C2": {},
-				"Roland-SC-88-Harpsichord-C4": {}
+				"Roland-SC-88-Harpsichord-C2": {
+					"keyRange": "C0-C#3"
+				},
+				"Roland-SC-88-Harpsichord-C4": {
+					"keyRange": "D3-B7"
+				}
 			}
 		},
 		"Roland-SC-88-High-Bongo": {
@@ -7072,8 +7168,12 @@
 		},
 		"Roland-U-220-Harp": {
 			"samples": {
-				"Roland-U-220-Harp-C4": {},
-				"Roland-U-220-Harp-C6": {}
+				"Roland-U-220-Harp-C4": {
+					"keyRange": "C0-C#5"
+				},
+				"Roland-U-220-Harp-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Roland-U-220-Low-Slap-Bass": {
@@ -7458,8 +7558,12 @@
 		},
 		"Yamaha-AN1x-Resonant-Pad": {
 			"samples": {
-				"Yamaha-AN1x-Resonant-Pad-C4": {},
-				"Yamaha-AN1x-Resonant-Pad-C6": {}
+				"Yamaha-AN1x-Resonant-Pad-C4": {
+					"keyRange": "C0-C#5"
+				},
+				"Yamaha-AN1x-Resonant-Pad-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Yamaha-AN1x-String-Pad": {
@@ -7569,8 +7673,12 @@
 		},
 		"Yamaha-DX7-E-Piano-1": {
 			"samples": {
-				"Yamaha-DX7-E-Piano-1-C3": {},
-				"Yamaha-DX7-E-Piano-1-C5": {}
+				"Yamaha-DX7-E-Piano-1-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Yamaha-DX7-E-Piano-1-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Yamaha-DX7-Filter-Swp": {
@@ -7655,8 +7763,12 @@
 		},
 		"Yamaha-EX5-Cathedral": {
 			"samples": {
-				"Yamaha-EX5-Cathedral-C4": {},
-				"Yamaha-EX5-Cathedral-C6": {}
+				"Yamaha-EX5-Cathedral-C4": {
+					"keyRange": "C0-C#5"
+				},
+				"Yamaha-EX5-Cathedral-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Yamaha-EX5-ClassicBrass": {
@@ -7736,8 +7848,12 @@
 		},
 		"Yamaha-EX5-Jazz-Grand": {
 			"samples": {
-				"Yamaha-EX5-Jazz-Grand-C3": {},
-				"Yamaha-EX5-Jazz-Grand-C5": {}
+				"Yamaha-EX5-Jazz-Grand-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Yamaha-EX5-Jazz-Grand-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Yamaha-EX5-Jazzy-Ballad": {
@@ -7792,8 +7908,12 @@
 		},
 		"Yamaha-EX5-Rocking-Bose": {
 			"samples": {
-				"Yamaha-EX5-Rocking-Bose-C3": {},
-				"Yamaha-EX5-Rocking-Bose-C5": {}
+				"Yamaha-EX5-Rocking-Bose-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Yamaha-EX5-Rocking-Bose-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Yamaha-EX5-Smoky-Organ": {
@@ -7818,9 +7938,15 @@
 		},
 		"Yamaha-EX5-Stereo-Grand": {
 			"samples": {
-				"Yamaha-EX5-Stereo-Grand-C2": {},
-				"Yamaha-EX5-Stereo-Grand-C4": {},
-				"Yamaha-EX5-Stereo-Grand-C6": {}
+				"Yamaha-EX5-Stereo-Grand-C2": {
+					"keyRange": "C0-C#3"
+				},
+				"Yamaha-EX5-Stereo-Grand-C4": {
+					"keyRange": "D3-C#5"
+				},
+				"Yamaha-EX5-Stereo-Grand-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Yamaha-EX5-Stereo-String": {
@@ -7830,8 +7956,12 @@
 		},
 		"Yamaha-EX5-Straight": {
 			"samples": {
-				"Yamaha-EX5-Straight-C2": {},
-				"Yamaha-EX5-Straight-C5": {}
+				"Yamaha-EX5-Straight-C2": {
+					"keyRange": "C0-G3"
+				},
+				"Yamaha-EX5-Straight-C5": {
+					"keyRange": "G#3-B7"
+				}
 			}
 		},
 		"Yamaha-EX5-Strat-4-Way": {
@@ -7851,8 +7981,12 @@
 		},
 		"Yamaha-EX5-Tine-EP": {
 			"samples": {
-				"Yamaha-EX5-Tine-EP-C4": {},
-				"Yamaha-EX5-Tine-EP-C6": {}
+				"Yamaha-EX5-Tine-EP-C4": {
+					"keyRange": "C0-C#5"
+				},
+				"Yamaha-EX5-Tine-EP-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Yamaha-EX5-Transistor": {
@@ -8007,8 +8141,12 @@
 		},
 		"Yamaha-FS1r-EP-Wide": {
 			"samples": {
-				"Yamaha-FS1r-EP-Wide-C4": {},
-				"Yamaha-FS1r-EP-Wide-C5": {}
+				"Yamaha-FS1r-EP-Wide-C4": {
+					"keyRange": "C0-G4"
+				},
+				"Yamaha-FS1r-EP-Wide-C5": {
+					"keyRange": "G#4-B7"
+				}
 			}
 		},
 		"Yamaha-FS1r-Ensemble": {
@@ -8133,9 +8271,15 @@
 		},
 		"Yamaha-MU90R-ConcertGrand": {
 			"samples": {
-				"Yamaha-MU90R-ConcertGrand-C2": {},
-				"Yamaha-MU90R-ConcertGrand-C4": {},
-				"Yamaha-MU90R-ConcertGrand-C6": {}
+				"Yamaha-MU90R-ConcertGrand-C2": {
+					"keyRange": "C0-C#3"
+				},
+				"Yamaha-MU90R-ConcertGrand-C4": {
+					"keyRange": "D3-C#5"
+				},
+				"Yamaha-MU90R-ConcertGrand-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Yamaha-MU90R-French-Acord": {
@@ -8445,8 +8589,12 @@
 		},
 		"Yamaha-PSS-140-Small-Church": {
 			"samples": {
-				"Yamaha-PSS-140-Small-Church-C3": {},
-				"Yamaha-PSS-140-Small-Church-C5": {}
+				"Yamaha-PSS-140-Small-Church-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Yamaha-PSS-140-Small-Church-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Yamaha-PSS-140-Tango": {
@@ -9151,8 +9299,12 @@
 		},
 		"Yamaha-TG-55-Piano": {
 			"samples": {
-				"Yamaha-TG-55-Piano-C3": {},
-				"Yamaha-TG-55-Piano-C5": {}
+				"Yamaha-TG-55-Piano-C3": {
+					"keyRange": "C0-C#4"
+				},
+				"Yamaha-TG-55-Piano-C5": {
+					"keyRange": "D4-B7"
+				}
 			}
 		},
 		"Yamaha-TG-55-Slap-Bass": {
@@ -9657,8 +9809,12 @@
 		},
 		"Yamaha-TG500-GT-Nylon": {
 			"samples": {
-				"Yamaha-TG500-GT-Nylon-C4": {},
-				"Yamaha-TG500-GT-Nylon-E2": {}
+				"Yamaha-TG500-GT-Nylon-C4": {
+					"keyRange": "C0-A2"
+				},
+				"Yamaha-TG500-GT-Nylon-E2": {
+					"keyRange": "A#2-B7"
+				}
 			}
 		},
 		"Yamaha-TG500-GT-Strt1": {
@@ -9858,9 +10014,15 @@
 		},
 		"Yamaha-TG77-Ivory-Piano": {
 			"samples": {
-				"Yamaha-TG77-Ivory-Piano-C2": {},
-				"Yamaha-TG77-Ivory-Piano-C4": {},
-				"Yamaha-TG77-Ivory-Piano-C6": {}
+				"Yamaha-TG77-Ivory-Piano-C2": {
+					"keyRange": "C0-C#3"
+				},
+				"Yamaha-TG77-Ivory-Piano-C4": {
+					"keyRange": "D3-C#5"
+				},
+				"Yamaha-TG77-Ivory-Piano-C6": {
+					"keyRange": "D5-B7"
+				}
 			}
 		},
 		"Yamaha-TG77-Mystery-Pad": {
@@ -10065,8 +10227,12 @@
 		},
 		"Yamaha-TX81Z-Lately-Bass": {
 			"samples": {
-				"Yamaha-TX81Z-Lately-Bass-C3": {},
-				"Yamaha-TX81Z-Lately-Bass-C4": {}
+				"Yamaha-TX81Z-Lately-Bass-C3": {
+					"keyRange": "C0-G3"
+				},
+				"Yamaha-TX81Z-Lately-Bass-C4": {
+					"keyRange": "G#3-B7"
+				}
 			}
 		},
 		"Yamaha-TX81Z-LowString": {
@@ -10348,7 +10514,8 @@
 		},
 		"Alesis-Fusion-Tubular-Bells-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Alesis-Fusion-Viola-C5": {
 			"keyRoot": "C5"
@@ -10476,7 +10643,8 @@
 		},
 		"Alesis-Sanctuary-QCard-Loose-Bell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Alesis-Sanctuary-QCard-Music-Box-C6": {
 			"keyRoot": "C6"
@@ -10506,16 +10674,20 @@
 		"Applause": {},
 		"Bamboo": {},
 		"Bass-Drum-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Bass-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Bass-Drum-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Boom-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Boom": {},
 		"Bottle": {},
@@ -10632,7 +10804,8 @@
 		},
 		"Casio-MT-600-Synth-Bells-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Casio-MT-600-Synth-Celesta-C4": {
 			"keyRoot": "C4"
@@ -10685,7 +10858,8 @@
 		},
 		"Casio-VZ-10M-Pizzicato-Bell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Casio-VZ-10M-Power-Fifths-C4": {
 			"keyRoot": "C4"
@@ -10709,106 +10883,137 @@
 		"Chirping-Birds-2": {},
 		"Chirping-Birds": {},
 		"Clap-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Clap-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Clap-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Claves": {},
 		"Closed-Hi-Hat-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Closed-Hi-Hat-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Closed-Hi-Hat-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Closed-Hi-Hat-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Closed-Hi-Hat-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Closed-Hi-Hat-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Closed-Hi-Hat-7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Cowbell-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Cowbell-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Cowbell-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Cowbell-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Crash-Cymbal-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-8": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crash-Cymbal-9": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Crazed-Bells": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Creak": {},
 		"Cross-Sticks": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Cuica-1": {},
 		"Cuica-2": {},
 		"Cup-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Deep-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Digital-Clipping": {},
 		"Digital-Seashore": {},
 		"Dog-Bark": {},
 		"Door-Close": {},
 		"Doumbek-Doum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Doumbek-Tek-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Doumbek-Tek": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Drill": {},
 		"Dry-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"E-Mu-Proteus-2-Celesta-C6": {
 			"keyRoot": "C6"
@@ -10833,10 +11038,12 @@
 		},
 		"E-Mu-Proteus-2-Tubular-Bell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"E-Mu-Proteus-FX-909-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"E-Mu-Proteus-FX-AcStereo-C3": {
 			"keyRoot": "C3"
@@ -10956,16 +11163,20 @@
 			"keyRoot": "C3"
 		},
 		"E-Mu-Proteus-FX-Wacky-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"E-Mu-Proteus-FX-Wacky-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"E-Mu-Proteus-FX-Wacky-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"E-Mu-Proteus-FX-Wacky-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"E-Mu-Proteus-FX-Whales-C1": {
 			"keyRoot": "C1"
@@ -10979,28 +11190,36 @@
 		"Electric-Bass-Low-G-Staccato": {},
 		"Electro-Chord": {},
 		"Electro-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Electronic-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Electronic-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Electronic-Kick-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Electronic-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Electronic-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Electronic-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Electronic-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Engine-Noise": {},
 		"Engine-Start": {},
@@ -11009,7 +11228,8 @@
 		},
 		"Ensoniq-ESQ-1-Bell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Ensoniq-ESQ-1-Brass-C3": {
 			"keyRoot": "C3"
@@ -11021,19 +11241,23 @@
 			"keyRoot": "C2"
 		},
 		"Ensoniq-ESQ-1-Hi-Mid-Synth-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Ensoniq-ESQ-1-Hi-Synth-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Ensoniq-ESQ-1-Koto-C5": {
 			"keyRoot": "C5"
 		},
 		"Ensoniq-ESQ-1-Low-Mid-Synth-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Ensoniq-ESQ-1-Low-Synth-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Ensoniq-ESQ-1-Marimba-C3": {
 			"keyRoot": "C3"
@@ -11054,21 +11278,25 @@
 			"keyRoot": "C4"
 		},
 		"Ensoniq-ESQ-1-Snare-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-ESQ-1-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-ESQ-1-Steel-Drum-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-ESQ-1-String-Ensemble-C4": {
 			"keyRoot": "C4"
 		},
 		"Ensoniq-ESQ-1-Synth-Echo-Bell-C2": {
 			"keyRoot": "C2",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Ensoniq-ESQ-1-Synth-Sweep-C4": {
 			"keyRoot": "C4"
@@ -11081,7 +11309,8 @@
 		},
 		"Ensoniq-ESQ-1-Wave-Bell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Ensoniq-ESQ-1-Wind": {},
 		"Ensoniq-SD-1-Bass-Pad-C3": {
@@ -11127,13 +11356,16 @@
 			"keyRoot": "C5"
 		},
 		"Ensoniq-SQ-1-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Ensoniq-SQ-1-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Ensoniq-SQ-1-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ensoniq-SQ-1-Dyno-Keys-C4": {
 			"keyRoot": "C4"
@@ -11160,7 +11392,8 @@
 			"keyRoot": "C6"
 		},
 		"Ensoniq-SQ-1-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Ensoniq-SQ-1-Pizzicato-C5": {
 			"keyRoot": "C5"
@@ -11169,22 +11402,26 @@
 			"keyRoot": "C3"
 		},
 		"Ensoniq-SQ-1-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ensoniq-SQ-1-Road-Time-C3": {
 			"keyRoot": "C3"
 		},
 		"Ensoniq-SQ-1-Rock-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Ensoniq-SQ-1-Rock-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-SQ-1-Shami-C5": {
 			"keyRoot": "C5"
 		},
 		"Ensoniq-SQ-1-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-SQ-1-Trombone-C4": {
 			"keyRoot": "C4"
@@ -11216,7 +11453,8 @@
 			"keyRoot": "C3"
 		},
 		"Ensoniq-SQ-80-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Ensoniq-SQ-80-Organ-C4": {
 			"keyRoot": "C4"
@@ -11225,7 +11463,8 @@
 			"keyRoot": "C4"
 		},
 		"Ensoniq-SQ-80-Rezo-Bell-Pad": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Ensoniq-SQ-80-Sax-C4": {
 			"keyRoot": "C4"
@@ -11247,7 +11486,8 @@
 			"keyRoot": "C2"
 		},
 		"Ensoniq-VFX-SD-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Ensoniq-VFX-SD-Dance-Bass-C1": {
 			"keyRoot": "C1"
@@ -11262,16 +11502,19 @@
 			"keyRoot": "C5"
 		},
 		"Ensoniq-VFX-SD-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Ensoniq-VFX-SD-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Ensoniq-VFX-SD-Organ-C4": {
 			"keyRoot": "C4"
 		},
 		"Ensoniq-VFX-SD-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ensoniq-VFX-SD-Scream-Lead-C4": {
 			"keyRoot": "C4"
@@ -11280,14 +11523,17 @@
 			"keyRoot": "C1"
 		},
 		"Ensoniq-VFX-SD-Snare-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-VFX-SD-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-VFX-SD-Steel-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ensoniq-VFX-SD-Synth-Lead-C5": {
 			"keyRoot": "C5"
@@ -11298,23 +11544,28 @@
 		},
 		"Finger-Snaps": {},
 		"Floor-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Floor-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Floor-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Floor-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Flowing-Water": {},
 		"Galloping-Horse": {},
 		"Gong": {},
 		"Guiro": {},
 		"Hand-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Hard-Footstep": {},
 		"Harsh-Digital-Noise": {},
@@ -11322,16 +11573,20 @@
 		"Heartbeat": {},
 		"Hi-Bongo": {},
 		"Hi-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Hi-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Hi-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Hi-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"High-Agogo": {},
 		"High-Conga-1": {},
@@ -11341,37 +11596,47 @@
 		"High-Timbales": {},
 		"High-Timpani": {},
 		"Hip-Hop-Snare-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Hip-Hop-Snare-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Hip-Hop-Snare-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Industrial-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Kawai-K11-Banjo-C5": {
 			"keyRoot": "C5"
 		},
 		"Kawai-K11-Bell-Tree": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Kawai-K11-Bob-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Kawai-K11-Bob-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Kawai-K11-Bob-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Kawai-K11-Bob-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kawai-K11-Bob-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Kawai-K11-CleanGtr-C3": {
 			"keyRoot": "C3"
@@ -11411,17 +11676,22 @@
 		"Kawai-K11-Oboe-C3": {
 			"keyRoot": "C3"
 		},
-		"Kawai-K11-Open-Triangle": {},
+		"Kawai-K11-Open-Triangle": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
 		"Kawai-K11-Seashore": {},
 		"Kawai-K11-Shamisen-C4": {
 			"keyRoot": "C4"
 		},
 		"Kawai-K11-Sleigh-Bells": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Kawai-K11-StlDrum-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kawai-K11-SynStrg2-C3": {
 			"keyRoot": "C3"
@@ -11448,16 +11718,19 @@
 			"keyRoot": "C3"
 		},
 		"Kawai-K1r-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Kawai-K1r-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Kawai-K1r-FrenchHorn-C5": {
 			"keyRoot": "C5"
 		},
 		"Kawai-K1r-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Kawai-K1r-Pad-C4": {
 			"keyRoot": "C4"
@@ -11475,19 +11748,22 @@
 			"keyRoot": "C4"
 		},
 		"Kawai-K1r-Rap-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Kawai-K1r-Reflection-C3": {
 			"keyRoot": "C3"
 		},
 		"Kawai-K1r-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Kawai-K1r-Sitar-C4": {
 			"keyRoot": "C4"
 		},
 		"Kawai-K1r-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kawai-K1r-Whistle-C6": {
 			"keyRoot": "C6"
@@ -11497,7 +11773,8 @@
 		},
 		"Kawai-K3-Bell-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Kawai-K3-Brass-C3": {
 			"keyRoot": "C3"
@@ -11592,7 +11869,8 @@
 			"keyRoot": "C5"
 		},
 		"Kawai-K5000W-Cross-Sticks": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kawai-K5000W-Ding": {},
 		"Kawai-K5000W-Dog-Bark": {},
@@ -11639,7 +11917,8 @@
 		"Kawai-K5000W-Helicopter": {},
 		"Kawai-K5000W-K-Bells-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Kawai-K5000W-Koto-C5": {
 			"keyRoot": "C5"
@@ -11653,7 +11932,8 @@
 			"keyRoot": "C4"
 		},
 		"Kawai-K5000W-Melo-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Kawai-K5000W-MusicBox-C5": {
 			"keyRoot": "C5"
@@ -11696,7 +11976,8 @@
 		},
 		"Kawai-K5000W-Stl-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kawai-K5000W-Strings-C4": {
 			"keyRoot": "C4"
@@ -11708,7 +11989,8 @@
 			"keyRoot": "C4"
 		},
 		"Kawai-K5000W-Syn-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kawai-K5000W-SynBass4-C3": {
 			"keyRoot": "C3"
@@ -11744,70 +12026,92 @@
 			"keyRoot": "C5"
 		},
 		"Kettle-Drum-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-10": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-11": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-12": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-13": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-14": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-15": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-16": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-17": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-18": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-19": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-20": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-8": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Drum-9": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Kick-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Klank-1": {},
 		"Klank-2": {},
@@ -11839,7 +12143,8 @@
 		},
 		"Korg-01W-Bellevue-C2": {
 			"keyRoot": "C2",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-01W-Bottles-C4": {
 			"keyRoot": "C4"
@@ -11926,7 +12231,8 @@
 		},
 		"Korg-01W-VS-Bells-1-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-01W-Vibraphone-C5": {
 			"keyRoot": "C5"
@@ -11936,7 +12242,8 @@
 		},
 		"Korg-01W-XpressBell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-DS-8-Bass-C3": {
 			"keyRoot": "C3"
@@ -11963,7 +12270,8 @@
 		"Korg-DS8-Slap-Noise": {},
 		"Korg-DW-8000-Bell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-DW-8000-Clav-C3": {
 			"keyRoot": "C3"
@@ -11973,13 +12281,15 @@
 		},
 		"Korg-DW-8000-Hollow-Bell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-DW-8000-Lead-C5": {
 			"keyRoot": "C5"
 		},
 		"Korg-DW-8000-Noise-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-DW-8000-Organ-C3": {
 			"keyRoot": "C3"
@@ -11991,7 +12301,8 @@
 			"keyRoot": "C2"
 		},
 		"Korg-DW-8000-Syn-Hand-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-DW-8000-Synth-Strings-C5": {
 			"keyRoot": "C5"
@@ -12006,10 +12317,12 @@
 			"keyRoot": "C4"
 		},
 		"Korg-M1-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Korg-M1-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-M1-Digital-5-C4": {
 			"keyRoot": "C4"
@@ -12022,7 +12335,8 @@
 			"keyRoot": "C4"
 		},
 		"Korg-M1-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Korg-M1-Pad-Ana-C3": {
 			"keyRoot": "C3"
@@ -12040,7 +12354,8 @@
 			"keyRoot": "C3"
 		},
 		"Korg-M1-WindBells": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-M3R-Bassoon-C3": {
 			"keyRoot": "C3"
@@ -12059,13 +12374,15 @@
 		},
 		"Korg-M3R-CloudBells-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-M3R-Cornet-C4": {
 			"keyRoot": "C4"
 		},
 		"Korg-M3R-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-M3R-Digital-Noise-Hit": {},
 		"Korg-M3R-DonQuixote-C3": {
@@ -12103,17 +12420,21 @@
 		},
 		"Korg-M3R-High-Wood-Block": {},
 		"Korg-M3R-Industrial-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Korg-M3R-Industrial-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-M3R-KettleDrum-C2": {
 			"keyRoot": "C2",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-M3R-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Korg-M3R-Low-Wood-Block": {},
 		"Korg-M3R-MeetMrBass-C1": {
@@ -12157,10 +12478,12 @@
 			"keyRoot": "C4"
 		},
 		"Korg-M3R-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-M3R-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-M3R-Soft-Flute-C6": {
 			"keyRoot": "C6"
@@ -12205,7 +12528,8 @@
 			"keyRoot": "C2"
 		},
 		"Korg-MS2000-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Korg-MS2000-Pluck-Drone-C4": {
 			"keyRoot": "C4"
@@ -12220,16 +12544,19 @@
 			"keyRoot": "C3"
 		},
 		"Korg-N1R-Bass-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-BassPicker-C2": {
 			"keyRoot": "C2"
 		},
 		"Korg-N1R-Belltree": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-N1R-Breaking-Glass": {},
 		"Korg-N1R-BriteNylon-C5": {
@@ -12238,23 +12565,29 @@
 		"Korg-N1R-Cabasa": {},
 		"Korg-N1R-Castanets": {},
 		"Korg-N1R-Chinese-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Korg-N1R-Claves": {},
 		"Korg-N1R-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-N1R-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-N1R-Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Dance-Bass-C2": {
 			"keyRoot": "C2"
@@ -12280,10 +12613,12 @@
 		"Korg-N1R-High-Q": {},
 		"Korg-N1R-High-Timbale": {},
 		"Korg-N1R-High-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-N1R-High-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-N1R-High-Wood-Block": {},
 		"Korg-N1R-HollowBody-C3": {
@@ -12291,13 +12626,16 @@
 		},
 		"Korg-N1R-Ice-Bell-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-N1R-Jingle-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-N1R-Kettle-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Long-Guiro": {},
 		"Korg-N1R-Long-Whistle": {},
@@ -12305,22 +12643,27 @@
 		"Korg-N1R-Low-Bongo": {},
 		"Korg-N1R-Low-Timbale": {},
 		"Korg-N1R-Low-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-N1R-Low-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-N1R-Low-Wood-Block": {},
 		"Korg-N1R-Maracas": {},
 		"Korg-N1R-Metronome-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-N1R-Metronome-Click": {},
 		"Korg-N1R-Mid-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-N1R-Mid-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-N1R-Mr-Gong-C2": {
 			"keyRoot": "C2"
@@ -12331,30 +12674,43 @@
 			"keyRoot": "C4"
 		},
 		"Korg-N1R-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
-		"Korg-N1R-Open-Surdo": {},
-		"Korg-N1R-Open-Triangle": {},
+		"Korg-N1R-Open-Surdo": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
+		"Korg-N1R-Open-Triangle": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
 		"Korg-N1R-Orchestral-Crash-Cymbals": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-N1R-Rave-Mix-C3": {
 			"keyRoot": "C3"
 		},
 		"Korg-N1R-Reverse-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Ride-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-N1R-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Rock-Mutes-C3": {
 			"keyRoot": "C3"
@@ -12375,23 +12731,28 @@
 		"Korg-N1R-Short-Guiro": {},
 		"Korg-N1R-Short-Whistle": {},
 		"Korg-N1R-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Slap-It-C1": {
 			"keyRoot": "C1"
 		},
 		"Korg-N1R-Slap": {},
 		"Korg-N1R-Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Snare-Roll": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-N1R-Split-Sync-C3": {
 			"keyRoot": "C3"
@@ -12402,7 +12763,8 @@
 		},
 		"Korg-N1R-StereoHit": {},
 		"Korg-N1R-Sticks": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-N1R-Tambourine": {},
 		"Korg-N1R-Thunder": {},
@@ -12429,7 +12791,8 @@
 			"keyRoot": "C3"
 		},
 		"Korg-NS5R-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-NS5R-Bass-and-Lead-C3": {
 			"keyRoot": "C3"
@@ -12444,13 +12807,16 @@
 			"keyRoot": "C4"
 		},
 		"Korg-NS5R-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-NS5R-Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Crystal-C6": {
 			"keyRoot": "C6"
@@ -12472,19 +12838,22 @@
 			"keyRoot": "C4"
 		},
 		"Korg-NS5R-Melo-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Korg-NS5R-Metal-Pad-C4": {
 			"keyRoot": "C4"
 		},
 		"Korg-NS5R-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Korg-NS5R-PanFlute-1-C5": {
 			"keyRoot": "C5"
 		},
 		"Korg-NS5R-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-NS5R-Piano-2-C3": {
 			"keyRoot": "C3"
@@ -12505,38 +12874,49 @@
 			"keyRoot": "C2"
 		},
 		"Korg-NS5R-Power-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-NS5R-Power-Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Power-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Power-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Korg-NS5R-Power-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Korg-NS5R-Power-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Korg-NS5R-Power-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Power-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Power-Rimshot": {},
 		"Korg-NS5R-Power-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-NS5R-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-NS5R-Rim-Shot": {},
 		"Korg-NS5R-Saw-Wave-C3": {
@@ -12546,7 +12926,8 @@
 			"keyRoot": "C4"
 		},
 		"Korg-NS5R-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-NS5R-Solo-Vox-C5": {
 			"keyRoot": "C5"
@@ -12559,7 +12940,8 @@
 		},
 		"Korg-NS5R-SteelDrums-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-NS5R-Strings-1-C4": {
 			"keyRoot": "C4"
@@ -12568,7 +12950,8 @@
 			"keyRoot": "C4"
 		},
 		"Korg-NS5R-Synth-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-NS5R-SynthBass1-C2": {
 			"keyRoot": "C2"
@@ -12579,7 +12962,8 @@
 		},
 		"Korg-NS5R-TinkleBell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-NS5R-Trumpet-1-C4": {
 			"keyRoot": "C4"
@@ -12613,7 +12997,8 @@
 		},
 		"Korg-TR-Rack-African-Log-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Akkordeon-C5": {
 			"keyRoot": "C5"
@@ -12671,7 +13056,8 @@
 			"keyRoot": "C5"
 		},
 		"Korg-TR-Rack-Lethal-Drum-Hit": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Light-Choir-C5": {
 			"keyRoot": "C5"
@@ -12716,7 +13102,8 @@
 			"keyRoot": "C6"
 		},
 		"Korg-TR-Rack-Percussion-Kit-Sleigh-Bells": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Percussion-Kit-Wood-Block": {},
 		"Korg-TR-Rack-Piccolo-C6": {
@@ -12753,78 +13140,99 @@
 			"keyRoot": "C2"
 		},
 		"Korg-TR-Rack-Standard-Kit-Bass-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Bass-Drum-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Bass-Drum-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Bass-Drum-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Bell-Tree": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-TR-Rack-Standard-Kit-High-Cuica": {},
 		"Korg-TR-Rack-Standard-Kit-High-Wood-Block": {},
 		"Korg-TR-Rack-Standard-Kit-Long-Whistle": {},
 		"Korg-TR-Rack-Standard-Kit-Low-Cuica": {},
 		"Korg-TR-Rack-Standard-Kit-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Shaker": {},
 		"Korg-TR-Rack-Standard-Kit-Short-Whistle": {},
 		"Korg-TR-Rack-Standard-Kit-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Snare-Drum-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Snare-Drum-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Snare-Drum-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Snare-Drum-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Korg-TR-Rack-Standard-Kit-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Korg-TR-Rack-Sun-Bells-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Tin-Flute-C6": {
 			"keyRoot": "C6"
 		},
 		"Korg-TR-Rack-Tinkle-Bells-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Trombone-C5": {
 			"keyRoot": "C5"
@@ -12834,14 +13242,16 @@
 		},
 		"Korg-TR-Rack-Tubular-Bell-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Tubular-Vibes-C4": {
 			"keyRoot": "C4"
 		},
 		"Korg-TR-Rack-VS-Bell-Boy-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Korg-TR-Rack-Velocity-Organ-C2": {
 			"keyRoot": "C2"
@@ -12935,7 +13345,8 @@
 			"keyRoot": "C5"
 		},
 		"Laser-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Lion-Roar": {},
 		"Low-Agogo": {},
@@ -12947,19 +13358,24 @@
 		"Low-Timbales": {},
 		"Low-Timpani": {},
 		"Low-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Low-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Low-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Low-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Low-Tom-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"M-Audio-Venom-70sStrings-C4": {
 			"keyRoot": "C4"
@@ -12969,7 +13385,8 @@
 		},
 		"M-Audio-Venom-AM-Bell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"M-Audio-Venom-Atari-C2": {
 			"keyRoot": "C2"
@@ -12979,25 +13396,30 @@
 		},
 		"M-Audio-Venom-BlissBell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"M-Audio-Venom-Chimetimes-C6": {
 			"keyRoot": "C6"
 		},
 		"M-Audio-Venom-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"M-Audio-Venom-ClassicV-C4": {
 			"keyRoot": "C4"
 		},
 		"M-Audio-Venom-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"M-Audio-Venom-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"M-Audio-Venom-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"M-Audio-Venom-Currents-C2": {
 			"keyRoot": "C2"
@@ -13013,7 +13435,8 @@
 		},
 		"M-Audio-Venom-DreamBells-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"M-Audio-Venom-FMGrit-C2": {
 			"keyRoot": "C2"
@@ -13028,7 +13451,8 @@
 			"keyRoot": "C5"
 		},
 		"M-Audio-Venom-Kick-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"M-Audio-Venom-Low-Conga": {},
 		"M-Audio-Venom-Mute-High-Conga": {},
@@ -13039,9 +13463,13 @@
 			"keyRoot": "C2"
 		},
 		"M-Audio-Venom-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
-		"M-Audio-Venom-Open-High-Conga": {},
+		"M-Audio-Venom-Open-High-Conga": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
 		"M-Audio-Venom-Physical-C2": {
 			"keyRoot": "C2"
 		},
@@ -13049,10 +13477,12 @@
 			"keyRoot": "C4"
 		},
 		"M-Audio-Venom-Ride-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"M-Audio-Venom-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"M-Audio-Venom-SH-SH-SH-C3": {
 			"keyRoot": "C3"
@@ -13061,7 +13491,8 @@
 			"keyRoot": "C1"
 		},
 		"M-Audio-Venom-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"M-Audio-Venom-Singee-C3": {
 			"keyRoot": "C3"
@@ -13070,16 +13501,19 @@
 			"keyRoot": "C5"
 		},
 		"M-Audio-Venom-Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"M-Audio-Venom-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"M-Audio-Venom-SphereBass-C2": {
 			"keyRoot": "C2"
 		},
 		"M-Audio-Venom-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"M-Audio-Venom-Stranglead-C3": {
 			"keyRoot": "C3"
@@ -13092,26 +13526,33 @@
 		},
 		"M-Audio-Venom-UltraBell-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Metal-Hit": {},
 		"Mid-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Mid-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Mid-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Mid-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Mid-Tom-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Mid-Tom-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Mod-Organ-C4": {
 			"keyRoot": "C4"
@@ -13120,84 +13561,106 @@
 		"Mute-Conga-1": {},
 		"Muted-Bass-Slap": {},
 		"Noise-Snare-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Ominous-Echo-C3": {
 			"keyRoot": "C3"
 		},
 		"Open-Hi-Hat-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Open-Hi-Hat-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Open-Hi-Hat-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Open-Hi-Hat-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Open-Hi-Hat-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Open-Hi-Hat-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Open-Hi-Hat-7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Overloaded-Bass-Pulse-C3": {
 			"keyRoot": "C3"
 		},
 		"Pedal-Hi-Hat-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Police-Siren": {},
 		"Proteus-Lead-C6": {
 			"keyRoot": "C6"
 		},
 		"Pulse-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Pulse-Kick-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Pulse-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Race-Car": {},
 		"Resonant-Stereo-Pad-C3": {
 			"keyRoot": "C3"
 		},
 		"Reverse-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-8": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Ride-Cymbal-9": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Rim": {},
 		"Roalnd-D-20-Cellist-C4": {
@@ -13228,7 +13691,8 @@
 			"keyRoot": "C5"
 		},
 		"Roland-D-20-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Roland-D-20-Metalized-Dist-C4": {
 			"keyRoot": "C4"
@@ -13247,7 +13711,8 @@
 			"keyRoot": "C4"
 		},
 		"Roland-D-20-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-D-20-Samba-1-104-bpm": {},
 		"Roland-D-20-Sax-C5": {
@@ -13257,7 +13722,8 @@
 			"keyRoot": "C5"
 		},
 		"Roland-D-20-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-D-20-Space-Lead-C4": {
 			"keyRoot": "C4"
@@ -13292,7 +13758,8 @@
 		},
 		"Roland-GR-1-Bell-Ping-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-GR-1-Breathy-Pad-C4": {
 			"keyRoot": "C4"
@@ -13320,7 +13787,8 @@
 		},
 		"Roland-GR-1-Steel-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-GR-1-Sweep-C5": {
 			"keyRoot": "C5"
@@ -13349,7 +13817,8 @@
 		},
 		"Roland-JD-990-Wave-Bell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-JD-990-Windchimes": {},
 		"Roland-JV-2080-101-Bass-C2": {
@@ -13418,7 +13887,8 @@
 			"keyRoot": "C4"
 		},
 		"Roland-JV-2080-Melodic-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-JV-2080-NextFrontier-C4": {
 			"keyRoot": "C4"
@@ -13443,10 +13913,12 @@
 		},
 		"Roland-JV-2080-Pretty-Bells-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-JV-2080-Reverse-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-JV-2080-SA-Rhodes-1-C4": {
 			"keyRoot": "C4"
@@ -13465,7 +13937,8 @@
 		},
 		"Roland-JV-2080-Steel-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-JV-2080-Steel-Str-Gt-C3": {
 			"keyRoot": "C3"
@@ -13481,7 +13954,8 @@
 		},
 		"Roland-JV-2080-Tubular-Bell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-JV-2080-ViolinCello-C4": {
 			"keyRoot": "C4"
@@ -13536,7 +14010,8 @@
 		},
 		"Roland-JX-8P-Bell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-JX-8P-Hi-Strings-C7": {},
 		"Roland-JX-8P-Lo-Strings-C4": {
@@ -13598,7 +14073,8 @@
 			"keyRoot": "C3"
 		},
 		"Roland-PN-D10-03-Japanese-Drums": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-PN-D10-03-Live-Jupiter-Brs-C2": {
 			"keyRoot": "C2"
@@ -13611,121 +14087,155 @@
 			"keyRoot": "C2"
 		},
 		"Roland-R-8-808-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Roland-R-8-Bell-Tree": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-R-8-Can": {},
 		"Roland-R-8-Castanet": {},
 		"Roland-R-8-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Roland-R-8-Cowbell-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-R-8-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-R-8-Djembe-Center": {},
 		"Roland-R-8-Djembe-Rim": {},
 		"Roland-R-8-Doom-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Dry-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Roland-R-8-Dry-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Dry-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Dry-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Dry-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Fat-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-R-8-Gong": {},
 		"Roland-R-8-High-Timbale": {},
 		"Roland-R-8-Impact-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-R-8-Katana": {},
 		"Roland-R-8-Long-Guiro": {},
 		"Roland-R-8-Low-Timbale": {},
 		"Roland-R-8-Mondo-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Roland-R-8-Mute-Cuica": {},
 		"Roland-R-8-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Roland-R-8-Open-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Roland-R-8-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Roland-R-8-Power-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Power-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Power-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Power-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Reverse-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-R-8-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-R-8-Rimshot": {},
 		"Roland-R-8-Room-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Roland-R-8-Room-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Room-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Room-Tom-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Room-Tom-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-R-8-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-R-8-Snap-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-R-8-Solid-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Roland-R-8-Taiko": {},
 		"Roland-R-8-Thai-Gong": {},
 		"Roland-R-8-Tight-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-R-8-Triangle": {},
 		"Roland-R-8-Vibraslap": {},
 		"Roland-R-8-Wood-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Roland-R-8-Wood-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Accordion-C4": {
 			"keyRoot": "C4"
@@ -13750,10 +14260,12 @@
 			"keyRoot": "C3"
 		},
 		"Roland-SC-88-Bass-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Bass-Lead-C3": {
 			"keyRoot": "C3"
@@ -13788,7 +14300,8 @@
 			"keyRoot": "C5"
 		},
 		"Roland-SC-88-Chinese-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Chirping-Birds": {},
 		"Roland-SC-88-Choir-Aah-C5": {
@@ -13799,19 +14312,23 @@
 		},
 		"Roland-SC-88-Claves": {},
 		"Roland-SC-88-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Roland-SC-88-Contrabass-C2": {
 			"keyRoot": "C2"
 		},
 		"Roland-SC-88-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-SC-88-Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Crystal-FX-C6": {
 			"keyRoot": "C6"
@@ -13861,7 +14378,8 @@
 			"keyRoot": "C5"
 		},
 		"Roland-SC-88-Hand-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Roland-SC-88-Harmonica-C5": {
 			"keyRoot": "C5"
@@ -13878,16 +14396,19 @@
 		"Roland-SC-88-High-Bongo": {},
 		"Roland-SC-88-High-Q": {},
 		"Roland-SC-88-High-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-High-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-Jazz-Guitar-C4": {
 			"keyRoot": "C4"
 		},
 		"Roland-SC-88-Jingle-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-SC-88-Kalimba-C5": {
 			"keyRoot": "C5"
@@ -13898,10 +14419,12 @@
 		"Roland-SC-88-Low-Bongo": {},
 		"Roland-SC-88-Low-Conga": {},
 		"Roland-SC-88-Low-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-Low-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-Maracas": {},
 		"Roland-SC-88-Marimba-C4": {
@@ -13909,19 +14432,23 @@
 		},
 		"Roland-SC-88-Melodic-Tom-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-Metallic-Pad-C4": {
 			"keyRoot": "C4"
 		},
 		"Roland-SC-88-Metronome-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-SC-88-Mid-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-Mid-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Roland-SC-88-Music-Box-C5": {
 			"keyRoot": "C5"
@@ -13947,12 +14474,22 @@
 		"Roland-SC-88-Ocarina-C6": {
 			"keyRoot": "C6"
 		},
-		"Roland-SC-88-Open-Cuica": {},
-		"Roland-SC-88-Open-Hi-Hat": {
-			"loop": false
+		"Roland-SC-88-Open-Cuica": {
+			"loop": false,
+			"keyAlias": "A#2"
 		},
-		"Roland-SC-88-Open-High-Conga": {},
-		"Roland-SC-88-Open-Surdo": {},
+		"Roland-SC-88-Open-Hi-Hat": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
+		"Roland-SC-88-Open-High-Conga": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
+		"Roland-SC-88-Open-Surdo": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
 		"Roland-SC-88-Orchestra-Hit": {},
 		"Roland-SC-88-Overdriven-Guitar-C3": {
 			"keyRoot": "C3"
@@ -13961,7 +14498,8 @@
 			"keyRoot": "C5"
 		},
 		"Roland-SC-88-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Roland-SC-88-Percussive-Organ-C3": {
 			"keyRoot": "C3"
@@ -13979,16 +14517,20 @@
 			"keyRoot": "C6"
 		},
 		"Roland-SC-88-Reverse-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Ride-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-SC-88-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Scratch-Pull": {},
 		"Roland-SC-88-Scratch-Push": {},
@@ -14009,40 +14551,48 @@
 			"keyRoot": "C2"
 		},
 		"Roland-SC-88-Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Snare-Roll": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Soprano-Sax-C5": {
 			"keyRoot": "C5"
 		},
 		"Roland-SC-88-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Roland-SC-88-Square-Click": {},
 		"Roland-SC-88-Steel-Drum-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Steel-String-Guitar-C3": {
 			"keyRoot": "C3"
 		},
 		"Roland-SC-88-Sticks": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-String-Ensemble-C5": {
 			"keyRoot": "C5"
 		},
 		"Roland-SC-88-Synth-Drum-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Taiko-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Roland-SC-88-Tambourine": {},
 		"Roland-SC-88-Tango-Accordion-C5": {
@@ -14064,7 +14614,8 @@
 		},
 		"Roland-SC-88-Tubular-Bell-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Roland-SC-88-Vibraphone-C5": {
 			"keyRoot": "C5"
@@ -14130,7 +14681,8 @@
 			"keyRoot": "C4"
 		},
 		"Rumble-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Shaker-1": {},
 		"Shaker-2": {},
@@ -14138,25 +14690,32 @@
 			"keyRoot": "C4"
 		},
 		"Side-Stick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Side-Stick-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Side-Stick-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Side-Stick-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Simmons-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Sine-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Sitar-C5": {
 			"keyRoot": "C5"
@@ -14164,90 +14723,118 @@
 		"Slam-1": {},
 		"Slam-2": {},
 		"Sleigh-Bells": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Snare-Drum-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-10": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-11": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-12": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-13": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-14": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-15": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-16": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-17": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-18": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-19": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-20": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-21": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-22": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-23": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-8": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Snare-Drum-9": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Splash-Cymbal-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Steel-Bell-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Steel-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"String-Brass-C4": {
 			"keyRoot": "C4"
@@ -14256,7 +14843,8 @@
 			"keyRoot": "C3"
 		},
 		"Synth-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Synth-Gunshot": {},
 		"Synthesized-Applause": {},
@@ -14269,19 +14857,24 @@
 		"Tambourine-2": {},
 		"Tambourine": {},
 		"Thump-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Tight-Floor-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Tight-High-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Tight-Low-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Tight-Mid-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Timpani-C4": {
 			"keyRoot": "C4"
@@ -14289,10 +14882,14 @@
 		"Tire-Screech": {},
 		"Train": {},
 		"Triangle-Closed": {},
-		"Triangle-Open": {},
+		"Triangle-Open": {
+			"loop": false,
+			"keyAlias": "A#2"
+		},
 		"Tubular-Bell-Pad-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Vinyl-Scratch-1": {},
 		"Vinyl-Scratch-2": {},
@@ -14322,7 +14919,8 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-CS2x-Bell-C7": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-CS2x-Celesta-C5": {
 			"keyRoot": "C5"
@@ -14346,17 +14944,20 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-CS2x-Synth-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-DX7-Bass-C2": {
 			"keyRoot": "C2"
 		},
 		"Yamaha-DX7-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-DX7-Bell-Flute-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-DX7-Brass-S-H-C2": {
 			"keyRoot": "C2"
@@ -14399,10 +15000,12 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-DX7-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-DX7-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-DX7-Voices-BC-C4": {
 			"keyRoot": "C4"
@@ -14594,13 +15197,16 @@
 			"keyRoot": "C2"
 		},
 		"Yamaha-FS1r-BoomTchak-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-FS1r-BoomTchak-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-FS1r-BoomTchak-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Breathy-5th-C4": {
 			"keyRoot": "C4"
@@ -14612,52 +15218,68 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-FS1r-Drum-Kit-1-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-1-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-1-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-1-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-2-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-2-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-2-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-2-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-3-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-3-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-3-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-3-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-9o9-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-9o9-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-Drum-Kit-9o9-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-FS1r-Drum-Kit-9o9-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-FS1r-EP-Wide-C4": {
 			"keyRoot": "C4"
@@ -14711,7 +15333,8 @@
 			"keyRoot": "C3"
 		},
 		"Yamaha-FS1r-TekkSet-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-FS1r-Velvet-Dyno-C3": {
 			"keyRoot": "C3"
@@ -14935,7 +15558,8 @@
 		},
 		"Yamaha-PSS-170-Hand-Bell-C3": {
 			"keyRoot": "C3",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-PSS-170-Harpsichord-2-C4": {
 			"keyRoot": "C4"
@@ -15004,205 +15628,268 @@
 		"Yamaha-PSS-280-UFO": {},
 		"Yamaha-PSS-280-Wave": {},
 		"Yamaha-RM50-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Yamaha-RM50-Clock-Strike": {},
 		"Yamaha-RM50-Closed-Hi-Hat-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RM50-Closed-Hi-Hat-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RM50-Closed-Hi-Hat-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RM50-Closed-Hi-Hat-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RM50-Cowbell-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-RM50-Cowbell-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-RM50-Crash-Cymbal-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Crash-Cymbal-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Dance-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Dance-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Gated-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Gated-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Guiro": {},
 		"Yamaha-RM50-High-Bongo": {},
 		"Yamaha-RM50-High-Conga": {},
 		"Yamaha-RM50-High-Timbale": {},
 		"Yamaha-RM50-High-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RM50-High-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RM50-House-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Low-Bongo": {},
 		"Yamaha-RM50-Low-Conga": {},
 		"Yamaha-RM50-Low-Timbale": {},
 		"Yamaha-RM50-Low-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RM50-Low-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RM50-Metal-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Mid-Tom-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RM50-Mid-Tom-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RM50-Open-Hi-Hat-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-RM50-Open-Hi-Hat-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-RM50-Pedal-Hi-Hat-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RM50-Pedal-Hi-Hat-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RM50-RandB-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-RandB-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Reverb-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Reverb-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Ride-Cymbal-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Ride-Cymbal-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Ride-Cymbal-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Rock-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Rock-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Rock-Kick-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Side-Stick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Side-Stick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Side-Stick-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Snare-Drum-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Snare-Drum-3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Snare-Drum-4": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Snare-Drum-5": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Snare-Drum-6": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RM50-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RM50-Stadium-Kick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Studio-Kick-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Studio-Kick-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C3"
 		},
 		"Yamaha-RM50-Tambourine": {},
 		"Yamaha-RM50-Typewriter": {},
 		"Yamaha-RX15-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RX15-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Yamaha-RX15-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RX15-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-RX15-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RX15-Hi-Tune-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RX15-Medium-Snare": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-RX15-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-RX15-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-RX15-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-RX15-Rimshot": {},
 		"Yamaha-RX15-Shaker": {},
 		"Yamaha-RX15-Tom1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RX15-Tom2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-RX15-Tom3": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-SY-35-Clarinet-C5": {
 			"keyRoot": "C5"
@@ -15215,7 +15902,8 @@
 		},
 		"Yamaha-SY22-Bell-Wah-C1": {
 			"keyRoot": "C1",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-SY22-BrassSect-C2": {
 			"keyRoot": "C2"
@@ -15300,10 +15988,12 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-TG100-Bass-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TG100-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TG100-Bass-and-Ld-C3": {
 			"keyRoot": "C3"
@@ -15327,22 +16017,27 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-TG100-Chinese-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-TG100-Choir-Pd-C4": {
 			"keyRoot": "C4"
 		},
 		"Yamaha-TG100-Closed-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-TG100-Cowbell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-TG100-Crash-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-TG100-Crash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-TG100-Crystal-C5": {
 			"keyRoot": "C5"
@@ -15367,7 +16062,8 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-TG100-Hand-Clap": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "E3"
 		},
 		"Yamaha-TG100-Helicopter": {},
 		"Yamaha-TG100-High-Agogo": {},
@@ -15395,23 +16091,28 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-TG100-Open-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A#2"
 		},
 		"Yamaha-TG100-Pedal-Hi-Hat": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-TG100-PolySyPd-C5": {
 			"keyRoot": "C5"
 		},
 		"Yamaha-TG100-RevCymbl": {},
 		"Yamaha-TG100-Ride-Bell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-TG100-Ride-Cymbal-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-TG100-Ride-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-TG100-Saw-Ld-C5": {
 			"keyRoot": "C5"
@@ -15426,7 +16127,8 @@
 		},
 		"Yamaha-TG100-Short-Whistle": {},
 		"Yamaha-TG100-Side-Stick": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TG100-Sitar-C4": {
 			"keyRoot": "C4"
@@ -15435,31 +16137,37 @@
 			"keyRoot": "C2"
 		},
 		"Yamaha-TG100-Snare-Drum-2": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TG100-Snare-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TG100-Splash-Cymbal": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "C#3"
 		},
 		"Yamaha-TG100-SquareLd-C5": {
 			"keyRoot": "C5"
 		},
 		"Yamaha-TG100-Stl-Drum-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TG100-Sweep-Pd-C2": {
 			"keyRoot": "C2"
 		},
 		"Yamaha-TG100-SynthTom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-TG100-TaikoDrm": {},
 		"Yamaha-TG100-Tambourine": {},
 		"Yamaha-TG100-TnklBell": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-TG100-Tweet": {},
 		"Yamaha-TG100-Voice-Ld-C5": {
@@ -15573,7 +16281,8 @@
 		"Yamaha-TG500-Orchestra-Hit": {},
 		"Yamaha-TG500-SC-Bell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-TG500-SE-Fear": {},
 		"Yamaha-TG500-SP-Lyle-C4": {
@@ -15725,7 +16434,8 @@
 		},
 		"Yamaha-TX802-Synth-Bell-C6": {
 			"keyRoot": "C6",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-TX81Z-6-Tease-C4": {
 			"keyRoot": "C4"
@@ -15734,7 +16444,8 @@
 			"keyRoot": "C4"
 		},
 		"Yamaha-TX81Z-Acoustic-Tom": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "A2"
 		},
 		"Yamaha-TX81Z-Alchemist-C3": {
 			"keyRoot": "C3"
@@ -15749,7 +16460,8 @@
 			"keyRoot": "C2"
 		},
 		"Yamaha-TX81Z-Bass-Drum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TX81Z-BreathOrgn-C4": {
 			"keyRoot": "C4"
@@ -15764,7 +16476,8 @@
 			"keyRoot": "C1"
 		},
 		"Yamaha-TX81Z-FM-Hi-Hats": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "G#2"
 		},
 		"Yamaha-TX81Z-Farcheeza-C3": {
 			"keyRoot": "C3"
@@ -15810,7 +16523,8 @@
 			"keyRoot": "C3"
 		},
 		"Yamaha-TX81Z-Snare-1": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-TX81Z-SqncrBass-C1": {
 			"keyRoot": "C1"
@@ -15824,7 +16538,8 @@
 		"Yamaha-TX81Z-Timpani": {},
 		"Yamaha-TX81Z-Tube-Bells-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-TX81Z-Violin-C5": {
 			"keyRoot": "C5"
@@ -15855,7 +16570,8 @@
 		},
 		"Yamaha-V50-IceBell-C5": {
 			"keyRoot": "C5",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-V50-Industrial-Beat-120bpm": {},
 		"Yamaha-V50-LargePipes-C2": {
@@ -15868,13 +16584,15 @@
 			"keyRoot": "C2"
 		},
 		"Yamaha-V50-OilDrum": {
-			"loop": false
+			"loop": false,
+			"keyAlias": "D3"
 		},
 		"Yamaha-V50-Ride-Pattern-120bpm": {},
 		"Yamaha-V50-Rock-Beat-120bpm": {},
 		"Yamaha-V50-ShrineBell-C4": {
 			"keyRoot": "C4",
-			"loop": false
+			"loop": false,
+			"keyAlias": "F3"
 		},
 		"Yamaha-V50-SofTimpani": {},
 		"Yamaha-V50-SoftLead-C4": {

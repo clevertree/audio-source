@@ -357,21 +357,15 @@ class SynthesizerInstrument extends HTMLElement {
                 presetConfig.samples[sampleName],
                 this.sampleLibrary.samples[sampleName]);
             sampleConfig.url = new URL(urlPrefix + sampleConfig.url, this.sampleLibrary.url) + '';
-            // if(sampleConfig.keyRoot)
-            //     sampleConfig.keyRoot = this.getCommandFrequency(sampleConfig.keyRoot);
 
-            // if(typeof sampleConfig.keyRange !== "undefined") {
-            //     let pair = sampleConfig.keyRange;
-            //     if(typeof pair === 'string')
-            //         pair = pair.split('-');
-            //     sampleConfig.keyLow = pair[0];
-            //     sampleConfig.keyHigh = pair[1] || pair[0];
-            //     delete sampleConfig.keyRange;
-            // }
-            // if(typeof sampleConfig.keyLow !== "undefined")
-            //     sampleConfig.keyLow = this.getCommandFrequency(sampleConfig.keyLow);
-            // if(typeof sampleConfig.keyHigh !== "undefined")
-            //     sampleConfig.keyHigh = this.getCommandFrequency(sampleConfig.keyHigh);
+            if(typeof sampleConfig.keyRange !== "undefined") {
+                let pair = sampleConfig.keyRange;
+                if(typeof pair === 'string')
+                    pair = pair.split('-');
+                sampleConfig.keyLow = pair[0];
+                sampleConfig.keyHigh = pair[1] || pair[0];
+                delete sampleConfig.keyRange;
+            }
             newConfig.samples[sampleName] = sampleConfig;
         });
 
@@ -679,21 +673,23 @@ class SynthesizerInstrument extends HTMLElement {
         return aliases;
     }
 
-    getCommandFrequency (command) {
+
+    getCommandKeyNumber (command) {
         if(Number(command) === command && command % 1 !== 0)
             return command;
         if(!command)
             return null;
-
-        // const aliases = this.getFrequencyAliases();
-        // if(typeof aliases[command] !== "undefined")
-        //     command = aliases[command];
 
         const instructions = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
         let octave = command.length === 3 ? command.charAt(2) : command.charAt(1),
             keyNumber = instructions.indexOf(command.slice(0, -1));
         if (keyNumber < 3)  keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
         else                keyNumber = keyNumber + ((octave - 1) * 12) + 1;
+        return keyNumber;
+    }
+
+    getCommandFrequency (command) {
+        const keyNumber = this.getCommandKeyNumber(command);
         return 440 * Math.pow(2, (keyNumber- 49) / 12);
     }
 
