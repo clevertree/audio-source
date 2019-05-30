@@ -11,6 +11,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         constructor(config) {
             super();
+
             if (!config)
                 config = {};
             // if(!config.name)
@@ -18,6 +19,10 @@ if(!customElements.get('audio-source-synthesizer')) {
             if (!config.samples)
                 config.samples = {};
             this.config = config;            // TODO: validate config
+
+            if(!SynthesizerInstrument.sampleLoader)
+                SynthesizerInstrument.sampleLoader = new SampleLoader();
+            this.sampleLoader = SynthesizerInstrument.sampleLoader;
             this.samples = {};
             this.sampleLibrary = null;
             this.instrumentLibrary = null;
@@ -65,91 +70,44 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         // instruments receive audioContext only after user gesture
         async initSample(audioContext, sampleName) {
+            const sampleConfig = this.config.samples[sampleName];
+            let sampleURL = sampleConfig.url;
+            if (!sampleURL)
+                throw new Error("Sample config is missing url");
+
             const sampleData = this.samples[sampleName];
-            if (!sampleData)
-                throw new Error("Sample not loaded: " + sampleName);
-            if (sampleData.onInit) {
-                await sampleData.onInit(audioContext);
-                delete sampleData.onInit;
+
+
+            const ext = sampleURL.substr(-4).split('.').pop().toLowerCase();
+            switch (ext) {
+                default:
+                case 'wav':
+                    sampleData.buffer = await this.sampleLoader.initAudioSample(audioContext, sampleURL, this);
+                    break;
+
+                case 'json':
+                    sampleData.periodicWave = await this.sampleLoader.initAudioSample(audioContext, sampleURL, this);
+                    break;
+//                 default:
+//                     reject("Unknown extension: " + ext);
             }
         }
 
 
         async loadAudioSample(sampleName) {
             const sampleConfig = this.config.samples[sampleName];
-            let url = sampleConfig.url;
-            if (!url)
+            let sampleURL = sampleConfig.url;
+            if (!sampleURL)
                 throw new Error("Sample config is missing url");
-            url = new URL(url, document.location) + '';
+            sampleURL = new URL(sampleURL, document.location) + '';
 
             if (typeof this.samples[sampleName] === "undefined") {
                 this.samples[sampleName] = {}
             }
-            const sampleData = this.samples[sampleName];
 
-            return await new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-
-                xhr.open('GET', url, true);
-                const ext = url.split('.').pop().toLowerCase();
-                switch (ext) {
-                    default:
-                    case 'wav':
-                        xhr.responseType = 'arraybuffer';
-
-                        xhr.onload = () => {
-                            let audioData = xhr.response;
-                            sampleData.onInit = async (context) => {
-                                delete sampleData.onInit;
-                                await new Promise((resolve, reject) => {
-                                    context.decodeAudioData(audioData,
-                                        (buffer) => {
-                                            audioData = null;
-                                            sampleData.buffer = buffer;
-                                            resolve();
-                                        },
-
-                                        (e) => {
-                                            reject("Error with decoding audio data" + e.error);
-                                        }
-                                    );
-                                });
-                            };
-
-                            if (this.audioContext) // Try initiating new samples
-                                sampleData.onInit(this.audioContext);
-                            resolve();
-                        };
-
-                        xhr.send();
-                        break;
-                    case 'json':
-                        xhr.responseType = 'json';
-                        xhr.onload = () => {
-                            if (xhr.status !== 200)
-                                return reject("Periodic wave file not found: " + url);
-
-                            const tables = xhr.response;
-                            if (!tables.real || !tables.imag)
-                                return reject("Invalid JSON for periodic wave");
-
-                            sampleData.onInit = async (context) => {
-                                delete sampleData.onInit;
-                                sampleData.periodicWave = context.createPeriodicWave(
-                                    new Float32Array(tables.real),
-                                    new Float32Array(tables.imag)
-                                );
-                            };
-                            if (this.audioContext) // Try initiating new samples
-                                sampleData.onInit(this.audioContext);
-                            resolve();
-                        };
-                        xhr.send();
-                        break;
-//                 default:
-//                     reject("Unknown extension: " + ext);
-                }
-            });
+            await this.sampleLoader.loadAudioSampleData(sampleURL, this);
+            if(this.audioContext)
+                await this.sampleLoader.initAudioSample(this.audioContext, sampleURL, this);
         }
 
 
@@ -726,4 +684,108 @@ if(!customElements.get('audio-source-synthesizer')) {
             }
         }));
     }, 500);
+
+    // TODO: memory leak on many sample load
+    class SampleLoader {
+        constructor() {
+            this.samplesByURL = {};
+        }
+
+        unloadSamples(instrumentInstance) {
+
+        }
+
+        async loadAudioSampleData(sampleURL, instrumentInstance) {
+            // let sampleURL = sampleConfig.url;
+            if (!sampleURL)
+                throw new Error("Invalid url");
+            sampleURL = new URL(sampleURL, document.location) + '';
+
+            let sampleCache;
+            if(typeof this.samplesByURL[sampleURL] !== 'undefined') {
+                sampleCache = this.samplesByURL[sampleURL];
+                if(sampleCache.instances.indexOf(instrumentInstance) === -1)
+                    sampleCache.instances.push(instrumentInstance);
+                if(sampleCache.loadingPromise)
+                    return await sampleCache.loadingPromise;
+                return sampleCache.response;
+            }
+
+            let resolvePromise = function(){};
+            sampleCache = {
+                instances: [instrumentInstance],
+                loadingPromise: new Promise((resolve, reject) => {
+                    resolvePromise = resolve;
+                })
+            };
+            this.samplesByURL[sampleURL] = sampleCache;
+
+            sampleCache.response = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                xhr.open('GET', sampleURL, true);
+                const ext = sampleURL.split('.').pop().toLowerCase();
+                switch (ext) {
+                    default:
+                    case 'wav':
+                        xhr.responseType = 'arraybuffer';
+                        break;
+                    case 'json':
+                        xhr.responseType = 'json';
+                        break;
+//                 default:
+//                     reject("Unknown extension: " + ext);
+                }
+                xhr.onload = () => {
+                    if (xhr.status !== 200)
+                        return reject("Sample file not found: " + sampleURL);
+                    resolve(xhr.response);
+                };
+                xhr.send();
+            });
+
+            console.info("Sample Loaded: ", sampleURL);
+            resolvePromise(sampleCache.response);
+
+        }
+
+        async initAudioSample(audioContext, sampleURL, instrumentInstance) {
+            sampleURL = new URL(sampleURL, document.location) + '';
+
+            let audioData = await this.loadAudioSampleData(sampleURL, instrumentInstance);
+            const sampleCache = this.samplesByURL[sampleURL];
+            if(sampleCache.buffer)
+                return sampleCache.buffer;
+            if(sampleCache.decodingPromise)
+                return await sampleCache.decodingPromise;
+
+            let resolvePromise = function(){};
+            sampleCache.decodingPromise = new Promise((resolve, reject) => {
+                resolvePromise = resolve;
+            });
+
+            const ext = sampleURL.split('.').pop().toLowerCase();
+            switch (ext) {
+                default:
+                case 'wav':
+                    sampleCache.buffer = await audioContext.decodeAudioData(audioData);
+                    break;
+
+                case 'json':
+                    if (!audioData.real || !audioData.imag)
+                        return reject("Invalid JSON for periodic wave");
+
+                    sampleCache.buffer = context.createPeriodicWave(
+                        new Float32Array(audioData.real),
+                        new Float32Array(audioData.imag)
+                    );
+                    break;
+//                 default:
+//                     reject("Unknown extension: " + ext);
+            }
+
+            console.info("Sample Initiated: ", sampleURL);
+            resolvePromise(sampleCache.buffer);
+        }
+    }
 }
