@@ -107,7 +107,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
             await this.sampleLoader.loadAudioSampleData(sampleURL, this);
             if(this.audioContext)
-                await this.sampleLoader.initAudioSample(this.audioContext, sampleURL, this);
+                await this.initSample(this.audioContext, sampleName);
         }
 
 
@@ -149,11 +149,10 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         async playSample(destination, sampleName, frequencyValue, startTime, duration, velocity) {
             if (typeof this.samples[sampleName] === 'undefined')
-                throw new Error("Sample not loaded: " + sampleName);
+                await this.initSample(destination.context, sampleName)
+                // throw new Error("Sample not loaded: " + sampleName);
             const sampleData = this.samples[sampleName];
             const sampleConfig = this.config.samples[sampleName];
-            if (sampleData.onInit)
-                await this.initSample(destination.context, sampleName);
 
             if (!frequencyValue)
                 frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
@@ -786,6 +785,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
             console.info("Sample Initiated: ", sampleURL);
             resolvePromise(sampleCache.buffer);
+            return sampleCache.buffer;
         }
     }
 }
