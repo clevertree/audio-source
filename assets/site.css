@@ -1,9 +1,31 @@
 .as-theme {
     max-width: 80em;
-    background: #222;
+    background: #2c3e50;
     color: #FFF;
     margin: auto;
 }
+
+.as-theme a {
+    color: #27ae60;
+}
+
+.as-theme article{
+    background: #34495e;
+    padding: 0.1em 1em 1em 1em;
+    border-radius: 1em;
+}
+
+
+.as-theme footer {
+    padding: 1em;
+    text-align: center;
+    /* background: linear-gradient(to bottom, #EEE 0%, #CCC 100%); */
+}
+
+
+
+/** Section **/
+
 
 .as-theme .choose-section {
     display: flex;
@@ -14,16 +36,19 @@
     text-align: center;
     display: inline-block;
     width: 40%;
+    background-color: #2980b9;
+    padding: 1em 1em 0 1em;
+    margin: 1em;
+    border-radius: 1em;
 }
 
 .as-theme .choose-section img {
     max-width: 70%;
 }
 
-.as-theme footer {
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
-    /* background: linear-gradient(to bottom, #EEE 0%, #CCC 100%); */
-}
+/** Lists **/
 
+.as-theme ul.features {
+    font-size: x-small;
+    font-family: 'Advent Pro', monospace;
+}

@@ -20,9 +20,9 @@ if(!customElements.get('audio-source-synthesizer')) {
                 config.samples = {};
             this.config = config;            // TODO: validate config
 
-            if(!SynthesizerInstrument.sampleLoader)
-                SynthesizerInstrument.sampleLoader = new SampleLoader();
-            this.sampleLoader = SynthesizerInstrument.sampleLoader;
+            // if(!SynthesizerInstrument.sampleLoader)
+            //     SynthesizerInstrument.sampleLoader = new SampleLoader();
+            this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
             this.samples = {};
             this.sampleLibrary = null;
             this.instrumentLibrary = null;
@@ -43,6 +43,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         loadSamples() {
+            this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
             this.samples = {};
             for (let sampleName in this.config.samples) {
                 if (this.config.samples.hasOwnProperty(sampleName)) {
@@ -694,7 +695,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         }
 
-        async loadAudioSampleData(sampleURL, instrumentInstance) {
+        async loadAudioSampleData(sampleURL) {
             // let sampleURL = sampleConfig.url;
             if (!sampleURL)
                 throw new Error("Invalid url");
@@ -703,8 +704,8 @@ if(!customElements.get('audio-source-synthesizer')) {
             let sampleCache;
             if(typeof this.samplesByURL[sampleURL] !== 'undefined') {
                 sampleCache = this.samplesByURL[sampleURL];
-                if(sampleCache.instances.indexOf(instrumentInstance) === -1)
-                    sampleCache.instances.push(instrumentInstance);
+                // if(sampleCache.instances.indexOf(instrumentInstance) === -1)
+                //     sampleCache.instances.push(instrumentInstance);
                 if(sampleCache.loadingPromise)
                     return await sampleCache.loadingPromise;
                 return sampleCache.response;
@@ -712,7 +713,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
             let resolvePromise = function(){};
             sampleCache = {
-                instances: [instrumentInstance],
+                // instances: [instrumentInstance],
                 loadingPromise: new Promise((resolve, reject) => {
                     resolvePromise = resolve;
                 })
@@ -748,10 +749,10 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         }
 
-        async initAudioSample(audioContext, sampleURL, instrumentInstance) {
+        async initAudioSample(audioContext, sampleURL) {
             sampleURL = new URL(sampleURL, document.location) + '';
 
-            let audioData = await this.loadAudioSampleData(sampleURL, instrumentInstance);
+            let audioData = await this.loadAudioSampleData(sampleURL);
             const sampleCache = this.samplesByURL[sampleURL];
             if(sampleCache.buffer)
                 return sampleCache.buffer;
