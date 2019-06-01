@@ -1,4 +1,4 @@
-# Audio Source Composer (ASE)
+# Audio Source Composer (ASC)
 
 Created by Ari Asulin
 
@@ -22,7 +22,7 @@ This is an early peak at the Audio Source Composer. Try it out at https://audios
 * Server-side song rendering
 * Export MIDI files
 
-## How to put the editor on your website
+## How to put the composer element on your website
 ```
 <script src="https://audiosource.io/composer/audio-source-composer.min.js"></script>
 <audio-source-composer></audio-source-composer>
