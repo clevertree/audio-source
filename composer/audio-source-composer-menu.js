@@ -1,4 +1,4 @@
-class AudioSourceEditorMenu {
+class AudioSourceComposerMenu {
     constructor(editor) {
         this.editor = editor;
     }

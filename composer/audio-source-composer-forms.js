@@ -1,4 +1,4 @@
-class AudioSourceEditorForms {
+class AudioSourceComposerForms {
     constructor(editor) {
         this.editor = editor;
     }

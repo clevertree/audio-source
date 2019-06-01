@@ -1,7 +1,8 @@
 # Audio Source Editor (ASE)
+
 Created by Ari Asulin
 
-This is an early peak at the Audio Source Editor. 
+This is an early peak at the Audio Source Editor. Try it out at https://audiosource.io
 
 ## Currently Working:
 * Add, edit, and delete notes and note groups (delete has a bug)
@@ -23,8 +24,8 @@ This is an early peak at the Audio Source Editor.
 
 ## How to put the editor on your website
 ```
-<script src="https://audiosource.io/editor/audio-source-editor.min.js"></script>
-<audio-source-editor></audio-source-editor>
+<script src="https://audiosource.io/composer/audio-source-composer.min.js"></script>
+<audio-source-composer></audio-source-composer>
 ```
 
 

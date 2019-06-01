@@ -676,14 +676,17 @@ if(!customElements.get('audio-source-synthesizer')) {
     }
 
     customElements.define('audio-source-synthesizer', SynthesizerInstrument);
-    setTimeout(() => {
+    const dispatch = () => {
         document.dispatchEvent(new CustomEvent('instrument:loaded', {
             detail: {
                 "class": SynthesizerInstrument,
                 "file": "audio-source-synthesizer.js"
             }
         }));
-    }, 500);
+    };
+    setTimeout(dispatch, 1);
+    setTimeout(dispatch, 500);
+    setTimeout(dispatch, 2500); // For slow loaders
 
     // TODO: memory leak on many sample load
     class SampleLoader {

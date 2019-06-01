@@ -1,5 +1,5 @@
 {
-  "name": "audio-source-editor",
+  "name": "audio-source-composer",
   "version": "0.0.1",
   "description": "Audio Source Editor and Player",
   "author": "Ari Asulin",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "customURL": "git+ssh://git@github.com/clevertree/audio-source-editor.git"
+    "customURL": "git+ssh://git@github.com/clevertree/audio-source-composer.git"
   },
   "keywords": [
     "song",
@@ -20,9 +20,9 @@
     "player"
   ],
   "bugs": {
-    "customURL": "https://github.com/clevertree/audio-source-editor/issues"
+    "customURL": "https://github.com/clevertree/audio-source-composer/issues"
   },
-  "homepage": "https://github.com/clevertree/audio-source-editor#readme",
+  "homepage": "https://github.com/clevertree/audio-source-composer#readme",
   "dependencies": {
     "minify": "^4.1.1",
     "jsdom": "^15.1.0"

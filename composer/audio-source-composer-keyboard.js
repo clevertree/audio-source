@@ -4,7 +4,7 @@
  * One groups displays at a time. Columns imply simultaneous instructions.
  */
 
-class AudioSourceEditorKeyboard {
+class AudioSourceComposerKeyboard {
     constructor(editor) {
         this.editor = editor;
     }

@@ -4,7 +4,7 @@
  * One groups displays at a time. Columns imply simultaneous instructions.
  */
 
-class AudioSourceEditorElement extends HTMLElement {
+class AudioSourceComposerElement extends HTMLElement {
     constructor() {
         super();
         // this.player = null;
@@ -40,15 +40,15 @@ class AudioSourceEditorElement extends HTMLElement {
 
         this.longPressTimeout = null;
 
-        this.values = new AudioSourceEditorValues(this);
-        this.webSocket = new AudioSourceEditorWebsocket(this);
-        this.keyboard = new AudioSourceEditorKeyboard(this);
-        this.menu = new AudioSourceEditorMenu(this);
-        this.forms = new AudioSourceEditorForms(this);
-        this.grid = new AudioSourceEditorGrid(this);
+        this.values = new AudioSourceComposerValues(this);
+        this.webSocket = new AudioSourceComposerWebsocket(this);
+        this.keyboard = new AudioSourceComposerKeyboard(this);
+        this.menu = new AudioSourceComposerMenu(this);
+        this.forms = new AudioSourceComposerForms(this);
+        this.grid = new AudioSourceComposerGrid(this);
         // this.modifier = new SongModifier(this);
 
-        this.instruments = new AudioSourceEditorInstruments(this);
+        this.instruments = new AudioSourceComposerInstruments(this);
         this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
 
         this.renderer = new AudioSourceRenderer(this);
@@ -323,7 +323,7 @@ class AudioSourceEditorElement extends HTMLElement {
         this.status.groupHistory.unshift(this.status.currentGroup);
         this.status.currentGroup = groupName;
         console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.grid = new AudioSourceEditorGrid(this, groupName);
+        this.grid = new AudioSourceComposerGrid(this, groupName);
         this.render();
     }
 
@@ -384,16 +384,16 @@ class AudioSourceEditorElement extends HTMLElement {
     // }
 
     getScriptDirectory(appendPath='') {
-        const scriptElm = document.head.querySelector('script[src$="audio-source-editor-element.js"],script[src$="audio-source-editor.min.js"]');
+        const scriptElm = document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
         const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
         console.log("Base Path: ", basePath);
         return basePath + appendPath;
     }
 
     loadCSS() {
-        if(document.head.querySelector('link[href$="audio-source-editor.css"]'))
+        if(document.head.querySelector('link[href$="audio-source-composer.css"]'))
             return;
-        const linkHRef = this.getScriptDirectory('editor/audio-source-editor.css');
+        const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
@@ -401,4 +401,4 @@ class AudioSourceEditorElement extends HTMLElement {
         document.head.appendChild(cssLink);
     }
 }
-customElements.define('audio-source-editor', AudioSourceEditorElement);
+customElements.define('audio-source-composer', AudioSourceComposerElement);

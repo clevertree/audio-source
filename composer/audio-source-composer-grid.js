@@ -1,4 +1,4 @@
-class AudioSourceEditorGrid {
+class AudioSourceComposerGrid {
     constructor(editor, groupName='root') {
         this.editor = editor;
         this.groupName = groupName;
@@ -525,7 +525,7 @@ class AudioSourceEditorGrid {
             this.status.grids.unshift(existingGrid);
         else
             this.status.grids.unshift(
-                Object.assign({}, AudioSourceEditorElement.DEFAULT_GRID_STATUS, {
+                Object.assign({}, AudioSourceComposerElement.DEFAULT_GRID_STATUS, {
                     groupName: groupName,
                     parentInstruction: parentInstruction,
                 })
