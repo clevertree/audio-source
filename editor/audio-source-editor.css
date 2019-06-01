@@ -1,6 +1,6 @@
 audio-source-editor {
     color: #000;
-    background-color: #CCC;
+    background-color: #bdc3c7;
     display: block;
     /* font-size: 14px; */
     /* line-height: 16px; */
@@ -10,6 +10,13 @@ audio-source-editor {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select:none;
+}
+
+/** Colors **/
+audio-source-editor table,
+audio-source-editor a,
+audio-source-editor {
+    color: #000;
 }
 
 
@@ -80,9 +87,8 @@ audio-source-editor ul.submenu {
     display: inline-block;
     position: absolute;
     /*left: -800px;*/
-
     border: 1px solid grey;
-    background-color: #BBB;
+    background-color: #bdc3c7;
     /* position: absolute; */
     opacity: 0;
     margin: 0 -0.3em -0.3em -0.3em;

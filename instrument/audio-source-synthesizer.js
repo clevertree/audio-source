@@ -390,7 +390,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         render() {
-            const instrumentID = this.getAttribute('data-id');
+            const instrumentID = this.getAttribute('data-id') || '0';
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
             const instrumentPreset = this.config;
 

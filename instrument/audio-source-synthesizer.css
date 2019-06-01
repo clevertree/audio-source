@@ -1,7 +1,14 @@
+/** Colors **/
+audio-source-synthesizer table,
+audio-source-synthesizer {
+    color: #000;
+}
+
 
 
 audio-source-synthesizer {
     background: #DDD;
+    color: #000;
     position: relative;
     vertical-align: top;
     display: inline-block;
