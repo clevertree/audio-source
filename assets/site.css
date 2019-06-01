@@ -6,7 +6,8 @@
 }
 
 .as-theme a {
-    color: #27ae60;
+    color: #ffb046;
+    text-shadow: #000 1px 1px 1px;
 }
 
 .as-theme article{
@@ -15,6 +16,16 @@
     border-radius: 1em;
 }
 
+
+/** Header **/
+
+.as-theme header {
+    text-align: center;
+    /* background: linear-gradient(to bottom, #EEE 0%, #CCC 100%); */
+}
+
+
+/** Footer **/
 
 .as-theme footer {
     padding: 1em;
