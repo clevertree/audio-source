@@ -1,8 +1,8 @@
-# Audio Source Editor (ASE)
+# Audio Source Composer (ASE)
 
 Created by Ari Asulin
 
-This is an early peak at the Audio Source Editor. Try it out at https://audiosource.io
+This is an early peak at the Audio Source Composer. Try it out at https://audiosource.io
 
 ## Currently Working:
 * Add, edit, and delete notes and note groups (delete has a bug)

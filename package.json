@@ -1,7 +1,7 @@
 {
   "name": "audio-source-composer",
-  "version": "0.0.1",
-  "description": "Audio Source Editor and Player",
+  "version": "0.0.2",
+  "description": "Audio Source Composer and Player",
   "author": "Ari Asulin",
   "license": "GPL-3.0",
   "main": "index.js",
