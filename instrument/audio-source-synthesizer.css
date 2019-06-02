@@ -51,6 +51,13 @@ audio-source-synthesizer select:not(:hover)  {
     background: transparent;
 }
 
+/** Tables **/
+audio-source-synthesizer table {
+    font-size: small;
+}
+
+
+
 /** Sample Table **/
 audio-source-synthesizer table.sample-setting-list {
     /* width: 100%; */
@@ -107,5 +114,5 @@ audio-source-synthesizer form.instrument-setting-polyphony    input[name=polypho
 /** Sample Editor **/
 
 audio-source-synthesizer table.sample-setting-list {
-    display: none;
+    /* display: none; */
 }

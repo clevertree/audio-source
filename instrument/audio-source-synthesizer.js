@@ -420,9 +420,9 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <select name="instrumentURL">
                         <optgroup label="Change Instrument">
                             ${this.instrumentLibrary ? this.instrumentLibrary.instruments.map((instrumentConfig) => {
-                if (typeof instrumentConfig !== 'object') instrumentConfig = {url: instrumentConfig};
-                return `<option value="${instrumentConfig.url}">${instrumentConfig.title || instrumentConfig.url.split('/').pop()}</option>`;
-            }).join("\n") : ''}
+                                if (typeof instrumentConfig !== 'object') instrumentConfig = {url: instrumentConfig};
+                                return `<option value="${instrumentConfig.url}">${instrumentConfig.title || instrumentConfig.url.split('/').pop()}</option>`;
+                            }).join("\n") : ''}
                         </optgroup>
                     </select>
                 </form>
@@ -431,29 +431,29 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <select name="preset" title="Load Preset">
                         <option value="">Select Preset</option>
                         ${this.sampleLibrary && this.sampleLibrary.libraries ?
-                `<optgroup label="Libraries">` +
-                this.sampleLibrary.libraries.map((libraryConfig) => {
-                    if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
-                    return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
-                }).join("\n")
-                + `</optgroup>`
-                : null}
+                            `<optgroup label="Libraries">` +
+                            this.sampleLibrary.libraries.map((libraryConfig) => {
+                                if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
+                                return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
+                            }).join("\n")
+                            + `</optgroup>`
+                        : null}
                         ${this.sampleLibrary && this.sampleLibrary.instruments ?
-                `<optgroup label="${this.sampleLibrary.title || 'Unnamed Library'}">` +
-                Object.keys(this.sampleLibrary.instruments).map((presetName) => {
-                    const instrumentConfig = this.sampleLibrary.instruments[presetName];
-                    return `<option value="${presetName}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName || instrumentConfig.title}</option>`;
-                }).join("\n")
-                + `</optgroup>`
-                : null}
+                            `<optgroup label="${this.sampleLibrary.title || 'Unnamed Library'}">` +
+                            Object.keys(this.sampleLibrary.instruments).map((presetName) => {
+                                const instrumentConfig = this.sampleLibrary.instruments[presetName];
+                                return `<option value="${presetName}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName || instrumentConfig.title}</option>`;
+                            }).join("\n")
+                            + `</optgroup>`
+                        : null}
                         ${this.libraryHistory ?
-                `<optgroup label="Other Libraries">` +
-                this.libraryHistory.map((libraryConfig) => {
-                    if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
-                    return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
-                }).join("\n")
-                + `</optgroup>`
-                : null}
+                            `<optgroup label="Other Libraries">` +
+                            this.libraryHistory.map((libraryConfig) => {
+                                if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
+                                return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
+                            }).join("\n")
+                            + `</optgroup>`
+                        : null}
                     </select>
                 </form>
                 <form class="instrument-setting instrument-remove" data-action="instrument:remove">
@@ -461,20 +461,14 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <button class="remove-instrument">x</button>
                 </form>
             </div>
-            <table class="instrument-setting-list">
+            <table class="instrument-setting-list" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Samples</th>
                         <th>Polyphony</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>
-                            <form action="#" class="instrument-setting instrument-setting-sample-view" data-action="sample:view">
-                                <button name="toggle-sample-view">Manage</button>
-                            </form>
-                        </td>
                         <td>
                             <form action="#" class="instrument-setting instrument-setting-polyphony submit-on-change" data-action="instrument:polyphony">
                                 <input type="number" name="polyphony" placeholder="Infinite" list="polyphonyOptions" min="0" max="9999" />
@@ -489,7 +483,8 @@ if(!customElements.get('audio-source-synthesizer')) {
                         <th>Samples</th>
                         <th>Mix</th>
                         <th>Detune</th>
-                        <th>Config</th>
+                        <th>Root</th>
+                        <th>Alias</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -514,6 +509,8 @@ if(!customElements.get('audio-source-synthesizer')) {
                                 <input type="hidden" name="sample" value="${sampleName}" />
                                 <input name="keyRoot" value="${this.config.samples[sampleName].keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
                             </form>
+                        </td>      
+                        <td>   
                             <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="instrument:keyAlias">
                                 <input type="hidden" name="sample" value="${sampleName}" />
                                 <input name="keyAlias" value="${this.config.samples[sampleName].keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
@@ -528,6 +525,9 @@ if(!customElements.get('audio-source-synthesizer')) {
             </datalist>
             <datalist id="polyphonyOptions">
                 ${polyphonyOptionsHTML}
+            </datalist>
+            <datalist id="presetOptions">
+                ${presetOptions}
             </datalist>
         `;
 

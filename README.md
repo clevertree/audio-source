@@ -1,4 +1,4 @@
-# Audio Source Composer (ASC)
+# Audio Source Composer
 
 Created by Ari Asulin
 

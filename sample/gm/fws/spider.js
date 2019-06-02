@@ -16,6 +16,7 @@ const LIBRARY_JSON = {
     "samples": {},
 };
 
+let drumInstrumentPrefixes = {};
 (async () => {
     const libraryJSON = Object.assign({}, LIBRARY_JSON, {
         "instruments": {},
@@ -36,6 +37,7 @@ const LIBRARY_JSON = {
         // console.log("Search complete: ", waveURLs);
     }
 
+    drumInstrumentPrefixes = {};
     for(let i=0; i<waveURLs.length; i++) {
         const waveURL = new URL(waveURLs[i]);
         let fileName = waveURL.pathname.split('/').pop();
@@ -43,9 +45,34 @@ const LIBRARY_JSON = {
         await downloadFile(waveURL, fileName);
     }
 
+
+    for(let drumInstrumentPrefix in drumInstrumentPrefixes) {
+        if(drumInstrumentPrefixes.hasOwnProperty(drumInstrumentPrefix)) {
+            if(!drumInstrumentPrefix)
+                continue;
+
+            const sampleNames = drumInstrumentPrefixes[drumInstrumentPrefix].samples;
+            const singleDrumInstruments = drumInstrumentPrefixes[drumInstrumentPrefix].instruments;
+            for(let j=0; j<sampleNames.length; j++) {
+                const sampleName = sampleNames[j];
+                if(!libraryJSON.instruments[drumInstrumentPrefix])
+                    libraryJSON.instruments[drumInstrumentPrefix] = {samples:{}};
+                const drumInstrument = libraryJSON.instruments[drumInstrumentPrefix];
+                drumInstrument.samples[sampleName] = {};
+            }
+
+            for(let j=0; j<singleDrumInstruments.length; j++) {
+                const singleDrumInstrumentName = singleDrumInstruments[j];
+                delete libraryJSON.instruments[singleDrumInstrumentName];
+
+            }
+        }
+    }
+
     console.log("Writing ", LIBRARY_FILE);
     await writeToFile(LIBRARY_FILE, JSON.stringify(libraryJSON, null, "\t"));
 })();
+
 
 
 function parseSampleConfig(fileName, sampleList, instrumentList) {
@@ -61,7 +88,7 @@ function parseSampleConfig(fileName, sampleList, instrumentList) {
             .replace(/\W+$/, '');
     }
 
-    parseDrumSampleConfig(fileName, sampleConfig);
+    parseDrumSampleConfig(fileName, sampleConfig, instrumentName);
     parseLoopSampleConfig(fileName, sampleConfig);
 
 
@@ -77,27 +104,52 @@ function parseSampleConfig(fileName, sampleList, instrumentList) {
     return fileName;
 }
 
-function parseDrumSampleConfig(fileName, sampleConfig) {
+function parseDrumSampleConfig(fileName, sampleConfig, instrumentName) {
     const drumSampleNotes = {
+        'rap-kick': 'C3',
         'kick': 'C3',
+        'low-mid-synth-tom': 'A2',
+        'hi-mid-synth-tom': 'A2',
+        'hi-synth-tom': 'A2',
+        'mid-synth-tom': 'A2',
+        'low-synth-tom': 'A2',
+        'synth-tom': 'A2',
         'tom': 'A2',
         'snare': 'D3',
+        'steel-drum': 'D3',
         'drum': 'D3',
         'clap': 'E3',
-        'hat': 'G#2',
+        'closed-hi-hat': 'G#2',
+        'closed-hi': 'G#2',
+        'open-hi-hat': 'G#2',
+        'open-hi': 'G#2',
         'open': 'A#2',
+        'hat': 'G#2',
+        'cow': 'D#3',
         'cowbell': 'D#3',
-        'crash': 'C#3',
+        'splash-cymbal': 'C#3',
+        'crash-cymbal': 'C#3',
+        'ride-cymbal': 'D3',
         'cymbal': 'C#3',
+        'crash': 'C#3',
         'bell': 'F3',
         'stick': 'D3',
+        'ride': 'D3',
         'doumbek': 'A2'
     };
     for(let drumSampleName in drumSampleNotes) {
         if(drumSampleNotes.hasOwnProperty(drumSampleName)) {
-            if(fileName.toLowerCase().indexOf(drumSampleName) !== -1) {
+            let pos = fileName.toLowerCase().indexOf(drumSampleName);
+            if(pos !== -1) {
                 sampleConfig.loop = false;
                 sampleConfig.keyAlias = drumSampleNotes[drumSampleName];
+                const drumInstrumentPrefix = fileName.substr(0, pos)
+                    .replace(/\W$/, '');
+                if(!drumInstrumentPrefixes[drumInstrumentPrefix])
+                    drumInstrumentPrefixes[drumInstrumentPrefix] = {samples:[],instruments:[]};
+                drumInstrumentPrefixes[drumInstrumentPrefix].samples.push(fileName);
+                drumInstrumentPrefixes[drumInstrumentPrefix].instruments.push(instrumentName);
+                break;
             }
         }
     }
