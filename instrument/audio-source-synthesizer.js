@@ -788,7 +788,18 @@ if(!customElements.get('audio-source-synthesizer')) {
             switch (ext) {
                 default:
                 case 'wav':
-                    sampleCache.buffer = await audioContext.decodeAudioData(audioData);
+                    // sampleCache.buffer = await audioContext.decodeAudioData(audioData);
+                    sampleCache.buffer = await new Promise((resolve, reject) => {
+                        audioContext.decodeAudioData(audioData, // Safari does not support await for decodeAudioData
+                            (buffer) => {
+                                resolve(buffer);
+                            },
+
+                            (e) => {
+                                reject("Error with decoding audio data" + e.error);
+                            }
+                        );
+                    });
                     break;
 
                 case 'json':
