@@ -52,7 +52,7 @@ let drumInstrumentPrefixes = {};
                 continue;
 
             const sampleNames = drumInstrumentPrefixes[drumInstrumentPrefix].samples;
-            const singleDrumInstruments = drumInstrumentPrefixes[drumInstrumentPrefix].instruments;
+            // const singleDrumInstruments = drumInstrumentPrefixes[drumInstrumentPrefix].instruments;
             for(let j=0; j<sampleNames.length; j++) {
                 const sampleName = sampleNames[j];
                 if(!libraryJSON.instruments[drumInstrumentPrefix])
@@ -61,11 +61,11 @@ let drumInstrumentPrefixes = {};
                 drumInstrument.samples[sampleName] = {};
             }
 
-            for(let j=0; j<singleDrumInstruments.length; j++) {
-                const singleDrumInstrumentName = singleDrumInstruments[j];
-                delete libraryJSON.instruments[singleDrumInstrumentName];
-
-            }
+            // for(let j=0; j<singleDrumInstruments.length; j++) {
+            //     const singleDrumInstrumentName = singleDrumInstruments[j];
+            //     delete libraryJSON.instruments[singleDrumInstrumentName];
+            //
+            // }
         }
     }
 
@@ -88,7 +88,7 @@ function parseSampleConfig(fileName, sampleList, instrumentList) {
             .replace(/\W+$/, '');
     }
 
-    parseDrumSampleConfig(fileName, sampleConfig, instrumentName);
+    instrumentName = parseDrumSampleConfig(fileName, sampleConfig, instrumentName);
     parseLoopSampleConfig(fileName, sampleConfig);
 
 
@@ -132,7 +132,7 @@ function parseDrumSampleConfig(fileName, sampleConfig, instrumentName) {
         'ride-cymbal': 'D3',
         'cymbal': 'C#3',
         'crash': 'C#3',
-        'bell': 'F3',
+        // 'bell': 'F3',
         'stick': 'D3',
         'ride': 'D3',
         'doumbek': 'A2'
@@ -143,16 +143,22 @@ function parseDrumSampleConfig(fileName, sampleConfig, instrumentName) {
             if(pos !== -1) {
                 sampleConfig.loop = false;
                 sampleConfig.keyAlias = drumSampleNotes[drumSampleName];
-                const drumInstrumentPrefix = fileName.substr(0, pos)
-                    .replace(/\W$/, '');
-                if(!drumInstrumentPrefixes[drumInstrumentPrefix])
-                    drumInstrumentPrefixes[drumInstrumentPrefix] = {samples:[],instruments:[]};
-                drumInstrumentPrefixes[drumInstrumentPrefix].samples.push(fileName);
-                drumInstrumentPrefixes[drumInstrumentPrefix].instruments.push(instrumentName);
+                instrumentName = (instrumentName.substr(0, pos)
+                    .replace(/\W$/, '') || 'Generic');
+                const matchNumbered = fileName.match(/-\d+$/);
+                if(matchNumbered) {
+                    instrumentName += matchNumbered[0];
+                }
+                instrumentName += '-Kit';
+                if(!drumInstrumentPrefixes[instrumentName])
+                    drumInstrumentPrefixes[instrumentName] = {samples:[],instruments:[]};
+                drumInstrumentPrefixes[instrumentName].samples.push(fileName);
+                // drumInstrumentPrefixes[drumInstrumentPrefix].instruments.push(instrumentName);
                 break;
             }
         }
     }
+    return instrumentName;
 }
 
 function parseLoopSampleConfig(fileName, sampleConfig) {
@@ -180,32 +186,34 @@ function parseInstrumentConfig(instrumentName, sampleList, instrumentList) {
     if(sampleValues.every(sampleEntry => typeof sampleEntry.keyAlias !== 'undefined'))
         return;
 
-    // Span out the key zones
-    const keyNumberSamples = [];
-    for(let sampleName in instrumentSamples) {
-        if(instrumentSamples.hasOwnProperty(sampleName)) {
-            const combinedSampleConfig = Object.assign({}, instrumentSamples[sampleName], sampleList[sampleName]);
-            if(!combinedSampleConfig.keyRoot)
-                throw new Error("Multi sample instrument requires keyRoot");
-            const keyNumber = getNoteKeyNumber(combinedSampleConfig.keyRoot);
-            keyNumberSamples.push({keyNumber, sampleConfig: instrumentSamples[sampleName]});
+    if(!instrumentName.endsWith('Kit')) {
+        // Span out the key zones
+        const keyNumberSamples = [];
+        for (let sampleName in instrumentSamples) {
+            if (instrumentSamples.hasOwnProperty(sampleName)) {
+                const combinedSampleConfig = Object.assign({}, instrumentSamples[sampleName], sampleList[sampleName]);
+                if (!combinedSampleConfig.keyRoot)
+                    throw new Error("Multi sample instrument requires keyRoot");
+                const keyNumber = getNoteKeyNumber(combinedSampleConfig.keyRoot);
+                keyNumberSamples.push({keyNumber, sampleConfig: instrumentSamples[sampleName]});
+            }
+        }
+        let currentSample = 0, currentRange = [0,0];
+        for (let i=0; i<12*12; i++) {
+            const {keyNumber, sampleConfig} = keyNumberSamples[currentSample];
+            currentRange[1] = i;
+            sampleConfig.keyRange = getNoteByKeyNumber(currentRange[0]) + ':' + getNoteByKeyNumber(currentRange[1]);
+
+            if(!keyNumberSamples[currentSample+1])
+                continue;
+            const nextKeyNumber = keyNumberSamples[currentSample+1].keyNumber;
+            if(i > (keyNumber + nextKeyNumber) / 2) {
+                currentSample++;
+                currentRange = [i+1, i+1];
+            }
         }
     }
 
-    let currentSample = 0, currentRange = [0,0];
-    for (let i=0; i<12*12; i++) {
-        const {keyNumber, sampleConfig} = keyNumberSamples[currentSample];
-        currentRange[1] = i;
-        sampleConfig.keyRange = getNoteByKeyNumber(currentRange[0]) + ':' + getNoteByKeyNumber(currentRange[1]);
-
-        if(!keyNumberSamples[currentSample+1])
-            continue;
-        const nextKeyNumber = keyNumberSamples[currentSample+1].keyNumber;
-        if(i > (keyNumber + nextKeyNumber) / 2) {
-            currentSample++;
-            currentRange = [i+1, i+1];
-        }
-    }
 
 }
 function getNoteKeyNumber (namedFrequency) {

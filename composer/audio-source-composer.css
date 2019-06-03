@@ -29,7 +29,7 @@ audio-source-composer button{
     padding: 2px 4px;
     border: 1px outset #FFF;
     border-radius: 2px;
-    font-size: smaller;
+    font-size: x-small;
     /* max-width: 200px; */
 }
 

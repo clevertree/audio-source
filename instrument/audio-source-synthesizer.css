@@ -35,6 +35,7 @@ audio-source-synthesizer form.instrument-setting > fieldset {
     font-size: x-small;
 }
 
+
 audio-source-synthesizer form.instrument-name > label.label-instrument-name{
     font-size: small;
 }
@@ -43,7 +44,7 @@ audio-source-synthesizer form.instrument-name > label.label-instrument-name{
 
 audio-source-synthesizer input,
 audio-source-synthesizer select  {
-    font-size: x-small;
+    /*font-size: x-small;*/
 }
 audio-source-synthesizer input:not(:hover):not([type=range]),
 audio-source-synthesizer select:not(:hover)  {
@@ -99,8 +100,8 @@ audio-source-synthesizer div.form-section {
 /** Custom Inputs **/
 
 audio-source-synthesizer form.change-instrument >             select[name=instrumentURL]  {width: 136px;}
-audio-source-synthesizer form.change-instrument-preset >      select[name=preset]     { width: 79px;}
-audio-source-synthesizer form.instrument-name                 input[name=name]        { width: 108px; }
+audio-source-synthesizer form.change-instrument-preset >      input[name=preset]     {width: 131px;}
+audio-source-synthesizer form.instrument-name                 input[name=name]        {width: 157px;}
 
 audio-source-synthesizer form.instrument-setting-detune       input[name=detune]      { width: 60px; }
 audio-source-synthesizer form.instrument-setting-mixer        input[name=mixer]       { width: 60px; }
