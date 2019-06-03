@@ -614,7 +614,7 @@ class AudioSourceComposerGrid {
 
 
     findInstructionElement(instructionIndex) {
-        return this.renderElement.querySelector(`.instruction[data-index='${instructionIndex}'`);
+        return this.renderElement.querySelector(`.instruction[data-index='${instructionIndex}']`);
     }
 
     getInstructionHTML(index, instruction) {
