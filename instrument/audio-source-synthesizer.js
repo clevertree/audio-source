@@ -180,8 +180,10 @@ if(!customElements.get('audio-source-synthesizer')) {
                 // source.playbackRate.linearRampToValueAtTime(3.0, startTime + 0.05)
             }
 
-            if (sources.length === 0)
-                throw new Error("No sources were created");
+            if (sources.length === 0) {
+                console.warn("No sources were created");
+                return;
+            }
 
             if (typeof sampleConfig.detune !== "undefined")
                 source.detune.value = sampleConfig.detune;
@@ -784,6 +786,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 resolvePromise = resolve;
             });
 
+            console.info("Loading Initiated: ", sampleURL);
             const ext = sampleURL.split('.').pop().toLowerCase();
             switch (ext) {
                 default:

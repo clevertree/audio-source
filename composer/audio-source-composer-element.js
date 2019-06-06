@@ -111,20 +111,24 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.initWebSocket(uuid);
 
         // TODO: wait for user input
-        navigator.requestMIDIAccess().then(
-            (MIDI) => {
-                console.log("MIDI initialized", MIDI);
-                const inputDevices = [];
-                MIDI.inputs.forEach(
-                    (inputDevice) => {
-                        inputDevices.push(inputDevice);
-                        inputDevice.addEventListener('midimessage', e => this.onInput(e));
-                    }
-                );
-                console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-            },
-            (err) => { this.onError("error initializing MIDI: " + err); }
-        );
+        if(navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(
+                (MIDI) => {
+                    console.log("MIDI initialized", MIDI);
+                    const inputDevices = [];
+                    MIDI.inputs.forEach(
+                        (inputDevice) => {
+                            inputDevices.push(inputDevice);
+                            inputDevice.addEventListener('midimessage', e => this.onInput(e));
+                        }
+                    );
+                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
+                },
+                (err) => {
+                    this.onError("error initializing MIDI: " + err);
+                }
+            );
+        }
 
     }
 
