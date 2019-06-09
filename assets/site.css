@@ -24,6 +24,10 @@
     /* background: linear-gradient(to bottom, #EEE 0%, #CCC 100%); */
 }
 
+.as-theme header a > h1 > img {
+    padding-top: 0.3em;
+}
+
 
 /** Footer **/
 
