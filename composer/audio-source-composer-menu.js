@@ -4,15 +4,10 @@ class AudioSourceComposerMenu {
     }
 
     get renderElement() {
-        let renderElement = this.editor.querySelector('ul.editor-menu');
-        if(!renderElement) {
-            renderElement = document.createElement('ul');
-            renderElement.setAttribute('tabindex', '0')
-            renderElement.classList.add('editor-menu');
-            this.editor.appendChild(renderElement);
-            // this.editor.innerHTML += `<ul class="editor-menu" tabindex="0"></ul>`;
-            // renderElement = this.editor.querySelector('ul.editor-menu');
-        }
+        const selector = 'ul.composer-menu';
+        let renderElement = this.editor.querySelector(selector);
+        if(!renderElement)
+            throw new Error(`Element not found: ${selector}`);
         return renderElement;
     }
 
@@ -345,7 +340,7 @@ class AudioSourceComposerMenu {
             </li>
             <li>
                 <span class="key">E</span>dit
-                <ul class="submenu editor-context-menu">
+                <ul class="submenu composer-context-menu">
                     <li class="control-note-insert">
                         <span>Insert <span class="key">N</span>ew Command &#9658;</span>
                         <ul class="submenu">
@@ -494,7 +489,7 @@ class AudioSourceComposerMenu {
 
         this.renderElement.querySelectorAll('a.open').forEach(elm => elm.classList.remove('open'));
         // this.renderElement.querySelectorAll('.selected-context-menu').forEach(elm => elm.classList.remove('selected-context-menu'));
-        const contextMenu = this.renderElement.querySelector('.editor-context-menu');
+        const contextMenu = this.renderElement.querySelector('.composer-context-menu');
 
         contextMenu.classList.add('open-context-menu');
         contextMenu.classList.add('open');
@@ -505,7 +500,7 @@ class AudioSourceComposerMenu {
     }
 
     closeMenu() {
-        const contextMenu = this.renderElement.querySelector('.editor-context-menu');
+        const contextMenu = this.renderElement.querySelector('.composer-context-menu');
         contextMenu.classList.remove('open-context-menu');
         contextMenu.classList.remove('open');
         contextMenu.removeAttribute('style');

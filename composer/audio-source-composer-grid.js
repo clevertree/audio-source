@@ -8,13 +8,10 @@ class AudioSourceComposerGrid {
     }
 
     get renderElement() {
-        let renderElement = this.editor.querySelector('.editor-grid');
-        if(!renderElement) {
-            renderElement = document.createElement('div');
-            renderElement.classList.add('editor-grid');
-            renderElement.setAttribute('tabindex', '0');
-            this.editor.appendChild(renderElement);
-        }
+        const selector = '.composer-grid';
+        let renderElement = this.editor.querySelector(selector);
+        if(!renderElement)
+            throw new Error(`Element not found: ${selector}`);
         return renderElement;
     }
 
@@ -301,7 +298,7 @@ class AudioSourceComposerGrid {
                     if (e.target.matches('.instruction,.instruction > div')) {
                         return this.onCellInput(e);
                     }
-                    if (e.target.matches('.editor-grid > div')) { // classList.contains('grid-row')) {
+                    if (e.target.matches('.composer-grid > div')) { // classList.contains('grid-row')) {
                         return this.onRowInput(e);
                     }
                     // e.preventDefault();
@@ -552,7 +549,7 @@ class AudioSourceComposerGrid {
         this.minimumGridLengthTicks += defaultDuration;
         this.render();
         if(selectNewRow) {
-            const lastRowElm = this.renderElement.querySelector('.editor-grid > div:last-child');
+            const lastRowElm = this.renderElement.querySelector('.composer-grid > div:last-child');
             this.selectCell(e, this.createNewInstructionCell(lastRowElm));
         }
     }
@@ -595,7 +592,7 @@ class AudioSourceComposerGrid {
     // }
 
     scrollToCursor(cursorCell) {
-        const container = this.renderElement; // cursorCell.closest('.editor-grid-container');
+        const container = this.renderElement; // cursorCell.closest('.composer-grid-container');
         if(container.scrollTop < cursorCell.parentNode.offsetTop - container.offsetHeight)
             container.scrollTop = cursorCell.parentNode.offsetTop;
 

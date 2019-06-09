@@ -304,7 +304,14 @@ class AudioSourceComposerElement extends HTMLElement {
     // Rendering
 
     render() {
-        // this.innerHTML = ``;
+        this.innerHTML = `
+        <div class="composer-controls" tabindex="0">
+            <ul class="composer-menu"></ul>
+            <div class="composer-forms"></div>
+            <div class="composer-instruments" tabindex="0"></div>
+        </div>
+        <div class="composer-grid" tabindex="0"></div>
+        `;
         this.menu.render();
         this.forms.render();
         this.instruments.render();

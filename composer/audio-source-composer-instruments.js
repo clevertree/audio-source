@@ -5,20 +5,13 @@ class AudioSourceComposerInstruments {
 
     }
 
-
     get renderElement() {
-        let renderElement = this.editor.querySelector('div.editor-instruments');
-        if(!renderElement) {
-            renderElement = document.createElement('div');
-            // renderElement.setAttribute('tabindex', '0')
-            renderElement.classList.add('editor-instruments');
-            this.editor.appendChild(renderElement);
-            // this.editor.innerHTML += `<div class="editor-instruments"></div>`;
-            // renderElement = this.editor.querySelector('div.editor-instruments');
-        }
+        const selector = 'div.composer-instruments';
+        let renderElement = this.editor.querySelector(selector);
+        if(!renderElement)
+            throw new Error(`Element not found: ${selector}`);
         return renderElement;
     }
-
 
     // Instruments load their own libraries. Libraries may be shared via dispatch
     async loadInstrumentLibrary(url, force=false) {

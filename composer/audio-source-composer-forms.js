@@ -4,15 +4,10 @@ class AudioSourceComposerForms {
     }
 
     get renderElement() {
-        let renderElement = this.editor.querySelector('div.editor-forms');
-        if(!renderElement) {
-            renderElement = document.createElement('div');
-            // renderElement.setAttribute('tabindex', '0')
-            renderElement.classList.add('editor-forms');
-            this.editor.appendChild(renderElement);
-            // this.editor.innerHTML += `<div class="editor-forms"></div>`;
-            // renderElement = this.editor.querySelector('div.editor-forms');
-        }
+        const selector = 'div.composer-forms';
+        let renderElement = this.editor.querySelector(selector);
+        if(!renderElement)
+            throw new Error(`Element not found: ${selector}`);
         return renderElement;
     }
 
