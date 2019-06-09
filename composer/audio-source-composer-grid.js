@@ -4,7 +4,7 @@ class AudioSourceComposerGrid {
         this.groupName = groupName;
         // this.cursorCellIndex = 0;
         this.minimumGridLengthTicks = null;
-
+        this.instructionElms = null;
     }
 
     get renderElement() {
@@ -611,7 +611,9 @@ class AudioSourceComposerGrid {
 
 
     findInstructionElement(instructionIndex) {
-        return this.renderElement.querySelector(`.instruction[data-index='${instructionIndex}']`);
+        // const instructions = this.renderElement.querySelectorAll(`.instruction`);
+        return this.instructionElms[instructionIndex];
+        // return this.renderElement.querySelector(`.instruction[data-index='${instructionIndex}']`);
     }
 
     getInstructionHTML(index, instruction) {
@@ -719,6 +721,8 @@ class AudioSourceComposerGrid {
         //     cursorCellIndex = cellList.length - 1;
         // cellList[cursorCellIndex].classList.add('cursor');
         this.update();
+
+        this.instructionElms = this.renderElement.querySelectorAll(`.instruction`);
     }
 
     update() {
