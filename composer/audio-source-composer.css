@@ -399,7 +399,7 @@ audio-source-composer .composer-grid {
     /*width: 100%;*/
     position: relative;
     clear: both;
-    /* max-height: 314px; */
+    max-height: 314px;
     overflow-y: auto;
     overflow-x: hidden;
 }
