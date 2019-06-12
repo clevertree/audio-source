@@ -5,7 +5,7 @@ class AudioSourceComposerMenu {
 
     get renderElement() {
         const selector = 'ul.composer-menu';
-        let renderElement = this.editor.querySelector(selector);
+        let renderElement = this.editor.shadowDOM.querySelector(selector);
         if(!renderElement)
             throw new Error(`Element not found: ${selector}`);
         return renderElement;

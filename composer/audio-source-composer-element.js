@@ -7,6 +7,10 @@
 class AudioSourceComposerElement extends HTMLElement {
     constructor() {
         super();
+
+        // Create a shadow root
+        this.shadowDOM = this.attachShadow({mode: 'open'});
+
         // this.player = null;
         this.status = {
             // selectedIndexCursor: 0,
@@ -71,28 +75,30 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     connectedCallback() {
-        this.loadCSS();
+        // this.loadCSS();
 
-        this.addEventListener('submit', this.onInput);
-        this.addEventListener('change', this.onInput);
-        this.addEventListener('blur', this.onInput);
-        this.addEventListener('keydown', this.onInput);
-        // this.addEventListener('keyup', this.onInput.bind(this));
-        // this.addEventListener('click', this.onInput.bind(this));
-        this.addEventListener('contextmenu', this.onInput);
-        this.addEventListener('mousedown', this.onInput);
-        this.addEventListener('mouseup', this.onInput);
-        this.addEventListener('longpress', this.onInput);
+        const onInput = e => this.onInput(e);
+        this.shadowDOM.addEventListener('submit', onInput);
+        this.shadowDOM.addEventListener('change', onInput);
+        this.shadowDOM.addEventListener('blur', onInput);
+        this.shadowDOM.addEventListener('keydown', onInput);
+        // this.addEventListener('keyup', onInput.bind(this));
+        // this.addEventListener('click', onInput.bind(this));
+        this.shadowDOM.addEventListener('contextmenu', onInput);
+        this.shadowDOM.addEventListener('mousedown', onInput);
+        this.shadowDOM.addEventListener('mouseup', onInput);
+        this.shadowDOM.addEventListener('longpress', onInput);
 
-        this.addEventListener('song:start', this.onSongEvent);
-        this.addEventListener('song:end', this.onSongEvent);
-        this.addEventListener('song:pause', this.onSongEvent);
-        this.addEventListener('song:modified', this.onSongEvent);
-        this.addEventListener('note:start', this.onSongEvent);
-        this.addEventListener('note:end', this.onSongEvent);
-        this.addEventListener('instrument:loaded', this.onSongEvent);
-        this.addEventListener('instrument:instance', this.onSongEvent);
-        this.addEventListener('instrument:library', this.onSongEvent);
+        const onSongEvent = e => this.onSongEvent(e);
+        this.shadowDOM.addEventListener('song:start', onSongEvent);
+        this.shadowDOM.addEventListener('song:end', onSongEvent);
+        this.shadowDOM.addEventListener('song:pause', onSongEvent);
+        this.shadowDOM.addEventListener('song:modified', onSongEvent);
+        this.shadowDOM.addEventListener('note:start', onSongEvent);
+        this.shadowDOM.addEventListener('note:end', onSongEvent);
+        this.shadowDOM.addEventListener('instrument:loaded', onSongEvent);
+        this.shadowDOM.addEventListener('instrument:instance', onSongEvent);
+        this.shadowDOM.addEventListener('instrument:library', onSongEvent);
 
         this.render();
         this.focus();
@@ -304,13 +310,18 @@ class AudioSourceComposerElement extends HTMLElement {
     // Rendering
 
     render() {
-        this.innerHTML = `
-        <div class="composer-controls" tabindex="0">
-            <ul class="composer-menu"></ul>
-            <div class="composer-forms"></div>
-            <div class="composer-instruments" tabindex="0"></div>
+        const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
+
+        this.shadowDOM.innerHTML = `
+        <link rel="stylesheet" href="${linkHRef}" />
+        <div class="audio-source-composer">
+            <div class="composer-controls" tabindex="0">
+                <ul class="composer-menu"></ul>
+                <div class="composer-forms"></div>
+                <div class="composer-instruments" tabindex="0"></div>
+            </div>
+            <div class="composer-grid" tabindex="0"></div>
         </div>
-        <div class="composer-grid" tabindex="0"></div>
         `;
         this.menu.render();
         this.forms.render();
@@ -402,14 +413,15 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     loadCSS() {
-        if(document.head.querySelector('link[href$="audio-source-composer.css"]'))
+        const targetDOM = this.shadowDOM || document.head;
+        if(targetDOM.querySelector('link[href$="audio-source-composer.css"]'))
             return;
         const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
         cssLink.setAttribute("href", linkHRef);
-        document.head.appendChild(cssLink);
+        targetDOM.appendChild(cssLink);
     }
 }
 customElements.define('audio-source-composer', AudioSourceComposerElement);

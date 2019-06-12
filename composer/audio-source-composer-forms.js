@@ -5,7 +5,7 @@ class AudioSourceComposerForms {
 
     get renderElement() {
         const selector = 'div.composer-forms';
-        let renderElement = this.editor.querySelector(selector);
+        let renderElement = this.editor.shadowDOM.querySelector(selector);
         if(!renderElement)
             throw new Error(`Element not found: ${selector}`);
         return renderElement;
