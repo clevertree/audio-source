@@ -12,6 +12,9 @@ if(!customElements.get('audio-source-synthesizer')) {
         constructor(config) {
             super();
 
+            // Create a shadow root
+            this.shadowDOM = this.attachShadow({mode: 'open'});
+
             if (!config)
                 config = {};
             // if(!config.name)
@@ -33,7 +36,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         connectedCallback() {
-            this.loadCSS();
+            // this.loadCSS();
             // this.song = this.closest('music-song'); // Don't rely on this !!!
             this.addEventListener('change', this.onInput);
             this.addEventListener('blur', this.onInput, true);
@@ -423,117 +426,121 @@ if(!customElements.get('audio-source-synthesizer')) {
                 // </form>
             // TODO:
             // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
-            this.innerHTML = `
-            <div class="instrument-container-header">
-                <form class="instrument-setting instrument-name submit-on-change" data-action="instrument:name">
-                    <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                    <label class="label-instrument-name">${instrumentIDHTML}<!--
-                        --><input name="name" type="text" value="${instrumentPreset.name || ''}" placeholder="Unnamed Instrument"/>
-                    </label>
-                </form>
-                <span style="float: right;">
-                    <form class="instrument-setting instrument-setting-preset submit-on-change" data-action="instrument:preset">
+            const linkHRef = this.getScriptDirectory('instrument/audio-source-synthesizer.css');
+            this.shadowDOM.innerHTML = `
+            <link rel="stylesheet" href="${linkHRef}" />
+            <div class="audio-source-synthesizer">
+                <div class="instrument-container-header">
+                    <form class="instrument-setting instrument-name submit-on-change" data-action="instrument:name">
                         <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                        <input name="preset" list="presetOptions" value="${this.config.preset}" />
+                        <label class="label-instrument-name">${instrumentIDHTML}<!--
+                            --><input name="name" type="text" value="${instrumentPreset.name || ''}" placeholder="Unnamed Instrument"/>
+                        </label>
                     </form>
-                    <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
-                        <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                        <button class="remove-instrument">x</button>
-                    </form>
-                </span>
+                    <span style="float: right;">
+                        <form class="instrument-setting instrument-setting-preset submit-on-change" data-action="instrument:preset">
+                            <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+                            <input name="preset" list="presetOptions" value="${this.config.preset}" />
+                        </form>
+                        <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
+                            <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+                            <button class="remove-instrument">x</button>
+                        </form>
+                    </span>
+                </div>
+                <table class="instrument-setting-list" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Polyphony</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <form action="#" class="instrument-setting instrument-setting-polyphony submit-on-change" data-action="instrument:polyphony">
+                                    <input type="number" name="polyphony" placeholder="Infinite" list="polyphonyOptions" min="0" max="9999" />
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="sample-setting-list">
+                    <thead>
+                        <tr>
+                            <th>Samples</th>
+                            <th>Mix</th>
+                            <th>Detune</th>
+                            <th>Root</th>
+                            <th>Alias</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                ${Object.keys(this.config.samples).map(sampleName => {
+                    return `
+                        <tr>
+                            <td>${sampleName}</td>
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="instrument:mixer">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input name="mixer" type="range" min="1" max="100" value="${100}" />
+                                </form>
+                            </td>    
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="instrument:detune">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input name="detune" type="range" min="-100" max="100" value="${0}" />
+                                </form>
+                            </td>      
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="instrument:keyRoot">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input name="keyRoot" value="${this.config.samples[sampleName].keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
+                                </form>
+                            </td>      
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="instrument:keyAlias">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input name="keyAlias" value="${this.config.samples[sampleName].keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
+                                </form>
+                            </td>  
+                        </tr>`;
+                }).join("\n")}
+                    </tbody>
+                </table>
+                <datalist id="noteFrequencies">
+                    ${noteFrequencyOptionsHTML}
+                </datalist>
+                <datalist id="polyphonyOptions">
+                    ${polyphonyOptionsHTML}
+                </datalist>
+                <datalist id="presetOptions">
+                    <option value="">Select Preset</option>
+                    ${this.sampleLibrary && this.sampleLibrary.libraries ?
+                        `<optgroup label="Libraries">` +
+                        this.sampleLibrary.libraries.map((libraryConfig) => {
+                            if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
+                            return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
+                        }).join("\n")
+                        + `</optgroup>`
+                    : null}
+                    ${this.sampleLibrary && this.sampleLibrary.instruments ?
+                        `<optgroup label="${this.sampleLibrary.title || 'Unnamed Library'}">` +
+                        Object.keys(this.sampleLibrary.instruments).map((presetName) => {
+                            const instrumentConfig = this.sampleLibrary.instruments[presetName];
+                            return `<option value="${presetName}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName || instrumentConfig.title}</option>`;
+                        }).join("\n")
+                        + `</optgroup>`
+                    : null}
+                    ${this.libraryHistory ?
+                        `<optgroup label="Other Libraries">` +
+                        this.libraryHistory.map((libraryConfig) => {
+                            if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
+                            return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
+                        }).join("\n")
+                        + `</optgroup>`
+                    : null}
+                </datalist>
             </div>
-            <table class="instrument-setting-list" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>Polyphony</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <form action="#" class="instrument-setting instrument-setting-polyphony submit-on-change" data-action="instrument:polyphony">
-                                <input type="number" name="polyphony" placeholder="Infinite" list="polyphonyOptions" min="0" max="9999" />
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="sample-setting-list">
-                <thead>
-                    <tr>
-                        <th>Samples</th>
-                        <th>Mix</th>
-                        <th>Detune</th>
-                        <th>Root</th>
-                        <th>Alias</th>
-                    </tr>
-                </thead>
-                <tbody>
-            ${Object.keys(this.config.samples).map(sampleName => {
-                return `
-                    <tr>
-                        <td>${sampleName}</td>
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="instrument:mixer">
-                                <input type="hidden" name="sample" value="${sampleName}" />
-                                <input name="mixer" type="range" min="1" max="100" value="${100}" />
-                            </form>
-                        </td>    
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="instrument:detune">
-                                <input type="hidden" name="sample" value="${sampleName}" />
-                                <input name="detune" type="range" min="-100" max="100" value="${0}" />
-                            </form>
-                        </td>      
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="instrument:keyRoot">
-                                <input type="hidden" name="sample" value="${sampleName}" />
-                                <input name="keyRoot" value="${this.config.samples[sampleName].keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
-                            </form>
-                        </td>      
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="instrument:keyAlias">
-                                <input type="hidden" name="sample" value="${sampleName}" />
-                                <input name="keyAlias" value="${this.config.samples[sampleName].keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
-                            </form>
-                        </td>  
-                    </tr>`;
-            }).join("\n")}
-                </tbody>
-            </table>
-            <datalist id="noteFrequencies">
-                ${noteFrequencyOptionsHTML}
-            </datalist>
-            <datalist id="polyphonyOptions">
-                ${polyphonyOptionsHTML}
-            </datalist>
-            <datalist id="presetOptions">
-                <option value="">Select Preset</option>
-                ${this.sampleLibrary && this.sampleLibrary.libraries ?
-                    `<optgroup label="Libraries">` +
-                    this.sampleLibrary.libraries.map((libraryConfig) => {
-                        if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
-                        return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
-                    }).join("\n")
-                    + `</optgroup>`
-                : null}
-                ${this.sampleLibrary && this.sampleLibrary.instruments ?
-                    `<optgroup label="${this.sampleLibrary.title || 'Unnamed Library'}">` +
-                    Object.keys(this.sampleLibrary.instruments).map((presetName) => {
-                        const instrumentConfig = this.sampleLibrary.instruments[presetName];
-                        return `<option value="${presetName}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName || instrumentConfig.title}</option>`;
-                    }).join("\n")
-                    + `</optgroup>`
-                : null}
-                ${this.libraryHistory ?
-                    `<optgroup label="Other Libraries">` +
-                    this.libraryHistory.map((libraryConfig) => {
-                        if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
-                        return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
-                    }).join("\n")
-                    + `</optgroup>`
-                : null}
-            </datalist>
         `;
 
         };

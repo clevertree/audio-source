@@ -90,15 +90,15 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM.addEventListener('longpress', onInput);
 
         const onSongEvent = e => this.onSongEvent(e);
-        this.shadowDOM.addEventListener('song:start', onSongEvent);
-        this.shadowDOM.addEventListener('song:end', onSongEvent);
-        this.shadowDOM.addEventListener('song:pause', onSongEvent);
-        this.shadowDOM.addEventListener('song:modified', onSongEvent);
-        this.shadowDOM.addEventListener('note:start', onSongEvent);
-        this.shadowDOM.addEventListener('note:end', onSongEvent);
-        this.shadowDOM.addEventListener('instrument:loaded', onSongEvent);
-        this.shadowDOM.addEventListener('instrument:instance', onSongEvent);
-        this.shadowDOM.addEventListener('instrument:library', onSongEvent);
+        this.addEventListener('song:start', onSongEvent);
+        this.addEventListener('song:end', onSongEvent);
+        this.addEventListener('song:pause', onSongEvent);
+        this.addEventListener('song:modified', onSongEvent);
+        this.addEventListener('note:start', onSongEvent);
+        this.addEventListener('note:end', onSongEvent);
+        this.addEventListener('instrument:loaded', onSongEvent);
+        this.addEventListener('instrument:instance', onSongEvent);
+        this.addEventListener('instrument:library', onSongEvent);
 
         this.render();
         this.focus();
@@ -323,6 +323,12 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="composer-grid" tabindex="0"></div>
         </div>
         `;
+        this.elements = {
+            grid: this.shadowDOM.querySelector('.composer-grid'),
+            menu: this.shadowDOM.querySelector('.composer-menu'),
+            forms: this.shadowDOM.querySelector('.composer-forms'),
+            instruments: this.shadowDOM.querySelector('.composer-instruments'),
+        };
         this.menu.render();
         this.forms.render();
         this.instruments.render();

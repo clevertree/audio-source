@@ -8,13 +8,14 @@ class AudioSourceComposerGrid {
     }
 
     get renderElement() {
-        const selector = '.composer-grid';
-        console.time('renderElement');
-        let renderElement = this.editor.shadowDOM.querySelector(selector);
-        if(!renderElement)
-            throw new Error(`Element not found: ${selector}`);
-        console.timeEnd('renderElement');
-        return renderElement;
+        return this.editor.elements.grid;
+        // const selector = '.composer-grid';
+        // console.time('renderElement');
+        // let renderElement = this.editor.shadowDOM.querySelector(selector);
+        // if(!renderElement)
+        //     throw new Error(`Element not found: ${selector}`);
+        // console.timeEnd('renderElement');
+        // return renderElement;
     }
 
     // // Can't select pauses!
@@ -378,7 +379,7 @@ class AudioSourceComposerGrid {
     }
 
     onSongEvent(e) {
-        // console.log("onSongEvent", e);
+        console.log("onSongEvent", e);
         const detail = e.detail || {stats:{}};
         const instructionElm = detail.instruction ? this.findInstruction(detail.instruction) : null;
         const groupElm = detail.groupInstruction ? this.findInstruction(detail.groupInstruction) : null;

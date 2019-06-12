@@ -6,11 +6,12 @@ class AudioSourceComposerInstruments {
     }
 
     get renderElement() {
-        const selector = 'div.composer-instruments';
-        let renderElement = this.editor.shadowDOM.querySelector(selector);
-        if(!renderElement)
-            throw new Error(`Element not found: ${selector}`);
-        return renderElement;
+        return this.editor.elements.instruments;
+        // const selector = 'div.composer-instruments';
+        // let renderElement = this.editor.shadowDOM.querySelector(selector);
+        // if(!renderElement)
+        //     throw new Error(`Element not found: ${selector}`);
+        // return renderElement;
     }
 
     // Instruments load their own libraries. Libraries may be shared via dispatch

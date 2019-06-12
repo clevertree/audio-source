@@ -4,11 +4,12 @@ class AudioSourceComposerForms {
     }
 
     get renderElement() {
-        const selector = 'div.composer-forms';
-        let renderElement = this.editor.shadowDOM.querySelector(selector);
-        if(!renderElement)
-            throw new Error(`Element not found: ${selector}`);
-        return renderElement;
+        return this.editor.elements.forms;
+        // const selector = 'div.composer-forms';
+        // let renderElement = this.editor.shadowDOM.querySelector(selector);
+        // if(!renderElement)
+        //     throw new Error(`Element not found: ${selector}`);
+        // return renderElement;
     }
 
     get fieldInsertInstructionCommand() { return this.renderElement.querySelector('form.form-instruction-insert select[name=command]'); }

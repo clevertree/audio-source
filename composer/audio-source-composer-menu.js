@@ -4,11 +4,12 @@ class AudioSourceComposerMenu {
     }
 
     get renderElement() {
-        const selector = 'ul.composer-menu';
-        let renderElement = this.editor.shadowDOM.querySelector(selector);
-        if(!renderElement)
-            throw new Error(`Element not found: ${selector}`);
-        return renderElement;
+        return this.editor.elements.menu;
+        // const selector = 'ul.composer-menu';
+        // let renderElement = this.editor.shadowDOM.querySelector(selector);
+        // if(!renderElement)
+        //     throw new Error(`Element not found: ${selector}`);
+        // return renderElement;
     }
 
     onInput(e) {
