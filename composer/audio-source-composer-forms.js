@@ -7,32 +7,32 @@ class AudioSourceComposerForms extends HTMLElement {
         this.render();
     }
 
-    get renderElement() {
-        return this.editor.elements.forms;
-        // const selector = 'div.composer-forms';
-        // let renderElement = this.editor.shadowDOM.querySelector(selector);
-        // if(!renderElement)
-        //     throw new Error(`Element not found: ${selector}`);
-        // return renderElement;
-    }
+    // get renderElement() {
+    //     return this.editor.elements.forms;
+    //     // const selector = 'div.composer-forms';
+    //     // let renderElement = this.editor.shadowDOM.querySelector(selector);
+    //     // if(!renderElement)
+    //     //     throw new Error(`Element not found: ${selector}`);
+    //     // return renderElement;
+    // }
 
-    get fieldInsertInstructionCommand() { return this.renderElement.querySelector('form.form-instruction-insert select[name=command]'); }
+    get fieldInsertInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
 
-    get fieldInstructionInstrument() { return this.renderElement.querySelector('form.form-instruction-instrument select[name=instrument]'); }
-    get fieldInstructionDuration() { return this.renderElement.querySelector('form.form-instruction-duration select[name=duration]'); }
-    get fieldInstructionCommand() { return this.renderElement.querySelector('form.form-note-command select[name=command]'); }
-    get fieldInstructionVelocity() { return this.renderElement.querySelector('form.form-instruction-velocity input[name=velocity]'); }
+    get fieldInstructionInstrument() { return this.querySelector('form.form-instruction-instrument select[name=instrument]'); }
+    get fieldInstructionDuration() { return this.querySelector('form.form-instruction-duration select[name=duration]'); }
+    get fieldInstructionCommand() { return this.querySelector('form.form-note-command select[name=command]'); }
+    get fieldInstructionVelocity() { return this.querySelector('form.form-instruction-velocity input[name=velocity]'); }
 
-    get fieldRowDuration() { return this.renderElement.querySelector('form.form-row-duration select[name=duration]'); }
+    get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
 
-    get fieldRenderDuration() { return this.renderElement.querySelector('form.form-render-duration select[name=duration]'); }
-    get fieldRenderInstrument() { return this.renderElement.querySelector('form.form-render-instrument select[name=instrument]'); }
-    get fieldRenderOctave() { return this.renderElement.querySelector('form.form-render-octave select[name=octave]'); }
+    get fieldRenderDuration() { return this.querySelector('form.form-render-duration select[name=duration]'); }
+    get fieldRenderInstrument() { return this.querySelector('form.form-render-instrument select[name=instrument]'); }
+    get fieldRenderOctave() { return this.querySelector('form.form-render-octave select[name=octave]'); }
 
-    get fieldAddInstrumentInstrument() { return this.renderElement.querySelector('form.form-add-instrument select[name=instrument]'); }
-    get fieldSelectedIndicies() { return this.renderElement.querySelector('form.form-selected-indicies input[name=indicies]'); }
-    get fieldSelectedRangeStart() { return this.renderElement.querySelector('form.form-selected-range input[name=rangeStart]'); }
-    get fieldSelectedRangeEnd() { return this.renderElement.querySelector('form.form-selected-range input[name=rangeEnd]'); }
+    get fieldAddInstrumentInstrument() { return this.querySelector('form.form-add-instrument select[name=instrument]'); }
+    get fieldSelectedIndicies() { return this.querySelector('form.form-selected-indicies input[name=indicies]'); }
+    get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
+    get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
 
     // get grid() { return this.song.grid; } // Grid associated with menu
     getInstructionFormValues(isNewInstruction) {
@@ -57,7 +57,7 @@ class AudioSourceComposerForms extends HTMLElement {
     onInput(e, form) {
         if (e.defaultPrevented)
             return;
-        if(!form && e.target instanceof Node && !this.renderElement.contains(e.target))
+        if(!form && e.target instanceof Node && !this.contains(e.target))
             return;
 
         try {
@@ -248,15 +248,15 @@ class AudioSourceComposerForms extends HTMLElement {
                 break;
 
             case 'toggle:control-song':
-                this.renderElement.classList.toggle('hide-control-song');
+                this.classList.toggle('hide-control-song');
                 break;
 
             case 'toggle:control-note':
-                this.renderElement.classList.toggle('hide-control-note');
+                this.classList.toggle('hide-control-note');
                 break;
 
             case 'toggle:control-grid':
-                this.renderElement.classList.toggle('hide-control-grid');
+                this.classList.toggle('hide-control-grid');
                 break;
 
             default:
@@ -273,7 +273,7 @@ class AudioSourceComposerForms extends HTMLElement {
         const renderer = this.editor.renderer;
         const songData = this.editor.getSongData();
         // let tabIndex = 2;
-        this.renderElement.innerHTML =
+        this.innerHTML =
             `
              
             <div class="form-section-divide">
@@ -339,7 +339,7 @@ class AudioSourceComposerForms extends HTMLElement {
                 <form class="form-add-instrument submit-on-change" data-action="instrument:add">
                     <select name="instrumentURL" class="themed">
                         <option value="">Select Instrument</option>
-                        ${this.editor.forms.renderEditorFormOptions('instruments-available')}
+                        ${this.renderEditorFormOptions('instruments-available')}
                     </select>
                 </form>
             </div>
@@ -547,28 +547,28 @@ class AudioSourceComposerForms extends HTMLElement {
         // Row Instructions
 
         // Group Buttons
-        this.renderElement.querySelectorAll('button[name=groupName]')
+        this.querySelectorAll('button[name=groupName]')
             .forEach(button => button.classList.toggle('selected', button.getAttribute('value') === groupName));
 
 
 
         // this.fieldInstructionDuration.value = parseFloat(this.fieldRenderDuration.value) + '';
 
-        this.renderElement.classList.remove('show-control-note-insert');
-        this.renderElement.classList.remove('show-control-note-modify');
+        this.classList.remove('show-control-note-insert');
+        this.classList.remove('show-control-note-modify');
         if(cursorInstruction) {
             // Note Instruction
             this.fieldInstructionCommand.value = cursorInstruction.command;
             this.fieldInstructionInstrument.value = cursorInstruction.instrument !== null ? cursorInstruction.instrument : '';
             this.fieldInstructionVelocity.value = cursorInstruction.velocity !== null ? cursorInstruction.velocity : '';
             this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
-            this.renderElement.classList.add('show-control-note-modify');
+            this.classList.add('show-control-note-modify');
 
         } else if(selectedIndicies.length > 0) {
             this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
             // console.log(this.editor.status.currentInstrumentID);
 
-            this.renderElement.classList.add('show-control-note-insert');
+            this.classList.add('show-control-note-insert');
         }
 
         this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
@@ -582,7 +582,7 @@ class AudioSourceComposerForms extends HTMLElement {
         // if(!this.fieldInsertInstructionCommand.value)
         //     this.fieldInsertInstructionCommand.value-this.fieldInsertInstructionCommand.options[0].value
 
-        this.renderElement.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
+        this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
 
         // Status Fields
 
@@ -656,3 +656,4 @@ class AudioSourceComposerForms extends HTMLElement {
 // </form>
 
 }
+customElements.define('asc-forms', AudioSourceComposerForms);

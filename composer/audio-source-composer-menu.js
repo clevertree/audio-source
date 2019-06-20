@@ -3,25 +3,27 @@ class AudioSourceComposerMenu extends HTMLElement {
         super();
     }
 
+    get editorForms() { return this.editor.elements.forms; }
+    
     connectedCallback() {
         this.editor = this.getRootNode().host;
         this.render();
     }
 
-    get renderElement() {
-        return this.editor.elements.menu;
-        // const selector = 'ul.composer-menu';
-        // let renderElement = this.editor.shadowDOM.querySelector(selector);
-        // if(!renderElement)
-        //     throw new Error(`Element not found: ${selector}`);
-        // return renderElement;
-    }
+    // get renderElement() {
+    //     return this.editor.elements.menu;
+    //     // const selector = 'ul.composer-menu';
+    //     // let renderElement = this.editor.shadowDOM.querySelector(selector);
+    //     // if(!renderElement)
+    //     //     throw new Error(`Element not found: ${selector}`);
+    //     // return renderElement;
+    // }
 
     onInput(e) {
         // console.info(e.type, e);
         if(e.defaultPrevented)
             return;
-        if(e.target instanceof Node && !this.renderElement.contains(e.target))
+        if(e.target instanceof Node && !this.contains(e.target))
             return;
 
         // let targetClassList = e.target.classList;
@@ -30,7 +32,7 @@ class AudioSourceComposerMenu extends HTMLElement {
             case 'change':
             case 'blur':
                 if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type)) {
-                    this.editor.forms.onSubmit(e, e.target.form);
+                    this.editorForms.onSubmit(e, e.target.form);
                 }
                 //     this.onMenu(e);
                 break;
@@ -145,7 +147,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 if(newInstrumentURL === null)
                     throw new Error("Missing instrument ID");
                 newInstrumentID = this.editor.renderer.addInstrument(newInstrumentURL);
-                // newInstruction = this.editor.forms.getInstructionFormValues(true);
+                // newInstruction = this.editorForms.getInstructionFormValues(true);
                 // if(!newInstruction)
                 //     return console.info("Insert canceled");
                 // newInstruction.instrument = newInstrumentID;
@@ -157,7 +159,7 @@ class AudioSourceComposerMenu extends HTMLElement {
 
             case 'instruction:insert':
                 e.preventDefault();
-                newInstruction = this.editor.forms.getInstructionFormValues(true);
+                newInstruction = this.editorForms.getInstructionFormValues(true);
                 if(!newInstruction)
                     return console.info("Insert canceled");
                 newCommand = menuTarget.getAttribute('data-command');
@@ -178,7 +180,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 // use menu data or prompt for value
                 newCommand = menuTarget.getAttribute('data-command');
                 if(!newCommand)
-                    newCommand = prompt("Set Command:", this.editor.forms.fieldInstructionCommand.value);
+                    newCommand = prompt("Set Command:", this.editorForms.fieldInstructionCommand.value);
                 if(!newCommand)
                     return console.info("Insert canceled");
                 for(let i=0; i<selectedIndicies.length; i++) {
@@ -187,7 +189,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 }
                 this.editor.render();
                 this.editor.selectInstructions(selectedIndicies, selectedRange);
-                this.editor.forms.fieldInstructionCommand.focus();
+                this.editorForms.fieldInstructionCommand.focus();
                 break;
 
             case 'instruction:instrument':
@@ -203,7 +205,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 }
                 this.editor.render();
                 this.editor.selectInstructions(selectedIndicies, selectedRange);
-                this.editor.forms.fieldInstructionInstrument.focus();
+                this.editorForms.fieldInstructionInstrument.focus();
                 break;
 
             case 'instruction:duration':
@@ -211,7 +213,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 // use menu data or prompt for value
                 let newDuration = menuTarget.getAttribute('data-duration');
                 if(!newDuration)
-                    newDuration = prompt("Set Duration:", this.editor.forms.fieldInstructionDuration.value);
+                    newDuration = prompt("Set Duration:", this.editorForms.fieldInstructionDuration.value);
                 newDuration = parseFloat(newDuration);
                 if(isNaN(newDuration) || newDuration < 0)
                     throw new Error("Invalid duration value");
@@ -221,7 +223,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 }
                 this.editor.render();
                 this.editor.selectInstructions(selectedIndicies, selectedRange);
-                this.editor.forms.fieldInstructionDuration.focus();
+                this.editorForms.fieldInstructionDuration.focus();
                 break;
 
             case 'instruction:velocity':
@@ -229,7 +231,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 // use menu data or prompt for value
                 let newVelocity = menuTarget.getAttribute('data-velocity');
                 if(!newVelocity)
-                    newVelocity = prompt("Set Velocity:", this.editor.forms.fieldInstructionVelocity.value);
+                    newVelocity = prompt("Set Velocity:", this.editorForms.fieldInstructionVelocity.value);
                 newVelocity = parseFloat(newVelocity);
                 if(isNaN(newVelocity) || newVelocity < 0)
                     throw new Error("Invalid velocity value");
@@ -239,7 +241,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 }
                 this.editor.render();
                 this.editor.selectInstructions(selectedIndicies, selectedRange);
-                this.editor.forms.fieldInstructionVelocity.focus();
+                this.editorForms.fieldInstructionVelocity.focus();
                 break;
 
 
@@ -254,7 +256,7 @@ class AudioSourceComposerMenu extends HTMLElement {
 
             case 'menu:toggle':
                 e.preventDefault();
-                // this.renderElement.querySelectorAll('a.open').forEach((a) => a !== menuTarget ? a.classList.remove('open') : null);
+                // this.querySelectorAll('a.open').forEach((a) => a !== menuTarget ? a.classList.remove('open') : null);
                 // menuTarget.classList.toggle('open');
                 break;
 
@@ -268,10 +270,10 @@ class AudioSourceComposerMenu extends HTMLElement {
     update() {
         const selectedIndicies = this.editor.selectedIndicies;
 
-        this.renderElement.classList.remove('show-control-note-modify');
+        this.classList.remove('show-control-note-modify');
         if(selectedIndicies.length > 0) {
             // Note is selected
-            this.renderElement.classList.add('show-control-note-modify');
+            this.classList.add('show-control-note-modify');
         }
     }
 
@@ -283,7 +285,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         // const songData = player.getSongData();
         // let tabIndex = 2;
 
-        this.renderElement.innerHTML =
+        this.innerHTML =
             `<li>
                 <span class="key">F</span>ile
                 <ul class="submenu">
@@ -493,9 +495,9 @@ class AudioSourceComposerMenu extends HTMLElement {
     openContextMenu(e) {
         let x = e.clientX, y = e.clientY;
 
-        this.renderElement.querySelectorAll('a.open').forEach(elm => elm.classList.remove('open'));
-        // this.renderElement.querySelectorAll('.selected-context-menu').forEach(elm => elm.classList.remove('selected-context-menu'));
-        const contextMenu = this.renderElement.querySelector('.composer-context-menu');
+        this.querySelectorAll('a.open').forEach(elm => elm.classList.remove('open'));
+        // this.querySelectorAll('.selected-context-menu').forEach(elm => elm.classList.remove('selected-context-menu'));
+        const contextMenu = this.querySelector('.composer-context-menu');
 
         contextMenu.classList.add('open-context-menu');
         contextMenu.classList.add('open');
@@ -506,13 +508,14 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     closeMenu() {
-        const contextMenu = this.renderElement.querySelector('.composer-context-menu');
+        const contextMenu = this.querySelector('.composer-context-menu');
         contextMenu.classList.remove('open-context-menu');
         contextMenu.classList.remove('open');
         contextMenu.removeAttribute('style');
-        this.renderElement.querySelectorAll('.menu-item.open,.submenu.open')
+        this.querySelectorAll('.menu-item.open,.submenu.open')
             .forEach(elm => elm.classList.remove('open'));
     }
 
 }
 // customElements.define('music-song-menu', MusicEditorMenuElement);
+customElements.define('asc-menu', AudioSourceComposerMenu);

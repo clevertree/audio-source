@@ -44,27 +44,18 @@ class AudioSourceComposerElement extends HTMLElement {
         this.values = new AudioSourceComposerValues(this);
         this.webSocket = new AudioSourceComposerWebsocket(this);
         this.keyboard = new AudioSourceComposerKeyboard(this);
-        this.menu = new AudioSourceComposerMenu(this);
-        this.forms = new AudioSourceComposerForms(this);
-        this.grid = new AudioSourceComposerGrid(this);
+        // this.menu = new AudioSourceComposerMenu(this);
+        // this.forms = new AudioSourceComposerForms(this);
+        // this.grid = new AudioSourceComposerGrid(this);
         // this.modifier = new SongModifier(this);
 
-        this.instruments = new AudioSourceComposerInstruments(this);
-        this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
+        // this.instruments = new AudioSourceComposerInstruments(this);
+        // this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
 
         this.renderer = new AudioSourceRenderer(this);
     }
 
     render() {
-
-        if(!this.shadowDOM) {
-            // Create a shadow root
-            this.shadowDOM = this.attachShadow({mode: 'open'});
-            this.shadowDOM.customElements.define('asc-menu', AudioSourceComposerMenu);
-            this.shadowDOM.customElements.define('asc-forms', AudioSourceComposerForms);
-            this.shadowDOM.customElements.define('asc-grid', AudioSourceComposerGrid);
-            this.shadowDOM.customElements.define('asc-grid-row', AudioSourceComposerGridRow);
-        }
 
         const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
 
@@ -82,15 +73,16 @@ class AudioSourceComposerElement extends HTMLElement {
             forms: this.shadowDOM.querySelector('asc-forms'),
             instruments: this.shadowDOM.querySelector('asc-instruments'),
         };
-        this.menu.render();
-        this.forms.render();
-        this.instruments.render();
-        this.grid.render();
+        // this.menu.render();
+        // this.forms.render();
+        // this.instruments.render();
+        // this.grid.render();
 
     }
 
     connectedCallback() {
         // this.loadCSS();
+        this.shadowDOM = this.attachShadow({mode: 'open'});
 
         const onInput = e => this.onInput(e);
         this.shadowDOM.addEventListener('submit', onInput);
