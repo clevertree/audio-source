@@ -1,6 +1,10 @@
-class AudioSourceComposerForms {
-    constructor(editor) {
-        this.editor = editor;
+class AudioSourceComposerForms extends HTMLElement {
+    constructor() {
+        super();
+    }
+    connectedCallback() {
+        this.editor = this.getRootNode().host;
+        this.render();
     }
 
     get renderElement() {

@@ -1,6 +1,11 @@
-class AudioSourceComposerMenu {
-    constructor(editor) {
-        this.editor = editor;
+class AudioSourceComposerMenu extends HTMLElement {
+    constructor() {
+        super();
+    }
+
+    connectedCallback() {
+        this.editor = this.getRootNode().host;
+        this.render();
     }
 
     get renderElement() {

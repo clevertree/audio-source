@@ -1,10 +1,84 @@
-class AudioSourceComposerGrid {
-    constructor(editor, groupName='root') {
-        this.editor = editor;
-        this.groupName = groupName;
+class AudioSourceComposerGrid extends HTMLElement {
+    constructor() {
+        super();
+
+        this.groupName = 'root';
         // this.cursorCellIndex = 0;
         this.minimumGridLengthTicks = null;
         this.instructionElms = null;
+    }
+    connectedCallback() {
+        this.editor = this.getRootNode().host;
+        this.render();
+    }
+
+    // TODO: render delta rows only
+    render() {
+        console.time('grid: calculate render');
+        const currentScrollPosition = this.scrollTop || 0; // Save scroll position
+        this.renderElement.innerHTML = '';
+        const gridDuration = parseFloat(this.editor.forms.fieldRenderDuration.value);
+
+        // const selectedIndicies = this.editor.status.selectedIndicies;
+        let rowInstructions = [], lastRowIndex=0, songPositionInTicks=0, tickTotal=0; // , lastPause = 0;
+
+        const renderRow = (deltaDuration) => {
+            for(let subPause=0; subPause<deltaDuration; subPause+=gridDuration) {
+                let subDurationInTicks = gridDuration;
+                if(subPause + gridDuration > deltaDuration)
+                    subDurationInTicks = deltaDuration - subPause;
+
+                const rowElm = document.createElement('asc-grid-row');
+                this.appendChild(rowElm);
+                rowElm.position = songPositionInTicks;
+
+                // editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, lastRowIndex);
+
+                rowInstructions = [];
+                songPositionInTicks += subDurationInTicks;
+            }
+
+        };
+
+
+        this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
+            if (instruction.deltaDuration !== 0) {
+                renderRow(instruction.deltaDuration);
+                lastRowIndex = index;
+            }
+
+            rowInstructions.push(instruction);
+            tickTotal = stats.groupPositionInTicks;
+        });
+
+        if(!this.minimumGridLengthTicks) {
+            const songData = this.editor.getSongData();
+            const timeDivision = songData.timeDivision || 96 * 4;
+            this.minimumGridLengthTicks = 16 * timeDivision;
+        }
+
+        let remainingDuration = this.minimumGridLengthTicks - tickTotal;
+        if(remainingDuration <= 0)
+            remainingDuration = gridDuration;
+        renderRow(remainingDuration);
+
+        console.timeEnd('grid: calculate render');
+        // const currentScrollPosition = this.scrollTop || 0; // Save scroll position
+        // if(this.renderElement.innerHTML !== editorHTML) {
+        // console.time('grid: render');
+        // this.renderElement.innerHTML = editorHTML;
+        // console.timeEnd('grid: render');
+        // }
+        this.scrollTop = currentScrollPosition;             // Restore scroll position
+
+
+        // const cellList = this.renderElement.querySelectorAll('.instruction');
+        // if(cursorCellIndex >= cellList.length)
+        //     cursorCellIndex = cellList.length - 1;
+        // cellList[cursorCellIndex].classList.add('cursor');
+        this.update();
+
+        // this.instructionElms = this.renderElement.querySelectorAll(`.instruction`);
     }
 
     get renderElement() {
@@ -26,7 +100,6 @@ class AudioSourceComposerGrid {
     //         throw new Error("Group instructions not found: " + groupName);
     //     return song.instructions[groupName];
     // }
-
     get selectedCells() { return this.renderElement.querySelectorAll('.instruction.selected'); }
     get cursorCell() { return this.renderElement.querySelector('.instruction.cursor'); }
     get cursorRow() { return this.cursorCell.parentNode; }
@@ -39,6 +112,7 @@ class AudioSourceComposerGrid {
         return this.cursorCell ? [].indexOf.call(cellList, this.cursorCell) : -1;
     }
     get selectedIndicies() { return [].map.call(this.selectedCells, (elm => parseInt(elm.getAttribute('data-index')))); }
+
     // get selectedRows() { return this.renderElement.querySelectorAll('.grid-row.selected'); }
     // get selectedPauseIndices() { return [].map.call(this.selectedRows, (elm => parseInt(elm.getAttribute('data-index')))); }
 
@@ -102,10 +176,10 @@ class AudioSourceComposerGrid {
             this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
         }
     }
-
     getInstructions(indicies=null) {
         return this.editor.renderer.getInstructions(this.groupName, indicies);
     }
+
     getInstruction(index) {
         return this.editor.renderer.getInstruction(this.groupName, index);
     }
@@ -426,7 +500,6 @@ class AudioSourceComposerGrid {
             //     break;
         }
     }
-
     selectNextCell(e) {
         const cursorCell = this.cursorCell;
         if(cursorCell.nextElementSibling && cursorCell.nextElementSibling.matches('.instruction'))
@@ -442,6 +515,7 @@ class AudioSourceComposerGrid {
         const nextRowElm = cursorRow.nextElementSibling;
         this.selectCell(e, this.createNewInstructionCell(nextRowElm));
     }
+
     selectNextRowCell(e, cellPosition=null, increaseGridSize=true) {
         const cursorCell = this.cursorCell;
         const cursorRow = cursorCell.parentNode;
@@ -467,7 +541,6 @@ class AudioSourceComposerGrid {
 
         this.selectCell(e, this.createNewInstructionCell(nextRowElm));
     }
-
     selectPreviousCell(e) {
         const cursorCell = this.cursorCell;
         if(cursorCell.previousElementSibling && cursorCell.previousElementSibling.matches('.instruction'))
@@ -475,6 +548,8 @@ class AudioSourceComposerGrid {
 
         this.selectPreviousRowCell(e);
     }
+
+
     selectPreviousRowCell(e) {
         const cursorCell = this.cursorCell;
         const cursorRow = cursorCell.parentNode;
@@ -510,7 +585,6 @@ class AudioSourceComposerGrid {
         // console.log(cursorCell);
     }
 
-
     findInstruction(instruction) {
         let instructionGroup = this.editor.renderer.findInstructionGroup(instruction);
         if(instructionGroup !== this.groupName)
@@ -533,6 +607,7 @@ class AudioSourceComposerGrid {
             );
         this.render();
     }
+
 
     navigatePop() {
         console.log("Navigate Back: ", this.status.grids[0].groupName);
@@ -558,27 +633,27 @@ class AudioSourceComposerGrid {
         }
     }
 
-
     insertInstructionAtIndex(instruction, insertIndex) {
         return this.editor.renderer.insertInstructionAtIndex(this.groupName, insertIndex, instruction);
     }
-
     insertInstructionAtPosition(insertTimePosition, instruction) {
         return this.editor.renderer.insertInstructionAtPosition(this.groupName, insertTimePosition, instruction);
     }
+
     deleteInstructionAtIndex(deleteIndex) {
         return this.editor.renderer.deleteInstructionAtIndex(this.groupName, deleteIndex, 1);
     }
-
     replaceInstructionCommand(replaceIndex, newCommand) {
         return this.editor.renderer.replaceInstructionCommand(this.groupName, replaceIndex, newCommand);
     }
     replaceInstructionVelocity(replaceIndex, newVelocity) {
         return this.editor.renderer.replaceInstructionVelocity(this.groupName, replaceIndex, newVelocity);
     }
+
     // replaceInstructionParams(replaceIndex, replaceParams) {
     //     return this.editor.renderer.replaceInstructionParams(this.groupName, replaceIndex, replaceParams);
     // }
+
 
     replaceFrequencyAlias(noteFrequency, instrumentID) {
         const instrument = this.editor.renderer.getInstrument(instrumentID, false);
@@ -590,10 +665,10 @@ class AudioSourceComposerGrid {
         return aliases[noteFrequency];
     }
 
-
     // selectInstructions(selectedIndicies) {
     //     return this.editor.selectInstructions(selectedIndicies);
     // }
+
 
     scrollToCursor(cursorCell) {
         const container = this.renderElement; // cursorCell.closest('.composer-grid-container');
@@ -613,7 +688,6 @@ class AudioSourceComposerGrid {
         //     this.scrollTop = currentCellParent.offsetTop - this.offsetHeight + this.cursorCell.offsetHeight;
     }
 
-
     findInstructionElement(instructionIndex) {
         // const instructions = this.renderElement.querySelectorAll(`.instruction`);
         return this.instructionElms[instructionIndex];
@@ -628,6 +702,7 @@ class AudioSourceComposerGrid {
                     ${instruction.duration !== null ? `<div class="duration">${this.editor.values.format(instruction.duration, 'duration')}</div>` : ''}
                 </div>`;
     }
+
 
     getRowHTML(songPositionInTicks, subDurationInTicks, instructionList, startingIndex) {
         const rowHTML = [];
@@ -665,70 +740,6 @@ class AudioSourceComposerGrid {
         this.update();
     }
 
-    // TODO: render only visible section. render total row count in single divs
-    render() {
-        console.time('grid: calculate render');
-        // let cursorCellIndex = this.cursorCellIndex || 0;
-        // const lastScrollPosition = this.renderElement.scrollTop;
-        // console.log("Scroll Position", lastScrollPosition);
-        // this.renderElement.innerHTML = `Loading...`;
-        // console.log("RENDER GRID");
-        const gridDuration = parseFloat(this.editor.forms.fieldRenderDuration.value);
-
-        // const selectedIndicies = this.editor.status.selectedIndicies;
-        let editorHTML = '', rowInstructions = [], lastRowIndex=0, rowHTML='', songPositionInTicks=0, tickTotal=0, odd=false; // , lastPause = 0;
-
-        const renderRow = (deltaDuration) => {
-            for(let subPause=0; subPause<deltaDuration; subPause+=gridDuration) {
-                let subDurationInTicks = gridDuration;
-                if(subPause + gridDuration > deltaDuration)
-                    subDurationInTicks = deltaDuration - subPause;
-                editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, lastRowIndex);
-                rowInstructions = [];
-                songPositionInTicks += subDurationInTicks;
-            }
-        };
-
-        this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
-            if (instruction.deltaDuration !== 0) {
-                renderRow(instruction.deltaDuration);
-                lastRowIndex = index;
-            }
-
-            rowInstructions.push(instruction);
-            tickTotal = stats.groupPositionInTicks;
-        });
-
-        if(!this.minimumGridLengthTicks) {
-            const songData = this.editor.getSongData();
-            const timeDivision = songData.timeDivision || 96 * 4;
-            this.minimumGridLengthTicks = 16 * timeDivision;
-        }
-
-        let remainingDuration = this.minimumGridLengthTicks - tickTotal;
-        if(remainingDuration <= 0)
-            remainingDuration = gridDuration;
-        renderRow(remainingDuration);
-
-        console.timeEnd('grid: calculate render');
-        const currentScrollPosition = this.scrollTop || 0; // Save scroll position
-        // if(this.renderElement.innerHTML !== editorHTML) {
-        console.time('grid: render');
-        this.renderElement.innerHTML = editorHTML;
-        console.timeEnd('grid: render');
-        // }
-        this.scrollTop = currentScrollPosition;             // Restore scroll position
-
-
-        // const cellList = this.renderElement.querySelectorAll('.instruction');
-        // if(cursorCellIndex >= cellList.length)
-        //     cursorCellIndex = cellList.length - 1;
-        // cellList[cursorCellIndex].classList.add('cursor');
-        this.update();
-
-        this.instructionElms = this.renderElement.querySelectorAll(`.instruction`);
-    }
-
     update() {
         let cellList = this.renderElement.querySelectorAll('.instruction'); //,.grid-row
         if(cellList.length === 0)
@@ -757,3 +768,14 @@ class AudioSourceComposerGrid {
     }
 }
 // customElements.define('music-song-grid', SongEditorGrid);
+
+class AudioSourceComposerGridRow extends HTMLElement {
+    constructor() {
+        super();
+    }
+
+    connectedCallback() {
+        this.render();
+        // TODO: position attrib
+    }
+}

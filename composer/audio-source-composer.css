@@ -1,4 +1,4 @@
-.audio-source-composer {
+.asc-container {
     color: #000;
     background-color: #bdc3c7;
     display: block;
@@ -24,28 +24,28 @@ audio-source-composer.fullscreen {
 }
 
 /** Grid **/
-.audio-source-composer.fullscreen .composer-controls {
+.asc-container.fullscreen .composer-controls {
     /* flex: 0 1 auto; */
 }
-.audio-source-composer.fullscreen .composer-grid {
+.asc-container.fullscreen .composer-grid {
     flex: 1 1 auto;
 }
 
 
 /** Colors **/
-.audio-source-composer table,
-.audio-source-composer a,
-.audio-source-composer {
+.asc-container table,
+.asc-container a,
+.asc-container {
     color: #000;
 }
 
 
 /** Inputs **/
 
-.audio-source-composer .input-style,
-.audio-source-composer input:not([type=checkbox]):not([type=radio]):not([type=range]),
-.audio-source-composer select,
-.audio-source-composer button{
+.asc-container .input-style,
+.asc-container input:not([type=checkbox]):not([type=radio]):not([type=range]),
+.asc-container select,
+.asc-container button{
     padding: 2px 4px;
     border: 1px outset #FFF;
     border-radius: 2px;
@@ -54,14 +54,14 @@ audio-source-composer.fullscreen {
 }
 
 
-.audio-source-composer input[type='range'] {
+.asc-container input[type='range'] {
     -webkit-appearance: none;
     background-color: #AAA;
     border-radius: 15px;
     height: 10px;
     margin: 5px;
 }
-.audio-source-composer input[type='range']::-webkit-slider-thumb {
+.asc-container input[type='range']::-webkit-slider-thumb {
     vertical-align: middle;
     -webkit-appearance: none;
     background-color: #444;
@@ -75,19 +75,19 @@ audio-source-composer.fullscreen {
 
 
 /** Editor Menu **/
-.audio-source-composer ul.composer-menu {
+.asc-container ul.composer-menu {
     display: table;
     /*overflow: hidden;*/
     /* min-height: 22px; */
 }
-.audio-source-composer ul.composer-menu > li {
+.asc-container ul.composer-menu > li {
     /* float: left; */
     display: table-cell;
 }
 
 
-.audio-source-composer ul.composer-menu,
-.audio-source-composer ul.submenu {
+.asc-container ul.composer-menu,
+.asc-container ul.submenu {
     /*display: block;*/
     /* border: 1px solid grey; */
     /* background-color: #BBB; */
@@ -100,7 +100,7 @@ audio-source-composer.fullscreen {
 }
 
 /** Drop Down Menu **/
-.audio-source-composer ul.submenu {
+.asc-container ul.submenu {
     z-index: 98;
     /*display: none;*/
     /* display: none; */
@@ -123,9 +123,9 @@ audio-source-composer.fullscreen {
 }
 
 /** Drop Down Trigger **/
-.audio-source-composer ul.submenu.open,
-.audio-source-composer li:hover > ul.submenu,
-.audio-source-composer a:focus + ul.submenu {
+.asc-container ul.submenu.open,
+.asc-container li:hover > ul.submenu,
+.asc-container a:focus + ul.submenu {
     z-index: 99;
     /*left: 0;*/
     transform: scaleY(1);
@@ -137,12 +137,12 @@ audio-source-composer.fullscreen {
 }
 
 /** Menu Styling **/
-.audio-source-composer ul.composer-menu > li,
-.audio-source-composer ul.composer-menu ul.submenu > li {
+.asc-container ul.composer-menu > li,
+.asc-container ul.composer-menu ul.submenu > li {
     padding: 5px 8px;
 }
-.audio-source-composer ul.composer-menu > li > a,
-.audio-source-composer ul.composer-menu ul.submenu > li > a {
+.asc-container ul.composer-menu > li > a,
+.asc-container ul.composer-menu ul.submenu > li > a {
     vertical-align: top;
     display: inline-block;
     /*padding: 5px 8px;*/
@@ -155,17 +155,17 @@ audio-source-composer.fullscreen {
 
 
 
-.audio-source-composer ul.composer-menu > li:hover,
-.audio-source-composer ul.submenu > li:hover {
+.asc-container ul.composer-menu > li:hover,
+.asc-container ul.submenu > li:hover {
     background-color: #AAA;
 }
 
-.audio-source-composer ul.composer-menu > li > * {
+.asc-container ul.composer-menu > li > * {
     /*white-space: nowrap;*/
 }
 
 /** Disabled Menu **/
-.audio-source-composer ul.composer-menu .disabled {
+.asc-container ul.composer-menu .disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -173,22 +173,22 @@ audio-source-composer.fullscreen {
 
 /** Menu Break **/
 
-.audio-source-composer ul.composer-menu hr {
+.asc-container ul.composer-menu hr {
     margin: 4px 0;
     border: 1px #666 solid;
 }
 
 
-.audio-source-composer .composer-menu:not(.show-no-instruction-controls) .no-instruction-controls,
-.audio-source-composer .composer-menu:not(.show-control-note-modify) .control-note-modify {
-/*.audio-source-composer .composer-menu:not(.show-control-note-insert) .control-note-insert {*/
+.asc-container .composer-menu:not(.show-no-instruction-controls) .no-instruction-controls,
+.asc-container .composer-menu:not(.show-control-note-modify) .control-note-modify {
+/*.asc-container .composer-menu:not(.show-control-note-insert) .control-note-insert {*/
     display: none;
 }
 
 
 /** Context Menu **/
 
-.audio-source-composer ul.composer-context-menu {
+.asc-container ul.composer-context-menu {
     /* border: 1px solid grey; */
     /*background-color: #BBB;*/
     /*color: black;*/
@@ -197,7 +197,7 @@ audio-source-composer.fullscreen {
 
     transition: all 0s;
 }
-.audio-source-composer ul.composer-context-menu.open-context-menu {
+.asc-container ul.composer-context-menu.open-context-menu {
     display: block;
     position: fixed;
     z-index: 99;
@@ -205,32 +205,32 @@ audio-source-composer.fullscreen {
 
 /** Generic Forms **/
 
-.audio-source-composer form {
+.asc-container form {
     margin: 0px 0px 0px 0px;
     display: inline-block;
 }
 
 /** Editor Forms **/
 
-.audio-source-composer .composer-forms {
+.asc-container .composer-forms {
     /*display: flex;*/
     flex-wrap: wrap;
 }
 
 /** Form Section **/
-.audio-source-composer .composer-forms div.form-section-header {
+.asc-container .composer-forms div.form-section-header {
     font-size: small;
     border-bottom: 1px solid #BBB;
     /* text-decoration-color: #AAA; */
     margin-bottom: 1px;
 }
-.audio-source-composer .composer-forms div.form-section:hover div.form-section-header {
+.asc-container .composer-forms div.form-section:hover div.form-section-header {
     font-weight: bold;
 }
 
 
 /** Form Section **/
-.audio-source-composer .composer-forms div.form-section {
+.asc-container .composer-forms div.form-section {
     background: #DDD;
     /* border: 1px outset #ffffff8a; */
     padding: 6px 8px 2px 6px;
@@ -240,51 +240,51 @@ audio-source-composer.fullscreen {
     border: 1px outset #FFF;
     min-height: 40px;
 }
-.audio-source-composer div.form-section-divide {
+.asc-container div.form-section-divide {
     float: left;
     /* clear: both; */
 }
-.audio-source-composer div.form-section-divide > form > button {
+.asc-container div.form-section-divide > form > button {
     width: 25px;
     height: 50px;
     font-weight: bold;
     cursor: pointer;
 }
-.audio-source-composer div.form-section-divide > form > button > div {
+.asc-container div.form-section-divide > form > button > div {
     transform-origin: 16px -2px;
     transform: rotate(90deg);
     width: 50px;
     font-weight: bold;
 }
 
-.audio-source-composer div.form-section-divide > form.form-control-note-toggle > button {
+.asc-container div.form-section-divide > form.form-control-note-toggle > button {
     height: 90px;
 }
-.audio-source-composer div.form-section-divide > form.form-control-note-toggle > button > div {
+.asc-container div.form-section-divide > form.form-control-note-toggle > button > div {
     transform-origin: 22px -9px;
 }
 
-.audio-source-composer .hide-control-song form.form-song-toggle > button,
-.audio-source-composer .hide-control-note form.form-note-toggle > button,
-.audio-source-composer .hide-control-grid form.form-grid-toggle > button,
-.audio-source-composer .hide-control-instrument form.form-control-note-toggle > button {
+.asc-container .hide-control-song form.form-song-toggle > button,
+.asc-container .hide-control-note form.form-note-toggle > button,
+.asc-container .hide-control-grid form.form-grid-toggle > button,
+.asc-container .hide-control-instrument form.form-control-note-toggle > button {
     border: 1px inset;
 }
 
 /** Form Visibility **/
 
-.audio-source-composer:not(.playing)   form.show-on-song-playing,
-.audio-source-composer.playing         form.show-on-song-paused,
-.audio-source-composer .composer-forms:not(.show-control-note-modify) .control-note-modify,
-.audio-source-composer .composer-forms:not(.show-control-note-insert) .control-note-insert,
-.audio-source-composer .composer-forms.hide-control-song .control-song,
-.audio-source-composer .composer-forms.hide-control-note .control-note,
-.audio-source-composer .composer-forms.hide-control-grid .control-grid,
-.audio-source-composer .composer-instruments.hide-control-instrument .control-instrument {
+.asc-container:not(.playing)   form.show-on-song-playing,
+.asc-container.playing         form.show-on-song-paused,
+.asc-container .composer-forms:not(.show-control-note-modify) .control-note-modify,
+.asc-container .composer-forms:not(.show-control-note-insert) .control-note-insert,
+.asc-container .composer-forms.hide-control-song .control-song,
+.asc-container .composer-forms.hide-control-note .control-note,
+.asc-container .composer-forms.hide-control-grid .control-grid,
+.asc-container .composer-instruments.hide-control-instrument .control-instrument {
     display: none;
 }
 
-.audio-source-composer .composer-instruments {
+.asc-container .composer-instruments {
     display: inline-block;
 }
 
@@ -292,30 +292,30 @@ audio-source-composer.fullscreen {
 
 
 
-.audio-source-composer .composer-forms div.volume-container {
+.asc-container .composer-forms div.volume-container {
      /*border: 1px solid #AAA;*/
      /*border-radius: 6px;*/
     /* max-height: 15px; */
 }
 
-.audio-source-composer .composer-forms input:disabled,
-.audio-source-composer .composer-forms select:disabled,
-.audio-source-composer .composer-forms button:disabled {
+.asc-container .composer-forms input:disabled,
+.asc-container .composer-forms select:disabled,
+.asc-container .composer-forms button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
 }
 
 /** Form: Group **/
-.audio-source-composer .composer-forms form.form-group > button {
+.asc-container .composer-forms form.form-group > button {
     /* font-size: small; */
     /* padding: 0px 3px 2px 2px; */
     /* min-width: 18px; */
     /* border-radius: 2px; */
 }
-.audio-source-composer .composer-forms form.form-group > button.new {
+.asc-container .composer-forms form.form-group > button.new {
     /* color: #444; */
 }
-.audio-source-composer .composer-forms form.form-group > button.selected {
+.asc-container .composer-forms form.form-group > button.selected {
     font-weight: bold;
     border-radius: 2px;
     border: 1px inset #FFF;
@@ -323,7 +323,7 @@ audio-source-composer.fullscreen {
 
 /** Form Separator **/
 
-.audio-source-composer .composer-forms .form-separator {
+.asc-container .composer-forms .form-separator {
     height: 0px;
     margin: 0;
 }
@@ -331,8 +331,8 @@ audio-source-composer.fullscreen {
 
 /** Highlight Key **/
 
-.audio-source-composer .composer-forms > li > a > .key,
-.audio-source-composer .composer-forms ul.submenu-item > .key {
+.asc-container .composer-forms > li > a > .key,
+.asc-container .composer-forms ul.submenu-item > .key {
     font-weight: bold;
     text-decoration: underline;
 }
@@ -340,8 +340,8 @@ audio-source-composer.fullscreen {
 /** Form Inputs **/
 
 
-.audio-source-composer .composer-forms > li > input[type=checkbox],
-.audio-source-composer .composer-forms ul.submenu-item-checkbox {
+.asc-container .composer-forms > li > input[type=checkbox],
+.asc-container .composer-forms ul.submenu-item-checkbox {
     vertical-align: text-top;
     width: 16px;
     height: 16px;
@@ -352,39 +352,39 @@ audio-source-composer.fullscreen {
 
 /** Song Info Form **/
 
-.audio-source-composer .composer-forms form.form-song-volume input[name=volume]      { max-width: 71px; }
-.audio-source-composer .composer-forms form.form-load-file input[name=file]          { max-width: 96px; }
-.audio-source-composer .composer-forms form.form-song-version input[name=version]    { max-width: 64px; }
-.audio-source-composer .composer-forms form.form-song-title input[name=title]        { width: 160px; }
+.asc-container .composer-forms form.form-song-volume input[name=volume]      { max-width: 71px; }
+.asc-container .composer-forms form.form-load-file input[name=file]          { max-width: 96px; }
+.asc-container .composer-forms form.form-song-version input[name=version]    { max-width: 64px; }
+.asc-container .composer-forms form.form-song-title input[name=title]        { width: 160px; }
 
 /** Add Instrument Form **/
 
-.audio-source-composer .composer-forms form.form-add-instrument select[name=instrument] { min-width: 129px; }
+.asc-container .composer-forms form.form-add-instrument select[name=instrument] { min-width: 129px; }
 
 
 /** Modify Instruction Forms **/
 
-.audio-source-composer .composer-forms form.form-instruction-instrument select[name=instrument] {max-width: 120px;}
-.audio-source-composer .composer-forms form.form-note-command select[name=frequency] { max-width: 42px; }
-.audio-source-composer .composer-forms form.form-note-command select[name=command] {max-width: 68px;}
-.audio-source-composer .composer-forms form.form-instruction-duration select[name=duration] {max-width: 69px;}
-.audio-source-composer .composer-forms form.form-instruction-velocity input[name=velocity] {max-width: 56px;}
-.audio-source-composer .composer-forms form.form-instruction-delete button[name=delete] {}
+.asc-container .composer-forms form.form-instruction-instrument select[name=instrument] {max-width: 120px;}
+.asc-container .composer-forms form.form-note-command select[name=frequency] { max-width: 42px; }
+.asc-container .composer-forms form.form-note-command select[name=command] {max-width: 68px;}
+.asc-container .composer-forms form.form-instruction-duration select[name=duration] {max-width: 69px;}
+.asc-container .composer-forms form.form-instruction-velocity input[name=velocity] {max-width: 56px;}
+.asc-container .composer-forms form.form-instruction-delete button[name=delete] {}
 
 /** Grid Render Forms **/
 
-.audio-source-composer .composer-forms form.form-render-duration {
+.asc-container .composer-forms form.form-render-duration {
     padding-right: 4px;
     float: right;
 }
-.audio-source-composer .composer-forms form.form-render-duration select[name=duration] { min-width: 96px; }
-.audio-source-composer .composer-forms form.form-render-octave select[name=octave] {max-width: 37px;}
-.audio-source-composer .composer-forms form.form-render-instrument select[name=instrument] { min-width: 135px; }
-.audio-source-composer .composer-forms form.form-add-instrument select[name=instrumentURL] {max-width: 68px;}
+.asc-container .composer-forms form.form-render-duration select[name=duration] { min-width: 96px; }
+.asc-container .composer-forms form.form-render-octave select[name=octave] {max-width: 37px;}
+.asc-container .composer-forms form.form-render-instrument select[name=instrument] { min-width: 135px; }
+.asc-container .composer-forms form.form-add-instrument select[name=instrumentURL] {max-width: 68px;}
 
-.audio-source-composer .composer-forms form.form-selected-indicies input[name=indicies] {max-width: 55px;}
-.audio-source-composer .composer-forms form.form-selected-range input[name=rangeStart],
-.audio-source-composer .composer-forms form.form-selected-range input[name=rangeEnd] {
+.asc-container .composer-forms form.form-selected-indicies input[name=indicies] {max-width: 55px;}
+.asc-container .composer-forms form.form-selected-range input[name=rangeStart],
+.asc-container .composer-forms form.form-selected-range input[name=rangeEnd] {
     max-width: 32px;
 }
 
@@ -395,7 +395,7 @@ audio-source-composer.fullscreen {
 
 
 /** Grid **/
-.audio-source-composer .composer-grid {
+.asc-container .composer-grid {
     display: flex;
     flex-flow: column;
     /*width: 100%;*/
@@ -409,17 +409,17 @@ audio-source-composer.fullscreen {
 
 /** Grid Header **/
 
-.audio-source-composer .composer-grid .grid-header {
+.asc-container .composer-grid .grid-header {
     min-width: 126px;
 }
-.audio-source-composer .composer-grid .grid-header-pause {
+.asc-container .composer-grid .grid-header-pause {
     text-align: center;
     min-width: 44px;
 }
 
 /** Grid Row **/
 
-.audio-source-composer .composer-grid > div {
+.asc-container .composer-grid > div {
     display: flex;
 
     cursor: pointer;
@@ -434,19 +434,19 @@ audio-source-composer.fullscreen {
     padding: 0px;
 }
 
-.audio-source-composer .composer-grid > div:nth-child(odd) {
+.asc-container .composer-grid > div:nth-child(odd) {
     background-color: #D0D0D0;
     /* padding: 0; */
     /* margin: 0; */
 }
 
-.audio-source-composer .composer-grid > div.selected {
+.asc-container .composer-grid > div.selected {
     background-color: #ffeedd;
     position: relative;
     box-shadow: #ffeedd 0px 0px 9px;
     z-index: 2;
 }
-.audio-source-composer .composer-grid > div.playing {
+.asc-container .composer-grid > div.playing {
     transition: background-color 0s;
     background-color: #609060;
     position: relative;
@@ -456,7 +456,7 @@ audio-source-composer.fullscreen {
 
 /** Grid Row Delta **/
 
-.audio-source-composer .composer-grid > div > div.delta {
+.asc-container .composer-grid > div > div.delta {
     margin-left: auto;
     /* width: 30px; */
     padding: 2px;
@@ -465,7 +465,7 @@ audio-source-composer.fullscreen {
 
 /** Grid Cell **/
 
-.audio-source-composer .composer-grid div.instruction {
+.asc-container .composer-grid div.instruction {
     /* display: inline-block; */
     /* float: left; */
     overflow: hidden;
@@ -479,52 +479,52 @@ audio-source-composer.fullscreen {
     /* z-index: 1; */
 }
 
-.audio-source-composer .composer-grid div.instruction.new {
+.asc-container .composer-grid div.instruction.new {
     opacity: 0;
     transition: opacity 0.25s;
     padding: 0 3px;
 }
-.audio-source-composer .composer-grid div.instruction.new.cursor,
-.audio-source-composer .composer-grid > div.selected div.instruction.new {
+.asc-container .composer-grid div.instruction.new.cursor,
+.asc-container .composer-grid > div.selected div.instruction.new {
     opacity: 1;
 }
 
-.audio-source-composer .composer-grid div.instruction:last-child {
+.asc-container .composer-grid div.instruction:last-child {
     margin-right: 0;
 }
 
-.audio-source-composer .composer-grid div.instruction.playing {
+.asc-container .composer-grid div.instruction.playing {
     font-weight: bold;
 }
 
 
-.audio-source-composer .composer-grid div.instruction.cursor,
-.audio-source-composer .composer-grid div.instruction.selected {
+.asc-container .composer-grid div.instruction.cursor,
+.asc-container .composer-grid div.instruction.selected {
     font-weight: bold;
     max-width: 1000px;
     box-shadow: #6b6b6b 0 0px 3px;
     z-index: 2;
     /* position: inherit; */
 }
-.audio-source-composer .composer-grid div.instruction.playing {
+.asc-container .composer-grid div.instruction.playing {
     background-color: #80d55c;
 }
 
-.audio-source-composer .composer-grid div.instruction.selected {
+.asc-container .composer-grid div.instruction.selected {
     background-color: white;
 }
 
-.audio-source-composer .composer-grid div.instruction.cursor {
+.asc-container .composer-grid div.instruction.cursor {
     border-color: red;
     box-shadow: darkred 0 0 12px;
 }
 
 /** Grid Cell Parameters **/
 
-.audio-source-composer .composer-grid div.instruction > .command,
-.audio-source-composer .composer-grid div.instruction > .instrument,
-.audio-source-composer .composer-grid div.instruction > .velocity,
-.audio-source-composer .composer-grid div.instruction > .duration {
+.asc-container .composer-grid div.instruction > .command,
+.asc-container .composer-grid div.instruction > .instrument,
+.asc-container .composer-grid div.instruction > .velocity,
+.asc-container .composer-grid div.instruction > .duration {
     display: table-cell;
     overflow: hidden;
     vertical-align: top;
@@ -534,45 +534,45 @@ audio-source-composer.fullscreen {
     padding: 0px;
 }
 
-.audio-source-composer .composer-grid .grid-parameter:not(:first-child) {
+.asc-container .composer-grid .grid-parameter:not(:first-child) {
     /* max-width: 40px; */
 }
 
-.audio-source-composer .composer-grid div.instruction > .command {
+.asc-container .composer-grid div.instruction > .command {
     color: darkred;
     /* min-width: 10px; */
     /*max-width: 40px;*/
 }
-.audio-source-composer .composer-grid div.instruction:not(.selected) > .command {
+.asc-container .composer-grid div.instruction:not(.selected) > .command {
     max-width: 24px;
 }
 
-.audio-source-composer .composer-grid div.instruction > .instrument {
+.asc-container .composer-grid div.instruction > .instrument {
     color: darkblue;
     max-width: 0px;
 }
-.audio-source-composer .composer-grid div.instruction > .duration {
+.asc-container .composer-grid div.instruction > .duration {
     color: purple;
     max-width: 0px;
 }
-.audio-source-composer .composer-grid div.instruction > .velocity {
+.asc-container .composer-grid div.instruction > .velocity {
     color: green;
     max-width: 0px;
 }
-.audio-source-composer.show-parameter-instrument div.instruction > .instrument,
-.audio-source-composer .composer-grid div.instruction.selected > .instrument,
-.audio-source-composer .composer-grid div.instruction.cursor > .instrument,
-/*.audio-source-composer .composer-grid div.instruction.playing > .instrument,*/
+.asc-container.show-parameter-instrument div.instruction > .instrument,
+.asc-container .composer-grid div.instruction.selected > .instrument,
+.asc-container .composer-grid div.instruction.cursor > .instrument,
+/*.asc-container .composer-grid div.instruction.playing > .instrument,*/
 
-.audio-source-composer.show-parameter-duration > .duration,
-.audio-source-composer .composer-grid div.instruction.selected > .duration,
-.audio-source-composer .composer-grid div.instruction.cursor > .duration,
-/*.audio-source-composer .composer-grid div.instruction.playing > .duration,*/
+.asc-container.show-parameter-duration > .duration,
+.asc-container .composer-grid div.instruction.selected > .duration,
+.asc-container .composer-grid div.instruction.cursor > .duration,
+/*.asc-container .composer-grid div.instruction.playing > .duration,*/
 
-.audio-source-composer.show-parameter-velocity > .velocity,
-.audio-source-composer .composer-grid div.instruction.selected > .velocity,
-.audio-source-composer .composer-grid div.instruction.cursor > .velocity {
-/*.audio-source-composer .composer-grid div.instruction.playing > .velocity*/
+.asc-container.show-parameter-velocity > .velocity,
+.asc-container .composer-grid div.instruction.selected > .velocity,
+.asc-container .composer-grid div.instruction.cursor > .velocity {
+/*.asc-container .composer-grid div.instruction.playing > .velocity*/
     max-width: 40px;
     border-left: 1px solid #888;
     /*margin: 0px;*/
@@ -581,12 +581,12 @@ audio-source-composer.fullscreen {
 }
 
 
-.audio-source-composer .composer-grid .measure-end {
+.asc-container .composer-grid .measure-end {
     /* border-bottom: 2px solid #555; */
     /* border-bottom: 1px solid #666; */
 }
 
-.audio-source-composer .composer-grid div.instruction:not(.selected):not(.playing) .grid-parameter.duration.matches-pause {
+.asc-container .composer-grid div.instruction:not(.selected):not(.playing) .grid-parameter.duration.matches-pause {
     max-width: 0px;
     margin-left: 0px;
     padding-left: 0;
@@ -595,7 +595,7 @@ audio-source-composer.fullscreen {
     transition-delay: 0.25s;
 }
 
-.audio-source-composer .composer-grid div.instruction-pause {
+.asc-container .composer-grid div.instruction-pause {
     /* position: absolute; */
     /* top: 1px; */
     /* right: 5px; */
@@ -603,25 +603,25 @@ audio-source-composer.fullscreen {
     /* z-index: 1; */
     /*opacity: 0.3;*/
 }
-.audio-source-composer .composer-grid div.instruction-pause.duration-large {
+.asc-container .composer-grid div.instruction-pause.duration-large {
     color: #00A;
 }
-.audio-source-composer .composer-grid div.instruction-pause.duration-medium {
+.asc-container .composer-grid div.instruction-pause.duration-medium {
     color: #050;
     /* font-size: small; */
 }
-.audio-source-composer .composer-grid div.instruction-pause.duration-small {
+.asc-container .composer-grid div.instruction-pause.duration-small {
     color: #050;
     font-size: smaller;
 }
-.audio-source-composer .composer-grid > div.selected div.instruction-pause {
+.asc-container .composer-grid > div.selected div.instruction-pause {
     opacity: 1;
 
 }
 
 /** Instruments **/
 
-.audio-source-composer .composer-instruments .instrument-container {
+.asc-container .composer-instruments .instrument-container {
     float: left;
     /* display: inline-block; */
 }
