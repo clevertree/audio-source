@@ -352,7 +352,8 @@ class AudioSourceComposerGrid {
         newInstructionElm.classList.add('instruction', 'new');
         newInstructionElm.setAttribute('data-position', rowElement.getAttribute('data-position'));
         newInstructionElm.innerHTML = `<div class="command">+</div>`;
-        rowElement.appendChild(newInstructionElm);
+        const deltaElm = rowElement.querySelector('.delta');
+        rowElement.insertBefore(newInstructionElm, deltaElm);
         return newInstructionElm;
     }
 
@@ -379,7 +380,7 @@ class AudioSourceComposerGrid {
     }
 
     onSongEvent(e) {
-        console.log("onSongEvent", e);
+        // console.log("onSongEvent", e);
         const detail = e.detail || {stats:{}};
         const instructionElm = detail.instruction ? this.findInstruction(detail.instruction) : null;
         const groupElm = detail.groupInstruction ? this.findInstruction(detail.groupInstruction) : null;

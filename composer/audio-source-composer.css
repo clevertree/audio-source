@@ -396,6 +396,8 @@ audio-source-composer.fullscreen {
 
 /** Grid **/
 .audio-source-composer .composer-grid {
+    display: flex;
+    flex-flow: column;
     /*width: 100%;*/
     position: relative;
     clear: both;
@@ -418,6 +420,8 @@ audio-source-composer.fullscreen {
 /** Grid Row **/
 
 .audio-source-composer .composer-grid > div {
+    display: flex;
+
     cursor: pointer;
     background-color: #C0C0C0;
     height: 1.45em;
@@ -453,17 +457,17 @@ audio-source-composer.fullscreen {
 /** Grid Row Delta **/
 
 .audio-source-composer .composer-grid > div > div.delta {
-    float: right;
-    width: 30px;
+    margin-left: auto;
+    /* width: 30px; */
     padding: 2px;
-    text-align: center;
+    /* text-align: left; */
 }
 
 /** Grid Cell **/
 
 .audio-source-composer .composer-grid div.instruction {
     /* display: inline-block; */
-    float: left;
+    /* float: left; */
     overflow: hidden;
     padding: 1px;
     margin: 0;
