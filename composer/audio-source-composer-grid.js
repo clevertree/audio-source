@@ -783,17 +783,32 @@ class AudioSourceComposerGridRow extends HTMLElement {
     set duration(durationInTicks) { this.setAttribute('d', durationInTicks)}
     get duration() { return parseInt(this.getAttribute('d'))}
 
+    get visible() {
+        const parentBottom = this.parentNode.scrollTop + this.parentNode.offsetHeight;
+        if(this.offsetTop - parentBottom > 0)
+            return false;
+        if(this.offsetTop < this.parentNode.scrollTop)
+            return false;
+        return true;
+    }
+
     connectedCallback() {
-        setTimeout(e => this.render(), 100);
+        setTimeout(e => this.render(), 1);
         // TODO: position attrib
+    }
+
+    disconnectedCallback() {
+        // clearInterval(this.int);
     }
 
     render(instrumentList=null) {
         this.innerHTML = '';
-        const deltaElm = document.createElement('div')
-        deltaElm.innerHTML = this.editor.values.format(this.duration, 'duration');
-        deltaElm.classList.add('delta');
-        this.appendChild(deltaElm);
+        if(this.visible) {
+            const deltaElm = document.createElement('div')
+            deltaElm.innerHTML = this.editor.values.format(this.duration, 'duration');
+            deltaElm.classList.add('delta');
+            this.appendChild(deltaElm);
+        }
     }
 
 }

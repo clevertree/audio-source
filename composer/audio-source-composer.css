@@ -27,7 +27,7 @@ audio-source-composer.fullscreen {
 .asc-container.fullscreen .composer-controls {
     /* flex: 0 1 auto; */
 }
-.asc-container.fullscreen .composer-grid {
+.asc-container.fullscreen asc-grid {
     flex: 1 1 auto;
 }
 
@@ -398,6 +398,7 @@ asc-forms form.form-selected-range input[name=rangeEnd] {
 /** Grid **/
 asc-grid {
     display: block;
+    position: relative;
     /* flex-flow: column; */
     /*width: 100%;*/
     /* position: relative; */
