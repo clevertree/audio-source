@@ -196,6 +196,8 @@ class AudioSourceRenderer {
                 //     }
             }
         }
+
+        this.dispatchEvent(new CustomEvent('song:loaded'));
     }
 
     processAllInstructionData(groupName) {
@@ -231,7 +233,7 @@ class AudioSourceRenderer {
     getInstructions(groupName, indicies=null) {
         let instructionList = this.songData.instructions[groupName];
         if(!instructionList)
-            throw new Error("Instruction groupName not found: " + groupName);
+            throw new Error("Instruction group not found: " + groupName);
         if(indicies) {
             if(typeof indicies === "number")
                 indicies = [indicies];

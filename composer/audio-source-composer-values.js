@@ -19,7 +19,6 @@ class AudioSourceComposerValues {
         let noteFrequencies;
         let valuesHTML = '';
         const songData = this.editor.getSongData() || {};
-        const timeDivision = this.editor.renderer.getSongTimeDivision();
 
         switch(valueType) {
             // case 'server-recent-uuid':
@@ -109,6 +108,7 @@ class AudioSourceComposerValues {
                 break;
 
             case 'durations':
+                const timeDivision = this.editor.renderer.getSongTimeDivision();
                 for(let i=64; i>1; i/=2) {
                     valuesHTML += callback((1/i)/1.5    * timeDivision, `1/${i}t`);
                     valuesHTML += callback(1/i          * timeDivision, `1/${i}`);

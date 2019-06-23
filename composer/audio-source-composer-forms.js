@@ -2,6 +2,8 @@ class AudioSourceComposerForms extends HTMLElement {
     constructor() {
         super();
     }
+    get gridStatus() { return this.editor.status.grid; }
+
     connectedCallback() {
         this.editor = this.getRootNode().host;
         this.render();
@@ -85,7 +87,7 @@ class AudioSourceComposerForms extends HTMLElement {
         // const cursorCellIndex = this.editor.cursorCellIndex;
         const currentGroup = this.editor.currentGroup;
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        const selectedIndices = this.editor.selectedIndicies;
+        const selectedIndices = this.gridStatus.selectedIndicies;
         // const selectedPauseIndices = this.editor.selectedPauseIndicies;
         const selectedRange = this.editor.selectedRange;
 
@@ -219,7 +221,7 @@ class AudioSourceComposerForms extends HTMLElement {
                 break;
 
             case 'grid:duration':
-                this.editor.status.currentRenderDuration = this.fieldRenderDuration.value;
+                this.gridStatus.renderDuration = this.fieldRenderDuration.value;
                 this.editor.grid.render();
                 break;
 
@@ -529,11 +531,11 @@ class AudioSourceComposerForms extends HTMLElement {
     update() {
 
         // const gridDuration = this.fieldRenderDuration.value || 1;
-        const timeDivision = this.editor.renderer.getSongTimeDivision();
+        const timeDivision = this.gridStatus.renderDuration;
         // const cursorIndex = this.editor.cursorCellIndex;
-        const selectedIndicies = this.editor.selectedIndicies;
+        const selectedIndicies = this.gridStatus.selectedIndicies;
         // const selectedPauseIndicies = this.editor.selectedPauseIndicies;
-        const groupName = this.editor.currentGroup;
+        const groupName = this.gridStatus.groupName;
         const selectedInstructionList = this.editor.renderer.getInstructions(groupName, selectedIndicies);
         let cursorInstruction = selectedInstructionList[0];
         // let combinedInstruction = null; //, instrumentList = [];
@@ -588,13 +590,13 @@ class AudioSourceComposerForms extends HTMLElement {
 
         this.fieldRenderOctave.value = this.editor.status.currentOctave;
 
-        if(!this.fieldRenderDuration.value)
-            this.fieldRenderDuration.value = this.editor.status.currentRenderDuration || timeDivision; // this.editor.renderer.getSongTimeDivision();
-        if(!this.fieldInstructionDuration.value)
+        if(!this.fieldRenderDuration.value && this.gridStatus.renderDuration)
+            this.fieldRenderDuration.value = this.gridStatus.renderDuration; // this.editor.renderer.getSongTimeDivision();
+        if(!this.fieldInstructionDuration.value && this.fieldRenderDuration.value)
             this.fieldInstructionDuration.value = this.fieldRenderDuration.value;
 
 
-        this.fieldSelectedIndicies.value = this.editor.selectedIndicies.join(',');
+        this.fieldSelectedIndicies.value = this.gridStatus.selectedIndicies.join(',');
         // this.fieldSelectedRangeStart.value = this.editor.selectedRange[0];
         // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
     }

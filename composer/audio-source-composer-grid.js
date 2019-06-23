@@ -2,12 +2,15 @@ class AudioSourceComposerGrid extends HTMLElement {
     constructor() {
         super();
 
-        this.groupName = 'root';
+
         // this.cursorCellIndex = 0;
         this.minimumGridLengthTicks = null;
         this.instructionElms = null;
     }
-    get editorForms() { return this.editor.elements.forms; }
+    get renderDuration() { return this.status.renderDuration; }
+    get status() { return this.editor.status.grid; }
+    get groupName() { return this.status.groupName; }
+    get editorForms() { return this.editor.forms; }
     
     connectedCallback() {
         this.editor = this.getRootNode().host;
@@ -19,25 +22,30 @@ class AudioSourceComposerGrid extends HTMLElement {
         console.time('grid: calculate render');
         const currentScrollPosition = this.scrollTop || 0; // Save scroll position
         this.innerHTML = '';
-        const gridDuration = parseFloat(this.editorForms.fieldRenderDuration.value); // TODO: Resolve interdependency
+        const renderDuration = this.renderDuration;
 
         // const selectedIndicies = this.editor.status.selectedIndicies;
         let rowInstructions = [], lastRowIndex=0, songPositionInTicks=0, tickTotal=0; // , lastPause = 0;
 
+        // TODO: quantize row durations
         const renderRow = (deltaDuration) => {
-            for(let subPause=0; subPause<deltaDuration; subPause+=gridDuration) {
-                let subDurationInTicks = gridDuration;
-                if(subPause + gridDuration > deltaDuration)
+            for(let subPause=0; subPause<deltaDuration; subPause+=renderDuration) {
+                let subDurationInTicks = renderDuration;
+                if(subPause + renderDuration > deltaDuration)
                     subDurationInTicks = deltaDuration - subPause;
 
-                const rowElm = document.createElement('asc-grid-row');
+                const rowElm = document.createElement('ascg-row');
                 this.appendChild(rowElm);
                 rowElm.position = songPositionInTicks;
+                rowElm.duration = subDurationInTicks;
 
                 // editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, lastRowIndex);
 
                 rowInstructions = [];
+                const nextBreakPositionInTicks = Math.ceil((songPositionInTicks / renderDuration) + 0.5) * renderDuration;
                 songPositionInTicks += subDurationInTicks;
+                if(songPositionInTicks > nextBreakPositionInTicks)
+                    songPositionInTicks = nextBreakPositionInTicks;
             }
 
         };
@@ -61,7 +69,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
         let remainingDuration = this.minimumGridLengthTicks - tickTotal;
         if(remainingDuration <= 0)
-            remainingDuration = gridDuration;
+            remainingDuration = renderDuration;
         renderRow(remainingDuration);
 
         console.timeEnd('grid: calculate render');
@@ -83,16 +91,6 @@ class AudioSourceComposerGrid extends HTMLElement {
         // this.instructionElms = this.querySelectorAll(`.instruction`);
     }
 
-    get renderElement() {
-        return this.editor.elements.grid;
-        // const selector = '.composer-grid';
-        // console.time('renderElement');
-        // let renderElement = this.editor.shadowDOM.querySelector(selector);
-        // if(!renderElement)
-        //     throw new Error(`Element not found: ${selector}`);
-        // console.timeEnd('renderElement');
-        // return renderElement;
-    }
 
     // // Can't select pauses!
     // get instructionList() {
@@ -626,8 +624,8 @@ class AudioSourceComposerGrid extends HTMLElement {
                 this.minimumGridLengthTicks = stats.groupPositionInTicks;
         });
 
-        const defaultDuration = parseFloat(this.editorForms.fieldRenderDuration.value);
-        this.minimumGridLengthTicks += defaultDuration;
+        // const defaultDuration = parseFloat(this.editorForms.fieldRenderDuration.value);
+        this.minimumGridLengthTicks += this.renderDuration;
         this.render();
         if(selectNewRow) {
             const lastRowElm = this.querySelector('.composer-grid > div:last-child');
@@ -775,12 +773,28 @@ class AudioSourceComposerGridRow extends HTMLElement {
     constructor() {
         super();
     }
+    get editor() { return this.parentNode.editor; }
+
+    set position(songPositionInTicks) { this.setAttribute('p', songPositionInTicks)}
+    get position() { return parseInt(this.getAttribute('p'))}
+
+    set duration(durationInTicks) { this.setAttribute('d', durationInTicks)}
+    get duration() { return parseInt(this.getAttribute('d'))}
 
     connectedCallback() {
-        this.render();
+        setTimeout(e => this.render(), 100);
         // TODO: position attrib
     }
+
+    render(instrumentList=null) {
+        this.innerHTML = '';
+        const deltaElm = document.createElement('div')
+        deltaElm.innerHTML = this.editor.values.format(this.duration, 'duration');
+        deltaElm.classList.add('delta');
+        this.appendChild(deltaElm);
+    }
+
 }
 
 // customElements.define('music-song-grid', SongEditorGrid);
-customElements.define('asc-grid-row', AudioSourceComposerGridRow);
+customElements.define('ascg-row', AudioSourceComposerGridRow);

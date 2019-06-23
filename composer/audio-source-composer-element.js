@@ -8,34 +8,6 @@ class AudioSourceComposerElement extends HTMLElement {
     constructor() {
         super();
 
-        // this.player = null;
-        this.status = {
-            // selectedIndexCursor: 0,
-            currentGroup: 'root',
-            groupHistory: [],
-            // cursorCellIndex: 0,
-            // cursorPosition: 0,
-            selectedIndicies: [0],
-            selectedRange: [0,0],
-
-            currentOctave: 3,
-            currentInstrumentID: 0,
-            currentRenderDuration: null,
-
-            // history: {
-            //     currentStep: 0,
-            //     undoList: [],
-            //     undoPosition: []
-            // },
-            // webSocket: {
-            //     attempts: 0,
-            //     reconnectTimeout: 3000,
-            //     maxAttempts: 3,
-            // },
-            previewInstructionsOnSelect: false,
-            longPressTimeout: 500,
-            autoSaveTimeout: 4000,
-        };
         this.saveSongToMemoryTimer = null;
         this.instrumentLibrary = null;
 
@@ -53,7 +25,29 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
 
         this.renderer = new AudioSourceRenderer(this);
+        // this.player = null;
+        this.status = {
+            grid: {
+                renderDuration: this.renderer.getSongTimeDivision(),
+                groupName: 'root',
+                selectedIndicies: [0],
+                selectedRange: [0,0],
+            },
+            groupHistory: [],
+            // cursorPosition: 0,
+
+            currentOctave: 3,
+            currentInstrumentID: 0,
+            currentRenderDuration: null,
+            previewInstructionsOnSelect: false,
+            longPressTimeout: 500,
+            autoSaveTimeout: 4000,
+        };
     }
+    get grid() { return this.shadowDOM.querySelector('asc-grid'); }
+    get menu() { return this.shadowDOM.querySelector('asc-menu'); }
+    get forms() { return this.shadowDOM.querySelector('asc-forms'); }
+    get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
 
     render() {
 
@@ -67,16 +61,6 @@ class AudioSourceComposerElement extends HTMLElement {
             <asc-grid tabindex="0"></asc-grid>
         </div>
         `;
-        this.elements = {
-            grid: this.shadowDOM.querySelector('asc-grid'),
-            menu: this.shadowDOM.querySelector('asc-menu'),
-            forms: this.shadowDOM.querySelector('asc-forms'),
-            instruments: this.shadowDOM.querySelector('asc-instruments'),
-        };
-        // this.menu.render();
-        // this.forms.render();
-        // this.instruments.render();
-        // this.grid.render();
 
     }
 
@@ -97,6 +81,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM.addEventListener('longpress', onInput);
 
         const onSongEvent = e => this.onSongEvent(e);
+        this.addEventListener('song:loaded', onSongEvent);
         this.addEventListener('song:start', onSongEvent);
         this.addEventListener('song:end', onSongEvent);
         this.addEventListener('song:pause', onSongEvent);
@@ -293,6 +278,9 @@ class AudioSourceComposerElement extends HTMLElement {
         // console.log("Note Event: ", e.type);
         this.grid.onSongEvent(e);
         switch(e.type) {
+            case 'song:loaded':
+                this.status.grid.renderDuration = this.renderer.getSongTimeDivision();
+                break;
             case 'song:start':
                 this.classList.add('playing');
                 break;
@@ -312,7 +300,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
             case 'instrument:library':
             case 'instrument:instance':
-                this.instruments.render();
+                // TODO: this.instruments.render();
                 this.forms.render();
                 break;
         }

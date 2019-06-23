@@ -1,18 +1,15 @@
-class AudioSourceComposerInstruments {
+class AudioSourceComposerInstruments extends HTMLElement {
     constructor(editor) {
-        this.editor = editor;
+        super();
         // this.instrumentLibrary = {};
 
     }
 
-    get renderElement() {
-        return this.editor.elements.instruments;
-        // const selector = 'div.composer-instruments';
-        // let renderElement = this.editor.shadowDOM.querySelector(selector);
-        // if(!renderElement)
-        //     throw new Error(`Element not found: ${selector}`);
-        // return renderElement;
+    connectedCallback() {
+        this.editor = this.getRootNode().host;
+        this.render();
     }
+
 
     // Instruments load their own libraries. Libraries may be shared via dispatch
     async loadInstrumentLibrary(url, force=false) {

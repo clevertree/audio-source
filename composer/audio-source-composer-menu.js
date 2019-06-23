@@ -3,8 +3,9 @@ class AudioSourceComposerMenu extends HTMLElement {
         super();
     }
 
-    get editorForms() { return this.editor.elements.forms; }
-    
+    get gridStatus() { return this.editor.status.grid; }
+    get editorForms() { return this.editor.forms; }
+
     connectedCallback() {
         this.editor = this.getRootNode().host;
         this.render();
@@ -48,9 +49,9 @@ class AudioSourceComposerMenu extends HTMLElement {
 
         // let form = e.target.form || e.target;
         // const cursorCellIndex = this.editor.cursorCellIndex;
-        const currentGroup = this.editor.currentGroup;
-        const selectedRange = this.editor.selectedRange;
-        const selectedIndicies = this.editor.selectedIndicies;
+        const currentGroup = this.gridStatus.groupName;
+        const selectedRange = this.gridStatus.selectedRange;
+        const selectedIndicies = this.gridStatus.selectedIndicies;
 
         let menuTarget = e.target;
         // if(menuTarget.nodeName.toLowerCase() !== 'a')
@@ -268,7 +269,7 @@ class AudioSourceComposerMenu extends HTMLElement {
 
 
     update() {
-        const selectedIndicies = this.editor.selectedIndicies;
+        const selectedIndicies = this.gridStatus.selectedIndicies;
 
         this.classList.remove('show-control-note-modify');
         if(selectedIndicies.length > 0) {
@@ -286,205 +287,208 @@ class AudioSourceComposerMenu extends HTMLElement {
         // let tabIndex = 2;
 
         this.innerHTML =
-            `<li>
-                <span class="key">F</span>ile
-                <ul class="submenu">
-                    <li>
-                        <span data-action="song:new">
-                            <span class="key">N</span>ew song
-                        </span>
-                    </li>
-                    <li>
-                        <span class="key">O</span>pen song &#9658;
-                        <ul class="submenu">
-                            <li>
-                                <span>from <span class="key">M</span>emory &#9658;</span>
-                                <ul class="submenu">
-                                ${this.editor.values.length > 0 ? `
-                                    ${this.editor.values.getValues('song-recent-list', (value, label) =>
-                                    `<li data-action="song:load-memory-uuid" data-uuid="${value}"><span>${label}</span></li>`)}
-                                ` : `<li class="disabled"><span>No Recent Songs</span></li>`}
-                                </ul>
-                            </li>
-                            <li>
-                                <form action="#" class="form-menu-load-file submit-on-change" data-action="load:file">
-                                    <label>
-                                        from <span class="key">F</span>ile
-                                        <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
-                                    </label>
-                                </form>
-                            </li>
-                            <li class="disabled" data-action="load:url"><span>from <span class="key">U</span>rl</span></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <span class="key">S</span>ave song &#9658;
-                        <ul class="submenu">
-                            <li class="disabled" data-action="song:server-sync"><span>to <span class="key">S</span>erver</span><input type="checkbox" ${this.editor.webSocket ? `checked="checked"` : ''}></li>
-                            <li data-action="save:memory"><span>to <span class="key">M</span>emory</span></li>
-                            <li data-action="save:file"><span>to <span class="key">F</span>ile</span></li>    
-                        </ul>
-                    </li> 
-                    <li>
-                        <span class="key">I</span>mport song &#9658;
-                        <ul class="submenu">
-                            <li>
-                                <form action="#" class="form-menu-load-file submit-on-change" data-action="load:file">
-                                    <label>
-                                        from <span class="key">M</span>idi file
-                                        <input type="file" name="file" accept=".mid,.midi" style="display: none" />
-                                    </label>
-                                </form>
-                            </li>
-                        </ul>
-                    </li> 
-                    <li>
-                        <span class="disabled"><span class="key">E</span>xport song &#9658;</span>
-                        <ul class="submenu">
-                            <li class="disabled" data-action="export:file"><span>to audio file</span></li>
-                        </ul>
-                    </li>     
-                </ul>
-            </li>
-            <li>
-                <span class="key">E</span>dit
-                <ul class="submenu composer-context-menu">
-                    <li class="control-note-insert">
-                        <span>Insert <span class="key">N</span>ew Command &#9658;</span>
-                        <ul class="submenu">
-                            <li>
-                                <span class="key">F</span>requency &#9658;
-                                <ul class="submenu">
-                                    ${this.editor.values.getValues('note-frequency-octaves', (octave, label) =>
-                                        `<li>
-                                            <span>Octave ${label}</span>
-                                            <ul class="submenu">
-                                            ${this.editor.values.getValues('note-frequencies', (noteName, label) =>
-                                                `<li data-action="instruction:insert" data-command="${noteName+octave}"><span>${label}${octave}</span>`)}
-                                            </ul>
-                                        </li>`)}
-                                        <li data-action="instruction:insert"><span>Custom Command</span></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <span class="key">N</span>amed &#9658;
-                                <ul class="submenu">
-                                    ${this.editor.values.getValues('command-instrument-frequencies', (value, label) =>
-                                        `<li data-action="instruction:insert" data-command="${value}"><span>${label}</span></li>`)}
-                                        <li data-action="instruction:insert"><span>Custom Command</span></li>
-                                </ul>
-                            </li>
-                            <li>
-                                <span class="key">G</span>roup &#9658;
-                                <ul class="submenu">
-                                    ${this.editor.values.getValues('command-group-execute', (value, label) =>
-                                        `<li data-action="instruction:insert" data-command="${value}"><span>${label}</span></li>`)}
-                                        <li data-action="instruction:insert"><span>Custom Command</span></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="control-note-modify">
-                        Set <span class="key">C</span>ommand &#9658;
-                        <ul class="submenu">
-                            <li>
-                                <span class="key">F</span>requency &#9658;
-                                <ul class="submenu">
-                                    ${this.editor.values.getValues('note-frequency-octaves', (octave, label) =>
-                                        `<li>
-                                            <span>Octave ${label}</span>
-                                            <ul class="submenu">
-                                            ${this.editor.values.getValues('note-frequencies', (noteName, label) =>
-                                                `<li data-action="instruction:command" data-command="${noteName+octave}"><span>${label}${octave}</span>`)}
-                                            </ul>
-                                        </li>`)}
-                                </ul>
-                            </li>
-                            <li>
-                                <span class="key">N</span>amed &#9658;
-                                <ul class="submenu">
-                                    ${this.editor.values.getValues('command-instrument-frequencies', (value, label) =>
-                                        `<li data-action="instruction:command" data-command="${value}"><span>${label}</span></li>`)}
-                                </ul>
-                            </li>
-                            <li>
-                                <span><span class="key">G</span>roup &#9658;</span>
-                                <ul class="submenu">
-                                    ${this.editor.values.getValues('command-group-execute', (value, label) =>
-                                        `<li data-action="instruction:command" data-command="${value}"><span>${label}</span></li>`)}
-                                </ul>
-                            </li>
-                            <li data-action="instruction:command"><span>Custom Command</span></li>
-                        </ul>
-                    </li>
-                    <li class="control-note-modify">
-                        <span>Set <span class="key">I</span>nstrument &#9658;</span>
-                        <ul class="submenu">
-                            ${this.editor.values.getValues('song-instruments', (value, label) =>
-                                `<li data-action="instruction:instrument" data-instrument="${value}"><span>${label}</span></li>`)}
+            `<ul class="menu">
+                <li>
+                    <span class="key">F</span>ile
+                    <ul class="submenu">
+                        <li>
+                            <span data-action="song:new">
+                                <span class="key">N</span>ew song
+                            </span>
+                        </li>
+                        <li>
+                            <span class="key">O</span>pen song &#9658;
+                            <ul class="submenu">
                                 <li>
-                                    <span>Add new Instrument &#9658;</span>
+                                    <span>from <span class="key">M</span>emory &#9658;</span>
                                     <ul class="submenu">
-                                        ${this.editor.values.getValues('instruments-available', (value, label) =>
-                                            `<li data-action="instruction:new-instrument" data-instrumentURL="${value}"><span>${label}</span></li>`)}
+                                    ${this.editor.values.length > 0 ? `
+                                        ${this.editor.values.getValues('song-recent-list', (value, label) =>
+                                        `<li data-action="song:load-memory-uuid" data-uuid="${value}"><span>${label}</span></li>`)}
+                                    ` : `<li class="disabled"><span>No Recent Songs</span></li>`}
                                     </ul>
                                 </li>
-                        </ul>
-                    </li>
-                    <li class="control-note-modify">
-                        <span>Set <span class="key">D</span>uration &#9658</span>
-                        <ul class="submenu">
-                            <li data-action="instruction:duration"><span>Custom Duration</span></li>
-                            ${this.editor.values.getValues('durations', (value, label) =>
-                                `<li data-action="instruction:duration" data-duration="${value}"><span>${label}</span></li>`)}
-                        </ul>
-                    </li>
-                    <li class="control-note-modify">
-                        <span>Set <span class="key">V</span>elocity &#9658</span>
-                        <ul class="submenu">
-                            <li data-action="instruction:velocity"><span>Custom Velocity</span></li>
-                            ${this.editor.values.getValues('velocities', (value, label) =>
-                                `<li data-action="instruction:velocity" data-velocity="${value}"><span>${label}</span></li>`)}
-                        </ul>
-                    </li>
-                    <li data-action="instruction:panning" class="disabled control-note-modify"><span>Set <span class="key">P</span>anning</span></li>
-                    <li data-action="instruction:delete" class="control-note-modify"><span><span class="key">D</span>elete Note</span></li>
-                    <hr/>
-                    <li>
-                        <span>Edit <span class="key">R</span>ow &#9658;</span>
-                        <ul class="submenu">
-                            <li data-action="row:delete"><span><span class="key">D</span>elete Row</span></li>
-                        </ul>
-                    </li>
-                    <hr/>
-                    <li>
-                        <span>Edit <span class="key">G</span>roup &#9658;</span>
-                        <ul class="submenu">
-                            <li data-action="group:add"><span><span class="key">I</span>nsert new Group</span></li>
-                            <li data-action="group:delete"><span><span class="key">D</span>elete current Group</span></li>
-                            <li data-action="group:rename"><span><span class="key">R</span>ename current Group</span></li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <span class="key">V</span>iew
-                <ul class="submenu">
-                    <li data-action="view:instruments"><span>&#10003; View <span class="key">I</span>nstruments</span></li>
-                </ul>
-            </li>
-            <li>
-                <span class="key">I</span>nstruments
-                <ul class="submenu">
-                    <li>
-                        <span>Add new Instrument &#9658;</span>
-                        <ul class="submenu">
-                            ${this.editor.values.getValues('instruments-available', (value, label) =>
-                                `<li data-action="instrument:add" data-instrumentURL="${value}"><span>${label}</span></li>`)}
-                        </ul>
-                    </li>
-                </ul>
-            </li>`;
+                                <li>
+                                    <form action="#" class="form-menu-load-file submit-on-change" data-action="load:file">
+                                        <label>
+                                            from <span class="key">F</span>ile
+                                            <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
+                                        </label>
+                                    </form>
+                                </li>
+                                <li class="disabled" data-action="load:url"><span>from <span class="key">U</span>rl</span></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <span class="key">S</span>ave song &#9658;
+                            <ul class="submenu">
+                                <li class="disabled" data-action="song:server-sync"><span>to <span class="key">S</span>erver</span><input type="checkbox" ${this.editor.webSocket ? `checked="checked"` : ''}></li>
+                                <li data-action="save:memory"><span>to <span class="key">M</span>emory</span></li>
+                                <li data-action="save:file"><span>to <span class="key">F</span>ile</span></li>    
+                            </ul>
+                        </li> 
+                        <li>
+                            <span class="key">I</span>mport song &#9658;
+                            <ul class="submenu">
+                                <li>
+                                    <form action="#" class="form-menu-load-file submit-on-change" data-action="load:file">
+                                        <label>
+                                            from <span class="key">M</span>idi file
+                                            <input type="file" name="file" accept=".mid,.midi" style="display: none" />
+                                        </label>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li> 
+                        <li>
+                            <span class="disabled"><span class="key">E</span>xport song &#9658;</span>
+                            <ul class="submenu">
+                                <li class="disabled" data-action="export:file"><span>to audio file</span></li>
+                            </ul>
+                        </li>     
+                    </ul>
+                </li>
+                <li>
+                    <span class="key">E</span>dit
+                    <ul class="submenu composer-context-menu">
+                        <li class="control-note-insert">
+                            <span>Insert <span class="key">N</span>ew Command &#9658;</span>
+                            <ul class="submenu">
+                                <li>
+                                    <span class="key">F</span>requency &#9658;
+                                    <ul class="submenu">
+                                        ${this.editor.values.getValues('note-frequency-octaves', (octave, label) =>
+                                            `<li>
+                                                <span>Octave ${label}</span>
+                                                <ul class="submenu">
+                                                ${this.editor.values.getValues('note-frequencies', (noteName, label) =>
+                                                    `<li data-action="instruction:insert" data-command="${noteName+octave}"><span>${label}${octave}</span>`)}
+                                                </ul>
+                                            </li>`)}
+                                            <li data-action="instruction:insert"><span>Custom Command</span></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="key">N</span>amed &#9658;
+                                    <ul class="submenu">
+                                        ${this.editor.values.getValues('command-instrument-frequencies', (value, label) =>
+                                            `<li data-action="instruction:insert" data-command="${value}"><span>${label}</span></li>`)}
+                                            <li data-action="instruction:insert"><span>Custom Command</span></li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="key">G</span>roup &#9658;
+                                    <ul class="submenu">
+                                        ${this.editor.values.getValues('command-group-execute', (value, label) =>
+                                            `<li data-action="instruction:insert" data-command="${value}"><span>${label}</span></li>`)}
+                                            <li data-action="instruction:insert"><span>Custom Command</span></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="control-note-modify">
+                            Set <span class="key">C</span>ommand &#9658;
+                            <ul class="submenu">
+                                <li>
+                                    <span class="key">F</span>requency &#9658;
+                                    <ul class="submenu">
+                                        ${this.editor.values.getValues('note-frequency-octaves', (octave, label) =>
+                                            `<li>
+                                                <span>Octave ${label}</span>
+                                                <ul class="submenu">
+                                                ${this.editor.values.getValues('note-frequencies', (noteName, label) =>
+                                                    `<li data-action="instruction:command" data-command="${noteName+octave}"><span>${label}${octave}</span>`)}
+                                                </ul>
+                                            </li>`)}
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span class="key">N</span>amed &#9658;
+                                    <ul class="submenu">
+                                        ${this.editor.values.getValues('command-instrument-frequencies', (value, label) =>
+                                            `<li data-action="instruction:command" data-command="${value}"><span>${label}</span></li>`)}
+                                    </ul>
+                                </li>
+                                <li>
+                                    <span><span class="key">G</span>roup &#9658;</span>
+                                    <ul class="submenu">
+                                        ${this.editor.values.getValues('command-group-execute', (value, label) =>
+                                            `<li data-action="instruction:command" data-command="${value}"><span>${label}</span></li>`)}
+                                    </ul>
+                                </li>
+                                <li data-action="instruction:command"><span>Custom Command</span></li>
+                            </ul>
+                        </li>
+                        <li class="control-note-modify">
+                            <span>Set <span class="key">I</span>nstrument &#9658;</span>
+                            <ul class="submenu">
+                                ${this.editor.values.getValues('song-instruments', (value, label) =>
+                                    `<li data-action="instruction:instrument" data-instrument="${value}"><span>${label}</span></li>`)}
+                                    <li>
+                                        <span>Add new Instrument &#9658;</span>
+                                        <ul class="submenu">
+                                            ${this.editor.values.getValues('instruments-available', (value, label) =>
+                                                `<li data-action="instruction:new-instrument" data-instrumentURL="${value}"><span>${label}</span></li>`)}
+                                        </ul>
+                                    </li>
+                            </ul>
+                        </li>
+                        <li class="control-note-modify">
+                            <span>Set <span class="key">D</span>uration &#9658</span>
+                            <ul class="submenu">
+                                <li data-action="instruction:duration"><span>Custom Duration</span></li>
+                                ${this.editor.values.getValues('durations', (value, label) =>
+                                    `<li data-action="instruction:duration" data-duration="${value}"><span>${label}</span></li>`)}
+                            </ul>
+                        </li>
+                        <li class="control-note-modify">
+                            <span>Set <span class="key">V</span>elocity &#9658</span>
+                            <ul class="submenu">
+                                <li data-action="instruction:velocity"><span>Custom Velocity</span></li>
+                                ${this.editor.values.getValues('velocities', (value, label) =>
+                                    `<li data-action="instruction:velocity" data-velocity="${value}"><span>${label}</span></li>`)}
+                            </ul>
+                        </li>
+                        <li data-action="instruction:panning" class="disabled control-note-modify"><span>Set <span class="key">P</span>anning</span></li>
+                        <li data-action="instruction:delete" class="control-note-modify"><span><span class="key">D</span>elete Note</span></li>
+                        <hr/>
+                        <li>
+                            <span>Edit <span class="key">R</span>ow &#9658;</span>
+                            <ul class="submenu">
+                                <li data-action="row:delete"><span><span class="key">D</span>elete Row</span></li>
+                            </ul>
+                        </li>
+                        <hr/>
+                        <li>
+                            <span>Edit <span class="key">G</span>roup &#9658;</span>
+                            <ul class="submenu">
+                                <li data-action="group:add"><span><span class="key">I</span>nsert new Group</span></li>
+                                <li data-action="group:delete"><span><span class="key">D</span>elete current Group</span></li>
+                                <li data-action="group:rename"><span><span class="key">R</span>ename current Group</span></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="key">V</span>iew
+                    <ul class="submenu">
+                        <li data-action="view:instruments"><span>&#10003; View <span class="key">I</span>nstruments</span></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="key">I</span>nstruments
+                    <ul class="submenu">
+                        <li>
+                            <span>Add new Instrument &#9658;</span>
+                            <ul class="submenu">
+                                ${this.editor.values.getValues('instruments-available', (value, label) =>
+                                    `<li data-action="instrument:add" data-instrumentURL="${value}"><span>${label}</span></li>`)}
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+`;
 
 
         this.update();
