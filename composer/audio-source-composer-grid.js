@@ -27,7 +27,6 @@ class AudioSourceComposerGrid extends HTMLElement {
         // const selectedIndicies = this.editor.status.selectedIndicies;
         let rowInstructions = [], lastRowIndex=0, songPositionInTicks=0, tickTotal=0; // , lastPause = 0;
 
-        // TODO: quantize row durations
         const renderRow = (deltaDuration) => {
             for(let subPause=0; subPause<deltaDuration; subPause+=renderDuration) {
                 let subDurationInTicks = renderDuration;
@@ -37,15 +36,18 @@ class AudioSourceComposerGrid extends HTMLElement {
                 const rowElm = document.createElement('ascg-row');
                 this.appendChild(rowElm);
                 rowElm.position = songPositionInTicks;
-                rowElm.duration = subDurationInTicks;
 
                 // editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, lastRowIndex);
 
                 rowInstructions = [];
                 const nextBreakPositionInTicks = Math.ceil((songPositionInTicks / renderDuration) + 0.5) * renderDuration;
                 songPositionInTicks += subDurationInTicks;
-                if(songPositionInTicks > nextBreakPositionInTicks)
+                if(songPositionInTicks > nextBreakPositionInTicks) {
+                    // Quantize the row durations
+                    subDurationInTicks = songPositionInTicks - nextBreakPositionInTicks;
                     songPositionInTicks = nextBreakPositionInTicks;
+                }
+                rowElm.duration = subDurationInTicks;
             }
 
         };
