@@ -261,7 +261,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.menu.onInput(e);
         this.grid.onInput(e);
         this.forms.onInput(e);
-        this.instruments.onInput(e);
+//         this.instruments.onInput(e);
 
         // if(!e.defaultPrevented) {
         //     switch (e.type) {

@@ -457,16 +457,18 @@ ascg-row.playing {
 
 /** Grid Row Delta **/
 
-ascg-row > div.delta {
-    margin-left: auto;
+ascg-delta {
     /* width: 30px; */
     padding: 2px;
     /* text-align: left; */
 }
+ascg-row > ascg-delta {
+    margin-left: auto;
+}
 
 /** Grid Cell **/
 
-asc-grid div.instruction {
+ascg-instruction {
     /* display: inline-block; */
     /* float: left; */
     overflow: hidden;
@@ -480,52 +482,52 @@ asc-grid div.instruction {
     /* z-index: 1; */
 }
 
-asc-grid div.instruction.new {
+ascg-instruction.new {
     opacity: 0;
     transition: opacity 0.25s;
     padding: 0 3px;
 }
-asc-grid div.instruction.new.cursor,
+ascg-instruction.new.cursor,
 ascg-row.selected div.instruction.new {
     opacity: 1;
 }
 
-asc-grid div.instruction:last-child {
+ascg-instruction:last-child {
     margin-right: 0;
 }
 
-asc-grid div.instruction.playing {
+ascg-instruction.playing {
     font-weight: bold;
 }
 
 
-asc-grid div.instruction.cursor,
-asc-grid div.instruction.selected {
+ascg-instruction.cursor,
+ascg-instruction.selected {
     font-weight: bold;
     max-width: 1000px;
     box-shadow: #6b6b6b 0 0px 3px;
     z-index: 2;
     /* position: inherit; */
 }
-asc-grid div.instruction.playing {
+ascg-instruction.playing {
     background-color: #80d55c;
 }
 
-asc-grid div.instruction.selected {
+ascg-instruction.selected {
     background-color: white;
 }
 
-asc-grid div.instruction.cursor {
+ascg-instruction.cursor {
     border-color: red;
     box-shadow: darkred 0 0 12px;
 }
 
 /** Grid Cell Parameters **/
 
-asc-grid div.instruction > .command,
-asc-grid div.instruction > .instrument,
-asc-grid div.instruction > .velocity,
-asc-grid div.instruction > .duration {
+ascg-instruction > .command,
+ascg-instruction > .instrument,
+ascg-instruction > .velocity,
+ascg-instruction > .duration {
     display: table-cell;
     overflow: hidden;
     vertical-align: top;
@@ -539,41 +541,41 @@ asc-grid .grid-parameter:not(:first-child) {
     /* max-width: 40px; */
 }
 
-asc-grid div.instruction > .command {
+ascg-instruction > .command {
     color: darkred;
     /* min-width: 10px; */
     /*max-width: 40px;*/
 }
-asc-grid div.instruction:not(.selected) > .command {
+ascg-instruction:not(.selected) > .command {
     max-width: 24px;
 }
 
-asc-grid div.instruction > .instrument {
+ascg-instruction > .instrument {
     color: darkblue;
     max-width: 0px;
 }
-asc-grid div.instruction > .duration {
+ascg-instruction > .duration {
     color: purple;
     max-width: 0px;
 }
-asc-grid div.instruction > .velocity {
+ascg-instruction > .velocity {
     color: green;
     max-width: 0px;
 }
 .asc-container.show-parameter-instrument div.instruction > .instrument,
-asc-grid div.instruction.selected > .instrument,
-asc-grid div.instruction.cursor > .instrument,
-/*asc-grid div.instruction.playing > .instrument,*/
+ascg-instruction.selected > .instrument,
+ascg-instruction.cursor > .instrument,
+/*ascg-instruction.playing > .instrument,*/
 
 .asc-container.show-parameter-duration > .duration,
-asc-grid div.instruction.selected > .duration,
-asc-grid div.instruction.cursor > .duration,
-/*asc-grid div.instruction.playing > .duration,*/
+ascg-instruction.selected > .duration,
+ascg-instruction.cursor > .duration,
+/*ascg-instruction.playing > .duration,*/
 
 .asc-container.show-parameter-velocity > .velocity,
-asc-grid div.instruction.selected > .velocity,
-asc-grid div.instruction.cursor > .velocity {
-/*asc-grid div.instruction.playing > .velocity*/
+ascg-instruction.selected > .velocity,
+ascg-instruction.cursor > .velocity {
+/*ascg-instruction.playing > .velocity*/
     max-width: 40px;
     border-left: 1px solid #888;
     /*margin: 0px;*/
@@ -587,7 +589,7 @@ asc-grid .measure-end {
     /* border-bottom: 1px solid #666; */
 }
 
-asc-grid div.instruction:not(.selected):not(.playing) .grid-parameter.duration.matches-pause {
+ascg-instruction:not(.selected):not(.playing) .grid-parameter.duration.matches-pause {
     max-width: 0px;
     margin-left: 0px;
     padding-left: 0;
@@ -596,7 +598,7 @@ asc-grid div.instruction:not(.selected):not(.playing) .grid-parameter.duration.m
     transition-delay: 0.25s;
 }
 
-asc-grid div.instruction-pause {
+ascg-instruction-pause {
     /* position: absolute; */
     /* top: 1px; */
     /* right: 5px; */
@@ -604,14 +606,14 @@ asc-grid div.instruction-pause {
     /* z-index: 1; */
     /*opacity: 0.3;*/
 }
-asc-grid div.instruction-pause.duration-large {
+ascg-instruction-pause.duration-large {
     color: #00A;
 }
-asc-grid div.instruction-pause.duration-medium {
+ascg-instruction-pause.duration-medium {
     color: #050;
     /* font-size: small; */
 }
-asc-grid div.instruction-pause.duration-small {
+ascg-instruction-pause.duration-small {
     color: #050;
     font-size: smaller;
 }

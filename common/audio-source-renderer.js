@@ -243,6 +243,20 @@ class AudioSourceRenderer {
             .map(instructionData => new SongInstruction(instructionData))
     }
 
+    getInstructionRange(groupName, start, end=null) {
+        let instructionList = this.songData.instructions[groupName];
+        if(!instructionList)
+            throw new Error("Instruction group not found: " + groupName);
+        const selectedInstructions = [];
+        for(let i=start; end === null ? true : i<end; i++) {
+            const instruction = new SongInstruction(instructionList[i]);
+            selectedInstructions.push(instruction);
+            if(instruction.delta)
+                break;
+        }
+        return selectedInstructions;
+    }
+
     getInstructionIndex(instruction, groupName) {
         if(instruction instanceof SongInstruction)
             instruction = instruction.data;

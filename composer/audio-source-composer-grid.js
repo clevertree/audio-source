@@ -4,6 +4,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
 
         // this.cursorCellIndex = 0;
+        this.scrollTimeout = null;
         this.minimumGridLengthTicks = null;
         this.instructionElms = null;
     }
@@ -13,6 +14,7 @@ class AudioSourceComposerGrid extends HTMLElement {
     get editorForms() { return this.editor.forms; }
     
     connectedCallback() {
+        this.addEventListener('scroll', this.onInput);
         this.editor = this.getRootNode().host;
         this.render();
     }
@@ -27,7 +29,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         // const selectedIndicies = this.editor.status.selectedIndicies;
         let rowInstructions = [], lastRowIndex=0, songPositionInTicks=0, tickTotal=0; // , lastPause = 0;
 
-        const renderRow = (deltaDuration) => {
+        const renderRow = (deltaDuration, rowIndex) => {
             for(let subPause=0; subPause<deltaDuration; subPause+=renderDuration) {
                 let subDurationInTicks = renderDuration;
                 if(subPause + renderDuration > deltaDuration)
@@ -48,6 +50,8 @@ class AudioSourceComposerGrid extends HTMLElement {
                     songPositionInTicks = nextBreakPositionInTicks;
                 }
                 rowElm.duration = subDurationInTicks;
+                rowElm.index = rowIndex;
+                rowElm.render();
             }
 
         };
@@ -55,7 +59,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
         this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
             if (instruction.deltaDuration !== 0) {
-                renderRow(instruction.deltaDuration);
+                renderRow(instruction.deltaDuration, index);
                 lastRowIndex = index;
             }
 
@@ -72,7 +76,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         let remainingDuration = this.minimumGridLengthTicks - tickTotal;
         if(remainingDuration <= 0)
             remainingDuration = renderDuration;
-        renderRow(remainingDuration);
+        renderRow(remainingDuration, lastRowIndex);
 
         console.timeEnd('grid: calculate render');
         // const currentScrollPosition = this.scrollTop || 0; // Save scroll position
@@ -180,6 +184,9 @@ class AudioSourceComposerGrid extends HTMLElement {
     }
     getInstructions(indicies=null) {
         return this.editor.renderer.getInstructions(this.groupName, indicies);
+    }
+    getInstructionRange(start, end=null) {
+        return this.editor.renderer.getInstructionRange(this.groupName, start, end);
     }
 
     getInstruction(index) {
@@ -409,6 +416,16 @@ class AudioSourceComposerGrid extends HTMLElement {
                         this.editor.menu.openContextMenu(e);
                     }
 
+                    break;
+
+                case 'scroll':
+                    clearTimeout(this.scrollTimeout);
+                    this.scrollTimeout = setTimeout(e => {
+                        this.querySelectorAll('ascg-row')
+                            .forEach(row => {
+                                row.render();
+                            });
+                    }, 50);
                     break;
 
                 default:
@@ -769,49 +786,121 @@ class AudioSourceComposerGrid extends HTMLElement {
         }
     }
 }
-
 customElements.define('asc-grid', AudioSourceComposerGrid);
+
+
+
+
+
 class AudioSourceComposerGridRow extends HTMLElement {
     constructor() {
         super();
     }
-    get editor() { return this.parentNode.editor; }
+    get grid() { return this.parentNode; }
+    get editor() { return this.grid.editor; }
 
-    set position(songPositionInTicks) { this.setAttribute('p', songPositionInTicks)}
+    set position(songPositionInTicks) {
+        this.setAttribute('p', songPositionInTicks);
+        // this.render();
+    }
     get position() { return parseInt(this.getAttribute('p'))}
 
-    set duration(durationInTicks) { this.setAttribute('d', durationInTicks)}
+    set duration(durationInTicks) {
+        this.setAttribute('d', durationInTicks);
+        // this.render();
+    }
     get duration() { return parseInt(this.getAttribute('d'))}
+
+    set index(rowIndex) {
+        this.setAttribute('i', rowIndex);
+        // this.render();
+    }
+    get index() { return parseInt(this.getAttribute('i'))}
 
     get visible() {
         const parentBottom = this.parentNode.scrollTop + this.parentNode.offsetHeight;
-        if(this.offsetTop - parentBottom > 0)
+        if(this.offsetTop - parentBottom > 20)
             return false;
-        if(this.offsetTop < this.parentNode.scrollTop)
+        if(this.offsetTop < this.parentNode.scrollTop - 20)
             return false;
         return true;
     }
 
     connectedCallback() {
-        setTimeout(e => this.render(), 1);
+        // setTimeout(e => this.render(), 1);
         // TODO: position attrib
     }
 
-    disconnectedCallback() {
-        // clearInterval(this.int);
-    }
 
-    render(instrumentList=null) {
-        this.innerHTML = '';
-        if(this.visible) {
-            const deltaElm = document.createElement('div')
-            deltaElm.innerHTML = this.editor.values.format(this.duration, 'duration');
-            deltaElm.classList.add('delta');
-            this.appendChild(deltaElm);
-        }
+    render() {
+        // setTimeout(e => {
+            this.innerHTML = '';
+            if(this.visible) {
+                const startIndex = this.index;
+                const instructionList = this.grid.getInstructionRange(startIndex);
+                for(let i=0; i<instructionList.length; i++) {
+                    const instructionElm = document.createElement('ascg-instruction');
+                    instructionElm.index = startIndex + i;
+                    this.appendChild(instructionElm);
+                }
+                this.appendChild(document.createElement('ascg-delta'));
+            }
+        // }, 1);
     }
 
 }
 
-// customElements.define('music-song-grid', SongEditorGrid);
 customElements.define('ascg-row', AudioSourceComposerGridRow);
+
+
+class AudioSourceComposerGridInstruction extends HTMLElement {
+    constructor() {
+        super();
+    }
+    get editor() { return this.parentNode.editor; }
+
+    set index(instructionIndex) {
+        this.setAttribute('i', instructionIndex);
+        // this.render();
+    }
+    get index() { return parseInt(this.getAttribute('i'))}
+
+
+    connectedCallback() {
+        this.render();
+        // setTimeout(e => this.render(), 1);
+        // TODO: position attrib
+    }
+
+    render() {
+        this.innerHTML = this.index; // .editor.values.format(this.duration, 'duration');
+    }
+
+}
+
+customElements.define('ascg-instruction', AudioSourceComposerGridInstruction);
+
+
+
+class AudioSourceComposerGridDelta extends HTMLElement {
+    constructor() {
+        super();
+    }
+    get editor() { return this.parentNode.editor; }
+
+    // set duration(durationInTicks) { this.setAttribute('d', durationInTicks)}
+    get duration() { return parseInt(this.parentNode.getAttribute('d'))}
+
+    connectedCallback() {
+        this.render();
+        // setTimeout(e => this.render(), 1);
+        // TODO: position attrib
+    }
+
+    render() {
+        this.innerHTML = this.editor.values.format(this.duration, 'duration');
+    }
+
+}
+
+customElements.define('ascg-delta', AudioSourceComposerGridDelta);
