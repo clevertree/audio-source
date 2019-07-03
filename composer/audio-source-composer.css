@@ -469,7 +469,7 @@ ascg-row > ascg-delta {
 /** Grid Cell **/
 
 ascg-instruction {
-    /* display: inline-block; */
+    display: flex;
     /* float: left; */
     overflow: hidden;
     padding: 1px;
@@ -524,11 +524,11 @@ ascg-instruction.cursor {
 
 /** Grid Cell Parameters **/
 
-ascg-instruction > .command,
-ascg-instruction > .instrument,
-ascg-instruction > .velocity,
-ascg-instruction > .duration {
-    display: table-cell;
+ascgi-command,
+ascgi-instrument,
+ascgi-velocity,
+ascgi-duration {
+    /* display: inline-block; */
     overflow: hidden;
     vertical-align: top;
     opacity: 1;
@@ -541,7 +541,7 @@ asc-grid .grid-parameter:not(:first-child) {
     /* max-width: 40px; */
 }
 
-ascg-instruction > .command {
+ascgi-command {
     color: darkred;
     /* min-width: 10px; */
     /*max-width: 40px;*/
@@ -550,31 +550,31 @@ ascg-instruction:not(.selected) > .command {
     max-width: 24px;
 }
 
-ascg-instruction > .instrument {
+ascgi-instrument {
     color: darkblue;
     max-width: 0px;
 }
-ascg-instruction > .duration {
+ascgi-duration {
     color: purple;
     max-width: 0px;
 }
-ascg-instruction > .velocity {
+ascgi-velocity {
     color: green;
     max-width: 0px;
 }
-.asc-container.show-parameter-instrument div.instruction > .instrument,
-ascg-instruction.selected > .instrument,
-ascg-instruction.cursor > .instrument,
+/*.asc-container.show-parameter-instrument div.instruction > .instrument,*/
+ascg-instruction.selected > ascgi-instrument,
+ascg-instruction.cursor > ascgi-instrument,
 /*ascg-instruction.playing > .instrument,*/
 
-.asc-container.show-parameter-duration > .duration,
-ascg-instruction.selected > .duration,
-ascg-instruction.cursor > .duration,
+/*.asc-container.show-parameter-duration > .duration,*/
+ascg-instruction.selected > ascgi-duration,
+ascg-instruction.cursor > ascgi-duration,
 /*ascg-instruction.playing > .duration,*/
 
-.asc-container.show-parameter-velocity > .velocity,
-ascg-instruction.selected > .velocity,
-ascg-instruction.cursor > .velocity {
+/*.asc-container.show-parameter-velocity > .velocity,*/
+ascg-instruction.selected > ascgi-velocity,
+ascg-instruction.cursor > ascgi-velocity {
 /*ascg-instruction.playing > .velocity*/
     max-width: 40px;
     border-left: 1px solid #888;

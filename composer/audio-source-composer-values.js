@@ -184,6 +184,11 @@ class AudioSourceComposerValues {
                     return 'N/A'; // throw new Error("Invalid Instrument");
                 return input === 100 ? "Max" : input+'';
 
+            case 'command':
+                return input;
+
+            default:
+                throw new Error("Unknown format: " + type);
         }
     }
 

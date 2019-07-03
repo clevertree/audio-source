@@ -859,6 +859,8 @@ class AudioSourceComposerGridInstruction extends HTMLElement {
         super();
     }
     get row() { return this.parentNode; }
+    get grid() { return this.parentNode.parentNode; }
+    get editor() { return this.grid.editor; }
 
     set index(instructionIndex) {
         this.setAttribute('i', instructionIndex);
@@ -873,12 +875,17 @@ class AudioSourceComposerGridInstruction extends HTMLElement {
     }
 
     render() {
-        // const instruction = this.getInstruction();
+        const instruction = this.getInstruction();
 
-        this.appendChild(document.createElement('ascgi-command'));
-        this.appendChild(document.createElement('ascgi-instrument'));
-        this.appendChild(document.createElement('ascgi-velocity'));
-        this.appendChild(document.createElement('ascgi-duration'));
+        let paramElm;
+        this.appendChild(paramElm = document.createElement('ascgi-command'));
+        paramElm.render(instruction);
+        this.appendChild(paramElm = document.createElement('ascgi-instrument'));
+        paramElm.render(instruction);
+        this.appendChild(paramElm = document.createElement('ascgi-velocity'));
+        paramElm.render(instruction);
+        this.appendChild(paramElm = document.createElement('ascgi-duration'));
+        paramElm.render(instruction);
         // this.innerHTML = JSON.stringify(instruction); // .editor.values.format(this.duration, 'duration');
     }
 
@@ -893,6 +900,8 @@ class AudioSourceComposerGridParameter extends HTMLElement {
         super();
     }
     get instruction() { return this.parentNode; }
+    get grid() { return this.parentNode.parentNode.parentNode; }
+    get editor() { return this.grid.editor; }
 
     connectedCallback() {
         this.render();
@@ -904,29 +913,33 @@ class AudioSourceComposerGridParameter extends HTMLElement {
 }
 
 class AudioSourceComposerParamCommand extends AudioSourceComposerGridParameter {
-    render() {
-        this.innerHTML = this.instruction.getInstruction().command;
+    render(instruction=null) {
+        instruction = instruction || this.instruction.getInstruction();
+        this.innerHTML = this.editor.values.format(instruction.command, 'command');
     }
 }
 customElements.define('ascgi-command', AudioSourceComposerParamCommand);
 
 class AudioSourceComposerParamInstrument extends AudioSourceComposerGridParameter {
-    render() {
-        this.innerHTML = this.instruction.getInstruction().instrument;
+    render(instruction=null) {
+        instruction = instruction || this.instruction.getInstruction();
+        this.innerHTML = this.editor.values.format(instruction.instrument, 'instrument');
     }
 }
 customElements.define('ascgi-instrument', AudioSourceComposerParamInstrument);
 
 class AudioSourceComposerParamVelocity extends AudioSourceComposerGridParameter {
-    render() {
-        this.innerHTML = this.instruction.getInstruction().velocity;
+    render(instruction=null) {
+        instruction = instruction || this.instruction.getInstruction();
+        this.innerHTML = this.editor.values.format(instruction.velocity, 'velocity');
     }
 }
 customElements.define('ascgi-velocity', AudioSourceComposerParamVelocity);
 
 class AudioSourceComposerGridDuration extends AudioSourceComposerGridParameter {
-    render() {
-        this.innerHTML = this.instruction.getInstruction().duration;
+    render(instruction=null) {
+        instruction = instruction || this.instruction.getInstruction();
+        this.innerHTML = this.editor.values.format(instruction.duration, 'duration');
     }
 }
 customElements.define('ascgi-duration', AudioSourceComposerGridDuration);
