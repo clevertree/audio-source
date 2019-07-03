@@ -249,9 +249,11 @@ class AudioSourceRenderer {
             throw new Error("Instruction group not found: " + groupName);
         const selectedInstructions = [];
         for(let i=start; end === null ? true : i<end; i++) {
+            if(!instructionList[i])
+                break;
             const instruction = new SongInstruction(instructionList[i]);
             selectedInstructions.push(instruction);
-            if(instruction.delta)
+            if(end === null && instruction.deltaDuration)
                 break;
         }
         return selectedInstructions;
@@ -280,21 +282,21 @@ class AudioSourceRenderer {
         return new SongInstruction(instructionList[index]);
     }
 
-    getInstructionRange(groupName, selectedIndicies) {
-        if(!Array.isArray(selectedIndicies))
-            selectedIndicies = [selectedIndicies];
-        let min=null, max=null;
-        this.eachInstruction(groupName, (i, instruction, stats) => {
-            if (selectedIndicies.indexOf(i) !== -1) {
-                if (min === null || stats.groupPositionInTicks < min)
-                    min = stats.groupPositionInTicks;
-                if (max === null || stats.groupPositionInTicks > max)
-                    max = stats.groupPositionInTicks
-                    ;
-            }
-        });
-        return [min, max];
-    }
+    // getInstructionRange(groupName, selectedIndicies) {
+    //     if(!Array.isArray(selectedIndicies))
+    //         selectedIndicies = [selectedIndicies];
+    //     let min=null, max=null;
+    //     this.eachInstruction(groupName, (i, instruction, stats) => {
+    //         if (selectedIndicies.indexOf(i) !== -1) {
+    //             if (min === null || stats.groupPositionInTicks < min)
+    //                 min = stats.groupPositionInTicks;
+    //             if (max === null || stats.groupPositionInTicks > max)
+    //                 max = stats.groupPositionInTicks
+    //                 ;
+    //         }
+    //     });
+    //     return [min, max];
+    // }
 
     // Playback
 
