@@ -159,6 +159,15 @@ class AudioSourceComposerValues {
         return valuesHTML;
     }
 
+    renderEditorFormOptions(optionType, selectCallback) {
+        let optionsHTML = '';
+        this.getValues(optionType, function (value, label, html='') {
+            const selected = selectCallback ? selectCallback(value) : false;
+            optionsHTML += `<option value="${value}" ${selected ? ` selected="selected"` : ''}${html}>${label}</option>`;
+        });
+        return optionsHTML;
+    }
+
     /** Formatting **/
 
     format(input, type) {

@@ -399,7 +399,7 @@ class AudioSourceComposerElement extends HTMLElement {
     getScriptDirectory(appendPath='') {
         const scriptElm = document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
         const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-        console.log("Base Path: ", basePath);
+//         console.log("Base Path: ", basePath);
         return basePath + appendPath;
     }
 
