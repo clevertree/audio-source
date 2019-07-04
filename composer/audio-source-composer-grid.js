@@ -11,7 +11,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         // this.instructionElms = null;
     }
 
-    get fieldTimeDivision() { return this.querySelector('form.form-render-time-division select[name=timeDivision]'); }
+    get fieldRenderTimeDivision() { return this.querySelector('form.form-render-time-division select[name=timeDivision]'); }
     get fieldRenderInstrument() { return this.querySelector('form.form-render-instrument select[name=instrument]'); }
     get fieldRenderOctave() { return this.querySelector('form.form-render-octave select[name=octave]'); }
 
@@ -21,14 +21,15 @@ class AudioSourceComposerGrid extends HTMLElement {
     get fieldInstructionDuration() { return this.querySelector('form.form-instruction-duration select[name=duration]'); }
     get fieldInstructionCommand() { return this.querySelector('form.form-note-command select[name=command]'); }
     get fieldInstructionVelocity() { return this.querySelector('form.form-instruction-velocity input[name=velocity]'); }
+    get fieldInstructionInsert() { return this.querySelector('form.form-instruction-insert button[name=insert]'); }
     get fieldInstructionDelete() { return this.querySelector('form.form-instruction-delete button[name=delete]'); }
 
-    get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
+    // get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
 
-    get fieldAddInstrumentInstrument() { return this.querySelector('form.form-add-instrument select[name=instrument]'); }
+    // get fieldAddInstrumentInstrument() { return this.querySelector('form.form-add-instrument select[name=instrument]'); }
     get fieldSelectedIndicies() { return this.querySelector('form.form-selected-indicies input[name=indicies]'); }
-    get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
-    get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
+    // get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
+    // get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
 
 
     get scrollContainer() {
@@ -64,8 +65,8 @@ class AudioSourceComposerGrid extends HTMLElement {
              
             <div class="form-section-divide">
                 <form action="#" class="form-note-toggle" data-action="toggle:control-note">
-                    <button name="toggle" class="themed" title="Show/Hide Note Controls">
-                        <div>Notes</div>
+                    <button name="toggle" class="themed" title="Show/Hide Grid Controls">
+                        <div>Grid</div>
                     </button>
                 </form>
             </div>
@@ -145,7 +146,7 @@ class AudioSourceComposerGrid extends HTMLElement {
             </div>
             
             <form action="#" class="form-render-time-division submit-on-change" data-action="grid:duration">
-                <div class="form-section-header">Render Duration</div>
+                <div class="form-section-header">Quantize</div>
                 <select name="timeDivision" title="Render Duration" class="themed">
                     <option value="">No Duration</option>
                     <optgroup label="Render Duration">
@@ -276,7 +277,7 @@ class AudioSourceComposerGrid extends HTMLElement {
                 break;
 
             case 'grid:duration':
-                this.timeDivision = this.fieldTimeDivision.value;
+                this.timeDivision = this.fieldRenderTimeDivision.value;
                 this.render();
                 break;
 
@@ -941,7 +942,7 @@ class AudioSourceComposerGrid extends HTMLElement {
                 this.minimumGridLengthTicks = stats.groupPositionInTicks;
         });
 
-        // const defaultDuration = parseFloat(this.editorForms.fieldTimeDivision.value);
+        // const defaultDuration = parseFloat(this.editorForms.fieldRenderTimeDivision.value);
         this.minimumGridLengthTicks += this.timeDivision;
         this.render();
         if(selectNewRow) {
@@ -1073,7 +1074,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         // TODO: combine instructions? nah
 
 
-        // this.fieldInstructionDuration.value = parseFloat(this.fieldTimeDivision.value) + '';
+        // this.fieldInstructionDuration.value = parseFloat(this.fieldRenderTimeDivision.value) + '';
 
         const containerElm = this.editor.container;
         containerElm.classList.remove('show-control-note-insert');
@@ -1118,10 +1119,10 @@ class AudioSourceComposerGrid extends HTMLElement {
 
         this.fieldRenderOctave.value = this.editor.status.currentOctave;
 
-        if(!this.fieldTimeDivision.value && timeDivision)
-            this.fieldTimeDivision.value = timeDivision; // this.editor.renderer.getSongTimeDivision();
-        if(!this.fieldInstructionDuration.value && this.fieldTimeDivision.value)
-            this.fieldInstructionDuration.value = this.fieldTimeDivision.value;
+        if(!this.fieldRenderTimeDivision.value && timeDivision)
+            this.fieldRenderTimeDivision.value = timeDivision; // this.editor.renderer.getSongTimeDivision();
+        if(!this.fieldInstructionDuration.value && this.fieldRenderTimeDivision.value)
+            this.fieldInstructionDuration.value = this.fieldRenderTimeDivision.value;
 
 
         this.fieldSelectedIndicies.value = selectedIndicies.join(',');
