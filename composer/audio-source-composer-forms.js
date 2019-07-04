@@ -20,12 +20,12 @@ class AudioSourceComposerForms extends HTMLElement {
 
     // get grid() { return this.song.grid; } // Grid associated with menu
     getInstructionFormValues(isNewInstruction) {
-        if(isNewInstruction && this.fieldInsertInstructionCommand.value === '') {
-            // this.fieldInsertInstructionCommand.focus();
+        if(isNewInstruction && this.fieldInstructionCommand.value === '') {
+            // this.fieldInstructionCommand.focus();
             return false;
         }
         let newInstruction = new SongInstruction();
-        newInstruction.command = isNewInstruction ? this.fieldInsertInstructionCommand.value : this.fieldInstructionCommand.value;
+        newInstruction.command = isNewInstruction ? this.fieldInstructionCommand.value : this.fieldInstructionCommand.value;
 
         if(this.fieldInstructionInstrument.value || this.fieldInstructionInstrument.value === 0)
             newInstruction.instrument = parseInt(this.fieldInstructionInstrument.value);

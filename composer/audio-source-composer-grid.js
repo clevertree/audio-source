@@ -15,12 +15,13 @@ class AudioSourceComposerGrid extends HTMLElement {
     get fieldRenderInstrument() { return this.querySelector('form.form-render-instrument select[name=instrument]'); }
     get fieldRenderOctave() { return this.querySelector('form.form-render-octave select[name=octave]'); }
 
-    get fieldInsertInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
+    // get fieldInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
 
     get fieldInstructionInstrument() { return this.querySelector('form.form-instruction-instrument select[name=instrument]'); }
     get fieldInstructionDuration() { return this.querySelector('form.form-instruction-duration select[name=duration]'); }
     get fieldInstructionCommand() { return this.querySelector('form.form-note-command select[name=command]'); }
     get fieldInstructionVelocity() { return this.querySelector('form.form-instruction-velocity input[name=velocity]'); }
+    get fieldInstructionDelete() { return this.querySelector('form.form-instruction-delete button[name=delete]'); }
 
     get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
 
@@ -60,101 +61,66 @@ class AudioSourceComposerGrid extends HTMLElement {
     getFormHTML() {
         return `
 
-                 
-                <div class="form-section-divide">
-                    <form action="#" class="form-note-toggle" data-action="toggle:control-note">
-                        <button name="toggle" class="themed" title="Show/Hide Note Controls">
-                            <div>Notes</div>
-                        </button>
-                    </form>
-                </div>
-     
-                <div class="form-section control-note-insert control-note">
-                    <div class="form-section-header">Insert Instruction</div>
-                    <form action="#" class="form-instruction-insert" data-action="instruction:insert">
-                        <select name="command" title="Instruction Command" class="themed" required="required">
-                            <optgroup label="Custom Frequencies" class="instrument-frequencies">
-                                ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
-                            </optgroup>
-                            <optgroup label="Frequencies">
-                                ${this.editor.values.renderEditorFormOptions('note-frequencies-all')}
-                            </optgroup>
-                            <optgroup label="Group Execute">
-                                ${this.editor.values.renderEditorFormOptions('command-group-execute')}
-                            </optgroup>
-                        </select>
-                        <button name="insert" class="themed" title="Insert Instruction">+</button>
-                    </form>
-                </div>
-                
-                <div class="form-section control-note-modify control-note">
-                    <div class="form-section-header">Instruction</div>
-                    <form action="#" class="form-note-command submit-on-change" data-action="instruction:command">
-                        <select name="command" title="Instruction Command" class="themed" required="required">
-                            <option value="">Command (Choose)</option>
-                            <optgroup label="Custom Frequencies" class="instrument-frequencies">
-                                ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
-                            </optgroup>
-                            <optgroup label="Frequencies">
-                                ${this.editor.values.renderEditorFormOptions('note-frequencies-all')}
-                            </optgroup>
-                            <optgroup label="Group Execute">
-                                ${this.editor.values.renderEditorFormOptions('command-group-execute')}
-                            </optgroup>
-                        </select>
-                    </form>
-                </div>
-                
-                <div class="form-section control-note">
-                    <div class="form-section-header">Instrument</div>
-                    <form action="#" class="form-instruction-instrument submit-on-change" data-action="instruction:instrument">
-                        <select name="instrument" title="Instruction Instrument" class="themed">
-                            <option value="">None</option>
-                            <optgroup label="Song Instruments">
-                                ${this.editor.values.renderEditorFormOptions('song-instruments')}
-                            </optgroup>
-                        </select>
-                    </form>
-                </div>
-                
-                <div class="form-section control-note">
-                    <div class="form-section-header">Velocity</div>
-                    <form action="#" class="form-instruction-velocity submit-on-change" data-action="instruction:velocity">
-                        <input type="range" name="velocity" min="1" max="100" class="themed" />
-                    </form>
-                </div>
-                
-                
-                <div class="form-section control-note">
-                    <div class="form-section-header">Duration</div>
-                    <form action="#" class="form-instruction-duration submit-on-change" data-action="instruction:duration">
-                        <select name="duration" title="Instruction Duration" class="themed">
-                            <option value="">No Duration</option>
-                            <optgroup label="Note Duration">
-                                ${this.editor.values.renderEditorFormOptions('durations')}
-                            </optgroup>
-                        </select>
-                    </form>
-                </div>
-                 
-                <div class="form-section control-note-modify control-note">
-                    <div class="form-section-header">Delete</div>
-                    <form action="#" class="form-instruction-delete" data-action="instruction:delete">
-                        <button name="delete" class="themed" title="Delete Instruction">X</button>
-                    </form>
-                </div>
-                
-                
-                
-                <div style="clear: both;" class="control-note"></div>
-                
-            <!--div class="form-section-divide">
-                <form action="#" class="form-grid-toggle" data-action="toggle:control-grid">
-                    <button name="toggle" class="themed" title="Show/Hide Render Controls">
-                        <div>Grid</div>
+             
+            <div class="form-section-divide">
+                <form action="#" class="form-note-toggle" data-action="toggle:control-note">
+                    <button name="toggle" class="themed" title="Show/Hide Note Controls">
+                        <div>Notes</div>
                     </button>
                 </form>
-            </div-->
+            </div>
+ 
+            <div class="form-section control-note">
+                <div class="form-section-header">Instruction</div>
+                <form action="#" class="form-note-command submit-on-change" data-action="instruction:command">
+                    <select name="command" title="Instruction Command" class="themed" required="required">
+                        <option value="">Command (Choose)</option>
+                        <optgroup label="Custom Frequencies" class="instrument-frequencies">
+                            ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
+                        </optgroup>
+                        <optgroup label="Frequencies">
+                            ${this.editor.values.renderEditorFormOptions('note-frequencies-all')}
+                        </optgroup>
+                        <optgroup label="Group Execute">
+                            ${this.editor.values.renderEditorFormOptions('command-group-execute')}
+                        </optgroup>
+                    </select>
+                </form>
+                <form action="#" class="form-instruction-insert" data-action="instruction:insert">
+                    <button name="insert" class="themed" title="Insert Instruction">+</button>
+                </form>
+                <form action="#" class="form-instruction-delete submit-on-change" data-action="instruction:delete">
+                    <button name="delete" class="themed" title="Delete Instruction" disabled>X</button>
+                </form>
+            </div>
+            
+            <form action="#" class="form-instruction-instrument submit-on-change" data-action="instruction:instrument">
+            <div class="form-section-header">Instrument</div>
+                <select name="instrument" title="Instruction Instrument" class="themed">
+                    <option value="">None</option>
+                    <optgroup label="Song Instruments">
+                        ${this.editor.values.renderEditorFormOptions('song-instruments')}
+                    </optgroup>
+                </select>
+            </form>
+            
+            <form action="#" class="form-instruction-velocity submit-on-change" data-action="instruction:velocity">
+            <div class="form-section-header">Velocity</div>
+                <input type="range" name="velocity" min="1" max="100" class="themed" />
+            </form>
+            
+            
+            <form action="#" class="form-instruction-duration submit-on-change" data-action="instruction:duration">
+                <div class="form-section-header">Duration</div>
+                <select name="duration" title="Instruction Duration" class="themed">
+                    <option value="">No Duration</option>
+                    <optgroup label="Note Duration">
+                        ${this.editor.values.renderEditorFormOptions('durations')}
+                    </optgroup>
+                </select>
+            </form>
+             
+            
                 
             <form action="#" class="form-render-octave submit-on-change" data-action="status:octave">
                 <div class="form-section-header">Octave</div>
@@ -1112,6 +1078,14 @@ class AudioSourceComposerGrid extends HTMLElement {
         const containerElm = this.editor.container;
         containerElm.classList.remove('show-control-note-insert');
         containerElm.classList.remove('show-control-note-modify');
+
+        if(selectedIndicies.length > 0) {
+            this.fieldInstructionDelete.removeAttribute('disabled');
+        } else {
+            this.fieldInstructionDelete.setAttribute('disabled', 'disabled');
+            // this.fieldInstructionCommand.value = cursorInstruction.command;
+        }
+
         if(cursorInstruction) {
             // Note Instruction
             this.fieldInstructionCommand.value = cursorInstruction.command;
@@ -1120,8 +1094,8 @@ class AudioSourceComposerGrid extends HTMLElement {
             this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
             containerElm.classList.add('show-control-note-modify');
 
-        } else if(selectedIndicies.length > 0) {
-            this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
+        } else if(selectedIndicies.length === 0) {
+            // this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
             // console.log(this.editor.status.currentInstrumentID);
 
             containerElm.classList.add('show-control-note-insert');
@@ -1129,14 +1103,14 @@ class AudioSourceComposerGrid extends HTMLElement {
 
         this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
             option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
-        this.fieldInsertInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
+        this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
             option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
 
-        // const oldInsertCommand = this.fieldInsertInstructionCommand.value;
-        // this.fieldInsertInstructionCommand.querySelector('.instrument-frequencies').innerHTML = instructionCommandOptGroup.innerHTML;
-        // this.fieldInsertInstructionCommand.value = oldInsertCommand;
-        // if(!this.fieldInsertInstructionCommand.value)
-        //     this.fieldInsertInstructionCommand.value-this.fieldInsertInstructionCommand.options[0].value
+        // const oldInsertCommand = this.fieldInstructionCommand.value;
+        // this.fieldInstructionCommand.querySelector('.instrument-frequencies').innerHTML = instructionCommandOptGroup.innerHTML;
+        // this.fieldInstructionCommand.value = oldInsertCommand;
+        // if(!this.fieldInstructionCommand.value)
+        //     this.fieldInstructionCommand.value-this.fieldInstructionCommand.options[0].value
 
         this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
 
