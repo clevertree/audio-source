@@ -529,13 +529,21 @@ class AudioSourceComposerForms extends HTMLElement {
 //
 
     update() {
+        let groupName = 'root';
+        const grid = this.editor.grid;
+        let selectedIndicies = [];
+        let renderDuration = this.editor.renderer.getSongTimeDivision();
+        if(grid && grid.groupName) {
+            selectedIndicies = selectedIndicies || grid.selectedIndicies;
+            groupName = grid.groupName;
+            renderDuration = grid.renderDuration;
+        }
 
         // const gridDuration = this.fieldRenderDuration.value || 1;
-        const timeDivision = this.gridStatus.renderDuration;
+        // const timeDivision = this.gridStatus.renderDuration;
         // const cursorIndex = this.editor.cursorCellIndex;
-        const selectedIndicies = this.gridStatus.selectedIndicies;
+        // const selectedIndicies = this.gridStatus.selectedIndicies;
         // const selectedPauseIndicies = this.editor.selectedPauseIndicies;
-        const groupName = this.gridStatus.groupName;
         const selectedInstructionList = this.editor.renderer.getInstructions(groupName, selectedIndicies);
         let cursorInstruction = selectedInstructionList[0];
         // let combinedInstruction = null; //, instrumentList = [];
@@ -590,13 +598,13 @@ class AudioSourceComposerForms extends HTMLElement {
 
         this.fieldRenderOctave.value = this.editor.status.currentOctave;
 
-        if(!this.fieldRenderDuration.value && this.gridStatus.renderDuration)
-            this.fieldRenderDuration.value = this.gridStatus.renderDuration; // this.editor.renderer.getSongTimeDivision();
+        if(!this.fieldRenderDuration.value && renderDuration)
+            this.fieldRenderDuration.value = renderDuration; // this.editor.renderer.getSongTimeDivision();
         if(!this.fieldInstructionDuration.value && this.fieldRenderDuration.value)
             this.fieldInstructionDuration.value = this.fieldRenderDuration.value;
 
 
-        this.fieldSelectedIndicies.value = this.gridStatus.selectedIndicies.join(',');
+        this.fieldSelectedIndicies.value = selectedIndicies.join(',');
         // this.fieldSelectedRangeStart.value = this.editor.selectedRange[0];
         // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
     }

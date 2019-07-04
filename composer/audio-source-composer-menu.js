@@ -3,7 +3,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         super();
     }
 
-    get gridStatus() { return this.editor.status.grid; }
+    // get gridStatus() { return this.editor.status.grid; }
     get editorForms() { return this.editor.forms; }
 
     connectedCallback() {
@@ -49,9 +49,10 @@ class AudioSourceComposerMenu extends HTMLElement {
 
         // let form = e.target.form || e.target;
         // const cursorCellIndex = this.editor.cursorCellIndex;
-        const currentGroup = this.gridStatus.groupName;
-        const selectedRange = this.gridStatus.selectedRange;
-        const selectedIndicies = this.gridStatus.selectedIndicies;
+
+        const currentGroup = this.editor.grid.groupName;
+        const selectedRange = this.editor.grid.selectedRange;
+        const selectedIndicies = this.editor.grid.selectedIndicies;
 
         let menuTarget = e.target;
         // if(menuTarget.nodeName.toLowerCase() !== 'a')
@@ -269,12 +270,14 @@ class AudioSourceComposerMenu extends HTMLElement {
 
 
     update() {
-        const selectedIndicies = this.gridStatus.selectedIndicies;
-
-        this.classList.remove('show-control-note-modify');
-        if(selectedIndicies.length > 0) {
-            // Note is selected
-            this.classList.add('show-control-note-modify');
+        const grid = this.editor.grid;
+        if(grid && grid.groupName) {
+            const selectedIndicies = grid.selectedIndicies;
+            this.classList.remove('show-control-note-modify');
+            if(selectedIndicies.length > 0) {
+                // Note is selected
+                this.classList.add('show-control-note-modify');
+            }
         }
     }
 

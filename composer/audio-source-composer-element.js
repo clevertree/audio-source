@@ -27,12 +27,12 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderer = new AudioSourceRenderer(this);
         // this.player = null;
         this.status = {
-            grid: {
-                renderDuration: this.renderer.getSongTimeDivision(),
-                groupName: 'root',
-                selectedIndicies: [0],
-                selectedRange: [0,0],
-            },
+            // grid: {
+            //     // renderDuration: this.renderer.getSongTimeDivision(),
+            //     // groupName: 'root',
+            //     // selectedIndicies: [0],
+            //     // selectedRange: [0,0],
+            // },
             groupHistory: [],
             // cursorPosition: 0,
 
@@ -48,21 +48,6 @@ class AudioSourceComposerElement extends HTMLElement {
     get menu() { return this.shadowDOM.querySelector('asc-menu'); }
     get forms() { return this.shadowDOM.querySelector('asc-forms'); }
     get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
-
-    render() {
-
-        const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
-
-        this.shadowDOM.innerHTML = `
-        <link rel="stylesheet" href="${linkHRef}" />
-        <div class="asc-container">
-            <asc-menu tabindex="0"></asc-menu>
-            <asc-forms tabindex="0"></asc-forms>
-            <asc-grid tabindex="0"></asc-grid>
-        </div>
-        `;
-
-    }
 
     connectedCallback() {
         // this.loadCSS();
@@ -129,9 +114,9 @@ class AudioSourceComposerElement extends HTMLElement {
         }
 
     }
+
     get currentGroup()      { return this.status.currentGroup; }
     get selectedIndicies()  { return this.status.selectedIndicies; }
-
     get selectedRange()     { return this.status.selectedRange; }
 
     // get selectedPauseIndicies()  {
@@ -142,12 +127,11 @@ class AudioSourceComposerElement extends HTMLElement {
     //     const instructionList = this.renderer.getInstructions(this.currentGroup);
     //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command !== '!pause')
     // }
+
     getAudioContext()   { return this.renderer.getAudioContext(); }
-
-
-
-
     getSongData()       { return this.renderer.getSongData(); }
+
+
 
 
     loadNewSongData() {
@@ -155,6 +139,7 @@ class AudioSourceComposerElement extends HTMLElement {
         let songData = storage.generateDefaultSong();
         this.renderer.loadSongData(songData);
     }
+
 
     async loadRecentSongData() {
         const storage = new AudioSourceStorage();
@@ -171,13 +156,13 @@ class AudioSourceComposerElement extends HTMLElement {
         await storage.saveSongToMemory(songData, songHistory);
     }
 
-
     saveSongToFile() {
         const songData = this.renderer.getSongData();
         // const songHistory = this.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
         storage.saveSongToFile(songData);
     }
+
 
     loadSongFromMemory(songGUID) {
         const storage = new AudioSourceStorage();
@@ -199,6 +184,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.render();
         console.info("Song loaded from midi: " + inputFile, midiData, this.renderer.songData);
     }
+
     async loadSongFromSrc(src) {
         const songData = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -215,7 +201,6 @@ class AudioSourceComposerElement extends HTMLElement {
         console.info("Song loaded from src: " + src, this.renderer.songData);
         this.render();
     }
-
     // Input
 
     // profileInput(e) {
@@ -273,13 +258,12 @@ class AudioSourceComposerElement extends HTMLElement {
         // }
     }
 
-
     onSongEvent(e) {
         // console.log("Note Event: ", e.type);
         this.grid.onSongEvent(e);
         switch(e.type) {
             case 'song:loaded':
-                this.status.grid.renderDuration = this.renderer.getSongTimeDivision();
+                this.grid.renderDuration = this.renderer.getSongTimeDivision();
                 break;
             case 'song:start':
                 this.classList.add('playing');
@@ -319,7 +303,23 @@ class AudioSourceComposerElement extends HTMLElement {
                 // }));
     }
 
+
     // Rendering
+
+    render() {
+
+        const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
+
+        this.shadowDOM.innerHTML = `
+        <link rel="stylesheet" href="${linkHRef}" />
+        <div class="asc-container">
+            <asc-menu tabindex="0"></asc-menu>
+            <asc-forms tabindex="0"></asc-forms>
+            <asc-grid tabindex="0" group="root"></asc-grid>
+        </div>
+        `;
+
+    }
 
 
     // Update DOM
@@ -328,7 +328,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.menu.update();
         this.forms.update();
         this.grid.update();
-        this.instruments.update();
+        // this.instruments.update();
     }
 
     selectGroup(groupName) {

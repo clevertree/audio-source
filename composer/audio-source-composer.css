@@ -468,6 +468,7 @@ ascg-row > ascg-delta {
 
 /** Grid Cell **/
 
+ascg-instruction-add,
 ascg-instruction {
     display: flex;
     /* float: left; */
@@ -482,15 +483,14 @@ ascg-instruction {
     /* z-index: 1; */
 }
 
-ascg-instruction.new {
-    opacity: 0;
-    transition: opacity 0.25s;
-    padding: 0 3px;
+ascg-instruction-add {
+    /*transition: opacity 0.25s;*/
+    padding: 1px 4px;
 }
-ascg-instruction.new.cursor,
-ascg-row.selected div.instruction.new {
-    opacity: 1;
-}
+/*ascg-instruction-add.cursor,*/
+/*ascg-row.selected div.instruction-add {*/
+/*    opacity: 1;*/
+/*}*/
 
 ascg-instruction:last-child {
     margin-right: 0;
@@ -501,6 +501,7 @@ ascg-instruction.playing {
 }
 
 
+ascg-instruction-add,
 ascg-instruction.cursor,
 ascg-instruction.selected {
     font-weight: bold;
@@ -513,10 +514,13 @@ ascg-instruction.playing {
     background-color: #80d55c;
 }
 
+ascg-instruction-add.selected,
 ascg-instruction.selected {
     background-color: white;
 }
 
+
+ascg-instruction-add.cursor,
 ascg-instruction.cursor {
     border-color: red;
     box-shadow: darkred 0 0 12px;
@@ -530,23 +534,20 @@ ascgi-velocity,
 ascgi-duration {
     /* display: inline-block; */
     overflow: hidden;
-    vertical-align: top;
-    opacity: 1;
+    /*vertical-align: top;*/
+    /*opacity: 1;*/
     transition: all 0.25s ease-out;
     /* max-width: 0px; */
-    padding: 0px;
+    /*padding: 0px;*/
 }
 
-asc-grid .grid-parameter:not(:first-child) {
-    /* max-width: 40px; */
-}
 
 ascgi-command {
     color: darkred;
     /* min-width: 10px; */
     /*max-width: 40px;*/
 }
-ascg-instruction:not(.selected) > .command {
+ascg-instruction:not(.selected) > ascgi-command {
     max-width: 24px;
 }
 
@@ -598,7 +599,7 @@ ascg-instruction:not(.selected):not(.playing) .grid-parameter.duration.matches-p
     transition-delay: 0.25s;
 }
 
-ascg-instruction-pause {
+ascg-delta {
     /* position: absolute; */
     /* top: 1px; */
     /* right: 5px; */
@@ -606,21 +607,19 @@ ascg-instruction-pause {
     /* z-index: 1; */
     /*opacity: 0.3;*/
 }
-ascg-instruction-pause.duration-large {
+ascg-delta.duration-large {
     color: #00A;
 }
-ascg-instruction-pause.duration-medium {
+ascg-delta.duration-medium {
     color: #050;
     /* font-size: small; */
 }
-ascg-instruction-pause.duration-small {
+ascg-delta.duration-small {
     color: #050;
     font-size: smaller;
 }
-ascg-row.selected div.instruction-pause {
-    opacity: 1;
 
-}
+
 
 /** Instruments **/
 
