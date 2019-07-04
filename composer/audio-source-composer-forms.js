@@ -19,24 +19,6 @@ class AudioSourceComposerForms extends HTMLElement {
     // }
 
     // get grid() { return this.song.grid; } // Grid associated with menu
-    getInstructionFormValues(isNewInstruction) {
-        if(isNewInstruction && this.fieldInstructionCommand.value === '') {
-            // this.fieldInstructionCommand.focus();
-            return false;
-        }
-        let newInstruction = new SongInstruction();
-        newInstruction.command = isNewInstruction ? this.fieldInstructionCommand.value : this.fieldInstructionCommand.value;
-
-        if(this.fieldInstructionInstrument.value || this.fieldInstructionInstrument.value === 0)
-            newInstruction.instrument = parseInt(this.fieldInstructionInstrument.value);
-        if(this.fieldInstructionDuration.value) // TODO: refactor DURATIONS
-            newInstruction.duration = parseFloat(this.fieldInstructionDuration.value);
-        const velocityValue = parseInt(this.fieldInstructionVelocity.value);
-        if(velocityValue && velocityValue !== 100)
-            newInstruction.velocity = velocityValue;
-
-        return newInstruction;
-    }
 
     onInput(e, form) {
         if (e.defaultPrevented)
@@ -136,8 +118,8 @@ class AudioSourceComposerForms extends HTMLElement {
                 this.classList.toggle('hide-control-song');
                 break;
 
-            case 'toggle:control-note':
-                this.classList.toggle('hide-control-note');
+            case 'toggle:control-grid':
+                this.classList.toggle('hide-control-grid');
                 break;
 
             case 'toggle:control-grid':

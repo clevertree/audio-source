@@ -273,10 +273,10 @@ class AudioSourceComposerMenu extends HTMLElement {
         const grid = this.editor.grid;
         if(grid && grid.groupName) {
             const selectedIndicies = grid.selectedIndicies;
-            this.classList.remove('show-control-note-modify');
+            this.classList.remove('show-control-grid-modify');
             if(selectedIndicies.length > 0) {
                 // Note is selected
-                this.classList.add('show-control-note-modify');
+                this.classList.add('show-control-grid-modify');
             }
         }
     }
@@ -354,7 +354,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 <li>
                     <span class="key">E</span>dit
                     <ul class="submenu composer-context-menu">
-                        <li class="control-note-insert">
+                        <li class="control-grid-insert">
                             <span>Insert <span class="key">N</span>ew Command &#9658;</span>
                             <ul class="submenu">
                                 <li>
@@ -389,7 +389,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                                 </li>
                             </ul>
                         </li>
-                        <li class="control-note-modify">
+                        <li class="control-grid-modify">
                             Set <span class="key">C</span>ommand &#9658;
                             <ul class="submenu">
                                 <li>
@@ -422,7 +422,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                                 <li data-action="instruction:command"><span>Custom Command</span></li>
                             </ul>
                         </li>
-                        <li class="control-note-modify">
+                        <li class="control-grid-modify">
                             <span>Set <span class="key">I</span>nstrument &#9658;</span>
                             <ul class="submenu">
                                 ${this.editor.values.getValues('song-instruments', (value, label) =>
@@ -436,7 +436,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                                     </li>
                             </ul>
                         </li>
-                        <li class="control-note-modify">
+                        <li class="control-grid-modify">
                             <span>Set <span class="key">D</span>uration &#9658</span>
                             <ul class="submenu">
                                 <li data-action="instruction:duration"><span>Custom Duration</span></li>
@@ -444,7 +444,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                                     `<li data-action="instruction:duration" data-duration="${value}"><span>${label}</span></li>`)}
                             </ul>
                         </li>
-                        <li class="control-note-modify">
+                        <li class="control-grid-modify">
                             <span>Set <span class="key">V</span>elocity &#9658</span>
                             <ul class="submenu">
                                 <li data-action="instruction:velocity"><span>Custom Velocity</span></li>
@@ -452,8 +452,8 @@ class AudioSourceComposerMenu extends HTMLElement {
                                     `<li data-action="instruction:velocity" data-velocity="${value}"><span>${label}</span></li>`)}
                             </ul>
                         </li>
-                        <li data-action="instruction:panning" class="disabled control-note-modify"><span>Set <span class="key">P</span>anning</span></li>
-                        <li data-action="instruction:delete" class="control-note-modify"><span><span class="key">D</span>elete Note</span></li>
+                        <li data-action="instruction:panning" class="disabled control-grid-modify"><span>Set <span class="key">P</span>anning</span></li>
+                        <li data-action="instruction:delete" class="control-grid-modify"><span><span class="key">D</span>elete Note</span></li>
                         <hr/>
                         <li>
                             <span>Edit <span class="key">R</span>ow &#9658;</span>

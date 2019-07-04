@@ -245,9 +245,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
         // console.info(e.type, e);
 
-        this.menu.onInput(e);
-        this.grid.onInput(e);
-        this.forms.onInput(e);
+        if(this.menu.contains(e.target))
+            this.menu.onInput(e);
+        if(this.grid.contains(e.target))
+            this.grid.onInput(e);
+        if(this.forms.contains(e.target))
+            this.forms.onInput(e);
 //         this.instruments.onInput(e);
 
         // if(!e.defaultPrevented) {

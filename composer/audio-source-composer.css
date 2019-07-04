@@ -180,8 +180,8 @@ asc-menu ul.menu hr {
 
 
 asc-menu:not(.show-no-instruction-controls) .no-instruction-controls,
-asc-menu:not(.show-control-note-modify) .control-note-modify {
-/*asc-menu:not(.show-control-note-insert) .control-note-insert {*/
+asc-menu:not(.show-control-grid-modify) .control-grid-modify {
+/*asc-menu:not(.show-control-grid-insert) .control-grid-insert {*/
     display: none;
 }
 
@@ -262,17 +262,17 @@ asc-menu:not(.show-control-note-modify) .control-note-modify {
     font-weight: bold;
 }
 
-.asc-container .form-section-divide > form.form-control-note-toggle > button {
+.asc-container .form-section-divide > form.form-control-grid-toggle > button {
     height: 90px;
 }
-.asc-container .form-section-divide > form.form-control-note-toggle > button > div {
+.asc-container .form-section-divide > form.form-control-grid-toggle > button > div {
     transform-origin: 22px -9px;
 }
 
 .asc-container .hide-control-song form.form-song-toggle > button,
-.asc-container .hide-control-note form.form-note-toggle > button,
+.asc-container .hide-control-grid form.form-note-toggle > button,
 .asc-container .hide-control-grid form.form-grid-toggle > button,
-.asc-container .hide-control-instrument form.form-control-note-toggle > button {
+.asc-container .hide-control-instrument form.form-control-grid-toggle > button {
     border: 1px inset;
 }
 
@@ -280,10 +280,10 @@ asc-menu:not(.show-control-note-modify) .control-note-modify {
 
 .asc-container:not(.playing)   form.show-on-song-playing,
 .asc-container.playing         form.show-on-song-paused,
-.asc-container:not(.show-control-note-modify) .control-note-modify,
-.asc-container:not(.show-control-note-insert) .control-note-insert,
+.asc-container:not(.show-control-grid-modify) .control-grid-modify,
+.asc-container:not(.show-control-grid-insert) .control-grid-insert,
 .asc-container .hide-control-song .control-song,
-.asc-container .hide-control-note .control-note,
+.asc-container .hide-control-grid .control-grid,
 .asc-container .hide-control-grid .control-grid,
 .asc-container .composer-instruments.hide-control-instrument .control-instrument {
     display: none;

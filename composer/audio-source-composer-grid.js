@@ -59,19 +59,38 @@ class AudioSourceComposerGrid extends HTMLElement {
         this.render();
     }
 
+    getInstructionFormValues(isNewInstruction) {
+        if(isNewInstruction && this.fieldInstructionCommand.value === '') {
+            // this.fieldInstructionCommand.focus();
+            return false;
+        }
+        let newInstruction = new SongInstruction();
+        newInstruction.command = isNewInstruction ? this.fieldInstructionCommand.value : this.fieldInstructionCommand.value;
+
+        if(this.fieldInstructionInstrument.value || this.fieldInstructionInstrument.value === 0)
+            newInstruction.instrument = parseInt(this.fieldInstructionInstrument.value);
+        if(this.fieldInstructionDuration.value) // TODO: refactor DURATIONS
+            newInstruction.duration = parseFloat(this.fieldInstructionDuration.value);
+        const velocityValue = parseInt(this.fieldInstructionVelocity.value);
+        if(velocityValue && velocityValue !== 100)
+            newInstruction.velocity = velocityValue;
+
+        return newInstruction;
+    }
+
     getFormHTML() {
         return `
 
              
             <div class="form-section-divide">
-                <form action="#" class="form-note-toggle" data-action="toggle:control-note">
+                <form action="#" class="form-note-toggle" data-action="toggle:control-grid">
                     <button name="toggle" class="themed" title="Show/Hide Grid Controls">
                         <div>Grid</div>
                     </button>
                 </form>
             </div>
  
-            <div class="form-section control-note">
+            <div class="form-section control-grid">
                 <div class="form-section-header">Instruction</div>
                 <form action="#" class="form-note-command submit-on-change" data-action="instruction:command">
                     <select name="command" title="Instruction Command" class="themed" required="required">
@@ -175,6 +194,8 @@ class AudioSourceComposerGrid extends HTMLElement {
     onSubmit(e, form) {
         if(!form)
             form = e.target.form || e.target;
+        if(!form.matches('form'))
+            throw new Error("Invalid Form: " + form);
         const command = form.getAttribute('data-action');
         // const cursorCellIndex = this.editor.cursorCellIndex;
         const currentGroup = this.editor.currentGroup;
@@ -186,9 +207,11 @@ class AudioSourceComposerGrid extends HTMLElement {
         switch (command) {
 
             case 'instruction:insert':
-                let newInstruction = this.editor.forms.getInstructionFormValues(true);
-                if(!newInstruction)
+                let newInstruction = this.getInstructionFormValues(true);
+                if(!newInstruction) {
+                    this.fieldInstructionCommand.focus();
                     return console.info("Insert canceled");
+                }
                 let insertIndex = this.editor.renderer.insertInstructionAtPosition(currentGroup, selectedRange[0], newInstruction);
                 this.editor.render();
                 this.editor.renderer.playInstruction(newInstruction);
@@ -485,7 +508,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         if(e.target instanceof Node && !this.contains(e.target))
             return;
 
-        this.focus();
+        // this.focus(); // Prevents tab from working
         console.log(e.type);
 
         try {
@@ -503,7 +526,7 @@ class AudioSourceComposerGrid extends HTMLElement {
                             console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
                             if (this.cursorCell.matches('.new')) {
-                                let newInstruction = this.editorForms.getInstructionFormValues(true);
+                                let newInstruction = this.getInstructionFormValues(true);
                                 newMIDICommand = this.replaceFrequencyAlias(newMIDICommand, newInstruction.instrument);
                                 newInstruction.command = newMIDICommand;
                                 newInstruction.velocity = newMIDIVelocity;
@@ -565,7 +588,7 @@ class AudioSourceComposerGrid extends HTMLElement {
                         case 'Enter':
                             e.preventDefault();
                             if (this.cursorCell.matches('.new')) {
-                                let newInstruction = this.editorForms.getInstructionFormValues(true);
+                                let newInstruction = this.getInstructionFormValues(true);
                                 if(!newInstruction)
                                     return console.info("Insert canceled");
                                 let insertIndex = this.insertInstructionAtPosition(this.cursorPosition, newInstruction);
@@ -635,7 +658,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
                             if (this.cursorCell.matches('.new')) {
                                 console.time("new");
-                                let newInstruction = this.editorForms.getInstructionFormValues(true);
+                                let newInstruction = this.getInstructionFormValues(true);
                                 newCommand = this.replaceFrequencyAlias(newCommand, newInstruction.instrument);
                                 newInstruction.command = newCommand;
 
@@ -710,6 +733,16 @@ class AudioSourceComposerGrid extends HTMLElement {
 
                 case 'scroll':
                     this.renderVisibleRows();
+                    break;
+
+                case 'submit':
+                    e.preventDefault();
+                    this.onSubmit(e);
+                    break;
+                case 'change':
+                case 'blur':
+                    if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
+                        this.onSubmit(e);
                     break;
 
                 default:
@@ -812,7 +845,7 @@ class AudioSourceComposerGrid extends HTMLElement {
     }
 
     selectNextCell(e) {
-        const cursorCell = this.cursorCell;
+        const cursorCell = this.cursorCell || this.querySelector('ascg-instruction');
         if(cursorCell.nextElementSibling && cursorCell.nextElementSibling.matches('ascg-instruction,ascg-instruction-add'))
             return this.selectCell(e, cursorCell.nextElementSibling);
 
@@ -829,7 +862,7 @@ class AudioSourceComposerGrid extends HTMLElement {
     }
 
     selectNextRowCell(e, cellPosition=null, increaseGridSize=true) {
-        const cursorCell = this.cursorCell;
+        const cursorCell = this.cursorCell || this.querySelector('ascg-instruction');
         const cursorRow = cursorCell.parentNode;
         if(cellPosition === null)
             cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
@@ -856,7 +889,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         this.selectCell(e, this.createNewInstructionCell(nextRowElm));
     }
     selectPreviousCell(e) {
-        const cursorCell = this.cursorCell;
+        const cursorCell = this.cursorCell || this.querySelector('ascg-instruction');
         if(cursorCell.previousElementSibling && cursorCell.previousElementSibling.matches('ascg-instruction'))
             return this.selectCell(e, cursorCell.previousElementSibling);
 
@@ -865,7 +898,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
 
     selectPreviousRowCell(e, cellPosition=null) {
-        const cursorCell = this.cursorCell;
+        const cursorCell = this.cursorCell || this.querySelector('ascg-instruction');
         const cursorRow = cursorCell.parentNode;
         cellPosition = cellPosition === null ? [].indexOf.call(cursorRow.children, cursorCell) : cellPosition;
 
@@ -888,6 +921,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         console.time('selectCell');
         cursorCell.select();
         this.update();
+        this.focus();
         cursorCell.scrollTo();
         // this.scrollToCursor(cursorCell);
         console.timeEnd('selectCell');
@@ -1077,8 +1111,8 @@ class AudioSourceComposerGrid extends HTMLElement {
         // this.fieldInstructionDuration.value = parseFloat(this.fieldRenderTimeDivision.value) + '';
 
         const containerElm = this.editor.container;
-        containerElm.classList.remove('show-control-note-insert');
-        containerElm.classList.remove('show-control-note-modify');
+        containerElm.classList.remove('show-control-grid-insert');
+        containerElm.classList.remove('show-control-grid-modify');
 
         if(selectedIndicies.length > 0) {
             this.fieldInstructionDelete.removeAttribute('disabled');
@@ -1093,13 +1127,13 @@ class AudioSourceComposerGrid extends HTMLElement {
             this.fieldInstructionInstrument.value = cursorInstruction.instrument !== null ? cursorInstruction.instrument : '';
             this.fieldInstructionVelocity.value = cursorInstruction.velocity !== null ? cursorInstruction.velocity : '';
             this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
-            containerElm.classList.add('show-control-note-modify');
+            containerElm.classList.add('show-control-grid-modify');
 
         } else if(selectedIndicies.length === 0) {
             // this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
             // console.log(this.editor.status.currentInstrumentID);
 
-            containerElm.classList.add('show-control-note-insert');
+            containerElm.classList.add('show-control-grid-insert');
         }
 
         this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
