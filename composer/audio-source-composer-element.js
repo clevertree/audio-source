@@ -48,6 +48,8 @@ class AudioSourceComposerElement extends HTMLElement {
     get menu() { return this.shadowDOM.querySelector('asc-menu'); }
     get forms() { return this.shadowDOM.querySelector('asc-forms'); }
     get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
+    get container() { return this.shadowDOM.querySelector('.asc-container'); }
+
 
     connectedCallback() {
         // this.loadCSS();

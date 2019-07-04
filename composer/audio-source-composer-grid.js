@@ -50,7 +50,7 @@ class AudioSourceComposerGrid extends HTMLElement {
     get editorForms() { return this.editor.forms; }
     
     connectedCallback() {
-        this.addEventListener('scroll', this.onInput);
+        this.addEventListener('scroll', this.onInput, true);
         this.editor = this.getRootNode().host;
         if(!this.getAttribute('timeDivision'))
             this.timeDivision = this.editor.renderer.getSongTimeDivision();
@@ -518,7 +518,8 @@ class AudioSourceComposerGrid extends HTMLElement {
         if(e.target instanceof Node && !this.contains(e.target))
             return;
 
-        this.focus(); // TODO: bad idea?
+        this.focus();
+        console.log(e.type);
 
         try {
             let selectedIndicies = this.selectedIndicies;
@@ -777,18 +778,21 @@ class AudioSourceComposerGrid extends HTMLElement {
         e.preventDefault();
         let selectedRow = e.target;
         selectedRow.select();
+        this.update();
     }
 
     onCellInput(e) {
         e.preventDefault();
         let selectedCell = e.target;
         selectedCell.select();
+        this.update();
     }
 
     onParamInput(e) {
         e.preventDefault();
         let selectedCell = e.target;
         selectedCell.instruction.select();
+        this.update();
     }
 
     onSongEvent(e) {
@@ -916,67 +920,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 //         console.log("Select ", cursorCell);
         console.time('selectCell');
         cursorCell.select();
-
-        let selectedIndicies = this.selectedIndicies;
-        let timeDivision = this.timeDivision || this.editor.renderer.getSongTimeDivision();
-        const selectedInstructionList = this.editor.renderer.getInstructions(groupName, selectedIndicies);
-        let cursorInstruction = selectedInstructionList[0];
-
-        // Row Instructions
-
-        // Group Buttons
-        // this.querySelectorAll('button[name=groupName]')
-        //     .forEach(button => button.classList.toggle('selected', button.getAttribute('value') === groupName));
-
-        // TODO: combine instructions? nah
-
-
-        // this.fieldInstructionDuration.value = parseFloat(this.fieldTimeDivision.value) + '';
-
-        this.classList.remove('show-control-note-insert');
-        this.classList.remove('show-control-note-modify');
-        if(cursorInstruction) {
-            // Note Instruction
-            this.fieldInstructionCommand.value = cursorInstruction.command;
-            this.fieldInstructionInstrument.value = cursorInstruction.instrument !== null ? cursorInstruction.instrument : '';
-            this.fieldInstructionVelocity.value = cursorInstruction.velocity !== null ? cursorInstruction.velocity : '';
-            this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
-            this.classList.add('show-control-note-modify');
-
-        } else if(selectedIndicies.length > 0) {
-            this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
-            // console.log(this.editor.status.currentInstrumentID);
-
-            this.classList.add('show-control-note-insert');
-        }
-
-        this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
-            option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
-        this.fieldInsertInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
-            option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
-
-        // const oldInsertCommand = this.fieldInsertInstructionCommand.value;
-        // this.fieldInsertInstructionCommand.querySelector('.instrument-frequencies').innerHTML = instructionCommandOptGroup.innerHTML;
-        // this.fieldInsertInstructionCommand.value = oldInsertCommand;
-        // if(!this.fieldInsertInstructionCommand.value)
-        //     this.fieldInsertInstructionCommand.value-this.fieldInsertInstructionCommand.options[0].value
-
-        this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
-
-        // Status Fields
-
-        this.fieldRenderOctave.value = this.editor.status.currentOctave;
-
-        if(!this.fieldTimeDivision.value && timeDivision)
-            this.fieldTimeDivision.value = timeDivision; // this.editor.renderer.getSongTimeDivision();
-        if(!this.fieldInstructionDuration.value && this.fieldTimeDivision.value)
-            this.fieldInstructionDuration.value = this.fieldTimeDivision.value;
-
-
-        this.fieldSelectedIndicies.value = selectedIndicies.join(',');
-        // this.fieldSelectedRangeStart.value = this.editor.selectedRange[0];
-        // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
-
+        this.update();
         cursorCell.scrollTo();
         // this.scrollToCursor(cursorCell);
         console.timeEnd('selectCell');
@@ -1148,6 +1092,68 @@ class AudioSourceComposerGrid extends HTMLElement {
     }
 
     update() {
+
+        let selectedIndicies = this.selectedIndicies;
+        let timeDivision = this.timeDivision || this.editor.renderer.getSongTimeDivision();
+        const selectedInstructionList = this.editor.renderer.getInstructions(this.groupName, selectedIndicies);
+        let cursorInstruction = selectedInstructionList[0];
+
+        // Row Instructions
+
+        // Group Buttons
+        // this.querySelectorAll('button[name=groupName]')
+        //     .forEach(button => button.classList.toggle('selected', button.getAttribute('value') === groupName));
+
+        // TODO: combine instructions? nah
+
+
+        // this.fieldInstructionDuration.value = parseFloat(this.fieldTimeDivision.value) + '';
+
+        const containerElm = this.editor.container;
+        containerElm.classList.remove('show-control-note-insert');
+        containerElm.classList.remove('show-control-note-modify');
+        if(cursorInstruction) {
+            // Note Instruction
+            this.fieldInstructionCommand.value = cursorInstruction.command;
+            this.fieldInstructionInstrument.value = cursorInstruction.instrument !== null ? cursorInstruction.instrument : '';
+            this.fieldInstructionVelocity.value = cursorInstruction.velocity !== null ? cursorInstruction.velocity : '';
+            this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
+            containerElm.classList.add('show-control-note-modify');
+
+        } else if(selectedIndicies.length > 0) {
+            this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
+            // console.log(this.editor.status.currentInstrumentID);
+
+            containerElm.classList.add('show-control-note-insert');
+        }
+
+        this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
+            option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
+        this.fieldInsertInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
+            option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
+
+        // const oldInsertCommand = this.fieldInsertInstructionCommand.value;
+        // this.fieldInsertInstructionCommand.querySelector('.instrument-frequencies').innerHTML = instructionCommandOptGroup.innerHTML;
+        // this.fieldInsertInstructionCommand.value = oldInsertCommand;
+        // if(!this.fieldInsertInstructionCommand.value)
+        //     this.fieldInsertInstructionCommand.value-this.fieldInsertInstructionCommand.options[0].value
+
+        this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
+
+        // Status Fields
+
+        this.fieldRenderOctave.value = this.editor.status.currentOctave;
+
+        if(!this.fieldTimeDivision.value && timeDivision)
+            this.fieldTimeDivision.value = timeDivision; // this.editor.renderer.getSongTimeDivision();
+        if(!this.fieldInstructionDuration.value && this.fieldTimeDivision.value)
+            this.fieldInstructionDuration.value = this.fieldTimeDivision.value;
+
+
+        this.fieldSelectedIndicies.value = selectedIndicies.join(',');
+        // this.fieldSelectedRangeStart.value = this.editor.selectedRange[0];
+        // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
+
     }
 }
 customElements.define('asc-grid', AudioSourceComposerGrid);
@@ -1174,9 +1180,10 @@ class AudioSourceComposerGridRow extends HTMLElement {
 
     get visible() {
         const parentBottom = this.parentNode.scrollTop + this.parentNode.offsetHeight;
-        if(this.offsetTop - parentBottom > 20)
+        const offsetBottom = this.offsetTop + this.offsetHeight;
+        if(this.offsetTop - parentBottom > 0)
             return false;
-        if(this.offsetTop < this.parentNode.scrollTop - 20)
+        if(offsetBottom < this.parentNode.scrollTop)
             return false;
         return true;
     }

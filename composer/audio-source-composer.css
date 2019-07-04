@@ -403,10 +403,11 @@ asc-menu:not(.show-control-note-modify) .control-note-modify {
 /** Grid **/
 asc-grid {
     display: block;
-    position: relative;
+    /* position: relative; */
 }
 
 asc-grid .grid-scroll-container {
+    position: relative;
     /* flex-flow: column; */
     /*width: 100%;*/
     /* position: relative; */
