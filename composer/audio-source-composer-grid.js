@@ -39,7 +39,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         const renderDuration = this.renderDuration;
 
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        let rowInstructions = [], lastRowIndex=0, songPositionInTicks=0, tickTotal=0; // , lastPause = 0;
+        let rowInstructions = [], rowIndex=0, songPositionInTicks=0, tickTotal=0; // , lastPause = 0;
 
         const renderRow = (deltaDuration, rowIndex) => {
             for(let subPause=0; subPause<deltaDuration; subPause+=renderDuration) {
@@ -51,7 +51,7 @@ class AudioSourceComposerGrid extends HTMLElement {
                 this.appendChild(rowElm);
                 rowElm.position = songPositionInTicks;
 
-                // editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, lastRowIndex);
+                // editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, rowIndex);
 
                 rowInstructions = [];
                 const nextBreakPositionInTicks = Math.ceil((songPositionInTicks / renderDuration) + 0.5) * renderDuration;
@@ -71,8 +71,8 @@ class AudioSourceComposerGrid extends HTMLElement {
 
         this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
             if (instruction.deltaDuration !== 0) {
-                renderRow(instruction.deltaDuration, index);
-                lastRowIndex = index;
+                renderRow(instruction.deltaDuration, rowIndex);
+                rowIndex = index+1;
             }
 
             rowInstructions.push(instruction);
@@ -88,7 +88,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         let remainingDuration = this.minimumGridLengthTicks - tickTotal;
         if(remainingDuration <= 0)
             remainingDuration = renderDuration;
-        renderRow(remainingDuration, lastRowIndex);
+        renderRow(remainingDuration, rowIndex);
 
         console.timeEnd('grid: calculate render');
         // const currentScrollPosition = this.scrollTop || 0; // Save scroll position
@@ -496,7 +496,8 @@ class AudioSourceComposerGrid extends HTMLElement {
                 if(instructionElm) {
                     instructionElm.classList.add('playing');
                     instructionElm.parentNode.classList.add('playing');
-                    this.scrollToCursor(instructionElm);
+                    instructionElm.scrollTo();
+                    // this.scrollToCursor(instructionElm);
 //                     console.log("SCROLL", instructionElm.parentNode.offsetTop, this.scrollTop);
 //                     if(this.scrollTop - 50 < instructionElm.parentNode.offsetTop - this.offsetHeight)
 //                         this.scrollTop = 50 + instructionElm.parentNode.offsetTop - this.offsetHeight;
@@ -532,20 +533,22 @@ class AudioSourceComposerGrid extends HTMLElement {
             //     break;
         }
     }
+
     selectNextCell(e) {
         const cursorCell = this.cursorCell;
-        if(cursorCell.nextElementSibling && cursorCell.nextElementSibling.matches('ascg-instruction'))
+        if(cursorCell.nextElementSibling && cursorCell.nextElementSibling.matches('ascg-instruction,ascg-instruction-add'))
             return this.selectCell(e, cursorCell.nextElementSibling);
 
         // If no previous row cell, create new instruction cell
-        if(cursorCell.nodeName.toLowerCase() !== 'ascg-instruction-new') {
-            const currentRowElm = this.cursorCell.parentNode;
-            return this.selectCell(e, this.createNewInstructionCell(currentRowElm));
+        if(cursorCell.nodeName.toLowerCase() === 'ascg-instruction-add') {
+            const cursorRow = cursorCell.parentNode;
+            const nextRowElm = cursorRow.nextElementSibling;
+            this.selectCell(e, nextRowElm.firstElementChild);
+            return;
         }
 
-        const cursorRow = cursorCell.parentNode;
-        const nextRowElm = cursorRow.nextElementSibling;
-        this.selectCell(e, this.createNewInstructionCell(nextRowElm));
+        const currentRowElm = this.cursorCell.parentNode;
+        this.selectCell(e, this.createNewInstructionCell(currentRowElm));
     }
 
     selectNextRowCell(e, cellPosition=null, increaseGridSize=true) {
@@ -561,14 +564,16 @@ class AudioSourceComposerGrid extends HTMLElement {
         }
 
         const nextRowElm = cursorRow.nextElementSibling;
-        for(let i=cellPosition; i>=0; i--)
-            if(nextRowElm.children[i] && nextRowElm.children[i].matches('ascg-instruction'))
-                return this.selectCell(e, nextRowElm.children[i]);
+        // for(let i=cellPosition; i>=0; i--)
+        //     if(nextRowElm.children[i] && nextRowElm.children[i].matches('ascg-instruction,ascg-instruction-add'))
+        //         return this.selectCell(e, nextRowElm.children[i]);
+        if(nextRowElm.children[cellPosition] && nextRowElm.children[cellPosition].matches('ascg-instruction,ascg-instruction-add'))
+            return this.selectCell(e, nextRowElm.children[cellPosition]);
 
-        let nextCell = nextRowElm.querySelector('.instruction');
-        if(nextCell) {
-            return this.selectCell(e, nextCell);
-        }
+        // let nextCell = nextRowElm.querySelector('ascg-instruction');
+        // if(nextCell) {
+        //     return this.selectCell(e, nextCell);
+        // }
 
 
         this.selectCell(e, this.createNewInstructionCell(nextRowElm));
@@ -578,14 +583,14 @@ class AudioSourceComposerGrid extends HTMLElement {
         if(cursorCell.previousElementSibling && cursorCell.previousElementSibling.matches('ascg-instruction'))
             return this.selectCell(e, cursorCell.previousElementSibling);
 
-        this.selectPreviousRowCell(e);
+        this.selectPreviousRowCell(e, -1);
     }
 
 
-    selectPreviousRowCell(e) {
+    selectPreviousRowCell(e, cellPosition=null) {
         const cursorCell = this.cursorCell;
         const cursorRow = cursorCell.parentNode;
-        const cellPosition = [].indexOf.call(cursorRow.children, cursorCell);
+        cellPosition = cellPosition === null ? [].indexOf.call(cursorRow.children, cursorCell) : cellPosition;
 
         let previousRowElm = cursorRow.previousElementSibling;
         if(!previousRowElm)
@@ -604,16 +609,18 @@ class AudioSourceComposerGrid extends HTMLElement {
     selectCell(e, cursorCell, clearSelection=true, toggle=false) {
         console.log("Select ", cursorCell);
         console.time('selectCell');
-        this.querySelectorAll('ascg-instruction.cursor,ascg-instruction.selected')
-            .forEach((elm) => elm.classList.remove('cursor', 'selected'));
-        cursorCell.classList.add('cursor');
-        if(cursorCell.nodeName.toLowerCase() === 'ascg-instruction')
-            cursorCell.classList.add('selected');
+        cursorCell.select();
+        // this.querySelectorAll('ascg-instruction.cursor,ascg-instruction-add.cursor,ascg-instruction.selected')
+        //     .forEach((elm) => elm.classList.remove('cursor', 'selected'));
+        // cursorCell.classList.add('cursor');
+        // if(cursorCell.nodeName.toLowerCase() === 'ascg-instruction')
+        //     cursorCell.classList.add('selected');
 
         this.editor.update(); // selectInstructions(this.selectedIndicies);
         // this.focus();
 
-        this.scrollToCursor(cursorCell);
+        cursorCell.scrollTo();
+        // this.scrollToCursor(cursorCell);
         console.timeEnd('selectCell');
         // console.log(cursorCell);
     }
@@ -774,30 +781,30 @@ class AudioSourceComposerGrid extends HTMLElement {
     }
 
     update() {
-        let cellList = this.querySelectorAll('.instruction'); //,.grid-row
-        if(cellList.length === 0)
-            return;
-
-        const selectedIndicies = this.editor.selectedIndicies;
-        for (let i = 0; i < cellList.length; i++) {
-            const cell = cellList[i];
-            const index = parseInt(cell.getAttribute('data-index'));
-            // cell.classList.toggle('cursor', selectedIndicies[0] === index);
-            cell.classList.remove('selected');
-            if (selectedIndicies.indexOf(index) !== -1) {
-                cell.classList.add('selected');
-            }
-        }
-
-        // Check for missing cursor
-        if(selectedIndicies.length > 0) {
-            // let missingCell = this.querySelector('.instruction.selected');
-            // if (!missingCell)
-            //     this.querySelector('.instruction').classList.add('selected');
-            let missingCell = this.querySelector('.instruction.cursor');
-            if (!missingCell)
-                this.querySelector('.instruction.selected').classList.add('cursor');
-        }
+        // let cellList = this.querySelectorAll('.instruction'); //,.grid-row
+        // if(cellList.length === 0)
+        //     return;
+        //
+        // const selectedIndicies = this.editor.selectedIndicies;
+        // for (let i = 0; i < cellList.length; i++) {
+        //     const cell = cellList[i];
+        //     const index = parseInt(cell.getAttribute('data-index'));
+        //     // cell.classList.toggle('cursor', selectedIndicies[0] === index);
+        //     cell.classList.remove('selected');
+        //     if (selectedIndicies.indexOf(index) !== -1) {
+        //         cell.classList.add('selected');
+        //     }
+        // }
+        //
+        // // Check for missing cursor
+        // if(selectedIndicies.length > 0) {
+        //     // let missingCell = this.querySelector('.instruction.selected');
+        //     // if (!missingCell)
+        //     //     this.querySelector('.instruction').classList.add('selected');
+        //     let missingCell = this.querySelector('.instruction.cursor');
+        //     if (!missingCell)
+        //         this.querySelector('.instruction.selected').classList.add('cursor');
+        // }
     }
 }
 customElements.define('asc-grid', AudioSourceComposerGrid);
@@ -836,27 +843,29 @@ class AudioSourceComposerGridRow extends HTMLElement {
             .forEach((elm) => elm.classList.remove('selected'));
         this.classList.add('selected');
 
-        // Remove existing new instruction button
-        this.grid.querySelectorAll('ascg-instruction-add')
-            .forEach((elm) => elm.parentNode.removeChild(elm));
-
         // Unselect all instrument cells
         this.grid.querySelectorAll('ascg-instruction.selected,ascg-instruction-add.selected')
             .forEach((elm) => elm.classList.remove('selected'));
         this.grid.querySelectorAll('ascg-instruction.cursor,ascg-instruction-add.cursor')
             .forEach((elm) => elm.classList.remove('cursor'));
 
-        const newInstructionElm = document.createElement('ascg-instruction-add');
-        newInstructionElm.classList.add('cursor');
-        newInstructionElm.position = this.position; // setAttribute('p', rowElement.position);
-        newInstructionElm.innerHTML = `+`;
+        const existingInstructionAddElement = this.querySelector('ascg-instruction-add');
+        if(!existingInstructionAddElement) {
+            // Remove existing new instruction button
+            this.grid.querySelectorAll('ascg-instruction-add')
+                .forEach((elm) => elm.parentNode.removeChild(elm));
 
-        const deltaElm = this.querySelector('ascg-delta');
-        this.insertBefore(newInstructionElm, deltaElm);
+            const newInstructionElm = document.createElement('ascg-instruction-add');
+            newInstructionElm.classList.add('cursor');
+            newInstructionElm.position = this.position; // setAttribute('p', rowElement.position);
+            newInstructionElm.innerHTML = `+`;
+            const deltaElm = this.querySelector('ascg-delta');
+            this.insertBefore(newInstructionElm, deltaElm);
+        }
+
         // TODO: this.editor.selectInstructions([]);
         // const newInstructionElm = this.createNewInstructionCell(selectedRow);
         // this.selectCell(e, newInstructionElm);
-
     }
 
     connectedCallback() {
@@ -924,10 +933,18 @@ class AudioSourceComposerGridInstruction extends HTMLElement {
 
         this.classList.add('selected');
         this.classList.add('cursor');
-
-        // TODO: this.editor.selectInstructions([]);
-
     }
+
+
+    scrollTo() {
+        const container = this.grid; // cursorCell.closest('.composer-grid-container');
+        if (container.scrollTop < this.parentNode.offsetTop - container.offsetHeight)
+            container.scrollTop = this.parentNode.offsetTop;
+
+        if (container.scrollTop > this.parentNode.offsetTop)
+            container.scrollTop = this.parentNode.offsetTop - container.offsetHeight;
+    }
+
     render(instruction=null) {
         instruction = instruction || this.getInstruction();
 
@@ -946,6 +963,13 @@ class AudioSourceComposerGridInstruction extends HTMLElement {
 }
 
 customElements.define('ascg-instruction', AudioSourceComposerGridInstruction);
+
+
+class AudioSourceComposerGridInstructionAdd extends AudioSourceComposerGridInstruction {
+
+}
+customElements.define('ascg-instruction-add', AudioSourceComposerGridInstructionAdd);
+
 
 
 
