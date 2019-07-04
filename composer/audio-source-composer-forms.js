@@ -2,7 +2,7 @@ class AudioSourceComposerForms extends HTMLElement {
     constructor() {
         super();
     }
-    get gridStatus() { return this.editor.status.grid; }
+    // get gridStatus() { return this.editor.status.grid; }
 
     connectedCallback() {
         this.editor = this.getRootNode().host;
@@ -87,7 +87,7 @@ class AudioSourceComposerForms extends HTMLElement {
         // const cursorCellIndex = this.editor.cursorCellIndex;
         const currentGroup = this.editor.currentGroup;
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        const selectedIndices = this.gridStatus.selectedIndicies;
+        const selectedIndices = this.editor.grid.selectedIndicies;
         // const selectedPauseIndices = this.editor.selectedPauseIndicies;
         const selectedRange = this.editor.selectedRange;
 
@@ -221,7 +221,7 @@ class AudioSourceComposerForms extends HTMLElement {
                 break;
 
             case 'grid:duration':
-                this.gridStatus.renderDuration = this.fieldRenderDuration.value;
+                this.editor.grid.renderDuration = this.fieldRenderDuration.value;
                 this.editor.grid.render();
                 break;
 

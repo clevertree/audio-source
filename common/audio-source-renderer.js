@@ -252,9 +252,9 @@ class AudioSourceRenderer {
             if(!instructionList[i])
                 break;
             const instruction = new SongInstruction(instructionList[i]);
-            selectedInstructions.push(instruction);
-            if(end === null && instruction.deltaDuration)
+            if(selectedInstructions.length > 0 && end === null && instruction.deltaDuration)
                 break;
+            selectedInstructions.push(instruction);
         }
         return selectedInstructions;
     }

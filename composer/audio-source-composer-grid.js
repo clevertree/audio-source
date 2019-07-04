@@ -72,7 +72,7 @@ class AudioSourceComposerGrid extends HTMLElement {
         this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
             if (instruction.deltaDuration !== 0) {
                 renderRow(instruction.deltaDuration, rowIndex);
-                rowIndex = index+1;
+                rowIndex = index;
             }
 
             rowInstructions.push(instruction);
@@ -607,7 +607,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
 
     selectCell(e, cursorCell, clearSelection=true, toggle=false) {
-        console.log("Select ", cursorCell);
+//         console.log("Select ", cursorCell);
         console.time('selectCell');
         cursorCell.select();
         // this.querySelectorAll('ascg-instruction.cursor,ascg-instruction-add.cursor,ascg-instruction.selected')
