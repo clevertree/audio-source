@@ -55,8 +55,8 @@ class AudioSourceComposerGrid extends HTMLElement {
         this.addEventListener('scroll', this.onInput, true);
         this.editor = this.getRootNode().host;
         if(!this.getAttribute('timeDivision'))
-            this.timeDivision = this.editor.renderer.getSongTimeDivision();
-        this.render();
+            this.setAttribute('timeDivision', this.editor.renderer.getSongTimeDivision());
+        setTimeout(e => this.render(), 20);
     }
 
     getInstructionFormValues(isNewInstruction, command=null) {
@@ -434,7 +434,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
             const currentScrollPosition = this.scrollContainer ? this.scrollContainer.scrollTop : 0; // Save scroll position
 
-            const renderRow = (rowElm, index, deltaDuration) => {
+            const renderRow = (index, deltaDuration) => { // TODO: quantization fail
                 for (let subPause = 0; subPause < deltaDuration; subPause += renderDuration) {
                     let subDurationInTicks = renderDuration;
                     if (subPause + renderDuration > deltaDuration)
@@ -455,6 +455,13 @@ class AudioSourceComposerGrid extends HTMLElement {
                     }
                     // rowElm.duration = subDurationInTicks;
                     // rowElm.index = rowCount;
+
+                    let rowElm = rows[rowCount];
+                    if (!rowElm) {
+                        rowElm = document.createElement('ascg-row');
+                        this.scrollContainer.appendChild(rowElm);
+                    }
+                    rowCount++;
                     rowElm.render(index, subDurationInTicks, songPositionInTicks - subDurationInTicks, rowInstructionList);
                     rowInstructionList = [];
                 }
@@ -463,13 +470,8 @@ class AudioSourceComposerGrid extends HTMLElement {
 
             this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
                 if (instruction.deltaDuration !== 0) {
-                    let rowElm = rows[rowCount];
-                    if (!rowElm) {
-                        rowElm = document.createElement('ascg-row');
-                        this.scrollContainer.appendChild(rowElm);
-                    }
-                    renderRow(rowElm, lastRowIndex, instruction.deltaDuration);
-                    rowCount++;
+                    renderRow(lastRowIndex, instruction.deltaDuration);
+
                     lastRowIndex = index;
                     // rowCount = index;
                 }
@@ -481,7 +483,7 @@ class AudioSourceComposerGrid extends HTMLElement {
 
             this.scrollContainer.scrollTop = currentScrollPosition;             // Restore scroll position
             console.timeEnd('grid.renderAllRows');
-        }
+        };
 
         if(timeout > 0) {
             clearTimeout(this.renderTimeout);

@@ -441,7 +441,7 @@ class AudioSourceRenderer {
     eachInstruction(groupName, callback, parentStats) {
         if(!this.songData.instructions[groupName])
             throw new Error("Invalid group: " + groupName)
-        const instructionIterator = new SongGroupIterator(
+        const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
             parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
@@ -461,7 +461,7 @@ class AudioSourceRenderer {
     async eachInstructionAsync(groupName, callback, parentStats) {
         if(!this.songData.instructions[groupName])
             throw new Error("Invalid group: " + groupName)
-        const instructionIterator = new SongGroupIterator(
+        const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
             parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
@@ -1003,42 +1003,51 @@ class AudioSourceRenderer {
         const insertInstruction = SongInstruction.parse(insertInstructionData);
         let instructionList = this.songData.instructions[groupName];
 
-        let groupPosition = 0, lastDeltaInstructionIndex;
-        for(let i=0; i<instructionList.length; i++) {
-            const instruction = new SongInstruction(instructionList[i]);
-            if(instruction.deltaDuration > 0) {
+        // let groupPosition = 0, lastDeltaInstructionIndex;
 
-                if(groupPosition + instruction.deltaDuration > insertPosition) {
-                    // Delta note appears after note to be inserted
-                    const splitDuration = [
-                        insertPosition - groupPosition,
-                        groupPosition + instruction.deltaDuration - insertPosition
-                    ];
+        const instructionIterator = new InstructionIterator(
+            this.songData.instructions[groupName],
+            groupName,
+            this.getSongTimeDivision());
 
-                    // Make following delta note smaller
-                    this.replaceInstructionDeltaDuration(groupName, i, splitDuration[1]);
+        let instruction;
+        // noinspection JSAssignmentUsedAsCondition
+        while(instruction = instructionIterator.nextInstruction()) {
+            // const instruction = new SongInstruction(instructionList[i]);
+            // if(instruction.deltaDuration > 0) {
 
-                    // Insert new note before delta note.
-                    insertInstruction.deltaDuration = splitDuration[0];                     // Make new note equal the rest of the duration
-                    this.insertInstructionAtIndex(groupName, i, insertInstruction);
+            if(instructionIterator.groupPositionInTicks > insertPosition) {
+                // Delta note appears after note to be inserted
+                const splitDuration = [
+                    insertPosition - (instructionIterator.groupPositionInTicks - instruction.deltaDuration),
+                    instructionIterator.groupPositionInTicks - insertPosition
+                ];
 
-                    return i; // this.splitPauseInstruction(groupName, i,insertPosition - groupPosition , insertInstruction);
+                const modifyIndex = instructionIterator.currentIndex;
+                // Make following delta note smaller
+                this.replaceInstructionDeltaDuration(groupName, modifyIndex, splitDuration[1]);
 
-                } else if(groupPosition + instruction.deltaDuration === insertPosition) {
-                    // Delta note plays at the same time as new note, append after
+                // Insert new note before delta note.
+                insertInstruction.deltaDuration = splitDuration[0];                     // Make new note equal the rest of the duration
+                this.insertInstructionAtIndex(groupName, modifyIndex, insertInstruction);
 
-                    let lastInsertIndex;
-                    // Search for last insert position
-                    for(lastInsertIndex=i+1; lastInsertIndex<instructionList.length; lastInsertIndex++)
-                        if(new SongInstruction(instructionList[lastInsertIndex]).deltaDuration > 0)
-                            break;
+                return modifyIndex; // this.splitPauseInstruction(groupName, i,insertPosition - groupPosition , insertInstruction);
 
-                    this.insertInstructionAtIndex(groupName, lastInsertIndex, insertInstruction);
-                    return lastInsertIndex;
-                }
-                groupPosition += instruction.deltaDuration;
-                lastDeltaInstructionIndex = i;
+            } else if(instructionIterator.groupPositionInTicks === insertPosition) {
+                // Delta note plays at the same time as new note, append after
+
+                let lastInsertIndex;
+                // Search for last insert position
+                for(lastInsertIndex=instructionIterator.currentIndex+1; lastInsertIndex<instructionList.length; lastInsertIndex++)
+                    if(new SongInstruction(instructionList[lastInsertIndex]).deltaDuration > 0)
+                        break;
+
+                this.insertInstructionAtIndex(groupName, lastInsertIndex, insertInstruction);
+                return lastInsertIndex;
             }
+            // groupPosition += instruction.deltaDuration;
+            // lastDeltaInstructionIndex = i;
+            // }
         }
 
         if(insertPosition <= groupPosition)
@@ -1278,7 +1287,7 @@ class SongInstruction {
     }
 }
 
-class SongGroupIterator {
+class InstructionIterator {
     constructor(instructionList, groupName, timeDivision, currentBPM, groupPositionInTicks=0) {
         this.instructionList = instructionList;
         this.groupName = groupName;
