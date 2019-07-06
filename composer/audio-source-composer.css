@@ -444,6 +444,9 @@ ascg-row {
     padding: 0px;
 }
 
+ascg-row.break {
+    border-top: 1px solid #000;
+}
 ascg-row:nth-child(odd) {
     background-color: #D0D0D0;
     /* padding: 0; */
@@ -523,7 +526,7 @@ ascg-instruction.playing {
     background-color: #80d55c;
 }
 
-ascg-instruction-add.selected,
+ascg-instruction-add.cursor,
 ascg-instruction.selected {
     background-color: white;
 }
