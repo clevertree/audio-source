@@ -432,42 +432,6 @@ class AudioSourceComposerGrid extends HTMLElement {
 
             const currentScrollPosition = this.scrollContainer ? this.scrollContainer.scrollTop : 0; // Save scroll position
 
-            // const renderRow = (index, deltaDuration) => { // TODO: quantization fail REDO~
-            //     // for (let subPause = 0; subPause < deltaDuration; subPause += renderDuration) {
-            //     //     let subDurationInTicks = renderDuration;
-            //     //     if (subPause + renderDuration > deltaDuration)
-            //     //         subDurationInTicks = deltaDuration - subPause;
-            //     //
-            //     //     // const rowElm = document.createElement('ascg-row');
-            //     //     // this.scrollContainer.appendChild(rowElm);
-            //     //     // rowElm.position = songPositionInTicks;
-            //     //
-            //     //     // editorHTML += this.getRowHTML(songPositionInTicks, subDurationInTicks, rowInstructions, rowCount);
-            //     //
-            //     //     const nextBreakPositionInTicks = Math.ceil((songPositionInTicks / renderDuration) + 0.5) * renderDuration;
-            //     //     songPositionInTicks += subDurationInTicks;
-            //     //     if (songPositionInTicks > nextBreakPositionInTicks) {
-            //     //         // Quantize the row durations
-            //     //         subDurationInTicks = songPositionInTicks - nextBreakPositionInTicks;
-            //     //         songPositionInTicks = nextBreakPositionInTicks;
-            //     //     }
-            //         // rowElm.duration = subDurationInTicks;
-            //         // rowElm.index = rowCount;
-            //
-            //         let rowElm = rows[rowCount];
-            //         if (!rowElm) {
-            //             rowElm = document.createElement('ascg-row');
-            //             this.scrollContainer.appendChild(rowElm);
-            //         }
-            //         rowCount++;
-            //
-            //         rowElm.render(index, deltaDuration, lastGroupPositionInTicks, rowInstructionList);
-            //         lastGroupPositionInTicks = songPositionInTicks;
-            //
-            //         rowInstructionList = [];
-            //     // }
-            // };
-
             const getNextRow = () => {
                 let rowElm = rows[rowCount];
                 if (!rowElm) {
@@ -483,10 +447,8 @@ class AudioSourceComposerGrid extends HTMLElement {
             const renderRows = (index, deltaDuration, groupEndPositionInTicks, rowInstructionList) => {
                 let groupStartPositionInTicks = groupEndPositionInTicks - deltaDuration;
                 getNextRow().render(index, groupStartPositionInTicks, rowInstructionList);
-                // while(nextBreakPositionInTicks < groupStartPositionInTicks) {
-                //     nextBreakPositionInTicks += renderDuration;
-                // }
 
+                // Quantize the tracker rows
                 while(nextBreakPositionInTicks < groupEndPositionInTicks) {
                     if(nextBreakPositionInTicks !== groupStartPositionInTicks) {
                         getNextRow().render(index, nextBreakPositionInTicks);
@@ -498,22 +460,15 @@ class AudioSourceComposerGrid extends HTMLElement {
             };
 
             // TODO: toggled quantization
-            // let lastGroupPositionInTicks = 0;
-            let rowInstructionList = [];
 
+            let rowInstructionList = [];
             this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
                 if (instruction.deltaDuration !== 0) {
                     renderRows(index, instruction.deltaDuration, stats.groupPositionInTicks, rowInstructionList);
-                    // lastGroupPositionInTicks = stats.groupPositionInTicks;
-
                     rowInstructionList = [];
-
-                    // lastRowIndex = index;
-                    // rowCount = index;
                 }
 
                 rowInstructionList.push(instruction);
-                // tickTotal = stats.groupPositionInTicks;
             });
 
 
