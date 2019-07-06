@@ -60,21 +60,17 @@ class AudioSourceComposerInstruments extends HTMLElement {
         if(e.target instanceof Node && !this.renderElement.contains(e.target))
             return;
 
-        try {
-            switch (e.type) {
-                case 'submit':
+        switch (e.type) {
+            case 'submit':
+                this.onSubmit(e);
+                break;
+            case 'change':
+            case 'blur':
+                if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
                     this.onSubmit(e);
-                    break;
-                case 'change':
-                case 'blur':
-                    if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-                        this.onSubmit(e);
-                    break;
-            }
-
-        } catch (err) {
-            this.editor.onError(err);
+                break;
         }
+
     }
 
     onSubmit(e) {
@@ -82,45 +78,40 @@ class AudioSourceComposerInstruments extends HTMLElement {
         let form = e.target.form || e.target;
         const command = form.getAttribute('data-action');
 
-        try {
+        switch(command) {
+            case 'instrument:name':
+                this.editor.renderer.replaceInstrumentParam(form.elements['instrumentID'].value, 'name', form.elements['name'].value);
+                break;
 
-            switch(command) {
-                case 'instrument:name':
-                    this.editor.renderer.replaceInstrumentParam(form.elements['instrumentID'].value, 'name', form.elements['name'].value);
-                    break;
+            case 'instrument:remove':
+                this.editor.renderer.removeInstrument(form.elements['instrumentID'].value);
+                this.editor.instruments.render();
+                break;
 
-                case 'instrument:remove':
-                    this.editor.renderer.removeInstrument(form.elements['instrumentID'].value);
-                    this.editor.instruments.render();
-                    break;
-
-                case 'instrument:change':
-                    this.editor.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
-                    this.editor.renderer.loadInstrument(form.elements['instrumentID'].value, true);
-                    this.editor.instruments.render(); // Renders instrument in 'loading' state if not yet loaded by loadInstrument()
-                    break;
+            case 'instrument:change':
+                this.editor.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
+                this.editor.renderer.loadInstrument(form.elements['instrumentID'].value, true);
+                this.editor.instruments.render(); // Renders instrument in 'loading' state if not yet loaded by loadInstrument()
+                break;
 
 
-                case 'toggle:control-instrument':
-                    this.renderElement.classList.toggle('hide-control-instrument');
-                    break;
+            case 'toggle:control-instrument':
+                this.renderElement.classList.toggle('hide-control-instrument');
+                break;
 
-                // case 'change':
-                // case 'blur':
-                // case 'submit':
-                //     const form = e.target.form || e.target;
-                //     const newConfig = {};
-                //     for(let i=0; i<form.elements.length; i++)
-                //         if(form.elements[i].name)
-                //             newConfig[form.elements[i].name] = form.elements[i].value;
-                //     console.log("Instrument Form " + e.type, newConfig, e);
-                //     this.editor.renderer.replaceInstrumentParams(this.id, newConfig);
-                //     break;
-                // default:
-                //     throw new Error("Unexpected command: " + command);
-            }
-        } catch (e) {
-            this.editor.onError(e);
+            // case 'change':
+            // case 'blur':
+            // case 'submit':
+            //     const form = e.target.form || e.target;
+            //     const newConfig = {};
+            //     for(let i=0; i<form.elements.length; i++)
+            //         if(form.elements[i].name)
+            //             newConfig[form.elements[i].name] = form.elements[i].value;
+            //     console.log("Instrument Form " + e.type, newConfig, e);
+            //     this.editor.renderer.replaceInstrumentParams(this.id, newConfig);
+            //     break;
+            // default:
+            //     throw new Error("Unexpected command: " + command);
         }
     }
 

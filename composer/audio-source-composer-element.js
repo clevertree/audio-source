@@ -217,50 +217,58 @@ class AudioSourceComposerElement extends HTMLElement {
     onInput(e) {
         if(e.defaultPrevented)
             return;
-        this.renderer.getAudioContext();
-        // if(this !== document.activeElement && !this.contains(document.activeElement)) {
-        //     console.log("Focus", document.activeElement);
-        //     this.focus();
-        // }
-        switch(e.type) {
-            case 'mousedown':
-                // Longpress
-                if(!e.altKey) { // TODO: fix scroll
+
+        // try {
+            this.renderer.getAudioContext();
+            // if(this !== document.activeElement && !this.contains(document.activeElement)) {
+            //     console.log("Focus", document.activeElement);
+            //     this.focus();
+            // }
+            switch(e.type) {
+                case 'mousedown':
+                    // Longpress
+                    if(!e.altKey) { // TODO: fix scroll
+                        clearTimeout(this.longPressTimeout);
+                        this.longPressTimeout = setTimeout(function () {
+                            e.target.dispatchEvent(new CustomEvent('longpress', {
+                                detail: {originalEvent: e},
+                                cancelable: true,
+                                bubbles: true
+                            }));
+                        }, this.status.longPressTimeout);
+                    }
+                    break;
+
+                case 'mouseup':
+                    // e.preventDefault();
                     clearTimeout(this.longPressTimeout);
-                    this.longPressTimeout = setTimeout(function () {
-                        e.target.dispatchEvent(new CustomEvent('longpress', {
-                            detail: {originalEvent: e},
-                            cancelable: true,
-                            bubbles: true
-                        }));
-                    }, this.status.longPressTimeout);
-                }
-                break;
+                    break;
+            }
 
-            case 'mouseup':
-                // e.preventDefault();
-                clearTimeout(this.longPressTimeout);
-                break;
-        }
+            // console.info(e.type, e);
 
-        // console.info(e.type, e);
+            if(this.menu.contains(e.target))
+                this.menu.onInput(e);
+            if(this.grid.contains(e.target))
+                this.grid.onInput(e);
+            if(this.forms.contains(e.target))
+                this.forms.onInput(e);
+    //         this.instruments.onInput(e);
 
-        if(this.menu.contains(e.target))
-            this.menu.onInput(e);
-        if(this.grid.contains(e.target))
-            this.grid.onInput(e);
-        if(this.forms.contains(e.target))
-            this.forms.onInput(e);
-//         this.instruments.onInput(e);
+            // if(!e.defaultPrevented) {
+            //     switch (e.type) {
+            //         case 'submit':
+            //             // case 'change':
+            //             // case 'blur':
+            //             console.info("Unhandled " + e.type, e);
+            //     }
+            // }
 
-        // if(!e.defaultPrevented) {
-        //     switch (e.type) {
-        //         case 'submit':
-        //             // case 'change':
-        //             // case 'blur':
-        //             console.info("Unhandled " + e.type, e);
-        //     }
+
+        // } catch (err) {
+        //     this.onError(err);
         // }
+
     }
 
     onSongEvent(e) {

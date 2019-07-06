@@ -26,22 +26,18 @@ class AudioSourceComposerForms extends HTMLElement {
         if(!form && e.target instanceof Node && !this.contains(e.target))
             return;
 
-        try {
-            switch (e.type) {
-                case 'submit':
-                    e.preventDefault();
+        switch (e.type) {
+            case 'submit':
+                e.preventDefault();
+                this.onSubmit(e, form);
+                break;
+            case 'change':
+            case 'blur':
+                if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
                     this.onSubmit(e, form);
-                    break;
-                case 'change':
-                case 'blur':
-                    if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-                        this.onSubmit(e, form);
-                    break;
-            }
-
-        } catch (err) {
-            this.editor.onError(err);
+                break;
         }
+
     }
 
     onSubmit(e, form) {

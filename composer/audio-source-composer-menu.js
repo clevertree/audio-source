@@ -140,7 +140,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
                 }
                 this.editor.render();
-                this.editor.selectInstructions(selectedIndicies, selectedRange);
+                this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
                 break;
 
             case 'instrument:add':
@@ -156,7 +156,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 // insertIndex = this.editor.renderer.insertInstructionAtPosition(currentGroup, selectedRange[0], newInstruction);
                 this.editor.render();
                 // this.editor.renderer.playInstruction(newInstruction);
-                // this.editor.selectInstructions(insertIndex, selectedRange);
+                // this.editor.grid.selectIndicies(e, insertIndex, selectedRange);
                 break;
 
             case 'instruction:insert':
@@ -173,7 +173,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 insertIndex = this.editor.renderer.insertInstructionAtPosition(currentGroup, selectedRange[0], newInstruction);
                 this.editor.render();
                 this.editor.renderer.playInstruction(newInstruction);
-                this.editor.selectInstructions(insertIndex, selectedRange);
+                this.editor.grid.selectIndicies(e, insertIndex, selectedRange);
                 break;
 
 
@@ -190,7 +190,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
                 }
                 this.editor.render();
-                this.editor.selectInstructions(selectedIndicies, selectedRange);
+                this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
                 this.editorForms.fieldInstructionCommand.focus();
                 break;
 
@@ -206,7 +206,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
                 }
                 this.editor.render();
-                this.editor.selectInstructions(selectedIndicies, selectedRange);
+                this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
                 this.editorForms.fieldInstructionInstrument.focus();
                 break;
 
@@ -224,7 +224,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
                 }
                 this.editor.render();
-                this.editor.selectInstructions(selectedIndicies, selectedRange);
+                this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
                 this.editorForms.fieldInstructionDuration.focus();
                 break;
 
@@ -242,7 +242,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
                 }
                 this.editor.render();
-                this.editor.selectInstructions(selectedIndicies, selectedRange);
+                this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
                 this.editorForms.fieldInstructionVelocity.focus();
                 break;
 
@@ -253,7 +253,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.editor.renderer.deleteInstructionAtIndex(currentGroup, selectedIndicies[i]);
                 }
                 this.editor.render();
-                this.editor.selectInstructions(selectedIndicies[0], selectedRange);
+                this.editor.grid.selectIndicies(e, selectedIndicies[0], selectedRange);
                 break;
 
             case 'menu:toggle':
