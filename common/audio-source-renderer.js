@@ -1062,6 +1062,13 @@ class AudioSourceRenderer {
 
 
     deleteInstructionAtIndex(groupName, deleteIndex) {
+        const deleteInstruction = this.getInstruction(groupName, deleteIndex);
+        if(deleteInstruction.deltaDuration > 0) {
+            const nextInstruction = this.getInstruction(groupName, deleteIndex+1);
+            if(nextInstruction) {
+                this.replaceInstructionDeltaDuration(groupName, deleteIndex+1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
+            }
+        }
         return this.deleteDataPath(['instructions', groupName, deleteIndex])
             .oldData;
     }

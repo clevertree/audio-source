@@ -132,7 +132,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
     renderAllRows(timeout=0) {
-
+        // TODO: rerender if fail?
         const render = () => {
             console.time('grid.renderAllRows');
             const rows = this.scrollContainer.querySelectorAll('asct-row');
@@ -157,6 +157,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 let groupStartPositionInTicks = groupEndPositionInTicks - deltaDuration;
                 let renderRow = getNextRow();
                 renderRow.render(index, groupStartPositionInTicks, rowInstructionList);
+                renderRow.classList.remove('break');
 
                 // Quantize the tracker rows
                 // TODO: toggled quantization
@@ -268,10 +269,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 switch (keyEvent) {
                     case 'Delete':
                         e.preventDefault();
-                        for(let i=0; i<selectedIndicies.length; i++) {
+                        for(let i=0; i<selectedIndicies.length; i++)
                             this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                        }
-                        this.renderAllRows();
+                        this.renderAllRows(); // TODO: render timeout
+                        this.selectIndicies(e, selectedIndicies[0]);
                         // song.render(true);
                         break;
 
@@ -579,7 +580,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // const cursorCellIndex = this.editor.cursorCellIndex;
         const currentGroup = this.groupName;
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        const selectedIndices = this.selectedIndicies;
+        const selectedIndicies = this.selectedIndicies;
         // const selectedPauseIndices = this.editor.selectedPauseIndicies;
         // const selectedRange = this.editor.selectedRange;
 
@@ -608,45 +609,55 @@ class AudioSourceComposerTracker extends HTMLElement {
                 let newInstrument = null;
                 if(form.elements['command'].selectedOptions[0] && form.elements['command'].selectedOptions[0].hasAttribute('data-instrument'))
                     newInstrument = parseInt(form.elements['command'].selectedOptions[0].getAttribute('data-instrument'));
-                for(let i=0; i<selectedIndices.length; i++) {
-                    this.editor.renderer.replaceInstructionCommand(currentGroup, selectedIndices[i], newCommand);
+                for(let i=0; i<selectedIndicies.length; i++) {
+                    this.editor.renderer.replaceInstructionCommand(currentGroup, selectedIndicies[i], newCommand);
                     if(newInstrument !== null)
-                        this.editor.renderer.replaceInstructionInstrument(currentGroup, selectedIndices[i], newInstrument);
-                    this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndices[i]);
+                        this.editor.renderer.replaceInstructionInstrument(currentGroup, selectedIndicies[i], newInstrument);
+                    // this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
+                    this.findInstructionElement(selectedIndicies[i]).render();
                 }
-                // this.editor.playSelectedInstructions();
+                this.playSelectedInstructions();
                 this.fieldInstructionCommand.focus();
                 // setTimeout(() => this.fieldInstructionCommand.focus(), 1);
                 break;
 
             case 'instruction:instrument':
                 let instrumentID = form.instrument.value === '' ? null : parseInt(form.instrument.value);
-                for(let i=0; i<selectedIndices.length; i++)
-                    this.editor.renderer.replaceInstructionInstrument(currentGroup, selectedIndices[i], instrumentID);
+                for(let i=0; i<selectedIndicies.length; i++) {
+                    this.editor.renderer.replaceInstructionInstrument(currentGroup, selectedIndicies[i], instrumentID);
+                    this.findInstructionElement(selectedIndicies[i]).render();
+                }
                 this.editor.status.currentInstrumentID = instrumentID;
-                this.editor.playSelectedInstructions();
+                this.playSelectedInstructions();
                 this.fieldInstructionInstrument.focus();
                 break;
 
             case 'instruction:duration':
                 const duration = parseFloat(form.duration.value) || null;
-                for(let i=0; i<selectedIndices.length; i++)
-                    this.editor.renderer.replaceInstructionDuration(currentGroup, selectedIndices[i], duration);
-                this.editor.playSelectedInstructions();
+                for(let i=0; i<selectedIndicies.length; i++) {
+                    this.editor.renderer.replaceInstructionDuration(currentGroup, selectedIndicies[i], duration);
+                    this.findInstructionElement(selectedIndicies[i]).render();
+                }
+                this.playSelectedInstructions();
                 this.fieldInstructionDuration.focus();
                 break;
 
             case 'instruction:velocity':
                 const velocity = form.velocity.value === "0" ? 0 : parseInt(form.velocity.value) || null;
-                for(let i=0; i<selectedIndices.length; i++)
-                    this.editor.renderer.replaceInstructionVelocity(currentGroup, selectedIndices[i], velocity);
-                this.editor.playSelectedInstructions();
+                for(let i=0; i<selectedIndicies.length; i++) {
+                    this.editor.renderer.replaceInstructionVelocity(currentGroup, selectedIndicies[i], velocity);
+                    this.findInstructionElement(selectedIndicies[i]).render();
+                }
+                this.playSelectedInstructions();
+                // this.selectIndicies(e, selectedIndicies[0]);
                 this.fieldInstructionVelocity.focus();
                 break;
 
             case 'instruction:delete':
-                for(let i=0; i<selectedIndices.length; i++)
-                    this.editor.renderer.deleteInstructionAtIndex(currentGroup, selectedIndices[i]);
+                for(let i=0; i<selectedIndicies.length; i++)
+                    this.editor.renderer.deleteInstructionAtIndex(currentGroup, selectedIndicies[i]);
+                this.renderAllRows();
+                this.selectIndicies(e, selectedIndicies[0]);
                 break;
 
             // case 'row:edit':
@@ -1288,6 +1299,7 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
 
 
     render(instruction=null) {
+        this.innerHTML = '';
         instruction = instruction || this.getInstruction();
 
         let paramElm;
@@ -1380,11 +1392,11 @@ class AudioSourceComposerTrackerDelta extends HTMLElement {
     // get duration() { return parseInt(this.parentNode.getAttribute('d'))}
 
     connectedCallback() {
-        setTimeout(e => this.render(), 1);
+        setTimeout(e => this.render(), 1); // TODO: inefficient
     }
 
     render(duration) {
-        duration = duration || this.row.duration;
+        duration = duration || this.row ? this.row.duration : -1;
         this.innerHTML = this.editor.values.format(duration, 'duration');
     }
 }
