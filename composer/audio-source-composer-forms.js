@@ -114,12 +114,12 @@ class AudioSourceComposerForms extends HTMLElement {
                 this.classList.toggle('hide-control-song');
                 break;
 
-            case 'toggle:control-grid':
-                this.classList.toggle('hide-control-grid');
+            case 'toggle:control-tracker':
+                this.classList.toggle('hide-control-tracker');
                 break;
 
-            case 'toggle:control-grid':
-                this.classList.toggle('hide-control-grid');
+            case 'toggle:control-tracker':
+                this.classList.toggle('hide-control-tracker');
                 break;
 
             default:
@@ -215,7 +215,7 @@ class AudioSourceComposerForms extends HTMLElement {
     }
 
 
-// <div class="form-section control-grid">
+// <div class="form-section control-tracker">
 //         <div class="form-section-header">Sel Range</div>
 // <form class="form-selected-range submit-on-change" data-action="grid:selected">
 //         <input name="rangeStart" placeholder="N/A" />-<!--

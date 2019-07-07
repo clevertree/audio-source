@@ -123,7 +123,7 @@ class AudioSourceComposerInstruments extends HTMLElement {
         this.renderElement.innerHTML = `
             <div style="clear: both;" class="control-instrument"></div>
             <div class="form-section-divide">
-                <form action="#" class="form-control-grid-toggle" data-action="toggle:control-instrument">
+                <form action="#" class="form-control-tracker-toggle" data-action="toggle:control-instrument">
                     <button name="toggle" class="themed" title="Show/Hide Note Controls">
                         <div>Instruments</div>
                     </button>

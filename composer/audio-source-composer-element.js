@@ -44,7 +44,7 @@ class AudioSourceComposerElement extends HTMLElement {
             autoSaveTimeout: 4000,
         };
     }
-    get grid() { return this.shadowDOM.querySelector('asc-grid'); }
+    get grid() { return this.shadowDOM.querySelector('asc-tracker'); }
     get menu() { return this.shadowDOM.querySelector('asc-menu'); }
     get forms() { return this.shadowDOM.querySelector('asc-forms'); }
     get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
@@ -328,7 +328,7 @@ class AudioSourceComposerElement extends HTMLElement {
         <div class="asc-container">
             <asc-menu tabindex="0"></asc-menu>
             <asc-forms tabindex="0"></asc-forms>
-            <asc-grid tabindex="0" group="root"></asc-grid>
+            <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
         `;
 
@@ -349,7 +349,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.status.groupHistory.unshift(this.status.currentGroup);
         this.status.currentGroup = groupName;
         console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.grid = new AudioSourceComposerGrid(this, groupName);
+        this.grid = new AudioSourceComposerTracker(this, groupName);
         this.render();
     }
 

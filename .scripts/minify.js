@@ -5,7 +5,7 @@ const fs = require('fs');
     const minified = '(function(){'
         + await minify('composer/audio-source-composer-element.js')
         + await minify('composer/audio-source-composer-forms.js')
-        + await minify('composer/audio-source-composer-grid.js')
+        + await minify('composer/audio-source-composer-tracker.js')
         + await minify('composer/audio-source-composer-instruments.js')
         + await minify('composer/audio-source-composer-keyboard.js')
         + await minify('composer/audio-source-composer-menu.js')
