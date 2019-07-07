@@ -75,6 +75,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.addEventListener('song:modified', onSongEvent);
         this.addEventListener('note:start', onSongEvent);
         this.addEventListener('note:end', onSongEvent);
+        this.addEventListener('note:play', onSongEvent);
         this.addEventListener('instrument:loaded', onSongEvent);
         this.addEventListener('instrument:instance', onSongEvent);
         this.addEventListener('instrument:library', onSongEvent);

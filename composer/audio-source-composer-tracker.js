@@ -418,7 +418,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 //     || e.target.classList.contains('tracker-row')) {
                 e.preventDefault();
                 // console.log("Longpress", e);
-                this.editor.menu.openContextMenu(e);
+                if(this.scrollContainer.contains(e.target)) {
+                    this.editor.menu.openContextMenu(e);
+                }
                 // }
                 break;
 
@@ -426,11 +428,12 @@ class AudioSourceComposerTracker extends HTMLElement {
                 // if (e.target.classList.contains('tracker-parameter')) {
                 //     console.info("TODO: add parameter song at top of context menu: ", e.target); // huh?
                 // }
-                if(!e.altKey) {
-                    e.preventDefault();
-                    this.editor.menu.openContextMenu(e);
+                if(this.scrollContainer.contains(e.target)) {
+                    if (!e.altKey) {
+                        e.preventDefault();
+                        this.editor.menu.openContextMenu(e);
+                    }
                 }
-
                 break;
 
             case 'scroll':
@@ -736,41 +739,64 @@ class AudioSourceComposerTracker extends HTMLElement {
     onSongEvent(e) {
         // console.log("onSongEvent", e);
         const detail = e.detail || {stats:{}};
-        const instructionElm = detail.instruction ? this.findInstruction(detail.instruction) : null;
-        const groupElm = detail.groupInstruction ? this.findInstruction(detail.groupInstruction) : null;
-        // var groupPlayActive = groupElm ? parseInt(groupElm.getAttribute('data-play-active')||0) : 0;
+        let rowElm, instructionElm;
         switch(e.type) {
-            case 'note:start':
-                if(instructionElm) {
-                    instructionElm.classList.add('playing');
-                    instructionElm.parentNode.classList.add('playing');
-                    instructionElm.scrollTo();
-                    // this.scrollToCursor(instructionElm);
-//                     console.log("SCROLL", instructionElm.parentNode.offsetTop, this.scrollTop);
-//                     if(this.scrollTop - 50 < instructionElm.parentNode.offsetTop - this.offsetHeight)
-//                         this.scrollTop = 50 + instructionElm.parentNode.offsetTop - this.offsetHeight;
-                    // console.log("show", instructionElm);
+
+            case 'note:play':
+                rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
+                instructionElm = this.findInstructionElement(detail.stats.currentIndex);
+
+
+                const currentTime = detail.currentTime;
+                // if(detail.startTime > currentTime)
+                    setTimeout(() => {
+                        if(instructionElm) {
+                            instructionElm.classList.add('playing');
+                        }
+                        if(rowElm) {
+                            rowElm.classList.add('playing');
+                            rowElm.scrollTo(); // Scroll To position, not index
+                        }
+
+                    }, (detail.startTime - currentTime) * 1000);
+                // else {
+                //     // Start immediately
+                // }
+
+                if(detail.duration) {
+                    setTimeout(() => {
+                        if(instructionElm) {
+                            instructionElm.classList.remove('playing');
+                        }
+                        if(rowElm) {
+                            rowElm.classList.remove('playing');
+                        }
+                    }, (detail.startTime - currentTime + detail.duration) * 1000);
                 }
-                if(groupElm) {
-                    groupElm.classList.add('playing');
-                    groupElm.parentNode.classList.add('playing');
-                    // groupElm.setAttribute('data-play-active', groupPlayActive+1);
-                }
+
                 break;
-            case 'note:end':
-                if(instructionElm) {
-                    instructionElm.classList.remove('playing');
-                    instructionElm.parentNode.classList.remove('playing');
-                    // console.log("hide", instructionElm);
-                }
-                if(groupElm) {
-                    // if(groupPlayActive <= 1) {
-                    groupElm.classList.remove('playing');
-                    groupElm.parentNode.classList.remove('playing');
-                    // }
-                    // groupElm.setAttribute('data-play-active', groupPlayActive-1);
-                }
-                break;
+            //
+            // case 'note:start':
+            //     rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
+            //     instructionElm = this.findInstructionElement(detail.stats.currentIndex);
+            //     if(instructionElm) {
+            //         instructionElm.classList.add('playing');
+            //         instructionElm.scrollTo(); // Scroll To position, not index
+            //     }
+            //     if(rowElm) {
+            //         rowElm.classList.add('playing');
+            //     }
+            //     break;
+            // case 'note:end':
+            //     rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
+            //     instructionElm = this.findInstructionElement(detail.stats.currentIndex);
+            //     if(instructionElm) {
+            //         instructionElm.classList.remove('playing');
+            //     }
+            //     if(rowElm) {
+            //         rowElm.classList.remove('playing');
+            //     }
+            //     break;
 
             // case 'song:start':
             //     this.classList.add('playing');
@@ -860,7 +886,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         cursorCell.select();
         this.update();
         this.focus();
-        cursorCell.scrollTo();
+        cursorCell.parentNode.scrollTo();
         // this.scrollToCursor(cursorCell);
         // console.timeEnd('selectCell');
         // console.log(cursorCell);
@@ -988,9 +1014,11 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     findInstructionElement(instructionIndex) {
-        // const instructions = this.querySelectorAll(`.instruction`);
-        // return this.instructionElms[instructionIndex];
         return this.querySelector(`asct-instruction[i='${instructionIndex}']`);
+    }
+
+    findRowElement(rowPosition) {
+        return this.querySelector(`asct-row[p='${rowPosition}']`);
     }
 
     getInstructionHTML(index, instruction) {
@@ -1178,6 +1206,15 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
         // this.selectCell(e, newInstructionElm);
     }
 
+    scrollTo() {
+        const container = this.tracker.scrollContainer; // cursorCell.closest('.composer-tracker-container');
+        if (container.scrollTop < this.offsetTop - container.offsetHeight)
+            container.scrollTop = this.offsetTop;
+
+        if (container.scrollTop > this.offsetTop)
+            container.scrollTop = this.offsetTop - container.offsetHeight;
+    }
+
     connectedCallback() {
         // setTimeout(e => this.render(), 1);
     }
@@ -1248,15 +1285,6 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
         this.classList.add('cursor');
     }
 
-
-    scrollTo() {
-        const container = this.tracker.scrollContainer; // cursorCell.closest('.composer-tracker-container');
-        if (container.scrollTop < this.parentNode.offsetTop - container.offsetHeight)
-            container.scrollTop = this.parentNode.offsetTop;
-
-        if (container.scrollTop > this.parentNode.offsetTop)
-            container.scrollTop = this.parentNode.offsetTop - container.offsetHeight;
-    }
 
     render(instruction=null) {
         instruction = instruction || this.getInstruction();

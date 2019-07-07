@@ -584,10 +584,7 @@ class AudioSourceRenderer {
             return await this.playInstructions(instruction.getGroupFromCommand(), noteStartTime);
         }
 
-        // const currentTime = this.getAudioContext().currentTime;
-        let instrumentID = instruction.instrument;
-        let noteFrequency = instruction.command;
-        let noteVelocity = instruction.velocity;
+
         let bpm = this.getStartingBeatsPerMinute();
 
         if(stats) {
@@ -604,6 +601,42 @@ class AudioSourceRenderer {
         const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
         const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
 
+
+        if(!noteStartTime && noteStartTime !== 0)
+            noteStartTime = this.getAudioContext().currentTime;
+
+
+        this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+
+        const noteEventData = {
+            currentTime: this.getAudioContext().currentTime,
+            startTime: noteStartTime,
+            duration: noteDuration,
+            instruction: instruction,
+            stats: stats || {}
+        };
+        this.dispatchEvent(new CustomEvent('note:play', {detail: noteEventData}));
+
+        // const currentTime = this.getAudioContext().currentTime;
+        // if(noteStartTime > currentTime)
+        //     setTimeout(() => {
+        //         this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
+        //     }, (noteStartTime - currentTime) * 1000);
+        // else {
+        //     // Start immediately
+        //     this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
+        // }
+        //
+        // if(noteDuration) {
+        //     setTimeout(() => {
+        //         this.dispatchEvent(new CustomEvent('note:end', {detail: noteEventData}));
+        //     }, (noteStartTime - currentTime + noteDuration) * 1000);
+        // }
+
+    }
+
+
+    playInstrument(instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
         if(!instrumentID && instrumentID !== 0) {
             console.warn("No instrument set for instruction. Using instrument 0");
             instrumentID = 0;
@@ -613,55 +646,8 @@ class AudioSourceRenderer {
             console.error(`Instrument ${instrumentID} is not loaded. Playback skipped. `);
             return;
         }
-
-        if(!noteStartTime && noteStartTime !== 0)
-            noteStartTime = this.getAudioContext().currentTime;
-
-
-        this.playInstrument(instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity);
-
-        const noteEventData = {
-            // audioNode: audioNode,
-            frequency: noteFrequency,
-            startTime: noteStartTime,
-            duration: noteDuration,
-            // instrumentPreset: this.songData.instruments[instrumentID],
-            instruction: instruction,
-            // groupInstruction: stats.groupInstruction,
-            stats: stats || {}
-        };
-
-        const currentTime = this.getAudioContext().currentTime;
-        if(noteStartTime > currentTime)
-            setTimeout(() => {
-                this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
-            }, (noteStartTime - currentTime) * 1000);
-        else {
-            // Start immediately
-            this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
-        }
-
-        if(noteDuration) {
-            setTimeout(() => {
-                this.dispatchEvent(new CustomEvent('note:end', {detail: noteEventData}));
-            }, (noteStartTime - currentTime + noteDuration) * 1000);
-        }
-
-    }
-
-
-    playInstrument(instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
         let instrument = this.getInstrument(instrumentID);
-
-        // if(instrument.getNamedFrequency)
-        //     noteFrequency = instrument.getNamedFrequency(noteFrequency);
-        // noteFrequency = this.getInstructionFrequency(noteFrequency);
-
-        // const context = this.getAudioContext();
         const destination = this.getVolumeGain();
-
-
-//         console.log('play', noteFrequency, noteStartTime, noteDuration);
         return instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
     }
 
