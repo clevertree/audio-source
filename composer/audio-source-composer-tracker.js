@@ -67,6 +67,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(!this.getAttribute('timeDivision'))
             this.setAttribute('timeDivision', this.editor.renderer.getSongTimeDivision());
         setTimeout(e => this.render(), 20);
+        setTimeout(e => this.renderAllRows(), 1000);
     }
 
 
