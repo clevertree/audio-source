@@ -125,10 +125,15 @@ class AudioSourceComposerTracker extends HTMLElement {
         `;
 
         this.renderAllRows(timeout);
+
+        // Menu
+        this.renderMenu();
+
+
+
         this.update();
         console.timeEnd('grid.render()');
     }
-
 
     renderAllRows(timeout=0) {
         // TODO: rerender if fail?
@@ -199,6 +204,23 @@ class AudioSourceComposerTracker extends HTMLElement {
             render();
         }
 
+    }
+
+
+    renderMenu() {
+        const menuEdit = this.editor.getMenu('Edit');
+
+        const menuEditInsertInstruction = menuEdit.getOrCreateSubMenu('Insert New Instruction');
+        const menuEditSetCommand = menuEdit.getOrCreateSubMenu('Set Command');
+        const menuEditSetInstrument = menuEdit.getOrCreateSubMenu('Set Instrument');
+        const menuEditSetDuration = menuEdit.getOrCreateSubMenu('Set Duration');
+        const menuEditSetVelocity = menuEdit.getOrCreateSubMenu('Set Velocity');
+        const menuEditSetDeleteInstruction = menuEdit.getOrCreateSubMenu('Delete Instruction');
+
+        const menuEditRow = menuEdit.getOrCreateSubMenu('Row');
+        menuEditRow.hasBreak = true;
+        const menuEditGroup = menuEdit.getOrCreateSubMenu('Group');
+        menuEditGroup.hasBreak = true;
     }
 
     onInput(e) {
@@ -1142,6 +1164,12 @@ class AudioSourceComposerTracker extends HTMLElement {
         // this.fieldSelectedRangeStart.value = this.editor.selectedRange[0];
         // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
 
+        // this.editor.menu.getOrCreateSubMenu('File');
+        const menuElm = this.editor.menu.getOrCreateSubMenu('Edit');
+        // this.editor.menu.getOrCreateSubMenu('View');
+
+
+        console.log("Edit Menu: ", menuElm);
     }
 }
 customElements.define('asc-tracker', AudioSourceComposerTracker);

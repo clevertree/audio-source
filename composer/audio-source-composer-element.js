@@ -18,7 +18,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.keyboard = new AudioSourceComposerKeyboard(this);
         // this.menu = new AudioSourceComposerMenu(this);
         // this.forms = new AudioSourceComposerForms(this);
-        // this.grid = new AudioSourceComposerGrid(this);
+        // this.tracker = new AudioSourceComposerGrid(this);
         // this.modifier = new SongModifier(this);
 
         // this.instruments = new AudioSourceComposerInstruments(this);
@@ -44,8 +44,8 @@ class AudioSourceComposerElement extends HTMLElement {
             autoSaveTimeout: 4000,
         };
     }
-    get grid() { return this.shadowDOM.querySelector('asc-tracker'); }
-    get menu() { return this.shadowDOM.querySelector('asc-menu'); }
+    get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
+    get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
     get forms() { return this.shadowDOM.querySelector('asc-forms'); }
     get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
     get container() { return this.shadowDOM.querySelector('.asc-container'); }
@@ -250,8 +250,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
             if(this.menu.contains(e.target))
                 this.menu.onInput(e);
-            if(this.grid.contains(e.target))
-                this.grid.onInput(e);
+            if(this.tracker.contains(e.target))
+                this.tracker.onInput(e);
             if(this.forms.contains(e.target))
                 this.forms.onInput(e);
     //         this.instruments.onInput(e);
@@ -274,10 +274,10 @@ class AudioSourceComposerElement extends HTMLElement {
 
     onSongEvent(e) {
         // console.log("Note Event: ", e.type);
-        this.grid.onSongEvent(e);
+        this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:loaded':
-                this.grid.renderDuration = this.renderer.getSongTimeDivision();
+                this.tracker.renderDuration = this.renderer.getSongTimeDivision();
                 break;
             case 'song:start':
                 this.classList.add('playing');
@@ -287,7 +287,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.classList.remove('playing');
                 break;
             case 'song:modified':
-                // this.grid.render();
+                // this.tracker.render();
                 // this.forms.render();
 
                 clearTimeout(this.saveSongToMemoryTimer);
@@ -326,22 +326,44 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.shadowDOM.innerHTML = `
         <link rel="stylesheet" href="${linkHRef}" />
+        <div class="asc-menu-dropdown">
+            <asc-menu key="File"></asc-menu>
+            <asc-menu key="Edit"></asc-menu>
+            <asc-menu key="View"></asc-menu>
+        </div>
         <div class="asc-container">
-            <asc-menu tabindex="0"></asc-menu>
             <asc-forms tabindex="0"></asc-forms>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
         `;
 
+        this.renderMenu();
+
     }
 
+    getMenu(key) {
+        return this.shadowDOM.querySelector(`asc-menu[key="${key}"]`)
+    }
+
+    renderMenu() {
+        const menuFile = this.getMenu('File');
+        const menuView = this.getMenu('View');
+
+        const menuFileNewSong = menuFile.getOrCreateSubMenu('New song');
+        const menuFileOpenSong = menuFile.getOrCreateSubMenu('Open song');
+        const menuFileSaveSong = menuFile.getOrCreateSubMenu('Save song');
+        const menuFileImportSong = menuFile.getOrCreateSubMenu('Import song');
+        const menuFileExportSong = menuFile.getOrCreateSubMenu('Export song');
+        menuFileExportSong.disabled = true;
+
+    }
 
     // Update DOM
 
     update() {
         this.menu.update();
         this.forms.update();
-        this.grid.update();
+        this.tracker.update();
         // this.instruments.update();
     }
 
@@ -350,7 +372,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.status.groupHistory.unshift(this.status.currentGroup);
         this.status.currentGroup = groupName;
         console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.grid = new AudioSourceComposerTracker(this, groupName);
+        this.tracker = new AudioSourceComposerTracker(this, groupName);
         this.render();
     }
 
@@ -373,7 +395,7 @@ class AudioSourceComposerElement extends HTMLElement {
             throw console.error("Invalid indicies", indicies);
         }
         this.update();
-        // this.grid.focus();
+        // this.tracker.focus();
         // console.log("selectInstructions", this.status.selectedIndicies);
     }
 
@@ -395,7 +417,7 @@ class AudioSourceComposerElement extends HTMLElement {
     //         this.status.groupHistory.unshift(this.status.currentGroup);
     //         this.status.currentGroup = groupName;
     //         console.log("Group Change: ", groupName, this.status.groupHistory);
-    //         this.grid = new SongEditorGrid(this, groupName);
+    //         this.tracker = new SongEditorGrid(this, groupName);
     //         this.render();
     //     }
     //     if(selectedRange !== null) {
@@ -407,7 +429,7 @@ class AudioSourceComposerElement extends HTMLElement {
     //     }
     //
     //     this.update();
-    //     this.grid.focus();
+    //     this.tracker.focus();
     // }
 
     getScriptDirectory(appendPath='') {

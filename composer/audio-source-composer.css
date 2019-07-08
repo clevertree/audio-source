@@ -1,11 +1,13 @@
-.asc-container {
+.asc-menu-dropdown,
+.asc-container{
+    font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
-    display: block;
+    /*display: block;*/
     /* font-size: 14px; */
     /* line-height: 16px; */
-    font-family: monospace;
-    position: relative;
+    /*position: relative;*/
+
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -74,59 +76,59 @@ audio-source-composer.fullscreen {
 
 
 
-/** Editor Menu **/
-asc-menu ul.menu {
-    display: table;
-    /*overflow: hidden;*/
-    /* min-height: 22px; */
-}
-asc-menu ul.menu > li {
-    /* float: left; */
-    display: table-cell;
-}
+/** Menu **/
 
 
-asc-menu ul.menu,
-.asc-container ul.submenu {
-    /*display: block;*/
-    /* border: 1px solid grey; */
-    /* background-color: #BBB; */
+asc-menu {
+    display: inline-block;
+}
+
+asc-menu {
     color: black;
     padding: 0 0;
     margin: 0 0;
-    list-style-type: none;
-    /*overflow: hidden;*/
-    /* width: 100%; */
+    cursor: pointer;
+    /* display: block; */
+}
+asc-menu-dropdown {
+    display: flex;
+    border: 1px solid grey;
+    white-space: nowrap;
+    background-color: #bdc3c7;
+}
+
+
+
+/** Menu Text **/
+asc-menu > div {
+    padding: 3px 6px;
+    display: block;
+}
+asc-menu:hover > div {
+    background-color: #AAA;
+}
+
+asc-menu > div > span {
+    padding-left: 8px;
+    float: right;
 }
 
 /** Drop Down Menu **/
-.asc-container ul.submenu {
-    z-index: 98;
-    /*display: none;*/
-    /* display: none; */
-    display: inline-block;
+asc-menu > asc-menu-dropdown {
+    z-index: 3;
+    flex-direction: column;
     position: absolute;
-    /*left: -800px;*/
-    border: 1px solid grey;
-    background-color: #bdc3c7;
-    /* position: absolute; */
-    opacity: 0;
-    margin: 0 -0.3em -0.3em -0.3em;
-    padding: 0 0.3em 0.3em 0.3em;
-    /*max-height: 0px;*/
-    transition: all 0.1s 0.2s ease-in;
     border-radius: 2px;
-    white-space: nowrap;
+    transition: all 0.1s 0.2s ease-in;
     transform: scaleY(0);
-    /*overflow: hidden;*/
-    /* min-width: 200px; */
+    opacity: 0;
+    /* margin: 17px 0px; */
 }
 
 /** Drop Down Trigger **/
-.asc-container ul.submenu.open,
-.asc-container li:hover > ul.submenu,
-.asc-container a:focus + ul.submenu {
-    z-index: 99;
+asc-menu.open > asc-menu-dropdown,
+asc-menu:hover > asc-menu-dropdown {
+    z-index: 4;
     /*left: 0;*/
     transform: scaleY(1);
     opacity: 1;
@@ -136,36 +138,14 @@ asc-menu ul.menu,
     /*transition: max-height 2s;*/
 }
 
-/** Menu Styling **/
-asc-menu ul.menu > li,
-asc-menu ul.menu ul.submenu > li {
-    padding: 5px 8px;
-}
-asc-menu ul.menu > li > a,
-asc-menu ul.menu ul.submenu > li > a {
-    vertical-align: top;
-    display: inline-block;
-    /*padding: 5px 8px;*/
-    /* position: relative; */
-    cursor: pointer;
-    white-space: nowrap;
-    position: relative;
-    text-decoration: none;
-}
 
-
-
-asc-menu ul.menu > li:hover,
-.asc-container ul.submenu > li:hover {
-    background-color: #AAA;
-}
 
 asc-menu ul.menu > li > * {
     /*white-space: nowrap;*/
 }
 
 /** Disabled Menu **/
-asc-menu ul.menu .disabled {
+asc-menu.disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -173,17 +153,15 @@ asc-menu ul.menu .disabled {
 
 /** Menu Break **/
 
-asc-menu ul.menu hr {
+asc-menu > hr {
     margin: 4px 0;
     border: 1px #666 solid;
 }
 
 
-asc-menu:not(.show-no-instruction-controls) .no-instruction-controls,
-asc-menu:not(.show-control-tracker-modify) .control-tracker-modify {
-/*asc-menu:not(.show-control-tracker-insert) .control-tracker-insert {*/
-    display: none;
-}
+
+
+
 
 
 /** Context Menu **/
@@ -202,6 +180,19 @@ asc-menu:not(.show-control-tracker-modify) .control-tracker-modify {
     position: fixed;
     z-index: 99;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** Generic Forms **/
 
