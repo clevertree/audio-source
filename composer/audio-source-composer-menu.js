@@ -9,9 +9,15 @@ class AudioSourceComposerMenu extends HTMLElement {
         this.render();
     }
 
-    get disabled()             { return this.getAttribute('disabled'); }
+    get disabled()             { return this.getAttribute('disabled') == 'true'; }
     set disabled(disabled)    {
-        this.setAttribute('disabled', disabled);
+        disabled ? this.setAttribute('disabled', 'true') : this.removeAttribute('disabled');
+        // this.render();
+    }
+
+    get open()             { return this.getAttribute('open') == 'true'; }
+    set open(open)    {
+        open ? this.setAttribute('open', 'true') : this.removeAttribute('open');
         // this.render();
     }
 
@@ -23,18 +29,50 @@ class AudioSourceComposerMenu extends HTMLElement {
 
     get isSubMenu() { return this.closest('asc-menu-dropdown'); }
 
+    set onopen(callback) {
+        this.addEventListener('open', callback);
+    }
+
     connectedCallback() {
         // this.editor = this.getRootNode().host;
+        this.addEventListener('mouseenter', this.onMouseEvent);
+        this.addEventListener('mousedown', this.onMouseEvent);
+        this.addEventListener('mouseleave', this.onMouseEvent);
         this.render();
     }
 
-    getOrCreateSubMenu(key) {
+    onMouseEvent(e) {
+        switch(e.type) {
+            case 'mouseenter':
+                this.dispatchEvent(new CustomEvent('open'));
+                break;
+            case 'mouseleave':
+                if(!this.open) {
+                    const container = this.getSubMenuContainer();
+                    container.parentNode.removeChild(container);
+                }
+                break;
+            case 'mousedown':
+                this.open = !this.open;
+                // this.dispatchEvent(new CustomEvent('open'));
+                break;
+        }
+    }
+
+    getSubMenuContainer() {
         let containerElm = this.querySelector('asc-menu-dropdown');
         if (!containerElm) {
             containerElm = document.createElement('asc-menu-dropdown');
             this.appendChild(containerElm);
         }
-        return containerElm.getOrCreateSubMenu(key);
+        return containerElm;
+    }
+
+    getOrCreateSubMenu(key) {
+        let containerElm = this.getSubMenuContainer();
+        const subMenu = containerElm.getOrCreateSubMenu(key);
+        this.render();
+        return subMenu;
     }
 
     render() {
@@ -44,16 +82,18 @@ class AudioSourceComposerMenu extends HTMLElement {
                 textDiv = document.createElement('div');
                 this.firstElementChild ? this.insertBefore(textDiv, this.firstElementChild) : this.appendChild(textDiv);
             }
-            textDiv.innerHTML = '';
-            textDiv.innerHTML += this.key;
+            textDiv.innerHTML = this.key;
 
             if(this.isSubMenu) {
-                let arrowSpan = textDiv.querySelector('span');
-                if (!arrowSpan) {
-                    arrowSpan = document.createElement('span');
-                    textDiv.appendChild(arrowSpan);
+                let containerElm = this.getSubMenuContainer();
+                if(containerElm.childNodes.length > 0) {
+                    let arrowSpan = textDiv.querySelector('span');
+                    if (!arrowSpan) {
+                        arrowSpan = document.createElement('span');
+                        textDiv.appendChild(arrowSpan);
+                        arrowSpan.innerHTML = '&#9658;';
+                    }
                 }
-                arrowSpan.innerHTML = '&#9658;';
             }
         }
         if(this.hasBreak) {

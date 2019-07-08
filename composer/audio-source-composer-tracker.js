@@ -209,18 +209,22 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     renderMenu() {
         const menuEdit = this.editor.getMenu('Edit');
+        menuEdit.onopen = (e) => {
+            const menuEditInsertCommand = menuEdit.getOrCreateSubMenu('Insert Command');
+            const menuEditSetCommand = menuEdit.getOrCreateSubMenu('Set Command');
+            const menuEditSetInstrument = menuEdit.getOrCreateSubMenu('Set Instrument');
+            const menuEditSetDuration = menuEdit.getOrCreateSubMenu('Set Duration');
+            const menuEditSetVelocity = menuEdit.getOrCreateSubMenu('Set Velocity');
+            const menuEditSetDeleteInstruction = menuEdit.getOrCreateSubMenu('Delete Instruction');
 
-        const menuEditInsertInstruction = menuEdit.getOrCreateSubMenu('Insert New Instruction');
-        const menuEditSetCommand = menuEdit.getOrCreateSubMenu('Set Command');
-        const menuEditSetInstrument = menuEdit.getOrCreateSubMenu('Set Instrument');
-        const menuEditSetDuration = menuEdit.getOrCreateSubMenu('Set Duration');
-        const menuEditSetVelocity = menuEdit.getOrCreateSubMenu('Set Velocity');
-        const menuEditSetDeleteInstruction = menuEdit.getOrCreateSubMenu('Delete Instruction');
+            const menuEditRow = menuEdit.getOrCreateSubMenu('Row');
+            menuEditRow.hasBreak = true;
+            const menuEditGroup = menuEdit.getOrCreateSubMenu('Group');
+            menuEditGroup.hasBreak = true;
 
-        const menuEditRow = menuEdit.getOrCreateSubMenu('Row');
-        menuEditRow.hasBreak = true;
-        const menuEditGroup = menuEdit.getOrCreateSubMenu('Group');
-        menuEditGroup.hasBreak = true;
+
+            const menuEditInsertCommandFrequency = menuEditInsertCommand.getOrCreateSubMenu('Frequency')
+        };
     }
 
     onInput(e) {

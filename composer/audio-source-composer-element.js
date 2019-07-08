@@ -348,14 +348,31 @@ class AudioSourceComposerElement extends HTMLElement {
     renderMenu() {
         const menuFile = this.getMenu('File');
         const menuView = this.getMenu('View');
+        menuFile.onopen = (e) => {
 
-        const menuFileNewSong = menuFile.getOrCreateSubMenu('New song');
-        const menuFileOpenSong = menuFile.getOrCreateSubMenu('Open song');
-        const menuFileSaveSong = menuFile.getOrCreateSubMenu('Save song');
-        const menuFileImportSong = menuFile.getOrCreateSubMenu('Import song');
-        const menuFileExportSong = menuFile.getOrCreateSubMenu('Export song');
-        menuFileExportSong.disabled = true;
+            const menuFileNewSong = menuFile.getOrCreateSubMenu('New song');
+            const menuFileOpenSong = menuFile.getOrCreateSubMenu('Open song');
+            const menuFileSaveSong = menuFile.getOrCreateSubMenu('Save song');
+            const menuFileImportSong = menuFile.getOrCreateSubMenu('Import song');
+            const menuFileExportSong = menuFile.getOrCreateSubMenu('Export song');
+            menuFileExportSong.disabled = true;
 
+            menuFileOpenSong.onopen = (e) => {
+                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('from Memory');
+                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('from File');
+                const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('from URL');
+                menuFileOpenSongFromURL.disabled = true;
+            };
+            menuFileImportSong.onopen = (e) => {
+                const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('to Memory');
+                const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('to File');
+
+                const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('from MIDI File');
+            };
+            menuFileExportSong.onopen = (e) => {
+                const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('to MIDI File');
+            };
+        }
     }
 
     // Update DOM
