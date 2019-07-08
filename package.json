@@ -1,14 +1,14 @@
 {
   "name": "audio-source-composer",
-  "version": "0.0.4",
-  "description": "Audio Source Composer and Player",
+  "version": "0.0.5",
+  "description": "Audio Source Composer",
   "author": "Ari Asulin",
   "license": "GPL-3.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "min": "node .scripts/minify.js"
+    "minify": "node .scripts/minify.js"
   },
   "repository": {
     "type": "git",

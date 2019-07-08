@@ -135,6 +135,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         const render = () => {
 //             console.time('grid.renderAllRows');
             const rows = this.scrollContainer.querySelectorAll('asct-row');
+            // const selectedIndicies = this.selectedIndicies;
             let rowCount = 0;
 
 
@@ -152,10 +153,10 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             const renderDuration = this.timeDivision;
             let nextBreakPositionInTicks = 0;
-            const renderRows = (index, deltaDuration, groupEndPositionInTicks, rowInstructionList) => {
+            const renderRows = (startIndex, deltaDuration, groupEndPositionInTicks, rowInstructionList) => {
                 let groupStartPositionInTicks = groupEndPositionInTicks - deltaDuration;
                 let renderRow = getNextRow();
-                renderRow.render(index, groupStartPositionInTicks, rowInstructionList);
+                renderRow.render(startIndex, groupStartPositionInTicks, rowInstructionList);
                 renderRow.classList.remove('break');
 
                 // Quantize the tracker rows
@@ -163,7 +164,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 while(nextBreakPositionInTicks < groupEndPositionInTicks) {
                     if(nextBreakPositionInTicks !== groupStartPositionInTicks) {
                         renderRow = getNextRow();
-                        renderRow.render(index, nextBreakPositionInTicks);
+                        renderRow.render(startIndex, nextBreakPositionInTicks);
                     }
                     nextBreakPositionInTicks += renderDuration;
                     renderRow.classList.add('break');
@@ -564,7 +565,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             </form>
             
             <form class="form-selected-indicies submit-on-change" data-action="tracker:selected">
-                <div class="form-section-header">Indicies</div>                    
+                <div class="form-section-header">Selected Indicies</div>                    
                 <input name="indicies" placeholder="No indicies selection" />
             </form>
         `;
@@ -1217,6 +1218,14 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
         addElement.classList.add('cursor');
     }
 
+    updateDelta() {
+        let deltaElm = this.querySelector('asct-delta');
+        if(!deltaElm)
+            deltaElm = document.createElement('asct-delta');
+        this.appendChild(deltaElm);
+        deltaElm.render(this.duration);
+    }
+
     scrollTo() {
         const container = this.tracker.scrollContainer; // cursorCell.closest('.composer-tracker-container');
         if (container.scrollTop < this.offsetTop - container.offsetHeight)
@@ -1231,30 +1240,47 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
     }
 
 
-    render(index, songPositionInTicks, rowInstructionList=[]) {
+    render(startIndex, songPositionInTicks, rowInstructionList=[]) {
         this.position = songPositionInTicks;
         // this.duration = deltaDuration;
 
         if(this.visible) {
-            // if(this.childNodes.length === 0) {
-            this.innerHTML = '';
-            // const rowInstructionList = this.tracker.getInstructionRange(startIndex);
-            for (let i = 0; i < rowInstructionList.length; i++) {
+            const instructionElms = this.querySelectorAll('asct-instruction');
+            let i = 0;
+            for (; i<instructionElms.length; i++) {
+                const instructionElm = instructionElms[i];
+                if(i >= instructionElms.length) {
+                    instructionElm.parentNode.removeChild(instructionElm);
+                } else {
+                    instructionElm.index = startIndex + i;
+                    instructionElm.render(rowInstructionList[i]);
+
+                }
+            }
+
+            for (; i<rowInstructionList.length; i++) {
                 const instructionElm = document.createElement('asct-instruction');
-                instructionElm.index = index + i;
+                instructionElm.index = startIndex + i;
                 this.appendChild(instructionElm);
                 instructionElm.render(rowInstructionList[i]);
             }
-            const deltaElm = document.createElement('asct-delta');
-            this.appendChild(deltaElm);
-            setTimeout(e => deltaElm.render(this.duration), 1);
-            // deltaElm.render(this.duration);
+
+            if(this.previousElementSibling)
+                this.previousElementSibling.updateDelta();
+            // } else {
+            //     setTimeout(e => this.updateDelta(), 1); // Hack: So that the next row element and position are available
             // }
         } else {
-            // if(this.childNodes.length > 0) {
-            this.innerHTML = '';
-                // console.info("Clear ", this);
-            // }
+            if(this.childNodes.length > 0) {
+                const selected = this.querySelectorAll('asct-instruction.selected').length > 0; // selectedIndicies ? selectedIndicies.indexOf(startIndex) !== -1 : false;
+                if (!selected) {
+                    this.innerHTML = '';
+                    // console.info("Clear ", this);
+                    // console.info("Clear ", this);
+                } else {
+//                     console.info("Selected ", this);
+                }
+            }
         }
 
         return this;

@@ -387,7 +387,7 @@ asc-menu:not(.show-control-tracker-modify) .control-tracker-modify {
 .asc-container  form.form-render-instrument select[name=instrument] { min-width: 135px; }
 .asc-container  form.form-add-instrument select[name=instrumentURL] {max-width: 68px;}
 
-.asc-container  form.form-selected-indicies input[name=indicies] {max-width: 55px;}
+.asc-container  form.form-selected-indicies input[name=indicies] {max-width: 103px;}
 .asc-container  form.form-selected-range input[name=rangeStart],
 .asc-container  form.form-selected-range input[name=rangeEnd] {
     max-width: 32px;
