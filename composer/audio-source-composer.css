@@ -107,15 +107,16 @@ asc-menu > div {
 }
 asc-menu > asc-menu-dropdown > asc-menu > div {
      display: inline-block;
-     min-width: 110px;
 }
 asc-menu:hover > div {
     background-color: #AAA;
 }
 
-asc-menu span.arrow:after {
+asc-menu span.arrow {
     padding-left: 8px;
     float: right;
+}
+asc-menu span.arrow:after {
     content: '►';
 }
 
@@ -137,7 +138,7 @@ asc-menu > asc-menu-dropdown {
 }
 
 /** Drop Down Trigger **/
-asc-menu[open] > asc-menu-dropdown,
+asc-menu.open > asc-menu-dropdown,
 asc-menu:hover > asc-menu-dropdown {
     z-index: 4;
     /*left: 0;*/

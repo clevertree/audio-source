@@ -1,7 +1,6 @@
 class AudioSourceComposerMenu extends HTMLElement {
     constructor() {
         super();
-        this.eventsLoaded = false;
     }
 
 
@@ -23,11 +22,6 @@ class AudioSourceComposerMenu extends HTMLElement {
         // this.render();
     }
 
-    get open()             { return this.getAttribute('open') == 'true'; }
-    set open(open)    {
-        open ? this.setAttribute('open', 'true') : this.removeAttribute('open');
-        // this.render();
-    }
 
     get hasBreak()             { return this.getAttribute('hasBreak'); }
     set hasBreak(hasBreak)    {
@@ -35,8 +29,8 @@ class AudioSourceComposerMenu extends HTMLElement {
         this.render();
     }
 
-    get isSubMenu() { return this.closest('asc-menu-dropdown'); }
-
+    // get isSubMenu() { return this.closest('asc-menu-dropdown'); }
+    //
     set onopen(callback) {
         this.addEventListener('open', callback);
     }
@@ -60,22 +54,25 @@ class AudioSourceComposerMenu extends HTMLElement {
         const target = e.target.closest('asc-menu');
         switch(e.type) {
             case 'mouseenter':
-                target.dispatchEvent(new CustomEvent('open')); // TODO: bad idea.
+                target.classList.add('open');
                 break;
             case 'mouseleave':
-                if(!target.open) {
-                    const container = target.getSubMenuContainer();
-                    container.parentNode.removeChild(container);
-                }
+                if(!target.classList.contains('stick'))
+                    target.classList.remove('open');
                 break;
             case 'mousedown':
                 if(!e.defaultPrevented) {
                     e.preventDefault();
-                    target.open = !target.open;
-                    console.log(e.type, target, e.defaultPrevented);
+                    this.classList.toggle('stick');
                 }
-                // this.dispatchEvent(new CustomEvent('open'));
                 break;
+        }
+
+        if(target.classList.contains('open')) {
+            this.dispatchEvent(new CustomEvent('open'));
+        } else {
+            const container = this.getSubMenuContainer();
+            container.parentNode.removeChild(container);
         }
     }
 
@@ -93,6 +90,10 @@ class AudioSourceComposerMenu extends HTMLElement {
         const subMenu = containerElm.getOrCreateSubMenu(key, caption);
         this.render();
         return subMenu;
+    }
+
+    renderSubMenu() {
+
     }
 
     render() {
