@@ -1169,7 +1169,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
 
         // this.editor.menu.getOrCreateSubMenu('File');
-        const menuElm = this.editor.menu.getOrCreateSubMenu('Edit');
+        const menuElm = this.editor.getMenu('Edit');
         // this.editor.menu.getOrCreateSubMenu('View');
 
 

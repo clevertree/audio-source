@@ -1,6 +1,14 @@
 class AudioSourceComposerMenu extends HTMLElement {
     constructor() {
         super();
+        this.eventsLoaded = false;
+    }
+
+
+    get caption()             { return this.getAttribute('caption'); }
+    set caption(caption)    {
+        caption ? this.setAttribute('caption', caption) : this.removeAttribute('caption');
+        this.render();
     }
 
     get key()             { return this.getAttribute('key'); }
@@ -35,25 +43,37 @@ class AudioSourceComposerMenu extends HTMLElement {
 
     connectedCallback() {
         // this.editor = this.getRootNode().host;
+
         this.addEventListener('mouseenter', this.onMouseEvent);
         this.addEventListener('mousedown', this.onMouseEvent);
         this.addEventListener('mouseleave', this.onMouseEvent);
         this.render();
     }
 
+    disconnectedCallback() {
+        this.removeEventListener('mouseenter', this.onMouseEvent);
+        this.removeEventListener('mousedown', this.onMouseEvent);
+        this.removeEventListener('mouseleave', this.onMouseEvent);
+    }
+
     onMouseEvent(e) {
+        const target = e.target.closest('asc-menu');
         switch(e.type) {
             case 'mouseenter':
-                this.dispatchEvent(new CustomEvent('open'));
+                target.dispatchEvent(new CustomEvent('open')); // TODO: bad idea.
                 break;
             case 'mouseleave':
-                if(!this.open) {
-                    const container = this.getSubMenuContainer();
+                if(!target.open) {
+                    const container = target.getSubMenuContainer();
                     container.parentNode.removeChild(container);
                 }
                 break;
             case 'mousedown':
-                this.open = !this.open;
+                if(!e.defaultPrevented) {
+                    e.preventDefault();
+                    target.open = !target.open;
+                    console.log(e.type, target, e.defaultPrevented);
+                }
                 // this.dispatchEvent(new CustomEvent('open'));
                 break;
         }
@@ -68,33 +88,34 @@ class AudioSourceComposerMenu extends HTMLElement {
         return containerElm;
     }
 
-    getOrCreateSubMenu(key) {
+    getOrCreateSubMenu(key, caption=null) {
         let containerElm = this.getSubMenuContainer();
-        const subMenu = containerElm.getOrCreateSubMenu(key);
+        const subMenu = containerElm.getOrCreateSubMenu(key, caption);
         this.render();
         return subMenu;
     }
 
     render() {
-        if(this.key) {
+        const title = this.caption || this.key;
+        if(title) {
             let textDiv = this.querySelector('div');
             if (!textDiv) {
                 textDiv = document.createElement('div');
                 this.firstElementChild ? this.insertBefore(textDiv, this.firstElementChild) : this.appendChild(textDiv);
             }
-            textDiv.innerHTML = this.key;
+            textDiv.innerHTML = title;
 
-            if(this.isSubMenu) {
-                let containerElm = this.getSubMenuContainer();
-                if(containerElm.childNodes.length > 0) {
-                    let arrowSpan = textDiv.querySelector('span');
-                    if (!arrowSpan) {
-                        arrowSpan = document.createElement('span');
-                        textDiv.appendChild(arrowSpan);
-                        arrowSpan.innerHTML = '&#9658;';
-                    }
-                }
-            }
+            // if(this.isSubMenu) {
+            //     let containerElm = this.getSubMenuContainer();
+            //     if(containerElm.childNodes.length > 0) {
+            //         let arrowSpan = textDiv.querySelector('span');
+            //         if (!arrowSpan) {
+            //             arrowSpan = document.createElement('span');
+            //             textDiv.appendChild(arrowSpan);
+            //             arrowSpan.innerHTML = '&#9658;';
+            //         }
+            //     }
+            // }
         }
         if(this.hasBreak) {
             let hrSpan = this.querySelector('hr');
@@ -128,7 +149,7 @@ class AudioSourceComposerMenuContainer extends HTMLElement {
         // this.render();
     }
 
-    getOrCreateSubMenu(key) {
+    getOrCreateSubMenu(key, caption=null) {
         for(let i=0; i<this.childNodes.length; i++) {
             const childNode = this.childNodes[i];
             if(childNode.matches('asc-menu')) {
@@ -140,6 +161,8 @@ class AudioSourceComposerMenuContainer extends HTMLElement {
 
         const childNode = document.createElement('asc-menu');
         childNode.key = key;
+        if(caption)
+            childNode.caption = caption;
         this.appendChild(childNode);
         return childNode;
     }

@@ -113,9 +113,10 @@ asc-menu:hover > div {
     background-color: #AAA;
 }
 
-asc-menu > div > span {
+asc-menu span.arrow:after {
     padding-left: 8px;
     float: right;
+    content: '►';
 }
 
 /** Drop Down Menu **/

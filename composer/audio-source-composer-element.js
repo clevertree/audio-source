@@ -248,8 +248,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
             // console.info(e.type, e);
 
-            if(this.menu.contains(e.target))
-                this.menu.onInput(e);
+            // if(this.menu.contains(e.target))
+            //     this.menu.onInput(e);
             if(this.tracker.contains(e.target))
                 this.tracker.onInput(e);
             if(this.forms.contains(e.target))
@@ -350,11 +350,11 @@ class AudioSourceComposerElement extends HTMLElement {
         const menuView = this.getMenu('View');
         menuFile.onopen = (e) => {
 
-            const menuFileNewSong = menuFile.getOrCreateSubMenu('New song');
-            const menuFileOpenSong = menuFile.getOrCreateSubMenu('Open song');
-            const menuFileSaveSong = menuFile.getOrCreateSubMenu('Save song');
-            const menuFileImportSong = menuFile.getOrCreateSubMenu('Import song');
-            const menuFileExportSong = menuFile.getOrCreateSubMenu('Export song');
+            const menuFileNewSong = menuFile.getOrCreateSubMenu('new', 'New song <span class="arrow"></span>');
+            const menuFileOpenSong = menuFile.getOrCreateSubMenu('open', 'Open song <span class="arrow"></span>');
+            const menuFileSaveSong = menuFile.getOrCreateSubMenu('save', 'Save song <span class="arrow"></span>');
+            const menuFileImportSong = menuFile.getOrCreateSubMenu('import', 'Import song <span class="arrow"></span>');
+            const menuFileExportSong = menuFile.getOrCreateSubMenu('export', 'Export song <span class="arrow"></span>');
             menuFileExportSong.disabled = true;
 
             menuFileOpenSong.onopen = (e) => {
