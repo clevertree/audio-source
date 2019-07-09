@@ -1,4 +1,4 @@
-.asc-menu-dropdown,
+.asc-menu-container,
 .asc-container{
     font-family: monospace;
     color: #000;
@@ -107,14 +107,19 @@ asc-menu > div {
 }
 asc-menu > asc-menu-dropdown > asc-menu > div {
      display: inline-block;
+     /* min-width: 94px; */
 }
 asc-menu:hover > div {
     background-color: #AAA;
 }
+asc-menu.stick > div {
+    transition: background-color 0.3s;
+    background-color: #888;
+}
+
 
 asc-menu span.arrow {
-    padding-left: 8px;
-    float: right;
+    padding: 4px;
 }
 asc-menu span.arrow:after {
     content: '►';
@@ -138,8 +143,7 @@ asc-menu > asc-menu-dropdown {
 }
 
 /** Drop Down Trigger **/
-asc-menu.open > asc-menu-dropdown,
-asc-menu:hover > asc-menu-dropdown {
+asc-menu.open > asc-menu-dropdown {
     z-index: 4;
     /*left: 0;*/
     transform: scaleY(1);

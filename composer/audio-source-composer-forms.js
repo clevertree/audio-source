@@ -58,7 +58,7 @@ class AudioSourceComposerForms extends HTMLElement {
                 break;
 
 
-            case 'load:file':
+            case 'song:load-from-file':
                 this.editor.loadSongFromFileInput(form['file']);
                 break;
 
@@ -172,7 +172,7 @@ class AudioSourceComposerForms extends HTMLElement {
                 
                 <div class="form-section control-song">
                     <div class="form-section-header">Load</div>
-                    <form name="form-load-file" action="#" class="form-load-file submit-on-change" data-action="load:file">
+                    <form name="form-load-file" action="#" class="form-load-file submit-on-change" data-action="song:load-from-file">
                         <label>
                             <div class="input-style">File</div>
                             <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />

@@ -210,21 +210,46 @@ class AudioSourceComposerTracker extends HTMLElement {
     renderMenu() {
         const menuEdit = this.editor.getMenu('Edit');
         menuEdit.onopen = (e) => {
-            const menuEditInsertCommand = menuEdit.getOrCreateSubMenu(`Insert Command <span class="arrow"></span>`);
-            const menuEditSetCommand = menuEdit.getOrCreateSubMenu(`Set Command <span class="arrow"></span>`);
-            const menuEditSetInstrument = menuEdit.getOrCreateSubMenu(`Set Instrument <span class="arrow"></span>`);
-            const menuEditSetDuration = menuEdit.getOrCreateSubMenu(`Set Duration <span class="arrow"></span>`);
-            const menuEditSetVelocity = menuEdit.getOrCreateSubMenu(`Set Velocity <span class="arrow"></span>`);
-            const menuEditSetDeleteInstruction = menuEdit.getOrCreateSubMenu(`Delete Instruction <span class="arrow"></span>`);
+            const handleAction = (actionName) => (e) => {
+                this.closeMenu();
+                this.onAction(e, actionName);
+            };
 
-            const menuEditRow = menuEdit.getOrCreateSubMenu('Row');
+            const menuEditInsertCommand = menuEdit.getOrCreateSubMenu('insert', `Insert Command ►`);
+            menuEditInsertCommand.onopen = (e) => {
+                const subMenuFrequency = menuEditInsertCommand.getOrCreateSubMenu('frequency', `Frequency ►`);
+                subMenuFrequency.onopen = (e) => this.renderMenuNoteFrequencies(e, subMenuFrequency);
+                const subMenuNamed = menuEditInsertCommand.getOrCreateSubMenu('named', `Named ►`);
+                const subMenuGroup = menuEditInsertCommand.getOrCreateSubMenu('group', `Group ►`);
+
+
+            };
+            // menuEditInsertCommand.onclick = handleAction('song:new');
+
+            const menuEditSetCommand = menuEdit.getOrCreateSubMenu('set-command', `Set Command ►`);
+            const menuEditSetInstrument = menuEdit.getOrCreateSubMenu('set-instrument', `Set Instrument ►`);
+            const menuEditSetDuration = menuEdit.getOrCreateSubMenu('set-duration', `Set Duration ►`);
+            const menuEditSetVelocity = menuEdit.getOrCreateSubMenu('set-velocity', `Set Velocity ►`);
+            const menuEditDeleteInstruction = menuEdit.getOrCreateSubMenu('delete', `Delete Instruction ►`);
+
+            const menuEditRow = menuEdit.getOrCreateSubMenu('row', 'Row');
             menuEditRow.hasBreak = true;
-            const menuEditGroup = menuEdit.getOrCreateSubMenu('Group');
+            const menuEditGroup = menuEdit.getOrCreateSubMenu('group', 'Group');
             menuEditGroup.hasBreak = true;
 
 
-            const menuEditInsertCommandFrequency = menuEditInsertCommand.getOrCreateSubMenu(`Frequency <span class="arrow"></span>`)
         };
+    }
+
+    renderMenuNoteFrequencies(e, subMenu) {
+        this.editor.values.getValues('note-frequency-octaves', (octave, label) => {
+            const menuOctave = subMenu.getOrCreateSubMenu(octave, `Octave ${label} ►`);
+            menuOctave.onopen = (e) => {
+                this.editor.values.getValues('note-frequencies', (noteName, label) => {
+                    const menuOctaveFrequency = menuOctave.getOrCreateSubMenu(noteName+octave, `${label}${octave}`);
+                });
+            };
+        });
     }
 
     update() {
@@ -677,19 +702,23 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     onSubmit(e, form) {
-        if(!form)
+        if (!form)
             form = e.target.form || e.target;
-        if(!form.matches('form'))
+        if (!form.matches('form'))
             throw new Error("Invalid Form: " + form);
-        const command = form.getAttribute('data-action');
+        const actionName = form.getAttribute('data-action');
+
+        this.onAction(e, actionName);
+    }
+
+    onAction(e, actionName) {
         // const cursorCellIndex = this.editor.cursorCellIndex;
-        const currentGroup = this.groupName;
         // const selectedIndicies = this.editor.status.selectedIndicies;
         const selectedIndicies = this.selectedIndicies;
         // const selectedPauseIndices = this.editor.selectedPauseIndicies;
         // const selectedRange = this.editor.selectedRange;
 
-        switch (command) {
+        switch (actionName) {
 
             case 'instruction:insert':
                 let newInstruction = this.getInstructionFormValues(true);
@@ -698,7 +727,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     return console.info("Insert canceled");
                 }
                 const insertPosition = this.cursorPosition;
-                const insertIndex = this.editor.renderer.insertInstructionAtPosition(currentGroup, insertPosition, newInstruction);
+                const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
                 // this.cursorRow.render(true);
                 this.renderAllRows();
                 this.selectIndicies(e, insertIndex);
@@ -715,10 +744,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if(form.elements['command'].selectedOptions[0] && form.elements['command'].selectedOptions[0].hasAttribute('data-instrument'))
                     newInstrument = parseInt(form.elements['command'].selectedOptions[0].getAttribute('data-instrument'));
                 for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionCommand(currentGroup, selectedIndicies[i], newCommand);
+                    this.editor.renderer.replaceInstructionCommand(this.groupName, selectedIndicies[i], newCommand);
                     if(newInstrument !== null)
-                        this.editor.renderer.replaceInstructionInstrument(currentGroup, selectedIndicies[i], newInstrument);
-                    // this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
+                        this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], newInstrument);
+                    // this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
                     this.findInstructionElement(selectedIndicies[i]).render();
                 }
                 this.playSelectedInstructions();
@@ -729,7 +758,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'instruction:instrument':
                 let instrumentID = form.instrument.value === '' ? null : parseInt(form.instrument.value);
                 for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionInstrument(currentGroup, selectedIndicies[i], instrumentID);
+                    this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], instrumentID);
                     this.findInstructionElement(selectedIndicies[i]).render();
                 }
                 this.editor.status.currentInstrumentID = instrumentID;
@@ -740,7 +769,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'instruction:duration':
                 const duration = parseFloat(form.duration.value) || null;
                 for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionDuration(currentGroup, selectedIndicies[i], duration);
+                    this.editor.renderer.replaceInstructionDuration(this.groupName, selectedIndicies[i], duration);
                     this.findInstructionElement(selectedIndicies[i]).render();
                 }
                 this.playSelectedInstructions();
@@ -750,7 +779,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'instruction:velocity':
                 const velocity = form.velocity.value === "0" ? 0 : parseInt(form.velocity.value) || null;
                 for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionVelocity(currentGroup, selectedIndicies[i], velocity);
+                    this.editor.renderer.replaceInstructionVelocity(this.groupName, selectedIndicies[i], velocity);
                     this.findInstructionElement(selectedIndicies[i]).render();
                 }
                 this.playSelectedInstructions();
@@ -760,13 +789,13 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'instruction:delete':
                 for(let i=0; i<selectedIndicies.length; i++)
-                    this.editor.renderer.deleteInstructionAtIndex(currentGroup, selectedIndicies[i]);
+                    this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
                 this.renderAllRows();
                 this.selectIndicies(e, selectedIndicies[0]);
                 break;
 
             // case 'row:edit':
-            //     this.editor.renderer.replaceInstructionParams(currentGroup, selectedPauseIndices, {
+            //     this.editor.renderer.replaceInstructionParams(this.groupName, selectedPauseIndices, {
             //         command: '!pause',
             //         duration: parseFloat(form.duration.value)
             //     });
@@ -776,13 +805,13 @@ class AudioSourceComposerTracker extends HTMLElement {
             // case 'row:duplicate':
             //     if (!selectedRange)
             //         throw new Error("No selected range");
-            //     this.editor.renderer.duplicateInstructionRange(currentGroup, selectedRange[0], selectedRange[1]);
+            //     this.editor.renderer.duplicateInstructionRange(this.groupName, selectedRange[0], selectedRange[1]);
             //     break;
 
 
             case 'group:edit':
                 if (form.groupName.value === ':new') {
-                    let newGroupName = this.editor.renderer.generateInstructionGroupName(currentGroup);
+                    let newGroupName = this.editor.renderer.generateInstructionGroupName(this.groupName);
                     newGroupName = prompt("Create new instruction group?", newGroupName);
                     if (newGroupName) this.editor.renderer.addInstructionGroup(newGroupName, []);
                     else console.error("Create instruction group canceled");

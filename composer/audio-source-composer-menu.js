@@ -51,29 +51,48 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     onMouseEvent(e) {
+        const openMenu = (e) => {
+            if(!target.classList.contains('open')) {
+                this.clearSubMenu();
+                target.classList.add('open');
+                target.dispatchEvent(new CustomEvent('open'));
+            }
+        };
         const target = e.target.closest('asc-menu');
         switch(e.type) {
             case 'mouseenter':
-                target.classList.add('open');
+                openMenu(e);
                 break;
             case 'mouseleave':
-                if(!target.classList.contains('stick'))
+                if(!target.classList.contains('stick')) {
                     target.classList.remove('open');
+                    this.clearSubMenu();
+                }
                 break;
             case 'mousedown':
                 if(!e.defaultPrevented) {
                     e.preventDefault();
-                    this.classList.toggle('stick');
+                    openMenu(e);
+                    const isStuck = target.classList.contains('stick');
+                    target.classList.toggle('stick', !isStuck);
+                    let parentMenu = target;
+                    while(parentMenu = parentMenu.parentNode.closest('asc-menu'))
+                        parentMenu.classList.toggle('stick', !isStuck);
+
                 }
                 break;
         }
 
-        if(target.classList.contains('open')) {
-            this.dispatchEvent(new CustomEvent('open'));
-        } else {
-            const container = this.getSubMenuContainer();
-            container.parentNode.removeChild(container);
-        }
+        // if(target.classList.contains('open')) {
+        //     target.dispatchEvent(new CustomEvent('open'));
+        // } else {
+        //     this.clearSubMenu();
+        // }
+    }
+
+    clearSubMenu() {
+        const container = this.getSubMenuContainer();
+        container.parentNode.removeChild(container);
     }
 
     getSubMenuContainer() {
@@ -104,7 +123,7 @@ class AudioSourceComposerMenu extends HTMLElement {
                 textDiv = document.createElement('div');
                 this.firstElementChild ? this.insertBefore(textDiv, this.firstElementChild) : this.appendChild(textDiv);
             }
-            textDiv.innerHTML = title;
+            textDiv.innerHTML = title.replace('►', '<span class="arrow"></span>');
 
             // if(this.isSubMenu) {
             //     let containerElm = this.getSubMenuContainer();
@@ -268,18 +287,18 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                 this.editor.loadSongFromMemory(uuid);
 //                 break;
 //
-//             case 'save:memory':
+//             case 'song:save-to-memory':
 //                 e.preventDefault();
 //                 this.editor.saveSongToMemory();
 //                 this.editor.render();
 //                 break;
 //
-//             case 'save:file':
+//             case 'song:save-to-file':
 //                 e.preventDefault();
 //                 this.editor.saveSongToFile();
 //                 break;
 //
-//             case 'load:file':
+//             case 'song:load-from-file':
 //                 const fileInput = e.target.querySelector('input[type=file]');
 //                 this.editor.loadSongFromFileInput(fileInput);
 //                 console.log(e);
@@ -489,7 +508,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                                     </ul>
 //                                 </li>
 //                                 <li>
-//                                     <form action="#" class="form-menu-load-file submit-on-change" data-action="load:file">
+//                                     <form action="#" class="form-menu-load-file submit-on-change" data-action="song:load-from-file">
 //                                         <label>
 //                                             from <span class="key">F</span>ile
 //                                             <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
@@ -503,15 +522,15 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                             <span class="key">S</span>ave song &#9658;
 //                             <ul class="submenu">
 //                                 <li class="disabled" data-action="song:server-sync"><span>to <span class="key">S</span>erver</span><input type="checkbox" ${this.editor.webSocket ? `checked="checked"` : ''}></li>
-//                                 <li data-action="save:memory"><span>to <span class="key">M</span>emory</span></li>
-//                                 <li data-action="save:file"><span>to <span class="key">F</span>ile</span></li>
+//                                 <li data-action="song:save-to-memory"><span>to <span class="key">M</span>emory</span></li>
+//                                 <li data-action="song:save-to-file"><span>to <span class="key">F</span>ile</span></li>
 //                             </ul>
 //                         </li>
 //                         <li>
 //                             <span class="key">I</span>mport song &#9658;
 //                             <ul class="submenu">
 //                                 <li>
-//                                     <form action="#" class="form-menu-load-file submit-on-change" data-action="load:file">
+//                                     <form action="#" class="form-menu-load-file submit-on-change" data-action="song:load-from-file">
 //                                         <label>
 //                                             from <span class="key">M</span>idi file
 //                                             <input type="file" name="file" accept=".mid,.midi" style="display: none" />
