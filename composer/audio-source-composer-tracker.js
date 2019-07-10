@@ -197,15 +197,16 @@ class AudioSourceComposerTracker extends HTMLElement {
         const menuEdit = this.menuEdit;
         const menuContext = this.menuContext;
         const onOpen = (e) => {
+            const MENU = e.target;
             if(editor.tracker !== this) { // UGLY: Tracker element has expired. Remove the listener
-                menuEdit.removeEventListener('open', onOpen);
-                menuContext.removeEventListener('open', onOpen);
+                MENU.removeEventListener('open', onOpen);
+                MENU.removeEventListener('open', onOpen);
                 return;
             }
 
             if(this.cursorCell) {
 
-                const menuEditInsertCommand = menuEdit.getOrCreateSubMenu('insert', `Insert Command ►`);
+                const menuEditInsertCommand = MENU.getOrCreateSubMenu('insert', `Insert Command ►`);
                 menuEditInsertCommand.onopen = (e) => {
                     const subMenuFrequency = menuEditInsertCommand.getOrCreateSubMenu('frequency', `Frequency ►`);
                     subMenuFrequency.onopen = (e) => {
@@ -236,7 +237,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             }
 
             if(this.selectedIndicies.length > 0) {
-                const menuEditSetCommand = menuEdit.getOrCreateSubMenu('set-command', `Set Command ►`);
+                const menuEditSetCommand = MENU.getOrCreateSubMenu('set-command', `Set Command ►`);
                 menuEditSetCommand.onopen = (e) => {
                     const subMenuFrequency = menuEditSetCommand.getOrCreateSubMenu('frequency', `Frequency ►`);
                     subMenuFrequency.onopen = (e) => {
@@ -265,7 +266,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 };
 
 
-                const menuEditSetInstrument = menuEdit.getOrCreateSubMenu('set-instrument', `Set Instrument ►`);
+                const menuEditSetInstrument = MENU.getOrCreateSubMenu('set-instrument', `Set Instrument ►`);
                 menuEditSetInstrument.onopen = (e) => {
                     editor.values.getValues('song-instruments', (instrumentID, label) => {
                         const menuEditSetInstrumentID = menuEditSetInstrument.getOrCreateSubMenu(instrumentID, `${label}`);
@@ -277,7 +278,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 };
 
 
-                const menuEditSetDuration = menuEdit.getOrCreateSubMenu('set-duration', `Set Duration ►`);
+                const menuEditSetDuration = MENU.getOrCreateSubMenu('set-duration', `Set Duration ►`);
                 menuEditSetDuration.onopen = (e) => {
                     editor.values.getValues('durations', (durationInTicks, durationName) => {
                         const menuEditSetDurationValue = menuEditSetDuration.getOrCreateSubMenu(durationInTicks, `${durationName}`);
@@ -291,7 +292,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     menuEditSetDurationCustom.hasBreak = true;
                 };
 
-                const menuEditSetVelocity = menuEdit.getOrCreateSubMenu('set-velocity', `Set Velocity ►`);
+                const menuEditSetVelocity = MENU.getOrCreateSubMenu('set-velocity', `Set Velocity ►`);
                 menuEditSetVelocity.onopen = (e) => {
                     editor.values.getValues('velocities', (velocity, velocityName) => {
                         const menuEditSetVelocityValue = menuEditSetVelocity.getOrCreateSubMenu(velocity, `${velocityName}`);
@@ -304,14 +305,14 @@ class AudioSourceComposerTracker extends HTMLElement {
                     menuEditSetVelocityCustom.onclick = handleAction('instruction:custom-velocity');
                     menuEditSetVelocityCustom.hasBreak = true;
                 };
-                const menuEditDeleteInstruction = menuEdit.getOrCreateSubMenu('delete', `Delete Instruction(s)`);
+                const menuEditDeleteInstruction = MENU.getOrCreateSubMenu('delete', `Delete Instruction(s)`);
                 menuEditDeleteInstruction.onclick = handleAction('instruction:delete');
 
 
-                const menuEditRow = menuEdit.getOrCreateSubMenu('row', 'Row ►');
+                const menuEditRow = MENU.getOrCreateSubMenu('row', 'Row ►');
                 menuEditRow.hasBreak = true;
                 menuEditRow.disabled = true;
-                const menuEditGroup = menuEdit.getOrCreateSubMenu('group', 'Group ►');
+                const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
                 menuEditGroup.hasBreak = true;
                 menuEditGroup.disabled = true;
             }
