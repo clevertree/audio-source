@@ -470,6 +470,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="file" caption="File"></asc-menu>
                 <asc-menu key="edit" caption="Edit"></asc-menu>
                 <asc-menu key="view" caption="View"></asc-menu>
+                <asc-menu key="context" caption=""></asc-menu>
             </div>
             <div class="form-section-container form-section-container-song"></div>
             <div class="form-section-container form-section-container-tracker"></div>
