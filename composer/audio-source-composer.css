@@ -1,5 +1,5 @@
-.asc-menu-container,
-.asc-container{
+
+.asc-container {
     font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
@@ -32,46 +32,6 @@ audio-source-composer.fullscreen {
 .asc-container.fullscreen asc-tracker {
     flex: 1 1 auto;
 }
-
-
-/** Colors **/
-.asc-container table,
-.asc-container a,
-.asc-container {
-    /* color: #000; */
-}
-
-
-/** Inputs **/
-
-.asc-container .input-style,
-.asc-container input:not([type=checkbox]):not([type=radio]):not([type=range]),
-.asc-container select,
-.asc-container button{
-    padding: 2px 4px;
-    border: 1px outset #FFF;
-    border-radius: 2px;
-    font-size: x-small;
-    /* max-width: 200px; */
-}
-
-
-.asc-container input[type='range'] {
-    -webkit-appearance: none;
-    background-color: #AAA;
-    border-radius: 15px;
-    height: 10px;
-    margin: 5px;
-}
-.asc-container input[type='range']::-webkit-slider-thumb {
-    vertical-align: middle;
-    -webkit-appearance: none;
-    background-color: #444;
-    width: 16px;
-    height: 16px;
-    border-radius: 16px;
-}
-
 
 
 
@@ -221,7 +181,7 @@ asc-menu > hr {
 
 .asc-container  {
     /*display: flex;*/
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
 }
 
 /** Form Section **/
@@ -237,8 +197,13 @@ asc-menu > hr {
 
 
 /** Form Section **/
+/*.asc-container .form-section {*/
+/*     display: flex;*/
+/*}*/
+
 .asc-container .form-section-container {
     display: flex;
+    flex-wrap: wrap;
 }
 
 .asc-container .form-section-container > form,
@@ -246,7 +211,7 @@ asc-menu > hr {
     background: #DDD;
     /* border: 1px outset #ffffff8a; */
     padding: 6px 8px 2px 6px;
-    /*display: inline-block;*/
+    /* display: inline-block; */
     vertical-align: middle;
     /* float: left; */
     border: 1px outset #FFF;
@@ -276,12 +241,6 @@ asc-menu > hr {
     transform-origin: 22px -9px;
 }
 
-.asc-container .hide-control-song form.form-song-toggle > button,
-.asc-container .hide-control-tracker form.form-note-toggle > button,
-.asc-container .hide-control-tracker form.form-tracker-toggle > button,
-.asc-container .hide-control-instrument form.form-control-tracker-toggle > button {
-    border: 1px inset;
-}
 
 /** Form Visibility **/
 
@@ -302,6 +261,34 @@ asc-menu > hr {
 
 /** Form Inputs **/
 
+.asc-container .input-style,
+.asc-container input:not([type=checkbox]):not([type=radio]):not([type=range]),
+.asc-container select,
+.asc-container button{
+    padding: 2px 4px;
+    border: 1px outset #FFF;
+    border-radius: 2px;
+    font-size: x-small;
+    /* max-width: 200px; */
+}
+
+
+.asc-container input[type='range'] {
+    -webkit-appearance: none;
+    background-color: #AAA;
+    border-radius: 15px;
+    height: 10px;
+    margin: 5px;
+}
+.asc-container input[type='range']::-webkit-slider-thumb {
+    vertical-align: middle;
+    -webkit-appearance: none;
+    background-color: #444;
+    width: 16px;
+    height: 16px;
+    border-radius: 16px;
+}
+
 
 
 .asc-container .volume-container {
@@ -317,16 +304,7 @@ asc-menu > hr {
     opacity: 0.5;
 }
 
-/** Form: Group **/
-.asc-container  form.form-group > button {
-    /* font-size: small; */
-    /* padding: 0px 3px 2px 2px; */
-    /* min-width: 18px; */
-    /* border-radius: 2px; */
-}
-.asc-container  form.form-group > button.new {
-    /* color: #444; */
-}
+
 .asc-container  form.form-group > button.selected {
     font-weight: bold;
     border-radius: 2px;
@@ -364,24 +342,24 @@ asc-menu > hr {
 
 /** Song Info Form **/
 
-.asc-container  form.form-song-volume input[name=volume]      { max-width: 71px; }
-.asc-container  form.form-load-file input[name=file]          { max-width: 96px; }
-.asc-container  form.form-song-version input[name=version]    { max-width: 64px; }
-.asc-container  form.form-song-title input[name=title]        { width: 160px; }
+.asc-container  form.form-song-volume input[name=volume]                    { max-width: 71px; }
+.asc-container  form.form-load-file input[name=file]                        { max-width: 96px; }
+.asc-container  form.form-song-version input[name=version]                  { max-width: 64px; }
+.asc-container  form.form-song-title input[name=title]                      { width: 160px; }
 
 /** Add Instrument Form **/
 
-.asc-container  form.form-add-instrument select[name=instrument] { min-width: 129px; }
+.asc-container  form.form-add-instrument select[name=instrument]            { min-width: 129px; }
 
 
 /** Modify Instruction Forms **/
 
-.asc-container  form.form-instruction-instrument select[name=instrument] {max-width: 120px;}
-.asc-container  form.form-note-command select[name=frequency] { max-width: 42px; }
-.asc-container  form.form-note-command select[name=command] {max-width: 68px;}
-.asc-container  form.form-instruction-duration select[name=duration] {max-width: 69px;}
-.asc-container  form.form-instruction-velocity input[name=velocity] {max-width: 56px;}
-.asc-container  form.form-instruction-delete button[name=delete] {}
+.asc-container  form.form-instruction-instrument select[name=instrument]    { max-width: 120px;}
+.asc-container  form.form-note-command select[name=frequency]               { max-width: 42px; }
+.asc-container  form.form-note-command select[name=command]                 { max-width: 68px;}
+.asc-container  form.form-instruction-duration select[name=duration]        { max-width: 69px;}
+.asc-container  form.form-instruction-velocity input[name=velocity]         { max-width: 56px;}
+.asc-container  form.form-instruction-delete button[name=delete]            {}
 
 /** Tracker Render Forms **/
 
@@ -389,16 +367,14 @@ asc-menu > hr {
     padding-right: 4px;
     float: right;
 }
-.asc-container  form.form-render-duration select[name=duration] { min-width: 96px; }
-.asc-container  form.form-render-octave select[name=octave] {max-width: 37px;}
-.asc-container  form.form-render-instrument select[name=instrument] { min-width: 135px; }
-.asc-container  form.form-add-instrument select[name=instrumentURL] {max-width: 68px;}
+.asc-container  form.form-render-duration select[name=duration]             { min-width: 96px; }
+.asc-container  form.form-render-octave select[name=octave]                 { max-width: 37px;}
+.asc-container  form.form-render-instrument select[name=instrument]         { min-width: 135px; }
+.asc-container  form.form-add-instrument select[name=instrumentURL]         { max-width: 68px;}
 
-.asc-container  form.form-selected-indicies input[name=indicies] {max-width: 103px;}
+.asc-container  form.form-selected-indicies input[name=indicies]            { max-width: 103px;}
 .asc-container  form.form-selected-range input[name=rangeStart],
-.asc-container  form.form-selected-range input[name=rangeEnd] {
-    max-width: 32px;
-}
+.asc-container  form.form-selected-range input[name=rangeEnd]               { max-width: 32px; }
 
 
 
@@ -411,9 +387,6 @@ asc-menu > hr {
 asc-tracker {
     display: block;
     /* position: relative; */
-}
-
-asc-tracker .tracker-scroll-container {
     position: relative;
     /* flex-flow: column; */
     /*width: 100%;*/

@@ -1087,6 +1087,10 @@ class AudioSourceRenderer {
         return this.replaceInstructionParam(groupName, replaceIndex, 3, newDuration);
     }
     replaceInstructionVelocity(groupName, replaceIndex, newVelocity) {
+        if(!Number.isInteger(newVelocity))
+            throw new Error("Velocity must be an integer: " + newVelocity);
+        if(newVelocity < 0)
+            throw new Error("Velocity must be a positive integer: " + newVelocity);
         return this.replaceInstructionParam(groupName, replaceIndex, 4, newVelocity);
     }
     replaceInstructionParam(groupName, replaceIndex, paramName, paramValue) {

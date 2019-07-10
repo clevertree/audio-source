@@ -244,6 +244,16 @@ class AudioSourceComposerElement extends HTMLElement {
                     // e.preventDefault();
                     clearTimeout(this.longPressTimeout);
                     break;
+
+                case 'submit':
+                    e.preventDefault();
+                    this.onSubmit(e);
+                    break;
+                case 'change':
+                case 'blur':
+                    if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
+                        this.onSubmit(e);
+                    break;
             }
 
             // console.info(e.type, e);
@@ -252,8 +262,8 @@ class AudioSourceComposerElement extends HTMLElement {
             //     this.menu.onInput(e);
             if(this.tracker.contains(e.target))
                 this.tracker.onInput(e);
-            if(this.forms.contains(e.target))
-                this.forms.onInput(e);
+            // if(this.forms.contains(e.target))
+            //     this.forms.onInput(e);
     //         this.instruments.onInput(e);
 
             // if(!e.defaultPrevented) {
@@ -299,15 +309,26 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'instrument:library':
             case 'instrument:instance':
                 // TODO: this.instruments.render();
-                this.forms.render();
+                this.renderForms();
                 break;
         }
+    }
+
+    onSubmit(e, form) {
+        if (!form)
+            form = e.target.form || e.target;
+        if (!form.matches('form'))
+            throw new Error("Invalid Form: " + form);
+        const actionName = form.getAttribute('data-action');
+
+        this.onAction(e, actionName);
     }
 
     onAction(e, actionName) {
         console.info("Action: " + actionName, e.target);
         // e.preventDefault();
 
+        this.tracker.onAction(e, actionName);
 
         switch(actionName) {
             case 'song:new':
@@ -321,8 +342,8 @@ class AudioSourceComposerElement extends HTMLElement {
             //     e.preventDefault();
             //     // let uuid = menuTarget.getAttribute('data-uuid') || null;
             //     if(!uuid) uuid = prompt("Enter UUID: ");
-            //     this.editor.loadSongFromServer(uuid);
-            //     this.editor.render();
+            //     this.loadSongFromServer(uuid);
+            //     this.render();
             //     break;
 
             case 'song:load-memory-uuid':
@@ -346,6 +367,77 @@ class AudioSourceComposerElement extends HTMLElement {
                 const fileInput = e.target.querySelector('input[type=file]');
                 this.loadSongFromFileInput(fileInput);
                 console.log(e);
+                break;
+
+            case 'instrument:add':
+                this.status.currentInstrumentID = this.renderer.addInstrument(form.elements['instrumentURL'].value);
+                // this.update();
+                break;
+
+
+            case 'song:load-from-file':
+                this.loadSongFromFileInput(form['file']);
+                break;
+
+            case 'song:edit':
+                this.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
+                this.renderer.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
+                break;
+
+            case 'song:play':
+                if(this.renderer.isPlaybackActive())
+                    this.renderer.stopAllPlayback();
+                else
+                    this.renderer.play();
+                break;
+            case 'song:pause':
+                this.renderer.stopAllPlayback();
+                // this.renderer.pause();
+                break;
+
+            case 'song:resume':
+                this.renderer.play(this.renderer.seekPosition);
+                break;
+
+            case 'song:playback':
+                console.log(e.target);
+                break;
+
+            case 'song:volume':
+                this.renderer.setVolume(parseInt(form['volume'].value));
+                break;
+
+            case 'song:add-instrument':
+                const instrumentURL = form['instrumentURL'].value;
+                form['instrumentURL'].value = '';
+                if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
+                    this.renderer.addInstrument(instrumentURL);
+                    this.render();
+                } else {
+                    console.info("Add instrument canceled");
+                }
+//                     this.fieldAddInstrumentInstrument.value = '';
+                break;
+
+            case 'song:set-title':
+                this.renderer.setSongTitle(form['title'].value);
+                break;
+
+            case 'song:set-version':
+                this.renderer.setSongVersion(form['version'].value);
+                break;
+
+            case 'toggle:control-song':
+                this.classList.toggle('hide-control-song');
+                break;
+
+            case 'toggle:control-tracker':
+                this.classList.toggle('hide-control-tracker');
+                break;
+
+
+            default:
+                console.warn("Unhandled " + e.type + ": ", actionName);
                 break;
         }
 
@@ -373,23 +465,28 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.shadowDOM.innerHTML = `
         <link rel="stylesheet" href="${linkHRef}" />
-        <div class="asc-menu-container">
-            <asc-menu key="File"></asc-menu>
-            <asc-menu key="Edit"></asc-menu>
-            <asc-menu key="View"></asc-menu>
-        </div>
         <div class="asc-container">
-            <asc-forms tabindex="0"></asc-forms>
+            <div class="asc-menu-container">
+                <asc-menu key="file" caption="File"></asc-menu>
+                <asc-menu key="edit" caption="Edit"></asc-menu>
+                <asc-menu key="view" caption="View"></asc-menu>
+            </div>
+            <div class="form-section-container form-section-container-song"></div>
+            <div class="form-section-container form-section-container-tracker"></div>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
         `;
 
         this.renderMenu();
-
+        this.renderForms();
     }
 
     getMenu(key) {
         return this.shadowDOM.querySelector(`asc-menu[key="${key}"]`)
+    }
+
+    getFormSection(key) {
+        return this.shadowDOM.querySelector(`.form-section-container-${key}`);
     }
 
     closeMenu() {
@@ -397,9 +494,90 @@ class AudioSourceComposerElement extends HTMLElement {
             .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
     }
 
+    renderForms() {
+
+        const formSection = this.getFormSection('song');
+        const renderer = this.renderer;
+        const songData = this.getSongData();
+        // let tabIndex = 2;
+        formSection.innerHTML =
+            `
+            <div class="form-section-divide">
+                <form action="#" class="form-song-toggle" data-action="toggle:control-song">
+                    <button name="toggle" class="themed" title="Show/Hide Song Controls">
+                        <div>Song</div>
+                    </button>
+                </form>
+            </div>               
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Playback Controls</div>
+                <form action="#" class="form-song-play" data-action="song:play">
+                    <button type="submit" name="play" class="themed">Play</button>
+                </form>
+                <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
+                    <button type="submit" name="pause" class="themed">Pause</button>
+                </form>
+                <form action="#" class="form-song-resume show-on-song-paused" data-action="song:resume">
+                    <button type="submit" name="resume" class="themed">Resume</button>
+                </form>
+            </div>
+                                         
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Volume</div>
+                <form action="#" class="form-song-volume submit-on-change" data-action="song:volume">
+                    <div class="volume-container">
+                        <input name="volume" type="range" min="1" max="100" value="${renderer ? renderer.getVolume() : 0}" class="themed">
+                    </div>
+                </form>
+            </div>
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Load</div>
+                <form name="form-load-file" action="#" class="form-load-file submit-on-change" data-action="song:load-from-file">
+                    <label>
+                        <div class="input-style">File</div>
+                        <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
+                    </label>
+                </form>
+            </div>
+                          
+                                         
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Song Title</div>
+                <form action="#" class="form-song-title submit-on-change" data-action="song:set-title">
+                    <input name="title" type="text" class="themed" value="${songData.title}" />
+                </form>
+            </div>     
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Version</div>
+                <form action="#" class="form-song-version submit-on-change" data-action="song:set-version">
+                    <input name="version" type="text" class="themed" value="${songData.version}" />
+                </form>
+            </div>                
+             
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Add Instrument</div>                    
+                <form class="form-add-instrument submit-on-change" data-action="instrument:add">
+                    <select name="instrumentURL" class="themed">
+                        <option value="">Select Instrument</option>
+                        ${this.values.renderEditorFormOptions('instruments-available')}
+                    </select>
+                </form>
+            </div>
+             
+            <div style="clear: both;" class="control-song"></div>
+        `;
+    }
+
+
     renderMenu() {
-        const menuFile = this.getMenu('File');
-        const menuView = this.getMenu('View');
+        const menuFile = this.getMenu('file');
+        const menuView = this.getMenu('view');
         menuFile.onopen = (e) => {
             const handleAction = (actionName) => (e) => {
                 this.closeMenu();
@@ -445,7 +623,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     update() {
         this.menu.update();
-        this.forms.update();
+        // this.forms.update();
         this.tracker.update();
         // this.instruments.update();
     }
