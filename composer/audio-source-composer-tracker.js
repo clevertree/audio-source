@@ -184,6 +184,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     }
 
+    get menuEdit() { return this.editor.getMenu('edit'); }
 
     renderMenu() {
         const editor = this.editor;
@@ -192,7 +193,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             editor.tracker.onAction(e, actionName);
         };
 
-        const menuEdit = editor.getMenu('edit');
+        const menuEdit = this.menuEdit;
         const onOpen = (e) => {
             if(editor.tracker !== this) { // UGLY: Tracker element has expired. Remove the listener
                 menuEdit.removeEventListener('open', onOpen);
@@ -617,7 +618,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 e.preventDefault();
                 // console.log("Longpress", e);
                 if(this.contains(e.target)) {
-                    this.editor.menu.openContextMenu(e);
+                    this.menuEdit.openContextMenu(e);
                 }
                 // }
                 break;
@@ -629,7 +630,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if(this.contains(e.target)) {
                     if (!e.altKey) {
                         e.preventDefault();
-                        this.editor.menu.openContextMenu(e);
+                        this.menuEdit.openContextMenu(e);
                     }
                 }
                 break;

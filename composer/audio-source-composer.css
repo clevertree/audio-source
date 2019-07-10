@@ -142,19 +142,11 @@ asc-menu > hr {
 
 /** Context Menu **/
 
-.asc-container ul.composer-context-menu {
-    /* border: 1px solid grey; */
-    /*background-color: #BBB;*/
-    /*color: black;*/
-    /*position: fixed;*/
-    /*display: none;*/
-
-    transition: all 0s;
-}
-.asc-container ul.composer-context-menu.open-context-menu {
+asc-menu.open-context-menu {
     display: block;
     position: fixed;
     z-index: 99;
+    transition: all 0s;
 }
 
 

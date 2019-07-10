@@ -51,17 +51,10 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     onMouseEvent(e) {
-        const openMenu = (e) => {
-            if(!target.classList.contains('open')) {
-                this.clearSubMenu();
-                target.classList.add('open');
-                target.dispatchEvent(new CustomEvent('open'));
-            }
-        };
         const target = e.target.closest('asc-menu');
         switch(e.type) {
             case 'mouseenter':
-                openMenu(e);
+                target.renderSubMenu(e);;
                 break;
             case 'mouseleave':
                 if(!target.classList.contains('stick')) {
@@ -72,7 +65,7 @@ class AudioSourceComposerMenu extends HTMLElement {
             case 'mousedown':
                 if(!e.defaultPrevented) {
                     e.preventDefault();
-                    openMenu(e);
+                    target.renderSubMenu(e);;
                     const isStuck = target.classList.contains('stick');
                     target.classList.toggle('stick', !isStuck);
                     let parentMenu = target;
@@ -111,8 +104,23 @@ class AudioSourceComposerMenu extends HTMLElement {
         return subMenu;
     }
 
-    renderSubMenu() {
+    renderSubMenu(e) {
+        if(!this.classList.contains('open')) {
+            this.clearSubMenu();
+            this.classList.add('open');
+            this.dispatchEvent(new CustomEvent('open'));
+        }
+    }
 
+    openContextMenu(e) {
+        // TODO: duplicate submenu
+        let x = e.clientX, y = e.clientY;
+        console.info("Context menu ", this, x, y);
+
+        this.classList.add('open-context-menu');
+
+        this.style.left = x + 'px';
+        this.style.top = y + 'px';
     }
 
     render() {
