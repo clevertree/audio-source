@@ -47,7 +47,7 @@ class AudioSourceComposerForms extends HTMLElement {
         // const cursorCellIndex = this.editor.cursorCellIndex;
         const currentGroup = this.editor.currentGroup;
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        const selectedIndices = this.editor.grid.selectedIndicies;
+        const selectedIndices = this.editor.tracker.selectedIndicies;
         // const selectedPauseIndices = this.editor.selectedPauseIndicies;
         const selectedRange = this.editor.selectedRange;
 

@@ -246,9 +246,9 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //         // let form = e.target.form || e.target;
 //         // const cursorCellIndex = this.editor.cursorCellIndex;
 //
-//         const currentGroup = this.editor.grid.groupName;
-//         const selectedRange = this.editor.grid.selectedRange;
-//         const selectedIndicies = this.editor.grid.selectedIndicies;
+//         const currentGroup = this.editor.tracker.groupName;
+//         const selectedRange = this.editor.tracker.selectedRange;
+//         const selectedIndicies = this.editor.tracker.selectedIndicies;
 //
 //         let menuTarget = e.target;
 //         // if(menuTarget.nodeName.toLowerCase() !== 'a')
@@ -336,7 +336,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
 //                 }
 //                 this.editor.render();
-//                 this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
+//                 this.editor.tracker.selectIndicies(e, selectedIndicies, selectedRange);
 //                 break;
 //
 //             case 'instrument:add':
@@ -352,7 +352,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                 // insertIndex = this.editor.renderer.insertInstructionAtPosition(currentGroup, selectedRange[0], newInstruction);
 //                 this.editor.render();
 //                 // this.editor.renderer.playInstruction(newInstruction);
-//                 // this.editor.grid.selectIndicies(e, insertIndex, selectedRange);
+//                 // this.editor.tracker.selectIndicies(e, insertIndex, selectedRange);
 //                 break;
 //
 //             case 'instruction:insert':
@@ -369,7 +369,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                 insertIndex = this.editor.renderer.insertInstructionAtPosition(currentGroup, selectedRange[0], newInstruction);
 //                 this.editor.render();
 //                 this.editor.renderer.playInstruction(newInstruction);
-//                 this.editor.grid.selectIndicies(e, insertIndex, selectedRange);
+//                 this.editor.tracker.selectIndicies(e, insertIndex, selectedRange);
 //                 break;
 //
 //
@@ -386,7 +386,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
 //                 }
 //                 this.editor.render();
-//                 this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
+//                 this.editor.tracker.selectIndicies(e, selectedIndicies, selectedRange);
 //                 this.editorForms.fieldInstructionCommand.focus();
 //                 break;
 //
@@ -402,7 +402,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
 //                 }
 //                 this.editor.render();
-//                 this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
+//                 this.editor.tracker.selectIndicies(e, selectedIndicies, selectedRange);
 //                 this.editorForms.fieldInstructionInstrument.focus();
 //                 break;
 //
@@ -420,7 +420,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
 //                 }
 //                 this.editor.render();
-//                 this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
+//                 this.editor.tracker.selectIndicies(e, selectedIndicies, selectedRange);
 //                 this.editorForms.fieldInstructionDuration.focus();
 //                 break;
 //
@@ -438,7 +438,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                     this.editor.renderer.playInstructionAtIndex(currentGroup, selectedIndicies[i]);
 //                 }
 //                 this.editor.render();
-//                 this.editor.grid.selectIndicies(e, selectedIndicies, selectedRange);
+//                 this.editor.tracker.selectIndicies(e, selectedIndicies, selectedRange);
 //                 this.editorForms.fieldInstructionVelocity.focus();
 //                 break;
 //
@@ -449,7 +449,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //                     this.editor.renderer.deleteInstructionAtIndex(currentGroup, selectedIndicies[i]);
 //                 }
 //                 this.editor.render();
-//                 this.editor.grid.selectIndicies(e, selectedIndicies[0], selectedRange);
+//                 this.editor.tracker.selectIndicies(e, selectedIndicies[0], selectedRange);
 //                 break;
 //
 //             case 'menu:toggle':
@@ -466,7 +466,7 @@ customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
 //
 //
 //     update() {
-//         const grid = this.editor.grid;
+//         const grid = this.editor.tracker;
 //         if(grid && grid.groupName) {
 //             const selectedIndicies = grid.selectedIndicies;
 //             this.classList.remove('show-control-tracker-modify');
