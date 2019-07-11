@@ -1,6 +1,19 @@
 class AudioSourceComposerMenu extends HTMLElement {
     constructor() {
         super();
+        this.action = function() {
+            this.classList.toggle('stick');
+            const isStuck = this.classList.contains('stick');
+            if(isStuck)
+                this.classList.add('open');
+            // this.renderSubMenu(e);
+            // this.querySelectorAll('asc-menu')
+            //     .forEach(menuItem => menuItem.classList.remove('open', 'stick'));
+            let parentMenu = this;
+            while(parentMenu = parentMenu.parentNode.closest('asc-menu'))
+                parentMenu.classList.toggle('stick', isStuck);
+        };
+        this.populate = function() { this.dispatchEvent(new CustomEvent('open')); };
     }
 
 
@@ -31,47 +44,42 @@ class AudioSourceComposerMenu extends HTMLElement {
 
     // get isSubMenu() { return this.closest('dropdown-container'); }
     //
-    set onopen(callback) {
-        this.addEventListener('open', callback);
-    }
+    // set onopen(callback) {
+    //     this.addEventListener('open', callback);
+    // }
 
     connectedCallback() {
         // this.editor = this.getRootNode().host;
 
         this.addEventListener('mouseenter', this.onMouseEvent);
-        this.addEventListener('mousedown', this.onMouseEvent);
         this.addEventListener('mouseleave', this.onMouseEvent);
+        this.addEventListener('click', this.onMouseEvent);
         this.render();
     }
 
     disconnectedCallback() {
         this.removeEventListener('mouseenter', this.onMouseEvent);
-        this.removeEventListener('mousedown', this.onMouseEvent);
         this.removeEventListener('mouseleave', this.onMouseEvent);
+        this.removeEventListener('click', this.onMouseEvent);
     }
 
     onMouseEvent(e) {
-        const target = e.target.closest('asc-menu');
         switch(e.type) {
             case 'mouseenter':
-                target.renderSubMenu(e);
+                this.classList.add('open');
+                this.renderSubMenu(e);
                 break;
             case 'mouseleave':
-                if(!target.classList.contains('stick')) {
-                    target.classList.remove('open');
+                if(!this.classList.contains('stick')) {
+                    this.classList.remove('open');
                     this.clearSubMenu();
                 }
                 break;
-            case 'mousedown':
+            case 'click':
                 if(!e.defaultPrevented) {
                     e.preventDefault();
-                    target.renderSubMenu(e);;
-                    const isStuck = target.classList.contains('stick');
-                    target.classList.toggle('stick', !isStuck);
-                    let parentMenu = target;
-                    while(parentMenu = parentMenu.parentNode.closest('asc-menu'))
-                        parentMenu.classList.toggle('stick', !isStuck);
-
+                    e.menuElement = this;
+                    this.action(e);
                 }
                 break;
         }
@@ -87,8 +95,16 @@ class AudioSourceComposerMenu extends HTMLElement {
         // this.querySelectorAll('asc-menu')
         //     .forEach(menuItem => menuItem.parentNode.removeChild(menuItem));
         let containerElm = this.getSubMenuContainer();
-        if(containerElm)
-            containerElm.parentNode.removeChild(containerElm);
+        containerElm.innerHTML = '';
+    }
+
+    renderSubMenu(e) { // TODO: messy
+        // this.classList.add('open');
+        // if(!this.classList.contains('open')) {
+        // this.clearSubMenu();
+        e.menuElement = this;
+        this.populate(e);
+
     }
 
     getSubMenuContainer() {
@@ -102,6 +118,8 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     getOrCreateSubMenu(key, caption=null) {
+        key = key.toString();
+
         let containerElm = this.getSubMenuContainer();
 
         for(let i=0; i<containerElm.childNodes.length; i++) {
@@ -120,18 +138,11 @@ class AudioSourceComposerMenu extends HTMLElement {
         containerElm.appendChild(childNode);
         return childNode;
     }
-
-    renderSubMenu(e) { // TODO: messy
-        // if(!this.classList.contains('open')) {
-            // this.clearSubMenu();
-            this.classList.add('open');
-            this.dispatchEvent(new CustomEvent('open'));
-        }
     // }
 
     openContextMenu(e) {
         this.renderSubMenu(e);
-        this.classList.add('stick');
+        // this.classList.add('stick');
 
         let containerElm = this.getSubMenuContainer();
 
@@ -139,10 +150,20 @@ class AudioSourceComposerMenu extends HTMLElement {
         console.info("Context menu ", containerElm, x, y);
 
         containerElm.classList.add('open-context-menu');
+        this.classList.add('open', 'stick');
 
         containerElm.style.left = x + 'px';
         containerElm.style.top = y + 'px';
 
+    }
+
+    closeAllMenus() {
+        let parentMenu = this;
+        while(parentMenu.parentElement && parentMenu.parentElement.closest('asc-menu')) {
+            parentMenu = parentMenu.parentElement.closest('asc-menu');
+        }
+        parentMenu.parentElement.querySelectorAll(`asc-menu.open,asc-menu.stick`)
+            .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
     }
 
     render() {

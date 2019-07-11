@@ -190,33 +190,33 @@ class AudioSourceComposerTracker extends HTMLElement {
     renderMenu() {
         const editor = this.editor;
         const handleAction = (actionName) => (e) => {
-            editor.closeMenu();
             editor.tracker.onAction(e, actionName);
+            e.currentTarget.closeAllMenus();
         };
 
         const menuEdit = this.menuEdit;
         const menuContext = this.menuContext;
-        const onOpen = (e) => {
-            const MENU = e.target;
-            if(editor.tracker !== this) { // UGLY: Tracker element has expired. Remove the listener
-                MENU.removeEventListener('open', onOpen);
-                MENU.removeEventListener('open', onOpen);
-                return;
-            }
+
+        menuEdit.populate =
+        menuContext.populate = (e) => {
+            const MENU = e.menuElement;
 
             if(this.cursorCell) {
 
                 const menuEditInsertCommand = MENU.getOrCreateSubMenu('insert', `Insert Command ►`);
-                menuEditInsertCommand.onopen = (e) => {
-                    const subMenuFrequency = menuEditInsertCommand.getOrCreateSubMenu('frequency', `Frequency ►`);
-                    subMenuFrequency.onopen = (e) => {
+                menuEditInsertCommand.populate = (e) => {
+                    const MENU = e.menuElement;
+                    const subMenuFrequency = MENU.getOrCreateSubMenu('frequency', `Frequency ►`);
+                    subMenuFrequency.populate = (e) => {
+                        const MENU = e.menuElement;
                         editor.values.getValues('note-frequency-octaves', (octave, label) => {
-                            const menuOctave = subMenuFrequency.getOrCreateSubMenu(octave, `Octave ${label} ►`);
-                            menuOctave.onopen = (e) => {
+                            const menuOctave = MENU.getOrCreateSubMenu(octave, `Octave ${label} ►`);
+                            menuOctave.populate = (e) => {
+                                const MENU = e.menuElement;
                                 editor.values.getValues('note-frequencies', (noteName, label) => {
                                     const fullNote = noteName + octave;
-                                    const menuOctaveFrequency = menuOctave.getOrCreateSubMenu(fullNote, `${label}${octave}`);
-                                    menuOctaveFrequency.onclick = (e) => {
+                                    const menuOctaveFrequency = MENU.getOrCreateSubMenu(fullNote, `${label}${octave}`);
+                                    menuOctaveFrequency.action = (e) => {
                                         editor.tracker.fieldInstructionCommand.value = fullNote;
                                         handleAction('instruction:insert')(e);
                                     }
@@ -224,30 +224,33 @@ class AudioSourceComposerTracker extends HTMLElement {
                             };
                         });
                     };
-                    const subMenuNamed = menuEditInsertCommand.getOrCreateSubMenu('named', `Named ►`);
+                    const subMenuNamed = MENU.getOrCreateSubMenu('named', `Named ►`);
                     subMenuNamed.disabled = true;
-                    const subMenuGroup = menuEditInsertCommand.getOrCreateSubMenu('group', `Group ►`);
+                    const subMenuGroup = MENU.getOrCreateSubMenu('group', `Group ►`);
                     subMenuGroup.disabled = true;
 
-                    const menuEditInsertCommandCustom = menuEditInsertCommand.getOrCreateSubMenu('custom', `Custom Command`);
-                    menuEditInsertCommandCustom.onclick = handleAction('instruction:custom-insert');
-                    menuEditInsertCommandCustom.hasBreak = true;
+                    const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Command`);
+                    menuCustom.action = handleAction('instruction:custom-insert');
+                    menuCustom.hasBreak = true;
                 };
-                // menuEditInsertCommand.onclick = handleAction('song:new');
+                // menuEditInsertCommand.action = handleAction('song:new');
             }
 
             if(this.selectedIndicies.length > 0) {
                 const menuEditSetCommand = MENU.getOrCreateSubMenu('set-command', `Set Command ►`);
-                menuEditSetCommand.onopen = (e) => {
-                    const subMenuFrequency = menuEditSetCommand.getOrCreateSubMenu('frequency', `Frequency ►`);
-                    subMenuFrequency.onopen = (e) => {
+                menuEditSetCommand.populate = (e) => {
+                    const MENU = e.menuElement;
+                    const subMenuFrequency = MENU.getOrCreateSubMenu('frequency', `Frequency ►`);
+                    subMenuFrequency.populate = (e) => {
+                        const MENU = e.menuElement;
                         editor.values.getValues('note-frequency-octaves', (octave, label) => {
-                            const menuOctave = subMenuFrequency.getOrCreateSubMenu(octave, `Octave ${label} ►`);
-                            menuOctave.onopen = (e) => {
+                            const menuOctave = MENU.getOrCreateSubMenu(octave, `Octave ${label} ►`);
+                            menuOctave.populate = (e) => {
+                                const MENU = e.menuElement;
                                 editor.values.getValues('note-frequencies', (noteName, label) => {
                                     const fullNote = noteName + octave;
-                                    const menuOctaveFrequency = menuOctave.getOrCreateSubMenu(fullNote, `${label}${octave}`);
-                                    menuOctaveFrequency.onclick = (e) => {
+                                    const menuOctaveFrequency = MENU.getOrCreateSubMenu(fullNote, `${label}${octave}`);
+                                    menuOctaveFrequency.action = (e) => {
                                         editor.tracker.fieldInstructionCommand.value = fullNote;
                                         handleAction('instruction:command')(e);
                                     }
@@ -255,22 +258,23 @@ class AudioSourceComposerTracker extends HTMLElement {
                             };
                         });
                     };
-                    const subMenuNamed = menuEditSetCommand.getOrCreateSubMenu('named', `Named ►`);
+                    const subMenuNamed = MENU.getOrCreateSubMenu('named', `Named ►`);
                     subMenuNamed.disabled = true;
-                    const subMenuGroup = menuEditSetCommand.getOrCreateSubMenu('group', `Group ►`);
+                    const subMenuGroup = MENU.getOrCreateSubMenu('group', `Group ►`);
                     subMenuGroup.disabled = true;
 
-                    const menuEditSetCommandCustom = menuEditSetCommand.getOrCreateSubMenu('custom', `Custom Command`);
-                    menuEditSetCommandCustom.onclick = handleAction('instruction:custom-command');
-                    menuEditSetCommandCustom.hasBreak = true;
+                    const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Command`);
+                    menuCustom.action = handleAction('instruction:custom-command');
+                    menuCustom.hasBreak = true;
                 };
 
 
                 const menuEditSetInstrument = MENU.getOrCreateSubMenu('set-instrument', `Set Instrument ►`);
-                menuEditSetInstrument.onopen = (e) => {
+                menuEditSetInstrument.populate = (e) => {
+                    const MENU = e.menuElement;
                     editor.values.getValues('song-instruments', (instrumentID, label) => {
-                        const menuEditSetInstrumentID = menuEditSetInstrument.getOrCreateSubMenu(instrumentID, `${label}`);
-                        menuEditSetInstrumentID.onclick = (e) => {
+                        const menuEditSetInstrumentID = MENU.getOrCreateSubMenu(instrumentID, `${label}`);
+                        menuEditSetInstrumentID.action = (e) => {
                             editor.tracker.fieldInstructionInstrument.value = instrumentID;
                             handleAction('instruction:instrument')(e);
                         }
@@ -279,34 +283,36 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
                 const menuEditSetDuration = MENU.getOrCreateSubMenu('set-duration', `Set Duration ►`);
-                menuEditSetDuration.onopen = (e) => {
+                menuEditSetDuration.populate = (e) => {
+                    const MENU = e.menuElement;
                     editor.values.getValues('durations', (durationInTicks, durationName) => {
-                        const menuEditSetDurationValue = menuEditSetDuration.getOrCreateSubMenu(durationInTicks, `${durationName}`);
-                        menuEditSetDurationValue.onclick = (e) => {
+                        const menuEditSetDurationValue = MENU.getOrCreateSubMenu(durationInTicks, `${durationName}`);
+                        menuEditSetDurationValue.action = (e) => {
                             editor.tracker.fieldInstructionDuration.value = durationInTicks;
                             handleAction('instruction:duration')(e);
                         }
                     });
-                    const menuEditSetDurationCustom = menuEditSetDuration.getOrCreateSubMenu('custom', `Custom Duration`);
-                    menuEditSetDurationCustom.onclick = handleAction('instruction:custom-duration');
-                    menuEditSetDurationCustom.hasBreak = true;
+                    const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Duration`);
+                    menuCustom.action = handleAction('instruction:custom-duration');
+                    menuCustom.hasBreak = true;
                 };
 
                 const menuEditSetVelocity = MENU.getOrCreateSubMenu('set-velocity', `Set Velocity ►`);
-                menuEditSetVelocity.onopen = (e) => {
+                menuEditSetVelocity.populate = (e) => {
+                    const MENU = e.menuElement;
                     editor.values.getValues('velocities', (velocity, velocityName) => {
-                        const menuEditSetVelocityValue = menuEditSetVelocity.getOrCreateSubMenu(velocity, `${velocityName}`);
-                        menuEditSetVelocityValue.onclick = (e) => {
+                        const menuEditSetVelocityValue = MENU.getOrCreateSubMenu(velocity, `${velocityName}`);
+                        menuEditSetVelocityValue.action = (e) => {
                             editor.tracker.fieldInstructionVelocity.value = velocity;
                             handleAction('instruction:velocity')(e);
                         }
                     });
-                    const menuEditSetVelocityCustom = menuEditSetVelocity.getOrCreateSubMenu('custom', `Custom Velocity`);
-                    menuEditSetVelocityCustom.onclick = handleAction('instruction:custom-velocity');
-                    menuEditSetVelocityCustom.hasBreak = true;
+                    const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Velocity`);
+                    menuCustom.action = handleAction('instruction:custom-velocity');
+                    menuCustom.hasBreak = true;
                 };
                 const menuEditDeleteInstruction = MENU.getOrCreateSubMenu('delete', `Delete Instruction(s)`);
-                menuEditDeleteInstruction.onclick = handleAction('instruction:delete');
+                menuEditDeleteInstruction.action = handleAction('instruction:delete');
 
 
             }
@@ -319,8 +325,6 @@ class AudioSourceComposerTracker extends HTMLElement {
             menuEditGroup.disabled = true;
 
         };
-        menuEdit.addEventListener('open', onOpen);
-        menuContext.addEventListener('open', onOpen);
     }
 
     update() {
@@ -615,7 +619,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 break;
 
             case 'click':
-                this.editor.closeMenu();
+                // this.editor.closeMenu();
                 break;
 
             case 'longpress':

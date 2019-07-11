@@ -279,7 +279,7 @@ class AudioSourceComposerElement extends HTMLElement {
         switch(e.type) {
             case 'mousedown':
                 if(!e.defaultPrevented)
-                    this.closeMenu();
+                    // this.closeMenu();
                 break;
         }
 
@@ -497,10 +497,7 @@ class AudioSourceComposerElement extends HTMLElement {
         return this.shadowDOM.querySelector(`.form-section-container-${key}`);
     }
 
-    closeMenu() {
-        this.shadowDOM.querySelectorAll(`asc-menu.open`)
-            .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
-    }
+
 
     renderForms() {
 
@@ -586,20 +583,20 @@ class AudioSourceComposerElement extends HTMLElement {
     renderMenu() {
         const menuFile = this.getMenu('file');
         const menuView = this.getMenu('view');
-        menuFile.onopen = (e) => {
+        menuFile.populate = (e) => {
             const handleAction = (actionName) => (e) => {
-                this.closeMenu();
+                // this.closeMenu();
                 this.onAction(e, actionName);
             };
 
             const menuFileNewSong = menuFile.getOrCreateSubMenu('new', 'New song');
-            menuFileNewSong.onclick = handleAction('song:new');
+            menuFileNewSong.action = handleAction('song:new');
 
 
 
 
             const menuFileOpenSong = menuFile.getOrCreateSubMenu('open', 'Open song ►');
-            menuFileOpenSong.onopen = (e) => {
+            menuFileOpenSong.populate = (e) => {
                 const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('from Memory');
                 const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('from File');
                 const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('from URL');
@@ -607,21 +604,21 @@ class AudioSourceComposerElement extends HTMLElement {
             };
 
             const menuFileSaveSong = menuFile.getOrCreateSubMenu('save', 'Save song ►');
-            menuFileSaveSong.onopen = (e) => {
+            menuFileSaveSong.populate = (e) => {
                 const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('to Memory');
-                menuFileSaveSongToMemory.onclick = handleAction('song:save-to-memory');
+                menuFileSaveSongToMemory.action = handleAction('song:save-to-memory');
                 const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('to File');
-                menuFileSaveSongToFile.onclick = handleAction('song:save-to-file');
+                menuFileSaveSongToFile.action = handleAction('song:save-to-file');
             };
 
             const menuFileImportSong = menuFile.getOrCreateSubMenu('import', 'Import song ►');
-            menuFileImportSong.onopen = (e) => {
+            menuFileImportSong.populate = (e) => {
                 const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('from MIDI File');
             };
 
             const menuFileExportSong = menuFile.getOrCreateSubMenu('export', 'Export song ►');
             menuFileExportSong.disabled = true;
-            menuFileExportSong.onopen = (e) => {
+            menuFileExportSong.populate = (e) => {
                 const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('to MIDI File');
             };
         }
