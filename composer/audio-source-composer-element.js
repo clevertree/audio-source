@@ -221,65 +221,54 @@ class AudioSourceComposerElement extends HTMLElement {
             return;
 
         // try {
-            this.renderer.getAudioContext();
-            // if(this !== document.activeElement && !this.contains(document.activeElement)) {
-            //     console.log("Focus", document.activeElement);
-            //     this.focus();
-            // }
-            switch(e.type) {
-                case 'mousedown':
-                    // Longpress
-                    if(!e.altKey) { // TODO: fix scroll
-                        clearTimeout(this.longPressTimeout);
-                        this.longPressTimeout = setTimeout(function () {
-                            e.target.dispatchEvent(new CustomEvent('longpress', {
-                                detail: {originalEvent: e},
-                                cancelable: true,
-                                bubbles: true
-                            }));
-                        }, this.status.longPressTimeout);
-                    }
-                    break;
-
-                case 'mouseup':
-                    // e.preventDefault();
-                    clearTimeout(this.longPressTimeout);
-                    break;
-
-                case 'submit':
-                    e.preventDefault();
-                    this.onSubmit(e);
-                    break;
-                case 'change':
-                case 'blur':
-                    if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-                        this.onSubmit(e);
-                    break;
-            }
-
-            // console.info(e.type, e);
-
-            // if(this.menu.contains(e.target))
-            //     this.menu.onInput(e);
-            if(this.tracker.contains(e.target))
-                this.tracker.onInput(e);
-            // if(this.forms.contains(e.target))
-            //     this.forms.onInput(e);
-    //         this.instruments.onInput(e);
-
-            // if(!e.defaultPrevented) {
-            //     switch (e.type) {
-            //         case 'submit':
-            //             // case 'change':
-            //             // case 'blur':
-            //             console.info("Unhandled " + e.type, e);
-            //     }
-            // }
-
+        this.renderer.getAudioContext();
+        // if(this !== document.activeElement && !this.contains(document.activeElement)) {
+        //     console.log("Focus", document.activeElement);
+        //     this.focus();
+        // }
         switch(e.type) {
             case 'mousedown':
+                // Longpress
+                if(!e.altKey) { // TODO: fix scroll
+                    clearTimeout(this.longPressTimeout);
+                    this.longPressTimeout = setTimeout(function () {
+                        e.target.dispatchEvent(new CustomEvent('longpress', {
+                            detail: {originalEvent: e},
+                            cancelable: true,
+                            bubbles: true
+                        }));
+                    }, this.status.longPressTimeout);
+                }
+                break;
+
+            case 'mouseup':
+                // e.preventDefault();
+                clearTimeout(this.longPressTimeout);
+                break;
+
+            case 'submit':
+                e.preventDefault();
+                this.onSubmit(e);
+                break;
+            case 'change':
+            case 'blur':
+                if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
+                    this.onSubmit(e);
+                break;
+            default:
+                break;
+        }
+
+
+        if(this.tracker.contains(e.target))
+            this.tracker.onInput(e);
+
+        switch(e.type) {
+            case 'click':
                 if(!e.defaultPrevented)
-                    // this.closeMenu();
+                    this.closeAllMenus();
+                break;
+            default:
                 break;
         }
 
@@ -491,6 +480,11 @@ class AudioSourceComposerElement extends HTMLElement {
 
     getMenu(key) {
         return this.shadowDOM.querySelector(`asc-menu[key="${key}"]`)
+    }
+
+    closeAllMenus() {
+        this.shadowDOM.querySelector(`asc-menu`)
+            .closeAllMenus();
     }
 
     getFormSection(key) {

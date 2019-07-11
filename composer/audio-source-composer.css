@@ -93,7 +93,6 @@ asc-menu span.arrow:after {
 
 asc-menu > .dropdown-container {
      background-color: #bdc3c7;
-
     display: block;
     /* display: flex; */
     z-index: 3;
@@ -112,7 +111,7 @@ asc-menu > .dropdown-container {
 
 /** Drop Down Trigger **/
 asc-menu.open > .dropdown-container {
-    z-index: 4;
+    z-index: 5;
     /*left: 0;*/
     transform: scaleY(1);
     opacity: 1;
@@ -120,6 +119,9 @@ asc-menu.open > .dropdown-container {
     transition: all 0.1s 0.2s ease-out;
     /*transition: max-height 1s, opacity 0.3s;*/
     /*transition: max-height 2s;*/
+}
+asc-menu.stick > .dropdown-container {
+    z-index: 4;
 }
 
 .dropdown-container > asc-menu > .dropdown-container {

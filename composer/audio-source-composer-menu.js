@@ -1,17 +1,18 @@
 class AudioSourceComposerMenu extends HTMLElement {
     constructor() {
         super();
-        this.action = function() {
-            this.classList.toggle('stick');
-            const isStuck = this.classList.contains('stick');
-            if(isStuck)
+        this.action = (e) => {
+            const isStuck = !this.classList.contains('stick');
+            this.classList.toggle('stick', isStuck);
+            if(isStuck) {
                 this.classList.add('open');
-            // this.renderSubMenu(e);
-            // this.querySelectorAll('asc-menu')
-            //     .forEach(menuItem => menuItem.classList.remove('open', 'stick'));
-            let parentMenu = this;
-            while(parentMenu = parentMenu.parentNode.closest('asc-menu'))
-                parentMenu.classList.toggle('stick', isStuck);
+                // this.renderSubMenu(e);
+                // this.querySelectorAll('asc-menu')
+                //     .forEach(menuItem => menuItem.classList.remove('open', 'stick'));
+                let parentMenu = this;
+                while (parentMenu = parentMenu.parentNode.closest('asc-menu'))
+                    parentMenu.classList.add('open', 'stick');
+            }
         };
         this.populate = function() { this.dispatchEvent(new CustomEvent('open')); };
     }
@@ -71,13 +72,16 @@ class AudioSourceComposerMenu extends HTMLElement {
                 break;
             case 'mouseleave':
                 if(!this.classList.contains('stick')) {
-                    this.classList.remove('open');
-                    this.clearSubMenu();
+                    setTimeout(e => {
+                        this.classList.remove('open');
+                        this.clearSubMenu();
+                    }, 200);
                 }
                 break;
             case 'click':
                 if(!e.defaultPrevented) {
                     e.preventDefault();
+                    this.closeAllMenus();
                     e.menuElement = this;
                     this.action(e);
                 }
@@ -141,6 +145,7 @@ class AudioSourceComposerMenu extends HTMLElement {
     // }
 
     openContextMenu(e) {
+        this.clearSubMenu();
         this.renderSubMenu(e);
         // this.classList.add('stick');
 
