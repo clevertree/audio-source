@@ -309,14 +309,14 @@ class AudioSourceComposerTracker extends HTMLElement {
                 menuEditDeleteInstruction.onclick = handleAction('instruction:delete');
 
 
-                const menuEditRow = MENU.getOrCreateSubMenu('row', 'Row ►');
-                menuEditRow.hasBreak = true;
-                menuEditRow.disabled = true;
-                const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
-                menuEditGroup.hasBreak = true;
-                menuEditGroup.disabled = true;
             }
 
+            const menuEditRow = MENU.getOrCreateSubMenu('row', 'Row ►');
+            menuEditRow.hasBreak = true;
+            menuEditRow.disabled = true;
+            const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
+            menuEditGroup.hasBreak = true;
+            menuEditGroup.disabled = true;
 
         };
         menuEdit.addEventListener('open', onOpen);
@@ -596,7 +596,6 @@ class AudioSourceComposerTracker extends HTMLElement {
                 break;
 
             case 'mousedown':
-                this.editor.closeMenu();
 
                 if (e.target.matches('asct-instruction'))
                     return this.onCellInput(e);
@@ -613,6 +612,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 break;
 
             case 'mouseup':
+                break;
+
+            case 'click':
+                this.editor.closeMenu();
                 break;
 
             case 'longpress':

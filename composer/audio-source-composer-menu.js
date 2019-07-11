@@ -29,7 +29,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         this.render();
     }
 
-    // get isSubMenu() { return this.closest('asc-menu-dropdown'); }
+    // get isSubMenu() { return this.closest('dropdown-container'); }
     //
     set onopen(callback) {
         this.addEventListener('open', callback);
@@ -54,7 +54,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         const target = e.target.closest('asc-menu');
         switch(e.type) {
             case 'mouseenter':
-                target.renderSubMenu(e);;
+                target.renderSubMenu(e);
                 break;
             case 'mouseleave':
                 if(!target.classList.contains('stick')) {
@@ -84,14 +84,18 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     clearSubMenu() {
-        const container = this.getSubMenuContainer();
-        container.parentNode.removeChild(container);
+        // this.querySelectorAll('asc-menu')
+        //     .forEach(menuItem => menuItem.parentNode.removeChild(menuItem));
+        let containerElm = this.getSubMenuContainer();
+        if(containerElm)
+            containerElm.parentNode.removeChild(containerElm);
     }
 
     getSubMenuContainer() {
-        let containerElm = this.querySelector('asc-menu-dropdown');
+        let containerElm = this.querySelector('.dropdown-container');
         if (!containerElm) {
-            containerElm = document.createElement('asc-menu-dropdown');
+            containerElm = document.createElement('div');
+            containerElm.classList.add('dropdown-container');
             this.appendChild(containerElm);
         }
         return containerElm;
@@ -99,39 +103,58 @@ class AudioSourceComposerMenu extends HTMLElement {
 
     getOrCreateSubMenu(key, caption=null) {
         let containerElm = this.getSubMenuContainer();
-        const subMenu = containerElm.getOrCreateSubMenu(key, caption);
-        this.render();
-        return subMenu;
+
+        for(let i=0; i<containerElm.childNodes.length; i++) {
+            const childNode = containerElm.childNodes[i];
+            if(childNode.matches('asc-menu')) {
+                if(childNode.key === key) {
+                    return childNode;
+                }
+            }
+        }
+
+        const childNode = document.createElement('asc-menu');
+        childNode.key = key;
+        if(caption)
+            childNode.caption = caption;
+        containerElm.appendChild(childNode);
+        return childNode;
     }
 
-    renderSubMenu(e) {
-        if(!this.classList.contains('open')) {
-            this.clearSubMenu();
+    renderSubMenu(e) { // TODO: messy
+        // if(!this.classList.contains('open')) {
+            // this.clearSubMenu();
             this.classList.add('open');
             this.dispatchEvent(new CustomEvent('open'));
         }
-    }
+    // }
 
     openContextMenu(e) {
-        // TODO: duplicate submenu
+        this.renderSubMenu(e);
+        this.classList.add('stick');
+
+        let containerElm = this.getSubMenuContainer();
+
         let x = e.clientX, y = e.clientY;
-        console.info("Context menu ", this, x, y);
+        console.info("Context menu ", containerElm, x, y);
 
-        this.classList.add('open-context-menu');
+        containerElm.classList.add('open-context-menu');
 
-        this.style.left = x + 'px';
-        this.style.top = y + 'px';
+        containerElm.style.left = x + 'px';
+        containerElm.style.top = y + 'px';
+
     }
 
     render() {
-        const title = this.caption || this.key;
+        const title = this.caption === null ? this.key : this.caption;
         if(title) {
             let textDiv = this.querySelector('div');
             if (!textDiv) {
                 textDiv = document.createElement('div');
+                textDiv.classList.add('caption');
                 this.firstElementChild ? this.insertBefore(textDiv, this.firstElementChild) : this.appendChild(textDiv);
             }
-            textDiv.innerHTML = title.replace('►', '<span class="arrow"></span>');
+            textDiv.innerHTML = title; // .replace('►', '<span class="arrow"></span>');
 
             // if(this.isSubMenu) {
             //     let containerElm = this.getSubMenuContainer();
@@ -161,42 +184,42 @@ customElements.define('asc-menu', AudioSourceComposerMenu);
 
 
 
-class AudioSourceComposerMenuContainer extends HTMLElement {
-    constructor() {
-        super();
-    }
-
-    get disabled()             { return this.getAttribute('disabled'); }
-    set disabled(disabled)    {
-        this.setAttribute('disabled', disabled);
-        // this.render();
-    }
-
-    connectedCallback() {
-        // this.editor = this.getRootNode().host;
-        // this.render();
-    }
-
-    getOrCreateSubMenu(key, caption=null) {
-        for(let i=0; i<this.childNodes.length; i++) {
-            const childNode = this.childNodes[i];
-            if(childNode.matches('asc-menu')) {
-                if(childNode.key === key) {
-                    return childNode;
-                }
-            }
-        }
-
-        const childNode = document.createElement('asc-menu');
-        childNode.key = key;
-        if(caption)
-            childNode.caption = caption;
-        this.appendChild(childNode);
-        return childNode;
-    }
-
-}
-customElements.define('asc-menu-dropdown', AudioSourceComposerMenuContainer);
+// class AudioSourceComposerMenuContainer extends HTMLElement {
+//     constructor() {
+//         super();
+//     }
+//
+//     get disabled()             { return this.getAttribute('disabled'); }
+//     set disabled(disabled)    {
+//         this.setAttribute('disabled', disabled);
+//         // this.render();
+//     }
+//
+//     connectedCallback() {
+//         // this.editor = this.getRootNode().host;
+//         // this.render();
+//     }
+//
+//     getOrCreateSubMenu(key, caption=null) {
+//         for(let i=0; i<this.childNodes.length; i++) {
+//             const childNode = this.childNodes[i];
+//             if(childNode.matches('asc-menu')) {
+//                 if(childNode.key === key) {
+//                     return childNode;
+//                 }
+//             }
+//         }
+//
+//         const childNode = document.createElement('asc-menu');
+//         childNode.key = key;
+//         if(caption)
+//             childNode.caption = caption;
+//         this.appendChild(childNode);
+//         return childNode;
+//     }
+//
+// }
+// customElements.define('dropdown-container', AudioSourceComposerMenuContainer);
 
 
 

@@ -65,6 +65,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM.addEventListener('contextmenu', onInput);
         this.shadowDOM.addEventListener('mousedown', onInput);
         this.shadowDOM.addEventListener('mouseup', onInput);
+        this.shadowDOM.addEventListener('click', onInput);
         this.shadowDOM.addEventListener('longpress', onInput);
 
         const onSongEvent = e => this.onSongEvent(e);
@@ -275,6 +276,12 @@ class AudioSourceComposerElement extends HTMLElement {
             //     }
             // }
 
+        switch(e.type) {
+            case 'mousedown':
+                if(!e.defaultPrevented)
+                    this.closeMenu();
+                break;
+        }
 
         // } catch (err) {
         //     this.onError(err);

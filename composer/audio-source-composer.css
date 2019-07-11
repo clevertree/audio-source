@@ -40,39 +40,42 @@ audio-source-composer.fullscreen {
 
 
 asc-menu {
-    display: inline-block;
-}
-
-asc-menu {
     color: black;
+    /* background-color: #bdc3c7; */
     padding: 0 0;
     margin: 0 0;
     cursor: pointer;
-    /* display: block; */
-}
-asc-menu-dropdown {
-    /* display: block; */
-    /* clear: both; */
-    border: 1px solid grey;
+    display: inline-block;
     white-space: nowrap;
-    background-color: #bdc3c7;
 }
+
+.dropdown-container > asc-menu {
+    display: block;
+}
+
+/*asc-menu-dropdown {*/
+/*    !* display: block; *!*/
+/*    !* clear: both; *!*/
+/*    border: 1px solid grey;*/
+/*    white-space: nowrap;*/
+/*    background-color: #bdc3c7;*/
+/*}*/
 
 
 
 /** Menu Text **/
-asc-menu > div {
+asc-menu > div.caption {
     padding: 3px 6px;
-    /* display: inline-block; */
+    display: inline-block;
 }
-asc-menu > asc-menu-dropdown > asc-menu > div {
-     display: inline-block;
-     /* min-width: 94px; */
-}
-asc-menu:hover > div {
+/*asc-menu > .dropdown-container > asc-menu > div {*/
+/*     display: inline-block;*/
+/*     !* min-width: 94px; *!*/
+/*}*/
+asc-menu:hover {
     background-color: #AAA;
 }
-asc-menu.stick > div {
+asc-menu.stick {
     transition: background-color 0.3s;
     background-color: #888;
 }
@@ -88,22 +91,27 @@ asc-menu span.arrow:after {
 /** Drop Down Menu **/
 
 
-asc-menu-dropdown > asc-menu {
+asc-menu > .dropdown-container {
+     background-color: #bdc3c7;
+
     display: block;
-}
-asc-menu > asc-menu-dropdown {
+    /* display: flex; */
     z-index: 3;
-    /*flex-direction: column;*/
+    flex-direction: column;
     position: absolute;
     border-radius: 2px;
     transition: all 0.1s 0.2s ease-in;
     transform: scaleY(0);
     opacity: 0;
+
+        border: 1px solid grey;
+        /*white-space: nowrap;*/
+        /*background-color: #bdc3c7;*/
     /* margin: 17px 0px; */
 }
 
 /** Drop Down Trigger **/
-asc-menu.open > asc-menu-dropdown {
+asc-menu.open > .dropdown-container {
     z-index: 4;
     /*left: 0;*/
     transform: scaleY(1);
@@ -114,6 +122,9 @@ asc-menu.open > asc-menu-dropdown {
     /*transition: max-height 2s;*/
 }
 
+.dropdown-container > asc-menu > .dropdown-container {
+    display: inline-block;
+}
 
 
 asc-menu ul.menu > li > * {
@@ -122,7 +133,8 @@ asc-menu ul.menu > li > * {
 
 /** Disabled Menu **/
 asc-menu[disabled] {
-    opacity: 0.5;
+    /*opacity: 0.5;*/
+    color: #777;
     cursor: not-allowed;
 }
 
@@ -142,7 +154,7 @@ asc-menu > hr {
 
 /** Context Menu **/
 
-asc-menu.open-context-menu {
+asc-menu.open-context-menu > .dropdown-container {
     display: block;
     position: fixed;
     z-index: 99;
