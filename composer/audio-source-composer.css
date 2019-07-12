@@ -186,8 +186,8 @@ asc-menu.open-context-menu > .dropdown-container {
 /** Editor Forms **/
 
 .asc-container  {
-    /*display: flex;*/
-    /*flex-wrap: wrap;*/
+    /* display: flex; */
+    /* flex-wrap: wrap; */
 }
 
 /** Form Section **/
@@ -210,42 +210,59 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container .form-section-container {
     display: flex;
     flex-wrap: wrap;
+    /* vertical-align: top; */
+    clear: both;
 }
 
 .asc-container .form-section-container > form,
 .asc-container .form-section {
-    background: #DDD;
-    /* border: 1px outset #ffffff8a; */
-    padding: 6px 8px 2px 6px;
-    /* display: inline-block; */
+    padding: 3px 4px;
     vertical-align: middle;
-    /* float: left; */
-    border: 1px outset #FFF;
-    min-height: 40px;
-}
-.asc-container .form-section-divide {
-    float: left;
-    /* clear: both; */
-}
-.asc-container .form-section-divide > form > button {
-    width: 25px;
-    height: 50px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.asc-container .form-section-divide > form > button > div {
-    transform-origin: 16px -2px;
-    transform: rotate(90deg);
-    width: 50px;
-    font-weight: bold;
+    /* min-height: 40px; */
 }
 
-.asc-container .form-section-divide > form.form-control-tracker-toggle > button {
-    height: 90px;
+.asc-container .form-section,
+.asc-container .form-section-container > form,
+.asc-container .form-section-divide {
+    background: #DDD;
+    border: 1px outset #FFF;
 }
-.asc-container .form-section-divide > form.form-control-tracker-toggle > button > div {
-    transform-origin: 22px -9px;
+
+/** Form Section Divide **/
+
+.asc-container .form-section-divide {
+    font-weight: bold;
+    text-align: center;
+    padding: 2px;
+    width: 100%;
 }
+
+.asc-container .form-section-divide > span {
+    font-size: 11px;
+
+}
+
+@media only screen and (min-width: 800px) {
+    .asc-container .form-section-divide {
+        /* min-height: 88px; */
+        width: 12px;
+        writing-mode: vertical-rl;
+    }
+
+    .asc-container .form-section-container-tracker > .form-section-divide {
+        min-height: 50px;
+    }
+    .asc-container .form-section-container-instruments > .form-section-divide {
+        min-height: 88px;
+    }
+
+
+    .asc-container .form-section-divide > span {
+        display: block;
+    }
+
+}
+
 
 
 /** Form Visibility **/

@@ -94,7 +94,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         console.time('grid.render()');
         // this.innerHTML = `
         //     <div class="form-section-container">
-        //     ${this.renderForms()}
+        //     ${this.renderSongForms()}
         //     </div>
         //     <div class="tracker-scroll-container">
         //     </div>
@@ -184,9 +184,6 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     }
 
-    get menuEdit() { return this.editor.getMenu('edit'); }
-    get menuContext() { return this.editor.getMenu('context'); }
-
     renderMenu() {
         const editor = this.editor;
         const handleAction = (actionName) => (e) => {
@@ -194,8 +191,8 @@ class AudioSourceComposerTracker extends HTMLElement {
             e.currentTarget.closeAllMenus();
         };
 
-        const menuEdit = this.menuEdit;
-        const menuContext = this.menuContext;
+        const menuEdit = this.editor.menuEdit;
+        const menuContext = this.editor.menuContext;
 
         menuEdit.populate =
         menuContext.populate = (e) => {
@@ -401,7 +398,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // this.fieldSelectedRangeEnd.value = this.editor.selectedRange[1];
 
         // this.editor.menu.getOrCreateSubMenu('File');
-        const menuElm = this.editor.getMenu('edit');
+        // const menuElm = this.editor.menuEdit;
         // this.editor.menu.getOrCreateSubMenu('View');
 
 
@@ -661,37 +658,33 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     /** Forms **/
 
-    get formTracker() { return this.editor.getFormSection('tracker'); }
+    get formsTracker() { return this.editor.formsTracker; }
 
-    get fieldRenderTimeDivision() { return this.formTracker.querySelector('form.form-render-time-division select[name=timeDivision]'); }
-    get fieldRenderInstrument() { return this.formTracker.querySelector('form.form-render-instrument select[name=instrument]'); }
-    get fieldRenderOctave() { return this.formTracker.querySelector('form.form-render-octave select[name=octave]'); }
+    get fieldRenderTimeDivision() { return this.formsTracker.querySelector('form.form-render-time-division select[name=timeDivision]'); }
+    get fieldRenderInstrument() { return this.formsTracker.querySelector('form.form-render-instrument select[name=instrument]'); }
+    get fieldRenderOctave() { return this.formsTracker.querySelector('form.form-render-octave select[name=octave]'); }
 
     // get fieldInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
 
-    get fieldInstructionInstrument() { return this.formTracker.querySelector('form.form-instruction-instrument select[name=instrument]'); }
-    get fieldInstructionDuration() { return this.formTracker.querySelector('form.form-instruction-duration select[name=duration]'); }
-    get fieldInstructionCommand() { return this.formTracker.querySelector('form.form-note-command select[name=command]'); }
-    get fieldInstructionVelocity() { return this.formTracker.querySelector('form.form-instruction-velocity input[name=velocity]'); }
-    get fieldInstructionInsert() { return this.formTracker.querySelector('form.form-instruction-insert button[name=insert]'); }
-    get fieldInstructionDelete() { return this.formTracker.querySelector('form.form-instruction-delete button[name=delete]'); }
+    get fieldInstructionInstrument() { return this.formsTracker.querySelector('form.form-instruction-instrument select[name=instrument]'); }
+    get fieldInstructionDuration() { return this.formsTracker.querySelector('form.form-instruction-duration select[name=duration]'); }
+    get fieldInstructionCommand() { return this.formsTracker.querySelector('form.form-note-command select[name=command]'); }
+    get fieldInstructionVelocity() { return this.formsTracker.querySelector('form.form-instruction-velocity input[name=velocity]'); }
+    get fieldInstructionInsert() { return this.formsTracker.querySelector('form.form-instruction-insert button[name=insert]'); }
+    get fieldInstructionDelete() { return this.formsTracker.querySelector('form.form-instruction-delete button[name=delete]'); }
 
     // get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
 
     // get fieldAddInstrumentInstrument() { return this.querySelector('form.form-add-instrument select[name=instrument]'); }
-    get fieldSelectedIndicies() { return this.formTracker.querySelector('form.form-selected-indicies input[name=indicies]'); }
+    get fieldSelectedIndicies() { return this.formsTracker.querySelector('form.form-selected-indicies input[name=indicies]'); }
     // get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
     // get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
 
     renderForms() {
-        const formSection = this.formTracker;
+        const formSection = this.editor.formsTracker;
         formSection.innerHTML = `
             <div class="form-section-divide">
-                <form action="#" class="form-note-toggle" data-action="toggle:control-tracker">
-                    <button name="toggle" class="themed" title="Show/Hide Tracker Controls">
-                        <div>Tracker</div>
-                    </button>
-                </form>
+                <span>Track</span>
             </div>
  
             <div class="form-section control-tracker">
