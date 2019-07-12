@@ -233,7 +233,7 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container .form-section-divide {
     font-weight: bold;
     text-align: center;
-    padding: 2px;
+    padding: 6px 2px;
     width: 100%;
 }
 
@@ -242,7 +242,7 @@ asc-menu.open-context-menu > .dropdown-container {
 
 }
 
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 860px) {
     .asc-container .form-section-divide {
         /* min-height: 88px; */
         width: 12px;
