@@ -38,12 +38,13 @@ if(!customElements.get('audio-source-synthesizer')) {
         connectedCallback() {
             // this.loadCSS();
             // this.song = this.closest('music-song'); // Don't rely on this !!!
-            this.addEventListener('change', this.onInput);
-            this.addEventListener('blur', this.onInput, true);
-            this.addEventListener('focus', this.onInput, true);
+            const onInput = e => this.onInput(e);
+            this.shadowDOM.addEventListener('change', onInput);
+            this.shadowDOM.addEventListener('blur', onInput, true);
+            this.shadowDOM.addEventListener('focus', onInput, true);
             // this.addEventListener('input', this.onSubmit);
-            this.addEventListener('submit', this.onInput);
-            // this.addEventListener('click', this.onInput);
+            this.shadowDOM.addEventListener('submit', onInput);
+            // this.addEventListener('click', onInput);
 
             this.render();
         }
@@ -554,7 +555,8 @@ if(!customElements.get('audio-source-synthesizer')) {
         // </td>
 
         onInput(e) {
-            if (!this.contains(e.target))
+            console.log(e.target, e.type);
+            if (!this.shadowDOM.contains(e.target))
                 return;
 
             // try {
@@ -563,24 +565,20 @@ if(!customElements.get('audio-source-synthesizer')) {
                     this.onSubmit(e);
                     break;
                 case 'change':
-                // case 'blur':
-                    if (e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-                        this.onSubmit(e);
-                    break;
                 case 'blur':
-                    switch(e.target.name) {
-                        case 'preset':
-                            if(!e.target.value) {
-                                e.target.value = this.config.preset;
-                            }
+                    if (e.target.form && e.target.form.classList.contains('submit-on-' + e.type)) {
+                        this.onSubmit(e);
+                        break;
                     }
+
+
+
                     break;
                 case 'focus':
                     switch(e.target.name) {
                         case 'preset':
                             e.target.value = '';
                     }
-                    console.log(e.target, e.type);
                     break;
             }
             // } catch (err) {
@@ -618,6 +616,10 @@ if(!customElements.get('audio-source-synthesizer')) {
                     }
                     this.render();
 
+                    break;
+
+                default:
+                    console.warn("Unhandled ", e.type, command);
                     break;
 
                 // default:

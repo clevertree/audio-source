@@ -16,7 +16,7 @@
 
 /** Full Screen **/
 audio-source-composer.fullscreen {
-    position: fixed;
+    position: absolute;
     /* display: flex; */
     /* flex-flow: column; */
     left: 0;
@@ -216,7 +216,7 @@ asc-menu.open-context-menu > .dropdown-container {
 
 .asc-container .form-section-container > form,
 .asc-container .form-section {
-    padding: 3px 4px;
+    padding: 4px 6px;
     vertical-align: middle;
     /* min-height: 40px; */
 }
@@ -250,10 +250,10 @@ asc-menu.open-context-menu > .dropdown-container {
     }
 
     .asc-container .form-section-container-tracker > .form-section-divide {
-        min-height: 50px;
+        /* min-height: 50px; */
     }
     .asc-container .form-section-container-instruments > .form-section-divide {
-        min-height: 88px;
+        /* min-height: 61px; */
     }
 
 
@@ -628,6 +628,10 @@ asct-delta.duration-small {
 
 
 /** Instruments **/
+
+.asc-container .form-instruments-container {
+    display: flex;
+}
 
 .asc-container .composer-instruments .instrument-container {
     float: left;

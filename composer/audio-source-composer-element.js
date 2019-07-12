@@ -481,6 +481,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="file" caption="File"></asc-menu>
                 <asc-menu key="edit" caption="Edit"></asc-menu>
                 <asc-menu key="view" caption="View"></asc-menu>
+                <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
             <div class="form-section-container form-section-container-song"></div>
@@ -593,7 +594,20 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="form-section-divide">
                 <span>Instruments</span>
             </div>
-`;
+            
+            <div class="form-instruments-container">
+            
+            </div>
+
+            <form class="form-add-instrument submit-on-change" data-action="instrument:add">
+                <select name="instrumentURL" class="themed">
+                    <option value="">Add Instrument</option>
+                    ${this.values.renderEditorFormOptions('instruments-available')}
+                </select>
+            </form>`;
+
+        const formInstrumentsContainer = formSection.querySelector('.form-section-divide');
+
         const instrumentList = renderer.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
 
@@ -601,7 +615,7 @@ class AudioSourceComposerElement extends HTMLElement {
             instrumentDiv.setAttribute('data-id', instrumentID+'');
             instrumentDiv.classList.add('instrument-container');
             instrumentDiv.classList.add('control-instrument');
-            formSection.appendChild(instrumentDiv);
+            formInstrumentsContainer.appendChild(instrumentDiv);
 
             // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
 
@@ -634,7 +648,6 @@ class AudioSourceComposerElement extends HTMLElement {
                 }
             }
         }
-
     }
 
     renderMenu() {

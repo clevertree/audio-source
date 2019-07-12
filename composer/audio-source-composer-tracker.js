@@ -817,7 +817,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 // this.cursorRow.render(true);
                 this.renderAllRows();
                 this.selectIndicies(e, insertIndex);
-                this.fieldInstructionCommand.focus();
+                // this.fieldInstructionCommand.focus();
                 this.editor.renderer.playInstruction(newInstruction);
                 break;
 
@@ -843,7 +843,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 this.playSelectedInstructions();
                 this.renderAllRows();
-                this.fieldInstructionCommand.focus();
+                // this.fieldInstructionCommand.focus();
                 // setTimeout(() => this.fieldInstructionCommand.focus(), 1);
                 break;
 
@@ -872,7 +872,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 this.playSelectedInstructions();
                 this.renderAllRows();
-                this.fieldInstructionDuration.focus();
+                // this.fieldInstructionDuration.focus();
                 break;
 
             case 'instruction:velocity':
@@ -889,7 +889,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.playSelectedInstructions();
                 this.renderAllRows();
                 // this.selectIndicies(e, selectedIndicies[0]);
-                this.fieldInstructionVelocity.focus();
+                // this.fieldInstructionVelocity.focus();
                 break;
 
             case 'instruction:delete':

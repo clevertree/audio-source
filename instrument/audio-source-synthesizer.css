@@ -12,10 +12,11 @@
     position: relative;
     vertical-align: top;
     display: inline-block;
+    font-size: small;
     /* float: left; */
-    /*min-height: 60px;*/
+    /* min-height: 84px; */
     /* margin: 4px; */
-    padding: 0px 2px 2px 2px;
+    padding: 4px;
     border: 1px outset;
 }
 
@@ -42,9 +43,25 @@
 
 /** Form Inputs **/
 
+.audio-source-synthesizer input[type='range'] {
+    -webkit-appearance: none;
+    background-color: #AAA;
+    border-radius: 15px;
+    height: 10px;
+    margin: 5px;
+}
+.audio-source-synthesizer input[type='range']::-webkit-slider-thumb {
+    vertical-align: middle;
+    -webkit-appearance: none;
+    background-color: #444;
+    width: 16px;
+    height: 16px;
+    border-radius: 16px;
+}
+
 .audio-source-synthesizer input,
 .audio-source-synthesizer select  {
-    /*font-size: x-small;*/
+    font-size: smaller;
 }
 .audio-source-synthesizer input:not(:hover):not([type=range]),
 .audio-source-synthesizer select:not(:hover)  {
@@ -54,7 +71,7 @@
 
 /** Tables **/
 .audio-source-synthesizer table {
-    font-size: small;
+     font-size: small;
 }
 
 
@@ -62,19 +79,19 @@
 /** Sample Table **/
 .audio-source-synthesizer table.sample-setting-list {
     /* width: 100%; */
-    font-size: small;
-    text-align: left;
+    /* font-size: small; */
+    /* text-align: left; */
 }
 
 
 
-.audio-source-synthesizer form.instrument-remove button.remove-instrument {
+.audio-source-synthesizer form.instrument-setting-remove button.remove-instrument {
     /* text-align: center; */
     padding: 0px 6px 1px 6px;
     /* margin: 0px 0px 1px 0px; */
     border: 1px outset;
     border-radius: 4px;
-    color: darkred;
+    color: #500;
 }
 
 
@@ -100,7 +117,7 @@
 /** Custom Inputs **/
 
 .audio-source-synthesizer form.change-instrument >             select[name=instrumentURL]  {width: 136px;}
-.audio-source-synthesizer form.change-instrument-preset >      input[name=preset]     {width: 131px;}
+.audio-source-synthesizer form.instrument-setting-preset >      input[name=preset]     {width: 131px;}
 .audio-source-synthesizer form.instrument-name                 input[name=name]        {width: 157px;}
 
 .audio-source-synthesizer form.instrument-setting-detune       input[name=detune]      { width: 60px; }
