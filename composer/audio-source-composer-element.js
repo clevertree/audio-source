@@ -43,6 +43,7 @@ class AudioSourceComposerElement extends HTMLElement {
             longPressTimeout: 500,
             autoSaveTimeout: 4000,
         };
+        this.shadowDOM = null;
     }
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
     get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
@@ -231,14 +232,18 @@ class AudioSourceComposerElement extends HTMLElement {
                 // Longpress
                 if(!e.altKey) { // TODO: fix scroll
                     clearTimeout(this.longPressTimeout);
-                    this.longPressTimeout = setTimeout(function () {
-                        e.target.dispatchEvent(new CustomEvent('longpress', {
+                    this.longPressTimeout = setTimeout(() => {
+                        (e.currentTarget || e.path[0]).dispatchEvent(new CustomEvent('longpress', {
                             detail: {originalEvent: e},
                             cancelable: true,
                             bubbles: true
                         }));
                     }, this.status.longPressTimeout);
                 }
+                break;
+
+            case 'longpress':
+                // console.log(e.type);
                 break;
 
             case 'mouseup':

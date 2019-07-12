@@ -629,7 +629,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 e.preventDefault();
                 // console.log("Longpress", e);
                 if(this.contains(e.target)) {
-                    this.menuContext.openContextMenu(e);
+                    this.editor.menuContext.openContextMenu(e);
                 }
                 // }
                 break;
@@ -641,7 +641,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if(this.contains(e.target)) {
                     if (!e.altKey) {
                         e.preventDefault();
-                        this.menuContext.openContextMenu(e);
+                        this.editor.menuContext.openContextMenu(e);
                     }
                 }
                 break;
