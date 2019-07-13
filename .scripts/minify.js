@@ -15,6 +15,7 @@ const fs = require('fs');
         + await minify('common/audio-source-libraries.js')
         + await minify('common/audio-source-renderer.js')
         + await minify('common/audio-source-storage.js')
+        + await minify('common/audio-sources.js')
 
         + '})();';
 

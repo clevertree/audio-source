@@ -101,6 +101,7 @@
     border-bottom: 1px solid #BBB;
     /* text-decoration-color: #AAA; */
     margin-bottom: 1px;
+    cursor: pointer;
 }
 
 

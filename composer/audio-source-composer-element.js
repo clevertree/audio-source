@@ -14,6 +14,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.longPressTimeout = null;
 
         this.values = new AudioSourceComposerValues(this);
+        this.sources = new AudioSources(this);
         this.webSocket = new AudioSourceComposerWebsocket(this);
         this.keyboard = new AudioSourceComposerKeyboard(this);
         // this.menu = new AudioSourceComposerMenu(this);
@@ -44,6 +45,8 @@ class AudioSourceComposerElement extends HTMLElement {
             autoSaveTimeout: 4000,
         };
         this.shadowDOM = null;
+
+        this.sources.loadDefaultInstrumentLibrary();
     }
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
     get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
@@ -249,6 +252,17 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'mouseup':
                 // e.preventDefault();
                 clearTimeout(this.longPressTimeout);
+                break;
+
+            case 'click':
+                const formSection = e.target.closest('.form-section,form');
+                if(formSection) {
+                    const formSectionForm = formSection.matches('form') ? formSection : formSection.querySelector('form');
+                    if (formSectionForm) {
+                        if (formSectionForm.elements[0])
+                            formSectionForm.elements[0].focus();
+                    }
+                }
                 break;
 
             case 'submit':
@@ -472,7 +486,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     render() {
 
-        const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRef = this.sources.getScriptDirectory('composer/audio-source-composer.css');
 
         this.shadowDOM.innerHTML = `
         <link rel="stylesheet" href="${linkHRef}" />
@@ -594,20 +608,9 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="form-section-divide">
                 <span>Instruments</span>
             </div>
-            
-            <div class="form-instruments-container">
-            
-            </div>
+`;
 
-            <form class="form-add-instrument submit-on-change" data-action="instrument:add">
-                <select name="instrumentURL" class="themed">
-                    <option value="">Add Instrument</option>
-                    ${this.values.renderEditorFormOptions('instruments-available')}
-                </select>
-            </form>`;
-
-        const formInstrumentsContainer = formSection.querySelector('.form-section-divide');
-
+        const formInstrumentsContainer = formSection; // formSection.querySelector('.form-instruments-container');
         const instrumentList = renderer.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
 
@@ -767,18 +770,18 @@ class AudioSourceComposerElement extends HTMLElement {
     //     this.tracker.focus();
     // }
 
-    getScriptDirectory(appendPath='') {
-        const scriptElm = document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
-        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-//         console.log("Base Path: ", basePath);
-        return basePath + appendPath;
-    }
+//     getScriptDirectory(appendPath='') {
+//         const scriptElm = document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
+//         const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+// //         console.log("Base Path: ", basePath);
+//         return basePath + appendPath;
+//     }
 
     loadCSS() {
         const targetDOM = this.shadowDOM || document.head;
         if(targetDOM.querySelector('link[href$="audio-source-composer.css"]'))
             return;
-        const linkHRef = this.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRef = this.sources.getScriptDirectory('composer/audio-source-composer.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");

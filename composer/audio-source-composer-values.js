@@ -48,8 +48,8 @@ class AudioSourceComposerValues {
                 break;
 
             case 'instruments-available':
-                if(this.editor.instrumentLibrary) {
-                    const instrumentLibrary = this.editor.instrumentLibrary;
+                const instrumentLibrary = this.editor.sources.getInstrumentLibrary();
+                if(instrumentLibrary) {
                     if(instrumentLibrary.instruments) {
                         instrumentLibrary.instruments.forEach((pathConfig) => {
                             if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};

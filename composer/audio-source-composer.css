@@ -196,6 +196,7 @@ asc-menu.open-context-menu > .dropdown-container {
     border-bottom: 1px solid #BBB;
     /* text-decoration-color: #AAA; */
     margin-bottom: 1px;
+    cursor: pointer;
 }
 .asc-container .form-section:hover div.form-section-header {
     font-weight: bold;
@@ -217,7 +218,7 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container .form-section-container > form,
 .asc-container .form-section {
     padding: 4px 6px;
-    vertical-align: middle;
+    /* vertical-align: middle; */
     /* min-height: 40px; */
 }
 
@@ -372,7 +373,8 @@ asc-menu.open-context-menu > .dropdown-container {
 
 /** Add Instrument Form **/
 
-.asc-container  form.form-add-instrument select[name=instrument]            { min-width: 129px; }
+.asc-container  form.form-add-instrument                                    {/* height: 54px; */}
+.asc-container  form.form-add-instrument select[name=instrumentURL]            {min-width: 129px;/* padding: 1em; */}
 
 
 /** Modify Instruction Forms **/
@@ -630,7 +632,7 @@ asct-delta.duration-small {
 /** Instruments **/
 
 .asc-container .form-instruments-container {
-    display: flex;
+    /* display: flex; */
 }
 
 .asc-container .composer-instruments .instrument-container {
@@ -638,5 +640,7 @@ asct-delta.duration-small {
     /* display: inline-block; */
 }
 
-.instrument-container {}
+.instrument-container {
+    display: inline-block;
+}
 

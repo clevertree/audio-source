@@ -5,9 +5,6 @@ if(!customElements.get('audio-source-synthesizer')) {
             return this.getScriptDirectory('sample/sample.library.json');
         }
 
-        get DEFAULT_INSTRUMENT_LIBRARY_URL() {
-            return this.getScriptDirectory('instrument/instrument.library.json');
-        }
 
         constructor(config) {
             super();
@@ -28,11 +25,10 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
             this.samples = {};
             this.sampleLibrary = null;
-            this.instrumentLibrary = null;
+            // this.instrumentLibrary = null;
             this.libraryHistory = [];
             this.audioContext = null;
             this.loadDefaultSampleLibrary(); // TODO: load samples before audio source loads
-            this.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
         }
 
         connectedCallback() {
@@ -369,34 +365,6 @@ if(!customElements.get('audio-source-synthesizer')) {
             });
         }
 
-        // Instruments load their own libraries. Libraries may be shared via dispatch
-        async loadInstrumentLibrary(url, force = false) {
-            if (!url)
-                throw new Error("Invalid url");
-            url = new URL(url, document.location) + '';
-            if (!force && this.instrumentLibrary && this.instrumentLibrary.url === url)
-                return this.instrumentLibrary;
-
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', url + '', true);
-                xhr.responseType = 'json';
-                xhr.onload = () => {
-                    if (xhr.status !== 200)
-                        return reject("Sample library not found: " + url);
-
-                    this.instrumentLibrary = xhr.response;
-                    this.instrumentLibrary.url = URL + '';
-                    this.render();
-                    this.dispatchEvent(new CustomEvent('instrument:library', {
-                        detail: this.instrumentLibrary,
-                        bubbles: true
-                    }));
-                    resolve(this.instrumentLibrary);
-                };
-                xhr.send();
-            });
-        }
 
         render() {
             const instrumentID = this.getAttribute('data-id') || '0';
@@ -449,17 +417,17 @@ if(!customElements.get('audio-source-synthesizer')) {
                         </form>
                     </span>
                 </div>
-                <table class="instrument-setting-list" style="display: none;">
+                <table class="instrument-setting-list">
                     <thead>
                         <tr>
-                            <th>Polyphony</th>
+                            <th>Poly</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>
                                 <form action="#" class="instrument-setting instrument-setting-polyphony submit-on-change" data-action="instrument:polyphony">
-                                    <input type="number" name="polyphony" placeholder="Infinite" list="polyphonyOptions" min="0" max="9999" />
+                                    <input type="number" name="polyphony" placeholder="Infinite" list="polyphonyOptions" min="0" max="256" value="${this.config.polyphony||'256'}" />
                                 </form>
                             </td>
                         </tr>
@@ -555,7 +523,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         // </td>
 
         onInput(e) {
-            console.log(e.target, e.type);
+            // console.log(e.target, e.type);
             if (!this.shadowDOM.contains(e.target))
                 return;
 
@@ -589,12 +557,48 @@ if(!customElements.get('audio-source-synthesizer')) {
         onSubmit(e) {
             if (e.defaultPrevented)
                 return;
+            console.log(e.type, this);
             e.preventDefault();
             let form = e.target.form || e.target;
             const command = form.getAttribute('data-action');
 
 
             switch (command) {
+                case 'instrument:polyphony':
+                    let newPolyphony = parseInt(form.elements[0].value);
+                    this.config.polyphony = newPolyphony;
+                    break;
+
+                case 'instrument:mixer':
+                case 'instrument:detune':
+                case 'instrument:keyRoot':
+                case 'instrument:keyAlias':
+                    const sampleName = form.elements.sample.value;
+                    const sampleConfig = this.config.samples[sampleName];
+                    if(!sampleConfig)
+                        throw new Error("Sample not found: " + sampleName);
+
+                    switch(command) {
+                        case 'instrument:mixer':
+                            sampleConfig.mixer = parseInt(form.elements.mixer.value);
+                            break;
+
+                        case 'instrument:detune':
+                            sampleConfig.detune = parseInt(form.elements.detune.value);
+                            break;
+
+                        case 'instrument:keyRoot':
+                            sampleConfig.keyRoot = form.elements.keyRoot.value;
+                            break;
+                        case 'instrument:keyAlias':
+                            sampleConfig.keyAlias = form.elements.keyAlias.value;
+                            break;
+                            // throw new Error("TODO " + sampleName);
+
+                    }
+                    console.log(this.config);
+                    break;
+
                 case 'customURL':
                     const libraryURL = e.target.value;
                     if (libraryURL.endsWith('.library.json')) {
@@ -617,6 +621,24 @@ if(!customElements.get('audio-source-synthesizer')) {
                     this.render();
 
                     break;
+
+
+                case 'instrument:name':
+                    this.editor.renderer.replaceInstrumentParam(form.elements['instrumentID'].value, 'name', form.elements['name'].value);
+                    break;
+
+                case 'instrument:remove':
+                    this.editor.renderer.removeInstrument(form.elements['instrumentID'].value);
+                    this.editor.instruments.render();
+                    break;
+
+                case 'instrument:change':
+                    this.editor.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
+                    this.editor.renderer.loadInstrument(form.elements['instrumentID'].value, true);
+                    this.editor.instruments.render(); // Renders instrument in 'loading' state if not yet loaded by loadInstrument()
+                    break;
+
+
 
                 default:
                     console.warn("Unhandled ", e.type, command);
