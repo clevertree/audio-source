@@ -104,11 +104,11 @@ class AudioSourceStorage {
         // console.info("Song loaded from memory: " + songGUID, songData, this.songHistory);
     }
 
-    loadSongHistoryFromMemory(songGUID) {
+    async loadSongHistoryFromMemory(songGUID) {
         let songHistoryString = localStorage.getItem('song-history:' + songGUID);
         if(!songHistoryString)
             return null;
-        return this.decodeForStorage(songHistoryString);
+        return await this.decodeForStorage(songHistoryString);
         // this.render();
         //this.gridSelect(null, 0);
         // console.info("Song loaded from memory: " + songGUID, songData, this.songHistory);

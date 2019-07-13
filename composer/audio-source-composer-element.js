@@ -151,10 +151,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
     async loadRecentSongData() {
         const storage = new AudioSourceStorage();
-        let songRecentGUIDs = storage.getRecentSongList();
+        let songRecentGUIDs = await storage.getRecentSongList();
         if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
             await this.loadSongFromMemory(songRecentGUIDs[0].guid);
+            return true;
         }
+        return false;
     }
 
     async saveSongToMemory() {
@@ -172,10 +174,10 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
 
-    loadSongFromMemory(songGUID) {
+    async loadSongFromMemory(songGUID) {
         const storage = new AudioSourceStorage();
-        const songData = storage.loadSongFromMemory(songGUID);
-        const songHistory = storage.loadSongHistoryFromMemory(songGUID);
+        const songData = await storage.loadSongFromMemory(songGUID);
+        const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
         this.renderer.loadSongData(songData, songHistory);
         this.render();
         console.info("Song loaded from memory: " + songGUID, songData);
@@ -315,6 +317,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 // this.tracker.render();
                 // this.forms.render();
 
+                // TODO: auto save toggle
                 clearTimeout(this.saveSongToMemoryTimer);
                 this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.status.autoSaveTimeout);
                 break;
@@ -366,12 +369,12 @@ class AudioSourceComposerElement extends HTMLElement {
                 e.preventDefault();
                 let uuid = menuTarget.getAttribute('data-uuid') || null;
                 this.loadSongFromMemory(uuid);
+                // this.render();
                 break;
 
             case 'song:save-to-memory':
                 e.preventDefault();
                 this.saveSongToMemory();
-                this.render();
                 break;
 
             case 'song:save-to-file':
@@ -656,21 +659,32 @@ class AudioSourceComposerElement extends HTMLElement {
     renderMenu() {
         this.menuFile.populate = (e) => {
             const menu = e.menuElement;
-            const handleAction = (actionName) => (e) => {
-                // this.closeMenu();
-                this.onAction(e, actionName);
-            };
-
             const menuFileNewSong = menu.getOrCreateSubMenu('new', 'New song');
-            menuFileNewSong.action = handleAction('song:new');
+            menuFileNewSong.action = (e) => this.onAction(e, 'song:new');
 
 
 
 
             const menuFileOpenSong = menu.getOrCreateSubMenu('open', 'Open song ►');
             menuFileOpenSong.populate = (e) => {
-                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('from Memory');
+                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('from Memory ►');
+                menuFileOpenSongFromMemory.populate = async (e) => {
+                    const menu = e.menuElement;
+
+                    const Storage = new AudioSourceStorage();
+                    const songRecentUUIDs = await Storage.getRecentSongList() ;
+                    for(let i=0; i<songRecentUUIDs.length; i++) {
+                        const entry = songRecentUUIDs[i];
+                        const menuOpenSongUUID = menu.getOrCreateSubMenu(entry.guid, entry.title);
+                        menuOpenSongUUID.action = (e) => {
+                            this.loadSongFromMemory(entry.guid);
+                        }
+                    }
+
+                };
+
                 const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('from File');
+                menuFileOpenSongFromFile.disabled = true;
                 const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('from URL');
                 menuFileOpenSongFromURL.disabled = true;
             };
@@ -678,20 +692,22 @@ class AudioSourceComposerElement extends HTMLElement {
             const menuFileSaveSong = menu.getOrCreateSubMenu('save', 'Save song ►');
             menuFileSaveSong.populate = (e) => {
                 const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('to Memory');
-                menuFileSaveSongToMemory.action = handleAction('song:save-to-memory');
+                menuFileSaveSongToMemory.action = (e) => this.onAction(e, 'song:save-to-memory');
                 const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('to File');
-                menuFileSaveSongToFile.action = handleAction('song:save-to-file');
+                menuFileSaveSongToFile.action = (e) => this.onAction(e, 'song:save-to-file');
             };
 
             const menuFileImportSong = menu.getOrCreateSubMenu('import', 'Import song ►');
             menuFileImportSong.populate = (e) => {
                 const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('from MIDI File');
+                menuFileImportSongFromMIDI.disabled = true;
             };
 
             const menuFileExportSong = menu.getOrCreateSubMenu('export', 'Export song ►');
             menuFileExportSong.disabled = true;
             menuFileExportSong.populate = (e) => {
                 const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('to MIDI File');
+                menuFileExportSongToMIDI.disabled = true;
             };
         }
     }

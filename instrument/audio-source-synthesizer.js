@@ -13,7 +13,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.shadowDOM = this.attachShadow({mode: 'open'});
 
             if (!config)
-                config = {};
+                throw new Error("Instrument config object is required");
             // if(!config.name)
             //     config.name = this0.constructor.name + BufferSourceInstrument.NEW_COUNTER++;
             if (!config.samples)
@@ -417,7 +417,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                         </form>
                     </span>
                 </div>
-                <table class="instrument-setting-list">
+                <table class="instrument-setting-list" style="display: none;">
                     <thead>
                         <tr>
                             <th>Poly</th>
@@ -557,7 +557,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         onSubmit(e) {
             if (e.defaultPrevented)
                 return;
-            console.log(e.type, this);
+            console.log(e.type, e.target);
             e.preventDefault();
             let form = e.target.form || e.target;
             const command = form.getAttribute('data-action');
@@ -624,7 +624,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
 
                 case 'instrument:name':
-                    this.editor.renderer.replaceInstrumentParam(form.elements['instrumentID'].value, 'name', form.elements['name'].value);
+                    this.config.name = form.elements.name.value;
                     break;
 
                 case 'instrument:remove':
