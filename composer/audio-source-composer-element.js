@@ -343,7 +343,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.onAction(e, actionName);
     }
 
-    onAction(e, actionName) {
+    onAction(e, actionName, actionOptions=null) {
         console.info("Action: " + actionName, e.target);
         // e.preventDefault();
 
@@ -393,11 +393,6 @@ class AudioSourceComposerElement extends HTMLElement {
                 // this.update();
                 break;
 
-
-            case 'song:load-from-file':
-                this.loadSongFromFileInput(form['file']);
-                break;
-
             case 'song:edit':
                 this.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
                 this.renderer.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
@@ -427,7 +422,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:add-instrument':
-                const instrumentURL = this.fieldSongAddInstrument.value;
+                const instrumentURL = actionOptions || this.fieldSongAddInstrument.value;
                 this.fieldSongAddInstrument.value = '';
                 if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
                     this.renderer.addInstrument(instrumentURL);
@@ -437,6 +432,11 @@ class AudioSourceComposerElement extends HTMLElement {
                     console.info("Add instrument canceled");
                 }
 //                     this.fieldAddInstrumentInstrument.value = '';
+                break;
+
+            case 'song:remove-instrument':
+                this.renderer.removeInstrument(actionOptions);
+                this.render(); // TODO: inefficient. use  this.renderInstruments();
                 break;
 
             case 'song:set-title':
@@ -763,10 +763,27 @@ class AudioSourceComposerElement extends HTMLElement {
                     menuInstrument.setAttribute('data-instrument', instrumentURL);
                     menuInstrument.action = (e) => {
                         this.fieldSongAddInstrument.value = instrumentURL;
-                        this.onAction(e, 'song:add-instrument');
+                        this.onAction(e, 'song:add-instrument', instrumentURL);
                     }
                 });
             };
+
+
+            let instrumentCount = 0;
+            this.values.getValues('song-instruments', (instrumentID, label) => {
+                const menuInstrument = menu.getOrCreateSubMenu(instrumentID, `${label} ►`);
+                menuInstrument.populate = (e) => {
+                    const menu = e.menuElement;
+                    const menuInstrumentRemove = menu.getOrCreateSubMenu('instrument', `Remove From Song`);
+                    menuInstrumentRemove.action = (e) => {
+                        this.onAction(e, 'song:remove-instrument', instrumentID);
+                    }
+
+                };
+                if(instrumentCount === 0)
+                    menuInstrument.hasBreak = true;
+                instrumentCount++;
+            });
 
             // TODO CRUD
         };

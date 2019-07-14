@@ -5,7 +5,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         // this.cursorCellIndex = 0;
         this.renderTimeout = null;
-        this.minimumGridLengthTicks = null;
+        this.renderScrollLimit = 1200;
 
         // this.instructionElms = null;
     }
@@ -39,6 +39,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     // }
     get selectedIndicies() { return [].map.call(this.selectedCells, (elm => elm.index)); }
 
+    get isConnected() { return this.editor.container.contains(this); }
 
     connectedCallback() {
         this.addEventListener('scroll', this.onInput, true);
@@ -91,7 +92,6 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
     render(timeout=0) {
-        console.time('grid.render()');
         // this.innerHTML = `
         //     <div class="form-section-container">
         //     ${this.renderSongForms()}
@@ -110,19 +110,25 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
         this.update();
-        console.timeEnd('grid.render()');
     }
 
     renderAllRows(timeout=0) {
         // TODO: rerender if fail?
         const render = () => {
-//             console.time('grid.renderAllRows');
+            if(!this.isConnected) {
+                console.warn("Tracker not connected. Skipping render", this);
+                return;
+            }
+            console.time('tracker.renderAllRows()');
+
             const rows = this.querySelectorAll('asct-row');
             // const selectedIndicies = this.selectedIndicies;
             let rowCount = 0;
 
 
             const currentScrollPosition = this.scrollTop; // Save scroll position
+            if(this.renderScrollLimit < this.scrollTop + this.offsetHeight*4)
+                this.renderScrollLimit *= 2; // = this.scrollTop + this.offsetHeight*4;
 
             const getNextRow = () => {
                 let rowElm = rows[rowCount];
@@ -130,6 +136,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     rowElm = document.createElement('asct-row');
                     this.appendChild(rowElm);
                 }
+                // console.log(rowElm.offsetTop, rowElm.visible, rowElm);
                 rowCount++;
                 return rowElm;
             };
@@ -153,16 +160,19 @@ class AudioSourceComposerTracker extends HTMLElement {
                     renderRow.classList.add('break');
                 }
 
-
+                return renderRow;
             };
 
 
             let rowInstructionList = [], lastIndex=0;
             this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
                 if (instruction.deltaDuration !== 0) {
-                    renderRows(lastIndex, instruction.deltaDuration, stats.groupPositionInTicks, rowInstructionList);
+                    const lastRenderedRow = renderRows(lastIndex, instruction.deltaDuration, stats.groupPositionInTicks, rowInstructionList);
                     lastIndex = index;
                     rowInstructionList = [];
+                    if(lastRenderedRow.offsetTop > this.renderScrollLimit) {
+                        return false;
+                    }
                 }
 
                 rowInstructionList.push(instruction);
@@ -170,7 +180,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
             this.scrollTop = currentScrollPosition;             // Restore scroll position
-//             console.timeEnd('grid.renderAllRows');
+            console.timeEnd('tracker.renderAllRows()');
         };
 
         if(timeout > 0) {
