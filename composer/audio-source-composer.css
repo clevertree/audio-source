@@ -1,19 +1,23 @@
 
 .asc-container {
-    display: flex;
     /*flex-wrap: wrap;*/
     flex-flow: column;
-
     height: 100%;
     font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
-
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select:none;
 }
+
+@media only screen and (min-width: 1000px) {
+    .asc-container {
+        display: flex;
+    }
+}
+
 
 
 /** Full Screen **/
@@ -204,7 +208,7 @@ asc-menu.open-context-menu > .dropdown-container {
 
 }
 
-@media only screen and (min-width: 860px) {
+@media only screen and (min-width: 1000px) {
     .asc-container .form-section-divide {
         width: 12px;
         writing-mode: vertical-rl;
@@ -325,11 +329,18 @@ asc-menu.open-context-menu > .dropdown-container {
 
 /** Tracker **/
 asc-tracker {
+    display: block;
     position: relative;
     overflow-y: auto;
-    /* max-height: 800px; */
+    /* flex-grow: 1; */
+    /* max-height: 66%; */
 }
 
+@media only screen and (max-width: 1000px) {
+    .asc-container asc-tracker {
+         max-height: 66%;
+    }
+}
 
 /** Tracker Header **/
 
