@@ -15,6 +15,8 @@ class AudioSourceComposerMenu extends HTMLElement {
             }
         };
         this.populate = function() { this.dispatchEvent(new CustomEvent('open')); };
+
+        this.mouseTimeout = null;
     }
 
 
@@ -67,12 +69,14 @@ class AudioSourceComposerMenu extends HTMLElement {
     onMouseEvent(e) {
         switch(e.type) {
             case 'mouseenter':
+                clearTimeout(this.mouseTimeout);
                 this.classList.add('open');
                 this.renderSubMenu(e);
                 break;
             case 'mouseleave':
                 if(!this.classList.contains('stick')) {
-                    setTimeout(e => {
+                    clearTimeout(this.mouseTimeout);
+                    this.mouseTimeout = setTimeout(e => {
                         this.classList.remove('open');
                         this.clearSubMenu();
                     }, 200);

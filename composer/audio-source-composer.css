@@ -80,6 +80,10 @@ asc-menu span.arrow:after {
     content: '►';
 }
 
+asc-menu div.caption > input[type=checkbox] {
+    vertical-align: text-top;
+}
+
 /** Drop Down Menu **/
 
 
@@ -215,7 +219,11 @@ asc-menu.open-context-menu > .dropdown-container {
     }
 }
 
-
+.asc-container.hide-forms-song .form-section-container-song,
+.asc-container.hide-forms-tracker .form-section-container-tracker,
+.asc-container.hide-forms-instruments .form-section-container-instruments {
+    display: none;
+}
 
 /** Form Visibility **/
 
@@ -252,12 +260,12 @@ asc-menu.open-context-menu > .dropdown-container {
 
 
 .asc-container input[type=checkbox] {
-    vertical-align: text-top;
-    width: 16px;
-    height: 16px;
-    margin: 5px;
-    left: -25px;
-    position: absolute;
+    /* vertical-align: text-top; */
+    /* width: 16px; */
+    /* height: 16px; */
+    /* margin: 5px; */
+    /* left: -25px; */
+    /* position: absolute; */
 }
 
 .asc-container .volume-container {

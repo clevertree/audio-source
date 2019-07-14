@@ -455,6 +455,23 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
 
+            case 'view:fullscreen':
+                this.classList.toggle('fullscreen');
+                console.log(this);
+                break;
+
+            case 'view:forms-song':
+                this.container.classList.toggle('hide-forms-song');
+                break;
+
+            case 'view:forms-tracker':
+                this.container.classList.toggle('hide-forms-tracker');
+                break;
+
+            case 'view:forms-instruments':
+                this.container.classList.toggle('hide-forms-instruments');
+                break;
+
             default:
                 console.warn("Unhandled " + e.type + ": ", actionName);
                 break;
@@ -481,6 +498,7 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuFile() { return this.shadowDOM.querySelector(`asc-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asc-menu[key="edit"]`)}
     get menuView() { return this.shadowDOM.querySelector(`asc-menu[key="view"]`)}
+    get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
     get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
 
     get formsSong() { return this.shadowDOM.querySelector(`.form-section-container-song`)}
@@ -709,7 +727,37 @@ class AudioSourceComposerElement extends HTMLElement {
                 const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('to MIDI File');
                 menuFileExportSongToMIDI.disabled = true;
             };
-        }
+        };
+
+        this.menuView.populate = (e) => {
+            const menu = e.menuElement;
+
+            const menuViewToggleFullscreen = menu.getOrCreateSubMenu('fullscreen',
+                `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`);
+            menuViewToggleFullscreen.action = (e) => this.onAction(e, 'view:fullscreen');
+
+            const menuViewToggleFormSong = menu.getOrCreateSubMenu('forms-song',
+                `${this.container.classList.contains('hide-forms-song') ? 'Show' : 'Hide'} Song Forms `);
+            menuViewToggleFormSong.action = (e) => this.onAction(e, 'view:forms-song');
+
+            const menuViewToggleFormTrack = menu.getOrCreateSubMenu('forms-tracker',
+                `${this.container.classList.contains('hide-forms-tracker') ? 'Show' : 'Hide'} Track Forms`);
+            menuViewToggleFormTrack.action = (e) => this.onAction(e, 'view:forms-tracker');
+
+            const menuViewToggleFormInstrument = menu.getOrCreateSubMenu('forms-instruments',
+                `${this.container.classList.contains('hide-forms-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
+            menuViewToggleFormInstrument.action = (e) => this.onAction(e, 'view:forms-instruments');
+        };
+
+        this.menuInstrument.populate = (e) => {
+            const menu = e.menuElement;
+
+            const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add new instrument to song`);
+            menuInstrumentAdd.action = (e) => this.onAction(e, 'song:add-instrument');
+
+        };
+
+
     }
 
     // Update DOM
