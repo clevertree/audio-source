@@ -188,7 +188,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         const editor = this.editor;
         const handleAction = (actionName) => (e) => {
             editor.tracker.onAction(e, actionName);
-            e.currentTarget.closeAllMenus();
+            // e.currentTarget.closeAllMenus();
         };
 
         const menuEdit = this.editor.menuEdit;
@@ -675,7 +675,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     // get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
 
-    // get fieldAddInstrumentInstrument() { return this.querySelector('form.form-add-instrument select[name=instrument]'); }
+    // get fieldAddInstrumentInstrument() { return this.querySelector('form.form-song-add-instrument select[name=instrument]'); }
     get fieldSelectedIndicies() { return this.formsTracker.querySelector('form.form-selected-indicies input[name=indicies]'); }
     // get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
     // get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }

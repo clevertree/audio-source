@@ -427,11 +427,12 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:add-instrument':
-                const instrumentURL = form['instrumentURL'].value;
-                form['instrumentURL'].value = '';
+                const instrumentURL = this.fieldSongAddInstrument.value;
+                this.fieldSongAddInstrument.value = '';
                 if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
                     this.renderer.addInstrument(instrumentURL);
-                    this.render();
+                    this.render(); // TODO: inefficient. use  this.renderInstruments();
+
                 } else {
                     console.info("Add instrument canceled");
                 }
@@ -542,6 +543,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
 
+    get fieldSongVolume()           { return this.formsSong.querySelector('form.form-song-volume input[name=volume]'); }
+    get fieldSongAddInstrument()    { return this.formsSong.querySelector('form.form-song-add-instrument select[name=instrumentURL]'); }
 
     renderSongForms() {
 
@@ -608,7 +611,7 @@ class AudioSourceComposerElement extends HTMLElement {
             
             <div class="form-section control-song">
                 <div class="form-section-header">Add Instrument</div>                    
-                <form class="form-add-instrument submit-on-change" data-action="instrument:add">
+                <form class="form-song-add-instrument submit-on-change" data-action="instrument:add">
                     <select name="instrumentURL" class="themed">
                         <option value="">Select Instrument</option>
                         ${this.values.renderEditorFormOptions('instruments-available')}
@@ -752,9 +755,20 @@ class AudioSourceComposerElement extends HTMLElement {
         this.menuInstrument.populate = (e) => {
             const menu = e.menuElement;
 
-            const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add new instrument to song`);
-            menuInstrumentAdd.action = (e) => this.onAction(e, 'song:add-instrument');
+            const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add To Song ►`);
+            menuInstrumentAdd.populate = (e) => {
+                const menu = e.menuElement;
+                this.values.getValues('instruments-available', (instrumentURL, label) => {
+                    const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
+                    menuInstrument.setAttribute('data-instrument', instrumentURL);
+                    menuInstrument.action = (e) => {
+                        this.fieldSongAddInstrument.value = instrumentURL;
+                        this.onAction(e, 'song:add-instrument');
+                    }
+                });
+            };
 
+            // TODO CRUD
         };
 
 
