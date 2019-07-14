@@ -49,9 +49,9 @@ class AudioSourceComposerElement extends HTMLElement {
         this.sources.loadDefaultInstrumentLibrary();
     }
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
-    get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
-    get forms() { return this.shadowDOM.querySelector('asc-forms'); }
-    get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
+    // get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
+    // get forms() { return this.shadowDOM.querySelector('asc-forms'); }
+    // get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
     get container() { return this.shadowDOM.querySelector('.asc-container'); }
 
 
@@ -726,7 +726,8 @@ class AudioSourceComposerElement extends HTMLElement {
         this.status.groupHistory.unshift(this.status.currentGroup);
         this.status.currentGroup = groupName;
         console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.tracker = new AudioSourceComposerTracker(this, groupName);
+        this.tracker.groupName = groupName;
+        // this.tracker = new AudioSourceComposerTracker(this, groupName);
         this.render();
     }
 

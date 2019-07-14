@@ -668,7 +668,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get fieldInstructionInstrument() { return this.formsTracker.querySelector('form.form-instruction-instrument select[name=instrument]'); }
     get fieldInstructionDuration() { return this.formsTracker.querySelector('form.form-instruction-duration select[name=duration]'); }
-    get fieldInstructionCommand() { return this.formsTracker.querySelector('form.form-note-command select[name=command]'); }
+    get fieldInstructionCommand() { return this.formsTracker.querySelector('form.form-instruction-command select[name=command]'); }
     get fieldInstructionVelocity() { return this.formsTracker.querySelector('form.form-instruction-velocity input[name=velocity]'); }
     get fieldInstructionInsert() { return this.formsTracker.querySelector('form.form-instruction-insert button[name=insert]'); }
     get fieldInstructionDelete() { return this.formsTracker.querySelector('form.form-instruction-delete button[name=delete]'); }
@@ -689,7 +689,7 @@ class AudioSourceComposerTracker extends HTMLElement {
  
             <div class="form-section control-tracker">
                 <div class="form-section-header">Instruction</div>
-                <form action="#" class="form-note-command submit-on-change" data-action="instruction:command">
+                <form action="#" class="form-instruction-command submit-on-change" data-action="instruction:command">
                     <select name="command" title="Instruction Command" class="themed" required="required">
                         <option value="">Command (Choose)</option>
                         <optgroup label="Custom Frequencies" class="instrument-frequencies">
@@ -751,12 +751,12 @@ class AudioSourceComposerTracker extends HTMLElement {
             <div class="form-section control-tracker">
                 <div class="form-section-header">Render Group</div>
                 ${this.editor.values.getValues('groups', (value, label) =>
-            `<form action="#" class="form-group" data-action="group:edit">`
-            + `<button name="groupName" value="${value}" class="themed" >${label}</button>`
+            `<form action="#" class="form-group" data-action="group:edit" data-group="${value}">`
+            + `<button name="groupName" class="themed" >${label}</button>`
             + `</form>`)}
                 
-                <form action="#" class="form-group" data-action="group:edit">
-                    <button name="groupName" value=":new" class="new themed" title="Create new group">+</button>
+                <form action="#" class="form-group" data-action="group:new">
+                    <button name="groupName" class="new themed" title="Create new group">+</button>
                 </form>
                 
             </div>
@@ -915,15 +915,18 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
             case 'group:edit':
-                if (form.groupName.value === ':new') {
-                    let newGroupName = this.editor.renderer.generateInstructionGroupName(this.groupName);
-                    newGroupName = prompt("Create new instruction group?", newGroupName);
-                    if (newGroupName) this.editor.renderer.addInstructionGroup(newGroupName, []);
-                    else console.error("Create instruction group canceled");
-                    this.editor.render();
-                } else {
-                    this.editor.selectGroup(form.groupName.value);
-                }
+                const groupForm = e.target.form || e.target;
+                const selectedGroupName = groupForm.getAttribute('data-group');
+                this.editor.selectGroup(selectedGroupName);
+                break;
+
+
+            case 'group:new':
+                let newGroupName = this.editor.renderer.generateInstructionGroupName(this.groupName);
+                newGroupName = prompt("Create new instruction group?", newGroupName);
+                if (newGroupName) this.editor.renderer.addInstructionGroup(newGroupName, []);
+                else console.error("Create instruction group canceled");
+                this.editor.render();
                 break;
 
             case 'tracker:octave':

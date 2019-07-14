@@ -110,9 +110,10 @@ class AudioSourceComposerValues {
             case 'durations':
                 const timeDivision = this.editor.renderer.getSongTimeDivision();
                 for(let i=64; i>1; i/=2) {
-                    valuesHTML += callback((1/i)/1.5    * timeDivision, `1/${i}t`);
-                    valuesHTML += callback(1/i          * timeDivision, `1/${i}`);
-                    valuesHTML += callback(1/i*1.5      * timeDivision, `1/${i}d`);
+                    let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
+                    valuesHTML += callback((1/i)/1.5    * timeDivision, `${fraction}t`);
+                    valuesHTML += callback(1/i          * timeDivision, `${fraction}`);
+                    valuesHTML += callback(1/i*1.5      * timeDivision, `${fraction}d`);
                 }
                 for(let i=1; i<=16; i++)
                     valuesHTML += callback(i            * timeDivision, i+'B');
@@ -120,9 +121,10 @@ class AudioSourceComposerValues {
 
             case 'named-durations':
                 for(let i=64; i>1; i/=2) {
-                    valuesHTML += callback(`1/${i}t`,`1/${i}t`);
-                    valuesHTML += callback(`1/${i}`,`1/${i}`);
-                    valuesHTML += callback(`1/${i}d`,`1/${i}d`);
+                    let fraction = `1/${i}`; // .replace('1/2', '½').replace('1/4', '¼');
+                    valuesHTML += callback(`${fraction}t`,  `${fraction}t`);
+                    valuesHTML += callback(`${fraction}`,   `${fraction}`);
+                    valuesHTML += callback(`${fraction}d`,  `${fraction}d`);
                 }
                 for(let i=1; i<=16; i++)
                     valuesHTML += callback(i+'B',i+'B');
