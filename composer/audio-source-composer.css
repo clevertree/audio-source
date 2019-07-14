@@ -22,7 +22,7 @@
 
 /** Full Screen **/
 audio-source-composer.fullscreen {
-    position: f;
+    position: fixed;
     /* display: flex; */
     /* flex-flow: column; */
     left: 0;
