@@ -1,6 +1,7 @@
 
 .asc-container {
-    /*flex-wrap: wrap;*/
+    display: flex;
+    flex-wrap: wrap;
     flex-flow: column;
     height: 100%;
     font-family: monospace;
@@ -10,12 +11,6 @@
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select:none;
-}
-
-@media only screen and (min-width: 1000px) {
-    .asc-container {
-        display: flex;
-    }
 }
 
 
@@ -337,18 +332,13 @@ asc-menu.open-context-menu > .dropdown-container {
 
 /** Tracker **/
 asc-tracker {
-    display: block;
+    /* display: block; */
     position: relative;
     overflow-y: auto;
-    /* flex-grow: 1; */
-    /* max-height: 66%; */
+    flex-grow: 1;
+    max-height: 100%;
 }
 
-@media only screen and (max-width: 1000px) {
-    .asc-container asc-tracker {
-         max-height: 66%;
-    }
-}
 
 /** Tracker Header **/
 
