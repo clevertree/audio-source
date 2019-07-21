@@ -366,7 +366,10 @@ asct-row {
     padding: 0px;
 }
 
-asct-row.break {
+asct-row.beat-end {
+    border-top: 1px solid #888;
+}
+asct-row.measure-end {
     border-top: 1px solid #000;
 }
 asct-row:nth-child(odd) {

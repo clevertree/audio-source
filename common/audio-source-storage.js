@@ -16,7 +16,7 @@ class AudioSourceStorage {
         return await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
     }
 
-    generateDefaultSong() {
+    generateDefaultSong(scriptDirectory='') {
         return {
             title: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
             guid: this.generateGUID(),
@@ -27,7 +27,7 @@ class AudioSourceStorage {
             beatsPerMinute: 120,
             beatsPerMeasure: 4,
             instruments: [{
-                "url": "instrument/audio-source-synthesizer.js",
+                "url": scriptDirectory + "instrument/audio-source-synthesizer.js",
             }],
             instructions: {
                 'root': []

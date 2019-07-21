@@ -54,6 +54,7 @@ class AudioSourceComposerElement extends HTMLElement {
     // get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
     get container() { return this.shadowDOM.querySelector('.asc-container'); }
 
+    get scriptDirectory () { return this.sources.getScriptDirectory(''); }
 
     connectedCallback() {
         // this.loadCSS();
@@ -92,12 +93,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // if(uuid)
         //     this.renderer.loadSongFromServer(uuid);
 
-        const src = this.getAttribute('src');
-        if(src)
-            this.loadSongFromSrc(src);
-        else
-            this.loadRecentSongData();
-
+        this.loadDefaultSong();
         // this.setAttribute('tabindex', 0);
         // this.initWebSocket(uuid);
 
@@ -123,6 +119,25 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
+
+    async loadDefaultSong() {
+        const src = this.getAttribute('src');
+        if(src) {
+            try {
+                await this.loadSongFromSrc(src);
+                return true;
+            } catch (e) {
+                console.error("Failed to load from src: ", src, e);
+            }
+        }
+
+        if(await this.loadRecentSongData())
+            return true;
+
+        this.loadNewSongData();
+        return false;
+    }
+
     get currentGroup()      { return this.status.currentGroup; }
     get selectedIndicies()  { return this.status.selectedIndicies; }
     get selectedRange()     { return this.status.selectedRange; }
@@ -144,8 +159,9 @@ class AudioSourceComposerElement extends HTMLElement {
 
     loadNewSongData() {
         const storage = new AudioSourceStorage();
-        let songData = storage.generateDefaultSong();
+        let songData = storage.generateDefaultSong(this.scriptDirectory);
         this.renderer.loadSongData(songData);
+        this.render();
     }
 
 
@@ -184,7 +200,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     async loadSongFromFileInput(inputFile) {
-        this.loadSongFromMIDIFileInput(inputFile);
+        await this.loadSongFromMIDIFileInput(inputFile);
     }
 
     async loadSongFromMIDIFileInput(inputFile) {
@@ -347,13 +363,13 @@ class AudioSourceComposerElement extends HTMLElement {
         console.info("Action: " + actionName, e.target);
         // e.preventDefault();
 
-        this.tracker.onAction(e, actionName);
+        if(this.tracker.onAction(e, actionName))
+            return true;
 
         switch(actionName) {
             case 'song:new':
                 e.preventDefault();
                 this.loadNewSongData();
-                this.render();
                 // document.location = 'song/new';
                 break;
 
@@ -771,13 +787,32 @@ class AudioSourceComposerElement extends HTMLElement {
 
             let instrumentCount = 0;
             this.values.getValues('song-instruments', (instrumentID, label) => {
+                const isActive = this.renderer.isInstrumentLoaded(instrumentID);
+
                 const menuInstrument = menu.getOrCreateSubMenu(instrumentID, `${label} ►`);
                 menuInstrument.populate = (e) => {
                     const menu = e.menuElement;
-                    const menuInstrumentRemove = menu.getOrCreateSubMenu('instrument', `Remove From Song`);
+
+                    const menuInstrumentChange = menu.getOrCreateSubMenu('change', `Replace ►`);
+                    menuInstrumentChange.populate = (e) => {
+                        const menu = e.menuElement;
+                        this.values.getValues('instruments-available', (instrumentURL, label) => {
+                            const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
+                            menuInstrument.setAttribute('data-instrument', instrumentURL);
+                            menuInstrument.action = (e) => {
+                                this.fieldSongAddInstrument.value = instrumentURL;
+                                this.onAction(e, 'song:change-instrument', instrumentID, instrumentURL);
+                            }
+                        });
+                    };
+
+
+                    const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
                     menuInstrumentRemove.action = (e) => {
                         this.onAction(e, 'song:remove-instrument', instrumentID);
-                    }
+                    };
+                    menuInstrumentRemove.disabled = !isActive;
+
 
                 };
                 if(instrumentCount === 0)

@@ -47,7 +47,11 @@ class AudioSourceRenderer {
         return this.audioContext;
     }
     getSongData() { return this.songData; }
-    getSongTimeDivision() { return this.songData.timeDivision || 96*4; }
+    getSongTimeDivision() { return this.songData.rowLengthInTicks || 96*4; }
+    getGroupTimeDivision(groupName) {
+        return this.getSongTimeDivision();
+    }
+
     getSongHistory() { return this.songHistory; }
     getStartingBeatsPerMinute() { return this.songData.beatsPerMinute; }
     getVolumeGain() {
@@ -106,7 +110,7 @@ class AudioSourceRenderer {
 
         const newInstructions = {};
         this.songData.instructions = newInstructions;
-        this.songData.timeDivision = midiData.timeDivision;
+        this.songData.rowLengthInTicks = midiData.rowLengthInTicks;
         newInstructions.root = [];
         for(let trackID=0; trackID<midiData.track.length; trackID++) {
             newInstructions.root.push([0, `@track` + trackID]);
@@ -120,7 +124,7 @@ class AudioSourceRenderer {
             let deltaPosition = 0, lastInsertDeltaPosition=0;
             for(let eventID=0; eventID<trackEvents.length; eventID++) {
                 const trackEvent = trackEvents[eventID];
-                // let deltaDuration = trackEvent.deltaTime; // midiData.timeDivision;
+                // let deltaDuration = trackEvent.deltaTime; // midiData.rowLengthInTicks;
                 deltaPosition += trackEvent.deltaTime;
 
                 // newTrack.push
@@ -183,6 +187,8 @@ class AudioSourceRenderer {
             // console.warn("Song contains no instruments");
         } else {
             for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
+                if(!songData.instruments[instrumentID])
+                    continue;
                 loadingInstruments++;
                 this.loadInstrument(instrumentID);
 
@@ -444,7 +450,7 @@ class AudioSourceRenderer {
         const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
-            parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
+            parentStats ? parentStats.rowLengthInTicks : this.getSongTimeDivision(),
             parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
@@ -464,7 +470,7 @@ class AudioSourceRenderer {
         const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
-            parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
+            parentStats ? parentStats.rowLengthInTicks : this.getSongTimeDivision(),
             parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
@@ -481,7 +487,7 @@ class AudioSourceRenderer {
     // async eachInstructionAsync(groupName, callback, parentStats=null) {
     //     let instructionList = this.songData.instructions[groupName];
     //     // const instructionList = this.getInstructions(rootGroup);
-    //     const timeDivision = this.getSongTimeDivision();
+    //     const rowLengthInTicks = this.getSongTimeDivision();
     //     let maxPlayTime = 0;
     //     const stats = Object.assign({
     //         songPositionInTicks:0,
@@ -497,7 +503,7 @@ class AudioSourceRenderer {
     //         // if(typeof instruction.command !== "undefined") {
     //         if (instruction.deltaDuration) { // Delta
     //             stats.groupPositionInTicks += instruction.deltaDuration;
-    //             const elapsedTime = (instruction.deltaDuration / timeDivision) / (stats.currentBPM / 60);
+    //             const elapsedTime = (instruction.deltaDuration / rowLengthInTicks) / (stats.currentBPM / 60);
     //             stats.groupPlaybackTime += elapsedTime;
     //         }
     //
@@ -512,7 +518,7 @@ class AudioSourceRenderer {
     // eachInstruction2(groupName, callback, parentStats=null) {
     //     let instructionList = this.songData.instructions[groupName];
     //     // const instructionList = this.getInstructions(rootGroup);
-    //     const timeDivision = this.getSongTimeDivision();
+    //     const rowLengthInTicks = this.getSongTimeDivision();
     //     let maxPlayTime = 0;
     //     const stats = Object.assign({
     //         songPositionInTicks:0,
@@ -528,7 +534,7 @@ class AudioSourceRenderer {
     //         // if(typeof instruction.command !== "undefined") {
     //         if (instruction.deltaDuration) { // Delta
     //             stats.groupPositionInTicks += instruction.deltaDuration;
-    //             const elapsedTime = (instruction.deltaDuration / timeDivision) / (stats.currentBPM / 60);
+    //             const elapsedTime = (instruction.deltaDuration / rowLengthInTicks) / (stats.currentBPM / 60);
     //             stats.groupPlaybackTime += elapsedTime;
     //             // groupPlaytime += instruction.deltaDuration * (60 / currentBPM);
     //             // if(groupPlaytime > maxPlaytime)
@@ -728,7 +734,9 @@ class AudioSourceRenderer {
     loadAllInstruments() {
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
-            this.loadInstrument(instrumentID);
+            if(instrumentList[instrumentID]) {
+                this.loadInstrument(instrumentID);
+            }
         }
     }
 
@@ -1036,7 +1044,7 @@ class AudioSourceRenderer {
             // }
         }
 
-        if(insertPosition <= groupPosition)
+        if(insertPosition <= instructionIterator.groupPositionInTicks)
             throw new Error ("Something went wrong");
         // Insert a new pause at the end of the song, lasting until the new note
         let lastPauseIndex = instructionList.length;
@@ -1045,7 +1053,7 @@ class AudioSourceRenderer {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDuration = insertPosition - groupPosition;
+        insertInstruction.deltaDuration = insertPosition - instructionIterator.groupPositionInTicks;
         this.insertInstructionAtIndex(groupName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }

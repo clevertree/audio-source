@@ -6,6 +6,8 @@ class AudioSourceComposerTracker extends HTMLElement {
         // this.cursorCellIndex = 0;
         this.renderTimeout = null;
         this.renderScrollLimit = 1200;
+        this.renderMinimumRows = 16;
+        // TODO: minimum render rows for new groups
 
         // this.instructionElms = null;
     }
@@ -21,13 +23,18 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.setAttribute('group', groupName);
         this.render(1);
     }
-    get timeDivision()             { return parseInt(this.getAttribute('timeDivision')); }
-    set timeDivision(timeDivision)    {
-        this.setAttribute('timeDivision', timeDivision);
+    get rowLengthInTicks()             { return parseInt(this.getAttribute('rowLength')); }
+    set rowLengthInTicks(rowLengthInTicks)    {
+        this.setAttribute('rowLength', rowLengthInTicks);
         this.render(1);
     }
+    // get renderQuantization()             { return parseInt(this.fieldRenderRowLength.value); }
+    // set renderQuantization(quantizationInTicks)    {
+    //     this.fieldRenderRowLength.value = quantizationInTicks;
+    //     this.render(1);
+    // }
 
-    // get timeDivision() { return this.status.timeDivision; }
+    // get rowLengthInTicks() { return this.status.rowLengthInTicks; }
     get status() { return this.editor.status.grid; }
 
 
@@ -44,8 +51,8 @@ class AudioSourceComposerTracker extends HTMLElement {
     connectedCallback() {
         this.addEventListener('scroll', this.onInput, true);
         this.editor = this.getRootNode().host;
-        if(!this.getAttribute('timeDivision'))
-            this.setAttribute('timeDivision', this.editor.renderer.getSongTimeDivision());
+        if(!this.getAttribute('rowLength'))
+            this.setAttribute('rowLength', this.editor.renderer.getSongTimeDivision());
         setTimeout(e => this.render(), 20);
         setTimeout(e => this.renderAllRows(), 1000);
     }
@@ -101,15 +108,13 @@ class AudioSourceComposerTracker extends HTMLElement {
         // `;
 
         this.innerHTML = '';
-        this.renderAllRows(timeout);
 
         this.renderMenu();
         this.renderForms();
 
-
-
-
         this.update();
+
+        this.renderAllRows(timeout);
     }
 
     renderAllRows(timeout=0) {
@@ -141,7 +146,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                 return rowElm;
             };
 
-            const renderDuration = this.timeDivision;
+            const timeDivision = this.editor.renderer.getGroupTimeDivision(this.groupName);
+            const quantizationInTicks = this.rowLengthInTicks;
             let nextBreakPositionInTicks = 0;
             const renderRows = (startIndex, deltaDuration, groupEndPositionInTicks, rowInstructionList) => {
                 let groupStartPositionInTicks = groupEndPositionInTicks - deltaDuration;
@@ -156,19 +162,25 @@ class AudioSourceComposerTracker extends HTMLElement {
                         renderRow = getNextRow();
                         renderRow.render(startIndex, nextBreakPositionInTicks);
                     }
-                    nextBreakPositionInTicks += renderDuration;
-                    renderRow.classList.add('break');
+                    nextBreakPositionInTicks += quantizationInTicks;
+                    if(nextBreakPositionInTicks % timeDivision === 0) {
+                        renderRow.classList.add('beat-end');
+                        if(nextBreakPositionInTicks / 4 % timeDivision === 0) {
+                            renderRow.classList.add('measure-end');
+                        }
+                    }
                 }
 
                 return renderRow;
             };
 
 
-            let rowInstructionList = [], lastIndex=0;
+            let rowInstructionList = [], lastIndex=0, lastGroupPositionInTicks = 0;
             this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
                 if (instruction.deltaDuration !== 0) {
                     const lastRenderedRow = renderRows(lastIndex, instruction.deltaDuration, stats.groupPositionInTicks, rowInstructionList);
                     lastIndex = index;
+                    lastGroupPositionInTicks = stats.groupPositionInTicks;
                     rowInstructionList = [];
                     if(lastRenderedRow.offsetTop > this.renderScrollLimit) {
                         return false;
@@ -177,6 +189,17 @@ class AudioSourceComposerTracker extends HTMLElement {
 
                 rowInstructionList.push(instruction);
             });
+
+            // TODO: messy? doesn't matter really; it's after the end of the song
+            if(rowInstructionList.length > 0) {
+                lastGroupPositionInTicks += this.rowLengthInTicks;
+                renderRows(lastIndex, this.rowLengthInTicks, lastGroupPositionInTicks, rowInstructionList);
+            }
+
+            while(this.renderMinimumRows > rowCount) {
+                lastGroupPositionInTicks += this.rowLengthInTicks;
+                renderRows(lastIndex, this.rowLengthInTicks, lastGroupPositionInTicks);
+            }
 
 
             this.scrollTop = currentScrollPosition;             // Restore scroll position
@@ -339,7 +362,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     update() {
 
         let selectedIndicies = this.selectedIndicies;
-        let timeDivision = this.timeDivision || this.editor.renderer.getSongTimeDivision();
+        // let timeDivision = this.rowLengthInTicks || this.editor.renderer.getSongTimeDivision();
         const selectedInstructionList = this.editor.renderer.getInstructions(this.groupName, selectedIndicies);
         let cursorInstruction = selectedInstructionList[0];
 
@@ -352,7 +375,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // TODO: combine instructions? nah
 
 
-        // this.fieldInstructionDuration.value = parseFloat(this.fieldRenderTimeDivision.value) + '';
+        // this.fieldInstructionDuration.value = parseFloat(this.fieldRenderRowLength.value) + '';
 
         // const containerElm = this.editor.container;
         // containerElm.classList.remove('show-control-tracker-insert');
@@ -397,10 +420,9 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         this.fieldRenderOctave.value = this.editor.status.currentOctave;
 
-        if(!this.fieldRenderTimeDivision.value && timeDivision)
-            this.fieldRenderTimeDivision.value = timeDivision; // this.editor.renderer.getSongTimeDivision();
-        if(!this.fieldInstructionDuration.value && this.fieldRenderTimeDivision.value)
-            this.fieldInstructionDuration.value = this.fieldRenderTimeDivision.value;
+        this.fieldRenderRowLength.value = this.rowLengthInTicks; // this.editor.renderer.getSongTimeDivision();
+        if(!this.fieldInstructionDuration.value && this.fieldRenderRowLength.value)
+            this.fieldInstructionDuration.value = this.fieldRenderRowLength.value;
 
 
         this.fieldSelectedIndicies.value = selectedIndicies.join(',');
@@ -670,7 +692,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get formsTracker() { return this.editor.formsTracker; }
 
-    get fieldRenderTimeDivision() { return this.formsTracker.querySelector('form.form-render-time-division select[name=timeDivision]'); }
+    get fieldRenderRowLength() { return this.formsTracker.querySelector('form.form-render-row-length select[name=rowLengthInTicks]'); }
     get fieldRenderInstrument() { return this.formsTracker.querySelector('form.form-render-instrument select[name=instrument]'); }
     get fieldRenderOctave() { return this.formsTracker.querySelector('form.form-render-octave select[name=octave]'); }
 
@@ -761,7 +783,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             <div class="form-section control-tracker">
                 <div class="form-section-header">Render Group</div>
                 ${this.editor.values.getValues('groups', (value, label) =>
-            `<form action="#" class="form-group" data-action="group:edit" data-group="${value}">`
+            `<form action="#" class="form-group" data-action="group:change" data-group="${value}">`
             + `<button name="groupName" class="themed" >${label}</button>`
             + `</form>`)}
                 
@@ -771,10 +793,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 
             </div>
             
-            <form action="#" class="form-render-time-division submit-on-change" data-action="tracker:duration">
-                <div class="form-section-header">Quantize</div>
-                <select name="timeDivision" title="Render Duration" class="themed">
-                    <option value="">No Duration</option>
+            <form action="#" class="form-render-row-length submit-on-change" data-action="tracker:quantization">
+                <div class="form-section-header">Row Length</div>
+                <select name="rowLengthInTicks" title="Row Length" class="themed">
+                    <option value="">Default</option>
                     <optgroup label="Render Duration">
                         ${this.editor.values.renderEditorFormOptions('durations')}
                     </optgroup>
@@ -799,7 +821,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
 
-    onAction(e, actionName) {
+    onAction(e, actionName, actionParam=null) {
         // const cursorCellIndex = this.editor.cursorCellIndex;
         // const selectedIndicies = this.editor.status.selectedIndicies;
         const selectedIndicies = this.selectedIndicies;
@@ -924,10 +946,11 @@ class AudioSourceComposerTracker extends HTMLElement {
             //     break;
 
 
-            case 'group:edit':
+            case 'group:change':
                 const groupForm = e.target.form || e.target;
-                const selectedGroupName = groupForm.getAttribute('data-group');
-                this.editor.selectGroup(selectedGroupName);
+                const selectedGroupName = actionParam || groupForm.getAttribute('data-group');
+                this.groupName = selectedGroupName;
+                // this.editor.selectGroup(selectedGroupName);
                 break;
 
 
@@ -943,9 +966,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.editor.status.currentOctave = parseInt(this.fieldRenderOctave.value);
                 break;
 
-            case 'tracker:duration':
-                this.timeDivision = this.fieldRenderTimeDivision.value;
-//                 this.render(1);
+            case 'tracker:quantization':
+                this.rowLengthInTicks = this.fieldRenderRowLength.value;
+                this.render(1);
                 break;
 
             case 'tracker:instrument':
@@ -954,15 +977,19 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
             default:
-                console.warn("Unhandled " + e.type + ": ", actionName);
+                return false;
+                // console.warn("Unhandled " + e.type + ": ", actionName);
                 break;
         }
+        return true;
         // } catch (e) {
         //     this.onError(e);
         // }
     }
 
     createNewInstructionCell(rowElement) {
+        if(!rowElement)
+            throw new Error("Invalid Row Element: " + typeof rowElement);
         this.querySelectorAll('asct-instruction-add')
             .forEach((elm) => elm.parentNode.removeChild(elm));
         const newInstructionElm = document.createElement('asct-instruction-add');
@@ -1201,16 +1228,17 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     increaseTrackerSize(e, selectNewRow=true) {
         // TODO: sloppy
-        this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
-            if (this.minimumTrackerLengthTicks < stats.groupPositionInTicks)
-                this.minimumTrackerLengthTicks = stats.groupPositionInTicks;
-        });
+        // this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
+        //     if (this.minimumTrackerLengthTicks < stats.groupPositionInTicks)
+        //         this.minimumTrackerLengthTicks = stats.groupPositionInTicks;
+        // });
 
-        // const defaultDuration = parseFloat(this.editorForms.fieldRenderTimeDivision.value);
-        this.minimumTrackerLengthTicks += this.timeDivision;
-        this.render();
+        // const defaultDuration = parseFloat(this.editorForms.fieldRenderRowLength.value);
+        // this.minimumTrackerLengthTicks += this.rowLengthInTicks;
+        this.renderMinimumRows+=1;
+        this.renderAllRows();
         if(selectNewRow) {
-            const lastRowElm = this.querySelector('.composer-tracker > div:last-child');
+            const lastRowElm = this.querySelector('asc-tracker > asct-row:last-child');
             this.selectCell(e, this.createNewInstructionCell(lastRowElm));
         }
     }
