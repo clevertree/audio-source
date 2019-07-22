@@ -47,7 +47,7 @@ class AudioSourceRenderer {
         return this.audioContext;
     }
     getSongData() { return this.songData; }
-    getSongTimeDivision() { return this.songData.rowLengthInTicks || 96*4; }
+    getSongTimeDivision() { return this.songData.timeDivision || 96*4; }
     getGroupTimeDivision(groupName) {
         return this.getSongTimeDivision();
     }
@@ -110,7 +110,7 @@ class AudioSourceRenderer {
 
         const newInstructions = {};
         this.songData.instructions = newInstructions;
-        this.songData.rowLengthInTicks = midiData.rowLengthInTicks;
+        this.songData.timeDivision = midiData.timeDivision;
         newInstructions.root = [];
         for(let trackID=0; trackID<midiData.track.length; trackID++) {
             newInstructions.root.push([0, `@track` + trackID]);
@@ -124,7 +124,7 @@ class AudioSourceRenderer {
             let deltaPosition = 0, lastInsertDeltaPosition=0;
             for(let eventID=0; eventID<trackEvents.length; eventID++) {
                 const trackEvent = trackEvents[eventID];
-                // let deltaDuration = trackEvent.deltaTime; // midiData.rowLengthInTicks;
+                // let deltaDuration = trackEvent.deltaTime; // midiData.timeDivision;
                 deltaPosition += trackEvent.deltaTime;
 
                 // newTrack.push
@@ -450,7 +450,7 @@ class AudioSourceRenderer {
         const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
-            parentStats ? parentStats.rowLengthInTicks : this.getSongTimeDivision(),
+            parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
             parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
@@ -470,7 +470,7 @@ class AudioSourceRenderer {
         const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
-            parentStats ? parentStats.rowLengthInTicks : this.getSongTimeDivision(),
+            parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
             parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
@@ -487,7 +487,7 @@ class AudioSourceRenderer {
     // async eachInstructionAsync(groupName, callback, parentStats=null) {
     //     let instructionList = this.songData.instructions[groupName];
     //     // const instructionList = this.getInstructions(rootGroup);
-    //     const rowLengthInTicks = this.getSongTimeDivision();
+    //     const timeDivision = this.getSongTimeDivision();
     //     let maxPlayTime = 0;
     //     const stats = Object.assign({
     //         songPositionInTicks:0,
@@ -503,7 +503,7 @@ class AudioSourceRenderer {
     //         // if(typeof instruction.command !== "undefined") {
     //         if (instruction.deltaDuration) { // Delta
     //             stats.groupPositionInTicks += instruction.deltaDuration;
-    //             const elapsedTime = (instruction.deltaDuration / rowLengthInTicks) / (stats.currentBPM / 60);
+    //             const elapsedTime = (instruction.deltaDuration / timeDivision) / (stats.currentBPM / 60);
     //             stats.groupPlaybackTime += elapsedTime;
     //         }
     //
@@ -518,7 +518,7 @@ class AudioSourceRenderer {
     // eachInstruction2(groupName, callback, parentStats=null) {
     //     let instructionList = this.songData.instructions[groupName];
     //     // const instructionList = this.getInstructions(rootGroup);
-    //     const rowLengthInTicks = this.getSongTimeDivision();
+    //     const timeDivision = this.getSongTimeDivision();
     //     let maxPlayTime = 0;
     //     const stats = Object.assign({
     //         songPositionInTicks:0,
@@ -534,7 +534,7 @@ class AudioSourceRenderer {
     //         // if(typeof instruction.command !== "undefined") {
     //         if (instruction.deltaDuration) { // Delta
     //             stats.groupPositionInTicks += instruction.deltaDuration;
-    //             const elapsedTime = (instruction.deltaDuration / rowLengthInTicks) / (stats.currentBPM / 60);
+    //             const elapsedTime = (instruction.deltaDuration / timeDivision) / (stats.currentBPM / 60);
     //             stats.groupPlaybackTime += elapsedTime;
     //             // groupPlaytime += instruction.deltaDuration * (60 / currentBPM);
     //             // if(groupPlaytime > maxPlaytime)
