@@ -463,46 +463,34 @@ asct-instruction.cursor {
 
 /** Tracker Cell Parameters **/
 
-ascti-command,
 ascti-instrument,
 ascti-velocity,
 ascti-duration {
     overflow: hidden;
     transition: all 0.25s ease-out;
+    border-left: 1px solid #888;
 }
 
 
 ascti-command {
     color: darkred;
 }
-asct-instruction:not(.selected) > ascti-command {
-    max-width: 24px;
-}
-
 ascti-instrument {
     color: darkblue;
-    max-width: 0px;
 }
 ascti-duration {
     color: purple;
-    max-width: 0px;
 }
 ascti-velocity {
     color: green;
-    max-width: 0px;
 }
-asct-instruction.selected > ascti-instrument,
-asct-instruction.cursor > ascti-instrument,
 
-asct-instruction.selected > ascti-duration,
-asct-instruction.cursor > ascti-duration,
-
-asct-instruction.selected > ascti-velocity,
-asct-instruction.cursor > ascti-velocity {
-    max-width: 40px;
-    border-left: 1px solid #888;
-    /*margin: 0px;*/
-    /*padding: 0 0 0 3px;*/
+ascti-command,
+ascti-instrument,
+ascti-velocity,
+ascti-duration {
+    overflow: hidden;
+    transition: all 0.25s ease-out;
     padding: 0px 2px;
 }
 
