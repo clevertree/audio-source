@@ -469,8 +469,13 @@ ascti-duration {
     overflow: hidden;
     transition: all 0.25s ease-out;
     border-left: 1px solid #888;
+    animation: slide-open 1s;
 }
 
+@keyframes slide-open {
+    0% { max-width: 0px; }
+    100% { max-width: 99px; }
+}
 
 ascti-command {
     color: darkred;
