@@ -1646,19 +1646,35 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
 
 
     render(instruction=null) {
-        this.innerHTML = '';
+        // this.innerHTML = '';
         instruction = instruction || this.getInstruction();
 
-        let paramElm;
-        this.appendChild(paramElm = document.createElement('ascti-command'));
-        paramElm.render(instruction);
+        let commandElm = this.querySelector('ascti-command') || document.createElement('ascti-command');
+        this.appendChild(commandElm);
+        commandElm.render(instruction);
+
         if(this.classList.contains('selected')) {
-            this.appendChild(paramElm = document.createElement('ascti-instrument'));
-            paramElm.render(instruction);
-            this.appendChild(paramElm = document.createElement('ascti-velocity'));
-            paramElm.render(instruction);
-            this.appendChild(paramElm = document.createElement('ascti-duration'));
-            paramElm.render(instruction);
+            let instrumentElm = this.querySelector('ascti-instrument') || document.createElement('ascti-instrument');
+            this.appendChild(instrumentElm);
+            instrumentElm.render(instruction);
+
+            let velocityElm = this.querySelector('ascti-velocity') || document.createElement('ascti-velocity');
+            this.appendChild(velocityElm);
+            velocityElm.render(instruction);
+
+            let durationElm = this.querySelector('ascti-duration') || document.createElement('ascti-duration');
+            this.appendChild(durationElm);
+            durationElm.render(instruction);
+
+        } else {
+            let instrumentElm = this.querySelector('ascti-instrument');
+            if(instrumentElm) instrumentElm.parentNode.removeChild(instrumentElm);
+
+            let velocityElm = this.querySelector('ascti-velocity');
+            if(velocityElm) velocityElm.parentNode.removeChild(velocityElm);
+
+            let durationElm = this.querySelector('ascti-duration');
+            if(durationElm) durationElm.parentNode.removeChild(durationElm);
         }
         // this.innerHTML = JSON.stringify(instruction); // .editor.values.format(this.duration, 'duration');
         return this;

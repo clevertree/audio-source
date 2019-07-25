@@ -254,11 +254,14 @@ class AudioSourceComposerElement extends HTMLElement {
                 if(!e.altKey) { // TODO: fix scroll
                     clearTimeout(this.longPressTimeout);
                     this.longPressTimeout = setTimeout(() => {
-                        (e.currentTarget || e.path[0]).dispatchEvent(new CustomEvent('longpress', {
+                        const target = e.currentTarget || e.path[0];
+                        const longPressEvent = new CustomEvent('longpress', {
                             detail: {originalEvent: e},
                             cancelable: true,
                             bubbles: true
-                        }));
+                        });
+//                         console.log(target.parentNode, longPressEvent);
+                        target.dispatchEvent(longPressEvent);
                     }, this.status.longPressTimeout);
                 }
                 break;

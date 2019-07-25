@@ -157,7 +157,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         let containerElm = this.getSubMenuContainer();
 
         let x = oe.clientX, y = oe.clientY;
-        console.info("Context menu ", containerElm, x, y);
+//         console.info("Context menu ", containerElm, x, y);
 
         containerElm.classList.add('open-context-menu');
         this.classList.add('open', 'stick');
