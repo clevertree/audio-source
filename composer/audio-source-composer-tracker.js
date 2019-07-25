@@ -1126,6 +1126,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             const cursorRow = cursorCell.parentNode;
             const nextRowElm = cursorRow.nextElementSibling;
             selectedCell = nextRowElm.firstElementChild;
+           // TODO: next row might be empty. create new instruction
         } else {
             throw new Error("Shouldn't happen");
             // const currentRowElm = this.cursorCell.parentNode;
@@ -1159,15 +1160,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         let selectedCell = nextRowElm.firstElementChild;
         if(nextRowElm.children[cellPosition] && nextRowElm.children[cellPosition].matches('asct-instruction,asct-instruction-add')) {
             selectedCell = nextRowElm.children[cellPosition];
-        // } else {
-        //     nextRowElm.setCursor();
-            // selectedCell = this.createNewInstructionCell(nextRowElm);
+        } else {
+            selectedCell = nextRowElm.createAddInstructionElement();
         }
-
-        // let nextCell = nextRowElm.querySelector('asct-instruction');
-        // if(nextCell) {
-        //     return this.selectCell(e, nextCell);
-        // }
 
         selectedCell
             .select(clearSelection)
@@ -1204,7 +1199,8 @@ class AudioSourceComposerTracker extends HTMLElement {
             // If parallel column cell is available, select it
             selectedCell = previousRowElm.children[cellPosition];
         } else {
-            previousRowElm.setCursor();
+            selectedCell = previousRowElm.createAddInstructionElement();
+            // previousRowElm.setCursor();
             // selectedCell = this.createNewInstructionCell(previousRowElm);
         }
 
@@ -1674,6 +1670,14 @@ customElements.define('asct-instruction', AudioSourceComposerTrackerInstruction)
 
 
 class AudioSourceComposerTrackerInstructionAdd extends AudioSourceComposerTrackerInstruction {
+
+
+    render(instruction=null) {
+        if(instruction)
+            throw new Error("Invalid");
+        this.innerHTML = '+';
+        return this;
+    }
 
 }
 customElements.define('asct-instruction-add', AudioSourceComposerTrackerInstructionAdd);

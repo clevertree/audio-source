@@ -434,7 +434,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:volume':
-                this.renderer.setVolume(parseInt(form['volume'].value));
+                this.renderer.setVolume(this.fieldSongVolume.value);
                 break;
 
             case 'song:add-instrument':
