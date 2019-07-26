@@ -14,6 +14,8 @@ class AudioSourceRenderer {
         this.volumeGain = null;
         this.playing = false;
         this.activeGroups = {};
+        this.sources = new AudioSources(this);
+        this.values = new AudioSourceValues(this);
         // this.config = {
         //     volume: 0.3
         // };

@@ -31,6 +31,13 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.loadDefaultSampleLibrary(); // TODO: load samples before audio source loads
         }
 
+        get editor() {
+            const editor = this.closest('div.asc-container').parentNode.host;
+            if(!editor)
+                throw new Error("Editor not found");
+            return editor;
+        }
+
         connectedCallback() {
             // this.loadCSS();
             // this.song = this.closest('music-song'); // Don't rely on this !!!
@@ -628,14 +635,15 @@ if(!customElements.get('audio-source-synthesizer')) {
                     break;
 
                 case 'instrument:remove':
+                    // TODO: dispatch to shadow host
                     this.editor.renderer.removeInstrument(form.elements['instrumentID'].value);
-                    this.editor.instruments.render();
+                    this.editor.renderInstruments();
                     break;
 
                 case 'instrument:change':
                     this.editor.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
                     this.editor.renderer.loadInstrument(form.elements['instrumentID'].value, true);
-                    this.editor.instruments.render(); // Renders instrument in 'loading' state if not yet loaded by loadInstrument()
+                    this.editor.renderInstruments();
                     break;
 
 

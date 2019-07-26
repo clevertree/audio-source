@@ -4,13 +4,13 @@
  * One groups displays at a time. Columns imply simultaneous instructions.
  */
 
-class AudioSourceComposerValues {
-    constructor(editor) {
-        this.editor = editor;
+class AudioSourceValues {
+    constructor(renderer) {
+        this.renderer = renderer;
     }
 
     // get noteFrequencies() {
-    //     return this.editor.renderer.noteFrequencies; // ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    //     return this.renderer.noteFrequencies; // ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     // }
 
     /** Form Options **/
@@ -18,7 +18,7 @@ class AudioSourceComposerValues {
     getValues(valueType, callback) {
         let noteFrequencies;
         let valuesHTML = '';
-        const songData = this.editor.getSongData() || {};
+        const songData = this.renderer.getSongData() || {};
 
         switch(valueType) {
             // case 'server-recent-uuid':
@@ -40,15 +40,15 @@ class AudioSourceComposerValues {
                     const instrumentList = songData.instruments;
                     for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                         const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
-                        // const instrument = this.editor.renderer.getInstrument(instrumentID);
-                        valuesHTML += callback(instrumentID, this.editor.values.format(instrumentID, 'instrument')
+                        // const instrument = this.renderer.getInstrument(instrumentID);
+                        valuesHTML += callback(instrumentID, this.renderer.values.format(instrumentID, 'instrument')
                             + ': ' + (instrumentInfo.name ? instrumentInfo.name : instrumentInfo.url.split('/').pop()));
                     }
                 }
                 break;
 
             case 'instruments-available':
-                const instrumentLibrary = this.editor.sources.getInstrumentLibrary();
+                const instrumentLibrary = this.renderer.sources.getInstrumentLibrary();
                 if(instrumentLibrary) {
                     if(instrumentLibrary.instruments) {
                         instrumentLibrary.instruments.forEach((pathConfig) => {
@@ -62,8 +62,8 @@ class AudioSourceComposerValues {
 
             case 'command-instrument-frequencies':
                 for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
-                    if(this.editor.renderer.isInstrumentLoaded(instrumentID)) {
-                        const instance = this.editor.renderer.getInstrument(instrumentID);
+                    if(this.renderer.isInstrumentLoaded(instrumentID)) {
+                        const instance = this.renderer.getInstrument(instrumentID);
                         if(instance.getFrequencyAliases) {
                             const aliases = instance.getFrequencyAliases();
                             Object.values(aliases).forEach((aliasValue) =>
@@ -74,7 +74,7 @@ class AudioSourceComposerValues {
                 break;
 
             case 'note-frequencies':
-                noteFrequencies = this.editor.renderer.noteFrequencies;
+                noteFrequencies = this.renderer.noteFrequencies;
                 // for(let i=1; i<=6; i++) {
                 for(let j=0; j<noteFrequencies.length; j++) {
                     const noteFrequency = noteFrequencies[j]; //  + i
@@ -85,7 +85,7 @@ class AudioSourceComposerValues {
 
 
             case 'note-frequencies-all':
-                noteFrequencies = this.editor.renderer.noteFrequencies;
+                noteFrequencies = this.renderer.noteFrequencies;
                 for(let i=1; i<=6; i++) {
                     for(let j=0; j<noteFrequencies.length; j++) {
                         const noteFrequency = noteFrequencies[j] + i;
@@ -108,7 +108,7 @@ class AudioSourceComposerValues {
                 break;
 
             case 'durations':
-                const timeDivision = this.editor.renderer.getSongTimeDivision();
+                const timeDivision = this.renderer.getSongTimeDivision();
                 for(let i=64; i>1; i/=2) {
                     let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
                     valuesHTML += callback((1/i)/1.5    * timeDivision, `${fraction}t`);

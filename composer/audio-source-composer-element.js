@@ -13,8 +13,6 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.longPressTimeout = null;
 
-        this.values = new AudioSourceComposerValues(this);
-        this.sources = new AudioSources(this);
         this.webSocket = new AudioSourceComposerWebsocket(this);
         this.keyboard = new AudioSourceComposerKeyboard(this);
         // this.menu = new AudioSourceComposerMenu(this);
@@ -48,6 +46,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.sources.loadDefaultInstrumentLibrary();
     }
+    get sources() { return this.renderer.sources; }
+    get values() { return this.renderer.values; }
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
     // get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
     // get forms() { return this.shadowDOM.querySelector('asc-forms'); }
@@ -665,12 +665,17 @@ class AudioSourceComposerElement extends HTMLElement {
 
             // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
 
-            const instrument = renderer.getInstrument(instrumentID, false);
-            const instrumentPreset = renderer.getInstrumentConfig(instrumentID, false) || {name: "Empty Instrument"};
+            let instrument = renderer.getInstrument(instrumentID, false);
+            const instrumentPreset = renderer.getInstrumentConfig(instrumentID, false);
 
             instrumentDiv.innerHTML = ``;
 
-            if(!instrumentPreset.url) {
+            if(!instrument || !instrumentPreset) {
+                instrument = new EmptyInstrumentElement();
+                instrument.setAttribute('data-id', instrumentID+'');
+                instrumentDiv.appendChild(instrument);
+
+            } else if(!instrumentPreset.url) {
                 instrumentDiv.innerHTML = `Invalid URL`;
 
             } else if(!renderer.isInstrumentLoaded(instrumentID)) {
@@ -924,3 +929,44 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 }
 customElements.define('audio-source-composer', AudioSourceComposerElement);
+
+class EmptyInstrumentElement extends HTMLElement {
+
+    constructor() {
+        super();
+    }
+
+
+
+    connectedCallback() {
+        // this.song = this.closest('music-song'); // Don't rely on this !!!
+        // const onInput = e => this.onInput(e);
+        // this.addEventListener('submit', onInput);
+        this.render();
+    }
+
+    get editor() {
+        const editor = this.closest('div.asc-container').parentNode.host;
+        if(!editor)
+            throw new Error("Editor not found");
+        return editor;
+    }
+
+    render() {
+        const instrumentID = this.getAttribute('data-id') || '0';
+        this.innerHTML = `
+            <div class="form-section control-song">
+                <div class="form-section-header">Add Instrument</div>                    
+                <form class="form-song-add-instrument submit-on-change" data-action="instrument:change">
+                    <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+                    <select name="instrumentURL" class="themed">
+                        <option value="">Select Instrument</option>
+                        ${this.editor.values.renderEditorFormOptions('instruments-available')}
+                    </select>
+                </form>
+            </div>
+
+        `;
+    }
+}
+customElements.define('asc-instrument-empty', EmptyInstrumentElement);
