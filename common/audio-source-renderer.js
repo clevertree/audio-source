@@ -804,14 +804,14 @@ class AudioSourceRenderer {
 
     replaceInstrument(instrumentID, config) {
         const instrumentList = this.songData.instruments;
-        if(!instrumentList[instrumentID])
+        if(instrumentList.length <= instrumentID)
             throw new Error("Invalid instrument ID: " + instrumentID);
         const oldInstrument = instrumentList[instrumentID];
         if(typeof config !== 'object')
             config = {
                 url: config
             };
-        if(oldInstrument.name && !config.name)
+        if(oldInstrument && oldInstrument.name && !config.name)
             config.name = oldInstrument.name;
         // Preserve old instrument name
         return this.replaceDataPath(['instruments', instrumentID], config)

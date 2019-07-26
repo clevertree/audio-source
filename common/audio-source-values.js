@@ -52,9 +52,11 @@ class AudioSourceValues {
                 if(instrumentLibrary) {
                     if(instrumentLibrary.instruments) {
                         instrumentLibrary.instruments.forEach((pathConfig) => {
+                            let instrumentURL = pathConfig.url;
+                            if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
                             if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
                             if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
-                            valuesHTML += callback(pathConfig.url, pathConfig.title); //  + " (" + pathConfig.url + ")"
+                            valuesHTML += callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
                         });
                     }
                 }

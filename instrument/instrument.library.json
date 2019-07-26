@@ -3,7 +3,7 @@
   "instruments": [
     {
       "title": "Synthesizer Instrument",
-      "url": "instrument/audio-source-synthesizer.js"
+      "url": "audio-source-synthesizer.js"
     }
   ]
 }

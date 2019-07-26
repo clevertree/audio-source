@@ -56,11 +56,12 @@ class AudioSources {
                     return reject("Sample library not found: " + url);
 
                 this.instrumentLibrary = xhr.response;
-                this.instrumentLibrary.url = URL + '';
+                this.instrumentLibrary.url = url + '';
                 this.editor.dispatchEvent(new CustomEvent('instrument:library', {
                     // detail: this.instrumentLibrary,
                     // bubbles: true
                 }));
+                console.info("Instrument Library Loaded: ", this.instrumentLibrary);
                 resolve(this.instrumentLibrary);
             };
             xhr.send();

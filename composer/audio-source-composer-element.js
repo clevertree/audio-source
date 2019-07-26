@@ -412,6 +412,12 @@ class AudioSourceComposerElement extends HTMLElement {
                 // this.update();
                 break;
 
+            case 'instrument:change':
+                const changeInstrumentID = parseInt(e.target.form.elements['instrumentID'].value);
+                this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrumentID, e.target.form.elements['instrumentURL'].value);
+                // this.update();
+                break;
+
             case 'song:edit':
                 this.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
                 this.renderer.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
