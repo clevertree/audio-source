@@ -11,7 +11,7 @@ class AudioSources {
             "name": "Loading Instrument Library...",
             "instruments": [
                 {
-                    "title": "Loading instrument list...",
+                    "name": "Loading instrument list...",
                     "url": ""
                 }
             ]

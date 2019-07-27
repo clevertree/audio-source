@@ -363,7 +363,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                     if (!this.libraryHistory.find(historyEntry => historyEntry.url === this.sampleLibrary.url))
                         this.libraryHistory.push({
                             url: this.sampleLibrary.url,
-                            title: this.libraryHistory.length === 0 ? "Home Index" : this.sampleLibrary.title
+                            title: this.libraryHistory.length === 0 ? "Home Index" : this.sampleLibrary.name
                         });
 //                 console.log("LIBRARY", this.sampleLibrary);
 
@@ -397,7 +397,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 //         <optgroup label="Change Instrument">
                 //             ${this.instrumentLibrary ? this.instrumentLibrary.instruments.map((instrumentConfig) => {
                 //                 if (typeof instrumentConfig !== 'object') instrumentConfig = {url: instrumentConfig};
-                //                 return `<option value="${instrumentConfig.url}">${instrumentConfig.title || instrumentConfig.url.split('/').pop()}</option>`;
+                //                 return `<option value="${instrumentConfig.url}">${instrumentConfig.name || instrumentConfig.url.split('/').pop()}</option>`;
                 //             }).join("\n") : ''}
                 //         </optgroup>
                 //     </select>
@@ -454,13 +454,14 @@ if(!customElements.get('audio-source-synthesizer')) {
                     </thead>
                     <tbody>
                 ${Object.keys(this.config.samples).map(sampleName => {
+                    const sampleConfig = this.config.samples[sampleName];
                     return `
                         <tr>
                             <td>${sampleName}</td>
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="instrument:mixer">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="mixer" type="range" min="1" max="100" value="${100}" />
+                                    <input name="mixer" type="range" min="1" max="100" value="${sampleConfig.mixer}" />
                                 </form>
                             </td>    
                             <td>   
@@ -472,13 +473,13 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="instrument:keyRoot">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="keyRoot" value="${this.config.samples[sampleName].keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
+                                    <input name="keyRoot" value="${sampleConfig.keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>      
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="instrument:keyAlias">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="keyAlias" value="${this.config.samples[sampleName].keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
+                                    <input name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>  
                         </tr>`;
@@ -497,15 +498,15 @@ if(!customElements.get('audio-source-synthesizer')) {
                         `<optgroup label="Libraries">` +
                         this.sampleLibrary.libraries.map((libraryConfig) => {
                             if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
-                            return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
+                            return `<option value="${libraryConfig.url}">${libraryConfig.name || libraryConfig.url.split('/').pop()}</option>`;
                         }).join("\n")
                         + `</optgroup>`
                     : null}
                     ${this.sampleLibrary && this.sampleLibrary.instruments ?
-                        `<optgroup label="${this.sampleLibrary.title || 'Unnamed Library'}">` +
+                        `<optgroup label="${this.sampleLibrary.name || 'Unnamed Library'}">` +
                         Object.keys(this.sampleLibrary.instruments).map((presetName) => {
                             const instrumentConfig = this.sampleLibrary.instruments[presetName];
-                            return `<option value="${presetName}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName || instrumentConfig.title}</option>`;
+                            return `<option value="${presetName}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName || instrumentConfig.name}</option>`;
                         }).join("\n")
                         + `</optgroup>`
                     : null}
@@ -513,7 +514,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                         `<optgroup label="Other Libraries">` +
                         this.libraryHistory.map((libraryConfig) => {
                             if (typeof libraryConfig !== 'object') libraryConfig = {url: libraryConfig};
-                            return `<option value="${libraryConfig.url}">${libraryConfig.title || libraryConfig.url.split('/').pop()}</option>`;
+                            return `<option value="${libraryConfig.url}">${libraryConfig.name || libraryConfig.url.split('/').pop()}</option>`;
                         }).join("\n")
                         + `</optgroup>`
                     : null}
@@ -570,6 +571,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             e.preventDefault();
             let form = e.target.form || e.target;
             const command = form.getAttribute('data-action');
+            const instrumentID = parseInt(this.getAttribute('data-id') || '0');
 
 
             switch (command) {
@@ -589,23 +591,20 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                     switch(command) {
                         case 'instrument:mixer':
-                            sampleConfig.mixer = parseInt(form.elements.mixer.value);
+                            this.renderer.replaceInstrumentParam(instrumentID, 'mixer', parseInt(form.elements.mixer.value));
                             break;
 
                         case 'instrument:detune':
-                            sampleConfig.detune = parseInt(form.elements.detune.value);
+                            this.renderer.replaceInstrumentParam(instrumentID, 'detune', parseInt(form.elements.detune.value));
                             break;
 
                         case 'instrument:keyRoot':
-                            sampleConfig.keyRoot = form.elements.keyRoot.value;
+                            this.renderer.replaceInstrumentParam(instrumentID, 'keyRoot', form.elements.keyRoot.value);
                             break;
                         case 'instrument:keyAlias':
-                            sampleConfig.keyAlias = form.elements.keyAlias.value;
+                            this.renderer.replaceInstrumentParam(instrumentID, 'keyAlias', form.elements.keyAlias.value);
                             break;
-                            // throw new Error("TODO " + sampleName);
-
                     }
-                    console.log(this.config);
                     break;
 
                 case 'customURL':
@@ -624,7 +623,8 @@ if(!customElements.get('audio-source-synthesizer')) {
                         const libraryURL = new URL(newPreset, this.sampleLibrary.url) + '';
                         this.loadSampleLibrary(libraryURL);
                     } else {
-                        Object.assign(this.config, this.getInstrumentPresetConfig(newPreset));
+                        this.renderer.replaceInstrument(instrumentID, newPreset);
+                        // Object.assign(this.config, this.getInstrumentPresetConfig(newPreset));
                         this.loadSamples();
                     }
                     this.render();
@@ -633,7 +633,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
 
                 case 'instrument:name':
-                    this.config.name = form.elements.name.value;
+                    this.renderer.replaceInstrumentParam(instrumentID, 'name', form.elements.name.value);
                     break;
 
                 case 'instrument:remove':

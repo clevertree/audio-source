@@ -10,7 +10,7 @@ const WAVE_FILE_LIST = './s/.list.json';
 const SAMPLE_FOLDER = './s/';
 const LIBRARY_FILE = 'fws.library.json';
 const LIBRARY_JSON = {
-    "title": "FreeWaveSamples.com",
+    "name": "FreeWaveSamples.com",
     "urlPrefix": "s/",
     "instruments": {},
     "samples": {},

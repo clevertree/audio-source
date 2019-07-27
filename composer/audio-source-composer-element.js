@@ -320,7 +320,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-        // console.log("Note Event: ", e.type);
+        console.log("Song Event: ", e.type);
         this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:loaded':
@@ -631,9 +631,9 @@ class AudioSourceComposerElement extends HTMLElement {
                                          
             
             <div class="form-section control-song">
-                <div class="form-section-header">Song Title</div>
+                <div class="form-section-header">Song Name</div>
                 <form action="#" class="form-song-title submit-on-change" data-action="song:set-title">
-                    <input name="title" type="text" class="themed" value="${songData.title}" />
+                    <input name="name" type="text" class="themed" value="${songData.name}" />
                 </form>
             </div>     
             
