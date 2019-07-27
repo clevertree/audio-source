@@ -850,13 +850,17 @@ class AudioSourceRenderer {
         return oldConfig;
     }
 
-    replaceInstrumentParam(instrumentID, paramName, paramValue) {
+    replaceInstrumentParam(instrumentID, pathList, paramValue) {
         instrumentID = parseInt(instrumentID);
         const instrumentList = this.songData.instruments;
         if(!instrumentList[instrumentID])
             throw new Error("Invalid instrument ID: " + instrumentID);
 
-        return this.replaceDataPath(['instruments', instrumentID, paramName], paramValue)
+        if(!Array.isArray(pathList))
+            pathList = [pathList];
+        pathList.unshift(instrumentID);
+        pathList.unshift('instruments');
+        return this.replaceDataPath(pathList, paramValue)
             .oldData;
     }
 

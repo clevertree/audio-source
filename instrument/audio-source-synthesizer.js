@@ -455,13 +455,14 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <tbody>
                 ${Object.keys(this.config.samples).map(sampleName => {
                     const sampleConfig = this.config.samples[sampleName];
+                    console.log(sampleConfig);
                     return `
                         <tr>
                             <td>${sampleName}</td>
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="instrument:mixer">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="mixer" type="range" min="1" max="100" value="${sampleConfig.mixer}" />
+                                    <input name="mixer" type="range" min="1" max="100" value="${sampleConfig.mixer || '-1'}" />
                                 </form>
                             </td>    
                             <td>   
@@ -591,18 +592,18 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                     switch(command) {
                         case 'instrument:mixer':
-                            this.renderer.replaceInstrumentParam(instrumentID, 'mixer', parseInt(form.elements.mixer.value));
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'mixer'], parseInt(form.elements.mixer.value));
                             break;
 
                         case 'instrument:detune':
-                            this.renderer.replaceInstrumentParam(instrumentID, 'detune', parseInt(form.elements.detune.value));
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'detune'], parseInt(form.elements.detune.value));
                             break;
 
                         case 'instrument:keyRoot':
-                            this.renderer.replaceInstrumentParam(instrumentID, 'keyRoot', form.elements.keyRoot.value);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyRoot'], form.elements.keyRoot.value);
                             break;
                         case 'instrument:keyAlias':
-                            this.renderer.replaceInstrumentParam(instrumentID, 'keyAlias', form.elements.keyAlias.value);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyAlias'], form.elements.keyAlias.value);
                             break;
                     }
                     break;
