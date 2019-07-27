@@ -85,6 +85,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.addEventListener('instrument:loaded', onSongEvent);
         this.addEventListener('instrument:instance', onSongEvent);
         this.addEventListener('instrument:library', onSongEvent);
+        this.addEventListener('instrument:modified', onSongEvent);
 
         this.render();
         this.focus();
@@ -440,20 +441,24 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:add-instrument':
-                const instrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
+                const addInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
                 e.target.form.elements['instrumentURL'].value = '';
-                if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
-                    this.renderer.addInstrument(instrumentURL);
+                if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
+                    this.renderer.addInstrument(addInstrumentURL);
 
                 } else {
                     console.info("Add instrument canceled");
                 }
                 break;
 
-            case 'song:change-instrument':
-                const changeInstrumentID = parseInt(e.target.form.elements['instrumentID'].value);
-                if(confirm(`Change Instrument ID: ${changeInstrumentID}`)) {
-                    this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrumentID, e.target.form.elements['instrumentURL'].value);
+            case 'song:replace-instrument':
+                const changeInstrument = actionOptions || {
+                    url: e.target.form.elements['instrumentURL'].value,
+                    id: parseInt(e.target.form.elements['instrumentID'].value)
+                };
+                changeInstrument.title = changeInstrument.url.split('/').pop();
+                if(confirm(`Change Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
+                    this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
                 } else {
                     console.info("Change instrument canceled");
                 }
@@ -471,11 +476,11 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:set-title':
-                this.renderer.setSongTitle(form['title'].value);
+                this.renderer.setSongTitle(e.target.form.elements['title'].value);
                 break;
 
             case 'song:set-version':
-                this.renderer.setSongVersion(form['version'].value);
+                this.renderer.setSongVersion(e.target.form.elements['version'].value);
                 break;
 
             case 'toggle:control-song':
@@ -640,20 +645,23 @@ class AudioSourceComposerElement extends HTMLElement {
             </div>                
              
             
-            <div class="form-section control-song">
-                <div class="form-section-header">Add Instrument</div>                    
-                <form class="form-song-add-instrument submit-on-change" data-action="song:add-instrument">
-                    <select name="instrumentURL" class="themed">
-                        <option value="">Select Instrument</option>
-                        ${this.values.renderEditorFormOptions('instruments-available')}
-                    </select>
-                </form>
-            </div>
-             
             <div style="clear: both;" class="control-song"></div>
         `;
     }
 
+/**
+ *
+ <div class="form-section control-song">
+ <div class="form-section-header">Add Instrument</div>
+ <form class="form-song-add-instrument submit-on-change" data-action="song:add-instrument">
+ <select name="instrumentURL" class="themed">
+ <option value="">Select Instrument</option>
+ ${this.values.renderEditorFormOptions('instruments-available')}
+ </select>
+ </form>
+ </div>
+
+ */
 
     renderInstruments() {
         const formSection = this.formsInstruments;
@@ -682,7 +690,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             instrumentDiv.innerHTML = ``;
 
-            if(!instrument || !instrumentPreset) {
+            if(!instrumentPreset) {
                 instrument = new EmptyInstrumentElement(instrumentID);
                 instrumentDiv.appendChild(instrument);
 
@@ -822,7 +830,7 @@ class AudioSourceComposerElement extends HTMLElement {
                             menuInstrument.setAttribute('data-instrument', instrumentURL);
                             menuInstrument.action = (e) => {
                                 this.fieldSongAddInstrument.value = instrumentURL;
-                                this.onAction(e, 'song:change-instrument', instrumentID, instrumentURL);
+                                this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
                             }
                         });
                     };
@@ -971,18 +979,20 @@ class EmptyInstrumentElement extends HTMLElement {
         let actionText = 'Add';
         let action = 'song:add-instrument';
         let instrumentID = '';
+        let instrumentIDHTML = '';
         if(this.hasAttribute('data-id')) {
-            let actionText = 'Change';
+            actionText = 'Change';
             instrumentID = this.getAttribute('data-id') || '0';
-            action = 'song:change-instrument';
+            action = 'song:replace-instrument';
+            instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
         }
         this.innerHTML = `
             <div class="form-section control-song">
-                <div class="form-section-header">${actionText} Instrument</div>                    
                 <form class="form-song-add-instrument submit-on-change" data-action="${action}">
                     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                    <select name="instrumentURL" class="themed">
-                        <option value="">Select Instrument</option>
+                    ${instrumentIDHTML}<!--
+                    --><select name="instrumentURL" class="themed">
+                        <option value="">${actionText} Instrument</option>
                         ${this.editor.values.renderEditorFormOptions('instruments-available')}
                     </select>
                 </form>

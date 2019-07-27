@@ -391,7 +391,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 .map(polyphonyCount => `<option>${polyphonyCount}</option>`)
 
 
-                // <form class="instrument-setting change-instrument submit-on-change" data-action="instrument:change">
+                // <form class="instrument-setting replace-instrument submit-on-change" data-action="instrument:change">
                 //     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
                 //     <select name="instrumentURL">
                 //         <optgroup label="Change Instrument">
@@ -639,13 +639,11 @@ if(!customElements.get('audio-source-synthesizer')) {
                 case 'instrument:remove':
                     // TODO: dispatch to shadow host
                     this.renderer.removeInstrument(form.elements['instrumentID'].value);
-                    this.editor.renderInstruments();
                     break;
 
                 case 'instrument:change':
                     this.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
                     this.renderer.loadInstrument(form.elements['instrumentID'].value, true);
-                    this.editor.renderInstruments();
                     break;
 
 

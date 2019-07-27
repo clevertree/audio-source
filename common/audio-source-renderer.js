@@ -707,6 +707,8 @@ class AudioSourceRenderer {
         this.loadedInstruments[instrumentID] = null;
 
         const instrumentPreset = this.getInstrumentConfig(instrumentID);
+        if(!instrumentPreset.url)
+            throw new Error("Invalid instrument URL");
         const instrumentClassURL = new URL(instrumentPreset.url, document.location);
         const instrumentClassFile = instrumentClassURL.pathname.split('/').pop();
         const instrumentClass = this.loadedInstrumentClasses[instrumentClassFile];
@@ -826,6 +828,7 @@ class AudioSourceRenderer {
                 config,
                 oldConfig: oldConfig
             }}), 1);
+        this.loadInstrument(instrumentID);
         return oldConfig;
     }
 
@@ -837,7 +840,7 @@ class AudioSourceRenderer {
         //
         // }
         delete this.loadedInstruments[instrumentID];
-        const oldConfig =  this.replaceDataPath(['instruments', instrumentID])
+        const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null)
             .oldData;
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
                 instrumentID,
@@ -975,19 +978,16 @@ class AudioSourceRenderer {
 
     replaceDataPath(pathList, newData) {
         const pathInfo = this.findDataPath(pathList);
+        if(typeof newData === 'undefined')
+            return this.deleteDataPath(pathList);
 
-        newData = AudioSourceRenderer.sanitizeInput(newData);
         let oldData = null;
-
-        if(typeof newData !== "undefined") {
-            // if(typeof pathInfo.key === 'number' && pathInfo.parent.length < pathInfo.key)
-            //     throw new Error(`Replace position out of index: ${pathInfo.parent.length} < ${pathInfo.key} for path: ${pathList}`);
-            if(typeof pathInfo.parent[pathInfo.key] !== "undefined")
-                oldData = pathInfo.parent[pathInfo.key];
-            pathInfo.parent[pathInfo.key] = newData
-        } else {
-            delete pathInfo.parent[pathInfo.key];
-        }
+        newData = AudioSourceRenderer.sanitizeInput(newData);
+        // if(typeof pathInfo.key === 'number' && pathInfo.parent.length < pathInfo.key)
+        //     throw new Error(`Replace position out of index: ${pathInfo.parent.length} < ${pathInfo.key} for path: ${pathList}`);
+        if(typeof pathInfo.parent[pathInfo.key] !== "undefined")
+            oldData = pathInfo.parent[pathInfo.key];
+        pathInfo.parent[pathInfo.key] = newData;
 
         return this.queueHistoryAction(pathList, newData, oldData);
     }
