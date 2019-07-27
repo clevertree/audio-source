@@ -6,8 +6,10 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
 
-        constructor(config) {
+        constructor(config, renderer=null) {
             super();
+
+            this.renderer = renderer;
 
             // Create a shadow root
             this.shadowDOM = this.attachShadow({mode: 'open'});
@@ -636,13 +638,13 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                 case 'instrument:remove':
                     // TODO: dispatch to shadow host
-                    this.editor.renderer.removeInstrument(form.elements['instrumentID'].value);
+                    this.renderer.removeInstrument(form.elements['instrumentID'].value);
                     this.editor.renderInstruments();
                     break;
 
                 case 'instrument:change':
-                    this.editor.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
-                    this.editor.renderer.loadInstrument(form.elements['instrumentID'].value, true);
+                    this.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
+                    this.renderer.loadInstrument(form.elements['instrumentID'].value, true);
                     this.editor.renderInstruments();
                     break;
 

@@ -717,7 +717,7 @@ class AudioSourceRenderer {
             return false;
         }
 
-        const instance = new instrumentClass(instrumentPreset); //, this.getAudioContext());
+        const instance = new instrumentClass(instrumentPreset, this); //, this.getAudioContext());
         this.loadedInstruments[instrumentID] = instance;
         this.dispatchEvent(new CustomEvent('instrument:instance', {
             detail: {
@@ -799,6 +799,11 @@ class AudioSourceRenderer {
 
         this.replaceDataPath(['instruments', instrumentID], config);
         this.loadInstrument(instrumentID);
+        this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
+                instrumentID,
+                config,
+                oldConfig: null
+            }}), 1);
         return instrumentID;
     }
 
@@ -814,8 +819,14 @@ class AudioSourceRenderer {
         if(oldInstrument && oldInstrument.name && !config.name)
             config.name = oldInstrument.name;
         // Preserve old instrument name
-        return this.replaceDataPath(['instruments', instrumentID], config)
+        const oldConfig = this.replaceDataPath(['instruments', instrumentID], config)
             .oldData;
+        this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
+                instrumentID,
+                config,
+                oldConfig: oldConfig
+            }}), 1);
+        return oldConfig;
     }
 
     removeInstrument(instrumentID) {
@@ -826,8 +837,14 @@ class AudioSourceRenderer {
         //
         // }
         delete this.loadedInstruments[instrumentID];
-        return this.replaceDataPath(['instruments', instrumentID])
+        const oldConfig =  this.replaceDataPath(['instruments', instrumentID])
             .oldData;
+        this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
+                instrumentID,
+                config: null,
+                oldConfig: oldConfig
+            }}), 1);
+        return oldConfig;
     }
 
     replaceInstrumentParam(instrumentID, paramName, paramValue) {

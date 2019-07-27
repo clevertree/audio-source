@@ -345,6 +345,8 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
             case 'instrument:library':
             case 'instrument:instance':
+            case 'instrument:modified':
+                console.log(e.type);
                 // TODO: this.instruments.render();
                 this.renderInstruments();
                 this.renderSongForms();
@@ -407,16 +409,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 console.log(e);
                 break;
 
-            case 'instrument:add':
-                this.status.currentInstrumentID = this.renderer.addInstrument(form.elements['instrumentURL'].value);
-                // this.update();
-                break;
 
-            case 'instrument:change':
-                const changeInstrumentID = parseInt(e.target.form.elements['instrumentID'].value);
-                this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrumentID, e.target.form.elements['instrumentURL'].value);
-                // this.update();
-                break;
 
             case 'song:edit':
                 this.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
@@ -447,21 +440,34 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:add-instrument':
-                const instrumentURL = actionOptions || this.fieldSongAddInstrument.value;
-                this.fieldSongAddInstrument.value = '';
+                const instrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
+                e.target.form.elements['instrumentURL'].value = '';
                 if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
                     this.renderer.addInstrument(instrumentURL);
-                    this.render(); // TODO: inefficient. use  this.renderInstruments();
 
                 } else {
                     console.info("Add instrument canceled");
                 }
-//                     this.fieldAddInstrumentInstrument.value = '';
+                break;
+
+            case 'song:change-instrument':
+                const changeInstrumentID = parseInt(e.target.form.elements['instrumentID'].value);
+                if(confirm(`Change Instrument ID: ${changeInstrumentID}`)) {
+                    this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrumentID, e.target.form.elements['instrumentURL'].value);
+                } else {
+                    console.info("Change instrument canceled");
+                }
+
                 break;
 
             case 'song:remove-instrument':
-                this.renderer.removeInstrument(actionOptions);
-                this.render(); // TODO: inefficient. use  this.renderInstruments();
+                const removeInstrumentID = actionOptions || parseInt(e.target.form.elements['instrumentID'].value);
+                if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
+                    this.renderer.removeInstrument(removeInstrumentID);
+
+                } else {
+                    console.info("Remove instrument canceled");
+                }
                 break;
 
             case 'song:set-title':
@@ -636,7 +642,7 @@ class AudioSourceComposerElement extends HTMLElement {
             
             <div class="form-section control-song">
                 <div class="form-section-header">Add Instrument</div>                    
-                <form class="form-song-add-instrument submit-on-change" data-action="instrument:add">
+                <form class="form-song-add-instrument submit-on-change" data-action="song:add-instrument">
                     <select name="instrumentURL" class="themed">
                         <option value="">Select Instrument</option>
                         ${this.values.renderEditorFormOptions('instruments-available')}
@@ -677,8 +683,7 @@ class AudioSourceComposerElement extends HTMLElement {
             instrumentDiv.innerHTML = ``;
 
             if(!instrument || !instrumentPreset) {
-                instrument = new EmptyInstrumentElement();
-                instrument.setAttribute('data-id', instrumentID+'');
+                instrument = new EmptyInstrumentElement(instrumentID);
                 instrumentDiv.appendChild(instrument);
 
             } else if(!instrumentPreset.url) {
@@ -705,6 +710,8 @@ class AudioSourceComposerElement extends HTMLElement {
                 }
             }
         }
+
+        formSection.appendChild(new EmptyInstrumentElement())
     }
 
     renderMenu() {
@@ -938,8 +945,10 @@ customElements.define('audio-source-composer', AudioSourceComposerElement);
 
 class EmptyInstrumentElement extends HTMLElement {
 
-    constructor() {
+    constructor(instrumentID=null) {
         super();
+        if(instrumentID !== null)
+            this.setAttribute('data-id', instrumentID+'');
     }
 
 
@@ -959,11 +968,18 @@ class EmptyInstrumentElement extends HTMLElement {
     }
 
     render() {
-        const instrumentID = this.getAttribute('data-id') || '0';
+        let actionText = 'Add';
+        let action = 'song:add-instrument';
+        let instrumentID = '';
+        if(this.hasAttribute('data-id')) {
+            let actionText = 'Change';
+            instrumentID = this.getAttribute('data-id') || '0';
+            action = 'song:change-instrument';
+        }
         this.innerHTML = `
             <div class="form-section control-song">
-                <div class="form-section-header">Add Instrument</div>                    
-                <form class="form-song-add-instrument submit-on-change" data-action="instrument:change">
+                <div class="form-section-header">${actionText} Instrument</div>                    
+                <form class="form-song-add-instrument submit-on-change" data-action="${action}">
                     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
                     <select name="instrumentURL" class="themed">
                         <option value="">Select Instrument</option>
