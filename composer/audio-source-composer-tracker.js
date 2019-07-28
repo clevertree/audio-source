@@ -663,11 +663,10 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'touchmove':
             case 'mousemove':
-                if(mousePosition.down) {
-                    var a = mousePosition.down.clientX - mousePosition.move.clientX;
-                    var b = mousePosition.down.clientY - mousePosition.move.clientY;
-                    var c = Math.sqrt(a * a + b * b);
-                    console.log("Dragging", c);
+                if(mousePosition.isDown && mousePosition.lastDrag) {
+                    if (mousePosition.lastDown.path[0].matches('asct-row')) {
+                        this.updateSelectionRect(mousePosition.lastDown, mousePosition.lastDrag)
+                    }
                 }
                 break;
 
@@ -675,12 +674,8 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'mouseup':
                 // e.preventDefault();
                 // clearTimeout(this.longPressTimeout);
-                if(mousePosition.down) {
-                    var a = mousePosition.down.clientX - mousePosition.up.clientX;
-                    var b = mousePosition.down.clientY - mousePosition.up.clientY;
-                    var c = Math.sqrt(a * a + b * b);
-                    console.log("Drag Stop", c, mousePosition.down.path[0], e.path[0]);
-                    delete mousePosition.down;
+                if (mousePosition.lastDown.path[0].matches('asct-row')) {
+                    this.commitSelectionRect(mousePosition.lastDown, mousePosition.lastUp);
                 }
                 break;
 
@@ -722,6 +717,50 @@ class AudioSourceComposerTracker extends HTMLElement {
                 throw new Error("Unhandled type: " + e.type);
 
         }
+    }
+
+    updateSelectionRect(eDown, eMove) {
+        let rectElm = this.querySelector('div.selection-rect');
+        if(!rectElm) {
+            rectElm = document.createElement('div');
+            rectElm.classList.add('selection-rect');
+            this.appendChild(rectElm);
+        }
+
+        if(eDown.clientX < eMove.clientX) {
+            rectElm.style.left = (eDown.clientX) + 'px';
+            rectElm.style.width = (eMove.clientX - eDown.clientX) + 'px';
+        } else {
+            rectElm.style.left = (eMove.clientX) + 'px';
+            rectElm.style.width = (eDown.clientX - eMove.clientX) + 'px';
+        }
+
+        if(eDown.clientY < eMove.clientY) {
+            rectElm.style.top = (eDown.clientY) + 'px';
+            rectElm.style.height = (eMove.clientY - eDown.clientY) + 'px';
+        } else {
+            rectElm.style.top = (eMove.clientY) + 'px';
+            rectElm.style.height = (eDown.clientY - eMove.clientY) + 'px';
+        }
+
+        var a = eDown.clientX - eMove.clientX;
+        var b = eDown.clientY - eMove.clientY;
+        var c = Math.sqrt(a * a + b * b);
+        // console.log("Dragging", c, eDown.path[0], eMove.path[0]);
+    }
+
+    commitSelectionRect(eDown, eUp) {
+        let rectElm = this.querySelector('div.selection-rect');
+        if(!rectElm)
+            return console.warn("No selection rect");
+
+
+        rectElm.parentNode.removeChild(rectElm);
+
+        var a = eDown.clientX - eUp.clientX;
+        var b = eDown.clientY - eUp.clientY;
+        var c = Math.sqrt(a * a + b * b);
+        console.log("Drag Stop", c, eDown.path[0], eUp.path[0]);
     }
 
     /** Forms **/

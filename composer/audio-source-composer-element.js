@@ -264,9 +264,12 @@ class AudioSourceComposerElement extends HTMLElement {
         switch(e.type) {
             case 'touchstart':
             case 'mousedown':
-                this.status.mouse = {down: e};
-                // delete this.status.mouse.up;
-                // delete this.status.mouse.move;
+                this.status.mouse.isDown = true;
+                this.status.mouse.lastDown = e;
+                // delete this.status.mouse.lastUp;
+                delete this.status.mouse.lastDrag;
+                // delete this.status.mouse.lastUp;
+                // delete this.status.mouse.lastDrag;
                 break;
 
             case 'longpress':
@@ -279,24 +282,24 @@ class AudioSourceComposerElement extends HTMLElement {
 
             case 'touchmove':
             case 'mousemove':
-                if(this.status.mouse.down) {
-                    this.status.mouse.move = e;
+                if(e.which === 1) {
+                    if (this.status.mouse.isDown) {
+                        this.status.mouse.lastDrag = e;
+                    }
                 }
                 break;
 
             case 'touchend':
             case 'mouseup':
+                this.status.mouse.isDown = false;
                 // e.preventDefault();
                 // clearTimeout(this.longPressTimeout);
-                if(this.status.mouse.down) {
-                    this.status.mouse.up = e;
-                }
 
-                const lastMouseUp = this.status.lastMouseUp;
+                const lastMouseUp = this.status.mouse.lastUp;
                 if(lastMouseUp && lastMouseUp.t.getTime() + this.status.doubleClickTimeout > new Date().getTime()) {
                     e.preventDefault();
                     const currentTarget = e.path[0];
-                    const originalTarget = lastMouseUp.e.path[0];
+                    const originalTarget = lastMouseUp.path[0];
                     if(originalTarget === currentTarget
                         || originalTarget.contains(currentTarget)
                         || currentTarget.contains(originalTarget)) {
@@ -314,7 +317,8 @@ class AudioSourceComposerElement extends HTMLElement {
                     }
                     // console.log(doubleClickEvent);
                 }
-                this.status.lastMouseUp = {e, t: new Date()};
+                e.t = new Date();
+                this.status.mouse.lastUp = e;
                 break;
 
             // case 'click':
