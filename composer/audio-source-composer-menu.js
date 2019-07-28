@@ -67,6 +67,8 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     onMouseEvent(e) {
+        if(!this.contains(e.target))
+            return;
         switch(e.type) {
             case 'mouseenter':
                 clearTimeout(this.mouseTimeout);
@@ -149,15 +151,15 @@ class AudioSourceComposerMenu extends HTMLElement {
     // }
 
     openContextMenu(e) {
-        const oe = e.detail.originalEvent || e;
+        let x = e.clientX || e.detail.clientX,
+            y = e.clientY || e.detail.clientY;
         this.clearSubMenu();
         this.renderSubMenu(e);
         // this.classList.add('stick');
 
         let containerElm = this.getSubMenuContainer();
 
-        let x = oe.clientX, y = oe.clientY;
-//         console.info("Context menu ", containerElm, x, y);
+        console.info("Context menu ", containerElm, x, y);
 
         containerElm.classList.add('open-context-menu');
         this.classList.add('open', 'stick');
@@ -174,6 +176,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         }
         parentMenu.parentElement.querySelectorAll(`asc-menu.open,asc-menu.stick`)
             .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
+        console.trace("Clear all menus ");
     }
 
     render() {

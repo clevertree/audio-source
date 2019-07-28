@@ -663,10 +663,14 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'mouseup':
                 break;
 
+            case 'mousemove':
+                break;
+
             case 'click':
                 // this.editor.closeMenu();
                 break;
 
+            case 'doubleclick':
             case 'longpress':
                 // if (e.target.classList.contains('tracker-parameter')
                 //     || e.target.classList.contains('tracker-cell')
@@ -1429,6 +1433,11 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
         return true;
     }
 
+    connectedCallback() {
+        // setTimeout(e => this.render(), 1);
+        // this.setAttribute('draggable', true);
+    }
+
     getDeltaElement() {
         let deltaElm = this.querySelector('asct-delta');
         if(deltaElm)
@@ -1519,10 +1528,6 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
             container.scrollTop = this.offsetTop - container.offsetHeight;
     }
 
-    connectedCallback() {
-        // setTimeout(e => this.render(), 1);
-    }
-
 
     render(startIndex, songPositionInTicks, rowInstructionList=[]) {
         this.position = songPositionInTicks;
@@ -1608,6 +1613,7 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
 
     connectedCallback() {
         // this.render();
+        // this.setAttribute('draggable', true);
     }
 
 
@@ -1721,6 +1727,7 @@ class AudioSourceComposerTrackerParameter extends HTMLElement {
 
     connectedCallback() {
         //this.render();
+        // this.setAttribute('draggable', true);
     }
 
     render() {

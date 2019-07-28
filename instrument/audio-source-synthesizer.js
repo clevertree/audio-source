@@ -266,7 +266,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                     // TODO: polyphony
 
-                    this.playSample(destination, sampleName, frequencyValue, startTime, duration, velocity);
+                    await this.playSample(destination, sampleName, frequencyValue, startTime, duration, velocity);
                     // this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
                     // if (source)
                     //     sources.push(sources);

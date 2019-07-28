@@ -40,9 +40,12 @@ class AudioSourceComposerElement extends HTMLElement {
             currentRenderDuration: null,
             previewInstructionsOnSelect: false,
             longPressTimeout: 500,
+            lastMouseUp: null,
+            doubleClickTimeout: 500,
             autoSaveTimeout: 4000,
         };
         this.shadowDOM = null;
+        this.mousePosition = {};
 
         this.sources.loadDefaultInstrumentLibrary();
     }
@@ -70,8 +73,12 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM.addEventListener('contextmenu', onInput);
         this.shadowDOM.addEventListener('mousedown', onInput);
         this.shadowDOM.addEventListener('mouseup', onInput);
-        this.shadowDOM.addEventListener('click', onInput);
-        this.shadowDOM.addEventListener('longpress', onInput);
+        this.shadowDOM.addEventListener('mousemove', onInput);
+        // this.shadowDOM.addEventListener('click', onInput);
+        this.shadowDOM.addEventListener('doubleclick', onInput);
+        // this.shadowDOM.addEventListener('dragstart', onInput, false);
+        // this.shadowDOM.addEventListener('drag', onInput, false);
+        // this.shadowDOM.addEventListener('dragend', onInput, false);
 
         const onSongEvent = e => this.onSongEvent(e);
         this.addEventListener('song:loaded', onSongEvent);
@@ -251,41 +258,89 @@ class AudioSourceComposerElement extends HTMLElement {
         // }
         switch(e.type) {
             case 'mousedown':
+                this.mousePosition.down = [e.clientX, e.clientY];
                 // Longpress
+                // TODO: longpress is a bad idea. use double click
                 if(!e.altKey) { // TODO: fix scroll
-                    clearTimeout(this.longPressTimeout);
-                    this.longPressTimeout = setTimeout(() => {
-                        const target = e.currentTarget || e.path[0];
-                        const longPressEvent = new CustomEvent('longpress', {
-                            detail: {originalEvent: e},
-                            cancelable: true,
-                            bubbles: true
-                        });
-//                         console.log(target.parentNode, longPressEvent);
-                        target.dispatchEvent(longPressEvent);
-                    }, this.status.longPressTimeout);
+//                     clearTimeout(this.longPressTimeout);
+//                     this.longPressTimeout = setTimeout(() => {
+//                         var a = this.mousePosition.down[0] - this.mousePosition.move[0];
+//                         var b = this.mousePosition.down[1] - this.mousePosition.move[1];
+//                         var c = Math.sqrt( a*a + b*b );
+//                         // console.log(this.mousePosition, c);
+//                         if(c > 50)
+//                             return;
+//                         const target = e.currentTarget || e.path[0];
+//                         const longPressEvent = new CustomEvent('longpress', {
+//                             detail: {originalEvent: e},
+//                             cancelable: true,
+//                             bubbles: true
+//                         });
+// //                         console.log(target.parentNode, longPressEvent);
+//                         target.dispatchEvent(longPressEvent);
+//                     }, this.status.longPressTimeout);
                 }
                 break;
 
             case 'longpress':
                 // console.log(e.type);
                 break;
+            case 'doubleclick':
+                // console.log(e.type);
+                break;
 
             case 'mouseup':
                 // e.preventDefault();
-                clearTimeout(this.longPressTimeout);
+                // clearTimeout(this.longPressTimeout);
+                if(this.mousePosition.down) {
+                    this.mousePosition.move = [e.clientX, e.clientY];
+                    var a = this.mousePosition.down[0] - this.mousePosition.move[0];
+                    var b = this.mousePosition.down[1] - this.mousePosition.move[1];
+                    var c = Math.sqrt(a * a + b * b);
+                    console.log("Drag Stop", c);
+                    delete this.mousePosition.down;
+                }
+
+                const lastMouseUp = this.status.lastMouseUp;
+                if(lastMouseUp && lastMouseUp.t.getTime() + this.status.doubleClickTimeout > new Date().getTime()) {
+                    e.preventDefault();
+                    const currentTarget = e.path[0];
+                    const doubleClickEvent = new CustomEvent('doubleclick', {
+                        detail: {
+                            firstMouseEvent: lastMouseUp.e,
+                            secondMouseEvent: e,
+                            clientX: e.clientX,
+                            clientY: e.clientY,
+                        },
+                        cancelable: true,
+                        bubbles: true
+                    });
+                    currentTarget.dispatchEvent(doubleClickEvent);
+                    // console.log(doubleClickEvent);
+                }
+                this.status.lastMouseUp = {e, t: new Date()};
                 break;
 
-            case 'click':
-                const formSection = e.target.closest('.form-section,form');
-                if(formSection) {
-                    const formSectionForm = formSection.matches('form') ? formSection : formSection.querySelector('form');
-                    if (formSectionForm) {
-                        if (formSectionForm.elements[0])
-                            formSectionForm.elements[0].focus();
-                    }
+            case 'mousemove':
+                if(this.mousePosition.down) {
+                    this.mousePosition.move = [e.clientX, e.clientY];
+                    var a = this.mousePosition.down[0] - this.mousePosition.move[0];
+                    var b = this.mousePosition.down[1] - this.mousePosition.move[1];
+                    var c = Math.sqrt(a * a + b * b);
+                    console.log("Dragging", c);
                 }
                 break;
+
+            // case 'click':
+            //     const formSection = e.target.closest('.form-section,form');
+            //     if(formSection) {
+            //         const formSectionForm = formSection.matches('form') ? formSection : formSection.querySelector('form');
+            //         if (formSectionForm) {
+            //             if (formSectionForm.elements[0])
+            //                 formSectionForm.elements[0].focus();
+            //         }
+            //     }
+            //     break;
 
             case 'submit':
                 e.preventDefault();
@@ -296,6 +351,13 @@ class AudioSourceComposerElement extends HTMLElement {
                 if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
                     this.onSubmit(e);
                 break;
+
+            case 'dragstart':
+            case 'drag':
+            case 'dragend':
+                console.info(e.type);
+                break;
+
             default:
                 break;
         }
@@ -304,14 +366,14 @@ class AudioSourceComposerElement extends HTMLElement {
         if(this.tracker.contains(e.target))
             this.tracker.onInput(e);
 
-        switch(e.type) {
-            case 'click':
-                if(!e.defaultPrevented)
-                    this.closeAllMenus();
-                break;
-            default:
-                break;
-        }
+        // switch(e.type) {
+        //     case 'click':
+        //         if(!e.defaultPrevented)
+        //             this.closeAllMenus();
+        //         break;
+        //     default:
+        //         break;
+        // }
 
         // } catch (err) {
         //     this.onError(err);
