@@ -41,11 +41,11 @@ class AudioSourceComposerElement extends HTMLElement {
             previewInstructionsOnSelect: false,
             longPressTimeout: 500,
             lastMouseUp: null,
+            mouse: {},
             doubleClickTimeout: 500,
             autoSaveTimeout: 4000,
         };
         this.shadowDOM = null;
-        this.mousePosition = {};
 
         this.sources.loadDefaultInstrumentLibrary();
     }
@@ -71,9 +71,14 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.addEventListener('keyup', onInput.bind(this));
         // this.addEventListener('click', onInput.bind(this));
         this.shadowDOM.addEventListener('contextmenu', onInput);
+
         this.shadowDOM.addEventListener('mousedown', onInput);
         this.shadowDOM.addEventListener('mouseup', onInput);
         this.shadowDOM.addEventListener('mousemove', onInput);
+
+        this.shadowDOM.addEventListener('touchstart', onInput);
+        this.shadowDOM.addEventListener('touchend', onInput);
+        this.shadowDOM.addEventListener('touchemove', onInput);
         // this.shadowDOM.addEventListener('click', onInput);
         this.shadowDOM.addEventListener('doubleclick', onInput);
         // this.shadowDOM.addEventListener('dragstart', onInput, false);
@@ -257,78 +262,59 @@ class AudioSourceComposerElement extends HTMLElement {
         //     this.focus();
         // }
         switch(e.type) {
+            case 'touchstart':
             case 'mousedown':
-                this.mousePosition.down = [e.clientX, e.clientY];
-                // Longpress
-                // TODO: longpress is a bad idea. use double click
-                if(!e.altKey) { // TODO: fix scroll
-//                     clearTimeout(this.longPressTimeout);
-//                     this.longPressTimeout = setTimeout(() => {
-//                         var a = this.mousePosition.down[0] - this.mousePosition.move[0];
-//                         var b = this.mousePosition.down[1] - this.mousePosition.move[1];
-//                         var c = Math.sqrt( a*a + b*b );
-//                         // console.log(this.mousePosition, c);
-//                         if(c > 50)
-//                             return;
-//                         const target = e.currentTarget || e.path[0];
-//                         const longPressEvent = new CustomEvent('longpress', {
-//                             detail: {originalEvent: e},
-//                             cancelable: true,
-//                             bubbles: true
-//                         });
-// //                         console.log(target.parentNode, longPressEvent);
-//                         target.dispatchEvent(longPressEvent);
-//                     }, this.status.longPressTimeout);
-                }
+                this.status.mouse = {down: e};
+                // delete this.status.mouse.up;
+                // delete this.status.mouse.move;
                 break;
 
             case 'longpress':
+                // TODO: longpress is a bad idea. use double click
                 // console.log(e.type);
                 break;
             case 'doubleclick':
                 // console.log(e.type);
                 break;
 
+            case 'touchmove':
+            case 'mousemove':
+                if(this.status.mouse.down) {
+                    this.status.mouse.move = e;
+                }
+                break;
+
+            case 'touchend':
             case 'mouseup':
                 // e.preventDefault();
                 // clearTimeout(this.longPressTimeout);
-                if(this.mousePosition.down) {
-                    this.mousePosition.move = [e.clientX, e.clientY];
-                    var a = this.mousePosition.down[0] - this.mousePosition.move[0];
-                    var b = this.mousePosition.down[1] - this.mousePosition.move[1];
-                    var c = Math.sqrt(a * a + b * b);
-                    console.log("Drag Stop", c);
-                    delete this.mousePosition.down;
+                if(this.status.mouse.down) {
+                    this.status.mouse.up = e;
                 }
 
                 const lastMouseUp = this.status.lastMouseUp;
                 if(lastMouseUp && lastMouseUp.t.getTime() + this.status.doubleClickTimeout > new Date().getTime()) {
                     e.preventDefault();
                     const currentTarget = e.path[0];
-                    const doubleClickEvent = new CustomEvent('doubleclick', {
-                        detail: {
-                            firstMouseEvent: lastMouseUp.e,
-                            secondMouseEvent: e,
-                            clientX: e.clientX,
-                            clientY: e.clientY,
-                        },
-                        cancelable: true,
-                        bubbles: true
-                    });
-                    currentTarget.dispatchEvent(doubleClickEvent);
+                    const originalTarget = lastMouseUp.e.path[0];
+                    if(originalTarget === currentTarget
+                        || originalTarget.contains(currentTarget)
+                        || currentTarget.contains(originalTarget)) {
+                        const doubleClickEvent = new CustomEvent('doubleclick', {
+                            detail: {
+                                firstMouseEvent: lastMouseUp.e,
+                                secondMouseEvent: e,
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                            },
+                            cancelable: true,
+                            bubbles: true
+                        });
+                        currentTarget.dispatchEvent(doubleClickEvent);
+                    }
                     // console.log(doubleClickEvent);
                 }
                 this.status.lastMouseUp = {e, t: new Date()};
-                break;
-
-            case 'mousemove':
-                if(this.mousePosition.down) {
-                    this.mousePosition.move = [e.clientX, e.clientY];
-                    var a = this.mousePosition.down[0] - this.mousePosition.move[0];
-                    var b = this.mousePosition.down[1] - this.mousePosition.move[1];
-                    var c = Math.sqrt(a * a + b * b);
-                    console.log("Dragging", c);
-                }
                 break;
 
             // case 'click':

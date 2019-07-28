@@ -176,7 +176,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         }
         parentMenu.parentElement.querySelectorAll(`asc-menu.open,asc-menu.stick`)
             .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
-        console.trace("Clear all menus ");
+//         console.trace("Clear all menus ");
     }
 
     render() {

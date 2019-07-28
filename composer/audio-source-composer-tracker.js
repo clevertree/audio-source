@@ -459,6 +459,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // this.focus(); // Prevents tab from working
 //         console.log(e.type);
 
+        const mousePosition = this.editor.status.mouse;
         let selectedIndicies = this.selectedIndicies;
         // const instructionList = this.getInstructions();
 
@@ -660,10 +661,27 @@ class AudioSourceComposerTracker extends HTMLElement {
                 // e.target = this.querySelector('.tracker-cell.selected') || this.querySelector('.instruction'); // Choose selected or default cell
                 break;
 
-            case 'mouseup':
+            case 'touchmove':
+            case 'mousemove':
+                if(mousePosition.down) {
+                    var a = mousePosition.down.clientX - mousePosition.move.clientX;
+                    var b = mousePosition.down.clientY - mousePosition.move.clientY;
+                    var c = Math.sqrt(a * a + b * b);
+                    console.log("Dragging", c);
+                }
                 break;
 
-            case 'mousemove':
+            case 'touchend':
+            case 'mouseup':
+                // e.preventDefault();
+                // clearTimeout(this.longPressTimeout);
+                if(mousePosition.down) {
+                    var a = mousePosition.down.clientX - mousePosition.up.clientX;
+                    var b = mousePosition.down.clientY - mousePosition.up.clientY;
+                    var c = Math.sqrt(a * a + b * b);
+                    console.log("Drag Stop", c, mousePosition.down.path[0], e.path[0]);
+                    delete mousePosition.down;
+                }
                 break;
 
             case 'click':
