@@ -59,7 +59,11 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.samples = {};
             for (let sampleName in this.config.samples) {
                 if (this.config.samples.hasOwnProperty(sampleName)) {
-                    this.loadAudioSample(sampleName);
+                    try {
+                        this.loadAudioSample(sampleName);
+                    } catch (e) {
+                        console.warn("Error loading sample: " + sampleName, e);
+                    }
                 }
             }
         }
@@ -109,9 +113,11 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         async loadAudioSample(sampleName) {
             const sampleConfig = this.config.samples[sampleName];
+            if (!sampleConfig)
+                throw new Error("Sample config is missing: " + sampleName);
             let sampleURL = sampleConfig.url;
             if (!sampleURL)
-                throw new Error("Sample config is missing url");
+                throw new Error("Sample config is missing url: " + sampleName);
             sampleURL = new URL(sampleURL, document.location) + '';
 
             if (typeof this.samples[sampleName] === "undefined") {
@@ -450,37 +456,53 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <th>Detune</th>
                             <th>Root</th>
                             <th>Alias</th>
+                            <th>
+                                <form action="#" class="instrument-setting instrument-setting-add submit-on-change" data-action="sample:add">
+                                    <button name="add">+</button>
+                                </form>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                 ${Object.keys(this.config.samples).map(sampleName => {
-                    const sampleConfig = this.config.samples[sampleName];
+                    const sampleConfig = this.config.samples[sampleName] || {};
                     console.log(sampleConfig);
                     return `
                         <tr>
-                            <td>${sampleName}</td>
                             <td>   
-                                <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="instrument:mixer">
+                                <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:changeURL">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <button name="change">${sampleName}</button>
+                                </form>
+                            </td>  
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="sample:mixer">
                                     <input type="hidden" name="sample" value="${sampleName}" />
                                     <input name="mixer" type="range" min="1" max="100" value="${sampleConfig.mixer || '-1'}" />
                                 </form>
                             </td>    
                             <td>   
-                                <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="instrument:detune">
+                                <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="sample:detune">
                                     <input type="hidden" name="sample" value="${sampleName}" />
                                     <input name="detune" type="range" min="-100" max="100" value="${0}" />
                                 </form>
                             </td>      
                             <td>   
-                                <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="instrument:keyRoot">
+                                <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="sample:keyRoot">
                                     <input type="hidden" name="sample" value="${sampleName}" />
                                     <input name="keyRoot" value="${sampleConfig.keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>      
                             <td>   
-                                <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="instrument:keyAlias">
+                                <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="sample:keyAlias">
                                     <input type="hidden" name="sample" value="${sampleName}" />
                                     <input name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
+                                </form>
+                            </td>
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:remove">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <button name="remove">-</button>
                                 </form>
                             </td>  
                         </tr>`;
@@ -580,29 +602,61 @@ if(!customElements.get('audio-source-synthesizer')) {
                     let newPolyphony = parseInt(form.elements[0].value);
                     this.config.polyphony = newPolyphony;
                     break;
+                case 'sample:add':
+                    const addSampleURL = prompt(`Add Sample URL:`);
+                    if(!addSampleURL) {
+                        console.info("Change sample URL canceled");
+                        break;
+                    }
+                    let addSampleName = addSampleURL.split('/').pop();
+                    addSampleName = prompt(`Set Sample Name:`, addSampleName);
+                    this.renderer.replaceInstrumentParam(instrumentID, ['samples', addSampleName], {
+                        url: addSampleURL,
+                        // name: addSampleName
+                    });
+                    this.loadAudioSample(addSampleName);
+                    this.render();
+                    break;
 
-                case 'instrument:mixer':
-                case 'instrument:detune':
-                case 'instrument:keyRoot':
-                case 'instrument:keyAlias':
+                case 'sample:changeURL':
+                case 'sample:remove':
+                case 'sample:mixer':
+                case 'sample:detune':
+                case 'sample:keyRoot':
+                case 'sample:keyAlias':
                     const sampleName = form.elements.sample.value;
                     const sampleConfig = this.config.samples[sampleName];
                     if(!sampleConfig)
                         throw new Error("Sample not found: " + sampleName);
 
                     switch(command) {
-                        case 'instrument:mixer':
+                        case 'sample:remove':
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName], );
+                            this.render();
+                            break;
+
+                        case 'sample:changeURL':
+                            const changeSampleURL = prompt(`Change Sample URL: (${sampleName})`, sampleConfig.url);
+                            if(changeSampleURL) {
+                                this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'url'], changeSampleURL);
+                                this.loadAudioSample(sampleName);
+                            } else {
+                                console.info("Change sample URL canceled");
+                            }
+
+                            break;
+                        case 'sample:mixer':
                             this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'mixer'], parseInt(form.elements.mixer.value));
                             break;
 
-                        case 'instrument:detune':
+                        case 'sample:detune':
                             this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'detune'], parseInt(form.elements.detune.value));
                             break;
 
-                        case 'instrument:keyRoot':
+                        case 'sample:keyRoot':
                             this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyRoot'], form.elements.keyRoot.value);
                             break;
-                        case 'instrument:keyAlias':
+                        case 'sample:keyAlias':
                             this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyAlias'], form.elements.keyAlias.value);
                             break;
                     }

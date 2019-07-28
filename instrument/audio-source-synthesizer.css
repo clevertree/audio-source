@@ -59,6 +59,12 @@
     border-radius: 16px;
 }
 
+.audio-source-synthesizer button {
+    padding: 0px 6px 1px 6px;
+    /* margin: 0px 0px 1px 0px; */
+    border: 1px outset;
+    border-radius: 4px;
+}
 .audio-source-synthesizer input,
 .audio-source-synthesizer select  {
     font-size: smaller;
@@ -78,7 +84,7 @@
 
 /** Sample Table **/
 .audio-source-synthesizer table.sample-setting-list {
-    /* width: 100%; */
+    width: 100%;
     /* font-size: small; */
     /* text-align: left; */
 }
@@ -87,10 +93,6 @@
 
 .audio-source-synthesizer form.instrument-setting-remove button.remove-instrument {
     /* text-align: center; */
-    padding: 0px 6px 1px 6px;
-    /* margin: 0px 0px 1px 0px; */
-    border: 1px outset;
-    border-radius: 4px;
     color: #500;
 }
 

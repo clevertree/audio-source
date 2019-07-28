@@ -802,10 +802,10 @@ class AudioSourceRenderer {
         this.replaceDataPath(['instruments', instrumentID], config);
         this.loadInstrument(instrumentID);
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
-                instrumentID,
-                config,
-                oldConfig: null
-            }}), 1);
+            instrumentID,
+            config,
+            oldConfig: null
+        }}), 1);
         return instrumentID;
     }
 
@@ -824,10 +824,10 @@ class AudioSourceRenderer {
         const oldConfig = this.replaceDataPath(['instruments', instrumentID], config)
             .oldData;
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
-                instrumentID,
-                config,
-                oldConfig: oldConfig
-            }}), 1);
+            instrumentID,
+            config,
+            oldConfig: oldConfig
+        }}), 1);
         this.loadInstrument(instrumentID);
         return oldConfig;
     }
@@ -843,13 +843,14 @@ class AudioSourceRenderer {
         const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null)
             .oldData;
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
-                instrumentID,
-                config: null,
-                oldConfig: oldConfig
-            }}), 1);
+            instrumentID,
+            config: null,
+            oldConfig: oldConfig
+        }}), 1);
         return oldConfig;
     }
 
+    // Note: instruments handle own rendering
     replaceInstrumentParam(instrumentID, pathList, paramValue) {
         instrumentID = parseInt(instrumentID);
         const instrumentList = this.songData.instruments;
