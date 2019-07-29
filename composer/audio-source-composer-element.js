@@ -40,8 +40,6 @@ class AudioSourceComposerElement extends HTMLElement {
             currentRenderDuration: null,
             previewInstructionsOnSelect: false,
             longPressTimeout: 500,
-            lastMouseUp: null,
-            mouse: {},
             doubleClickTimeout: 500,
             autoSaveTimeout: 4000,
         };
@@ -66,24 +64,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const onInput = e => this.onInput(e);
         this.shadowDOM.addEventListener('submit', onInput);
         this.shadowDOM.addEventListener('change', onInput);
-        this.shadowDOM.addEventListener('blur', onInput);
-        this.shadowDOM.addEventListener('keydown', onInput);
-        // this.addEventListener('keyup', onInput.bind(this));
-        // this.addEventListener('click', onInput.bind(this));
-        this.shadowDOM.addEventListener('contextmenu', onInput);
-
-        this.shadowDOM.addEventListener('mousedown', onInput);
-        this.shadowDOM.addEventListener('mouseup', onInput);
-        this.shadowDOM.addEventListener('mousemove', onInput);
-
-        this.shadowDOM.addEventListener('touchstart', onInput);
-        this.shadowDOM.addEventListener('touchend', onInput);
-        this.shadowDOM.addEventListener('touchemove', onInput);
-        // this.shadowDOM.addEventListener('click', onInput);
-        this.shadowDOM.addEventListener('doubleclick', onInput);
-        // this.shadowDOM.addEventListener('dragstart', onInput, false);
-        // this.shadowDOM.addEventListener('drag', onInput, false);
-        // this.shadowDOM.addEventListener('dragend', onInput, false);
+        // this.shadowDOM.addEventListener('blur', onInput);
 
         const onSongEvent = e => this.onSongEvent(e);
         this.addEventListener('song:loaded', onSongEvent);
@@ -262,76 +243,6 @@ class AudioSourceComposerElement extends HTMLElement {
         //     this.focus();
         // }
         switch(e.type) {
-            case 'touchstart':
-            case 'mousedown':
-                this.status.mouse.isDown = true;
-                this.status.mouse.lastDown = e;
-                // delete this.status.mouse.lastUp;
-                delete this.status.mouse.lastDrag;
-                // delete this.status.mouse.lastUp;
-                // delete this.status.mouse.lastDrag;
-                break;
-
-            case 'longpress':
-                // TODO: longpress is a bad idea. use double click
-                // console.log(e.type);
-                break;
-            case 'doubleclick':
-                // console.log(e.type);
-                break;
-
-            case 'touchmove':
-            case 'mousemove':
-                if(e.which === 1) {
-                    if (this.status.mouse.isDown) {
-                        this.status.mouse.lastDrag = e;
-                    }
-                }
-                break;
-
-            case 'touchend':
-            case 'mouseup':
-                this.status.mouse.isDown = false;
-                // e.preventDefault();
-                // clearTimeout(this.longPressTimeout);
-
-                const lastMouseUp = this.status.mouse.lastUp;
-                if(lastMouseUp && lastMouseUp.t.getTime() + this.status.doubleClickTimeout > new Date().getTime()) {
-                    e.preventDefault();
-                    const currentTarget = e.path[0];
-                    const originalTarget = lastMouseUp.path[0];
-                    if(originalTarget === currentTarget
-                        || originalTarget.contains(currentTarget)
-                        || currentTarget.contains(originalTarget)) {
-                        const doubleClickEvent = new CustomEvent('doubleclick', {
-                            detail: {
-                                firstMouseEvent: lastMouseUp.e,
-                                secondMouseEvent: e,
-                                clientX: e.clientX,
-                                clientY: e.clientY,
-                            },
-                            cancelable: true,
-                            bubbles: true
-                        });
-                        currentTarget.dispatchEvent(doubleClickEvent);
-                    }
-                    // console.log(doubleClickEvent);
-                }
-                e.t = new Date();
-                this.status.mouse.lastUp = e;
-                break;
-
-            // case 'click':
-            //     const formSection = e.target.closest('.form-section,form');
-            //     if(formSection) {
-            //         const formSectionForm = formSection.matches('form') ? formSection : formSection.querySelector('form');
-            //         if (formSectionForm) {
-            //             if (formSectionForm.elements[0])
-            //                 formSectionForm.elements[0].focus();
-            //         }
-            //     }
-            //     break;
-
             case 'submit':
                 e.preventDefault();
                 this.onSubmit(e);
@@ -342,32 +253,14 @@ class AudioSourceComposerElement extends HTMLElement {
                     this.onSubmit(e);
                 break;
 
-            case 'dragstart':
-            case 'drag':
-            case 'dragend':
-                console.info(e.type);
-                break;
-
             default:
                 break;
         }
 
 
-        if(this.tracker.contains(e.target))
-            this.tracker.onInput(e);
+        // if(this.tracker.contains(e.target))
+        //     this.tracker.onInput(e);
 
-        // switch(e.type) {
-        //     case 'click':
-        //         if(!e.defaultPrevented)
-        //             this.closeAllMenus();
-        //         break;
-        //     default:
-        //         break;
-        // }
-
-        // } catch (err) {
-        //     this.onError(err);
-        // }
 
     }
 

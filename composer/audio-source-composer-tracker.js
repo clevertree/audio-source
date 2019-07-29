@@ -9,6 +9,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.renderMinimumRows = 16;
         // TODO: minimum render rows for new groups
 
+        this.mousePosition = {};
         // this.instructionElms = null;
     }
 
@@ -52,6 +53,27 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     connectedCallback() {
         this.addEventListener('scroll', this.onInput, true);
+
+        this.addEventListener('keydown', this.onInput);
+        // this.addEventListener('keyup', this.onInput.bind(this));
+        // this.addEventListener('click', this.onInput.bind(this));
+        this.addEventListener('contextmenu', this.onInput);
+
+        this.addEventListener('mousedown', this.onInput);
+        this.addEventListener('mouseup', this.onInput);
+        this.addEventListener('mousemove', this.onInput);
+        this.addEventListener('mouseout', this.onInput);
+
+        this.addEventListener('touchstart', this.onInput);
+        this.addEventListener('touchend', this.onInput);
+        this.addEventListener('touchemove', this.onInput);
+        // this.addEventListener('click', this.onInput);
+        this.addEventListener('doubleclick', this.onInput);
+        this.addEventListener('dragstart', this.onInput, false);
+        this.addEventListener('drag', this.onInput, false);
+        this.addEventListener('dragend', this.onInput, false);
+        
+        
         this.editor = this.getRootNode().host;
         if(!this.getAttribute('rowLength'))
             this.setAttribute('rowLength', this.editor.renderer.getSongTimeDivision());
@@ -59,6 +81,10 @@ class AudioSourceComposerTracker extends HTMLElement {
         setTimeout(e => this.renderAllRows(), 1000);
     }
 
+    disconnectedCallback() {
+        
+    }
+    
     clearSelection(excludeElms=[]) {
         if(!Array.isArray(excludeElms))
             excludeElms = [excludeElms];
@@ -455,13 +481,19 @@ class AudioSourceComposerTracker extends HTMLElement {
     onInput(e) {
         if (e.defaultPrevented)
             return;
+
+        switch (e.type) {
+            case 'mouseup':
+                this.commitSelectionRect();
+                break;
+        }
+
         if(e.target instanceof Node && !this.contains(e.target))
             return;
 
         // this.focus(); // Prevents tab from working
 //         console.log(e.type);
 
-        const mousePosition = this.editor.status.mouse;
         let selectedIndicies = this.selectedIndicies;
         // const instructionList = this.getInstructions();
 
@@ -649,7 +681,15 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 break;
 
+            case 'touchstart':
             case 'mousedown':
+                this.mousePosition.isDown = true;
+                this.mousePosition.isDragging = false;
+                this.mousePosition.lastDown = e;
+                // delete this.mousePosition.lastUp;
+                delete this.mousePosition.lastDrag;
+                // delete this.mousePosition.lastUp;
+                // delete this.mousePosition.lastDrag;
 
                 if (e.target.matches('asct-instruction,asct-instruction-add'))
                     return this.onCellInput(e);
@@ -662,24 +702,67 @@ class AudioSourceComposerTracker extends HTMLElement {
                 // e.preventDefault();
 
 
-                // e.target = this.querySelector('.tracker-cell.selected') || this.querySelector('.instruction'); // Choose selected or default cell
                 break;
+
 
             case 'touchmove':
             case 'mousemove':
-                if(mousePosition.isDown && mousePosition.lastDrag) {
-                    if (mousePosition.lastDown.path[0].matches('asct-row')) {
-                        this.updateSelectionRect(mousePosition.lastDown, mousePosition.lastDrag)
+                if(e.which === 1) {
+                    if (this.mousePosition.isDown) {
+                        this.mousePosition.isDragging = true;
+                        this.mousePosition.lastDrag = e;
+                    }
+                }
+                if(this.mousePosition.isDown && this.mousePosition.lastDrag) {
+                    if (this.mousePosition.lastDown.path[0].matches('asct-row')) {
+                        this.updateSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastDrag)
                     }
                 }
                 break;
 
             case 'touchend':
             case 'mouseup':
-                // e.preventDefault();
-                // clearTimeout(this.longPressTimeout);
-                if (mousePosition.lastDown.path[0].matches('asct-row')) {
-                    this.commitSelectionRect(mousePosition.lastDown, mousePosition.lastUp);
+                this.mousePosition.isDown = false;
+                if (this.mousePosition.isDragging 
+                    && this.mousePosition.lastDown.path[0].matches('asct-row')
+                ) {
+                    if(this.isSelectionRectActive()) {
+                        this.commitSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastUp);
+                        break;
+                    }
+                }
+                this.mousePosition.isDragging = false;
+
+                const lastMouseUp = this.mousePosition.lastUp;
+                e.t = new Date();
+                this.mousePosition.lastUp = e;
+                if(lastMouseUp && lastMouseUp.t.getTime() + this.editor.status.doubleClickTimeout > new Date().getTime()) {
+                    e.preventDefault();
+                    const currentTarget = e.path[0];
+                    const originalTarget = lastMouseUp.path[0];
+                    if(originalTarget === currentTarget
+                        || originalTarget.contains(currentTarget)
+                        || currentTarget.contains(originalTarget)) {
+                        const doubleClickEvent = new CustomEvent('doubleclick', {
+                            detail: {
+                                firstMouseEvent: lastMouseUp.e,
+                                secondMouseEvent: e,
+                                clientX: e.clientX,
+                                clientY: e.clientY,
+                            },
+                            cancelable: true,
+                            bubbles: true
+                        });
+                        currentTarget.dispatchEvent(doubleClickEvent);
+                    }
+                    // console.log(doubleClickEvent);
+                }
+                break;
+
+            case 'mouseout':
+                if(e.target.matches('asc-tracker')) {
+                    console.log(e.target, e.path);
+                    this.commitSelectionRect();
                 }
                 break;
 
@@ -715,6 +798,12 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'scroll':
                 this.renderAllRows(40);
+                break;
+
+            case 'dragstart':
+            case 'drag':
+            case 'dragend':
+                console.info(e.type);
                 break;
 
             default:
@@ -778,7 +867,10 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
 
-    commitSelectionRect(eDown, eUp) {
+    commitSelectionRect(eDown=null, eUp=null) {
+        if(!eDown) eDown = this.mousePosition.lastDown;
+        if(!eUp) eUp = this.mousePosition.lastUp || this.mousePosition.lastDrag;
+
         let rectElm = this.querySelector('div.selection-rect');
         if(!rectElm)
             return console.warn("No selection rect");
@@ -1429,32 +1521,13 @@ class AudioSourceComposerTracker extends HTMLElement {
     //     return this.selectIndicies(selectedIndicies);
     // }
 
-    scrollToCursor(cursorCell) {
-        const container = this; // cursorCell.closest('.composer-tracker-container');
-        if(container.scrollTop < cursorCell.parentNode.offsetTop - container.offsetHeight)
-            container.scrollTop = cursorCell.parentNode.offsetTop;
-
-        if(container.scrollTop > cursorCell.parentNode.offsetTop)
-            container.scrollTop = cursorCell.parentNode.offsetTop - container.offsetHeight;
-
-        // if(!this.cursorCell)
-        //     return;
-        // const currentCellParent = this.cursorCell.parentNode;
-        // console.log("TODO: ", currentCellParent.offsetTop, this.scrollTop, this.offsetHeight);
-        // if(currentCellParent.offsetTop < this.scrollTop)
-        //     this.scrollTop = currentCellParent.offsetTop;
-        // if(currentCellParent.offsetTop > this.scrollTop + this.offsetHeight)
-        //     this.scrollTop = currentCellParent.offsetTop - this.offsetHeight + this.cursorCell.offsetHeight;
+    findRowElement(rowPosition) {
+        return this.querySelector(`asct-row[p='${rowPosition}']`);
     }
 
     findInstructionElement(instructionIndex) {
         return this.querySelector(`asct-instruction[i='${instructionIndex}']`);
     }
-
-    findRowElement(rowPosition) {
-        return this.querySelector(`asct-row[p='${rowPosition}']`);
-    }
-
 
     getInstructionHTML(index, instruction) {
         return `<div class="instruction" data-index="${index}">
