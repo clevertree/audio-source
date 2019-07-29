@@ -450,6 +450,7 @@ asct-instruction.playing {
 }
 
 asct-instruction-add.cursor,
+asct-instruction.selecting,
 asct-instruction.selected {
     background-color: white;
 }

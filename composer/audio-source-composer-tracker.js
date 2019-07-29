@@ -44,7 +44,9 @@ class AudioSourceComposerTracker extends HTMLElement {
     get cursorPosition() { return ((cell) => (cell ? cell.parentNode.position : null))(this.cursorCell); }
     get cursorInstruction() { return this.getInstruction(this.cursorCell.index); }
     // }
-    get selectedIndicies() { return [].map.call(this.selectedCells, (elm => elm.index)); }
+    get selectedIndicies() {
+        return [].map.call(this.selectedCells, (elm => elm.index));
+    }
 
     get isConnected() { return this.editor.container.contains(this); }
 
@@ -519,7 +521,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 switch (keyEvent) {
                     case 'Delete':
                         e.preventDefault();
-                        for(let i=0; i<selectedIndicies.length; i++)
+                        // this.clearSelection();
+                        const selectedIndiciesDesc = selectedIndicies.sort((a,b) => b-a);
+                        for(let i=0; i<selectedIndiciesDesc.length; i++)
                             this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
                         this.renderAllRows(); // TODO: render timeout
                         this.selectIndicies(e, selectedIndicies[0]);
@@ -727,40 +731,83 @@ class AudioSourceComposerTracker extends HTMLElement {
             this.appendChild(rectElm);
         }
 
+        let x,y,w,h;
         if(eDown.clientX < eMove.clientX) {
-            rectElm.style.left = (eDown.clientX) + 'px';
-            rectElm.style.width = (eMove.clientX - eDown.clientX) + 'px';
+            x = eDown.clientX;
+            w = eMove.clientX - eDown.clientX;
         } else {
-            rectElm.style.left = (eMove.clientX) + 'px';
-            rectElm.style.width = (eDown.clientX - eMove.clientX) + 'px';
+            x = eMove.clientX;
+            w = eDown.clientX - eMove.clientX;
+        }
+        if(eDown.clientY < eMove.clientY) {
+            y = eDown.clientY;
+            h = eMove.clientY - eDown.clientY;
+        } else {
+            y = eMove.clientY;
+            h = eDown.clientY - eMove.clientY;
         }
 
-        if(eDown.clientY < eMove.clientY) {
-            rectElm.style.top = (eDown.clientY) + 'px';
-            rectElm.style.height = (eMove.clientY - eDown.clientY) + 'px';
-        } else {
-            rectElm.style.top = (eMove.clientY) + 'px';
-            rectElm.style.height = (eDown.clientY - eMove.clientY) + 'px';
-        }
+        rectElm.style.left = x + 'px';
+        rectElm.style.width = w + 'px';
+        rectElm.style.top = y + 'px';
+        rectElm.style.height = h + 'px';
 
         var a = eDown.clientX - eMove.clientX;
         var b = eDown.clientY - eMove.clientY;
         var c = Math.sqrt(a * a + b * b);
         // console.log("Dragging", c, eDown.path[0], eMove.path[0]);
+
+
+        const cellList = this.querySelectorAll('asct-instruction');
+        cellList.forEach(cellElm => {
+            const rect = cellElm.getBoundingClientRect();
+            const selected =
+                rect.x + rect.width > x
+                && rect.x < x + w
+                && rect.y + rect.height > y
+                && rect.y < y + h;
+            cellElm.classList.toggle('selecting', selected);
+        });
+
+        return {x,y,w,h};
     }
+
+    isSelectionRectActive() {
+        let rectElm = this.querySelector('div.selection-rect');
+        return !!rectElm;
+    }
+
 
     commitSelectionRect(eDown, eUp) {
         let rectElm = this.querySelector('div.selection-rect');
         if(!rectElm)
             return console.warn("No selection rect");
 
+        const {x,y,w,h} = this.updateSelectionRect(eDown, eUp);
 
         rectElm.parentNode.removeChild(rectElm);
 
-        var a = eDown.clientX - eUp.clientX;
-        var b = eDown.clientY - eUp.clientY;
-        var c = Math.sqrt(a * a + b * b);
-        console.log("Drag Stop", c, eDown.path[0], eUp.path[0]);
+
+        this.clearSelection();
+
+        const cellList = this.querySelectorAll('asct-instruction');
+        const selectionList = [];
+        cellList.forEach(cellElm => {
+            const rect = cellElm.getBoundingClientRect();
+            const selected =
+                rect.x + rect.width > x
+                && rect.x < x + w
+                && rect.y + rect.height > y
+                && rect.y < y + h;
+
+            // cellElm.classList.toggle('selected', selected);
+            if(selected) {
+                selectionList.push(cellElm);
+                cellElm.select(true, false);
+            }
+        });
+        console.log("Selection ", selectionList);
+
     }
 
     /** Forms **/
@@ -1297,7 +1344,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             const cell = this.findInstructionElement(indicies[i]);
             if(!cell)
                 throw new Error("Instruction not found: " + indicies[i]);
-            cell.select()
+            cell.select(true, false);
             if(i===0)
                 cell.setCursor();
         }
