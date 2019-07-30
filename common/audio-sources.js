@@ -39,6 +39,24 @@ class AudioSources {
         return await this.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
     }
 
+    async loadPackageInfo() {
+        const url = this.getScriptDirectory('package.json');
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url + '', true);
+            xhr.responseType = 'json';
+            xhr.onload = () => {
+                if (xhr.status !== 200)
+                    return reject("Sample library not found: " + url);
+
+                const packageJSON = xhr.response;
+                console.log("Package Version: ", packageJSON.version, packageJSON);
+                resolve(packageJSON);
+            };
+            xhr.send();
+        });
+    }
+
     // Instruments load their own libraries. Libraries may be shared via dispatch
     async loadInstrumentLibrary(url, force = false) {
         if (!url)

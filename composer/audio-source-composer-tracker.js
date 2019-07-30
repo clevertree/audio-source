@@ -1194,6 +1194,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.render();
                 break;
 
+            case 'tracker:selected':
+                throw new Error("TODO: select")
+                break;
 
             default:
                 return false;
@@ -1672,13 +1675,13 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
     select(selectedValue=true) {
         if(selectedValue) {
             if(this.selected) {
-                console.info("Already selected ", this);
+                console.warn("Already selected ", this);
                 return;
             }
             this.classList.add('selected');
         } else {
             if(!this.selected) {
-                console.info("Already unselected ", this);
+                console.warn("Already unselected ", this);
                 return;
             }
             this.classList.remove('selected');
@@ -1809,14 +1812,14 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
             if(clearSelection)
                 this.tracker.clearSelection([this, this.row]);
             if(this.selected) {
-                console.info("Already selected ", this);
+                console.warn("Already selected ", this);
                 return;
             }
             this.classList.add('selected');
             this.row.select(selectedValue);
         } else {
             if(!this.selected) {
-                console.info("Already unselected ", this);
+                console.warn("Already unselected ", this);
                 return;
             }
             this.classList.remove('selected', 'cursor');

@@ -46,6 +46,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM = null;
 
         this.sources.loadDefaultInstrumentLibrary();
+        this.sources.loadPackageInfo();
     }
     get sources() { return this.renderer.sources; }
     get values() { return this.renderer.values; }
@@ -57,6 +58,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
     get scriptDirectory () { return this.sources.getScriptDirectory(''); }
 
+    get songEvents() { return [
+        'song:loaded','song:start','song:end','song:pause','song:modified',
+        'note:play',
+        'instrument:loaded','instrument:instance','instrument:library','instrument:modified',
+    ]}
+
     connectedCallback() {
         // this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
@@ -66,19 +73,8 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM.addEventListener('change', onInput);
         // this.shadowDOM.addEventListener('blur', onInput);
 
-        const onSongEvent = e => this.onSongEvent(e);
-        this.addEventListener('song:loaded', onSongEvent);
-        this.addEventListener('song:start', onSongEvent);
-        this.addEventListener('song:end', onSongEvent);
-        this.addEventListener('song:pause', onSongEvent);
-        this.addEventListener('song:modified', onSongEvent);
-        // this.addEventListener('note:start', onSongEvent);
-        // this.addEventListener('note:end', onSongEvent);
-        this.addEventListener('note:play', onSongEvent);
-        this.addEventListener('instrument:loaded', onSongEvent);
-        this.addEventListener('instrument:instance', onSongEvent);
-        this.addEventListener('instrument:library', onSongEvent);
-        this.addEventListener('instrument:modified', onSongEvent);
+        this.songEvents.forEach(eventName =>
+            this.addEventListener(eventName, this.onSongEvent));
 
         this.render();
         this.focus();
@@ -113,6 +109,10 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
+    disconnectedCallback() {
+        this.songEvents.forEach(eventName =>
+            this.removeEventListener(eventName, this.onSongEvent));
+    }
 
     async loadDefaultSong() {
         const src = this.getAttribute('src');
@@ -265,7 +265,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-        console.log("Song Event: ", e.type);
+//         console.log("Song Event: ", e.type);
         this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:loaded':
@@ -292,7 +292,7 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'instrument:library':
             case 'instrument:instance':
             case 'instrument:modified':
-                console.log(e.type);
+//                 console.log(e.type);
                 // TODO: this.instruments.render();
                 this.renderInstruments();
                 this.renderSongForms();

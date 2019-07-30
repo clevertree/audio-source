@@ -466,7 +466,6 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <tbody>
                 ${Object.keys(this.config.samples).map(sampleName => {
                     const sampleConfig = this.config.samples[sampleName] || {};
-                    console.log(sampleConfig);
                     return `
                         <tr>
                             <td>   
