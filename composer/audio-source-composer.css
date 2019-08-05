@@ -156,6 +156,7 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container form {
     margin: 0;
     display: inline-block;
+    vertical-align: top;
 }
 
 /** Editor Forms **/
@@ -235,7 +236,7 @@ asc-menu.open-context-menu > .dropdown-container {
     border-radius: 2px;
     /* font-size: x-small; */
     /* max-width: 200px; */
-    vertical-align: top;
+    /* vertical-align: top; */
 }
 
 .asc-container button > span {
