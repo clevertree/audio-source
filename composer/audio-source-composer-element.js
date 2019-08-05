@@ -543,13 +543,19 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="form-section control-song">
                 <div class="form-section-header">Playback Controls</div>
                 <form action="#" class="form-song-play" data-action="song:play">
-                    <button type="submit" name="play" class="themed">Play</button>
+                    <button type="submit" name="play" class="themed">
+                        <i class="ui-icon ui-play"></i>
+                    </button>
                 </form>
                 <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
-                    <button type="submit" name="pause" class="themed">Pause</button>
+                    <button type="submit" name="pause" class="themed">
+                        <i class="ui-icon ui-pause"></i>
+                        </button>
                 </form>
                 <form action="#" class="form-song-resume show-on-song-paused" data-action="song:resume">
-                    <button type="submit" name="resume" class="themed">Resume</button>
+                    <button type="submit" name="resume" class="themed">
+                        <i class="ui-icon ui-resume"></i>
+                    </button>
                 </form>
             </div>
                                          
@@ -564,11 +570,20 @@ class AudioSourceComposerElement extends HTMLElement {
             </div>
             
             <div class="form-section control-song">
-                <div class="form-section-header">Load</div>
+                <div class="form-section-header">File</div>
                 <form name="form-load-file" action="#" class="form-load-file submit-on-change" data-action="song:load-from-file">
                     <label>
-                        <div class="input-style">File</div>
+                        <div class="input-style">
+                            <i class="ui-icon ui-file-load"></i>
+                        </div>
                         <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
+                    </label>
+                </form>
+                <form name="form-save-file" action="#" class="form-save-file submit-on-change" data-action="song:save-from-file">
+                    <label>
+                        <button type="submit" name="save" class="themed">
+                            <i class="ui-icon ui-file-save"></i>
+                        </button>
                     </label>
                 </form>
             </div>

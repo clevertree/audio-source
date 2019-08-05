@@ -955,10 +955,14 @@ class AudioSourceComposerTracker extends HTMLElement {
                     </select>
                 </form>
                 <form action="#" class="form-instruction-insert" data-action="instruction:insert">
-                    <button name="insert" class="themed" title="Insert Instruction">+</button>
+                    <button name="insert" class="themed" title="Insert Instruction">
+                        <i class="ui-icon ui-insert"></i>
+                    </button>
                 </form>
                 <form action="#" class="form-instruction-delete submit-on-change" data-action="instruction:delete">
-                    <button name="delete" class="themed" title="Delete Instruction" disabled>X</button>
+                    <button name="delete" class="themed" title="Delete Instruction" disabled>
+                        <i class="ui-icon ui-remove"></i>
+                    </button>
                 </form>
             </div>
             
@@ -1007,7 +1011,9 @@ class AudioSourceComposerTracker extends HTMLElement {
             + `</form>`)}
                 
                 <form action="#" class="form-group" data-action="group:new">
-                    <button name="groupName" class="new themed" title="Create new group">+</button>
+                    <button name="groupName" class="new themed" title="Create new group">
+                        <i class="ui-icon ui-insert"></i>
+                    </button>
                 </form>
                 
             </div>
