@@ -227,16 +227,20 @@ asc-menu.open-context-menu > .dropdown-container {
 /** Form Inputs **/
 
 .asc-container .input-style,
-.asc-container input:not([type=checkbox]):not([type=radio]):not([type=range]),
+.asc-container input[type=text],
 .asc-container select,
 .asc-container button {
     display: inline-block;
     padding: 0px 0px;
     border: 1px outset #FFF;
     border-radius: 2px;
+    min-height: 24px;
     /* font-size: x-small; */
     /* max-width: 200px; */
     /* vertical-align: top; */
+}
+.asc-container input[type=text] {
+    padding-left: 5px;
 }
 
 .asc-container button > span {
@@ -546,7 +550,7 @@ asc-tracker > div.selection-rect {
 /** Icons **/
 
 i.ui-icon {
-    font-size: 16px;
+    font-size: 24px;
     display: block;
     width: 1em;
     height: 1em;
