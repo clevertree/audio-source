@@ -1007,7 +1007,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 <div class="form-section-header">Render Group</div>
                 ${this.editor.values.getValues('groups', (value, label) =>
             `<form action="#" class="form-group" data-action="group:change" data-group="${value}">`
-            + `<button name="groupName" class="themed" >${label}</button>`
+            + `<button name="groupName" class="themed" ><span>${label}</span></button>`
             + `</form>`)}
                 
                 <form action="#" class="form-group" data-action="group:new">

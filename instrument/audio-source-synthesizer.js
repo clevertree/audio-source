@@ -458,7 +458,9 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <th>Alias</th>
                             <th>
                                 <form action="#" class="instrument-setting instrument-setting-add submit-on-change" data-action="sample:add">
-                                    <button name="add">+</button>
+                                    <button name="add">
+                                       <i class="ui-icon ui-insert"></i>
+                                    </button>
                                 </form>
                             </th>
                         </tr>
@@ -501,7 +503,9 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:remove">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <button name="remove">-</button>
+                                    <button name="remove">
+                                        <i class="ui-icon ui-remove"></i>
+                                    </button>
                                 </form>
                             </td>  
                         </tr>`;

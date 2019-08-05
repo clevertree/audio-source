@@ -550,11 +550,6 @@ class AudioSourceComposerElement extends HTMLElement {
                 <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
                     <button type="submit" name="pause" class="themed">
                         <i class="ui-icon ui-pause"></i>
-                        </button>
-                </form>
-                <form action="#" class="form-song-resume show-on-song-paused" data-action="song:resume">
-                    <button type="submit" name="resume" class="themed">
-                        <i class="ui-icon ui-resume"></i>
                     </button>
                 </form>
             </div>
@@ -579,12 +574,10 @@ class AudioSourceComposerElement extends HTMLElement {
                         <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
                     </label>
                 </form>
-                <form name="form-save-file" action="#" class="form-save-file submit-on-change" data-action="song:save-from-file">
-                    <label>
-                        <button type="submit" name="save" class="themed">
-                            <i class="ui-icon ui-file-save"></i>
-                        </button>
-                    </label>
+                <form name="form-save-file" action="#" class="form-save-file submit-on-change" data-action="song:save-to-file">
+                    <button type="submit" name="save" class="themed">
+                        <i class="ui-icon ui-file-save"></i>
+                    </button>
                 </form>
             </div>
                           
@@ -611,6 +604,14 @@ class AudioSourceComposerElement extends HTMLElement {
 
 /**
  *
+ <form action="#" class="form-song-resume show-on-song-paused" data-action="song:resume">
+ <button type="submit" name="resume" class="themed">
+ <i class="ui-icon ui-resume"></i>
+ </button>
+ </form>
+
+
+
  <div class="form-section control-song">
  <div class="form-section-header">Add Instrument</div>
  <form class="form-song-add-instrument submit-on-change" data-action="song:add-instrument">
