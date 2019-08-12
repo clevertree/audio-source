@@ -914,6 +914,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     get fieldRenderRowLength() { return this.formsTracker.querySelector('form.form-render-row-length select[name=rowLengthInTicks]'); }
     get fieldRenderInstrument() { return this.formsTracker.querySelector('form.form-render-instrument select[name=instrument]'); }
     get fieldRenderOctave() { return this.formsTracker.querySelector('form.form-render-octave select[name=octave]'); }
+    get fieldSelectedIndicies() { return this.formsTracker.querySelector('form.form-selected-indicies select[name=indicies]'); }
 
     // get fieldInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
 
@@ -1038,9 +1039,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 </select>
             </form>
             
-            <form class="form-selected-indicies submit-on-change" data-action="tracker:selected">
-                <div class="form-section-header">Selected Indicies</div>                    
-                <input name="indicies" placeholder="No indicies selection" />
+            <form class="form-selected-indicies submit-on-change" data-action="tracker:select">
+                <div class="form-section-header">Selection</div>                    
+                <input type="text" name="indicies" placeholder="No selection" />
             </form>
         `;
     }
@@ -1049,7 +1050,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     onAction(e, actionName, actionParam=null) {
         // const cursorCellIndex = this.editor.cursorCellIndex;
         // const selectedIndicies = this.editor.status.selectedIndicies;
-        const selectedIndicies = this.selectedIndicies;
+        let selectedIndicies = this.selectedIndicies;
         // const selectedPauseIndices = this.editor.selectedPauseIndicies;
         // const selectedRange = this.editor.selectedRange;
 
@@ -1200,8 +1201,12 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.render();
                 break;
 
-            case 'tracker:selected':
-                throw new Error("TODO: select")
+            case 'tracker:select':
+                selectedIndicies = this.fieldSelectedIndicies.value
+                    .split(/\D+/)
+                    .map(index => parseInt(index));
+                this.selectIndicies(e, selectedIndicies);
+                this.fieldSelectedIndicies.focus();
                 break;
 
             default:
@@ -1246,10 +1251,10 @@ class AudioSourceComposerTracker extends HTMLElement {
         e.preventDefault();
         selectedCell = selectedCell || e.target;
         // if(!e.shiftKey)
-            this.clearSelection([selectedCell, selectedCell.row]);
+        //     this.clearSelection([selectedCell, selectedCell.row]);
 
         this.editor.closeAllMenus();
-        selectedCell.select(e.ctrlKey ? !selectedCell.selected : true, e.shiftKey);
+        selectedCell.select(!selectedCell.selected, !e.ctrlKey);
         selectedCell.setCursor();
         selectedCell.play();
         this.focus();
@@ -1345,14 +1350,21 @@ class AudioSourceComposerTracker extends HTMLElement {
             const cursorRow = cursorCell.parentNode;
             const nextRowElm = cursorRow.nextElementSibling;
             selectedCell = nextRowElm.firstElementChild;
+            if(!selectedCell || selectedCell.matches('asct-delta'))
+                selectedCell = nextRowElm.createAddInstructionElement();
            // TODO: next row might be empty. create new instruction
         } else {
-            throw new Error("Shouldn't happen");
+            selectedCell = cursorCell.row.createAddInstructionElement();
+            // throw new Error("Shouldn't happen");
             // const currentRowElm = this.cursorCell.parentNode;
             // currentRowElm.setCursor();
             // selectedCell = this.createNewInstructionCell(currentRowElm)
 
         }
+
+        if(!selectedCell)
+            selectedCell = cursorCell.row.createAddInstructionElement();
+            // throw new Error("Shouldn't happen");
 
         selectedCell
             .select(true, clearSelection)
@@ -1445,9 +1457,11 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
 
-    selectIndicies(e, indicies) {
+    selectIndicies(e, indicies, clearSelection=true) {
         if(!Array.isArray(indicies))
             indicies = [indicies];
+        if(clearSelection)
+            this.clearSelection();
         for(let i=0; i<indicies.length; i++) {
             const cell = this.findInstructionElement(indicies[i]);
             if(!cell)
@@ -1806,7 +1820,7 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
         return this;
     }
 
-    select(selectedValue=true, clearSelection=false) {
+    select(selectedValue=true, clearSelection=true) {
         // const selected = this.selected;
 
         // if(clearSelection) {

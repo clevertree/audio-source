@@ -424,7 +424,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <span style="float: right;">
                         <form class="instrument-setting instrument-setting-preset submit-on-change" data-action="instrument:preset">
                             <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                            <input name="preset" list="presetOptions" value="${this.config.preset}" />
+                            <input type="text" name="preset" list="presetOptions" value="${this.config.preset}" />
                         </form>
                         <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
                             <input type="hidden" name="instrumentID" value="${instrumentID}"/>
@@ -479,25 +479,25 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="sample:mixer">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="mixer" type="range" min="1" max="100" value="${sampleConfig.mixer || '-1'}" />
+                                    <input type="range" name="mixer" min="1" max="100" value="${sampleConfig.mixer || '-1'}" />
                                 </form>
                             </td>    
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="sample:detune">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="detune" type="range" min="-100" max="100" value="${0}" />
+                                    <input type="range" name="detune" min="-100" max="100" value="${0}" />
                                 </form>
                             </td>      
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="sample:keyRoot">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="keyRoot" value="${sampleConfig.keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
+                                    <input type="text" name="keyRoot" value="${sampleConfig.keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>      
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="sample:keyAlias">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
+                                    <input type="text" name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>
                             <td>   

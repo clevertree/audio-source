@@ -232,15 +232,36 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container button {
     display: inline-block;
     padding: 0px 0px;
-    border: 1px outset #FFF;
     border-radius: 2px;
     min-height: 24px;
+    transition: border 0.2s;
+    border: 1px outset transparent;
+    background: transparent;
     /* font-size: x-small; */
     /* max-width: 200px; */
     /* vertical-align: top; */
 }
+
+.asc-container .input-style:hover,
+.asc-container input[type=text]:hover,
+.asc-container select:hover,
+.asc-container button:hover {
+    border: 1px outset #FFF;
+}
+
 .asc-container input[type=text] {
     padding-left: 5px;
+}
+.asc-container button {
+    display: inline-block;
+    padding: 0px 0px;
+    border: 1px outset transparent;
+    border-radius: 2px;
+    min-height: 24px;
+    transition: border 0.2s;
+    /* font-size: x-small; */
+    /* max-width: 200px; */
+    /* vertical-align: top; */
 }
 
 .asc-container button > span {
@@ -326,11 +347,11 @@ asc-menu.open-context-menu > .dropdown-container {
 /** Tracker Render Forms **/
 
 .asc-container  form.form-render-duration select[name=duration]             { min-width: 96px; }
-.asc-container  form.form-render-octave select[name=octave]                 { max-width: 37px;}
+.asc-container  form.form-render-octave select[name=octave]                 {max-width: 42px;}
 .asc-container  form.form-render-instrument select[name=instrument]         { min-width: 135px; }
 .asc-container  form.form-song-add-instrument select[name=instrumentURL]         { max-width: 68px;}
 
-.asc-container  form.form-selected-indicies input[name=indicies]            { max-width: 103px;}
+.asc-container  form.form-selected-indicies input[name=indicies]            {max-width: 126px;}
 .asc-container  form.form-selected-range input[name=rangeStart],
 .asc-container  form.form-selected-range input[name=rangeEnd]               { max-width: 32px; }
 

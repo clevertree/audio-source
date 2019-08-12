@@ -65,7 +65,7 @@ class AudioSourceStorage {
             console.error(e);
         }
         songRecentGUIDs = songRecentGUIDs.filter((entry) => entry.guid !== songData.guid);
-        songRecentGUIDs.unshift({guid: songData.guid, title: songData.title});
+        songRecentGUIDs.unshift({guid: songData.guid, title: songData.name});
         localStorage.setItem('song-recent-list', await this.encodeForStorage(songRecentGUIDs));
 
 
@@ -75,7 +75,7 @@ class AudioSourceStorage {
         console.info("Song saved to memory: " + songData.guid, songData);
     }
 
-    saveSongToFile(songData) {
+    saveSongToFile(songData, prompt=true) {
         // const song = this.getSongData();
         const instructionsKey = "/** INSTRUCTIONS-" + this.generateGUID() + ' **/';
         let jsonStringInstructions = JSON.stringify(songData.instructions);
@@ -86,7 +86,15 @@ class AudioSourceStorage {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonString);
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href",     dataStr);
-        downloadAnchorNode.setAttribute("download", songData.title || "untitled");
+
+        let fileName = (songData.name || "untitled")
+            .replace(/\s+/g, '_')
+            + '.json';
+        if(prompt)
+            fileName = window.prompt("Download as file?", fileName);
+        if(!fileName)
+            return console.warn("Download canceled");
+        downloadAnchorNode.setAttribute("download", fileName);
         document.body.appendChild(downloadAnchorNode); // required for firefox
         downloadAnchorNode.click();
         downloadAnchorNode.remove();

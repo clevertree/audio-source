@@ -43,6 +43,51 @@
 
 /** Form Inputs **/
 
+/** Form Inputs **/
+
+.audio-source-synthesizer .input-style,
+.audio-source-synthesizer input[type=text],
+.audio-source-synthesizer select,
+.audio-source-synthesizer button {
+    display: inline-block;
+    padding: 0px 0px;
+    border-radius: 2px;
+    min-height: 24px;
+    transition: border 0.2s;
+    border: 1px outset transparent;
+    background: transparent;
+    /* font-size: x-small; */
+    /* max-width: 200px; */
+    /* vertical-align: top; */
+}
+
+.audio-source-synthesizer .input-style:hover,
+.audio-source-synthesizer input[type=text]:hover,
+.audio-source-synthesizer select:hover,
+.audio-source-synthesizer button:hover {
+    border: 1px outset #FFF;
+}
+
+.audio-source-synthesizer input[type=text] {
+    padding-left: 5px;
+}
+.audio-source-synthesizer button {
+    display: inline-block;
+    padding: 0px 0px;
+    border: 1px outset transparent;
+    border-radius: 2px;
+    min-height: 24px;
+    transition: border 0.2s;
+    /* font-size: x-small; */
+    /* max-width: 200px; */
+    /* vertical-align: top; */
+}
+
+.audio-source-synthesizer button > span {
+    margin: 2px 4px;
+}
+
+
 .audio-source-synthesizer input[type='range'] {
     -webkit-appearance: none;
     background-color: #AAA;
@@ -59,22 +104,17 @@
     border-radius: 16px;
 }
 
-.audio-source-synthesizer button {
-    padding: 0px;
-    /* margin: 0px 0px 1px 0px; */
-    border: 1px outset;
-    border-radius: 2px;
-    min-width: 15px;
+
+.audio-source-synthesizer input[type=checkbox] {
+    /* vertical-align: text-top; */
+    /* width: 16px; */
+    /* height: 16px; */
+    /* margin: 5px; */
+    /* left: -25px; */
+    /* position: absolute; */
 }
-.audio-source-synthesizer input,
-.audio-source-synthesizer select  {
-    font-size: smaller;
-}
-.audio-source-synthesizer input:not(:hover):not([type=range]),
-.audio-source-synthesizer select:not(:hover)  {
-    border-color: transparent !important;
-    background: transparent;
-}
+
+
 
 /** Tables **/
 .audio-source-synthesizer table {
