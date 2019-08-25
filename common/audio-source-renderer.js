@@ -7,8 +7,13 @@ class AudioSourceRenderer {
         this.dispatchElement = dispatchElement;
         this.audioContext = null;
         this.songData = {};
-        this.loadedInstruments = [];
-        this.loadedInstrumentClasses = {};
+        this.instruments = {
+            loaded: [],
+            class: {},
+            classPromises: {},
+            promises: {},
+        };
+
         this.seekLength = 0.5;
         this.seekPosition = 0;
         this.volumeGain = null;
@@ -97,8 +102,8 @@ class AudioSourceRenderer {
         switch(e.type) {
             case 'instrument:loaded':
                 const instrumentClass = e.detail.class;
-                const instrumentClassFile = e.detail.file;
-                this.loadedInstrumentClasses[instrumentClassFile] = instrumentClass;
+                const instrumentClassURL = e.detail.url;
+                this.instruments.class[instrumentClassURL] = instrumentClass;
                 this.loadAllInstruments();
                 break;
         }
@@ -669,8 +674,8 @@ class AudioSourceRenderer {
     }
 
     getInstrument(instrumentID, throwException=true) {
-        if(this.loadedInstruments[instrumentID])
-            return this.loadedInstruments[instrumentID];
+        if(this.instruments.loaded[instrumentID])
+            return this.instruments.loaded[instrumentID];
         if(throwException)
             throw new Error("Instrument not yet loaded: " + instrumentID);
         return null;
@@ -681,46 +686,85 @@ class AudioSourceRenderer {
     }
 
     // TODO: async
-    loadInstrumentClass(instrumentClassURL) {
-        instrumentClassURL = new URL(instrumentClassURL, document.location);
-        const instrumentClassFile = instrumentClassURL.pathname.split('/').pop();
-        if(typeof this.loadedInstrumentClasses[instrumentClassFile] !== 'undefined') {
-            if(this.loadedInstrumentClasses[instrumentClassFile] === null)
-                console.warn("Instrument class is loading: " + instrumentClassFile);
-            else
-                throw new Error("Instrument class is already loaded: " + instrumentClassFile);
-            return;
+    async loadInstrumentClass(instrumentClassURL) {
+        instrumentClassURL = new URL(instrumentClassURL) + '';
+        // const instrumentClassFile = new URL(instrumentClassURL).pathname.split('/').pop();
+
+        let instrumentClass = this.instruments.class[instrumentClassURL];
+        if(instrumentClass)
+            return instrumentClass;
+
+        let instrumentClassPromise = this.instruments.classPromises[instrumentClassURL];
+        if(!instrumentClassPromise) {
+            instrumentClassPromise = new Promise((resolve, reject) => {
+                const newScriptElm = document.createElement('script');
+
+                let intervalStart = new Date().getTime();
+                let interval = setInterval(() => {
+                    console.log("Interval");
+                    if(this.instruments.class[instrumentClassURL]) { // Check for loaded class
+                        clearInterval(interval);
+                        resolve(this.instruments.class[instrumentClassURL]);
+                        delete this.instruments.classPromises[instrumentClassURL];
+
+                    } else {
+                        if(intervalStart > new Date().getTime() + 5000) {
+                            clearInterval(interval);
+                            reject("Unable to load: " + instrumentClassURL);
+                            delete this.instruments.classPromises[instrumentClassURL];
+                        }
+                    }
+
+                }, 100);
+
+                newScriptElm.onload = (e) => {
+                    newScriptElm.classList.add('loaded');
+                };
+
+                newScriptElm.onerror = (e) => {
+                    clearInterval(interval);
+                    reject("Error loading: " + instrumentClassURL);
+                    delete this.instruments.classPromises[instrumentClassURL];
+                    newScriptElm.classList.add('error');
+                };
+
+                newScriptElm.src = instrumentClassURL;
+                document.head.appendChild(newScriptElm);
+
+            });
+            this.instruments.classPromises[instrumentClassURL] = instrumentClassPromise;
         }
-        this.loadedInstrumentClasses[instrumentClassFile] = null;
-        const newScriptElm = document.createElement('script');
-        newScriptElm.src = instrumentClassURL;
-        document.head.appendChild(newScriptElm);
+
+        return await instrumentClassPromise;
+
+            //     console.warn("Instrument class is loading: " + instrumentClassFile);
+            // else
+            //     throw new Error("Instrument class is already loaded: " + instrumentClassFile);
+            // return;
         // MusicPlayerElement.loadScript(instrumentPreset.url); // , () => {
     }
 
 
-    // TODO: async
-    loadInstrument(instrumentID, forceReload=false) {
+    async loadInstrument(instrumentID, forceReload=false) {
         instrumentID = parseInt(instrumentID);
-        if (!forceReload && this.loadedInstruments[instrumentID])
+        if (!forceReload && this.instruments.loaded[instrumentID])
             return true;
-        this.loadedInstruments[instrumentID] = null;
+        this.instruments.loaded[instrumentID] = null;
 
         const instrumentPreset = this.getInstrumentConfig(instrumentID);
         if(!instrumentPreset.url)
             throw new Error("Invalid instrument URL");
-        const instrumentClassURL = new URL(instrumentPreset.url, document.location);
-        const instrumentClassFile = instrumentClassURL.pathname.split('/').pop();
-        const instrumentClass = this.loadedInstrumentClasses[instrumentClassFile];
-        // const elementName = url.pathname.substring(url.pathname.lastIndexOf('/') + 1).split('.')[0];
+        let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
+        // try {
+        //     instrumentClassURL = new URL(instrumentPreset.url);
+        // } catch (e) {
+        //     console.warn(e);
+        // }
 
-        if (!instrumentClass) {
-            this.loadInstrumentClass(instrumentClassURL);
-            return false;
-        }
+        const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
 
         const instance = new instrumentClass(instrumentPreset, this); //, this.getAudioContext());
-        this.loadedInstruments[instrumentID] = instance;
+        this.instruments.loaded[instrumentID] = instance;
         this.dispatchEvent(new CustomEvent('instrument:instance', {
             detail: {
                 instance,
@@ -752,7 +796,9 @@ class AudioSourceRenderer {
     initAllInstruments(audioContext) {
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
-            this.initInstrument(instrumentID, audioContext);
+            const instrument = this.getInstrument(instrumentID, false);
+            if(instrument)
+                instrument.init(audioContext);
         }
     }
 
@@ -795,6 +841,9 @@ class AudioSourceRenderer {
             config = {
                 url: config
             };
+        if(!config.url)
+            throw new Error("Invalid Instrument URL");
+        // config.url = config.url;
 
         const instrumentList = this.songData.instruments;
         const instrumentID = instrumentList.length;
@@ -811,7 +860,7 @@ class AudioSourceRenderer {
 
     replaceInstrument(instrumentID, config) {
         const instrumentList = this.songData.instruments;
-        if(instrumentList.length <= instrumentID)
+        if(instrumentList.length < instrumentID)
             throw new Error("Invalid instrument ID: " + instrumentID);
         const oldInstrument = instrumentList[instrumentID];
         if(typeof config !== 'object')
@@ -839,7 +888,7 @@ class AudioSourceRenderer {
         // if(instrumentList.length === instrumentID) {
         //
         // }
-        delete this.loadedInstruments[instrumentID];
+        delete this.instruments.loaded[instrumentID];
         const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null)
             .oldData;
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
@@ -886,7 +935,7 @@ class AudioSourceRenderer {
 
 
     isInstrumentLoaded(instrumentID) {
-        return !!this.loadedInstruments[instrumentID];
+        return !!this.instruments.loaded[instrumentID];
     }
 
 

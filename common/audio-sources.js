@@ -19,16 +19,15 @@ class AudioSources {
     }
 
     get DEFAULT_INSTRUMENT_LIBRARY_URL() {
-        return this.getScriptDirectory('instrument/instrument.library.json');
+        const Libraries = new AudioSourceLibraries;
+        return Libraries.getScriptDirectory('instrument/instrument.library.json');
     }
     // this.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL); // TODO: instruments don't load instrument libraries
 
 
     getScriptDirectory(appendPath='') {
-        const scriptElm = document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
-        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-//         console.log("Base Path: ", basePath);
-        return basePath + appendPath;
+        const Libraries = new AudioSourceLibraries;
+        return Libraries.getScriptDirectory(appendPath);
     }
 
     getInstrumentLibrary() {
@@ -40,7 +39,8 @@ class AudioSources {
     }
 
     async loadPackageInfo() {
-        const url = this.getScriptDirectory('package.json');
+        const Libraries = new AudioSourceLibraries;
+        const url = Libraries.getScriptDirectory('package.json');
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open('GET', url + '', true);
@@ -85,4 +85,7 @@ class AudioSources {
             xhr.send();
         });
     }
+
+
+
 }

@@ -1,0 +1,3 @@
+[submodule "assets/3rdparty"]
+	path = assets/3rdparty
+	url = ssh://git@github.com/clevertree/audio-source-3rdparty

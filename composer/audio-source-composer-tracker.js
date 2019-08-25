@@ -271,6 +271,19 @@ class AudioSourceComposerTracker extends HTMLElement {
             const MENU = e.menuElement;
             const selectedIndicies = this.selectedIndicies;
 
+            const populateGroupCommands = (subMenuGroup, action) => {
+                subMenuGroup.populate = (e) => {
+                    const MENU = e.menuElement;
+                    editor.values.getValues('song-groups', (groupName, groupTitle) => {
+                        const menuEditSetCommandGroup = MENU.getOrCreateSubMenu(groupName, `${groupTitle}`);
+                        menuEditSetCommandGroup.action = action;
+                    });
+                    const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
+                    menuCustom.action = handleAction('group:new');
+                    menuCustom.hasBreak = true;
+                };
+            };
+
 
             const menuEditInsertCommand = MENU.getOrCreateSubMenu('insert', `Insert Command ►`);
             menuEditInsertCommand.populate = (e) => {
@@ -296,7 +309,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 const subMenuNamed = MENU.getOrCreateSubMenu('named', `Named ►`);
                 subMenuNamed.disabled = true;
                 const subMenuGroup = MENU.getOrCreateSubMenu('group', `Group ►`);
-                subMenuGroup.disabled = true;
+                populateGroupCommands(subMenuGroup, (e) => {
+                    editor.tracker.fieldInstructionCommand.value = '@' + groupName;
+                    handleAction('instruction:insert')(e);
+                });
 
                 const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Command`);
                 menuCustom.action = handleAction('instruction:custom-insert');
@@ -328,8 +344,12 @@ class AudioSourceComposerTracker extends HTMLElement {
                 };
                 const subMenuNamed = MENU.getOrCreateSubMenu('named', `Named ►`);
                 subMenuNamed.disabled = true;
+
                 const subMenuGroup = MENU.getOrCreateSubMenu('group', `Group ►`);
-                subMenuGroup.disabled = true;
+                populateGroupCommands(subMenuGroup, (e) => {
+                    editor.tracker.fieldInstructionCommand.value = '@' + groupName;
+                    handleAction('instruction:command')(e);
+                });
 
                 const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Command`);
                 menuCustom.action = handleAction('instruction:custom-command');
@@ -388,9 +408,11 @@ class AudioSourceComposerTracker extends HTMLElement {
             menuEditDeleteInstruction.action = handleAction('instruction:delete');
             menuEditDeleteInstruction.disabled = selectedIndicies.length === 0;
 
-            const menuEditRow = MENU.getOrCreateSubMenu('row', 'Row ►');
+
+            const menuEditRow = MENU.getOrCreateSubMenu('select', 'Select ►');
             menuEditRow.hasBreak = true;
             menuEditRow.disabled = true;
+
             const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
             menuEditGroup.hasBreak = true;
             menuEditGroup.disabled = true;

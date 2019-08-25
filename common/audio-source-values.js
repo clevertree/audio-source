@@ -144,6 +144,7 @@ class AudioSourceValues {
                 }
                 break;
 
+            case 'song-groups':
             case 'groups':
                 if(songData.instructions)
                     Object.keys(songData.instructions).forEach(function(key, i) {

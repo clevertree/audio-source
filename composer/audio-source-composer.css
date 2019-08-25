@@ -234,9 +234,9 @@ asc-menu.open-context-menu > .dropdown-container {
     padding: 0px 0px;
     border-radius: 2px;
     min-height: 24px;
-    transition: border 0.2s;
+    transition: all 0.2s;
     border: 1px outset transparent;
-    background: transparent;
+    /* background: transparent; */
     /* font-size: x-small; */
     /* max-width: 200px; */
     /* vertical-align: top; */
@@ -246,6 +246,7 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container input[type=text]:hover,
 .asc-container select:hover,
 .asc-container button:hover {
+    background: #EEE;
     border: 1px outset #FFF;
 }
 

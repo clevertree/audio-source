@@ -2,7 +2,7 @@ if(!customElements.get('audio-source-synthesizer')) {
     class SynthesizerInstrument extends HTMLElement {
         // get DEFAULT_SAMPLE_LIBRARY_URL() { return '/sample/index.library.json'; }
         get DEFAULT_SAMPLE_LIBRARY_URL() {
-            return this.getScriptDirectory('sample/sample.library.json');
+            return getScriptDirectory('sample/sample.library.json');
         }
 
 
@@ -380,9 +380,10 @@ if(!customElements.get('audio-source-synthesizer')) {
             });
         }
 
+        get instrumentID() { return this.getAttribute('data-id'); }
 
         render() {
-            const instrumentID = this.getAttribute('data-id') || '0';
+            const instrumentID = this.instrumentID || 'N/A'; // this.getAttribute('data-id') || '0';
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
             const instrumentPreset = this.config;
 
@@ -410,7 +411,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 // </form>
             // TODO:
             // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
-            const linkHRef = this.getScriptDirectory('instrument/audio-source-synthesizer.css');
+            const linkHRef = getScriptDirectory('instrument/audio-source-synthesizer.css');
             this.shadowDOM.innerHTML = `
             <link rel="stylesheet" href="${linkHRef}" />
             <div class="audio-source-synthesizer">
@@ -771,16 +772,11 @@ if(!customElements.get('audio-source-synthesizer')) {
             return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
         }
 
-        getScriptDirectory(appendPath = '') {
-            const scriptElm = document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');
-            const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-            return basePath + appendPath;
-        }
 
         loadCSS() {
             if (document.head.querySelector('link[href$="audio-source-synthesizer.css"]'))
                 return;
-            const linkHRef = this.getScriptDirectory('instrument/audio-source-synthesizer.css');
+            const linkHRef = getScriptDirectory('instrument/audio-source-synthesizer.css');
             // console.log(linkHRef);
             let cssLink = document.createElement("link");
             cssLink.setAttribute("rel", "stylesheet");
@@ -791,12 +787,25 @@ if(!customElements.get('audio-source-synthesizer')) {
 
     }
 
+
+    function getScriptElm() {
+        return document.head.querySelector('script[src$="audio-source-synthesizer.js"].loaded,script[src$="audio-source-synthesizer.min.js"].loaded');
+    }
+    function getScriptDirectory(appendPath = '') {
+        const scriptElm = getScriptElm();
+        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+        return basePath + appendPath;
+    }
+
+
     customElements.define('audio-source-synthesizer', SynthesizerInstrument);
     const dispatch = () => {
+        const scriptElm = getScriptElm();
         document.dispatchEvent(new CustomEvent('instrument:loaded', {
             detail: {
                 "class": SynthesizerInstrument,
-                "file": "audio-source-synthesizer.js"
+                "url": scriptElm.src,
+                "script": scriptElm
             }
         }));
     };

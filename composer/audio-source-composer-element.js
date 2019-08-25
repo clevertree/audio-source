@@ -56,7 +56,10 @@ class AudioSourceComposerElement extends HTMLElement {
     // get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
     get container() { return this.shadowDOM.querySelector('.asc-container'); }
 
-    get scriptDirectory () { return this.sources.getScriptDirectory(''); }
+    get scriptDirectory () {
+        const Libraries = new AudioSourceLibraries;
+        return Libraries.getScriptDirectory('');
+    }
 
     get songEvents() { return [
         'song:loaded','song:start','song:end','song:pause','song:modified',
@@ -91,7 +94,7 @@ class AudioSourceComposerElement extends HTMLElement {
         if(navigator.requestMIDIAccess) {
             navigator.requestMIDIAccess().then(
                 (MIDI) => {
-                    console.log("MIDI initialized", MIDI);
+//                     console.info("MIDI initialized", MIDI);
                     const inputDevices = [];
                     MIDI.inputs.forEach(
                         (inputDevice) => {
@@ -387,6 +390,10 @@ class AudioSourceComposerElement extends HTMLElement {
 
             case 'song:add-instrument':
                 const addInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
+                if(!addInstrumentURL) {
+                    console.error("Empty URL");
+                    break;
+                }
                 e.target.form.elements['instrumentURL'].value = '';
                 if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
                     this.renderer.addInstrument(addInstrumentURL);
@@ -397,12 +404,17 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:replace-instrument':
+                const changeInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
+                if(!changeInstrumentURL) {
+                    console.error("Empty URL");
+                    break;
+                }
                 const changeInstrument = actionOptions || {
-                    url: e.target.form.elements['instrumentURL'].value,
+                    url: changeInstrumentURL,
                     id: parseInt(e.target.form.elements['instrumentID'].value)
                 };
                 changeInstrument.title = changeInstrument.url.split('/').pop();
-                if(confirm(`Change Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
+                if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
                     this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
                 } else {
                     console.info("Change instrument canceled");
@@ -488,8 +500,8 @@ class AudioSourceComposerElement extends HTMLElement {
     get formsInstruments() { return this.shadowDOM.querySelector(`.form-section-container-instruments`)}
 
     render() {
-
-        const linkHRef = this.sources.getScriptDirectory('composer/audio-source-composer.css');
+        const Libraries = new AudioSourceLibraries;
+        const linkHRef = Libraries.getScriptDirectory('composer/audio-source-composer.css');
 
         this.shadowDOM.innerHTML = `
         <link rel="stylesheet" href="${linkHRef}" />
@@ -652,14 +664,16 @@ class AudioSourceComposerElement extends HTMLElement {
             instrumentDiv.innerHTML = ``;
 
             if(!instrumentPreset) {
-                instrument = new EmptyInstrumentElement(instrumentID);
+                instrument = new EmptyInstrumentElement(instrumentID, '[Empty]');
                 instrumentDiv.appendChild(instrument);
 
             } else if(!instrumentPreset.url) {
-                instrumentDiv.innerHTML = `Invalid URL`;
+                const loadingElm = new EmptyInstrumentElement(instrumentID, `Invalid URL`);
+                instrumentDiv.appendChild(loadingElm);
 
             } else if(!renderer.isInstrumentLoaded(instrumentID)) {
-                instrumentDiv.innerHTML = `Loading...`;
+                const loadingElm = new EmptyInstrumentElement(instrumentID, 'Loading...');
+                instrumentDiv.appendChild(loadingElm);
 
             } else {
                 try {
@@ -680,7 +694,7 @@ class AudioSourceComposerElement extends HTMLElement {
             }
         }
 
-        formSection.appendChild(new EmptyInstrumentElement())
+        formSection.appendChild(new EmptyInstrumentElement(instrumentList.length, '[Empty]'))
     }
 
     renderMenu() {
@@ -902,7 +916,9 @@ class AudioSourceComposerElement extends HTMLElement {
         const targetDOM = this.shadowDOM || document.head;
         if(targetDOM.querySelector('link[href$="audio-source-composer.css"]'))
             return;
-        const linkHRef = this.sources.getScriptDirectory('composer/audio-source-composer.css');
+
+        const Libraries = new AudioSourceLibraries;
+        const linkHRef = Libraries.getScriptDirectory('composer/audio-source-composer.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");
@@ -912,20 +928,23 @@ class AudioSourceComposerElement extends HTMLElement {
 }
 customElements.define('audio-source-composer', AudioSourceComposerElement);
 
+
 class EmptyInstrumentElement extends HTMLElement {
 
-    constructor(instrumentID=null) {
+    constructor(instrumentID, statusText) {
         super();
-        if(instrumentID !== null)
-            this.setAttribute('data-id', instrumentID+'');
+        this.statusText = statusText;
+        this.instrumentID = instrumentID;
     }
 
+    get instrumentID()      { return this.getAttribute('data-id'); }
+    set instrumentID(value) { return this.setAttribute('data-id', value); }
 
 
     connectedCallback() {
         // this.song = this.closest('music-song'); // Don't rely on this !!!
         // const onInput = e => this.onInput(e);
-        // this.addEventListener('submit', onInput);
+        this.addEventListener('submit', e => this.editor.onInput(e));
         this.render();
     }
 
@@ -937,26 +956,25 @@ class EmptyInstrumentElement extends HTMLElement {
     }
 
     render() {
-        let actionText = 'Add';
-        let action = 'song:add-instrument';
-        let instrumentID = '';
-        let instrumentIDHTML = '';
-        if(this.hasAttribute('data-id')) {
-            actionText = 'Change';
-            instrumentID = this.getAttribute('data-id') || '0';
-            action = 'song:replace-instrument';
-            instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
-        }
+        const instrumentID = this.instrumentID || 'N/A';
+        const statusText = (instrumentID < 10 ? "0" : "") + (instrumentID + ":") + this.statusText;
         this.innerHTML = `
             <div class="form-section control-song">
-                <form class="form-song-add-instrument submit-on-change" data-action="${action}">
+                <form class="form-song-add-instrument submit-on-change" data-action="song:replace-instrument">
                     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                    ${instrumentIDHTML}<!--
-                    --><select name="instrumentURL" class="themed">
-                        <option value="">${actionText} Instrument</option>
+                    ${statusText}
+                    <hr/>
+                    <select name="instrumentURL" class="themed">
+                        <option value="">Select Instrument</option>
                         ${this.editor.values.renderEditorFormOptions('instruments-available')}
                     </select>
                 </form>
+                <span style="float: right;">
+                    <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
+                        <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+                        <button class="remove-instrument">x</button>
+                    </form>
+                </span>
             </div>
 
         `;

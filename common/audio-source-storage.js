@@ -27,7 +27,7 @@ class AudioSourceStorage {
             beatsPerMinute: 120,
             beatsPerMeasure: 4,
             instruments: [{
-                "url": scriptDirectory + "instrument/audio-source-synthesizer.js",
+                "url": new URL(scriptDirectory + "instrument/audio-source-synthesizer.js", document.location) + '',
             }],
             instructions: {
                 'root': []
