@@ -175,7 +175,7 @@ class AudioSourceRenderer {
 
     }
 
-    loadSongData(songData, songHistory=[]) {
+    loadSongData(songData, songURL=null) {
         songData = Object.assign({}, {
             instruments: [],
             instructions: {
@@ -184,7 +184,6 @@ class AudioSourceRenderer {
         }, songData);
         // TODO: Cleanup
         this.songData = songData;
-        this.songHistory = songHistory || [];
 
         Object.keys(songData.instructions).map((groupName, i) =>
             this.processAllInstructionData(groupName));
@@ -196,6 +195,8 @@ class AudioSourceRenderer {
             for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
                 if(!songData.instruments[instrumentID])
                     continue;
+                if(songURL)
+                    songData.instruments[instrumentID].url = new URL(songData.instruments[instrumentID].url, songURL) + '';
                 loadingInstruments++;
                 this.loadInstrument(instrumentID);
 
@@ -211,6 +212,11 @@ class AudioSourceRenderer {
         }
 
         this.dispatchEvent(new CustomEvent('song:loaded'));
+    }
+
+
+    loadSongHistory(songHistory) {
+        this.songHistory = songHistory;
     }
 
     processAllInstructionData(groupName) {

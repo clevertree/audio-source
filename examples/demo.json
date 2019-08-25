@@ -1,10 +1,10 @@
 {
   "instruments": [
     {
-      "url": "instrument/audio-source-synthesizer.js"
+      "url": "../instrument/audio-source-synthesizer.js"
     },
     {
-      "url": "instrument/audio-source-synthesizer.js"
+      "url": "../instrument/audio-source-synthesizer.js"
     }
   ],
   "instructions": {

@@ -191,7 +191,8 @@ class AudioSourceComposerElement extends HTMLElement {
         const storage = new AudioSourceStorage();
         const songData = await storage.loadSongFromMemory(songGUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
-        this.renderer.loadSongData(songData, songHistory);
+        this.renderer.loadSongData(songData);
+        this.renderer.loadSongHistory(songHistory);
         this.render();
         console.info("Song loaded from memory: " + songGUID, songData);
     }
@@ -209,6 +210,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     async loadSongFromSrc(src) {
+        src = new URL(src, document.location) + '';
         const songData = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open('GET', src + '', true);
@@ -220,7 +222,7 @@ class AudioSourceComposerElement extends HTMLElement {
             };
             xhr.send();
         });
-        this.renderer.loadSongData(songData);
+        this.renderer.loadSongData(songData, src);
         console.info("Song loaded from src: " + src, this.renderer.songData);
         this.render();
     }

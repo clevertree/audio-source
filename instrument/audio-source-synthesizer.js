@@ -799,8 +799,13 @@ if(!customElements.get('audio-source-synthesizer')) {
 
 
     customElements.define('audio-source-synthesizer', SynthesizerInstrument);
-    const dispatch = () => {
+
+
+    let dispatchInterval = setInterval(() => {
         const scriptElm = getScriptElm();
+        if(!scriptElm)
+            return;
+        clearInterval(dispatchInterval);
         document.dispatchEvent(new CustomEvent('instrument:loaded', {
             detail: {
                 "class": SynthesizerInstrument,
@@ -808,10 +813,19 @@ if(!customElements.get('audio-source-synthesizer')) {
                 "script": scriptElm
             }
         }));
-    };
-    setTimeout(dispatch, 1);
-    setTimeout(dispatch, 500);
-    setTimeout(dispatch, 2500); // For slow loaders
+    }, 500);
+
+
+
+
+
+
+
+
+
+
+
+
 
     // TODO: memory leak on many sample load
     class SampleLoader {
