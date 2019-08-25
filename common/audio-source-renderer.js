@@ -731,7 +731,7 @@ class AudioSourceRenderer {
                     clearInterval(interval);
                     reject("Error loading: " + instrumentClassURL);
                     delete this.instruments.classPromises[instrumentClassURL];
-                    newScriptElm.classList.add('error');
+                    newScriptElm.parentNode.removeChild(newScriptElm);
                 };
 
                 newScriptElm.src = instrumentClassURL;

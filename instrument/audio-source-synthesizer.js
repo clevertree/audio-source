@@ -14,13 +14,13 @@ if(!customElements.get('audio-source-synthesizer')) {
             // Create a shadow root
             this.shadowDOM = this.attachShadow({mode: 'open'});
 
-            if (!config)
-                throw new Error("Instrument config object is required");
+            // if (!config)
+            //     throw new Error("Instrument config object is required");
             // if(!config.name)
             //     config.name = this0.constructor.name + BufferSourceInstrument.NEW_COUNTER++;
-            if (!config.samples)
-                config.samples = {};
-            this.config = config;            // TODO: validate config
+            this.config = config || {};            // TODO: validate config
+            if (!this.config.samples)
+                this.config.samples = {};
 
             // if(!SynthesizerInstrument.sampleLoader)
             //     SynthesizerInstrument.sampleLoader = new SampleLoader();
@@ -789,7 +789,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
 
     function getScriptElm() {
-        return document.head.querySelector('script[src$="audio-source-synthesizer.js"].loaded,script[src$="audio-source-synthesizer.min.js"].loaded');
+        return document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');
     }
     function getScriptDirectory(appendPath = '') {
         const scriptElm = getScriptElm();
@@ -889,6 +889,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             console.info("Sample Loaded: ", sampleURL);
             resolvePromise(sampleCache.response);
 
+            return sampleCache.response;
         }
 
         async initAudioSample(audioContext, sampleURL) {

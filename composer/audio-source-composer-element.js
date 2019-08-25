@@ -7,7 +7,7 @@
 class AudioSourceComposerElement extends HTMLElement {
     constructor() {
         super();
-
+        this.eventHandlers = [];
         this.saveSongToMemoryTimer = null;
         this.instrumentLibrary = null;
 
@@ -61,12 +61,6 @@ class AudioSourceComposerElement extends HTMLElement {
         return Libraries.getScriptDirectory('');
     }
 
-    get songEvents() { return [
-        'song:loaded','song:start','song:end','song:pause','song:modified',
-        'note:play',
-        'instrument:loaded','instrument:instance','instrument:library','instrument:modified',
-    ]}
-
     connectedCallback() {
         // this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
@@ -76,8 +70,12 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM.addEventListener('change', onInput);
         // this.shadowDOM.addEventListener('blur', onInput);
 
-        this.songEvents.forEach(eventName =>
-            this.addEventListener(eventName, this.onSongEvent));
+        this.attachEventHandler([
+            'song:loaded','song:start','song:end','song:pause','song:modified',
+            'note:play',
+            'instrument:instance','instrument:library','instrument:modified'
+        ], this.onSongEvent);
+        this.attachEventHandler(['instrument:loaded'], e => this.onSongEvent(e), document);
 
         this.render();
         this.focus();
@@ -113,8 +111,19 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        this.songEvents.forEach(eventName =>
-            this.removeEventListener(eventName, this.onSongEvent));
+        this.eventHandlers.forEach(eventHandler =>
+            eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
+    }
+
+    attachEventHandler(eventNames, method, context) {
+        if(!Array.isArray(eventNames))
+            eventNames = [eventNames];
+        for(let i=0; i<eventNames.length; i++) {
+            const eventName = eventNames[i];
+            context = context || this;
+            context.addEventListener(eventName, method);
+            this.eventHandlers.push([eventName, method, context]);
+        }
     }
 
     async loadDefaultSong() {
@@ -270,8 +279,9 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-//         console.log("Song Event: ", e.type);
-        this.tracker.onSongEvent(e);
+        console.log("Song Event: ", e.type);
+        if(this.tracker)
+            this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:loaded':
                 this.tracker.renderDuration = this.renderer.getSongTimeDivision();
@@ -292,15 +302,17 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.status.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
-                console.info("TODO: load instrument instances", e.detail);
+            case 'instrument:instance':
+                this.renderInstruments();
                 break;
             case 'instrument:library':
-            case 'instrument:instance':
             case 'instrument:modified':
 //                 console.log(e.type);
                 // TODO: this.instruments.render();
-                this.renderInstruments();
+                // this.renderInstruments();
                 this.renderSongForms();
+                if(this.tracker)
+                    this.tracker.renderForms();
                 break;
         }
     }
