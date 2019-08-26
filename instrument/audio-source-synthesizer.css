@@ -162,16 +162,17 @@
 
 .audio-source-synthesizer form.replace-instrument >             select[name=instrumentURL]  {width: 136px;}
 .audio-source-synthesizer form.instrument-setting-preset >      input[name=preset]     {width: 131px;}
-.audio-source-synthesizer form.instrument-name                 input[name=name]        {width: 157px;}
+.audio-source-synthesizer form.instrument-name                  input[name=name]        {width: 157px;}
 
-.audio-source-synthesizer form.instrument-setting-detune       input[name=detune]      { width: 60px; }
-.audio-source-synthesizer form.instrument-setting-mixer        input[name=mixer]       { width: 60px; }
+.audio-source-synthesizer form.instrument-setting-detune        input[name=detune]      { width: 60px; }
+.audio-source-synthesizer form.instrument-setting-mixer         input[name=mixer]       { width: 60px; }
 
-.audio-source-synthesizer form.instrument-setting-root         input[name=keyRoot]     { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-alias        input[name=keyAlias]    { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-range        input[name=keyLow]      { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-range        input[name=keyHigh]     { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-polyphony    input[name=polyphony]   { width: 51px;}
+.audio-source-synthesizer form.instrument-setting-root          input[name=keyRoot]     { width: 40px; }
+.audio-source-synthesizer form.instrument-setting-alias         input[name=keyAlias]    { width: 40px; }
+.audio-source-synthesizer form.instrument-setting-range         input[name=keyLow]      { width: 40px; }
+.audio-source-synthesizer form.instrument-setting-range         input[name=keyHigh]     { width: 40px; }
+.audio-source-synthesizer form.instrument-setting-polyphony     input[name=polyphony]   { width: 51px;}
+.audio-source-synthesizer form.instrument-setting-adsr          input[name=adsr ]   { width: 51px;}
 
 /** Sample Editor **/
 
@@ -185,7 +186,7 @@
 
 i.ui-icon {
     font-size: 16px;
-    display: block;
+    display: inline-block;
     width: 1em;
     height: 1em;
     padding: 0px;
@@ -193,7 +194,7 @@ i.ui-icon {
     background: url("../assets/img/ui-icons.png");
     /*font-size: 0px;*/
     background-size: 10em 5em;
-    /* vertical-align: top; */
+    vertical-align: top;
 }
 i.ui-play { background-position: -3em -1em; }
 i.ui-pause {background-position: -4em -1em;}

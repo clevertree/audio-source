@@ -72,10 +72,14 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.attachEventHandler([
             'song:loaded','song:start','song:end','song:pause','song:modified',
-            'note:play',
-            'instrument:instance','instrument:library','instrument:modified'
+            'note:play'
         ], this.onSongEvent);
-        this.attachEventHandler(['instrument:loaded'], e => this.onSongEvent(e), document);
+        this.attachEventHandler([
+            'instrument:instance',
+            'instrument:library',
+            'instrument:modified',
+            'instrument:loaded'],
+            e => this.onSongEvent(e), document);
 
         this.render();
         this.focus();
@@ -293,7 +297,14 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:pause':
                 this.classList.remove('playing');
                 break;
+            case 'instrument:modified':
             case 'song:modified':
+                switch(e.type) {
+                    case 'instrument:modified':
+                        if(this.tracker) // Update aliases
+                            this.tracker.renderForms();
+                        break;
+                }
                 // this.tracker.render();
                 // this.forms.render();
 
@@ -306,7 +317,6 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.renderInstruments();
                 break;
             case 'instrument:library':
-            case 'instrument:modified':
 //                 console.log(e.type);
                 // TODO: this.instruments.render();
                 // this.renderInstruments();

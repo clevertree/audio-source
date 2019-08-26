@@ -782,7 +782,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'mouseout':
                 if(e.target.matches('asc-tracker')) {
-                    console.log(e.target, e.path);
+//                     console.log(e.target, e.path);
                     if(this.isSelectionRectActive()) {
                         this.commitSelectionRect();
                     }

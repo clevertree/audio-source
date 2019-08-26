@@ -18,9 +18,9 @@ if(!customElements.get('audio-source-synthesizer')) {
             //     throw new Error("Instrument config object is required");
             // if(!config.name)
             //     config.name = this0.constructor.name + BufferSourceInstrument.NEW_COUNTER++;
-            this.config = config || {};            // TODO: validate config
-            if (!this.config.samples)
-                this.config.samples = {};
+            this.config = config || {};
+            this.loadConfig(this.config);
+            // this.config = config || {};            // TODO: validate config
 
             // if(!SynthesizerInstrument.sampleLoader)
             //     SynthesizerInstrument.sampleLoader = new SampleLoader();
@@ -69,13 +69,28 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.render();
         }
 
+        loadConfig(newConfig) {
+            if (!newConfig.samples)
+                newConfig.samples = {};
+            // TODO: unload samples - this.samples
+            Object.assign(this.config, newConfig);
+            this.loadSamples();
+
+            document.dispatchEvent(new CustomEvent('instrument:modified', {
+                detail: {
+                    config: this.config
+                },
+                bubbles: true
+            }));
+        }
+
         loadSamples() {
             this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
             this.samples = {};
             for (let sampleName in this.config.samples) {
                 if (this.config.samples.hasOwnProperty(sampleName)) {
                     try {
-                        this.loadAudioSample(sampleName);
+                        this.loadAudioSample(sampleName); // Async?
                     } catch (e) {
                         console.warn("Error loading sample: " + sampleName, e);
                     }
@@ -107,6 +122,9 @@ if(!customElements.get('audio-source-synthesizer')) {
             if (!sampleURL)
                 throw new Error("Sample config is missing url");
 
+            if (typeof this.samples[sampleName] === "undefined")
+                this.samples[sampleName] = {}
+
             const sampleData = this.samples[sampleName];
 
 
@@ -135,13 +153,13 @@ if(!customElements.get('audio-source-synthesizer')) {
                 throw new Error("Sample config is missing url: " + sampleName);
             sampleURL = new URL(sampleURL, document.location) + '';
 
-            if (typeof this.samples[sampleName] === "undefined") {
-                this.samples[sampleName] = {}
-            }
-
             await this.sampleLoader.loadAudioSampleData(sampleURL, this);
             if (this.audioContext)
                 await this.initSample(this.audioContext, sampleName);
+        }
+
+        isSampleLoaded(sampleName) {
+            return typeof this.samples[sampleName] !== 'undefined';
         }
 
 
@@ -170,8 +188,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 if (Object.keys(this.config.samples).length === 0) {
                     const sampleInstrument = Object.keys(this.sampleLibrary.instruments)[0];
 
-                    Object.assign(this.config, this.getInstrumentPresetConfig(sampleInstrument));
-                    this.loadSamples();
+                    this.loadConfig(this.sampleLibrary.getPresetConfig(sampleInstrument));
 
 //                 console.info("Loaded default sample instrument: " + sampleInstrument, this.config);
 //                 if(this.audioContext)
@@ -182,9 +199,56 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.render();
         }
 
-        async playSample(destination, sampleName, frequencyValue, startTime, duration, velocity) {
-            if (typeof this.samples[sampleName] === 'undefined')
-                await this.initSample(destination.context, sampleName)
+        playPeriodicWave(destination, periodicWave, frequency, startTime=null, duration=null, velocity=null, adsr=null) {
+            const source = destination.context.createOscillator();   // instantiate an oscillator
+            source.frequency.value = frequency;    // set Frequency (hz)
+
+            source.setPeriodicWave(periodicWave);
+
+            this.playSource(destination, source, startTime, duration, velocity, adsr);
+            return source;
+        }
+
+        playBuffer(destination, buffer, playbackRate, loop=false, startTime=null, duration=null, velocity=null, adsr=null) {
+            const source = destination.context.createBufferSource();
+            source.buffer = buffer;
+            source.loop = loop;
+            source.playbackRate.value = playbackRate; //  Math.random()*2;
+            this.playSource(destination, source, startTime, duration, velocity, adsr);
+            return source;
+        }
+
+        playSource(destination, source, startTime=null, duration=null, velocity=null, adsr=null) {
+            // songLength = buffer.duration;
+            // source.playbackRate.value = playbackControl.value;
+
+            // const adsr = sampleConfig.adsr || [0, 0, 0, 0.1];
+
+            adsr = adsr || [0, 0, 0, .1];
+            startTime = startTime || this.getAudioContext().currentTime;
+            // Play note
+            if (startTime) {
+                source.start(startTime);
+                if (duration) {
+                    source.stop(startTime + duration + adsr[3]);
+                }
+            }
+
+            let velocityGain = destination.context.createGain();
+            velocityGain.gain.value = parseFloat(velocity || 127) / 127;
+            velocityGain.connect(destination);
+            destination = velocityGain;
+
+            velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
+            velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + adsr[3]);
+
+            source.connect(destination);
+        }
+
+        async playSample(destination, sampleName, frequencyValue=null, startTime=null, duration=null, velocity=null, adsr = null) {
+            if (!this.isSampleLoaded(sampleName))
+                await this.initSample(destination.context, sampleName);
+
             // throw new Error("Sample not loaded: " + sampleName);
             const sampleData = this.samples[sampleName];
             const sampleConfig = this.config.samples[sampleName];
@@ -194,57 +258,41 @@ if(!customElements.get('audio-source-synthesizer')) {
 
             let source, sources = [];
             if (sampleData.periodicWave) {
-                source = destination.context.createOscillator();   // instantiate an oscillator
-                source.frequency.value = frequencyValue;    // set Frequency (hz)
-
-                source.setPeriodicWave(sampleData.periodicWave);
+                source = this.playPeriodicWave(
+                    destination,
+                    sampleData.periodicWave,
+                    frequencyValue,
+                    startTime,
+                    duration,
+                    velocity,
+                    adsr
+                    );
                 sources.push(source);
             }
 
             if (sampleData.buffer) {
                 const playbackRate = frequencyValue / (sampleConfig.keyRoot ? this.getCommandFrequency(sampleConfig.keyRoot) : 440);
-                source = destination.context.createBufferSource();
-                source.buffer = sampleData.buffer;
-                source.loop = sampleConfig.loop || false;
-                source.playbackRate.value = playbackRate; //  Math.random()*2;
+                source = this.playBuffer(
+                    destination,
+                    sampleData.buffer,
+                    playbackRate,
+                    sampleConfig.loop || false,
+                    startTime,
+                    duration,
+                    velocity,
+                    adsr
+                );
                 sources.push(source);
                 // source.playbackRate.linearRampToValueAtTime(3.0, startTime + 0.05)
             }
 
-            if (sources.length === 0) {
+            if (sources.length === 0)
                 console.warn("No sources were created");
-                return;
-            }
 
+
+            // Detune
             if (typeof sampleConfig.detune !== "undefined")
-                source.detune.value = sampleConfig.detune;
-
-
-            for (let i = 0; i < sources.length; i++) {
-                source = sources[i];
-                // songLength = buffer.duration;
-                // source.playbackRate.value = playbackControl.value;
-
-                const ADSR = sampleConfig.ADSR || [0, 0, 0, 0.1];
-
-                // Play note
-                if (startTime) {
-                    source.start(startTime);
-                    if (duration) {
-                        source.stop(startTime + duration + ADSR[3]);
-                    }
-                }
-
-                let velocityGain = destination.context.createGain();
-                velocityGain.gain.value = parseFloat(velocity || 127) / 127;
-                velocityGain.connect(destination);
-                destination = velocityGain;
-
-                velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
-                velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + ADSR[3]);
-
-                source.connect(destination);
-            }
+                sources.forEach(source => source.detune.value = sampleConfig.detune);
 
             // console.log("Buffer Play: ", playbackRate);
             return sources;
@@ -282,7 +330,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                     // TODO: polyphony
 
-                    await this.playSample(destination, sampleName, frequencyValue, startTime, duration, velocity);
+                    await this.playSample(destination, sampleName, frequencyValue, startTime, duration, velocity, sampleConfig.adsr || null);
                     // this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
                     // if (source)
                     //     sources.push(sources);
@@ -329,42 +377,6 @@ if(!customElements.get('audio-source-synthesizer')) {
 //             gainNode.gain.setTargetValueAtTime(1.0, now, 0.2 );
 //         }
 //     }
-
-        getInstrumentPresetConfig(presetName) {
-            const urlPrefix = this.sampleLibrary.urlPrefix || '';
-            const newConfig = Object.assign({}, this.config);
-            newConfig.preset = presetName;
-            newConfig.samples = {};
-            if (!this.sampleLibrary.instruments[presetName])
-                throw new Error("Invalid Instrument Preset: " + presetName);
-            const presetConfig = this.sampleLibrary.instruments[presetName];
-            if (!presetConfig.samples)
-                presetConfig.samples = {};
-            if (Object.keys(presetConfig.samples).length === 0)
-                presetConfig.samples[presetName] = {};
-            // Object.assign(newConfig, presetConfig);
-            Object.keys(presetConfig.samples).forEach((sampleName) => {
-                const sampleConfig =
-                    Object.assign({
-                            url: sampleName
-                        },
-                        presetConfig.samples[sampleName],
-                        this.sampleLibrary.samples[sampleName]);
-                sampleConfig.url = new URL(urlPrefix + sampleConfig.url, this.sampleLibrary.url) + '';
-
-                if (typeof sampleConfig.keyRange !== "undefined") {
-                    let pair = sampleConfig.keyRange;
-                    if (typeof pair === 'string')
-                        pair = pair.split(':');
-                    sampleConfig.keyLow = pair[0];
-                    sampleConfig.keyHigh = pair[1] || pair[0];
-                    delete sampleConfig.keyRange;
-                }
-                newConfig.samples[sampleName] = sampleConfig;
-            });
-
-            return newConfig;
-        }
 
 //         async loadSampleLibrary(url) {
 //             if (!url)
@@ -458,18 +470,18 @@ if(!customElements.get('audio-source-synthesizer')) {
                                 <option value="">Select Preset</option>
                                     <optgroup label="${this.sampleLibrary.name || 'Unnamed Library'}">
                                     ${this.sampleLibrary.eachPreset((presetConfig, presetURL, presetName) => {
-                return `<option value="${presetURL}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName}</option>`;
-            }).join("\n")}
+                                        return `<option value="${presetURL}" ${presetName === this.config.preset ? ` selected="selected"` : ''}>${presetName}</option>`;
+                                    }).join("\n")}
                                     </optgroup>
                                     <optgroup label="Libraries">
                                     ${this.sampleLibrary.eachLibrary((libraryConfig, libraryURL, libraryName) => {
-                return `<option value="${libraryURL}">${libraryName}</option>`;
-            }).join("\n")}
+                                        return `<option value="${libraryURL}">${libraryName}</option>`;
+                                    }).join("\n")}
                                     </optgroup>
                                     <optgroup label="Other Libraries">
                                     ${SampleLibrary.eachHistoricLibrary((libraryConfig, libraryURL, libraryName) => {
-                return `<option value="${libraryURL}">${libraryName}</option>`;
-            }).join("\n")}
+                                        return `<option value="${libraryURL}">${libraryName}</option>`;
+                                    }).join("\n")}
                                     </optgroup>
                             </select>
                         </form>
@@ -503,13 +515,9 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <th>Detune</th>
                             <th>Root</th>
                             <th>Alias</th>
-                            <th>
-                                <form action="#" class="instrument-setting instrument-setting-add submit-on-change" data-action="sample:add">
-                                    <button name="add">
-                                       <i class="ui-icon ui-insert"></i>
-                                    </button>
-                                </form>
-                            </th>
+                            <th>Loop</th>
+                            <th>ADSR</th>
+                            <th>[-]</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -546,6 +554,18 @@ if(!customElements.get('audio-source-synthesizer')) {
                                     <input type="hidden" name="sample" value="${sampleName}" />
                                     <input type="text" name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
+                            </td>  
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-loop submit-on-change" data-action="sample:loop">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="checkbox" name="loop" ${sampleConfig.loop ? 'checked="checked"' : ''} />
+                                </form>
+                            </td>  
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-adsr submit-on-change" data-action="sample:adsr">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="text" name="adsr" value="${sampleConfig.adsr || ''}" placeholder="0,0,0,0" />
+                                </form>
                             </td>
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:remove">
@@ -557,6 +577,19 @@ if(!customElements.get('audio-source-synthesizer')) {
                             </td>  
                         </tr>`;
             }).join("\n")}
+                
+                        <tr>
+                            <td colspan="7">   
+                                <form action="#" class="instrument-setting instrument-setting-add submit-on-change" data-action="sample:add">
+                                    <button name="add">
+                                       <i class="ui-icon ui-insert"></i>
+                                       Add new sample
+                                    </button>
+                                </form>
+                            </td>  
+                        </tr>
+                
+                
                     </tbody>
                 </table>
                 <datalist id="noteFrequencies">
@@ -608,7 +641,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             // }
         }
 
-        onSubmit(e) {
+        async onSubmit(e) {
             if (e.defaultPrevented)
                 return;
             console.log(e.type, e.target);
@@ -635,7 +668,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                         url: addSampleURL,
                         // name: addSampleName
                     });
-                    this.loadAudioSample(addSampleName);
+                    await this.loadAudioSample(addSampleName);
                     this.render();
                     break;
 
@@ -645,6 +678,8 @@ if(!customElements.get('audio-source-synthesizer')) {
                 case 'sample:detune':
                 case 'sample:keyRoot':
                 case 'sample:keyAlias':
+                case 'sample:loop':
+                case 'sample:adsr':
                     const sampleName = form.elements.sample.value;
                     const sampleConfig = this.config.samples[sampleName];
                     if (!sampleConfig)
@@ -660,7 +695,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                             const changeSampleURL = prompt(`Change Sample URL: (${sampleName})`, sampleConfig.url);
                             if (changeSampleURL) {
                                 this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'url'], changeSampleURL);
-                                this.loadAudioSample(sampleName);
+                                await this.loadAudioSample(sampleName);
                             } else {
                                 console.info("Change sample URL canceled");
                             }
@@ -680,6 +715,12 @@ if(!customElements.get('audio-source-synthesizer')) {
                         case 'sample:keyAlias':
                             this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyAlias'], form.elements.keyAlias.value);
                             break;
+                        case 'sample:loop':
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'loop'], form.elements.loop.checked);
+                            break;
+                        case 'sample:adsr':
+                        default:
+                            throw new Error("Shouldn't happen");
                     }
                     break;
 
@@ -690,23 +731,18 @@ if(!customElements.get('audio-source-synthesizer')) {
                         e.preventDefault();
                         e.stopPropagation();
                         // this.loadSampleLibrary(libraryURL);
-                        this.sampleLibrary.loadURL(libraryURL)
-                            .then(() => this.render());
+                        await this.sampleLibrary.loadURL(libraryURL);
+                        this.render();
                         return;
                     }
                     break;
                 case 'instrument:preset':
-                    const newPreset = form.elements['preset'].value;
-                    if (newPreset.endsWith('.json')) {
-                        const libraryURL = new URL(newPreset, this.sampleLibrary.url) + '';
-                        this.sampleLibrary.loadURL(libraryURL)
-                            .then(() => this.render());
-                        // this.loadSampleLibrary(libraryURL);
-                    } else {
-                        this.renderer.replaceInstrument(instrumentID, newPreset); // TODO: don't replace instrument for new preset
-                        // Object.assign(this.config, this.getInstrumentPresetConfig(newPreset));
-                        this.loadSamples();
+                    const newPresetURL = new URL(form.elements['preset'].value);
+                    await this.sampleLibrary.loadURL(newPresetURL);
+                    if(newPresetURL.hash) {
+                        this.loadConfig(this.sampleLibrary.getPresetConfig(newPresetURL.hash.substr(1)))
                     }
+                    
                     this.render();
 
                     break;
@@ -723,7 +759,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                 case 'instrument:change':
                     this.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
-                    this.renderer.loadInstrument(form.elements['instrumentID'].value, true);
+                    await this.renderer.loadInstrument(form.elements['instrumentID'].value, true);
                     break;
 
 
@@ -832,7 +868,8 @@ if(!customElements.get('audio-source-synthesizer')) {
                 "class": SynthesizerInstrument,
                 "url": scriptElm.src,
                 "script": scriptElm
-            }
+            },
+            bubbles: true
         }));
     }, 500);
 
@@ -999,6 +1036,43 @@ if(!customElements.get('audio-source-synthesizer')) {
                 return result;
             }
 
+            getPresetConfig(presetName) {
+                const urlPrefix = this.sampleLibrary.urlPrefix || '';
+                const newConfig = {};
+                newConfig.preset = presetName;
+                newConfig.samples = {};
+                if (!this.sampleLibrary.presets[presetName])
+                    throw new Error("Invalid Instrument Preset: " + presetName);
+                const presetConfig = this.sampleLibrary.presets[presetName];
+                if (!presetConfig.samples)
+                    presetConfig.samples = {};
+                if (Object.keys(presetConfig.samples).length === 0)
+                    presetConfig.samples[presetName] = {};
+                // Object.assign(newConfig, presetConfig);
+                Object.keys(presetConfig.samples).forEach((sampleName) => {
+                    const sampleConfig =
+                        Object.assign({
+                                url: sampleName
+                            },
+                            presetConfig.samples[sampleName],
+                            this.sampleLibrary.samples[sampleName]);
+                    sampleConfig.url = new URL(urlPrefix + sampleConfig.url, this.sampleLibrary.url) + '';
+
+                    if (typeof sampleConfig.keyRange !== "undefined") {
+                        let pair = sampleConfig.keyRange;
+                        if (typeof pair === 'string')
+                            pair = pair.split(':');
+                        sampleConfig.keyLow = pair[0];
+                        sampleConfig.keyHigh = pair[1] || pair[0];
+                        delete sampleConfig.keyRange;
+                    }
+                    newConfig.samples[sampleName] = sampleConfig;
+                });
+
+                return newConfig;
+            }
+
+
             static eachHistoricLibrary(callback) {
                 const result = [];
                 Object.keys(SampleLibrary.cache).forEach(cacheURL => {
@@ -1012,7 +1086,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             async loadURL(url) {
                 if (!url)
                     throw new Error("Invalid url");
-                url = new URL(url, document.location) + '';
+                url = new URL((url+'').split('#')[0], document.location) + '';
                 this.url = url;
                 if (SampleLibrary.cache[url]) {
                     this.sampleLibrary = SampleLibrary.cache[url];
