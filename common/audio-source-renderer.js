@@ -723,9 +723,9 @@ class AudioSourceRenderer {
 
                 }, 100);
 
-                newScriptElm.onload = (e) => {
-                    newScriptElm.classList.add('loaded');
-                };
+                // newScriptElm.onload = (e) => {
+                //     newScriptElm.classList.add('loaded');
+                // };
 
                 newScriptElm.onerror = (e) => {
                     clearInterval(interval);

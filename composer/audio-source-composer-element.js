@@ -1,8 +1,5 @@
 
-/**
- * Editor requires a modern browser
- * One groups displays at a time. Columns imply simultaneous instructions.
- */
+
 
 class AudioSourceComposerElement extends HTMLElement {
     constructor() {
@@ -60,6 +57,9 @@ class AudioSourceComposerElement extends HTMLElement {
         const Libraries = new AudioSourceLibraries;
         return Libraries.getScriptDirectory('');
     }
+
+    get sampleLibraryURL()      { return this.getAttribute('sampleLibraryURL') || this.scriptDirectory('sample/sample.library.json'); }
+    set sampleLibraryURL(url)   { this.setAttribute('sampleLibraryURL', url); }
 
     connectedCallback() {
         // this.loadCSS();

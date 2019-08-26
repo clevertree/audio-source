@@ -1,8 +1,5 @@
 
-/**
- * Editor requires a modern browser
- * One groups displays at a time. Columns imply simultaneous instructions.
- */
+
 
 class AudioSourceValues {
     constructor(renderer) {
