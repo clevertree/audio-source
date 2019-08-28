@@ -55,12 +55,11 @@ if(!customElements.get('audio-source-synthesizer')) {
         connectedCallback() {
             // this.loadCSS();
             // this.song = this.closest('music-song'); // Don't rely on this !!!
-            const onInput = e => this.onInput(e);
-            this.shadowDOM.addEventListener('change', onInput);
-            this.shadowDOM.addEventListener('blur', onInput, true);
-            this.shadowDOM.addEventListener('focus', onInput, true);
+            this.shadowDOM.addEventListener('change', e => this.onInput(e));
+            this.shadowDOM.addEventListener('blur', e => this.onInput(e), true);
+            this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
             // this.addEventListener('input', this.onSubmit);
-            this.shadowDOM.addEventListener('submit', onInput);
+            this.shadowDOM.addEventListener('submit', e => this.onInput(e));
             // this.addEventListener('click', onInput);
 
             this.sampleLibrary.loadURL(this.sampleLibraryURL)
@@ -511,6 +510,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <thead>
                         <tr>
                             <th>Samples</th>
+                            <th>URL</th>
                             <th>Mix</th>
                             <th>Detune</th>
                             <th>Root</th>
@@ -523,12 +523,28 @@ if(!customElements.get('audio-source-synthesizer')) {
                     <tbody>
                 ${Object.keys(this.config.samples).map(sampleName => {
                 const sampleConfig = this.config.samples[sampleName] || {};
+                const sampleFileName = sampleConfig.url ? sampleConfig.url.split('/').pop() : "N/A";
                 return `
                         <tr>
                             <td>   
-                                <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:changeURL">
+                                <form action="#" class="instrument-setting instrument-setting-change-name submit-on-change" data-action="sample:changeName">
                                     <input type="hidden" name="sample" value="${sampleName}" />
-                                    <button name="change">${sampleName}</button>
+                                    <input type="text" name="name" value="${sampleName}">
+                                </form>
+                            </td>  
+                            <td>   
+                                <form action="#" class="instrument-setting instrument-setting-change-url submit-on-change" data-action="sample:changeURL">
+                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <select name="url">
+                                        <option value="${sampleConfig.url}">${sampleFileName}</option>
+                                        ${this.sampleLibrary.eachSample((iSampleConfig, iSampleURL, iSampleName) => {
+                                            if(iSampleURL === sampleConfig.url)
+                                                return '';
+                                            const iSampleFileName = iSampleURL.split('/').pop();
+                                            return `<option value="${iSampleURL}">${iSampleFileName}</option>`
+                                        }).join('')}
+                                        <option value="">Custom URL</option>
+                                    </select>
                                 </form>
                             </td>  
                             <td>   
@@ -672,6 +688,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                     this.render();
                     break;
 
+                case 'sample:changeName':
                 case 'sample:changeURL':
                 case 'sample:remove':
                 case 'sample:mixer':
@@ -687,20 +704,33 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                     switch (command) {
                         case 'sample:remove':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName],);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName]);
+                            this.render();
+                            break;
+
+                        case 'sample:changeName':
+                            // TODO: change sample name.
+                            const newSampleName = form.elements.name.value;
+                            if(!newSampleName)
+                                throw new Error("Invalid new sample name");
+                            // TODO: check for duplicate samplename
+                            const oldSampleConfig = this.renderer.deleteInstrumentParam(instrumentID, ['samples', sampleName]);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', newSampleName], oldSampleConfig);
+                            await this.loadSamples();
                             this.render();
                             break;
 
                         case 'sample:changeURL':
-                            const changeSampleURL = prompt(`Change Sample URL: (${sampleName})`, sampleConfig.url);
+                            const changeSampleURL = form.elements.url.value || prompt(`Change Sample URL: (${sampleName})`, sampleConfig.url);
                             if (changeSampleURL) {
+                                // TODO: change sample name
                                 this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'url'], changeSampleURL);
-                                await this.loadAudioSample(sampleName);
+                                await this.loadSamples()
                             } else {
                                 console.info("Change sample URL canceled");
                             }
-
                             break;
+
                         case 'sample:mixer':
                             this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'mixer'], parseInt(form.elements.mixer.value));
                             break;
@@ -797,7 +827,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             for (let sampleName in this.config.samples) {
                 if (this.config.samples.hasOwnProperty(sampleName)) {
                     const sampleConfig = this.config.samples[sampleName];
-                    if (sampleConfig.keyAlias)
+                    if (sampleConfig && sampleConfig.keyAlias)
                         aliases[sampleConfig.keyAlias] = sampleName;
                 }
             }
@@ -1008,6 +1038,18 @@ if(!customElements.get('audio-source-synthesizer')) {
             }
 
             get name() { return this.sampleLibrary.name; }
+
+            eachSample(callback) {
+                const result = [];
+                if (this.sampleLibrary.samples) {
+                    Object.keys(this.sampleLibrary.samples).map(sampleName => {
+                        let sampleConfig = this.sampleLibrary.samples[sampleName];
+                        let sampleURL = new URL((this.sampleLibrary.urlPrefix || '') + (sampleConfig.url || sampleName), this.url);
+                        result.push(callback(sampleConfig, sampleURL + '', sampleName));
+                    });
+                }
+                return result;
+            }
 
             eachPreset(callback) {
                 const result = [];

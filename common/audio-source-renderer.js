@@ -876,8 +876,7 @@ class AudioSourceRenderer {
         if(oldInstrument && oldInstrument.name && !config.name)
             config.name = oldInstrument.name;
         // Preserve old instrument name
-        const oldConfig = this.replaceDataPath(['instruments', instrumentID], config)
-            .oldData;
+        const oldConfig = this.replaceDataPath(['instruments', instrumentID], config);
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
             instrumentID,
             config,
@@ -895,8 +894,7 @@ class AudioSourceRenderer {
         //
         // }
         delete this.instruments.loaded[instrumentID];
-        const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null)
-            .oldData;
+        const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null);
         this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
             instrumentID,
             config: null,
@@ -916,10 +914,21 @@ class AudioSourceRenderer {
             pathList = [pathList];
         pathList.unshift(instrumentID);
         pathList.unshift('instruments');
-        return this.replaceDataPath(pathList, paramValue)
-            .oldData;
+        return this.replaceDataPath(pathList, paramValue);
     }
 
+    deleteInstrumentParam(instrumentID, pathList) {
+        instrumentID = parseInt(instrumentID);
+        const instrumentList = this.songData.instruments;
+        if(!instrumentList[instrumentID])
+            throw new Error("Invalid instrument ID: " + instrumentID);
+
+        if(!Array.isArray(pathList))
+            pathList = [pathList];
+        pathList.unshift(instrumentID);
+        pathList.unshift('instruments');
+        return this.deleteDataPath(pathList);
+    }
 
     // replaceInstrumentParams(instrumentID, replaceParams) {
     //     const instrumentList = this.songData.instruments;
@@ -1015,7 +1024,8 @@ class AudioSourceRenderer {
             throw new Error(`Insert position out of index: ${pathInfo.parent.length} < ${pathInfo.key} for path: ${pathList}`);
         pathInfo.parent.splice(pathInfo.key, 0, newData);
 
-        return this.queueHistoryAction(pathList, newData);
+        this.queueHistoryAction(pathList, newData);
+        return null;
     }
 
 
@@ -1033,7 +1043,8 @@ class AudioSourceRenderer {
             delete pathInfo.parent[pathInfo.key];
         }
 
-        return this.queueHistoryAction(pathList, null, oldData);
+        this.queueHistoryAction(pathList, null, oldData);
+        return oldData;
     }
 
     replaceDataPath(pathList, newData) {
@@ -1049,7 +1060,8 @@ class AudioSourceRenderer {
             oldData = pathInfo.parent[pathInfo.key];
         pathInfo.parent[pathInfo.key] = newData;
 
-        return this.queueHistoryAction(pathList, newData, oldData);
+        this.queueHistoryAction(pathList, newData, oldData);
+        return oldData;
     }
 
     queueHistoryAction(pathList, data=null, oldData=null) {
@@ -1156,8 +1168,7 @@ class AudioSourceRenderer {
                 this.replaceInstructionDeltaDuration(groupName, deleteIndex+1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
             }
         }
-        return this.deleteDataPath(['instructions', groupName, deleteIndex])
-            .oldData;
+        return this.deleteDataPath(['instructions', groupName, deleteIndex]);
     }
 
 
@@ -1182,10 +1193,8 @@ class AudioSourceRenderer {
     }
     replaceInstructionParam(groupName, replaceIndex, paramName, paramValue) {
         if(paramValue === null)
-            return this.deleteDataPath(['instructions', groupName, replaceIndex, paramName])
-                .oldData;
-        return this.replaceDataPath(['instructions', groupName, replaceIndex, paramName], paramValue)
-            .oldData;
+            return this.deleteDataPath(['instructions', groupName, replaceIndex, paramName]);
+        return this.replaceDataPath(['instructions', groupName, replaceIndex, paramName], paramValue);
     }
 
 
@@ -1217,8 +1226,7 @@ class AudioSourceRenderer {
         if(!this.songData.instructions.hasOwnProperty(removeGroupName))
             throw new Error("Existing group not found: " + removeGroupName);
 
-        return this.replaceDataPath(['instructions', removeGroupName])
-            .oldData;
+        return this.replaceDataPath(['instructions', removeGroupName]);
     }
 
 
@@ -1230,8 +1238,7 @@ class AudioSourceRenderer {
         if(this.songData.instructions.hasOwnProperty(newGroupName))
             throw new Error("New group already exists: " + newGroupName);
 
-        const removedGroupData = this.replaceDataPath(['instructions', oldGroupName])
-            .oldData;
+        const removedGroupData = this.replaceDataPath(['instructions', oldGroupName]);
         this.replaceDataPath(['instructions', newGroupName], removedGroupData);
     }
 

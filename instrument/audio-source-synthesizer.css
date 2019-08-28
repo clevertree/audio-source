@@ -166,6 +166,8 @@
 
 .audio-source-synthesizer form.instrument-setting-detune        input[name=detune]      { width: 60px; }
 .audio-source-synthesizer form.instrument-setting-mixer         input[name=mixer]       { width: 60px; }
+.audio-source-synthesizer form.instrument-setting-change-name   input[name=name]       { width: 60px; }
+.audio-source-synthesizer form.instrument-setting-change-url    select[name=url]       {width: 88px;}
 
 .audio-source-synthesizer form.instrument-setting-root          input[name=keyRoot]     { width: 40px; }
 .audio-source-synthesizer form.instrument-setting-alias         input[name=keyAlias]    { width: 40px; }
