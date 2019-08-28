@@ -25,7 +25,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             // if(!SynthesizerInstrument.sampleLoader)
             //     SynthesizerInstrument.sampleLoader = new SampleLoader();
             this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
-            this.samples = {};
+            this.samples = [];
 
             const SampleLibrary = customElements.get('asci-sample-library');
             this.sampleLibrary = new SampleLibrary();
@@ -43,7 +43,8 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         get sampleLibraryURL() {
-            return this.getAttribute('sampleLibraryURL')
+            return this.config.libraryURL
+                || this.getAttribute('sampleLibraryURL')
                 || (this.editor ? this.editor.getAttribute('sampleLibraryURL') : null)
                 || this.DEFAULT_SAMPLE_LIBRARY_URL;
         }
@@ -70,7 +71,9 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         loadConfig(newConfig) {
             if (!newConfig.samples)
-                newConfig.samples = {};
+                newConfig.samples = [];
+            else
+                newConfig.samples = Object.values(newConfig.samples);
             // TODO: unload samples - this.samples
             Object.assign(this.config, newConfig);
             this.loadSamples();
@@ -85,14 +88,12 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         loadSamples() {
             this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
-            this.samples = {};
-            for (let sampleName in this.config.samples) {
-                if (this.config.samples.hasOwnProperty(sampleName)) {
-                    try {
-                        this.loadAudioSample(sampleName); // Async?
-                    } catch (e) {
-                        console.warn("Error loading sample: " + sampleName, e);
-                    }
+            this.samples = [];
+            for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
+                try {
+                    this.loadAudioSample(sampleID); // Async?
+                } catch (e) {
+                    console.warn("Error loading sample: " + sampleID, e);
                 }
             }
         }
@@ -101,12 +102,10 @@ if(!customElements.get('audio-source-synthesizer')) {
         async init(audioContext) {
             const promises = [];
             this.audioContext = audioContext;
-            for (let sampleName in this.samples) {
-                if (this.samples.hasOwnProperty(sampleName)) {
-                    // noinspection JSIgnoredPromiseFromCall
-                    const promise = this.initSample(audioContext, sampleName);
-                    promises.push(promise);
-                }
+            for (let sampleID=0; sampleID<this.samples.length; sampleID++) {
+                // noinspection JSIgnoredPromiseFromCall
+                const promise = this.initSample(audioContext, sampleID);
+                promises.push(promise);
             }
 
             for (let i = 0; i < promises.length; i++) {
@@ -115,16 +114,16 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         // instruments receive audioContext only after user gesture
-        async initSample(audioContext, sampleName) {
-            const sampleConfig = this.config.samples[sampleName];
+        async initSample(audioContext, sampleID) {
+            const sampleConfig = this.config.samples[sampleID];
             let sampleURL = sampleConfig.url;
             if (!sampleURL)
                 throw new Error("Sample config is missing url");
 
-            if (typeof this.samples[sampleName] === "undefined")
-                this.samples[sampleName] = {}
+            if (typeof this.samples[sampleID] === "undefined")
+                this.samples[sampleID] = {};
 
-            const sampleData = this.samples[sampleName];
+            const sampleData = this.samples[sampleID];
 
 
             const ext = sampleURL.substr(-4).split('.').pop().toLowerCase();
@@ -143,22 +142,22 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
 
-        async loadAudioSample(sampleName) {
-            const sampleConfig = this.config.samples[sampleName];
+        async loadAudioSample(sampleID) {
+            const sampleConfig = this.config.samples[sampleID];
             if (!sampleConfig)
-                throw new Error("Sample config is missing: " + sampleName);
+                throw new Error("Sample config is missing: " + sampleID);
             let sampleURL = sampleConfig.url;
             if (!sampleURL)
-                throw new Error("Sample config is missing url: " + sampleName);
+                throw new Error("Sample config is missing url: " + sampleID);
             sampleURL = new URL(sampleURL, document.location) + '';
 
             await this.sampleLoader.loadAudioSampleData(sampleURL, this);
             if (this.audioContext)
-                await this.initSample(this.audioContext, sampleName);
+                await this.initSample(this.audioContext, sampleID);
         }
 
-        isSampleLoaded(sampleName) {
-            return typeof this.samples[sampleName] !== 'undefined';
+        isSampleLoaded(sampleID) {
+            return typeof this.samples[sampleID] !== 'undefined';
         }
 
 
@@ -244,13 +243,13 @@ if(!customElements.get('audio-source-synthesizer')) {
             source.connect(destination);
         }
 
-        async playSample(destination, sampleName, frequencyValue=null, startTime=null, duration=null, velocity=null, adsr = null) {
-            if (!this.isSampleLoaded(sampleName))
-                await this.initSample(destination.context, sampleName);
+        async playSample(destination, sampleID, frequencyValue=null, startTime=null, duration=null, velocity=null, adsr = null) {
+            if (!this.isSampleLoaded(sampleID))
+                await this.initSample(destination.context, sampleID);
 
             // throw new Error("Sample not loaded: " + sampleName);
-            const sampleData = this.samples[sampleName];
-            const sampleConfig = this.config.samples[sampleName];
+            const sampleData = this.samples[sampleID];
+            const sampleConfig = this.config.samples[sampleID];
 
             if (!frequencyValue)
                 frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
@@ -303,10 +302,10 @@ if(!customElements.get('audio-source-synthesizer')) {
             //     this.init(destination.context);
 
             // const sources = [];
-            if (this.config.samples.hasOwnProperty(commandFrequency)) {
-                await this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
-                return null;
-            }
+            // if (this.config.samples.hasOwnProperty(commandFrequency)) {
+            //     await this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
+            //     return null;
+            // }
 
             let frequencyValue = this.getCommandFrequency(commandFrequency);
             if (Number.isNaN(frequencyValue)) {
@@ -315,25 +314,23 @@ if(!customElements.get('audio-source-synthesizer')) {
             }
 
             // Loop through sample
-            for (let sampleName in this.config.samples) {
-                if (this.config.samples.hasOwnProperty(sampleName)) {
-                    const sampleConfig = this.config.samples[sampleName];
+            for (let i=0; i<this.config.samples.length; i++) {
+                const sampleConfig = this.config.samples[i];
 
-                    // Filter sample playback
-                    if (sampleConfig.keyAlias)
-                        continue;
-                    if (sampleConfig.keyLow && this.getCommandFrequency(sampleConfig.keyLow) > frequencyValue)
-                        continue;
-                    if (sampleConfig.keyHigh && this.getCommandFrequency(sampleConfig.keyHigh) < frequencyValue)
-                        continue;
+                // Filter sample playback
+                if (sampleConfig.keyAlias)
+                    continue;
+                if (sampleConfig.keyLow && this.getCommandFrequency(sampleConfig.keyLow) > frequencyValue)
+                    continue;
+                if (sampleConfig.keyHigh && this.getCommandFrequency(sampleConfig.keyHigh) < frequencyValue)
+                    continue;
 
-                    // TODO: polyphony
+                // TODO: polyphony
 
-                    await this.playSample(destination, sampleName, frequencyValue, startTime, duration, velocity, sampleConfig.adsr || null);
-                    // this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
-                    // if (source)
-                    //     sources.push(sources);
-                }
+                await this.playSample(destination, i, frequencyValue, startTime, duration, velocity, sampleConfig.adsr || null);
+                // this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
+                // if (source)
+                //     sources.push(sources);
             }
 
             // if(sources.length === 0)
@@ -509,7 +506,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 <table class="sample-setting-list">
                     <thead>
                         <tr>
-                            <th>Samples</th>
+                            <th>Name</th>
                             <th>URL</th>
                             <th>Mix</th>
                             <th>Detune</th>
@@ -521,20 +518,19 @@ if(!customElements.get('audio-source-synthesizer')) {
                         </tr>
                     </thead>
                     <tbody>
-                ${Object.keys(this.config.samples).map(sampleName => {
-                const sampleConfig = this.config.samples[sampleName] || {};
+                ${this.config.samples.map((sampleConfig, sampleID) => {
                 const sampleFileName = sampleConfig.url ? sampleConfig.url.split('/').pop() : "N/A";
                 return `
                         <tr>
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-change-name submit-on-change" data-action="sample:changeName">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
-                                    <input type="text" name="name" value="${sampleName}">
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
+                                    <input type="text" name="name" value="${sampleConfig.name || ''}" placeholder="Unnamed">
                                 </form>
                             </td>  
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-change-url submit-on-change" data-action="sample:changeURL">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <select name="url">
                                         <option value="${sampleConfig.url}">${sampleFileName}</option>
                                         ${this.sampleLibrary.eachSample((iSampleConfig, iSampleURL, iSampleName) => {
@@ -549,43 +545,43 @@ if(!customElements.get('audio-source-synthesizer')) {
                             </td>  
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="sample:mixer">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <input type="range" name="mixer" min="1" max="100" value="${sampleConfig.mixer || '-1'}" />
                                 </form>
                             </td>    
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="sample:detune">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <input type="range" name="detune" min="-100" max="100" value="${0}" />
                                 </form>
                             </td>      
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="sample:keyRoot">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <input type="text" name="keyRoot" value="${sampleConfig.keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>      
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="sample:keyAlias">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <input type="text" name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
                                 </form>
                             </td>  
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-loop submit-on-change" data-action="sample:loop">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <input type="checkbox" name="loop" ${sampleConfig.loop ? 'checked="checked"' : ''} />
                                 </form>
                             </td>  
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-adsr submit-on-change" data-action="sample:adsr">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <input type="text" name="adsr" value="${sampleConfig.adsr || ''}" placeholder="0,0,0,0" />
                                 </form>
                             </td>
                             <td>   
                                 <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:remove">
-                                    <input type="hidden" name="sample" value="${sampleName}" />
+                                    <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <button name="remove">
                                         <i class="ui-icon ui-remove"></i>
                                     </button>
@@ -697,14 +693,14 @@ if(!customElements.get('audio-source-synthesizer')) {
                 case 'sample:keyAlias':
                 case 'sample:loop':
                 case 'sample:adsr':
-                    const sampleName = form.elements.sample.value;
-                    const sampleConfig = this.config.samples[sampleName];
+                    const sampleID = form.elements.sampleID.value;
+                    const sampleConfig = this.config.samples[sampleID];
                     if (!sampleConfig)
-                        throw new Error("Sample not found: " + sampleName);
+                        throw new Error("Sample not found: " + sampleID);
 
                     switch (command) {
                         case 'sample:remove':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName]);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID]);
                             this.render();
                             break;
 
@@ -713,40 +709,37 @@ if(!customElements.get('audio-source-synthesizer')) {
                             const newSampleName = form.elements.name.value;
                             if(!newSampleName)
                                 throw new Error("Invalid new sample name");
-                            // TODO: check for duplicate samplename
-                            const oldSampleConfig = this.renderer.deleteInstrumentParam(instrumentID, ['samples', sampleName]);
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', newSampleName], oldSampleConfig);
-                            await this.loadSamples();
-                            this.render();
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'name'], newSampleName);
+                            // this.render();
                             break;
 
                         case 'sample:changeURL':
-                            const changeSampleURL = form.elements.url.value || prompt(`Change Sample URL: (${sampleName})`, sampleConfig.url);
+                            const changeSampleURL = form.elements.url.value || prompt(`Change Sample URL: (ID ${sampleID})`, sampleConfig.url);
                             if (changeSampleURL) {
                                 // TODO: change sample name
-                                this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'url'], changeSampleURL);
-                                await this.loadSamples()
+                                this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'url'], changeSampleURL);
+                                await this.loadSamples();
                             } else {
                                 console.info("Change sample URL canceled");
                             }
                             break;
 
                         case 'sample:mixer':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'mixer'], parseInt(form.elements.mixer.value));
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'mixer'], parseInt(form.elements.mixer.value));
                             break;
 
                         case 'sample:detune':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'detune'], parseInt(form.elements.detune.value));
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'detune'], parseInt(form.elements.detune.value));
                             break;
 
                         case 'sample:keyRoot':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyRoot'], form.elements.keyRoot.value);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'keyRoot'], form.elements.keyRoot.value);
                             break;
                         case 'sample:keyAlias':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'keyAlias'], form.elements.keyAlias.value);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'keyAlias'], form.elements.keyAlias.value);
                             break;
                         case 'sample:loop':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleName, 'loop'], form.elements.loop.checked);
+                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'loop'], form.elements.loop.checked);
                             break;
                         case 'sample:adsr':
                         default:
@@ -824,12 +817,10 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         getFrequencyAliases() {
             const aliases = {};
-            for (let sampleName in this.config.samples) {
-                if (this.config.samples.hasOwnProperty(sampleName)) {
-                    const sampleConfig = this.config.samples[sampleName];
-                    if (sampleConfig && sampleConfig.keyAlias)
-                        aliases[sampleConfig.keyAlias] = sampleName;
-                }
+            for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
+                const sampleConfig = this.config.samples[sampleID];
+                if (sampleConfig && sampleConfig.keyAlias)
+                    aliases[sampleConfig.keyAlias] = sampleID;
             }
             return aliases;
         }
@@ -1082,7 +1073,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 const urlPrefix = this.sampleLibrary.urlPrefix || '';
                 const newConfig = {};
                 newConfig.preset = presetName;
-                newConfig.samples = {};
+                newConfig.samples = [];
                 if (!this.sampleLibrary.presets[presetName])
                     throw new Error("Invalid Instrument Preset: " + presetName);
                 const presetConfig = this.sampleLibrary.presets[presetName];
@@ -1108,9 +1099,10 @@ if(!customElements.get('audio-source-synthesizer')) {
                         sampleConfig.keyHigh = pair[1] || pair[0];
                         delete sampleConfig.keyRange;
                     }
-                    newConfig.samples[sampleName] = sampleConfig;
+                    sampleConfig.name = sampleName;
+                    newConfig.samples.push(sampleConfig);
                 });
-
+                newConfig.libraryURL = this.url;
                 return newConfig;
             }
 
