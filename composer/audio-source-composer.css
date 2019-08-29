@@ -7,6 +7,7 @@
     font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
+    /* margin-top: -14px; */
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -368,8 +369,9 @@ asc-tracker {
     /* display: block; */
     position: relative;
     overflow-y: auto;
-    flex-grow: 1;
-    max-height: 100%;
+    /* flex-grow: 1; */
+    /* max-height: 100%; */
+    margin-bottom: 16px;
 }
 
 
@@ -544,7 +546,18 @@ asc-tracker > div.selection-rect {
     box-shadow:  1px 1px 4px #777;
 }
 
+/** Status Bar **/
 
+.asc-status-container {
+    position: fixed;
+    display: block;
+    bottom: 0px;
+    background-color: #FFF;
+    color: #000;
+    height: 14px;
+    width: 100%;
+    padding: 1px 4px;
+}
 
 /** Instruments **/
 
@@ -587,8 +600,9 @@ i.ui-play { background-position: -3em -1em; }
 i.ui-pause {background-position: -4em -1em;}
 i.ui-resume { background-position: -3em -1em; }
 
-i.ui-insert {background-position: -8em -10em;}
-i.ui-remove {background-position: -9em 0em;}
+i.ui-insert {background-position: -3em -10em;}
+i.ui-remove {background-position: -6em 0em;}
+i.ui-subtract {background-position: -4em 0em;}
 
 i.ui-file-load {background-position: 0em 0em;}
 i.ui-file-save {background-position: -1em 0em;}

@@ -45,6 +45,7 @@ class AudioSourceRenderer {
         return this.noteFrequencies[pitch] + octave;
     }
 
+    // Check for initiated, await if not
     getAudioContext() {
         if(this.audioContext)
             return this.audioContext;
@@ -794,17 +795,17 @@ class AudioSourceRenderer {
         }
     }
 
-    initInstrument(instrumentID, audioContext) {
+    async initInstrument(instrumentID, audioContext) {
         const instrument = this.getInstrument(instrumentID);
-        instrument.init(audioContext);
+        await instrument.init(audioContext);
     }
 
-    initAllInstruments(audioContext) {
+    async initAllInstruments(audioContext) {
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             const instrument = this.getInstrument(instrumentID, false);
             if(instrument)
-                instrument.init(audioContext);
+                await instrument.init(audioContext);
         }
     }
 

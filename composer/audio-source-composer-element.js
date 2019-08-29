@@ -172,6 +172,8 @@ class AudioSourceComposerElement extends HTMLElement {
         let songData = storage.generateDefaultSong(this.scriptDirectory);
         this.renderer.loadSongData(songData);
         this.render();
+        this.setStatus("Loaded new song");
+
     }
 
 
@@ -180,6 +182,7 @@ class AudioSourceComposerElement extends HTMLElement {
         let songRecentGUIDs = await storage.getRecentSongList();
         if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
             await this.loadSongFromMemory(songRecentGUIDs[0].guid);
+            this.setStatus("Loaded recent song: " + songRecentGUIDs[0].guid);
             return true;
         }
         return false;
@@ -190,6 +193,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const songHistory = this.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
         await storage.saveSongToMemory(songData, songHistory);
+        this.setStatus("Saved song to memory: " + songData.guid);
     }
 
     saveSongToFile() {
@@ -197,6 +201,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // const songHistory = this.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
         storage.saveSongToFile(songData);
+        this.setStatus("Saved song to file");
     }
 
 
@@ -207,7 +212,8 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderer.loadSongData(songData);
         this.renderer.loadSongHistory(songHistory);
         this.render();
-        console.info("Song loaded from memory: " + songGUID, songData);
+        this.setStatus("Song loaded from memory: " + songGUID);
+        console.info(songData);
     }
 
     async loadSongFromFileInput(inputFile) {
@@ -219,7 +225,8 @@ class AudioSourceComposerElement extends HTMLElement {
         const midiData = await storage.loadMIDIFile(inputFile);
         this.renderer.loadSongFromMIDIData(midiData);
         this.render();
-        console.info("Song loaded from midi: " + inputFile, midiData, this.renderer.songData);
+        this.setStatus("Song loaded from midi: " + inputFile);
+        console.info(midiData, this.renderer.songData);
     }
 
     async loadSongFromSrc(src) {
@@ -236,7 +243,8 @@ class AudioSourceComposerElement extends HTMLElement {
             xhr.send();
         });
         this.renderer.loadSongData(songData, src);
-        console.info("Song loaded from src: " + src, this.renderer.songData);
+        this.setStatus("Song loaded from src: " + src);
+        console.info(this.renderer.songData);
         this.render();
     }
     // Input
@@ -338,7 +346,8 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onAction(e, actionName, actionOptions=null) {
-        console.info("Action: " + actionName, e.target);
+
+        this.setStatus("Action: " + actionName);
         // e.preventDefault();
 
         if(this.tracker.onAction(e, actionName))
@@ -421,16 +430,17 @@ class AudioSourceComposerElement extends HTMLElement {
                 e.target.form.elements['instrumentURL'].value = '';
                 if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
                     this.renderer.addInstrument(addInstrumentURL);
+                    this.setStatus("New instrument Added to song: " + addInstrumentURL);
 
                 } else {
-                    console.info("Add instrument canceled");
+                    this.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
                 }
                 break;
 
             case 'song:replace-instrument':
                 const changeInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
                 if(!changeInstrumentURL) {
-                    console.error("Empty URL");
+                    this.setStatus(`<span style='color: red'>Empty URL</span>`);
                     break;
                 }
                 const changeInstrument = actionOptions || {
@@ -440,8 +450,9 @@ class AudioSourceComposerElement extends HTMLElement {
                 changeInstrument.title = changeInstrument.url.split('/').pop();
                 if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
                     this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
+                    this.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
                 } else {
-                    console.info("Change instrument canceled");
+                    this.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
                 }
 
                 break;
@@ -450,18 +461,23 @@ class AudioSourceComposerElement extends HTMLElement {
                 const removeInstrumentID = actionOptions || parseInt(e.target.form.elements['instrumentID'].value);
                 if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
                     this.renderer.removeInstrument(removeInstrumentID);
+                    this.setStatus(`Instrument (${changeInstrument.id}) removed`);
 
                 } else {
-                    console.info("Remove instrument canceled");
+                    this.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
                 }
                 break;
 
             case 'song:set-title':
-                this.renderer.setSongTitle(e.target.form.elements['title'].value);
+                const newSongTitle = e.target.form.elements['title'].value;
+                this.renderer.setSongTitle(newSongTitle);
+                this.setStatus(`Song title updated: ${newSongTitle}`);
                 break;
 
             case 'song:set-version':
-                this.renderer.setSongVersion(e.target.form.elements['version'].value);
+                const newSongVersion = e.target.form.elements['title'].value;
+                this.renderer.setSongVersion(newSongVersion);
+                this.setStatus(`Song version updated: ${newSongVersion}`);
                 break;
 
             case 'toggle:control-song':
@@ -500,6 +516,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     onError(err) {
         console.error(err);
+        this.setStatus(`<span style="red">${err}</span>`);
         if(this.webSocket)
             this.webSocket
                 .onError(err);
@@ -512,6 +529,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     // Rendering
+    get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container`); }
 
     get menuFile() { return this.shadowDOM.querySelector(`asc-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asc-menu[key="edit"]`)}
@@ -541,12 +559,18 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="form-section-container form-section-container-tracker"></div>
             <div class="form-section-container form-section-container-instruments"></div>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
+            <div class="asc-status-container">Status</div>
         </div>
         `;
 
         this.renderMenu();
         this.renderSongForms();
         this.renderInstruments();
+    }
+
+    setStatus(newStatus) {
+        console.info(newStatus);
+        this.statusElm.innerHTML = newStatus;
     }
 
     // getMenu(key) {
@@ -996,7 +1020,9 @@ class EmptyInstrumentElement extends HTMLElement {
                 <span style="float: right;">
                     <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
                         <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                        <button class="remove-instrument">x</button>
+                        <button class="remove-instrument">
+                            <i class="ui-icon ui-remove"></i>
+                        </button>
                     </form>
                 </span>
             </div>

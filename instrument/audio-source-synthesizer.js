@@ -101,14 +101,14 @@ if(!customElements.get('audio-source-synthesizer')) {
                 newConfig.samples = Object.values(newConfig.samples);
             // TODO: unload samples - this.samples
             Object.assign(this.config, newConfig);
-            this.loadSamples();
+            this.loadSamples();f
 
-            document.dispatchEvent(new CustomEvent('instrument:modified', {
-                detail: {
-                    config: this.config
-                },
-                bubbles: true
-            }));
+            // document.dispatchEvent(new CustomEvent('instrument:modified', {
+            //     detail: {
+            //         config: this.config
+            //     },
+            //     bubbles: true
+            // }));
         }
 
         loadSamples() {
@@ -508,7 +508,9 @@ if(!customElements.get('audio-source-synthesizer')) {
                         </form>
                         <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
                             <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                            <button class="remove-instrument">x</button>
+                            <button class="remove-instrument">
+                                <i class="ui-icon ui-remove"></i>
+                            </button>
                         </form>
                     </span>
                 </div>
@@ -539,7 +541,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                             <th>Alias</th>
                             <th>Loop</th>
                             <th>ADSR</th>
-                            <th>[-]</th>
+                            <th>Rem.</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -608,7 +610,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                                 <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:remove">
                                     <input type="hidden" name="sampleID" value="${sampleID}" />
                                     <button name="remove">
-                                        <i class="ui-icon ui-remove"></i>
+                                        <i class="ui-icon ui-subtract"></i>
                                     </button>
                                 </form>
                             </td>  
@@ -714,6 +716,15 @@ if(!customElements.get('audio-source-synthesizer')) {
                     if (!addSampleURL) {
                         console.info("Change sample URL canceled");
                         break;
+                    }
+                    if (addSampleURL.endsWith('.library.json')) {
+                        console.log("Loading library: " + addSampleURL);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // this.loadSampleLibrary(libraryURL);
+                        await this.sampleLibrary.loadURL(addSampleURL);
+                        this.render();
+                        return;
                     }
                     let addSampleName = addSampleURL.split('/').pop().split('.').slice(0, -1).join('.');
                     addSampleName = prompt(`Set Sample Name:`, addSampleName);

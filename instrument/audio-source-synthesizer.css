@@ -12,7 +12,7 @@
     position: relative;
     vertical-align: top;
     display: inline-block;
-    font-size: small;
+    /* font-size: small; */
     /* float: left; */
     /* min-height: 84px; */
     /* margin: 4px; */
@@ -37,9 +37,9 @@
 }
 
 
-.audio-source-synthesizer form.instrument-name > label.label-instrument-name{
-    font-size: small;
-}
+/*.audio-source-synthesizer form.instrument-name > label.label-instrument-name{*/
+/*    font-size: small;*/
+/*}*/
 
 /** Form Inputs **/
 
@@ -49,6 +49,7 @@
 .audio-source-synthesizer input[type=text],
 .audio-source-synthesizer select,
 .audio-source-synthesizer button {
+    font-size: smaller;
     display: inline-block;
     padding: 0px 0px;
     border-radius: 2px;
@@ -161,7 +162,7 @@
 /** Custom Inputs **/
 
 .audio-source-synthesizer form.replace-instrument >             select[name=instrumentURL]  {width: 136px;}
-.audio-source-synthesizer form.instrument-setting-preset >      input[name=preset]     {width: 131px;}
+.audio-source-synthesizer form.instrument-setting-preset >      select[name=preset]     {width: 131px;}
 .audio-source-synthesizer form.instrument-name                  input[name=name]        {width: 157px;}
 
 .audio-source-synthesizer form.instrument-setting-detune        input[name=detune]      { width: 60px; }
@@ -187,7 +188,7 @@
 /** Icons **/
 
 i.ui-icon {
-    font-size: 16px;
+    font-size: 24px;
     display: inline-block;
     width: 1em;
     height: 1em;
@@ -203,7 +204,8 @@ i.ui-pause {background-position: -4em -1em;}
 i.ui-resume { background-position: -3em -1em; }
 
 i.ui-insert {background-position: -8em -10em;}
-i.ui-remove {background-position: -9em 0em;}
+i.ui-remove {background-position: -6em 0em;}
+i.ui-subtract {background-position: -4em 0em;}
 
 i.ui-file-load {background-position: 0em 0em;}
 i.ui-file-save {background-position: -1em 0em;}

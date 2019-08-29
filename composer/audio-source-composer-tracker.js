@@ -993,7 +993,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 </form>
                 <form action="#" class="form-instruction-delete submit-on-change" data-action="instruction:delete">
                     <button name="delete" class="themed" title="Delete Instruction" disabled>
-                        <i class="ui-icon ui-remove"></i>
+                        <i class="ui-icon ui-subtract"></i>
                     </button>
                 </form>
             </div>
@@ -1097,7 +1097,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 let newInstruction = this.getInstructionFormValues(insertCommand);
                 if(!newInstruction) {
                     this.fieldInstructionCommand.focus();
-                    return console.info("Insert canceled");
+                    return this.editor.setStatus("Insert canceled");
                 }
                 const insertPosition = this.cursorPosition;
                 if(insertPosition === null)
@@ -1215,7 +1215,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 let newGroupName = this.editor.renderer.generateInstructionGroupName(this.groupName);
                 newGroupName = prompt("Create new instruction group?", newGroupName);
                 if (newGroupName) this.editor.renderer.addInstructionGroup(newGroupName, []);
-                else console.error("Create instruction group canceled");
+                else this.editor.setStatus("<span style='color: red'>Create instruction group canceled</span>");
                 this.editor.render();
                 break;
 
@@ -1521,7 +1521,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
     navigatePop() {
-        console.log("Navigate Back: ", this.status.trackers[0].groupName);
+        this.editor.setStatus("Navigate Back: ", this.status.trackers[0].groupName);
         if(this.status.trackers.length > 0)
             this.status.trackers.shift();
         this.render();
