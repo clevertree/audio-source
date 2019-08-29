@@ -1,7 +1,7 @@
 {
 	"name": "FreeWaveSamples.com",
 	"urlPrefix": "s/",
-	"instruments": {
+	"presets": {
 		"1980s-Casio-Celesta": {
 			"samples": {
 				"1980s-Casio-Celesta-C5": {}
