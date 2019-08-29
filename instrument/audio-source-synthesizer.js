@@ -10,6 +10,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             super();
 
             this.renderer = renderer;
+            this.eventHandlers = [];
 
             // Create a shadow root
             this.shadowDOM = this.attachShadow({mode: 'open'});
@@ -54,19 +55,43 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         connectedCallback() {
+            this.attachEventHandler([
+                    'change',
+                    'blur',
+                    'focus',
+                    'submit'
+                ],
+                e => this.onInput(e), this.shadowDOM);
             // this.loadCSS();
             // this.song = this.closest('music-song'); // Don't rely on this !!!
-            this.shadowDOM.addEventListener('change', e => this.onInput(e));
-            this.shadowDOM.addEventListener('blur', e => this.onInput(e), true);
-            this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
+            // this.shadowDOM.addEventListener('change', e => this.onInput(e));
+            // this.shadowDOM.addEventListener('blur', e => this.onInput(e), true);
+            // this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
             // this.addEventListener('input', this.onSubmit);
-            this.shadowDOM.addEventListener('submit', e => this.onInput(e));
+            // this.shadowDOM.addEventListener('submit', e => this.onInput(e));
             // this.addEventListener('click', onInput);
 
             this.sampleLibrary.loadURL(this.sampleLibraryURL)
                 .then(() => this.render());
             // this.loadSampleLibrary(this.sampleLibraryURL);
             this.render();
+        }
+
+
+        disconnectedCallback() {
+            this.eventHandlers.forEach(eventHandler =>
+                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
+        }
+
+        attachEventHandler(eventNames, method, context) {
+            if(!Array.isArray(eventNames))
+                eventNames = [eventNames];
+            for(let i=0; i<eventNames.length; i++) {
+                const eventName = eventNames[i];
+                context = context || this;
+                context.addEventListener(eventName, method);
+                this.eventHandlers.push([eventName, method, context]);
+            }
         }
 
         loadConfig(newConfig) {
@@ -223,7 +248,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             // const adsr = sampleConfig.adsr || [0, 0, 0, 0.1];
 
             adsr = adsr || [0, 0, 0, .1];
-            startTime = startTime || this.getAudioContext().currentTime;
+            startTime = startTime !== null ? startTime : destination.context.currentTime;
             // Play note
             if (startTime) {
                 source.start(startTime);
@@ -593,10 +618,26 @@ if(!customElements.get('audio-source-synthesizer')) {
                         <tr>
                             <td colspan="7">   
                                 <form action="#" class="instrument-setting instrument-setting-add submit-on-change" data-action="sample:add">
-                                    <button name="add">
-                                       <i class="ui-icon ui-insert"></i>
-                                       Add new sample
-                                    </button>
+                                    <select name="url">
+                                        <option value="">Add Sample</option>
+                                        <optgroup label="${this.sampleLibrary.name || 'Unnamed Library'}">
+                                            ${this.sampleLibrary.eachSample((iSampleConfig, iSampleURL, iSampleName) => {
+                                                const iSampleFileName = iSampleURL.split('/').pop();
+                                                return `<option value="${iSampleURL}">${iSampleFileName}</option>`
+                                            }).join('')}
+                                            <option value="">Custom URL</option>
+                                        </optgroup>
+                                        <optgroup label="Libraries">
+                                            ${this.sampleLibrary.eachLibrary((libraryConfig, libraryURL, libraryName) => {
+                                                return `<option value="${libraryURL}">${libraryName}</option>`;
+                                            }).join("\n")}
+                                        </optgroup>
+                                        <optgroup label="Other Libraries">
+                                            ${SampleLibrary.eachHistoricLibrary((libraryConfig, libraryURL, libraryName) => {
+                                                return `<option value="${libraryURL}">${libraryName}</option>`;
+                                            }).join("\n")}
+                                        </optgroup>
+                                    </select>
                                 </form>
                             </td>  
                         </tr>
@@ -669,18 +710,19 @@ if(!customElements.get('audio-source-synthesizer')) {
                     this.config.polyphony = newPolyphony;
                     break;
                 case 'sample:add':
-                    const addSampleURL = prompt(`Add Sample URL:`);
+                    const addSampleURL = form.elements.url.value || prompt(`Add Sample URL:`, 'https://mysite.com/mysample.wav');
                     if (!addSampleURL) {
                         console.info("Change sample URL canceled");
                         break;
                     }
-                    let addSampleName = addSampleURL.split('/').pop();
+                    let addSampleName = addSampleURL.split('/').pop().split('.').slice(0, -1).join('.');
                     addSampleName = prompt(`Set Sample Name:`, addSampleName);
-                    this.renderer.replaceInstrumentParam(instrumentID, ['samples', addSampleName], {
+                    const addSampleID = this.config.samples.length;
+                    this.renderer.replaceInstrumentParam(instrumentID, ['samples', addSampleID], {
                         url: addSampleURL,
-                        // name: addSampleName
+                        name: addSampleName
                     });
-                    await this.loadAudioSample(addSampleName);
+                    await this.loadAudioSample(addSampleID);
                     this.render();
                     break;
 

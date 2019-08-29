@@ -577,7 +577,7 @@ class AudioSourceComposerElement extends HTMLElement {
             </div>
             
             <div class="form-section control-song">
-                <div class="form-section-header">Playback Controls</div>
+                <div class="form-section-header">Playback</div>
                 <form action="#" class="form-song-play" data-action="song:play">
                     <button type="submit" name="play" class="themed">
                         <i class="ui-icon ui-play"></i>

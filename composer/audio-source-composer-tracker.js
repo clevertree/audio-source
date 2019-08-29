@@ -2,6 +2,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     constructor() {
         super();
         this.editor = null;
+        this.eventHandlers = [];
 
         // this.cursorCellIndex = 0;
         this.renderTimeout = null;
@@ -51,18 +52,16 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get isConnected() { return this.editor.container.contains(this); }
 
-    get inputEvents() { return [
-        'scroll',
-        'keydown',
-        'mousedown', 'mouseup', 'mousemove', 'mouseout',
-        'touchstart', 'touchend', 'touchmove',
-        'dragstart', 'drag', 'dragend',
-        'contextmenu'
-    ]}
-
     connectedCallback() {
-        this.inputEvents.forEach(eventName =>
-            this.addEventListener(eventName, this.onInput));
+        this.attachEventHandler([
+                'scroll',
+                'keydown',
+                'mousedown', 'mouseup', 'mousemove', 'mouseout',
+                'touchstart', 'touchend', 'touchmove',
+                'dragstart', 'drag', 'dragend',
+                'contextmenu'
+            ],
+            this.onInput);
 
         this.editor = this.getRootNode().host;
         if(!this.getAttribute('rowLength'))
@@ -72,9 +71,19 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     disconnectedCallback() {
-        this.inputEvents.forEach(eventName =>
-            this.removeEventListener(eventName, this.onInput));
+        this.eventHandlers.forEach(eventHandler =>
+            eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
+    }
 
+    attachEventHandler(eventNames, method, context) {
+        if(!Array.isArray(eventNames))
+            eventNames = [eventNames];
+        for(let i=0; i<eventNames.length; i++) {
+            const eventName = eventNames[i];
+            context = context || this;
+            context.addEventListener(eventName, method);
+            this.eventHandlers.push([eventName, method, context]);
+        }
     }
     
     clearSelection(excludeElms=[]) {
@@ -965,7 +974,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 <div class="form-section-header">Instruction</div>
                 <form action="#" class="form-instruction-command submit-on-change" data-action="instruction:command">
                     <select name="command" title="Instruction Command" class="themed" required="required">
-                        <option value="">Command (Choose)</option>
+                        <option value="">Select...</option>
                         <optgroup label="Custom Frequencies" class="instrument-frequencies">
                             ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
                         </optgroup>
