@@ -50,7 +50,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         return [].map.call(this.selectedCells, (elm => elm.index));
     }
 
-    get isConnected() { return this.editor.container.contains(this); }
+    get isConnected() { return this.editor.containerElm.contains(this); }
 
     connectedCallback() {
         this.attachEventHandler([
@@ -106,7 +106,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     // get cursorCellIndex() {
     playSelectedInstructions() {
-        this.editor.renderer.stopAllPlayback();
+        this.editor.renderer.stop();
         const selectedIndicies = this.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
             this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
@@ -659,9 +659,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                         // this.selectCell(e, this.cursorCell);
                         // if(e.ctrlKey) e.preventDefault();
                         if (this.editor.renderer.isPlaybackActive()) {
-                            this.editor.renderer.stopAllPlayback();
+                            this.editor.renderer.pause();
                         } else {
-                            this.editor.renderer.playInstructions(this.groupName);
+                            this.editor.renderer.play();
                         }
                         break;
 

@@ -216,6 +216,8 @@ asc-menu.open-context-menu > .dropdown-container {
     }
 }
 
+.asc-container:not(.playing) .show-on-song-playing,
+.asc-container.playing .hide-on-song-playing,
 .asc-container.hide-forms-song .form-section-container-song,
 .asc-container.hide-forms-tracker .form-section-container-tracker,
 .asc-container.hide-forms-instruments .form-section-container-instruments {
@@ -598,6 +600,7 @@ i.ui-icon {
 }
 i.ui-play { background-position: -3em -1em; }
 i.ui-pause {background-position: -4em -1em;}
+i.ui-stop {background-position: -5em -1em;}
 i.ui-resume { background-position: -3em -1em; }
 
 i.ui-insert {background-position: -3em -10em;}

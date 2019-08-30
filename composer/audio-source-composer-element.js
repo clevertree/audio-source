@@ -51,7 +51,7 @@ class AudioSourceComposerElement extends HTMLElement {
     // get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
     // get forms() { return this.shadowDOM.querySelector('asc-forms'); }
     // get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
-    get container() { return this.shadowDOM.querySelector('.asc-container'); }
+    get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     get scriptDirectory () {
         const Libraries = new AudioSourceLibraries;
@@ -300,10 +300,15 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
             case 'song:start':
                 this.classList.add('playing');
+                this.containerElm.classList.add('playing');
+                break;
+            case 'song:pause':
+                this.classList.add('paused');
+                this.containerElm.classList.add('paused');
                 break;
             case 'song:end':
-            case 'song:pause':
-                this.classList.remove('playing');
+                this.classList.remove('playing', 'paused');
+                this.containerElm.classList.remove('playing', 'paused');
                 break;
             case 'instrument:modified':
             case 'song:modified':
@@ -399,19 +404,25 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:play':
-                if(this.renderer.isPlaybackActive())
-                    this.renderer.stopAllPlayback();
-                else
-                    this.renderer.play();
+            case 'song:resume':
+                this.renderer.play();
+                // if(this.renderer.isPlaybackActive())
+                //     this.renderer.stop();
+                // else
+                //     this.renderer.play();
                 break;
             case 'song:pause':
-                this.renderer.stopAllPlayback();
+                this.renderer.pause();
+                // this.renderer.pause();
+                break;
+            case 'song:stop':
+                this.renderer.stop();
                 // this.renderer.pause();
                 break;
 
-            case 'song:resume':
-                this.renderer.play(this.renderer.seekPosition);
-                break;
+            // case 'song:resume':
+            //     this.renderer.play(this.renderer.seekPosition);
+            //     break;
 
             case 'song:playback':
                 console.log(e.target);
@@ -495,15 +506,15 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'view:forms-song':
-                this.container.classList.toggle('hide-forms-song');
+                this.containerElm.classList.toggle('hide-forms-song');
                 break;
 
             case 'view:forms-tracker':
-                this.container.classList.toggle('hide-forms-tracker');
+                this.containerElm.classList.toggle('hide-forms-tracker');
                 break;
 
             case 'view:forms-instruments':
-                this.container.classList.toggle('hide-forms-instruments');
+                this.containerElm.classList.toggle('hide-forms-instruments');
                 break;
 
             default:
@@ -602,9 +613,14 @@ class AudioSourceComposerElement extends HTMLElement {
             
             <div class="form-section control-song">
                 <div class="form-section-header">Playback</div>
-                <form action="#" class="form-song-play" data-action="song:play">
+                <form action="#" class="form-song-play hide-on-song-playing" data-action="song:play">
                     <button type="submit" name="play" class="themed">
                         <i class="ui-icon ui-play"></i>
+                    </button>
+                </form>
+                <form action="#" class="form-song-stop" data-action="song:stop">
+                    <button type="submit" name="pause" class="themed">
+                        <i class="ui-icon ui-stop"></i>
                     </button>
                 </form>
                 <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
@@ -808,15 +824,15 @@ class AudioSourceComposerElement extends HTMLElement {
             menuViewToggleFullscreen.action = (e) => this.onAction(e, 'view:fullscreen');
 
             const menuViewToggleFormSong = menu.getOrCreateSubMenu('forms-song',
-                `${this.container.classList.contains('hide-forms-song') ? 'Show' : 'Hide'} Song Forms `);
+                `${this.containerElm.classList.contains('hide-forms-song') ? 'Show' : 'Hide'} Song Forms `);
             menuViewToggleFormSong.action = (e) => this.onAction(e, 'view:forms-song');
 
             const menuViewToggleFormTrack = menu.getOrCreateSubMenu('forms-tracker',
-                `${this.container.classList.contains('hide-forms-tracker') ? 'Show' : 'Hide'} Track Forms`);
+                `${this.containerElm.classList.contains('hide-forms-tracker') ? 'Show' : 'Hide'} Track Forms`);
             menuViewToggleFormTrack.action = (e) => this.onAction(e, 'view:forms-tracker');
 
             const menuViewToggleFormInstrument = menu.getOrCreateSubMenu('forms-instruments',
-                `${this.container.classList.contains('hide-forms-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
+                `${this.containerElm.classList.contains('hide-forms-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
             menuViewToggleFormInstrument.action = (e) => this.onAction(e, 'view:forms-instruments');
         };
 
@@ -921,7 +937,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     playSelectedInstructions() {
-        this.renderer.stopAllPlayback();
+        this.renderer.stop();
         const selectedIndicies = this.status.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
             this.renderer.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
@@ -1011,7 +1027,7 @@ class EmptyInstrumentElement extends HTMLElement {
                 <form class="form-song-add-instrument submit-on-change" data-action="song:replace-instrument">
                     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
                     ${statusText}
-                    <hr/>
+                    <br/>
                     <select name="instrumentURL" class="themed">
                         <option value="">Select Instrument</option>
                         ${this.editor.values.renderEditorFormOptions('instruments-available')}

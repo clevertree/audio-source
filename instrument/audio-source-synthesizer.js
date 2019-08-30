@@ -101,7 +101,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 newConfig.samples = Object.values(newConfig.samples);
             // TODO: unload samples - this.samples
             Object.assign(this.config, newConfig);
-            this.loadSamples();f
+            this.loadSamples();
 
             // document.dispatchEvent(new CustomEvent('instrument:modified', {
             //     detail: {

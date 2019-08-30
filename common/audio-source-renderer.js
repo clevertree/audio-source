@@ -18,6 +18,7 @@ class AudioSourceRenderer {
         this.seekPosition = 0;
         this.volumeGain = null;
         this.playing = false;
+        this.paused = false;
         this.activeGroups = {};
         this.sources = new AudioSources(this);
         this.values = new AudioSourceValues(this);
@@ -302,100 +303,71 @@ class AudioSourceRenderer {
         return new SongInstruction(instructionList[index]);
     }
 
-    // getInstructionRange(groupName, selectedIndicies) {
-    //     if(!Array.isArray(selectedIndicies))
-    //         selectedIndicies = [selectedIndicies];
-    //     let min=null, max=null;
-    //     this.eachInstruction(groupName, (i, instruction, stats) => {
-    //         if (selectedIndicies.indexOf(i) !== -1) {
-    //             if (min === null || stats.groupPositionInTicks < min)
-    //                 min = stats.groupPositionInTicks;
-    //             if (max === null || stats.groupPositionInTicks > max)
-    //                 max = stats.groupPositionInTicks
-    //                 ;
-    //         }
-    //     });
-    //     return [min, max];
-    // }
+
+
 
     // Playback
-
+    // TODO remove stop and add play start over?
 
     async play (seekPosition) {
+        if(this.playing)
+            throw new Error("Song is already playing");
+
+        if(this.paused) {
+            return this.resume();
+        }
         this.seekPosition = seekPosition || 0;
 
-        // this.lastInstructionPosition = 0;
         const startTime = this.getAudioContext().currentTime - this.seekPosition;
         // console.log("Start playback:", this.startTime);
         this.playing = true;
-//        this.processPlayback();
 
         this.dispatchEvent(new CustomEvent('song:start'));
         await this.playInstructions(
             this.songData.root || 'root',
             startTime
         );
-        // TODO: track seek position?
         this.seekPosition = this.getAudioContext().currentTime - (this.seekPosition + startTime); // TODO: broken
         this.dispatchEvent(new CustomEvent('song:end'));
         console.log("Seek position: ", this.seekPosition);
 
     }
 
+
     pause() {
-        this.playing = false;
+        if(this.paused)
+            throw new Error("Song is already paused");
+        const promise = new Promise((resolve, reject) => {
+            this.paused = {promise, resolve, reject}
+        });
+
         this.dispatchEvent(new CustomEvent('song:pause'));
     }
 
-    // processPlayback () {
-    //     if(this.playing === false) {
-    //         console.info("Playing paused");
-    //         return;
-    //     }
-    //     const startTime = this.seekPosition;
-    //     const currentTime = this.getAudioContext().currentTime - this.startTime;
-    //     let endTime = startTime + this.seekLength;
-    //     while(endTime < currentTime)
-    //         endTime += this.seekLength;
-    //     this.seekPosition = endTime;
-    //
-    //     const totalPlayTime = this.playInstructions(
-    //         this.songData.root || 'root',
-    //         startTime,
-    //         endTime,
-    //         this.startTime
-    //     );
-    //
-    //     // this.seekPosition += this.seekLength;
-    //     // this.seekPosition = currentTime - this.startTime;
-    //     // this.seekPosition += this.seekLength;
-    //
-    //     if(currentTime < totalPlayTime) {
-    //         console.log("Instructions playing:", this.seekPosition, this.seekLength, currentTime - this.startTime);
-    //
-    //         this.dispatchEvent(new CustomEvent('song:playback'));
-    //         setTimeout(this.processPlayback.bind(this), this.seekLength * 1000);
-    //     } else{
-    //
-    //         setTimeout(() => {
-    //             console.log("Song finished. Play time: ", totalPlayTime);
-    //             this.seekPosition = 0;
-    //             this.playing = false;
-    //
-    //             // Update UI
-    //             this.dispatchEvent(new CustomEvent('song:end'));
-    //         }, totalPlayTime - currentTime)
-    //     }
-    // }
+
+    resume() {
+        if(!this.paused)
+            throw new Error("Song is not paused");
+        const promise = this.paused;
+        this.paused = false;
+        promise.resolve();
+        // this.play();
+        this.dispatchEvent(new CustomEvent('song:resume'));
+    }
 
 
-    stopAllPlayback() {
+    stop() {
+        if(!this.playing)
+            throw new Error("Song is not playing");
+        this.seekPosition = 0;
         for(const key in this.activeGroups) {
             if(this.activeGroups.hasOwnProperty(key)) {
                 this.activeGroups[key] = false;
             }
         }
+        this.dispatchEvent(new CustomEvent('song:stop'));
     }
+
     isPlaybackActive() {
         for(const key in this.activeGroups) {
             if(this.activeGroups.hasOwnProperty(key)) {
@@ -420,6 +392,13 @@ class AudioSourceRenderer {
         await this.eachInstructionAsync(instructionGroup, async (i, instruction, stats) => {
             if(!this.activeGroups[activeGroupKey])
                 return false;
+
+            if(this.paused) {
+                const pauseStartTime = this.getAudioContext().currentTime;
+                await this.paused;
+                startTime += this.getAudioContext().currentTime - pauseStartTime;
+            }
+
             // const instructionStartTime = startTime + stats.groupPlaybackTime;
             const elapsedTime = (this.getAudioContext().currentTime - startTime);
             if(elapsedTime + this.seekLength < stats.groupPlaybackTime) {
