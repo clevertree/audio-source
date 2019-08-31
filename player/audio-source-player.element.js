@@ -36,7 +36,7 @@ class MusicPlayerElement extends HTMLElement {
 
     onSongEvent(e) {
         switch(e.type) {
-            case 'song:start':
+            case 'song:play':
                 this.classList.add('playing');
                 break;
             case 'song:end':

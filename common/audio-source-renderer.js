@@ -15,10 +15,10 @@ class AudioSourceRenderer {
         };
 
         this.seekLength = 0.5;
-        this.seekPosition = 0;
+        this.playbackStartPosition = 0;
+        this.playbackStartTime = null;
+
         this.volumeGain = null;
-        this.playing = false;
-        this.paused = false;
         this.activeGroups = {};
         this.sources = new AudioSources(this);
         this.values = new AudioSourceValues(this);
@@ -309,63 +309,78 @@ class AudioSourceRenderer {
     // Playback
     // TODO remove stop and add play start over?
 
-    async play (seekPosition) {
-        if(this.playing)
+    async play (startPosition = null) {
+        if(this.playbackStartTime !== null)
             throw new Error("Song is already playing");
-
-        if(this.paused) {
-            return this.resume();
-        }
-        this.seekPosition = seekPosition || 0;
-
-        const startTime = this.getAudioContext().currentTime - this.seekPosition;
+        if(startPosition !== null)
+            this.playbackStartPosition = startPosition;
         // console.log("Start playback:", this.startTime);
-        this.playing = true;
 
-        this.dispatchEvent(new CustomEvent('song:start'));
+        // Set playback start time
+        this.playbackStartTime = this.getAudioContext().currentTime - this.playbackStartPosition;
+        // console.log("Start playback:", this.playbackStartTime);
+
+        const detail = {
+            startTime: this.playbackStartTime,
+            startPosition: this.playbackStartPosition
+        };
+        this.dispatchEvent(new CustomEvent('song:play', {detail}));
         await this.playInstructions(
             this.songData.root || 'root',
-            startTime
+            this.playbackStartTime
         );
-        this.seekPosition = this.getAudioContext().currentTime - (this.seekPosition + startTime); // TODO: broken
-        this.dispatchEvent(new CustomEvent('song:end'));
-        console.log("Seek position: ", this.seekPosition);
+        // this.seekPosition = this.getAudioContext().currentTime - (this.seekPosition + this.playbackStartTime); // TODO: broken
+        this.dispatchEvent(new CustomEvent('song:end', {detail}));
+        console.log("Seek position: ", this.playbackStartPosition);
 
     }
 
 
-    pause() {
-        if(this.paused)
-            throw new Error("Song is already paused");
-        const promise = new Promise((resolve, reject) => {
-            this.paused = {promise, resolve, reject}
-        });
 
-        this.dispatchEvent(new CustomEvent('song:pause'));
-    }
+    // Stops playback
+    stopPlayback() {
+        // if(this.playbackStartTime === null)
+        //     throw new Error("Song is not playing");
 
+        // Set the current playback time
+        if(this.playbackStartTime !== null)
+            this.playbackStartPosition = this.getAudioContext().currentTime - this.playbackStartTime;
+        this.playbackStartTime = null;
 
-    resume() {
-        if(!this.paused)
-            throw new Error("Song is not paused");
-        const promise = this.paused;
-        this.paused = false;
-        promise.resolve();
-        // this.play();
-        this.dispatchEvent(new CustomEvent('song:resume'));
-    }
-
-
-    stop() {
-        if(!this.playing)
-            throw new Error("Song is not playing");
-        this.seekPosition = 0;
+        // Ensures no new notes play
         for(const key in this.activeGroups) {
             if(this.activeGroups.hasOwnProperty(key)) {
                 this.activeGroups[key] = false;
             }
         }
-        this.dispatchEvent(new CustomEvent('song:stop'));
+
+        // Stop all instrument playback (if supported)
+        const instrumentList = this.getInstrumentList();
+        for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
+            const instrument = this.getInstrument(instrumentID, false);
+            if(instrument && instrument.stopPlayback)
+                instrument.stopPlayback();
+        }
+
+        const detail = {
+            startTime: this.playbackStartTime,
+            startPosition: this.playbackStartPosition
+        };
+        this.dispatchEvent(new CustomEvent('song:stop', {detail}));
+    }
+
+    setStartPosition(startPosition) {
+        if(!Number.isInteger(startPosition))
+            throw new Error("Invalid start position");
+        // TODO: is start position beyond song's ending?
+
+        this.playbackStartPosition = startPosition;
+
+        const detail = {
+            startTime: this.playbackStartTime,
+            startPosition: this.playbackStartPosition
+        };
+        this.dispatchEvent(new CustomEvent('song:seek', {detail}));
     }
 
     isPlaybackActive() {
@@ -393,20 +408,17 @@ class AudioSourceRenderer {
             if(!this.activeGroups[activeGroupKey])
                 return false;
 
-            if(this.paused) {
-                const pauseStartTime = this.getAudioContext().currentTime;
-                await this.paused;
-                startTime += this.getAudioContext().currentTime - pauseStartTime;
-            }
+
 
             // const instructionStartTime = startTime + stats.groupPlaybackTime;
-            const elapsedTime = (this.getAudioContext().currentTime - startTime);
+            let elapsedTime = (this.getAudioContext().currentTime - startTime);
             if(elapsedTime + this.seekLength < stats.groupPlaybackTime) {
                 const waitTime = Math.floor((stats.groupPlaybackTime - (elapsedTime + this.seekLength)) * 1000 * 0.9);
                 // console.info("Waiting ", waitTime);
                 await new Promise((resolve, reject) => {
                    setTimeout(resolve, waitTime);
                 });
+                elapsedTime = (this.getAudioContext().currentTime - startTime);
             }
 
             if(instruction.isGroupCommand()) {
@@ -427,12 +439,21 @@ class AudioSourceRenderer {
             // if(instruction.command[0] === '!')
             //     return;
             // console.log("Note played", instruction, stats);
-            // noinspection JSIgnoredPromiseFromCall
-            this.playInstruction(instruction, startTime + stats.groupPlaybackTime, stats);
+
+
+            // Skip note if it's too far in the past
+            if(elapsedTime <= stats.groupPlaybackTime) {
+                this.playInstruction(instruction, startTime + stats.groupPlaybackTime, stats);
+            }
         });
+
+        // Wait for subgroups to finish
         for(let i=0; i<activeSubGroups.length; i++)
             await activeSubGroups[i];
+
+        // Delete active group
         delete this.activeGroups[activeGroupKey];
+
         // console.log("Active subgroups", activeSubGroups);
         console.timeEnd("Group:"+instructionGroup);
     }

@@ -71,7 +71,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.shadowDOM.addEventListener('blur', onInput);
 
         this.attachEventHandler([
-            'song:loaded','song:start','song:end','song:pause','song:modified',
+            'song:loaded','song:play','song:end','song:stop','song:modified',
             'note:play'
         ], this.onSongEvent);
         this.attachEventHandler([
@@ -298,7 +298,7 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:loaded':
                 this.tracker.renderDuration = this.renderer.getSongTimeDivision();
                 break;
-            case 'song:start':
+            case 'song:play':
                 this.classList.add('playing');
                 this.containerElm.classList.add('playing');
                 break;
@@ -411,13 +411,15 @@ class AudioSourceComposerElement extends HTMLElement {
                 // else
                 //     this.renderer.play();
                 break;
+
             case 'song:pause':
-                this.renderer.pause();
-                // this.renderer.pause();
+                this.renderer.stopPlayback();
                 break;
+
             case 'song:stop':
-                this.renderer.stop();
-                // this.renderer.pause();
+            case 'song:reset':
+                this.renderer.stopPlayback();
+                this.renderer.setStartPosition(0);
                 break;
 
             // case 'song:resume':
@@ -618,14 +620,14 @@ class AudioSourceComposerElement extends HTMLElement {
                         <i class="ui-icon ui-play"></i>
                     </button>
                 </form>
-                <form action="#" class="form-song-stop" data-action="song:stop">
-                    <button type="submit" name="pause" class="themed">
-                        <i class="ui-icon ui-stop"></i>
-                    </button>
-                </form>
                 <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
                     <button type="submit" name="pause" class="themed">
                         <i class="ui-icon ui-pause"></i>
+                    </button>
+                </form>
+                <form action="#" class="form-song-stop" data-action="song:stop">
+                    <button type="submit" name="pause" class="themed">
+                        <i class="ui-icon ui-stop"></i>
                     </button>
                 </form>
             </div>
@@ -937,7 +939,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     playSelectedInstructions() {
-        this.renderer.stop();
+        this.renderer.stopPlayback();
         const selectedIndicies = this.status.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
             this.renderer.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);

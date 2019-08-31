@@ -106,7 +106,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     // get cursorCellIndex() {
     playSelectedInstructions() {
-        this.editor.renderer.stop();
+        this.editor.renderer.stopPlayback();
         const selectedIndicies = this.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
             this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
@@ -659,7 +659,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         // this.selectCell(e, this.cursorCell);
                         // if(e.ctrlKey) e.preventDefault();
                         if (this.editor.renderer.isPlaybackActive()) {
-                            this.editor.renderer.pause();
+                            this.editor.renderer.stopPlayback();
                         } else {
                             this.editor.renderer.play();
                         }
@@ -1358,7 +1358,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             //     }
             //     break;
 
-            // case 'song:start':
+            // case 'song:play':
             //     this.classList.add('playing');
             //     break;
             // case 'song:end':
