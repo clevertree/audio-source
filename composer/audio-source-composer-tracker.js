@@ -971,7 +971,13 @@ class AudioSourceComposerTracker extends HTMLElement {
     get buttonCommandDelete()   { return this.formsTracker.querySelector(`form.form-instruction-delete button[name=delete]`); }
 
     renderForms() {
+
+
+
         const formSection = this.editor.formsTracker;
+
+        const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
+
         formSection.innerHTML = `
             <div class="form-section-divide">
                 <span>Track</span>
@@ -1008,9 +1014,10 @@ class AudioSourceComposerTracker extends HTMLElement {
             <form action="#" class="form-instruction-instrument submit-on-change" data-action="instruction:instrument">
             <div class="form-section-header">Instrument</div>
                 <select name="instrument" title="Instruction Instrument" class="themed">
-                    <option value="">None</option>
+                    <option value="">No Instrument Selected</option>
                     <optgroup label="Song Instruments">
-                        ${this.editor.values.renderEditorFormOptions('song-instruments')}
+                        ${this.editor.values.renderEditorFormOptions('song-instruments', 
+                            value => value === selectedInstrumentID)}
                     </optgroup>
                 </select>
             </form>

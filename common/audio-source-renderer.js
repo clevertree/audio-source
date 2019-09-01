@@ -615,10 +615,22 @@ class AudioSourceRenderer {
         }
 
 
-        let bpm = this.getStartingBeatsPerMinute();
+        let bpm = stats ? stats.currentBPM : this.getStartingBeatsPerMinute();
+        // const noteDuration = (instruction.duration || 1) * (60 / bpm);
+        let timeDivision = this.getSongTimeDivision();
+        const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
+        const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
 
+        const noteEventData = {
+            currentTime: this.getAudioContext().currentTime,
+            startTime: noteStartTime,
+            duration: noteDuration,
+            instruction: instruction,
+        };
         if(stats) {
-            bpm = stats.currentBPM;
+            noteEventData.currentIndex = stats.currentIndex;
+            noteEventData.groupPositionInTicks = stats.groupPositionInTicks;
+
             //     if(stats.groupInstruction) {
             //         if(typeof stats.groupInstruction.velocity !== 'undefined')
             //             noteVelocity *= stats.groupInstruction.velocity/100;
@@ -626,10 +638,6 @@ class AudioSourceRenderer {
             //             instrumentID = stats.groupInstruction.instrument;
             //     }
         }
-        // const noteDuration = (instruction.duration || 1) * (60 / bpm);
-        let timeDivision = this.getSongTimeDivision();
-        const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
-        const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
 
 
         if(!noteStartTime && noteStartTime !== 0)
@@ -638,14 +646,6 @@ class AudioSourceRenderer {
 
         this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
 
-        const noteEventData = {
-            currentIndex: stats.currentIndex,
-            groupPositionInTicks: stats.groupPositionInTicks,
-            currentTime: this.getAudioContext().currentTime,
-            startTime: noteStartTime,
-            duration: noteDuration,
-            instruction: instruction,
-        };
 
         let currentTime = this.getAudioContext().currentTime;
         if(noteStartTime > currentTime) {
@@ -727,29 +727,35 @@ class AudioSourceRenderer {
                 const newScriptElm = document.createElement('script');
 
                 let intervalStart = new Date().getTime();
-                let interval = setInterval(() => {
-                    console.log("Interval");
-                    if(this.instruments.class[instrumentClassURL]) { // Check for loaded class
-                        clearInterval(interval);
-                        resolve(this.instruments.class[instrumentClassURL]);
-                        delete this.instruments.classPromises[instrumentClassURL];
-
-                    } else {
-                        if(intervalStart > new Date().getTime() + 5000) {
-                            clearInterval(interval);
-                            reject("Unable to load: " + instrumentClassURL);
+                let intervalDuration = 10;
+                const doInterval = () => {
+                    setTimeout(() => {
+                        console.log("Interval", intervalDuration);
+                        if (this.instruments.class[instrumentClassURL]) { // Check for loaded class
+                            resolve(this.instruments.class[instrumentClassURL]);
                             delete this.instruments.classPromises[instrumentClassURL];
-                        }
-                    }
+                            return;
 
-                }, 100);
+                        } else {
+                            if (new Date().getTime() > intervalStart + 25000) {
+                                reject("Unable to load: " + instrumentClassURL);
+                                delete this.instruments.classPromises[instrumentClassURL];
+                                newScriptElm.parentNode.removeChild(newScriptElm);
+                                return;
+                            }
+                        }
+
+                        intervalDuration *= 2;
+                        doInterval();
+                    }, intervalDuration);
+                };
+                doInterval();
 
                 // newScriptElm.onload = (e) => {
                 //     newScriptElm.classList.add('loaded');
                 // };
 
                 newScriptElm.onerror = (e) => {
-                    clearInterval(interval);
                     reject("Error loading: " + instrumentClassURL);
                     delete this.instruments.classPromises[instrumentClassURL];
                     newScriptElm.parentNode.removeChild(newScriptElm);
@@ -879,7 +885,7 @@ class AudioSourceRenderer {
 
         this.replaceDataPath(['instruments', instrumentID], config);
         this.loadInstrument(instrumentID);
-        this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
+        this.dispatchEvent(new CustomEvent('instrument:modified', {bubbles: true, detail: {
             instrumentID,
             config,
             oldConfig: null
@@ -900,7 +906,7 @@ class AudioSourceRenderer {
             config.name = oldInstrument.name;
         // Preserve old instrument name
         const oldConfig = this.replaceDataPath(['instruments', instrumentID], config);
-        this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
+        this.dispatchEvent(new CustomEvent('instrument:modified', {bubbles: true, detail: {
             instrumentID,
             config,
             oldConfig: oldConfig
@@ -918,7 +924,7 @@ class AudioSourceRenderer {
         // }
         delete this.instruments.loaded[instrumentID];
         const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null);
-        this.dispatchEvent(new CustomEvent('instrument:modified', {detail: {
+        this.dispatchEvent(new CustomEvent('instrument:modified', {bubbles: true, detail: {
             instrumentID,
             config: null,
             oldConfig: oldConfig

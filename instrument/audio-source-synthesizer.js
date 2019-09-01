@@ -404,15 +404,19 @@ if(!customElements.get('audio-source-synthesizer')) {
             // Stop all active sources
             console.log("activeSources!", this.activeSources);
             for(let i=0; i<this.activeSources.length; i++) {
-                this.activeSources[i].stop();
+                try {
+                    this.activeSources[i].stop();
+                } catch (e) {
+                    console.warn(e);
+                }
             }
             this.activeSources = [];
 
         }
 
-        queueActiveSource(source, startTime, duration) {
-            this.activeSources.push(source);
-        }
+        // queueActiveSource(source, startTime, duration) {
+        //     this.activeSources.push(source);
+        // }
 
 // Experiment with various ways of applying an envelope.
 //     function startTone( mode )

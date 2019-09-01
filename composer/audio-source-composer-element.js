@@ -291,7 +291,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-//         console.log("Song Event: ", e.type);
+        console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
@@ -314,6 +314,7 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:modified':
                 switch(e.type) {
                     case 'instrument:modified':
+                        this.renderInstruments();
                         if(this.tracker) // Update aliases
                             this.tracker.renderForms();
                         break;
@@ -328,6 +329,8 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'instrument:loaded':
             case 'instrument:instance':
                 this.renderInstruments();
+                if(this.tracker) // Update aliases
+                    this.tracker.renderForms();
                 break;
             case 'instrument:library':
 //                 console.log(e.type);
@@ -461,12 +464,14 @@ class AudioSourceComposerElement extends HTMLElement {
                     id: parseInt(e.target.form.elements['instrumentID'].value)
                 };
                 changeInstrument.title = changeInstrument.url.split('/').pop();
-                if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
-                    this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
-                    this.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
-                } else {
-                    this.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
-                }
+                // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
+                this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
+                this.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
+                if(this.tracker)
+                    this.tracker.fieldInstructionInstrument.value = changeInstrument.id;
+                // } else {
+                //     this.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
+                // }
 
                 break;
 
@@ -1038,17 +1043,19 @@ class EmptyInstrumentElement extends HTMLElement {
                         ${this.editor.values.renderEditorFormOptions('instruments-available')}
                     </select>
                 </form>
-                <span style="float: right;">
-                    <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
-                        <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                        <button class="remove-instrument">
-                            <i class="ui-icon ui-remove"></i>
-                        </button>
-                    </form>
-                </span>
             </div>
 
         `;
     }
 }
+
+// <span style="float: right;">
+//     <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
+//     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+//     <button class="remove-instrument">
+//     <i class="ui-icon ui-remove"></i>
+//     </button>
+//     </form>
+//     </span>
+
 customElements.define('asc-instrument-empty', EmptyInstrumentElement);
