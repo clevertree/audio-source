@@ -1,9 +1,10 @@
 
 .asc-container {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     flex-flow: column;
-    height: 1200px;
+    max-height: 1000px;
     font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
@@ -31,6 +32,9 @@ audio-source-composer.fullscreen {
 
 .asc-container.fullscreen asc-tracker {
     flex: 1 1 auto;
+}
+.asc-container.fullscreen {
+    max-height: 100%;
 }
 
 
@@ -551,7 +555,7 @@ asc-tracker > div.selection-rect {
 /** Status Bar **/
 
 .asc-status-container {
-    position: fixed;
+    position: absolute;
     display: block;
     bottom: 0px;
     background-color: #FFF;
@@ -562,7 +566,6 @@ asc-tracker > div.selection-rect {
 }
 
 /** Instruments **/
-
 
 .asc-container .composer-instruments {
     display: inline-block;

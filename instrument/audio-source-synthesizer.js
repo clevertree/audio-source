@@ -27,6 +27,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             //     SynthesizerInstrument.sampleLoader = new SampleLoader();
             this.sampleLoader = new SampleLoader(); // SynthesizerInstrument.sampleLoader;
             this.samples = [];
+            this.activeSources = [];
 
             const SampleLibrary = customElements.get('asci-sample-library');
             this.sampleLibrary = new SampleLibrary();
@@ -145,10 +146,10 @@ if(!customElements.get('audio-source-synthesizer')) {
             if (!sampleURL)
                 throw new Error("Sample config is missing url");
 
-            if (typeof this.samples[sampleID] === "undefined")
-                this.samples[sampleID] = {};
+            if (typeof this.samples[sampleID] !== "undefined")
+                console.warn("Sample is already loaded: " + sampleID);
 
-            const sampleData = this.samples[sampleID];
+            const sampleData = {};
 
 
             const ext = sampleURL.substr(-4).split('.').pop().toLowerCase();
@@ -164,6 +165,8 @@ if(!customElements.get('audio-source-synthesizer')) {
 //                 default:
 //                     reject("Unknown extension: " + ext);
             }
+
+            this.samples[sampleID] = sampleData;
         }
 
 
@@ -184,6 +187,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         isSampleLoaded(sampleID) {
             return typeof this.samples[sampleID] !== 'undefined';
         }
+
 
 
         // TODO: break up / redefine
@@ -222,33 +226,38 @@ if(!customElements.get('audio-source-synthesizer')) {
             this.render();
         }
 
-        playPeriodicWave(destination, periodicWave, frequency, startTime=null, duration=null, velocity=null, adsr=null) {
+        async playPeriodicWave(destination, periodicWave, frequency, startTime=null, duration=null, velocity=null, detune=null, adsr=null) {
             const source = destination.context.createOscillator();   // instantiate an oscillator
             source.frequency.value = frequency;    // set Frequency (hz)
+            if(detune !== null)
+                source.detune = detune;
 
             source.setPeriodicWave(periodicWave);
 
-            this.playSource(destination, source, startTime, duration, velocity, adsr);
-            return source;
+            await this.playSource(destination, source, startTime, duration, velocity, adsr);
+            // return source;
         }
 
-        playBuffer(destination, buffer, playbackRate, loop=false, startTime=null, duration=null, velocity=null, adsr=null) {
+        async playBuffer(destination, buffer, playbackRate, loop=false, startTime=null, duration=null, velocity=null, detune=null, adsr=null) {
             const source = destination.context.createBufferSource();
             source.buffer = buffer;
             source.loop = loop;
             source.playbackRate.value = playbackRate; //  Math.random()*2;
-            this.playSource(destination, source, startTime, duration, velocity, adsr);
-            return source;
+            if(detune !== null)
+                source.detune = detune;
+            await this.playSource(destination, source, startTime, duration, velocity, adsr);
+            // return source;
         }
 
-        playSource(destination, source, startTime=null, duration=null, velocity=null, adsr=null) {
+        async playSource(destination, source, startTime=null, duration=null, velocity=null, adsr=null) {
             // songLength = buffer.duration;
             // source.playbackRate.value = playbackControl.value;
 
             // const adsr = sampleConfig.adsr || [0, 0, 0, 0.1];
 
             adsr = adsr || [0, 0, 0, .1];
-            startTime = startTime !== null ? startTime : destination.context.currentTime;
+            let currentTime = destination.context.currentTime;
+            startTime = startTime !== null ? startTime : currentTime;
             // Play note
             if (startTime) {
                 source.start(startTime);
@@ -266,6 +275,36 @@ if(!customElements.get('audio-source-synthesizer')) {
             velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + adsr[3]);
 
             source.connect(destination);
+
+            // Add to active sources
+            this.activeSources.push(source);
+
+            if(startTime > currentTime) {
+                await new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve();
+                    }, (startTime - currentTime) * 1000);
+                });
+            }
+
+            // console.log("activeSources", this.activeSources, source);
+
+
+            currentTime = destination.context.currentTime;
+
+
+            if(duration) {
+                await new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve();
+                    }, (startTime - currentTime + duration) * 1000);
+                });
+                const activeSourceI = this.activeSources.indexOf(source);
+                if(activeSourceI !== -1)
+                    this.activeSources.splice(activeSourceI, 1);
+                // console.log("activeSources-", this.activeSources, source);
+            }
+
         }
 
         async playSample(destination, sampleID, frequencyValue=null, startTime=null, duration=null, velocity=null, adsr = null) {
@@ -279,23 +318,22 @@ if(!customElements.get('audio-source-synthesizer')) {
             if (!frequencyValue)
                 frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
 
-            let source, sources = [];
             if (sampleData.periodicWave) {
-                source = this.playPeriodicWave(
+                this.playPeriodicWave(
                     destination,
                     sampleData.periodicWave,
                     frequencyValue,
                     startTime,
                     duration,
                     velocity,
+                    sampleConfig.detune || null,
                     adsr
                     );
-                sources.push(source);
             }
 
             if (sampleData.buffer) {
                 const playbackRate = frequencyValue / (sampleConfig.keyRoot ? this.getCommandFrequency(sampleConfig.keyRoot) : 440);
-                source = this.playBuffer(
+                this.playBuffer(
                     destination,
                     sampleData.buffer,
                     playbackRate,
@@ -303,14 +341,13 @@ if(!customElements.get('audio-source-synthesizer')) {
                     startTime,
                     duration,
                     velocity,
+                    sampleConfig.detune || null,
                     adsr
                 );
-                sources.push(source);
-                // source.playbackRate.linearRampToValueAtTime(3.0, startTime + 0.05)
             }
 
-            if (sources.length === 0)
-                console.warn("No sources were created");
+            // if (sources.length === 0)
+            //     console.warn("No sources were created");
 
 
             // Detune
@@ -318,7 +355,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                 sources.forEach(source => source.detune.value = sampleConfig.detune);
 
             // console.log("Buffer Play: ", playbackRate);
-            return sources;
+            // return sources;
 
         }
 
@@ -326,7 +363,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             // if(!this.audioContext)
             //     this.init(destination.context);
 
-            // const sources = [];
+            const sources = [];
             // if (this.config.samples.hasOwnProperty(commandFrequency)) {
             //     await this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
             //     return null;
@@ -363,6 +400,19 @@ if(!customElements.get('audio-source-synthesizer')) {
             // return sources;
         }
 
+        stopPlayback() {
+            // Stop all active sources
+            console.log("activeSources!", this.activeSources);
+            for(let i=0; i<this.activeSources.length; i++) {
+                this.activeSources[i].stop();
+            }
+            this.activeSources = [];
+
+        }
+
+        queueActiveSource(source, startTime, duration) {
+            this.activeSources.push(source);
+        }
 
 // Experiment with various ways of applying an envelope.
 //     function startTone( mode )

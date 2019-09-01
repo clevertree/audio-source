@@ -72,7 +72,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified',
-            'note:play'
+            'note:start', 'note:end',
         ], this.onSongEvent);
         this.attachEventHandler([
             'instrument:instance',
@@ -291,7 +291,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-        console.log("Song Event: ", e.type);
+//         console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
@@ -503,8 +503,9 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
             case 'view:fullscreen':
-                this.classList.toggle('fullscreen');
-                console.log(this);
+                const isFullScreen = this.classList.contains('fullscreen');
+                this.classList.toggle('fullscreen', !isFullScreen);
+                this.containerElm.classList.toggle('fullscreen', !isFullScreen);
                 break;
 
             case 'view:forms-song':
@@ -575,6 +576,8 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="asc-status-container">Status</div>
         </div>
         `;
+
+        this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
 
         this.renderMenu();
         this.renderSongForms();

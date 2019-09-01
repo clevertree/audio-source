@@ -20,6 +20,7 @@ class AudioSourceRenderer {
 
         this.volumeGain = null;
         this.activeGroups = {};
+        // this.activeSources = [];
         this.sources = new AudioSources(this);
         this.values = new AudioSourceValues(this);
         // this.config = {
@@ -52,7 +53,7 @@ class AudioSourceRenderer {
             return this.audioContext;
 
         this.audioContext = new (window.AudioContext||window.webkitAudioContext)();
-        this.initAllInstruments(this.audioContext);
+        // this.initAllInstruments(this.audioContext);
         return this.audioContext;
     }
     getSongData() { return this.songData; }
@@ -316,6 +317,8 @@ class AudioSourceRenderer {
             this.playbackStartPosition = startPosition;
         // console.log("Start playback:", this.startTime);
 
+        await this.initAllInstruments(this.getAudioContext());
+
         // Set playback start time
         this.playbackStartTime = this.getAudioContext().currentTime - this.playbackStartPosition;
         // console.log("Start playback:", this.playbackStartTime);
@@ -361,6 +364,13 @@ class AudioSourceRenderer {
             if(instrument && instrument.stopPlayback)
                 instrument.stopPlayback();
         }
+
+        // // Stop all active sources
+        // console.log("activeSources", this.activeSources);
+        // for(let i=0; i<this.activeSources.length; i++) {
+        //     this.activeSources[i].stop();
+        // }
+        // this.activeSources = [];
 
         const detail = {
             startTime: this.playbackStartTime,
@@ -629,30 +639,40 @@ class AudioSourceRenderer {
         this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
 
         const noteEventData = {
+            currentIndex: stats.currentIndex,
+            groupPositionInTicks: stats.groupPositionInTicks,
             currentTime: this.getAudioContext().currentTime,
             startTime: noteStartTime,
             duration: noteDuration,
             instruction: instruction,
-            stats: stats || {}
         };
-        this.dispatchEvent(new CustomEvent('note:play', {detail: noteEventData}));
 
-        // const currentTime = this.getAudioContext().currentTime;
-        // if(noteStartTime > currentTime)
-        //     setTimeout(() => {
-        //         this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
-        //     }, (noteStartTime - currentTime) * 1000);
-        // else {
-        //     // Start immediately
-        //     this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
-        // }
-        //
-        // if(noteDuration) {
-        //     setTimeout(() => {
-        //         this.dispatchEvent(new CustomEvent('note:end', {detail: noteEventData}));
-        //     }, (noteStartTime - currentTime + noteDuration) * 1000);
-        // }
+        let currentTime = this.getAudioContext().currentTime;
+        if(noteStartTime > currentTime) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve();
+                }, (noteStartTime - currentTime) * 1000);
+            });
+        }
 
+        // this.activeSources.push.apply(this.activeSources, sources);
+        // console.log("activeSources", this.activeSources, sources);
+
+        this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
+        currentTime = this.getAudioContext().currentTime;
+
+
+        if(noteDuration) {
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve();
+                }, (noteStartTime - currentTime + noteDuration) * 1000);
+            });
+            this.dispatchEvent(new CustomEvent('note:end', {detail: noteEventData}));
+        }
+
+        // this.activeSources = this.activeSources.filter(activeSource => sources.indexOf(activeSource) !== -1);
     }
 
 
@@ -801,12 +821,14 @@ class AudioSourceRenderer {
     }
 
     async initAllInstruments(audioContext) {
+        console.time('initAllInstruments');
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             const instrument = this.getInstrument(instrumentID, false);
             if(instrument)
                 await instrument.init(audioContext);
         }
+        console.timeEnd('initAllInstruments');
     }
 
 

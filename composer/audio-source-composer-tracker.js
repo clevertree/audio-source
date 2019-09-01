@@ -458,15 +458,19 @@ class AudioSourceComposerTracker extends HTMLElement {
             // this.fieldInstructionCommand.value = cursorInstruction.command;
         }
 
+        this.buttonCommandDelete.disabled = true;
+        this.buttonCommandInsert.disabled = true;
         if(cursorInstruction) {
             // Note Instruction
             this.fieldInstructionCommand.value = cursorInstruction.command;
             this.fieldInstructionInstrument.value = cursorInstruction.instrument !== null ? cursorInstruction.instrument : '';
             this.fieldInstructionVelocity.value = cursorInstruction.velocity !== null ? cursorInstruction.velocity : '';
             this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
+            this.buttonCommandDelete.disabled = false;
             // containerElm.classList.add('show-control-tracker-modify');
 
         } else if(selectedIndicies.length === 0) {
+            this.buttonCommandInsert.disabled = false;
             // this.fieldInstructionInstrument.value = this.editor.status.currentInstrumentID;
             // console.log(this.editor.status.currentInstrumentID);
 
@@ -963,6 +967,9 @@ class AudioSourceComposerTracker extends HTMLElement {
     // get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
     // get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
 
+    get buttonCommandInsert()   { return this.formsTracker.querySelector(`form.form-instruction-insert button[name=insert]`); }
+    get buttonCommandDelete()   { return this.formsTracker.querySelector(`form.form-instruction-delete button[name=delete]`); }
+
     renderForms() {
         const formSection = this.editor.formsTracker;
         formSection.innerHTML = `
@@ -992,7 +999,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     </button>
                 </form>
                 <form action="#" class="form-instruction-delete submit-on-change" data-action="instruction:delete">
-                    <button name="delete" class="themed" title="Delete Instruction" disabled>
+                    <button name="delete" class="themed" title="Delete Instruction">
                         <i class="ui-icon ui-subtract"></i>
                     </button>
                 </form>
@@ -1297,66 +1304,66 @@ class AudioSourceComposerTracker extends HTMLElement {
     // }
 
     onSongEvent(e) {
-        // console.log("onSongEvent", e);
+//         console.log("onSongEvent", e.type);
         const detail = e.detail || {stats:{}};
         let rowElm, instructionElm;
         switch(e.type) {
 
-            case 'note:play':
-                rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
-                instructionElm = this.findInstructionElement(detail.stats.currentIndex);
-
-
-                const currentTime = detail.currentTime;
-                // if(detail.startTime > currentTime)
-                    setTimeout(() => {
-                        if(instructionElm) {
-                            instructionElm.classList.add('playing');
-                        }
-                        if(rowElm) {
-                            rowElm.classList.add('playing');
-                            rowElm.scrollTo(); // Scroll To position, not index
-                        }
-
-                    }, (detail.startTime - currentTime) * 1000);
-                // else {
-                //     // Start immediately
-                // }
-
-                if(detail.duration) {
-                    setTimeout(() => {
-                        if(instructionElm) {
-                            instructionElm.classList.remove('playing');
-                        }
-                        if(rowElm) {
-                            rowElm.classList.remove('playing');
-                        }
-                    }, (detail.startTime - currentTime + detail.duration) * 1000);
-                }
-
-                break;
+            // case 'note:play':
+            //     rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
+            //     instructionElm = this.findInstructionElement(detail.stats.currentIndex);
             //
-            // case 'note:start':
-            //     rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
-            //     instructionElm = this.findInstructionElement(detail.stats.currentIndex);
-            //     if(instructionElm) {
-            //         instructionElm.classList.add('playing');
-            //         instructionElm.scrollTo(); // Scroll To position, not index
+            //
+            //     const currentTime = detail.currentTime;
+            //     // if(detail.startTime > currentTime)
+            //         setTimeout(() => {
+            //             if(instructionElm) {
+            //                 instructionElm.classList.add('playing');
+            //             }
+            //             if(rowElm) {
+            //                 rowElm.classList.add('playing');
+            //                 rowElm.scrollTo(); // Scroll To position, not index
+            //             }
+            //
+            //         }, (detail.startTime - currentTime) * 1000);
+            //     // else {
+            //     //     // Start immediately
+            //     // }
+            //
+            //     if(detail.duration) {
+            //         setTimeout(() => {
+            //             if(instructionElm) {
+            //                 instructionElm.classList.remove('playing');
+            //             }
+            //             if(rowElm) {
+            //                 rowElm.classList.remove('playing');
+            //             }
+            //         }, (detail.startTime - currentTime + detail.duration) * 1000);
             //     }
-            //     if(rowElm) {
-            //         rowElm.classList.add('playing');
-            //     }
+            //
             //     break;
-            // case 'note:end':
-            //     rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
-            //     instructionElm = this.findInstructionElement(detail.stats.currentIndex);
-            //     if(instructionElm) {
-            //         instructionElm.classList.remove('playing');
-            //     }
-            //     if(rowElm) {
-            //         rowElm.classList.remove('playing');
-            //     }
-            //     break;
+            // //
+            case 'note:start':
+                rowElm = this.findRowElement(detail.groupPositionInTicks);
+                instructionElm = this.findInstructionElement(detail.currentIndex);
+                if(instructionElm) {
+                    instructionElm.classList.add('playing');
+                    rowElm.scrollTo(); // Scroll To position, not index
+                }
+                if(rowElm) {
+                    rowElm.classList.add('playing');
+                }
+                break;
+            case 'note:end':
+                rowElm = this.findRowElement(detail.groupPositionInTicks);
+                instructionElm = this.findInstructionElement(detail.currentIndex);
+                if(instructionElm) {
+                    instructionElm.classList.remove('playing');
+                }
+                if(rowElm) {
+                    rowElm.classList.remove('playing');
+                }
+                break;
 
             // case 'song:play':
             //     this.classList.add('playing');
@@ -1842,6 +1849,7 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
         // this.setAttribute('draggable', true);
     }
 
+    scrollTo() { return this.row.scrollTo(); }
 
     setCursor() {
         // Remove other cursor elements
