@@ -730,7 +730,7 @@ class AudioSourceRenderer {
                 let intervalDuration = 10;
                 const doInterval = () => {
                     setTimeout(() => {
-                        console.log("Interval", intervalDuration);
+//                         console.log("Interval", intervalDuration);
                         if (this.instruments.class[instrumentClassURL]) { // Check for loaded class
                             resolve(this.instruments.class[instrumentClassURL]);
                             delete this.instruments.classPromises[instrumentClassURL];

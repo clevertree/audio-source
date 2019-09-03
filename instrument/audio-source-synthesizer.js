@@ -38,10 +38,10 @@ if(!customElements.get('audio-source-synthesizer')) {
         }
 
         get editor() {
-            const editor = this.closest('div.asc-container').parentNode.host;
-            if (!editor)
-                throw new Error("Editor not found");
-            return editor;
+            const container = this.closest('div.asc-container');
+            if(container)
+                return container.parentNode.host;
+            return null;
         }
 
         get sampleLibraryURL() {
@@ -72,10 +72,10 @@ if(!customElements.get('audio-source-synthesizer')) {
             // this.shadowDOM.addEventListener('submit', e => this.onInput(e));
             // this.addEventListener('click', onInput);
 
+            this.render();
             this.sampleLibrary.loadURL(this.sampleLibraryURL)
                 .then(() => this.render());
             // this.loadSampleLibrary(this.sampleLibraryURL);
-            this.render();
         }
 
 
@@ -402,7 +402,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         stopPlayback() {
             // Stop all active sources
-            console.log("activeSources!", this.activeSources);
+//             console.log("activeSources!", this.activeSources);
             for(let i=0; i<this.activeSources.length; i++) {
                 try {
                     this.activeSources[i].stop();

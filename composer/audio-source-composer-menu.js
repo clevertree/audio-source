@@ -54,21 +54,24 @@ class AudioSourceComposerMenu extends HTMLElement {
     connectedCallback() {
         // this.editor = this.getRootNode().host;
 
-        this.addEventListener('mouseenter', this.onMouseEvent);
-        this.addEventListener('mouseleave', this.onMouseEvent);
-        this.addEventListener('click', this.onMouseEvent);
+        this.addEventListener('mouseenter', this.onInputEvent);
+        this.addEventListener('mouseleave', this.onInputEvent);
+        this.addEventListener('click', this.onInputEvent);
+        this.addEventListener('keydown', this.onInputEvent);
         this.render();
     }
 
     disconnectedCallback() {
-        this.removeEventListener('mouseenter', this.onMouseEvent);
-        this.removeEventListener('mouseleave', this.onMouseEvent);
-        this.removeEventListener('click', this.onMouseEvent);
+        this.removeEventListener('mouseenter', this.onInputEvent);
+        this.removeEventListener('mouseleave', this.onInputEvent);
+        this.removeEventListener('click', this.onInputEvent);
+        this.removeEventListener('keydown', this.onInputEvent);
     }
 
-    onMouseEvent(e) {
+    onInputEvent(e) {
         if(!this.contains(e.target))
             return;
+        console.log(e.type, this);
         switch(e.type) {
             case 'mouseenter':
                 clearTimeout(this.mouseTimeout);
@@ -90,6 +93,40 @@ class AudioSourceComposerMenu extends HTMLElement {
                     this.closeAllMenus();
                     e.menuElement = this;
                     this.action(e);
+                }
+                break;
+
+            case 'keydown':
+                let keyEvent = e.key;
+                switch (keyEvent) {
+                    case 'Escape':
+                    case 'Backspace':
+                        this.closeAllMenus();
+                        break;
+
+                    case 'Enter':
+
+                        break;
+
+                    // ctrlKey && metaKey skips a measure. shiftKey selects a range
+                    case 'ArrowRight':
+                        e.preventDefault();
+                        break;
+
+                    case 'ArrowLeft':
+                        e.preventDefault();
+                        break;
+
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        this.selectNextSubMenuItem();
+                        break;
+
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        this.selectPreviousSubMenuItem();
+                        break;
+
                 }
                 break;
         }
@@ -150,9 +187,32 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
     // }
 
-    openContextMenu(e) {
+    selectNextSubMenuItem() {
+        const containerElm = this.getSubMenuContainer();
+        const currentItem = containerElm.querySelector('asc-menu.selected');
+        containerElm.querySelectorAll('asc-menu.selected')
+            .forEach(menuElm => menuElm.classList.remove('selected'));
+        let selectedItem = currentItem && currentItem.nextElementSibling ? currentItem.nextElementSibling : containerElm.firstElementChild;
+        selectedItem.classList.add('selected');
+    }
+
+    selectPreviousSubMenuItem() {
+        const containerElm = this.getSubMenuContainer();
+        const currentItem = containerElm.querySelector('asc-menu.selected');
+        containerElm.querySelectorAll('asc-menu.selected')
+            .forEach(menuElm => menuElm.classList.remove('selected'));
+        let selectedItem = currentItem && currentItem.previousElementSibling ? currentItem.previousElementSibling : containerElm.lastElementChild;
+        selectedItem.classList.add('selected');
+    }
+
+    openContextMenu(e, targetElement=null) {
         let x = e.clientX || e.detail.clientX,
             y = e.clientY || e.detail.clientY;
+        if(targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            x = rect.x + rect.width;
+            y = rect.y + rect.height;
+        }
         this.clearSubMenu();
         this.renderSubMenu(e);
         // this.classList.add('stick');
@@ -167,6 +227,10 @@ class AudioSourceComposerMenu extends HTMLElement {
         containerElm.style.left = x + 'px';
         containerElm.style.top = y + 'px';
 
+        containerElm.setAttribute('tabindex', '0');
+        containerElm.focus();
+
+        this.selectNextSubMenuItem();
     }
 
     closeAllMenus() {

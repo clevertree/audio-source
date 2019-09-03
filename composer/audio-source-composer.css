@@ -53,6 +53,10 @@ asc-menu {
     white-space: nowrap;
 }
 
+asc-menu.selected {
+    background-color: #AAA;
+}
+
 .dropdown-container > asc-menu {
     display: block;
 }

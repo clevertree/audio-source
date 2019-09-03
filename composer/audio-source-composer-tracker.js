@@ -309,7 +309,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                                 const menuOctaveFrequency = MENU.getOrCreateSubMenu(fullNote, `${label}${octave}`);
                                 menuOctaveFrequency.action = (e) => {
                                     editor.tracker.fieldInstructionCommand.value = fullNote;
-                                    handleAction('instruction:insert')(e);
+                                    handleAction('instruction:command')(e);
                                 }
                             });
                         };
@@ -320,11 +320,11 @@ class AudioSourceComposerTracker extends HTMLElement {
                 const subMenuGroup = MENU.getOrCreateSubMenu('group', `Group ►`);
                 populateGroupCommands(subMenuGroup, (e) => {
                     editor.tracker.fieldInstructionCommand.value = '@' + groupName;
-                    handleAction('instruction:insert')(e);
+                    handleAction('instruction:command')(e);
                 });
 
                 const menuCustom = MENU.getOrCreateSubMenu('custom', `Custom Command`);
-                menuCustom.action = handleAction('instruction:custom-insert');
+                menuCustom.action = handleAction('instruction:custom-command');
                 menuCustom.hasBreak = true;
             };
             menuEditInsertCommand.disabled = !this.cursorCell;
@@ -477,10 +477,10 @@ class AudioSourceComposerTracker extends HTMLElement {
             // containerElm.classList.add('show-control-tracker-insert');
         }
 
-        this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
-            option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
-        this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
-            option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
+        // this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
+        //     option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
+        // this.fieldInstructionCommand.querySelectorAll('.instrument-frequencies option').forEach((option) =>
+        //     option.classList.toggle('hidden', this.fieldInstructionInstrument.value !== option.getAttribute('data-instrument')));
 
         // const oldInsertCommand = this.fieldInstructionCommand.value;
         // this.fieldInstructionCommand.querySelector('.instrument-frequencies').innerHTML = instructionCommandOptGroup.innerHTML;
@@ -575,6 +575,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 break;
             case 'keydown':
+                // All key actions close all menus
+                this.editor.closeAllMenus();
 
                 let keyEvent = e.key;
                 if (!e.ctrlKey && this.editor.keyboard.getKeyboardCommand(e.key))
@@ -717,6 +719,9 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'touchstart':
             case 'mousedown':
+                // All mouse actions close all menus
+                this.editor.closeAllMenus();
+
                 this.mousePosition.isDown = true;
                 this.mousePosition.isDragging = false;
                 this.mousePosition.lastDown = e;
@@ -827,7 +832,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if(this.contains(e.target)) {
                     if (!e.altKey) {
                         e.preventDefault();
-                        this.editor.menuContext.openContextMenu(e);
+                        this.editor.menuContext.openContextMenu(e, this.cursorCell);
                     }
                 }
                 break;
@@ -999,7 +1004,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         </optgroup>
                     </select>
                 </form>
-                <form action="#" class="form-instruction-insert" data-action="instruction:insert">
+                <form action="#" class="form-instruction-insert" data-action="instruction:command">
                     <button name="insert" class="themed" title="Insert Instruction">
                         <i class="ui-icon ui-insert"></i>
                     </button>
@@ -1101,51 +1106,68 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         switch (actionName) {
 
-            case 'instruction:custom-insert':
-            case 'instruction:insert':
-                let insertCommand = this.fieldInstructionCommand.value || null;
-                if(insertCommand === null || actionName === 'instruction:custom-insert')
-                    insertCommand = prompt("Set custom command:", this.fieldInstructionCommand.value);
-                if(!insertCommand)
-                    throw new Error("Insert new instruction canceled");
-                let newInstruction = this.getInstructionFormValues(insertCommand);
-                if(!newInstruction) {
-                    this.fieldInstructionCommand.focus();
-                    return this.editor.setStatus("Insert canceled");
-                }
-                const insertPosition = this.cursorPosition;
-                if(insertPosition === null)
-                    throw new Error("No cursor position");
-                const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
-                // this.cursorRow.render(true);
-                this.renderAllRows();
-                this.selectIndicies(e, insertIndex);
-                // this.fieldInstructionCommand.focus();
-                this.editor.renderer.playInstruction(newInstruction);
-                break;
+            // case 'instruction:custom-insert':
+            // case 'instruction:insert':
+            //     let insertCommand = this.fieldInstructionCommand.value || null;
+            //     if(insertCommand === null || actionName === 'instruction:custom-insert')
+            //         insertCommand = prompt("Set custom command:", this.fieldInstructionCommand.value);
+            //     if(!insertCommand)
+            //         throw new Error("Insert new instruction canceled");
+            //     // let newInstruction = this.getInstructionFormValues(insertCommand);
+            //     // if(!newInstruction) {
+            //     //     this.fieldInstructionCommand.focus();
+            //     //     return this.editor.setStatus("Insert canceled");
+            //     // }
+            //     const insertPosition = this.cursorPosition;
+            //     if(insertPosition === null)
+            //         throw new Error("No cursor position");
+            //     const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
+            //     // this.cursorRow.render(true);
+            //     this.renderAllRows();
+            //     this.selectIndicies(e, insertIndex);
+            //     // this.fieldInstructionCommand.focus();
+            //     this.editor.renderer.playInstruction(newInstruction);
+            //     break;
 
-            case 'instruction:custom-command':
+            case 'instruction:custom-command': // TODO: combine
             case 'instruction:command':
 
-                if(selectedIndicies.length === 0)
-                    throw new Error("No selection");
-                let newCommand = this.fieldInstructionCommand.value;
+                // if(selectedIndicies.length === 0)
+                //     throw new Error("No selection");
+                let newCommand = this.fieldInstructionCommand.value || null;
                 if(newCommand === null || actionName === 'instruction:custom-command')
-                    newCommand = prompt("Set custom command:", this.fieldInstructionCommand.value);
+                    newCommand = prompt("Set custom command:", newCommand || '');
                 if(!newCommand)
                     throw new Error("Set command canceled");
+
+                let newInstruction = this.getInstructionFormValues(newCommand);
                 let newInstrument = null;
                 if(this.fieldInstructionCommand.selectedOptions[0] && this.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument'))
                     newInstrument = parseInt(this.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
-                for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionCommand(this.groupName, selectedIndicies[i], newCommand);
-                    if(newInstrument !== null)
-                        this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], newInstrument);
-                    // this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                    this.findInstructionElement(selectedIndicies[i]).render();
+
+                if(selectedIndicies.length > 0) {
+                    for (let i = 0; i < selectedIndicies.length; i++) {
+                        this.editor.renderer.replaceInstructionCommand(this.groupName, selectedIndicies[i], newCommand);
+                        if (newInstrument !== null)
+                            this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], newInstrument);
+                        // this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
+                        this.findInstructionElement(selectedIndicies[i]).render();
+                    }
+                    this.renderAllRows();
+                    this.selectIndicies(e, selectedIndicies);
+
+                } else if(this.cursorCell) {
+                    const insertPosition = this.cursorPosition;
+                    if(insertPosition === null)
+                        throw new Error("No cursor position");
+                    const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
+                    this.renderAllRows();
+                    this.selectIndicies(e, insertIndex);
+
+                } else {
+                    throw new Error("No selection or cursor cell");
                 }
                 this.playSelectedInstructions();
-                this.renderAllRows();
                 // this.fieldInstructionCommand.focus();
                 // setTimeout(() => this.fieldInstructionCommand.focus(), 1);
                 break;
@@ -1355,10 +1377,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 instructionElm = this.findInstructionElement(detail.currentIndex);
                 if(instructionElm) {
                     instructionElm.classList.add('playing');
-                    rowElm.scrollTo(); // Scroll To position, not index
                 }
                 if(rowElm) {
                     rowElm.classList.add('playing');
+                    rowElm.scrollTo(); // Scroll To position, not index
                 }
                 break;
             case 'note:end':

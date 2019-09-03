@@ -291,7 +291,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-        console.log("Song Event: ", e.type);
+        // console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
@@ -511,6 +511,8 @@ class AudioSourceComposerElement extends HTMLElement {
                 const isFullScreen = this.classList.contains('fullscreen');
                 this.classList.toggle('fullscreen', !isFullScreen);
                 this.containerElm.classList.toggle('fullscreen', !isFullScreen);
+                if(this.tracker)
+                    this.tracker.render();
                 break;
 
             case 'view:forms-song':
@@ -854,7 +856,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 const menu = e.menuElement;
                 this.values.getValues('instruments-available', (instrumentURL, label) => {
                     const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
-                    menuInstrument.setAttribute('data-instrument', instrumentURL);
+                    // menuInstrument.setAttribute('data-instrument', instrumentURL);
                     menuInstrument.action = (e) => {
                         this.fieldSongAddInstrument.value = instrumentURL;
                         this.onAction(e, 'song:add-instrument', instrumentURL);
@@ -876,7 +878,7 @@ class AudioSourceComposerElement extends HTMLElement {
                         const menu = e.menuElement;
                         this.values.getValues('instruments-available', (instrumentURL, label) => {
                             const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
-                            menuInstrument.setAttribute('data-instrument', instrumentURL);
+                            // menuInstrument.setAttribute('data-instrument', instrumentURL);
                             menuInstrument.action = (e) => {
                                 this.fieldSongAddInstrument.value = instrumentURL;
                                 this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
