@@ -45,6 +45,14 @@ class AudioSourceComposerMenu extends HTMLElement {
         this.render();
     }
 
+    get editor() {
+        const editor = this.closest('div.asc-container').parentNode.host;
+        if(!editor)
+            throw new Error("Editor not found");
+        return editor;
+    }
+
+
     // get isSubMenu() { return this.closest('dropdown-container'); }
     //
     // set onopen(callback) {
@@ -206,18 +214,17 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     openContextMenu(e, targetElement=null) {
-        let x = e.clientX || e.detail.clientX,
-            y = e.clientY || e.detail.clientY;
-        if(targetElement) {
-            const rect = targetElement.getBoundingClientRect();
-            x = rect.x + rect.width;
-            y = rect.y + rect.height;
-        }
+        targetElement = targetElement || e.target;
+        const rect = targetElement.getBoundingClientRect();
+        let containerElm = this.getSubMenuContainer();
+        const containerRect = this.editor.getBoundingClientRect();
+        let x = rect.x + rect.width - containerRect.x;
+        let y = rect.y + rect.height - containerRect.y;
         this.clearSubMenu();
         this.renderSubMenu(e);
         // this.classList.add('stick');
 
-        let containerElm = this.getSubMenuContainer();
+        console.info(rect, containerRect);
 
         console.info("Context menu ", containerElm, x, y);
 
