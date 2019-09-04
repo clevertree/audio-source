@@ -1,20 +1,22 @@
 class AudioSourceComposerMenu extends HTMLElement {
     constructor() {
         super();
-        this.action = (e) => {
-            const isStuck = !this.classList.contains('stick');
-            this.classList.toggle('stick', isStuck);
-            if(isStuck) {
-                this.classList.add('open');
-                // this.renderSubMenu(e);
-                // this.querySelectorAll('asc-menu')
-                //     .forEach(menuItem => menuItem.classList.remove('open', 'stick'));
-                let parentMenu = this;
-                while (parentMenu = parentMenu.parentNode.closest('asc-menu'))
-                    parentMenu.classList.add('open', 'stick');
-            }
-        };
-        this.populate = function() { this.dispatchEvent(new CustomEvent('open')); };
+
+        // Default action sticks the menu, and opens the submenu if there is one
+        this.action = null;
+        // (e) => {
+        //     const isStuck = !this.classList.contains('stick');
+        //     this.classList.toggle('stick', isStuck);
+        //     if(isStuck) {
+        //         this.renderSubMenu(e);
+        //         // this.querySelectorAll('asc-menu')
+        //         //     .forEach(menuItem => menuItem.classList.remove('open', 'stick'));
+        //         let parentMenu = this;
+        //         while (parentMenu = parentMenu.parentNode.closest('asc-menu'))
+        //             parentMenu.classList.add('open', 'stick');
+        //     }
+        // };
+        this.populate = null; // function() { this.dispatchEvent(new CustomEvent('open')); };
 
         this.mouseTimeout = null;
     }
@@ -53,6 +55,7 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
 
+
     // get isSubMenu() { return this.closest('dropdown-container'); }
     //
     // set onopen(callback) {
@@ -76,62 +79,93 @@ class AudioSourceComposerMenu extends HTMLElement {
         this.removeEventListener('keydown', this.onInputEvent);
     }
 
+
+
     onInputEvent(e) {
         if(!this.contains(e.target))
             return;
-        console.log(e.type, this);
+        const menuElm = e.target.closest('asc-menu');
+        if(this !== menuElm)
+            return; // console.info("Ignoring submenu action", this, menuElm);
+
+        //         console.log(e.type, this);
         switch(e.type) {
             case 'mouseenter':
                 clearTimeout(this.mouseTimeout);
-                this.classList.add('open');
-                this.renderSubMenu(e);
+
+                if(this.hasSubMenu) {
+                    this.renderSubMenu(e);
+                }
                 break;
+
             case 'mouseleave':
                 if(!this.classList.contains('stick')) {
                     clearTimeout(this.mouseTimeout);
                     this.mouseTimeout = setTimeout(e => {
-                        this.classList.remove('open');
                         this.clearSubMenu();
                     }, 200);
                 }
                 break;
             case 'click':
-                if(!e.defaultPrevented) {
-                    e.preventDefault();
-                    this.closeAllMenus();
-                    e.menuElement = this;
-                    this.action(e);
+                if(e.defaultPrevented)
+                    return;
+                e.preventDefault();
+
+                if(this.hasAction) {
+                    this.doAction(e);
+                } else if(this.hasSubMenu) {
+                    this.toggleSubMenu(e);
+                } else {
+                    return console.warn("Menu has no submenu or action: ", this);
                 }
                 break;
 
             case 'keydown':
+                if(e.defaultPrevented)
+                    return;
+                e.preventDefault();
+
+                const selectedMenuElement = this.getSubMenuContainer()
+                    .querySelector('asc-menu.selected');
+                if(!selectedMenuElement)
+                    throw new Error("No selected menu item found");
+
                 let keyEvent = e.key;
                 switch (keyEvent) {
                     case 'Escape':
                     case 'Backspace':
-                        this.closeAllMenus();
+                        this.closeMenu(e);
                         break;
 
                     case 'Enter':
+                        if(selectedMenuElement.hasAction) {
+                            selectedMenuElement.doAction(e);
+                        } else if(selectedMenuElement.hasSubMenu) {
+                            selectedMenuElement.toggleSubMenu(e);
+                        } else {
+                            return console.warn("Menu has no submenu or action: ", selectedMenuElement);
+                        }
 
                         break;
 
                     // ctrlKey && metaKey skips a measure. shiftKey selects a range
                     case 'ArrowRight':
-                        e.preventDefault();
+                        if(selectedMenuElement.hasSubMenu) {
+                            selectedMenuElement.toggleSubMenu(e);
+                        } else {
+                            return console.warn("Menu has no submenu: ", selectedMenuElement);
+                        }
                         break;
 
                     case 'ArrowLeft':
-                        e.preventDefault();
+                        this.closeMenu(e);
                         break;
 
                     case 'ArrowDown':
-                        e.preventDefault();
                         this.selectNextSubMenuItem();
                         break;
 
                     case 'ArrowUp':
-                        e.preventDefault();
                         this.selectPreviousSubMenuItem();
                         break;
 
@@ -146,20 +180,50 @@ class AudioSourceComposerMenu extends HTMLElement {
         // }
     }
 
-    clearSubMenu() {
+    get hasAction() {
+        return !!this.action;
+    }
+
+    doAction(e) {
+        if(!this.hasAction)
+            throw new Error("No .action callback set");
+
+        e.menuElement = this;
+        this.action(e);
+        this.closeAllMenus();
+    }
+
+    get hasSubMenu() {
+        return !!this.populate;
+    }
+
+    toggleSubMenu(e) {
+        if(this.classList.contains('open'))
+            this.clearSubMenu(e);
+        else
+            this.renderSubMenu(e);
+
+    }
+
+    clearSubMenu(e) {
         // this.querySelectorAll('asc-menu')
         //     .forEach(menuItem => menuItem.parentNode.removeChild(menuItem));
+        this.classList.remove('open');
         let containerElm = this.getSubMenuContainer();
         containerElm.innerHTML = '';
     }
 
-    renderSubMenu(e) { // TODO: messy
-        // this.classList.add('open');
-        // if(!this.classList.contains('open')) {
-        // this.clearSubMenu();
+    renderSubMenu(e) {
+        if(!this.populate)
+            throw new Error("Menu has no .populate callback");
+
+        this.classList.add('open');
+
         e.menuElement = this;
         this.populate(e);
 
+        this.getSubMenuContainer()
+            .focus();
     }
 
     getSubMenuContainer() {
@@ -167,6 +231,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         if (!containerElm) {
             containerElm = document.createElement('div');
             containerElm.classList.add('dropdown-container');
+            containerElm.setAttribute('tabindex', '0');
             this.appendChild(containerElm);
         }
         return containerElm;
@@ -202,6 +267,7 @@ class AudioSourceComposerMenu extends HTMLElement {
             .forEach(menuElm => menuElm.classList.remove('selected'));
         let selectedItem = currentItem && currentItem.nextElementSibling ? currentItem.nextElementSibling : containerElm.firstElementChild;
         selectedItem.classList.add('selected');
+        console.log("selectNextSubMenuItem", currentItem, selectedItem);
     }
 
     selectPreviousSubMenuItem() {
@@ -211,6 +277,7 @@ class AudioSourceComposerMenu extends HTMLElement {
             .forEach(menuElm => menuElm.classList.remove('selected'));
         let selectedItem = currentItem && currentItem.previousElementSibling ? currentItem.previousElementSibling : containerElm.lastElementChild;
         selectedItem.classList.add('selected');
+        console.log("selectNextSubMenuItem", currentItem, selectedItem);
     }
 
     openContextMenu(e, targetElement=null) {
@@ -224,9 +291,8 @@ class AudioSourceComposerMenu extends HTMLElement {
         this.renderSubMenu(e);
         // this.classList.add('stick');
 
-        console.info(rect, containerRect);
 
-        console.info("Context menu ", containerElm, x, y);
+        console.info("Context menu ", targetElement, containerElm, x, y);
 
         containerElm.classList.add('open-context-menu');
         this.classList.add('open', 'stick');
@@ -234,8 +300,7 @@ class AudioSourceComposerMenu extends HTMLElement {
         containerElm.style.left = x + 'px';
         containerElm.style.top = y + 'px';
 
-        containerElm.setAttribute('tabindex', '0');
-        containerElm.focus();
+        // containerElm.focus();
 
         this.selectNextSubMenuItem();
     }
@@ -248,6 +313,14 @@ class AudioSourceComposerMenu extends HTMLElement {
         parentMenu.parentElement.querySelectorAll(`asc-menu.open,asc-menu.stick`)
             .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
 //         console.trace("Clear all menus ");
+    }
+
+    closeMenu(e) {
+        let parentMenu = this.parentElement.closest('asc-menu');
+        if(parentMenu !== this)
+            parentMenu.renderSubMenu(e);
+        this.querySelectorAll(`asc-menu.open,asc-menu.stick`)
+            .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
     }
 
     render() {
