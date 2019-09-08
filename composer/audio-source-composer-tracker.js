@@ -134,7 +134,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(this.fieldInstructionDuration.value) // TODO: refactor DURATIONS
             newInstruction.duration = parseFloat(this.fieldInstructionDuration.value);
         const velocityValue = parseInt(this.fieldInstructionVelocity.value);
-        if(velocityValue && velocityValue !== 100)
+        if(velocityValue || velocityValue === 0)
             newInstruction.velocity = velocityValue;
 
         command = this.replaceFrequencyAlias(command, newInstruction.instrument);
@@ -167,7 +167,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // TODO: rerender if fail?
         const render = () => {
             if(!this.isConnected) {
-                console.warn("Tracker not connected. Skipping render", this);
+                // TODO: inefficient? console.warn("Tracker not connected. Skipping render", this);
                 return;
             }
             console.time('tracker.renderAllRows()');
@@ -268,7 +268,8 @@ class AudioSourceComposerTracker extends HTMLElement {
     renderMenu() {
         const editor = this.editor;
         const handleAction = (actionName) => (e) => {
-            editor.tracker.onAction(e, actionName);
+            this.focus();
+            this.onAction(e, actionName);
             // e.currentTarget.closeAllMenus();
         };
 
@@ -327,7 +328,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 menuCustom.action = handleAction('instruction:custom-command');
                 menuCustom.hasBreak = true;
             };
-            menuEditInsertCommand.disabled = !this.cursorCell;
+            menuEditInsertCommand.disabled = selectedIndicies.length > 0; // !this.cursorCell;
             // menuEditInsertCommand.action = handleAction('song:new');
 
             const menuEditSetCommand = MENU.getOrCreateSubMenu('set-command', `Set Command ►`);
@@ -1310,7 +1311,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedRow.createAddInstructionElement();
         selectedRow.setCursor();
         this.update();
-        this.focus();
+        // this.focus();
         this.playSelectedInstructions(e);
     }
 
@@ -1324,7 +1325,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedCell.select(!selectedCell.selected, !e.ctrlKey);
         selectedCell.setCursor();
         selectedCell.play();
-        this.focus();
+        // this.focus();
     }
 
     // onParamInput(e) {

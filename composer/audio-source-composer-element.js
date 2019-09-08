@@ -172,7 +172,7 @@ class AudioSourceComposerElement extends HTMLElement {
         let songData = storage.generateDefaultSong(this.scriptDirectory);
         this.renderer.loadSongData(songData);
         this.render();
-        this.setStatus("Loaded new song");
+        this.setStatus("Loaded new song", songData);
 
     }
 
@@ -181,8 +181,8 @@ class AudioSourceComposerElement extends HTMLElement {
         const storage = new AudioSourceStorage();
         let songRecentGUIDs = await storage.getRecentSongList();
         if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
+            this.setStatus("Loading recent song: " + songRecentGUIDs[0].guid);
             await this.loadSongFromMemory(songRecentGUIDs[0].guid);
-            this.setStatus("Loaded recent song: " + songRecentGUIDs[0].guid);
             return true;
         }
         return false;
@@ -192,16 +192,16 @@ class AudioSourceComposerElement extends HTMLElement {
         const songData = this.renderer.getSongData();
         const songHistory = this.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
+        this.setStatus("Saving song to memory: " + songData.guid);
         await storage.saveSongToMemory(songData, songHistory);
-        this.setStatus("Saved song to memory: " + songData.guid);
     }
 
     saveSongToFile() {
         const songData = this.renderer.getSongData();
         // const songHistory = this.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
+        this.setStatus("Saving song to file");
         storage.saveSongToFile(songData);
-        this.setStatus("Saved song to file");
     }
 
 
@@ -212,7 +212,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderer.loadSongData(songData);
         this.renderer.loadSongHistory(songHistory);
         this.render();
-        this.setStatus("Song loaded from memory: " + songGUID);
+        this.setStatus("Song loaded from memory: " + songGUID, songData);
         console.info(songData);
     }
 
@@ -592,7 +592,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     setStatus(newStatus) {
-        console.info(newStatus);
+        console.info.apply(null, arguments); // (newStatus);
         this.statusElm.innerHTML = newStatus;
     }
 

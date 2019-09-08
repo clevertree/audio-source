@@ -125,9 +125,10 @@ class AudioSourceComposerMenu extends HTMLElement {
                     return;
                 e.preventDefault();
 
-                const selectedMenuElement = this.getSubMenuContainer()
-                    .querySelector('asc-menu.selected');
-                if(!selectedMenuElement)
+                const containerElm = this.getSubMenuContainer();
+                const selectedMenuElm = containerElm
+                    .querySelector('asc-menu.selected') || containerElm.firstElementChild;
+                if(!selectedMenuElm)
                     throw new Error("No selected menu item found");
 
                 let keyEvent = e.key;
@@ -138,22 +139,22 @@ class AudioSourceComposerMenu extends HTMLElement {
                         break;
 
                     case 'Enter':
-                        if(selectedMenuElement.hasAction) {
-                            selectedMenuElement.doAction(e);
-                        } else if(selectedMenuElement.hasSubMenu) {
-                            selectedMenuElement.toggleSubMenu(e);
+                        if(selectedMenuElm.hasAction) {
+                            selectedMenuElm.doAction(e);
+                        } else if(selectedMenuElm.hasSubMenu) {
+                            selectedMenuElm.toggleSubMenu(e);
                         } else {
-                            return console.warn("Menu has no submenu or action: ", selectedMenuElement);
+                            return console.warn("Menu has no submenu or action: ", selectedMenuElm);
                         }
 
                         break;
 
                     // ctrlKey && metaKey skips a measure. shiftKey selects a range
                     case 'ArrowRight':
-                        if(selectedMenuElement.hasSubMenu) {
-                            selectedMenuElement.toggleSubMenu(e);
+                        if(selectedMenuElm.hasSubMenu) {
+                            selectedMenuElm.toggleSubMenu(e);
                         } else {
-                            return console.warn("Menu has no submenu: ", selectedMenuElement);
+                            return console.warn("Menu has no submenu: ", selectedMenuElm);
                         }
                         break;
 
@@ -217,13 +218,17 @@ class AudioSourceComposerMenu extends HTMLElement {
         if(!this.populate)
             throw new Error("Menu has no .populate callback");
 
+        let containerElm = this.getSubMenuContainer();
         this.classList.add('open');
 
         e.menuElement = this;
         this.populate(e);
 
-        this.getSubMenuContainer()
-            .focus();
+        containerElm.focus();
+        const subMenuElms = containerElm.querySelectorAll('asc-menu:not([disabled])');
+        subMenuElms[0].classList.add('selected');
+
+        // this.selectNextSubMenuItem();
     }
 
     getSubMenuContainer() {
@@ -262,22 +267,30 @@ class AudioSourceComposerMenu extends HTMLElement {
 
     selectNextSubMenuItem() {
         const containerElm = this.getSubMenuContainer();
-        const currentItem = containerElm.querySelector('asc-menu.selected');
+        const currentMenuElm = containerElm.querySelector('asc-menu.selected');
         containerElm.querySelectorAll('asc-menu.selected')
             .forEach(menuElm => menuElm.classList.remove('selected'));
-        let selectedItem = currentItem && currentItem.nextElementSibling ? currentItem.nextElementSibling : containerElm.firstElementChild;
+        // let selectedItem = currentItem && currentItem.nextElementSibling ? currentItem.nextElementSibling : containerElm.firstElementChild;
+
+        const subMenuElms = containerElm.querySelectorAll('asc-menu:not([disabled])');
+        let currentIndex = [].indexOf.call(subMenuElms, currentMenuElm);
+        let selectedItem = currentIndex > -1 && currentIndex < subMenuElms.length - 1 ? subMenuElms[currentIndex + 1] : subMenuElms[0];
         selectedItem.classList.add('selected');
-        console.log("selectNextSubMenuItem", currentItem, selectedItem);
+//         console.log("selectNextSubMenuItem", currentItem, selectedItem);
     }
 
     selectPreviousSubMenuItem() {
         const containerElm = this.getSubMenuContainer();
-        const currentItem = containerElm.querySelector('asc-menu.selected');
+        const currentMenuElm = containerElm.querySelector('asc-menu.selected');
         containerElm.querySelectorAll('asc-menu.selected')
             .forEach(menuElm => menuElm.classList.remove('selected'));
-        let selectedItem = currentItem && currentItem.previousElementSibling ? currentItem.previousElementSibling : containerElm.lastElementChild;
+
+        const subMenuElms = containerElm.querySelectorAll('asc-menu:not([disabled])');
+        let currentIndex = [].indexOf.call(subMenuElms, currentMenuElm);
+        let selectedItem = currentIndex > 0 ? subMenuElms[currentIndex - 1] : subMenuElms[subMenuElms.length - 1];
+        // let selectedItem = currentItem && currentItem.previousElementSibling ? currentItem.previousElementSibling : containerElm.lastElementChild;
         selectedItem.classList.add('selected');
-        console.log("selectNextSubMenuItem", currentItem, selectedItem);
+//         console.log("selectNextSubMenuItem", currentItem, selectedItem);
     }
 
     openContextMenu(e, targetElement=null) {
@@ -302,7 +315,7 @@ class AudioSourceComposerMenu extends HTMLElement {
 
         // containerElm.focus();
 
-        this.selectNextSubMenuItem();
+        // this.selectNextSubMenuItem();
     }
 
     closeAllMenus() {
@@ -316,11 +329,13 @@ class AudioSourceComposerMenu extends HTMLElement {
     }
 
     closeMenu(e) {
+        // this.classList.remove('open');
+        this.clearSubMenu(e);
         let parentMenu = this.parentElement.closest('asc-menu');
-        if(parentMenu !== this)
-            parentMenu.renderSubMenu(e);
         this.querySelectorAll(`asc-menu.open,asc-menu.stick`)
-            .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
+            .forEach(menuElm => menuElm.classList.remove('open', 'stick'));
+        if(parentMenu && parentMenu !== this)
+            parentMenu.renderSubMenu(e);
     }
 
     render() {
