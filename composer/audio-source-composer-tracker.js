@@ -526,8 +526,8 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(e.target instanceof Node && !this.contains(e.target))
             return;
 
-        // this.focus(); // Prevents tab from working
-//         console.log(e.type);
+        this.focus(); // Prevents tab from working
+        // console.log(e.type);
 
         let selectedIndicies = this.selectedIndicies;
         // const instructionList = this.getInstructions();
@@ -662,7 +662,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         break;
 
                     case ' ':
-                        e.preventDefault();
+                        e. preventDefault();
                         // this.selectCell(e, this.cursorCell);
                         // if(e.ctrlKey) e.preventDefault();
                         if (this.editor.renderer.isPlaybackActive()) {
@@ -1311,8 +1311,8 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedRow.createAddInstructionElement();
         selectedRow.setCursor();
         this.update();
-        // this.focus();
         this.playSelectedInstructions(e);
+        this.focus();
     }
 
     onCellInput(e, selectedCell) {
@@ -1325,7 +1325,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedCell.select(!selectedCell.selected, !e.ctrlKey);
         selectedCell.setCursor();
         selectedCell.play();
-        // this.focus();
+        this.focus();
     }
 
     // onParamInput(e) {
