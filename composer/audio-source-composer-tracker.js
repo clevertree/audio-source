@@ -1313,6 +1313,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.update();
         this.playSelectedInstructions(e);
         this.focus();
+        this.editor.renderer.setStartPositionInTicks(selectedRow.position);
     }
 
     onCellInput(e, selectedCell) {
@@ -1326,6 +1327,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedCell.setCursor();
         selectedCell.play();
         this.focus();
+        this.editor.renderer.setStartPositionInTicks(selectedCell.parentNode.position);
     }
 
     // onParamInput(e) {

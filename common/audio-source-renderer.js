@@ -15,8 +15,8 @@ class AudioSourceRenderer {
         };
 
         this.seekLength = 0.5;
-        this.playbackStartPosition = 0;
-        this.playbackStartTime = null;
+        this.playbackPositionInTicks = 0; // Song relative position in ticks
+        this.playbackStartTime = null;  // Song start time
 
         this.volumeGain = null;
         this.activeGroups = {};
@@ -304,37 +304,64 @@ class AudioSourceRenderer {
         return new SongInstruction(instructionList[index]);
     }
 
+    getSongRootGroup() {
+        return this.songData.root || 'root';
+    }
 
+    getSongDuration(endPositionInTicks) {
+        let currentDuration = 0;
+        this.eachInstruction(this.getSongRootGroup(), (index, instruction, stats) => {
+            if(stats.groupPositionInTicks >= endPositionInTicks) {
+                currentDuration = stats.groupPlaybackTime;
+                return false;
+            }
+        });
+        return currentDuration;
+    }
+
+
+    getSongPositionInTicks(positionInSeconds) {
+        let currentPosition = 0;
+        this.eachInstruction(this.getSongRootGroup(), (index, instruction, stats) => {
+            if(stats.groupPlaybackTime >= positionInSeconds) {
+                currentPosition = stats.groupPositionInTicks;
+                return false;
+            }
+        })
+        return currentPosition;
+    }
 
 
     // Playback
     // TODO remove stop and add play start over?
 
-    async play (startPosition = null) {
+    async play (startPositionInTicks = null) {
         if(this.playbackStartTime !== null)
             throw new Error("Song is already playing");
-        if(startPosition !== null)
-            this.playbackStartPosition = startPosition;
-        // console.log("Start playback:", this.startTime);
+        if(startPositionInTicks !== null)
+            this.playbackPositionInTicks = startPositionInTicks;
+        console.log("Start playback:", this.playbackPositionInTicks);
+        const playbackPositionInSeconds = this.getSongDuration(this.playbackPositionInTicks);
 
         await this.initAllInstruments(this.getAudioContext());
 
         // Set playback start time
-        this.playbackStartTime = this.getAudioContext().currentTime - this.playbackStartPosition;
+        this.playbackStartTime = this.getAudioContext().currentTime - playbackPositionInSeconds;
         // console.log("Start playback:", this.playbackStartTime);
 
         const detail = {
             startTime: this.playbackStartTime,
-            startPosition: this.playbackStartPosition
+            positionInTicks: this.playbackPositionInTicks,
+            positionInSeconds: playbackPositionInSeconds
         };
         this.dispatchEvent(new CustomEvent('song:play', {detail}));
         await this.playInstructions(
-            this.songData.root || 'root',
+            this.getSongRootGroup(),
             this.playbackStartTime
         );
         // this.seekPosition = this.getAudioContext().currentTime - (this.seekPosition + this.playbackStartTime); // TODO: broken
         this.dispatchEvent(new CustomEvent('song:end', {detail}));
-        console.log("Seek position: ", this.playbackStartPosition);
+        // console.log("Seek position in ticks: ", this.playbackPositionInTicks);
 
     }
 
@@ -347,7 +374,7 @@ class AudioSourceRenderer {
 
         // Set the current playback time
         if(this.playbackStartTime !== null)
-            this.playbackStartPosition = this.getAudioContext().currentTime - this.playbackStartTime;
+            this.playbackPositionInTicks = this.getSongPositionInTicks(this.getAudioContext().currentTime - this.playbackStartTime);
         this.playbackStartTime = null;
 
         // Ensures no new notes play
@@ -374,21 +401,23 @@ class AudioSourceRenderer {
 
         const detail = {
             startTime: this.playbackStartTime,
-            startPosition: this.playbackStartPosition
+            positionInTicks: this.playbackPositionInTicks
         };
         this.dispatchEvent(new CustomEvent('song:stop', {detail}));
+        console.log("Stop position in ticks: ", this.playbackPositionInTicks);
     }
 
-    setStartPosition(startPosition) {
-        if(!Number.isInteger(startPosition))
+    setStartPositionInTicks(startPositionInTicks) {
+        if(!Number.isInteger(startPositionInTicks))
             throw new Error("Invalid start position");
         // TODO: is start position beyond song's ending?
 
-        this.playbackStartPosition = startPosition;
+        this.playbackPositionInTicks = startPositionInTicks;
+        console.log("Seek position in ticks: ", this.playbackPositionInTicks);
 
         const detail = {
             startTime: this.playbackStartTime,
-            startPosition: this.playbackStartPosition
+            positionInTicks: this.playbackPositionInTicks
         };
         this.dispatchEvent(new CustomEvent('song:seek', {detail}));
     }
@@ -409,7 +438,8 @@ class AudioSourceRenderer {
         this.activeGroups[activeGroupKey] = true;
         console.time("Group:"+instructionGroup);
         // playbackRangeStart = playbackRangeStart || 0;
-        startTime = startTime || this.getAudioContext().currentTime;
+        const audioContext = this.getAudioContext();
+        startTime = startTime || audioContext.currentTime;
 
         // var statTime = new Date().getTime();
 
@@ -421,14 +451,14 @@ class AudioSourceRenderer {
 
 
             // const instructionStartTime = startTime + stats.groupPlaybackTime;
-            let elapsedTime = (this.getAudioContext().currentTime - startTime);
+            let elapsedTime = (audioContext.currentTime - startTime);
             if(elapsedTime + this.seekLength < stats.groupPlaybackTime) {
                 const waitTime = Math.floor((stats.groupPlaybackTime - (elapsedTime + this.seekLength)) * 1000 * 0.9);
                 // console.info("Waiting ", waitTime);
                 await new Promise((resolve, reject) => {
                    setTimeout(resolve, waitTime);
                 });
-                elapsedTime = (this.getAudioContext().currentTime - startTime);
+                elapsedTime = (audioContext.currentTime - startTime);
             }
 
             if(instruction.isGroupCommand()) {
@@ -507,98 +537,6 @@ class AudioSourceRenderer {
         return instructionIterator.groupPlaybackTime;
     }
 
-    // // TODO: do not loop groups
-    // async eachInstructionAsync(groupName, callback, parentStats=null) {
-    //     let instructionList = this.songData.instructions[groupName];
-    //     // const instructionList = this.getInstructions(rootGroup);
-    //     const timeDivision = this.getSongTimeDivision();
-    //     let maxPlayTime = 0;
-    //     const stats = Object.assign({
-    //         songPositionInTicks:0,
-    //         songPlaybackTime:0,
-    //         currentBPM: this.getStartingBeatsPerMinute()
-    //     }, parentStats || {}, {
-    //         groupName,
-    //     });
-    //
-    //     // let songPosition = 0, groupPlaytime = 0, maxPlaytime=0;
-    //     for(let i=0; i<instructionList.length; i++) {
-    //         let instruction = new SongInstruction(instructionList[i]);
-    //         // if(typeof instruction.command !== "undefined") {
-    //         if (instruction.deltaDuration) { // Delta
-    //             stats.groupPositionInTicks += instruction.deltaDuration;
-    //             const elapsedTime = (instruction.deltaDuration / timeDivision) / (stats.currentBPM / 60);
-    //             stats.groupPlaybackTime += elapsedTime;
-    //         }
-    //
-    //         await callback(i, instruction, stats);
-    //     }
-    //     if (stats.groupPlaybackTime > maxPlayTime)
-    //         maxPlayTime = stats.groupPlaybackTime;
-    //     return maxPlayTime;
-    // }
-
-    //
-    // eachInstruction2(groupName, callback, parentStats=null) {
-    //     let instructionList = this.songData.instructions[groupName];
-    //     // const instructionList = this.getInstructions(rootGroup);
-    //     const timeDivision = this.getSongTimeDivision();
-    //     let maxPlayTime = 0;
-    //     const stats = Object.assign({
-    //         songPositionInTicks:0,
-    //         songPlaybackTime:0,
-    //         currentBPM: this.getStartingBeatsPerMinute()
-    //     }, parentStats || {}, {
-    //         groupName,
-    //     });
-    //
-    //     // let songPosition = 0, groupPlaytime = 0, maxPlaytime=0;
-    //     for(let i=0; i<instructionList.length; i++) {
-    //         let instruction = new SongInstruction(instructionList[i]);
-    //         // if(typeof instruction.command !== "undefined") {
-    //         if (instruction.deltaDuration) { // Delta
-    //             stats.groupPositionInTicks += instruction.deltaDuration;
-    //             const elapsedTime = (instruction.deltaDuration / timeDivision) / (stats.currentBPM / 60);
-    //             stats.groupPlaybackTime += elapsedTime;
-    //             // groupPlaytime += instruction.deltaDuration * (60 / currentBPM);
-    //             // if(groupPlaytime > maxPlaytime)
-    //             //     maxPlaytime = groupPlaytime;
-    //         }
-    //
-    //
-    //         if (instruction.isGroupCommand()) {
-    //             let subGroupName = instruction.getGroupFromCommand();
-    //             let instructionGroupList = this.songData.instructions[subGroupName];
-    //             if (!instructionGroupList)
-    //                 throw new Error("Instruction groupName not found: " + subGroupName);
-    //             if (subGroupName === groupName) { // TODO group stack
-    //                 console.error("Recursive group call. Skipping group '" + subGroupName + "'");
-    //                 continue;
-    //             }
-    //             const subGroupPlayTime = this.eachInstruction(subGroupName, callback, stats);
-    //             if (subGroupPlayTime > maxPlayTime)
-    //                 maxPlayTime = subGroupPlayTime;
-    //
-    //             // console.log("Group Offset", instruction.groupName, currentGroupPlayTime);
-    //             // const subGroupPlayTime = playGroup.call(this, instructionGroupList, {
-    //             //     "parentBPM": currentBPM,
-    //             //     "parentPosition": groupPosition + parentPosition,
-    //             //     "parentPlaytime": groupPlaytime + parentPlaytime,
-    //             //     "currentGroup": subGroupName,
-    //             //     "groupInstruction": instruction,
-    //             //     "parentStats": stats
-    //             // });
-    //         }
-    //
-    //         // Callback all notes, including commands and groups
-    //         // if(range && (groupPosition < range[0] || groupPosition > range[1]))
-    //         //     continue;
-    //         callback(i, instruction, stats);
-    //     }
-    //     if (stats.groupPlaybackTime > maxPlayTime)
-    //         maxPlayTime = stats.groupPlaybackTime;
-    //     return maxPlayTime;
-    // }
 
     playInstructionAtIndex(groupName, instructionIndex, noteStartTime=null, stats=null) {
         const instruction = this.getInstruction(groupName, instructionIndex);
