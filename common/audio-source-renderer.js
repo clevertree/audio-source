@@ -6,7 +6,6 @@ class AudioSourceRenderer {
     constructor(songData={}, dispatchElement=null) {
         this.dispatchElement = dispatchElement;
         this.audioContext = null;
-        this.songData = songData;
         this.instruments = {
             loaded: [],
             class: {},
@@ -26,7 +25,8 @@ class AudioSourceRenderer {
         // this.config = {
         //     volume: 0.3
         // };
-        this.loadSongData({});
+        this.songData = {};
+        this.loadSongData(songData);
         // this.eventListeners = [];
         this.songHistory = [];
         document.addEventListener('instrument:loaded', e => this.onSongEvent(e));

@@ -47,7 +47,7 @@ class MIDISupport {
     }
 
     /** Loading **/
-    loadSongFromMIDIData(midiData) {
+    loadSongFromMIDIData(midiData, defaultInstrumentURL=null) {
 
         const newInstructions = {};
         newInstructions.root = [];
@@ -90,6 +90,8 @@ class MIDISupport {
             }
 
             const instrumentID = instrumentCount++;
+            if(defaultInstrumentURL)
+                songData.instruments[instrumentID] = {url: defaultInstrumentURL};
 
             for(let eventID=0; eventID<trackEvents.length; eventID++) {
                 const trackEvent = trackEvents[eventID];

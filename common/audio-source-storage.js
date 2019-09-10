@@ -18,7 +18,7 @@ class AudioSourceStorage {
 
     generateDefaultSong(defaultInstrumentURL=null) {
         const songData = {
-            title: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
+            name: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
             guid: this.generateGUID(),
             version: '0.0.1',
             root: 'root',
