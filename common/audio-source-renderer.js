@@ -3,10 +3,10 @@
  */
 
 class AudioSourceRenderer {
-    constructor(dispatchElement=null) {
+    constructor(songData={}, dispatchElement=null) {
         this.dispatchElement = dispatchElement;
         this.audioContext = null;
-        this.songData = {};
+        this.songData = songData;
         this.instruments = {
             loaded: [],
             class: {},
@@ -38,14 +38,6 @@ class AudioSourceRenderer {
         return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     }
 
-
-    getCommandFromMIDINote(midiNote) {
-        // midiNote -= 4;
-        // midiNote -= 24;
-        const octave = Math.floor(midiNote / 12);
-        const pitch = midiNote % 12;
-        return this.noteFrequencies[pitch] + octave;
-    }
 
     // Check for initiated, await if not
     getAudioContext() {
@@ -112,71 +104,6 @@ class AudioSourceRenderer {
         }
     }
 
-
-    /** Loading **/
-// TODO: MIDI convert class
-    loadSongFromMIDIData(midiData) {
-        console.log(midiData);
-
-        const newInstructions = {};
-        this.songData.instructions = newInstructions;
-        this.songData.timeDivision = midiData.timeDivision;
-        newInstructions.root = [];
-        for(let trackID=0; trackID<midiData.track.length; trackID++) {
-            newInstructions.root.push([0, `@track` + trackID]);
-            // const currentGroup = newInstructions.root;
-            const instrumentID = trackID;
-            const newTrack = [];
-            newInstructions['track' + trackID] = newTrack;
-
-            const lastNote = {};
-            const trackEvents = midiData.track[trackID].event;
-            let deltaPosition = 0, lastInsertDeltaPosition=0;
-            for(let eventID=0; eventID<trackEvents.length; eventID++) {
-                const trackEvent = trackEvents[eventID];
-                // let deltaDuration = trackEvent.deltaTime; // midiData.timeDivision;
-                deltaPosition += trackEvent.deltaTime;
-
-                // newTrack.push
-                switch(trackEvent.type) {
-                    case 8:
-                        let newMIDICommandOff = this.getCommandFromMIDINote(trackEvent.data[0]);
-                        if(lastNote[newMIDICommandOff]) {
-                            let noteDuration = deltaPosition - lastNote[newMIDICommandOff][0];
-                            lastNote[newMIDICommandOff][1][3] = noteDuration;
-
-                            console.log("OFF", trackEvent.deltaTime, newMIDICommandOff, noteDuration);
-                            delete lastNote[newMIDICommandOff];
-                        }
-                        break;
-                    case 9:
-                        let newMIDICommandOn = this.getCommandFromMIDINote(trackEvent.data[0]);
-                        let newMIDIVelocityOn = trackEvent.data[1]; // Math.round((trackEvent.data[1] / 128) * 100);
-                        if(newMIDIVelocityOn === 0) {
-                            // Note Off
-                            if (lastNote[newMIDICommandOn]) {
-                                let noteDuration = deltaPosition - lastNote[newMIDICommandOn][0];
-                                lastNote[newMIDICommandOn][1][3] = noteDuration;
-
-                                console.log("OFF", trackEvent.deltaTime, newMIDICommandOn, noteDuration);
-                                delete lastNote[newMIDICommandOn];
-                                break;
-                            }
-                        }
-
-                        let newInstructionDelta = trackEvent.deltaTime + (deltaPosition - lastInsertDeltaPosition);
-                        lastInsertDeltaPosition = deltaPosition;
-                        const newInstruction = [newInstructionDelta, newMIDICommandOn, instrumentID, 0, newMIDIVelocityOn];
-                        lastNote[newMIDICommandOn] = [deltaPosition, newInstruction];
-                        newTrack.push(newInstruction);
-                        console.log("ON ", newInstructionDelta, newMIDICommandOn, newMIDIVelocityOn);
-                        // newTrack.push
-                        break;
-                }
-            }
-        }
-
-    }
 
     loadSongData(songData, songURL=null) {
         songData = Object.assign({}, {
@@ -1049,7 +976,7 @@ class AudioSourceRenderer {
         return historyAction;
     }
 
-    insertInstructionAtPosition(groupName, insertPosition, insertInstructionData) {
+    insertInstructionAtPosition(groupName, insertPositionInTicks, insertInstructionData) {
         if(!insertInstructionData)
             throw new Error("Invalid insert instruction");
         const insertInstruction = SongInstruction.parse(insertInstructionData);
@@ -1068,11 +995,11 @@ class AudioSourceRenderer {
             // const instruction = new SongInstruction(instructionList[i]);
             // if(instruction.deltaDuration > 0) {
 
-                if(instructionIterator.groupPositionInTicks > insertPosition) {
+                if(instructionIterator.groupPositionInTicks > insertPositionInTicks) {
                     // Delta note appears after note to be inserted
                     const splitDuration = [
-                        insertPosition - (instructionIterator.groupPositionInTicks - instruction.deltaDuration),
-                        instructionIterator.groupPositionInTicks - insertPosition
+                        insertPositionInTicks - (instructionIterator.groupPositionInTicks - instruction.deltaDuration),
+                        instructionIterator.groupPositionInTicks - insertPositionInTicks
                     ];
 
                     const modifyIndex = instructionIterator.currentIndex;
@@ -1085,7 +1012,7 @@ class AudioSourceRenderer {
 
                     return modifyIndex; // this.splitPauseInstruction(groupName, i,insertPosition - groupPosition , insertInstruction);
 
-                } else if(instructionIterator.groupPositionInTicks === insertPosition) {
+                } else if(instructionIterator.groupPositionInTicks === insertPositionInTicks) {
                     // Delta note plays at the same time as new note, append after
 
                     let lastInsertIndex;
@@ -1094,6 +1021,7 @@ class AudioSourceRenderer {
                         if(new SongInstruction(instructionList[lastInsertIndex]).deltaDuration > 0)
                             break;
 
+                    insertInstruction.deltaDuration = 0; // TODO: is this correct?
                     this.insertInstructionAtIndex(groupName, lastInsertIndex, insertInstruction);
                     return lastInsertIndex;
                 }
@@ -1102,7 +1030,7 @@ class AudioSourceRenderer {
             // }
         }
 
-        if(insertPosition <= instructionIterator.groupPositionInTicks)
+        if(instructionIterator.groupPositionInTicks >= insertPositionInTicks)
             throw new Error ("Something went wrong");
         // Insert a new pause at the end of the song, lasting until the new note
         let lastPauseIndex = instructionList.length;
@@ -1111,7 +1039,7 @@ class AudioSourceRenderer {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDuration = insertPosition - instructionIterator.groupPositionInTicks;
+        insertInstruction.deltaDuration = insertPositionInTicks - instructionIterator.groupPositionInTicks;
         this.insertInstructionAtIndex(groupName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -1346,7 +1274,7 @@ class SongInstruction {
 }
 
 class InstructionIterator {
-    constructor(instructionList, groupName, timeDivision, currentBPM, groupPositionInTicks=0) {
+    constructor(instructionList, groupName, timeDivision, currentBPM=160, groupPositionInTicks=0) {
         this.instructionList = instructionList;
         this.groupName = groupName;
         this.timeDivision = timeDivision;

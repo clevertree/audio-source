@@ -870,7 +870,11 @@ if(!customElements.get('audio-source-synthesizer')) {
                     const newPresetURL = new URL(form.elements['preset'].value);
                     await this.sampleLibrary.loadURL(newPresetURL);
                     if(newPresetURL.hash) {
-                        this.loadConfig(this.sampleLibrary.getPresetConfig(newPresetURL.hash.substr(1)))
+                        const newPresetName = newPresetURL.hash.substr(1);
+                        let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
+                        newPresetConfig = Object.assign({}, this.config, newPresetConfig);
+                        this.renderer.replaceInstrument(instrumentID, newPresetConfig);
+                        this.loadConfig(newPresetConfig);
                     }
                     
                     this.render();

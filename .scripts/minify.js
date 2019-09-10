@@ -32,6 +32,7 @@ const fs = require('fs');
         + await convert('common/audio-source-renderer.js')
         + await convert('common/audio-source-storage.js')
         + await convert('common/audio-sources.js')
+        + await convert('common/midi-support.js')
 
         + '})();';
 

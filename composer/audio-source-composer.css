@@ -72,7 +72,7 @@ asc-menu:hover {
     background-color: #AAA;
 }
 asc-menu.stick {
-    transition: background-color 0.3s;
+    /*transition: background-color 0.3s;*/
     background-color: #888;
 }
 
@@ -405,7 +405,7 @@ asct-row {
     /* margin: -3px 0px; */
     /* border-top: 1px solid #BBB; */
     position: relative;
-    transition: background-color 0.1s ease-out;
+    /* transition: background-color 0.1s ease-out; */
     border: 1px outset #FFF;
     /* border-right: 0px solid #888; */
     padding: 0px;
@@ -430,7 +430,7 @@ asct-row.selected {
     z-index: 2;
 }
 asct-row.playing {
-    transition: background-color 0s;
+    /*transition: background-color 0s;*/
     background-color: #609060;
     position: relative;
     box-shadow: #AFA 0px 0px 4px;
@@ -513,9 +513,9 @@ ascti-instrument,
 ascti-velocity,
 ascti-duration {
     overflow: hidden;
-    transition: all 0.25s ease-out;
+    /* transition: all 0.25s ease-out; */
     border-left: 1px solid #888;
-    animation: slide-open 1s;
+    /*animation: slide-open 1s;*/
 }
 
 @keyframes slide-open {
@@ -541,7 +541,7 @@ ascti-instrument,
 ascti-velocity,
 ascti-duration {
     overflow: hidden;
-    transition: all 0.25s ease-out;
+    /* transition: all 0.25s ease-out; */
     padding: 0px 2px;
 }
 

@@ -5,7 +5,7 @@
 class MusicPlayerElement extends HTMLElement {
     constructor() {
         super();
-        this.renderer = new AudioSourceRenderer();
+        this.renderer = new AudioSourceRenderer({}, this);
     }
 
     getAudioContext()               { return this.renderer.getAudioContext(); }

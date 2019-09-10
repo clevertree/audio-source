@@ -1,6 +1,6 @@
 {
   "name": "audio-source-composer",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Audio Source Composer",
   "author": "Ari Asulin",
   "license": "GPL-3.0",
@@ -27,8 +27,5 @@
   "dependencies": {
     "jsdom": "^15.1.0",
     "minify": "^4.1.1"
-  },
-  "devDependencies": {
-    "@babel/preset-es2015": "^7.0.0-beta.53"
   }
 }

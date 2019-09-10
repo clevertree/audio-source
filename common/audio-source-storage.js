@@ -16,8 +16,8 @@ class AudioSourceStorage {
         return await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
     }
 
-    generateDefaultSong(scriptDirectory='') {
-        return {
+    generateDefaultSong(defaultInstrumentURL=null) {
+        const songData = {
             title: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
             guid: this.generateGUID(),
             version: '0.0.1',
@@ -26,13 +26,14 @@ class AudioSourceStorage {
             timeDivision: 96*4,
             beatsPerMinute: 120,
             beatsPerMeasure: 4,
-            instruments: [{
-                "url": new URL(scriptDirectory + "instrument/audio-source-synthesizer.js", document.location) + '',
-            }],
+            instruments: [],
             instructions: {
                 'root': []
             }
-        }
+        };
+        if(defaultInstrumentURL)
+            songData.instruments.push({url: defaultInstrumentURL});
+        return songData;
     }
 
 
@@ -122,27 +123,18 @@ class AudioSourceStorage {
         // console.info("Song loaded from memory: " + songGUID, songData, this.songHistory);
     }
 
-    async loadMIDIFile(source) {
 
-        if(typeof MidiParser === "undefined") {
-            await new Promise((resolve, reject) => {
-                const newScriptElm = document.createElement('script');
-                newScriptElm.src = 'https://cdn.jsdelivr.net/gh/colxi/midi-parser-js/src/main.js';
-                newScriptElm.onload = e => resolve();
-                document.head.appendChild(newScriptElm);
-            });
-        }
-        //
+    async loadJSONFile (file) {
         const fileResult = await new Promise((resolve, reject) => {
             let reader = new FileReader();                                      // prepare the file Reader
-            reader.readAsArrayBuffer(source.files[0]);                 // read the binary data
+            reader.readAsText(file);                 // read the binary data
             reader.onload =  (e) => {
                 resolve(e.target.result);
             };
         });
 
-        // Move to renderer
-        return MidiParser.parse(new Uint8Array(fileResult));
+        const json = JSON.parse(fileResult);
+        return json;
     }
 
     //

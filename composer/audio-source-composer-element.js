@@ -20,7 +20,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.instruments = new AudioSourceComposerInstruments(this);
         // this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
 
-        this.renderer = new AudioSourceRenderer(this);
+        this.renderer = new AudioSourceRenderer({}, this);
         // this.player = null;
         this.status = {
             // grid: {
@@ -169,7 +169,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
     loadNewSongData() {
         const storage = new AudioSourceStorage();
-        let songData = storage.generateDefaultSong(this.scriptDirectory);
+        const defaultInstrumentURL = new URL(this.scriptDirectory + "instrument/audio-source-synthesizer.js", document.location) + '';
+        let songData = storage.generateDefaultSong(defaultInstrumentURL);
         this.renderer.loadSongData(songData);
         this.render();
         this.setStatus("Loaded new song", songData);
@@ -216,17 +217,40 @@ class AudioSourceComposerElement extends HTMLElement {
         console.info(songData);
     }
 
-    async loadSongFromFileInput(inputFile) {
-        await this.loadSongFromMIDIFileInput(inputFile);
+    async loadSongFromFileInput(file) {
+        const ext = file.name.split('.').pop().toLowerCase();
+        switch(ext) {
+            case 'mid':
+            case 'midi':
+                await this.loadSongFromMIDIFileInput(file);
+                break;
+
+            case 'json':
+                await this.loadSongFromJSONFileInput(file);
+                break;
+
+            default:
+                throw new Error("Unknown file type: " + ext);
+        }
     }
 
-    async loadSongFromMIDIFileInput(inputFile) {
+
+
+
+    async loadSongFromJSONFileInput(file) {
         const storage = new AudioSourceStorage();
-        const midiData = await storage.loadMIDIFile(inputFile);
-        this.renderer.loadSongFromMIDIData(midiData);
+        const songData = await storage.loadJSONFile(file);
+        this.renderer.loadSongData(songData);
         this.render();
-        this.setStatus("Song loaded from midi: " + inputFile);
-        console.info(midiData, this.renderer.songData);
+        this.setStatus("Song loaded from file: ", songData);
+    }
+
+    async loadSongFromMIDIFileInput(file) {
+        const midiSupport = new MIDISupport();
+        const songData = await midiSupport.loadSongFromMidiFile(file);
+        this.renderer.loadSongData(songData);
+        this.render();
+        this.setStatus("Song loaded from midi: ", songData);
     }
 
     async loadSongFromSrc(src) {
@@ -291,7 +315,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-        // console.log("Song Event: ", e.type);
+        console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
@@ -353,7 +377,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.onAction(e, actionName);
     }
 
-    onAction(e, actionName, actionOptions=null) {
+    async onAction(e, actionName, actionOptions=null) {
 
         this.setStatus("Action: " + actionName);
         // e.preventDefault();
@@ -378,7 +402,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             case 'song:load-memory-uuid':
                 e.preventDefault();
-                let uuid = menuTarget.getAttribute('data-uuid') || null;
+                let uuid = e.target.getAttribute('data-uuid') || null;
                 this.loadSongFromMemory(uuid);
                 // this.render();
                 break;
@@ -394,9 +418,13 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:load-from-file':
-                const fileInput = e.target.querySelector('input[type=file]');
-                this.loadSongFromFileInput(fileInput);
-                console.log(e);
+            case 'song:load-from-midi-file':
+                this.closeAllMenus();
+                const fileInput = (e.target.form ? e.target.form.querySelector('input[type=file]') : null) || e.target;
+                const file = fileInput.files[0];
+                if(!file)
+                    throw new Error("No file selected");
+                await this.loadSongFromFileInput(file);
                 break;
 
 
@@ -408,7 +436,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             case 'song:play':
             case 'song:resume':
-                this.renderer.play();
+                await this.renderer.play();
                 // if(this.renderer.isPlaybackActive())
                 //     this.renderer.stop();
                 // else
@@ -800,8 +828,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
                 };
 
-                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('from File');
-                menuFileOpenSongFromFile.disabled = true;
+                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('from File',
+                    `<form name="form-menu-load-file" action="#" class="form-menu-load-file submit-on-change" data-action="song:load-from-file">
+                                <label>from File<input type="file" name="file" accept=".json" style="display: none"></label>
+                            </form>`);
+                // menuFileOpenSongFromFile.action = (e) => this.onAction(e, 'song:load-from-file');
+                // menuFileOpenSongFromFile.disabled = true;
                 const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('from URL');
                 menuFileOpenSongFromURL.disabled = true;
             };
@@ -816,8 +848,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
             const menuFileImportSong = menu.getOrCreateSubMenu('import', 'Import song ►');
             menuFileImportSong.populate = (e) => {
-                const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('from MIDI File');
-                menuFileImportSongFromMIDI.disabled = true;
+                const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('from MIDI File',
+                    `<form name="form-menu-load-file" action="#" class="form-menu-load-file submit-on-change" data-action="song:load-from-file">
+                                <label>from MIDI File<input type="file" name="file" accept=".mid,.midi" style="display: none"></label>
+                            </form>`);
+                // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+                // menuFileImportSongFromMIDI.disabled = true;
             };
 
             const menuFileExportSong = menu.getOrCreateSubMenu('export', 'Export song ►');

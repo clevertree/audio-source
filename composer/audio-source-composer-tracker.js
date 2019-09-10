@@ -176,10 +176,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             // const selectedIndicies = this.selectedIndicies;
             let rowCount = 0;
 
-
             const currentScrollPosition = this.scrollTop; // Save scroll position
-            if(this.renderScrollLimit < this.scrollTop + this.offsetHeight*4)
-                this.renderScrollLimit *= 2; // = this.scrollTop + this.offsetHeight*4;
 
             const getNextRow = () => {
                 let rowElm = rows[rowCount];
@@ -230,9 +227,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                     lastIndex = index;
                     lastGroupPositionInTicks = stats.groupPositionInTicks;
                     rowInstructionList = [];
-                    if(lastRenderedRow.offsetTop > this.renderScrollLimit) {
-                        return false;
-                    }
+                    // if(lastRenderedRow.offsetTop > this.renderScrollLimit) {
+                    //     return false;
+                    // }
                 }
 
                 rowInstructionList.push(instruction);
@@ -538,7 +535,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                 switch(e.data[0]) {
                     case 144:   // Note On
                         e.preventDefault();
-                        let newMIDICommand = this.editor.renderer.getCommandFromMIDINote(e.data[1]);
+                        const midiSupport = new MIDISupport();
+                        let newMIDICommand = midiSupport.getCommandFromMIDINote(e.data[1]);
                         let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
                         console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
@@ -839,7 +837,13 @@ class AudioSourceComposerTracker extends HTMLElement {
                 break;
 
             case 'scroll':
-                this.renderAllRows(40);
+
+                if(this.renderScrollLimit < this.scrollTop + this.offsetHeight*4) {
+                    this.renderScrollLimit *= 2; // = this.scrollTop + this.offsetHeight*4;
+                    console.info("New scroll limit: ", this.renderScrollLimit);
+                }
+
+                // this.renderAllRows(40);
                 break;
 
             case 'dragstart':
@@ -1626,7 +1630,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     findInstructionElement(instructionIndex) {
-        return this.querySelector(`asct-instruction[i='${instructionIndex}']`);
+        return null; // this.querySelector(`asct-instruction[i='${instructionIndex}']`);
     }
 
     getInstructionHTML(index, instruction) {
@@ -1638,17 +1642,17 @@ class AudioSourceComposerTracker extends HTMLElement {
                 </div>`;
     }
 
-    getRowHTML(songPositionInTicks, subDurationInTicks, instructionList, startingIndex) {
-        const rowHTML = [];
-        let currentIndex = startingIndex;
-        for(let i=0; i<instructionList.length; i++)
-            rowHTML.push(this.getInstructionHTML(currentIndex++, instructionList[i]));
-
-        return `<div data-position="${songPositionInTicks}">
-                   ${rowHTML.join('')}
-                   <div class="delta">${this.editor.values.format(subDurationInTicks, 'duration')}</div>
-                </div>`;
-    }
+    // getRowHTML(songPositionInTicks, subDurationInTicks, instructionList, startingIndex) {
+    //     const rowHTML = [];
+    //     let currentIndex = startingIndex;
+    //     for(let i=0; i<instructionList.length; i++)
+    //         rowHTML.push(this.getInstructionHTML(currentIndex++, instructionList[i]));
+    //
+    //     return `<div data-position="${songPositionInTicks}">
+    //                ${rowHTML.join('')}
+    //                <div class="delta">${this.editor.values.format(subDurationInTicks, 'duration')}</div>
+    //             </div>`;
+    // }
 
     // renderCursorRow() {
     //     const songPositionInTicks = parseInt(this.cursorRow.getAttribute('data-position'));
@@ -1798,7 +1802,7 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
         this.position = songPositionInTicks;
         // this.duration = deltaDuration;
 
-        if(this.visible) {
+        // if(this.visible) {
             const instructionElms = this.querySelectorAll('asct-instruction');
             let i = 0;
             for (; i<instructionElms.length; i++) {
@@ -1830,18 +1834,18 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
             // } else {
             //     setTimeout(e => this.updateDelta(), 1); // Hack: So that the next row element and position are available
             // }
-        } else {
-            if(this.childNodes.length > 0) {
-                const selected = this.querySelectorAll('asct-instruction.selected').length > 0; // TODO inefficient - selectedIndicies ? selectedIndicies.indexOf(startIndex) !== -1 : false;
-                if (!selected) {
-                    this.innerHTML = '';
-                    // console.info("Clear ", this);
-                    // console.info("Clear ", this);
-                } else {
-//                     console.info("Selected ", this);
-                }
-            }
-        }
+//         } else {
+//             if(this.childNodes.length > 0) {
+//                 const selected = this.querySelectorAll('asct-instruction.selected').length > 0; // TODO inefficient - selectedIndicies ? selectedIndicies.indexOf(startIndex) !== -1 : false;
+//                 if (!selected) {
+//                     this.innerHTML = '';
+//                     // console.info("Clear ", this);
+//                     // console.info("Clear ", this);
+//                 } else {
+// //                     console.info("Selected ", this);
+//                 }
+//             }
+//         }
 
         return this;
     }
