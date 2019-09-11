@@ -49,10 +49,12 @@
 .asc-status-container .version-text {
     float: right;
     padding-right: 4px;
-    text-decoration: none;
     /* color: black; */
 }
 
+.asc-status-container .version-text:not(:hover) {
+    text-decoration: none;
+}
 /** Full Screen **/
 audio-source-composer.fullscreen {
     position: fixed;
@@ -71,6 +73,7 @@ audio-source-composer.fullscreen {
 }
 .asc-container.fullscreen {
     max-height: 100%;
+    min-height: 50%;
 }
 
 

@@ -425,39 +425,44 @@ class AudioSourceRenderer {
         console.timeEnd("Group:"+instructionGroup);
     }
 
-
-    eachInstructionRow(groupName, callback, parentStats) {
-        let rowInstructionList = [];
-        let startIndex = 0, startPositionInTicks = 0;
-        this.eachInstruction(groupName, (currentIndex, instruction, iterator) => {
-            if (instruction.deltaDuration !== 0) {
-                const ret = callback(startIndex,
-                    startPositionInTicks,
-                    iterator.groupPositionInTicks,
-                    rowInstructionList,
-                    iterator);
-                if(ret === false)
-                    return ret;
-                startIndex = currentIndex + 1;
-                startPositionInTicks = iterator.groupPositionInTicks;
-                rowInstructionList = [];
-            }
-            rowInstructionList.push(instruction);
-        }, parentStats);
-    }
-
-    eachInstruction(groupName, callback, parentStats) {
-        if(!this.songData.instructions[groupName])
-            throw new Error("Invalid group: " + groupName)
+    getIterator(groupName, parentStats=null) {
         const instructionIterator = new InstructionIterator(
             this.songData.instructions[groupName],
             groupName,
             parentStats ? parentStats.timeDivision : this.getSongTimeDivision(),
             parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
             parentStats ? parentStats.groupPositionInTicks : 0);
+        return instructionIterator;
+    }
+
+    // eachInstructionRow(groupName, callback, parentStats=null) {
+    //     let rowInstructionList = [];
+    //     let startIndex = 0, startPositionInTicks = 0;
+    //     this.eachInstruction(groupName, (currentIndex, instruction, iterator) => {
+    //         if (instruction.deltaDuration !== 0) {
+    //             const ret = callback(startIndex,
+    //                 startPositionInTicks,
+    //                 iterator.groupPositionInTicks,
+    //                 rowInstructionList,
+    //                 iterator);
+    //             if(ret === false)
+    //                 return ret;
+    //             startIndex = currentIndex + 1;
+    //             startPositionInTicks = iterator.groupPositionInTicks;
+    //             rowInstructionList = [];
+    //         }
+    //         rowInstructionList.push(instruction);
+    //     }, parentStats);
+    // }
+
+    eachInstruction(groupName, callback, parentStats=null) {
+        if(!this.songData.instructions[groupName])
+            throw new Error("Invalid group: " + groupName)
+        const instructionIterator = this.getIterator(groupName, parentStats);
+
         let instruction = instructionIterator.nextInstruction();
         while(instruction) {
-            const ret = callback(instructionIterator.currentIndex, instruction, instructionIterator);
+            const ret = callback(instructionIterator.groupIndex, instruction, instructionIterator);
             if(ret === false)
                 break;
             instruction = instructionIterator.nextInstruction();
@@ -466,7 +471,7 @@ class AudioSourceRenderer {
     }
 
 
-    async eachInstructionAsync(groupName, callback, parentStats) {
+    async eachInstructionAsync(groupName, callback, parentStats=null) {
         if(!this.songData.instructions[groupName])
             throw new Error("Invalid group: " + groupName)
         const instructionIterator = new InstructionIterator(
@@ -477,7 +482,7 @@ class AudioSourceRenderer {
             parentStats ? parentStats.groupPositionInTicks : 0);
         let instruction = instructionIterator.nextInstruction();
         while(instruction) {
-            const ret = await callback(instructionIterator.currentIndex, instruction, instructionIterator);
+            const ret = await callback(instructionIterator.groupIndex, instruction, instructionIterator);
             if(ret === false)
                 break;
             instruction = instructionIterator.nextInstruction();
@@ -1023,7 +1028,7 @@ class AudioSourceRenderer {
                         instructionIterator.groupPositionInTicks - insertPositionInTicks
                     ];
 
-                    const modifyIndex = instructionIterator.currentIndex;
+                    const modifyIndex = instructionIterator.groupIndex;
                     // Make following delta note smaller
                     this.replaceInstructionDeltaDuration(groupName, modifyIndex, splitDuration[1]);
 
@@ -1038,7 +1043,7 @@ class AudioSourceRenderer {
 
                     let lastInsertIndex;
                     // Search for last insert position
-                    for(lastInsertIndex=instructionIterator.currentIndex+1; lastInsertIndex<instructionList.length; lastInsertIndex++)
+                    for(lastInsertIndex=instructionIterator.groupIndex+1; lastInsertIndex<instructionList.length; lastInsertIndex++)
                         if(new SongInstruction(instructionList[lastInsertIndex]).deltaDuration > 0)
                             break;
 
@@ -1297,20 +1302,31 @@ class SongInstruction {
 class InstructionIterator {
     constructor(instructionList, groupName, timeDivision, currentBPM=160, groupPositionInTicks=0) {
         this.instructionList = instructionList;
+        this.currentRowInstructionList = [];
         this.groupName = groupName;
         this.timeDivision = timeDivision;
         this.currentBPM = currentBPM;
         this.groupPositionInTicks = groupPositionInTicks;
         this.groupPlaybackTime = 0;
-        this.currentIndex = -1;
+        this.groupIndex = -1;
+    }
+
+    currentInstruction() {
+        const data = this.instructionList[this.groupIndex];
+        if(!data)
+            return null;
+        const currentInstruction = new SongInstruction(data);
+        currentInstruction.index = this.groupIndex;
+        currentInstruction.positionInTicks = this.groupPositionInTicks;
+        return currentInstruction;
     }
 
     nextInstruction() {
-        this.currentIndex++;
-        if(!this.instructionList[this.currentIndex])
+        this.groupIndex++;
+        if(!this.instructionList[this.groupIndex])
             return null;
 
-        let instruction = new SongInstruction(this.instructionList[this.currentIndex]);
+        let instruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.currentIndex]);
         if (instruction.deltaDuration) { // Delta
             this.groupPositionInTicks += instruction.deltaDuration;
             const elapsedTime = (instruction.deltaDuration / this.timeDivision) / (this.currentBPM / 60);
@@ -1320,4 +1336,41 @@ class InstructionIterator {
         return instruction;
     }
 
+    nextInstructionRow() {
+        for(let r=0; r<1000; r++) {
+            let currentInstruction = this.groupIndex === -1 ? this.nextInstruction() : this.currentInstruction();
+            if (!currentInstruction) {
+                // If we found end of the group
+                const returnList = this.currentRowInstructionList;
+                this.currentRowInstructionList = [];
+                return returnList.length === 0 ? null : returnList;
+            }
+            if (currentInstruction.deltaDuration) {
+                // If we found end of the row
+                const returnList = this.currentRowInstructionList;
+                this.currentRowInstructionList = [];
+                this.currentRowInstructionList.push(currentInstruction);
+                this.nextInstruction();
+                return returnList;
+            }
+
+            // If not, add it to the list and check the next instruction
+            this.currentRowInstructionList.push(currentInstruction);
+            this.nextInstruction();
+        }
+
+        throw new Error("Recursion limit");
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
