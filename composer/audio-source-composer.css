@@ -213,7 +213,8 @@ asc-menu.open-context-menu > .dropdown-container {
     display: flex;
     flex-wrap: wrap;
     clear: both;
-    min-height: 55px;
+    overflow-y: auto;
+    min-height: 86px;
 }
 
 .asc-container .form-section-container > form,
@@ -234,8 +235,8 @@ asc-menu.open-context-menu > .dropdown-container {
 
 .asc-container .form-section-divide {
     font-weight: bold;
-    /* text-align: center; */
-    padding: 10px 2px 6px 2px;
+    text-align: center;
+    padding: 2px 2px 2px 2px;
     width: 100%;
 }
 
@@ -248,7 +249,15 @@ asc-menu.open-context-menu > .dropdown-container {
     .asc-container .form-section-divide {
         width: 12px;
         writing-mode: vertical-rl;
+        padding: 10px 2px 6px 2px;
     }
+    .asc-container .form-section-container {
+        min-height: 55px;
+    }
+}
+
+@media only screen and (max-width: 999px) {
+
 }
 
 .asc-container:not(.playing) .show-on-song-playing,
@@ -627,8 +636,8 @@ asc-tracker > div.selection-rect {
 
 .asc-container .form-section-container-instruments {
     max-height: 260px;
-    min-height: 108px;
-    overflow-y: auto;
+    /* min-height: 108px; */
+    /* overflow-y: auto; */
 }
 
 .asc-container .composer-instruments {
