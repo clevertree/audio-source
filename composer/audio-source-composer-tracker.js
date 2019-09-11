@@ -96,6 +96,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             .forEach((instructionElm) => excludeElms.indexOf(instructionElm) !== -1 ? null : instructionElm.select(false));
     }
 
+
     // get cursorCellIndex() {
     playSelectedInstructions() {
         this.editor.renderer.stopPlayback();
@@ -163,6 +164,13 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         this.update();
 
+    }
+
+
+    focusOnContainer() {
+        let rowContainer = this.querySelector('.row-container');
+        rowContainer.setAttribute('tabindex', '0');
+        rowContainer.focus();
     }
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
@@ -297,7 +305,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     renderMenu() {
         const editor = this.editor;
         const handleAction = (actionName) => (e) => {
-            this.focus();
+            this.focusOnContainer();
             this.onAction(e, actionName);
             // e.currentTarget.closeAllMenus();
         };
@@ -555,7 +563,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(e.target instanceof Node && !this.contains(e.target))
             return;
 
-        this.focus(); // Prevents tab from working
+        this.focusOnContainer(); // Prevents tab from working
         // console.log(e.type);
 
         let selectedIndicies = this.selectedIndicies;
@@ -1353,7 +1361,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedRow.setCursor();
         this.update();
         this.playSelectedInstructions(e);
-        this.focus();
+        this.focusOnContainer();
         this.editor.renderer.setStartPositionInTicks(selectedRow.position);
     }
 
@@ -1369,7 +1377,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         console.timeEnd("onCelInput");
         selectedCell.setCursor();
         selectedCell.play();
-        this.focus();
+        this.focusOnContainer();
         this.editor.renderer.setStartPositionInTicks(selectedCell.parentNode.position);
     }
 
@@ -1419,29 +1427,37 @@ class AudioSourceComposerTracker extends HTMLElement {
             //     break;
             // //
             case 'note:start':
-                rowElm = this.findRowElement(detail.groupPositionInTicks);
-                if(!rowElm) {
-                    this.currentRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
-                    this.render();
+                if(detail.groupPositionInTicks) {
                     rowElm = this.findRowElement(detail.groupPositionInTicks);
+                    if (!rowElm) {
+                        this.currentRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
+                        this.eenrender();
+                        rowElm = this.findRowElement(detail.groupPositionInTicks);
+                    }
+                    if(rowElm) {
+                        rowElm.classList.add('playing');
+                        // rowElm.scrollTo(); // Scroll To position, not index
+                    }
                 }
-                instructionElm = this.findInstructionElement(detail.currentIndex);
-                if(instructionElm) {
-                    instructionElm.classList.add('playing');
-                }
-                if(rowElm) {
-                    rowElm.classList.add('playing');
-                    // rowElm.scrollTo(); // Scroll To position, not index
+                if(detail.currentIndex) {
+                    instructionElm = this.findInstructionElement(detail.currentIndex);
+                    if (instructionElm) {
+                        instructionElm.classList.add('playing');
+                    }
                 }
                 break;
             case 'note:end':
-                rowElm = this.findRowElement(detail.groupPositionInTicks);
-                instructionElm = this.findInstructionElement(detail.currentIndex);
-                if(instructionElm) {
-                    instructionElm.classList.remove('playing');
+                if(detail.groupPositionInTicks) {
+                    rowElm = this.findRowElement(detail.groupPositionInTicks);
+                    if (rowElm) {
+                        rowElm.classList.remove('playing');
+                    }
                 }
-                if(rowElm) {
-                    rowElm.classList.remove('playing');
+                if(detail.currentIndex) {
+                    instructionElm = this.findInstructionElement(detail.currentIndex);
+                    if (instructionElm) {
+                        instructionElm.classList.remove('playing');
+                    }
                 }
                 break;
 
@@ -2044,7 +2060,14 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
     getInstruction() { return this.row.tracker.getInstruction(this.index); }
 
     play() {
-        this.editor.renderer.playInstructionAtIndex(this.tracker.groupName, this.index);
+        this.editor.renderer.playInstructionAtIndex(
+            this.tracker.groupName,
+            this.index,
+            this.editor.renderer.getAudioContext().currentTime,
+            {
+                groupPositionInTicks: this.row.position,
+                currentIndex: this.index
+            });
         return this;
     }
 

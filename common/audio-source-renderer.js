@@ -501,7 +501,7 @@ class AudioSourceRenderer {
         }
 
 
-        let bpm = stats ? stats.currentBPM : this.getStartingBeatsPerMinute();
+        let bpm = this.getStartingBeatsPerMinute();
         // const noteDuration = (instruction.duration || 1) * (60 / bpm);
         let timeDivision = this.getSongTimeDivision();
         const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
@@ -514,8 +514,8 @@ class AudioSourceRenderer {
             instruction: instruction,
         };
         if(stats) {
-            noteEventData.currentIndex = stats.currentIndex;
-            noteEventData.groupPositionInTicks = stats.groupPositionInTicks;
+            if(stats.currentBPM)            noteEventData.currentIndex = stats.currentIndex;
+            if(stats.groupPositionInTicks)  noteEventData.groupPositionInTicks = stats.groupPositionInTicks;
 
             //     if(stats.groupInstruction) {
             //         if(typeof stats.groupInstruction.velocity !== 'undefined')
