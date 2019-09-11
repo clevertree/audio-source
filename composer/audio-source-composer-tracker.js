@@ -1431,7 +1431,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     rowElm = this.findRowElement(detail.groupPositionInTicks);
                     if (!rowElm) {
                         this.currentRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
-                        this.eenrender();
+                        this.render();
                         rowElm = this.findRowElement(detail.groupPositionInTicks);
                     }
                     if(rowElm) {
