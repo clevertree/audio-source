@@ -49,6 +49,8 @@
 .asc-status-container .version-text {
     float: right;
     padding-right: 4px;
+    text-decoration: none;
+    /* color: black; */
 }
 
 /** Full Screen **/

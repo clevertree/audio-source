@@ -625,7 +625,7 @@ class AudioSourceComposerElement extends HTMLElement {
         </div>
         <div class="asc-status-container">
             <span class="status-text"></span>
-            <span class="version-text">${this.versionString}</span>
+            <a href="https://github.com/clevertree/audio-source-composer" class="version-text">${this.versionString}</a>
         </div>
         `;
 
