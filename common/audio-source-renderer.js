@@ -254,7 +254,7 @@ class AudioSourceRenderer {
                 currentPosition = stats.groupPositionInTicks;
                 return false;
             }
-        })
+        });
         return currentPosition;
     }
 
@@ -423,6 +423,27 @@ class AudioSourceRenderer {
 
         // console.log("Active subgroups", activeSubGroups);
         console.timeEnd("Group:"+instructionGroup);
+    }
+
+
+    eachInstructionRow(groupName, callback, parentStats) {
+        let rowInstructionList = [];
+        let startIndex = 0, startPositionInTicks = 0;
+        this.eachInstruction(groupName, (currentIndex, instruction, iterator) => {
+            if (instruction.deltaDuration !== 0) {
+                const ret = callback(startIndex,
+                    startPositionInTicks,
+                    iterator.groupPositionInTicks,
+                    rowInstructionList,
+                    iterator);
+                if(ret === false)
+                    return ret;
+                startIndex = currentIndex + 1;
+                startPositionInTicks = iterator.groupPositionInTicks;
+                rowInstructionList = [];
+            }
+            rowInstructionList.push(instruction);
+        }, parentStats);
     }
 
     eachInstruction(groupName, callback, parentStats) {

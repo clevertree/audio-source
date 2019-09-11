@@ -238,11 +238,11 @@ asc-menu.open-context-menu > .dropdown-container {
 /** Form Inputs **/
 
 .asc-container .input-style,
-.asc-container input[type=text],
-.asc-container select,
-.asc-container button {
+.asc-container input[type=text].themed,
+.asc-container select.themed,
+.asc-container button.themed {
     display: inline-block;
-    padding: 0px 0px;
+    /* padding: 0px 0px; */
     border-radius: 2px;
     min-height: 24px;
     transition: all 0.2s;
@@ -254,20 +254,21 @@ asc-menu.open-context-menu > .dropdown-container {
 }
 
 .asc-container .input-style:hover,
-.asc-container input[type=text]:hover,
-.asc-container select:hover,
-.asc-container button:hover {
+.asc-container input[type=text].themed:hover,
+.asc-container select.themed:hover,
+.asc-container button.themed:hover {
     background: #EEE;
     border: 1px outset #FFF;
+    cursor: pointer;
 }
 
-.asc-container input[type=text] {
+.asc-container input.themed[type=text] {
     padding-left: 5px;
 }
-.asc-container button {
+.asc-container button.themed {
     display: inline-block;
     padding: 0px 0px;
-    border: 1px outset transparent;
+    /* border: 1px outset transparent; */
     border-radius: 2px;
     min-height: 24px;
     transition: border 0.2s;
@@ -276,7 +277,7 @@ asc-menu.open-context-menu > .dropdown-container {
     /* vertical-align: top; */
 }
 
-.asc-container button > span {
+.asc-container button.themed > span {
     margin: 2px 4px;
 }
 
@@ -395,19 +396,38 @@ asc-tracker .tracker-header-pause {
     min-width: 44px;
 }
 
-/** Tracker Segments **/
+/** Tracker Row Segments **/
 
 asc-tracker .row-segment-container {
-    overflow-x: auto;
+    /*overflow-x: auto;*/
+    text-align: center;
+    padding-top: 5px;
 }
 
-asc-tracker .row-segment {
+
+asctr-segment {
     display: inline-block;
-    width: 4em;
-    height: 4em;
-    margin: 2px;
-    background-color: #2c3e50;
 }
+
+asctr-segment > form > button {
+    width: 3em;
+    height: 2em;
+    margin: 0px 1px 0px 1px;
+    background-color: #EEE;
+    border: 1px outset #FFF;
+    border-radius: 4px 4px 0 0;
+    text-align: center;
+    cursor: pointer;
+}
+
+asctr-segment.selected > form > button {
+    background-color: #BBB;
+    font-weight: bold;
+    border-bottom: 0px;
+}
+
+
+
 /** Tracker Row **/
 
 asct-row {
@@ -528,7 +548,7 @@ ascti-duration {
     overflow: hidden;
     /* transition: all 0.25s ease-out; */
     border-left: 1px solid #888;
-    /*animation: slide-open 1s;*/
+    animation: slide-open 1s;
 }
 
 @keyframes slide-open {

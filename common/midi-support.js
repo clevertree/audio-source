@@ -40,9 +40,9 @@ class MIDISupport {
         return midiData;
     }
 
-    async loadSongFromMidiFile(file) {
+    async loadSongFromMidiFile(file, defaultInstrumentURL=null) {
         const midiData = await this.loadMIDIFile(file);
-        const songData = this.loadSongFromMIDIData(midiData);
+        const songData = this.loadSongFromMIDIData(midiData, defaultInstrumentURL);
         return songData;
     }
 
@@ -75,12 +75,20 @@ class MIDISupport {
 
 
             let notesFound = false;
+            let defaultInstrumentName = 'Track ' + trackID;
             for(let eventID=0; eventID<trackEvents.length; eventID++) {
                 const trackEvent = trackEvents[eventID];
                 switch(trackEvent.type) {
                     case 8:
                     case 9:
                         notesFound = true;
+                        break;
+                    case 255:
+                        switch(trackEvent.metaType) {
+                            case 3:
+                                defaultInstrumentName = trackEvent.data.trim();
+                                break;
+                        }
                 }
             }
 
@@ -90,8 +98,9 @@ class MIDISupport {
             }
 
             const instrumentID = instrumentCount++;
-            if(defaultInstrumentURL)
-                songData.instruments[instrumentID] = {url: defaultInstrumentURL};
+            if(defaultInstrumentURL) {
+                songData.instruments[instrumentID] = {url: defaultInstrumentURL+'', name: defaultInstrumentName};
+            }
 
             for(let eventID=0; eventID<trackEvents.length; eventID++) {
                 const trackEvent = trackEvents[eventID];

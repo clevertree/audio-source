@@ -165,11 +165,14 @@ class AudioSourceComposerElement extends HTMLElement {
     getSongData()       { return this.renderer.getSongData(); }
 
 
+    getDefaultInstrumentURL() {
+        return new URL(this.scriptDirectory + "instrument/audio-source-synthesizer.js", document.location);
+    }
 
 
     loadNewSongData() {
         const storage = new AudioSourceStorage();
-        const defaultInstrumentURL = new URL(this.scriptDirectory + "instrument/audio-source-synthesizer.js", document.location) + '';
+        const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
         let songData = storage.generateDefaultSong(defaultInstrumentURL);
         this.renderer.loadSongData(songData);
         this.render();
@@ -245,9 +248,10 @@ class AudioSourceComposerElement extends HTMLElement {
         this.setStatus("Song loaded from file: ", songData);
     }
 
-    async loadSongFromMIDIFileInput(file) {
+    async loadSongFromMIDIFileInput(file, defaultInstrumentURL=null) {
+        defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
         const midiSupport = new MIDISupport();
-        const songData = await midiSupport.loadSongFromMidiFile(file);
+        const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
         this.renderer.loadSongData(songData);
         this.render();
         this.setStatus("Song loaded from midi: ", songData);
@@ -315,7 +319,7 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     onSongEvent(e) {
-        console.log("Song Event: ", e.type);
+//         console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
@@ -450,7 +454,7 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:stop':
             case 'song:reset':
                 this.renderer.stopPlayback();
-                // this.renderer.setStartPositionInTicks(0);
+                this.renderer.setStartPositionInTicks(0);
                 break;
 
             // case 'song:resume':
@@ -525,6 +529,9 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.renderer.setSongVersion(newSongVersion);
                 this.setStatus(`Song version updated: ${newSongVersion}`);
                 break;
+
+
+
 
             case 'toggle:control-song':
                 this.classList.toggle('hide-control-song');
