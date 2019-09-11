@@ -1,10 +1,6 @@
-
+/** Font Style **/
+.asc-status-container,
 .asc-container {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    flex-flow: column;
-    max-height: 1000px;
     font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
@@ -15,6 +11,36 @@
     -ms-user-select:none;
 }
 
+
+/** Container **/
+.asc-container {
+    /* position: relative; */
+    display: flex;
+    flex-wrap: wrap;
+    flex-flow: column;
+    max-height: 1000px;
+    /* font-family: monospace; */
+    /* color: #000; */
+    /* background-color: #bdc3c7; */
+    /* margin-top: -14px; */
+    /* user-select: none; */
+    -moz-user-select: none;
+    /* -webkit-user-select: none; */
+    -ms-user-select:none;
+    overflow: auto;
+}
+
+/** Status Bar **/
+.asc-status-container {
+    /* position: absolute; */
+    display: block;
+    /* bottom: 0px; */
+    background-color: #FFF;
+    color: #000;
+    height: 14px;
+    width: 100%;
+    padding: 1px 4px;
+}
 
 
 /** Full Screen **/
@@ -187,6 +213,7 @@ asc-menu.open-context-menu > .dropdown-container {
     display: flex;
     flex-wrap: wrap;
     clear: both;
+    min-height: 55px;
 }
 
 .asc-container .form-section-container > form,
@@ -207,8 +234,8 @@ asc-menu.open-context-menu > .dropdown-container {
 
 .asc-container .form-section-divide {
     font-weight: bold;
-    text-align: center;
-    padding: 6px 2px;
+    /* text-align: center; */
+    padding: 10px 2px 6px 2px;
     width: 100%;
 }
 
@@ -379,7 +406,7 @@ asc-menu.open-context-menu > .dropdown-container {
 asc-tracker {
     /* display: block; */
     position: relative;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     /* flex-grow: 1; */
     /* max-height: 100%; */
     margin-bottom: 16px;
@@ -399,9 +426,10 @@ asc-tracker .tracker-header-pause {
 /** Tracker Row Segments **/
 
 asc-tracker .row-segment-container {
-    /*overflow-x: auto;*/
+    overflow-y: auto;
     text-align: center;
     padding-top: 5px;
+    /* clear: both; */
 }
 
 
@@ -429,6 +457,11 @@ asctr-segment.selected > form > button {
 
 
 /** Tracker Row **/
+
+asc-tracker .row-container {
+    overflow-y: auto;
+    max-height: 800px;
+}
 
 asct-row {
     display: flex;
@@ -589,20 +622,14 @@ asc-tracker > div.selection-rect {
     box-shadow:  1px 1px 4px #777;
 }
 
-/** Status Bar **/
-
-.asc-status-container {
-    position: absolute;
-    display: block;
-    bottom: 0px;
-    background-color: #FFF;
-    color: #000;
-    height: 14px;
-    width: 100%;
-    padding: 1px 4px;
-}
-
 /** Instruments **/
+
+
+.asc-container .form-section-container-instruments {
+    max-height: 260px;
+    min-height: 108px;
+    overflow-y: auto;
+}
 
 .asc-container .composer-instruments {
     display: inline-block;

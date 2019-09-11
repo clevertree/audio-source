@@ -297,7 +297,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // }
 
 
-        rowContainer.scrollTop = currentScrollPosition;             // Restore scroll position
+        // rowContainer.scrollTop = currentScrollPosition;             // Restore scroll position
         console.timeEnd('tracker.renderAllRows()');
 
     }
@@ -1430,8 +1430,11 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if(detail.groupPositionInTicks) {
                     rowElm = this.findRowElement(detail.groupPositionInTicks);
                     if (!rowElm) {
-                        this.currentRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
-                        this.render();
+                        const newRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
+                        if(newRowSegmentID !== this.currentRowSegmentID) {
+                            this.currentRowSegmentID = newRowSegmentID;
+                            this.render();
+                        }
                         rowElm = this.findRowElement(detail.groupPositionInTicks);
                     }
                     if(rowElm) {
@@ -1934,12 +1937,12 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
     }
 
     scrollTo() {
-        const container = this.tracker; // cursorCell.closest('.composer-tracker-container');
-        if (container.scrollTop < this.offsetTop - container.offsetHeight)
-            container.scrollTop = this.offsetTop;
-
-        if (container.scrollTop > this.offsetTop)
-            container.scrollTop = this.offsetTop - container.offsetHeight;
+        // const container = this.tracker; // cursorCell.closest('.composer-tracker-container');
+        // if (container.scrollTop < this.offsetTop - container.offsetHeight)
+        //     container.scrollTop = this.offsetTop;
+        //
+        // if (container.scrollTop > this.offsetTop)
+        //     container.scrollTop = this.offsetTop - container.offsetHeight;
     }
 
 

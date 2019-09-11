@@ -615,8 +615,8 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="form-section-container form-section-container-tracker"></div>
             <div class="form-section-container form-section-container-instruments"></div>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
-            <div class="asc-status-container">Status</div>
         </div>
+        <div class="asc-status-container">Status</div>
         `;
 
         this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
