@@ -37,11 +37,19 @@
     /* bottom: 0px; */
     background-color: #FFF;
     color: #000;
-    height: 14px;
-    width: 100%;
-    padding: 1px 4px;
+    /* height: 14px; */
+    /* width: 98%; */
+    padding: 0px;
 }
 
+
+.asc-status-container .status-text {
+    padding-left: 4px;
+}
+.asc-status-container .version-text {
+    float: right;
+    padding-right: 4px;
+}
 
 /** Full Screen **/
 audio-source-composer.fullscreen {

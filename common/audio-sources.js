@@ -47,6 +47,9 @@ class AudioSources {
                     return reject("Sample library not found: " + url);
 
                 const packageJSON = xhr.response;
+                if(!packageJSON.version)
+                    throw new Error("Invalid package version: " + xhr.response);
+
                 console.log("Package Version: ", packageJSON.version, packageJSON);
                 resolve(packageJSON);
             };

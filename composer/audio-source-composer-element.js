@@ -4,11 +4,13 @@
 class AudioSourceComposerElement extends HTMLElement {
     constructor() {
         super();
+        this.versionString = '-1';
         this.eventHandlers = [];
         this.saveSongToMemoryTimer = null;
         this.instrumentLibrary = null;
 
         this.longPressTimeout = null;
+
 
         this.webSocket = new AudioSourceComposerWebsocket(this);
         this.keyboard = new AudioSourceComposerKeyboard(this);
@@ -42,8 +44,12 @@ class AudioSourceComposerElement extends HTMLElement {
         };
         this.shadowDOM = null;
 
+
         this.sources.loadDefaultInstrumentLibrary();
-        this.sources.loadPackageInfo();
+        this.sources.loadPackageInfo()
+            .then(packageInfo => {
+                this.setVersion(packageInfo.version);
+            });
     }
     get sources() { return this.renderer.sources; }
     get values() { return this.renderer.values; }
@@ -585,7 +591,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     // Rendering
-    get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container`); }
+    get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container .status-text`); }
+    get versionElm() { return this.shadowDOM.querySelector(`.asc-status-container .version-text`); }
 
     get menuFile() { return this.shadowDOM.querySelector(`asc-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asc-menu[key="edit"]`)}
@@ -616,7 +623,10 @@ class AudioSourceComposerElement extends HTMLElement {
             <div class="form-section-container form-section-container-instruments"></div>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
-        <div class="asc-status-container">Status</div>
+        <div class="asc-status-container">
+            <span class="status-text"></span>
+            <span class="version-text">${this.versionString}</span>
+        </div>
         `;
 
         this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
@@ -629,6 +639,11 @@ class AudioSourceComposerElement extends HTMLElement {
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
         this.statusElm.innerHTML = newStatus;
+    }
+
+    setVersion(versionString) {
+        this.versionString = versionString;
+        this.statusElm.innerHTML = versionString;
     }
 
     // getMenu(key) {
