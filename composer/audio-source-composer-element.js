@@ -223,7 +223,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderer.loadSongHistory(songHistory);
         this.render();
         this.setStatus("Song loaded from memory: " + songGUID, songData);
-        console.info(songData);
+//         console.info(songData);
     }
 
     async loadSongFromFileInput(file) {
