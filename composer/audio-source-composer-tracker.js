@@ -239,9 +239,10 @@ class AudioSourceComposerTracker extends HTMLElement {
             firstRowElm.render(lastRowIndex, lastRowPositionInTicks);
         };
 
+        const filterByInstrumentID = this.fieldRenderInstrument.value ? parseInt(this.fieldRenderInstrument.value) : null;
 
         let rowInstructionList = null;
-        while(rowInstructionList = instructionIterator.nextInstructionRow()) {
+        while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
             // if(lastRowIndex === 0 && rowInstructionList.length > 0 && rowInstructionList[0].deltaDuration) {
             //     const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
             //     rowContainer.appendChild(rowElm);
@@ -261,6 +262,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
                 let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
                 rowContainer.appendChild(rowElm);
+                if(filterByInstrumentID !== null)
+                    rowInstructionList = rowInstructionList.filter(inst => inst.instrument === filterByInstrumentID);
 
                 rowElm.render(lastRowIndex, instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
                 // lastRowIndex = instructionIterator.groupIndex;
@@ -1203,7 +1206,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         // this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
                         this.findInstructionElement(selectedIndicies[i]).render();
                     }
-                    this.render();
+                    this.renderRows();
                     this.selectIndicies(e, selectedIndicies);
 
                 } else if(this.cursorCell) {
@@ -1211,7 +1214,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     if(insertPosition === null)
                         throw new Error("No cursor position");
                     const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
-                    this.render();
+                    this.renderRows();
                     this.selectIndicies(e, insertIndex);
 
                 } else {
@@ -1309,7 +1312,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'row-segment:change':
                 this.currentRowSegmentID = parseInt(form.elements.id.value);
-                this.render();
+                this.renderRows();
                 break;
 
             case 'tracker:octave':
@@ -1318,11 +1321,11 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'tracker:quantization':
                 this.rowLengthInTicks = this.fieldRenderRowLength.value;
-                this.render(1);
+                this.renderRows();
                 break;
 
             case 'tracker:instrument':
-                this.render();
+                this.renderRows();
                 break;
 
             case 'tracker:select':
@@ -1440,7 +1443,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         const newRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
                         if(newRowSegmentID !== this.currentRowSegmentID) {
                             this.currentRowSegmentID = newRowSegmentID;
-                            this.render();
+                            this.renderRows();
                         }
                         rowElm = this.findRowElement(detail.groupPositionInTicks);
                     }

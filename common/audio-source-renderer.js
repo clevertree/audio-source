@@ -1330,7 +1330,8 @@ class InstructionIterator {
         if(!this.instructionList[this.groupIndex])
             return null;
 
-        let instruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.currentIndex]);
+        let instruction;
+        instruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.currentIndex]);
         if (instruction.deltaDuration) {
             this.groupPositionInTicks += instruction.deltaDuration;
             const elapsedTime = (instruction.deltaDuration / this.timeDivision) / (this.currentBPM / 60);
