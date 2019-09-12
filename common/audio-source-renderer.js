@@ -519,7 +519,8 @@ class AudioSourceRenderer {
             instruction: instruction,
         };
         if(stats) {
-            if(stats.currentBPM)            noteEventData.currentIndex = stats.currentIndex;
+            if(stats.currentBPM)            noteEventData.currentBPM = stats.currentBPM;
+            if(stats.groupIndex)            noteEventData.groupIndex = stats.groupIndex;
             if(stats.groupPositionInTicks)  noteEventData.groupPositionInTicks = stats.groupPositionInTicks;
 
             //     if(stats.groupInstruction) {
@@ -1302,13 +1303,16 @@ class SongInstruction {
 class InstructionIterator {
     constructor(instructionList, groupName, timeDivision, currentBPM=160, groupPositionInTicks=0) {
         this.instructionList = instructionList;
-        this.currentRowInstructionList = [];
         this.groupName = groupName;
         this.timeDivision = timeDivision;
         this.currentBPM = currentBPM;
+        this.lastRowGroupStartPositionInTicks = groupPositionInTicks;
         this.groupPositionInTicks = groupPositionInTicks;
         this.groupPlaybackTime = 0;
         this.groupIndex = -1;
+
+        // this.lastRowPositionInTicks = null;
+        // this.lastRowIndex = 0;
     }
 
     currentInstruction() {
@@ -1327,7 +1331,7 @@ class InstructionIterator {
             return null;
 
         let instruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.currentIndex]);
-        if (instruction.deltaDuration) { // Delta
+        if (instruction.deltaDuration) {
             this.groupPositionInTicks += instruction.deltaDuration;
             const elapsedTime = (instruction.deltaDuration / this.timeDivision) / (this.currentBPM / 60);
             this.groupPlaybackTime += elapsedTime;
@@ -1337,26 +1341,28 @@ class InstructionIterator {
     }
 
     nextInstructionRow() {
+        this.lastRowGroupStartPositionInTicks = this.groupPositionInTicks;
+        // this.lastRowPositionInTicks = this.groupPositionInTicks;
+        // this.lastRowIndex = this.groupIndex > 0 ? this.groupIndex : 0;
+
+        let currentInstruction = this.groupIndex === -1 ? this.nextInstruction() : this.currentInstruction();
+        const currentRowInstructionList = [];
+        if(currentInstruction)
+            currentRowInstructionList.push(currentInstruction);
+
         for(let r=0; r<1000; r++) {
-            let currentInstruction = this.groupIndex === -1 ? this.nextInstruction() : this.currentInstruction();
+            currentInstruction = this.nextInstruction();
             if (!currentInstruction) {
                 // If we found end of the group
-                const returnList = this.currentRowInstructionList;
-                this.currentRowInstructionList = [];
-                return returnList.length === 0 ? null : returnList;
+                return currentRowInstructionList.length === 0 ? null : currentRowInstructionList;
             }
             if (currentInstruction.deltaDuration) {
                 // If we found end of the row
-                const returnList = this.currentRowInstructionList;
-                this.currentRowInstructionList = [];
-                this.currentRowInstructionList.push(currentInstruction);
-                this.nextInstruction();
-                return returnList;
+                return currentRowInstructionList;
             }
+            currentRowInstructionList.push(currentInstruction);
 
             // If not, add it to the list and check the next instruction
-            this.currentRowInstructionList.push(currentInstruction);
-            this.nextInstruction();
         }
 
         throw new Error("Recursion limit");

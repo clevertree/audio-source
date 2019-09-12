@@ -431,7 +431,7 @@ asc-tracker {
     /* overflow-y: auto; */
     /* flex-grow: 1; */
     /* max-height: 100%; */
-    margin-bottom: 16px;
+    /* margin-bottom: 16px; */
 }
 
 
@@ -649,7 +649,7 @@ asc-tracker > div.selection-rect {
 
 .asc-container .form-section-container-instruments {
     max-height: 260px;
-    /* min-height: 108px; */
+    min-height: 108px;
     /* overflow-y: auto; */
 }
 

@@ -12,7 +12,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.currentRowSegmentID = 0;
         // TODO: minimum render rows for new groups
 
-        this.selectedIndicies = [0];
+        // this.selectedIndicies = [0];
         this.mousePosition = {};
         // this.instructionElms = null;
     }
@@ -211,18 +211,24 @@ class AudioSourceComposerTracker extends HTMLElement {
         let rowContainer = this.querySelector('.row-container');
 
         // Instruction Iterator
-        const instructionIterator = this.editor.renderer.getIterator(this.groupName);
+        let instructionIterator = this.editor.renderer.getIterator(this.groupName);
 
         const quantizationInTicks = this.rowLengthInTicks / 4;
 
-        let currentRowSegmentPositionInTicks = 0;
-        let currentRowSegmentID = 0;
-        let currentRowSegmentElm = null;
+        // let currentRowSegmentPositionInTicks = 0;
+        // let currentRowSegmentID = 0;
+        // let currentRowSegmentElm = null;
         const segmentLengthInTicks = this.segmentLength * timeDivision;
 
-        let lastRowPositionInTicks=0, lastRowIndex=0;
+        // let currentRowSegmentLastPositionInTicks = 0;
+        // let lastRowPositionInTicks=0, lastRowIndex=0;
+        let nextBreakPositionInTicks=quantizationInTicks, lastBreakRowElm=null;
+
+        let lastRowIndex=0, lastRowPositionInTicks=0;
         let rowInstructionList = null;
         while(rowInstructionList = instructionIterator.nextInstructionRow()) {
+            console.log("ROW", rowInstructionList);
+            const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
 
             // console.log("Row", rowInstructionList);
@@ -230,37 +236,44 @@ class AudioSourceComposerTracker extends HTMLElement {
 
                 let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
                 rowContainer.appendChild(rowElm);
-                if (rowInstructionList.length > 0) {
-                    const rowIndex = rowInstructionList[0].index;
-                    const rowPositionInTicks = rowInstructionList[0].positionInTicks;
-                    rowElm.render(rowIndex, rowPositionInTicks, rowInstructionList);
-                }
 
-                let breakPositionInTicks = lastRowPositionInTicks + quantizationInTicks;
-                while (breakPositionInTicks < instructionIterator.groupPositionInTicks) {
-                    let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-                    rowContainer.appendChild(rowElm);
-                    rowElm.render(lastRowIndex, breakPositionInTicks);
-                    breakPositionInTicks += quantizationInTicks;
+                rowElm.render(lastRowIndex, instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
+                // lastRowIndex = instructionIterator.groupIndex;
+                // lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
+                let nextBreakPositionInTicks = Math.ceil(lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
+                while (nextBreakPositionInTicks < instructionIterator.groupPositionInTicks) {
+                    lastBreakRowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+                    rowContainer.appendChild(lastBreakRowElm);
+                    lastBreakRowElm.render(lastRowIndex, nextBreakPositionInTicks);
+                    nextBreakPositionInTicks += quantizationInTicks;
                 }
+                // currentRowSegmentLastPositionInTicks = instructionIterator.groupPositionInTicks;
             }
             lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             lastRowIndex = instructionIterator.groupIndex;
 
 
 
+        }
 
-            while(currentRowSegmentPositionInTicks + segmentLengthInTicks < instructionIterator.groupPositionInTicks) {
-                currentRowSegmentElm = new AudioSourceComposerTrackerRowSegment(currentRowSegmentID, currentRowSegmentPositionInTicks);
-                segmentContainer.appendChild(currentRowSegmentElm);
-                currentRowSegmentElm.selected = currentRowSegmentID === this.currentRowSegmentID;
+        nextBreakPositionInTicks = Math.ceil(lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks;
+        const currentRowSegmentEndPositionInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
+        while(nextBreakPositionInTicks < currentRowSegmentEndPositionInTicks) {
+            let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+            rowContainer.appendChild(rowElm);
+            rowElm.render(lastRowIndex, nextBreakPositionInTicks);
+            nextBreakPositionInTicks += quantizationInTicks;
+        }
 
-                currentRowSegmentID++;
-                currentRowSegmentPositionInTicks += segmentLengthInTicks;
+        // Segments
 
-//                     console.log('getNextRowSegment', currentRowSegmentElm, segmentContainer);
-            }
 
+        const lastRowSegmentID = Math.floor(lastRowPositionInTicks / segmentLengthInTicks);
+        for(let segmentID = 0; segmentID < lastRowSegmentID; segmentID++) {
+
+            let segmentElm = new AudioSourceComposerTrackerRowSegment(segmentID, segmentID * segmentLengthInTicks);
+            segmentContainer.appendChild(segmentElm);
+            segmentContainer.selected = segmentID === this.currentRowSegmentID;
         }
 
         console.timeEnd('tracker.renderRows()');
@@ -1431,7 +1444,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(!e.shiftKey)
             this.clearSelection([selectedRow]);
 
-        selectedRow.select();
+        // selectedRow.select();
         selectedRow.createAddInstructionElement();
         selectedRow.setCursor();
         this.update();
@@ -1517,8 +1530,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                         // rowElm.scrollTo(); // Scroll To position, not index
                     }
                 }
-                if(detail.currentIndex) {
-                    instructionElm = this.findInstructionElement(detail.currentIndex);
+                if(detail.groupIndex) {
+                    instructionElm = this.findInstructionElement(detail.groupIndex);
                     if (instructionElm) {
                         instructionElm.classList.add('playing');
                     }
@@ -1531,8 +1544,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                         rowElm.classList.remove('playing');
                     }
                 }
-                if(detail.currentIndex) {
-                    instructionElm = this.findInstructionElement(detail.currentIndex);
+                if(detail.groupIndex) {
+                    instructionElm = this.findInstructionElement(detail.groupIndex);
                     if (instructionElm) {
                         instructionElm.classList.remove('playing');
                     }
@@ -1549,16 +1562,17 @@ class AudioSourceComposerTracker extends HTMLElement {
         }
     }
 
-
-    // get selectedCells() { return this.querySelectorAll('asct-instruction.selected'); }
-    // get cursorCell() { return this.querySelector('asct-instruction.cursor,asct-instruction-add.cursor'); }
-    // get cursorRow() { return this.cursorCell.parentNode; }
-    // get cursorPosition() { return ((cell) => (cell ? cell.parentNode.position : null))(this.cursorCell); }
-    // get cursorInstruction() { return this.getInstruction(this.cursorCell.index); }
+    // TODO: refactor?
+    get selectedCells() { return this.querySelectorAll('asct-instruction.selected'); }
+    get cursorCell() { return this.querySelector('asct-instruction.cursor,asct-instruction-add.cursor'); }
+    get cursorRow() { return this.cursorCell.parentNode; }
+    get cursorPosition() { return ((cell) => (cell ? cell.parentNode.position : null))(this.cursorCell); }
+    get cursorInstruction() { return this.getInstruction(this.cursorCell.index); }
     // // }
-    // get selectedIndicies() {
-    //     return [].map.call(this.selectedCells, (elm => elm.index));
-    // }
+
+    get selectedIndicies() {
+        return [].map.call(this.selectedCells, (elm => elm.index));
+    }
 
     getCursorElement() {
         return this.querySelector('.cursor');
