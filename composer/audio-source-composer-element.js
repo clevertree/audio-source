@@ -102,7 +102,7 @@ class AudioSourceComposerElement extends HTMLElement {
         if(navigator.requestMIDIAccess) {
             navigator.requestMIDIAccess().then(
                 (MIDI) => {
-//                     console.info("MIDI initialized", MIDI);
+                    console.info("MIDI initialized", MIDI);
                     const inputDevices = [];
                     MIDI.inputs.forEach(
                         (inputDevice) => {
@@ -314,6 +314,8 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             default:
+                if(this.tracker)
+                    this.tracker.onInput(e);
                 break;
         }
 

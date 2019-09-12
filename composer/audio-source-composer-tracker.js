@@ -208,7 +208,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         const timeDivision = this.editor.renderer.getGroupTimeDivision(this.groupName);
 
         let segmentContainer = this.querySelector('.row-segment-container');
+        segmentContainer.innerHTML = '';
         let rowContainer = this.querySelector('.row-container');
+        rowContainer.innerHTML = '';
 
         // Instruction Iterator
         let instructionIterator = this.editor.renderer.getIterator(this.groupName);
@@ -287,7 +289,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
         const lastRowSegmentID = Math.floor(lastRowPositionInTicks / segmentLengthInTicks);
-        for(let segmentID = 0; segmentID <= lastRowSegmentID; segmentID++) {
+        for(let segmentID = 0; segmentID <= lastRowSegmentID+1; segmentID++) {
 
             let segmentElm = new AudioSourceComposerTrackerRowSegment(segmentID, segmentID * segmentLengthInTicks);
             segmentContainer.appendChild(segmentElm);
@@ -568,7 +570,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         switch (e.type) {
             case 'midimessage':
-//                     console.log("MIDI", e.data, e);
+                    // console.log("MIDI", e.data, e);
                 switch(e.data[0]) {
                     case 144:   // Note On
                         e.preventDefault();
@@ -577,7 +579,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
                         console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
-                        if (this.cursorCell.matches('.new')) {
+                        if (this.cursorCell.matches('asct-instruction-add')) {
                             let newInstruction = this.getInstructionFormValues();
                             newMIDICommand = this.replaceFrequencyAlias(newMIDICommand, newInstruction.instrument);
                             newInstruction.command = newMIDICommand;
@@ -586,9 +588,12 @@ class AudioSourceComposerTracker extends HTMLElement {
                             const insertPosition = this.cursorPosition;
                             const insertIndex = this.insertInstructionAtPosition(insertPosition, newInstruction);
                             // this.cursorRow.render();
-                            this.render();
+                            this.renderRows();
                             this.selectIndicies(e, insertIndex);
                             selectedIndicies = [insertIndex];
+
+
+
                             // cursorInstruction = instructionList[insertIndex];
                         } else {
                             for(let i=0; i<selectedIndicies.length; i++) {
@@ -597,6 +602,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                                 this.replaceInstructionCommand(selectedIndicies[i], replaceCommand);
                                 this.replaceInstructionVelocity(selectedIndicies[i], newMIDIVelocity);
                             }
+                            this.renderRows();
+                            this.selectIndicies(e, selectedIndicies);
                             // this.selectIndicies(this.selectedIndicies[0]); // TODO: select all
                         }
                         // this.renderCursorRow();
@@ -629,7 +636,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         const selectedIndiciesDesc = selectedIndicies.sort((a,b) => b-a);
                         for(let i=0; i<selectedIndiciesDesc.length; i++)
                             this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                        this.render(); // TODO: render timeout
+                        this.renderRows();
                         this.selectIndicies(e, selectedIndicies[0]);
                         // song.render(true);
                         break;
@@ -650,7 +657,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                                 return console.info("Insert canceled");
                             let insertIndex = this.insertInstructionAtPosition(this.cursorPosition, newInstruction);
                             // this.cursorRow.render();
-                            this.render();
+                            this.renderRows();
                             this.selectIndicies(e, insertIndex);
                         }
 
@@ -726,7 +733,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                             const insertPosition = this.cursorPosition;
                             const insertIndex = this.insertInstructionAtPosition(insertPosition, newInstruction);
                             // this.cursorRow.render(true);
-                            this.render();
+                            this.renderRows();
                             this.selectIndicies(e, insertIndex);
                             selectedIndicies = [insertIndex];
 //                             console.timeEnd("new");
@@ -737,7 +744,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                                 const replaceCommand = this.replaceFrequencyAlias(newCommand, selectedInstruction.instrument);
                                 this.replaceInstructionCommand(selectedIndicies[i], replaceCommand);
                             }
-                            this.render();
+                            this.renderRows();
                             this.selectIndicies(e, selectedIndicies);
                             // this.selectIndicies(this.selectedIndicies[0]); // TODO: select all
                         }
@@ -1223,8 +1230,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 this.editor.status.currentInstrumentID = instrumentID;
                 this.playSelectedInstructions();
-                this.render();
-                this.fieldInstructionInstrument.focus();
+                this.renderRows();
+                this.selectIndicies(e, selectedIndicies);
+                // this.fieldInstructionInstrument.focus();
                 break;
 
             case 'instruction:duration':
@@ -1239,7 +1247,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                     this.findInstructionElement(selectedIndicies[i]).render();
                 }
                 this.playSelectedInstructions();
-                this.render();
+                this.renderRows();
+                this.selectIndicies(e, selectedIndicies);
                 // this.fieldInstructionDuration.focus();
                 break;
 
@@ -1255,7 +1264,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                     this.findInstructionElement(selectedIndicies[i]).render();
                 }
                 this.playSelectedInstructions();
-                this.render();
+                this.renderRows();
+                this.selectIndicies(e, selectedIndicies);
                 // this.selectIndicies(e, selectedIndicies[0]);
                 // this.fieldInstructionVelocity.focus();
                 break;
@@ -1263,7 +1273,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'instruction:delete':
                 for(let i=0; i<selectedIndicies.length; i++)
                     this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                this.render();
+                this.renderRows();
                 this.selectIndicies(e, selectedIndicies[0]);
                 break;
 
