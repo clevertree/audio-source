@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/clevertree/audio-source-composer#readme",
   "dependencies": {
+    "@babel/core": "^7.6.0",
     "jsdom": "^15.1.0",
     "minify": "^4.1.1"
   }
