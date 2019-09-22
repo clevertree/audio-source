@@ -169,7 +169,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     focusOnContainer() {
         let rowContainer = this.querySelector('.row-container');
-        if(rowContainer) {
+        if(rowContainer && rowContainer !== document.activeElement) {
             rowContainer.setAttribute('tabindex', '0');
             rowContainer.focus();
         }
@@ -565,7 +565,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(e.target instanceof Node && !this.contains(e.target))
             return;
 
-        this.focusOnContainer(); // Prevents tab from working
         // console.log(e.type);
 
         let selectedIndicies = this.selectedIndicies;
@@ -684,25 +683,29 @@ class AudioSourceComposerTracker extends HTMLElement {
                     // ctrlKey && metaKey skips a measure. shiftKey selects a range
                     case 'ArrowRight':
                         e.preventDefault();
-                        this.selectNextCell(e);
+                        this.selectNextCell(e)
+                            .scrollTo();
                         this.playSelectedInstructions(e);
                         break;
 
                     case 'ArrowLeft':
                         e.preventDefault();
-                        this.selectPreviousCell(e);
+                        this.selectPreviousCell(e)
+                            .scrollTo();
                         this.playSelectedInstructions(e);
                         break;
 
                     case 'ArrowDown':
                         e.preventDefault();
-                        this.selectNextRowCell(e);
+                        this.selectNextRowCell(e)
+                            .scrollTo();
                         this.playSelectedInstructions(e);
                         break;
 
                     case 'ArrowUp':
                         e.preventDefault();
-                        this.selectPreviousRowCell(e);
+                        this.selectPreviousRowCell(e)
+                            .scrollTo();
                         this.playSelectedInstructions(e);
                         break;
 
@@ -1313,6 +1316,8 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'row-segment:change':
                 this.currentRowSegmentID = parseInt(form.elements.id.value);
                 this.renderRows();
+                this.selectNextCell();
+                this.focusOnContainer();
                 break;
 
             case 'tracker:octave':
@@ -1322,10 +1327,13 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'tracker:quantization':
                 this.rowLengthInTicks = this.fieldRenderRowLength.value;
                 this.renderRows();
+                this.selectIndicies(e, selectedIndicies);
                 break;
 
             case 'tracker:instrument':
                 this.renderRows();
+                this.selectIndicies(e, selectedIndicies);
+
                 break;
 
             case 'tracker:select':
@@ -1372,6 +1380,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.update();
         this.playSelectedInstructions(e);
         this.focusOnContainer();
+        selectedRow.parentNode.scrollTo();
         this.editor.renderer.setStartPositionInTicks(selectedRow.position);
     }
 
@@ -1387,6 +1396,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         console.timeEnd("onCelInput");
         selectedCell.setCursor();
         selectedCell.play();
+        selectedCell.parentNode.scrollTo();
         this.focusOnContainer();
         this.editor.renderer.setStartPositionInTicks(selectedCell.parentNode.position);
     }
@@ -1531,6 +1541,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         if(clearSelection)
             this.clearSelection(selectedCell);
+
+        return selectedCell;
     }
 
     selectNextRowCell(e, clearSelection=true, cellPosition=null, increaseTrackerSize=true) {
@@ -1546,9 +1558,9 @@ class AudioSourceComposerTracker extends HTMLElement {
             // if(this.currentRowSegmentID === 0)
             //     throw new Error("TODO: reached end of song");
             this.currentRowSegmentID++;
-            this.render();
-            this.selectNextCell(e, true);
-            return;
+            this.renderRows();
+            this.focusOnContainer();
+            return this.selectNextCell(e, true);
         }
 
         const nextRowElm = cursorRow.nextElementSibling;
@@ -1571,6 +1583,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         if(clearSelection)
             this.clearSelection(selectedCell);
+
+        return selectedCell;
     }
 
 
@@ -1605,6 +1619,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         if(clearSelection)
             this.clearSelection(selectedCell);
+
+        return selectedCell;
     }
 
 
@@ -1617,9 +1633,9 @@ class AudioSourceComposerTracker extends HTMLElement {
             if(this.currentRowSegmentID === 0)
                 throw new Error("TODO: reached beginning of song");
             this.currentRowSegmentID--;
-            this.render();
-            this.selectPreviousCell(e, true);
-            return;
+            this.renderRows();
+            this.focusOnContainer();
+            return this.selectPreviousCell(e, true);
         }
 
         let previousRowElm = cursorRow.previousElementSibling;
@@ -1643,32 +1659,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(clearSelection)
             this.clearSelection(selectedCell);
 
-
-
-        //
-        // const cursorCell = this.cursorCell || this.querySelector('asct-instruction');
-        // if(clearSelection)
-        //     this.clearSelection();
-        // const cursorRow = cursorCell.parentNode;
-        // cellPosition = cellPosition === null ? [].indexOf.call(cursorRow.children, cursorCell) : cellPosition;
-        //
-        // let previousRowElm = cursorRow.previousElementSibling;
-        // if(!previousRowElm)
-        //     previousRowElm = cursorRow.parentNode.lastElementChild; // throw new Error("Previous row not available");
-        //
-        // let selectedCell;
-        // if(previousRowElm.children[cellPosition] && previousRowElm.children[cellPosition].matches('asct-instruction')) {
-        //     // If parallel column cell is available, select it
-        //     selectedCell = previousRowElm.children[cellPosition];
-        // } else {
-        //     selectedCell = previousRowElm.createAddInstructionElement();
-        //     // previousRowElm.setCursor();
-        //     // selectedCell = this.createNewInstructionCell(previousRowElm);
-        // }
-        //
-        // selectedCell
-        //     .select(true)
-        //     .setCursor();
+        return selectedCell;
     }
 
 
@@ -1701,6 +1692,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             if(i===0)
                 cell.setCursor();
         }
+    //    this.focusOnContainer(); // Prevents tab from working
     }
 
 
@@ -1948,12 +1940,13 @@ class AudioSourceComposerTrackerRow extends HTMLElement {
     }
 
     scrollTo() {
+        const container = this.parentNode;
         // const container = this.tracker; // cursorCell.closest('.composer-tracker-container');
-        // if (container.scrollTop < this.offsetTop - container.offsetHeight)
-        //     container.scrollTop = this.offsetTop;
+        if (container.scrollTop < this.offsetTop - container.offsetHeight)
+            container.scrollTop = this.offsetTop;
         //
-        // if (container.scrollTop > this.offsetTop)
-        //     container.scrollTop = this.offsetTop - container.offsetHeight;
+        if (container.scrollTop > this.offsetTop)
+            container.scrollTop = this.offsetTop - container.offsetHeight;
     }
 
 
