@@ -649,17 +649,16 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
-            <div style="flex-basis:100%;"></div>
             <div class="form-section-divide"><span>Song</span></div>
             <div class="form-section-container form-section-container-song"></div>
 
-            <div style="flex-basis:100%;"></div>
             <div class="form-section-divide"><span>Track</span></div>
             <div class="form-section-container form-section-container-tracker"></div>
 
-            <div style="flex-basis:100%;"></div>
             <div class="form-section-divide"><span>Instruments</span></div>
             <div class="form-section-container form-section-container-instruments"></div>
+
+            <hr style="flex-basis:100%; margin: 1px;" />
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
         <div class="asc-status-container">
