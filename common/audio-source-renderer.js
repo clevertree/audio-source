@@ -38,10 +38,6 @@ class AudioSourceRenderer {
     }
     // addSongEventListener(callback) { this.eventListeners.push(callback); }
 
-    get noteFrequencies() {
-        return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    }
-
 
     // Check for initiated, await if not
     getAudioContext() {

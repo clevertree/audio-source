@@ -45,13 +45,9 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM = null;
 
 
-        this.sources = new AudioSources(this.renderer);
         this.values = new AudioSourceValues(this.renderer);
-        this.sources.loadDefaultInstrumentLibrary();
-        this.sources.loadPackageInfo()
-            .then(packageInfo => {
-                this.setVersion(packageInfo.version);
-            });
+        this.loadDefaultInstrumentLibrary();
+        this.loadPackageInfo();
     }
 
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
@@ -138,7 +134,9 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     async loadDefaultInstrumentLibrary() {
-        await this.sources.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
+        const Libraries = new AudioSourceLibraries;
+        const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
+        await this.loadInstrumentLibrary(defaultLibraryURL);
 
         this.renderer.dispatchEvent(new CustomEvent('instrument:library', {
             // detail: this.instrumentLibrary,
@@ -1058,6 +1056,50 @@ class AudioSourceComposerElement extends HTMLElement {
 // //         console.log("Base Path: ", basePath);
 //         return basePath + appendPath;
 //     }
+
+    /** Ajax Loading **/
+
+    async loadInstrumentLibrary(url, force = false) {
+        if (!url)
+            throw new Error("Invalid url");
+        url = new URL(url, document.location) + '';
+        if (!force && this.instrumentLibrary && this.instrumentLibrary.url === url)
+            return this.instrumentLibrary;
+
+        this.instrumentLibrary = await this.loadJSON(url);
+        this.instrumentLibrary.url = url + '';
+        console.info("Instrument Library Loaded: ", this.instrumentLibrary);
+        return this.instrumentLibrary;
+    }
+
+    async loadPackageInfo() {
+        const Libraries = new AudioSourceLibraries;
+        const url = Libraries.getScriptDirectory('package.json');
+        const packageJSON = await this.loadJSON(url);
+        if(!packageJSON.version)
+            throw new Error("Invalid package version: " + xhr.response);
+
+        console.log("Package Version: ", packageJSON.version, packageJSON);
+        this.setVersion(packageJSON.version);
+    }
+
+
+    async loadJSON(url) {
+        url = new URL(url, document.location) + '';
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'json';
+            xhr.onload = () => {
+                if (xhr.status !== 200)
+                    return reject("JSON file not found: " + url);
+
+                resolve(xhr.response);
+            };
+            xhr.send();
+        });
+    }
+
 
     loadCSS() {
         const targetDOM = this.shadowDOM || document.head;

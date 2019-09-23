@@ -2,13 +2,17 @@
 
 
 class AudioSourceValues {
-    constructor(renderer) {
+    constructor(renderer=null) {
         this.renderer = renderer;
     }
 
     // get noteFrequencies() {
     //     return this.renderer.noteFrequencies; // ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     // }
+
+    get noteFrequencies() {
+        return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    }
 
     get valueTypes() {
         return [
@@ -35,7 +39,8 @@ class AudioSourceValues {
     getValues(valueType, callback) {
         let noteFrequencies;
         let valuesHTML = '';
-        const songData = this.renderer.getSongData() || {};
+        const songData = this.renderer ? this.renderer.getSongData() : null;
+        const timeDivision = this.renderer ? this.renderer.getSongTimeDivision() : 96*4;
 
         switch(valueType) {
             // case 'server-recent-uuid':
@@ -54,12 +59,12 @@ class AudioSourceValues {
                 break;
 
             case 'song-instruments':
-                if(songData.instruments) {
+                if(this.renderer && songData.instruments) {
                     const instrumentList = songData.instruments;
                     for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                         const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
                         // const instrument = this.renderer.getInstrument(instrumentID);
-                        valuesHTML += callback(instrumentID, this.renderer.values.format(instrumentID, 'instrument')
+                        valuesHTML += callback(instrumentID, this.format(instrumentID, 'instrument')
                             + ': ' + (instrumentInfo.name ? instrumentInfo.name : instrumentInfo.url.split('/').pop()));
                     }
                 }
@@ -83,20 +88,22 @@ class AudioSourceValues {
                 break;
 
             case 'command-instrument-frequencies':
-                for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
-                    if(this.renderer.isInstrumentLoaded(instrumentID)) {
-                        const instance = this.renderer.getInstrument(instrumentID);
-                        if(instance.getFrequencyAliases) {
-                            const aliases = instance.getFrequencyAliases();
-                            Object.values(aliases).forEach((aliasValue) =>
-                                valuesHTML += callback(aliasValue, aliasValue, `data-instrument="${instrumentID}"`));
+                if(songData) {
+                    for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
+                        if(this.renderer.isInstrumentLoaded(instrumentID)) {
+                            const instance = this.renderer.getInstrument(instrumentID);
+                            if(instance.getFrequencyAliases) {
+                                const aliases = instance.getFrequencyAliases();
+                                Object.values(aliases).forEach((aliasValue) =>
+                                    valuesHTML += callback(aliasValue, aliasValue, `data-instrument="${instrumentID}"`));
+                            }
                         }
                     }
                 }
                 break;
 
             case 'note-frequencies':
-                noteFrequencies = this.renderer.noteFrequencies;
+                noteFrequencies = this.noteFrequencies;
                 // for(let i=1; i<=6; i++) {
                 for(let j=0; j<noteFrequencies.length; j++) {
                     const noteFrequency = noteFrequencies[j]; //  + i
@@ -107,7 +114,7 @@ class AudioSourceValues {
 
 
             case 'note-frequencies-all':
-                noteFrequencies = this.renderer.noteFrequencies;
+                noteFrequencies = this.noteFrequencies;
                 for(let i=1; i<=6; i++) {
                     for(let j=0; j<noteFrequencies.length; j++) {
                         const noteFrequency = noteFrequencies[j] + i;
@@ -130,7 +137,6 @@ class AudioSourceValues {
                 break;
 
             case 'durations':
-                const timeDivision = this.renderer.getSongTimeDivision();
                 for(let i=64; i>1; i/=2) {
                     let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
                     valuesHTML += callback((1/i)/1.5    * timeDivision, `${fraction}t`);
@@ -166,14 +172,14 @@ class AudioSourceValues {
 
             case 'song-groups':
             case 'groups':
-                if(songData.instructions)
+                if(songData && songData.instructions)
                     Object.keys(songData.instructions).forEach(function(key, i) {
                         valuesHTML += callback(key, key);
                     });
                 break;
 
             case 'command-group-execute':
-                if(songData.instructions)
+                if(songData && songData.instructions)
                     Object.keys(songData.instructions).forEach(function(key, i) {
                         valuesHTML += callback('@' + key, '@' + key);
                     });
