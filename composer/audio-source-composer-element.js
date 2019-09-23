@@ -71,8 +71,8 @@ class AudioSourceComposerElement extends HTMLElement {
         // const onInput = e => this.onInput(e);
         // this.shadowDOM.addEventListener('submit', onInput);
         // this.shadowDOM.addEventListener('change', onInput);
-        this.attachEventHandler(['change', 'submit'], e => this.onInput(e));
-        this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
+        // this.attachEventHandler(['change', 'submit'], e => this.onInput(e));
+        this.attachEventHandler(['change', 'submit', 'focus'], e => this.onInput(e), this.shadowDOM, true);
         // this.shadowDOM.addEventListener('blur', onInput);
         // this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
 
@@ -329,12 +329,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
             case 'focus':
                 for(let i=0; i<e.path.length; i++) {
-                    const path = e.path[i];
-                    if(path.classList && path.classList.contains('instrument-container')) {
-                        if(!path.classList.contains('selected')) {
-                            path.parentNode.querySelectorAll('.instrument-container.selected')
+                    const target = e.path[i];
+                    if(target.classList && target.classList.contains('instrument-container')) {
+                        if(!target.classList.contains('selected')) {
+                            target.parentNode.querySelectorAll('.instrument-container.selected')
                                 .forEach((instrumentContainerElm) => instrumentContainerElm.classList.remove('selected'));
-                            path.classList.add('selected');
+                            target.classList.add('selected');
+                            setTimeout(e => target.parentNode.scrollLeft = target.offsetLeft - 20, 1);
                         }
                         break;
                     }
@@ -648,8 +649,16 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
+            <div style="flex-basis:100%;"></div>
+            <div class="form-section-divide"><span>Song</span></div>
             <div class="form-section-container form-section-container-song"></div>
+
+            <div style="flex-basis:100%;"></div>
+            <div class="form-section-divide"><span>Track</span></div>
             <div class="form-section-container form-section-container-tracker"></div>
+
+            <div style="flex-basis:100%;"></div>
+            <div class="form-section-divide"><span>Instruments</span></div>
             <div class="form-section-container form-section-container-instruments"></div>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
@@ -698,11 +707,6 @@ class AudioSourceComposerElement extends HTMLElement {
         // let tabIndex = 2;
         formSection.innerHTML =
             `
-
-            <div class="form-section-divide">
-                <span>Song</span>
-            </div>
-            
             <div class="form-section control-song">
                 <div class="form-section-header">Playback</div>
                 <form action="#" class="form-song-play hide-on-song-playing" data-action="song:play">
@@ -797,9 +801,6 @@ class AudioSourceComposerElement extends HTMLElement {
         const renderer = this.renderer;
 
         formSection.innerHTML = `
-            <div class="form-section-divide">
-                <span>Instruments</span>
-            </div>
 `;
 
         const formInstrumentsContainer = formSection; // formSection.querySelector('.form-instruments-container');

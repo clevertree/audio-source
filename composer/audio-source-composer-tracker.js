@@ -1039,10 +1039,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
 
         formSection.innerHTML = `
-            <div class="form-section-divide">
-                <span>Track</span>
-            </div>
- 
             <div class="form-section control-tracker">
                 <div class="form-section-header">Instruction</div>
                 <form action="#" class="form-instruction-command submit-on-change" data-action="instruction:command">

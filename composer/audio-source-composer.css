@@ -17,7 +17,7 @@
     /* position: relative; */
     display: flex;
     flex-wrap: wrap;
-    flex-flow: column;
+    /* flex-flow: column; */
     max-height: 1000px;
     /* font-family: monospace; */
     /* color: #000; */
@@ -224,10 +224,10 @@ asc-menu.open-context-menu > .dropdown-container {
 
 .asc-container .form-section-container {
     display: flex;
-    flex-wrap: nowrap;
-    clear: both;
+    flex-wrap: wrap;
+    /* clear: both; */
     overflow-y: auto;
-    min-height: 86px;
+    /* min-height: 86px; */
 }
 
 .asc-container .form-section-container > form,
@@ -247,10 +247,15 @@ asc-menu.open-context-menu > .dropdown-container {
 /** Form Section Divide **/
 
 .asc-container .form-section-divide {
+    /* display: inline-block; */
+    /* float: left; */
     font-weight: bold;
     text-align: center;
     padding: 2px 2px 2px 2px;
-    width: 100%;
+    /* width: 100%; */
+    flex-basis: 100%;
+    /* height: 0; */
+    border-radius: 8px 8px 0 0;
 }
 
 .asc-container .form-section-divide > span {
@@ -258,20 +263,17 @@ asc-menu.open-context-menu > .dropdown-container {
 
 }
 
-@media only screen and (min-width: 1000px) {
-    .asc-container .form-section-divide {
-        width: 12px;
-        writing-mode: vertical-rl;
-        padding: 10px 2px 6px 2px;
-    }
-    .asc-container .form-section-container {
-        min-height: 55px;
-    }
-}
+/*@media only screen and (min-width: 1000px) {*/
+/*    .asc-container .form-section-divide {*/
+/*        width: 12px;*/
+/*        writing-mode: vertical-rl;*/
+/*        padding: 10px 2px 6px 2px;*/
+/*    }*/
+/*    .asc-container .form-section-container {*/
+/*        min-height: 55px;*/
+/*    }*/
+/*}*/
 
-@media only screen and (max-width: 999px) {
-
-}
 
 .asc-container:not(.playing) .show-on-song-playing,
 .asc-container.playing .hide-on-song-playing,
@@ -649,9 +651,8 @@ asc-tracker > div.selection-rect {
 
 .asc-container .form-section-container-instruments {
     /* max-height: 260px; */
-    min-height: 108px;
-    /* overflow-y: auto; */
-    /* white-space: nowrap; */
+    /* min-height: 108px; */
+    flex-wrap: nowrap !important;
 }
 
 .asc-container .composer-instruments {
@@ -669,11 +670,20 @@ asc-tracker > div.selection-rect {
 }
 
 .instrument-container {
-    display: inline-block;
+    /* display: inline-block; */
     /* white-space: nowrap; */
-    /* max-height: 112px; */
+    /* min-width: 100px; */
+    max-height: 2000px;
+    max-width: 2000px;
+    transition: max-height 0.5s, max-width 0.5s;
 }
 
+.instrument-container:not(.selected) {
+    max-height: 79px;
+    max-width: 100px;
+    min-width: 100px;
+    overflow: hidden;
+}
 
 
 /** Icons **/
