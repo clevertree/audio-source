@@ -60,7 +60,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                     'change',
                     'blur',
                     'focus',
-                    'submit'
+                    'submit',
                 ],
                 e => this.onInput(e), this.shadowDOM);
             // this.loadCSS();
@@ -724,6 +724,8 @@ if(!customElements.get('audio-source-synthesizer')) {
             if (!this.shadowDOM.contains(e.target))
                 return;
 
+
+
             // try {
             switch (e.type) {
                 case 'submit':
@@ -737,13 +739,6 @@ if(!customElements.get('audio-source-synthesizer')) {
                     }
 
 
-                    break;
-                case 'focus':
-                    switch (e.target.name) {
-                        case 'preset':
-                            e.target.value = '';
-                    }
-                    break;
             }
             // } catch (err) {
             //     this.editor.onError(err);

@@ -7,10 +7,6 @@ class MIDISupport {
     }
     // addSongEventListener(callback) { this.eventListeners.push(callback); }
 
-    // TODO: duplicate
-    get noteFrequencies() {
-        return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    }
 
 
     getCommandFromMIDINote(midiNote) {
@@ -18,7 +14,8 @@ class MIDISupport {
         // midiNote -= 24;
         const octave = Math.floor(midiNote / 12);
         const pitch = midiNote % 12;
-        return this.noteFrequencies[pitch] + octave;
+        const sources = new AudioSourceValues();
+        return sources.noteFrequencies[pitch] + octave;
     }
 
 

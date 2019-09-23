@@ -20,6 +20,12 @@
     border: 1px outset;
 }
 
+
+.audio-source-synthesizer.focus {
+    background: #CCC;
+
+}
+
 .audio-source-synthesizer form {
     /*display: inline-block;*/
 }

@@ -68,13 +68,13 @@ class AudioSourceComposerTracker extends HTMLElement {
             eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
     }
 
-    attachEventHandler(eventNames, method, context) {
+    attachEventHandler(eventNames, method, context, options=null) {
         if(!Array.isArray(eventNames))
             eventNames = [eventNames];
         for(let i=0; i<eventNames.length; i++) {
             const eventName = eventNames[i];
             context = context || this;
-            context.addEventListener(eventName, method);
+            context.addEventListener(eventName, method, options);
             this.eventHandlers.push([eventName, method, context]);
         }
     }

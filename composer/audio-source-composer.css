@@ -224,7 +224,7 @@ asc-menu.open-context-menu > .dropdown-container {
 
 .asc-container .form-section-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     clear: both;
     overflow-y: auto;
     min-height: 86px;
@@ -648,9 +648,10 @@ asc-tracker > div.selection-rect {
 
 
 .asc-container .form-section-container-instruments {
-    max-height: 260px;
+    /* max-height: 260px; */
     min-height: 108px;
     /* overflow-y: auto; */
+    /* white-space: nowrap; */
 }
 
 .asc-container .composer-instruments {
@@ -669,6 +670,8 @@ asc-tracker > div.selection-rect {
 
 .instrument-container {
     display: inline-block;
+    /* white-space: nowrap; */
+    /* max-height: 112px; */
 }
 
 

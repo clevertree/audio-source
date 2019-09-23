@@ -2,6 +2,7 @@
  * Player requires a modern browser
  */
 
+// TODO: refactor into Song class and Renderer
 
 class AudioSourceRenderer {
     constructor(songData={}, dispatchElement=null) {

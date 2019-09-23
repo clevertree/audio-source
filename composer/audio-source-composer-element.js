@@ -68,10 +68,13 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
 
-        const onInput = e => this.onInput(e);
-        this.shadowDOM.addEventListener('submit', onInput);
-        this.shadowDOM.addEventListener('change', onInput);
+        // const onInput = e => this.onInput(e);
+        // this.shadowDOM.addEventListener('submit', onInput);
+        // this.shadowDOM.addEventListener('change', onInput);
+        this.attachEventHandler(['change', 'submit'], e => this.onInput(e));
+        this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
         // this.shadowDOM.addEventListener('blur', onInput);
+        // this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified',
@@ -122,13 +125,13 @@ class AudioSourceComposerElement extends HTMLElement {
             eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
     }
 
-    attachEventHandler(eventNames, method, context) {
+    attachEventHandler(eventNames, method, context, options=null) {
         if(!Array.isArray(eventNames))
             eventNames = [eventNames];
         for(let i=0; i<eventNames.length; i++) {
             const eventName = eventNames[i];
             context = context || this;
-            context.addEventListener(eventName, method);
+            context.addEventListener(eventName, method, options);
             this.eventHandlers.push([eventName, method, context]);
         }
     }
@@ -305,6 +308,8 @@ class AudioSourceComposerElement extends HTMLElement {
         if(e.defaultPrevented)
             return;
 
+        console.log(e.target, e.type);
+
         // try {
         this.renderer.getAudioContext();
         // if(this !== document.activeElement && !this.contains(document.activeElement)) {
@@ -320,6 +325,20 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'blur':
                 if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
                     this.onSubmit(e);
+                break;
+
+            case 'focus':
+                for(let i=0; i<e.path.length; i++) {
+                    const path = e.path[i];
+                    if(path.classList && path.classList.contains('instrument-container')) {
+                        if(!path.classList.contains('selected')) {
+                            path.parentNode.querySelectorAll('.instrument-container.selected')
+                                .forEach((instrumentContainerElm) => instrumentContainerElm.classList.remove('selected'));
+                            path.classList.add('selected');
+                        }
+                        break;
+                    }
+                }
                 break;
 
             default:
@@ -788,9 +807,10 @@ class AudioSourceComposerElement extends HTMLElement {
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
 
             let instrumentDiv = document.createElement('div');
-            instrumentDiv.setAttribute('data-id', instrumentID+'');
+            // instrumentDiv.setAttribute('data-id', instrumentID+'');
             instrumentDiv.classList.add('instrument-container');
             instrumentDiv.classList.add('control-instrument');
+            instrumentDiv.setAttribute('tabindex', '0');
             formInstrumentsContainer.appendChild(instrumentDiv);
 
             // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
