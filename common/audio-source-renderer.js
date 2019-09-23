@@ -2,6 +2,7 @@
  * Player requires a modern browser
  */
 
+
 class AudioSourceRenderer {
     constructor(songData={}, dispatchElement=null) {
         this.dispatchElement = dispatchElement;
@@ -29,7 +30,10 @@ class AudioSourceRenderer {
         this.loadSongData(songData);
         // this.eventListeners = [];
         this.songHistory = [];
-        document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
+
+        // Listen for instrument changes if in a browser
+        if(typeof document !== "undefined")
+            document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
     }
     // addSongEventListener(callback) { this.eventListeners.push(callback); }
@@ -222,11 +226,16 @@ class AudioSourceRenderer {
         let instructionList = this.songData.instructions[groupName];
         if(!Number.isInteger(index))
             throw new Error("Invalid Index: " + typeof index);
-        if(throwException) {
-            if (index >= instructionList.length)
+
+        if (index >= instructionList.length) {
+            if(throwException)
                 throw new Error(`Instruction index is greater than group length: ${index} >= ${instructionList.length} for groupName: ${groupName}`);
-            if (!instructionList[index])
+            return null;
+        }
+        if (!instructionList[index]) {
+            if(throwException)
                 throw new Error(`Instruction not found at index: ${index} for groupName: ${groupName}`);
+            return null;
         }
         return new SongInstruction(instructionList[index]);
     }
@@ -1073,19 +1082,19 @@ class AudioSourceRenderer {
 
 
 
-    insertInstructionAtIndex(groupName, insertIndex, insertInstruction) {
-        if(insertInstruction instanceof SongInstruction)
-            insertInstruction = insertInstruction.data;
-        if(!insertInstruction)
+    insertInstructionAtIndex(groupName, insertIndex, insertInstructionData) {
+        if(!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        this.insertDataPath(['instructions', groupName, insertIndex], insertInstruction);
+        let insertInstruction = SongInstruction.parse(insertInstructionData);
+        insertInstructionData = insertInstruction.data;
+        this.insertDataPath(['instructions', groupName, insertIndex], insertInstructionData);
     }
 
 
     deleteInstructionAtIndex(groupName, deleteIndex) {
         const deleteInstruction = this.getInstruction(groupName, deleteIndex);
         if(deleteInstruction.deltaDuration > 0) {
-            const nextInstruction = this.getInstruction(groupName, deleteIndex+1);
+            const nextInstruction = this.getInstruction(groupName, deleteIndex+1, false);
             if(nextInstruction) {
                 this.replaceInstructionDeltaDuration(groupName, deleteIndex+1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
             }
@@ -1275,10 +1284,12 @@ class SongInstruction {
         if (typeof instruction === 'number')
             instruction = [instruction]; // Single entry array means pause
 
-        if (typeof instruction === 'string') {
+        else if (typeof instruction === 'string') {
             instruction = instruction.split(':');
-            instruction[0] = parseFloat(instruction[0]);
-            instruction[1] = parseInt(instruction[1])
+            // instruction[0] = parseFloat(instruction[0]);
+            if(instruction.length >= 2) {
+                instruction[1] = parseInt(instruction[1])
+            }
         }
 
         if(typeof instruction[0] === 'string')
@@ -1372,7 +1383,23 @@ class InstructionIterator {
 
 
 
+// NodeJS Support
+if(typeof module !== "undefined") {
+    const path = require('path');
+    const DIR_ROOT = path.dirname(__dirname);
 
+    global.AudioSources = require(DIR_ROOT + '/common/audio-sources.js').AudioSources;
+    global.AudioSourceValues = require(DIR_ROOT + '/common/audio-source-values.js').AudioSourceValues;
+
+    module.exports = {AudioSourceRenderer};
+
+    class CustomEvent {
+        constructor(name, data) {
+
+        }
+    }
+    global.CustomEvent = CustomEvent;
+}
 
 
 

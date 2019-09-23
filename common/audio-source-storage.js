@@ -192,3 +192,5 @@ class AudioSourceStorage {
 
 
 
+if(typeof module !== "undefined")
+    module.exports = {AudioSourceStorage};

@@ -67,3 +67,6 @@ class AudioSourceLibraries {
 
 
 }
+
+if(typeof module !== "undefined")
+    module.exports = {AudioSourceLibraries};

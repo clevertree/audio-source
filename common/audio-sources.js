@@ -86,6 +86,8 @@ class AudioSources {
         });
     }
 
-
-
 }
+
+
+if(typeof module !== "undefined")
+    module.exports = {AudioSources};

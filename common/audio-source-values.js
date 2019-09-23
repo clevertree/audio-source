@@ -204,3 +204,6 @@ class AudioSourceValues {
     }
 
 }
+
+if(typeof module !== "undefined")
+    module.exports = {AudioSourceValues};

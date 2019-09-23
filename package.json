@@ -6,8 +6,8 @@
   "license": "GPL-3.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
+    "test": "node .scripts/test.js",
     "minify": "node .scripts/minify.js"
   },
   "repository": {
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/clevertree/audio-source-composer#readme",
   "dependencies": {
+    "bad-words": "^3.0.0",
     "@babel/core": "^7.6.0",
     "jsdom": "^15.1.0",
     "minify": "^4.1.1"
