@@ -434,6 +434,7 @@ asc-tracker {
     /* flex-grow: 1; */
     /* max-height: 100%; */
     /* margin-bottom: 16px; */
+    flex-basis: 100%;
 }
 
 
