@@ -71,11 +71,12 @@ Listen to, Publish, and Sell Original Music
 # FAQ
 
 ##### Q: What is the Audio Source Composer vision?
-######  A: The vision is essentially that everyone in the future makes music where the 'source' can be viewed easily by anyone. so some kid can get inspired to make music and hit 'source' on his/her favorite composer's song, and go 'wait I can do that'
+######  The vision is essentially that everyone in the future makes music where the 'source' can be viewed easily by anyone. Some kid can get inspired to make music and hit 'source' on his/her favorite composer's song, and go 'wait I can do that'
 
 ##### Q: Why will artists (his favourite composer) give away the source?
-###### A: What artist, if he/her is willing to call themselves that, doesn't want their fans to see their source? I've always shared my song source. I've always answered questions from fans and other artists about how I pulled this or that off, or borrow a sample, or a vsti. Anyway, this concept only applies to an artist who actually builds their songs with this software in the first place, so the for-profit industry-suckers can stay in their closed-source shrinking bubble, at least while it hasn't popped yet
+###### What artist, if he/her is willing to call themselves that, doesn't want their fans to see their source? I've always shared my song source. I've always answered questions from fans and other artists about how I pulled this or that off, or borrow a sample, or a vsti. Anyway, this concept only applies to an artist who actually builds their songs with this software in the first place, so the for-profit industry-suckers can stay in their closed-source shrinking bubble, at least while it hasn't popped yet
 
 ##### Q: How can I help? What should I help with? Are there instructions? 
-###### A: Most of the work will be done on our github repo. Check out the README for installation instructions. We want help with everything from images, css, UI, testing, programming, and feedback!
+###### Most of the work will be done on our github repo. Check out the README for installation instructions. 
+We want help with everything from images, css, UI, testing, programming, and feedback. (And PR obviously!)
 https://github.com/clevertree/audio-source-composer

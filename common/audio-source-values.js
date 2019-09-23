@@ -10,6 +10,26 @@ class AudioSourceValues {
     //     return this.renderer.noteFrequencies; // ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     // }
 
+    get valueTypes() {
+        return [
+            'beats-per-measure',
+            'beats-per-minute',
+            'command-group-execute',
+            'command-instrument-frequencies',
+            'durations',
+            'groups',
+            'instruments-available',
+            'named-durations',
+            'note-frequencies',
+            'note-frequencies-all',
+            'note-frequency-octaves',
+            'song-groups',
+            'song-instruments',
+            'song-recent-list',
+            'velocities',
+        ]
+    }
+
     /** Form Options **/
 
     getValues(valueType, callback) {
@@ -26,10 +46,11 @@ class AudioSourceValues {
             //     break;
 
             case 'song-recent-list':
-                const Storage = new AudioSourceStorage();
-                const songRecentUUIDs = Storage.getRecentSongList() ;
-                for(let i=0; i<songRecentUUIDs.length; i++)
-                    valuesHTML += callback(songRecentUUIDs[i].guid, songRecentUUIDs[i].title);
+                // TODO: refactor
+                // const Storage = new AudioSourceStorage();
+                // const songRecentUUIDs = Storage.getRecentSongList() ;
+                // for(let i=0; i<songRecentUUIDs.length; i++)
+                //     valuesHTML += callback(songRecentUUIDs[i].guid, songRecentUUIDs[i].title);
                 break;
 
             case 'song-instruments':
@@ -45,18 +66,20 @@ class AudioSourceValues {
                 break;
 
             case 'instruments-available':
-                const instrumentLibrary = this.renderer.sources.getInstrumentLibrary();
-                if(instrumentLibrary) {
-                    if(instrumentLibrary.instruments) {
-                        instrumentLibrary.instruments.forEach((pathConfig) => {
-                            let instrumentURL = pathConfig.url;
-                            if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
-                            if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
-                            if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
-                            valuesHTML += callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
-                        });
-                    }
-                }
+                // TODO: refactor
+                // const sources = new AudioSources(this.renderer);
+                // const instrumentLibrary = sources.getInstrumentLibrary();
+                // if(instrumentLibrary) {
+                //     if(instrumentLibrary.instruments) {
+                //         instrumentLibrary.instruments.forEach((pathConfig) => {
+                //             let instrumentURL = pathConfig.url;
+                //             if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
+                //             if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
+                //             if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
+                //             valuesHTML += callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
+                //         });
+                //     }
+                // }
                 break;
 
             case 'command-instrument-frequencies':

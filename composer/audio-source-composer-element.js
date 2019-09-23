@@ -45,14 +45,15 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM = null;
 
 
+        this.sources = new AudioSources(this.renderer);
+        this.values = new AudioSourceValues(this.renderer);
         this.sources.loadDefaultInstrumentLibrary();
         this.sources.loadPackageInfo()
             .then(packageInfo => {
                 this.setVersion(packageInfo.version);
             });
     }
-    get sources() { return this.renderer.sources; }
-    get values() { return this.renderer.values; }
+
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
     // get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
     // get forms() { return this.shadowDOM.querySelector('asc-forms'); }
@@ -134,6 +135,16 @@ class AudioSourceComposerElement extends HTMLElement {
             context.addEventListener(eventName, method);
             this.eventHandlers.push([eventName, method, context]);
         }
+    }
+
+    async loadDefaultInstrumentLibrary() {
+        await this.sources.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
+
+        this.renderer.dispatchEvent(new CustomEvent('instrument:library', {
+            // detail: this.instrumentLibrary,
+            // bubbles: true
+        }));
+
     }
 
     async loadDefaultSong() {

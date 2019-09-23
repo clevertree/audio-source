@@ -1,9 +1,8 @@
 
 
-
+// TODO: refactor into libraries
 class AudioSources {
-    constructor(editor) {
-        this.editor = editor;
+    constructor() {
         this.instrumentLibrary = {
             "name": "Loading Instrument Library...",
             "instruments": [
@@ -31,9 +30,9 @@ class AudioSources {
         return this.instrumentLibrary;
     }
 
-    async loadDefaultInstrumentLibrary() {
-        return await this.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
-    }
+    // async loadDefaultInstrumentLibrary() {
+    //     return await this.loadInstrumentLibrary(this.DEFAULT_INSTRUMENT_LIBRARY_URL);
+    // }
 
     async loadPackageInfo() {
         const Libraries = new AudioSourceLibraries;
@@ -75,10 +74,6 @@ class AudioSources {
 
                 this.instrumentLibrary = xhr.response;
                 this.instrumentLibrary.url = url + '';
-                this.editor.dispatchEvent(new CustomEvent('instrument:library', {
-                    // detail: this.instrumentLibrary,
-                    // bubbles: true
-                }));
                 console.info("Instrument Library Loaded: ", this.instrumentLibrary);
                 resolve(this.instrumentLibrary);
             };

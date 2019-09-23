@@ -109,9 +109,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         return this.editor.renderer.getInstructions(this.groupName, indicies);
     }
 
-    getInstructionRange(start, end=null) {
-        return this.editor.renderer.getInstructionRange(this.groupName, start, end);
-    }
+    // getInstructionRange(start, end=null) {
+    //     return this.editor.renderer.getInstructionRange(this.groupName, start, end);
+    // }
 
     getInstruction(index) {
         return this.editor.renderer.getInstruction(this.groupName, index);

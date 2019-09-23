@@ -16,9 +16,27 @@ class AudioSourceStorage {
         return await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
     }
 
+    /** Generate Song Data **/
+
+    generateTitle() {
+        return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
+    }
+
+    generateGUID() {
+        var d = new Date().getTime();
+        if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
+            d += performance.now(); //use high-precision timer if available
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
     generateDefaultSong(defaultInstrumentURL=null) {
         const songData = {
-            name: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
+            name: this.generateTitle(),
             guid: this.generateGUID(),
             version: '0.0.1',
             root: 'root',
@@ -36,6 +54,7 @@ class AudioSourceStorage {
         return songData;
     }
 
+    /** Encoding / Decoding **/
 
     async encodeForStorage(json, replacer=null, space=null) {
         let encodedString = JSON.stringify(json, replacer, space);
@@ -54,6 +73,8 @@ class AudioSourceStorage {
         encodedString = LZString.decompress(encodedString) || encodedString;
         return JSON.parse(encodedString);
     }
+
+    /** Saving **/
 
     async saveSongToMemory(songData, songHistory) {
         // const song = this.getSongData();
@@ -101,6 +122,7 @@ class AudioSourceStorage {
         downloadAnchorNode.remove();
     }
 
+    /** Loading **/
 
     async loadSongFromMemory(songGUID) {
         let songDataString = localStorage.getItem('song:' + songGUID);
@@ -174,23 +196,15 @@ class AudioSourceStorage {
     //     return actions;
     // }
 
-    /** Modify Song Data **/
-
-    generateGUID() { 
-        var d = new Date().getTime();
-        if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
-            d += performance.now(); //use high-precision timer if available
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-    }
 
 }
 
 
 
-if(typeof module !== "undefined")
+
+// NodeJS Support
+if(typeof module !== "undefined") {
     module.exports = {AudioSourceStorage};
+
+}
+
