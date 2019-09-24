@@ -525,7 +525,7 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:stop':
             case 'song:reset':
                 this.renderer.stopPlayback();
-                this.renderer.setSongPositionInTicks(0);
+                this.renderer.setPlaybackPositionInTicks(0);
                 break;
 
             // case 'song:resume':

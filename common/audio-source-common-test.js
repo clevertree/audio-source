@@ -61,6 +61,12 @@ class AudioSourceCommonTest {
         r.insertInstructionAtPosition(testGroup, 10, 'pos10');
         r.insertInstructionAtPosition(testGroup, 0, 'pos0');
 
+        r.insertInstructionAtPosition(testGroup, '1B', 'pos1B');
+        r.insertInstructionAtPosition(testGroup, '0.5B', 'pos1/2B');
+        r.insertInstructionAtPosition(testGroup, '8B', 'pos8B');
+        r.insertInstructionAtPosition(testGroup, '16B', 'pos16B');
+
+
         console.log("Root: ", root);
 
         // Get Instructions
@@ -75,11 +81,21 @@ class AudioSourceCommonTest {
         r.addInstructionGroup(newRootGroup, ['A', 'B', 'C', 10, 'D']);
         r.removeInstructionGroup(newRootGroup);
 
-        console.info("Test song: ", Math.round(r.getSongPositionInSeconds() * 10000) / 10000 + 's', songData);
+        console.info("Test song: ", Math.round(r.getSongLength() * 10000) / 10000 + 's', songData);
+
+        // TODO: set position
+
+        r.setPlaybackPosition(0.01);
+        r.setPlaybackPosition(0.1);
+        r.setPlaybackPosition(1);
+        r.setPlaybackPositionInTicks(10);
+        r.setPlaybackPositionInTicks(100);
+        r.setPlaybackPositionInTicks(1000);
 
         // Get Song Info
-        console.assert(r.getSongPositionInSeconds() > 0, "getSongDuration");
-        console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
+        console.assert(r.songPlaybackPosition > 0, "songPlaybackPosition");
+        console.assert(r.getSongLength() > 0, "getSongLength()");
+        // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
 
         // Delete Instructions
@@ -87,8 +103,8 @@ class AudioSourceCommonTest {
             r.deleteInstructionAtIndex(testGroup, 0);
 
 
-        console.assert(r.getSongPositionInSeconds() === 0, "getSongDuration");
-        console.assert(r.getSongPositionInTicks() === 0, "getSongPositionInTicks");
+        // console.assert(r.getSongPositionFromTicks() === 0, "getSongPositionInSeconds");
+        // console.assert(r.getSongPositionInTicks() === 0, "getSongPositionInTicks");
     }
 }
 
