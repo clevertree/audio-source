@@ -75,10 +75,10 @@ class AudioSourceCommonTest {
         r.addInstructionGroup(newRootGroup, ['A', 'B', 'C', 10, 'D']);
         r.removeInstructionGroup(newRootGroup);
 
-        console.info("Test song: ", Math.round(r.getSongDurationInSeconds() * 10000) / 10000 + 's', songData);
+        console.info("Test song: ", Math.round(r.getSongPositionInSeconds() * 10000) / 10000 + 's', songData);
 
         // Get Song Info
-        console.assert(r.getSongDurationInSeconds() > 0, "getSongDuration");
+        console.assert(r.getSongPositionInSeconds() > 0, "getSongDuration");
         console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
 
@@ -87,7 +87,7 @@ class AudioSourceCommonTest {
             r.deleteInstructionAtIndex(testGroup, 0);
 
 
-        console.assert(r.getSongDurationInSeconds() === 0, "getSongDuration");
+        console.assert(r.getSongPositionInSeconds() === 0, "getSongDuration");
         console.assert(r.getSongPositionInTicks() === 0, "getSongPositionInTicks");
     }
 }

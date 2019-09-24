@@ -392,6 +392,7 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container  form.form-load-file input[name=file]                        { max-width: 96px; }
 .asc-container  form.form-song-version input[name=version]                  { max-width: 64px; }
 .asc-container  form.form-song-title input[name=title]                      { width: 160px; }
+.asc-container  form.form-song-playback-position input[name=position]       {width: 72px;}
 
 /** Add Instrument Form **/
 

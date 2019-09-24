@@ -1240,7 +1240,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.playSelectedInstructions(e);
         this.focusOnContainer();
         selectedRow.parentNode.scrollTo();
-        this.editor.renderer.setStartPositionInTicks(selectedRow.position);
+        this.editor.renderer.setSongPositionInTicks(selectedRow.position);
     }
 
     onCellInput(e, selectedCell) {
@@ -1257,7 +1257,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedCell.play();
         selectedCell.parentNode.scrollTo();
         this.focusOnContainer();
-        this.editor.renderer.setStartPositionInTicks(selectedCell.parentNode.position);
+        this.editor.renderer.setSongPositionInTicks(selectedCell.parentNode.position);
     }
 
 

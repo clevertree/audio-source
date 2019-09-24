@@ -16,7 +16,7 @@ class AudioSourceRenderer {
         };
 
         this.seekLength = 0.5;
-        this.playbackPositionInTicks = 0; // Song relative position in ticks
+        this.playbackPosition = 0;
         this.playbackStartTime = null;  // Song start time
 
         this.volumeGain = null;
@@ -313,16 +313,39 @@ class AudioSourceRenderer {
 
     /** Song Timing **/
 
-    getSongDurationInSeconds(endPositionInTicks=null) {
-        return this.getGroupDurationInSeconds(this.getSongRootGroup(), endPositionInTicks);
+
+    setSongPositionInTicks(startPositionInTicks) {
+        if(!Number.isInteger(startPositionInTicks))
+            throw new Error("Invalid start position in ticks");
+        // TODO: is start position beyond song's ending?
+
+        this.playbackPosition = this.getSongPositionInSeconds(startPositionInTicks);
+        console.log("Seek position: ", this.playbackPosition);
+
+        const detail = {
+            // startTime: this.playbackStartTime,
+            position: this.playbackPosition,
+            positionInTicks: startPositionInTicks
+        };
+        this.dispatchEvent(new CustomEvent('song:seek', {detail}));
     }
 
-    getGroupDurationInSeconds(groupName, endPositionInTicks=null) {
-        let currentDuration = 0;
+
+    getSongPositionInSeconds(endPositionInTicks=null) {
+        return this.getGroupPositionInSeconds(this.getSongRootGroup(), endPositionInTicks);
+    }
+
+    getGroupPositionInSeconds(groupName, groupPositionInTicks=null) {
+        let currentDuration = 0, lastGroupPositionInTicks=0;
         this.eachInstruction(groupName, (index, instruction, stats) => {
             currentDuration = stats.groupPlaybackTime;
-            if(endPositionInTicks !== null && stats.groupPositionInTicks >= endPositionInTicks)
+            if(groupPositionInTicks !== null && stats.groupPositionInTicks >= groupPositionInTicks) {
+                const remainderInTicks = groupPositionInTicks - lastGroupPositionInTicks;
+                const elapsedTime = (remainderInTicks / stats.timeDivision) / (stats.currentBPM / 60);
+                currentDuration = stats.groupPlaybackTime + elapsedTime;
                 return false;
+            }
+            lastGroupPositionInTicks = stats.groupPositionInTicks;
         });
         return currentDuration;
     }
@@ -342,47 +365,59 @@ class AudioSourceRenderer {
     /** Playback **/
     // TODO remove stop and add play start over?
 
-    async play (startPositionInTicks = null) {
+    async play () {
         if(this.playbackStartTime !== null)
             throw new Error("Song is already playing");
-        if(startPositionInTicks !== null)
-            this.playbackPositionInTicks = startPositionInTicks;
-        console.log("Start playback:", this.playbackPositionInTicks);
-        const playbackPositionInSeconds = this.getSongDurationInSeconds(this.playbackPositionInTicks);
+        console.log("Start playback:", this.playbackPosition);
+        // const playbackPositionInSeconds = this.getSongPositionInSeconds();
+
+        const playbackPositionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 
         await this.initAllInstruments(this.getAudioContext());
 
         // Set playback start time
-        this.playbackStartTime = this.getAudioContext().currentTime - playbackPositionInSeconds;
+        this.playbackStartTime = this.getAudioContext().currentTime - this.playbackPosition;
         // console.log("Start playback:", this.playbackStartTime);
 
         const detail = {
             startTime: this.playbackStartTime,
-            positionInTicks: this.playbackPositionInTicks,
-            positionInSeconds: playbackPositionInSeconds
+            position: this.playbackPosition,
+            positionInTicks: playbackPositionInTicks,
         };
         this.dispatchEvent(new CustomEvent('song:play', {detail}));
         await this.playInstructions(
             this.getSongRootGroup(),
             this.playbackStartTime
         );
+
+        if(this.playbackStartTime !== null)
+            this.stopPlayback();
         // this.seekPosition = this.getAudioContext().currentTime - (this.seekPosition + this.playbackStartTime); // TODO: broken
         this.dispatchEvent(new CustomEvent('song:end', {detail}));
-        // console.log("Seek position in ticks: ", this.playbackPositionInTicks);
+        console.log("End playback:", this.playbackPosition);
 
     }
 
+    get isPlaying() {
+        return this.playbackStartTime !== null;
+    }
+
+    get songPlaybackPosition() {
+        if(this.playbackStartTime)
+            return this.getAudioContext().currentTime - this.playbackStartTime;
+        return this.playbackPosition;
+    }
 
 
     // Stops playback
     stopPlayback() {
-        // if(this.playbackStartTime === null)
-        //     throw new Error("Song is not playing");
-
         // Set the current playback time
-        if(this.playbackStartTime !== null)
-            this.playbackPositionInTicks = this.getSongPositionInTicks(this.getAudioContext().currentTime - this.playbackStartTime);
+        if(this.playbackStartTime == null)
+            console.warn("Playback is already stopped");
+        this.playbackPosition = this.getAudioContext().currentTime - this.playbackStartTime;
         this.playbackStartTime = null;
+
+        const playbackPositionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 
         // Ensures no new notes play
         for(const key in this.activeGroups) {
@@ -407,26 +442,11 @@ class AudioSourceRenderer {
         // this.activeSources = [];
 
         const detail = {
-            startTime: this.playbackStartTime,
-            positionInTicks: this.playbackPositionInTicks
+            position: this.playbackPosition,
+            positionInTicks: playbackPositionInTicks,
         };
         this.dispatchEvent(new CustomEvent('song:stop', {detail}));
-        console.log("Stop position in ticks: ", this.playbackPositionInTicks);
-    }
-
-    setStartPositionInTicks(startPositionInTicks) {
-        if(!Number.isInteger(startPositionInTicks))
-            throw new Error("Invalid start position");
-        // TODO: is start position beyond song's ending?
-
-        this.playbackPositionInTicks = startPositionInTicks;
-        console.log("Seek position in ticks: ", this.playbackPositionInTicks);
-
-        const detail = {
-            startTime: this.playbackStartTime,
-            positionInTicks: this.playbackPositionInTicks
-        };
-        this.dispatchEvent(new CustomEvent('song:seek', {detail}));
+        console.log("Stop position: ", this.playbackPosition);
     }
 
     isPlaybackActive() {

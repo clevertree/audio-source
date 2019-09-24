@@ -77,7 +77,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
 
         this.attachEventHandler([
-            'song:loaded','song:play','song:end','song:stop','song:modified',
+            'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
             'note:start', 'note:end',
         ], this.onSongEvent);
         this.attachEventHandler([
@@ -293,6 +293,41 @@ class AudioSourceComposerElement extends HTMLElement {
         console.info(this.renderer.songData);
         this.render();
     }
+
+
+    /** Playback **/
+
+    async play() {
+        await this.renderer.play();
+        let playbackInterval = setInterval(e => {
+            if(this.renderer.isPlaying) {
+                this.updateSongPositionValue();
+            } else {
+                clearInterval(playbackInterval);
+            }
+        }, 10);
+        // if(this.renderer.isPlaybackActive())
+        //     this.renderer.stop();
+        // else
+        //     this.renderer.play();
+
+    }
+
+    updateSongPositionValue() {
+        let s = this.renderer.songPlaybackPosition;
+        let m = Math.floor(s / 60);
+        s = s % 60;
+        let ms = Math.round((s - Math.floor(s)) * 1000);
+        s = Math.floor(s);
+
+        m = (m+'').padStart(2, '0');
+        s = (s+'').padStart(2, '0');
+        ms = (ms+'').padStart(4, '0'); // TODO: ticks?
+
+        this.fieldSongPosition.value = `${m}:${s}:${ms}`;
+    }
+
+
     // Input
 
     // profileInput(e) {
@@ -308,7 +343,7 @@ class AudioSourceComposerElement extends HTMLElement {
         if(e.defaultPrevented)
             return;
 
-        console.log(e.target, e.type);
+//         console.log(e.target, e.type);
 
         // try {
         this.renderer.getAudioContext();
@@ -360,6 +395,9 @@ class AudioSourceComposerElement extends HTMLElement {
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
+            case 'song:seek':
+                this.updateSongPositionValue();
+                break;
             case 'song:loaded':
                 this.tracker.renderDuration = this.renderer.getSongTimeDivision();
                 break;
@@ -477,11 +515,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             case 'song:play':
             case 'song:resume':
-                await this.renderer.play();
-                // if(this.renderer.isPlaybackActive())
-                //     this.renderer.stop();
-                // else
-                //     this.renderer.play();
+                this.play();
                 break;
 
             case 'song:pause':
@@ -491,7 +525,7 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:stop':
             case 'song:reset':
                 this.renderer.stopPlayback();
-                this.renderer.setStartPositionInTicks(0);
+                this.renderer.setSongPositionInTicks(0);
                 break;
 
             // case 'song:resume':
@@ -697,6 +731,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     get fieldSongVolume()           { return this.formsSong.querySelector('form.form-song-volume input[name=volume]'); }
     get fieldSongAddInstrument()    { return this.formsSong.querySelector('form.form-song-add-instrument select[name=instrumentURL]'); }
+    get fieldSongPosition()         { return this.formsSong.querySelector('form.form-song-playback-position input[name=position]'); }
 
     renderSongForms() {
 
@@ -725,6 +760,13 @@ class AudioSourceComposerElement extends HTMLElement {
                 </form>
             </div>
                                          
+            
+            <div class="form-section control-song">
+                <div class="form-section-header">Position</div>
+                <form action="#" class="form-song-playback-position submit-on-change" data-action="song:set-position">
+                    <input name="position" type="text" class="themed" value="" placeholder="00:00:0000" />
+                </form>
+            </div>                
             
             <div class="form-section control-song">
                 <div class="form-section-header">Volume</div>
