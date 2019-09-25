@@ -294,14 +294,16 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container button.themed {
     display: inline-block;
     /* padding: 0px 0px; */
-    border-radius: 2px;
+    border-radius: 8px;
     min-height: 24px;
     transition: all 0.2s;
-    border: 1px outset transparent;
+    /* border: 1px outset transparent; */
     /* background: transparent; */
     /* font-size: x-small; */
     /* max-width: 200px; */
     /* vertical-align: top; */
+    font-weight: bold;
+    width: 100%;
 }
 
 .asc-container .input-style:hover,
@@ -388,7 +390,14 @@ asc-menu.open-context-menu > .dropdown-container {
 
 /** Song Info Form **/
 
-.asc-container  form.form-song-volume input[name=volume]                    { max-width: 71px; }
+.asc-container  form.form-song-volume input[name=volume]{
+    width: 98%;
+    margin: .7em 0;
+    -webkit-appearance: none;
+    background-color: #91cdef;
+    box-shadow: inset 0 3px 18px rgba(0,0,0,0.6);
+    outline: none;
+}
 .asc-container  form.form-load-file input[name=file]                        { max-width: 96px; }
 .asc-container  form.form-song-version input[name=version]                  { max-width: 64px; }
 .asc-container  form.form-song-title input[name=title]                      { width: 160px; }
@@ -401,11 +410,17 @@ asc-menu.open-context-menu > .dropdown-container {
 
 /** Modify Instruction Forms **/
 
-.asc-container  form.form-instruction-instrument select[name=instrument]    { max-width: 120px;}
-.asc-container  form.form-instruction-command select[name=frequency]        { max-width: 42px; }
-.asc-container  form.form-instruction-command select[name=command]          { max-width: 68px;}
-.asc-container  form.form-instruction-duration select[name=duration]        { max-width: 69px;}
-.asc-container  form.form-instruction-velocity input[name=velocity]         { max-width: 56px;}
+.asc-container  form.form-instruction-instrument select[name=instrument]{ max-width: 120px;}
+.asc-container  form.form-instruction-command select[name=frequency]{ max-width: 42px; }
+.asc-container  form.form-instruction-command select[name=command]{ max-width: 68px;}
+.asc-container  form.form-instruction-duration select[name=duration]{ max-width: 69px;}
+.asc-container  form.form-instruction-velocity input[name=velocity] {
+    width: 98%;
+    margin: .7em 0;
+    -webkit-appearance: none;
+    background-color: #91cdef;
+    box-shadow: inset 0 3px 18px rgba(0,0,0,0.6);
+}
 .asc-container  form.form-instruction-delete button[name=delete]            {}
 
 /** Tracker Render Forms **/
@@ -701,14 +716,57 @@ i.ui-icon {
     background-size: 10em 5em;
     /* vertical-align: top; */
 }
-i.ui-play { background-position: -3em -1em; }
-i.ui-pause {background-position: -4em -1em;}
-i.ui-stop {background-position: -5em -1em;}
+i.ui-icon:hover{
+  background-color: #b0acac;
+}
+i.ui-play {
+  background-position: -3em -1em;
+  background-image: url("../assets/img/audio-source-icons/play-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+ }
+i.ui-pause {
+  background-position: -4em -1em;
+  background-image: url("../assets/img/audio-source-icons/pause-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
+i.ui-stop {
+  background-position: -5em -1em;
+  background-image: url("../assets/img/audio-source-icons/stop-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
 i.ui-resume { background-position: -3em -1em; }
 
-i.ui-insert {background-position: -3em -10em;}
-i.ui-remove {background-position: -6em 0em;}
-i.ui-subtract {background-position: -4em 0em;}
+i.ui-insert {
+  background-position: -3em -10em;
+  background-image: url("../assets/img/audio-source-icons/plus-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
+i.ui-remove {
+  background-position: -6em 0em
+  background-image: url("../assets/img/audio-source-icons/minus-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
+i.ui-subtract {
+  background-position: -4em 0em;
+  background-image: url("../assets/img/audio-source-icons/minus-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
 
-i.ui-file-load {background-position: 0em 0em;}
-i.ui-file-save {background-position: -1em 0em;}
+i.ui-file-load {
+  background-position: 0em 0em;
+  background-image: url("../assets/img/audio-source-icons/folder-open-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
+i.ui-file-save {
+  background-position: -1em 0em;
+  background-image: url("../assets/img/audio-source-icons/save-solid.svg");
+  background-position: center;
+  background-size: cover;
+}

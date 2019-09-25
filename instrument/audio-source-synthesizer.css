@@ -170,8 +170,22 @@
 .audio-source-synthesizer form.instrument-setting-preset >      select[name=preset]     {width: 131px;}
 .audio-source-synthesizer form.instrument-name                  input[name=name]        {width: 157px;}
 
-.audio-source-synthesizer form.instrument-setting-detune        input[name=detune]      { width: 60px; }
-.audio-source-synthesizer form.instrument-setting-mixer         input[name=mixer]       { width: 60px; }
+.audio-source-synthesizer form.instrument-setting-detune        input[name=detune]{
+  width: 60px;
+  margin: .7em 0;
+  -webkit-appearance: none;
+  background-color: #91cdef;
+  box-shadow: inset 0 3px 18px rgba(0,0,0,0.6);
+  outline: none;
+}
+.audio-source-synthesizer form.instrument-setting-mixer         input[name=mixer]{
+  width: 85%;
+  margin: .7em auto;
+  -webkit-appearance: none;
+  background-color: #91cdef;
+  box-shadow: inset 0 3px 18px rgba(0,0,0,0.6);
+  outline: none;
+}
 .audio-source-synthesizer form.instrument-setting-change-name   input[name=name]       { width: 60px; }
 .audio-source-synthesizer form.instrument-setting-change-url    select[name=url]       {width: 88px;}
 
@@ -211,9 +225,24 @@ i.ui-play { background-position: -3em -1em; }
 i.ui-pause {background-position: -4em -1em;}
 i.ui-resume { background-position: -3em -1em; }
 
-i.ui-insert {background-position: -8em -10em;}
-i.ui-remove {background-position: -6em 0em;}
-i.ui-subtract {background-position: -4em 0em;}
+i.ui-insert {
+  background-position: -8em -10em;
+  background-image: url("../assets/img/audio-source-icons/plus-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
+i.ui-remove {
+  background-position: -6em 0em;
+  background-image: url("../assets/img/audio-source-icons/eraser-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
+i.ui-subtract {
+  background-position: -4em 0em;
+  background-image: url("../assets/img/audio-source-icons/minus-circle-solid.svg");
+  background-position: center;
+  background-size: cover;
+}
 
 i.ui-file-load {background-position: 0em 0em;}
 i.ui-file-save {background-position: -1em 0em;}
