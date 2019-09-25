@@ -404,12 +404,18 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:play':
                 this.classList.add('playing');
                 this.containerElm.classList.add('playing');
+                clearInterval(this.updateSongPositionInterval);
+                this.updateSongPositionInterval = setInterval(e => {
+                    this.updateSongPositionValue();
+                }, 10)
                 break;
             case 'song:pause':
+                clearInterval(this.updateSongPositionInterval);
                 this.classList.add('paused');
                 this.containerElm.classList.add('paused');
                 break;
             case 'song:end':
+                clearInterval(this.updateSongPositionInterval);
                 this.classList.remove('playing', 'paused');
                 this.containerElm.classList.remove('playing', 'paused');
                 break;
@@ -854,6 +860,8 @@ class AudioSourceComposerElement extends HTMLElement {
             instrumentDiv.classList.add('control-instrument');
             instrumentDiv.setAttribute('tabindex', '0');
             formInstrumentsContainer.appendChild(instrumentDiv);
+            if(instrumentID === 0)
+                instrumentDiv.classList.add('selected');
 
             // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
 

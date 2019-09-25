@@ -222,8 +222,11 @@ class AudioSourceRenderer {
 
     getInstruction(groupName, index, throwException=true) {
         let instructionList = this.songData.instructions[groupName];
-        if(!Number.isInteger(index))
-            throw new Error("Invalid Index: " + typeof index);
+        if(!Number.isInteger(index)) {
+            if(throwException)
+                throw new Error("Invalid Index: " + typeof index);
+            return null;
+        }
 
         if (index >= instructionList.length) {
             if(throwException)
@@ -330,13 +333,15 @@ class AudioSourceRenderer {
     }
 
     getGroupPositionFromTicks(groupName, groupPositionInTicks) {
-        let lastStats;
+        let lastStats = null;
         this.eachInstruction(groupName, (index, instruction, stats) => {
             lastStats = stats;
             if(stats.groupPositionInTicks >= groupPositionInTicks)
                 return false;
         });
 
+        if(!lastStats)
+            return 0;
         let currentPosition = lastStats.groupPlaybackTime;
 
         if(groupPositionInTicks > lastStats.groupPositionInTicks) {
@@ -354,12 +359,15 @@ class AudioSourceRenderer {
 
 
     getSongPositionInTicks(positionInSeconds) {
-        let lastStats;
+        let lastStats = null;
         this.eachInstruction(this.getSongRootGroup(), (index, instruction, stats) => {
             lastStats = stats;
             if(stats.groupPlaybackTime >= positionInSeconds)
                 return false;
         });
+
+        if(!lastStats)
+            return 0;
 
         let currentPositionInTicks = lastStats.groupPositionInTicks;
         if(positionInSeconds > lastStats.groupPlaybackTime) {
@@ -426,7 +434,7 @@ class AudioSourceRenderer {
     }
 
     get songPlaybackPosition() {
-        if(this.playbackStartTime)
+        if(this.playbackStartTime !== null)
             return this.getAudioContext().currentTime - this.playbackStartTime;
         return this.playbackPosition;
     }
@@ -459,8 +467,10 @@ class AudioSourceRenderer {
     // Stops playback
     stopPlayback() {
         // Set the current playback time
-        if(this.playbackStartTime == null)
+        if(this.playbackStartTime == null) {
             console.warn("Playback is already stopped");
+            return;
+        }
         this.playbackPosition = this.getAudioContext().currentTime - this.playbackStartTime;
         this.playbackStartTime = null;
 
@@ -576,8 +586,11 @@ class AudioSourceRenderer {
 
 
     playInstructionAtIndex(groupName, instructionIndex, noteStartTime=null, stats=null) {
-        const instruction = this.getInstruction(groupName, instructionIndex);
-        this.playInstruction(instruction, noteStartTime, stats)
+        const instruction = this.getInstruction(groupName, instructionIndex, false);
+        if(instruction) 
+            this.playInstruction(instruction, noteStartTime, stats)
+        else 
+            console.warn("No instruction at index");
     }
 
     async playInstruction(instruction, noteStartTime=null, stats=null) {
@@ -1428,7 +1441,14 @@ class InstructionIterator {
         // this.lastRowPositionInTicks = this.groupPositionInTicks;
         // this.lastRowIndex = this.groupIndex > 0 ? this.groupIndex : 0;
 
-        let currentInstruction = this.groupIndex === -1 ? this.nextInstruction() : this.currentInstruction();
+        let currentInstruction;
+        if(this.groupIndex === -1) {
+            currentInstruction = this.nextInstruction();
+            if(currentInstruction && currentInstruction.deltaDuration)
+                return [];
+        } else {
+            currentInstruction = this.currentInstruction();
+        }
         const currentRowInstructionList = [];
         if(currentInstruction)
             currentRowInstructionList.push(currentInstruction);

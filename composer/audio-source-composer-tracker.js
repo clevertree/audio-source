@@ -99,7 +99,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     // get cursorCellIndex() {
     playSelectedInstructions() {
-        this.editor.renderer.stopPlayback();
+        if(this.editor.renderer.isPlaying)
+            this.editor.renderer.stopPlayback();
         const selectedIndicies = this.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
             this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
@@ -216,24 +217,33 @@ class AudioSourceComposerTracker extends HTMLElement {
         const segmentLengthInTicks = this.segmentLength * timeDivision;
 
         let lastRowIndex=0, lastRowPositionInTicks=0;
+
+        const renderRow = (songPositionInTicks, rowInstructionList=[]) => {
+            const currentRowSegmentID = Math.floor(songPositionInTicks / segmentLengthInTicks);
+            if(this.currentRowSegmentID === currentRowSegmentID) {
+                const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+                this.rowContainer.appendChild(rowElm);
+                rowElm.render(lastRowIndex, songPositionInTicks, rowInstructionList);
+                return rowElm;
+            }
+            return null;
+        };
+
         const renderQuantizationRows = (startRowPositionInTicks, endRowPositionInTicks) => {
 
             let nextBreakPositionInTicks = Math.ceil(startRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
             while (nextBreakPositionInTicks < endRowPositionInTicks) {
-                const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-                this.rowContainer.appendChild(rowElm);
-                rowElm.render(lastRowIndex, nextBreakPositionInTicks);
+                renderRow(nextBreakPositionInTicks);
+                // const currentRowSegmentID = Math.floor(nextBreakPositionInTicks / segmentLengthInTicks);
+                // if(this.currentRowSegmentID === currentRowSegmentID) {
+                //     const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+                //     this.rowContainer.appendChild(rowElm);
+                //     rowElm.render(lastRowIndex, nextBreakPositionInTicks);
+                // }
                 nextBreakPositionInTicks += quantizationInTicks;
             }
         };
 
-
-
-        let renderFirstRow = (lastRowIndex, lastRowPositionInTicks) => {
-            const firstRowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-            this.rowContainer.appendChild(firstRowElm);
-            firstRowElm.render(lastRowIndex, lastRowPositionInTicks);
-        };
 
         const filterByInstrumentID = this.fieldRenderInstrument.value ? parseInt(this.fieldRenderInstrument.value) : null;
 
@@ -241,23 +251,18 @@ class AudioSourceComposerTracker extends HTMLElement {
         while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
             const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
-
+            let rowElm = renderRow(instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
+            renderQuantizationRows(lastRowPositionInTicks, instructionIterator.groupPositionInTicks);
             // console.log("Row", rowInstructionList);
-            if(this.currentRowSegmentID === currentRowSegmentID) {
-                if(renderFirstRow) {
-                    if(!rowInstructionList || rowInstructionList[0].positionInTicks !== lastRowPositionInTicks)
-                        renderFirstRow(lastRowIndex, lastRowPositionInTicks);
-                    renderFirstRow = null;
-                }
-
-                let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-                this.rowContainer.appendChild(rowElm);
-                if(filterByInstrumentID !== null)
-                    rowInstructionList = rowInstructionList.filter(inst => inst.instrument === filterByInstrumentID);
-
-                rowElm.render(lastRowIndex, instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
-                renderQuantizationRows(lastRowPositionInTicks, instructionIterator.groupPositionInTicks);
-            }
+            // if(this.currentRowSegmentID === currentRowSegmentID) {
+            //
+            //     let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+            //     this.rowContainer.appendChild(rowElm);
+            //     if(filterByInstrumentID !== null)
+            //         rowInstructionList = rowInstructionList.filter(inst => inst.instrument === filterByInstrumentID);
+            //
+            //     rowElm.render(lastRowIndex, instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
+            // }
             lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             lastRowIndex = instructionIterator.groupIndex;
 
@@ -272,7 +277,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         let segmentContainer = this.querySelector('.row-segment-container');
         segmentContainer.innerHTML = '';
 
-        const lastRowSegmentID = Math.floor(lastRowPositionInTicks / segmentLengthInTicks);
+        let lastRowSegmentID = Math.floor(lastRowPositionInTicks / segmentLengthInTicks);
+        if(lastRowSegmentID < this.currentRowSegmentID)
+            lastRowSegmentID = this.currentRowSegmentID;
         for(let segmentID = 0; segmentID <= lastRowSegmentID+1; segmentID++) {
 
             let segmentElm = new AudioSourceComposerTrackerRowSegment(segmentID, segmentID * segmentLengthInTicks);
@@ -700,7 +707,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 if(this.mousePosition.isDown && this.mousePosition.lastDrag) {
                     if (this.mousePosition.lastDown.path[0].matches('asct-row')) {
-                        this.updateSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastDrag)
+                        // if(this.isSelectionRectActive()) {
+                        //     this.updateSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastDrag)
+                        // }
                     }
                 }
                 break;
@@ -711,10 +720,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if (this.mousePosition.isDragging 
                     && this.mousePosition.lastDown.path[0].matches('asct-row')
                 ) {
-                    if(this.isSelectionRectActive()) {
-                        this.commitSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastUp);
-                        break;
-                    }
+                    // if(this.isSelectionRectActive()) {
+                    //     this.commitSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastUp);
+                    //     break;
+                    // }
                 }
                 this.mousePosition.isDragging = false;
 
@@ -1369,26 +1378,24 @@ class AudioSourceComposerTracker extends HTMLElement {
         const cursorCell = this.getCursorElement();
         let selectedCell;
 
-        if(!cursorCell) {
-            // If no cursor is found, select the first
-            selectedCell = this.querySelector('asct-instruction');
-        } else if(cursorCell.nextElementSibling && cursorCell.nextElementSibling.matches('asct-instruction')) {
-            // If next element is an instruction, select it
-            selectedCell = cursorCell.nextElementSibling;
+        if(cursorCell) {
+            if(cursorCell instanceof AudioSourceComposerTrackerInstructionAdd) {
+                // If next element is an add instruction, select the next row
+                return this.selectNextRowCell(e, clearSelection, 0);
+            } else if(cursorCell.nextInstructionSibling) {
+                // If next element is an instruction, select it
+                selectedCell = cursorCell.nextInstructionSibling;
 
-        } else if(cursorCell.nodeName.toLowerCase() === 'asct-instruction-add') {
-            // If next element is an add instruction, select the next row
-            const cursorRow = cursorCell.parentNode;
-            const nextRowElm = cursorRow.nextElementSibling;
-            if(!nextRowElm)
-                return this.selectNextRowCell(e, clearSelection);
-            selectedCell = nextRowElm.querySelector('asct-instruction');
-            if(!selectedCell)
-                selectedCell = nextRowElm.createAddInstructionElement();
+            } else {
+                selectedCell = cursorCell.row.createAddInstructionElement();
+            }
+        } else {
+            // If no cursor is selected, use the first available instruction
+            selectedCell = this.querySelector('asct-instruction');
         }
 
-        if(!selectedCell)
-            selectedCell = cursorCell.row.createAddInstructionElement();
+        if(!selectedCell) // If no instructions were found, create an 'add' instruction
+            selectedCell = this.rowContainer.querySelector('asct-row').createAddInstructionElement();
 
         selectedCell
             .select(true)
@@ -1401,18 +1408,45 @@ class AudioSourceComposerTracker extends HTMLElement {
         return selectedCell;
     }
 
-    selectNextRowCell(e, clearSelection=true, cellPosition=null, increaseTrackerSize=true) {
+    selectPreviousCell(e, clearSelection=true) {
+        const cursorCell = this.getCursorElement();
+        let selectedCell;
+
+        if(cursorCell) {
+            if(cursorCell.previousInstructionSibling) {
+                // If previous element is an instruction, select it
+                selectedCell = cursorCell.previousInstructionSibling;
+
+            } else {
+                // If next element is an add instruction, select the next row
+                return this.selectPreviousRowCell(e, clearSelection, -1);
+            }
+        } else {
+            // If no cursor is selected, use the first available instruction
+            // selectedCell = this.querySelector('asct-instruction');
+        }
+
+        if(!selectedCell)
+            selectedCell = this.rowContainer.querySelector('asct-row:last-child').createAddInstructionElement();
+
+        selectedCell
+            .select(true)
+            .setCursor();
+
+        if(clearSelection)
+            this.clearSelection(selectedCell);
+
+        return selectedCell;
+    }
+
+
+    selectNextRowCell(e, clearSelection=true, cellPosition=null) {
         const cursorCell = this.getCursorElement();
         const cursorRow = cursorCell.parentNode;
         if(cellPosition === null)
             cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
 
         if(!cursorRow.nextElementSibling) {
-            // if(!increaseTrackerSize)
-            //     throw new Error("New row was not created");
-            // return this.increaseTrackerSize(e);
-            // if(this.currentRowSegmentID === 0)
-            //     throw new Error("TODO: reached end of song");
             this.currentRowSegmentID++;
             this.renderRows();
             this.focusOnContainer();
@@ -1420,54 +1454,14 @@ class AudioSourceComposerTracker extends HTMLElement {
         }
 
         const nextRowElm = cursorRow.nextElementSibling;
-        // for(let i=cellPosition; i>=0; i--)
-        //     if(nextRowElm.children[i] && nextRowElm.children[i].matches('asct-instruction,asct-instruction-add'))
-        //         return this.selectCell(e, nextRowElm.children[i]);
-        let selectedCell = nextRowElm.firstElementChild;
+
+        let selectedCell = nextRowElm.querySelector('asct-instruction');
         if(nextRowElm.children[cellPosition] && nextRowElm.children[cellPosition].matches('asct-instruction,asct-instruction-add')) {
             selectedCell = nextRowElm.children[cellPosition];
-        } else {
-            selectedCell = nextRowElm.createAddInstructionElement();
         }
 
         if(!selectedCell)
             selectedCell = nextRowElm.createAddInstructionElement();
-
-        selectedCell
-            .select(true)
-            .setCursor();
-
-        if(clearSelection)
-            this.clearSelection(selectedCell);
-
-        return selectedCell;
-    }
-
-
-    selectPreviousCell(e, clearSelection=true) {
-        const cursorCell = this.getCursorElement();
-        let selectedCell;
-
-        if(!cursorCell) {
-            // If no cursor is found, select the first
-            selectedCell = this.querySelector('asct-instruction:last-child');
-        } else if(cursorCell.previousElementSibling && cursorCell.previousElementSibling.matches('asct-instruction')) {
-            // If previous element is an instruction, select it
-            selectedCell = cursorCell.previousElementSibling;
-
-        } else {
-            // If next element is an add instruction, select the next row
-            const cursorRow = cursorCell.parentNode;
-            const previousRowElm = cursorRow.previousElementSibling;
-            if(!previousRowElm)
-                return this.selectPreviousRowCell(e, clearSelection);
-            selectedCell = previousRowElm.querySelector('asct-instruction:last-child');
-            if(!selectedCell)
-                selectedCell = previousRowElm.createAddInstructionElement();
-        }
-
-        if(!selectedCell)
-            selectedCell = cursorCell.row.createAddInstructionElement();
 
         selectedCell
             .select(true)
@@ -1498,11 +1492,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         // for(let i=cellPosition; i>=0; i--)
         //     if(nextRowElm.children[i] && nextRowElm.children[i].matches('asct-instruction,asct-instruction-add'))
         //         return this.selectCell(e, nextRowElm.children[i]);
-        let selectedCell = previousRowElm.querySelector('asct-instruction:last-child');
+        let selectedCell; // = previousRowElm.querySelector('asct-instruction:last-child');
         if(previousRowElm.children[cellPosition] && previousRowElm.children[cellPosition].matches('asct-instruction,asct-instruction-add')) {
             selectedCell = previousRowElm.children[cellPosition];
-        } else {
-            selectedCell = previousRowElm.createAddInstructionElement();
         }
 
         if(!selectedCell)
@@ -1953,6 +1945,19 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
     }
     get index() { return parseInt(this.getAttribute('i'))}
     get selected() { return this.classList.contains('selected'); }
+
+    get nextInstructionSibling() {
+        if(this.nextElementSibling && this.nextElementSibling.matches('asct-instruction'))
+            return this.nextElementSibling;
+        return null;
+    }
+
+    get previousInstructionSibling() {
+        if(this.previousElementSibling && this.previousElementSibling.matches('asct-instruction'))
+            return this.previousElementSibling;
+        return null;
+    }
+
 
     getInstruction() { return this.row.tracker.getInstruction(this.index); }
 
