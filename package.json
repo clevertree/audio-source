@@ -1,12 +1,12 @@
 {
   "name": "audio-source-composer",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Audio Source Composer",
   "author": "Ari Asulin",
   "license": "GPL-3.0",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node .scripts/server.js",
     "test": "node .scripts/test.js",
     "minify": "node .scripts/minify.js"
   },

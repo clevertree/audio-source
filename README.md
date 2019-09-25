@@ -4,6 +4,17 @@ Created by Ari Asulin
 
 This is an early peak at the Audio Source Composer. Try it out at https://audiosource.io
 
+## Installation
+`$ cd [audio-source-composer]`
+
+`$ npm install`
+
+## Run Local Server
+`$ npm start`
+
+## Browse to Local Server
+http://localhost:8090
+
 ## Currently Working:
 * Add, edit, and delete notes and note groups (delete has a bug)
 * Recursively play back note groups
