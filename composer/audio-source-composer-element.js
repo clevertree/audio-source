@@ -467,85 +467,53 @@ class AudioSourceComposerElement extends HTMLElement {
     get fieldSongPosition()         { return this.panelSong.querySelector('form.form-song-playback-position input[name=position]'); }
 
     renderSongForms() {
+        const panel = this.editor.panelSong;
 
-        const formSection = this.panelSong;
-        const renderer = this.renderer;
-        const songData = this.getSongData();
-        // let tabIndex = 2;
-        formSection.innerHTML =
-            `
-            <div class="form-section control-song">
-                <div class="form-section-header">Playback</div>
-                <form action="#" class="form-song-play hide-on-song-playing" data-action="song:play">
-                    <button type="submit" name="play" class="themed">
-                        <i class="ui-icon ui-play"></i>
-                    </button>
-                </form>
-                <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
-                    <button type="submit" name="pause" class="themed">
-                        <i class="ui-icon ui-pause"></i>
-                    </button>
-                </form>
-                <form action="#" class="form-song-stop" data-action="song:stop">
-                    <button type="submit" name="pause" class="themed">
-                        <i class="ui-icon ui-stop"></i>
-                    </button>
-                </form>
-            </div>
-                                         
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Position</div>
-                <form action="#" class="form-song-playback-position submit-on-change" data-action="song:set-position">
-                    <input name="position" type="text" class="themed" value="" placeholder="00:00:0000" />
-                </form>
-            </div>                
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Volume</div>
-                <form action="#" class="form-song-volume submit-on-change" data-action="song:volume">
-                    <div class="volume-container">
-                        <input name="volume" type="range" min="1" max="100" value="${renderer ? renderer.getVolume() : 0}" class="themed">
-                    </div>
-                </form>
-            </div>
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">File</div>
-                <form name="form-load-file" action="#" class="form-load-file submit-on-change" data-action="song:load-from-file">
-                    <label>
-                        <div class="input-style">
-                            <i class="ui-icon ui-file-load"></i>
-                        </div>
-                        <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
-                    </label>
-                </form>
-                <form name="form-save-file" action="#" class="form-save-file submit-on-change" data-action="song:save-to-file">
-                    <button type="submit" name="save" class="themed">
-                        <i class="ui-icon ui-file-save"></i>
-                    </button>
-                </form>
-            </div>
-                          
-                                         
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Song Name</div>
-                <form action="#" class="form-song-title submit-on-change" data-action="song:set-title">
-                    <input name="name" type="text" class="themed" value="${songData.name}" />
-                </form>
-            </div>     
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Version</div>
-                <form action="#" class="form-song-version submit-on-change" data-action="song:set-version">
-                    <input name="version" type="text" class="themed" value="${songData.version}" />
-                </form>
-            </div>                
-             
-            
-            <div style="clear: both;" class="control-song"></div>
-        `;
+        const formPlayback = panel.addForm('playback');
+        formPlayback.addButton('song-play',
+            e => this.actions.songPlay(e),
+            `<i class="ui-icon ui-play"></i>`,
+            "Play Song"
+        );
+
+        formPlayback.addButton('song-pause',
+            e => this.actions.songPause(e),
+            `<i class="ui-icon ui-pause"></i>`,
+            "Pause Song"
+        );
+
+        formPlayback.addButton('song-stop',
+            e => this.actions.songStop(e),
+            `<i class="ui-icon ui-stop"></i>`,
+            "Stop Song"
+        );
+
+        panel.addForm('position')
+            .addTextInput('song-position', e => this.actions.setSongPosition(e), "Song Position", '00:00:0000');
+
+        panel.addForm('volume')
+            .addRangeInput('song-volume', e => this.editor.actions.setSongVolume(e), 1, 100)
+
+        const formFile = panel.addForm('file');
+
+        formFile.addFileInput('song-file-load',
+            e => this.actions.songFileLoad(e),
+            `<i class="ui-icon ui-file-load"></i>`,
+            `.json,.mid,.midi`,
+            "Save Song to File"
+        );
+        formFile.addButton('song-file-save',
+            e => this.actions.songFileSave(e),
+            `<i class="ui-icon ui-file-save"></i>`,
+            "Save Song to File"
+        );
+
+        panel.addForm('name')
+            .addTextInput('song-name', e => this.actions.setSongName(e), "Song Name", 'Unnamed');
+
+        panel.addForm('name')
+            .addTextInput('song-version', e => this.actions.setSongVersion(e), "Song Version", '0.0.0');
+
     }
 
 /**
@@ -574,59 +542,17 @@ class AudioSourceComposerElement extends HTMLElement {
         const formSection = this.panelInstruments;
         const renderer = this.renderer;
 
-        formSection.innerHTML = `
-`;
 
-        const formInstrumentsContainer = formSection; // formSection.querySelector('.form-instruments-container');
         const instrumentList = renderer.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
 
-            let instrumentDiv = document.createElement('div');
-            // instrumentDiv.setAttribute('data-id', instrumentID+'');
-            instrumentDiv.classList.add('instrument-container');
-            instrumentDiv.classList.add('control-instrument');
-            instrumentDiv.setAttribute('tabindex', '0');
-            formInstrumentsContainer.appendChild(instrumentDiv);
-            if(instrumentID === 0)
-                instrumentDiv.classList.add('selected');
+            formSection.addInstrumentContainer(instrumentID);
 
-            // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
-
-            let instrument = renderer.getInstrument(instrumentID, false);
-            const instrumentPreset = renderer.getInstrumentConfig(instrumentID, false);
-
-            instrumentDiv.innerHTML = ``;
-
-            if(!instrumentPreset) {
-                instrument = new EmptyInstrumentElement(instrumentID, '[Empty]');
-                instrumentDiv.appendChild(instrument);
-
-            } else if(!instrumentPreset.url) {
-                const loadingElm = new EmptyInstrumentElement(instrumentID, `Invalid URL`);
-                instrumentDiv.appendChild(loadingElm);
-
-            } else if(!renderer.isInstrumentLoaded(instrumentID)) {
-                const loadingElm = new EmptyInstrumentElement(instrumentID, 'Loading...');
-                instrumentDiv.appendChild(loadingElm);
-
-            } else {
-                try {
-                    if (instrument instanceof HTMLElement) {
-                        instrument.setAttribute('data-id', instrumentID+'');
-                        instrumentDiv.appendChild(instrument);
-                    } else if (instrument.render) {
-                        const renderedHTML = instrument.render(this, instrumentID);
-                        if(renderedHTML)
-                            instrumentDiv.innerHTML = renderedHTML;
-                    } else {
-                        throw new Error("No Renderer");
-                    }
-
-                } catch (e) {
-                    instrumentDiv.innerHTML = e;
-                }
-            }
         }
+
+        // TODO Update selected
+        // if(instrumentID === 0)
+        //     instrumentContainer.classList.add('selected');
 
         formSection.appendChild(new EmptyInstrumentElement(instrumentList.length, '[Empty]'))
     }

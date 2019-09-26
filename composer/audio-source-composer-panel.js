@@ -7,6 +7,8 @@ class AudioSourceComposerPanel extends HTMLElement {
         this.sections = {};
     }
 
+    get editor() { return this.getRootNode().host; }
+
     connectedCallback() {
         this.render();
     }
@@ -39,7 +41,7 @@ class AudioSourceComposerPanel extends HTMLElement {
 customElements.define('asc-panel', AudioSourceComposerPanel);
 
 
-
+/** Form / Input Panels **/
 
 class AudioSourceComposerPanelForm extends HTMLElement {
     constructor(key=null, caption=null) {
@@ -49,22 +51,12 @@ class AudioSourceComposerPanelForm extends HTMLElement {
         this.inputs = {};
     }
 
+    get panel() { this.closest('asc-panel'); }
+
     connectedCallback() {
         this.render();
     }
 
-    // addForm(commandString, innerHTML=null) {
-    //     const formElm = document.createElement('form');
-    //     formElm.setAttribute('action', '#');
-    //     formElm.setAttribute('data-action', commandString);
-    //     formElm.classList.add('form-instruction-instrument');
-    //     formElm.classList.add('submit-on-change');
-    //     this.forms[commandString] = formElm;
-    //     this.render();
-    //     if(innerHTML !== null)
-    //         formElm.innerHTML = innerHTML;
-    //     return formElm;
-    // }
 
     addButton(name, callback, buttonInnerHTML, title=null) {
         const buttonElm = new AudioSourceComposerPanelFormSelect(callback, buttonInnerHTML, name, title);
@@ -90,6 +82,21 @@ class AudioSourceComposerPanelForm extends HTMLElement {
     addTextInput(name, callback, title=null, placeholder=null) {
         const rangeElm = new AudioSourceComposerPanelFormText(callback, name, title, placeholder);
         this.inputs[name] = rangeElm;
+        this.render();
+        return rangeElm;
+    }
+
+    addFileInput(name, callback, buttonInnerHTML, accepts=null, title=null) {
+        const rangeElm = new AudioSourceComposerPanelFormFileInput(name, callback, buttonInnerHTML, accepts, title);
+        this.inputs[name] = rangeElm;
+        this.render();
+        return rangeElm;
+
+    }
+
+    addInstrumentContainer(instrumentID) {
+        const rangeElm = new AudioSourceComposerPanelInstrumentContainer(instrumentID);
+        this.inputs[instrumentID] = rangeElm;
         this.render();
         return rangeElm;
     }
@@ -186,10 +193,6 @@ class AudioSourceComposerPanelFormRangeInput extends HTMLElement {
         if(title)       rangeElm.setAttribute('title', title);
         this.appendChild(rangeElm);
     }
-
-    connectedCallback() {
-        // this.render();
-    }
 }
 
 customElements.define('ascpf-range', AudioSourceComposerPanelFormRangeInput);
@@ -209,9 +212,101 @@ class AudioSourceComposerPanelFormText extends HTMLElement {
         this.appendChild(inputElm);
     }
 
-    connectedCallback() {
-        // this.render();
-    }
 }
 
 customElements.define('ascpf-text', AudioSourceComposerPanelFormText);
+
+
+
+
+class AudioSourceComposerPanelFormFileInput extends HTMLElement {
+    constructor(name, callback, innerHTML, accepts=null, title=null) {
+        super();
+        this.callback = callback || function() { throw new Error("No callback set") };
+
+        const labelElm = document.createElement('label');
+        this.appendChild(labelElm);
+
+        const divElm = document.createElement('label');
+        divElm.innerHTML = innerHTML;
+
+        const inputElm = document.createElement('input');
+        inputElm.setAttribute('type', 'file');
+        if(name)        inputElm.setAttribute('name', name);
+        if(accepts)     inputElm.setAttribute('accepts', accepts);
+        if(title)       inputElm.setAttribute('title', title);
+        labelElm.appendChild(inputElm);
+    }
+
+}
+
+customElements.define('ascpf-text', AudioSourceComposerPanelFormFileInput);
+
+
+/** Instrument Panel **/
+
+
+class AudioSourceComposerPanelInstrumentContainer extends HTMLElement {
+    constructor(instrumentID) {
+        super();
+        if(instrumentID)       instrumentID.setAttribute('id', instrumentID+'');
+        this.setAttribute('tabindex', '0');
+
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    get panel() { this.closest('asc-panel'); }
+
+    render() {
+        const editor = this.panel.editor;
+        const renderer = editor.renderer;
+        const instrumentID = parseInt(this.getAttribute('id'));
+
+        // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
+
+        let instrument = renderer.getInstrument(instrumentID, false);
+        const instrumentPreset = renderer.getInstrumentConfig(instrumentID, false);
+
+        this.innerHTML = ``;
+
+        if(!instrumentPreset) {
+            instrument = new EmptyInstrumentElement(instrumentID, '[Empty]');
+            this.appendChild(instrument);
+
+        } else if(!instrumentPreset.url) {
+            const loadingElm = new EmptyInstrumentElement(instrumentID, `Invalid URL`);
+            this.appendChild(loadingElm);
+
+        } else if(!renderer.isInstrumentLoaded(instrumentID)) {
+            const loadingElm = new EmptyInstrumentElement(instrumentID, 'Loading...');
+            this.appendChild(loadingElm);
+
+        } else {
+            try {
+                if (instrument instanceof HTMLElement) {
+                    instrument.setAttribute('data-id', instrumentID+'');
+                    this.appendChild(instrument);
+                } else if (instrument.render) {
+                    const renderedHTML = instrument.render(this, instrumentID);
+                    if(renderedHTML)
+                        this.innerHTML = renderedHTML;
+                } else {
+                    throw new Error("No Renderer");
+                }
+
+            } catch (e) {
+                this.innerHTML = e;
+            }
+        }
+    }
+}
+
+// instrumentDiv.setAttribute('data-id', instrumentID+'');
+// instrumentContainer.classList.add('instrument-container');
+// instrumentContainer.classList.add('control-instrument');
+// instrumentContainer.setAttribute('tabindex', '0');
+
+customElements.define('ascp-instrument', AudioSourceComposerPanelInstrumentContainer);
