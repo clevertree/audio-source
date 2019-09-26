@@ -248,10 +248,11 @@ asc-menu.open-context-menu > .dropdown-container {
 
 .asc-container .form-section-divide {
     /* display: inline-block; */
-    /* float: left; */
+    background-color: #333;
+    color: #FFF;
     font-weight: bold;
     text-align: center;
-    padding: 2px 2px 2px 2px;
+    padding: 2px 2px 0px 2px;
     /* width: 100%; */
     flex-basis: 100%;
     /* height: 0; */
@@ -298,7 +299,8 @@ asc-menu.open-context-menu > .dropdown-container {
     min-height: 24px;
     transition: all 0.2s;
     border: 1px outset transparent;
-    /* background: transparent; */
+    background: transparent;
+    cursor: pointer;
     /* font-size: x-small; */
     /* max-width: 200px; */
     /* vertical-align: top; */
@@ -307,10 +309,13 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container .input-style:hover,
 .asc-container input[type=text].themed:hover,
 .asc-container select.themed:hover,
-.asc-container button.themed:hover {
-    background: #EEE;
-    border: 1px outset #FFF;
-    cursor: pointer;
+.asc-container button.themed:hover,
+.asc-container .input-style:focus,
+.asc-container input[type=text].themed:focus,
+.asc-container select.themed:focus,
+.asc-container button.themed:focus {
+    background: #FFF;
+/*     border: 1px outset #FFF; */
 }
 
 .asc-container input.themed[type=text] {
@@ -392,7 +397,7 @@ asc-menu.open-context-menu > .dropdown-container {
 .asc-container  form.form-load-file input[name=file]                        { max-width: 96px; }
 .asc-container  form.form-song-version input[name=version]                  { max-width: 64px; }
 .asc-container  form.form-song-title input[name=title]                      { width: 160px; }
-.asc-container  form.form-song-playback-position input[name=position]       {width: 72px;}
+.asc-container  form.form-song-playback-position input[name=position]       {width: 77px;}
 
 /** Add Instrument Form **/
 

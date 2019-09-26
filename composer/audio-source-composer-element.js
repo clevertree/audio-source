@@ -44,7 +44,7 @@ class AudioSourceComposerElement extends HTMLElement {
         };
         this.shadowDOM = null;
 
-
+        this.actions = new AudioSourceComposerActions();
         this.values = new AudioSourceValues(this.renderer);
         this.loadDefaultInstrumentLibrary();
         this.loadPackageInfo();
@@ -185,113 +185,6 @@ class AudioSourceComposerElement extends HTMLElement {
 
     getDefaultInstrumentURL() {
         return new URL(this.scriptDirectory + "instrument/audio-source-synthesizer.js", document.location);
-    }
-
-
-    loadNewSongData() {
-        const storage = new AudioSourceStorage();
-        const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
-        let songData = storage.generateDefaultSong(defaultInstrumentURL);
-        this.renderer.loadSongData(songData);
-        this.render();
-        this.setStatus("Loaded new song", songData);
-
-    }
-
-
-    async loadRecentSongData() {
-        const storage = new AudioSourceStorage();
-        let songRecentGUIDs = await storage.getRecentSongList();
-        if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
-            this.setStatus("Loading recent song: " + songRecentGUIDs[0].guid);
-            await this.loadSongFromMemory(songRecentGUIDs[0].guid);
-            return true;
-        }
-        return false;
-    }
-
-    async saveSongToMemory() {
-        const songData = this.renderer.getSongData();
-        const songHistory = this.renderer.getSongHistory();
-        const storage = new AudioSourceStorage();
-        this.setStatus("Saving song to memory: " + songData.guid);
-        await storage.saveSongToMemory(songData, songHistory);
-    }
-
-    saveSongToFile() {
-        const songData = this.renderer.getSongData();
-        // const songHistory = this.renderer.getSongHistory();
-        const storage = new AudioSourceStorage();
-        this.setStatus("Saving song to file");
-        storage.saveSongToFile(songData);
-    }
-
-
-    async loadSongFromMemory(songGUID) {
-        const storage = new AudioSourceStorage();
-        const songData = await storage.loadSongFromMemory(songGUID);
-        const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
-        this.renderer.loadSongData(songData);
-        this.renderer.loadSongHistory(songHistory);
-        this.render();
-        this.setStatus("Song loaded from memory: " + songGUID, songData);
-//         console.info(songData);
-    }
-
-    async loadSongFromFileInput(file) {
-        const ext = file.name.split('.').pop().toLowerCase();
-        switch(ext) {
-            case 'mid':
-            case 'midi':
-                await this.loadSongFromMIDIFileInput(file);
-                break;
-
-            case 'json':
-                await this.loadSongFromJSONFileInput(file);
-                break;
-
-            default:
-                throw new Error("Unknown file type: " + ext);
-        }
-    }
-
-
-
-
-    async loadSongFromJSONFileInput(file) {
-        const storage = new AudioSourceStorage();
-        const songData = await storage.loadJSONFile(file);
-        this.renderer.loadSongData(songData);
-        this.render();
-        this.setStatus("Song loaded from file: ", songData);
-    }
-
-    async loadSongFromMIDIFileInput(file, defaultInstrumentURL=null) {
-        defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
-        const midiSupport = new MIDISupport();
-        const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
-        this.renderer.loadSongData(songData);
-        this.render();
-        this.setStatus("Song loaded from midi: ", songData);
-    }
-
-    async loadSongFromSrc(src) {
-        src = new URL(src, document.location) + '';
-        const songData = await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', src + '', true);
-            xhr.responseType = 'json';
-            xhr.onload = () => {
-                if(xhr.status !== 200)
-                    return reject("Song file not found: " + url);
-                resolve(xhr.response);
-            };
-            xhr.send();
-        });
-        this.renderer.loadSongData(songData, src);
-        this.setStatus("Song loaded from src: " + src);
-        console.info(this.renderer.songData);
-        this.render();
     }
 
 
@@ -471,174 +364,6 @@ class AudioSourceComposerElement extends HTMLElement {
             return true;
 
         switch(actionName) {
-            case 'song:new':
-                e.preventDefault();
-                this.loadNewSongData();
-                // document.location = 'song/new';
-                break;
-
-            // case 'song:load-server-uuid':
-            //     e.preventDefault();
-            //     // let uuid = menuTarget.getAttribute('data-uuid') || null;
-            //     if(!uuid) uuid = prompt("Enter UUID: ");
-            //     this.loadSongFromServer(uuid);
-            //     this.render();
-            //     break;
-
-            case 'song:load-memory-uuid':
-                e.preventDefault();
-                let uuid = e.target.getAttribute('data-uuid') || null;
-                this.loadSongFromMemory(uuid);
-                // this.render();
-                break;
-
-            case 'song:save-to-memory':
-                e.preventDefault();
-                this.saveSongToMemory();
-                break;
-
-            case 'song:save-to-file':
-                e.preventDefault();
-                this.saveSongToFile();
-                break;
-
-            case 'song:load-from-file':
-            case 'song:load-from-midi-file':
-                this.closeAllMenus();
-                const fileInput = (e.target.form ? e.target.form.querySelector('input[type=file]') : null) || e.target;
-                const file = fileInput.files[0];
-                if(!file)
-                    throw new Error("No file selected");
-                await this.loadSongFromFileInput(file);
-                break;
-
-
-
-            case 'song:edit':
-                this.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
-                this.renderer.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
-                break;
-
-            case 'song:play':
-            case 'song:resume':
-                this.play();
-                break;
-
-            case 'song:pause':
-                this.renderer.stopPlayback();
-                break;
-
-            case 'song:stop':
-            case 'song:reset':
-                this.renderer.stopPlayback();
-                this.renderer.setPlaybackPositionInTicks(0);
-                break;
-
-            // case 'song:resume':
-            //     this.renderer.play(this.renderer.seekPosition);
-            //     break;
-
-            case 'song:playback':
-                console.log(e.target);
-                break;
-
-            case 'song:volume':
-                this.renderer.setVolume(this.fieldSongVolume.value);
-                break;
-
-            case 'song:add-instrument':
-                const addInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
-                if(!addInstrumentURL) {
-                    console.error("Empty URL");
-                    break;
-                }
-                e.target.form.elements['instrumentURL'].value = '';
-                if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
-                    this.renderer.addInstrument(addInstrumentURL);
-                    this.setStatus("New instrument Added to song: " + addInstrumentURL);
-
-                } else {
-                    this.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
-                }
-                break;
-
-            case 'song:replace-instrument':
-                const changeInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
-                if(!changeInstrumentURL) {
-                    this.setStatus(`<span style='color: red'>Empty URL</span>`);
-                    break;
-                }
-                const changeInstrument = actionOptions || {
-                    url: changeInstrumentURL,
-                    id: parseInt(e.target.form.elements['instrumentID'].value)
-                };
-                changeInstrument.title = changeInstrument.url.split('/').pop();
-                // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
-                this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
-                this.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
-                if(this.tracker)
-                    this.tracker.fieldInstructionInstrument.value = changeInstrument.id;
-                // } else {
-                //     this.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
-                // }
-
-                break;
-
-            case 'song:remove-instrument':
-                const removeInstrumentID = actionOptions || parseInt(e.target.form.elements['instrumentID'].value);
-                if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
-                    this.renderer.removeInstrument(removeInstrumentID);
-                    this.setStatus(`Instrument (${changeInstrument.id}) removed`);
-
-                } else {
-                    this.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
-                }
-                break;
-
-            case 'song:set-title':
-                const newSongTitle = e.target.form.elements['title'].value;
-                this.renderer.setSongTitle(newSongTitle);
-                this.setStatus(`Song title updated: ${newSongTitle}`);
-                break;
-
-            case 'song:set-version':
-                const newSongVersion = e.target.form.elements['title'].value;
-                this.renderer.setSongVersion(newSongVersion);
-                this.setStatus(`Song version updated: ${newSongVersion}`);
-                break;
-
-
-
-
-            case 'toggle:control-song':
-                this.classList.toggle('hide-control-song');
-                break;
-
-            case 'toggle:control-tracker':
-                this.classList.toggle('hide-control-tracker');
-                break;
-
-
-            case 'view:fullscreen':
-                const isFullScreen = this.classList.contains('fullscreen');
-                this.classList.toggle('fullscreen', !isFullScreen);
-                this.containerElm.classList.toggle('fullscreen', !isFullScreen);
-                if(this.tracker)
-                    this.tracker.render();
-                break;
-
-            case 'view:forms-song':
-                this.containerElm.classList.toggle('hide-forms-song');
-                break;
-
-            case 'view:forms-tracker':
-                this.containerElm.classList.toggle('hide-forms-tracker');
-                break;
-
-            case 'view:forms-instruments':
-                this.containerElm.classList.toggle('hide-forms-instruments');
-                break;
-
             default:
                 console.warn("Unhandled " + e.type + ": ", actionName);
                 break;
@@ -671,9 +396,9 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
     get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
 
-    get formsSong() { return this.shadowDOM.querySelector(`.form-section-container-song`)}
-    get formsTracker() { return this.shadowDOM.querySelector(`.form-section-container-tracker`)}
-    get formsInstruments() { return this.shadowDOM.querySelector(`.form-section-container-instruments`)}
+    get panelSong() { return this.shadowDOM.querySelector(`ascf-panel[caption='Song']`)}
+    get panelTracker() { return this.shadowDOM.querySelector(`ascf-panel[caption='Track']`)}
+    get panelInstruments() { return this.shadowDOM.querySelector(`ascf-panel[caption='Instruments']`)}
 
     render() {
         const Libraries = new AudioSourceLibraries;
@@ -689,14 +414,11 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
-            <div class="form-section-divide"><span>Song</span></div>
-            <div class="form-section-container form-section-container-song"></div>
-
-            <div class="form-section-divide"><span>Track</span></div>
-            <div class="form-section-container form-section-container-tracker"></div>
-
-            <div class="form-section-divide"><span>Instruments</span></div>
-            <div class="form-section-container form-section-container-instruments"></div>
+            <div class="asc-panel-container">
+                <asc-panel key="song"></asc-panel>
+                <asc-panel key="track"></asc-panel>
+                <asc-panel key="instruments"></asc-panel>
+            </div>
 
             <hr style="flex-basis:100%; margin: 1px;" />
             <asc-tracker tabindex="0" group="root"></asc-tracker>
@@ -713,6 +435,14 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderSongForms();
         this.renderInstruments();
     }
+// <div class="form-section-divide"><span>Song</span></div>
+// <div class="form-section-container form-section-container-song"></div>
+//
+//         <div class="form-section-divide"><span>Track</span></div>
+// <div class="form-section-container form-section-container-tracker"></div>
+//
+//         <div class="form-section-divide"><span>Instruments</span></div>
+// <div class="form-section-container form-section-container-instruments"></div>
 
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
@@ -724,9 +454,6 @@ class AudioSourceComposerElement extends HTMLElement {
         this.statusElm.innerHTML = versionString;
     }
 
-    // getMenu(key) {
-    //     return this.shadowDOM.querySelector(`asc-menu[key="${key}"]`)
-    // }
 
     closeAllMenus() {
         this.shadowDOM.querySelector(`asc-menu`)
@@ -735,13 +462,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
 
-    get fieldSongVolume()           { return this.formsSong.querySelector('form.form-song-volume input[name=volume]'); }
-    get fieldSongAddInstrument()    { return this.formsSong.querySelector('form.form-song-add-instrument select[name=instrumentURL]'); }
-    get fieldSongPosition()         { return this.formsSong.querySelector('form.form-song-playback-position input[name=position]'); }
+    get fieldSongVolume()           { return this.panelSong.querySelector('form.form-song-volume input[name=volume]'); }
+    get fieldSongAddInstrument()    { return this.panelSong.querySelector('form.form-song-add-instrument select[name=instrumentURL]'); }
+    get fieldSongPosition()         { return this.panelSong.querySelector('form.form-song-playback-position input[name=position]'); }
 
     renderSongForms() {
 
-        const formSection = this.formsSong;
+        const formSection = this.panelSong;
         const renderer = this.renderer;
         const songData = this.getSongData();
         // let tabIndex = 2;
@@ -844,7 +571,7 @@ class AudioSourceComposerElement extends HTMLElement {
  */
 
     renderInstruments() {
-        const formSection = this.formsInstruments;
+        const formSection = this.panelInstruments;
         const renderer = this.renderer;
 
         formSection.innerHTML = `

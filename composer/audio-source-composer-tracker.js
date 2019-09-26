@@ -164,7 +164,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.renderForms();
         this.renderRows();
 
-        this.update();
 
     }
 
@@ -319,7 +318,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         menuEditSetCommandGroup.action = action;
                     });
                     const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
-                    menuCustom.action = handleAction('group:new');
+                    menuCustom.action = handleAction('song:new-group');
                     menuCustom.hasBreak = true;
                 };
             };
@@ -460,7 +459,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         };
     }
 
-    update() {
+    updateForms() {
 
         let selectedIndicies = this.selectedIndicies;
         // let timeDivision = this.rowLengthInTicks || this.editor.renderer.getSongTimeDivision();
@@ -910,331 +909,319 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     /** Forms **/
 
-    get formsTracker() { return this.editor.formsTracker; }
+    get formContainerTracker() { return this.editor.formContainerTracker; }
 
-    get fieldRenderRowLength() { return this.formsTracker.querySelector('form.form-render-row-length select[name=rowLengthInTicks]'); }
-    get fieldRenderInstrument() { return this.formsTracker.querySelector('form.form-render-instrument select[name=instrument]'); }
-    get fieldRenderOctave() { return this.formsTracker.querySelector('form.form-render-octave select[name=octave]'); }
-    get fieldSelectedIndicies() { return this.formsTracker.querySelector('form.form-selected-indicies select[name=indicies]'); }
+    get fieldRenderRowLength() { return this.formContainerTracker.querySelector('form.form-render-row-length select[name=rowLengthInTicks]'); }
+    get fieldRenderInstrument() { return this.formContainerTracker.querySelector('form.form-render-instrument select[name=instrument]'); }
+    get fieldRenderOctave() { return this.formContainerTracker.querySelector('form.form-render-octave select[name=octave]'); }
+    get fieldSelectedIndicies() { return this.formContainerTracker.querySelector('form.form-selected-indicies select[name=indicies]'); }
 
     // get fieldInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
 
-    get fieldInstructionInstrument() { return this.formsTracker.querySelector('form.form-instruction-instrument select[name=instrument]'); }
-    get fieldInstructionDuration() { return this.formsTracker.querySelector('form.form-instruction-duration select[name=duration]'); }
-    get fieldInstructionCommand() { return this.formsTracker.querySelector('form.form-instruction-command select[name=command]'); }
-    get fieldInstructionVelocity() { return this.formsTracker.querySelector('form.form-instruction-velocity input[name=velocity]'); }
-    get fieldInstructionInsert() { return this.formsTracker.querySelector('form.form-instruction-insert button[name=insert]'); }
-    get fieldInstructionDelete() { return this.formsTracker.querySelector('form.form-instruction-delete button[name=delete]'); }
+    get fieldInstructionInstrument() { return this.formContainerTracker.querySelector('form.form-instruction-instrument select[name=instrument]'); }
+    get fieldInstructionDuration() { return this.formContainerTracker.querySelector('form.form-instruction-duration select[name=duration]'); }
+    get fieldInstructionCommand() { return this.formContainerTracker.querySelector('form.form-instruction-command select[name=command]'); }
+    get fieldInstructionVelocity() { return this.formContainerTracker.querySelector('form.form-instruction-velocity input[name=velocity]'); }
+    get fieldInstructionInsert() { return this.formContainerTracker.querySelector('form.form-instruction-insert button[name=insert]'); }
+    get fieldInstructionDelete() { return this.formContainerTracker.querySelector('form.form-instruction-delete button[name=delete]'); }
 
     // get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
 
     // get fieldAddInstrumentInstrument() { return this.querySelector('form.form-song-add-instrument select[name=instrument]'); }
-    get fieldSelectedIndicies() { return this.formsTracker.querySelector('form.form-selected-indicies input[name=indicies]'); }
+    get fieldSelectedIndicies() { return this.formContainerTracker.querySelector('form.form-selected-indicies input[name=indicies]'); }
     // get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
     // get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
 
-    get buttonCommandInsert()   { return this.formsTracker.querySelector(`form.form-instruction-insert button[name=insert]`); }
-    get buttonCommandDelete()   { return this.formsTracker.querySelector(`form.form-instruction-delete button[name=delete]`); }
+    get buttonCommandInsert()   { return this.formContainerTracker.querySelector(`form.form-instruction-insert button[name=insert]`); }
+    get buttonCommandDelete()   { return this.formContainerTracker.querySelector(`form.form-instruction-delete button[name=delete]`); }
 
     renderForms() {
-
-
-
-        const formSection = this.editor.formsTracker;
+        const onAction = this.editor.actions;
+        const panel = this.editor.panelTracker;
 
         const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
 
-        formSection.innerHTML = `
-            <div class="form-section control-tracker">
-                <div class="form-section-header">Instruction</div>
-                <form action="#" class="form-instruction-command submit-on-change" data-action="instruction:command">
-                    <select name="command" title="Instruction Command" class="themed" required="required">
-                        <option value="">Select...</option>
-                        <optgroup label="Custom Frequencies" class="instrument-frequencies">
-                            ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
-                        </optgroup>
-                        <optgroup label="Frequencies">
-                            ${this.editor.values.renderEditorFormOptions('note-frequencies-all')}
-                        </optgroup>
-                        <optgroup label="Group Execute">
-                            ${this.editor.values.renderEditorFormOptions('command-group-execute')}
-                        </optgroup>
-                    </select>
-                </form>
-                <form action="#" class="form-instruction-insert" data-action="instruction:command">
-                    <button name="insert" class="themed" title="Insert Instruction">
-                        <i class="ui-icon ui-insert"></i>
-                    </button>
-                </form>
-                <form action="#" class="form-instruction-delete submit-on-change" data-action="instruction:delete">
-                    <button name="delete" class="themed" title="Delete Instruction">
-                        <i class="ui-icon ui-subtract"></i>
-                    </button>
-                </form>
-            </div>
-            
-            <form action="#" class="form-instruction-instrument submit-on-change" data-action="instruction:instrument">
-            <div class="form-section-header">Instrument</div>
-                <select name="instrument" title="Instruction Instrument" class="themed">
-                    <option value="">No Instrument Selected</option>
-                    <optgroup label="Song Instruments">
-                        ${this.editor.values.renderEditorFormOptions('song-instruments', 
-                            value => value === selectedInstrumentID)}
-                    </optgroup>
-                </select>
-            </form>
-            
-            <form action="#" class="form-instruction-velocity submit-on-change" data-action="instruction:velocity">
-            <div class="form-section-header">Velocity</div>
-                <input type="range" name="velocity" min="1" max="100" class="themed" />
-            </form>
-            
-            
-            <form action="#" class="form-instruction-duration submit-on-change" data-action="instruction:duration">
-                <div class="form-section-header">Duration</div>
-                <select name="duration" title="Instruction Duration" class="themed">
-                    <option value="">No Duration</option>
-                    <optgroup label="Note Duration">
-                        ${this.editor.values.renderEditorFormOptions('durations')}
-                    </optgroup>
-                </select>
-            </form>
-             
-            
-                
-            <form action="#" class="form-render-octave submit-on-change" data-action="status:octave">
-                <div class="form-section-header">Octave</div>
-                <select name="octave" class="themed">
-                    <optgroup label="Select Octave">
-                        ${this.editor.values.renderEditorFormOptions('note-frequency-octaves')}
-                    </optgroup>
-                </select>
-            </form>
-            
-            <div class="form-section control-tracker">
-                <div class="form-section-header">Render Group</div>
-                ${this.editor.values.getValues('groups', (value, label) =>
-            `<form action="#" class="form-group" data-action="group:change" data-group="${value}">`
-            + `<button name="groupName" class="themed" ><span>${label}</span></button>`
-            + `</form>`)}
-                
-                <form action="#" class="form-group" data-action="group:new">
-                    <button name="groupName" class="new themed" title="Create new group">
-                        <i class="ui-icon ui-insert"></i>
-                    </button>
-                </form>
-                
-            </div>
-            
-            <form action="#" class="form-render-row-length submit-on-change" data-action="tracker:quantization">
-                <div class="form-section-header">Row Length</div>
-                <select name="rowLengthInTicks" title="Row Length" class="themed">
-                    <option value="">Default</option>
-                    <optgroup label="Render Duration">
-                        ${this.editor.values.renderEditorFormOptions('durations')}
-                    </optgroup>
-                </select>
-            </form>
-            
-            <form action="#" class="form-render-instrument submit-on-change" data-action="tracker:instrument">
-                <div class="form-section-header">Filter By Instrument</div>                    
-                <select name="instrument" class="themed"->
-                    <option value="">Show All (Default)</option>
-                    <optgroup label="Filter By">
-                        ${this.editor.values.renderEditorFormOptions('song-instruments')}
-                    </optgroup>
-                </select>
-            </form>
-            
-            <form class="form-selected-indicies submit-on-change" data-action="tracker:select">
-                <div class="form-section-header">Selection</div>                    
-                <input type="text" name="indicies" class="themed" placeholder="No selection" />
-            </form>
-        `;
+        const formInstruction = panel.addForm('instruction');
+
+
+        // const formInstructionCommand = formInstruction.addForm('instruction:command');
+        // formInstructionCommand.innerHTML = `
+        //     <select name="command" title="Instruction Command" class="themed" required="required">
+        //         <option value="">Select...</option>
+        //         <optgroup label="Custom Frequencies" class="instrument-frequencies">
+        //             ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
+        //         </optgroup>
+        //         <optgroup label="Frequencies">
+        //             ${this.editor.values.renderEditorFormOptions('note-frequencies-all')}
+        //         </optgroup>
+        //         <optgroup label="Group Execute">
+        //             ${this.editor.values.renderEditorFormOptions('command-group-execute')}
+        //         </optgroup>
+        //     </select>`;
+
+        formInstruction.addButton('instruction-insert',e => this.editor.actions.insertInstructionCommand(e),
+            `<i class="ui-icon ui-insert"></i>`,
+            "Insert Instruction");
+        formInstruction.addButton('instruction-delete',e => this.editor.actions.deleteInstructionCommand(e),
+            `<i class="ui-icon subtract"></i>`,
+            "Delete Instruction");
+
+
+        panel.addForm('instrument')
+            .addSelect('instruction-instrument', e => this.editor.actions.setInstructionInstrument(e),
+            (e, addOption) => {
+                addOption('', 'No Instrument Selected');
+                this.editor.values.getValues('song-instruments', addOption)
+            }, 'Instruction Instrument');
+
+
+
+        panel.addForm('velocity')
+            .addRangeInput('instruction-velocity', e => this.editor.actions.setInstructionVelocity(e), 1, 100)
+
+        panel.addForm('duration')
+            .addSelect('instruction-duration', e => this.editor.actions.setInstructionDuration(e),
+            (e, addOption) => {
+                addOption('', 'No Duration');
+                this.editor.values.getValues('durations', addOption)
+            }, 'Instruction Duration');
+
+
+        panel.addForm('octave')
+            .addSelect('tracker-octave', e => this.editor.actions.setTrackerOctave(e),
+                (e, addOption) => {
+                    this.editor.values.getValues('note-frequency-octaves', addOption)
+                }, 'Select Octave');
+
+
+        panel.addForm('octave')
+            .addSelect('tracker-row-length', e => this.editor.actions.setTrackerRowLength(e),
+                (e, addOption) => {
+                    addOption('', 'Default');
+                    this.editor.values.getValues('durations', addOption)
+                }, 'Select Octave');
+
+
+
+        panel.addForm('octave')
+            .addSelect('tracker-filter-instrument', e => this.editor.actions.setTrackerFilterInstrument(e),
+                (e, addOption) => {
+                    addOption('', 'Default');
+                    this.editor.values.getValues('song-instruments', addOption)
+                }, 'Select Octave');
+
+
+
+        panel.addForm('selection')
+            .addTextInput('indicies',
+                    e => this.editor.actions.setTrackerSelection(e),
+                    'Selection',
+                    'No selection'
+                );
+
+
+//     <div class="form-section control-tracker">
+//             <div class="form-section-header">Render Group</div>
+//         ${this.editor.values.getValues('groups', (value, label) =>
+//     `<form action="#" class="form-group" data-action="group:change" data-group="${value}">`
+//         + `<button name="groupName" class="themed" ><span>${label}</span></button>`
+//         + `</form>`)}
+//
+// <form action="#" class="form-group" data-action="song:new-group">
+//     <button name="groupName" class="new themed" title="Create new group">
+//     <i class="ui-icon ui-insert"></i>
+//     </button>
+//     </form>
+//
+//     </div>
+
+        this.updateForms();
+
     }
 
-
-    onAction(e, actionName, actionParam=null) {
-        let selectedIndicies = this.selectedIndicies;
-
-        const form = e.target.form || e.target;
-        switch (actionName) {
-
-
-            case 'instruction:custom-command': // TODO: combine
-            case 'instruction:command':
-
-                // if(selectedIndicies.length === 0)
-                //     throw new Error("No selection");
-                let newCommand = this.fieldInstructionCommand.value || null;
-                if(newCommand === null || actionName === 'instruction:custom-command')
-                    newCommand = prompt("Set custom command:", newCommand || '');
-                if(!newCommand)
-                    throw new Error("Set command canceled");
-
-                let newInstruction = this.getInstructionFormValues(newCommand);
-                let newInstrument = null;
-                if(this.fieldInstructionCommand.selectedOptions[0] && this.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument'))
-                    newInstrument = parseInt(this.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
-
-
-                // TODO: use this.insertOrUpdateCommand() ?
-
-                if(selectedIndicies.length > 0) {
-                    for (let i = 0; i < selectedIndicies.length; i++) {
-                        this.editor.renderer.replaceInstructionCommand(this.groupName, selectedIndicies[i], newCommand);
-                        if (newInstrument !== null)
-                            this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], newInstrument);
-                        // this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                        this.findInstructionElement(selectedIndicies[i]).render();
-                    }
-                    this.renderRows();
-                    this.selectIndicies(e, selectedIndicies);
-
-                } else if(this.cursorCell) {
-                    const insertPosition = this.cursorPosition;
-                    if(insertPosition === null)
-                        throw new Error("No cursor position");
-                    const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
-                    this.renderRows();
-                    this.selectIndicies(e, insertIndex);
-
-                } else {
-                    throw new Error("No selection or cursor cell");
-                }
-                this.playSelectedInstructions();
-                // this.fieldInstructionCommand.focus();
-                break;
-
-            case 'instruction:instrument':
-                let instrumentID = this.fieldInstructionInstrument.value === '' ? null : parseInt(this.fieldInstructionInstrument.value);
-                for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], instrumentID);
-                    this.findInstructionElement(selectedIndicies[i]).render();
-                }
-                this.editor.status.currentInstrumentID = instrumentID;
-                this.playSelectedInstructions();
-                this.renderRows();
-                this.selectIndicies(e, selectedIndicies);
-                // this.fieldInstructionInstrument.focus();
-                break;
-
-            case 'instruction:duration':
-            case 'instruction:custom-duration':
-                let duration = parseFloat(this.fieldInstructionDuration.value);
-                if(duration === null || actionName === 'instruction:custom-duration')
-                    duration = parseInt(prompt("Set custom duration in ticks:", this.fieldInstructionDuration.value));
-                if(isNaN(duration))
-                    throw new Error("Set duration canceled");
-                for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionDuration(this.groupName, selectedIndicies[i], duration);
-                    this.findInstructionElement(selectedIndicies[i]).render();
-                }
-                this.playSelectedInstructions();
-                this.renderRows();
-                this.selectIndicies(e, selectedIndicies);
-                // this.fieldInstructionDuration.focus();
-                break;
-
-            case 'instruction:velocity':
-            case 'instruction:custom-velocity':
-                let velocity = this.fieldInstructionVelocity.value === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
-                if(velocity === null || actionName === 'instruction:custom-velocity')
-                     velocity = parseInt(prompt("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
-                if(isNaN(velocity))
-                    throw new Error("Set velocity canceled");
-                for(let i=0; i<selectedIndicies.length; i++) {
-                    this.editor.renderer.replaceInstructionVelocity(this.groupName, selectedIndicies[i], velocity);
-                    this.findInstructionElement(selectedIndicies[i]).render();
-                }
-                this.playSelectedInstructions();
-                this.renderRows();
-                this.selectIndicies(e, selectedIndicies);
-                // this.selectIndicies(e, selectedIndicies[0]);
-                // this.fieldInstructionVelocity.focus();
-                break;
-
-            case 'instruction:delete':
-                for(let i=0; i<selectedIndicies.length; i++)
-                    this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                this.renderRows();
-                this.selectIndicies(e, selectedIndicies[0]);
-                break;
-
-            // case 'row:edit':
-            //     this.editor.renderer.replaceInstructionParams(this.groupName, selectedPauseIndices, {
-            //         command: '!pause',
-            //         duration: parseFloat(form.duration.value)
-            //     });
-            //     // this.trackerSelect([instruction]);
-            //     break;
-
-            // case 'row:duplicate':
-            //     if (!selectedRange)
-            //         throw new Error("No selected range");
-            //     this.editor.renderer.duplicateInstructionRange(this.groupName, selectedRange[0], selectedRange[1]);
-            //     break;
-
-
-            case 'group:change':
-                const selectedGroupName = actionParam || form.getAttribute('data-group');
-                this.groupName = selectedGroupName;
-                // this.editor.selectGroup(selectedGroupName);
-                break;
-
-
-            case 'group:new':
-                let newGroupName = this.editor.renderer.generateInstructionGroupName(this.groupName);
-                newGroupName = prompt("Create new instruction group?", newGroupName);
-                if (newGroupName) this.editor.renderer.addInstructionGroup(newGroupName, []);
-                else this.editor.setStatus("<span style='color: red'>Create instruction group canceled</span>");
-                this.editor.render();
-                break;
-
-            case 'row-segment:change':
-                this.currentRowSegmentID = parseInt(form.elements.id.value);
-                this.renderRows();
-                this.selectNextCell();
-
-                let segmentContainer = this.querySelector(`asctr-segment[id="${this.currentRowSegmentID}"]`);
-                segmentContainer.focus();
-                // this.focusOnContainer();
-                break;
-
-            case 'tracker:octave':
-                this.editor.status.currentOctave = parseInt(this.fieldRenderOctave.value);
-                break;
-
-            case 'tracker:quantization':
-                this.rowLengthInTicks = this.fieldRenderRowLength.value;
-                this.renderRows();
-                this.selectIndicies(e, selectedIndicies);
-                break;
-
-            case 'tracker:instrument':
-                this.renderRows();
-                this.selectIndicies(e, selectedIndicies);
-
-                break;
-
-            case 'tracker:select':
-                selectedIndicies = this.fieldSelectedIndicies.value
-                    .split(/\D+/)
-                    .map(index => parseInt(index));
-                this.selectIndicies(e, selectedIndicies);
-                this.fieldSelectedIndicies.focus();
-                break;
-
-            default:
-                return false;
-                // console.warn("Unhandled " + e.type + ": ", actionName);
-                break;
-        }
-        return true;
-        // } catch (e) {
-        //     this.onError(e);
-        // }
-    }
+    //
+    // onAction(e, actionName, actionParam=null) {
+    //     let selectedIndicies = this.selectedIndicies;
+    //
+    //     const form = e.target.form || e.target;
+    //     switch (actionName) {
+    //
+    //
+    //         case 'instruction:custom-command':
+    //         case 'instruction:insert':
+    //         case 'instruction:command':
+    //
+    //             // if(selectedIndicies.length === 0)
+    //             //     throw new Error("No selection");
+    //             let newCommand = this.fieldInstructionCommand.value || null;
+    //             if(newCommand === null || actionName === 'instruction:custom-command')
+    //                 newCommand = prompt("Set custom command:", newCommand || '');
+    //             if(!newCommand)
+    //                 throw new Error("Set command canceled");
+    //
+    //             let newInstruction = this.getInstructionFormValues(newCommand);
+    //             let newInstrument = null;
+    //             if(this.fieldInstructionCommand.selectedOptions[0] && this.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument'))
+    //                 newInstrument = parseInt(this.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
+    //
+    //
+    //             // TODO: use this.insertOrUpdateCommand() ?
+    //
+    //             if(selectedIndicies.length > 0) {
+    //                 for (let i = 0; i < selectedIndicies.length; i++) {
+    //                     this.editor.renderer.replaceInstructionCommand(this.groupName, selectedIndicies[i], newCommand);
+    //                     if (newInstrument !== null)
+    //                         this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], newInstrument);
+    //                     // this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
+    //                     this.findInstructionElement(selectedIndicies[i]).render();
+    //                 }
+    //                 this.renderRows();
+    //                 this.selectIndicies(e, selectedIndicies);
+    //
+    //             } else if(this.cursorCell) {
+    //                 const insertPosition = this.cursorPosition;
+    //                 if(insertPosition === null)
+    //                     throw new Error("No cursor position");
+    //                 const insertIndex = this.editor.renderer.insertInstructionAtPosition(this.groupName, insertPosition, newInstruction);
+    //                 this.renderRows();
+    //                 this.selectIndicies(e, insertIndex);
+    //
+    //             } else {
+    //                 throw new Error("No selection or cursor cell");
+    //             }
+    //             this.playSelectedInstructions();
+    //             // this.fieldInstructionCommand.focus();
+    //             break;
+    //
+    //         case 'instruction:instrument':
+    //             let instrumentID = this.fieldInstructionInstrument.value === '' ? null : parseInt(this.fieldInstructionInstrument.value);
+    //             for(let i=0; i<selectedIndicies.length; i++) {
+    //                 this.editor.renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], instrumentID);
+    //                 this.findInstructionElement(selectedIndicies[i]).render();
+    //             }
+    //             this.editor.status.currentInstrumentID = instrumentID;
+    //             this.playSelectedInstructions();
+    //             this.renderRows();
+    //             this.selectIndicies(e, selectedIndicies);
+    //             // this.fieldInstructionInstrument.focus();
+    //             break;
+    //
+    //         case 'instruction:duration':
+    //         case 'instruction:custom-duration':
+    //             let duration = parseFloat(this.fieldInstructionDuration.value);
+    //             if(duration === null || actionName === 'instruction:custom-duration')
+    //                 duration = parseInt(prompt("Set custom duration in ticks:", this.fieldInstructionDuration.value));
+    //             if(isNaN(duration))
+    //                 throw new Error("Set duration canceled");
+    //             for(let i=0; i<selectedIndicies.length; i++) {
+    //                 this.editor.renderer.replaceInstructionDuration(this.groupName, selectedIndicies[i], duration);
+    //                 this.findInstructionElement(selectedIndicies[i]).render();
+    //             }
+    //             this.playSelectedInstructions();
+    //             this.renderRows();
+    //             this.selectIndicies(e, selectedIndicies);
+    //             // this.fieldInstructionDuration.focus();
+    //             break;
+    //
+    //         case 'instruction:velocity':
+    //         case 'instruction:custom-velocity':
+    //             let velocity = this.fieldInstructionVelocity.value === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
+    //             if(velocity === null || actionName === 'instruction:custom-velocity')
+    //                  velocity = parseInt(prompt("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
+    //             if(isNaN(velocity))
+    //                 throw new Error("Set velocity canceled");
+    //             for(let i=0; i<selectedIndicies.length; i++) {
+    //                 this.editor.renderer.replaceInstructionVelocity(this.groupName, selectedIndicies[i], velocity);
+    //                 this.findInstructionElement(selectedIndicies[i]).render();
+    //             }
+    //             this.playSelectedInstructions();
+    //             this.renderRows();
+    //             this.selectIndicies(e, selectedIndicies);
+    //             // this.selectIndicies(e, selectedIndicies[0]);
+    //             // this.fieldInstructionVelocity.focus();
+    //             break;
+    //
+    //         case 'instruction:delete':
+    //             for(let i=0; i<selectedIndicies.length; i++)
+    //                 this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
+    //             this.renderRows();
+    //             this.selectIndicies(e, selectedIndicies[0]);
+    //             break;
+    //
+    //         // case 'row:edit':
+    //         //     this.editor.renderer.replaceInstructionParams(this.groupName, selectedPauseIndices, {
+    //         //         command: '!pause',
+    //         //         duration: parseFloat(form.duration.value)
+    //         //     });
+    //         //     // this.trackerSelect([instruction]);
+    //         //     break;
+    //
+    //         // case 'row:duplicate':
+    //         //     if (!selectedRange)
+    //         //         throw new Error("No selected range");
+    //         //     this.editor.renderer.duplicateInstructionRange(this.groupName, selectedRange[0], selectedRange[1]);
+    //         //     break;
+    //
+    //
+    //         case 'group:change':
+    //             const selectedGroupName = actionParam || form.getAttribute('data-group');
+    //             this.groupName = selectedGroupName;
+    //             // this.editor.selectGroup(selectedGroupName);
+    //             break;
+    //
+    //
+    //         case 'song:new-group':
+    //             let newGroupName = this.editor.renderer.generateInstructionGroupName(this.groupName);
+    //             newGroupName = prompt("Create new instruction group?", newGroupName);
+    //             if (newGroupName) this.editor.renderer.addInstructionGroup(newGroupName, []);
+    //             else this.editor.setStatus("<span style='color: red'>Create instruction group canceled</span>");
+    //             this.editor.render();
+    //             break;
+    //
+    //         case 'tracker:row-segment':
+    //             this.currentRowSegmentID = parseInt(form.elements.id.value);
+    //             this.renderRows();
+    //             this.selectNextCell();
+    //
+    //             let segmentContainer = this.querySelector(`asctr-segment[id="${this.currentRowSegmentID}"]`);
+    //             segmentContainer.focus();
+    //             // this.focusOnContainer();
+    //             break;
+    //
+    //         case 'tracker:octave':
+    //             this.editor.status.currentOctave = parseInt(this.fieldRenderOctave.value);
+    //             break;
+    //
+    //         case 'tracker:quantization':
+    //             this.rowLengthInTicks = this.fieldRenderRowLength.value;
+    //             this.renderRows();
+    //             this.selectIndicies(e, selectedIndicies);
+    //             break;
+    //
+    //         case 'tracker:filter-instrument':
+    //             this.renderRows();
+    //             this.selectIndicies(e, selectedIndicies);
+    //
+    //             break;
+    //
+    //         case 'tracker:select':
+    //             selectedIndicies = this.fieldSelectedIndicies.value
+    //                 .split(/\D+/)
+    //                 .map(index => parseInt(index));
+    //             this.selectIndicies(e, selectedIndicies);
+    //             this.fieldSelectedIndicies.focus();
+    //             break;
+    //
+    //         default:
+    //             return false;
+    //             // console.warn("Unhandled " + e.type + ": ", actionName);
+    //             break;
+    //     }
+    //     return true;
+    //     // } catch (e) {
+    //     //     this.onError(e);
+    //     // }
+    // }
 
     onRowInput(e) {
         e.preventDefault();
@@ -1245,7 +1232,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // selectedRow.select();
         selectedRow.createAddInstructionElement();
         selectedRow.setCursor();
-        this.update();
+        this.updateForms();
         this.playSelectedInstructions(e);
         this.focusOnContainer();
         selectedRow.parentNode.scrollTo();
@@ -1914,7 +1901,7 @@ class AudioSourceComposerTrackerRowSegment extends HTMLElement {
 
     render() {
         this.innerHTML =
-            `<form action="#" class="form-row-segment" data-action="row-segment:change">
+            `<form action="#" class="form-row-segment" data-action="tracker:row-segment">
                 <input type="hidden" name="id" value="${this.id}" />
                 <button name="select" title="Render row segment #${this.id}">
                     <span>${this.id}</span>
