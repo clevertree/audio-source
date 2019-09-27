@@ -58,37 +58,37 @@ class AudioSourceComposerPanelForm extends HTMLElement {
     }
 
 
-    addButton(name, callback, buttonInnerHTML, title=null) {
-        const buttonElm = new AudioSourceComposerPanelFormSelect(callback, buttonInnerHTML, name, title);
-        this.inputs[name] = buttonElm;
+    addButton(key, callback, buttonInnerHTML, title=null) {
+        const buttonElm = new AudioSourceComposerPanelFormButton(key, callback, buttonInnerHTML, title);
+        this.inputs[key] = buttonElm;
         this.render();
         return buttonElm;
     }
 
-    addSelect(name, callback, optionsCallback, title=null) {
-        const selectElm = new AudioSourceComposerPanelFormSelect(callback, optionsCallback, name, title);
-        this.inputs[name] = selectElm;
+    addSelect(key, callback, optionsCallback, title=null) {
+        const selectElm = new AudioSourceComposerPanelFormSelect(key, callback, optionsCallback, title);
+        this.inputs[key] = selectElm;
         this.render();
         return selectElm;
     }
 
-    addRangeInput(name, callback, min=1, max=100, title=null) {
-        const rangeElm = new AudioSourceComposerPanelFormRangeInput(callback, min, max, name, title);
-        this.inputs[name] = rangeElm;
+    addRangeInput(key, callback, min=1, max=100, title=null) {
+        const rangeElm = new AudioSourceComposerPanelFormRangeInput(key, callback, min, max, title);
+        this.inputs[key] = rangeElm;
         this.render();
         return rangeElm;
     }
 
-    addTextInput(name, callback, title=null, placeholder=null) {
-        const rangeElm = new AudioSourceComposerPanelFormText(callback, name, title, placeholder);
-        this.inputs[name] = rangeElm;
+    addTextInput(key, callback, title=null, placeholder=null) {
+        const rangeElm = new AudioSourceComposerPanelFormText(key, callback, title, placeholder);
+        this.inputs[key] = rangeElm;
         this.render();
         return rangeElm;
     }
 
-    addFileInput(name, callback, buttonInnerHTML, accepts=null, title=null) {
-        const rangeElm = new AudioSourceComposerPanelFormFileInput(name, callback, buttonInnerHTML, accepts, title);
-        this.inputs[name] = rangeElm;
+    addFileInput(key, callback, buttonInnerHTML, accepts=null, title=null) {
+        const rangeElm = new AudioSourceComposerPanelFormFileInput(key, callback, buttonInnerHTML, accepts, title);
+        this.inputs[key] = rangeElm;
         this.render();
         return rangeElm;
 
@@ -122,21 +122,38 @@ customElements.define('ascp-form', AudioSourceComposerPanelForm);
 
 
 
-
-class AudioSourceComposerPanelFormButton extends HTMLElement {
-    constructor(callback=null, innerHTML=null, name=null, title=null) {
+/** Abstract Panel Input **/
+class AudioSourceComposerPanelInputAbstract extends HTMLElement {
+    constructor(key, callback=null) {
         super();
         this.callback = callback || function() { throw new Error("No callback set") };
 
+        this.setAttribute('key', key);
+    }
+
+    get inputElm() { throw new Error("Not implemented"); }
+    get disabled() { return this.inputElm.disabled; }
+    set disabled(value) { this.inputElm.disabled = value; }
+}
+
+
+
+class AudioSourceComposerPanelFormButton extends AudioSourceComposerPanelInputAbstract {
+    constructor(key, callback=null, innerHTML=null, title=null) {
+        super(key, callback);
+
+        this.setAttribute('key', key);
+
         const buttonElm = document.createElement('button');
-        if(name)
-            buttonElm.setAttribute('name', name);
+        buttonElm.classList.add('themed');
         if(title)
             buttonElm.setAttribute('title', title);
         if(innerHTML)
             buttonElm.innerHTML = innerHTML;
         this.appendChild(buttonElm);
     }
+
+    get inputElm() { return this.querySelector('button'); }
 
     connectedCallback() {
         // this.render();
@@ -153,21 +170,24 @@ customElements.define('ascpf-button', AudioSourceComposerPanelFormButton);
 
 
 
-class AudioSourceComposerPanelFormSelect extends HTMLElement {
-    constructor(callback=null, optionsCallback=null, name=null, title=null) {
-        super();
-        this.callback = callback || function() { throw new Error("No callback set") };
+class AudioSourceComposerPanelFormSelect extends AudioSourceComposerPanelInputAbstract {
+    constructor(key, callback=null, optionsCallback=null, title=null) {
+        super(key, callback);
+
         this.optionsCallback = optionsCallback || function() { throw new Error("No options callback set") };
 
+        this.setAttribute('key', key);
+
         const selectElm = document.createElement('select');
-        if(name)
-            selectElm.setAttribute('name', name);
+        selectElm.classList.add('themed');
         if(title)
             selectElm.setAttribute('title', title);
         // if(optionsCallback)
         //     selectElm.innerHTML = optionsCallback;
         this.appendChild(selectElm);
     }
+
+    get inputElm() { return this.querySelector('select'); }
 
     connectedCallback() {
         // this.render();
@@ -179,38 +199,44 @@ customElements.define('ascpf-select', AudioSourceComposerPanelFormSelect);
 
 
 
-class AudioSourceComposerPanelFormRangeInput extends HTMLElement {
-    constructor(callback=null, min=1, max=100, name=null, title=null) {
-        super();
-        this.callback = callback || function() { throw new Error("No callback set") };
-        this.optionsCallback = optionsCallback || function() { throw new Error("No options callback set") };
+class AudioSourceComposerPanelFormRangeInput extends AudioSourceComposerPanelInputAbstract {
+    constructor(key, callback=null, min=1, max=100, title=null) {
+        super(key, callback);
+
+        this.setAttribute('key', key);
 
         const rangeElm = document.createElement('input');
+        rangeElm.classList.add('themed');
+
         rangeElm.setAttribute('type', 'range');
         rangeElm.setAttribute('min', min+'');
         rangeElm.setAttribute('max', max+'');
-        if(name)        rangeElm.setAttribute('name', name);
         if(title)       rangeElm.setAttribute('title', title);
         this.appendChild(rangeElm);
     }
+
+    get inputElm() { return this.querySelector('input'); }
 }
 
 customElements.define('ascpf-range', AudioSourceComposerPanelFormRangeInput);
 
 
 
-class AudioSourceComposerPanelFormText extends HTMLElement {
-    constructor(callback=null, name=null, title=null, placeholder=null) {
-        super();
-        this.callback = callback || function() { throw new Error("No callback set") };
+class AudioSourceComposerPanelFormText extends AudioSourceComposerPanelInputAbstract {
+    constructor(key, callback=null, title=null, placeholder=null) {
+        super(key, callback);
+
+        this.setAttribute('key', key);
 
         const inputElm = document.createElement('input');
+        inputElm.classList.add('themed');
         inputElm.setAttribute('type', 'text');
-        if(name)        inputElm.setAttribute('name', name);
         if(title)       inputElm.setAttribute('title', title);
         if(placeholder) inputElm.setAttribute('placeholder', placeholder);
         this.appendChild(inputElm);
     }
+
+    get inputElm() { return this.querySelector('input'); }
 
 }
 
@@ -219,28 +245,30 @@ customElements.define('ascpf-text', AudioSourceComposerPanelFormText);
 
 
 
-class AudioSourceComposerPanelFormFileInput extends HTMLElement {
-    constructor(name, callback, innerHTML, accepts=null, title=null) {
-        super();
-        this.callback = callback || function() { throw new Error("No callback set") };
+class AudioSourceComposerPanelFormFileInput extends AudioSourceComposerPanelInputAbstract {
+    constructor(key, callback, innerHTML, accepts=null, title=null) {
+        super(key, callback);
+
+        this.setAttribute('key', key);
 
         const labelElm = document.createElement('label');
         this.appendChild(labelElm);
 
-        const divElm = document.createElement('label');
-        divElm.innerHTML = innerHTML;
+        labelElm.innerHTML = innerHTML;
 
         const inputElm = document.createElement('input');
+        inputElm.classList.add('themed');
         inputElm.setAttribute('type', 'file');
-        if(name)        inputElm.setAttribute('name', name);
+        inputElm.setAttribute('style', 'display: none;');
         if(accepts)     inputElm.setAttribute('accepts', accepts);
         if(title)       inputElm.setAttribute('title', title);
         labelElm.appendChild(inputElm);
     }
 
+    get inputElm() { return this.querySelector('input'); }
 }
 
-customElements.define('ascpf-text', AudioSourceComposerPanelFormFileInput);
+customElements.define('ascpf-file', AudioSourceComposerPanelFormFileInput);
 
 
 /** Instrument Panel **/

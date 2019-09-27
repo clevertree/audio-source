@@ -12,7 +12,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.longPressTimeout = null;
 
 
-        this.webSocket = new AudioSourceComposerWebsocket(this);
+        // this.webSocket = new AudioSourceComposerWebsocket(this);
         this.keyboard = new AudioSourceComposerKeyboard(this);
         // this.menu = new AudioSourceComposerMenu(this);
         // this.forms = new AudioSourceComposerForms(this);
@@ -396,9 +396,10 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
     get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
 
-    get panelSong() { return this.shadowDOM.querySelector(`ascf-panel[caption='Song']`)}
-    get panelTracker() { return this.shadowDOM.querySelector(`ascf-panel[caption='Track']`)}
-    get panelInstruments() { return this.shadowDOM.querySelector(`ascf-panel[caption='Instruments']`)}
+    get panelSong() { return this.shadowDOM.querySelector(`asc-panel[key='song']`)}
+    get panelTracker() { return this.shadowDOM.querySelector(`asc-panel[key='tracker']`)}
+    get panelInstruction() { return this.shadowDOM.querySelector(`asc-panel[key='instruction']`)}
+    get panelInstruments() { return this.shadowDOM.querySelector(`asc-panel[key='instruments']`)}
 
     render() {
         const Libraries = new AudioSourceLibraries;
@@ -414,13 +415,13 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
-            <div class="asc-panel-container">
-                <asc-panel key="song"></asc-panel>
-                <asc-panel key="track"></asc-panel>
-                <asc-panel key="instruments"></asc-panel>
-            </div>
-
-            <hr style="flex-basis:100%; margin: 1px;" />
+            <asc-panel key="song"></asc-panel>
+            <br/>
+            <asc-panel key="instruction"></asc-panel><!--
+            --><asc-panel key="tracker"></asc-panel>
+            <br/>
+            <asc-panel key="instruments"></asc-panel>
+            <hr/>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
         <div class="asc-status-container">
@@ -467,7 +468,7 @@ class AudioSourceComposerElement extends HTMLElement {
     get fieldSongPosition()         { return this.panelSong.querySelector('form.form-song-playback-position input[name=position]'); }
 
     renderSongForms() {
-        const panel = this.editor.panelSong;
+        const panel = this.panelSong;
 
         const formPlayback = panel.addForm('playback');
         formPlayback.addButton('song-play',
@@ -492,7 +493,7 @@ class AudioSourceComposerElement extends HTMLElement {
             .addTextInput('song-position', e => this.actions.setSongPosition(e), "Song Position", '00:00:0000');
 
         panel.addForm('volume')
-            .addRangeInput('song-volume', e => this.editor.actions.setSongVolume(e), 1, 100)
+            .addRangeInput('song-volume', e => this.actions.setSongVolume(e), 1, 100)
 
         const formFile = panel.addForm('file');
 
@@ -511,7 +512,7 @@ class AudioSourceComposerElement extends HTMLElement {
         panel.addForm('name')
             .addTextInput('song-name', e => this.actions.setSongName(e), "Song Name", 'Unnamed');
 
-        panel.addForm('name')
+        panel.addForm('version')
             .addTextInput('song-version', e => this.actions.setSongVersion(e), "Song Version", '0.0.0');
 
     }

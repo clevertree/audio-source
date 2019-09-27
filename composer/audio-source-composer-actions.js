@@ -4,7 +4,7 @@ class AudioSourceComposerActions {
         this.editor = editor;
     }
 
-    onAction(e, actionString, actionParam = null) {
+    async onAction(e, actionString, actionParam = null) {
         switch (actionString) {
 
             /** Song Commands **/
