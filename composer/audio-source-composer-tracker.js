@@ -244,7 +244,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         };
 
 
-        const filterByInstrumentID = this.fieldRenderInstrument.value ? parseInt(this.fieldRenderInstrument.value) : null;
+        const filterByInstrumentID = this.fieldTrackerFilterInstrument.value ? parseInt(this.fieldTrackerFilterInstrument.value) : null;
 
         let rowInstructionList = null;
         while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
@@ -459,45 +459,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         };
     }
 
-    updateForms() {
-
-        let selectedIndicies = this.selectedIndicies;
-        // let timeDivision = this.rowLengthInTicks || this.editor.renderer.getSongTimeDivision();
-        const selectedInstructionList = this.editor.renderer.getInstructions(this.groupName, selectedIndicies);
-        let cursorInstruction = selectedInstructionList[0];
-
-        this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
-
-        // this.buttonCommandDelete.disabled = true;
-        // this.buttonCommandInsert.disabled = true;
-        if(cursorInstruction) {
-            // Note Instruction
-            this.fieldInstructionCommand.value = cursorInstruction.command;
-            this.fieldInstructionInstrument.value = cursorInstruction.instrument !== null ? cursorInstruction.instrument : '';
-            this.fieldInstructionVelocity.value = cursorInstruction.velocity !== null ? cursorInstruction.velocity : '';
-            this.fieldInstructionDuration.value = cursorInstruction.duration !== null ? cursorInstruction.duration : '';
-            // this.buttonCommandDelete.disabled = false;
-            // containerElm.classList.add('show-control-tracker-modify');
-
-        } else if(selectedIndicies.length === 0) {
-            // this.buttonCommandInsert.disabled = false;
-        }
-
-        this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
-
-        // Status Fields
-
-        this.fieldRenderOctave.value = this.editor.status.currentOctave;
-
-        this.fieldRenderRowLength.value = this.rowLengthInTicks; // this.editor.renderer.getSongTimeDivision();
-        if(!this.fieldInstructionDuration.value && this.fieldRenderRowLength.value)
-            this.fieldInstructionDuration.value = this.fieldRenderRowLength.value;
-
-
-        this.fieldSelectedIndicies.value = selectedIndicies.join(',');
-
-    }
-
     onInput(e) {
         if (e.defaultPrevented)
             return;
@@ -710,7 +671,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             case 'touchend':
             case 'mouseup':
                 this.mousePosition.isDown = false;
-                if (this.mousePosition.isDragging 
+                if (this.mousePosition.isDragging
                     && this.mousePosition.lastDown.path[0].matches('asct-row')
                 ) {
                     // if(this.isSelectionRectActive()) {
@@ -865,7 +826,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         return !!rectElm;
     }
 
-
     commitSelectionRect(eDown=null, eUp=null) {
         if(!eDown) eDown = this.mousePosition.lastDown;
 
@@ -901,128 +861,162 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     }
 
-    /** Forms **/
+
+    /** Tracker Panel **/
 
     get panelTracker() { return this.editor.panelTracker; }
-    get panelInstruction() { return this.editor.panelInstruction; }
 
-    get fieldRenderRowLength() { return this.panelTracker.querySelector('ascp-form[key=row-length] ascpf-select[key=row-length]'); }
-    get fieldRenderInstrument() { return this.panelTracker.querySelector('ascp-form[key=filter-instrument] ascpf-select[key=instrument]'); }
-    get fieldRenderOctave() { return this.panelTracker.querySelector('ascp-form[key=octave] ascpf-select[key=octave]'); }
-    get fieldSelectedIndicies() { return this.panelTracker.querySelector('ascp-form[key=selection] ascpf-text[key=selection]'); }
+    /** Tracker Forms **/
 
-    // get fieldInstructionCommand() { return this.querySelector('form.form-instruction-insert select[name=command]'); }
+    get formTrackerOctave() { return this.editor.panelTracker.getOrCreateForm('octave'); }
 
-    get fieldInstructionInstrument() { return this.panelInstruction.querySelector('ascp-form[key=instrument] ascpf-select[key=instrument]'); }
-    get fieldInstructionDuration() { return this.panelInstruction.querySelector('ascp-form[key=duration] ascpf-select[key=duration]'); }
-    get fieldInstructionCommand() { return this.panelInstruction.querySelector('ascp-form[key=command] ascpf-select[key=command]'); }
-    get fieldInstructionVelocity() { return this.panelInstruction.querySelector('ascp-form[key=velocity] ascpf-select[key=velocity]'); }
-    get fieldInstructionInsert() { return this.panelInstruction.querySelector('ascp-form[key=command] ascpf-button[key=insert]'); }
-    get fieldInstructionDelete() { return this.panelInstruction.querySelector('ascp-form[key=command] ascpf-button[key=delete]'); }
+    get formTrackerRowLength() { return this.editor.panelTracker.getOrCreateForm('row-length'); }
+    get formTrackerInstrument() { return this.editor.panelTracker.getOrCreateForm('instrument'); }
+    get formTrackerSelection() { return this.editor.panelTracker.getOrCreateForm('selection'); }
 
-    // get fieldRowDuration() { return this.querySelector('form.form-row-duration select[name=duration]'); }
+    /** Tracker Fields **/
 
-    // get fieldAddInstrumentInstrument() { return this.querySelector('form.form-song-add-instrument select[name=instrument]'); }
-    // get fieldSelectedIndicies() { return this.panelTracker.querySelector('form.form-selected-indicies input[name=indicies]'); }
-    // get fieldSelectedRangeStart() { return this.querySelector('form.form-selected-range input[name=rangeStart]'); }
-    // get fieldSelectedRangeEnd() { return this.querySelector('form.form-selected-range input[name=rangeEnd]'); }
-
-    // get buttonCommandInsert()   { return this.panelTracker.querySelector(`form.form-instruction-insert button[name=insert]`); }
-    // get buttonCommandDelete()   { return this.panelTracker.querySelector(`form.form-instruction-delete button[name=delete]`); }
-
-    renderForms() {
-        /** Instruction Panel **/
-        let panel = this.editor.panelInstruction;
-
-        // const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
-
-        const formInstruction = panel.addForm('command');
-
-
-        // const formInstructionCommand = formInstruction.addForm('instruction:command');
-        // formInstructionCommand.innerHTML = `
-        //     <select name="command" title="Instruction Command" class="themed" required="required">
-        //         <option value="">Select...</option>
-        //         <optgroup label="Custom Frequencies" class="instrument-frequencies">
-        //             ${this.editor.values.renderEditorFormOptions('command-instrument-frequencies')}
-        //         </optgroup>
-        //         <optgroup label="Frequencies">
-        //             ${this.editor.values.renderEditorFormOptions('note-frequencies-all')}
-        //         </optgroup>
-        //         <optgroup label="Group Execute">
-        //             ${this.editor.values.renderEditorFormOptions('command-group-execute')}
-        //         </optgroup>
-        //     </select>`;
-
-        formInstruction.addButton('insert',e => this.editor.actions.insertInstructionCommand(e),
-            `<i class="ui-icon ui-insert"></i>`,
-            "Insert Instruction");
-        formInstruction.addButton('delete',e => this.editor.actions.deleteInstructionCommand(e),
-            `<i class="ui-icon subtract"></i>`,
-            "Delete Instruction");
-
-
-        panel.addForm('instrument')
-            .addSelect('instrument', e => this.editor.actions.setInstructionInstrument(e),
-            (e, addOption) => {
-                addOption('', 'No Instrument Selected');
-                this.editor.values.getValues('song-instruments', addOption)
-            }, 'Instruction Instrument');
-
-
-
-        panel.addForm('velocity')
-            .addRangeInput('velocity', e => this.editor.actions.setInstructionVelocity(e), 1, 100)
-
-        panel.addForm('duration')
-            .addSelect('duration', e => this.editor.actions.setInstructionDuration(e),
-            (e, addOption) => {
-                addOption('', 'No Duration');
-                this.editor.values.getValues('durations', addOption)
-            }, 'Instruction Duration');
-
-
-        /** Tracker Panel **/
-        panel = this.editor.panelTracker;
-
-
-        panel.addForm('octave')
-            .addSelect('octave', e => this.editor.actions.setTrackerOctave(e),
-                (e, addOption) => {
-                    this.editor.values.getValues('note-frequency-octaves', addOption)
-                }, 'Select Octave');
-
-
-        panel.addForm('row-length', 'Row Length')
-            .addSelect('row-length', e => this.editor.actions.setTrackerRowLength(e),
+    get fieldTrackerRowLength() {
+        return this.formTrackerRowLength.getInput('row-length', false)
+            || this.formTrackerRowLength.addSelect('row-length', e => this.editor.actions.setTrackerRowLength(e),
                 (e, addOption) => {
                     addOption('', 'Default');
                     this.editor.values.getValues('durations', addOption)
                 }, 'Select Octave');
+    }
 
-
-
-        panel.addForm('instrument')
-            .addSelect('filter-instrument', e => this.editor.actions.setTrackerFilterInstrument(e),
+    get fieldTrackerFilterInstrument() {
+        return this.formTrackerInstrument.getInput('filter-instrument', false)
+            || this.formTrackerInstrument.addSelect('filter-instrument', e => this.editor.actions.setTrackerFilterInstrument(e),
                 (e, addOption) => {
                     addOption('', 'Default');
                     this.editor.values.getValues('song-instruments', addOption)
                 }, 'Select Octave');
-
-
-
-        panel.addForm('selection')
-            .addTextInput('selection',
+    }
+    get fieldTrackerOctave() {
+        return this.formTrackerOctave.getInput('octave', false)
+            || this.formTrackerOctave.addSelect('octave', e => this.editor.actions.setTrackerOctave(e),
+                (e, addOption) => {
+                    this.editor.values.getValues('note-frequency-octaves', addOption)
+                }, 'Select Octave');
+    }
+    get fieldTrackerSelection() {
+        return this.formTrackerSelection.getInput('selection', false)
+            || this.formTrackerSelection.addTextInput('selection',
                     e => this.editor.actions.setTrackerSelection(e),
                     'Selection',
                     'No selection'
                 );
-
-
-
-        this.updateForms();
-
     }
+    // get fieldInstructionCommand() { return this.panelInstruction.querySelector('ascp-form[key=command] ascpf-select[key=command]'); }
+
+    /** Instruction Panel **/
+
+    get panelInstruction() { return this.editor.panelInstruction; }
+
+    /** Instruction Forms **/
+
+    get formInstructionCommand() { return this.editor.panelInstruction.getOrCreateForm('command'); }
+    get formInstructionInstrument() { return this.editor.panelInstruction.getOrCreateForm('instrument'); }
+    get formInstructionVelocity() { return this.editor.panelInstruction.getOrCreateForm('velocity'); }
+    get formInstructionDuration() { return this.editor.panelInstruction.getOrCreateForm('duration'); }
+
+    /** Instruction Fields **/
+
+    get fieldInstructionCommand() {
+        return this.formInstructionCommand.getInput('command', false)
+            || this.formInstructionCommand.addSelect('command', e => this.editor.actions.setInstructionCommand(e),
+                (e, addOption, setOptgroup) => {
+                    // const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
+                    addOption('', 'No Command Selected');
+                    setOptgroup('Frequencies');
+                    this.editor.values.getValues('note-frequencies-all', addOption);
+                    setOptgroup('Custom Frequencies');
+                    // TODO: filter by selected instrument
+                    this.editor.values.getValues('command-instrument-frequencies', addOption);
+                    setOptgroup('Groups');
+                    this.editor.values.getValues('command-group-execute', addOption);
+                }, 'Instruction Instrument');
+    }
+
+
+    get fieldInstructionInsert() {
+        return this.formInstructionCommand.getInput('insert', false)
+            || this.formInstructionCommand.addButton('insert', e => this.editor.actions.insertInstructionCommand(e),
+                `<i class="ui-icon ui-insert"></i>`,
+                "Insert Instruction");
+    }
+
+    get fieldInstructionDelete() {
+        return this.formInstructionCommand.getInput('delete', false)
+            || this.formInstructionCommand.addButton('delete', e => this.editor.actions.deleteInstructionCommand(e),
+                `<i class="ui-icon subtract"></i>`,
+                "Delete Instruction");
+    }
+    get fieldInstructionInstrument() {
+        return this.formInstructionInstrument.getInput('instrument', false)
+            || this.formInstructionInstrument.addSelect('instrument', e => this.editor.actions.setInstructionInstrument(e),
+                (e, addOption, setOptgroup) => {
+                    addOption('', 'No Instrument Selected');
+                    setOptgroup('Song Instruments');
+                    this.editor.values.getValues('song-instruments', addOption);
+                }, 'Instruction Instrument');
+    }
+
+    get fieldInstructionVelocity() {
+        return this.formInstructionVelocity.getInput('velocity', false)
+            || this.formInstructionVelocity.addRangeInput('velocity', e => this.editor.actions.setInstructionVelocity(e), 1, 127)
+    }
+
+    get fieldInstructionDuration() {
+        return this.formInstructionDuration.getInput('duration', false)
+            || this.formInstructionDuration.addSelect('duration', e => this.editor.actions.setInstructionDuration(e),
+                    (e, addOption, setOptgroup) => {
+                        addOption('', 'No Duration');
+                        this.editor.values.getValues('durations', addOption);
+                    }, 'Instruction Duration');
+    }
+
+
+    renderForms() {
+        /** Instruction Panel **/
+
+
+
+        let selectedIndicies = this.selectedIndicies;
+        // let timeDivision = this.rowLengthInTicks || this.editor.renderer.getSongTimeDivision();
+        const selectedInstructionList = this.editor.renderer.getInstructions(this.groupName, selectedIndicies);
+        let cursorInstruction = selectedInstructionList[0];
+
+        this.fieldInstructionCommand.value = cursorInstruction ? cursorInstruction.command : null;
+        this.fieldInstructionInsert;
+        this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
+
+        this.fieldInstructionInstrument.value = cursorInstruction ? cursorInstruction.instrument : null;
+        this.fieldInstructionVelocity.value = cursorInstruction ? cursorInstruction.velocity : null;
+        this.fieldInstructionDuration.value = cursorInstruction ? cursorInstruction.duration : null;
+
+        this.fieldTrackerOctave;
+        this.fieldTrackerFilterInstrument;
+        this.fieldTrackerRowLength;
+        this.fieldTrackerSelection;
+
+
+        // this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
+
+        // Status Fields
+
+        if(this.fieldTrackerOctave.value === null)
+            this.fieldTrackerOctave.value = 3; // this.editor.status.currentOctave;
+
+        this.fieldTrackerRowLength.value = this.rowLengthInTicks; // this.editor.renderer.getSongTimeDivision();
+        if(!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
+            this.fieldInstructionDuration.value = this.fieldTrackerRowLength.value;
+
+
+        this.fieldTrackerSelection.value = selectedIndicies.join(',');
+    }
+
 
     onRowInput(e) {
         e.preventDefault();
@@ -1033,7 +1027,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // selectedRow.select();
         selectedRow.createAddInstructionElement();
         selectedRow.setCursor();
-        this.updateForms();
+        this.renderForms();
         this.playSelectedInstructions(e);
         this.focusOnContainer();
         selectedRow.parentNode.scrollTo();
@@ -1051,6 +1045,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedCell.select(!selectedCell.selected);
         console.timeEnd("onCelInput");
         selectedCell.setCursor();
+        this.renderForms();
         selectedCell.play();
         selectedCell.parentNode.scrollTo();
         this.focusOnContainer();
@@ -1152,7 +1147,6 @@ class AudioSourceComposerTracker extends HTMLElement {
     get cursorRow() { return this.cursorCell.parentNode; }
     get cursorPosition() { return ((cell) => (cell ? cell.parentNode.position : null))(this.cursorCell); }
     get cursorInstruction() { return this.getInstruction(this.cursorCell.index); }
-    // // }
 
     get selectedIndicies() {
         return [].map.call(this.selectedCells, (elm => elm.index));

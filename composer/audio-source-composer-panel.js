@@ -1,41 +1,52 @@
 
 class AudioSourceComposerPanel extends HTMLElement {
-    constructor(key=null, caption=null) {
+    constructor(key=null, captionText=null) {
         super();
         if(key) this.setAttribute('key', key);
-        if(caption) this.setAttribute('caption', caption);
-        this.sections = {};
+
+        this.innerHTML = `
+            <div class="header"></div>
+            <div class="container"></div>
+        `;
+        if(!captionText)
+            captionText = this.getAttribute('key').replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase());
+        this.caption = captionText
     }
 
     get editor() { return this.getRootNode().host; }
+    get headerElm() { return this.querySelector('.header'); }
+    get containerElm() { return this.querySelector('.container'); }
+
+    get caption() { return this.headerElm.innerText; }
+    set caption(value) { this.headerElm.innerText = value; }
 
     connectedCallback() {
-        this.render();
     }
 
-    addForm(key, caption) {
-        const sectionElm = new AudioSourceComposerPanelForm(key, caption);
-        this.sections[key] = sectionElm;
-        this.render();
-        return sectionElm;
+    getOrCreateForm(formKey, caption=null) {
+        let formElm = this.getForm(formKey, false);
+        if(!formElm)
+            formElm = new AudioSourceComposerPanelForm(formKey, caption);
+        if(caption !== null)
+            formElm.caption = caption;
+        this.containerElm.appendChild(formElm);
+        return formElm;
+    }
+
+    getForm(formKey, throwException=true) {
+        const formElm = this.containerElm.querySelector('[key="' + formKey + '"]');
+        if(formElm)
+            return formElm;
+        if(throwException)
+            throw new Error("Form key not found: " + formKey);
+        return null;
+    }
+
+    hasForm(formKey) {
+        return !!this.getForm(formKey, false);
     }
 
 
-    render() {
-        let captionText = this.getAttribute('caption');
-        if(!captionText)
-            captionText = this.getAttribute('key').replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase());
-        this.innerHTML = `
-            <div class="header"><span>${captionText}</span></div>
-            <div class="container"></div>
-        `;
-        const containerElm = this.querySelector('.container');
-        for(const key in this.sections) {
-            if(this.sections.hasOwnProperty(key)) {
-                containerElm.appendChild(this.sections[key]);
-            }
-        }
-    }
 }
 
 customElements.define('asc-panel', AudioSourceComposerPanel);
@@ -44,77 +55,73 @@ customElements.define('asc-panel', AudioSourceComposerPanel);
 /** Form / Input Panels **/
 
 class AudioSourceComposerPanelForm extends HTMLElement {
-    constructor(key=null, caption=null) {
+    constructor(key=null, captionText=null) {
         super();
         if(key) this.setAttribute('key', key);
-        if(caption) this.setAttribute('caption', caption);
-        this.inputs = {};
+
+        this.innerHTML = `
+            <div class="header"></div>
+            <div class="container"></div>
+        `;
+        if(!captionText)
+            captionText = this.getAttribute('key').replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase());
+        this.caption = captionText
     }
+
+    get editor() { return this.getRootNode().host; }
+    get headerElm() { return this.querySelector('.header'); }
+    get containerElm() { return this.querySelector('.container'); }
+
+    get caption() { return this.headerElm.innerText; }
+    set caption(value) { this.headerElm.innerText = value; }
 
     get panel() { this.closest('asc-panel'); }
 
-    connectedCallback() {
-        this.render();
-    }
 
+    getInput(inputKey, throwException=true) {
+        const inputElm = this.containerElm.querySelector('[key="' + inputKey + '"]');
+        if(inputElm)
+            return inputElm;
+        if(throwException)
+            throw new Error("Input key not found: " + inputKey);
+        return null;
+    }
 
     addButton(key, callback, buttonInnerHTML, title=null) {
         const buttonElm = new AudioSourceComposerPanelFormButton(key, callback, buttonInnerHTML, title);
-        this.inputs[key] = buttonElm;
-        this.render();
+        this.containerElm.appendChild(buttonElm);
         return buttonElm;
     }
 
     addSelect(key, callback, optionsCallback, title=null) {
         const selectElm = new AudioSourceComposerPanelFormSelect(key, callback, optionsCallback, title);
-        this.inputs[key] = selectElm;
-        this.render();
+        this.containerElm.appendChild(selectElm);
         return selectElm;
     }
 
     addRangeInput(key, callback, min=1, max=100, title=null) {
         const rangeElm = new AudioSourceComposerPanelFormRangeInput(key, callback, min, max, title);
-        this.inputs[key] = rangeElm;
-        this.render();
+        this.containerElm.appendChild(rangeElm);
         return rangeElm;
     }
 
     addTextInput(key, callback, title=null, placeholder=null) {
-        const rangeElm = new AudioSourceComposerPanelFormText(key, callback, title, placeholder);
-        this.inputs[key] = rangeElm;
-        this.render();
-        return rangeElm;
+        const textElm = new AudioSourceComposerPanelFormText(key, callback, title, placeholder);
+        this.containerElm.appendChild(textElm);
+        return textElm;
     }
 
     addFileInput(key, callback, buttonInnerHTML, accepts=null, title=null) {
-        const rangeElm = new AudioSourceComposerPanelFormFileInput(key, callback, buttonInnerHTML, accepts, title);
-        this.inputs[key] = rangeElm;
-        this.render();
-        return rangeElm;
+        const fileInputElm = new AudioSourceComposerPanelFormFileInput(key, callback, buttonInnerHTML, accepts, title);
+        this.containerElm.appendChild(fileInputElm);
+        return fileInputElm;
 
     }
 
     addInstrumentContainer(instrumentID) {
-        const rangeElm = new AudioSourceComposerPanelInstrumentContainer(instrumentID);
-        this.inputs[instrumentID] = rangeElm;
-        this.render();
-        return rangeElm;
-    }
-
-    render() {
-        let captionText = this.getAttribute('caption');
-        if(!captionText)
-            captionText = this.getAttribute('key').replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase());
-        this.innerHTML = `
-            <div class="header"><span>${captionText}</span></div>
-            <div class="container"></div>
-        `;
-        const containerElm = this.querySelector('.container');
-        for(const name in this.inputs) {
-            if(this.inputs.hasOwnProperty(name)) {
-                containerElm.appendChild(this.inputs[name]);
-            }
-        }
+        const instrumentContainerElm = new AudioSourceComposerPanelInstrumentContainer(instrumentID);
+        this.containerElm.appendChild(instrumentContainerElm);
+        return instrumentContainerElm;
     }
 }
 

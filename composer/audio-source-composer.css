@@ -263,6 +263,7 @@ ascpf-text,
 ascpf-file,
 ascp-instrument {
     display: inline-block;
+    vertical-align: top;
 }
 
 
@@ -394,12 +395,12 @@ ascp-instrument {
 
 
 
-/** Song Info Form **/
+/** Song Forms **/
 
-asc-panel[key=song]     ascpf-range[key=song-volume]    input       { max-width: 71px; }
-asc-panel[key=song]     ascpf-text[key=song-version]    input       { max-width: 64px; }
-asc-panel[key=song]     ascpf-text[key=song-name]       input       { max-width: 160px; }
-asc-panel[key=song]     ascpf-text[key=song-position]   input       { max-width: 77px; }
+ascp-form[key=volume]       ascpf-range[key=volume]    input       { max-width: 71px; }
+ascp-form[key=version]      ascpf-text[key=version]    input       { max-width: 64px; }
+ascp-form[key=name]         ascpf-text[key=name]       input       { max-width: 160px; }
+ascp-form[key=position]     ascpf-text[key=position]   input       { max-width: 77px; }
 
 /** Add Instrument Form **/
 
@@ -409,15 +410,16 @@ asc-panel[key=song]     ascpf-text[key=song-position]   input       { max-width:
 
 /** Instruction Form **/
 
-asc-panel[key=instruction]  ascpf-select[key=instrument]     select       { width: 120px; }
-asc-panel[key=instruction]  ascpf-range[key=velocity]        input       { width: 64px; }
-asc-panel[key=instruction]  ascpf-select[key=duration]       select       { width: 64px; }
+ascp-form[key=command]      ascpf-select[key=command]       select      { width: 120px; }
+ascp-form[key=instrument]   ascpf-select[key=instrument]    select      { width: 120px; }
+ascp-form[key=velocity]     ascpf-range[key=velocity]       input       { width: 64px; }
+ascp-form[key=duration]     ascpf-select[key=duration]      select      { width: 64px; }
 
 /** Tracker Render Forms **/
 
-asc-panel[key=tracker]      ascpf-select[key=octave]            select       { width: 64px; }
-asc-panel[key=tracker]      ascpf-select[key=row-length]        select       { width: 64px; }
-asc-panel[key=tracker]      ascpf-select[key=filter-instrument] select       { width: 64px; }
+asc-panel[key=tracker]      ascpf-select[key=octave]            select      { width: 64px; }
+asc-panel[key=tracker]      ascpf-select[key=row-length]        select      { width: 64px; }
+asc-panel[key=tracker]      ascpf-select[key=filter-instrument] select      { width: 64px; }
 asc-panel[key=tracker]      ascpf-text[key=selection]           input       { width: 126px; }
 
 
