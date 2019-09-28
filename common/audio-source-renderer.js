@@ -1010,10 +1010,12 @@ class AudioSourceRenderer {
                 //     throw new Error("Path not found: " + path);
             }
             parent = value;
+            if(typeof value === "undefined")
+                throw new Error("Invalid path key: " + key);
             value = value[key];
         }
         if(!parent)
-            throw new Error("Invalid path: " + path);
+            throw new Error("Invalid path: " + pathList.join('.'));
 
         return {
             value: value,

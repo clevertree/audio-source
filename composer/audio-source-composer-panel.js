@@ -25,11 +25,12 @@ class AudioSourceComposerPanel extends HTMLElement {
 
     getOrCreateForm(formKey, caption=null) {
         let formElm = this.getForm(formKey, false);
-        if(!formElm)
+        if(!formElm) {
             formElm = new AudioSourceComposerPanelForm(formKey, caption);
+            this.containerElm.appendChild(formElm);
+        }
         if(caption !== null)
             formElm.caption = caption;
-        this.containerElm.appendChild(formElm);
         return formElm;
     }
 
@@ -131,9 +132,10 @@ customElements.define('ascp-form', AudioSourceComposerPanelForm);
 
 /** Abstract Panel Input **/
 class AudioSourceComposerPanelInputAbstract extends HTMLElement {
-    constructor(key, callback=null) {
+    constructor(key, callback) {
         super();
-        this.callback = callback || function() { throw new Error("No callback set") };
+        this.listeners = [];
+        this.callback = callback || function() { console.warn("No callback set") };
 
         this.setAttribute('key', key);
     }
@@ -141,6 +143,21 @@ class AudioSourceComposerPanelInputAbstract extends HTMLElement {
     get inputElm() { throw new Error("Not implemented"); }
     get disabled() { return this.inputElm.disabled; }
     set disabled(value) { this.inputElm.disabled = value; }
+
+    get value() { return this.inputElm.value; }
+    set value(newValue) { this.inputElm.value = newValue; }
+
+    addEventListener(type, listener, options) {
+        this.listeners.push([type, listener, options]);
+    }
+
+    connectedCallback() {
+        this.listeners.forEach(listener => this.inputElm.addEventListener(listener[0], listener[1], listener[2]));
+    }
+
+    disconnectedCallback() {
+        this.listeners.forEach(listener => this.inputElm.removeEventListener(listener[0], listener[1]));
+    }
 }
 
 
@@ -158,12 +175,14 @@ class AudioSourceComposerPanelFormButton extends AudioSourceComposerPanelInputAb
         if(innerHTML)
             buttonElm.innerHTML = innerHTML;
         this.appendChild(buttonElm);
+
+        this.addEventListener('click', e => this.onClick(e));
     }
 
     get inputElm() { return this.querySelector('button'); }
 
-    connectedCallback() {
-        // this.render();
+    onClick(e) {
+        this.callback(e, this.value);
     }
 
 
@@ -180,7 +199,6 @@ customElements.define('ascpf-button', AudioSourceComposerPanelFormButton);
 class AudioSourceComposerPanelFormSelect extends AudioSourceComposerPanelInputAbstract {
     constructor(key, callback=null, optionsCallback=null, title=null) {
         super(key, callback);
-
         this.optionsCallback = optionsCallback || function() { throw new Error("No options callback set") };
 
         this.setAttribute('key', key);
@@ -192,13 +210,90 @@ class AudioSourceComposerPanelFormSelect extends AudioSourceComposerPanelInputAb
         // if(optionsCallback)
         //     selectElm.innerHTML = optionsCallback;
         this.appendChild(selectElm);
+
+        this.value = '';
+        // this.addOrSetValue('', "No Default value");
+
+        this.addEventListener('focus', e => this.renderOptions(e));
+        this.addEventListener('change', e => this.onChange(e));
     }
 
     get inputElm() { return this.querySelector('select'); }
 
-    connectedCallback() {
-        // this.render();
+    get value() {
+        const currentValue = this.inputElm.value;
+        let valueFound = false;
+        this.optionsCallback((value, title) => {
+            if((value+'') === currentValue)
+                valueFound = {value, title};
+        }, (groupName) => {});
+        if(!valueFound)
+            return null;
+        return valueFound.value;
     }
+    set value(newValue) {
+        let valueFound = false;
+        this.optionsCallback((value, title) => {
+            if(value === newValue)
+                valueFound = {value, title};
+        }, (groupName) => {});
+        if(!valueFound)
+            throw new Error(`Value not found: (${typeof newValue}) ${newValue}`);
+
+        this.addOrSetValue(valueFound.value, valueFound.title);
+    }
+
+
+    addOrSetValue(newValue, newValueTitlePrefix=null) {
+        const inputElm = this.inputElm;
+        let optionElm = inputElm.querySelector(`option[value="${newValue}"]`);
+        if(!optionElm) {
+            optionElm = document.createElement('option');
+            optionElm.setAttribute('value', newValue);
+            optionElm.innerText = (newValueTitlePrefix || "Unknown value");
+            inputElm.prepend(optionElm);
+        }
+        inputElm.value = newValue;
+    }
+
+    onChange(e) {
+        // console.log(e.type, this.value);
+        this.callback(e, this.value);
+    }
+
+    renderOptions() {
+        const inputElm = this.inputElm;
+        // const currentValue = this.value;
+        let currentOption = inputElm.options[inputElm.selectedIndex];
+
+        inputElm.innerHTML = '';
+        let currentOptGroup = inputElm;
+        this.optionsCallback((value, title) => {
+            let newOption = document.createElement('option');
+            if(currentOption && (value + '') === currentOption.value) {
+                newOption = currentOption;
+                currentOption = null;
+            } else {
+                newOption.setAttribute('value', value);
+                newOption.innerText = title;
+            }
+            currentOptGroup.appendChild(newOption);
+
+        }, (groupName) => {
+            if(groupName !== null) {
+                currentOptGroup = document.createElement('optgroup');
+                currentOptGroup.setAttribute('label', groupName);
+                inputElm.appendChild(currentOptGroup);
+            } else {
+                currentOptGroup = inputElm;
+            }
+        });
+
+        if(currentOption)
+            inputElm.prepend(currentOption);
+        // this.addOrSetValue(currentValue);
+    }
+
 }
 
 customElements.define('ascpf-select', AudioSourceComposerPanelFormSelect);
@@ -220,9 +315,16 @@ class AudioSourceComposerPanelFormRangeInput extends AudioSourceComposerPanelInp
         rangeElm.setAttribute('max', max+'');
         if(title)       rangeElm.setAttribute('title', title);
         this.appendChild(rangeElm);
+
+        this.addEventListener('change', e => this.onChange(e));
     }
 
     get inputElm() { return this.querySelector('input'); }
+
+    onChange(e) {
+        // console.log(e.type);
+        this.callback(e, this.value);
+    }
 }
 
 customElements.define('ascpf-range', AudioSourceComposerPanelFormRangeInput);
@@ -241,10 +343,16 @@ class AudioSourceComposerPanelFormText extends AudioSourceComposerPanelInputAbst
         if(title)       inputElm.setAttribute('title', title);
         if(placeholder) inputElm.setAttribute('placeholder', placeholder);
         this.appendChild(inputElm);
+
+        this.addEventListener('change', e => this.onChange(e));
     }
 
     get inputElm() { return this.querySelector('input'); }
 
+    onChange(e) {
+        // console.log(e.type);
+        this.callback(e, this.value);
+    }
 }
 
 customElements.define('ascpf-text', AudioSourceComposerPanelFormText);
@@ -273,6 +381,15 @@ class AudioSourceComposerPanelFormFileInput extends AudioSourceComposerPanelInpu
     }
 
     get inputElm() { return this.querySelector('input'); }
+
+    connectedCallback() {
+        this.addEventListener('change', e => this.onChange(e));
+    }
+
+    onChange(e) {
+        // console.log(e.type);
+        this.callback(e, this.value);
+    }
 }
 
 customElements.define('ascpf-file', AudioSourceComposerPanelFormFileInput);

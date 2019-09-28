@@ -18,13 +18,13 @@ class AudioSourceComposerActions {
             //     // let uuid = menuTarget.getAttribute('data-uuid') || null;
             //     if(!uuid) uuid = prompt("Enter UUID: ");
             //     this.loadSongFromServer(uuid);
-            //     this.render();
+            //     this.editor.render();
             //     break;
 
             case 'song:load-memory-uuid':
                 let uuid = e.target.getAttribute('data-uuid') || null;
                 this.loadSongFromMemory(uuid);
-                // this.render();
+                // this.editor.render();
                 break;
 
             case 'song:save-to-memory':
@@ -48,8 +48,8 @@ class AudioSourceComposerActions {
 
 
             case 'song:edit':
-                this.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
-                this.renderer.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
+                this.editor.renderer.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
+                this.editor.renderer.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
                 break;
 
             case 'song:play':
@@ -58,17 +58,17 @@ class AudioSourceComposerActions {
                 break;
 
             case 'song:pause':
-                this.renderer.stopPlayback();
+                this.editor.renderer.stopPlayback();
                 break;
 
             case 'song:stop':
             case 'song:reset':
-                this.renderer.stopPlayback();
-                this.renderer.setPlaybackPositionInTicks(0);
+                this.editor.renderer.stopPlayback();
+                this.editor.renderer.setPlaybackPositionInTicks(0);
                 break;
 
             // case 'song:resume':
-            //     this.renderer.play(this.renderer.seekPosition);
+            //     this.editor.renderer.play(this.editor.renderer.seekPosition);
             //     break;
 
             case 'song:playback':
@@ -76,7 +76,7 @@ class AudioSourceComposerActions {
                 break;
 
             case 'song:volume':
-                this.renderer.setVolume(this.fieldSongVolume.value);
+                this.editor.renderer.setVolume(this.fieldSongVolume.value);
                 break;
 
             case 'song:add-instrument':
@@ -87,18 +87,18 @@ class AudioSourceComposerActions {
                 }
                 e.target.form.elements['instrumentURL'].value = '';
                 if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
-                    this.renderer.addInstrument(addInstrumentURL);
-                    this.setStatus("New instrument Added to song: " + addInstrumentURL);
+                    this.editor.renderer.addInstrument(addInstrumentURL);
+                    this.editor.setStatus("New instrument Added to song: " + addInstrumentURL);
 
                 } else {
-                    this.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
+                    this.editor.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
                 }
                 break;
 
             case 'song:replace-instrument':
                 const changeInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
                 if(!changeInstrumentURL) {
-                    this.setStatus(`<span style='color: red'>Empty URL</span>`);
+                    this.editor.setStatus(`<span style='color: red'>Empty URL</span>`);
                     break;
                 }
                 const changeInstrument = actionOptions || {
@@ -107,12 +107,12 @@ class AudioSourceComposerActions {
                 };
                 changeInstrument.title = changeInstrument.url.split('/').pop();
                 // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
-                this.status.currentInstrumentID = this.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
-                this.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
+                this.status.currentInstrumentID = this.editor.renderer.replaceInstrument(changeInstrument.id, changeInstrument.url);
+                this.editor.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
                 if(this.tracker)
                     this.tracker.fieldInstructionInstrument.value = changeInstrument.id;
                 // } else {
-                //     this.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
+                //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
                 // }
 
                 break;
@@ -120,24 +120,24 @@ class AudioSourceComposerActions {
             case 'song:remove-instrument':
                 const removeInstrumentID = actionOptions || parseInt(e.target.form.elements['instrumentID'].value);
                 if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
-                    this.renderer.removeInstrument(removeInstrumentID);
-                    this.setStatus(`Instrument (${changeInstrument.id}) removed`);
+                    this.editor.renderer.removeInstrument(removeInstrumentID);
+                    this.editor.setStatus(`Instrument (${changeInstrument.id}) removed`);
 
                 } else {
-                    this.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
+                    this.editor.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
                 }
                 break;
 
             case 'song:set-title':
                 const newSongTitle = e.target.form.elements['title'].value;
-                this.renderer.setSongTitle(newSongTitle);
-                this.setStatus(`Song title updated: ${newSongTitle}`);
+                this.editor.renderer.setSongTitle(newSongTitle);
+                this.editor.setStatus(`Song title updated: ${newSongTitle}`);
                 break;
 
             case 'song:set-version':
                 const newSongVersion = e.target.form.elements['title'].value;
-                this.renderer.setSongVersion(newSongVersion);
-                this.setStatus(`Song version updated: ${newSongVersion}`);
+                this.editor.renderer.setSongVersion(newSongVersion);
+                this.editor.setStatus(`Song version updated: ${newSongVersion}`);
                 break;
 
 
@@ -184,8 +184,11 @@ class AudioSourceComposerActions {
 
             /** Tracker **/
 
-            case 'instruction:custom-command':
             case 'instruction:insert':
+                this.insertInstructionCommand(e, null, actionString === 'instruction:custom-command');
+                break;
+
+            case 'instruction:custom-command':
             case 'instruction:command':
                 this.setInstructionCommand(e, null, actionString === 'instruction:custom-command');
                 break;
@@ -253,9 +256,9 @@ class AudioSourceComposerActions {
         const storage = new AudioSourceStorage();
         const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
         let songData = storage.generateDefaultSong(defaultInstrumentURL);
-        this.renderer.loadSongData(songData);
-        this.render();
-        this.setStatus("Loaded new song", songData);
+        this.editor.renderer.loadSongData(songData);
+        this.editor.render();
+        this.editor.setStatus("Loaded new song", songData);
 
     }
 
@@ -264,7 +267,7 @@ class AudioSourceComposerActions {
         const storage = new AudioSourceStorage();
         let songRecentGUIDs = await storage.getRecentSongList();
         if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
-            this.setStatus("Loading recent song: " + songRecentGUIDs[0].guid);
+            this.editor.setStatus("Loading recent song: " + songRecentGUIDs[0].guid);
             await this.loadSongFromMemory(songRecentGUIDs[0].guid);
             return true;
         }
@@ -272,30 +275,33 @@ class AudioSourceComposerActions {
     }
 
     async saveSongToMemory() {
-        const songData = this.renderer.getSongData();
-        const songHistory = this.renderer.getSongHistory();
+        const renderer = this.editor.renderer;
+        const songData = renderer.getSongData();
+        const songHistory = renderer.getSongHistory();
         const storage = new AudioSourceStorage();
-        this.setStatus("Saving song to memory: " + songData.guid);
+        this.editor.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
+        this.editor.setStatus("Saved song to memory: " + songData.guid);
     }
 
     saveSongToFile() {
-        const songData = this.renderer.getSongData();
-        // const songHistory = this.renderer.getSongHistory();
+        const songData = this.editor.renderer.getSongData();
+        // const songHistory = this.editor.renderer.getSongHistory();
         const storage = new AudioSourceStorage();
-        this.setStatus("Saving song to file");
+        this.editor.setStatus("Saving song to file");
         storage.saveSongToFile(songData);
     }
 
 
     async loadSongFromMemory(songGUID) {
+        const renderer = this.editor.renderer;
         const storage = new AudioSourceStorage();
         const songData = await storage.loadSongFromMemory(songGUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
-        this.renderer.loadSongData(songData);
-        this.renderer.loadSongHistory(songHistory);
-        this.render();
-        this.setStatus("Song loaded from memory: " + songGUID, songData);
+        renderer.loadSongData(songData);
+        renderer.loadSongHistory(songHistory);
+        this.editor.render();
+        this.editor.setStatus("Song loaded from memory: " + songGUID, songData);
 //         console.info(songData);
     }
 
@@ -322,18 +328,18 @@ class AudioSourceComposerActions {
     async loadSongFromJSONFileInput(file) {
         const storage = new AudioSourceStorage();
         const songData = await storage.loadJSONFile(file);
-        this.renderer.loadSongData(songData);
-        this.render();
-        this.setStatus("Song loaded from file: ", songData);
+        this.editor.renderer.loadSongData(songData);
+        this.editor.render();
+        this.editor.setStatus("Song loaded from file: ", songData);
     }
 
     async loadSongFromMIDIFileInput(file, defaultInstrumentURL=null) {
         defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
         const midiSupport = new MIDISupport();
         const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
-        this.renderer.loadSongData(songData);
-        this.render();
-        this.setStatus("Song loaded from midi: ", songData);
+        this.editor.renderer.loadSongData(songData);
+        this.editor.render();
+        this.editor.setStatus("Song loaded from midi: ", songData);
     }
 
     async loadSongFromSrc(src) {
@@ -349,21 +355,17 @@ class AudioSourceComposerActions {
             };
             xhr.send();
         });
-        this.renderer.loadSongData(songData, src);
-        this.setStatus("Song loaded from src: " + src);
-        console.info(this.renderer.songData);
-        this.render();
+        this.editor.renderer.loadSongData(songData, src);
+        this.editor.setStatus("Song loaded from src: " + src);
+        console.info(this.editor.renderer.songData);
+        this.editor.render();
     }
 
 
     /** Tracker Commands **/
 
     insertInstructionCommand(e, newCommand=null, prompt=false) {
-        // TODO: insert
-        return this.setInstructionCommand(e, newCommand, prompt);
-    }
-
-    setInstructionCommand(e, newCommand=null, prompt=false) {
+        // TODO: does not update
         const tracker = this.editor.tracker;
         const renderer = this.editor.renderer;
         let selectedIndicies = tracker.selectedIndicies;
@@ -379,8 +381,45 @@ class AudioSourceComposerActions {
 
         let newInstruction = tracker.getInstructionFormValues(newCommand);
         let newInstrument = null;
-        if (tracker.fieldInstructionCommand.selectedOptions[0] && tracker.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument'))
-            newInstrument = parseInt(tracker.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
+        // if (tracker.fieldInstructionCommand.selectedOptions[0] && tracker.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument')) // TODO: wtf?
+        //     newInstrument = parseInt(tracker.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
+
+
+        // TODO: use this.insertOrUpdateCommand() ?
+
+        if (tracker.cursorCell) {
+            const insertPosition = tracker.cursorPosition;
+            if (insertPosition === null)
+                throw new Error("No cursor position");
+            const insertIndex = renderer.insertInstructionAtPosition(tracker.groupName, insertPosition, newInstruction);
+            tracker.renderRows();
+            tracker.selectIndicies(e, insertIndex);
+
+        } else {
+            throw new Error("No cursor cell");
+        }
+        tracker.playSelectedInstructions();
+    }
+
+    setInstructionCommand(e, newCommand=null, prompt=false) {
+        //: TODO: does not allow insert
+        const tracker = this.editor.tracker;
+        const renderer = this.editor.renderer;
+        let selectedIndicies = tracker.selectedIndicies;
+
+        // if(selectedIndicies.length === 0)
+        //     throw new Error("No selection");
+        if(newCommand === null)
+            newCommand = tracker.fieldInstructionCommand.value || null;
+        if (prompt)
+            newCommand = prompt("Set custom command:", newCommand || '');
+        if (!newCommand)
+            throw new Error("Invalid Instruction command");
+
+        let newInstruction = tracker.getInstructionFormValues(newCommand);
+        let newInstrument = null;
+        // if (tracker.fieldInstructionCommand.selectedOptions[0] && tracker.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument')) // TODO: wtf?
+        //     newInstrument = parseInt(tracker.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
 
 
         // TODO: use this.insertOrUpdateCommand() ?
@@ -396,16 +435,8 @@ class AudioSourceComposerActions {
             tracker.renderRows();
             tracker.selectIndicies(e, selectedIndicies);
 
-        } else if (tracker.cursorCell) {
-            const insertPosition = tracker.cursorPosition;
-            if (insertPosition === null)
-                throw new Error("No cursor position");
-            const insertIndex = renderer.insertInstructionAtPosition(tracker.groupName, insertPosition, newInstruction);
-            tracker.renderRows();
-            tracker.selectIndicies(e, insertIndex);
-
         } else {
-            throw new Error("No selection or cursor cell");
+            throw new Error("No selection");
         }
         tracker.playSelectedInstructions();
     }
@@ -456,13 +487,14 @@ class AudioSourceComposerActions {
         let selectedIndicies = tracker.selectedIndicies;
 
         if(velocity === null)
-            velocity = tracker.fieldInstructionVelocity.value === "0" ? 0 : parseInt(tracker.fieldInstructionVelocity.value) || null;
+            velocity = tracker.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(tracker.fieldInstructionVelocity.value) || null;
+        velocity = parseFloat(velocity);
         if (prompt)
             velocity = parseInt(prompt("Set custom velocity (0-127):", tracker.fieldInstructionVelocity.value));
-        if (isNaN(velocity))
+        if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
         for (let i = 0; i < selectedIndicies.length; i++) {
-            renderer.replaceInstructionVelocity(this.groupName, selectedIndicies[i], velocity);
+            renderer.replaceInstructionVelocity(tracker.groupName, selectedIndicies[i], velocity);
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();
@@ -478,7 +510,7 @@ class AudioSourceComposerActions {
         let selectedIndicies = tracker.selectedIndicies;
 
         for (let i = 0; i < selectedIndicies.length; i++)
-            renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
+            renderer.deleteInstructionAtIndex(tracker.groupName, selectedIndicies[i]);
         tracker.renderRows();
         tracker.selectIndicies(e, selectedIndicies[0]);
 

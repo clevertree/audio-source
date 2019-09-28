@@ -44,7 +44,7 @@ class AudioSourceComposerElement extends HTMLElement {
         };
         this.shadowDOM = null;
 
-        this.actions = new AudioSourceComposerActions();
+        this.actions = new AudioSourceComposerActions(this);
         this.values = new AudioSourceValues(this.renderer);
         this.loadDefaultInstrumentLibrary();
         this.loadPackageInfo();
@@ -159,10 +159,10 @@ class AudioSourceComposerElement extends HTMLElement {
             }
         }
 
-        if(await this.loadRecentSongData())
+        if(await this.actions.loadRecentSongData())
             return true;
 
-        this.loadNewSongData();
+        this.actions.loadNewSongData();
         return false;
     }
 
@@ -326,7 +326,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
                 // TODO: auto save toggle
                 clearTimeout(this.saveSongToMemoryTimer);
-                this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.status.autoSaveTimeout);
+                this.saveSongToMemoryTimer = setTimeout(e => this.actions.saveSongToMemory(e), this.status.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
             case 'instrument:instance':
@@ -401,7 +401,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     setVersion(versionString) {
         this.versionString = versionString;
-        this.statusElm.innerHTML = versionString;
+        this.versionElm.innerHTML = versionString;
     }
 
 
@@ -441,8 +441,8 @@ class AudioSourceComposerElement extends HTMLElement {
             </div>
             <asc-panel key="song"></asc-panel>
             <br/>
-            <asc-panel key="instruction"></asc-panel><!--
-            --><asc-panel key="tracker"></asc-panel>
+            <asc-panel key="instruction"></asc-panel>
+            <asc-panel key="tracker"></asc-panel>
             <br/>
             <asc-panel key="instruments"></asc-panel>
             <hr/>
