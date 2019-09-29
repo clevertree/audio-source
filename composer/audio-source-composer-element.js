@@ -11,33 +11,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.longPressTimeout = null;
 
-
-        // this.webSocket = new AudioSourceComposerWebsocket(this);
         this.keyboard = new AudioSourceComposerKeyboard(this);
-        // this.menu = new AudioSourceComposerMenu(this);
-        // this.forms = new AudioSourceComposerForms(this);
-        // this.tracker = new AudioSourceComposerGrid(this);
-        // this.modifier = new SongModifier(this);
 
-        // this.instruments = new AudioSourceComposerInstruments(this);
-        // this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
-
-        this.renderer = new AudioSourceRenderer({}, this);
+        this.song = new AudioSourceSong({}, this);
         // this.player = null;
         this.status = {
-            // grid: {
-            //     // renderDuration: this.renderer.getSongTimeDivision(),
-            //     // groupName: 'root',
-            //     // selectedIndicies: [0],
-            //     // selectedRange: [0,0],
-            // },
             groupHistory: [],
-            // cursorPosition: 0,
-
-            // currentOctave: 3,
-            currentInstrumentID: 0,
-            currentRenderDuration: null,
-            previewInstructionsOnSelect: false,
+            // previewInstructionsOnSelect: false,
             longPressTimeout: 500,
             doubleClickTimeout: 500,
             autoSaveTimeout: 4000,
@@ -45,15 +25,13 @@ class AudioSourceComposerElement extends HTMLElement {
         this.shadowDOM = null;
 
         this.actions = new AudioSourceComposerActions(this);
-        this.values = new AudioSourceValues(this.renderer);
+        this.values = new AudioSourceValues(this.song);
         this.loadDefaultInstrumentLibrary();
         this.loadPackageInfo();
+
     }
 
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
-    // get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
-    // get forms() { return this.shadowDOM.querySelector('asc-forms'); }
-    // get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
     get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     get scriptDirectory () {
@@ -68,13 +46,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
 
-        // const onInput = e => this.onInput(e);
-        // this.shadowDOM.addEventListener('submit', onInput);
-        // this.shadowDOM.addEventListener('change', onInput);
-        // this.attachEventHandler(['change', 'submit'], e => this.onInput(e));
         this.attachEventHandler(['change', 'submit', 'focus'], e => this.onInput(e), this.shadowDOM, true);
-        // this.shadowDOM.addEventListener('blur', onInput);
-        // this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
@@ -90,34 +62,11 @@ class AudioSourceComposerElement extends HTMLElement {
         this.render();
         this.focus();
 
-        // const uuid = this.getAttribute('uuid');
-        // if(uuid)
-        //     this.renderer.loadSongFromServer(uuid);
 
         this.loadDefaultSong();
-        // this.setAttribute('tabindex', 0);
-        // this.initWebSocket(uuid);
 
-        // TODO: wait for user input
-        if(navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(
-                (MIDI) => {
-                    console.info("MIDI initialized", MIDI);
-                    const inputDevices = [];
-                    MIDI.inputs.forEach(
-                        (inputDevice) => {
-                            inputDevices.push(inputDevice);
-                            inputDevice.addEventListener('midimessage', e => this.onInput(e));
-                        }
-                    );
-                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-                },
-                (err) => {
-                    this.onError("error initializing MIDI: " + err);
-                }
-            );
-        }
-
+        const midiSupport = new MIDISupport();
+        midiSupport.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
     }
 
     disconnectedCallback() {
@@ -141,7 +90,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
         await this.loadInstrumentLibrary(defaultLibraryURL);
 
-        this.renderer.dispatchEvent(new CustomEvent('instrument:library', {
+        this.song.dispatchEvent(new CustomEvent('instrument:library', {
             // detail: this.instrumentLibrary,
             // bubbles: true
         }));
@@ -179,8 +128,8 @@ class AudioSourceComposerElement extends HTMLElement {
     //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command !== '!pause')
     // }
 
-    getAudioContext()   { return this.renderer.getAudioContext(); }
-    getSongData()       { return this.renderer.getSongData(); }
+    getAudioContext()   { return this.song.getAudioContext(); }
+    getSongData()       { return this.song.data; }
 
 
     getDefaultInstrumentURL() {
@@ -238,7 +187,7 @@ class AudioSourceComposerElement extends HTMLElement {
 //         console.log(e.target, e.type);
 
         // try {
-        this.renderer.getAudioContext();
+        this.song.getAudioContext();
         // if(this !== document.activeElement && !this.contains(document.activeElement)) {
         //     console.log("Focus", document.activeElement);
         //     this.focus();
@@ -288,11 +237,11 @@ class AudioSourceComposerElement extends HTMLElement {
             this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:seek':
-                this.updateSongPositionValue(this.renderer.songPlaybackPosition);
+                this.updateSongPositionValue(this.song.songPlaybackPosition);
                 break;
 
             case 'song:loaded':
-                this.tracker.renderDuration = this.renderer.getSongTimeDivision();
+                this.tracker.renderDuration = this.song.timeDivision();
                 break;
             case 'song:play':
                 this.classList.add('playing');
@@ -301,7 +250,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 let lastGroupPositionInTicks = 0;
                 let songIterator = e.detail.iterator; // TODO: this event needs an iterator
                 this.updateSongPositionInterval = setInterval(e => {
-                    this.updateSongPositionValue(this.renderer.songPlaybackPosition);
+                    this.updateSongPositionValue(this.song.songPlaybackPosition);
                     if(songIterator && songIterator.groupPositionInTicks > lastGroupPositionInTicks) {
                         lastGroupPositionInTicks = songIterator.groupPositionInTicks;
                         console.log('lastGroupPositionInTicks', lastGroupPositionInTicks);
@@ -514,11 +463,11 @@ class AudioSourceComposerElement extends HTMLElement {
     }
     get fieldSongName() {
         return this.formSongName.getInput('name', false)
-            || this.formSongName.addTextInput('name', e => this.actions.setSongName(e), "Song Name", 'Unnamed');
+            || this.formSongName.addTextInput('name', (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name", 'Unnamed');
     }
     get fieldSongVersion() {
         return this.formSongVersion.getInput('version', false)
-            || this.formSongVersion.addTextInput('version', e => this.actions.setSongVersion(e), "Song Version", '0.0.0');
+            || this.formSongVersion.addTextInput('version', (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion), "Song Version", '0.0.0');
     }
 
 
@@ -584,7 +533,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     renderInstruments() {
         const formSection = this.panelInstruments;
-        const renderer = this.renderer;
+        const renderer = this.song;
 
 
         const instrumentList = renderer.getInstrumentList();
@@ -703,7 +652,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             let instrumentCount = 0;
             this.values.getValues('song-instruments', (instrumentID, label) => {
-                const isActive = this.renderer.isInstrumentLoaded(instrumentID);
+                const isActive = this.song.isInstrumentLoaded(instrumentID);
 
                 const menuInstrument = menu.getOrCreateSubMenu(instrumentID, `${label} ►`);
                 menuInstrument.populate = (e) => {
@@ -769,7 +718,7 @@ class AudioSourceComposerElement extends HTMLElement {
             this.status.selectedIndicies = indicies;
         } else if (typeof indicies === "function") {
             let selectedIndicies = [];
-            this.renderer.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
+            this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
                 if (indicies(index, instruction, stats))
                     selectedIndicies.push(index);
             });
@@ -785,10 +734,10 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     playSelectedInstructions() {
-        this.renderer.stopPlayback();
+        this.song.stopPlayback();
         const selectedIndicies = this.status.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
-            this.renderer.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
+            this.song.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
         }
     }
     // selectInstructions2(groupName, selectedRange=null, selectedIndicies=null) {

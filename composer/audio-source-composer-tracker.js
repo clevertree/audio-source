@@ -58,7 +58,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         this.editor = this.getRootNode().host;
         if(!this.getAttribute('rowLength'))
-            this.setAttribute('rowLength', this.editor.renderer.getSongTimeDivision());
+            this.setAttribute('rowLength', this.editor.song.timeDivision);
         setTimeout(e => this.render(), 20);
         setTimeout(e => this.render(), 1000);
     }
@@ -99,23 +99,23 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     // get cursorCellIndex() {
     playSelectedInstructions() {
-        if(this.editor.renderer.isPlaying)
-            this.editor.renderer.stopPlayback();
+        if(this.editor.song.isPlaying)
+            this.editor.song.stopPlayback();
         const selectedIndicies = this.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
-            this.editor.renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
+            this.editor.song.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
         }
     }
-    getInstructions(indicies=null) {
-        return this.editor.renderer.getInstructions(this.groupName, indicies);
-    }
+    // getInstructions(indicies=null) {
+    //     return this.editor.song.getInstructions(this.groupName, indicies);
+    // }
 
     // getInstructionRange(start, end=null) {
-    //     return this.editor.renderer.getInstructionRange(this.groupName, start, end);
+    //     return this.editor.song.getInstructionRange(this.groupName, start, end);
     // }
 
     getInstruction(index) {
-        return this.editor.renderer.getInstruction(this.groupName, index);
+        return this.editor.song.getInstruction(this.groupName, index);
     }
 
     getInstructionFormValues(command=null) {
@@ -206,16 +206,16 @@ class AudioSourceComposerTracker extends HTMLElement {
     // }
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
-        const timeDivision = this.editor.renderer.getGroupTimeDivision(this.groupName);
+        const timeDivision = this.editor.song.timeDivision;
         const segmentLengthInTicks = this.segmentLength * timeDivision;
         const segmentID = Math.floor(positionInTicks/segmentLengthInTicks);
         return segmentID;
         // let currentRowSegmentID = 0;
         // let currentRowSegmentPositionInTicks = 0;
         //
-        // const timeDivision = this.editor.renderer.getGroupTimeDivision(this.groupName);
+        // const timeDivision = this.editor.song.timeDivision;
         // let foundRowSegmentID = -1;
-        // this.editor.renderer.eachInstructionRow(this.groupName, (startIndex, startPositionInTicks, endPositionInTicks, instructionList, stats) => {
+        // this.editor.song.eachInstructionRow(this.groupName, (startIndex, startPositionInTicks, endPositionInTicks, instructionList, stats) => {
         //     while(currentRowSegmentPositionInTicks + segmentLengthInTicks < stats.groupPositionInTicks) {
         //         if(currentRowSegmentPositionInTicks >= positionInTicks) {
         //             foundRowSegmentID = currentRowSegmentID;
@@ -235,12 +235,12 @@ class AudioSourceComposerTracker extends HTMLElement {
     renderRows() {
         console.time('tracker.renderRows()');
 
-        const timeDivision = this.editor.renderer.getGroupTimeDivision(this.groupName);
+        const timeDivision = this.editor.song.timeDivision;
 
         this.rowContainer.innerHTML = '';
 
         // Instruction Iterator
-        let instructionIterator = this.editor.renderer.getIterator(this.groupName);
+        let instructionIterator = this.editor.song.getIterator(this.groupName);
 
         const quantizationInTicks = this.rowLengthInTicks;
 
@@ -549,7 +549,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         // this.clearSelection();
                         const selectedIndiciesDesc = selectedIndicies.sort((a, b) => b - a);
                         for (let i = 0; i < selectedIndiciesDesc.length; i++)
-                            this.editor.renderer.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
+                            this.editor.song.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
                         this.renderRows();
                         this.selectIndicies(e, selectedIndicies[0]);
                         // song.render(true);
@@ -584,7 +584,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         e.preventDefault();
                         this.playSelectedInstructions(e);
                         // for(let i=0; i<selectedIndicies.length; i++) {
-                        //     this.editor.renderer.playInstruction(instructionList[i]);
+                        //     this.editor.song.playInstruction(instructionList[i]);
                         // }
                         break;
 
@@ -627,10 +627,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                             e.preventDefault();
                             // this.selectCell(e, this.cursorCell);
                             // if(e.ctrlKey) e.preventDefault();
-                            if (this.editor.renderer.isPlaybackActive()) {
-                                this.editor.renderer.stopPlayback();
+                            if (this.editor.song.isPlaybackActive()) {
+                                this.editor.song.stopPlayback();
                             } else {
-                                this.editor.renderer.play();
+                                this.editor.song.play();
                             }
                         }
                         break;
@@ -1022,8 +1022,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
         let selectedIndicies = this.selectedIndicies;
-        // let timeDivision = this.rowLengthInTicks || this.editor.renderer.getSongTimeDivision();
-        const selectedInstructionList = this.editor.renderer.getInstructions(this.groupName, selectedIndicies);
+        // let timeDivision = this.rowLengthInTicks || this.editor.song.getSongTimeDivision();
+        const selectedInstructionList = this.editor.song.getInstructions(this.groupName, selectedIndicies);
         let cursorInstruction = selectedInstructionList[0];
 
         this.fieldInstructionCommand;
@@ -1053,7 +1053,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(this.fieldTrackerOctave.value === null)
             this.fieldTrackerOctave.value = 3; // this.editor.status.currentOctave;
 
-        this.fieldTrackerRowLength.value = this.rowLengthInTicks; // this.editor.renderer.getSongTimeDivision();
+        this.fieldTrackerRowLength.value = this.rowLengthInTicks; // this.editor.song.getSongTimeDivision();
         if(!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
             this.fieldInstructionDuration.value = parseInt(this.fieldTrackerRowLength.value);
 
@@ -1075,7 +1075,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.playSelectedInstructions(e);
         this.focusOnContainer();
         selectedRow.parentNode.scrollTo();
-        this.editor.renderer.setPlaybackPositionInTicks(selectedRow.position);
+        this.editor.song.setPlaybackPositionInTicks(selectedRow.position);
     }
 
     onCellInput(e, selectedCell) {
@@ -1093,7 +1093,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         selectedCell.play();
         selectedCell.parentNode.scrollTo();
         this.focusOnContainer();
-        this.editor.renderer.setPlaybackPositionInTicks(selectedCell.parentNode.position);
+        this.editor.song.setPlaybackPositionInTicks(selectedCell.parentNode.position);
     }
 
     setPlaybackPositionInTicks(groupPositionInTicks) {
@@ -1383,7 +1383,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     increaseTrackerSize(e, selectNewRow=true) {
         // TODO: sloppy
-        // this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
+        // this.editor.song.eachInstruction(this.groupName, (index, instruction, stats) => {
         //     if (this.minimumTrackerLengthTicks < stats.groupPositionInTicks)
         //         this.minimumTrackerLengthTicks = stats.groupPositionInTicks;
         // });
@@ -1399,21 +1399,21 @@ class AudioSourceComposerTracker extends HTMLElement {
         }
     }
     insertInstructionAtIndex(instruction, insertIndex) {
-        return this.editor.renderer.insertInstructionAtIndex(this.groupName, insertIndex, instruction);
+        return this.editor.song.insertInstructionAtIndex(this.groupName, insertIndex, instruction);
     }
 
     insertInstructionAtPosition(insertTimePosition, instruction) {
-        return this.editor.renderer.insertInstructionAtPosition(this.groupName, insertTimePosition, instruction);
+        return this.editor.song.insertInstructionAtPosition(this.groupName, insertTimePosition, instruction);
     }
     deleteInstructionAtIndex(deleteIndex) {
-        return this.editor.renderer.deleteInstructionAtIndex(this.groupName, deleteIndex, 1);
+        return this.editor.song.deleteInstructionAtIndex(this.groupName, deleteIndex, 1);
     }
     replaceInstructionCommand(replaceIndex, newCommand) {
-        return this.editor.renderer.replaceInstructionCommand(this.groupName, replaceIndex, newCommand);
+        return this.editor.song.replaceInstructionCommand(this.groupName, replaceIndex, newCommand);
     }
 
     replaceInstructionVelocity(replaceIndex, newVelocity) {
-        return this.editor.renderer.replaceInstructionVelocity(this.groupName, replaceIndex, newVelocity);
+        return this.editor.song.replaceInstructionVelocity(this.groupName, replaceIndex, newVelocity);
     }
 
 
@@ -1447,11 +1447,11 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     // replaceInstructionParams(replaceIndex, replaceParams) {
-    //     return this.editor.renderer.replaceInstructionParams(this.groupName, replaceIndex, replaceParams);
+    //     return this.editor.song.replaceInstructionParams(this.groupName, replaceIndex, replaceParams);
     // }
 
     replaceFrequencyAlias(noteFrequency, instrumentID) {
-        const instrument = this.editor.renderer.getInstrument(instrumentID, false);
+        const instrument = this.editor.song.getInstrument(instrumentID, false);
         if(!instrument || !instrument.getFrequencyAliases)
             return noteFrequency;
         const aliases = instrument.getFrequencyAliases(noteFrequency);
@@ -1500,7 +1500,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     //     let startingIndex = null;
     //     let lastSongPositionInTicks = 0, lastSubDurationInTicks=0;
     //
-    //     this.editor.renderer.eachInstruction(this.groupName, (index, instruction, stats) => {
+    //     this.editor.song.eachInstruction(this.groupName, (index, instruction, stats) => {
     //         if(lastSongPositionInTicks !== stats.groupPositionInTicks) {
     //             lastSubDurationInTicks = stats.groupPositionInTicks - lastSongPositionInTicks;
     //             lastSongPositionInTicks = stats.groupPositionInTicks;
@@ -1776,10 +1776,10 @@ class AudioSourceComposerTrackerInstruction extends HTMLElement {
     getInstruction() { return this.row.tracker.getInstruction(this.index); }
 
     play() {
-        this.editor.renderer.playInstructionAtIndex(
+        this.editor.song.playInstructionAtIndex(
             this.tracker.groupName,
             this.index,
-            this.editor.renderer.getAudioContext().currentTime,
+            this.editor.song.getAudioContext().currentTime,
             {
                 groupPositionInTicks: this.row.position,
                 currentIndex: this.index

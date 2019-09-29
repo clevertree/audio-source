@@ -414,7 +414,7 @@ class AudioSourceComposerPanelInstrumentContainer extends HTMLElement {
 
     render() {
         const editor = this.panel.editor;
-        const renderer = editor.renderer;
+        const renderer = editor.song;
         const instrumentID = parseInt(this.getAttribute('id'));
 
         // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';

@@ -9,7 +9,7 @@ if(!customElements.get('audio-source-synthesizer')) {
         constructor(config, renderer = null) {
             super();
 
-            this.renderer = renderer;
+            this.song = renderer;
             this.eventHandlers = [];
 
             // Create a shadow root
@@ -273,37 +273,19 @@ if(!customElements.get('audio-source-synthesizer')) {
 
             velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
             velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + adsr[3]);
+            await new Promise((resolve, reject) => {
 
-            source.connect(destination);
-
-            // Add to active sources
-            this.activeSources.push(source);
-
-            if(startTime > currentTime) {
-                await new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        resolve();
-                    }, (startTime - currentTime) * 1000);
+                // Set up 'ended' event listener
+                source.addEventListener('ended', e => {
+                    this.onSourceEnd(e, source);
+                    resolve();
                 });
-            }
+                // Add to active sources
+                this.activeSources.push(source);
 
-            // console.log("activeSources", this.activeSources, source);
-
-
-            currentTime = destination.context.currentTime;
-
-
-            if(duration) {
-                await new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        resolve();
-                    }, (startTime - currentTime + duration) * 1000);
-                });
-                const activeSourceI = this.activeSources.indexOf(source);
-                if(activeSourceI !== -1)
-                    this.activeSources.splice(activeSourceI, 1);
-                // console.log("activeSources-", this.activeSources, source);
-            }
+                // Start Playback
+                source.connect(destination);
+            });
 
         }
 
@@ -359,16 +341,8 @@ if(!customElements.get('audio-source-synthesizer')) {
 
         }
 
+        // Instruments return promises
         async play(destination, commandFrequency, startTime, duration, velocity) {
-            // if(!this.audioContext)
-            //     this.init(destination.context);
-
-            const sources = [];
-            // if (this.config.samples.hasOwnProperty(commandFrequency)) {
-            //     await this.playSample(destination, commandFrequency, null, startTime, duration, velocity);
-            //     return null;
-            // }
-
             let frequencyValue = this.getCommandFrequency(commandFrequency);
             if (Number.isNaN(frequencyValue)) {
                 console.warn("Invalid command frequency: ", commandFrequency, this.config);
@@ -376,6 +350,7 @@ if(!customElements.get('audio-source-synthesizer')) {
             }
 
             // Loop through sample
+            const samplePromises = [];
             for (let i=0; i<this.config.samples.length; i++) {
                 const sampleConfig = this.config.samples[i];
 
@@ -389,15 +364,13 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                 // TODO: polyphony
 
-                await this.playSample(destination, i, frequencyValue, startTime, duration, velocity, sampleConfig.adsr || null);
-                // this.playBuffer(buffer, destination, frequencyValue, sampleConfig, startTime, duration, velocity);
-                // if (source)
-                //     sources.push(sources);
+                const samplePromise = this.playSample(destination, i, frequencyValue, startTime, duration, velocity, sampleConfig.adsr || null);
+                samplePromises.push(samplePromise);
             }
 
-            // if(sources.length === 0)
-            //     console.warn("No samples were played: ", commandFrequency, this.config);
-            // return sources;
+            for(let i=0; i<samplePromises.length; i++) {
+                await samplePromises[i];
+            }
         }
 
         stopPlayback() {
@@ -412,6 +385,12 @@ if(!customElements.get('audio-source-synthesizer')) {
             }
             this.activeSources = [];
 
+        }
+
+        onSourceEnd(e, source) {
+            const activeSourceI = this.activeSources.indexOf(source);
+            if(activeSourceI !== -1)
+                this.activeSources.splice(activeSourceI, 1);
         }
 
         // queueActiveSource(source, startTime, duration) {
@@ -778,7 +757,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                     let addSampleName = addSampleURL.split('/').pop().split('.').slice(0, -1).join('.');
                     addSampleName = prompt(`Set Sample Name:`, addSampleName);
                     const addSampleID = this.config.samples.length;
-                    this.renderer.replaceInstrumentParam(instrumentID, ['samples', addSampleID], {
+                    this.song.replaceInstrumentParam(instrumentID, ['samples', addSampleID], {
                         url: addSampleURL,
                         name: addSampleName
                     });
@@ -802,7 +781,7 @@ if(!customElements.get('audio-source-synthesizer')) {
 
                     switch (command) {
                         case 'sample:remove':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID]);
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID]);
                             this.render();
                             break;
 
@@ -811,7 +790,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                             const newSampleName = form.elements.name.value;
                             if(!newSampleName)
                                 throw new Error("Invalid new sample name");
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'name'], newSampleName);
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'name'], newSampleName);
                             // this.render();
                             break;
 
@@ -819,7 +798,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                             const changeSampleURL = form.elements.url.value || prompt(`Change Sample URL: (ID ${sampleID})`, sampleConfig.url);
                             if (changeSampleURL) {
                                 // TODO: change sample name
-                                this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'url'], changeSampleURL);
+                                this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'url'], changeSampleURL);
                                 await this.loadSamples();
                             } else {
                                 console.info("Change sample URL canceled");
@@ -827,21 +806,21 @@ if(!customElements.get('audio-source-synthesizer')) {
                             break;
 
                         case 'sample:mixer':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'mixer'], parseInt(form.elements.mixer.value));
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'mixer'], parseInt(form.elements.mixer.value));
                             break;
 
                         case 'sample:detune':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'detune'], parseInt(form.elements.detune.value));
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'detune'], parseInt(form.elements.detune.value));
                             break;
 
                         case 'sample:keyRoot':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'keyRoot'], form.elements.keyRoot.value);
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'keyRoot'], form.elements.keyRoot.value);
                             break;
                         case 'sample:keyAlias':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'keyAlias'], form.elements.keyAlias.value);
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'keyAlias'], form.elements.keyAlias.value);
                             break;
                         case 'sample:loop':
-                            this.renderer.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'loop'], form.elements.loop.checked);
+                            this.song.replaceInstrumentParam(instrumentID, ['samples', sampleID, 'loop'], form.elements.loop.checked);
                             break;
                         case 'sample:adsr':
                         default:
@@ -868,7 +847,7 @@ if(!customElements.get('audio-source-synthesizer')) {
                         const newPresetName = newPresetURL.hash.substr(1);
                         let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
                         newPresetConfig = Object.assign({}, this.config, newPresetConfig);
-                        this.renderer.replaceInstrument(instrumentID, newPresetConfig);
+                        this.song.replaceInstrument(instrumentID, newPresetConfig);
                         this.loadConfig(newPresetConfig);
                     }
                     
@@ -878,17 +857,17 @@ if(!customElements.get('audio-source-synthesizer')) {
 
 
                 case 'instrument:name':
-                    this.renderer.replaceInstrumentParam(instrumentID, 'name', form.elements.name.value);
+                    this.song.replaceInstrumentParam(instrumentID, 'name', form.elements.name.value);
                     break;
 
                 case 'instrument:remove':
                     // TODO: dispatch to shadow host
-                    this.renderer.removeInstrument(form.elements['instrumentID'].value);
+                    this.song.removeInstrument(form.elements['instrumentID'].value);
                     break;
 
                 case 'instrument:change':
-                    this.renderer.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
-                    await this.renderer.loadInstrument(form.elements['instrumentID'].value, true);
+                    this.song.replaceInstrument(form.elements['instrumentID'].value, form.elements['instrumentURL'].value);
+                    await this.song.loadInstrument(form.elements['instrumentID'].value, true);
                     break;
 
 

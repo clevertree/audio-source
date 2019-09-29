@@ -2,8 +2,8 @@
 
 
 class AudioSourceValues {
-    constructor(renderer=null) {
-        this.renderer = renderer;
+    constructor(song=null) {
+        this.song = song;
     }
 
     // get noteFrequencies() {
@@ -40,8 +40,8 @@ class AudioSourceValues {
         let noteFrequencies;
         let results = [], result=null;
         const addResult = (result) => { if(result !== null && typeof result !== "undefined") addResult(result); };
-        const songData = this.renderer ? this.renderer.getSongData() : null;
-        const timeDivision = this.renderer ? this.renderer.getSongTimeDivision() : 96*4;
+        const songData = this.song ? this.song.data : null;
+        const timeDivision = this.song ? this.song.timeDivision : 96*4;
 
         switch(valueType) {
             // case 'server-recent-uuid':
@@ -60,7 +60,7 @@ class AudioSourceValues {
                 break;
 
             case 'song-instruments':
-                if(this.renderer && songData.instruments) {
+                if(this.song && songData.instruments) {
                     const instrumentList = songData.instruments;
                     for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                         const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
@@ -92,8 +92,8 @@ class AudioSourceValues {
             case 'command-instrument-frequencies':
                 if(songData) {
                     for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
-                        if(this.renderer.isInstrumentLoaded(instrumentID)) {
-                            const instance = this.renderer.getInstrument(instrumentID);
+                        if(this.song.isInstrumentLoaded(instrumentID)) {
+                            const instance = this.song.getInstrument(instrumentID);
                             if(instance.getFrequencyAliases) {
                                 const aliases = instance.getFrequencyAliases();
                                 Object.values(aliases).forEach((aliasValue) =>

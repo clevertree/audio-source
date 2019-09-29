@@ -8,6 +8,30 @@ class MIDISupport {
     // addSongEventListener(callback) { this.eventListeners.push(callback); }
 
 
+    loadMIDIInterface(callback) {
+
+
+        // TODO: wait for user input
+        if(navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(
+                (MIDI) => {
+                    console.info("MIDI initialized", MIDI);
+                    const inputDevices = [];
+                    MIDI.inputs.forEach(
+                        (inputDevice) => {
+                            inputDevices.push(inputDevice);
+                            inputDevice.addEventListener('midimessage', callback);
+                        }
+                    );
+                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
+                },
+                (err) => {
+                    throw new Error("error initializing MIDI: " + err);
+                }
+            );
+        }
+    }
+
 
     getCommandFromMIDINote(midiNote) {
         // midiNote -= 4;
@@ -54,7 +78,7 @@ class MIDISupport {
 
         songData.instructions = newInstructions;
         songData.timeDivision = midiData.timeDivision;
-        const renderer = new AudioSourceRenderer(songData);
+        const song = new AudioSourceSong(songData);
 
 
         let instrumentCount = 0;
@@ -114,7 +138,7 @@ class MIDISupport {
                             let noteDuration = songPositionInTicks - lastNoteSongPositionInTicks;
                             delete lastNote[newMIDICommandOff];
 
-                            renderer.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
+                            song.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
                             console.log("OFF", lastNoteSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOff, noteDuration);
 
                             // lastNote[newMIDICommandOff][1][3] = noteDuration;
@@ -131,7 +155,7 @@ class MIDISupport {
                                 let noteDuration = songPositionInTicks - lastInsertSongPositionInTicks;
                                 // lastNote[newMIDICommandOn][1][3] = noteDuration;
 
-                                renderer.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
+                                song.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
                                 console.log("OFF", lastInsertSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOn, noteDuration);
                                 delete lastNote[newMIDICommandOn];
                                 break;
@@ -141,7 +165,7 @@ class MIDISupport {
                         // let newInstructionDelta = trackEvent.deltaTime + (songPositionInTicks - lastInsertSongPositionInTicks);
                         lastInsertSongPositionInTicks = songPositionInTicks;
                         const newInstruction = [0, newMIDICommandOn, instrumentID, 0, newMIDIVelocityOn];
-                        const insertIndex = renderer.insertInstructionAtPosition(currentGroup, songPositionInTicks, newInstruction);
+                        const insertIndex = song.insertInstructionAtPosition(currentGroup, songPositionInTicks, newInstruction);
 
                         lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];
                         // newTrack.push(newInstruction);
@@ -152,7 +176,7 @@ class MIDISupport {
             }
         }
 
-        return renderer.getSongData();
+        return song.data;
     }
 
 

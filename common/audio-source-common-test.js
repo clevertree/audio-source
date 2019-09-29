@@ -2,7 +2,7 @@ const path = require('path');
 
 const DIR_ROOT = path.dirname(__dirname);
 
-const {AudioSourceRenderer} = require(DIR_ROOT + '/common/audio-source-renderer.js');
+const {AudioSourceSong} = require(DIR_ROOT + '/common/audio-source-song.js');
 const {AudioSourceStorage} = require(DIR_ROOT + '/common/audio-source-storage.js');
 const {AudioSourceValues} = require(DIR_ROOT + '/common/audio-source-values.js');
 
@@ -30,7 +30,7 @@ class AudioSourceCommonTest {
         const s = new AudioSourceStorage();
         const songData = s.generateDefaultSong();
 
-        const r = new AudioSourceRenderer(songData);
+        const r = new AudioSourceSong(songData);
 
         const v = new AudioSourceValues(r);
         v.valueTypes.forEach(valueType => {
@@ -45,11 +45,11 @@ class AudioSourceCommonTest {
         const s = new AudioSourceStorage();
         const songData = s.generateDefaultSong();
 
-        const r = new AudioSourceRenderer(songData);
+        const r = new AudioSourceSong(songData);
 
 
-        const testGroup = r.getSongRootGroup();
-        const root = r.getSongData().instructions.root;
+        const testGroup = r.rootGroup;
+        const root = r.data.instructions.root;
 
         // Insert Instructions
         r.insertInstructionAtIndex(testGroup, root.length, 'ins0');

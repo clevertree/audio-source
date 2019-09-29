@@ -18,7 +18,7 @@ class AudioSourceStorage {
 
     /** Generate Song Data **/
 
-    generateTitle() {
+    generateName() {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
     }
 
@@ -36,7 +36,7 @@ class AudioSourceStorage {
 
     generateDefaultSong(defaultInstrumentURL=null) {
         const songData = {
-            name: this.generateTitle(),
+            name: this.generateName(),
             guid: this.generateGUID(),
             version: '0.0.1',
             root: 'root',
@@ -77,7 +77,7 @@ class AudioSourceStorage {
     /** Saving **/
 
     async saveSongToMemory(songData, songHistory) {
-        // const song = this.getSongData();
+        // const song = this.data;
         if(!songData.guid)
             songData.guid = this.generateGUID();
         let songRecentGUIDs = [];
@@ -98,7 +98,7 @@ class AudioSourceStorage {
     }
 
     saveSongToFile(songData, prompt=true) {
-        // const song = this.getSongData();
+        // const song = this.data;
         const instructionsKey = "/** INSTRUCTIONS-" + this.generateGUID() + ' **/';
         let jsonStringInstructions = JSON.stringify(songData.instructions);
         let jsonString = JSON.stringify(Object.assign({}, songData, {
