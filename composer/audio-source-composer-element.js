@@ -190,34 +190,33 @@ class AudioSourceComposerElement extends HTMLElement {
 
     /** Playback **/
 
-    async play() {
-        await this.renderer.play();
-        let playbackInterval = setInterval(e => {
-            if(this.renderer.isPlaying) {
-                this.updateSongPositionValue();
-            } else {
-                clearInterval(playbackInterval);
-            }
-        }, 10);
-        // if(this.renderer.isPlaybackActive())
-        //     this.renderer.stop();
-        // else
-        //     this.renderer.play();
+    // async play() {
+    //     await this.renderer.play();
+    //     // let playbackInterval = setInterval(e => {
+    //     //     if(this.renderer.isPlaying) {
+    //     //         this.updateSongPositionValue();
+    //     //     } else {
+    //     //         clearInterval(playbackInterval);
+    //     //     }
+    //     // }, 10);
+    //     // if(this.renderer.isPlaybackActive())
+    //     //     this.renderer.stop();
+    //     // else
+    //     //     this.renderer.play();
+    //
+    // }
 
-    }
-
-    updateSongPositionValue() {
-        let s = this.renderer.songPlaybackPosition;
-        let m = Math.floor(s / 60);
-        s = s % 60;
-        let ms = Math.round((s - Math.floor(s)) * 1000);
-        s = Math.floor(s);
+    updateSongPositionValue(fSeconds) {
+        let m = Math.floor(fSeconds / 60);
+        fSeconds = fSeconds % 60;
+        let ms = Math.round((fSeconds - Math.floor(fSeconds)) * 1000);
+        fSeconds = Math.floor(fSeconds);
 
         m = (m+'').padStart(2, '0');
-        s = (s+'').padStart(2, '0');
+        fSeconds = (fSeconds+'').padStart(2, '0');
         ms = (ms+'').padStart(4, '0'); // TODO: ticks?
 
-        this.fieldSongPosition.value = `${m}:${s}:${ms}`;
+        this.fieldSongPosition.value = `${m}:${fSeconds}:${ms}`;
     }
 
 
@@ -289,8 +288,9 @@ class AudioSourceComposerElement extends HTMLElement {
             this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:seek':
-                this.updateSongPositionValue();
+                this.updateSongPositionValue(this.renderer.songPlaybackPosition);
                 break;
+
             case 'song:loaded':
                 this.tracker.renderDuration = this.renderer.getSongTimeDivision();
                 break;
@@ -298,10 +298,18 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.classList.add('playing');
                 this.containerElm.classList.add('playing');
                 clearInterval(this.updateSongPositionInterval);
+                let lastGroupPositionInTicks = 0;
+                let songIterator = e.detail.iterator; // TODO: this event needs an iterator
                 this.updateSongPositionInterval = setInterval(e => {
-                    this.updateSongPositionValue();
-                }, 10)
+                    this.updateSongPositionValue(this.renderer.songPlaybackPosition);
+                    if(songIterator && songIterator.groupPositionInTicks > lastGroupPositionInTicks) {
+                        lastGroupPositionInTicks = songIterator.groupPositionInTicks;
+                        console.log('lastGroupPositionInTicks', lastGroupPositionInTicks);
+                        this.tracker.setPlaybackPositionInTicks(lastGroupPositionInTicks);
+                    }
+                }, 10);
                 break;
+
             case 'song:pause':
                 clearInterval(this.updateSongPositionInterval);
                 this.classList.add('paused');

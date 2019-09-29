@@ -27,7 +27,7 @@ class AudioSourceRenderer {
         // this.config = {
         //     volume: 0.3
         // };
-        this.songData = {};
+        this.songData = null;
         this.loadSongData(songData);
         // this.eventListeners = [];
         this.songHistory = [];
@@ -50,7 +50,7 @@ class AudioSourceRenderer {
         return this.audioContext;
     }
     getSongData() { return this.songData; }
-    getSongTimeDivision() { return this.songData.timeDivision || 96*4; }
+    getSongTimeDivision() { return this.songData.timeDivision; }
     getGroupTimeDivision(groupName) {
         return this.getSongTimeDivision();
     }
@@ -108,6 +108,7 @@ class AudioSourceRenderer {
 
     loadSongData(songData, songURL=null) {
         songData = Object.assign({}, {
+            timeDivision: 96*4,
             instruments: [],
             instructions: {
                 'root': []
@@ -166,20 +167,6 @@ class AudioSourceRenderer {
 
 
 
-    // findInstructionGroup(instruction) {
-    //     if(instruction instanceof SongInstruction)
-    //         instruction = instruction.data;
-    //     if(typeof instruction !== 'object')
-    //         throw new Error("Invalid instruction object");
-    //     for(let groupName in this.songData.instructions) {
-    //         if(this.songData.instructions.hasOwnProperty(groupName)) {
-    //             if(this.songData.instructions[groupName].indexOf(instruction) !== -1)
-    //                 return groupName;
-    //         }
-    //     }
-    //     throw new Error("Instruction not found in songData");
-    // }
-
     // TODO: iterator?
     getInstructions(groupName, indicies=null) {
         let instructionList = this.songData.instructions[groupName];
@@ -193,22 +180,6 @@ class AudioSourceRenderer {
         return instructionList
             .map(instructionData => new SongInstruction(instructionData))
     }
-
-    // getInstructionRange(groupName, start, end=null) {
-    //     let instructionList = this.songData.instructions[groupName];
-    //     if(!instructionList)
-    //         throw new Error("Instruction group not found: " + groupName);
-    //     const selectedInstructions = [];
-    //     for(let i=start; end === null ? true : i<end; i++) {
-    //         if(!instructionList[i])
-    //             break;
-    //         const instruction = new SongInstruction(instructionList[i]);
-    //         if(selectedInstructions.length > 0 && end === null && instruction.deltaDuration)
-    //             break;
-    //         selectedInstructions.push(instruction);
-    //     }
-    //     return selectedInstructions;
-    // }
 
     getInstructionIndex(groupName, instruction) {
         if(instruction instanceof SongInstruction)
@@ -250,26 +221,6 @@ class AudioSourceRenderer {
             parentStats ? parentStats.groupPositionInTicks : 0);
         return instructionIterator;
     }
-
-    // eachInstructionRow(groupName, callback, parentStats=null) {
-    //     let rowInstructionList = [];
-    //     let startIndex = 0, startPositionInTicks = 0;
-    //     this.eachInstruction(groupName, (currentIndex, instruction, iterator) => {
-    //         if (instruction.deltaDuration !== 0) {
-    //             const ret = callback(startIndex,
-    //                 startPositionInTicks,
-    //                 iterator.groupPositionInTicks,
-    //                 rowInstructionList,
-    //                 iterator);
-    //             if(ret === false)
-    //                 return ret;
-    //             startIndex = currentIndex + 1;
-    //             startPositionInTicks = iterator.groupPositionInTicks;
-    //             rowInstructionList = [];
-    //         }
-    //         rowInstructionList.push(instruction);
-    //     }, parentStats);
-    // }
 
     eachInstruction(groupName, callback, parentStats=null) {
         if(!this.songData.instructions[groupName])
@@ -453,13 +404,13 @@ class AudioSourceRenderer {
         //     throw new Error("Invalid start position in ticks");
 
         this.playbackPosition = parseFloat(songPosition) || 0;
-        const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
-        console.log("Seek position: ", this.playbackPosition, positionInTicks);
+        const groupPositionInTicks = this.getSongPositionInTicks(this.playbackPosition);
+        console.log("Seek position: ", this.playbackPosition, groupPositionInTicks);
 
         const detail = {
             // startTime: this.playbackStartTime,
             position: this.playbackPosition,
-            positionInTicks
+            groupPositionInTicks
         };
         this.dispatchEvent(new CustomEvent('song:seek', {detail}));
     }
@@ -593,7 +544,7 @@ class AudioSourceRenderer {
             console.warn("No instruction at index");
     }
 
-    async playInstruction(instruction, noteStartTime=null, stats=null) {
+    async playInstruction(instruction, noteStartTime=null, iterator=null) {
         if(Array.isArray(instruction))
             instruction = new SongInstruction(instruction);
 
@@ -609,16 +560,23 @@ class AudioSourceRenderer {
         const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
         const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
 
+        let currentTime = this.getAudioContext().currentTime;
+
+        if(!noteStartTime && noteStartTime !== 0)
+            noteStartTime = currentTime;
+
         const noteEventData = {
-            currentTime: this.getAudioContext().currentTime,
+            currentTime: currentTime,
             startTime: noteStartTime,
+            // endTime: noteEndTime,
             duration: noteDuration,
             instruction: instruction,
         };
-        if(stats) {
-            if(stats.currentBPM)            noteEventData.currentBPM = stats.currentBPM;
-            if(stats.groupIndex)            noteEventData.groupIndex = stats.groupIndex;
-            if(stats.groupPositionInTicks)  noteEventData.groupPositionInTicks = stats.groupPositionInTicks;
+        if(iterator) {
+            noteEventData.iterator = iterator;
+            if(iterator.currentBPM)            noteEventData.currentBPM = iterator.currentBPM;
+            if(iterator.groupIndex)            noteEventData.groupIndex = iterator.groupIndex;
+            if(iterator.groupPositionInTicks)  noteEventData.groupPositionInTicks = iterator.groupPositionInTicks;
 
             //     if(stats.groupInstruction) {
             //         if(typeof stats.groupInstruction.velocity !== 'undefined')
@@ -629,14 +587,10 @@ class AudioSourceRenderer {
         }
 
 
-        if(!noteStartTime && noteStartTime !== 0)
-            noteStartTime = this.getAudioContext().currentTime;
-
 
         this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
 
 
-        let currentTime = this.getAudioContext().currentTime;
         if(noteStartTime > currentTime) {
             await new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -648,17 +602,20 @@ class AudioSourceRenderer {
         // this.activeSources.push.apply(this.activeSources, sources);
         // console.log("activeSources", this.activeSources, sources);
 
-        this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
-        currentTime = this.getAudioContext().currentTime;
+        this.dispatchEvent(new CustomEvent('note:play', {detail: noteEventData}));
+        // this.dispatchEvent(new CustomEvent('note:start', {detail: noteEventData}));
 
 
         if(noteDuration) {
+            currentTime = this.getAudioContext().currentTime;
             await new Promise((resolve, reject) => {
                 setTimeout(() => {
                     resolve();
-                }, (noteStartTime - currentTime + noteDuration) * 1000);
+                }, (noteStartTime + noteDuration - currentTime) * 1000);
             });
-            this.dispatchEvent(new CustomEvent('note:end', {detail: noteEventData}));
+            // this.dispatchEvent(new CustomEvent('note:end', {detail: noteEventData}));
+        } else {
+            // TODO: else await note stop?
         }
 
         // this.activeSources = this.activeSources.filter(activeSource => sources.indexOf(activeSource) !== -1);
@@ -1316,6 +1273,9 @@ class AudioSourceRenderer {
 
 }
 AudioSourceRenderer.DEFAULT_VOLUME = 0.7;
+
+class AudioSourceInstructionPlayback {
+}
 
 class SongInstruction {
     constructor(instructionData) {

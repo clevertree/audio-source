@@ -517,6 +517,7 @@ asct-row:nth-child(odd) {
     /* margin: 0; */
 }
 
+asct-row.cursor,
 asct-row.selected {
     background-color: #ffeedd;
     position: relative;

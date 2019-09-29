@@ -54,17 +54,16 @@ class AudioSourceComposerActions {
 
             case 'song:play':
             case 'song:resume':
-                this.play();
+                this.songPlay();
                 break;
 
             case 'song:pause':
-                this.editor.renderer.stopPlayback();
+                this.songPause();
                 break;
 
             case 'song:stop':
             case 'song:reset':
-                this.editor.renderer.stopPlayback();
-                this.editor.renderer.setPlaybackPositionInTicks(0);
+                this.songStop();
                 break;
 
             // case 'song:resume':
@@ -361,6 +360,21 @@ class AudioSourceComposerActions {
         this.editor.render();
     }
 
+    /** Song Playback **/
+
+
+    async songPlay() {
+        await this.editor.renderer.play();
+    }
+
+    async songPause() {
+        this.editor.renderer.stopPlayback();
+    }
+
+    async songStop() {
+        this.editor.renderer.stopPlayback();
+        this.editor.renderer.setPlaybackPositionInTicks(0);
+    }
 
     /** Tracker Commands **/
 
@@ -581,8 +595,6 @@ class AudioSourceComposerActions {
         tracker.selectIndicies(e, selectedIndicies);
         tracker.fieldSelectedIndicies.focus();
     }
-
-
 }
 
 

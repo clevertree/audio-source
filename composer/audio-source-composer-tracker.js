@@ -40,7 +40,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     // }
 
     // get rowLengthInTicks() { return this.status.rowLengthInTicks; }
-    get status() { return this.editor.status.grid; }
+    // get status() { return this.editor.status.grid; }
 
 
     get isConnected() { return this.editor.containerElm.contains(this); }
@@ -173,6 +173,37 @@ class AudioSourceComposerTracker extends HTMLElement {
             this.rowContainer.focus();
         }
     }
+
+    navigate(groupPositionInTicks, groupName=null) {
+        if(groupName && groupName !== this.groupName)
+            this.groupName = groupName;
+
+        let rowElm = this.findRowElement(groupPositionInTicks);
+        if(!rowElm) {
+            const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
+            if (newRowSegmentID !== this.currentRowSegmentID) {
+                this.currentRowSegmentID = newRowSegmentID;
+                this.renderRows();
+                let rowElm = this.findRowElement(groupPositionInTicks);
+                if(!rowElm)
+                    throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
+                return rowElm;
+            } else {
+                throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
+            }
+        } else {
+            console.info("Row segment was found. Navigation canceled");
+            return rowElm;
+        }
+    }
+
+
+    // navigatePop() {
+    //     this.editor.setStatus("Navigate Back: ", this.status.trackers[0].groupName);
+    //     if(this.status.trackers.length > 0)
+    //         this.status.trackers.shift();
+    //     this.render();
+    // }
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
         const timeDivision = this.editor.renderer.getGroupTimeDivision(this.groupName);
@@ -526,6 +557,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
                     case 'Escape':
                     case 'Backspace':
+                        throw new Error("TODO: navigate pop")
                         e.preventDefault();
                         this.navigatePop();
                         this.selectIndicies(e, 0);
@@ -1064,84 +1096,78 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.editor.renderer.setPlaybackPositionInTicks(selectedCell.parentNode.position);
     }
 
+    setPlaybackPositionInTicks(groupPositionInTicks) {
+        let rowElm = this.navigate(groupPositionInTicks);
+        this.querySelectorAll('asct-row.cursor')
+            .forEach(rowElm => rowElm.classList.remove('cursor'));
+        rowElm.classList.add('cursor');
+    }
+
 
     onSongEvent(e) {
 //         console.log("onSongEvent", e.type);
         const detail = e.detail || {stats:{}};
-        let rowElm, instructionElm;
+        // let rowElm, instructionElm;
         switch(e.type) {
 
-            // case 'note:play':
-            //     rowElm = this.findRowElement(detail.stats.groupPositionInTicks);
-            //     instructionElm = this.findInstructionElement(detail.stats.currentIndex);
-            //
-            //
-            //     const currentTime = detail.currentTime;
-            //     // if(detail.startTime > currentTime)
-            //         setTimeout(() => {
-            //             if(instructionElm) {
-            //                 instructionElm.classList.add('playing');
-            //             }
-            //             if(rowElm) {
-            //                 rowElm.classList.add('playing');
-            //                 rowElm.scrollTo(); // Scroll To position, not index
-            //             }
-            //
-            //         }, (detail.startTime - currentTime) * 1000);
-            //     // else {
-            //     //     // Start immediately
-            //     // }
-            //
-            //     if(detail.duration) {
-            //         setTimeout(() => {
-            //             if(instructionElm) {
-            //                 instructionElm.classList.remove('playing');
-            //             }
-            //             if(rowElm) {
-            //                 rowElm.classList.remove('playing');
-            //             }
-            //         }, (detail.startTime - currentTime + detail.duration) * 1000);
-            //     }
-            //
-            //     break;
-            // //
-            case 'note:start':
-                if(detail.groupPositionInTicks) {
-                    rowElm = this.findRowElement(detail.groupPositionInTicks);
-                    if (!rowElm) {
-                        const newRowSegmentID = this.getSegmentIDFromPositionInTicks(detail.groupPositionInTicks);
-                        if(newRowSegmentID !== this.currentRowSegmentID) {
-                            this.currentRowSegmentID = newRowSegmentID;
-                            this.renderRows();
-                        }
-                        rowElm = this.findRowElement(detail.groupPositionInTicks);
-                    }
-                    if(rowElm) {
-                        rowElm.classList.add('playing');
-                        // rowElm.scrollTo(); // Scroll To position, not index
-                    }
-                }
-                if(detail.groupIndex) {
-                    instructionElm = this.findInstructionElement(detail.groupIndex);
-                    if (instructionElm) {
+            case 'note:play':
+                let rowElm = this.navigate(detail.groupPositionInTicks);
+                let instructionElm = this.findInstructionElement(detail.groupIndex);
+
+                rowElm.scrollTo(); // Scroll To position, not index
+
+                if(detail.duration) {
+                    setTimeout(() => {
                         instructionElm.classList.add('playing');
-                    }
-                }
-                break;
-            case 'note:end':
-                if(detail.groupPositionInTicks) {
-                    rowElm = this.findRowElement(detail.groupPositionInTicks);
-                    if (rowElm) {
-                        rowElm.classList.remove('playing');
-                    }
-                }
-                if(detail.groupIndex) {
-                    instructionElm = this.findInstructionElement(detail.groupIndex);
-                    if (instructionElm) {
+
+                        rowElm.classList.add('playing');
+
+                    }, (detail.startTime - detail.currentTime) * 1000);
+
+                    setTimeout(() => {
                         instructionElm.classList.remove('playing');
-                    }
+
+                        rowElm.classList.remove('playing');
+                    }, (detail.startTime - detail.currentTime + detail.duration) * 1000);
+                }
+
+                break;
+            // //
+            case 'song:seek':
+                if(detail.groupPositionInTicks) {
+                    this.setPlaybackPositionInTicks(detail.groupPositionInTicks);
                 }
                 break;
+
+            // case 'note:start':
+            //     if(detail.groupPositionInTicks) {
+            //         rowElm = this.navigate(detail.groupPositionInTicks);
+            //         if(rowElm) {
+            //             rowElm.classList.add('playing');
+            //             // rowElm.scrollTo(); // Scroll To position, not index
+            //         }
+            //     }
+            //     if(detail.groupIndex) {
+            //         instructionElm = this.findInstructionElement(detail.groupIndex);
+            //         if (instructionElm) {
+            //             instructionElm.classList.add('playing');
+            //         }
+            //     }
+            //     break;
+            // case 'note:end':
+            //     if(detail.groupPositionInTicks) {
+            //         rowElm = this.findRowElement(detail.groupPositionInTicks);
+            //         if (rowElm) {
+            //             rowElm.classList.remove('playing');
+            //         }
+            //     }
+            //     if(detail.groupIndex) {
+            //         instructionElm = this.findInstructionElement(detail.groupIndex);
+            //         if (instructionElm) {
+            //             instructionElm.classList.remove('playing');
+            //         }
+            //     }
+            //     break;
 
             // case 'song:play':
             //     this.classList.add('playing');
@@ -1354,12 +1380,6 @@ class AudioSourceComposerTracker extends HTMLElement {
     // }
 
 
-    navigatePop() {
-        this.editor.setStatus("Navigate Back: ", this.status.trackers[0].groupName);
-        if(this.status.trackers.length > 0)
-            this.status.trackers.shift();
-        this.render();
-    }
 
     increaseTrackerSize(e, selectNewRow=true) {
         // TODO: sloppy
