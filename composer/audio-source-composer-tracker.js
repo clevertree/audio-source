@@ -1097,11 +1097,12 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     setPlaybackPositionInTicks(groupPositionInTicks) {
+
         // TODO: get current 'playing' and check position
         let rowElm = this.navigate(groupPositionInTicks);
-        this.querySelectorAll('asct-row.cursor')
-            .forEach(rowElm => rowElm.classList.remove('playing'));
-        rowElm.classList.add('playing');
+        this.querySelectorAll('asct-row.position')
+            .forEach(rowElm => rowElm.classList.remove('position'));
+        rowElm.classList.add('position');
     }
 
 
@@ -1482,8 +1483,21 @@ class AudioSourceComposerTracker extends HTMLElement {
     //     return this.selectIndicies(selectedIndicies);
     // }
 
-    findRowElement(rowPosition) {
-        return this.querySelector(`asct-row[p='${rowPosition}']`);
+    findRowElement(positionInTicks) {
+        let rowElm = this.querySelector(`asct-row[p='${positionInTicks}']`);
+        if(rowElm)
+            return rowElm;
+
+        let rowElms = this.querySelectorAll(`asct-row`);
+        for(let i=rowElms.length-1; i>=0; i--) {
+            const rowElm = rowElms[i];
+            if(rowElm.position < positionInTicks) {
+                console.log('findRowElement', rowElm, rowElm.position, '<', positionInTicks);
+                return rowElm;
+            }
+        }
+
+        return null;
     }
 
     findInstructionElement(instructionIndex) {

@@ -255,9 +255,8 @@ class AudioSourceComposerElement extends HTMLElement {
                     this.updateSongPositionValue(this.song.songPlaybackPosition);
                     if(intervalCount % 10 === 0) {
                         // if (songPlayback.groupPositionInTicks > lastGroupPositionInTicks) {
-                            const estimateSongPositionInTicks = this.song.estimateSongPositionInTicks();
-                            console.log('estimateSongPositionInTicks', estimateSongPositionInTicks);
-                            this.tracker.setPlaybackPositionInTicks(estimateSongPositionInTicks);
+                        const estimateSongPositionInTicks = this.song.estimateSongPositionInTicks();
+                        this.tracker.setPlaybackPositionInTicks(estimateSongPositionInTicks);
                         // }
                     }
                     intervalCount++;

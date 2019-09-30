@@ -377,6 +377,7 @@ class AudioSourceSong {
         return this.playbackPosition;
     }
 
+    // TODO: inefficient
     estimateSongPositionInTicks() {
         const songPosition = this.songPlaybackPosition;
         return this.getSongPositionInTicks(songPosition);
@@ -1370,6 +1371,11 @@ class InstructionIterator {
         return instruction;
     }
 
+    nextInstructionQuantizedRow() {
+        // keep track of tick position
+    }
+
+    // TODO: quantize
     nextInstructionRow() {
         // this.lastRowGroupStartPositionInTicks = this.groupPositionInTicks;
         // this.lastRowPositionInTicks = this.groupPositionInTicks;
