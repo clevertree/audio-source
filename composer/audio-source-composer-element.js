@@ -50,7 +50,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-            'note:start', 'note:end',
+            'note:play', 'group:play',
         ], this.onSongEvent);
         this.attachEventHandler([
             'instrument:instance',
@@ -231,7 +231,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
-    onSongEvent(e) {
+    async onSongEvent(e) {
 //         console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
@@ -241,26 +241,34 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:loaded':
-                this.tracker.renderDuration = this.song.timeDivision();
+                this.tracker.renderDuration = this.song.timeDivision;
                 break;
             case 'song:play':
                 this.classList.add('playing');
                 this.containerElm.classList.add('playing');
-                clearInterval(this.updateSongPositionInterval);
+
                 let lastGroupPositionInTicks = 0;
-                let songIterator = e.detail.iterator; // TODO: this event needs an iterator
-                this.updateSongPositionInterval = setInterval(e => {
+                let songPromise = e.detail.promise;
+                let songPlayback = e.detail.playback;
+                let intervalCount = 0;
+                const updateSongPositionInterval = setInterval(e => {
                     this.updateSongPositionValue(this.song.songPlaybackPosition);
-                    if(songIterator && songIterator.groupPositionInTicks > lastGroupPositionInTicks) {
-                        lastGroupPositionInTicks = songIterator.groupPositionInTicks;
-                        console.log('lastGroupPositionInTicks', lastGroupPositionInTicks);
-                        this.tracker.setPlaybackPositionInTicks(lastGroupPositionInTicks);
+                    if(intervalCount % 10 === 0) {
+                        // if (songPlayback.groupPositionInTicks > lastGroupPositionInTicks) {
+                            const estimateSongPositionInTicks = this.song.estimateSongPositionInTicks();
+                            console.log('estimateSongPositionInTicks', estimateSongPositionInTicks);
+                            this.tracker.setPlaybackPositionInTicks(estimateSongPositionInTicks);
+                        // }
                     }
+                    intervalCount++;
                 }, 10);
+                await songPromise;
+                clearInterval(updateSongPositionInterval);
+                this.classList.remove('playing');
+                this.containerElm.classList.remove('playing');
                 break;
 
             case 'song:pause':
-                clearInterval(this.updateSongPositionInterval);
                 this.classList.add('paused');
                 this.containerElm.classList.add('paused');
                 break;

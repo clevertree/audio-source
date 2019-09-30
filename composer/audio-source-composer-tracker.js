@@ -192,7 +192,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
             }
         } else {
-            console.info("Row segment was found. Navigation canceled");
+//             console.info("Row segment was found. Navigation canceled");
             return rowElm;
         }
     }
@@ -277,11 +277,11 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         const filterByInstrumentID = this.fieldTrackerFilterInstrument.value ? parseInt(this.fieldTrackerFilterInstrument.value) : null;
 
-        let rowInstructionList = null;
+        let rowInstructionList = null, lastRowGroupStartPositionInTicks=instructionIterator.groupPositionInTicks;
         while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
             const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
-            let rowElm = renderRow(instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
+            let rowElm = renderRow(lastRowGroupStartPositionInTicks, rowInstructionList);
             renderQuantizationRows(lastRowPositionInTicks, instructionIterator.groupPositionInTicks);
             // console.log("Row", rowInstructionList);
             // if(this.currentRowSegmentID === currentRowSegmentID) {
@@ -295,7 +295,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             // }
             lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             lastRowIndex = instructionIterator.groupIndex;
-
+            lastRowGroupStartPositionInTicks=instructionIterator.groupPositionInTicks;
         }
 
         const currentRowSegmentEndPositionInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
@@ -1097,39 +1097,53 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     setPlaybackPositionInTicks(groupPositionInTicks) {
+        // TODO: get current 'playing' and check position
         let rowElm = this.navigate(groupPositionInTicks);
         this.querySelectorAll('asct-row.cursor')
-            .forEach(rowElm => rowElm.classList.remove('cursor'));
-        rowElm.classList.add('cursor');
+            .forEach(rowElm => rowElm.classList.remove('playing'));
+        rowElm.classList.add('playing');
     }
 
 
-    onSongEvent(e) {
+    async onSongEvent(e) {
 //         console.log("onSongEvent", e.type);
         const detail = e.detail || {stats:{}};
         // let rowElm, instructionElm;
         switch(e.type) {
 
             case 'note:play':
-                let rowElm = this.navigate(detail.groupPositionInTicks);
-                let instructionElm = this.findInstructionElement(detail.groupIndex);
+                if(detail.instruction) {
+                    // this.navigate(detail.instruction.positionInTicks); // Don't navigate here
+                    let instructionElm = this.findInstructionElement(detail.instruction.index);
 
-                rowElm.scrollTo(); // Scroll To position, not index
-
-                if(detail.duration) {
-                    setTimeout(() => {
+                    if(detail.promise) {
                         instructionElm.classList.add('playing');
-
-                        rowElm.classList.add('playing');
-
-                    }, (detail.startTime - detail.currentTime) * 1000);
-
-                    setTimeout(() => {
+                        await detail.promise;
                         instructionElm.classList.remove('playing');
-
-                        rowElm.classList.remove('playing');
-                    }, (detail.startTime - detail.currentTime + detail.duration) * 1000);
+                    }
                 }
+
+                // if(detail.groupPositionInTicks) {
+                //     let rowElm = this.navigate(detail.groupPositionInTicks);
+                //     let instructionElm = this.findInstructionElement(detail.groupIndex);
+                //
+                //     rowElm.scrollTo(); // Scroll To position, not index
+                //
+                //     if(detail.duration) {
+                //         setTimeout(() => {
+                //             instructionElm.classList.add('playing');
+                //
+                //             rowElm.classList.add('playing');
+                //
+                //         }, (detail.startTime - detail.currentTime) * 1000);
+                //
+                //         setTimeout(() => {
+                //             instructionElm.classList.remove('playing');
+                //
+                //             rowElm.classList.remove('playing');
+                //         }, (detail.startTime - detail.currentTime + detail.duration) * 1000);
+                //     }
+                // }
 
                 break;
             // //
@@ -1137,6 +1151,9 @@ class AudioSourceComposerTracker extends HTMLElement {
                 if(detail.groupPositionInTicks) {
                     this.setPlaybackPositionInTicks(detail.groupPositionInTicks);
                 }
+                break;
+
+            case 'group:play':
                 break;
 
             // case 'note:start':
