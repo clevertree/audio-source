@@ -4,247 +4,6 @@ class AudioSourceComposerActions {
         this.editor = editor;
     }
 
-    async onAction(e, actionString, actionParam = null) {
-        switch (actionString) {
-
-            /** Song Commands **/
-
-            case 'song:new':
-                this.loadNewSongData();
-                // document.location = 'song/new';
-                break;
-
-            // case 'song:load-server-uuid':
-            //     // let uuid = menuTarget.getAttribute('data-uuid') || null;
-            //     if(!uuid) uuid = prompt("Enter UUID: ");
-            //     this.loadSongFromServer(uuid);
-            //     this.editor.render();
-            //     break;
-
-            case 'song:load-memory-uuid':
-                let uuid = e.target.getAttribute('data-uuid') || null;
-                this.loadSongFromMemory(uuid);
-                // this.editor.render();
-                break;
-
-            case 'song:save-to-memory':
-                this.saveSongToMemory();
-                break;
-
-            case 'song:save-to-file':
-                this.saveSongToFile();
-                break;
-
-            case 'song:load-from-file':
-            case 'song:load-from-midi-file':
-                this.closeAllMenus();
-                const fileInput = (e.target.form ? e.target.form.querySelector('input[type=file]') : null) || e.target;
-                const file = fileInput.files[0];
-                if(!file)
-                    throw new Error("No file selected");
-                await this.loadSongFromFileInput(file);
-                break;
-
-
-
-            case 'song:edit':
-                this.editor.song.replaceDataPath('beatsPerMinute', form['beats-per-minute'].value);
-                this.editor.song.replaceDataPath('beatsPerMeasure', form['beats-per-measure'].value);
-                break;
-
-            case 'song:play':
-            case 'song:resume':
-                this.songPlay();
-                break;
-
-            case 'song:pause':
-                this.songPause();
-                break;
-
-            case 'song:stop':
-            case 'song:reset':
-                this.songStop();
-                break;
-
-            // case 'song:resume':
-            //     this.editor.song.play(this.editor.song.seekPosition);
-            //     break;
-
-            case 'song:playback':
-                console.log(e.target);
-                break;
-
-            case 'song:volume':
-                this.editor.song.setVolume(this.fieldSongVolume.value);
-                break;
-
-            case 'song:add-instrument':
-                const addInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
-                if(!addInstrumentURL) {
-                    console.error("Empty URL");
-                    break;
-                }
-                e.target.form.elements['instrumentURL'].value = '';
-                if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
-                    this.editor.song.addInstrument(addInstrumentURL);
-                    this.editor.setStatus("New instrument Added to song: " + addInstrumentURL);
-
-                } else {
-                    this.editor.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
-                }
-                break;
-
-            case 'song:replace-instrument':
-                const changeInstrumentURL = actionOptions || e.target.form.elements['instrumentURL'].value;
-                if(!changeInstrumentURL) {
-                    this.editor.setStatus(`<span style='color: red'>Empty URL</span>`);
-                    break;
-                }
-                const changeInstrument = actionOptions || {
-                    url: changeInstrumentURL,
-                    id: parseInt(e.target.form.elements['instrumentID'].value)
-                };
-                changeInstrument.title = changeInstrument.url.split('/').pop();
-                // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
-                this.status.currentInstrumentID = this.editor.song.replaceInstrument(changeInstrument.id, changeInstrument.url);
-                this.editor.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
-                if(this.tracker)
-                    this.tracker.fieldInstructionInstrument.value = changeInstrument.id;
-                // } else {
-                //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
-                // }
-
-                break;
-
-            case 'song:remove-instrument':
-                const removeInstrumentID = actionOptions || parseInt(e.target.form.elements['instrumentID'].value);
-                if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
-                    this.editor.song.removeInstrument(removeInstrumentID);
-                    this.editor.setStatus(`Instrument (${changeInstrument.id}) removed`);
-
-                } else {
-                    this.editor.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
-                }
-                break;
-
-            // case 'song:set-title':
-            //     this.setSongName(e.fieldSongName.value)
-            //     break;
-            //
-            // case 'song:set-version':
-            //     const newSongVersion = e.target.form.elements['title'].value;
-            //     this.editor.song.version = newSongVersion;
-            //     this.editor.setStatus(`Song version updated: ${newSongVersion}`);
-            //     break;
-
-
-
-
-            case 'toggle:control-song':
-                this.classList.toggle('hide-control-song');
-                break;
-
-            case 'toggle:control-tracker':
-                this.classList.toggle('hide-control-tracker');
-                break;
-
-
-            case 'view:fullscreen':
-                const isFullScreen = this.classList.contains('fullscreen');
-                this.classList.toggle('fullscreen', !isFullScreen);
-                this.containerElm.classList.toggle('fullscreen', !isFullScreen);
-                if(this.tracker)
-                    this.tracker.render();
-                break;
-
-            case 'view:forms-song':
-                this.containerElm.classList.toggle('hide-forms-song');
-                break;
-
-            case 'view:forms-tracker':
-                this.containerElm.classList.toggle('hide-forms-tracker');
-                break;
-
-            case 'view:forms-instruments':
-                this.containerElm.classList.toggle('hide-forms-instruments');
-                break;
-
-
-
-
-
-
-
-
-
-
-
-            /** Tracker **/
-
-            case 'instruction:insert':
-                this.insertInstructionCommand(e, null, actionString === 'instruction:custom-command');
-                break;
-
-            case 'instruction:custom-command':
-            case 'instruction:command':
-                this.setInstructionCommand(e, null, actionString === 'instruction:custom-command');
-                break;
-
-            case 'instruction:instrument':
-                this.setInstructionInstrument(e);
-                break;
-
-            case 'instruction:duration':
-            case 'instruction:custom-duration':
-                this.setInstructionDuration(e, null, actionString === 'instruction:custom-duration');
-                break;
-
-            case 'instruction:velocity':
-            case 'instruction:custom-velocity':
-                this.setInstructionVelocity(e, null, actionString === 'instruction:custom-velocity');
-                break;
-
-            case 'instruction:delete':
-                this.deleteInstructionCommand(e);
-                break;
-
-            case 'group:change':
-                this.setTrackerChangeGroup(e);
-                break;
-
-
-            case 'song:new-group':
-                this.addNewSongGroup(e);
-                break;
-
-            case 'tracker:row-segment':
-                this.setTrackerRowSegment(e);
-                break;
-
-            case 'tracker:octave':
-                this.setTrackerOctave(e);
-                break;
-
-            case 'tracker:quantization':
-                this.setTrackerRowLength(e);
-                break;
-
-            case 'tracker:filter-instrument':
-                this.setTrackerFilterInstrument(e);
-                break;
-
-            case 'tracker:select':
-                this.setTrackerSelection(e);
-                break;
-
-            default:
-                throw new Error("Unhandled action: " + actionString);
-        }
-        return true;
-        // } catch (e) {
-        //     this.onError(e);
-        // }
-    }
 
     /** Song Commands **/
 
@@ -540,6 +299,8 @@ class AudioSourceComposerActions {
 
     }
 
+    /** Groups **/
+
     addNewSongGroup(e) {
         const tracker = this.editor.tracker;
         const renderer = this.editor.song;
@@ -550,6 +311,63 @@ class AudioSourceComposerActions {
         else this.editor.setStatus("<span style='color: red'>Create instruction group canceled</span>");
         this.editor.render();
     }
+
+    /** Instruments **/
+
+
+    songAddInstrument(e, addInstrumentURL=null) {
+        addInstrumentURL = addInstrumentURL || e.target.form.elements['instrumentURL'].value;
+        if(!addInstrumentURL) {
+            this.editor.setStatus(`<span style='color: red'>Empty URL</span>`);
+            return;
+        }
+
+        e.target.form.elements['instrumentURL'].value = '';
+        if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
+            this.editor.song.addInstrument(addInstrumentURL);
+            this.editor.setStatus("New instrument Added to song: " + addInstrumentURL);
+
+        } else {
+            this.editor.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
+        }
+    }
+
+    songReplaceInstrument(e, instrumentID, changeInstrumentURL=null) {
+        if(!Number.isInteger(instrumentID))
+            throw new Error("Invalid Instrument ID");
+
+        changeInstrumentURL = changeInstrumentURL || e.target.form.elements['instrumentURL'].value;
+        if(!changeInstrumentURL) {
+            this.editor.setStatus(`<span style='color: red'>Empty URL</span>`);
+            return;
+        }
+        const changeInstrument = {
+            url: changeInstrumentURL,
+            id: instrumentID
+        };
+        changeInstrument.title = changeInstrument.url.split('/').pop();
+        // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
+        this.status.currentInstrumentID = this.editor.song.replaceInstrument(changeInstrument.id, changeInstrument.url);
+        this.editor.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
+        if(this.tracker)
+            this.tracker.fieldInstructionInstrument.value = changeInstrument.id;
+        // } else {
+        //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
+        // }
+    }
+
+    songRemoveInstrument(e, removeInstrumentID=null) {
+        removeInstrumentID = removeInstrumentID || parseInt(e.target.form.elements['instrumentID'].value);
+        if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
+            this.editor.song.removeInstrument(removeInstrumentID);
+            this.editor.setStatus(`Instrument (${changeInstrument.id}) removed`);
+
+        } else {
+            this.editor.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
+        }
+    }
+
+    /** Tracker **/
 
     setTrackerChangeGroup(e, groupName=null) {
         const tracker = this.editor.tracker;
@@ -604,6 +422,24 @@ class AudioSourceComposerActions {
                 .map(index => parseInt(index));
         tracker.selectIndicies(e, selectedIndicies);
         tracker.fieldSelectedIndicies.focus();
+    }
+
+    /** Toggle Panels **/
+
+    togglePanelInstrument(e) {
+
+    }
+
+    togglePanelTracker(e) {
+
+    }
+
+    togglePanelSong(e) {
+
+    }
+
+    toggleFullscreen(e) {
+
     }
 }
 

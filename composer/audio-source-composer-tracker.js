@@ -59,8 +59,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.editor = this.getRootNode().host;
         if(!this.getAttribute('rowLength'))
             this.setAttribute('rowLength', this.editor.song.timeDivision);
-        setTimeout(e => this.render(), 20);
-        setTimeout(e => this.render(), 1000);
+        this.render();
+        // setTimeout(e => this.render(), 20);
+        // setTimeout(e => this.render(), 1000);
     }
 
     disconnectedCallback() {
@@ -232,21 +233,36 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         const filterByInstrumentID = this.fieldTrackerFilterInstrument.value ? parseInt(this.fieldTrackerFilterInstrument.value) : null;
 
-        let rowInstructionList = null;
+        let rowInstructionList = null, lastSegmentRowPositionInTicks=0, lastRowStartIndex=0;
         // while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
         while(rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID)) {
-            const rowStartIndex = instructionIterator.groupIndex - rowInstructionList.length;
 
-            const currentRowSegmentID = Math.floor(instructionIterator.lastRowPositionInTicks / segmentLengthInTicks);
+            const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
             if(this.currentRowSegmentID === currentRowSegmentID) {
+                lastRowStartIndex = instructionIterator.groupIndex - rowInstructionList.length;
                 const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
                 this.rowContainer.appendChild(rowElm);
-                rowElm.render(rowStartIndex, instructionIterator.lastRowPositionInTicks, rowInstructionList);
+                rowElm.render(lastRowStartIndex, instructionIterator.groupPositionInTicks, rowInstructionList);
+                lastSegmentRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
         }
 
+        // Quantize last row:
+        lastSegmentRowPositionInTicks = lastSegmentRowPositionInTicks === 0 ? 0 : (Math.ceil((lastSegmentRowPositionInTicks+1) / quantizationInTicks) * quantizationInTicks);
+
+        const currentSegmentEndPositionInTicks = this.currentRowSegmentID * segmentLengthInTicks + segmentLengthInTicks;
+        if(lastSegmentRowPositionInTicks < currentSegmentEndPositionInTicks - segmentLengthInTicks)
+            lastSegmentRowPositionInTicks = currentSegmentEndPositionInTicks - segmentLengthInTicks;
+        // const currentRowSegmentID = Math.floor(lastSegmentRowPositionInTicks / segmentLengthInTicks);
+        while(lastSegmentRowPositionInTicks <= currentSegmentEndPositionInTicks) {
+            const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+            this.rowContainer.appendChild(rowElm);
+            rowElm.render(lastRowStartIndex, lastSegmentRowPositionInTicks);
+            lastSegmentRowPositionInTicks += quantizationInTicks;
+        }
+
         // const currentRowSegmentEndPositionInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
-        // renderQuantizationRows(lastRowPositionInTicks, currentRowSegmentEndPositionInTicks);
+        // renderQuantizationRows(groupPositionInTicks, currentRowSegmentEndPositionInTicks);
 
 
         // Segments
@@ -276,7 +292,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         const editor = this.editor;
         const handleAction = (actionName) => (e) => {
             this.focusOnContainer();
-            this.onAction(e, actionName);
+            // this.onAction(e, actionName);
             // e.currentTarget.closeAllMenus();
         };
 

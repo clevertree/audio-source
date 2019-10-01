@@ -1338,6 +1338,8 @@ class AudioSourceInstructionIterator {
         // this.lastRowPositionInTicks = 0;
         // this.lastRowPlaybackTime = 0;
         this.groupPositionInTicks = groupPositionInTicks;
+        this.lastInstructionGroupPositionInTicks = groupPositionInTicks;
+        this.nextQuantizationBreakInTicks = 0;
         this.groupPlaybackTime = 0;
         this.groupIndex = -1;
 
@@ -1382,7 +1384,8 @@ class AudioSourceInstructionIterator {
         const nextInstruction = new SongInstruction(data);
         if (nextInstruction.deltaDuration) {
             // this.lastRowPositionInTicks = this.groupPositionInTicks;
-            this.groupPositionInTicks += nextInstruction.deltaDuration;
+            this.groupPositionInTicks = this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
+            this.lastInstructionGroupPositionInTicks = this.groupPositionInTicks;
 
             const elapsedTime = (nextInstruction.deltaDuration / this.song.timeDivision) / (this.currentBPM / 60);
             // this.lastRowPlaybackTime = this.groupPlaybackTime;
@@ -1406,10 +1409,8 @@ class AudioSourceInstructionIterator {
         while(true) {
             let nextInstruction = this.getInstruction(this.groupIndex+1, false);
 
-            // currentInstruction = this.nextInstruction();
             if (!nextInstruction) {
                 // If we found end of the group, we're done
-                // currentRowInstructionList = currentRowInstructionList.length === 0 ? null : currentRowInstructionList;
                 break;
             }
             if (nextInstruction.deltaDuration) {
@@ -1429,23 +1430,40 @@ class AudioSourceInstructionIterator {
     }
 
     nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID = null) {
-        // const rowLengthInTicks = this.groupPositionInTicks - this.lastRowPositionInTicks;
+        let nextInstruction = this.getInstruction(this.groupIndex+1, false);
+
+        if (!nextInstruction) {
+            // If we found end of the group, we're done
+            return null;
+        }
+
+        // Calculate the next instruction position
+        let nextInstructionPositionInTicks = this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
+
         // Calculate next break position after the last rendered position
-        let nextBreakPositionInTicks = Math.ceil(this.lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
+        // let nextBreakPositionInTicks = Math.ceil(this.groupPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
+
+
+        if(this.groupIndex !== -1) {
+            while (this.nextQuantizationBreakInTicks <= this.groupPositionInTicks)
+                this.nextQuantizationBreakInTicks += quantizationInTicks;
+        }
 
 
         // If the next rendered position is greater than the next break position
         if(
-            this.groupPositionInTicks > nextBreakPositionInTicks
-            && this.lastRowPositionInTicks < nextBreakPositionInTicks
+            nextInstructionPositionInTicks > this.nextQuantizationBreakInTicks
         ) {
-//             console.info("Q row:", this.groupPositionInTicks, this.lastRowPositionInTicks, nextBreakPositionInTicks);
+            // console.info("Q row:", nextInstructionPositionInTicks, '>', nextBreakPositionInTicks);
 
             // Set the last rendered position as the next break position
-            const deltaDuration = nextBreakPositionInTicks - this.lastRowPositionInTicks;
-            this.lastRowPositionInTicks += deltaDuration;
-            const elapsedTime = (deltaDuration / this.song.timeDivision) / (this.currentBPM / 60);
-            this.lastRowPlaybackTime += elapsedTime;
+            const elapsedTimeInTicks = this.nextQuantizationBreakInTicks - this.groupPositionInTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
+            this.groupPositionInTicks = this.nextQuantizationBreakInTicks;
+            const elapsedTimeInSeconds = (elapsedTimeInTicks / this.song.timeDivision) / (this.currentBPM / 60);
+            this.groupPlaybackTime += elapsedTimeInSeconds;
+
+            this.nextQuantizationBreakInTicks += quantizationInTicks;
+
             // Return an empty row
             return [];
         }

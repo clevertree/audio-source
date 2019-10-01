@@ -39,27 +39,27 @@ class AudioSourceCommonTest {
     }
 
     async testSongClass() {
-        const s = new AudioSourceSong();
-        const songData = s.data;
+        const song = new AudioSourceSong();
+        const songData = song.data;
 
 
-        const testGroup = s.rootGroup;
-        const root = s.data.instructions.root;
+        const testGroup = song.rootGroup;
+        const root = song.data.instructions.root;
 
         // Insert Instructions
-        s.insertInstructionAtIndex(testGroup, root.length, 'ins0');
-        s.insertInstructionAtIndex(testGroup, root.length, [20, 'ins20' ]);
+        song.insertInstructionAtIndex(testGroup, root.length, 'ins0');
+        song.insertInstructionAtIndex(testGroup, root.length, [20, 'ins20' ]);
 
 
 
-        s.insertInstructionAtPosition(testGroup, 20, 'pos20');
-        s.insertInstructionAtPosition(testGroup, 10, 'pos10');
-        s.insertInstructionAtPosition(testGroup, 0, 'pos0');
+        song.insertInstructionAtPosition(testGroup, 20, 'pos20');
+        song.insertInstructionAtPosition(testGroup, 10, 'pos10');
+        song.insertInstructionAtPosition(testGroup, 0, 'pos0');
 
-        s.insertInstructionAtPosition(testGroup, '1B', 'pos1B');
-        s.insertInstructionAtPosition(testGroup, '0.5B', 'pos1/2B');
-        s.insertInstructionAtPosition(testGroup, '8B', 'pos8B');
-        s.insertInstructionAtPosition(testGroup, '16B', 'pos16B');
+        song.insertInstructionAtPosition(testGroup, '1B', 'pos1B');
+        song.insertInstructionAtPosition(testGroup, '0.5B', 'pos1/2B');
+        song.insertInstructionAtPosition(testGroup, '8B', 'pos8B');
+        song.insertInstructionAtPosition(testGroup, '16B', 'pos16B');
 
 
         console.log("Root: ", root);
@@ -67,12 +67,12 @@ class AudioSourceCommonTest {
         // Test Get Instructions
 
         [1,2].forEach(i => {
-            const testInstructions = s.getInstructions(testGroup, i);
-            console.assert(s.getInstructionIndex(testGroup, testInstructions[0]) === i, 'getInstructionIndex');
+            const testInstructions = song.getInstructions(testGroup, i);
+            console.assert(song.getInstructionIndex(testGroup, testInstructions[0]) === i, 'getInstructionIndex');
         });
 
         // Test Iterator
-        let iterator = s.getIterator(testGroup);
+        let iterator = song.getIterator(testGroup);
         let instruction, instructionList, positionInTicks=0;
         while(instruction = iterator.nextInstruction()) {
             positionInTicks += instruction.deltaDuration;
@@ -80,7 +80,7 @@ class AudioSourceCommonTest {
         }
 
         // Test Row Iterator
-        iterator = s.getIterator(testGroup);
+        iterator = song.getIterator(testGroup);
         positionInTicks = 0;
         while(instructionList = iterator.nextInstructionRow()) {
             // positionInTicks = iterator.groupPositionInTicks;
@@ -94,35 +94,43 @@ class AudioSourceCommonTest {
             } else {
                 console.assert(iterator.hasReachedEnd, "Iterator failed to reach the end");
             }
+        }
 
-
+        // Test Quantized Row Iterator
+        iterator = song.getIterator(testGroup);
+        while(instructionList = iterator.nextInstructionQuantizedRow(song.timeDivision)) {
+            // console.log(iterator.groupPositionInTicks, instructionList);
+            for(let i=0; i<instructionList.length; i++) {
+                const instruction = instructionList[i];
+                console.assert(instruction.positionInTicks === iterator.groupPositionInTicks, `instruction[${i}].positionInTicks ${instruction.positionInTicks} !== ${iterator.groupPositionInTicks}\n`, instruction);
+            }
         }
 
         // Groups
-        const newRootGroup = s.generateInstructionGroupName('root');
-        s.addInstructionGroup(newRootGroup, ['A', 'B', 'C', 10, 'D']);
-        s.removeInstructionGroup(newRootGroup);
+        const newRootGroup = song.generateInstructionGroupName('root');
+        song.addInstructionGroup(newRootGroup, ['A', 'B', 'C', 10, 'D']);
+        song.removeInstructionGroup(newRootGroup);
 
-        console.info("Test song: ", Math.round(s.getSongLength() * 10000) / 10000 + 's', songData);
+        console.info("Test song: ", Math.round(song.getSongLength() * 10000) / 10000 + 's', songData);
 
         // TODO: set position
 
-        s.setPlaybackPosition(0.01);
-        s.setPlaybackPosition(0.1);
-        s.setPlaybackPosition(1);
-        s.setPlaybackPositionInTicks(10);
-        s.setPlaybackPositionInTicks(100);
-        s.setPlaybackPositionInTicks(1000);
+        song.setPlaybackPosition(0.01);
+        song.setPlaybackPosition(0.1);
+        song.setPlaybackPosition(1);
+        song.setPlaybackPositionInTicks(10);
+        song.setPlaybackPositionInTicks(100);
+        song.setPlaybackPositionInTicks(1000);
 
         // Get Song Info
-        console.assert(s.songPlaybackPosition > 0, "songPlaybackPosition");
-        console.assert(s.getSongLength() > 0, "getSongLength()");
+        console.assert(song.songPlaybackPosition > 0, "songPlaybackPosition");
+        console.assert(song.getSongLength() > 0, "getSongLength()");
         // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
 
         // Delete Instructions
         while(root.length > 0)
-            s.deleteInstructionAtIndex(testGroup, 0);
+            song.deleteInstructionAtIndex(testGroup, 0);
 
 
         // console.assert(r.getSongPositionFromTicks() === 0, "getSongPositionInSeconds");

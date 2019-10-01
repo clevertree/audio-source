@@ -46,7 +46,8 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
 
-        this.attachEventHandler(['change', 'submit', 'focus'], e => this.onInput(e), this.shadowDOM, true);
+        this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
+        // 'change', 'submit',
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
@@ -199,15 +200,15 @@ class AudioSourceComposerElement extends HTMLElement {
         //     this.focus();
         // }
         switch(e.type) {
-            case 'submit':
-                e.preventDefault();
-                this.onSubmit(e);
-                break;
-            case 'change':
-            case 'blur':
-                if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-                    this.onSubmit(e);
-                break;
+            // case 'submit':
+            //     e.preventDefault();
+            //     this.onSubmit(e);
+            //     break;
+            // case 'change':
+            // case 'blur':
+            //     if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
+            //         this.onSubmit(e);
+            //     break;
 
             case 'focus':
                 for(let i=0; i<e.path.length; i++) {
@@ -316,33 +317,6 @@ class AudioSourceComposerElement extends HTMLElement {
         }
     }
 
-    onSubmit(e, form) {
-        if (!form)
-            form = e.target.form || e.target;
-        if (!form.matches('form'))
-            throw new Error("Invalid Form: " + form);
-        const actionName = form.getAttribute('data-action');
-
-        this.onAction(e, actionName);
-    }
-
-    async onAction(e, actionName, actionOptions=null) {
-
-        this.setStatus("Action: " + actionName);
-        // e.preventDefault();
-
-        if(this.tracker.onAction(e, actionName))
-            return true;
-
-        switch(actionName) {
-            default:
-                console.warn("Unhandled " + e.type + ": ", actionName);
-                break;
-        }
-
-
-    }
-
     onError(err) {
         console.error(err);
         this.setStatus(`<span style="red">${err}</span>`);
@@ -355,15 +329,6 @@ class AudioSourceComposerElement extends HTMLElement {
                 //     stack: err.stack
                 // }));
     }
-
-// <div class="form-section-divide"><span>Song</span></div>
-// <div class="form-section-container form-section-container-song"></div>
-//
-//         <div class="form-section-divide"><span>Track</span></div>
-// <div class="form-section-container form-section-container-tracker"></div>
-//
-//         <div class="form-section-divide"><span>Instruments</span></div>
-// <div class="form-section-container form-section-container-instruments"></div>
 
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
@@ -568,7 +533,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.menuFile.populate = (e) => {
             const menu = e.menuElement;
             const menuFileNewSong = menu.getOrCreateSubMenu('new', 'New song');
-            menuFileNewSong.action = (e) => this.onAction(e, 'song:new');
+            menuFileNewSong.action = (e) => this.actions.loadNewSongData(e);
 
 
 
@@ -604,9 +569,9 @@ class AudioSourceComposerElement extends HTMLElement {
             const menuFileSaveSong = menu.getOrCreateSubMenu('save', 'Save song ►');
             menuFileSaveSong.populate = (e) => {
                 const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('to Memory');
-                menuFileSaveSongToMemory.action = (e) => this.onAction(e, 'song:save-to-memory');
+                menuFileSaveSongToMemory.action = (e) => this.actions.saveSongToMemory(e);
                 const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('to File');
-                menuFileSaveSongToFile.action = (e) => this.onAction(e, 'song:save-to-file');
+                menuFileSaveSongToFile.action = (e) => this.actions.saveSongToFile(e);
             };
 
             const menuFileImportSong = menu.getOrCreateSubMenu('import', 'Import song ►');
@@ -632,19 +597,19 @@ class AudioSourceComposerElement extends HTMLElement {
 
             const menuViewToggleFullscreen = menu.getOrCreateSubMenu('fullscreen',
                 `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`);
-            menuViewToggleFullscreen.action = (e) => this.onAction(e, 'view:fullscreen');
+            menuViewToggleFullscreen.action = (e) => this.actions.toggleFullscreen(e);
 
             const menuViewToggleFormSong = menu.getOrCreateSubMenu('forms-song',
                 `${this.containerElm.classList.contains('hide-forms-song') ? 'Show' : 'Hide'} Song Forms `);
-            menuViewToggleFormSong.action = (e) => this.onAction(e, 'view:forms-song');
+            menuViewToggleFormSong.action = (e) => this.actions.togglePanelSong(e);
 
             const menuViewToggleFormTrack = menu.getOrCreateSubMenu('forms-tracker',
                 `${this.containerElm.classList.contains('hide-forms-tracker') ? 'Show' : 'Hide'} Track Forms`);
-            menuViewToggleFormTrack.action = (e) => this.onAction(e, 'view:forms-tracker');
+            menuViewToggleFormTrack.action = (e) => this.actions.togglePanelTracker(e);
 
             const menuViewToggleFormInstrument = menu.getOrCreateSubMenu('forms-instruments',
                 `${this.containerElm.classList.contains('hide-forms-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
-            menuViewToggleFormInstrument.action = (e) => this.onAction(e, 'view:forms-instruments');
+            menuViewToggleFormInstrument.action = (e) => this.actions.togglePanelInstrument(e);
         };
 
         this.menuInstrument.populate = (e) => {
@@ -658,7 +623,7 @@ class AudioSourceComposerElement extends HTMLElement {
                     // menuInstrument.setAttribute('data-instrument', instrumentURL);
                     menuInstrument.action = (e) => {
                         this.fieldSongAddInstrument.value = instrumentURL;
-                        this.onAction(e, 'song:add-instrument', instrumentURL);
+                        this.actions.songAddInstrument(e, instrumentURL);
                     }
                 });
             };
@@ -680,7 +645,8 @@ class AudioSourceComposerElement extends HTMLElement {
                             // menuInstrument.setAttribute('data-instrument', instrumentURL);
                             menuInstrument.action = (e) => {
                                 this.fieldSongAddInstrument.value = instrumentURL;
-                                this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
+                                this.actions.songReplaceInstrument(e, instrumentID, instrumentURL);
+                                // this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
                             }
                         });
                     };
@@ -688,7 +654,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
                     const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
                     menuInstrumentRemove.action = (e) => {
-                        this.onAction(e, 'song:remove-instrument', instrumentID);
+                        this.actions.songRemoveInstrument(e, instrumentID);
                     };
                     menuInstrumentRemove.disabled = !isActive;
 
