@@ -210,23 +210,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         const segmentLengthInTicks = this.segmentLength * timeDivision;
         const segmentID = Math.floor(positionInTicks/segmentLengthInTicks);
         return segmentID;
-        // let currentRowSegmentID = 0;
-        // let currentRowSegmentPositionInTicks = 0;
-        //
-        // const timeDivision = this.editor.song.timeDivision;
-        // let foundRowSegmentID = -1;
-        // this.editor.song.eachInstructionRow(this.groupName, (startIndex, startPositionInTicks, endPositionInTicks, instructionList, stats) => {
-        //     while(currentRowSegmentPositionInTicks + segmentLengthInTicks < stats.groupPositionInTicks) {
-        //         if(currentRowSegmentPositionInTicks >= positionInTicks) {
-        //             foundRowSegmentID = currentRowSegmentID;
-        //             return false;
-        //         }
-        //         currentRowSegmentID++;
-        //         currentRowSegmentPositionInTicks += segmentLengthInTicks;
-        //     }
-        // });
-        //
-        // return foundRowSegmentID;
     }
 
     // renderRowSegments() {
@@ -246,60 +229,24 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         const segmentLengthInTicks = this.segmentLength * timeDivision;
 
-        let lastRowIndex=0, lastRowPositionInTicks=0;
-
-        const renderRow = (songPositionInTicks, rowInstructionList=[]) => {
-            const currentRowSegmentID = Math.floor(songPositionInTicks / segmentLengthInTicks);
-            if(this.currentRowSegmentID === currentRowSegmentID) {
-                const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-                this.rowContainer.appendChild(rowElm);
-                rowElm.render(lastRowIndex, songPositionInTicks, rowInstructionList);
-                return rowElm;
-            }
-            return null;
-        };
-
-        const renderQuantizationRows = (startRowPositionInTicks, endRowPositionInTicks) => {
-
-            let nextBreakPositionInTicks = Math.ceil(startRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
-            while (nextBreakPositionInTicks < endRowPositionInTicks) {
-                renderRow(nextBreakPositionInTicks);
-                // const currentRowSegmentID = Math.floor(nextBreakPositionInTicks / segmentLengthInTicks);
-                // if(this.currentRowSegmentID === currentRowSegmentID) {
-                //     const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-                //     this.rowContainer.appendChild(rowElm);
-                //     rowElm.render(lastRowIndex, nextBreakPositionInTicks);
-                // }
-                nextBreakPositionInTicks += quantizationInTicks;
-            }
-        };
-
 
         const filterByInstrumentID = this.fieldTrackerFilterInstrument.value ? parseInt(this.fieldTrackerFilterInstrument.value) : null;
 
-        let rowInstructionList = null, lastRowGroupStartPositionInTicks=instructionIterator.groupPositionInTicks;
-        while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
-            const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
+        let rowInstructionList = null;
+        // while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
+        while(rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID)) {
+            const rowStartIndex = instructionIterator.groupIndex - rowInstructionList.length;
 
-            let rowElm = renderRow(lastRowGroupStartPositionInTicks, rowInstructionList);
-            renderQuantizationRows(lastRowPositionInTicks, instructionIterator.groupPositionInTicks);
-            // console.log("Row", rowInstructionList);
-            // if(this.currentRowSegmentID === currentRowSegmentID) {
-            //
-            //     let rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-            //     this.rowContainer.appendChild(rowElm);
-            //     if(filterByInstrumentID !== null)
-            //         rowInstructionList = rowInstructionList.filter(inst => inst.instrument === filterByInstrumentID);
-            //
-            //     rowElm.render(lastRowIndex, instructionIterator.lastRowGroupStartPositionInTicks, rowInstructionList);
-            // }
-            lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
-            lastRowIndex = instructionIterator.groupIndex;
-            lastRowGroupStartPositionInTicks=instructionIterator.groupPositionInTicks;
+            const currentRowSegmentID = Math.floor(instructionIterator.lastRowPositionInTicks / segmentLengthInTicks);
+            if(this.currentRowSegmentID === currentRowSegmentID) {
+                const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+                this.rowContainer.appendChild(rowElm);
+                rowElm.render(rowStartIndex, instructionIterator.lastRowPositionInTicks, rowInstructionList);
+            }
         }
 
-        const currentRowSegmentEndPositionInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
-        renderQuantizationRows(lastRowPositionInTicks, currentRowSegmentEndPositionInTicks);
+        // const currentRowSegmentEndPositionInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
+        // renderQuantizationRows(lastRowPositionInTicks, currentRowSegmentEndPositionInTicks);
 
 
         // Segments
@@ -307,7 +254,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         let segmentContainer = this.querySelector('.row-segment-container');
         segmentContainer.innerHTML = '';
 
-        let lastRowSegmentID = Math.floor(lastRowPositionInTicks / segmentLengthInTicks);
+        let lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
         if(lastRowSegmentID < this.currentRowSegmentID)
             lastRowSegmentID = this.currentRowSegmentID;
         for(let segmentID = 0; segmentID <= lastRowSegmentID+1; segmentID++) {
@@ -536,7 +483,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.editor.closeAllMenus();
 
                 let keyEvent = e.key;
-                if (!e.ctrlKey && this.editor.keyboard.getKeyboardCommand(e.key))
+                if (!e.ctrlKey && this.editor.keyboard.getKeyboardCommand(e.key, this.fieldTrackerOctave.value))
                     keyEvent = 'PlayFrequency';
                 if (keyEvent === 'Enter' && e.altKey)
                     keyEvent = 'ContextMenu';
@@ -636,7 +583,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         break;
 
                     case 'PlayFrequency':
-                        let newCommand = this.editor.keyboard.getKeyboardCommand(e.key);
+                        let newCommand = this.editor.keyboard.getKeyboardCommand(e.key, this.fieldTrackerOctave.value);
                         if (newCommand === null)
                             break;
 
@@ -1154,6 +1101,12 @@ class AudioSourceComposerTracker extends HTMLElement {
                 }
                 break;
 
+            case 'group:seek':
+                console.log(e.type, e.detail);
+                this.setPlaybackPositionInTicks(e.detail.positionInTicks);
+
+                break;
+
             case 'group:play':
                 break;
 
@@ -1492,7 +1445,8 @@ class AudioSourceComposerTracker extends HTMLElement {
         for(let i=rowElms.length-1; i>=0; i--) {
             const rowElm = rowElms[i];
             if(rowElm.position < positionInTicks) {
-                console.log('findRowElement', rowElm, rowElm.position, '<', positionInTicks);
+                // TODO: inefficient?
+//                 console.log('findRowElement', rowElm, rowElm.position, '<', positionInTicks);
                 return rowElm;
             }
         }

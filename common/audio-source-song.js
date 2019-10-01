@@ -377,11 +377,6 @@ class AudioSourceSong {
         return this.playbackPosition;
     }
 
-    // TODO: inefficient
-    estimateSongPositionInTicks() {
-        const songPosition = this.songPlaybackPosition;
-        return this.getSongPositionInTicks(songPosition);
-    }
 
     setPlaybackPositionInTicks(songPositionInTicks) {
         if(!Number.isInteger(songPositionInTicks))
@@ -398,12 +393,12 @@ class AudioSourceSong {
             throw new Error("Invalid start position");
 
         this.playbackPosition = songPosition;
-        const groupPositionInTicks = this.getSongPositionInTicks(this.playbackPosition);
-        console.log("Seek position: ", this.playbackPosition, groupPositionInTicks);
+        const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
+        console.log("Seek position: ", this.playbackPosition, positionInTicks);
 
         const detail = {
             position: this.playbackPosition,
-            groupPositionInTicks
+            positionInTicks
         };
         this.dispatchEvent(new CustomEvent('song:seek', {detail}));
     }
@@ -1160,6 +1155,7 @@ class AudioSourceInstructionPlayback {
         this.subGroups = [];
         this.startTime = startTime;
         this.lastRowPlaybackTime = 0;
+        this.quantizationInTicks = song.timeDivision;
         // this.activeGroups =
     }
 
@@ -1225,7 +1221,7 @@ class AudioSourceInstructionPlayback {
         // const elapsedTime = audioContext.currentTime - this.startTime;
         const audioContext = this.song.getAudioContext();
         const notePosition = this.startTime + this.iterator.groupPlaybackTime;
-        const waitTime = (notePosition - audioContext.currentTime)  - this.seekLength;
+        const waitTime = (notePosition - audioContext.currentTime) - this.seekLength;
 
         // Wait ahead of notes if necessary (by seek time)
         if(waitTime > 0) {
@@ -1235,16 +1231,22 @@ class AudioSourceInstructionPlayback {
 
 
         const rowDuration = this.iterator.groupPlaybackTime - this.lastRowPlaybackTime;
-        this.lastRowPlaybackTime = this.iterator.groupPlaybackTime;
+        this.lastRowPlaybackTime = this.iterator.lastRowPlaybackTime;
 
-        const instructionList = this.iterator.nextInstructionRow();
+        // const instructionList = this.iterator.nextInstructionRow();
+        const instructionList = this.iterator.nextInstructionQuantizedRow(this.quantizationInTicks);
         if(this.iterator.hasReachedEnd) {
             // If there's no next instruction, end playback.
             this.stopPlayback(false);
             return 0;
         }
 
-        console.info('playNextInstructionRow', audioContext.currentTime, waitTime, instructionList);
+        const detail = {
+            position: this.iterator.lastRowPlaybackTime,
+            positionInTicks: this.iterator.lastRowPositionInTicks
+        };
+        this.song.dispatchEvent(new CustomEvent('group:seek', {detail}));
+        console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
 
         for(let i=0; i<instructionList.length; i++) {
             const instruction = instructionList[i];
@@ -1267,54 +1269,54 @@ class AudioSourceInstructionPlayback {
         return rowDuration;
     }
 
-    playNextInstruction() {
-        if(!this.isPlaybackActive)
-            throw new Error("Playback is not active");
-
-        // if(!this.iterator.currentInstruction())
-        //     throw new Error("Shouldn't happen: Iterator has reached the end");
-
-        // this.iterator.nextInstruction();
-        const instruction = this.iterator.currentInstruction();
-        if(!instruction) {
-            // If there's no next instruction, end playback.
-            this.stopPlayback(false);
-            return 0;
-        }
-
-
-        const audioContext = this.song.getAudioContext();
-        const elapsedTime = audioContext.currentTime - this.startTime;
-
-        // Find the wait time until next execute
-        let startTime = this.iterator.groupPlaybackTime - elapsedTime;
-
-        // Grab the instruction to be played
-        // const instruction = this.iterator.currentInstruction();
-        // if(!instruction)
-        //     throw new Error("Shouldn't happen: No current instruction");
-
-        if(instruction.isGroupCommand()) {
-            let subGroupName = instruction.getGroupFromCommand();
-            if (subGroupName === this.iterator.groupName) { // TODO group stack
-                console.error("Recursive group call. Skipping group '" + subGroupName + "'");
-                return;
-            }
-
-            const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, startTime);
-            this.subGroups.push(groupPlayback);
-            groupPlayback.playGroup();
-
-        } else {
-            this.song.playInstruction(instruction, startTime + this.iterator.groupPlaybackTime);
-        }
-
-
-        // Iterate to the next instruction (if any)
-        this.iterator.nextInstruction();
-
-        return startTime;
-    }
+    // playNextInstruction() {
+    //     if(!this.isPlaybackActive)
+    //         throw new Error("Playback is not active");
+    //
+    //     // if(!this.iterator.currentInstruction())
+    //     //     throw new Error("Shouldn't happen: Iterator has reached the end");
+    //
+    //     // this.iterator.nextInstruction();
+    //     const instruction = this.iterator.currentInstruction();
+    //     if(!instruction) {
+    //         // If there's no next instruction, end playback.
+    //         this.stopPlayback(false);
+    //         return 0;
+    //     }
+    //
+    //
+    //     const audioContext = this.song.getAudioContext();
+    //     const elapsedTime = audioContext.currentTime - this.startTime;
+    //
+    //     // Find the wait time until next execute
+    //     let startTime = this.iterator.groupPlaybackTime - elapsedTime;
+    //
+    //     // Grab the instruction to be played
+    //     // const instruction = this.iterator.currentInstruction();
+    //     // if(!instruction)
+    //     //     throw new Error("Shouldn't happen: No current instruction");
+    //
+    //     if(instruction.isGroupCommand()) {
+    //         let subGroupName = instruction.getGroupFromCommand();
+    //         if (subGroupName === this.iterator.groupName) { // TODO group stack
+    //             console.error("Recursive group call. Skipping group '" + subGroupName + "'");
+    //             return;
+    //         }
+    //
+    //         const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, startTime);
+    //         this.subGroups.push(groupPlayback);
+    //         groupPlayback.playGroup();
+    //
+    //     } else {
+    //         this.song.playInstruction(instruction, startTime + this.iterator.groupPlaybackTime);
+    //     }
+    //
+    //
+    //     // Iterate to the next instruction (if any)
+    //     this.iterator.nextInstruction();
+    //
+    //     return startTime;
+    // }
 
 
 }
@@ -1327,7 +1329,8 @@ class InstructionIterator {
         this.song = song;
         this.groupName = groupName;
         this.currentBPM = currentBPM || song.startingBeatsPerMinute;
-        // this.lastRowGroupStartPositionInTicks = groupPositionInTicks; // TODO: huh?
+        this.lastRowPositionInTicks = 0;
+        this.lastRowPlaybackTime = 0;
         this.groupPositionInTicks = groupPositionInTicks;
         this.groupPlaybackTime = 0;
         this.groupIndex = -1;
@@ -1338,7 +1341,8 @@ class InstructionIterator {
     }
 
     get hasReachedEnd() {
-        return this.groupIndex >= this.instructionList.length;
+        return this.groupIndex >= this.instructionList.length
+            && this.lastRowPositionInTicks === this.groupPositionInTicks;
     }
     get instructionList() {
         return this.song.data.instructions[this.groupName];
@@ -1357,26 +1361,45 @@ class InstructionIterator {
 
     nextInstruction() {
         this.groupIndex++;
-        if(!this.instructionList[this.groupIndex])
+        if(!this.instructionList[this.groupIndex]) {
+            this.lastRowPositionInTicks = this.groupPositionInTicks;
             return null;
+        }
 
         let instruction;
         instruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.currentIndex]);
         if (instruction.deltaDuration) {
+            this.lastRowPositionInTicks = this.groupPositionInTicks;
             this.groupPositionInTicks += instruction.deltaDuration;
+
             const elapsedTime = (instruction.deltaDuration / this.song.timeDivision) / (this.currentBPM / 60);
+            this.lastRowPlaybackTime = this.groupPlaybackTime;
             this.groupPlaybackTime += elapsedTime;
         }
 
         return instruction;
     }
 
-    nextInstructionQuantizedRow() {
-        // keep track of tick position
-    }
-
+    // const renderQuantizationRows = (startRowPositionInTicks, endRowPositionInTicks) => {
+    //
+    //     let nextBreakPositionInTicks = Math.ceil(startRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
+    //     while (nextBreakPositionInTicks < endRowPositionInTicks) {
+    //         renderRow(nextBreakPositionInTicks);
+    //         // const currentRowSegmentID = Math.floor(nextBreakPositionInTicks / segmentLengthInTicks);
+    //         // if(this.currentRowSegmentID === currentRowSegmentID) {
+    //         //     const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
+    //         //     this.rowContainer.appendChild(rowElm);
+    //         //     rowElm.render(lastRowIndex, nextBreakPositionInTicks);
+    //         // }
+    //         nextBreakPositionInTicks += quantizationInTicks;
+    //     }
+    // };
     // TODO: quantize
-    nextInstructionRow() {
+
+
+
+
+    nextInstructionRow(filterByInstrumentID = null) {
         // this.lastRowGroupStartPositionInTicks = this.groupPositionInTicks;
         // this.lastRowPositionInTicks = this.groupPositionInTicks;
         // this.lastRowIndex = this.groupIndex > 0 ? this.groupIndex : 0;
@@ -1389,26 +1412,55 @@ class InstructionIterator {
         } else {
             currentInstruction = this.currentInstruction();
         }
-        const currentRowInstructionList = [];
+        let currentRowInstructionList = [];
         if(currentInstruction)
             currentRowInstructionList.push(currentInstruction);
 
-        for(let r=0; r<1000; r++) {
+        while(true) {
             currentInstruction = this.nextInstruction();
             if (!currentInstruction) {
                 // If we found end of the group
-                return currentRowInstructionList.length === 0 ? null : currentRowInstructionList;
+                currentRowInstructionList = currentRowInstructionList.length === 0 ? null : currentRowInstructionList;
+                break;
             }
             if (currentInstruction.deltaDuration) {
                 // If we found end of the row
-                return currentRowInstructionList;
+                break;
             }
-            currentRowInstructionList.push(currentInstruction);
-
             // If not, add it to the list and check the next instruction
+            currentRowInstructionList.push(currentInstruction);
         }
 
-        throw new Error("Recursion limit");
+        if(filterByInstrumentID !== null)
+            currentRowInstructionList = currentRowInstructionList.filter(inst => inst.instrument === filterByInstrumentID);
+
+        return currentRowInstructionList;
+        // throw new Error("Recursion limit");
+    }
+
+    nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID = null) {
+        // const rowLengthInTicks = this.groupPositionInTicks - this.lastRowPositionInTicks;
+        // Calculate next break position after the last rendered position
+        let nextBreakPositionInTicks = Math.ceil(this.lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
+
+
+        // If the next rendered position is greater than the next break position
+        if(
+            this.groupPositionInTicks > nextBreakPositionInTicks
+            && this.lastRowPositionInTicks < nextBreakPositionInTicks
+        ) {
+//             console.info("Q row:", this.groupPositionInTicks, this.lastRowPositionInTicks, nextBreakPositionInTicks);
+
+            // Set the last rendered position as the next break position
+            this.lastRowPositionInTicks = nextBreakPositionInTicks;
+            // Return an empty row
+            return [];
+        }
+
+        return this.nextInstructionRow(filterByInstrumentID);
+        // if(rowLengthInTicks )
+        // keep track of tick position
+
     }
 
     *[Symbol.iterator] () {
@@ -1420,24 +1472,6 @@ class InstructionIterator {
     }
 }
 
-class SelectedInstructionIterator extends InstructionIterator {
-    constructor(song, groupName, selectedIndicies) {
-        if(typeof selectedIndicies === "number")
-            selectedIndicies = [selectedIndicies];
-        super(song, groupName);
-        this.selectedIndicies = selectedIndicies;
-    }
-
-    nextInstruction() {
-        let instruction;
-        while(instruction = super.nextInstruction()) {
-            if(this.selectedIndicies.indexOf(this.groupIndex) !== -1) {
-                return instruction;
-            }
-        }
-        return null;
-    }
-}
 
 class SongInstruction {
     constructor(instructionData, index=null, positionInTicks=null) {

@@ -11,7 +11,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.longPressTimeout = null;
 
-        this.keyboard = new AudioSourceComposerKeyboard(this);
+        this.keyboard = new AudioSourceComposerKeyboard();
 
         this.song = new AudioSourceSong({}, this);
         // this.player = null;
@@ -50,7 +50,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-            'note:play', 'group:play',
+            'group:play', 'group:seek',
+            'note:play',
         ], this.onSongEvent);
         this.attachEventHandler([
             'instrument:instance',
@@ -237,7 +238,8 @@ class AudioSourceComposerElement extends HTMLElement {
             this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:seek':
-                this.updateSongPositionValue(this.song.songPlaybackPosition);
+                this.updateSongPositionValue(e.detail.position);
+
                 break;
 
             case 'song:loaded':
@@ -250,16 +252,16 @@ class AudioSourceComposerElement extends HTMLElement {
                 let lastGroupPositionInTicks = 0;
                 let songPromise = e.detail.promise;
                 let songPlayback = e.detail.playback;
-                let intervalCount = 0;
+                // let intervalCount = 0;
                 const updateSongPositionInterval = setInterval(e => {
-                    this.updateSongPositionValue(this.song.songPlaybackPosition);
-                    if(intervalCount % 10 === 0) {
-                        // if (songPlayback.groupPositionInTicks > lastGroupPositionInTicks) {
-                        const estimateSongPositionInTicks = this.song.estimateSongPositionInTicks();
-                        this.tracker.setPlaybackPositionInTicks(estimateSongPositionInTicks);
-                        // }
-                    }
-                    intervalCount++;
+                    // this.updateSongPositionValue(this.song.songPlaybackPosition);
+                    // if(intervalCount % 10 === 0) {
+                    //     // if (songPlayback.groupPositionInTicks > lastGroupPositionInTicks) {
+                    //     const estimateSongPositionInTicks = this.song.estimateSongPositionInTicks();
+                    //     this.tracker.setPlaybackPositionInTicks(estimateSongPositionInTicks);
+                    //     // }
+                    // }
+                    // intervalCount++;
                 }, 10);
                 await songPromise;
                 clearInterval(updateSongPositionInterval);

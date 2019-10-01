@@ -2,8 +2,7 @@
 
 
 class AudioSourceComposerKeyboard {
-    constructor(editor) {
-        this.editor = editor;
+    constructor() {
     }
 
 
@@ -20,11 +19,11 @@ class AudioSourceComposerKeyboard {
         };
     }
 
-    getKeyboardCommand(key) {
+    getKeyboardCommand(key, octave=3) {
         const keyboardLayout = this.keyboardLayout;
         if(typeof keyboardLayout[key] === 'undefined')
             return null;
-        const octave = parseInt(this.editor.tracker.fieldRenderOctave.value) || 1;
+        // const octave = parseInt(this.editor.tracker.fieldRenderOctave.value) || 1;
         let command = keyboardLayout[key];
         command = command.replace('2', octave+1);
         command = command.replace('1', octave);
