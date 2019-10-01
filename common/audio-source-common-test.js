@@ -98,8 +98,13 @@ class AudioSourceCommonTest {
 
         // Test Quantized Row Iterator
         iterator = song.getIterator(testGroup);
+        positionInTicks = 0;
         while(instructionList = iterator.nextInstructionQuantizedRow(song.timeDivision)) {
-            // console.log(iterator.groupPositionInTicks, instructionList);
+            // console.assert(iterator.groupPositionInTicks === positionInTicks, `iterator.groupPositionInTicks ${iterator.groupPositionInTicks} !== ${positionInTicks}\n`, instruction);
+            if(positionInTicks > 0)
+            console.assert(positionInTicks < iterator.groupPositionInTicks, "Invalid position order");
+            positionInTicks = iterator.groupPositionInTicks;
+            // console.log(iterator.groupPositionInTicks, instructionList, iterator.groupIndex);
             for(let i=0; i<instructionList.length; i++) {
                 const instruction = instructionList[i];
                 console.assert(instruction.positionInTicks === iterator.groupPositionInTicks, `instruction[${i}].positionInTicks ${instruction.positionInTicks} !== ${iterator.groupPositionInTicks}\n`, instruction);

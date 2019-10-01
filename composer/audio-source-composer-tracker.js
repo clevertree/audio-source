@@ -1521,6 +1521,16 @@ class AudioSourceComposerTracker extends HTMLElement {
 }
 customElements.define('asc-tracker', AudioSourceComposerTracker);
 
+class AudioSourceComposerTrackerSegmentContainer extends HTMLElement {
+    constructor() {
+        super();
+    }
+
+    get tracker() {
+        return this.closest('asc-tracker');
+    }
+}
+customElements.define('asct-segment-container', AudioSourceComposerTrackerSegmentContainer);
 
 
 const VISIBLE_BUFFER = 100;

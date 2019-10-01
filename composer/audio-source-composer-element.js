@@ -382,6 +382,8 @@ class AudioSourceComposerElement extends HTMLElement {
             <br/>
             <asc-panel key="instruments"></asc-panel>
             <hr/>
+
+            <asct-segment-container></asct-segment-container>
             <asc-tracker tabindex="0" group="root"></asc-tracker>
         </div>
         <div class="asc-status-container">

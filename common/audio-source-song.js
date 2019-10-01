@@ -1157,7 +1157,7 @@ class AudioSourceInstructionPlayback {
         this.iterator = null;
         this.subGroups = [];
         this.startTime = startTime;
-        this.lastRowPlaybackTime = 0;
+        // this.lastRowPlaybackTime = 0;
         this.quantizationInTicks = song.timeDivision;
         // this.activeGroups =
     }
@@ -1220,30 +1220,25 @@ class AudioSourceInstructionPlayback {
         if(!this.isPlaybackActive)
             throw new Error("Playback is not active");
 
-
-        // const elapsedTime = audioContext.currentTime - this.startTime;
-        const audioContext = this.song.getAudioContext();
-        const notePosition = this.startTime + this.iterator.lastRowPlaybackTime;
-        const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
-//         console.log('playNextInstructionRow', this.startTime, notePosition, waitTime, audioContext.currentTime);
-
-        // Wait ahead of notes if necessary (by seek time)
-        if(waitTime > 0) {
-//             console.log("Waiting ... " + waitTime);
-            await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
-        }
-
-
-        // const rowDuration = this.iterator.groupPlaybackTime - this.lastRowPlaybackTime;
-        this.lastRowPlaybackTime = this.iterator.lastRowPlaybackTime;
-
-        // const instructionList = this.iterator.nextInstructionRow();
         const instructionList = this.iterator.nextInstructionQuantizedRow(this.quantizationInTicks);
         if(this.iterator.hasReachedEnd) {
             // If there's no next instruction, end playback.
             this.stopPlayback(false);
             return 0;
         }
+
+        const audioContext = this.song.getAudioContext();
+        const notePosition = this.startTime + this.iterator.groupPlaybackTime;
+        const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
+        console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
+
+        // Wait ahead of notes if necessary (by seek time)
+        if(waitTime > 0) {
+            console.log("Waiting ... " + waitTime);
+            await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
+        }
+
+
 
         for(let i=0; i<instructionList.length; i++) {
             const instruction = instructionList[i];
@@ -1264,8 +1259,8 @@ class AudioSourceInstructionPlayback {
         }
 
         const detail = {
-            position: this.iterator.lastRowPlaybackTime,
-            positionInTicks: this.iterator.lastRowPositionInTicks
+            position: this.iterator.groupPlaybackTime,
+            positionInTicks: this.iterator.groupPositionInTicks
         };
         this.song.dispatchEvent(new CustomEvent('group:seek', {detail}));
         // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
@@ -1273,56 +1268,6 @@ class AudioSourceInstructionPlayback {
 
         // return rowDuration;
     }
-
-    // playNextInstruction() {
-    //     if(!this.isPlaybackActive)
-    //         throw new Error("Playback is not active");
-    //
-    //     // if(!this.iterator.currentInstruction())
-    //     //     throw new Error("Shouldn't happen: Iterator has reached the end");
-    //
-    //     // this.iterator.nextInstruction();
-    //     const instruction = this.iterator.currentInstruction();
-    //     if(!instruction) {
-    //         // If there's no next instruction, end playback.
-    //         this.stopPlayback(false);
-    //         return 0;
-    //     }
-    //
-    //
-    //     const audioContext = this.song.getAudioContext();
-    //     const elapsedTime = audioContext.currentTime - this.startTime;
-    //
-    //     // Find the wait time until next execute
-    //     let startTime = this.iterator.groupPlaybackTime - elapsedTime;
-    //
-    //     // Grab the instruction to be played
-    //     // const instruction = this.iterator.currentInstruction();
-    //     // if(!instruction)
-    //     //     throw new Error("Shouldn't happen: No current instruction");
-    //
-    //     if(instruction.isGroupCommand()) {
-    //         let subGroupName = instruction.getGroupFromCommand();
-    //         if (subGroupName === this.iterator.groupName) { // TODO group stack
-    //             console.error("Recursive group call. Skipping group '" + subGroupName + "'");
-    //             return;
-    //         }
-    //
-    //         const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, startTime);
-    //         this.subGroups.push(groupPlayback);
-    //         groupPlayback.playGroup();
-    //
-    //     } else {
-    //         this.song.playInstruction(instruction, startTime + this.iterator.groupPlaybackTime);
-    //     }
-    //
-    //
-    //     // Iterate to the next instruction (if any)
-    //     this.iterator.nextInstruction();
-    //
-    //     return startTime;
-    // }
-
 
 }
 
