@@ -197,12 +197,13 @@ class AudioSourceSong {
     }
 
     getIterator(groupName, parentStats=null) {
-        return new InstructionIterator(
+        return new AudioSourceInstructionIterator(
             this,
             groupName,
             parentStats ? parentStats.currentBPM : this.startingBeatsPerMinute,
             parentStats ? parentStats.groupPositionInTicks : 0);
     }
+
 
     eachInstruction(groupName, callback, parentStats=null) {
         if(!this.data.instructions[groupName])
@@ -1152,7 +1153,7 @@ class AudioSourceInstructionPlayback {
 
         this.song = song;
         this.groupName = groupName;
-        this.seekLength = seekLength;
+        this.seekLength = seekLength; //TODO: implement?
         this.iterator = null;
         this.subGroups = [];
         this.startTime = startTime;
@@ -1325,7 +1326,8 @@ class AudioSourceInstructionPlayback {
 
 }
 
-class InstructionIterator {
+
+class AudioSourceInstructionIterator {
     constructor(song, groupName, currentBPM=null, groupPositionInTicks=0) {
         if(!song.data.instructions[groupName])
             throw new Error("Song group not found: " + groupName);
@@ -1333,8 +1335,8 @@ class InstructionIterator {
         this.song = song;
         this.groupName = groupName;
         this.currentBPM = currentBPM || song.startingBeatsPerMinute;
-        this.lastRowPositionInTicks = 0;
-        this.lastRowPlaybackTime = 0;
+        // this.lastRowPositionInTicks = 0;
+        // this.lastRowPlaybackTime = 0;
         this.groupPositionInTicks = groupPositionInTicks;
         this.groupPlaybackTime = 0;
         this.groupIndex = -1;
@@ -1345,94 +1347,78 @@ class InstructionIterator {
     }
 
     get hasReachedEnd() {
-        return this.groupIndex >= this.instructionList.length
-            && this.lastRowPositionInTicks === this.groupPositionInTicks;
+        return this.groupIndex >= this.instructionList.length;
     }
     get instructionList() {
         return this.song.data.instructions[this.groupName];
     }
 
+    getInstruction(index, throwException=true) {
+        const data = this.instructionList[index];
+        if(!data) {
+            if(throwException)
+                throw new Error("");
+            return null;
+        }
+        const instruction = new SongInstruction(data);
+        instruction.index = index;
+        instruction.positionInTicks = this.groupPositionInTicks;
+        return instruction;
+    }
+
     currentInstruction() {
         const index = this.groupIndex === -1 ? 0 : this.groupIndex;
-        const data = this.instructionList[index];
-        if(!data)
-            return null;
-        const currentInstruction = new SongInstruction(data);
-        currentInstruction.index = index;
-        currentInstruction.positionInTicks = this.groupPositionInTicks;
-        return currentInstruction;
+        return this.getInstruction(index, false);
     }
 
     nextInstruction() {
         this.groupIndex++;
         if(!this.instructionList[this.groupIndex]) {
-            this.lastRowPositionInTicks = this.groupPositionInTicks;
+            // this.lastRowPositionInTicks = this.groupPositionInTicks;
             return null;
         }
 
-        let instruction;
-        instruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.currentIndex]);
-        if (instruction.deltaDuration) {
-            this.lastRowPositionInTicks = this.groupPositionInTicks;
-            this.groupPositionInTicks += instruction.deltaDuration;
+        const data = this.instructionList[this.groupIndex];
+        const nextInstruction = new SongInstruction(data);
+        if (nextInstruction.deltaDuration) {
+            // this.lastRowPositionInTicks = this.groupPositionInTicks;
+            this.groupPositionInTicks += nextInstruction.deltaDuration;
 
-            const elapsedTime = (instruction.deltaDuration / this.song.timeDivision) / (this.currentBPM / 60);
-            this.lastRowPlaybackTime = this.groupPlaybackTime;
+            const elapsedTime = (nextInstruction.deltaDuration / this.song.timeDivision) / (this.currentBPM / 60);
+            // this.lastRowPlaybackTime = this.groupPlaybackTime;
             this.groupPlaybackTime += elapsedTime;
         }
 
-        return instruction;
+        return this.getInstruction(this.groupIndex);
     }
-
-    // const renderQuantizationRows = (startRowPositionInTicks, endRowPositionInTicks) => {
-    //
-    //     let nextBreakPositionInTicks = Math.ceil(startRowPositionInTicks / quantizationInTicks) * quantizationInTicks + quantizationInTicks;
-    //     while (nextBreakPositionInTicks < endRowPositionInTicks) {
-    //         renderRow(nextBreakPositionInTicks);
-    //         // const currentRowSegmentID = Math.floor(nextBreakPositionInTicks / segmentLengthInTicks);
-    //         // if(this.currentRowSegmentID === currentRowSegmentID) {
-    //         //     const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
-    //         //     this.rowContainer.appendChild(rowElm);
-    //         //     rowElm.render(lastRowIndex, nextBreakPositionInTicks);
-    //         // }
-    //         nextBreakPositionInTicks += quantizationInTicks;
-    //     }
-    // };
-    // TODO: quantize
-
-
 
 
     nextInstructionRow(filterByInstrumentID = null) {
-        // this.lastRowGroupStartPositionInTicks = this.groupPositionInTicks;
-        // this.lastRowPositionInTicks = this.groupPositionInTicks;
-        // this.lastRowIndex = this.groupIndex > 0 ? this.groupIndex : 0;
 
-        let currentInstruction;
-        if(this.groupIndex === -1) {
-            currentInstruction = this.nextInstruction();
-            if(currentInstruction && currentInstruction.deltaDuration)
-                return [];
-        } else {
-            currentInstruction = this.currentInstruction();
-        }
+        let currentInstruction = this.nextInstruction();
+        if(!currentInstruction)
+            return null;
+
         let currentRowInstructionList = [];
         if(currentInstruction)
             currentRowInstructionList.push(currentInstruction);
 
         while(true) {
-            currentInstruction = this.nextInstruction();
-            if (!currentInstruction) {
-                // If we found end of the group
-                currentRowInstructionList = currentRowInstructionList.length === 0 ? null : currentRowInstructionList;
+            let nextInstruction = this.getInstruction(this.groupIndex+1, false);
+
+            // currentInstruction = this.nextInstruction();
+            if (!nextInstruction) {
+                // If we found end of the group, we're done
+                // currentRowInstructionList = currentRowInstructionList.length === 0 ? null : currentRowInstructionList;
                 break;
             }
-            if (currentInstruction.deltaDuration) {
-                // If we found end of the row
+            if (nextInstruction.deltaDuration) {
+                // If the next instruction has a delta, then we found the end of the current row
                 break;
             }
             // If not, add it to the list and check the next instruction
-            currentRowInstructionList.push(currentInstruction);
+            nextInstruction = this.nextInstruction();
+            currentRowInstructionList.push(nextInstruction);
         }
 
         if(filterByInstrumentID !== null)
@@ -1478,6 +1464,7 @@ class InstructionIterator {
         }
     }
 }
+
 
 
 class SongInstruction {
@@ -1566,22 +1553,28 @@ class SongInstruction {
 
 // NodeJS Support
 if(typeof module !== "undefined") {
-    // const path = require('path');
-    // const DIR_ROOT = path.dirname(__dirname);
 
-    // global.AudioSources = require(DIR_ROOT + '/common/audio-sources.js').AudioSources;
-    // global.AudioSourceValues = require(DIR_ROOT + '/common/audio-source-values.js').AudioSourceValues;
+    module.exports = {
+        AudioSourceSong,
+        AudioSourceInstructionIterator,
+        // AudioSourceInstructionRowIterator,
+        AudioSourceInstructionPlayback
+    };
 
-    module.exports = {AudioSourceSong: AudioSourceSong};
-
-    class CustomEvent {
-        constructor(name, data) {
-
-        }
-    }
-    global.CustomEvent = CustomEvent;
 }
 
+if(typeof global !== 'undefined') {
+
+    if(typeof global.CustomEvent === "undefined") {
+        class CustomEvent {
+            constructor(name, data) {
+
+            }
+        }
+
+        global.CustomEvent = CustomEvent;
+    }
+}
 
 
 
