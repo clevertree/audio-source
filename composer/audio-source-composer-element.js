@@ -188,7 +188,12 @@ class AudioSourceComposerElement extends HTMLElement {
 //         console.log(e.target, e.type);
 
         // try {
-        this.song.getAudioContext();
+            switch(e.type) {
+                case 'focus':
+                    break;
+                default:
+                    this.song.getAudioContext();
+            }
         // if(this !== document.activeElement && !this.contains(document.activeElement)) {
         //     console.log("Focus", document.activeElement);
         //     this.focus();

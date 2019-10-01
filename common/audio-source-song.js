@@ -47,6 +47,8 @@ class AudioSourceSong {
             return this.audioContext;
 
         this.audioContext = new (window.AudioContext||window.webkitAudioContext)();
+        const n = this.audioContext.createGain(); // Bug fix
+        // console.info("bug fix", n);
         // this.initAllInstruments(this.audioContext);
         return this.audioContext;
     }
@@ -1220,17 +1222,18 @@ class AudioSourceInstructionPlayback {
 
         // const elapsedTime = audioContext.currentTime - this.startTime;
         const audioContext = this.song.getAudioContext();
-        const notePosition = this.startTime + this.iterator.groupPlaybackTime;
-        const waitTime = (notePosition - audioContext.currentTime) - this.seekLength;
+        const notePosition = this.startTime + this.iterator.lastRowPlaybackTime;
+        const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
+//         console.log('playNextInstructionRow', this.startTime, notePosition, waitTime, audioContext.currentTime);
 
         // Wait ahead of notes if necessary (by seek time)
         if(waitTime > 0) {
-            console.log("Waiting ... " + waitTime);
+//             console.log("Waiting ... " + waitTime);
             await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
         }
 
 
-        const rowDuration = this.iterator.groupPlaybackTime - this.lastRowPlaybackTime;
+        // const rowDuration = this.iterator.groupPlaybackTime - this.lastRowPlaybackTime;
         this.lastRowPlaybackTime = this.iterator.lastRowPlaybackTime;
 
         // const instructionList = this.iterator.nextInstructionRow();
@@ -1240,13 +1243,6 @@ class AudioSourceInstructionPlayback {
             this.stopPlayback(false);
             return 0;
         }
-
-        const detail = {
-            position: this.iterator.lastRowPlaybackTime,
-            positionInTicks: this.iterator.lastRowPositionInTicks
-        };
-        this.song.dispatchEvent(new CustomEvent('group:seek', {detail}));
-        console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
 
         for(let i=0; i<instructionList.length; i++) {
             const instruction = instructionList[i];
@@ -1266,7 +1262,15 @@ class AudioSourceInstructionPlayback {
             }
         }
 
-        return rowDuration;
+        const detail = {
+            position: this.iterator.lastRowPlaybackTime,
+            positionInTicks: this.iterator.lastRowPositionInTicks
+        };
+        this.song.dispatchEvent(new CustomEvent('group:seek', {detail}));
+        // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
+
+
+        // return rowDuration;
     }
 
     // playNextInstruction() {
@@ -1452,7 +1456,10 @@ class InstructionIterator {
 //             console.info("Q row:", this.groupPositionInTicks, this.lastRowPositionInTicks, nextBreakPositionInTicks);
 
             // Set the last rendered position as the next break position
-            this.lastRowPositionInTicks = nextBreakPositionInTicks;
+            const deltaDuration = nextBreakPositionInTicks - this.lastRowPositionInTicks;
+            this.lastRowPositionInTicks += deltaDuration;
+            const elapsedTime = (deltaDuration / this.song.timeDivision) / (this.currentBPM / 60);
+            this.lastRowPlaybackTime += elapsedTime;
             // Return an empty row
             return [];
         }
