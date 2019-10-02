@@ -20,6 +20,8 @@ class AudioSourceComposerKeyboard {
     }
 
     getKeyboardCommand(key, octave=3) {
+        if(!Number.isInteger(octave))
+            throw new Error("Octave value must be an integer");
         const keyboardLayout = this.keyboardLayout;
         if(typeof keyboardLayout[key] === 'undefined')
             return null;

@@ -239,7 +239,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
             if(this.currentRowSegmentID === currentRowSegmentID) {
-                lastRowStartIndex = instructionIterator.groupIndex - rowInstructionList.length;
+                lastRowStartIndex = rowInstructionList.length > 0 ? rowInstructionList[0].index : instructionIterator.groupIndex;
                 const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
                 this.rowContainer.appendChild(rowElm);
                 rowElm.render(lastRowStartIndex, instructionIterator.groupPositionInTicks, rowInstructionList);
@@ -873,28 +873,31 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get fieldTrackerRowLength() {
         return this.formTrackerRowLength.getInput('row-length', false)
-            || this.formTrackerRowLength.addSelect('row-length', e => this.editor.actions.setTrackerRowLength(e),
-                (addOption) => {
+            || this.formTrackerRowLength.addSelect('row-length', e => this.editor.actions.setTrackerRowLength(e), (addOption) => {
                     addOption('', 'Default');
                     this.editor.values.getValues('durations', addOption)
-                }, 'Select Octave');
+                },
+                'Select Row Length',
+                '');
     }
 
     get fieldTrackerFilterInstrument() {
         return this.formTrackerInstrument.getInput('filter-instrument', false)
-            || this.formTrackerInstrument.addSelect('filter-instrument', e => this.editor.actions.setTrackerFilterInstrument(e),
-                (addOption) => {
+            || this.formTrackerInstrument.addSelect('filter-instrument', e => this.editor.actions.setTrackerFilterInstrument(e), (addOption) => {
                     addOption('', 'Default');
                     this.editor.values.getValues('song-instruments', addOption)
-                }, 'Select Octave');
+                },
+                'Filter By Instrument',
+                '');
     }
     get fieldTrackerOctave() {
         return this.formTrackerOctave.getInput('octave', false)
-            || this.formTrackerOctave.addSelect('octave', e => this.editor.actions.setTrackerOctave(e),
-                (addOption) => {
-                    addOption('', 'No Octave Selected');
+            || this.formTrackerOctave.addSelect('octave', e => this.editor.actions.setTrackerOctave(e), (addOption) => {
+                    // addOption('', 'No Octave Selected');
                     this.editor.values.getValues('note-frequency-octaves', addOption)
-                }, 'Select Octave');
+                },
+                'Select Octave',
+                3);
     }
     get fieldTrackerSelection() {
         return this.formTrackerSelection.getInput('selection', false)
@@ -921,19 +924,19 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get fieldInstructionCommand() {
         return this.formInstructionCommand.getInput('command', false)
-            || this.formInstructionCommand.addSelect('command',
-                (e, commandString) => this.editor.actions.setInstructionCommand(e, commandString),
-                (addOption, setOptgroup) => {
-                    // const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
+            || this.formInstructionCommand.addSelect('command', (e, commandString) => this.editor.actions.setInstructionCommand(e, commandString), (addOption, setOptgroup) => {
+// const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
                     addOption('', 'No Command Selected');
                     setOptgroup('Frequencies');
                     this.editor.values.getValues('note-frequencies-all', addOption);
                     setOptgroup('Custom Frequencies');
-                    // TODO: filter by selected instrument
+    // TODO: filter by selected instrument
                     this.editor.values.getValues('command-instrument-frequencies', addOption);
                     setOptgroup('Groups');
                     this.editor.values.getValues('command-group-execute', addOption);
-                }, 'Instruction Instrument');
+                },
+                'Instruction Instrument',
+                '');
     }
 
 
@@ -954,12 +957,13 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
     get fieldInstructionInstrument() {
         return this.formInstructionInstrument.getInput('instrument', false)
-            || this.formInstructionInstrument.addSelect('instrument', e => this.editor.actions.setInstructionInstrument(e),
-                (addOption, setOptgroup) => {
+            || this.formInstructionInstrument.addSelect('instrument', e => this.editor.actions.setInstructionInstrument(e), (addOption, setOptgroup) => {
                     addOption('', 'No Instrument Selected');
                     setOptgroup('Song Instruments');
                     this.editor.values.getValues('song-instruments', addOption);
-                }, 'Instruction Instrument');
+                },
+                'Instruction Instrument',
+                '');
     }
 
     get fieldInstructionVelocity() {
@@ -970,12 +974,12 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get fieldInstructionDuration() {
         return this.formInstructionDuration.getInput('duration', false)
-            || this.formInstructionDuration.addSelect('duration',
-                    e => this.editor.actions.setInstructionDuration(e),
-                    (addOption, setOptgroup) => {
-                        addOption('', 'No Duration');
-                        this.editor.values.getValues('durations', addOption);
-                    }, 'Instruction Duration');
+            || this.formInstructionDuration.addSelect('duration', e => this.editor.actions.setInstructionDuration(e), (addOption, setOptgroup) => {
+                    addOption('', 'No Duration');
+                    this.editor.values.getValues('durations', addOption);
+                }, 
+                'Instruction Duration', 
+                '');
     }
 
 

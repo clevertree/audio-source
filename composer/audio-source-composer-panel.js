@@ -94,8 +94,8 @@ class AudioSourceComposerPanelForm extends HTMLElement {
         return buttonElm;
     }
 
-    addSelect(key, callback, optionsCallback, title=null) {
-        const selectElm = new AudioSourceComposerPanelFormSelect(key, callback, optionsCallback, title);
+    addSelect(key, callback, optionsCallback, title = null, defaultValue = '') {
+        const selectElm = new AudioSourceComposerPanelFormSelect(key, callback, optionsCallback, title, defaultValue);
         this.containerElm.appendChild(selectElm);
         return selectElm;
     }
@@ -197,7 +197,7 @@ customElements.define('ascpf-button', AudioSourceComposerPanelFormButton);
 
 
 class AudioSourceComposerPanelFormSelect extends AudioSourceComposerPanelInputAbstract {
-    constructor(key, callback=null, optionsCallback=null, title=null) {
+    constructor(key, callback=null, optionsCallback=null, title=null, defaultValue='') {
         super(key, callback);
         this.optionsCallback = optionsCallback || function() { throw new Error("No options callback set") };
 
@@ -211,7 +211,7 @@ class AudioSourceComposerPanelFormSelect extends AudioSourceComposerPanelInputAb
         //     selectElm.innerHTML = optionsCallback;
         this.appendChild(selectElm);
 
-        this.value = '';
+        this.value = defaultValue;
         // this.addOrSetValue('', "No Default value");
 
         this.addEventListener('focus', e => this.renderOptions(e));
