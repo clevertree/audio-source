@@ -453,7 +453,8 @@ asc-tracker .tracker-header-pause {
 
 /** Tracker Row Segments **/
 
-asc-tracker .row-segment-container {
+asct-segment-container {
+    display: block;
     overflow-y: auto;
     text-align: center;
     padding-top: 5px;
@@ -465,7 +466,7 @@ asctr-segment {
     display: inline-block;
 }
 
-asctr-segment > form > button {
+asct-segment-container > ascp-form[key=segment] ascpf-button > button {
     width: 3em;
     height: 2em;
     margin: 0px 1px 0px 1px;
@@ -476,7 +477,7 @@ asctr-segment > form > button {
     cursor: pointer;
 }
 
-asctr-segment.selected > form > button {
+asct-segment-container > ascp-form[key=segment] ascpf-button.selected > button {
     background-color: #BBB;
     font-weight: bold;
     border-bottom: 0px;

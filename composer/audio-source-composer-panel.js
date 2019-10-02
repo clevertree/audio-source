@@ -64,8 +64,8 @@ class AudioSourceComposerPanelForm extends HTMLElement {
             <div class="header"></div>
             <div class="container"></div>
         `;
-        if(!captionText)
-            captionText = this.getAttribute('key').replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase());
+        if(!captionText && this.key)
+            captionText = this.key.replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase());
         this.caption = captionText
     }
 
@@ -77,6 +77,7 @@ class AudioSourceComposerPanelForm extends HTMLElement {
     set caption(value) { this.headerElm.innerText = value; }
 
     get panel() { this.closest('asc-panel'); }
+    get key() { this.getAttribute('key'); }
 
 
     getInput(inputKey, throwException=true) {
@@ -172,7 +173,7 @@ class AudioSourceComposerPanelFormButton extends AudioSourceComposerPanelInputAb
         buttonElm.classList.add('themed');
         if(title)
             buttonElm.setAttribute('title', title);
-        if(innerHTML)
+        if(innerHTML !== null)
             buttonElm.innerHTML = innerHTML;
         this.appendChild(buttonElm);
 
@@ -401,8 +402,10 @@ customElements.define('ascpf-file', AudioSourceComposerPanelFormFileInput);
 class AudioSourceComposerPanelInstrumentContainer extends HTMLElement {
     constructor(instrumentID) {
         super();
-        if(instrumentID)       instrumentID.setAttribute('id', instrumentID+'');
-        this.setAttribute('tabindex', '0');
+        if(!Number.isInteger(instrumentID))
+            throw new Error("Invalid instrumentID");
+        this.setAttribute('id', instrumentID+'');
+        // this.setAttribute('tabindex', '0');
 
     }
 
@@ -410,7 +413,7 @@ class AudioSourceComposerPanelInstrumentContainer extends HTMLElement {
         this.render();
     }
 
-    get panel() { this.closest('asc-panel'); }
+    get panel() { return this.closest('asc-panel'); }
 
     render() {
         const editor = this.panel.editor;
@@ -462,3 +465,61 @@ class AudioSourceComposerPanelInstrumentContainer extends HTMLElement {
 // instrumentContainer.setAttribute('tabindex', '0');
 
 customElements.define('ascp-instrument', AudioSourceComposerPanelInstrumentContainer);
+
+
+class EmptyInstrumentElement extends HTMLElement {
+
+    constructor(instrumentID, statusText) {
+        super();
+        this.statusText = statusText;
+        this.instrumentID = instrumentID;
+    }
+
+    get instrumentID()      { return this.getAttribute('data-id'); }
+    set instrumentID(value) { return this.setAttribute('data-id', value); }
+
+
+    connectedCallback() {
+        // this.song = this.closest('music-song'); // Don't rely on this !!!
+        // const onInput = e => this.onInput(e);
+        this.addEventListener('submit', e => this.editor.onInput(e));
+        this.render();
+    }
+
+    get editor() {
+        const editor = this.closest('div.asc-container').parentNode.host;
+        if(!editor)
+            throw new Error("Editor not found");
+        return editor;
+    }
+
+    render() {
+        const instrumentID = this.instrumentID || 'N/A';
+        const statusText = (instrumentID < 10 ? "0" : "") + (instrumentID + ":") + this.statusText;
+        this.innerHTML = `
+            <div class="form-section control-song">
+                <form class="form-song-add-instrument submit-on-change" data-action="song:replace-instrument">
+                    <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+                    ${statusText}
+                    <br/>
+                    <select name="instrumentURL" class="themed">
+                        <option value="">Select Instrument</option>
+                        ${this.editor.values.renderEditorFormOptions('instruments-available')}
+                    </select>
+                </form>
+            </div>
+
+        `;
+    }
+}
+
+// <span style="float: right;">
+//     <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
+//     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
+//     <button class="remove-instrument">
+//     <i class="ui-icon ui-remove"></i>
+//     </button>
+//     </form>
+//     </span>
+
+customElements.define('asc-instrument-empty', EmptyInstrumentElement);

@@ -381,10 +381,10 @@ class AudioSourceComposerElement extends HTMLElement {
             <asc-panel key="tracker"></asc-panel>
             <br/>
             <asc-panel key="instruments"></asc-panel>
-            <hr/>
+            <br/>
 
             <asct-segment-container></asct-segment-container>
-            <asc-tracker tabindex="0" group="root"></asc-tracker>
+            <asc-tracker group="root"></asc-tracker>
         </div>
         <div class="asc-status-container">
             <span class="status-text"></span>
@@ -513,22 +513,20 @@ class AudioSourceComposerElement extends HTMLElement {
  */
 
     renderInstruments() {
-        const formSection = this.panelInstruments;
-        const renderer = this.song;
+        const instrumentPanel = this.panelInstruments;
 
 
-        const instrumentList = renderer.getInstrumentList();
+        const instrumentList = this.song.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
-
-            formSection.addInstrumentContainer(instrumentID);
+            // TODO Update selected
+            const instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
+            instrumentForm.addInstrumentContainer(instrumentID);
 
         }
 
-        // TODO Update selected
-        // if(instrumentID === 0)
-        //     instrumentContainer.classList.add('selected');
 
-        formSection.appendChild(new EmptyInstrumentElement(instrumentList.length, '[Empty]'))
+        const instrumentForm = instrumentPanel.getOrCreateForm(instrumentList.length);
+        instrumentForm.addInstrumentContainer(instrumentList.length);
     }
 
     renderMenu() {
@@ -815,60 +813,3 @@ class AudioSourceComposerElement extends HTMLElement {
 }
 customElements.define('audio-source-composer', AudioSourceComposerElement);
 
-
-class EmptyInstrumentElement extends HTMLElement {
-
-    constructor(instrumentID, statusText) {
-        super();
-        this.statusText = statusText;
-        this.instrumentID = instrumentID;
-    }
-
-    get instrumentID()      { return this.getAttribute('data-id'); }
-    set instrumentID(value) { return this.setAttribute('data-id', value); }
-
-
-    connectedCallback() {
-        // this.song = this.closest('music-song'); // Don't rely on this !!!
-        // const onInput = e => this.onInput(e);
-        this.addEventListener('submit', e => this.editor.onInput(e));
-        this.render();
-    }
-
-    get editor() {
-        const editor = this.closest('div.asc-container').parentNode.host;
-        if(!editor)
-            throw new Error("Editor not found");
-        return editor;
-    }
-
-    render() {
-        const instrumentID = this.instrumentID || 'N/A';
-        const statusText = (instrumentID < 10 ? "0" : "") + (instrumentID + ":") + this.statusText;
-        this.innerHTML = `
-            <div class="form-section control-song">
-                <form class="form-song-add-instrument submit-on-change" data-action="song:replace-instrument">
-                    <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                    ${statusText}
-                    <br/>
-                    <select name="instrumentURL" class="themed">
-                        <option value="">Select Instrument</option>
-                        ${this.editor.values.renderEditorFormOptions('instruments-available')}
-                    </select>
-                </form>
-            </div>
-
-        `;
-    }
-}
-
-// <span style="float: right;">
-//     <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
-//     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-//     <button class="remove-instrument">
-//     <i class="ui-icon ui-remove"></i>
-//     </button>
-//     </form>
-//     </span>
-
-customElements.define('asc-instrument-empty', EmptyInstrumentElement);

@@ -224,14 +224,17 @@ class AudioSourceComposerActions {
         tracker.playSelectedInstructions();
     }
 
-    setInstructionInstrument(e) {
+    // TODO: assuming the use of tracker.groupName?
+    setInstructionInstrument(e, instrumentID=null) {
         const tracker = this.editor.tracker;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
-        let instrumentID = tracker.fieldInstructionInstrument.value === '' ? null : parseInt(tracker.fieldInstructionInstrument.value);
+        instrumentID = instrumentID !== null ? instrumentID : parseInt(tracker.fieldInstructionInstrument.value);
+        if (!Number.isInteger(instrumentID))
+            throw new Error("Invalid Instruction ID");
         for (let i = 0; i < selectedIndicies.length; i++) {
-            renderer.replaceInstructionInstrument(this.groupName, selectedIndicies[i], instrumentID);
+            renderer.replaceInstructionInstrument(tracker.groupName, selectedIndicies[i], instrumentID);
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         this.editor.status.currentInstrumentID = instrumentID;
