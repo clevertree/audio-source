@@ -538,7 +538,7 @@ class AudioSourceSong {
         return this.data.instruments.slice();
     }
 
-    async loadInstrumentClass(instrumentClassURL) {
+    async loadInstrumentClassOld(instrumentClassURL) {
         instrumentClassURL = new URL(instrumentClassURL) + '';
         // const instrumentClassFile = new URL(instrumentClassURL).pathname.split('/').pop();
 
@@ -590,6 +590,36 @@ class AudioSourceSong {
         }
 
         return await instrumentClassPromise;
+    }
+
+    async loadInstrumentClass(instrumentClassURL) {
+        instrumentClassURL = new URL(instrumentClassURL) + '';
+        // const instrumentClassFile = new URL(instrumentClassURL).pathname.split('/').pop();
+
+        let instrumentClass = this.instruments.class[instrumentClassURL];
+        if(instrumentClass)
+            return instrumentClass;
+
+        const newScriptElm = document.createElement('script');
+        newScriptElm.src = instrumentClassURL;
+
+        const scriptLoadPromise = new Promise((resolve, reject) => {
+            newScriptElm.onload = resolve;
+            newScriptElm.onerror = (e) => {
+                newScriptElm.parentNode.removeChild(newScriptElm);
+                reject("Error loading: " + instrumentClassURL);
+            };
+        });
+
+
+        document.head.appendChild(newScriptElm);
+
+        await scriptLoadPromise;
+
+        if (!this.instruments.class[instrumentClassURL])
+            throw new Error("Failed to load instrument class: " + instrumentClassURL);
+
+        return this.instruments.class[instrumentClassURL];
     }
 
 

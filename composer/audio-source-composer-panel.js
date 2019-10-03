@@ -76,8 +76,8 @@ class AudioSourceComposerPanelForm extends HTMLElement {
     get caption() { return this.headerElm.innerText; }
     set caption(value) { this.headerElm.innerText = value; }
 
-    get panel() { this.closest('asc-panel'); }
-    get key() { this.getAttribute('key'); }
+    get panel() { return this.closest('asc-panel'); }
+    get key() { return this.getAttribute('key'); }
 
 
     getInput(inputKey, throwException=true) {
@@ -422,6 +422,7 @@ class AudioSourceComposerPanelInstrumentContainer extends HTMLElement {
 
         // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
 
+        // TODO: get instrument renderer
         let instrument = renderer.getInstrument(instrumentID, false);
         const instrumentPreset = renderer.getInstrumentConfig(instrumentID, false);
 
