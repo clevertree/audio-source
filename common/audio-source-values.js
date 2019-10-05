@@ -73,20 +73,19 @@ class AudioSourceValues {
                 break;
 
             case 'instruments-available':
-                // TODO: refactor
-                // const sources = new AudioSources(this.renderer);
-                // const instrumentLibrary = sources.getInstrumentLibrary();
-                // if(instrumentLibrary) {
-                //     if(instrumentLibrary.instruments) {
-                //         instrumentLibrary.instruments.forEach((pathConfig) => {
-                //             let instrumentURL = pathConfig.url;
-                //             if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
-                //             if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
-                //             if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
-                //             result = callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
-                //         });
-                //     }
-                // }
+                const Libraries = new AudioSourceLibraries;
+                const instrumentLibrary = Libraries.getInstrumentLibrary(false);
+                if(instrumentLibrary) {
+                    if(instrumentLibrary.instruments) {
+                        instrumentLibrary.instruments.forEach((pathConfig) => {
+                            let instrumentURL = pathConfig.url;
+                            if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
+                            if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
+                            if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
+                            result = callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
+                        });
+                    }
+                }
                 break;
 
             case 'command-instrument-frequencies':

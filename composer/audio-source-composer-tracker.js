@@ -840,11 +840,11 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     /** Tracker Forms **/
 
-    get formTrackerOctave() { return this.editor.panelTracker.getOrCreateForm('octave'); }
+    get formTrackerOctave() { return this.editor.panelTracker.getOrCreateForm('octave', 'Octave'); }
 
-    get formTrackerRowLength() { return this.editor.panelTracker.getOrCreateForm('row-length'); }
-    get formTrackerInstrument() { return this.editor.panelTracker.getOrCreateForm('instrument'); }
-    get formTrackerSelection() { return this.editor.panelTracker.getOrCreateForm('selection'); }
+    get formTrackerRowLength() { return this.editor.panelTracker.getOrCreateForm('row-length', 'Row Length'); }
+    get formTrackerInstrument() { return this.editor.panelTracker.getOrCreateForm('instrument', 'Instrument'); }
+    get formTrackerSelection() { return this.editor.panelTracker.getOrCreateForm('selection', 'Selection'); }
 
     /** Tracker Fields **/
 
@@ -881,10 +881,11 @@ class AudioSourceComposerTracker extends HTMLElement {
             || this.formTrackerSelection.addTextInput('selection',
                     e => this.editor.actions.setTrackerSelection(e),
                     'Selection',
+                    '',
                     'No selection'
                 );
     }
-    // get fieldInstructionCommand() { return this.panelInstruction.querySelector('ascp-form[key=command] ascpf-select[key=command]'); }
+    // get fieldInstructionCommand() { return this.panelInstruction.querySelector('asc-form[key=command] ascf-select[key=command]'); }
 
     /** Instruction Panel **/
 
@@ -892,10 +893,10 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     /** Instruction Forms **/
 
-    get formInstructionCommand() { return this.editor.panelInstruction.getOrCreateForm('command'); }
-    get formInstructionInstrument() { return this.editor.panelInstruction.getOrCreateForm('instrument'); }
-    get formInstructionVelocity() { return this.editor.panelInstruction.getOrCreateForm('velocity'); }
-    get formInstructionDuration() { return this.editor.panelInstruction.getOrCreateForm('duration'); }
+    get formInstructionCommand() { return this.editor.panelInstruction.getOrCreateForm('command', 'Command'); }
+    get formInstructionInstrument() { return this.editor.panelInstruction.getOrCreateForm('instrument', 'Instrument'); }
+    get formInstructionVelocity() { return this.editor.panelInstruction.getOrCreateForm('velocity', 'Velocity'); }
+    get formInstructionDuration() { return this.editor.panelInstruction.getOrCreateForm('duration', 'Duration'); }
 
     /** Instruction Fields **/
 
@@ -1471,7 +1472,7 @@ class AudioSourceComposerTrackerSegmentContainer extends HTMLElement {
 
     render(segmentLengthInTicks, rowSegmentCount, currentSegmentID=0) {
         this.innerHTML = '';
-        const segmentForm = new AudioSourceComposerPanelForm('segment', 'Row Segments');
+        const segmentForm = new AudioSourceComposerForm('segment', 'Row Segments');
         this.appendChild(segmentForm);
         for(let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
             const button = segmentForm.addButton(

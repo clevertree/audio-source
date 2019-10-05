@@ -775,6 +775,10 @@ class AudioSourceSong {
         return this.deleteDataPath(pathList);
     }
 
+    setInstrumentName(instrumentID, newInstrumentName) {
+        return this.replaceInstrumentParam(instrumentID, 'name', newInstrumentName);
+    }
+
 
     generateName() {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;

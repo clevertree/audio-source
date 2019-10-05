@@ -7,7 +7,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.versionString = '-1';
         this.eventHandlers = [];
         this.saveSongToMemoryTimer = null;
-        this.instrumentLibrary = null;
+        // this.instrumentLibrary = null;
 
         this.longPressTimeout = null;
 
@@ -26,8 +26,11 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.actions = new AudioSourceComposerActions(this);
         this.values = new AudioSourceValues(this.song);
-        this.loadDefaultInstrumentLibrary();
-        this.loadPackageInfo();
+        const Libraries = new AudioSourceLibraries;
+        const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
+        Libraries.loadInstrumentLibrary(defaultLibraryURL);
+        Libraries.loadPackageInfo()
+            .then(packageInfo => this.setVersion(packageInfo.version));
 
     }
 
@@ -87,17 +90,17 @@ class AudioSourceComposerElement extends HTMLElement {
         }
     }
 
-    async loadDefaultInstrumentLibrary() {
-        const Libraries = new AudioSourceLibraries;
-        const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
-        await this.loadInstrumentLibrary(defaultLibraryURL);
-
-        this.song.dispatchEvent(new CustomEvent('instrument:library', {
-            // detail: this.instrumentLibrary,
-            // bubbles: true
-        }));
-
-    }
+    // async loadDefaultInstrumentLibrary() {
+    //     const Libraries = new AudioSourceLibraries;
+    //     const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
+    //     await Libraries.loadInstrumentLibrary(defaultLibraryURL);
+    //
+    //     this.song.dispatchEvent(new CustomEvent('instrument:library', {
+    //         // detail: this.instrumentLibrary,
+    //         // bubbles: true
+    //     }));
+    //
+    // }
 
     async loadDefaultSong() {
         const src = this.getAttribute('src');
@@ -211,6 +214,7 @@ class AudioSourceComposerElement extends HTMLElement {
             //     break;
 
             case 'focus':
+                // TODO: refactor
                 for(let i=0; i<e.path.length; i++) {
                     const target = e.path[i];
                     if(target.classList && target.classList.contains('instrument-container')) {
@@ -356,10 +360,10 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
     get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
 
-    get panelSong() { return this.shadowDOM.querySelector(`asc-panel[key='song']`)}
-    get panelTracker() { return this.shadowDOM.querySelector(`asc-panel[key='tracker']`)}
-    get panelInstruction() { return this.shadowDOM.querySelector(`asc-panel[key='instruction']`)}
-    get panelInstruments() { return this.shadowDOM.querySelector(`asc-panel[key='instruments']`)}
+    get panelSong() { return this.shadowDOM.querySelector(`asc-form[key='song']`)}
+    get panelTracker() { return this.shadowDOM.querySelector(`asc-form[key='tracker']`)}
+    get panelInstruction() { return this.shadowDOM.querySelector(`asc-form[key='instruction']`)}
+    get panelInstruments() { return this.shadowDOM.querySelector(`asc-form[key='instruments']`)}
 
     render() {
         const Libraries = new AudioSourceLibraries;
@@ -375,12 +379,12 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
-            <asc-panel key="song"></asc-panel>
+            <asc-form key="song" caption="Song" class="panel"></asc-form>
             <br/>
-            <asc-panel key="instruction"></asc-panel>
-            <asc-panel key="tracker"></asc-panel>
+            <asc-form key="instruction" caption="Instruction" class="panel"></asc-form>
+            <asc-form key="tracker" caption="Tracker" class="panel"></asc-form>
             <br/>
-            <asc-panel key="instruments"></asc-panel>
+            <asc-form key="instruments" caption="Song Instruments" class="panel"></asc-form>
             <br/>
 
             <asct-segment-container></asct-segment-container>
@@ -402,12 +406,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
     /** Song Forms **/
 
-    get formSongPlayback()          { return this.panelSong.getOrCreateForm('playback'); }
-    get formSongPosition()          { return this.panelSong.getOrCreateForm('position'); }
-    get formSongVolume()            { return this.panelSong.getOrCreateForm('volume'); }
-    get formSongFile()              { return this.panelSong.getOrCreateForm('file'); }
-    get formSongName()              { return this.panelSong.getOrCreateForm('name'); }
-    get formSongVersion()           { return this.panelSong.getOrCreateForm('version'); }
+    get formSongPlayback()          { return this.panelSong.getOrCreateForm('playback', 'Playback'); }
+    get formSongPosition()          { return this.panelSong.getOrCreateForm('position', 'Position'); }
+    get formSongVolume()            { return this.panelSong.getOrCreateForm('volume', 'Volume'); }
+    get formSongFile()              { return this.panelSong.getOrCreateForm('file', 'File'); }
+    get formSongName()              { return this.panelSong.getOrCreateForm('name', 'Name'); }
+    get formSongVersion()           { return this.panelSong.getOrCreateForm('version', 'Version'); }
 
     /** Tracker Fields **/
 
@@ -516,17 +520,18 @@ class AudioSourceComposerElement extends HTMLElement {
         const instrumentPanel = this.panelInstruments;
 
 
+        // Update instead of render
+
         const instrumentList = this.song.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             // TODO Update selected
-            const instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
-            instrumentForm.addInstrumentContainer(instrumentID);
-
+            const instrumentForm = instrumentPanel.addInstrumentContainer(instrumentID);
         }
 
 
-        const instrumentForm = instrumentPanel.getOrCreateForm(instrumentList.length);
-        instrumentForm.addInstrumentContainer(instrumentList.length);
+        instrumentPanel.addInstrumentContainer(instrumentList.length);
+        instrumentPanel.addInstrumentContainer(instrumentList.length);
+        instrumentPanel.addInstrumentContainer(instrumentList.length);
     }
 
     renderMenu() {
@@ -755,46 +760,6 @@ class AudioSourceComposerElement extends HTMLElement {
 
     /** Ajax Loading **/
 
-    async loadInstrumentLibrary(url, force = false) {
-        if (!url)
-            throw new Error("Invalid url");
-        url = new URL(url, document.location) + '';
-        if (!force && this.instrumentLibrary && this.instrumentLibrary.url === url)
-            return this.instrumentLibrary;
-
-        this.instrumentLibrary = await this.loadJSON(url);
-        this.instrumentLibrary.url = url + '';
-        console.info("Instrument Library Loaded: ", this.instrumentLibrary);
-        return this.instrumentLibrary;
-    }
-
-    async loadPackageInfo() {
-        const Libraries = new AudioSourceLibraries;
-        const url = Libraries.getScriptDirectory('package.json');
-        const packageJSON = await this.loadJSON(url);
-        if(!packageJSON.version)
-            throw new Error("Invalid package version: " + xhr.response);
-
-        console.log("Package Version: ", packageJSON.version, packageJSON);
-        this.setVersion(packageJSON.version);
-    }
-
-
-    async loadJSON(url) {
-        url = new URL(url, document.location) + '';
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'json';
-            xhr.onload = () => {
-                if (xhr.status !== 200)
-                    return reject("JSON file not found: " + url);
-
-                resolve(xhr.response);
-            };
-            xhr.send();
-        });
-    }
 
 
     loadCSS() {

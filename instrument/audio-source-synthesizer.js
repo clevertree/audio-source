@@ -1,12 +1,12 @@
-class SynthesizerInstrument {
+class AudioSourceSynthesizer {
     // get DEFAULT_SAMPLE_LIBRARY_URL() { return '/sample/index.library.json'; }
     get DEFAULT_SAMPLE_LIBRARY_URL() {
         return getScriptDirectory('sample/sample.library.json');
     }
 
 
-    constructor(config, renderer = null) {
-        this.song = renderer;
+    constructor(config, song = null) {
+        this.song = song;
         this.eventHandlers = [];
 
         // Create a shadow root
@@ -395,7 +395,11 @@ class SynthesizerInstrument {
         return this.getAttribute('data-id');
     }
 
-    render() {
+    renderForm(instrumentForm) {
+        new AudioSourceSynthesizerFormRenderer(instrumentForm, this);
+    }
+
+    renderHTML() {
         // Use Panel UI. If not available, load it
         const instrumentID = this.instrumentID || 'N/A'; // this.getAttribute('data-id') || '0';
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
@@ -761,7 +765,7 @@ class SynthesizerInstrument {
 
 
             case 'instrument:name':
-                this.song.replaceInstrumentParam(instrumentID, 'name', form.elements.name.value);
+                this.song.setInstrumentName(instrumentID, form.elements.name.value);
                 break;
 
             case 'instrument:remove':
@@ -853,52 +857,31 @@ class SynthesizerInstrument {
 
 }
 
+class AudioSourceSynthesizerFormRenderer {
+    constructor(instrumentForm, instrument) {
+        this.form = instrumentForm;
+        this.instrument = instrument;
+        const editor = instrument.song ? instrument.song.editor : null;
 
-class SynthesizerInstrumentElement extends HTMLElement {
-    constructor() {
-        super();
-
+        this.fieldTrackerRowLength = this.form.addSelect(
+            'row-length',
+                e => editor.actions.setTrackerRowLength(e), (addOption) => {
+                addOption('', 'Default');
+            },
+            'Select Row Length',
+            '');
     }
 
-    get panel() { return this.parentNode; } // closest('asc-panel'); }
-
-
-    // get formTrackerOctave() { return this.panel.getOrCreateForm('octave'); }
+    // get formTrackerOctave() { return this.form.getOrCreateForm('octave'); }
     //
-    // get formTrackerRowLength() { return this.panel.getOrCreateForm('row-length'); }
-    // get formTrackerInstrument() { return this.panel.getOrCreateForm('instrument'); }
-    // get formTrackerSelection() { return this.panel.getOrCreateForm('selection'); }
-    //
-    // /** Tracker Fields **/
-    //
-    // get fieldTrackerRowLength() {
-    //     return this.formTrackerRowLength.getInput('row-length', false)
-    //         || this.formTrackerRowLength.addSelect('row-length', e => this.editor.actions.setTrackerRowLength(e), (addOption) => {
-    //                 addOption('', 'Default');
-    //                 this.editor.values.getValues('durations', addOption)
-    //             },
-    //             'Select Row Length',
-    //             '');
-    // }
-    //
-    // get fieldTrackerFilterInstrument() {
-    //     return this.formTrackerInstrument.getInput('filter-instrument', false)
-    //         || this.formTrackerInstrument.addSelect('filter-instrument', e => this.editor.actions.setTrackerFilterInstrument(e), (addOption) => {
-    //                 addOption('', 'Default');
-    //                 this.editor.values.getValues('song-instruments', addOption)
-    //             },
-    //             'Filter By Instrument',
-    //             '');
-    // }
+    // get formTrackerRowLength() { return this.form.getOrCreateForm('row-length'); }
+    // get formTrackerInstrument() { return this.form.getOrCreateForm('instrument'); }
+    // get formTrackerSelection() { return this.form.getOrCreateForm('selection'); }
 
-    renderNative(instrumentForm) {
-        const instrumentID = parseInt(instrumentForm.getAttribute('data-id') || '-1');
-        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
-
-        // TODO: move rendering and forms to separate class.
-    }
+    /** Tracker Fields **/
 
 }
+
 
 function getScriptElm() {
     return document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');
@@ -917,7 +900,7 @@ window.addEventListener('DOMContentLoaded', e => {
         throw new Error("Couldn't find head script");
     document.dispatchEvent(new CustomEvent('instrument:loaded', {
         detail: {
-            "class": SynthesizerInstrument,
+            "class": AudioSourceSynthesizer,
             "renderClass": SynthesizerInstrumentElement,
             "url": scriptElm.src,
             "script": scriptElm
