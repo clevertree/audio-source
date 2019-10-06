@@ -147,7 +147,7 @@ class AudioSourceComposerActions {
 
     /** Tracker Commands **/
 
-    insertInstructionCommand(e, newCommand=null, prompt=false) {
+    insertInstructionCommand(e, newCommand=null, promptUser=false) {
         // TODO: does not update
         const tracker = this.editor.tracker;
         const renderer = this.editor.song;
@@ -157,7 +157,7 @@ class AudioSourceComposerActions {
         //     throw new Error("No selection");
         if(newCommand === null)
             newCommand = tracker.fieldInstructionCommand.value || null;
-        if (prompt)
+        if (promptUser)
             newCommand = prompt("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
@@ -184,7 +184,7 @@ class AudioSourceComposerActions {
         tracker.playSelectedInstructions();
     }
 
-    setInstructionCommand(e, newCommand=null, prompt=false) {
+    setInstructionCommand(e, newCommand=null, promptUser=false) {
         //: TODO: does not allow insert
         const tracker = this.editor.tracker;
         const renderer = this.editor.song;
@@ -194,7 +194,7 @@ class AudioSourceComposerActions {
         //     throw new Error("No selection");
         if(newCommand === null)
             newCommand = tracker.fieldInstructionCommand.value || null;
-        if (prompt)
+        if (promptUser)
             newCommand = prompt("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
@@ -245,14 +245,14 @@ class AudioSourceComposerActions {
 
     }
 
-    setInstructionDuration(e, duration=null, prompt=false) {
+    setInstructionDuration(e, duration=null, promptUser=false) {
         const tracker = this.editor.tracker;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
         if (!duration)
             duration = parseFloat(tracker.fieldInstructionDuration.value);
-        if (prompt)
+        if (promptUser)
             duration = parseInt(prompt("Set custom duration in ticks:", duration));
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
@@ -267,7 +267,7 @@ class AudioSourceComposerActions {
 
     }
 
-    setInstructionVelocity(e, velocity=null, prompt=false) {
+    setInstructionVelocity(e, velocity=null, promptUser=false) {
         const tracker = this.editor.tracker;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
@@ -275,7 +275,7 @@ class AudioSourceComposerActions {
         if(velocity === null)
             velocity = tracker.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(tracker.fieldInstructionVelocity.value) || null;
         velocity = parseFloat(velocity);
-        if (prompt)
+        if (promptUser)
             velocity = parseInt(prompt("Set custom velocity (0-127):", tracker.fieldInstructionVelocity.value));
         if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
@@ -325,7 +325,7 @@ class AudioSourceComposerActions {
             return;
         }
 
-        e.target.form.elements['instrumentURL'].value = '';
+//         e.target.form.elements['instrumentURL'].value = '';
         if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
             this.editor.song.addInstrument(addInstrumentURL);
             this.editor.setStatus("New instrument Added to song: " + addInstrumentURL);
@@ -335,35 +335,34 @@ class AudioSourceComposerActions {
         }
     }
 
-    songReplaceInstrument(e, instrumentID, changeInstrumentURL=null) {
+    async songReplaceInstrument(e, instrumentID, changeInstrumentURL=null) {
         if(!Number.isInteger(instrumentID))
-            throw new Error("Invalid Instrument ID");
+            throw new Error("Invalid Instrument ID: Not an integer");
 
         changeInstrumentURL = changeInstrumentURL || e.target.form.elements['instrumentURL'].value;
-        if(!changeInstrumentURL) {
-            this.editor.setStatus(`<span style='color: red'>Empty URL</span>`);
-            return;
-        }
+        if(!changeInstrumentURL)
+            throw new Error('Failed to change instrument: Empty URL');
+
         const changeInstrument = {
             url: changeInstrumentURL,
             id: instrumentID
         };
         changeInstrument.title = changeInstrument.url.split('/').pop();
         // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
-        this.status.currentInstrumentID = this.editor.song.replaceInstrument(changeInstrument.id, changeInstrument.url);
+        await this.editor.song.replaceInstrument(changeInstrument.id, changeInstrument);
         this.editor.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
-        if(this.tracker)
-            this.tracker.fieldInstructionInstrument.value = changeInstrument.id;
+        this.editor.tracker.fieldInstructionInstrument.value = changeInstrument.id;
         // } else {
         //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
         // }
     }
 
     songRemoveInstrument(e, removeInstrumentID=null) {
-        removeInstrumentID = removeInstrumentID || parseInt(e.target.form.elements['instrumentID'].value);
+        if(removeInstrumentID === null)
+            removeInstrumentID = parseInt(e.target.form.elements['instrumentID'].value);
         if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
             this.editor.song.removeInstrument(removeInstrumentID);
-            this.editor.setStatus(`Instrument (${changeInstrument.id}) removed`);
+            this.editor.setStatus(`Instrument (${removeInstrumentID}) removed`);
 
         } else {
             this.editor.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);

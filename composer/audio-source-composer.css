@@ -211,11 +211,9 @@ asc-menu.open-context-menu > .dropdown-container {
 /** Editor Panels **/
 
 asc-form.panel {
+    vertical-align: top;
     display: inline-block;
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
-    background-color: transparent;
+    margin: 1px 3px 0px 1px;
 }
 
 asc-form.panel > div.header {
@@ -225,7 +223,7 @@ asc-form.panel > div.header {
     font-size: 11px;
     font-weight: bold;
     text-align: center;
-    padding: 2px 2px 0px 2px;
+    padding: 2px 6px 0px 6px;
     margin: 0;
     /* width: 100%; */
     /* flex-basis: 100%; */
@@ -234,20 +232,29 @@ asc-form.panel > div.header {
 }
 
 
-/** Editor Forms **/
-
-asc-form {
-    display: inline-block;
-    vertical-align: top;
+asc-form.panel > div.container {
+    display: flex;
+    justify-content: center;
+    /* border: 0px outset #FFF; */
     background: #DDD;
-    border: 1px outset #FFF;
-    padding: 4px 6px;
     /* flex-wrap: wrap; */
     /* clear: both; */
     /* overflow-y: auto; */
-    min-height: 39px;
-    margin: 0px 0px 2px 0px;
+    /* min-height: 20px; */
 }
+
+asc-form.panel > div.container > asc-form {
+     /* background: #DDD; */
+     border: 1px outset #FFF;
+     /* vertical-align: top; */
+     /* display: inline-block; */
+     padding: 4px 6px;
+     margin: 0px 0px 0px 0px;
+     /* min-height: 32px; */
+}
+
+
+/** Editor Forms **/
 
 asc-form > div.header {
     font-size: small;
@@ -271,8 +278,7 @@ ascf-button,
 ascf-select,
 ascf-range,
 ascf-text,
-ascf-file,
-ascf-instrument {
+ascf-file {
     display: inline-block;
     vertical-align: top;
 }
@@ -409,7 +415,7 @@ ascf-instrument {
 /** Song Forms **/
 
 asc-form[key=volume]       ascf-range[key=volume]    input       { max-width: 71px; }
-asc-form[key=version]      ascf-text[key=version]    input       { max-width: 64px; }
+asc-form[key=version]      ascf-text[key=version]    input       {max-width: 53px;}
 asc-form[key=name]         ascf-text[key=name]       input       { max-width: 160px; }
 asc-form[key=position]     ascf-text[key=position]   input       { max-width: 77px; }
 
@@ -464,23 +470,19 @@ asc-tracker .tracker-header-pause {
 
 /** Tracker Row Segments **/
 
-asct-segment-container {
-    display: block;
-    overflow-y: auto;
-    text-align: center;
-    padding-top: 5px;
+asc-form[key=tracker-row-segments] {
+    /* min-width: 81px; */
+    /* display: block; */
+    /* overflow-y: auto; */
+    /* text-align: center; */
+    /* padding-top: 5px; */
     /* clear: both; */
 }
 
-
-/*asctr-segment {*/
-/*    display: inline-block;*/
-/*}*/
-
-asct-segment-container > asc-form[key=segment] ascf-button > button {
-    width: 3em;
+asc-form[key=tracker-row-segments] ascf-button > button {
+    width: 2em;
     height: 2em;
-    margin: 0px 1px 0px 1px;
+    /* margin: 0px 2px; */
     background-color: #EEE;
     border: 1px outset #FFF;
     border-radius: 4px 4px 0 0;
@@ -488,7 +490,7 @@ asct-segment-container > asc-form[key=segment] ascf-button > button {
     cursor: pointer;
 }
 
-asct-segment-container > asc-form[key=segment] ascf-button.selected > button {
+asc-form[key=tracker-row-segments] asc-form.selected {
     background-color: #BBB;
     font-weight: bold;
     border-bottom: 0px;

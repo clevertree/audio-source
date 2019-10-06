@@ -215,10 +215,11 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         let rowInstructionList = null, lastSegmentRowPositionInTicks=0, lastRowStartIndex=0;
         // while(rowInstructionList = instructionIterator.nextInstructionRow(filterByInstrumentID)) {
+        let lastRowSegmentID = 0;
         while(rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID)) {
 
-            const currentRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
-            if(this.currentRowSegmentID === currentRowSegmentID) {
+            lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
+            if(this.currentRowSegmentID === lastRowSegmentID) {
                 lastRowStartIndex = rowInstructionList.length > 0 ? rowInstructionList[0].index : instructionIterator.groupIndex;
                 const rowElm = new AudioSourceComposerTrackerRow(); // document.createElement('asct-row');
                 this.appendChild(rowElm);
@@ -246,12 +247,23 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
         // Render Segments
-        const rowSegmentContainer = this.parentNode.querySelector('asct-segment-container');
-        if(rowSegmentContainer) {
-            let lastRowSegmentID = Math.ceil(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
-            if(lastRowSegmentID <= this.currentRowSegmentID)
+
+        const panelTrackerRowSegments = this.editor.panelTrackerRowSegments;
+
+        if(panelTrackerRowSegments) {
+            panelTrackerRowSegments.clearInputs();
+            // let lastRowSegmentID = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
+            if(lastRowSegmentID < this.currentRowSegmentID+1)
                 lastRowSegmentID = this.currentRowSegmentID+1;
-            rowSegmentContainer.render(segmentLengthInTicks, lastRowSegmentID, this.currentRowSegmentID)
+            for(let segmentID = 0; segmentID <= lastRowSegmentID; segmentID++) {
+                const buttonForm = panelTrackerRowSegments.addForm(segmentID);
+                const button = buttonForm.addButton(
+                    segmentID,
+                    e => this.navigateSegment(segmentID),
+                    segmentID);
+                buttonForm.classList.toggle('selected', segmentID === this.currentRowSegmentID);
+                button.classList.toggle('selected', segmentID === this.currentRowSegmentID);
+            }
         }
 
 
@@ -1458,33 +1470,6 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 }
 customElements.define('asc-tracker', AudioSourceComposerTracker);
-
-
-
-class AudioSourceComposerTrackerSegmentContainer extends HTMLElement {
-    constructor() {
-        super();
-    }
-
-    get tracker() {
-        return this.parentNode.querySelector('asc-tracker');
-    }
-
-    render(segmentLengthInTicks, rowSegmentCount, currentSegmentID=0) {
-        this.innerHTML = '';
-        const segmentForm = new AudioSourceComposerForm('segment', 'Row Segments');
-        this.appendChild(segmentForm);
-        for(let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
-            const button = segmentForm.addButton(
-                segmentID,
-                e => this.tracker.navigateSegment(segmentID),
-                segmentID);
-            button.classList.toggle('selected', segmentID === currentSegmentID);
-        }
-
-    }
-}
-customElements.define('asct-segment-container', AudioSourceComposerTrackerSegmentContainer);
 
 
 
