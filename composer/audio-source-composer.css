@@ -427,10 +427,10 @@ asc-form[key=position]     ascf-text[key=position]   input       { max-width: 77
 
 /** Instruction Form **/
 
-asc-form[key=command]      ascf-select[key=command]       select      { width: 120px; }
-asc-form[key=instrument]   ascf-select[key=instrument]    select      { width: 120px; }
-asc-form[key=velocity]     ascf-range[key=velocity]       input       { width: 64px; }
-asc-form[key=duration]     ascf-select[key=duration]      select      { width: 64px; }
+asc-form[key=instruction]   asc-form[key=command]      ascf-select[key=command]       select      { width: 120px; }
+asc-form[key=instruction]   asc-form[key=instrument]   ascf-select[key=instrument]    select      { width: 120px; }
+asc-form[key=instruction]   asc-form[key=velocity]     ascf-range[key=velocity]       input       { width: 64px; }
+asc-form[key=instruction]   asc-form[key=duration]     ascf-select[key=duration]      select      { width: 64px; }
 
 /** Tracker Render Forms **/
 
@@ -439,6 +439,11 @@ asc-form[key=tracker]      ascf-select[key=row-length]        select      { widt
 asc-form[key=tracker]      ascf-select[key=filter-instrument] select      { width: 64px; }
 asc-form[key=tracker]      ascf-text[key=selection]           input       { width: 126px; }
 
+
+/** Instrument Form **/
+
+asc-form[key=instruments]  ascf-select[key=instrument-add-url]       select      { width: 120px; }
+asc-form[key=instruments]  ascf-select[key=instrument-preset]       select      { width: 120px; }
 
 
 

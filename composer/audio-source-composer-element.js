@@ -305,7 +305,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.saveSongToMemoryTimer = setTimeout(e => this.actions.saveSongToMemory(e), this.status.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
-            case 'instrument:instance':
+            case 'instrument:remove':
                 this.renderInstruments();
                 if(this.tracker) // Update aliases
                     this.tracker.renderForms();
@@ -523,17 +523,17 @@ class AudioSourceComposerElement extends HTMLElement {
             // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
 
 
-            let instrumentContainerForm = instrumentPanel.getOrCreateForm(instrumentID);
+            let instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
 
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            instrumentContainerForm.clearInputs();
+            instrumentForm.clearInputs();
 
-            instrumentContainerForm.addButton('instrument-id',
+            instrumentForm.addButton('instrument-id',
                 null, //TODO: toggle view
                 instrumentIDHTML + ':'
             );
 
-            instrumentContainerForm.addTextInput('instrument-name',
+            instrumentForm.addTextInput('instrument-name',
                 (e, newInstrumentName) => this.actions.setInstrumentName(e, newInstrumentName),
                 'Instrument Name',
                 '',
@@ -541,21 +541,9 @@ class AudioSourceComposerElement extends HTMLElement {
             );
 
             if(instrument) {
-                instrumentContainerForm.addSelect('instrument-replace-url',
-                    (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
-                    (addOption) => {
-                        addOption('', 'Change Instrument');
-                        this.values.getValues('instruments-available', addOption)
-                    },
-                    'Change Instrument',
-                    '');
-
-                instrumentContainerForm.addButton('instrument-remove',
-                    (e) => this.actions.songRemoveInstrument(e, instrumentID),
-                    '<i class="ui-icon ui-remove"></i>',
-                    '');
+                // Instrument renders own UI
             } else {
-                instrumentContainerForm.addSelect('instrument-add-url',
+                instrumentForm.addSelect('instrument-add-url',
                     (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
                     (addOption) => {
                         addOption('', 'Add Instrument');
@@ -563,15 +551,10 @@ class AudioSourceComposerElement extends HTMLElement {
                     },
                     'Add Instrument',
                     '');
+
+                instrumentForm.addBreak();
             }
 
-            instrumentContainerForm.addBreak();
-
-            // Render Instrument Content
-            let instrumentForm = instrumentContainerForm.getOrCreateForm('instrument');
-            instrumentForm.clearInputs();
-
-            // this.containerElm.innerHTML = ``;
 
             if(!instrument) {
                 // this.renderEmptyInstrument();
