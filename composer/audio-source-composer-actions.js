@@ -345,13 +345,14 @@ class AudioSourceComposerActions {
 
         const changeInstrument = {
             url: changeInstrumentURL,
-            id: instrumentID
+            // id: instrumentID // wtf?
         };
         changeInstrument.title = changeInstrument.url.split('/').pop();
-        // if(confirm(`Set Instrument (${changeInstrument.id}) to ${changeInstrument.title}`)) {
-        await this.editor.song.replaceInstrument(changeInstrument.id, changeInstrument);
-        this.editor.setStatus(`Instrument (${changeInstrument.id}) changed to: ${changeInstrumentURL}`);
-        this.editor.tracker.fieldInstructionInstrument.value = changeInstrument.id;
+        // if(confirm(`Set Instrument (${instrumentID}) to ${changeInstrument.title}`)) {
+        await this.editor.song.replaceInstrument(instrumentID, changeInstrument);
+        await this.editor.song.loadInstrument(instrumentID, true);
+        this.editor.setStatus(`Instrument (${instrumentID}) changed to: ${changeInstrumentURL}`);
+        this.editor.tracker.fieldInstructionInstrument.value = instrumentID;
         // } else {
         //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
         // }

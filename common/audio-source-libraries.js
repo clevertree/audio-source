@@ -86,7 +86,7 @@ class AudioSourceLibraries {
 
         console.log("Package Version: ", packageInfo.version, packageInfo);
         AudioSourceLibraries.packageInfo = packageInfo;
-        return packageInfo.version;
+        return packageInfo;
     }
 
 

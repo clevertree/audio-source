@@ -595,7 +595,7 @@ class AudioSourceSong {
         }));
 
         if(this.audioContext)
-            this.initInstrument(instrumentID, this.audioContext);
+            await this.initInstrument(instrumentID, this.audioContext);
 
         return true;
     }
@@ -675,7 +675,6 @@ class AudioSourceSong {
             config,
             oldConfig
         }}), 1);
-        await this.loadInstrument(instrumentID);
         return oldConfig;
     }
 

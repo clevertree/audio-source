@@ -288,6 +288,11 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.classList.remove('playing', 'paused');
                 this.containerElm.classList.remove('playing', 'paused');
                 break;
+
+            case 'instrument:instance':
+                this.renderInstrument(e.detail.instrumentID, e.detail.instance);
+                break;
+
             case 'instrument:modified':
             case 'song:modified':
                 switch(e.type) {
@@ -494,111 +499,78 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
-/**
- *
- <form action="#" class="form-song-resume show-on-song-paused" data-action="song:resume">
- <button type="submit" name="resume" class="themed">
- <i class="ui-icon ui-resume"></i>
- </button>
- </form>
+    renderInstrument(instrumentID, instrument=null) {
+        const instrumentPanel = this.panelInstruments;
+        // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
+
+        let instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
+
+        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+        instrumentForm.clearInputs();
+
+        instrumentForm.addButton('instrument-id',
+            null, //TODO: toggle view
+            instrumentIDHTML + ':'
+        );
+
+        instrumentForm.addTextInput('instrument-name',
+            (e, newInstrumentName) => this.actions.setInstrumentName(e, newInstrumentName),
+            'Instrument Name',
+            '',
+            'Unnamed'
+        );
+
+        if(!instrument) {
+            // Render 'empty' instrument
+            instrumentForm.addSelect('instrument-add-url',
+                (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
+                (addOption) => {
+                    addOption('', 'Add Instrument');
+                    this.values.getValues('instruments-available', addOption)
+                },
+                'Add Instrument',
+                '');
+
+            instrumentForm.addBreak();
+        }
 
 
+        if(instrument) {
+            try {
+                if (instrument instanceof HTMLElement) {
+                    instrument.setAttribute('data-id', instrumentID+'');
+                    instrumentForm.containerElm.appendChild(instrument);
 
- <div class="form-section control-song">
- <div class="form-section-header">Add Instrument</div>
- <form class="form-song-add-instrument submit-on-change" data-action="song:add-instrument">
- <select name="instrumentURL" class="themed">
- <option value="">Select Instrument</option>
- ${this.values.renderEditorFormOptions('instruments-available')}
- </select>
- </form>
- </div>
+                } else if (typeof instrument.render === "function") {
+                    const renderedHTML = instrument.render(instrumentForm);
+                    if(renderedHTML)
+                        instrumentForm.containerElm.innerHTML = renderedHTML;
+                } else {
+                    throw new Error("No Renderer");
+                }
 
- */
+            } catch (e) {
+                instrumentForm.containerElm.innerHTML = e;
+            }
+        }
+    }
 
     renderInstruments() {
         const instrumentPanel = this.panelInstruments;
 
         const renderInstrumentContainer = (instrumentID, instrument=null) => {
-            // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
-
-
-            let instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
-
-            const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            instrumentForm.clearInputs();
-
-            instrumentForm.addButton('instrument-id',
-                null, //TODO: toggle view
-                instrumentIDHTML + ':'
-            );
-
-            instrumentForm.addTextInput('instrument-name',
-                (e, newInstrumentName) => this.actions.setInstrumentName(e, newInstrumentName),
-                'Instrument Name',
-                '',
-                'Unnamed'
-            );
-
-            if(instrument) {
-                // Instrument renders own UI
-            } else {
-                instrumentForm.addSelect('instrument-add-url',
-                    (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
-                    (addOption) => {
-                        addOption('', 'Add Instrument');
-                        this.values.getValues('instruments-available', addOption)
-                    },
-                    'Add Instrument',
-                    '');
-
-                instrumentForm.addBreak();
-            }
-
-
-            if(!instrument) {
-                // this.renderEmptyInstrument();
-
-            // } else if(!this.song.isInstrumentLoaded(instrumentID)) {
-                // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
-                // this.renderEmptyInstrument('Loading...');
-
-            } else {
-                // this.containerElm.innerHTML = ``;
-                try {
-                    // if (instrument instanceof HTMLElement) {
-                    //     instrument.setAttribute('data-id', instrumentID+'');
-                    //     instrumentForm.containerElm.appendChild(instrument);
-                    //
-                    // } else
-
-                    if (typeof instrument.renderForm === "function") {
-                        instrument.renderForm(instrumentForm, instrumentID);
-
-                    } else if (typeof instrument.renderHTML === "function") {
-                        const renderedHTML = instrument.renderHTML(this, instrumentID);
-                        if(renderedHTML)
-                            instrumentForm.containerElm.innerHTML = renderedHTML;
-                    } else {
-                        throw new Error("No Renderer");
-                    }
-
-                } catch (e) {
-                    instrumentForm.containerElm.innerHTML = e;
-                }
-            }
         };
 
         const instrumentList = this.song.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             let instrument = this.song.getInstrument(instrumentID, false);
 
-            renderInstrumentContainer(instrumentID, instrument);
+            this.renderInstrument(instrumentID, instrument);
             // TODO Update selected
         }
 
 
-        renderInstrumentContainer(instrumentList.length, null);
+        this.renderInstrument(instrumentList.length, null);
         // renderInstrumentContainer(instrumentList.length+1);
     }
 

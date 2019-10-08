@@ -274,10 +274,10 @@ asc-form > div.header.hidden {
 
 /** Editor Inputs **/
 
-ascf-button,
-ascf-select,
-ascf-range,
-ascf-text,
+ascf-input-button,
+ascf-input-select,
+ascf-input-range,
+ascf-input-text,
 ascf-file {
     display: inline-block;
     vertical-align: top;
@@ -414,10 +414,10 @@ ascf-file {
 
 /** Song Forms **/
 
-asc-form[key=volume]       ascf-range[key=volume]    input       { max-width: 71px; }
-asc-form[key=version]      ascf-text[key=version]    input       {max-width: 53px;}
-asc-form[key=name]         ascf-text[key=name]       input       { max-width: 160px; }
-asc-form[key=position]     ascf-text[key=position]   input       { max-width: 77px; }
+asc-form[key=volume]       ascf-input-range[key=volume]    input       { max-width: 71px; }
+asc-form[key=version]      ascf-input-text[key=version]    input       {max-width: 53px;}
+asc-form[key=name]         ascf-input-text[key=name]       input       { max-width: 160px; }
+asc-form[key=position]     ascf-input-text[key=position]   input       { max-width: 77px; }
 
 /** Add Instrument Form **/
 
@@ -427,23 +427,23 @@ asc-form[key=position]     ascf-text[key=position]   input       { max-width: 77
 
 /** Instruction Form **/
 
-asc-form[key=instruction]   asc-form[key=command]      ascf-select[key=command]       select      { width: 120px; }
-asc-form[key=instruction]   asc-form[key=instrument]   ascf-select[key=instrument]    select      { width: 120px; }
-asc-form[key=instruction]   asc-form[key=velocity]     ascf-range[key=velocity]       input       { width: 64px; }
-asc-form[key=instruction]   asc-form[key=duration]     ascf-select[key=duration]      select      { width: 64px; }
+asc-form[key=instruction]   asc-form[key=command]      ascf-input-select[key=command]       select      { width: 120px; }
+asc-form[key=instruction]   asc-form[key=instrument]   ascf-input-select[key=instrument]    select      { width: 120px; }
+asc-form[key=instruction]   asc-form[key=velocity]     ascf-input-range[key=velocity]       input       { width: 64px; }
+asc-form[key=instruction]   asc-form[key=duration]     ascf-input-select[key=duration]      select      { width: 64px; }
 
 /** Tracker Render Forms **/
 
-asc-form[key=tracker]      ascf-select[key=octave]            select      { width: 64px; }
-asc-form[key=tracker]      ascf-select[key=row-length]        select      { width: 64px; }
-asc-form[key=tracker]      ascf-select[key=filter-instrument] select      { width: 64px; }
-asc-form[key=tracker]      ascf-text[key=selection]           input       { width: 126px; }
+asc-form[key=tracker]      ascf-input-select[key=octave]            select      { width: 64px; }
+asc-form[key=tracker]      ascf-input-select[key=row-length]        select      { width: 64px; }
+asc-form[key=tracker]      ascf-input-select[key=filter-instrument] select      { width: 64px; }
+asc-form[key=tracker]      ascf-input-text[key=selection]           input       { width: 126px; }
 
 
 /** Instrument Form **/
 
-asc-form[key=instruments]  ascf-select[key=instrument-add-url]       select      { width: 120px; }
-asc-form[key=instruments]  ascf-select[key=instrument-preset]       select      { width: 120px; }
+asc-form[key=instruments]  ascf-input-select[key=instrument-add-url]       select      { width: 120px; }
+asc-form[key=instruments]  ascf-input-select[key=instrument-preset]       select      { width: 120px; }
 
 
 
@@ -484,7 +484,7 @@ asc-form[key=tracker-row-segments] {
     /* clear: both; */
 }
 
-asc-form[key=tracker-row-segments] ascf-button > button {
+asc-form[key=tracker-row-segments] ascf-input-button > button {
     width: 2em;
     height: 2em;
     /* margin: 0px 2px; */

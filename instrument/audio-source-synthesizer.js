@@ -6,14 +6,15 @@
             this.song = song;
             this.id = instrumentID;
             this.form = null;
-            this.config = config || {};
-            this.loadConfig(this.config);
 
             this.samples = [];
             this.sampleDataByURL = {};
             this.activeSources = [];
 
             this.audioContext = null;
+
+            this.config = config || {};
+            this.loadConfig(this.config);
         }
 
 
@@ -57,16 +58,17 @@
 
         async loadAudioSampleData(sampleURL, cache=false) {
             let sampleData;
-            if(typeof this.sampleDataByURL[sampleURL] !== "undefined") {
+            if(typeof this.sampleDataByURL[sampleURL] === "undefined") {
                 sampleURL = new URL(sampleURL, document.location) + '';
 
                 sampleData = await new Promise((resolve, reject) => {
                     const xhr = new XMLHttpRequest();
 
                     xhr.open('GET', sampleURL, true);
-                    const ext = sampleURL.split('.').pop().toLowerCase();
+                    const ext = sampleURL.indexOf('.') === -1 ? '' : sampleURL.split('.').pop().toLowerCase();
                     switch (ext) {
                         // default:
+                        case '':
                         case 'wav':
                             xhr.responseType = 'arraybuffer';
                             break;
@@ -79,13 +81,13 @@
                     xhr.onload = () => {
                         if (xhr.status !== 200)
                             return reject("Sample file not found: " + sampleURL);
-                        console.info("Sample Data Loaded: ", sampleURL);
                         resolve(xhr.response);
                     };
                     xhr.onerror = reject;
                     xhr.send();
                 });
 
+                console.info("Sample Data Loaded: ", sampleURL);
                 this.sampleDataByURL[sampleURL] = sampleData;
             }
             sampleData = this.sampleDataByURL[sampleURL];
@@ -121,10 +123,9 @@
 
             const sampleData = {};
 
-
-            const ext = sampleURL.substr(-4).split('.').pop().toLowerCase();
+            const ext = sampleURL.indexOf('.') === -1 ? '' : sampleURL.split('.').pop().toLowerCase();
             switch (ext) {
-                default:
+                case '':
                 case 'wav':
                     sampleData.buffer = await this.initAudioSample(audioContext, sampleURL);
                     break;
@@ -132,8 +133,8 @@
                 case 'json':
                     sampleData.periodicWave = await this.initAudioSample(audioContext, sampleURL);
                     break;
-//                 default:
-//                     reject("Unknown extension: " + ext);
+                default:
+                    reject("Unknown extension: " + ext);
             }
 
             this.samples[sampleID] = sampleData;
@@ -468,8 +469,12 @@
         //     return this.getAttribute('data-id');
         // }
 
-        renderForm(instrumentForm) {
-            this.form = new AudioSourceSynthesizerFormRenderer(instrumentForm, this);
+        render(renderObject=null) {
+            if(renderObject instanceof HTMLElement && renderObject.matches('asc-form')) {
+                this.form = new AudioSourceSynthesizerFormRenderer(renderObject, this);
+            } else {
+                throw new Error("Unknown renderer");
+            }
         }
 
         renderHTML() {
@@ -660,12 +665,17 @@
             return getScriptDirectory('sample/sample.library.json');
         }
 
+        /**
+         *
+         * @param {AudioSourceComposerForm} instrumentForm
+         * @param instrument
+         */
         constructor(instrumentForm, instrument) {
             this.form = instrumentForm;
             this.instrument = instrument;
 
             const sampleLibraryURL = instrument.config.libraryURL
-                || this.DEFAULT_SAMPLE_LIBRARY_URL
+                || this.DEFAULT_SAMPLE_LIBRARY_URL;
 
             this.sampleLibrary = new SampleLibrary();
             this.sampleLibrary.loadURL(sampleLibraryURL)
@@ -675,7 +685,7 @@
         }
 
         async render() {
-            const instrument = this.instrument;
+            // const instrument = this.instrument;
             const instrumentID = typeof this.instrument.id !== "undefined" ? this.instrument.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.form.clearInputs();
@@ -693,7 +703,7 @@
             );
 
 
-            this.form.addSelect('instrument-preset',
+            this.fieldChangePreset = this.form.addSelect('instrument-preset',
                 (e, presetURL) => this.setPreset(presetURL),
                 (addOption, setOptgroup) => {
                     addOption('', 'Change Preset');
@@ -716,6 +726,28 @@
 
             this.form.addBreak();
 
+            /** Sample Forms **/
+
+            const sampleHeaderForm = this.form.addForm('header');
+            sampleHeaderForm.addText('name', 'Name');
+            sampleHeaderForm.addText('url', 'URL');
+            sampleHeaderForm.addText('mix', 'Mix');
+            sampleHeaderForm.addText('detune', 'Detune');
+            sampleHeaderForm.addText('root', 'Root');
+            sampleHeaderForm.addText('alias', 'Alias');
+            sampleHeaderForm.addText('loop', 'Loop');
+            sampleHeaderForm.addText('adsr', 'ADSR');
+            sampleHeaderForm.addText('rem', 'Rem');
+
+            const samples = this.instrument.config.samples;
+            for(let i=0; i<samples.length; i++) {
+                const sampleForm = this.form.addForm(i);
+
+            }
+
+
+            /** Add New Sample **/
+
             this.fieldAddSample = this.form.addSelect(
                 'add-sample',
                 (e, sampleURL) => this.addSample(sampleURL),
@@ -732,6 +764,15 @@
                 '');
         }
 
+    // <th>Name</th>
+    // <th>URL</th>
+    // <th>Mix</th>
+    // <th>Detune</th>
+    // <th>Root</th>
+    // <th>Alias</th>
+    // <th>Loop</th>
+    // <th>ADSR</th>
+    // <th>Rem.</th>
         /** Modify Instrument **/
 
         remove() {
@@ -747,10 +788,12 @@
                 let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
                 newPresetConfig = Object.assign({}, this.instrument.config, newPresetConfig);
                 await this.instrument.song.replaceInstrument(this.instrument.id, newPresetConfig);
-                // await this.instrument.loadConfig(newPresetConfig);
+                await this.instrument.loadConfig(newPresetConfig);
             }
-
+            this.fieldChangePreset.renderOptions();
+            this.fieldChangePreset.value = '';
         }
+
         async addSample(sampleURL, promptUser=false) {
             if(promptUser)
                 sampleURL = prompt(`Add Sample URL:`, sampleURL || 'https://mysite.com/mysample.wav');
@@ -760,7 +803,7 @@
                 console.log("Loading library: " + sampleURL);
                 await this.sampleLibrary.loadURL(sampleURL);
                 this.fieldAddSample.renderOptions(); // TODO: re-trigger drop down on RN?
-
+                this.fieldAddSample.value = '';
             } else {
                 await this.instrument.addSample(sampleURL);
                 this.render();
@@ -774,7 +817,7 @@
 
     class SampleLibrary {
         constructor() {
-            this.url = "N/A";
+            this.url = null;
             this.sampleLibrary = {
                 "name": "Loading Sample Library...",
                 "samples": {},
