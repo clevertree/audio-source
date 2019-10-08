@@ -703,7 +703,7 @@
             );
 
 
-            this.fieldChangePreset = this.form.addSelect('instrument-preset',
+            this.fieldChangePreset = this.form.addSelectInput('instrument-preset',
                 (e, presetURL) => this.setPreset(presetURL),
                 (addOption, setOptgroup) => {
                     addOption('', 'Change Preset');
@@ -728,27 +728,35 @@
 
             /** Sample Forms **/
 
-            const sampleHeaderForm = this.form.addForm('header');
-            sampleHeaderForm.addText('name', 'Name');
-            sampleHeaderForm.addText('url', 'URL');
-            sampleHeaderForm.addText('mix', 'Mix');
-            sampleHeaderForm.addText('detune', 'Detune');
-            sampleHeaderForm.addText('root', 'Root');
-            sampleHeaderForm.addText('alias', 'Alias');
-            sampleHeaderForm.addText('loop', 'Loop');
-            sampleHeaderForm.addText('adsr', 'ADSR');
-            sampleHeaderForm.addText('rem', 'Rem');
+            const sampleGrid = this.form.addGrid('header');
+            sampleGrid.addText(0, 'header', 'Name');
+            sampleGrid.addText(1, 'header', 'URL');
+            sampleGrid.addText(2, 'header', 'Mix');
+            sampleGrid.addText(3, 'header', 'Detune');
+            sampleGrid.addText(4, 'header', 'Root');
+            sampleGrid.addText(5, 'header', 'Alias');
+            sampleGrid.addText(6, 'header', 'Loop');
+            sampleGrid.addText(7, 'header', 'ADSR');
+            sampleGrid.addText(8, 'header', 'Rem');
 
             const samples = this.instrument.config.samples;
             for(let i=0; i<samples.length; i++) {
-                const sampleForm = this.form.addForm(i);
-
+                const sample = samples[i];
+                // const sampleRow = this.form.addGrid(i);
+                sampleGrid.addTextInput(0, i, (e) => {}, 'Name', sample.name);
+                sampleGrid.addSelectInput(1, i, (e) => {}, (e) => {}, 'URL', sample.url);
+                sampleGrid.addRangeInput(2, i, (e) => {}, 1, 100, 'Mix', sample.mix);
+                sampleGrid.addRangeInput(3, i, (e) => {}, -100, 100, 'Detune', sample.detune);
+                sampleGrid.addSelectInput(4, i, (e) => {}, (e) => {}, 'Root', sample.keyRoot);
+                sampleGrid.addSelectInput(5, i, (e) => {}, (e) => {}, 'Alias', sample.keyAlias);
+                sampleGrid.addSelectInput(6, i, (e) => {}, (e) => {}, 'Loop', sample.loop);
+                sampleGrid.addTextInput(7, i, (e) => {}, 'ASDR', sample.asdr, '0,0,0,0');
             }
 
 
             /** Add New Sample **/
 
-            this.fieldAddSample = this.form.addSelect(
+            this.fieldAddSample = this.form.addSelectInput(
                 'add-sample',
                 (e, sampleURL) => this.addSample(sampleURL),
                 (addOption, setOptgroup) => {

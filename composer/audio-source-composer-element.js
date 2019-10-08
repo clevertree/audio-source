@@ -522,7 +522,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         if(!instrument) {
             // Render 'empty' instrument
-            instrumentForm.addSelect('instrument-add-url',
+            instrumentForm.addSelectInput('instrument-add-url',
                 (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
                 (addOption) => {
                     addOption('', 'Add Instrument');
