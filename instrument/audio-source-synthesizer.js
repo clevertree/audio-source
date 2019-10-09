@@ -221,78 +221,6 @@
 //             this.render();
 //         }
 
-        /** Modify Instrument **/
-
-
-        async addSample(sampleURL) {
-            if (!sampleURL)
-                throw new Error("Change sample URL canceled");
-
-            let addSampleName = sampleURL.split('/').pop().split('.').slice(0, -1).join('.');
-            addSampleName = prompt(`Set Sample Name:`, addSampleName);
-            const addSampleID = this.config.samples.length;
-            this.song.replaceInstrumentParam(this.id, ['samples', addSampleID], {
-                url: sampleURL,
-                name: addSampleName
-            });
-            await this.loadAudioSample(addSampleID);
-
-        }
-
-        /** Modify Sample **/
-
-        setSampleName(sampleID, newSampleName) {
-            if(!newSampleName)
-                throw new Error("Invalid sample name");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'name'], newSampleName);
-        }
-
-        setSamplePolyphony(sampleID, polyphonyLimit) {
-            if(!Number.isInteger(polyphonyLimit))
-                throw new Error("Invalid polyphony value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
-        }
-
-        async setSampleURL(sampleID, newSampleURL) {
-            newSampleURL = new URL(newSampleURL) + '';
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
-            await this.loadSamples();
-        }
-
-        async setSampleMixer(sampleID, newMixerValue) {
-            if(!Number.isInteger(newMixerValue))
-                throw new Error("Invalid mixer value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
-            await this.loadSamples();
-        }
-
-        async setSampleDetune(sampleID, newDetuneValue) {
-            if(newDetuneValue)
-                throw new Error("Invalid detune value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
-            await this.loadSamples();
-        }
-
-        async setSampleKeyRoot(sampleID, newKeyRootValue) {
-            if(newKeyRootValue)
-                throw new Error("Invalid keyRoot value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
-            await this.loadSamples();
-        }
-
-        async setSampleKeyAlias(sampleID, newKeyAliasValue) {
-            if(newKeyAliasValue)
-                throw new Error("Invalid keyAlias value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
-            await this.loadSamples();
-        }
-
-        async setSampleLoop(sampleID, newLoopValue) {
-            if(newLoopValue)
-                throw new Error("Invalid loop value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
-            await this.loadSamples();
-        }
 
 
         /** Playback **/
@@ -477,143 +405,75 @@
             }
         }
 
-        renderHTML() {
-            // Use Panel UI. If not available, load it
-            const instrumentID = this.id || 'N/A'; // this.getAttribute('data-id') || '0';
-            const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID + ":");
-            const instrumentPreset = this.config;
-
-            // const SampleLibrary = customElements.get('asci-sample-library');
-
-            const noteFrequencies = this.noteFrequencies;
-            let noteFrequencyOptionsHTML = '';
-            for (let i = 1; i <= 6; i++)
-                for (let j = 0; j < noteFrequencies.length; j++)
-                    noteFrequencyOptionsHTML += `<option>${noteFrequencies[j] + i}</option>`;
-
-            let polyphonyOptionsHTML = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 128, 256, 512]
-                .map(polyphonyCount => `<option>${polyphonyCount}</option>`)
+        /** Modify Instrument **/
 
 
+        async addSample(sampleURL) {
+            if (!sampleURL)
+                throw new Error("Change sample URL canceled");
 
-            let containerElm = this.shadowDOM.querySelector('div.audio-source-synthesizer');
-            if (!containerElm) {
+            let addSampleName = sampleURL.split('/').pop().split('.').slice(0, -1).join('.');
+            addSampleName = prompt(`Set Sample Name:`, addSampleName);
+            const addSampleID = this.config.samples.length;
+            this.song.replaceInstrumentParam(this.id, ['samples', addSampleID], {
+                url: sampleURL,
+                name: addSampleName
+            });
+            await this.loadAudioSample(addSampleID);
 
-                // const linkHRef = getScriptDirectory('instrument/audio-source-synthesizer.css');
-                this.shadowDOM.innerHTML = `
-                <div class="audio-source-synthesizer"></div>
-            `;
-                containerElm = this.shadowDOM.querySelector('div.audio-source-synthesizer');
-            }
+        }
 
-            containerElm.innerHTML = `
-            <div class="instrument-container-header">
-            <table class="instrument-setting-list" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>Poly</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <form action="#" class="instrument-setting instrument-setting-polyphony submit-on-change" data-action="instrument:polyphony">
-                                <input type="number" name="polyphony" placeholder="Infinite" list="polyphonyOptions" min="0" max="256" value="${this.config.polyphony || '256'}" />
-                            </form>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <table class="sample-setting-list">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>URL</th>
-                        <th>Mix</th>
-                        <th>Detune</th>
-                        <th>Root</th>
-                        <th>Alias</th>
-                        <th>Loop</th>
-                        <th>ADSR</th>
-                        <th>Rem.</th>
-                    </tr>
-                </thead>
-                <tbody>
-            ${this.config.samples.map((sampleConfig, sampleID) => {
-                const sampleFileName = sampleConfig.url ? sampleConfig.url.split('/').pop() : "N/A";
-                return `
-                    <tr>
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-change-name submit-on-change" data-action="sample:changeName">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="text" name="name" value="${sampleConfig.name || ''}" placeholder="Unnamed">
-                            </form>
-                        </td>  
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-change-url submit-on-change" data-action="sample:changeURL">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <select name="url">
-                                    <option value="${sampleConfig.url}">${sampleFileName}</option>
-                                    ${this.sampleLibrary.eachSample((iSampleConfig, iSampleURL, iSampleName) => {
-                    if (iSampleURL === sampleConfig.url)
-                        return '';
-                    const iSampleFileName = iSampleURL.split('/').pop();
-                    return `<option value="${iSampleURL}">${iSampleFileName}</option>`
-                }).join('')}
-                                    <option value="">Custom URL</option>
-                                </select>
-                            </form>
-                        </td>  
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-mixer submit-on-change" data-action="sample:mixer">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="range" name="mixer" min="1" max="100" value="${sampleConfig.mixer || '-1'}" />
-                            </form>
-                        </td>    
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-detune submit-on-change" data-action="sample:detune">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="range" name="detune" min="-100" max="100" value="${0}" />
-                            </form>
-                        </td>      
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-root submit-on-change" data-action="sample:keyRoot">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="text" name="keyRoot" value="${sampleConfig.keyRoot || ''}" list="noteFrequencies" placeholder="N/A" />
-                            </form>
-                        </td>      
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-alias submit-on-change" data-action="sample:keyAlias">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="text" name="keyAlias" value="${sampleConfig.keyAlias || ''}" list="noteFrequencies" placeholder="N/A" />
-                            </form>
-                        </td>  
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-loop submit-on-change" data-action="sample:loop">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="checkbox" name="loop" ${sampleConfig.loop ? 'checked="checked"' : ''} />
-                            </form>
-                        </td>  
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-adsr submit-on-change" data-action="sample:adsr">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <input type="text" name="adsr" value="${sampleConfig.adsr || ''}" placeholder="0,0,0,0" />
-                            </form>
-                        </td>
-                        <td>   
-                            <form action="#" class="instrument-setting instrument-setting-remove submit-on-change" data-action="sample:remove">
-                                <input type="hidden" name="sampleID" value="${sampleID}" />
-                                <button name="remove">
-                                    <i class="ui-icon ui-subtract"></i>
-                                </button>
-                            </form>
-                        </td>  
-                    </tr>`;
-            }).join("\n")}
-            
-    `;
+        /** Modify Sample **/
 
-        };
+        setSampleName(sampleID, newSampleName) {
+            if(!newSampleName)
+                throw new Error("Invalid sample name");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'name'], newSampleName);
+        }
+
+        setSamplePolyphony(sampleID, polyphonyLimit) {
+            if(!Number.isInteger(polyphonyLimit))
+                throw new Error("Invalid polyphony value");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
+        }
+
+        async setSampleURL(sampleID, newSampleURL) {
+            newSampleURL = new URL(newSampleURL) + '';
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
+            await this.loadAudioSample(sampleID);
+        }
+
+        async setSampleMixer(sampleID, newMixerValue) {
+            if(!Number.isInteger(newMixerValue))
+                throw new Error("Invalid mixer value");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
+        }
+
+        async setSampleDetune(sampleID, newDetuneValue) {
+            if(!Number.isInteger(newDetuneValue))
+                throw new Error("Invalid detune value");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
+        }
+
+        async setSampleKeyRoot(sampleID, newKeyRootValue) {
+            if(!newKeyRootValue)
+                throw new Error("Invalid keyRoot value");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
+        }
+
+        async setSampleKeyAlias(sampleID, newKeyAliasValue) {
+            if(!newKeyAliasValue)
+                throw new Error("Invalid keyAlias value");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
+        }
+
+        async setSampleLoop(sampleID, newLoopValue) {
+            if(typeof newLoopValue !== 'boolean')
+                throw new Error("Invalid loop value");
+            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
+        }
+
+
 
 
         getFrequencyAliases() {
@@ -665,6 +525,10 @@
             return getScriptDirectory('sample/sample.library.json');
         }
 
+        get noteFrequencies() {
+            return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+        }
+
         /**
          *
          * @param {AudioSourceComposerForm} instrumentForm
@@ -673,15 +537,39 @@
         constructor(instrumentForm, instrument) {
             this.form = instrumentForm;
             this.instrument = instrument;
+            this.sampleLibrary = new SampleLibrary();
 
             const sampleLibraryURL = instrument.config.libraryURL
                 || this.DEFAULT_SAMPLE_LIBRARY_URL;
 
-            this.sampleLibrary = new SampleLibrary();
-            this.sampleLibrary.loadURL(sampleLibraryURL)
-                .then(r => this.fieldAddSample.renderOptions());
-
             this.render().then();
+            this.loadDefaultSampleLibrary(sampleLibraryURL).then();
+
+            const root = instrumentForm.getRootNode() || document;
+            this.appendCSS(root);
+        }
+
+        async loadDefaultSampleLibrary(sampleLibraryURL) {
+            await this.sampleLibrary.loadURL(sampleLibraryURL);
+            await this.render(); // TODO: inefficient?
+            // this.fieldAddSample.renderOptions();
+        }
+
+        appendCSS(rootElm) {
+
+            // Append Instrument CSS
+            const PATH = 'instrument/audio-source-synthesizer.css';
+            const linkHRef = getScriptDirectory(PATH);
+            console.log(rootElm);
+            let linkElms = rootElm.querySelectorAll('link');
+            for(let i=0; i<linkElms.length; i++) {
+                if(linkElms[i].href.endsWith(PATH))
+                    return;
+            }
+            const linkElm = document.createElement('link');
+            linkElm.setAttribute('href', linkHRef);
+            linkElm.setAttribute('rel', 'stylesheet');
+            rootElm.prepend(linkElm);
         }
 
         async render() {
@@ -689,6 +577,7 @@
             const instrumentID = typeof this.instrument.id !== "undefined" ? this.instrument.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.form.clearInputs();
+            this.form.classList.add('audio-source-synthesizer-container');
 
             this.form.addButton('instrument-id',
                 null, //TODO: toggle view
@@ -728,30 +617,45 @@
 
             /** Sample Forms **/
 
-            const sampleGrid = this.form.addGrid('header');
-            sampleGrid.addText(0, 'header', 'Name');
-            sampleGrid.addText(1, 'header', 'URL');
-            sampleGrid.addText(2, 'header', 'Mix');
-            sampleGrid.addText(3, 'header', 'Detune');
-            sampleGrid.addText(4, 'header', 'Root');
-            sampleGrid.addText(5, 'header', 'Alias');
-            sampleGrid.addText(6, 'header', 'Loop');
-            sampleGrid.addText(7, 'header', 'ADSR');
-            sampleGrid.addText(8, 'header', 'Rem');
+            const sampleGrid = this.form.addGrid('samples');
+            const headerRow = sampleGrid.getOrCreateRow('header');
+            headerRow.addText('name', 'Name');
+            headerRow.addText('url', 'URL');
+            headerRow.addText('mixer', 'Mixer');
+            headerRow.addText('detune', 'Detune');
+            headerRow.addText('root', 'Root');
+            headerRow.addText('alias', 'Alias');
+            headerRow.addText('loop', 'Loop');
+            headerRow.addText('adsr', 'ADSR');
+            headerRow.addText('remove', 'Rem');
+
+            const getNoteFrequencies = (addOption) => {
+                const noteFrequencies = this.noteFrequencies;
+                for (let i = 1; i <= 6; i++) {
+                    for (let j = 0; j < noteFrequencies.length; j++) {
+                        addOption(noteFrequencies[j] + i);
+                    }
+                }
+            };
+
+            const getSampleURLs = (addOption) => {
+                this.sampleLibrary.eachSample(addOption);
+            };
+
 
             const samples = this.instrument.config.samples;
-            for(let i=0; i<samples.length; i++) {
-                const sample = samples[i];
+            samples.forEach((sampleData, sampleID) => {
+                const sampleRow = sampleGrid.getOrCreateRow('sample-' + sampleID);
                 // const sampleRow = this.form.addGrid(i);
-                sampleGrid.addTextInput(0, i, (e) => {}, 'Name', sample.name);
-                sampleGrid.addSelectInput(1, i, (e) => {}, (e) => {}, 'URL', sample.url);
-                sampleGrid.addRangeInput(2, i, (e) => {}, 1, 100, 'Mix', sample.mix);
-                sampleGrid.addRangeInput(3, i, (e) => {}, -100, 100, 'Detune', sample.detune);
-                sampleGrid.addSelectInput(4, i, (e) => {}, (e) => {}, 'Root', sample.keyRoot);
-                sampleGrid.addSelectInput(5, i, (e) => {}, (e) => {}, 'Alias', sample.keyAlias);
-                sampleGrid.addSelectInput(6, i, (e) => {}, (e) => {}, 'Loop', sample.loop);
-                sampleGrid.addTextInput(7, i, (e) => {}, 'ASDR', sample.asdr, '0,0,0,0');
-            }
+                sampleRow.addTextInput(     'name',     (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                sampleRow.addSelectInput(   'url',      (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', sampleData.url);
+                sampleRow.addRangeInput(    'mixer',    (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
+                sampleRow.addRangeInput(    'detune',   (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
+                sampleRow.addSelectInput(   'root',     (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot);
+                sampleRow.addSelectInput(   'alias',    (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
+                sampleRow.addCheckBoxInput( 'loop',     (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
+                sampleRow.addTextInput(     'adsr',     (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
+            });
 
 
             /** Add New Sample **/
@@ -772,15 +676,6 @@
                 '');
         }
 
-    // <th>Name</th>
-    // <th>URL</th>
-    // <th>Mix</th>
-    // <th>Detune</th>
-    // <th>Root</th>
-    // <th>Alias</th>
-    // <th>Loop</th>
-    // <th>ADSR</th>
-    // <th>Rem.</th>
         /** Modify Instrument **/
 
         remove() {
@@ -819,6 +714,37 @@
 
         }
 
+        async setSampleName(sampleID, nameString) {
+            return this.instrument.setSampleName(sampleID, nameString);
+        }
+
+        async setSampleURL(sampleID, url) {
+            return this.instrument.setSampleURL(sampleID, url);
+        }
+
+        async setSampleDetune(sampleID, detuneValue) {
+            return this.instrument.setSampleDetune(sampleID, detuneValue);
+        }
+
+        async setSampleMixer(sampleID, mixValue) {
+            return this.instrument.setSampleMixer(sampleID, mixValue);
+        }
+
+        async setSampleKeyRoot(sampleID, keyRoot) {
+            return this.instrument.setSampleKeyRoot(sampleID, keyRoot);
+        }
+
+        async setSampleKeyAlias(sampleID, keyAlias) {
+            return this.instrument.setSampleKeyAlias(sampleID, keyAlias);
+        }
+
+        async setSampleLoop(sampleID, isLoop) {
+            return this.instrument.setSampleLoop(sampleID, isLoop);
+        }
+
+        async setSampleASDR(sampleID, asdr) {
+            return this.instrument.setSampleASDR(sampleID, asdr);
+        }
     }
 
 

@@ -539,18 +539,18 @@ class AudioSourceComposerElement extends HTMLElement {
             try {
                 if (instrument instanceof HTMLElement) {
                     instrument.setAttribute('data-id', instrumentID+'');
-                    instrumentForm.containerElm.appendChild(instrument);
+                    instrumentForm.appendChild(instrument);
 
                 } else if (typeof instrument.render === "function") {
                     const renderedHTML = instrument.render(instrumentForm);
                     if(renderedHTML)
-                        instrumentForm.containerElm.innerHTML = renderedHTML;
+                        instrumentForm.innerHTML = renderedHTML;
                 } else {
                     throw new Error("No Renderer");
                 }
 
             } catch (e) {
-                instrumentForm.containerElm.innerHTML = e;
+                instrumentForm.innerHTML = e;
             }
         }
     }

@@ -211,6 +211,7 @@ asc-menu.open-context-menu > .dropdown-container {
 
 asc-form  {
     display: inline-block;
+    vertical-align: top;
 }
 
 asc-form > div.header {
@@ -302,8 +303,26 @@ asc-form[key=instruments]  ascf-input-select[key=instrument-preset]       select
 
 
 
+/** Grid **/
 
+asc-grid {
+    display: table;
+    border-collapse: collapse;
+}
 
+ascg-row {
+    display: table-row;
+}
+
+ascg-row > * {
+    display: table-cell !important;
+}
+
+/** Text **/
+
+ascf-text {
+    /* display: inline-block; */
+}
 
 /** Editor Inputs **/
 
