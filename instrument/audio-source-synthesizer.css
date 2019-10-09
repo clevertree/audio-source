@@ -17,7 +17,12 @@
 }
 
 
-/** Custom Inputs **/
+/** Inputs **/
+
+.audio-source-synthesizer-container  ascf-input-button[key=instrument-remove],
+.audio-source-synthesizer-container  ascf-input-select[key=instrument-preset]               {
+    float:  right;
+}
 
 .audio-source-synthesizer-container  ascf-input-text[key=name]        input       {width: 90px;}
 .audio-source-synthesizer-container  ascf-input-select[key=url]       select      {width: 60px;}

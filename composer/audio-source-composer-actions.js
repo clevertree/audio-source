@@ -7,6 +7,10 @@ class AudioSourceComposerActions {
 
     /** Song Commands **/
 
+    setInstrumentName(e, instrumentID, newInstrumentName) {
+        return this.editor.song.setInstrumentName(instrumentID, newInstrumentName);
+    }
+
     setSongName(e, newSongName) {
         this.editor.song.name = newSongName;
         this.editor.setStatus(`Song name updated: ${newSongName}`);

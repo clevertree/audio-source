@@ -106,6 +106,10 @@ class AudioSourceComposerForm extends HTMLElement {
     addButton(key, callback, buttonInnerHTML, title=null) {
         return this.addInput(new AudioSourceComposerFormButton(key, callback, buttonInnerHTML, title)); }
 
+    addIconButton(key, callback, iconClass, title=null) {
+        const iconElm = new AudioSourceComposerFormIcon(null, iconClass);
+        return this.addInput(new AudioSourceComposerFormButton(key, callback, iconElm, title)); }
+
     addSelectInput(key, callback, optionsCallback, title = null, defaultValue=null) {
         return this.addInput(new AudioSourceComposerFormSelect(key, callback, optionsCallback, title, defaultValue)); }
 
@@ -118,7 +122,7 @@ class AudioSourceComposerForm extends HTMLElement {
         return this.addInput(new AudioSourceComposerFormInputText(key, callback, title, defaultValue, placeholder)); }
 
     addCheckBoxInput(key, callback, title=null, defaultValue=false) {
-        return this.addInput(new AudioSourceComposerFormInputCheckbox(key, callback, title, defaultValue)); }
+        return this.addInput(new AudioSourceComposerFormInputCheckBox(key, callback, title, defaultValue)); }
 
     addFileInput(key, callback, buttonInnerHTML, accepts=null, title=null) {
         return this.addInput(new AudioSourceComposerFormFileInput(key, callback, buttonInnerHTML, accepts, title)); }
@@ -185,6 +189,10 @@ class AudioSourceComposerGrid extends HTMLElement {
     addButton(rowKey, key, callback, buttonInnerHTML, title=null) {
         return this.getOrCreateRow(rowKey)
             .addButton(key, callback, buttonInnerHTML, title); }
+
+    addIconButton(rowKey, key, callback, iconClass, title=null) {
+        return this.getOrCreateRow(rowKey)
+            .addIconButton(key, callback, iconClass, tit); }
 
     addSelectInput(rowKey, key, callback, optionsCallback, title = null, defaultValue=null) {
         return this.getOrCreateRow(rowKey)
@@ -259,6 +267,10 @@ class AudioSourceComposerGridRow extends HTMLElement {
     addButton(key, callback, buttonInnerHTML, title=null) {
         return this.addInput(new AudioSourceComposerFormButton(key, callback, buttonInnerHTML, title)); }
 
+    addIconButton(key, callback, iconClass, title=null) {
+        const iconElm = new AudioSourceComposerFormIcon(null, iconClass);
+        return this.addInput(new AudioSourceComposerFormButton(key, callback, iconElm, title)); }
+
     addSelectInput(key, callback, optionsCallback, title = null, defaultValue=null) {
         return this.addInput(new AudioSourceComposerFormSelect(key, callback, optionsCallback, title, defaultValue)); }
 
@@ -324,7 +336,9 @@ class AudioSourceComposerFormButton extends AudioSourceComposerPanelInputAbstrac
         buttonElm.classList.add('themed');
         if(title)
             buttonElm.setAttribute('title', title);
-        if(innerHTML !== null)
+        if(innerHTML instanceof HTMLElement)
+            buttonElm.appendChild(innerHTML)
+        else // if(typeof innerHTML === "string")
             buttonElm.innerHTML = innerHTML;
         this.appendChild(buttonElm);
 
@@ -495,6 +509,7 @@ class AudioSourceComposerFormRangeInput extends AudioSourceComposerPanelInputAbs
 
     get inputElm() { return this.querySelector('input'); }
     get value() { return parseInt(this.inputElm.value); }
+    set value(newRangeValue) { this.inputElm.value = newRangeValue; }
 
     onChange(e) {
         // console.log(e.type);
@@ -600,7 +615,7 @@ class AudioSourceComposerFormFileInput extends AudioSourceComposerPanelInputAbst
 customElements.define('ascf-file', AudioSourceComposerFormFileInput);
 
 
-/** Abstract Panel Input **/
+/** Text **/
 class AudioSourceComposerFormText extends HTMLElement {
     constructor(key, innerHTML) {
         super();
@@ -614,3 +629,19 @@ class AudioSourceComposerFormText extends HTMLElement {
     }
 }
 customElements.define('ascf-text', AudioSourceComposerFormText);
+
+
+/** Icon **/
+class AudioSourceComposerFormIcon extends HTMLElement {
+    constructor(key, iconClass) {
+        super();
+        if(key !== null)
+            this.setAttribute('key', key);
+        this.classList.add(iconClass);
+    }
+
+    get key() {
+        return this.getAttribute('key');
+    }
+}
+customElements.define('ascf-icon', AudioSourceComposerFormIcon);

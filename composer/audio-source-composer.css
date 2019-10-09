@@ -14,31 +14,16 @@
 
 /** Container **/
 .asc-container {
-    /* position: relative; */
-    /* display: flex; */
-    /* flex-wrap: wrap; */
-    /* flex-flow: column; */
     max-height: 1000px;
-    /* font-family: monospace; */
-    /* color: #000; */
-    /* background-color: #bdc3c7; */
-    /* margin-top: -14px; */
-    /* user-select: none; */
     -moz-user-select: none;
-    /* -webkit-user-select: none; */
     -ms-user-select:none;
-    /* overflow: auto; */
 }
 
 /** Status Bar **/
 .asc-status-container {
-    /* position: absolute; */
     display: block;
-    /* bottom: 0px; */
     background-color: #FFF;
     color: #000;
-    /* height: 14px; */
-    /* width: 98%; */
     padding: 0px;
 }
 
@@ -49,7 +34,6 @@
 .asc-status-container .version-text {
     float: right;
     padding-right: 4px;
-    /* color: black; */
 }
 
 .asc-status-container .version-text:not(:hover) {
@@ -58,8 +42,6 @@
 /** Full Screen **/
 audio-source-composer.fullscreen {
     position: fixed;
-    /* display: flex; */
-    /* flex-flow: column; */
     left: 0;
     top: 0;
     width: 100%;
@@ -73,107 +55,6 @@ audio-source-composer.fullscreen {
 }
 .asc-container.fullscreen {
     max-height: 100%;
-    /* min-height: 50%; */
-}
-
-
-
-
-/** Menu **/
-
-
-asc-menu {
-    color: black;
-    /* background-color: #bdc3c7; */
-    padding: 0 0;
-    margin: 0 0;
-    cursor: pointer;
-    display: inline-block;
-    white-space: nowrap;
-}
-
-asc-menu.selected {
-    background-color: #AAA;
-}
-
-.dropdown-container > asc-menu {
-    display: block;
-}
-
-
-/** Menu Text **/
-asc-menu > div.caption {
-    padding: 3px 6px;
-    display: inline-block;
-}
-
-asc-menu:hover {
-    background-color: #AAA;
-}
-asc-menu.stick {
-    /*transition: background-color 0.3s;*/
-    background-color: #888;
-}
-
-
-asc-menu span.arrow {
-    padding: 4px;
-}
-asc-menu span.arrow:after {
-    content: '►';
-}
-
-asc-menu div.caption > input[type=checkbox] {
-    vertical-align: text-top;
-}
-
-/** Drop Down Menu **/
-
-
-asc-menu > .dropdown-container {
-     background-color: #bdc3c7;
-    display: block;
-    /* display: flex; */
-    z-index: 3;
-    flex-direction: column;
-    position: absolute;
-    border-radius: 2px;
-    /*transition: all 0.1s 0.2s ease-in;*/
-    transform: scaleY(0);
-    opacity: 0;
-
-    border: 1px solid grey;
-}
-
-/** Drop Down Trigger **/
-asc-menu.open > .dropdown-container {
-    z-index: 5;
-    /*left: 0;*/
-    transform: scaleY(1);
-    opacity: 1;
-}
-asc-menu.stick > .dropdown-container {
-    z-index: 4;
-}
-
-.dropdown-container > asc-menu > .dropdown-container {
-    display: inline-block;
-}
-
-
-/** Disabled Menu **/
-asc-menu[disabled] {
-    /*opacity: 0.5;*/
-    color: #777;
-    cursor: not-allowed;
-}
-
-
-/** Menu Break **/
-
-asc-menu > hr {
-    margin: 4px 0;
-    border: 1px #666 solid;
 }
 
 
@@ -197,31 +78,6 @@ asc-menu.open-context-menu > .dropdown-container {
 
 
 
-
-
-/** Generic Forms **/
-
-/*.asc-container form {*/
-/*    margin: 0;*/
-/*    display: inline-block;*/
-/*    vertical-align: top;*/
-/*}*/
-
-/** Editor Forms **/
-
-asc-form  {
-    display: inline-block;
-    vertical-align: top;
-}
-
-asc-form > div.header {
-    font-size: small;
-    border-bottom: 1px solid #BBB;
-    /* text-decoration-color: #AAA; */
-    margin-bottom: 1px;
-    cursor: pointer;
-}
-
 /** Editor Panels **/
 
 asc-form.panel {
@@ -231,7 +87,6 @@ asc-form.panel {
 }
 
 asc-form.panel > div.header {
-    /* display: inline-block; */
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -239,30 +94,18 @@ asc-form.panel > div.header {
     text-align: center;
     padding: 2px 6px 0px 6px;
     margin: 0;
-    /* width: 100%; */
-    /* flex-basis: 100%; */
-    /* height: 0; */
     border-radius: 8px 8px 0 0;
 }
 
 
 asc-form.panel {
-    /* border: 0px outset #FFF; */
-    /*background: #DDD;*/
-    /* flex-wrap: wrap; */
-    /* clear: both; */
-    /* overflow-y: auto; */
-    /* min-height: 20px; */
 }
 
 asc-form.panel > asc-form {
     background: #DDD;
     border: 1px outset #FFF;
-     /* vertical-align: top; */
-     /* display: inline-block; */
-    padding: 4px 6px;
+    padding: 2px 4px;
     margin: 0px 0px 0px 0px;
-     /* min-height: 32px; */
 }
 
 
@@ -302,41 +145,6 @@ asc-form[key=instruments]  ascf-input-select[key=instrument-preset]       select
 
 
 
-
-/** Grid **/
-
-asc-grid {
-    display: table;
-    border-collapse: collapse;
-}
-
-ascg-row {
-    display: table-row;
-}
-
-ascg-row > * {
-    display: table-cell !important;
-}
-
-/** Text **/
-
-ascf-text {
-    /* display: inline-block; */
-}
-
-/** Editor Inputs **/
-
-ascf-input-button,
-ascf-input-select,
-ascf-input-range,
-ascf-input-text,
-ascf-file {
-    display: inline-block;
-    vertical-align: top;
-}
-
-
-
 /*@media only screen and (min-width: 1000px) {*/
 /*    .asc-container .form-section-divide {*/
 /*        width: 12px;*/
@@ -369,14 +177,11 @@ ascf-file {
     display: inline-block;
     padding: 0px 0px;
     border-radius: 2px;
-    /* min-height: 24px; */
     transition: all 0.2s;
     border: 1px outset transparent;
     background: transparent;
     cursor: pointer;
-    /* font-size: x-small; */
-    /* max-width: 200px; */
-    /* vertical-align: top; */
+    height: 24px;
 }
 
 .asc-container .input-style:hover,
@@ -388,7 +193,6 @@ ascf-file {
 .asc-container select.themed:focus,
 .asc-container button.themed:focus {
     background: #FFF;
-/*     border: 1px outset #FFF; */
 }
 
 .asc-container input.themed[type=text] {
@@ -397,13 +201,8 @@ ascf-file {
 .asc-container button.themed {
     display: inline-block;
     padding: 0px 0px;
-    /* border: 1px outset transparent; */
     border-radius: 2px;
-    /* min-height: 24px; */
     transition: border 0.2s;
-    /* font-size: x-small; */
-    /* max-width: 200px; */
-    /* vertical-align: top; */
 }
 
 .asc-container button.themed > span {
@@ -415,33 +214,19 @@ ascf-file {
     -webkit-appearance: none;
     background-color: #AAA;
     border-radius: 15px;
-    height: 10px;
-    margin: 7px;
+    height: 2px;
+    margin: 11px;
 }
 .asc-container input.themed[type='range']::-webkit-slider-thumb {
     vertical-align: middle;
     -webkit-appearance: none;
     background-color: #444;
-    width: 16px;
-    height: 16px;
-    border-radius: 16px;
+    width: 6px;
+    height: 12px;
+    border-radius: 4px;
 }
 
 
-.asc-container input.themed[type=checkbox] {
-    /* vertical-align: text-top; */
-    /* width: 16px; */
-    /* height: 16px; */
-    /* margin: 5px; */
-    /* left: -25px; */
-    /* position: absolute; */
-}
-
-.asc-container .volume-container {
-     /*border: 1px solid #AAA;*/
-     /*border-radius: 6px;*/
-    /* max-height: 15px; */
-}
 
 /** Disabled Inputs **/
 
@@ -474,12 +259,7 @@ ascf-file {
 
 /** Tracker **/
 asc-tracker {
-    /* display: block; */
     position: relative;
-    /* overflow-y: auto; */
-    /* flex-grow: 1; */
-    /* max-height: 100%; */
-    /* margin-bottom: 16px; */
     flex-basis: 100%;
 }
 
@@ -496,14 +276,6 @@ asc-tracker .tracker-header-pause {
 
 /** Tracker Row Segments **/
 
-asc-form[key=tracker-row-segments] {
-    /* min-width: 81px; */
-    /* display: block; */
-    /* overflow-y: auto; */
-    /* text-align: center; */
-    /* padding-top: 5px; */
-    /* clear: both; */
-}
 
 asc-form[key=tracker-row-segments] ascf-input-button > button {
     width: 2em;
@@ -519,7 +291,7 @@ asc-form[key=tracker-row-segments] ascf-input-button > button {
 asc-form[key=tracker-row-segments] asc-form.selected {
     background-color: #BBB;
     font-weight: bold;
-    border-bottom: 0px;
+    /* border-bottom: 0px; */
 }
 
 
@@ -536,12 +308,8 @@ asct-row {
     cursor: pointer;
     background-color: #C0C0C0;
     height: 1.45em;
-    /* margin: -3px 0px; */
-    /* border-top: 1px solid #BBB; */
     position: relative;
-    /* transition: background-color 0.1s ease-out; */
     border: 1px outset #FFF;
-    /* border-right: 0px solid #888; */
     padding: 0px;
 }
 
@@ -553,8 +321,6 @@ asct-row.measure-end {
 }
 asct-row:nth-child(odd) {
     background-color: #D0D0D0;
-    /* padding: 0; */
-    /* margin: 0; */
 }
 
 asct-row.cursor,
@@ -566,7 +332,6 @@ asct-row.selected {
 }
 asct-row.position,
 asct-row.playing {
-    /*transition: background-color 0s;*/
     background-color: #609060;
     position: relative;
     box-shadow: #AFA 0px 0px 4px;
@@ -576,10 +341,8 @@ asct-row.playing {
 /** Tracker Row Delta **/
 
 asct-delta {
-    /* width: 30px; */
     padding: 2px;
     color: #500;
-    /* text-align: left; */
 }
 asct-row > asct-delta {
     margin-left: auto;
@@ -591,7 +354,6 @@ asct-row > asct-delta {
 asct-instruction-add,
 asct-instruction {
     display: flex;
-    /* float: left; */
     overflow: hidden;
     padding: 1px;
     margin: 0;
@@ -600,7 +362,6 @@ asct-instruction {
     border-radius: 4px;
     background-color: #CCC;
     position: relative;
-    /* z-index: 1; */
 }
 
 asct-instruction-add {
@@ -624,7 +385,6 @@ asct-instruction.selected {
     max-width: 1000px;
     box-shadow: #6b6b6b 0 0px 3px;
     z-index: 2;
-    /* position: inherit; */
 }
 asct-instruction.playing {
     background-color: #80d55c;
@@ -649,7 +409,6 @@ ascti-instrument,
 ascti-velocity,
 ascti-duration {
     overflow: hidden;
-    /* transition: all 0.25s ease-out; */
     border-left: 1px solid #888;
     animation: slide-open 1s;
 }
@@ -677,7 +436,6 @@ ascti-instrument,
 ascti-velocity,
 ascti-duration {
     overflow: hidden;
-    /* transition: all 0.25s ease-out; */
     padding: 0px 2px;
 }
 
@@ -697,9 +455,6 @@ asc-tracker > div.selection-rect {
 
 
 .instrument-container {
-    /* display: inline-block; */
-    /* white-space: nowrap; */
-    /* min-width: 100px; */
     max-height: 2000px;
     max-width: 2000px;
     transition: max-height 0.5s, max-width 0.5s;
@@ -712,29 +467,3 @@ asc-tracker > div.selection-rect {
     overflow: hidden;
 }
 
-
-/** Icons **/
-
-i.ui-icon {
-    font-size: 24px;
-    display: block;
-    width: 1em;
-    height: 1em;
-    padding: 0px;
-    margin: 0px;
-    background: url("../assets/img/ui-icons.png");
-    /*font-size: 0px;*/
-    background-size: 10em 5em;
-    /* vertical-align: top; */
-}
-i.ui-play { background-position: -3em -1em; }
-i.ui-pause {background-position: -4em -1em;}
-i.ui-stop {background-position: -5em -1em;}
-i.ui-resume { background-position: -3em -1em; }
-
-i.ui-insert {background-position: -3em -10em;}
-i.ui-remove {background-position: -6em 0em;}
-i.ui-subtract {background-position: -4em 0em;}
-
-i.ui-file-load {background-position: 0em 0em;}
-i.ui-file-save {background-position: -1em 0em;}

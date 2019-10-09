@@ -932,17 +932,17 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get fieldInstructionInsert() {
         return this.formInstructionCommand.getInput('insert', false)
-            || this.formInstructionCommand.addButton('insert',
+            || this.formInstructionCommand.addIconButton('insert',
                 e => this.editor.actions.insertInstructionCommand(e),
-                `<i class="ui-icon ui-insert"></i>`,
+                `insert`,
                 "Insert Instruction");
     }
 
     get fieldInstructionDelete() {
         return this.formInstructionCommand.getInput('delete', false)
-            || this.formInstructionCommand.addButton('delete',
+            || this.formInstructionCommand.addIconButton('delete',
                 e => this.editor.actions.deleteInstructionCommand(e),
-                `<i class="ui-icon ui-subtract"></i>`,
+                `subtract`,
                 "Delete Instruction");
     }
     get fieldInstructionInstrument() {

@@ -147,10 +147,11 @@
             let audioBuffer;
 
             console.info("Loading Initiated: ", sampleURL);
-            const ext = sampleURL.split('.').pop().toLowerCase();
+            const ext = sampleURL.indexOf('.') === -1 ? '' : sampleURL.split('.').pop().toLowerCase();
 
             switch (ext) {
                 // default:
+                case '':
                 case 'wav':
                     // sampleCache.buffer = await audioContext.decodeAudioData(audioData);
                     audioBuffer = await new Promise((resolve, reject) => {
@@ -206,7 +207,7 @@
             source.loop = loop;
             source.playbackRate.value = playbackRate; //  Math.random()*2;
             if (detune !== null)
-                source.detune = detune;
+                source.detune.value = detune;
             await this.playSource(destination, source, startTime, duration, velocity, adsr);
             // return source;
         }
@@ -583,6 +584,12 @@
             );
 
 
+
+            this.form.addIconButton('instrument-remove',
+                (e) => this.remove(e, instrumentID),
+                'remove',
+                'Remove Instrument');
+
             this.fieldChangePreset = this.form.addSelectInput('instrument-preset',
                 (e, presetURL) => this.setPreset(presetURL),
                 (addOption, setOptgroup) => {
@@ -597,12 +604,6 @@
                 'Change Instrument',
                 '');
 
-
-
-            this.form.addButton('instrument-remove',
-                (e) => this.remove(e, instrumentID),
-                '<i class="ui-icon ui-remove"></i>',
-                '');
 
             this.form.addBreak();
 

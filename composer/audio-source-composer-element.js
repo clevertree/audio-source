@@ -46,7 +46,7 @@ class AudioSourceComposerElement extends HTMLElement {
     set sampleLibraryURL(url)   { this.setAttribute('sampleLibraryURL', url); }
 
     connectedCallback() {
-        // this.loadCSS();
+        this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
 
         this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
@@ -373,10 +373,12 @@ class AudioSourceComposerElement extends HTMLElement {
 
     render() {
         const Libraries = new AudioSourceLibraries;
-        const linkHRef = Libraries.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRefComposer = Libraries.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
         this.shadowDOM.innerHTML = `
-        <link rel="stylesheet" href="${linkHRef}" />
+        <link rel="stylesheet" href="${linkHRefComposer}" />
+        <link rel="stylesheet" href="${linkHRefCommon}" />
         <div class="asc-container">
             <div class="asc-menu-container">
                 <asc-menu key="file" caption="File"></asc-menu>
@@ -422,21 +424,21 @@ class AudioSourceComposerElement extends HTMLElement {
 
     get fieldSongPlaybackPlay() {
         return this.formSongPlayback.getInput('play', false)
-            || this.formSongPlayback.addButton('play', e => this.actions.songPlay(e),
-                `<i class="ui-icon ui-play"></i>`,
+            || this.formSongPlayback.addIconButton('play', e => this.actions.songPlay(e),
+                `play`,
                 "Play Song");
     }
     get fieldSongPlaybackPause() {
         return this.formSongPlayback.getInput('pause', false)
-            || this.formSongPlayback.addButton('pause', e => this.actions.songPause(e),
-                `<i class="ui-icon ui-pause"></i>`,
-                "Play Song");
+            || this.formSongPlayback.addIconButton('pause', e => this.actions.songPause(e),
+                `pause`,
+                "Pause Song");
     }
     get fieldSongPlaybackStop() {
         return this.formSongPlayback.getInput('stop', false)
-            || this.formSongPlayback.addButton('pause', e => this.actions.songStop(e),
-                `<i class="ui-icon ui-stop"></i>`,
-                "Play Song");
+            || this.formSongPlayback.addIconButton('pause', e => this.actions.songStop(e),
+                `stop`,
+                "Stop Song");
     }
 
     get fieldSongVolume() {
@@ -475,9 +477,9 @@ class AudioSourceComposerElement extends HTMLElement {
 
     get fieldSongFileSave() {
         return this.formSongFile.getInput('file-save', false)
-            || this.formSongFile.addButton('file-save',
+            || this.formSongFile.addIconButton('file-save',
                 e => this.actions.songFileSave(e),
-                `<i class="ui-icon ui-file-save"></i>`,
+                `file-save`,
                 "Save Song to File"
             );
     }
@@ -513,12 +515,12 @@ class AudioSourceComposerElement extends HTMLElement {
             instrumentIDHTML + ':'
         );
 
-        instrumentForm.addTextInput('instrument-name',
-            (e, newInstrumentName) => this.actions.setInstrumentName(e, newInstrumentName),
-            'Instrument Name',
-            '',
-            'Unnamed'
-        );
+        // instrumentForm.addTextInput('instrument-name',
+        //     (e, newInstrumentName) => this.actions.setInstrumentName(e, instrumentID, newInstrumentName),
+        //     'Instrument Name',
+        //     '',
+        //     'Unnamed'
+        // );
 
         if(!instrument) {
             // Render 'empty' instrument
@@ -814,6 +816,7 @@ class AudioSourceComposerElement extends HTMLElement {
         cssLink.setAttribute("type", "text/css");
         cssLink.setAttribute("href", linkHRef);
         targetDOM.appendChild(cssLink);
+        console.info("Appending " + linkHRef);
     }
 }
 customElements.define('audio-source-composer', AudioSourceComposerElement);
