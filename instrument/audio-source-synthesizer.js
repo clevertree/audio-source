@@ -185,43 +185,6 @@
 
 
 
-        // TODO: break up / redefine
-//         async loadDefaultSampleLibrary() {
-//             this.loadSamples();
-//
-//             if (!this.sampleLibrary) {
-//                 await this.sampleLibrary.loadURL(this.config.libraryURL || this.DEFAULT_SAMPLE_LIBRARY_URL);
-//                 this.render();
-//             }
-//
-//             // Load first library
-//             if (this.sampleLibrary.libraries && !this.sampleLibrary.instruments && !this.sampleLibrary.samples) {
-//                 const firstLibrary = this.sampleLibrary.libraries[0];
-//                 firstLibrary.url = new URL(firstLibrary.url, this.sampleLibrary.url) + '';
-//                 if (firstLibrary.url !== this.sampleLibrary.url) {
-//                     await this.sampleLibrary.loadURL(firstLibrary.url);
-//                     this.render();
-//                 }
-//
-//             }
-//
-//             // Load default sample
-//             if (this.sampleLibrary.instruments) {
-//                 if (Object.keys(this.config.samples).length === 0) {
-//                     const sampleInstrument = Object.keys(this.sampleLibrary.instruments)[0];
-//
-//                     this.loadConfig(this.sampleLibrary.getPresetConfig(sampleInstrument));
-//
-// //                 console.info("Loaded default sample instrument: " + sampleInstrument, this.config);
-// //                 if(this.audioContext)
-// //                     await this.initSamples(this.audioContext);
-//                 }
-//             }
-//
-//             this.render();
-//         }
-
-
 
         /** Playback **/
 
@@ -326,17 +289,6 @@
                     adsr
                 );
             }
-
-            // if (sources.length === 0)
-            //     console.warn("No sources were created");
-
-
-            // Detune
-            if (typeof sampleConfig.detune !== "undefined")
-                sources.forEach(source => source.detune.value = sampleConfig.detune);
-
-            // console.log("Buffer Play: ", playbackRate);
-            // return sources;
 
         }
 
@@ -555,6 +507,45 @@
             // this.fieldAddSample.renderOptions();
         }
 
+        // TODO: break up / redefine
+//         async loadDefaultSampleLibrary() {
+//             this.loadSamples();
+//
+//             if (!this.sampleLibrary) {
+//                 await this.sampleLibrary.loadURL(this.config.libraryURL || this.DEFAULT_SAMPLE_LIBRARY_URL);
+//                 this.render();
+//             }
+//
+//             // Load first library
+//             if (this.sampleLibrary.libraries && !this.sampleLibrary.instruments && !this.sampleLibrary.samples) {
+//                 const firstLibrary = this.sampleLibrary.libraries[0];
+//                 firstLibrary.url = new URL(firstLibrary.url, this.sampleLibrary.url) + '';
+//                 if (firstLibrary.url !== this.sampleLibrary.url) {
+//                     await this.sampleLibrary.loadURL(firstLibrary.url);
+//                     this.render();
+//                 }
+//
+//             }
+//
+//             // Load default sample
+//             if (this.sampleLibrary.instruments) {
+//                 if (Object.keys(this.config.samples).length === 0) {
+//                     const sampleInstrument = Object.keys(this.sampleLibrary.instruments)[0];
+//
+//                     this.loadConfig(this.sampleLibrary.getPresetConfig(sampleInstrument));
+//
+// //                 console.info("Loaded default sample instrument: " + sampleInstrument, this.config);
+// //                 if(this.audioContext)
+// //                     await this.initSamples(this.audioContext);
+//                 }
+//             }
+//
+//             this.render();
+//         }
+
+
+
+
         appendCSS(rootElm) {
 
             // Append Instrument CSS
@@ -585,9 +576,9 @@
             );
 
             this.form.addTextInput('instrument-name',
-                (e, newInstrumentName) => this.setInstrumentName(e, newInstrumentName),
+                (e, newInstrumentName) => this.setInstrumentName(newInstrumentName),
                 'Instrument Name',
-                '',
+                this.instrument.config.name || '',
                 'Unnamed'
             );
 
@@ -617,45 +608,47 @@
 
             /** Sample Forms **/
 
-            const sampleGrid = this.form.addGrid('samples');
-            const headerRow = sampleGrid.getOrCreateRow('header');
-            headerRow.addText('name', 'Name');
-            headerRow.addText('url', 'URL');
-            headerRow.addText('mixer', 'Mixer');
-            headerRow.addText('detune', 'Detune');
-            headerRow.addText('root', 'Root');
-            headerRow.addText('alias', 'Alias');
-            headerRow.addText('loop', 'Loop');
-            headerRow.addText('adsr', 'ADSR');
-            headerRow.addText('remove', 'Rem');
-
-            const getNoteFrequencies = (addOption) => {
-                const noteFrequencies = this.noteFrequencies;
-                for (let i = 1; i <= 6; i++) {
-                    for (let j = 0; j < noteFrequencies.length; j++) {
-                        addOption(noteFrequencies[j] + i);
-                    }
-                }
-            };
-
-            const getSampleURLs = (addOption) => {
-                this.sampleLibrary.eachSample(addOption);
-            };
-
-
             const samples = this.instrument.config.samples;
-            samples.forEach((sampleData, sampleID) => {
-                const sampleRow = sampleGrid.getOrCreateRow('sample-' + sampleID);
-                // const sampleRow = this.form.addGrid(i);
-                sampleRow.addTextInput(     'name',     (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-                sampleRow.addSelectInput(   'url',      (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', sampleData.url);
-                sampleRow.addRangeInput(    'mixer',    (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
-                sampleRow.addRangeInput(    'detune',   (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
-                sampleRow.addSelectInput(   'root',     (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot);
-                sampleRow.addSelectInput(   'alias',    (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
-                sampleRow.addCheckBoxInput( 'loop',     (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
-                sampleRow.addTextInput(     'adsr',     (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
-            });
+            if(samples.length > 0) {
+                const sampleGrid = this.form.addGrid('samples');
+                const headerRow = sampleGrid.getOrCreateRow('header');
+                headerRow.addText('name', 'Name');
+                headerRow.addText('url', 'URL');
+                headerRow.addText('mixer', 'Mixer');
+                headerRow.addText('detune', 'Detune');
+                headerRow.addText('root', 'Root');
+                headerRow.addText('alias', 'Alias');
+                headerRow.addText('loop', 'Loop');
+                headerRow.addText('adsr', 'ADSR');
+                headerRow.addText('remove', 'Rem');
+
+                const getNoteFrequencies = (addOption) => {
+                    const noteFrequencies = this.noteFrequencies;
+                    for (let i = 1; i <= 6; i++) {
+                        for (let j = 0; j < noteFrequencies.length; j++) {
+                            addOption(noteFrequencies[j] + i);
+                        }
+                    }
+                };
+
+                const getSampleURLs = (addOption) => {
+                    this.sampleLibrary.eachSample(addOption);
+                };
+
+
+                samples.forEach((sampleData, sampleID) => {
+                    const sampleRow = sampleGrid.getOrCreateRow('sample-' + sampleID);
+                    // const sampleRow = this.form.addGrid(i);
+                    sampleRow.addTextInput('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                    sampleRow.addSelectInput('url', (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', sampleData.url);
+                    sampleRow.addRangeInput('mixer', (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
+                    sampleRow.addRangeInput('detune', (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
+                    sampleRow.addSelectInput('root', (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot);
+                    sampleRow.addSelectInput('alias', (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
+                    sampleRow.addCheckBoxInput('loop', (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
+                    sampleRow.addTextInput('adsr', (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
+                });
+            }
 
 
             /** Add New Sample **/
@@ -681,6 +674,10 @@
         remove() {
             this.instrument.song.removeInstrument(this.instrument.id);
             document.dispatchEvent(new CustomEvent('instrument:remove', this));
+        }
+
+        setInstrumentName(newInstrumentName) {
+            return this.instrument.song.setInstrumentName(this.instrument.id, newInstrumentName);
         }
 
         async setPreset(presetURL) {
