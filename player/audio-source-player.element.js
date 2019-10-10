@@ -34,14 +34,18 @@ class MusicPlayerElement extends HTMLElement {
 
     }
 
-    onSongEvent(e) {
+    async onSongEvent(e) {
         switch(e.type) {
             case 'song:play':
                 this.classList.add('playing');
+                if(e.detail.promise) {
+                    await e.detail.promise;
+                    this.classList.remove('playing');
+                }
                 break;
             case 'song:end':
             case 'song:pause':
-                this.classList.remove('playing');
+                // this.classList.remove('playing');
                 break;
             case 'instrument:loaded':
                 // this.renderer.loadAllInstruments();

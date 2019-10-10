@@ -367,7 +367,7 @@ class AudioSourceSong {
             throw new Error("Playback is already stopped");
         this.playback.stopPlayback();
         this.playback = null;
-        this.playbackPosition = 0;
+        // this.playbackPosition = 0;
     }
 
     get isPlaying() {
@@ -452,30 +452,25 @@ class AudioSourceSong {
             noteStartTime = currentTime;
 
 
-        const promise = this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
-
+        this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
         // Wait for note to start
         if(noteStartTime > currentTime) {
-            await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // Dispatch note start event
+                this.dispatchEvent(new CustomEvent('note:start', {detail:{
+                        instruction,
+                    }}));
+            }, (noteStartTime - this.getAudioContext().currentTime) * 1000);
+            if(noteDuration) {
                 setTimeout(() => {
-                    resolve();
-                }, (noteStartTime - this.getAudioContext().currentTime) * 1000);
-            });
+                    // Dispatch note end event
+                    this.dispatchEvent(new CustomEvent('note:end', {detail:{
+                            instruction,
+                        }}));
+                }, (noteStartTime + noteDuration - this.getAudioContext().currentTime) * 1000);
+            }
         }
 
-        // Dispatch note start event
-        this.dispatchEvent(new CustomEvent('note:play', {detail:{
-            instruction,
-            promise,
-        }}));
-
-        // Wait for note playback to finish
-        await promise;
-
-        // Dispatch note end event
-        this.dispatchEvent(new CustomEvent('note:end', {detail:{
-            instruction,
-        }}));
 
     }
 
@@ -630,10 +625,10 @@ class AudioSourceSong {
 
     /** Modify Song Data **/
 
-    get name()                  { return this.data.name; }
-    set name(newSongTitle)      { this.replaceDataPath('name', newSongTitle); }
-    get version()               { return this.data.version; }
-    set version(newSongTitle)   { return this.replaceDataPath('version', newSongTitle); }
+    getName()                  { return this.data.name; }
+    setName(newSongTitle)      { return this.replaceDataPath(['name'], newSongTitle); }
+    getVersion()               { return this.data.version; }
+    setVersion(newSongTitle)   { return this.replaceDataPath(['version'], newSongTitle); }
 
     addInstrument(config) {
         if(typeof config !== 'object')
@@ -1211,13 +1206,15 @@ class AudioSourceInstructionPlayback {
         const audioContext = this.song.getAudioContext();
         const notePosition = this.startTime + this.iterator.groupPlaybackTime;
         const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
-        console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
+//         console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
 
         // Wait ahead of notes if necessary (by seek time)
         if(waitTime > 0) {
-            console.log("Waiting ... " + waitTime);
+//             console.log("Waiting ... " + waitTime);
             await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
         }
+        if(!this.isPlaybackActive)
+            return;
 
 
 

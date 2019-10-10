@@ -125,16 +125,17 @@ asc-form[key=position]     ascf-input-text[key=position]   input       { max-wid
 
 /** Instruction Form **/
 
-asc-form[key=instruction]   asc-form[key=command]      ascf-input-select[key=command]       select      { width: 120px; }
-asc-form[key=instruction]   asc-form[key=instrument]   ascf-input-select[key=instrument]    select      { width: 120px; }
+asc-form[key=instruction]   asc-form[key=command]      ascf-input-select[key=command]       select      {width: 90px;}
 asc-form[key=instruction]   asc-form[key=velocity]     ascf-input-range[key=velocity]       input       { width: 64px; }
 asc-form[key=instruction]   asc-form[key=duration]     ascf-input-select[key=duration]      select      { width: 64px; }
+
+asc-form[key=instruction]   asc-form[key=instrument]   ascf-input-select[key=instrument]    select      {width: 130px;}
 
 /** Tracker Render Forms **/
 
 asc-form[key=tracker]      ascf-input-select[key=octave]            select      { width: 64px; }
 asc-form[key=tracker]      ascf-input-select[key=row-length]        select      { width: 64px; }
-asc-form[key=tracker]      ascf-input-select[key=filter-instrument] select      { width: 64px; }
+asc-form[key=tracker]      ascf-input-select[key=filter-instrument]    select      {width: 130px;}
 asc-form[key=tracker]      ascf-input-text[key=selection]           input       { width: 126px; }
 
 

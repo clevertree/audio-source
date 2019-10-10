@@ -55,7 +55,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
             'group:play', 'group:seek',
-            'note:play',
+            'note:start', 'note:end'
         ], this.onSongEvent);
         this.attachEventHandler([
             'instrument:instance',
@@ -106,7 +106,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const src = this.getAttribute('src');
         if(src) {
             try {
-                await this.loadSongFromSrc(src);
+                await this.actions.loadSongFromSrc(src);
                 return true;
             } catch (e) {
                 console.error("Failed to load from src: ", src, e);
@@ -258,25 +258,16 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:play':
                 this.classList.add('playing');
                 this.containerElm.classList.add('playing');
-
-                let lastGroupPositionInTicks = 0;
-                let songPromise = e.detail.promise;
-                let songPlayback = e.detail.playback;
-                // let intervalCount = 0;
+                this.fieldSongPlaybackPause.disabled = false;
                 const updateSongPositionInterval = setInterval(e => {
-                    // this.updateSongPositionValue(this.song.songPlaybackPosition);
-                    // if(intervalCount % 10 === 0) {
-                    //     // if (songPlayback.groupPositionInTicks > lastGroupPositionInTicks) {
-                    //     const estimateSongPositionInTicks = this.song.estimateSongPositionInTicks();
-                    //     this.tracker.setPlaybackPositionInTicks(estimateSongPositionInTicks);
-                    //     // }
-                    // }
-                    // intervalCount++;
+                    if(!this.song.isPlaying) {
+                        clearInterval(updateSongPositionInterval);
+                        this.fieldSongPlaybackPause.disabled = true;
+                        this.containerElm.classList.remove('playing');
+                        this.classList.remove('playing');
+                    }
+                    this.updateSongPositionValue(this.song.songPlaybackPosition);
                 }, 10);
-                await songPromise;
-                clearInterval(updateSongPositionInterval);
-                this.classList.remove('playing');
-                this.containerElm.classList.remove('playing');
                 break;
 
             case 'song:pause':
@@ -284,7 +275,6 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.containerElm.classList.add('paused');
                 break;
             case 'song:end':
-                clearInterval(this.updateSongPositionInterval);
                 this.classList.remove('playing', 'paused');
                 this.containerElm.classList.remove('playing', 'paused');
                 break;
@@ -390,8 +380,8 @@ class AudioSourceComposerElement extends HTMLElement {
             <asc-form key="song" caption="Song" class="panel"></asc-form><!--
             --><asc-form key="instruments" caption="Song Instruments" class="panel"></asc-form>
             <br/>
-            <asc-form key="tracker" caption="Tracker" class="panel"></asc-form><!--
-            --><asc-form key="instruction" caption="Selected Instruction(s)" class="panel"></asc-form><!--
+            <asc-form key="instruction" caption="Selected Instruction(s)" class="panel"></asc-form><!--
+            --><asc-form key="tracker" caption="Tracker" class="panel"></asc-form><!--
             --><asc-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asc-form>
             <br/>
 
@@ -443,7 +433,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     get fieldSongVolume() {
         return this.formSongVolume.getInput('volume', false)
-            || this.formSongVolume.addRangeInput('volume', e => this.editor.actions.setSongVolume(e), 1, 100)
+            || this.formSongVolume.addRangeInput('volume', (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100)
     }
     get fieldSongPosition() {
         return this.formSongPosition.getInput('position', false)
@@ -455,11 +445,11 @@ class AudioSourceComposerElement extends HTMLElement {
     }
     get fieldSongName() {
         return this.formSongName.getInput('name', false)
-            || this.formSongName.addTextInput('name', (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name", 'Unnamed');
+            || this.formSongName.addTextInput('name', (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
     }
     get fieldSongVersion() {
         return this.formSongVersion.getInput('version', false)
-            || this.formSongVersion.addTextInput('version', (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion), "Song Version", '0.0.0');
+            || this.formSongVersion.addTextInput('version', (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
     }
 
 
@@ -488,7 +478,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     renderSongForms() {
         this.fieldSongPlaybackPlay;
-        this.fieldSongPlaybackPause;
+        this.fieldSongPlaybackPause.disabled = true;
         this.fieldSongPlaybackStop;
         
         this.fieldSongFileLoad;
@@ -496,8 +486,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.fieldSongVolume;
         this.fieldSongPosition;
-        this.fieldSongName;
-        this.fieldSongVersion;
+        this.fieldSongName.value = this.song.getName();
+        this.fieldSongVersion.value = this.song.getVersion();
 
     }
 

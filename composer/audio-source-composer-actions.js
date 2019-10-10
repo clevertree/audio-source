@@ -8,20 +8,22 @@ class AudioSourceComposerActions {
     /** Song Commands **/
 
     setInstrumentName(e, instrumentID, newInstrumentName) {
-        return this.editor.song.setInstrumentName(instrumentID, newInstrumentName);
+        this.editor.song.setInstrumentName(instrumentID, newInstrumentName);
+        this.editor.setStatus(`Instrument name updated: ${newInstrumentName}`);
     }
 
     setSongName(e, newSongName) {
-        this.editor.song.name = newSongName;
+        this.editor.song.setName(newSongName);
         this.editor.setStatus(`Song name updated: ${newSongName}`);
     }
     setSongVersion(e, newSongVersion) {
-        this.editor.song.version = newSongVersion;
+        this.editor.song.setVersion(newSongVersion);
         this.editor.setStatus(`Song version updated: ${newSongVersion}`);
     }
 
     setSongVolume(e, newSongVolume) {
         this.editor.song.setVolume(newSongVolume);
+        this.editor.setStatus(`Volume modified: ${newSongVolume}`);
     }
 
     loadNewSongData() {
@@ -31,7 +33,6 @@ class AudioSourceComposerActions {
         this.editor.song.loadSongData(songData);
         this.editor.render();
         this.editor.setStatus("Loaded new song", songData);
-
     }
 
 
@@ -243,7 +244,7 @@ class AudioSourceComposerActions {
         }
         this.editor.status.currentInstrumentID = instrumentID;
         tracker.playSelectedInstructions();
-        tracker.renderRows();
+        // tracker.renderRows();
         tracker.selectIndicies(e, selectedIndicies);
         // this.fieldInstructionInstrument.focus();
 
@@ -265,7 +266,7 @@ class AudioSourceComposerActions {
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();
-        tracker.renderRows();
+        // tracker.renderRows();
         tracker.selectIndicies(e, selectedIndicies);
         // this.fieldInstructionDuration.focus();
 
@@ -288,7 +289,7 @@ class AudioSourceComposerActions {
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();
-        tracker.renderRows();
+        // tracker.renderRows();
         tracker.selectIndicies(e, selectedIndicies);
         // this.selectIndicies(e, selectedIndicies[0]);
         // this.fieldInstructionVelocity.focus();

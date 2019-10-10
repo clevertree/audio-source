@@ -624,6 +624,7 @@
                 headerRow.addText('remove', 'Rem');
 
                 const getNoteFrequencies = (addOption) => {
+                    addOption('', "None");
                     const noteFrequencies = this.noteFrequencies;
                     for (let i = 1; i <= 6; i++) {
                         for (let j = 0; j < noteFrequencies.length; j++) {
@@ -690,6 +691,7 @@
                 newPresetConfig = Object.assign({}, this.instrument.config, newPresetConfig);
                 await this.instrument.song.replaceInstrument(this.instrument.id, newPresetConfig);
                 await this.instrument.loadConfig(newPresetConfig);
+                this.render();
             }
             this.fieldChangePreset.renderOptions();
             this.fieldChangePreset.value = '';

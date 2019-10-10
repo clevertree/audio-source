@@ -378,8 +378,8 @@ class AudioSourceComposerFormSelect extends AudioSourceComposerPanelInputAbstrac
         this.appendChild(selectElm);
 
         try {
-            if (defaultValue !== null)
-                this.value = defaultValue;
+            // if (defaultValue !== null)
+            this.value = defaultValue === null ? '' : defaultValue;
         } catch (e) {
             console.warn(e.message, this);
             // this.addOrSetValue(defaultValue, defaultValue);
@@ -440,7 +440,11 @@ class AudioSourceComposerFormSelect extends AudioSourceComposerPanelInputAbstrac
             optionElm.innerText = (newValueTitlePrefix || "Unknown value");
             inputElm.prepend(optionElm);
         }
-        inputElm.value = newValue;
+        optionElm.selected = true;
+        // optionElm.setAttribute('selected', 'selected');
+        // optionElm.setAttribute('selected1', 'selected');
+        // console.log('optionElm', optionElm);
+        // inputElm.value = newValue+'';
     }
 
     onChange(e) {
