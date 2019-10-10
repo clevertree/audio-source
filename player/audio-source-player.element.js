@@ -5,13 +5,13 @@
 class MusicPlayerElement extends HTMLElement {
     constructor() {
         super();
-        this.renderer = new AudioSourceRenderer({}, this);
+        this.song = new AudioSourceSong({}, this);
     }
 
-    getAudioContext()               { return this.renderer.getAudioContext(); }
-    getSongData()                   { return this.renderer.getSongData(); }
-    getStartingBeatsPerMinute()     { return this.renderer.getStartingBeatsPerMinute(); }
-    getVolumeGain()                 { return this.renderer.getVolumeGain(); }
+    getAudioContext()               { return this.song.getAudioContext(); }
+    getSongData()                   { return this.song.data; }
+    getStartingBeatsPerMinute()     { return this.song.getStartingBeatsPerMinute(); }
+    getVolumeGain()                 { return this.song.getVolumeGain(); }
 
     getVolume () {
         if(this.volumeGain) {
@@ -34,14 +34,18 @@ class MusicPlayerElement extends HTMLElement {
 
     }
 
-    onSongEvent(e) {
+    async onSongEvent(e) {
         switch(e.type) {
             case 'song:play':
                 this.classList.add('playing');
+                if(e.detail.promise) {
+                    await e.detail.promise;
+                    this.classList.remove('playing');
+                }
                 break;
             case 'song:end':
             case 'song:pause':
-                this.classList.remove('playing');
+                // this.classList.remove('playing');
                 break;
             case 'instrument:loaded':
                 // this.renderer.loadAllInstruments();

@@ -87,7 +87,7 @@ class AudioSourceComposerWebsocket {
                         case 'history:entry':
                             // for (let i = 0; i < json.songHistory.length; i++) {
                             //     const historyAction = json.songHistory[i];
-                            const songModifier = editor.renderer;
+                            const songModifier = editor.song;
                             songModifier.applyHistoryActions(json.songHistory);
                             this.status.history.currentStep = json.songHistory[json.songHistory.length-1].step;
                             this.player.loadAllInstruments();
@@ -95,11 +95,11 @@ class AudioSourceComposerWebsocket {
                             //this.gridSelect(e, 0);
                             this.grid.focus();
 
-                            const songUUID = songModifier.songData.uuid;
+                            const songUUID = songModifier.data.uuid;
                             if(songUUID) {
                                 let songRecentUUIDs = JSON.parse(localStorage.getItem('server-recent-uuid') || '[]');
                                 songRecentUUIDs = songRecentUUIDs.filter((entry) => entry[0] !== songUUID);
-                                songRecentUUIDs.unshift([songUUID, songModifier.songData.title, new Date().getTime()]);
+                                songRecentUUIDs.unshift([songUUID, songModifier.data.title, new Date().getTime()]);
                                 localStorage.setItem('server-recent-uuid', JSON.stringify(songRecentUUIDs));
                             }
                             // }

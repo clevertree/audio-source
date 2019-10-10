@@ -2,8 +2,8 @@
 
 
 class AudioSourceValues {
-    constructor(renderer=null) {
-        this.renderer = renderer;
+    constructor(song=null) {
+        this.song = song;
     }
 
     // get noteFrequencies() {
@@ -38,16 +38,17 @@ class AudioSourceValues {
 
     getValues(valueType, callback) {
         let noteFrequencies;
-        let valuesHTML = '';
-        const songData = this.renderer ? this.renderer.getSongData() : null;
-        const timeDivision = this.renderer ? this.renderer.getSongTimeDivision() : 96*4;
+        let results = [], result=null;
+        const addResult = (result) => { if(result !== null && typeof result !== "undefined") addResult(result); };
+        const songData = this.song ? this.song.data : null;
+        const timeDivision = this.song ? this.song.timeDivision : 96*4;
 
         switch(valueType) {
             // case 'server-recent-uuid':
             // case 'memory-recent-uuid':
             //     const songRecentUUIDs = JSON.parse(localStorage.getItem(valueType) || '[]');
             //     for(let i=0; i<songRecentUUIDs.length; i++)
-            //         valuesHTML += callback.apply(this, songRecentUUIDs[i]);
+            //         result = callback.apply(this, songRecentUUIDs[i]);
             //     break;
 
             case 'song-recent-list':
@@ -55,47 +56,48 @@ class AudioSourceValues {
                 // const Storage = new AudioSourceStorage();
                 // const songRecentUUIDs = Storage.getRecentSongList() ;
                 // for(let i=0; i<songRecentUUIDs.length; i++)
-                //     valuesHTML += callback(songRecentUUIDs[i].guid, songRecentUUIDs[i].title);
+                //     result = callback(songRecentUUIDs[i].guid, songRecentUUIDs[i].title);
                 break;
 
             case 'song-instruments':
-                if(this.renderer && songData.instruments) {
+                if(this.song && songData.instruments) {
                     const instrumentList = songData.instruments;
                     for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                         const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
                         // const instrument = this.renderer.getInstrument(instrumentID);
-                        valuesHTML += callback(instrumentID, this.format(instrumentID, 'instrument')
+                        result = callback(instrumentID, this.format(instrumentID, 'instrument')
                             + ': ' + (instrumentInfo.name ? instrumentInfo.name : instrumentInfo.url.split('/').pop()));
+                        addResult(result);
                     }
                 }
                 break;
 
             case 'instruments-available':
-                // TODO: refactor
-                // const sources = new AudioSources(this.renderer);
-                // const instrumentLibrary = sources.getInstrumentLibrary();
-                // if(instrumentLibrary) {
-                //     if(instrumentLibrary.instruments) {
-                //         instrumentLibrary.instruments.forEach((pathConfig) => {
-                //             let instrumentURL = pathConfig.url;
-                //             if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
-                //             if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
-                //             if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
-                //             valuesHTML += callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
-                //         });
-                //     }
-                // }
+                const Libraries = new AudioSourceLibraries;
+                const instrumentLibrary = Libraries.getInstrumentLibrary(false);
+                if(instrumentLibrary) {
+                    if(instrumentLibrary.instruments) {
+                        instrumentLibrary.instruments.forEach((pathConfig) => {
+                            let instrumentURL = pathConfig.url;
+                            if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
+                            if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
+                            if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
+                            result = callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
+                        });
+                    }
+                }
                 break;
 
             case 'command-instrument-frequencies':
                 if(songData) {
                     for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
-                        if(this.renderer.isInstrumentLoaded(instrumentID)) {
-                            const instance = this.renderer.getInstrument(instrumentID);
+                        if(this.song.isInstrumentLoaded(instrumentID)) {
+                            const instance = this.song.getInstrument(instrumentID);
                             if(instance.getFrequencyAliases) {
                                 const aliases = instance.getFrequencyAliases();
                                 Object.values(aliases).forEach((aliasValue) =>
-                                    valuesHTML += callback(aliasValue, aliasValue, `data-instrument="${instrumentID}"`));
+                                    result = callback(aliasValue, aliasValue, `data-instrument="${instrumentID}"`));
+                                addResult(result);
                             }
                         }
                     }
@@ -107,7 +109,8 @@ class AudioSourceValues {
                 // for(let i=1; i<=6; i++) {
                 for(let j=0; j<noteFrequencies.length; j++) {
                     const noteFrequency = noteFrequencies[j]; //  + i
-                    valuesHTML += callback(noteFrequency, noteFrequency);
+                    result = callback(noteFrequency, noteFrequency);
+                    addResult(result);
                 }
                 // }
                 break;
@@ -118,55 +121,70 @@ class AudioSourceValues {
                 for(let i=1; i<=6; i++) {
                     for(let j=0; j<noteFrequencies.length; j++) {
                         const noteFrequency = noteFrequencies[j] + i;
-                        valuesHTML += callback(noteFrequency, noteFrequency);
+                        result = callback(noteFrequency, noteFrequency);
+                        addResult(result);
                     }
                 }
                 break;
 
             case 'note-frequency-octaves':
                 for(let oi=1; oi<=7; oi+=1) {
-                    valuesHTML += callback(oi, '' + oi);
+                    result = callback(oi, '' + oi);
+                    addResult(result);
                 }
                 break;
 
             case 'velocities':
                 // optionsHTML += callback(null, 'Velocity (Default)');
                 for(let vi=100; vi>=0; vi-=10) {
-                    valuesHTML += callback(vi, vi);
+                    result = callback(vi, vi);
+                    addResult(result);
                 }
                 break;
 
             case 'durations':
                 for(let i=64; i>1; i/=2) {
                     let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
-                    valuesHTML += callback((1/i)/1.5    * timeDivision, `${fraction}t`);
-                    valuesHTML += callback(1/i          * timeDivision, `${fraction}`);
-                    valuesHTML += callback(1/i*1.5      * timeDivision, `${fraction}d`);
+                    result = callback((1/i)/1.5    * timeDivision, `${fraction}t`);
+                    addResult(result);
+                    result = callback(1/i          * timeDivision, `${fraction}`);
+                    addResult(result);
+                    result = callback(1/i*1.5      * timeDivision, `${fraction}d`);
+                    addResult(result);
                 }
-                for(let i=1; i<=16; i++)
-                    valuesHTML += callback(i            * timeDivision, i+'B');
+                for(let i=1; i<=16; i++) {
+                    result = callback(i * timeDivision, i + 'B');
+                    addResult(result);
+                }
                 break;
 
             case 'named-durations':
                 for(let i=64; i>1; i/=2) {
                     let fraction = `1/${i}`; // .replace('1/2', '½').replace('1/4', '¼');
-                    valuesHTML += callback(`${fraction}t`,  `${fraction}t`);
-                    valuesHTML += callback(`${fraction}`,   `${fraction}`);
-                    valuesHTML += callback(`${fraction}d`,  `${fraction}d`);
+                    result = callback(`${fraction}t`,  `${fraction}t`);
+                    addResult(result);
+                    result = callback(`${fraction}`,   `${fraction}`);
+                    addResult(result);
+                    result = callback(`${fraction}d`,  `${fraction}d`);
+                    addResult(result);
                 }
-                for(let i=1; i<=16; i++)
-                    valuesHTML += callback(i+'B',i+'B');
+                for(let i=1; i<=16; i++) {
+                    result = callback(i + 'B', i + 'B');
+                    addResult(result);
+                }
                 break;
 
             case 'beats-per-measure':
                 for(let vi=1; vi<=12; vi++) {
-                    valuesHTML += callback(vi, vi + ` beat${vi>1?'s':''} per measure`);
+                    result = callback(vi, vi + ` beat${vi>1?'s':''} per measure`);
+                    addResult(result);
                 }
                 break;
 
             case 'beats-per-minute':
                 for(let vi=40; vi<=300; vi+=10) {
-                    valuesHTML += callback(vi, vi+ ` beat${vi>1?'s':''} per minute`);
+                    result = callback(vi, vi+ ` beat${vi>1?'s':''} per minute`);
+                    addResult(result);
                 }
                 break;
 
@@ -174,20 +192,22 @@ class AudioSourceValues {
             case 'groups':
                 if(songData && songData.instructions)
                     Object.keys(songData.instructions).forEach(function(key, i) {
-                        valuesHTML += callback(key, key);
+                        result = callback(key, key);
+                        addResult(result);
                     });
                 break;
 
             case 'command-group-execute':
                 if(songData && songData.instructions)
                     Object.keys(songData.instructions).forEach(function(key, i) {
-                        valuesHTML += callback('@' + key, '@' + key);
+                        result = callback('@' + key, '@' + key);
+                        addResult(result);
                     });
                 break;
             default:
                 throw new Error("Invalid Value type: " + valueType);
         }
-        return valuesHTML;
+        return results;
     }
 
     renderEditorFormOptions(optionType, selectCallback) {
