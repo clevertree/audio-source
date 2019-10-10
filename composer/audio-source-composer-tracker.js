@@ -897,7 +897,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     'No selection'
                 );
     }
-    // get fieldInstructionCommand() { return this.panelInstruction.querySelector('asc-form[key=command] ascf-input-select[key=command]'); }
+    // get fieldInstructionCommand() { return this.panelInstruction.querySelector('asui-form[key=command] asui-input-select[key=command]'); }
 
     /** Instruction Panel **/
 

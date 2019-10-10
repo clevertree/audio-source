@@ -341,7 +341,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     closeAllMenus() {
-        this.shadowDOM.querySelector(`asc-menu`)
+        this.shadowDOM.querySelector(`asui-menu`)
             .closeAllMenus();
     }
 
@@ -349,17 +349,17 @@ class AudioSourceComposerElement extends HTMLElement {
     get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container .status-text`); }
     get versionElm() { return this.shadowDOM.querySelector(`.asc-status-container .version-text`); }
 
-    get menuFile() { return this.shadowDOM.querySelector(`asc-menu[key="file"]`)}
-    get menuEdit() { return this.shadowDOM.querySelector(`asc-menu[key="edit"]`)}
-    get menuView() { return this.shadowDOM.querySelector(`asc-menu[key="view"]`)}
-    get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
-    get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
+    get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
+    get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
+    get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
+    get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
+    get menuContext() { return this.shadowDOM.querySelector(`asui-menu[key="context"]`)}
 
-    get panelSong() { return this.shadowDOM.querySelector(`asc-form[key='song']`)}
-    get panelTracker() { return this.shadowDOM.querySelector(`asc-form[key='tracker']`)}
-    get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asc-form[key='tracker-row-segments']`)}
-    get panelInstruction() { return this.shadowDOM.querySelector(`asc-form[key='instruction']`)}
-    get panelInstruments() { return this.shadowDOM.querySelector(`asc-form[key='instruments']`)}
+    get panelSong() { return this.shadowDOM.querySelector(`asui-form[key='song']`)}
+    get panelTracker() { return this.shadowDOM.querySelector(`asui-form[key='tracker']`)}
+    get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asui-form[key='tracker-row-segments']`)}
+    get panelInstruction() { return this.shadowDOM.querySelector(`asui-form[key='instruction']`)}
+    get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
 
     render() {
         const Libraries = new AudioSourceLibraries;
@@ -370,19 +370,19 @@ class AudioSourceComposerElement extends HTMLElement {
         <link rel="stylesheet" href="${linkHRefComposer}" />
         <link rel="stylesheet" href="${linkHRefCommon}" />
         <div class="asc-container">
-            <div class="asc-menu-container">
-                <asc-menu key="file" caption="File"></asc-menu>
-                <asc-menu key="edit" caption="Edit"></asc-menu>
-                <asc-menu key="view" caption="View"></asc-menu>
-                <asc-menu key="instrument" caption="Instrument"></asc-menu>
-                <asc-menu key="context" caption=""></asc-menu>
+            <div class="asui-menu-container">
+                <asui-menu key="file" caption="File"></asui-menu>
+                <asui-menu key="edit" caption="Edit"></asui-menu>
+                <asui-menu key="view" caption="View"></asui-menu>
+                <asui-menu key="instrument" caption="Instrument"></asui-menu>
+                <asui-menu key="context" caption=""></asui-menu>
             </div>
-            <asc-form key="song" caption="Song" class="panel"></asc-form><!--
-            --><asc-form key="instruments" caption="Song Instruments" class="panel"></asc-form>
+            <asui-form key="song" caption="Song" class="panel"></asui-form><!--
+            --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
             <br/>
-            <asc-form key="instruction" caption="Selected Instruction(s)" class="panel"></asc-form><!--
-            --><asc-form key="tracker" caption="Tracker" class="panel"></asc-form><!--
-            --><asc-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asc-form>
+            <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
+            --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
+            --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
             <br/>
 
             <asc-tracker group="root"></asc-tracker>

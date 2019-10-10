@@ -4,7 +4,7 @@
 /** Menu **/
 
 
-asc-menu {
+asui-menu {
     color: black;
     padding: 0 0;
     margin: 0 0;
@@ -13,45 +13,45 @@ asc-menu {
     white-space: nowrap;
 }
 
-asc-menu.selected {
+asui-menu.selected {
     background-color: #AAA;
 }
 
-.dropdown-container > asc-menu {
+.dropdown-container > asui-menu {
     display: block;
 }
 
 
 /** Menu Text **/
-asc-menu > div.caption {
+asui-menu > div.caption {
     padding: 3px 6px;
     display: inline-block;
 }
 
-asc-menu:hover {
+asui-menu:hover {
     background-color: #AAA;
 }
-asc-menu.stick {
+asui-menu.stick {
     /*transition: background-color 0.3s;*/
     background-color: #888;
 }
 
 
-asc-menu span.arrow {
+asui-menu span.arrow {
     padding: 4px;
 }
-asc-menu span.arrow:after {
+asui-menu span.arrow:after {
     content: '►';
 }
 
-asc-menu div.caption > input[type=checkbox] {
+asui-menu div.caption > input[type=checkbox] {
     vertical-align: text-top;
 }
 
 /** Drop Down Menu **/
 
 
-asc-menu > .dropdown-container {
+asui-menu > .dropdown-container {
      background-color: #bdc3c7;
     display: block;
     z-index: 3;
@@ -66,44 +66,48 @@ asc-menu > .dropdown-container {
 }
 
 /** Drop Down Trigger **/
-asc-menu.open > .dropdown-container {
+asui-menu.open > .dropdown-container {
     z-index: 5;
     transform: scaleY(1);
     opacity: 1;
 }
-asc-menu.stick > .dropdown-container {
+asui-menu.stick > .dropdown-container {
     z-index: 4;
 }
 
-.dropdown-container > asc-menu > .dropdown-container {
+.dropdown-container > asui-menu > .dropdown-container {
     display: inline-block;
 }
 
 
 /** Disabled Menu **/
-asc-menu[disabled] {
+asui-menu[disabled] {
     opacity: 0.5;
     color: #777;
     cursor: not-allowed;
 }
 
 
+
+
+
 /** Menu Break **/
 
-asc-menu > hr {
+asui-menu > hr {
     margin: 4px 0;
     border: 1px #666 solid;
 }
 
 
+
 /** Editor Forms **/
 
-asc-form  {
+asui-form  {
     display: inline-block;
     vertical-align: top;
 }
 
-asc-form > div.header {
+asui-form > div.header {
     font-size: small;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
@@ -114,32 +118,32 @@ asc-form > div.header {
 
 /** Grid **/
 
-asc-grid {
+asui-grid {
     display: table;
     border-collapse: collapse;
 }
 
-ascg-row {
+asuig-row {
     display: table-row;
 }
 
-ascg-row > * {
+asuig-row > * {
     display: table-cell !important;
 }
 
 /** Text **/
 
-ascf-text {
+asui-text {
     /* display: inline-block; */
 }
 
 /** Editor Inputs **/
 
-ascf-input-button,
-ascf-input-select,
-ascf-input-range,
-ascf-input-text,
-ascf-file {
+asui-input-button,
+asui-input-select,
+asui-input-range,
+asui-input-text,
+asui-input-file {
     /* display: inline-block; */ /** TODO: bad idea **/
     vertical-align: top;
 }
@@ -148,7 +152,7 @@ ascf-file {
 
 /** Icons **/
 
-ascf-icon {
+asui-icon {
     font-size: 24px;
     display: block;
     width: 1em;
@@ -158,14 +162,14 @@ ascf-icon {
     background: url("../assets/img/ui-icons.png");
     background-size: 10em 5em;
 }
-ascf-icon.play { background-position: -3em -1em; }
-ascf-icon.pause {background-position: -4em -1em;}
-ascf-icon.stop {background-position: -5em -1em;}
-ascf-icon.resume { background-position: -3em -1em; }
+asui-icon.play { background-position: -3em -1em; }
+asui-icon.pause {background-position: -4em -1em;}
+asui-icon.stop {background-position: -5em -1em;}
+asui-icon.resume { background-position: -3em -1em; }
 
-ascf-icon.insert {background-position: -3em -10em;}
-ascf-icon.remove {background-position: -6em 0em;}
-ascf-icon.subtract {background-position: -4em 0em;}
+asui-icon.insert {background-position: -3em -10em;}
+asui-icon.remove {background-position: -6em 0em;}
+asui-icon.subtract {background-position: -4em 0em;}
 
-ascf-icon.file-load {background-position: 0em 0em;}
-ascf-icon.file-save {background-position: -1em 0em;}
+asui-icon.file-load {background-position: 0em 0em;}
+asui-icon.file-save {background-position: -1em 0em;}

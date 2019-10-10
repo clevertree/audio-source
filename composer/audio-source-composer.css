@@ -63,7 +63,7 @@ audio-source-composer.fullscreen {
 
 /** Context Menu **/
 
-asc-menu.open-context-menu > .dropdown-container {
+asui-menu.open-context-menu > .dropdown-container {
     display: block;
     position: fixed;
     z-index: 99;
@@ -80,13 +80,13 @@ asc-menu.open-context-menu > .dropdown-container {
 
 /** Editor Panels **/
 
-asc-form.panel {
+asui-form.panel {
     vertical-align: top;
     display: inline-block;
     margin: 1px 3px 0px 1px;
 }
 
-asc-form.panel > div.header {
+asui-form.panel > div.header {
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -98,10 +98,10 @@ asc-form.panel > div.header {
 }
 
 
-asc-form.panel {
+asui-form.panel {
 }
 
-asc-form.panel > asc-form {
+asui-form.panel > asui-form {
     background: #DDD;
     border: 1px outset #FFF;
     padding: 2px 4px;
@@ -112,10 +112,10 @@ asc-form.panel > asc-form {
 
 /** Song Forms **/
 
-asc-form[key=volume]       ascf-input-range[key=volume]    input       { max-width: 71px; }
-asc-form[key=version]      ascf-input-text[key=version]    input       {max-width: 53px;}
-asc-form[key=name]         ascf-input-text[key=name]       input       { max-width: 160px; }
-asc-form[key=position]     ascf-input-text[key=position]   input       { max-width: 77px; }
+asui-form[key=volume]       asui-input-range[key=volume]    input       { max-width: 71px; }
+asui-form[key=version]      asui-input-text[key=version]    input       {max-width: 53px;}
+asui-form[key=name]         asui-input-text[key=name]       input       { max-width: 160px; }
+asui-form[key=position]     asui-input-text[key=position]   input       { max-width: 77px; }
 
 /** Add Instrument Form **/
 
@@ -125,24 +125,24 @@ asc-form[key=position]     ascf-input-text[key=position]   input       { max-wid
 
 /** Instruction Form **/
 
-asc-form[key=instruction]   asc-form[key=command]      ascf-input-select[key=command]       select      {width: 90px;}
-asc-form[key=instruction]   asc-form[key=velocity]     ascf-input-range[key=velocity]       input       { width: 64px; }
-asc-form[key=instruction]   asc-form[key=duration]     ascf-input-select[key=duration]      select      { width: 64px; }
+asui-form[key=instruction]   asui-form[key=command]      asui-input-select[key=command]       select      {width: 90px;}
+asui-form[key=instruction]   asui-form[key=velocity]     asui-input-range[key=velocity]       input       { width: 64px; }
+asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      { width: 64px; }
 
-asc-form[key=instruction]   asc-form[key=instrument]   ascf-input-select[key=instrument]    select      {width: 130px;}
+asui-form[key=instruction]   asui-form[key=instrument]   asui-input-select[key=instrument]    select      {width: 130px;}
 
 /** Tracker Render Forms **/
 
-asc-form[key=tracker]      ascf-input-select[key=octave]            select      { width: 64px; }
-asc-form[key=tracker]      ascf-input-select[key=row-length]        select      { width: 64px; }
-asc-form[key=tracker]      ascf-input-select[key=filter-instrument]    select      {width: 130px;}
-asc-form[key=tracker]      ascf-input-text[key=selection]           input       { width: 126px; }
+asui-form[key=tracker]      asui-input-select[key=octave]            select      { width: 64px; }
+asui-form[key=tracker]      asui-input-select[key=row-length]        select      { width: 64px; }
+asui-form[key=tracker]      asui-input-select[key=filter-instrument]    select      {width: 130px;}
+asui-form[key=tracker]      asui-input-text[key=selection]           input       { width: 126px; }
 
 
 /** Instrument Form **/
 
-asc-form[key=instruments]  ascf-input-select[key=instrument-add-url]       select      { width: 120px; }
-asc-form[key=instruments]  ascf-input-select[key=instrument-preset]       select      { width: 120px; }
+asui-form[key=instruments]  asui-input-select[key=instrument-add-url]       select      { width: 120px; }
+asui-form[key=instruments]  asui-input-select[key=instrument-preset]       select      { width: 120px; }
 
 
 
@@ -152,7 +152,7 @@ asc-form[key=instruments]  ascf-input-select[key=instrument-preset]       select
 /*        writing-mode: vertical-rl;*/
 /*        padding: 10px 2px 6px 2px;*/
 /*    }*/
-/*    asc-form {*/
+/*    asui-form {*/
 /*        min-height: 55px;*/
 /*    }*/
 /*}*/
@@ -278,7 +278,7 @@ asc-tracker .tracker-header-pause {
 /** Tracker Row Segments **/
 
 
-asc-form[key=tracker-row-segments] ascf-input-button > button {
+asui-form[key=tracker-row-segments] asui-input-button > button {
     width: 2em;
     height: 2em;
     /* margin: 0px 2px; */
@@ -289,7 +289,7 @@ asc-form[key=tracker-row-segments] ascf-input-button > button {
     cursor: pointer;
 }
 
-asc-form[key=tracker-row-segments] asc-form.selected {
+asui-form[key=tracker-row-segments] asui-form.selected {
     background-color: #BBB;
     font-weight: bold;
     /* border-bottom: 0px; */

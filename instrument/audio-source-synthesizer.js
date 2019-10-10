@@ -65,7 +65,7 @@
                     const xhr = new XMLHttpRequest();
 
                     xhr.open('GET', sampleURL, true);
-                    const ext = sampleURL.indexOf('.') === -1 ? '' : sampleURL.split('.').pop().toLowerCase();
+                    const ext = getFileExtension(sampleURL).toLowerCase();
                     switch (ext) {
                         // default:
                         case '':
@@ -123,7 +123,7 @@
 
             const sampleData = {};
 
-            const ext = sampleURL.indexOf('.') === -1 ? '' : sampleURL.split('.').pop().toLowerCase();
+            const ext = getFileExtension(sampleURL).toLowerCase();
             switch (ext) {
                 case '':
                 case 'wav':
@@ -147,8 +147,7 @@
             let audioBuffer;
 
             console.info("Loading Initiated: ", sampleURL);
-            const ext = sampleURL.indexOf('.') === -1 ? '' : sampleURL.split('.').pop().toLowerCase();
-
+            const ext = getFileExtension(sampleURL).toLowerCase();
             switch (ext) {
                 // default:
                 case '':
@@ -351,7 +350,7 @@
         // }
 
         render(renderObject=null) {
-            if(renderObject instanceof HTMLElement && renderObject.matches('asc-form')) {
+            if(renderObject instanceof HTMLElement && renderObject.matches('asui-form')) {
                 this.form = new AudioSourceSynthesizerFormRenderer(renderObject, this);
             } else {
                 throw new Error("Unknown renderer");
@@ -905,7 +904,11 @@
 
     /** Utilities & Dispatch Class **/
 
-
+    function getFileExtension(filePath) {
+        const fileName = filePath.split('/').pop();
+        const ext = fileName.indexOf('.') === -1 ? '' : fileName.split('.').pop();
+        return ext;
+    }
 
     function getScriptElm() {
         return document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');

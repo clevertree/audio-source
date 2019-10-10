@@ -210,14 +210,14 @@ class AudioSourceValues {
         return results;
     }
 
-    renderEditorFormOptions(optionType, selectCallback) {
-        let optionsHTML = '';
-        this.getValues(optionType, function (value, label, html='') {
-            const selected = selectCallback ? selectCallback(value) : false;
-            optionsHTML += `<option value="${value}" ${selected ? ` selected="selected"` : ''}${html}>${label}</option>`;
-        });
-        return optionsHTML;
-    }
+    // renderEditorFormOptions(optionType, selectCallback) {
+    //     let optionsHTML = '';
+    //     this.getValues(optionType, function (value, label, html='') {
+    //         const selected = selectCallback ? selectCallback(value) : false;
+    //         optionsHTML += `<option value="${value}" ${selected ? ` selected="selected"` : ''}${html}>${label}</option>`;
+    //     });
+    //     return optionsHTML;
+    // }
 
     /** Formatting **/
 
@@ -256,3 +256,12 @@ class AudioSourceValues {
 
 if(typeof module !== "undefined")
     module.exports = {AudioSourceValues};
+
+
+if(typeof global !== 'undefined') {
+
+    if(typeof global.AudioSourceLibraries === "undefined") {
+        global.AudioSourceLibraries = require('./audio-source-libraries.js').AudioSourceLibraries;
+    }
+}
+
