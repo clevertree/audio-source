@@ -6,214 +6,28 @@
 
 
 
-.audio-source-synthesizer {
-    background: #DDD;
-    color: #000;
-    position: relative;
-    vertical-align: top;
-    display: inline-block;
-    /* font-size: small; */
-    /* float: left; */
-    /* min-height: 84px; */
-    /* margin: 4px; */
-    padding: 4px 6px;
-    border: 1px outset;
-}
-
-
-.audio-source-synthesizer.focus {
-    background: #CCC;
-
-}
-
-.audio-source-synthesizer form {
-    /*display: inline-block;*/
-}
-
-.audio-source-synthesizer form.instrument-setting {
-    display: inline-block;
-    margin: 0;
-    vertical-align: top;
-}
-.audio-source-synthesizer form.instrument-setting > fieldset {
-    margin: 0;
-    padding: 1px;
-    border: 1px inset #FFF;
-    font-size: x-small;
-}
-
-
-/*.audio-source-synthesizer form.instrument-name > label.label-instrument-name{*/
-/*    font-size: small;*/
-/*}*/
-
-/** Form Inputs **/
-
-
-.audio-source-synthesizer .input-style,
-.audio-source-synthesizer input[type=text],
-.audio-source-synthesizer select,
-.audio-source-synthesizer button {
+.audio-source-synthesizer-container {
     font-size: smaller;
-    display: inline-block;
-    padding: 0px 0px;
-    border-radius: 2px;
-    /* min-height: 24px; */
-    transition: border 0.2s;
-    border: 1px outset transparent;
-    background: transparent;
-    /* font-size: x-small; */
-    /* max-width: 200px; */
-    /* vertical-align: top; */
-}
-
-.audio-source-synthesizer .input-style:hover,
-.audio-source-synthesizer input[type=text]:hover,
-.audio-source-synthesizer select:hover,
-.audio-source-synthesizer button:hover {
-    border: 1px outset #FFF;
-}
-
-.audio-source-synthesizer input[type=text] {
-    padding-left: 5px;
-}
-.audio-source-synthesizer button {
-    display: inline-block;
-    padding: 0px 0px;
-    border: 1px outset transparent;
-    border-radius: 2px;
-    min-height: 24px;
-    transition: border 0.2s;
-    /* font-size: x-small; */
-    /* max-width: 200px; */
-    /* vertical-align: top; */
-}
-
-.audio-source-synthesizer button > span {
-    margin: 2px 4px;
 }
 
 
-.audio-source-synthesizer input[type='range'] {
-    -webkit-appearance: none;
-    background-color: #AAA;
-    border-radius: 15px;
-    height: 10px;
-    margin: 5px;
-}
-.audio-source-synthesizer input[type='range']::-webkit-slider-thumb {
-    vertical-align: middle;
-    -webkit-appearance: none;
-    background-color: #444;
-    width: 16px;
-    height: 16px;
-    border-radius: 16px;
+.audio-source-synthesizer-container  ascg-row[key=header] {
+    font-weight: bold;
+    text-align: center;
 }
 
 
-.audio-source-synthesizer input[type=checkbox] {
-    /* vertical-align: text-top; */
-    /* width: 16px; */
-    /* height: 16px; */
-    /* margin: 5px; */
-    /* left: -25px; */
-    /* position: absolute; */
+/** Inputs **/
+
+.audio-source-synthesizer-container  ascf-input-button[key=instrument-remove],
+.audio-source-synthesizer-container  ascf-input-select[key=instrument-preset]               {
+    float:  right;
 }
 
+.audio-source-synthesizer-container  ascf-input-text[key=name]        input       {width: 90px;}
+.audio-source-synthesizer-container  ascf-input-select[key=url]       select      {width: 60px;}
+.audio-source-synthesizer-container  ascf-input-range[key=mixer]      input      {width: 60px;}
+.audio-source-synthesizer-container  ascf-input-range[key=detune]     input      {width: 60px;}
+.audio-source-synthesizer-container  ascf-input-text[key=adsr]        input      {width: 60px;}
 
-
-/** Tables **/
-.audio-source-synthesizer table {
-     font-size: small;
-}
-
-
-
-/** Sample Table **/
-.audio-source-synthesizer table.sample-setting-list {
-    width: 100%;
-    /* font-size: small; */
-    /* text-align: left; */
-}
-
-
-
-.audio-source-synthesizer form.instrument-setting-remove button.remove-instrument {
-    /* text-align: center; */
-    color: #500;
-}
-
-
-/** Form Section **/
-.audio-source-synthesizer div.form-section-header {
-    font-size: small;
-    border-bottom: 1px solid #BBB;
-    /* text-decoration-color: #AAA; */
-    margin-bottom: 1px;
-    cursor: pointer;
-}
-
-
-.audio-source-synthesizer div.form-section {
-    background: #DDD;
-    /* border: 1px outset #ffffff8a; */
-    padding: 6px 8px 2px 6px;
-    display: inline-block;
-    vertical-align: middle;
-    /* float: left; */
-    border: 1px inset #FFF;
-}
-
-/** Custom Inputs **/
-
-.audio-source-synthesizer form.replace-instrument >             select[name=instrumentURL]  {width: 136px;}
-.audio-source-synthesizer form.instrument-setting-preset >      select[name=preset]     {width: 131px;}
-.audio-source-synthesizer form.instrument-name                  input[name=name]        {width: 157px;}
-
-.audio-source-synthesizer form.instrument-setting-detune        input[name=detune]      { width: 60px; }
-.audio-source-synthesizer form.instrument-setting-mixer         input[name=mixer]       { width: 60px; }
-.audio-source-synthesizer form.instrument-setting-change-name   input[name=name]       { width: 60px; }
-.audio-source-synthesizer form.instrument-setting-change-url    select[name=url]       {width: 88px;}
-
-.audio-source-synthesizer form.instrument-setting-root          input[name=keyRoot]     { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-alias         input[name=keyAlias]    { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-range         input[name=keyLow]      { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-range         input[name=keyHigh]     { width: 40px; }
-.audio-source-synthesizer form.instrument-setting-polyphony     input[name=polyphony]   { width: 51px;}
-.audio-source-synthesizer form.instrument-setting-adsr          input[name=adsr ]   { width: 51px;}
-
-/** Sample Editor **/
-
-.audio-source-synthesizer table.sample-setting-list {
-    /* display: none; */
-}
-
-
-.audio-source-synthesizer .instrument-container-header {
-}
-
-
-/** Icons **/
-
-i.ui-icon {
-    font-size: 24px;
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    padding: 0px;
-    margin: 0px;
-    background: url("../assets/img/ui-icons.png");
-    /*font-size: 0px;*/
-    background-size: 10em 5em;
-    vertical-align: top;
-}
-i.ui-play { background-position: -3em -1em; }
-i.ui-pause {background-position: -4em -1em;}
-i.ui-resume { background-position: -3em -1em; }
-
-i.ui-insert {background-position: -8em -10em;}
-i.ui-remove {background-position: -6em 0em;}
-i.ui-subtract {background-position: -4em 0em;}
-
-i.ui-file-load {background-position: 0em 0em;}
-i.ui-file-save {background-position: -1em 0em;}
+.audio-source-synthesizer-container  ascf-input-select[key=instrument-preset]       select      { width: 120px; }

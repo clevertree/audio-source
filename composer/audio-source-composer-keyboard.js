@@ -2,8 +2,7 @@
 
 
 class AudioSourceComposerKeyboard {
-    constructor(editor) {
-        this.editor = editor;
+    constructor() {
     }
 
 
@@ -17,14 +16,17 @@ class AudioSourceComposerKeyboard {
             'q':'C2', 'w':'D2', 'e':'E2', 'r':'F2', 't':'G2', 'y':'A2', 'u':'B2', 'i':'C3', 'o':'D3', 'p':'E3',
             's':'C#1', 'd':'D#1', 'g':'F#1', 'h':'G#1', 'j':'A#1', 'l':'C#2', ';':'D#2',
             'z':'C1', 'x':'D1', 'c':'E1', 'v':'F1', 'b':'G1', 'n':'A1', 'm':'B1', ',':'C2', '.':'D2', '/':'E2',
+// todo: CAPS
         };
     }
 
-    getKeyboardCommand(key) {
+    getKeyboardCommand(key, octave=3) {
+        if(!Number.isInteger(octave))
+            throw new Error("Octave value must be an integer");
         const keyboardLayout = this.keyboardLayout;
         if(typeof keyboardLayout[key] === 'undefined')
             return null;
-        const octave = parseInt(this.editor.tracker.fieldRenderOctave.value) || 1;
+        // const octave = parseInt(this.editor.tracker.fieldRenderOctave.value) || 1;
         let command = keyboardLayout[key];
         command = command.replace('2', octave+1);
         command = command.replace('1', octave);

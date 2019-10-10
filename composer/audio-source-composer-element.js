@@ -7,53 +7,34 @@ class AudioSourceComposerElement extends HTMLElement {
         this.versionString = '-1';
         this.eventHandlers = [];
         this.saveSongToMemoryTimer = null;
-        this.instrumentLibrary = null;
+        // this.instrumentLibrary = null;
 
         this.longPressTimeout = null;
 
+        this.keyboard = new AudioSourceComposerKeyboard();
 
-        this.webSocket = new AudioSourceComposerWebsocket(this);
-        this.keyboard = new AudioSourceComposerKeyboard(this);
-        // this.menu = new AudioSourceComposerMenu(this);
-        // this.forms = new AudioSourceComposerForms(this);
-        // this.tracker = new AudioSourceComposerGrid(this);
-        // this.modifier = new SongModifier(this);
-
-        // this.instruments = new AudioSourceComposerInstruments(this);
-        // this.instruments.loadInstrumentLibrary(this.getScriptDirectory('instrument/instrument.library.json'));
-
-        this.renderer = new AudioSourceRenderer({}, this);
+        this.song = new AudioSourceSong({}, this);
         // this.player = null;
         this.status = {
-            // grid: {
-            //     // renderDuration: this.renderer.getSongTimeDivision(),
-            //     // groupName: 'root',
-            //     // selectedIndicies: [0],
-            //     // selectedRange: [0,0],
-            // },
             groupHistory: [],
-            // cursorPosition: 0,
-
-            currentOctave: 3,
-            currentInstrumentID: 0,
-            currentRenderDuration: null,
-            previewInstructionsOnSelect: false,
+            // previewInstructionsOnSelect: false,
             longPressTimeout: 500,
             doubleClickTimeout: 500,
             autoSaveTimeout: 4000,
         };
         this.shadowDOM = null;
 
-        this.actions = new AudioSourceComposerActions();
-        this.values = new AudioSourceValues(this.renderer);
-        this.loadDefaultInstrumentLibrary();
-        this.loadPackageInfo();
+        this.actions = new AudioSourceComposerActions(this);
+        this.values = new AudioSourceValues(this.song);
+        const Libraries = new AudioSourceLibraries;
+        const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
+        Libraries.loadInstrumentLibrary(defaultLibraryURL);
+        Libraries.loadPackageInfo()
+            .then(packageInfo => this.setVersion(packageInfo.version));
+
     }
 
     get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
-    // get menu() { return this.shadowDOM.querySelector('asc-menu-dropdown'); }
-    // get forms() { return this.shadowDOM.querySelector('asc-forms'); }
-    // get instruments() { return this.shadowDOM.querySelector('asc-instruments'); }
     get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     get scriptDirectory () {
@@ -65,20 +46,16 @@ class AudioSourceComposerElement extends HTMLElement {
     set sampleLibraryURL(url)   { this.setAttribute('sampleLibraryURL', url); }
 
     connectedCallback() {
-        // this.loadCSS();
+        this.loadCSS();
         this.shadowDOM = this.attachShadow({mode: 'open'});
 
-        // const onInput = e => this.onInput(e);
-        // this.shadowDOM.addEventListener('submit', onInput);
-        // this.shadowDOM.addEventListener('change', onInput);
-        // this.attachEventHandler(['change', 'submit'], e => this.onInput(e));
-        this.attachEventHandler(['change', 'submit', 'focus'], e => this.onInput(e), this.shadowDOM, true);
-        // this.shadowDOM.addEventListener('blur', onInput);
-        // this.shadowDOM.addEventListener('focus', e => this.onInput(e), true);
+        this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
+        // 'change', 'submit',
 
         this.attachEventHandler([
             'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-            'note:start', 'note:end',
+            'group:play', 'group:seek',
+            'note:start', 'note:end'
         ], this.onSongEvent);
         this.attachEventHandler([
             'instrument:instance',
@@ -90,34 +67,11 @@ class AudioSourceComposerElement extends HTMLElement {
         this.render();
         this.focus();
 
-        // const uuid = this.getAttribute('uuid');
-        // if(uuid)
-        //     this.renderer.loadSongFromServer(uuid);
 
         this.loadDefaultSong();
-        // this.setAttribute('tabindex', 0);
-        // this.initWebSocket(uuid);
 
-        // TODO: wait for user input
-        if(navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(
-                (MIDI) => {
-                    console.info("MIDI initialized", MIDI);
-                    const inputDevices = [];
-                    MIDI.inputs.forEach(
-                        (inputDevice) => {
-                            inputDevices.push(inputDevice);
-                            inputDevice.addEventListener('midimessage', e => this.onInput(e));
-                        }
-                    );
-                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-                },
-                (err) => {
-                    this.onError("error initializing MIDI: " + err);
-                }
-            );
-        }
-
+        const midiSupport = new MIDISupport();
+        midiSupport.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
     }
 
     disconnectedCallback() {
@@ -136,33 +90,33 @@ class AudioSourceComposerElement extends HTMLElement {
         }
     }
 
-    async loadDefaultInstrumentLibrary() {
-        const Libraries = new AudioSourceLibraries;
-        const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
-        await this.loadInstrumentLibrary(defaultLibraryURL);
-
-        this.renderer.dispatchEvent(new CustomEvent('instrument:library', {
-            // detail: this.instrumentLibrary,
-            // bubbles: true
-        }));
-
-    }
+    // async loadDefaultInstrumentLibrary() {
+    //     const Libraries = new AudioSourceLibraries;
+    //     const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
+    //     await Libraries.loadInstrumentLibrary(defaultLibraryURL);
+    //
+    //     this.song.dispatchEvent(new CustomEvent('instrument:library', {
+    //         // detail: this.instrumentLibrary,
+    //         // bubbles: true
+    //     }));
+    //
+    // }
 
     async loadDefaultSong() {
         const src = this.getAttribute('src');
         if(src) {
             try {
-                await this.loadSongFromSrc(src);
+                await this.actions.loadSongFromSrc(src);
                 return true;
             } catch (e) {
                 console.error("Failed to load from src: ", src, e);
             }
         }
 
-        if(await this.loadRecentSongData())
+        if(await this.actions.loadRecentSongData())
             return true;
 
-        this.loadNewSongData();
+        this.actions.loadNewSongData();
         return false;
     }
 
@@ -179,8 +133,8 @@ class AudioSourceComposerElement extends HTMLElement {
     //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command !== '!pause')
     // }
 
-    getAudioContext()   { return this.renderer.getAudioContext(); }
-    getSongData()       { return this.renderer.getSongData(); }
+    getAudioContext()   { return this.song.getAudioContext(); }
+    getSongData()       { return this.song.data; }
 
 
     getDefaultInstrumentURL() {
@@ -190,34 +144,33 @@ class AudioSourceComposerElement extends HTMLElement {
 
     /** Playback **/
 
-    async play() {
-        await this.renderer.play();
-        let playbackInterval = setInterval(e => {
-            if(this.renderer.isPlaying) {
-                this.updateSongPositionValue();
-            } else {
-                clearInterval(playbackInterval);
-            }
-        }, 10);
-        // if(this.renderer.isPlaybackActive())
-        //     this.renderer.stop();
-        // else
-        //     this.renderer.play();
+    // async play() {
+    //     await this.renderer.play();
+    //     // let playbackInterval = setInterval(e => {
+    //     //     if(this.renderer.isPlaying) {
+    //     //         this.updateSongPositionValue();
+    //     //     } else {
+    //     //         clearInterval(playbackInterval);
+    //     //     }
+    //     // }, 10);
+    //     // if(this.renderer.isPlaybackActive())
+    //     //     this.renderer.stop();
+    //     // else
+    //     //     this.renderer.play();
+    //
+    // }
 
-    }
-
-    updateSongPositionValue() {
-        let s = this.renderer.songPlaybackPosition;
-        let m = Math.floor(s / 60);
-        s = s % 60;
-        let ms = Math.round((s - Math.floor(s)) * 1000);
-        s = Math.floor(s);
+    updateSongPositionValue(fSeconds) {
+        let m = Math.floor(fSeconds / 60);
+        fSeconds = fSeconds % 60;
+        let ms = Math.round((fSeconds - Math.floor(fSeconds)) * 1000);
+        fSeconds = Math.floor(fSeconds);
 
         m = (m+'').padStart(2, '0');
-        s = (s+'').padStart(2, '0');
+        fSeconds = (fSeconds+'').padStart(2, '0');
         ms = (ms+'').padStart(4, '0'); // TODO: ticks?
 
-        this.fieldSongPosition.value = `${m}:${s}:${ms}`;
+        this.fieldSongPosition.value = `${m}:${fSeconds}:${ms}`;
     }
 
 
@@ -239,23 +192,29 @@ class AudioSourceComposerElement extends HTMLElement {
 //         console.log(e.target, e.type);
 
         // try {
-        this.renderer.getAudioContext();
+            switch(e.type) {
+                case 'focus':
+                    break;
+                default:
+                    this.song.getAudioContext();
+            }
         // if(this !== document.activeElement && !this.contains(document.activeElement)) {
         //     console.log("Focus", document.activeElement);
         //     this.focus();
         // }
         switch(e.type) {
-            case 'submit':
-                e.preventDefault();
-                this.onSubmit(e);
-                break;
-            case 'change':
-            case 'blur':
-                if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-                    this.onSubmit(e);
-                break;
+            // case 'submit':
+            //     e.preventDefault();
+            //     this.onSubmit(e);
+            //     break;
+            // case 'change':
+            // case 'blur':
+            //     if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
+            //         this.onSubmit(e);
+            //     break;
 
             case 'focus':
+                // TODO: refactor
                 for(let i=0; i<e.path.length; i++) {
                     const target = e.path[i];
                     if(target.classList && target.classList.contains('instrument-container')) {
@@ -283,35 +242,47 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
-    onSongEvent(e) {
+    async onSongEvent(e) {
 //         console.log("Song Event: ", e.type);
         if(this.tracker)
             this.tracker.onSongEvent(e);
         switch(e.type) {
             case 'song:seek':
-                this.updateSongPositionValue();
+                this.updateSongPositionValue(e.detail.position);
+
                 break;
+
             case 'song:loaded':
-                this.tracker.renderDuration = this.renderer.getSongTimeDivision();
+                this.tracker.renderDuration = this.song.timeDivision;
                 break;
             case 'song:play':
                 this.classList.add('playing');
                 this.containerElm.classList.add('playing');
-                clearInterval(this.updateSongPositionInterval);
-                this.updateSongPositionInterval = setInterval(e => {
-                    this.updateSongPositionValue();
-                }, 10)
+                this.fieldSongPlaybackPause.disabled = false;
+                const updateSongPositionInterval = setInterval(e => {
+                    if(!this.song.isPlaying) {
+                        clearInterval(updateSongPositionInterval);
+                        this.fieldSongPlaybackPause.disabled = true;
+                        this.containerElm.classList.remove('playing');
+                        this.classList.remove('playing');
+                    }
+                    this.updateSongPositionValue(this.song.songPlaybackPosition);
+                }, 10);
                 break;
+
             case 'song:pause':
-                clearInterval(this.updateSongPositionInterval);
                 this.classList.add('paused');
                 this.containerElm.classList.add('paused');
                 break;
             case 'song:end':
-                clearInterval(this.updateSongPositionInterval);
                 this.classList.remove('playing', 'paused');
                 this.containerElm.classList.remove('playing', 'paused');
                 break;
+
+            case 'instrument:instance':
+                this.renderInstrument(e.detail.instrumentID, e.detail.instance);
+                break;
+
             case 'instrument:modified':
             case 'song:modified':
                 switch(e.type) {
@@ -326,10 +297,10 @@ class AudioSourceComposerElement extends HTMLElement {
 
                 // TODO: auto save toggle
                 clearTimeout(this.saveSongToMemoryTimer);
-                this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.status.autoSaveTimeout);
+                this.saveSongToMemoryTimer = setTimeout(e => this.actions.saveSongToMemory(e), this.status.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
-            case 'instrument:instance':
+            case 'instrument:remove':
                 this.renderInstruments();
                 if(this.tracker) // Update aliases
                     this.tracker.renderForms();
@@ -345,33 +316,6 @@ class AudioSourceComposerElement extends HTMLElement {
         }
     }
 
-    onSubmit(e, form) {
-        if (!form)
-            form = e.target.form || e.target;
-        if (!form.matches('form'))
-            throw new Error("Invalid Form: " + form);
-        const actionName = form.getAttribute('data-action');
-
-        this.onAction(e, actionName);
-    }
-
-    async onAction(e, actionName, actionOptions=null) {
-
-        this.setStatus("Action: " + actionName);
-        // e.preventDefault();
-
-        if(this.tracker.onAction(e, actionName))
-            return true;
-
-        switch(actionName) {
-            default:
-                console.warn("Unhandled " + e.type + ": ", actionName);
-                break;
-        }
-
-
-    }
-
     onError(err) {
         console.error(err);
         this.setStatus(`<span style="red">${err}</span>`);
@@ -385,6 +329,21 @@ class AudioSourceComposerElement extends HTMLElement {
                 // }));
     }
 
+    setStatus(newStatus) {
+        console.info.apply(null, arguments); // (newStatus);
+        this.statusElm.innerHTML = newStatus;
+    }
+
+    setVersion(versionString) {
+        this.versionString = versionString;
+        this.versionElm.innerHTML = versionString;
+    }
+
+
+    closeAllMenus() {
+        this.shadowDOM.querySelector(`asc-menu`)
+            .closeAllMenus();
+    }
 
     // Rendering
     get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container .status-text`); }
@@ -396,16 +355,20 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
     get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
 
-    get panelSong() { return this.shadowDOM.querySelector(`ascf-panel[caption='Song']`)}
-    get panelTracker() { return this.shadowDOM.querySelector(`ascf-panel[caption='Track']`)}
-    get panelInstruments() { return this.shadowDOM.querySelector(`ascf-panel[caption='Instruments']`)}
+    get panelSong() { return this.shadowDOM.querySelector(`asc-form[key='song']`)}
+    get panelTracker() { return this.shadowDOM.querySelector(`asc-form[key='tracker']`)}
+    get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asc-form[key='tracker-row-segments']`)}
+    get panelInstruction() { return this.shadowDOM.querySelector(`asc-form[key='instruction']`)}
+    get panelInstruments() { return this.shadowDOM.querySelector(`asc-form[key='instruments']`)}
 
     render() {
         const Libraries = new AudioSourceLibraries;
-        const linkHRef = Libraries.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRefComposer = Libraries.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
         this.shadowDOM.innerHTML = `
-        <link rel="stylesheet" href="${linkHRef}" />
+        <link rel="stylesheet" href="${linkHRefComposer}" />
+        <link rel="stylesheet" href="${linkHRefCommon}" />
         <div class="asc-container">
             <div class="asc-menu-container">
                 <asc-menu key="file" caption="File"></asc-menu>
@@ -414,14 +377,15 @@ class AudioSourceComposerElement extends HTMLElement {
                 <asc-menu key="instrument" caption="Instrument"></asc-menu>
                 <asc-menu key="context" caption=""></asc-menu>
             </div>
-            <div class="asc-panel-container">
-                <asc-panel key="song"></asc-panel>
-                <asc-panel key="track"></asc-panel>
-                <asc-panel key="instruments"></asc-panel>
-            </div>
+            <asc-form key="song" caption="Song" class="panel"></asc-form><!--
+            --><asc-form key="instruments" caption="Song Instruments" class="panel"></asc-form>
+            <br/>
+            <asc-form key="instruction" caption="Selected Instruction(s)" class="panel"></asc-form><!--
+            --><asc-form key="tracker" caption="Tracker" class="panel"></asc-form><!--
+            --><asc-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asc-form>
+            <br/>
 
-            <hr style="flex-basis:100%; margin: 1px;" />
-            <asc-tracker tabindex="0" group="root"></asc-tracker>
+            <asc-tracker group="root"></asc-tracker>
         </div>
         <div class="asc-status-container">
             <span class="status-text"></span>
@@ -435,207 +399,178 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderSongForms();
         this.renderInstruments();
     }
-// <div class="form-section-divide"><span>Song</span></div>
-// <div class="form-section-container form-section-container-song"></div>
-//
-//         <div class="form-section-divide"><span>Track</span></div>
-// <div class="form-section-container form-section-container-tracker"></div>
-//
-//         <div class="form-section-divide"><span>Instruments</span></div>
-// <div class="form-section-container form-section-container-instruments"></div>
 
-    setStatus(newStatus) {
-        console.info.apply(null, arguments); // (newStatus);
-        this.statusElm.innerHTML = newStatus;
+
+    /** Song Forms **/
+
+    get formSongPlayback()          { return this.panelSong.getOrCreateForm('playback', 'Playback'); }
+    get formSongPosition()          { return this.panelSong.getOrCreateForm('position', 'Position'); }
+    get formSongVolume()            { return this.panelSong.getOrCreateForm('volume', 'Volume'); }
+    get formSongFile()              { return this.panelSong.getOrCreateForm('file', 'File'); }
+    get formSongName()              { return this.panelSong.getOrCreateForm('name', 'Name'); }
+    get formSongVersion()           { return this.panelSong.getOrCreateForm('version', 'Version'); }
+
+    /** Tracker Fields **/
+
+    get fieldSongPlaybackPlay() {
+        return this.formSongPlayback.getInput('play', false)
+            || this.formSongPlayback.addIconButton('play', e => this.actions.songPlay(e),
+                `play`,
+                "Play Song");
+    }
+    get fieldSongPlaybackPause() {
+        return this.formSongPlayback.getInput('pause', false)
+            || this.formSongPlayback.addIconButton('pause', e => this.actions.songPause(e),
+                `pause`,
+                "Pause Song");
+    }
+    get fieldSongPlaybackStop() {
+        return this.formSongPlayback.getInput('stop', false)
+            || this.formSongPlayback.addIconButton('pause', e => this.actions.songStop(e),
+                `stop`,
+                "Stop Song");
     }
 
-    setVersion(versionString) {
-        this.versionString = versionString;
-        this.statusElm.innerHTML = versionString;
+    get fieldSongVolume() {
+        return this.formSongVolume.getInput('volume', false)
+            || this.formSongVolume.addRangeInput('volume', (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100)
+    }
+    get fieldSongPosition() {
+        return this.formSongPosition.getInput('position', false)
+            || this.formSongPosition.addTextInput('position',
+                e => this.editor.actions.setTrackerSelection(e),
+                'Song Position',
+                '00:00:0000'
+            );
+    }
+    get fieldSongName() {
+        return this.formSongName.getInput('name', false)
+            || this.formSongName.addTextInput('name', (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
+    }
+    get fieldSongVersion() {
+        return this.formSongVersion.getInput('version', false)
+            || this.formSongVersion.addTextInput('version', (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
     }
 
 
-    closeAllMenus() {
-        this.shadowDOM.querySelector(`asc-menu`)
-            .closeAllMenus();
+
+
+    get fieldSongFileLoad() {
+        return this.formSongFile.getInput('file-load', false)
+            || this.formSongFile.addFileInput('file-load',
+                e => this.actions.songFileLoad(e),
+                `<i class="ui-icon ui-file-load"></i>`,
+                `.json,.mid,.midi`,
+                "Save Song to File"
+            );
     }
 
+    get fieldSongFileSave() {
+        return this.formSongFile.getInput('file-save', false)
+            || this.formSongFile.addIconButton('file-save',
+                e => this.actions.songFileSave(e),
+                `file-save`,
+                "Save Song to File"
+            );
+    }
 
-
-    get fieldSongVolume()           { return this.panelSong.querySelector('form.form-song-volume input[name=volume]'); }
-    get fieldSongAddInstrument()    { return this.panelSong.querySelector('form.form-song-add-instrument select[name=instrumentURL]'); }
-    get fieldSongPosition()         { return this.panelSong.querySelector('form.form-song-playback-position input[name=position]'); }
+    // get fieldSongAddInstrument()
 
     renderSongForms() {
+        this.fieldSongPlaybackPlay;
+        this.fieldSongPlaybackPause.disabled = true;
+        this.fieldSongPlaybackStop;
+        
+        this.fieldSongFileLoad;
+        this.fieldSongFileSave;
 
-        const formSection = this.panelSong;
-        const renderer = this.renderer;
-        const songData = this.getSongData();
-        // let tabIndex = 2;
-        formSection.innerHTML =
-            `
-            <div class="form-section control-song">
-                <div class="form-section-header">Playback</div>
-                <form action="#" class="form-song-play hide-on-song-playing" data-action="song:play">
-                    <button type="submit" name="play" class="themed">
-                        <i class="ui-icon ui-play"></i>
-                    </button>
-                </form>
-                <form action="#" class="form-song-pause show-on-song-playing" data-action="song:pause">
-                    <button type="submit" name="pause" class="themed">
-                        <i class="ui-icon ui-pause"></i>
-                    </button>
-                </form>
-                <form action="#" class="form-song-stop" data-action="song:stop">
-                    <button type="submit" name="pause" class="themed">
-                        <i class="ui-icon ui-stop"></i>
-                    </button>
-                </form>
-            </div>
-                                         
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Position</div>
-                <form action="#" class="form-song-playback-position submit-on-change" data-action="song:set-position">
-                    <input name="position" type="text" class="themed" value="" placeholder="00:00:0000" />
-                </form>
-            </div>                
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Volume</div>
-                <form action="#" class="form-song-volume submit-on-change" data-action="song:volume">
-                    <div class="volume-container">
-                        <input name="volume" type="range" min="1" max="100" value="${renderer ? renderer.getVolume() : 0}" class="themed">
-                    </div>
-                </form>
-            </div>
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">File</div>
-                <form name="form-load-file" action="#" class="form-load-file submit-on-change" data-action="song:load-from-file">
-                    <label>
-                        <div class="input-style">
-                            <i class="ui-icon ui-file-load"></i>
-                        </div>
-                        <input type="file" name="file" accept=".json,.mid,.midi" style="display: none" />
-                    </label>
-                </form>
-                <form name="form-save-file" action="#" class="form-save-file submit-on-change" data-action="song:save-to-file">
-                    <button type="submit" name="save" class="themed">
-                        <i class="ui-icon ui-file-save"></i>
-                    </button>
-                </form>
-            </div>
-                          
-                                         
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Song Name</div>
-                <form action="#" class="form-song-title submit-on-change" data-action="song:set-title">
-                    <input name="name" type="text" class="themed" value="${songData.name}" />
-                </form>
-            </div>     
-            
-            <div class="form-section control-song">
-                <div class="form-section-header">Version</div>
-                <form action="#" class="form-song-version submit-on-change" data-action="song:set-version">
-                    <input name="version" type="text" class="themed" value="${songData.version}" />
-                </form>
-            </div>                
-             
-            
-            <div style="clear: both;" class="control-song"></div>
-        `;
+        this.fieldSongVolume;
+        this.fieldSongPosition;
+        this.fieldSongName.value = this.song.getName();
+        this.fieldSongVersion.value = this.song.getVersion();
+
     }
 
-/**
- *
- <form action="#" class="form-song-resume show-on-song-paused" data-action="song:resume">
- <button type="submit" name="resume" class="themed">
- <i class="ui-icon ui-resume"></i>
- </button>
- </form>
+    renderInstrument(instrumentID, instrument=null) {
+        const instrumentPanel = this.panelInstruments;
+        // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
 
+        let instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
 
+        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+        instrumentForm.clearInputs();
 
- <div class="form-section control-song">
- <div class="form-section-header">Add Instrument</div>
- <form class="form-song-add-instrument submit-on-change" data-action="song:add-instrument">
- <select name="instrumentURL" class="themed">
- <option value="">Select Instrument</option>
- ${this.values.renderEditorFormOptions('instruments-available')}
- </select>
- </form>
- </div>
+        instrumentForm.addButton('instrument-id',
+            null, //TODO: toggle view
+            instrumentIDHTML + ':'
+        );
 
- */
+        // instrumentForm.addTextInput('instrument-name',
+        //     (e, newInstrumentName) => this.actions.setInstrumentName(e, instrumentID, newInstrumentName),
+        //     'Instrument Name',
+        //     '',
+        //     'Unnamed'
+        // );
 
-    renderInstruments() {
-        const formSection = this.panelInstruments;
-        const renderer = this.renderer;
+        if(!instrument) {
+            // Render 'empty' instrument
+            instrumentForm.addSelectInput('instrument-add-url',
+                (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
+                (addOption) => {
+                    addOption('', 'Add Instrument');
+                    this.values.getValues('instruments-available', addOption)
+                },
+                'Add Instrument',
+                '');
 
-        formSection.innerHTML = `
-`;
-
-        const formInstrumentsContainer = formSection; // formSection.querySelector('.form-instruments-container');
-        const instrumentList = renderer.getInstrumentList();
-        for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
-
-            let instrumentDiv = document.createElement('div');
-            // instrumentDiv.setAttribute('data-id', instrumentID+'');
-            instrumentDiv.classList.add('instrument-container');
-            instrumentDiv.classList.add('control-instrument');
-            instrumentDiv.setAttribute('tabindex', '0');
-            formInstrumentsContainer.appendChild(instrumentDiv);
-            if(instrumentID === 0)
-                instrumentDiv.classList.add('selected');
-
-            // const defaultSampleLibraryURL = new URL('/sample/', NAMESPACE) + '';
-
-            let instrument = renderer.getInstrument(instrumentID, false);
-            const instrumentPreset = renderer.getInstrumentConfig(instrumentID, false);
-
-            instrumentDiv.innerHTML = ``;
-
-            if(!instrumentPreset) {
-                instrument = new EmptyInstrumentElement(instrumentID, '[Empty]');
-                instrumentDiv.appendChild(instrument);
-
-            } else if(!instrumentPreset.url) {
-                const loadingElm = new EmptyInstrumentElement(instrumentID, `Invalid URL`);
-                instrumentDiv.appendChild(loadingElm);
-
-            } else if(!renderer.isInstrumentLoaded(instrumentID)) {
-                const loadingElm = new EmptyInstrumentElement(instrumentID, 'Loading...');
-                instrumentDiv.appendChild(loadingElm);
-
-            } else {
-                try {
-                    if (instrument instanceof HTMLElement) {
-                        instrument.setAttribute('data-id', instrumentID+'');
-                        instrumentDiv.appendChild(instrument);
-                    } else if (instrument.render) {
-                        const renderedHTML = instrument.render(this, instrumentID);
-                        if(renderedHTML)
-                            instrumentDiv.innerHTML = renderedHTML;
-                    } else {
-                        throw new Error("No Renderer");
-                    }
-
-                } catch (e) {
-                    instrumentDiv.innerHTML = e;
-                }
-            }
+            instrumentForm.addBreak();
         }
 
-        formSection.appendChild(new EmptyInstrumentElement(instrumentList.length, '[Empty]'))
+
+        if(instrument) {
+            try {
+                if (instrument instanceof HTMLElement) {
+                    instrument.setAttribute('data-id', instrumentID+'');
+                    instrumentForm.appendChild(instrument);
+
+                } else if (typeof instrument.render === "function") {
+                    const renderedHTML = instrument.render(instrumentForm);
+                    if(renderedHTML)
+                        instrumentForm.innerHTML = renderedHTML;
+                } else {
+                    throw new Error("No Renderer");
+                }
+
+            } catch (e) {
+                instrumentForm.innerHTML = e;
+            }
+        }
+    }
+
+    renderInstruments() {
+        const instrumentPanel = this.panelInstruments;
+
+        const renderInstrumentContainer = (instrumentID, instrument=null) => {
+        };
+
+        const instrumentList = this.song.getInstrumentList();
+        for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
+            let instrument = this.song.getInstrument(instrumentID, false);
+
+            this.renderInstrument(instrumentID, instrument);
+            // TODO Update selected
+        }
+
+
+        this.renderInstrument(instrumentList.length, null);
+        // renderInstrumentContainer(instrumentList.length+1);
     }
 
     renderMenu() {
         this.menuFile.populate = (e) => {
             const menu = e.menuElement;
             const menuFileNewSong = menu.getOrCreateSubMenu('new', 'New song');
-            menuFileNewSong.action = (e) => this.onAction(e, 'song:new');
+            menuFileNewSong.action = (e) => this.actions.loadNewSongData(e);
 
 
 
@@ -671,9 +606,9 @@ class AudioSourceComposerElement extends HTMLElement {
             const menuFileSaveSong = menu.getOrCreateSubMenu('save', 'Save song ►');
             menuFileSaveSong.populate = (e) => {
                 const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('to Memory');
-                menuFileSaveSongToMemory.action = (e) => this.onAction(e, 'song:save-to-memory');
+                menuFileSaveSongToMemory.action = (e) => this.actions.saveSongToMemory(e);
                 const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('to File');
-                menuFileSaveSongToFile.action = (e) => this.onAction(e, 'song:save-to-file');
+                menuFileSaveSongToFile.action = (e) => this.actions.saveSongToFile(e);
             };
 
             const menuFileImportSong = menu.getOrCreateSubMenu('import', 'Import song ►');
@@ -699,19 +634,19 @@ class AudioSourceComposerElement extends HTMLElement {
 
             const menuViewToggleFullscreen = menu.getOrCreateSubMenu('fullscreen',
                 `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`);
-            menuViewToggleFullscreen.action = (e) => this.onAction(e, 'view:fullscreen');
+            menuViewToggleFullscreen.action = (e) => this.actions.toggleFullscreen(e);
 
             const menuViewToggleFormSong = menu.getOrCreateSubMenu('forms-song',
                 `${this.containerElm.classList.contains('hide-forms-song') ? 'Show' : 'Hide'} Song Forms `);
-            menuViewToggleFormSong.action = (e) => this.onAction(e, 'view:forms-song');
+            menuViewToggleFormSong.action = (e) => this.actions.togglePanelSong(e);
 
             const menuViewToggleFormTrack = menu.getOrCreateSubMenu('forms-tracker',
                 `${this.containerElm.classList.contains('hide-forms-tracker') ? 'Show' : 'Hide'} Track Forms`);
-            menuViewToggleFormTrack.action = (e) => this.onAction(e, 'view:forms-tracker');
+            menuViewToggleFormTrack.action = (e) => this.actions.togglePanelTracker(e);
 
             const menuViewToggleFormInstrument = menu.getOrCreateSubMenu('forms-instruments',
                 `${this.containerElm.classList.contains('hide-forms-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
-            menuViewToggleFormInstrument.action = (e) => this.onAction(e, 'view:forms-instruments');
+            menuViewToggleFormInstrument.action = (e) => this.actions.togglePanelInstrument(e);
         };
 
         this.menuInstrument.populate = (e) => {
@@ -724,8 +659,8 @@ class AudioSourceComposerElement extends HTMLElement {
                     const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
                     // menuInstrument.setAttribute('data-instrument', instrumentURL);
                     menuInstrument.action = (e) => {
-                        this.fieldSongAddInstrument.value = instrumentURL;
-                        this.onAction(e, 'song:add-instrument', instrumentURL);
+//                         this.fieldSongAddInstrument.value = instrumentURL;
+                        this.actions.songAddInstrument(e, instrumentURL);
                     }
                 });
             };
@@ -733,7 +668,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             let instrumentCount = 0;
             this.values.getValues('song-instruments', (instrumentID, label) => {
-                const isActive = this.renderer.isInstrumentLoaded(instrumentID);
+                const isActive = this.song.isInstrumentLoaded(instrumentID);
 
                 const menuInstrument = menu.getOrCreateSubMenu(instrumentID, `${label} ►`);
                 menuInstrument.populate = (e) => {
@@ -747,7 +682,8 @@ class AudioSourceComposerElement extends HTMLElement {
                             // menuInstrument.setAttribute('data-instrument', instrumentURL);
                             menuInstrument.action = (e) => {
                                 this.fieldSongAddInstrument.value = instrumentURL;
-                                this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
+                                this.actions.songReplaceInstrument(e, instrumentID, instrumentURL);
+                                // this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
                             }
                         });
                     };
@@ -755,7 +691,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
                     const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
                     menuInstrumentRemove.action = (e) => {
-                        this.onAction(e, 'song:remove-instrument', instrumentID);
+                        this.actions.songRemoveInstrument(e, instrumentID);
                     };
                     menuInstrumentRemove.disabled = !isActive;
 
@@ -799,7 +735,7 @@ class AudioSourceComposerElement extends HTMLElement {
             this.status.selectedIndicies = indicies;
         } else if (typeof indicies === "function") {
             let selectedIndicies = [];
-            this.renderer.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
+            this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
                 if (indicies(index, instruction, stats))
                     selectedIndicies.push(index);
             });
@@ -815,10 +751,10 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     playSelectedInstructions() {
-        this.renderer.stopPlayback();
+        this.song.stopPlayback();
         const selectedIndicies = this.status.selectedIndicies;
         for(let i=0; i<selectedIndicies.length; i++) {
-            this.renderer.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
+            this.song.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
         }
     }
     // selectInstructions2(groupName, selectedRange=null, selectedIndicies=null) {
@@ -856,46 +792,6 @@ class AudioSourceComposerElement extends HTMLElement {
 
     /** Ajax Loading **/
 
-    async loadInstrumentLibrary(url, force = false) {
-        if (!url)
-            throw new Error("Invalid url");
-        url = new URL(url, document.location) + '';
-        if (!force && this.instrumentLibrary && this.instrumentLibrary.url === url)
-            return this.instrumentLibrary;
-
-        this.instrumentLibrary = await this.loadJSON(url);
-        this.instrumentLibrary.url = url + '';
-        console.info("Instrument Library Loaded: ", this.instrumentLibrary);
-        return this.instrumentLibrary;
-    }
-
-    async loadPackageInfo() {
-        const Libraries = new AudioSourceLibraries;
-        const url = Libraries.getScriptDirectory('package.json');
-        const packageJSON = await this.loadJSON(url);
-        if(!packageJSON.version)
-            throw new Error("Invalid package version: " + xhr.response);
-
-        console.log("Package Version: ", packageJSON.version, packageJSON);
-        this.setVersion(packageJSON.version);
-    }
-
-
-    async loadJSON(url) {
-        url = new URL(url, document.location) + '';
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'json';
-            xhr.onload = () => {
-                if (xhr.status !== 200)
-                    return reject("JSON file not found: " + url);
-
-                resolve(xhr.response);
-            };
-            xhr.send();
-        });
-    }
 
 
     loadCSS() {
@@ -910,64 +806,8 @@ class AudioSourceComposerElement extends HTMLElement {
         cssLink.setAttribute("type", "text/css");
         cssLink.setAttribute("href", linkHRef);
         targetDOM.appendChild(cssLink);
+        console.info("Appending " + linkHRef);
     }
 }
 customElements.define('audio-source-composer', AudioSourceComposerElement);
 
-
-class EmptyInstrumentElement extends HTMLElement {
-
-    constructor(instrumentID, statusText) {
-        super();
-        this.statusText = statusText;
-        this.instrumentID = instrumentID;
-    }
-
-    get instrumentID()      { return this.getAttribute('data-id'); }
-    set instrumentID(value) { return this.setAttribute('data-id', value); }
-
-
-    connectedCallback() {
-        // this.song = this.closest('music-song'); // Don't rely on this !!!
-        // const onInput = e => this.onInput(e);
-        this.addEventListener('submit', e => this.editor.onInput(e));
-        this.render();
-    }
-
-    get editor() {
-        const editor = this.closest('div.asc-container').parentNode.host;
-        if(!editor)
-            throw new Error("Editor not found");
-        return editor;
-    }
-
-    render() {
-        const instrumentID = this.instrumentID || 'N/A';
-        const statusText = (instrumentID < 10 ? "0" : "") + (instrumentID + ":") + this.statusText;
-        this.innerHTML = `
-            <div class="form-section control-song">
-                <form class="form-song-add-instrument submit-on-change" data-action="song:replace-instrument">
-                    <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-                    ${statusText}
-                    <br/>
-                    <select name="instrumentURL" class="themed">
-                        <option value="">Select Instrument</option>
-                        ${this.editor.values.renderEditorFormOptions('instruments-available')}
-                    </select>
-                </form>
-            </div>
-
-        `;
-    }
-}
-
-// <span style="float: right;">
-//     <form class="instrument-setting instrument-setting-remove" data-action="instrument:remove">
-//     <input type="hidden" name="instrumentID" value="${instrumentID}"/>
-//     <button class="remove-instrument">
-//     <i class="ui-icon ui-remove"></i>
-//     </button>
-//     </form>
-//     </span>
-
-customElements.define('asc-instrument-empty', EmptyInstrumentElement);

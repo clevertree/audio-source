@@ -20,16 +20,16 @@ const fs = require('fs');
 
     const minified = '(function(){'
         + await convert('composer/audio-source-composer-element.js')
-        // + await convert('composer/audio-source-composer-forms.js')
         + await convert('composer/audio-source-composer-tracker.js')
         // + await convert('composer/audio-source-composer-instruments.js')
         + await convert('composer/audio-source-composer-keyboard.js')
         + await convert('composer/audio-source-composer-menu.js')
-        + await convert('composer/audio-source-composer-websocket.js')
+        + await convert('composer/audio-source-composer-actions.js')
 
+        + await convert('common/audio-source-ui.js')
         + await convert('common/audio-source-values.js')
         + await convert('common/audio-source-libraries.js')
-        + await convert('common/audio-source-renderer.js')
+        + await convert('common/audio-source-song.js')
         + await convert('common/audio-source-storage.js')
         + await convert('common/midi-support.js')
 
