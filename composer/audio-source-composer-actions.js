@@ -154,7 +154,7 @@ class AudioSourceComposerActions {
 
     insertInstructionCommand(e, newCommand=null, promptUser=false) {
         // TODO: does not update
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
@@ -357,7 +357,7 @@ class AudioSourceComposerActions {
         await this.editor.song.replaceInstrument(instrumentID, changeInstrument);
         await this.editor.song.loadInstrument(instrumentID, true);
         this.editor.setStatus(`Instrument (${instrumentID}) changed to: ${changeInstrumentURL}`);
-        this.editor.tracker.fieldInstructionInstrument.value = instrumentID;
+        this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
         // } else {
         //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
         // }
@@ -389,13 +389,13 @@ class AudioSourceComposerActions {
     setTrackerOctave(e) {
         const tracker = this.editor.tracker;
 
-        this.editor.status.currentOctave = parseInt(tracker.fieldRenderOctave.value); // TODO: refactor
+        this.editor.status.currentOctave = parseInt(tracker.fieldTrackerOctave.value); // TODO: refactor
     }
 
     setTrackerRowLength(e) {
         const tracker = this.editor.tracker;
         let selectedIndicies = tracker.selectedIndicies;
-        this.rowLengthInTicks = tracker.fieldRenderRowLength.value;
+        this.rowLengthInTicks = tracker.fieldTrackerRowLength.value;
         tracker.renderRows();
         tracker.selectIndicies(e, selectedIndicies);
 

@@ -437,6 +437,10 @@ class AudioSourceUIForm extends HTMLElement {
         this.caption = caption;
     }
 
+    hasInput(inputKey) {
+        return !!this.querySelector(`[key="${inputKey}"]`);
+    }
+
     getInput(inputKey, throwException=true) {
         const inputElm = this.querySelector(`[key="${inputKey}"]`);
         if(inputElm)
@@ -462,8 +466,10 @@ class AudioSourceUIForm extends HTMLElement {
             throw new Error("Input is not a form: " + formKey);
         return formElm;
     }
-    getForm(formKey) {
-        const formElm = this.getInput(formKey);
+    getForm(formKey, throwException=true) {
+        const formElm = this.getInput(formKey, throwException);
+        if(formElm === null && throwException === false)
+            return formElm;
         if(!formElm instanceof  AudioSourceUIForm)
             throw new Error("Input is not a form: " + formKey);
         return formKey

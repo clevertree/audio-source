@@ -34,7 +34,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
-    get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
+    get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
     get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     get scriptDirectory () {
@@ -207,8 +207,8 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             default:
-                // if(this.tracker)
-                //     this.tracker.onInput(e);
+                // if(this.trackerElm)
+                //     this.trackerElm.onInput(e);
                 break;
         }
 
@@ -216,8 +216,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
     async onSongEvent(e) {
 //         console.log("Song Event: ", e.type);
-        if(this.tracker)
-            this.tracker.onSongEvent(e);
+        if(this.trackerElm)
+            this.trackerElm.onSongEvent(e);
         switch(e.type) {
             case 'song:seek':
                 this.updateSongPositionValue(e.detail.position);
@@ -225,7 +225,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:loaded':
-                this.tracker.renderDuration = this.song.timeDivision;
+                this.trackerElm.renderDuration = this.song.timeDivision;
                 break;
             case 'song:play':
                 this.classList.add('playing');
@@ -260,11 +260,11 @@ class AudioSourceComposerElement extends HTMLElement {
                 switch(e.type) {
                     case 'instrument:modified':
                         this.renderInstruments();
-                        if(this.tracker) // Update aliases
-                            this.tracker.renderForms();
+                        if(this.trackerElm) // Update aliases
+                            this.trackerElm.renderForms();
                         break;
                 }
-                // this.tracker.render();
+                // this.trackerElm.render();
                 // this.forms.render();
 
                 // TODO: auto save toggle
@@ -274,16 +274,16 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'instrument:loaded':
             case 'instrument:remove':
                 this.renderInstruments();
-                if(this.tracker) // Update aliases
-                    this.tracker.renderForms();
+                if(this.trackerElm) // Update aliases
+                    this.trackerElm.renderForms();
                 break;
             case 'instrument:library':
 //                 console.log(e.type);
                 // TODO: this.instruments.render();
                 // this.renderInstruments();
                 this.renderSongForms();
-                if(this.tracker)
-                    this.tracker.renderForms();
+                if(this.trackerElm)
+                    this.trackerElm.renderForms();
                 break;
         }
     }
@@ -339,31 +339,31 @@ class AudioSourceComposerElement extends HTMLElement {
         const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
         this.shadowDOM.innerHTML = `
-        <link rel="stylesheet" href="${linkHRefComposer}" />
-        <link rel="stylesheet" href="${linkHRefCommon}" />
-        <div class="asc-container">
-            <div class="asui-menu-container">
-                <asui-menu key="file" caption="File"></asui-menu>
-                <asui-menu key="edit" caption="Edit"></asui-menu>
-                <asui-menu key="view" caption="View"></asui-menu>
-                <asui-menu key="instrument" caption="Instrument"></asui-menu>
-                <asui-menu key="context" caption=""></asui-menu>
+            <link rel="stylesheet" href="${linkHRefComposer}" />
+            <link rel="stylesheet" href="${linkHRefCommon}" />
+            <div class="asc-container">
+                <div class="asui-menu-container">
+                    <asui-menu key="file" caption="File"></asui-menu>
+                    <asui-menu key="edit" caption="Edit"></asui-menu>
+                    <asui-menu key="view" caption="View"></asui-menu>
+                    <asui-menu key="instrument" caption="Instrument"></asui-menu>
+                    <asui-menu key="context" caption=""></asui-menu>
+                </div>
+                <asui-form key="song" caption="Song" class="panel"></asui-form><!--
+                --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
+                <br/>
+                <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
+                --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
+                --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
+                <br/>
+    
+                <asc-tracker group="root"></asc-tracker>
             </div>
-            <asui-form key="song" caption="Song" class="panel"></asui-form><!--
-            --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
-            <br/>
-            <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
-            --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
-            --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
-            <br/>
-
-            <asc-tracker group="root"></asc-tracker>
-        </div>
-        <div class="asc-status-container">
-            <span class="status-text"></span>
-            <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
-        </div>
-        `;
+            <div class="asc-status-container">
+                <span class="status-text"></span>
+                <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
+            </div>
+            `;
 
         this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
 
@@ -383,54 +383,60 @@ class AudioSourceComposerElement extends HTMLElement {
 
         /** Song Forms **/
 
-        this.formSongPlayback = this.panelSong.getOrCreateForm('playback', 'Playback');
-        this.formSongPosition = this.panelSong.getOrCreateForm('position', 'Position');
-        this.formSongVolume = this.panelSong.getOrCreateForm('volume', 'Volume');
-        this.formSongFile = this.panelSong.getOrCreateForm('file', 'File');
-        this.formSongName = return this.panelSong.getOrCreateForm('name', 'Name');
-        this.formSongVersion = this.panelSong.getOrCreateForm('version', 'Version');
-
+        const panelSong = this.panelSong;
+        if(!panelSong.hasInput('playback')) {
+            this.formSongPlayback = panelSong.getOrCreateForm('playback', 'Playback');
+            this.formSongPosition = panelSong.getOrCreateForm('position', 'Position');
+            this.formSongVolume = panelSong.getOrCreateForm('volume', 'Volume');
+            this.formSongFile = panelSong.getOrCreateForm('file', 'File');
+            this.formSongName = panelSong.getOrCreateForm('name', 'Name');
+            this.formSongVersion = panelSong.getOrCreateForm('version', 'Version');
+        }
 
         /** Tracker Fields **/
 
-        this.fieldSongPlaybackPlay = this.formSongPlayback.addIconButton('play',
-            e => this.actions.songPlay(e),
-            `play`,
-            "Play Song");
-        this.fieldSongPlaybackPause = this.formSongPlayback.addIconButton('pause', 
-            e => this.actions.songPause(e),
-            `pause`,
-            "Pause Song");
-        this.fieldSongPlaybackPause.disabled = true;
-        this.fieldSongPlaybackStop = this.formSongPlayback.addIconButton('pause', 
-            e => this.actions.songStop(e),
-            `stop`,
-            "Stop Song");
-        
-        this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
-            e => this.actions.songFileLoad(e),
-            `<i class="ui-icon ui-file-load"></i>`,
-            `.json,.mid,.midi`,
-            "Save Song to File"
-        );
-        this.fieldSongFileSave = this.formSongFile.addIconButton('file-save',
-            e => this.actions.songFileSave(e),
-            `file-save`,
-            "Save Song to File"
-        );
+        if(!this.formSongPlayback.hasInput('play')) {
+            this.fieldSongPlaybackPlay = this.formSongPlayback.addIconButton('play',
+                e => this.actions.songPlay(e),
+                `play`,
+                "Play Song");
+            this.fieldSongPlaybackPause = this.formSongPlayback.addIconButton('pause',
+                e => this.actions.songPause(e),
+                `pause`,
+                "Pause Song");
+            this.fieldSongPlaybackStop = this.formSongPlayback.addIconButton('pause',
+                e => this.actions.songStop(e),
+                `stop`,
+                "Stop Song");
 
-        this.fieldSongVolume = this.formSongVolume.addRangeInput('volume', 
-            (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
-        this.fieldSongPosition = this.formSongPosition.addTextInput('position',
-            e => this.editor.actions.setTrackerSelection(e),
-            'Song Position',
-            '00:00:0000'
-        );
-        this.fieldSongName = this.formSongName.addTextInput('name', 
-            (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
+            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
+                e => this.actions.songFileLoad(e),
+                `<i class="ui-icon ui-file-load"></i>`,
+                `.json,.mid,.midi`,
+                "Save Song to File"
+            );
+            this.fieldSongFileSave = this.formSongFile.addIconButton('file-save',
+                e => this.actions.songFileSave(e),
+                `file-save`,
+                "Save Song to File"
+            );
+
+            this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
+                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
+            this.fieldSongPosition = this.formSongPosition.addTextInput('position',
+                e => this.editor.actions.setTrackerSelection(e),
+                'Song Position',
+                '00:00:0000'
+            );
+            this.fieldSongName = this.formSongName.addTextInput('name',
+                (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
+            this.fieldSongVersion = this.formSongVersion.addTextInput('version',
+                (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
+        }
+
+        this.fieldSongPlaybackPause.disabled = true;
+
         this.fieldSongName.value = this.song.getName();
-        this.fieldSongVersion = this.formSongVersion.addTextInput('version', 
-            (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
         this.fieldSongVersion.value = this.song.getVersion();
 
     }
@@ -658,7 +664,7 @@ class AudioSourceComposerElement extends HTMLElement {
     update() {
         this.menu.update();
         // this.forms.update();
-        this.tracker.update();
+        this.trackerElm.update();
         // this.instruments.update();
     }
 
@@ -667,8 +673,8 @@ class AudioSourceComposerElement extends HTMLElement {
         this.status.groupHistory.unshift(this.status.currentGroup);
         this.status.currentGroup = groupName;
         console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.tracker.groupName = groupName;
-        // this.tracker = new AudioSourceComposerTracker(this, groupName);
+        this.trackerElm.groupName = groupName;
+        // this.trackerElm = new AudioSourceComposerTracker(this, groupName);
         this.render();
     }
 
@@ -691,7 +697,7 @@ class AudioSourceComposerElement extends HTMLElement {
             throw console.error("Invalid indicies", indicies);
         }
         this.update();
-        // this.tracker.focus();
+        // this.trackerElm.focus();
         // console.log("selectInstructions", this.status.selectedIndicies);
     }
 
@@ -713,7 +719,7 @@ class AudioSourceComposerElement extends HTMLElement {
     //         this.status.groupHistory.unshift(this.status.currentGroup);
     //         this.status.currentGroup = groupName;
     //         console.log("Group Change: ", groupName, this.status.groupHistory);
-    //         this.tracker = new SongEditorGrid(this, groupName);
+    //         this.trackerElm = new SongEditorGrid(this, groupName);
     //         this.render();
     //     }
     //     if(selectedRange !== null) {
@@ -725,7 +731,7 @@ class AudioSourceComposerElement extends HTMLElement {
     //     }
     //
     //     this.update();
-    //     this.tracker.focus();
+    //     this.trackerElm.focus();
     // }
 
 //     getScriptDirectory(appendPath='') {
