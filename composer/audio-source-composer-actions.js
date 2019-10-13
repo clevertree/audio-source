@@ -191,7 +191,7 @@ class AudioSourceComposerActions {
 
     setInstructionCommand(e, newCommand=null, promptUser=false) {
         //: TODO: does not allow insert
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
@@ -231,7 +231,7 @@ class AudioSourceComposerActions {
 
     // TODO: assuming the use of tracker.groupName?
     setInstructionInstrument(e, instrumentID=null) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
@@ -251,7 +251,7 @@ class AudioSourceComposerActions {
     }
 
     setInstructionDuration(e, duration=null, promptUser=false) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
@@ -273,7 +273,7 @@ class AudioSourceComposerActions {
     }
 
     setInstructionVelocity(e, velocity=null, promptUser=false) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
@@ -296,7 +296,7 @@ class AudioSourceComposerActions {
     }
 
     deleteInstructionCommand(e) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.selectedIndicies;
 
@@ -310,7 +310,7 @@ class AudioSourceComposerActions {
     /** Groups **/
 
     addNewSongGroup(e) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
 
         let newGroupName = renderer.generateInstructionGroupName(tracker.groupName);
@@ -378,7 +378,7 @@ class AudioSourceComposerActions {
     /** Tracker **/
 
     setTrackerChangeGroup(e, groupName=null) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
 
         groupName = groupName || e.target.form.getAttribute('data-group');
         tracker.groupName = groupName;
@@ -387,13 +387,13 @@ class AudioSourceComposerActions {
     }
 
     setTrackerOctave(e) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
 
         this.editor.status.currentOctave = parseInt(tracker.fieldTrackerOctave.value); // TODO: refactor
     }
 
     setTrackerRowLength(e) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         let selectedIndicies = tracker.selectedIndicies;
         this.rowLengthInTicks = tracker.fieldTrackerRowLength.value;
         tracker.renderRows();
@@ -402,7 +402,7 @@ class AudioSourceComposerActions {
     }
 
     setTrackerRowSegment(e) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
 
         this.currentRowSegmentID = parseInt(form.elements.id.value);
         tracker.renderRows();
@@ -414,7 +414,7 @@ class AudioSourceComposerActions {
     }
 
     setTrackerFilterInstrument(e) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
         let selectedIndicies = tracker.selectedIndicies;
 
         tracker.renderRows();
@@ -422,7 +422,7 @@ class AudioSourceComposerActions {
     }
 
     setTrackerSelection(e, selectedIndicies=null) {
-        const tracker = this.editor.tracker;
+        const tracker = this.editor.trackerElm;
 
         if(!selectedIndicies)
             selectedIndicies = tracker.fieldSelectedIndicies.value

@@ -3,48 +3,20 @@ class AudioSourceComposerTracker extends HTMLElement {
         super();
         this.editor = null;
         this.eventHandlers = [];
-        // this.form = null;
-        // this.field = null;
-
-        // this.cursorCellIndex = 0;
-        // this.renderTimeout = null;
-        // this.renderScrollLimit = 1200;
-        // this.renderMinimumRows = 16;
         this.segmentLength = 16;
         this.currentRowSegmentID = 0;
 
-        // this.selectedIndicies = [0];
         this.mousePosition = {};
-        // this.instructionElms = null;
-        // this.rowContainer = null;
         if(!this.hasAttribute('tabindex'))
             this.setAttribute('tabindex', '0');
     }
 
-
-
-    // get scrollContainer() {
-    //     return this.querySelector('.tracker-scroll-container');
-    // }
 
     get groupName()             { return this.getAttribute('group'); }
     set groupName(groupName)    {
         this.setAttribute('group', groupName);
         this.render(1);
     }
-    get rowLengthInTicks()             { return parseInt(this.getAttribute('rowLength')); }
-    set rowLengthInTicks(rowLengthInTicks)    {
-        this.setAttribute('rowLength', rowLengthInTicks);
-        this.render(1);
-    }
-    // get renderQuantization()             { return parseInt(this.fieldTrackerRowLength.value); }
-    // set renderQuantization(quantizationInTicks)    {
-    //     this.fieldTrackerRowLength.value = quantizationInTicks;
-    //     this.render(1);
-    // }
-
-    // get rowLengthInTicks() { return this.status.rowLengthInTicks; }
-    // get status() { return this.editor.status.grid; }
 
 
     get isConnected() { return this.editor.containerElm.contains(this); }
@@ -61,8 +33,8 @@ class AudioSourceComposerTracker extends HTMLElement {
             e => this.onInput(e));
 
         this.editor = this.getRootNode().host;
-        if(!this.getAttribute('rowLength'))
-            this.setAttribute('rowLength', this.editor.song.timeDivision);
+        // if(!this.getAttribute('rowLength'))
+        //     this.setAttribute('rowLength', this.editor.song.timeDivision);
         this.render();
         // setTimeout(e => this.render(), 20);
         // setTimeout(e => this.render(), 1000);
@@ -208,7 +180,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         // Instruction Iterator
         let instructionIterator = this.editor.song.getIterator(this.groupName);
 
-        const quantizationInTicks = this.rowLengthInTicks;
+        const quantizationInTicks = this.fieldTrackerRowLength.value || timeDivision;
 
         const segmentLengthInTicks = this.segmentLength * timeDivision;
 
@@ -987,8 +959,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         }
 
         this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
-
-        this.fieldTrackerRowLength.value = this.rowLengthInTicks; // this.editor.song.getSongTimeDivision();
+        if(!this.fieldTrackerRowLength.value)
+            this.fieldTrackerRowLength.value = this.editor.song.timeDivision;
+        // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.editor.song.getSongTimeDivision();
         if(!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
             this.fieldInstructionDuration.value = parseInt(this.fieldTrackerRowLength.value);
 

@@ -1353,6 +1353,8 @@ class AudioSourceInstructionIterator {
     }
 
     nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID = null) {
+        if(!quantizationInTicks)
+            throw new Error("Invalid Quantization value: " + typeof quantizationInTicks);
         let nextInstruction = this.getInstruction(this.groupIndex+1, false);
 
         if (!nextInstruction) {
