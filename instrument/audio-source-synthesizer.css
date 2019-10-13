@@ -24,3 +24,8 @@
 .audio-source-synthesizer-container  asui-input-text[key=adsr]        input      {width: 60px;}
 
 .audio-source-synthesizer-container  asui-input-select[key=instrument-preset]       select      { width: 120px; }
+
+/** Size **/
+.audio-source-synthesizer-container:not(.focus) {
+
+}

@@ -189,56 +189,28 @@ class AudioSourceComposerElement extends HTMLElement {
         if(e.defaultPrevented)
             return;
 
-//         console.log(e.target, e.type);
-
-        // try {
-            switch(e.type) {
-                case 'focus':
-                    break;
-                default:
-                    this.song.getAudioContext();
-            }
-        // if(this !== document.activeElement && !this.contains(document.activeElement)) {
-        //     console.log("Focus", document.activeElement);
-        //     this.focus();
-        // }
         switch(e.type) {
-            // case 'submit':
-            //     e.preventDefault();
-            //     this.onSubmit(e);
-            //     break;
-            // case 'change':
-            // case 'blur':
-            //     if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-            //         this.onSubmit(e);
-            //     break;
-
             case 'focus':
-                // TODO: refactor
-                for(let i=0; i<e.path.length; i++) {
-                    const target = e.path[i];
-                    if(target.classList && target.classList.contains('instrument-container')) {
-                        if(!target.classList.contains('selected')) {
-                            target.parentNode.querySelectorAll('.instrument-container.selected')
-                                .forEach((instrumentContainerElm) => instrumentContainerElm.classList.remove('selected'));
-                            target.classList.add('selected');
-                            setTimeout(e => target.parentNode.scrollLeft = target.offsetLeft - 20, 1);
-                        }
-                        break;
-                    }
+                break;
+            default:
+                this.song.getAudioContext();
+        }
+
+        switch(e.type) {
+            case 'focus':
+                const UIFormElm = e.path[0].closest('asui-form');
+                if(UIFormElm) {
+                    UIFormElm.getRootNode().querySelectorAll('asui-form.focus')
+                        .forEach(formElm => formElm.classList.remove('focus'));
+                    UIFormElm.classList.add('focus');
                 }
                 break;
 
             default:
-                if(this.tracker)
-                    this.tracker.onInput(e);
+                // if(this.tracker)
+                //     this.tracker.onInput(e);
                 break;
         }
-
-
-        // if(this.tracker.contains(e.target))
-        //     this.tracker.onInput(e);
-
 
     }
 
@@ -401,92 +373,64 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
 
-    /** Song Forms **/
-
-    get formSongPlayback()          { return this.panelSong.getOrCreateForm('playback', 'Playback'); }
-    get formSongPosition()          { return this.panelSong.getOrCreateForm('position', 'Position'); }
-    get formSongVolume()            { return this.panelSong.getOrCreateForm('volume', 'Volume'); }
-    get formSongFile()              { return this.panelSong.getOrCreateForm('file', 'File'); }
-    get formSongName()              { return this.panelSong.getOrCreateForm('name', 'Name'); }
-    get formSongVersion()           { return this.panelSong.getOrCreateForm('version', 'Version'); }
-
-    /** Tracker Fields **/
-
-    get fieldSongPlaybackPlay() {
-        return this.formSongPlayback.getInput('play', false)
-            || this.formSongPlayback.addIconButton('play', e => this.actions.songPlay(e),
-                `play`,
-                "Play Song");
-    }
-    get fieldSongPlaybackPause() {
-        return this.formSongPlayback.getInput('pause', false)
-            || this.formSongPlayback.addIconButton('pause', e => this.actions.songPause(e),
-                `pause`,
-                "Pause Song");
-    }
-    get fieldSongPlaybackStop() {
-        return this.formSongPlayback.getInput('stop', false)
-            || this.formSongPlayback.addIconButton('pause', e => this.actions.songStop(e),
-                `stop`,
-                "Stop Song");
-    }
-
-    get fieldSongVolume() {
-        return this.formSongVolume.getInput('volume', false)
-            || this.formSongVolume.addRangeInput('volume', (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100)
-    }
-    get fieldSongPosition() {
-        return this.formSongPosition.getInput('position', false)
-            || this.formSongPosition.addTextInput('position',
-                e => this.editor.actions.setTrackerSelection(e),
-                'Song Position',
-                '00:00:0000'
-            );
-    }
-    get fieldSongName() {
-        return this.formSongName.getInput('name', false)
-            || this.formSongName.addTextInput('name', (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
-    }
-    get fieldSongVersion() {
-        return this.formSongVersion.getInput('version', false)
-            || this.formSongVersion.addTextInput('version', (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
-    }
 
 
 
-
-    get fieldSongFileLoad() {
-        return this.formSongFile.getInput('file-load', false)
-            || this.formSongFile.addFileInput('file-load',
-                e => this.actions.songFileLoad(e),
-                `<i class="ui-icon ui-file-load"></i>`,
-                `.json,.mid,.midi`,
-                "Save Song to File"
-            );
-    }
-
-    get fieldSongFileSave() {
-        return this.formSongFile.getInput('file-save', false)
-            || this.formSongFile.addIconButton('file-save',
-                e => this.actions.songFileSave(e),
-                `file-save`,
-                "Save Song to File"
-            );
-    }
 
     // get fieldSongAddInstrument()
 
     renderSongForms() {
-        this.fieldSongPlaybackPlay;
-        this.fieldSongPlaybackPause.disabled = true;
-        this.fieldSongPlaybackStop;
-        
-        this.fieldSongFileLoad;
-        this.fieldSongFileSave;
 
-        this.fieldSongVolume;
-        this.fieldSongPosition;
+        /** Song Forms **/
+
+        this.formSongPlayback = this.panelSong.getOrCreateForm('playback', 'Playback');
+        this.formSongPosition = this.panelSong.getOrCreateForm('position', 'Position');
+        this.formSongVolume = this.panelSong.getOrCreateForm('volume', 'Volume');
+        this.formSongFile = this.panelSong.getOrCreateForm('file', 'File');
+        this.formSongName = return this.panelSong.getOrCreateForm('name', 'Name');
+        this.formSongVersion = this.panelSong.getOrCreateForm('version', 'Version');
+
+
+        /** Tracker Fields **/
+
+        this.fieldSongPlaybackPlay = this.formSongPlayback.addIconButton('play',
+            e => this.actions.songPlay(e),
+            `play`,
+            "Play Song");
+        this.fieldSongPlaybackPause = this.formSongPlayback.addIconButton('pause', 
+            e => this.actions.songPause(e),
+            `pause`,
+            "Pause Song");
+        this.fieldSongPlaybackPause.disabled = true;
+        this.fieldSongPlaybackStop = this.formSongPlayback.addIconButton('pause', 
+            e => this.actions.songStop(e),
+            `stop`,
+            "Stop Song");
+        
+        this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
+            e => this.actions.songFileLoad(e),
+            `<i class="ui-icon ui-file-load"></i>`,
+            `.json,.mid,.midi`,
+            "Save Song to File"
+        );
+        this.fieldSongFileSave = this.formSongFile.addIconButton('file-save',
+            e => this.actions.songFileSave(e),
+            `file-save`,
+            "Save Song to File"
+        );
+
+        this.fieldSongVolume = this.formSongVolume.addRangeInput('volume', 
+            (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
+        this.fieldSongPosition = this.formSongPosition.addTextInput('position',
+            e => this.editor.actions.setTrackerSelection(e),
+            'Song Position',
+            '00:00:0000'
+        );
+        this.fieldSongName = this.formSongName.addTextInput('name', 
+            (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
         this.fieldSongName.value = this.song.getName();
+        this.fieldSongVersion = this.formSongVersion.addTextInput('version', 
+            (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
         this.fieldSongVersion.value = this.song.getVersion();
 
     }
@@ -499,6 +443,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
         instrumentForm.clearInputs();
+        instrumentForm.classList.add('instrument-container');
 
         instrumentForm.addButton('instrument-id',
             null, //TODO: toggle view

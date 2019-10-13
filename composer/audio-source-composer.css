@@ -455,16 +455,19 @@ asc-tracker > div.selection-rect {
 
 
 
+/** Size **/
 .instrument-container {
-    max-height: 2000px;
-    max-width: 2000px;
-    transition: max-height 0.5s, max-width 0.5s;
+    max-height: 18em;
+    max-width: 68em;
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: ease-in;
+    overflow: hidden;
 }
 
-.instrument-container:not(.selected) {
-    max-height: 79px;
-    max-width: 100px;
-    min-width: 100px;
-    overflow: hidden;
+.instrument-container:not(.focus) {
+    max-height: 6em;
+    max-width: 34em;
+    /* min-width: 100px; */
 }
 

@@ -387,6 +387,14 @@ class AudioSourceUIForm extends HTMLElement {
         this.caption = captionText;
     }
 
+    connectedCallback() {
+        // this.addEventListener('focus', this.onInput, true);
+    }
+
+    disconnectedCallback() {
+        // this.removeEventListener('focus', this.onInput);
+    }
+
     get caption() {
         const headerElm = this.querySelector('.header');
         if(headerElm)
@@ -411,6 +419,17 @@ class AudioSourceUIForm extends HTMLElement {
     get parentForm() { return this.parentNode.closest('asui-form'); }
     get key() { return this.getAttribute('key'); }
     get editor() { return this.closest('audio-source-composer') || this.getRootNode().host; }
+
+    // onInput(e) {
+    //     console.log(this, e.type);
+    //     switch(e.type) {
+    //         case 'focus':
+    //             this.getRootNode().querySelectorAll('asui-form.focus')
+    //                 .forEach(formElm => formElm.classList.remove('focus'));
+    //             this.classList.add('focus');
+    //             break;
+    //     }
+    // }
 
     clearInputs() {
         const caption = this.caption;
