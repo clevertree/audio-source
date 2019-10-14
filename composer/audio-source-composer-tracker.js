@@ -192,7 +192,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             const panelTracker = this.editor.panelTracker;
             this.formTrackerRowLength = panelTracker.getOrCreateForm('row-length', 'Row &#120491;');
             this.formTrackerSegmentLength = panelTracker.getOrCreateForm('segment-length', 'Seg &#120491;');
-            this.formTrackerInstrument = panelTracker.getOrCreateForm('instrument', 'Filter Instrument');
+            this.formTrackerInstrument = panelTracker.getOrCreateForm('instrument', 'Instrument');
             this.formTrackerSelection = panelTracker.getOrCreateForm('selection', 'Selection');
             this.formTrackerOctave = panelTracker.getOrCreateForm('octave', 'Octave');
 
@@ -254,8 +254,9 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             this.fieldTrackerInstrument = this.formTrackerInstrument.addSelectInput('filter-instrument',
                 e => this.editor.actions.setTrackerFilterInstrument(e),
-                (addOption) => {
-                    addOption('', 'Default');
+                (addOption, addGroup) => {
+                    addOption('', 'No Filter');
+                    addGroup("Filter By Instrument");
                     this.editor.values.getValues('song-instruments', addOption)
                 },
                 'Filter By Instrument',

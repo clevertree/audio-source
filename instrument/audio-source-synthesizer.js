@@ -570,17 +570,19 @@
             this.form.clearInputs();
             this.form.classList.add('audio-source-synthesizer-container');
 
-            this.form.addButton('instrument-id',
-                null, //TODO: toggle view
+            const instrumentToggleButton = this.form.addButton('instrument-id',
+                e => this.form.classList.toggle('selected'), //TODO: toggle view
                 instrumentIDHTML + ':'
             );
+            instrumentToggleButton.classList.add('show-on-focus');
 
-            this.form.addTextInput('instrument-name',
+            const instrumentNameInput = this.form.addTextInput('instrument-name',
                 (e, newInstrumentName) => this.setInstrumentName(newInstrumentName),
                 'Instrument Name',
                 this.instrument.config.name || '',
                 'Unnamed'
             );
+            instrumentNameInput.classList.add('show-on-focus');
 
 
 

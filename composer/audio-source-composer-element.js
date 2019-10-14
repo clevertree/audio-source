@@ -378,7 +378,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     // get fieldSongAddInstrument()
-
+    // TODO: AudioSourceComposerSongFormRenderer()
     renderSongForms() {
 
         /** Song Forms **/
@@ -411,7 +411,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
                 e => this.actions.songFileLoad(e),
-                `<i class="ui-icon ui-file-load"></i>`,
+                `file-load`,
                 `.json,.mid,.midi`,
                 "Save Song to File"
             );
@@ -451,10 +451,11 @@ class AudioSourceComposerElement extends HTMLElement {
         instrumentForm.clearInputs();
         instrumentForm.classList.add('instrument-container');
 
-        instrumentForm.addButton('instrument-id',
+        const instrumentToggleButton = instrumentForm.addButton('instrument-id',
             null, //TODO: toggle view
             instrumentIDHTML + ':'
         );
+        instrumentToggleButton.classList.add('show-on-focus');
 
         // instrumentForm.addTextInput('instrument-name',
         //     (e, newInstrumentName) => this.actions.setInstrumentName(e, instrumentID, newInstrumentName),

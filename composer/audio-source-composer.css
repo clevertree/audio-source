@@ -127,15 +127,16 @@ asui-form[key=position]     asui-input-text[key=position]   input       { max-wi
 
 asui-form[key=instruction]   asui-form[key=command]      asui-input-select[key=command]       select      {width: 72px;}
 asui-form[key=instruction]   asui-form[key=velocity]     asui-input-range[key=velocity]       input       { width: 64px; }
-asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      {width: 48px;}
+asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      {width: 42px;}
 
 asui-form[key=instruction]   asui-form[key=instrument]   asui-input-select[key=instrument]    select      {width: 83px;}
 
 /** Tracker Render Forms **/
 
 asui-form[key=tracker]      asui-input-select[key=octave]            select      {width: 36px;}
-asui-form[key=tracker]      asui-input-select[key=row-length]        select      {width: 50px;}
-asui-form[key=tracker]      asui-input-select[key=filter-instrument]    select      {width: 101px;}
+asui-form[key=tracker]      asui-input-select[key=row-length]        select      {width: 42px;}
+asui-form[key=tracker]      asui-input-select[key=segment-length]    select      {width: 42px;}
+asui-form[key=tracker]      asui-input-select[key=filter-instrument] select      {width: 72px;}
 asui-form[key=tracker]      asui-input-text[key=selection]           input       {width: 84px;}
 
 
@@ -182,7 +183,7 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
     border: 1px outset transparent;
     background: transparent;
     cursor: pointer;
-    height: 24px;
+    /* height: 20px; */
 }
 
 .asc-container .input-style:hover,
@@ -454,21 +455,4 @@ asc-tracker > div.selection-rect {
 
 /** Instruments **/
 
-
-
-/** Size **/
-.instrument-container {
-    max-height: 18em;
-    max-width: 68em;
-    transition-property: all;
-    transition-duration: 1s;
-    transition-timing-function: ease-in;
-    overflow: hidden;
-}
-
-.instrument-container:not(.focus) {
-    max-height: 6em;
-    max-width: 34em;
-    /* min-width: 100px; */
-}
 

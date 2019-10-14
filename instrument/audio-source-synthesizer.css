@@ -11,6 +11,13 @@
 
 
 /** Inputs **/
+.audio-source-synthesizer-container  asui-input-button[key=instrument-id]   button {
+    border: 1px outset;
+    padding: 2px;
+}
+.audio-source-synthesizer-container.selected  asui-input-button[key=instrument-id]   button {
+    border: 1px inset;
+}
 
 .audio-source-synthesizer-container  asui-input-button[key=instrument-remove],
 .audio-source-synthesizer-container  asui-input-select[key=instrument-preset]               {
@@ -25,7 +32,21 @@
 
 .audio-source-synthesizer-container  asui-input-select[key=instrument-preset]       select      { width: 120px; }
 
-/** Size **/
-.audio-source-synthesizer-container:not(.focus) {
 
+/** Size **/
+.audio-source-synthesizer-container {
+    max-height: 80em;
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: ease-in-out;
 }
+
+.audio-source-synthesizer-container:not(.selected):not(.focus) {
+    max-height: 2em;
+    overflow: hidden;
+}
+
+.audio-source-synthesizer-container:not(.selected):not(.focus) > *:not(.show-on-focus) {
+    /* min-width: 100px; */
+}
+
