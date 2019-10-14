@@ -125,18 +125,18 @@ asui-form[key=position]     asui-input-text[key=position]   input       { max-wi
 
 /** Instruction Form **/
 
-asui-form[key=instruction]   asui-form[key=command]      asui-input-select[key=command]       select      {width: 90px;}
+asui-form[key=instruction]   asui-form[key=command]      asui-input-select[key=command]       select      {width: 72px;}
 asui-form[key=instruction]   asui-form[key=velocity]     asui-input-range[key=velocity]       input       { width: 64px; }
-asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      { width: 64px; }
+asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      {width: 48px;}
 
-asui-form[key=instruction]   asui-form[key=instrument]   asui-input-select[key=instrument]    select      {width: 130px;}
+asui-form[key=instruction]   asui-form[key=instrument]   asui-input-select[key=instrument]    select      {width: 83px;}
 
 /** Tracker Render Forms **/
 
-asui-form[key=tracker]      asui-input-select[key=octave]            select      { width: 64px; }
-asui-form[key=tracker]      asui-input-select[key=row-length]        select      { width: 64px; }
-asui-form[key=tracker]      asui-input-select[key=filter-instrument]    select      {width: 130px;}
-asui-form[key=tracker]      asui-input-text[key=selection]           input       { width: 126px; }
+asui-form[key=tracker]      asui-input-select[key=octave]            select      {width: 36px;}
+asui-form[key=tracker]      asui-input-select[key=row-length]        select      {width: 50px;}
+asui-form[key=tracker]      asui-input-select[key=filter-instrument]    select      {width: 101px;}
+asui-form[key=tracker]      asui-input-text[key=selection]           input       {width: 84px;}
 
 
 /** Instrument Form **/
@@ -261,7 +261,9 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 /** Tracker **/
 asc-tracker {
     position: relative;
-    flex-basis: 100%;
+    max-height: 60%;
+    overflow: auto;
+    display: block;
 }
 
 
