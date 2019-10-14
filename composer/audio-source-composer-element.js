@@ -678,28 +678,28 @@ class AudioSourceComposerElement extends HTMLElement {
         this.render();
     }
 
-    selectInstructions(indicies=null) {
-        this.status.getSelectedIndicies() = [];
-        if(typeof indicies === "number") {
-            this.status.getSelectedIndicies() = [indicies];
-        } else             if(Array.isArray(indicies)) {
-            this.status.getSelectedIndicies() = indicies;
-        } else if (typeof indicies === "function") {
-            let selectedIndicies = [];
-            this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
-                if (indicies(index, instruction, stats))
-                    selectedIndicies.push(index);
-            });
-
-            this.getSelectedIndicies()(selectedIndicies);
-            return;
-        } else {
-            throw console.error("Invalid indicies", indicies);
-        }
-        this.update();
-        // this.trackerElm.focus();
-        // console.log("selectInstructions", this.status.getSelectedIndicies());
-    }
+    // selectInstructions(indicies=null) {
+    //     this.status.getSelectedIndicies() = [];
+    //     if(typeof indicies === "number") {
+    //         this.status.getSelectedIndicies() = [indicies];
+    //     } else             if(Array.isArray(indicies)) {
+    //         this.status.getSelectedIndicies() = indicies;
+    //     } else if (typeof indicies === "function") {
+    //         let selectedIndicies = [];
+    //         this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
+    //             if (indicies(index, instruction, stats))
+    //                 selectedIndicies.push(index);
+    //         });
+    //
+    //         this.getSelectedIndicies()(selectedIndicies);
+    //         return;
+    //     } else {
+    //         throw console.error("Invalid indicies", indicies);
+    //     }
+    //     this.update();
+    //     // this.trackerElm.focus();
+    //     // console.log("selectInstructions", this.status.getSelectedIndicies());
+    // }
 
     playSelectedInstructions() {
         this.song.stopPlayback();

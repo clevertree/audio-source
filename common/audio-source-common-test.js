@@ -73,7 +73,7 @@ class AudioSourceCommonTest {
 
         // Test Iterator
         let iterator = song.getIterator(testGroup);
-        let instruction, instructionList, positionInTicks=0;
+        let instruction, instructionList, positionInTicks=0, playbackTime=0;
         while(instruction = iterator.nextInstruction()) {
             positionInTicks += instruction.deltaDuration;
             console.assert(instruction.positionInTicks === positionInTicks, `instruction.positionInTicks ${instruction.positionInTicks} !== ${positionInTicks}\n`, instruction);
@@ -98,12 +98,16 @@ class AudioSourceCommonTest {
 
         // Test Quantized Row Iterator
         iterator = song.getIterator(testGroup);
-        positionInTicks = 0;
+        positionInTicks = 0, playbackTime = 0;
         while(instructionList = iterator.nextInstructionQuantizedRow(song.timeDivision)) {
+            console.assert(iterator.groupPositionInTicks - positionInTicks <= song.timeDivision, 'quantization failed for groupPositionInTicks');
+            console.assert(iterator.groupPlaybackTime - playbackTime <= 0.5, 'quantization failed for groupPlaybackTime');
+            // console.log('iterator', iterator.groupPositionInTicks, iterator.groupPlaybackTime);
             // console.assert(iterator.groupPositionInTicks === positionInTicks, `iterator.groupPositionInTicks ${iterator.groupPositionInTicks} !== ${positionInTicks}\n`, instruction);
             if(positionInTicks > 0)
-            console.assert(positionInTicks < iterator.groupPositionInTicks, "Invalid position order");
+                console.assert(positionInTicks < iterator.groupPositionInTicks, "Invalid position order");
             positionInTicks = iterator.groupPositionInTicks;
+            playbackTime = iterator.groupPlaybackTime;
             // console.log(iterator.groupPositionInTicks, instructionList, iterator.groupIndex);
             for(let i=0; i<instructionList.length; i++) {
                 const instruction = instructionList[i];

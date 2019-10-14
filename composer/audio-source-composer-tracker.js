@@ -5,6 +5,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.eventHandlers = [];
         this.segmentLength = 16;
         this.currentRowSegmentID = 0;
+        // this.selectedIndicies = []
 
         this.mousePosition = {};
         if(!this.hasAttribute('tabindex'))
@@ -57,6 +58,9 @@ class AudioSourceComposerTracker extends HTMLElement {
     }
 
     clearSelection(excludeElms=[]) {
+        this.fieldTrackerSelection.value = '';
+        // this.selectedIndicies = [];
+
         if(!Array.isArray(excludeElms))
             excludeElms = [excludeElms];
 
@@ -125,26 +129,25 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
 
-    navigate(groupPositionInTicks, groupName=null) {
-        if(groupName && groupName !== this.groupName)
-            this.groupName = groupName;
+    // navigate(groupPositionInTicks, groupName=null) {
+    //     if(groupName && groupName !== this.groupName)
+    //         this.groupName = groupName;
+    //     this.navigateGroup(groupName);
+    // }
 
+
+    navigateGroup(groupPositionInTicks) {
         let rowElm = this.findRowElement(groupPositionInTicks);
-        if(!rowElm) {
-            const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
-            if (newRowSegmentID !== this.currentRowSegmentID) {
-                this.navigateSegment(newRowSegmentID);
-                let rowElm = this.findRowElement(groupPositionInTicks);
-                if(!rowElm)
-                    throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
-                return rowElm;
-            } else {
-                throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
-            }
-        } else {
-//             console.info("Row segment was found. Navigation canceled");
+        if(rowElm)
             return rowElm;
+        const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
+        if (newRowSegmentID !== this.currentRowSegmentID) {
+            this.navigateSegment(newRowSegmentID);
+            let rowElm = this.findRowElement(groupPositionInTicks);
+            if(rowElm)
+                return rowElm;
         }
+        throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
     }
 
 
@@ -325,7 +328,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             this.fieldInstructionDuration.value = parseInt(this.fieldTrackerRowLength.value);
 
 
-        this.fieldTrackerSelection.value = selectedIndicies.join(',');
+        // this.fieldTrackerSelection.value = selectedIndicies.join(',');
     }
 
     // renderRowSegments() {
@@ -408,7 +411,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             }
         }
 
-        this.selectIndicies(selectedIndicies)
+        this.selectSegmentIndicies(selectedIndicies); // TODO: reselect cells after navigation?
         console.timeEnd('tracker.renderRows()');
     }
 
@@ -650,7 +653,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         for (let i = 0; i < selectedIndiciesDesc.length; i++)
                             this.editor.song.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
                         this.renderRows();
-                        this.selectIndicies(selectedIndicies[0]);
+                        // this.selectIndicies(selectedIndicies[0]);
                         // song.render(true);
                         break;
 
@@ -659,7 +662,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         throw new Error("TODO: navigate pop")
                         e.preventDefault();
                         this.navigatePop();
-                        this.selectIndicies(0);
+                        // this.selectIndicies(0);
                         // this.focus();
                         break;
 
@@ -837,7 +840,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
             case 'mouseout':
                 if(e.target.matches('asc-tracker')) {
-                    console.log(e.target, e.path);
+//                     console.log(e.target, e.path);
                     if(this.isSelectionRectActive()) {
                         this.commitSelectionRect();
                     }
@@ -993,10 +996,11 @@ class AudioSourceComposerTracker extends HTMLElement {
     setPlaybackPositionInTicks(groupPositionInTicks) {
 
         // TODO: get current 'playing' and check position
-        let rowElm = this.navigate(groupPositionInTicks);
+        let rowElm = this.navigateGroup(groupPositionInTicks);
         this.querySelectorAll('asct-row.position')
             .forEach(rowElm => rowElm.classList.remove('position'));
         rowElm.classList.add('position');
+
     }
 
 
@@ -1099,7 +1103,14 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     }
     getSelectedIndicies() {
-        return [].map.call(this.selectedCells, (elm => elm.index));
+        const value = this.fieldTrackerSelection.value;
+        if(value === '')
+            return [];
+        return value
+            .split(/\D+/)
+            .map(index => parseInt(index));
+        // return this.selectedIndicies;
+        // const selectedIndicies = [].map.call(this.selectedCells, (elm => elm.index));
     }
 
 
@@ -1208,23 +1219,40 @@ class AudioSourceComposerTracker extends HTMLElement {
     //     cursorCell.parentNode.scrollTo();
     // }
 
+    updateSelectedIndicies() {
+        const selectedIndicies = this.getSelectedIndicies();
+        const selectedSegmentIndicies = [].map.call(this.selectedCells, (elm => elm.index));
+        for(let i=0; i<selectedSegmentIndicies.length; i++) {
+            const index = selectedSegmentIndicies[i];
+            if(selectedIndicies.indexOf(index) === -1) {
+                selectedIndicies.push(index);
+            }
+        }
+        selectedIndicies.sort();
+        this.fieldTrackerSelection.value = selectedIndicies.join(',');
+        console.info('updateSelectedIndicies', selectedIndicies);
+    }
 
-    selectIndicies(indicies, clearSelection = true) {
-        const currentSelectedIndicies = this.getSelectedIndicies();
-        if(indicies.length === currentSelectedIndicies.length && indicies.sort().every(function(value, index) { return value === currentSelectedIndicies.sort()[index]}))
-            return;
+    selectSegmentIndicies(indicies, clearSelection = false) {
+        // const currentSelectedIndicies = this.getSelectedIndicies();
+        // if(indicies.length === currentSelectedIndicies.length && indicies.sort().every(function(value, index) { return value === currentSelectedIndicies.sort()[index]}))
+        //     return;
         if(!Array.isArray(indicies))
             indicies = [indicies];
         if(clearSelection)
             this.clearSelection();
         for(let i=0; i<indicies.length; i++) {
-            const cell = this.findInstructionElement(indicies[i]);
-            if(!cell)
-                throw new Error("Instruction not found: " + indicies[i]);
-            cell.select(true, false);
-            if(i===0)
-                cell.setCursor();
+            const index = indicies[i];
+            const cell = this.findInstructionElement(index);
+            if(cell) {
+                cell.select(true, false);
+                if(i===0)
+                    cell.setCursor();
+            } else {
+                console.warn("Instruction not found: " + index);
+            }
         }
+        this.updateSelectedIndicies();
         //    this.focus(); // Prevents tab from working
     }
 
@@ -1259,14 +1287,16 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         this.editor.closeAllMenus();
         selectedCell.select(toggleValue);
+        this.updateSelectedIndicies();
         selectedCell.setCursor();
         this.renderForms();
         selectedCell.play();
-        selectedCell.parentNode.scrollTo();
         this.focus();
         this.editor.song.setPlaybackPositionInTicks(selectedCell.parentNode.position);
+        selectedCell.parentNode.scrollTo();
+
         console.timeEnd("selectCell");
-        selectedCell.scrollTo();
+        // selectedCell.scrollTo();
     }
 
     onRowInput(e, selectedRow = null) {
@@ -1351,7 +1381,7 @@ class AudioSourceComposerTracker extends HTMLElement {
             const insertIndex = this.insertInstructionAtPosition(insertPosition, newInstruction);
             // this.cursorRow.render(true);
             this.renderRows();
-            this.selectIndicies(insertIndex);
+            this.selectSegmentIndicies(insertIndex, true);
             // selectedIndicies = [insertIndex];
 //                             console.timeEnd("new");
             // cursorInstruction = instructionList[insertIndex];
@@ -1362,7 +1392,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.replaceInstructionCommand(selectedIndicies[i], replaceCommand);
             }
             this.renderRows();
-            this.selectIndicies(selectedIndicies);
+            this.selectSegmentIndicies(selectedIndicies);
             // this.selectIndicies(this.getSelectedIndicies()[0]); // TODO: select all
         }
     }
@@ -1387,22 +1417,22 @@ class AudioSourceComposerTracker extends HTMLElement {
     // }
 
     findRowElement(positionInTicks) {
-        let rowElm = this.querySelector(`asct-row[p='${positionInTicks}']`);
-        if(rowElm)
-            return rowElm;
-
-        let rowElms = this.querySelectorAll(`asct-row`);
-        for(let i=rowElms.length-1; i>=0; i--) {
-            const rowElm = rowElms[i];
-            if(rowElm.position < positionInTicks) {
-                // TODO: inefficient?
-//                 console.log('findRowElement', rowElm, rowElm.position, '<', positionInTicks);
-                return rowElm;
-            }
-        }
-
-        return null;
+        return this.querySelector(`asct-row[p='${positionInTicks}']`);
     }
+        // if(rowElm)
+        //     return rowElm;
+
+//         let rowElms = this.querySelectorAll(`asct-row`);
+//         for(let i=rowElms.length-1; i>=0; i--) {
+//             const rowElm = rowElms[i];
+//             if(rowElm.position < positionInTicks) {
+//                 // TODO: inefficient?
+// //                 console.log('findRowElement', rowElm, rowElm.position, '<', positionInTicks);
+//                 return rowElm;
+//             }
+//         }
+
+        // return null;
 
     findInstructionElement(instructionIndex) {
         return this.querySelector(`asct-instruction[i='${instructionIndex}']`);

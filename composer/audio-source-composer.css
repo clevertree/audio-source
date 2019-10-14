@@ -376,10 +376,6 @@ asct-instruction:last-child {
     margin-right: 0;
 }
 
-asct-instruction.playing {
-    font-weight: bold;
-}
-
 
 asct-instruction-add,
 asct-instruction.cursor,
@@ -389,22 +385,25 @@ asct-instruction.selected {
     box-shadow: #6b6b6b 0 0px 3px;
     z-index: 2;
 }
-asct-instruction.playing {
-    background-color: #80d55c;
-}
-
-asct-instruction-add.cursor,
-asct-instruction.selecting,
-asct-instruction.selected {
-    background-color: white;
-}
-
 
 asct-instruction-add.cursor,
 asct-instruction.cursor {
     border-color: red;
     box-shadow: darkred 0 0 12px;
 }
+
+
+asct-instruction-add.cursor,
+asct-instruction.selecting,
+asct-instruction.selected {
+     background-color: white;
+}
+
+asct-instruction.playing {
+    font-weight: bold;
+    background-color: #80d55c;
+}
+
 
 /** Tracker Cell Parameters **/
 
