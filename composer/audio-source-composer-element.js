@@ -34,7 +34,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
-    get tracker() { return this.shadowDOM.querySelector('asc-tracker'); }
+    get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
     get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     get scriptDirectory () {
@@ -121,16 +121,16 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     get currentGroup()      { return this.status.currentGroup; }
-    get selectedIndicies()  { return this.status.selectedIndicies; }
+    get selectedIndicies()  { return this.status.getSelectedIndicies(); }
     get selectedRange()     { return this.status.selectedRange; }
 
     // get selectedPauseIndicies()  {
     //     const instructionList = this.renderer.getInstructions(this.currentGroup);
-    //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command === '!pause')
+    //     return this.getSelectedIndicies().filter(index => instructionList[index] && instructionList[index].command === '!pause')
     // }
     // get selectedIndicies()  {
     //     const instructionList = this.renderer.getInstructions(this.currentGroup);
-    //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command !== '!pause')
+    //     return this.getSelectedIndicies().filter(index => instructionList[index] && instructionList[index].command !== '!pause')
     // }
 
     getAudioContext()   { return this.song.getAudioContext(); }
@@ -189,63 +189,35 @@ class AudioSourceComposerElement extends HTMLElement {
         if(e.defaultPrevented)
             return;
 
-//         console.log(e.target, e.type);
-
-        // try {
-            switch(e.type) {
-                case 'focus':
-                    break;
-                default:
-                    this.song.getAudioContext();
-            }
-        // if(this !== document.activeElement && !this.contains(document.activeElement)) {
-        //     console.log("Focus", document.activeElement);
-        //     this.focus();
-        // }
         switch(e.type) {
-            // case 'submit':
-            //     e.preventDefault();
-            //     this.onSubmit(e);
-            //     break;
-            // case 'change':
-            // case 'blur':
-            //     if(e.target.form && e.target.form.classList.contains('submit-on-' + e.type))
-            //         this.onSubmit(e);
-            //     break;
-
             case 'focus':
-                // TODO: refactor
-                for(let i=0; i<e.path.length; i++) {
-                    const target = e.path[i];
-                    if(target.classList && target.classList.contains('instrument-container')) {
-                        if(!target.classList.contains('selected')) {
-                            target.parentNode.querySelectorAll('.instrument-container.selected')
-                                .forEach((instrumentContainerElm) => instrumentContainerElm.classList.remove('selected'));
-                            target.classList.add('selected');
-                            setTimeout(e => target.parentNode.scrollLeft = target.offsetLeft - 20, 1);
-                        }
-                        break;
-                    }
+                break;
+            default:
+                this.song.getAudioContext();
+        }
+
+        switch(e.type) {
+            case 'focus':
+                const UIFormElm = e.path[0].closest('asui-form');
+                if(UIFormElm) {
+                    UIFormElm.getRootNode().querySelectorAll('asui-form.focus')
+                        .forEach(formElm => formElm.classList.remove('focus'));
+                    UIFormElm.classList.add('focus');
                 }
                 break;
 
             default:
-                if(this.tracker)
-                    this.tracker.onInput(e);
+                // if(this.trackerElm)
+                //     this.trackerElm.onInput(e);
                 break;
         }
-
-
-        // if(this.tracker.contains(e.target))
-        //     this.tracker.onInput(e);
-
 
     }
 
     async onSongEvent(e) {
 //         console.log("Song Event: ", e.type);
-        if(this.tracker)
-            this.tracker.onSongEvent(e);
+        if(this.trackerElm)
+            this.trackerElm.onSongEvent(e);
         switch(e.type) {
             case 'song:seek':
                 this.updateSongPositionValue(e.detail.position);
@@ -253,7 +225,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'song:loaded':
-                this.tracker.renderDuration = this.song.timeDivision;
+                this.trackerElm.renderDuration = this.song.timeDivision;
                 break;
             case 'song:play':
                 this.classList.add('playing');
@@ -288,11 +260,11 @@ class AudioSourceComposerElement extends HTMLElement {
                 switch(e.type) {
                     case 'instrument:modified':
                         this.renderInstruments();
-                        if(this.tracker) // Update aliases
-                            this.tracker.renderForms();
+                        if(this.trackerElm) // Update aliases
+                            this.trackerElm.renderForms();
                         break;
                 }
-                // this.tracker.render();
+                // this.trackerElm.render();
                 // this.forms.render();
 
                 // TODO: auto save toggle
@@ -302,16 +274,16 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'instrument:loaded':
             case 'instrument:remove':
                 this.renderInstruments();
-                if(this.tracker) // Update aliases
-                    this.tracker.renderForms();
+                if(this.trackerElm) // Update aliases
+                    this.trackerElm.renderForms();
                 break;
             case 'instrument:library':
 //                 console.log(e.type);
                 // TODO: this.instruments.render();
                 // this.renderInstruments();
                 this.renderSongForms();
-                if(this.tracker)
-                    this.tracker.renderForms();
+                if(this.trackerElm)
+                    this.trackerElm.renderForms();
                 break;
         }
     }
@@ -341,7 +313,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     closeAllMenus() {
-        this.shadowDOM.querySelector(`asc-menu`)
+        this.shadowDOM.querySelector(`asui-menu`)
             .closeAllMenus();
     }
 
@@ -349,17 +321,17 @@ class AudioSourceComposerElement extends HTMLElement {
     get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container .status-text`); }
     get versionElm() { return this.shadowDOM.querySelector(`.asc-status-container .version-text`); }
 
-    get menuFile() { return this.shadowDOM.querySelector(`asc-menu[key="file"]`)}
-    get menuEdit() { return this.shadowDOM.querySelector(`asc-menu[key="edit"]`)}
-    get menuView() { return this.shadowDOM.querySelector(`asc-menu[key="view"]`)}
-    get menuInstrument() { return this.shadowDOM.querySelector(`asc-menu[key="instrument"]`)}
-    get menuContext() { return this.shadowDOM.querySelector(`asc-menu[key="context"]`)}
+    get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
+    get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
+    get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
+    get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
+    get menuContext() { return this.shadowDOM.querySelector(`asui-menu[key="context"]`)}
 
-    get panelSong() { return this.shadowDOM.querySelector(`asc-form[key='song']`)}
-    get panelTracker() { return this.shadowDOM.querySelector(`asc-form[key='tracker']`)}
-    get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asc-form[key='tracker-row-segments']`)}
-    get panelInstruction() { return this.shadowDOM.querySelector(`asc-form[key='instruction']`)}
-    get panelInstruments() { return this.shadowDOM.querySelector(`asc-form[key='instruments']`)}
+    get panelSong() { return this.shadowDOM.querySelector(`asui-form[key='song']`)}
+    get panelTracker() { return this.shadowDOM.querySelector(`asui-form[key='tracker']`)}
+    get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asui-form[key='tracker-row-segments']`)}
+    get panelInstruction() { return this.shadowDOM.querySelector(`asui-form[key='instruction']`)}
+    get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
 
     render() {
         const Libraries = new AudioSourceLibraries;
@@ -367,31 +339,31 @@ class AudioSourceComposerElement extends HTMLElement {
         const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
         this.shadowDOM.innerHTML = `
-        <link rel="stylesheet" href="${linkHRefComposer}" />
-        <link rel="stylesheet" href="${linkHRefCommon}" />
-        <div class="asc-container">
-            <div class="asc-menu-container">
-                <asc-menu key="file" caption="File"></asc-menu>
-                <asc-menu key="edit" caption="Edit"></asc-menu>
-                <asc-menu key="view" caption="View"></asc-menu>
-                <asc-menu key="instrument" caption="Instrument"></asc-menu>
-                <asc-menu key="context" caption=""></asc-menu>
+            <link rel="stylesheet" href="${linkHRefComposer}" />
+            <link rel="stylesheet" href="${linkHRefCommon}" />
+            <div class="asc-container">
+                <div class="asui-menu-container">
+                    <asui-menu key="file" caption="File"></asui-menu>
+                    <asui-menu key="edit" caption="Edit"></asui-menu>
+                    <asui-menu key="view" caption="View"></asui-menu>
+                    <asui-menu key="instrument" caption="Instrument"></asui-menu>
+                    <asui-menu key="context" caption=""></asui-menu>
+                </div>
+                <asui-form key="song" caption="Song" class="panel"></asui-form><!--
+                --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
+                <br/>
+                <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
+                --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
+                --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
+                <br/>
+    
+                <asc-tracker group="root"></asc-tracker>
             </div>
-            <asc-form key="song" caption="Song" class="panel"></asc-form><!--
-            --><asc-form key="instruments" caption="Song Instruments" class="panel"></asc-form>
-            <br/>
-            <asc-form key="instruction" caption="Selected Instruction(s)" class="panel"></asc-form><!--
-            --><asc-form key="tracker" caption="Tracker" class="panel"></asc-form><!--
-            --><asc-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asc-form>
-            <br/>
-
-            <asc-tracker group="root"></asc-tracker>
-        </div>
-        <div class="asc-status-container">
-            <span class="status-text"></span>
-            <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
-        </div>
-        `;
+            <div class="asc-status-container">
+                <span class="status-text"></span>
+                <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
+            </div>
+            `;
 
         this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
 
@@ -401,91 +373,69 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
 
-    /** Song Forms **/
 
-    get formSongPlayback()          { return this.panelSong.getOrCreateForm('playback', 'Playback'); }
-    get formSongPosition()          { return this.panelSong.getOrCreateForm('position', 'Position'); }
-    get formSongVolume()            { return this.panelSong.getOrCreateForm('volume', 'Volume'); }
-    get formSongFile()              { return this.panelSong.getOrCreateForm('file', 'File'); }
-    get formSongName()              { return this.panelSong.getOrCreateForm('name', 'Name'); }
-    get formSongVersion()           { return this.panelSong.getOrCreateForm('version', 'Version'); }
 
-    /** Tracker Fields **/
 
-    get fieldSongPlaybackPlay() {
-        return this.formSongPlayback.getInput('play', false)
-            || this.formSongPlayback.addIconButton('play', e => this.actions.songPlay(e),
+
+    // get fieldSongAddInstrument()
+
+    renderSongForms() {
+
+        /** Song Forms **/
+
+        const panelSong = this.panelSong;
+        if(!panelSong.hasInput('playback')) {
+            this.formSongPlayback = panelSong.getOrCreateForm('playback', 'Playback');
+            this.formSongPosition = panelSong.getOrCreateForm('position', 'Position');
+            this.formSongVolume = panelSong.getOrCreateForm('volume', 'Volume');
+            this.formSongFile = panelSong.getOrCreateForm('file', 'File');
+            this.formSongName = panelSong.getOrCreateForm('name', 'Name');
+            this.formSongVersion = panelSong.getOrCreateForm('version', 'Version');
+        }
+
+        /** Tracker Fields **/
+
+        if(!this.formSongPlayback.hasInput('play')) {
+            this.fieldSongPlaybackPlay = this.formSongPlayback.addIconButton('play',
+                e => this.actions.songPlay(e),
                 `play`,
                 "Play Song");
-    }
-    get fieldSongPlaybackPause() {
-        return this.formSongPlayback.getInput('pause', false)
-            || this.formSongPlayback.addIconButton('pause', e => this.actions.songPause(e),
+            this.fieldSongPlaybackPause = this.formSongPlayback.addIconButton('pause',
+                e => this.actions.songPause(e),
                 `pause`,
                 "Pause Song");
-    }
-    get fieldSongPlaybackStop() {
-        return this.formSongPlayback.getInput('stop', false)
-            || this.formSongPlayback.addIconButton('pause', e => this.actions.songStop(e),
+            this.fieldSongPlaybackStop = this.formSongPlayback.addIconButton('pause',
+                e => this.actions.songStop(e),
                 `stop`,
                 "Stop Song");
-    }
 
-    get fieldSongVolume() {
-        return this.formSongVolume.getInput('volume', false)
-            || this.formSongVolume.addRangeInput('volume', (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100)
-    }
-    get fieldSongPosition() {
-        return this.formSongPosition.getInput('position', false)
-            || this.formSongPosition.addTextInput('position',
-                e => this.editor.actions.setTrackerSelection(e),
-                'Song Position',
-                '00:00:0000'
-            );
-    }
-    get fieldSongName() {
-        return this.formSongName.getInput('name', false)
-            || this.formSongName.addTextInput('name', (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
-    }
-    get fieldSongVersion() {
-        return this.formSongVersion.getInput('version', false)
-            || this.formSongVersion.addTextInput('version', (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
-    }
-
-
-
-
-    get fieldSongFileLoad() {
-        return this.formSongFile.getInput('file-load', false)
-            || this.formSongFile.addFileInput('file-load',
+            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
                 e => this.actions.songFileLoad(e),
                 `<i class="ui-icon ui-file-load"></i>`,
                 `.json,.mid,.midi`,
                 "Save Song to File"
             );
-    }
-
-    get fieldSongFileSave() {
-        return this.formSongFile.getInput('file-save', false)
-            || this.formSongFile.addIconButton('file-save',
+            this.fieldSongFileSave = this.formSongFile.addIconButton('file-save',
                 e => this.actions.songFileSave(e),
                 `file-save`,
                 "Save Song to File"
             );
-    }
 
-    // get fieldSongAddInstrument()
+            this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
+                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
+            this.fieldSongPosition = this.formSongPosition.addTextInput('position',
+                e => this.editor.actions.setTrackerSelection(e),
+                'Song Position',
+                '00:00:0000'
+            );
+            this.fieldSongName = this.formSongName.addTextInput('name',
+                (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
+            this.fieldSongVersion = this.formSongVersion.addTextInput('version',
+                (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
+        }
 
-    renderSongForms() {
-        this.fieldSongPlaybackPlay;
         this.fieldSongPlaybackPause.disabled = true;
-        this.fieldSongPlaybackStop;
-        
-        this.fieldSongFileLoad;
-        this.fieldSongFileSave;
 
-        this.fieldSongVolume;
-        this.fieldSongPosition;
         this.fieldSongName.value = this.song.getName();
         this.fieldSongVersion.value = this.song.getVersion();
 
@@ -499,6 +449,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
         instrumentForm.clearInputs();
+        instrumentForm.classList.add('instrument-container');
 
         instrumentForm.addButton('instrument-id',
             null, //TODO: toggle view
@@ -713,7 +664,7 @@ class AudioSourceComposerElement extends HTMLElement {
     update() {
         this.menu.update();
         // this.forms.update();
-        this.tracker.update();
+        this.trackerElm.update();
         // this.instruments.update();
     }
 
@@ -722,37 +673,37 @@ class AudioSourceComposerElement extends HTMLElement {
         this.status.groupHistory.unshift(this.status.currentGroup);
         this.status.currentGroup = groupName;
         console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.tracker.groupName = groupName;
-        // this.tracker = new AudioSourceComposerTracker(this, groupName);
+        this.trackerElm.groupName = groupName;
+        // this.trackerElm = new AudioSourceComposerTracker(this, groupName);
         this.render();
     }
 
-    selectInstructions(indicies=null) {
-        this.status.selectedIndicies = [];
-        if(typeof indicies === "number") {
-            this.status.selectedIndicies = [indicies];
-        } else             if(Array.isArray(indicies)) {
-            this.status.selectedIndicies = indicies;
-        } else if (typeof indicies === "function") {
-            let selectedIndicies = [];
-            this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
-                if (indicies(index, instruction, stats))
-                    selectedIndicies.push(index);
-            });
-
-            this.selectedIndicies(selectedIndicies);
-            return;
-        } else {
-            throw console.error("Invalid indicies", indicies);
-        }
-        this.update();
-        // this.tracker.focus();
-        // console.log("selectInstructions", this.status.selectedIndicies);
-    }
+    // selectInstructions(indicies=null) {
+    //     this.status.getSelectedIndicies() = [];
+    //     if(typeof indicies === "number") {
+    //         this.status.getSelectedIndicies() = [indicies];
+    //     } else             if(Array.isArray(indicies)) {
+    //         this.status.getSelectedIndicies() = indicies;
+    //     } else if (typeof indicies === "function") {
+    //         let selectedIndicies = [];
+    //         this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
+    //             if (indicies(index, instruction, stats))
+    //                 selectedIndicies.push(index);
+    //         });
+    //
+    //         this.getSelectedIndicies()(selectedIndicies);
+    //         return;
+    //     } else {
+    //         throw console.error("Invalid indicies", indicies);
+    //     }
+    //     this.update();
+    //     // this.trackerElm.focus();
+    //     // console.log("selectInstructions", this.status.getSelectedIndicies());
+    // }
 
     playSelectedInstructions() {
         this.song.stopPlayback();
-        const selectedIndicies = this.status.selectedIndicies;
+        const selectedIndicies = this.status.getSelectedIndicies();
         for(let i=0; i<selectedIndicies.length; i++) {
             this.song.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
         }
@@ -762,13 +713,13 @@ class AudioSourceComposerElement extends HTMLElement {
     //         selectedIndicies = [0]
     //     if (!Array.isArray(selectedIndicies))
     //         selectedIndicies = [selectedIndicies];
-    //     this.status.selectedIndicies = selectedIndicies;
+    //     this.status.getSelectedIndicies() = selectedIndicies;
     //     if(this.status.currentGroup !== groupName) {
     //         this.status.groupHistory = this.status.groupHistory.filter(historyGroup => historyGroup === this.status.currentGroup);
     //         this.status.groupHistory.unshift(this.status.currentGroup);
     //         this.status.currentGroup = groupName;
     //         console.log("Group Change: ", groupName, this.status.groupHistory);
-    //         this.tracker = new SongEditorGrid(this, groupName);
+    //         this.trackerElm = new SongEditorGrid(this, groupName);
     //         this.render();
     //     }
     //     if(selectedRange !== null) {
@@ -780,7 +731,7 @@ class AudioSourceComposerElement extends HTMLElement {
     //     }
     //
     //     this.update();
-    //     this.tracker.focus();
+    //     this.trackerElm.focus();
     // }
 
 //     getScriptDirectory(appendPath='') {

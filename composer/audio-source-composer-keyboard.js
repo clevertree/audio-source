@@ -26,7 +26,7 @@ class AudioSourceComposerKeyboard {
         const keyboardLayout = this.keyboardLayout;
         if(typeof keyboardLayout[key] === 'undefined')
             return null;
-        // const octave = parseInt(this.editor.tracker.fieldRenderOctave.value) || 1;
+        // const octave = parseInt(this.editor.tracker.fieldTrackerOctave.value) || 1;
         let command = keyboardLayout[key];
         command = command.replace('2', octave+1);
         command = command.replace('1', octave);

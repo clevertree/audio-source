@@ -23,7 +23,7 @@ const fs = require('fs');
         + await convert('composer/audio-source-composer-tracker.js')
         // + await convert('composer/audio-source-composer-instruments.js')
         + await convert('composer/audio-source-composer-keyboard.js')
-        + await convert('composer/audio-source-composer-menu.js')
+        // + await convert('composer/audio-source-composer-menu.js')
         + await convert('composer/audio-source-composer-actions.js')
 
         + await convert('common/audio-source-ui.js')

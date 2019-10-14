@@ -1,17 +1,10 @@
 /** Colors **/
-.audio-source-synthesizer table,
-.audio-source-synthesizer {
-    color: #000;
-}
-
-
-
 .audio-source-synthesizer-container {
     font-size: smaller;
 }
 
 
-.audio-source-synthesizer-container  ascg-row[key=header] {
+.audio-source-synthesizer-container  asuig-row[key=header] {
     font-weight: bold;
     text-align: center;
 }
@@ -19,15 +12,20 @@
 
 /** Inputs **/
 
-.audio-source-synthesizer-container  ascf-input-button[key=instrument-remove],
-.audio-source-synthesizer-container  ascf-input-select[key=instrument-preset]               {
+.audio-source-synthesizer-container  asui-input-button[key=instrument-remove],
+.audio-source-synthesizer-container  asui-input-select[key=instrument-preset]               {
     float:  right;
 }
 
-.audio-source-synthesizer-container  ascf-input-text[key=name]        input       {width: 90px;}
-.audio-source-synthesizer-container  ascf-input-select[key=url]       select      {width: 60px;}
-.audio-source-synthesizer-container  ascf-input-range[key=mixer]      input      {width: 60px;}
-.audio-source-synthesizer-container  ascf-input-range[key=detune]     input      {width: 60px;}
-.audio-source-synthesizer-container  ascf-input-text[key=adsr]        input      {width: 60px;}
+.audio-source-synthesizer-container  asui-input-text[key=name]        input       {width: 90px;}
+.audio-source-synthesizer-container  asui-input-select[key=url]       select      {width: 60px;}
+.audio-source-synthesizer-container  asui-input-range[key=mixer]      input      {width: 60px;}
+.audio-source-synthesizer-container  asui-input-range[key=detune]     input      {width: 60px;}
+.audio-source-synthesizer-container  asui-input-text[key=adsr]        input      {width: 60px;}
 
-.audio-source-synthesizer-container  ascf-input-select[key=instrument-preset]       select      { width: 120px; }
+.audio-source-synthesizer-container  asui-input-select[key=instrument-preset]       select      { width: 120px; }
+
+/** Size **/
+.audio-source-synthesizer-container:not(.focus) {
+
+}
