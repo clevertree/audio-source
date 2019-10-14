@@ -156,7 +156,7 @@ class AudioSourceComposerActions {
         // TODO: does not update
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         // if(selectedIndicies.length === 0)
         //     throw new Error("No selection");
@@ -181,7 +181,7 @@ class AudioSourceComposerActions {
                 throw new Error("No cursor position");
             const insertIndex = renderer.insertInstructionAtPosition(tracker.groupName, insertPosition, newInstruction);
             tracker.renderRows();
-            tracker.selectIndicies(e, insertIndex);
+            tracker.selectIndicies(insertIndex);
 
         } else {
             throw new Error("No cursor cell");
@@ -193,7 +193,7 @@ class AudioSourceComposerActions {
         //: TODO: does not allow insert
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         // if(selectedIndicies.length === 0)
         //     throw new Error("No selection");
@@ -221,7 +221,7 @@ class AudioSourceComposerActions {
                 tracker.findInstructionElement(selectedIndicies[i]).render();
             }
             tracker.renderRows();
-            tracker.selectIndicies(e, selectedIndicies);
+            tracker.selectIndicies(selectedIndicies);
 
         } else {
             throw new Error("No selection");
@@ -233,7 +233,7 @@ class AudioSourceComposerActions {
     setInstructionInstrument(e, instrumentID=null) {
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         instrumentID = instrumentID !== null ? instrumentID : parseInt(tracker.fieldInstructionInstrument.value);
         if (!Number.isInteger(instrumentID))
@@ -245,7 +245,7 @@ class AudioSourceComposerActions {
         this.editor.status.currentInstrumentID = instrumentID;
         tracker.playSelectedInstructions();
         // tracker.renderRows();
-        tracker.selectIndicies(e, selectedIndicies);
+        tracker.selectIndicies(selectedIndicies);
         // this.fieldInstructionInstrument.focus();
 
     }
@@ -253,7 +253,7 @@ class AudioSourceComposerActions {
     setInstructionDuration(e, duration=null, promptUser=false) {
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         if (!duration)
             duration = parseFloat(tracker.fieldInstructionDuration.value);
@@ -267,7 +267,7 @@ class AudioSourceComposerActions {
         }
         tracker.playSelectedInstructions();
         // tracker.renderRows();
-        tracker.selectIndicies(e, selectedIndicies);
+        tracker.selectIndicies(selectedIndicies);
         // this.fieldInstructionDuration.focus();
 
     }
@@ -275,7 +275,7 @@ class AudioSourceComposerActions {
     setInstructionVelocity(e, velocity=null, promptUser=false) {
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         if(velocity === null)
             velocity = tracker.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(tracker.fieldInstructionVelocity.value) || null;
@@ -290,7 +290,7 @@ class AudioSourceComposerActions {
         }
         tracker.playSelectedInstructions();
         // tracker.renderRows();
-        tracker.selectIndicies(e, selectedIndicies);
+        tracker.selectIndicies(selectedIndicies);
         // this.selectIndicies(e, selectedIndicies[0]);
         // this.fieldInstructionVelocity.focus();
     }
@@ -298,12 +298,12 @@ class AudioSourceComposerActions {
     deleteInstructionCommand(e) {
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         for (let i = 0; i < selectedIndicies.length; i++)
             renderer.deleteInstructionAtIndex(tracker.groupName, selectedIndicies[i]);
         tracker.renderRows();
-        tracker.selectIndicies(e, selectedIndicies[0]);
+        tracker.selectIndicies(selectedIndicies[0]);
 
     }
 
@@ -392,33 +392,43 @@ class AudioSourceComposerActions {
         this.editor.status.currentOctave = parseInt(tracker.fieldTrackerOctave.value); // TODO: refactor
     }
 
-    setTrackerRowLength(e) {
+    setTrackerRowLength(e, rowLengthInTicks=null) {
         const tracker = this.editor.trackerElm;
-        let selectedIndicies = tracker.selectedIndicies;
-        this.rowLengthInTicks = tracker.fieldTrackerRowLength.value;
+        let selectedIndicies = tracker.getSelectedIndicies();
+        if(rowLengthInTicks !== null)
+            tracker.fieldTrackerRowLength.value;
         tracker.renderRows();
-        tracker.selectIndicies(e, selectedIndicies);
+        tracker.selectIndicies(selectedIndicies);
 
     }
 
-    setTrackerRowSegment(e) {
+    setTrackerSegmentLength(e, segmentLength=null) {
         const tracker = this.editor.trackerElm;
-
-        this.currentRowSegmentID = parseInt(form.elements.id.value);
+        let selectedIndicies = tracker.getSelectedIndicies();
+        if(segmentLength !== null)
+            tracker.fieldTrackerSegmentLength.value = segmentLength;
         tracker.renderRows();
-        tracker.selectNextCell();
-
-        let segmentContainer = tracker.querySelector(`asctr-segment[id="${this.currentRowSegmentID}"]`);
-        segmentContainer.focus();
-        // this.focusOnContainer();
+        tracker.selectIndicies(selectedIndicies);
     }
+
+    // setTrackerRowSegment(e) {
+    //     const tracker = this.editor.trackerElm;
+    //
+    //     this.currentRowSegmentID = parseInt(form.elements.id.value);
+    //     tracker.renderRows();
+    //     tracker.selectNextCell();
+    //
+    //     let segmentContainer = tracker.querySelector(`asctr-segment[id="${this.currentRowSegmentID}"]`);
+    //     segmentContainer.focus();
+    //     // this.focusOnContainer();
+    // }
 
     setTrackerFilterInstrument(e) {
         const tracker = this.editor.trackerElm;
-        let selectedIndicies = tracker.selectedIndicies;
+        let selectedIndicies = tracker.getSelectedIndicies();
 
         tracker.renderRows();
-        tracker.selectIndicies(e, selectedIndicies);
+        tracker.selectIndicies(selectedIndicies);
     }
 
     setTrackerSelection(e, selectedIndicies=null) {
@@ -428,7 +438,7 @@ class AudioSourceComposerActions {
             selectedIndicies = tracker.fieldSelectedIndicies.value
                 .split(/\D+/)
                 .map(index => parseInt(index));
-        tracker.selectIndicies(e, selectedIndicies);
+        tracker.selectIndicies(selectedIndicies);
         tracker.fieldSelectedIndicies.focus();
     }
 

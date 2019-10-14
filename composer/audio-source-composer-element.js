@@ -121,16 +121,16 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     get currentGroup()      { return this.status.currentGroup; }
-    get selectedIndicies()  { return this.status.selectedIndicies; }
+    get selectedIndicies()  { return this.status.getSelectedIndicies(); }
     get selectedRange()     { return this.status.selectedRange; }
 
     // get selectedPauseIndicies()  {
     //     const instructionList = this.renderer.getInstructions(this.currentGroup);
-    //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command === '!pause')
+    //     return this.getSelectedIndicies().filter(index => instructionList[index] && instructionList[index].command === '!pause')
     // }
     // get selectedIndicies()  {
     //     const instructionList = this.renderer.getInstructions(this.currentGroup);
-    //     return this.selectedIndicies.filter(index => instructionList[index] && instructionList[index].command !== '!pause')
+    //     return this.getSelectedIndicies().filter(index => instructionList[index] && instructionList[index].command !== '!pause')
     // }
 
     getAudioContext()   { return this.song.getAudioContext(); }
@@ -679,11 +679,11 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     selectInstructions(indicies=null) {
-        this.status.selectedIndicies = [];
+        this.status.getSelectedIndicies() = [];
         if(typeof indicies === "number") {
-            this.status.selectedIndicies = [indicies];
+            this.status.getSelectedIndicies() = [indicies];
         } else             if(Array.isArray(indicies)) {
-            this.status.selectedIndicies = indicies;
+            this.status.getSelectedIndicies() = indicies;
         } else if (typeof indicies === "function") {
             let selectedIndicies = [];
             this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
@@ -691,19 +691,19 @@ class AudioSourceComposerElement extends HTMLElement {
                     selectedIndicies.push(index);
             });
 
-            this.selectedIndicies(selectedIndicies);
+            this.getSelectedIndicies()(selectedIndicies);
             return;
         } else {
             throw console.error("Invalid indicies", indicies);
         }
         this.update();
         // this.trackerElm.focus();
-        // console.log("selectInstructions", this.status.selectedIndicies);
+        // console.log("selectInstructions", this.status.getSelectedIndicies());
     }
 
     playSelectedInstructions() {
         this.song.stopPlayback();
-        const selectedIndicies = this.status.selectedIndicies;
+        const selectedIndicies = this.status.getSelectedIndicies();
         for(let i=0; i<selectedIndicies.length; i++) {
             this.song.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
         }
@@ -713,7 +713,7 @@ class AudioSourceComposerElement extends HTMLElement {
     //         selectedIndicies = [0]
     //     if (!Array.isArray(selectedIndicies))
     //         selectedIndicies = [selectedIndicies];
-    //     this.status.selectedIndicies = selectedIndicies;
+    //     this.status.getSelectedIndicies() = selectedIndicies;
     //     if(this.status.currentGroup !== groupName) {
     //         this.status.groupHistory = this.status.groupHistory.filter(historyGroup => historyGroup === this.status.currentGroup);
     //         this.status.groupHistory.unshift(this.status.currentGroup);
