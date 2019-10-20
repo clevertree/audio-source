@@ -76,6 +76,17 @@ class AudioSourceStorage {
 
     /** Saving **/
 
+    saveState(state) {
+        localStorage.setItem('audio-source-state', JSON.stringify(state));
+    }
+
+    loadState() {
+        let state = localStorage.getItem('audio-source-state');
+        if(state)
+            state = JSON.parse(state);
+        return state;
+    }
+
     async saveSongToMemory(songData, songHistory) {
         // const song = this.data;
         if(!songData.guid)

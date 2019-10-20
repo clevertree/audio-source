@@ -55,6 +55,7 @@ class AudioSourceSong {
 
     /** Data shortcuts **/
 
+    get guid() { return this.data.guid; }
     get timeDivision() { return this.data.timeDivision; }
     get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
     get rootGroup() {
@@ -118,8 +119,6 @@ class AudioSourceSong {
             this.processAllInstructionData(groupName));
 
         // let loadingInstruments = 0;
-        if(songData.instruments.length === 0)
-            console.warn("Song contains no instruments");
 
         await this.loadAllInstruments();
 
@@ -287,7 +286,9 @@ class AudioSourceSong {
     }
 
 
-    getSongPositionInTicks(positionInSeconds) {
+    getSongPositionInTicks(positionInSeconds=null) {
+        if(positionInSeconds === null)
+            positionInSeconds = this.songPlaybackPosition;
         return this.getGroupPositionInTicks(this.rootGroup, positionInSeconds);
     }
 
@@ -482,7 +483,7 @@ class AudioSourceSong {
     /** Instrument Events **/
 
     onSongEvent(e) {
-        console.log(e.type);
+//         console.log(e.type);
         switch(e.type) {
             case 'instrument:loaded':
                 const instrumentClass = e.detail.class;
@@ -602,7 +603,7 @@ class AudioSourceSong {
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             if(instrumentList[instrumentID]) {
-                console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
+//                 console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
                 await this.loadInstrument(instrumentID);
             }
         }
@@ -627,6 +628,10 @@ class AudioSourceSong {
 
 
     /** Modify Song Data **/
+
+    hasGroup(groupName) {
+        return typeof this.data.instructions[groupName] !== "undefined";
+    }
 
     getName()                  { return this.data.name; }
     setName(newSongTitle)      { return this.replaceDataPath(['name'], newSongTitle); }

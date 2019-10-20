@@ -198,17 +198,18 @@ class AudioSourceUIMenu extends HTMLElement {
     }
 
     toggleSubMenu(e) {
-        if(this.classList.contains('open'))
+        if(this.classList.contains('stick')) {
             this.clearSubMenu(e);
-        else
+        } else {
             this.renderSubMenu(e);
-
+            this.classList.add('stick');
+        }
     }
 
     clearSubMenu(e) {
         // this.querySelectorAll('asui-menu')
         //     .forEach(menuItem => menuItem.parentNode.removeChild(menuItem));
-        this.classList.remove('open');
+        this.classList.remove('stick', 'open', 'open-context-menu');
         let containerElm = this.getSubMenuContainer();
         containerElm.innerHTML = '';
     }
@@ -307,11 +308,10 @@ class AudioSourceUIMenu extends HTMLElement {
 
         console.info("Context menu ", targetElement, containerElm, x, y);
 
-        containerElm.classList.add('open-context-menu');
-        this.classList.add('open', 'stick');
+        this.classList.add('open', 'stick', 'open-context-menu');
 
-        containerElm.style.left = x + 'px';
-        containerElm.style.top = y + 'px';
+        this.style.left = x + 'px';
+        this.style.top = y + 'px';
 
         // containerElm.focus();
 
@@ -330,6 +330,7 @@ class AudioSourceUIMenu extends HTMLElement {
 
     closeMenu(e) {
         // this.classList.remove('open');
+        // this.classList.remove('open-context-menu');
         this.clearSubMenu(e);
         let parentMenu = this.parentElement.closest('asui-menu');
         this.querySelectorAll(`asui-menu.open,asui-menu.stick`)
@@ -339,7 +340,7 @@ class AudioSourceUIMenu extends HTMLElement {
     }
 
     render() {
-        const titleElm = this.caption === null ? this.key : this.caption;
+        const titleElm = this.caption; // this.caption === null ? this.key : this.caption;
         if(titleElm) {
             let textDiv = this.querySelector('div');
             if (!textDiv) {
@@ -497,15 +498,12 @@ class AudioSourceUIForm extends HTMLElement {
     addBreak(key='break') {
         return this.addText(key, '<br/>'); }
 
+    /** @deprecated **/
     addText(key, innerHTML=null) {
         return this.addInput(new AudioSourceUIText(key, innerHTML)); }
 
     addButton(key, callback, buttonInnerHTML, title=null) {
         return this.addInput(new AudioSourceUIButton(key, callback, buttonInnerHTML, title)); }
-
-    addIconButton(key, callback, iconClass, title=null) {
-        const iconElm = new AudioSourceUIIcon(null, iconClass);
-        return this.addInput(new AudioSourceUIButton(key, callback, iconElm, title)); }
 
     addSelectInput(key, callback, optionsCallback, title = null, defaultValue=null) {
         return this.addInput(new AudioSourceUISelectInput(key, callback, optionsCallback, title, defaultValue)); }
@@ -523,6 +521,13 @@ class AudioSourceUIForm extends HTMLElement {
 
     addFileInput(key, callback, buttonInnerHTML, accepts=null, title=null) {
         return this.addInput(new AudioSourceUIFileInput(key, callback, buttonInnerHTML, accepts, title)); }
+
+    /** Content **/
+
+    createIcon(iconClass, key='icon') {
+        return new AudioSourceUIIcon(key, iconClass);
+    }
+
 }
 
 customElements.define('asui-form', AudioSourceUIForm);
@@ -579,6 +584,7 @@ class AudioSourceUIGrid extends HTMLElement {
     // addBreak(x, y) {
     //     return this.addText(`${x}-${y}`, '<br/>'); }
 
+    /** @deprecated **/
     addText(rowKey, key, innerHTML=null) {
         return this.getOrCreateRow(rowKey)
             .addText(key, innerHTML); }
@@ -586,10 +592,6 @@ class AudioSourceUIGrid extends HTMLElement {
     addButton(rowKey, key, callback, buttonInnerHTML, title=null) {
         return this.getOrCreateRow(rowKey)
             .addButton(key, callback, buttonInnerHTML, title); }
-
-    addIconButton(rowKey, key, callback, iconClass, title=null) {
-        return this.getOrCreateRow(rowKey)
-            .addIconButton(key, callback, iconClass, tit); }
 
     addSelectInput(rowKey, key, callback, optionsCallback, title = null, defaultValue=null) {
         return this.getOrCreateRow(rowKey)
@@ -610,6 +612,12 @@ class AudioSourceUIGrid extends HTMLElement {
     addFileInput(rowKey, key, callback, buttonInnerHTML, accepts=null, title=null) {
         return this.getOrCreateRow(rowKey)
             .addFileInput(rowKey, key, callback, buttonInnerHTML, accepts, title); }
+
+    /** Content **/
+
+    createIcon(iconClass, key='icon') {
+        return new AudioSourceUIIcon(key, iconClass);
+    }
 
 }
 
@@ -658,15 +666,12 @@ class AudioSourceUIGridRow extends HTMLElement {
     // addBreak(x, y) {
     //     return this.addText(`${x}-${y}`, '<br/>'); }
 
+    /** @deprecated **/
     addText(key, innerHTML=null) {
         return this.addInput(new AudioSourceUIText(key, innerHTML)); }
 
     addButton(key, callback, buttonInnerHTML, title=null) {
         return this.addInput(new AudioSourceUIButton(key, callback, buttonInnerHTML, title)); }
-
-    addIconButton(key, callback, iconClass, title=null) {
-        const iconElm = new AudioSourceUIIcon(null, iconClass);
-        return this.addInput(new AudioSourceUIButton(key, callback, iconElm, title)); }
 
     addSelectInput(key, callback, optionsCallback, title = null, defaultValue=null) {
         return this.addInput(new AudioSourceUISelectInput(key, callback, optionsCallback, title, defaultValue)); }
@@ -684,6 +689,12 @@ class AudioSourceUIGridRow extends HTMLElement {
 
     addFileInput(key, callback, buttonInnerHTML, accepts=null, title=null) {
         return this.addInput(new AudioSourceUIFileInput(key, callback, buttonInnerHTML, accepts, title)); }
+
+    /** Content **/
+
+    createIcon(iconClass, key='icon') {
+        return new AudioSourceUIIcon(key, iconClass);
+    }
 }
 
 customElements.define('asuig-row', AudioSourceUIGridRow);
@@ -707,6 +718,15 @@ class AudioSourceUIInputAbstract extends HTMLElement {
 
     get value() { return this.inputElm.value; }
     set value(newValue) { this.inputElm.value = newValue; }
+
+    setContent(innerHTML, inputElm=null) {
+        inputElm = inputElm || this.inputElm;
+        inputElm.innerHTML = '';
+        if(innerHTML instanceof HTMLElement)
+            inputElm.appendChild(innerHTML);
+        else // if(typeof innerHTML === "string")
+            inputElm.innerHTML = innerHTML;
+    }
 
     addEventListener(type, listener, options) {
         this.listeners.push([type, listener, options]);
@@ -733,10 +753,7 @@ class AudioSourceUIButton extends AudioSourceUIInputAbstract {
         buttonElm.classList.add('themed');
         if(title)
             buttonElm.setAttribute('title', title);
-        if(innerHTML instanceof HTMLElement)
-            buttonElm.appendChild(innerHTML)
-        else // if(typeof innerHTML === "string")
-            buttonElm.innerHTML = innerHTML;
+        this.setContent(innerHTML, buttonElm);
         this.appendChild(buttonElm);
 
         this.addEventListener('click', e => this.onClick(e));
@@ -774,12 +791,13 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
         //     selectElm.innerHTML = optionsCallback;
         this.appendChild(selectElm);
 
-        try {
-            // if (defaultValue !== null)
-            this.value = defaultValue === null ? '' : defaultValue;
-        } catch (e) {
-            console.warn(e.message, this);
-            // this.addOrSetValue(defaultValue, defaultValue);
+        if (defaultValue !== null) {
+            try {
+                this.value = defaultValue;
+            } catch (e) {
+//                 console.warn(e.message, this);
+                this.addOrSetValue(defaultValue, defaultValue);
+            }
         }
         // this.addOrSetValue('', "No Default value");
 
@@ -823,6 +841,7 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
 
     addOrSetValue(newValue, newValueTitlePrefix=null) {
         const inputElm = this.inputElm;
+        this.renderOptions();
         let optionElm = inputElm.querySelector(`option[value="${newValue}"]`);
         if(!optionElm) {
             if(!newValueTitlePrefix) {
@@ -990,7 +1009,7 @@ class AudioSourceUIFileInput extends AudioSourceUIInputAbstract {
         const labelElm = document.createElement('label');
         this.appendChild(labelElm);
 
-        labelElm.innerHTML = innerHTML;
+        this.setContent(innerHTML, labelElm);
 
         const inputElm = document.createElement('input');
         inputElm.classList.add('themed');
@@ -999,17 +1018,19 @@ class AudioSourceUIFileInput extends AudioSourceUIInputAbstract {
         if(accepts)     inputElm.setAttribute('accepts', accepts);
         if(title)       inputElm.setAttribute('title', title);
         labelElm.appendChild(inputElm);
+        // inputElm.addEventListener('change', e => this.onChange(e));
+        this.addEventListener('change', e => this.onChange(e));
     }
 
     get inputElm() { return this.querySelector('input'); }
 
-    connectedCallback() {
-        this.addEventListener('change', e => this.onChange(e));
-    }
-
     onChange(e) {
-        // console.log(e.type);
-        this.callback(e, this.value);
+        try {
+            this.callback(e, this.value);
+        } catch (err) {
+            console.error(err);
+        }
+        this.value = '';
     }
 }
 

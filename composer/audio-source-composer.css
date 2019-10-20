@@ -62,12 +62,14 @@ audio-source-composer.fullscreen {
 
 
 /** Context Menu **/
-
-asui-menu.open-context-menu > .dropdown-container {
+asui-menu[key=context].open-context-menu {
     display: block;
     position: fixed;
     z-index: 99;
     transition: all 0s;
+}
+asui-menu[key=context].open-context-menu:not(.open) {
+    display: none;
 }
 
 
@@ -127,15 +129,16 @@ asui-form[key=position]     asui-input-text[key=position]   input       { max-wi
 
 asui-form[key=instruction]   asui-form[key=command]      asui-input-select[key=command]       select      {width: 72px;}
 asui-form[key=instruction]   asui-form[key=velocity]     asui-input-range[key=velocity]       input       { width: 64px; }
-asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      {width: 48px;}
+asui-form[key=instruction]   asui-form[key=duration]     asui-input-select[key=duration]      select      {width: 42px;}
 
 asui-form[key=instruction]   asui-form[key=instrument]   asui-input-select[key=instrument]    select      {width: 83px;}
 
 /** Tracker Render Forms **/
 
 asui-form[key=tracker]      asui-input-select[key=octave]            select      {width: 36px;}
-asui-form[key=tracker]      asui-input-select[key=row-length]        select      {width: 50px;}
-asui-form[key=tracker]      asui-input-select[key=filter-instrument]    select      {width: 101px;}
+asui-form[key=tracker]      asui-input-select[key=row-length]        select      {width: 42px;}
+asui-form[key=tracker]      asui-input-select[key=segment-length]    select      {width: 42px;}
+asui-form[key=tracker]      asui-input-select[key=filter-instrument] select      {width: 72px;}
 asui-form[key=tracker]      asui-input-text[key=selection]           input       {width: 84px;}
 
 
@@ -160,9 +163,11 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 
 .asc-container:not(.playing) .show-on-song-playing,
 .asc-container.playing .hide-on-song-playing,
-.asc-container.hide-forms-song .form-section-container-song,
-.asc-container.hide-forms-tracker .form-section-container-tracker,
-.asc-container.hide-forms-instruments .form-section-container-instruments {
+.asc-container.hide-panel-song asui-form[key=song],
+.asc-container.hide-panel-tracker asui-form[key=instruction],
+.asc-container.hide-panel-tracker asui-form[key=tracker],
+.asc-container.hide-panel-tracker asui-form[key=tracker-row-segments],
+.asc-container.hide-panel-instruments asui-form[key=instruments] {
     display: none;
 }
 
@@ -175,11 +180,11 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 .asc-container input[type=text].themed,
 .asc-container select.themed,
 .asc-container button.themed {
-    display: inline-block;
+    /* display: inline-block; */
     padding: 0px 0px;
-    border-radius: 2px;
-    transition: all 0.2s;
-    border: 1px outset transparent;
+    /* border-radius: 2px; */
+    /* transition: all 0.2s; */
+    border: 0px outset transparent;
     background: transparent;
     cursor: pointer;
     height: 24px;
@@ -200,10 +205,10 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
     padding-left: 5px;
 }
 .asc-container button.themed {
-    display: inline-block;
-    padding: 0px 0px;
-    border-radius: 2px;
-    transition: border 0.2s;
+    /* display: inline-block; */
+    /* padding: 0px 0px; */
+    /* border-radius: 2px; */
+    /* transition: border 0.2s; */
 }
 
 .asc-container button.themed > span {
@@ -454,21 +459,4 @@ asc-tracker > div.selection-rect {
 
 /** Instruments **/
 
-
-
-/** Size **/
-.instrument-container {
-    max-height: 18em;
-    max-width: 68em;
-    transition-property: all;
-    transition-duration: 1s;
-    transition-timing-function: ease-in;
-    overflow: hidden;
-}
-
-.instrument-container:not(.focus) {
-    max-height: 6em;
-    max-width: 34em;
-    /* min-width: 100px; */
-}
 
