@@ -351,12 +351,9 @@ class AudioSourceComposerElement extends HTMLElement {
                 </div>
                 <asui-form key="song" caption="Song" class="panel"></asui-form><!--
                 --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
-                <br/>
                 <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
                 --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
                 --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
-                <br/>
-    
                 <asc-tracker group="root"></asc-tracker>
             </div>
             <div class="asc-status-container">
@@ -396,28 +393,28 @@ class AudioSourceComposerElement extends HTMLElement {
         /** Tracker Fields **/
 
         if(!this.formSongPlayback.hasInput('play')) {
-            this.fieldSongPlaybackPlay = this.formSongPlayback.addIconButton('play',
+            this.fieldSongPlaybackPlay = this.formSongPlayback.addButton('play',
                 e => this.actions.songPlay(e),
-                `play`,
+                this.formSongPlayback.createIcon('play'),
                 "Play Song");
-            this.fieldSongPlaybackPause = this.formSongPlayback.addIconButton('pause',
+            this.fieldSongPlaybackPause = this.formSongPlayback.addButton('pause',
                 e => this.actions.songPause(e),
-                `pause`,
+                this.formSongPlayback.createIcon('pause'),
                 "Pause Song");
-            this.fieldSongPlaybackStop = this.formSongPlayback.addIconButton('pause',
+            this.fieldSongPlaybackStop = this.formSongPlayback.addButton('pause',
                 e => this.actions.songStop(e),
-                `stop`,
+                this.formSongPlayback.createIcon('stop'),
                 "Stop Song");
 
-            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
+            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load', //TODO: icon file?
                 e => this.actions.songFileLoad(e),
-                `file-load`,
+                this.formSongPlayback.createIcon('file-load'),
                 `.json,.mid,.midi`,
                 "Save Song to File"
             );
-            this.fieldSongFileSave = this.formSongFile.addIconButton('file-save',
+            this.fieldSongFileSave = this.formSongFile.addButton('file-save',
                 e => this.actions.songFileSave(e),
-                `file-save`,
+                this.formSongPlayback.createIcon('file-save'),
                 "Save Song to File"
             );
 
@@ -589,16 +586,16 @@ class AudioSourceComposerElement extends HTMLElement {
             menuViewToggleFullscreen.action = (e) => this.actions.toggleFullscreen(e);
 
             const menuViewToggleFormSong = menu.getOrCreateSubMenu('forms-song',
-                `${this.containerElm.classList.contains('hide-forms-song') ? 'Show' : 'Hide'} Song Forms `);
+                `${this.containerElm.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms `);
             menuViewToggleFormSong.action = (e) => this.actions.togglePanelSong(e);
 
             const menuViewToggleFormTrack = menu.getOrCreateSubMenu('forms-tracker',
-                `${this.containerElm.classList.contains('hide-forms-tracker') ? 'Show' : 'Hide'} Track Forms`);
+                `${this.containerElm.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`);
             menuViewToggleFormTrack.action = (e) => this.actions.togglePanelTracker(e);
 
             const menuViewToggleFormInstrument = menu.getOrCreateSubMenu('forms-instruments',
-                `${this.containerElm.classList.contains('hide-forms-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
-            menuViewToggleFormInstrument.action = (e) => this.actions.togglePanelInstrument(e);
+                `${this.containerElm.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
+            menuViewToggleFormInstrument.action = (e) => this.actions.togglePanelInstruments(e);
         };
 
         this.menuInstrument.populate = (e) => {

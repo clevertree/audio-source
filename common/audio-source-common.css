@@ -77,6 +77,10 @@ asui-menu.stick > .dropdown-container {
 
 .dropdown-container > asui-menu > .dropdown-container {
     display: inline-block;
+    /* float: right; */
+}
+.dropdown-container > asui-menu > .caption {
+    min-width: 120px;
 }
 
 
@@ -144,17 +148,23 @@ asui-input-select,
 asui-input-range,
 asui-input-text,
 asui-input-file {
-    /* display: inline-block; */ /** TODO: bad idea **/
+    /*display: inline-block; !** TODO: bad idea **!*/
     vertical-align: top;
+    /* height: 24px; */
 }
 
+asui-input-button,
+asui-input-file  {
+     height: 24px;
+     display: inline-block;
+}
 
 
 /** Icons **/
 
 asui-icon {
     font-size: 24px;
-    display: block;
+    display: inline-block;
     width: 1em;
     height: 1em;
     padding: 0px;
@@ -170,6 +180,7 @@ asui-icon.resume { background-position: -3em -1em; }
 asui-icon.insert {background-position: -3em -10em;}
 asui-icon.remove {background-position: -6em 0em;}
 asui-icon.subtract {background-position: -4em 0em;}
+asui-icon.delete {background-position: -4em 0em;}
 
 asui-icon.file-load {background-position: 0em 0em;}
 asui-icon.file-save {background-position: -1em 0em;}

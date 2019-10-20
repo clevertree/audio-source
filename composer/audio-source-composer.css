@@ -62,12 +62,14 @@ audio-source-composer.fullscreen {
 
 
 /** Context Menu **/
-
-asui-menu.open-context-menu > .dropdown-container {
+asui-menu[key=context].open-context-menu {
     display: block;
     position: fixed;
     z-index: 99;
     transition: all 0s;
+}
+asui-menu[key=context].open-context-menu:not(.open) {
+    display: none;
 }
 
 
@@ -161,9 +163,11 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 
 .asc-container:not(.playing) .show-on-song-playing,
 .asc-container.playing .hide-on-song-playing,
-.asc-container.hide-forms-song .form-section-container-song,
-.asc-container.hide-forms-tracker .form-section-container-tracker,
-.asc-container.hide-forms-instruments .form-section-container-instruments {
+.asc-container.hide-panel-song asui-form[key=song],
+.asc-container.hide-panel-tracker asui-form[key=instruction],
+.asc-container.hide-panel-tracker asui-form[key=tracker],
+.asc-container.hide-panel-tracker asui-form[key=tracker-row-segments],
+.asc-container.hide-panel-instruments asui-form[key=instruments] {
     display: none;
 }
 
@@ -176,14 +180,14 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 .asc-container input[type=text].themed,
 .asc-container select.themed,
 .asc-container button.themed {
-    display: inline-block;
+    /* display: inline-block; */
     padding: 0px 0px;
-    border-radius: 2px;
-    transition: all 0.2s;
-    border: 1px outset transparent;
+    /* border-radius: 2px; */
+    /* transition: all 0.2s; */
+    border: 0px outset transparent;
     background: transparent;
     cursor: pointer;
-    /* height: 20px; */
+    height: 24px;
 }
 
 .asc-container .input-style:hover,
@@ -201,10 +205,10 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
     padding-left: 5px;
 }
 .asc-container button.themed {
-    display: inline-block;
-    padding: 0px 0px;
-    border-radius: 2px;
-    transition: border 0.2s;
+    /* display: inline-block; */
+    /* padding: 0px 0px; */
+    /* border-radius: 2px; */
+    /* transition: border 0.2s; */
 }
 
 .asc-container button.themed > span {

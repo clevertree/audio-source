@@ -167,6 +167,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     navigateSegment(newRowSegmentID) {
         this.currentRowSegmentID = newRowSegmentID;
+        // TODO: state
         this.renderRows();
     }
 
@@ -217,15 +218,15 @@ class AudioSourceComposerTracker extends HTMLElement {
                 'Instruction Instrument',
                 '');
 
-            this.fieldInstructionInsert = this.formInstructionCommand.addIconButton(
+            this.fieldInstructionInsert = this.formInstructionCommand.addButton(
                 'insert',
                 e => this.editor.actions.insertInstructionCommand(e),
-                `insert`,
+                this.formInstructionCommand.createIcon('insert'),
                 "Insert Instruction");
 
-            this.fieldInstructionDelete = this.formInstructionCommand.addIconButton('delete',
+            this.fieldInstructionDelete = this.formInstructionCommand.addButton('delete',
                 e => this.editor.actions.deleteInstructionCommand(e),
-                `subtract`,
+                this.formInstructionCommand.createIcon('delete'),
                 "Delete Instruction");
 
 
@@ -269,7 +270,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     this.editor.values.getValues('durations', addOption)
                 },
                 'Select Row Length',
-                '');
+                this.editor.song.timeDivision);
 
             this.fieldTrackerSegmentLength = this.formTrackerSegmentLength.addSelectInput('segment-length',
                 e => this.editor.actions.setTrackerSegmentLength(e),
@@ -1101,8 +1102,8 @@ class AudioSourceComposerTracker extends HTMLElement {
     getCursorIndex() {
         const cursorCell = this.querySelector('.cursor');
         return cursorCell ? cursorCell.index : null;
-
     }
+
     getSelectedIndicies() {
         const value = this.fieldTrackerSelection.value;
         if(value === '')
@@ -1114,6 +1115,20 @@ class AudioSourceComposerTracker extends HTMLElement {
         // const selectedIndicies = [].map.call(this.selectedCells, (elm => elm.index));
     }
 
+
+    selectIndicies(e, selectedIndicies) {
+        if(typeof selectedIndicies === 'number')
+            selectedIndicies = [selectedIndicies];
+
+        this.clearSelection();
+        for(let i=0; i<selectedIndicies.length; i++) {
+            const selectedIndex = selectedIndicies[i];
+            const cell = this.findInstructionElement(selectedIndex);
+            this.selectCell(e, cell);
+        }
+
+        this.fieldTrackerSelection.value = selectedIndicies.join(',');
+    }
 
     selectNextCell(e) {
         let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction');
@@ -1231,7 +1246,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         }
         selectedIndicies.sort();
         this.fieldTrackerSelection.value = selectedIndicies.join(',');
-        console.info('updateSelectedIndicies', selectedIndicies);
+//         console.info('updateSelectedIndicies', selectedIndicies);
     }
 
     selectSegmentIndicies(indicies, clearSelection = false) {

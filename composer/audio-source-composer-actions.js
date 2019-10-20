@@ -26,11 +26,11 @@ class AudioSourceComposerActions {
         this.editor.setStatus(`Volume modified: ${newSongVolume}`);
     }
 
-    loadNewSongData() {
+    async loadNewSongData() {
         const storage = new AudioSourceStorage();
         const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
         let songData = storage.generateDefaultSong(defaultInstrumentURL);
-        this.editor.song.loadSongData(songData);
+        await this.editor.song.loadSongData(songData);
         this.editor.render();
         this.editor.setStatus("Loaded new song", songData);
     }
@@ -48,9 +48,9 @@ class AudioSourceComposerActions {
     }
 
     async saveSongToMemory() {
-        const renderer = this.editor.song;
-        const songData = renderer.data;
-        const songHistory = renderer.history;
+        const song = this.editor.song;
+        const songData = song.data;
+        const songHistory = song.history;
         const storage = new AudioSourceStorage();
         this.editor.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
@@ -67,12 +67,14 @@ class AudioSourceComposerActions {
 
 
     async loadSongFromMemory(songGUID) {
-        const renderer = this.editor.song;
+        const song = this.editor.song;
         const storage = new AudioSourceStorage();
         const songData = await storage.loadSongFromMemory(songGUID);
+        if(songData.instruments.length === 0)
+            console.warn("Song contains no instruments");
         const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
-        renderer.loadSongData(songData);
-        renderer.loadSongHistory(songHistory);
+        await song.loadSongData(songData);
+        await song.loadSongHistory(songHistory);
         this.editor.render();
         this.editor.setStatus("Song loaded from memory: " + songGUID, songData);
 //         console.info(songData);
@@ -101,7 +103,9 @@ class AudioSourceComposerActions {
     async loadSongFromJSONFileInput(file) {
         const storage = new AudioSourceStorage();
         const songData = await storage.loadJSONFile(file);
-        this.editor.song.loadSongData(songData);
+        if(songData.instruments.length === 0)
+            console.warn("Song contains no instruments");
+        await this.editor.song.loadSongData(songData);
         this.editor.render();
         this.editor.setStatus("Song loaded from file: ", songData);
     }
@@ -110,7 +114,7 @@ class AudioSourceComposerActions {
         defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
         const midiSupport = new MIDISupport();
         const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
-        this.editor.song.loadSongData(songData);
+        await this.editor.song.loadSongData(songData);
         this.editor.render();
         this.editor.setStatus("Song loaded from midi: ", songData);
     }
@@ -128,7 +132,9 @@ class AudioSourceComposerActions {
             };
             xhr.send();
         });
-        this.editor.song.loadSongData(songData, src);
+        if(songData.instruments.length === 0)
+            console.warn("Song contains no instruments");
+        await this.editor.song.loadSongData(songData);
         this.editor.setStatus("Song loaded from src: " + src);
         console.info(this.editor.song.data);
         this.editor.render();
@@ -181,7 +187,7 @@ class AudioSourceComposerActions {
                 throw new Error("No cursor position");
             const insertIndex = renderer.insertInstructionAtPosition(tracker.groupName, insertPosition, newInstruction);
             tracker.renderRows();
-            tracker.selectIndicies(insertIndex);
+            tracker.selectIndicies(e, insertIndex);
 
         } else {
             throw new Error("No cursor cell");
@@ -204,7 +210,7 @@ class AudioSourceComposerActions {
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        let newInstruction = tracker.getInstructionFormValues(newCommand);
+        // let newInstruction = tracker.getInstructionFormValues(newCommand);
         let newInstrument = null;
         // if (tracker.fieldInstructionCommand.selectedOptions[0] && tracker.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument')) // TODO: wtf?
         //     newInstrument = parseInt(tracker.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
@@ -220,8 +226,8 @@ class AudioSourceComposerActions {
                 // renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
                 tracker.findInstructionElement(selectedIndicies[i]).render();
             }
-            tracker.renderRows();
-            tracker.selectIndicies(selectedIndicies);
+            // tracker.renderRows();
+            // tracker.selectIndicies(e, selectedIndicies);
 
         } else {
             throw new Error("No selection");
@@ -245,7 +251,7 @@ class AudioSourceComposerActions {
         this.editor.status.currentInstrumentID = instrumentID;
         tracker.playSelectedInstructions();
         // tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies);
+        // tracker.selectIndicies(e, selectedIndicies);
         // this.fieldInstructionInstrument.focus();
 
     }
@@ -267,7 +273,7 @@ class AudioSourceComposerActions {
         }
         tracker.playSelectedInstructions();
         // tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies);
+        // tracker.selectIndicies(e, selectedIndicies);
         // this.fieldInstructionDuration.focus();
 
     }
@@ -290,7 +296,7 @@ class AudioSourceComposerActions {
         }
         tracker.playSelectedInstructions();
         // tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies);
+        // tracker.selectIndicies(e, selectedIndicies);
         // this.selectIndicies(e, selectedIndicies[0]);
         // this.fieldInstructionVelocity.focus();
     }
@@ -303,7 +309,7 @@ class AudioSourceComposerActions {
         for (let i = 0; i < selectedIndicies.length; i++)
             renderer.deleteInstructionAtIndex(tracker.groupName, selectedIndicies[i]);
         tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies[0]);
+        // tracker.selectIndicies(e, selectedIndicies[0]);
 
     }
 
@@ -394,21 +400,21 @@ class AudioSourceComposerActions {
 
     setTrackerRowLength(e, rowLengthInTicks=null) {
         const tracker = this.editor.trackerElm;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        // let selectedIndicies = tracker.getSelectedIndicies();
         if(rowLengthInTicks !== null)
             tracker.fieldTrackerRowLength.value;
         tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies);
+        // tracker.selectIndicies(e, selectedIndicies);
 
     }
 
     setTrackerSegmentLength(e, segmentLength=null) {
         const tracker = this.editor.trackerElm;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        // let selectedIndicies = tracker.getSelectedIndicies();
         if(segmentLength !== null)
             tracker.fieldTrackerSegmentLength.value = segmentLength;
         tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies);
+        // tracker.selectIndicies(e, selectedIndicies);
     }
 
     // setTrackerRowSegment(e) {
@@ -425,39 +431,40 @@ class AudioSourceComposerActions {
 
     setTrackerFilterInstrument(e) {
         const tracker = this.editor.trackerElm;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        // let selectedIndicies = tracker.getSelectedIndicies();
 
         tracker.renderRows();
-        tracker.selectIndicies(selectedIndicies);
+        // tracker.selectIndicies(e, selectedIndicies);
     }
 
     setTrackerSelection(e, selectedIndicies=null) {
         const tracker = this.editor.trackerElm;
 
         if(!selectedIndicies)
-            selectedIndicies = tracker.fieldSelectedIndicies.value
+            selectedIndicies = tracker.fieldTrackerSelection.value
                 .split(/\D+/)
                 .map(index => parseInt(index));
-        tracker.selectIndicies(selectedIndicies);
-        tracker.fieldSelectedIndicies.focus();
+        tracker.selectIndicies(e, selectedIndicies);
+        tracker.fieldTrackerSelection.focus();
     }
+
 
     /** Toggle Panels **/
 
-    togglePanelInstrument(e) {
-
+    togglePanelInstruments(e) {
+        this.editor.containerElm.classList.toggle('hide-panel-instruments')
     }
 
     togglePanelTracker(e) {
-
+        this.editor.containerElm.classList.toggle('hide-panel-tracker')
     }
 
     togglePanelSong(e) {
-
+        this.editor.containerElm.classList.toggle('hide-panel-song')
     }
 
     toggleFullscreen(e) {
-
+        this.editor.classList.toggle('fullscreen')
     }
 }
 

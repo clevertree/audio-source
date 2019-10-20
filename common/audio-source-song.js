@@ -118,8 +118,6 @@ class AudioSourceSong {
             this.processAllInstructionData(groupName));
 
         // let loadingInstruments = 0;
-        if(songData.instruments.length === 0)
-            console.warn("Song contains no instruments");
 
         await this.loadAllInstruments();
 
@@ -482,7 +480,7 @@ class AudioSourceSong {
     /** Instrument Events **/
 
     onSongEvent(e) {
-        console.log(e.type);
+//         console.log(e.type);
         switch(e.type) {
             case 'instrument:loaded':
                 const instrumentClass = e.detail.class;
