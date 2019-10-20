@@ -600,7 +600,7 @@ class AudioSourceSong {
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             if(instrumentList[instrumentID]) {
-                console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
+//                 console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
                 await this.loadInstrument(instrumentID);
             }
         }
@@ -625,6 +625,10 @@ class AudioSourceSong {
 
 
     /** Modify Song Data **/
+
+    hasGroup(groupName) {
+        return typeof this.data.instructions[groupName] !== "undefined";
+    }
 
     getName()                  { return this.data.name; }
     setName(newSongTitle)      { return this.replaceDataPath(['name'], newSongTitle); }

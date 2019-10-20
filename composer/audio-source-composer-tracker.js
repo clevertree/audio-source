@@ -15,6 +15,8 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     get groupName()             { return this.getAttribute('group'); }
     set groupName(groupName)    {
+        if(!this.editor.song.hasGroup(groupName))
+            throw new Error("Group not found in song: " + groupName);
         this.setAttribute('group', groupName);
         this.render(1);
     }
@@ -167,7 +169,6 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     navigateSegment(newRowSegmentID) {
         this.currentRowSegmentID = newRowSegmentID;
-        // TODO: state
         this.renderRows();
     }
 
@@ -1293,7 +1294,7 @@ class AudioSourceComposerTracker extends HTMLElement {
     selectCell(e, selectedCell) {
         console.time("selectCell");
         let toggleValue = true;
-        if(e.ctrlKey) {
+        if(e && e.ctrlKey) {
             if(e.shiftKey) {
                 toggleValue = !selectedCell.selected;
             }

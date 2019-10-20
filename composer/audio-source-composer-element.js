@@ -32,6 +32,7 @@ class AudioSourceComposerElement extends HTMLElement {
         Libraries.loadPackageInfo()
             .then(packageInfo => this.setVersion(packageInfo.version));
 
+        window.addEventListener('unload', e => this.saveState(e));
     }
 
     get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
@@ -68,7 +69,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.focus();
 
 
-        this.loadDefaultSong();
+        this.loadState();
 
         const midiSupport = new MIDISupport();
         midiSupport.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
@@ -102,6 +103,34 @@ class AudioSourceComposerElement extends HTMLElement {
     //
     // }
 
+    async loadState(e=null) {
+        await this.loadDefaultSong(); // TODO: refactor
+
+        const storage = new AudioSourceStorage();
+        const state = storage.loadState();
+        console.log('loadState', state);
+
+        if(state) {
+            this.trackerElm.groupName = state.groupName;
+            this.trackerElm.navigateSegment(state.currentRowSegmentID);
+            this.trackerElm.selectIndicies(e, state.selectedIndicies);
+        }
+    }
+
+
+    saveState(e) {
+        const state = {
+            groupName: this.trackerElm.groupName,
+            currentRowSegmentID: this.trackerElm.currentRowSegmentID,
+            selectedIndicies: this.trackerElm.getSelectedIndicies()
+        };
+        const storage = new AudioSourceStorage();
+        storage.saveState(state);
+        // console.log('saveState', state);
+    }
+
+
+
     async loadDefaultSong() {
         const src = this.getAttribute('src');
         if(src) {
@@ -116,7 +145,7 @@ class AudioSourceComposerElement extends HTMLElement {
         if(await this.actions.loadRecentSongData())
             return true;
 
-        this.actions.loadNewSongData();
+        await this.actions.loadNewSongData();
         return false;
     }
 
