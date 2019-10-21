@@ -19,13 +19,13 @@ class AudioSourceValues {
             'beats-per-measure',
             'beats-per-minute',
             'command-group-execute',
-            'command-instrument-frequencies',
+            'note-frequency-named',
             'durations',
             'groups',
             'instruments-available',
             'named-durations',
-            'note-frequencies',
-            'note-frequencies-all',
+            'note-frequency',
+            'note-frequency-all',
             'note-frequency-octaves',
             'song-groups',
             'song-instruments',
@@ -88,23 +88,27 @@ class AudioSourceValues {
                 }
                 break;
 
-            case 'command-instrument-frequencies':
+            case 'note-frequency-named':
                 if(songData) {
                     for(let instrumentID=0; instrumentID<songData.instruments.length; instrumentID++) {
                         if(this.song.isInstrumentLoaded(instrumentID)) {
                             const instance = this.song.getInstrument(instrumentID);
                             if(instance.getFrequencyAliases) {
                                 const aliases = instance.getFrequencyAliases();
-                                Object.values(aliases).forEach((aliasValue) =>
-                                    result = callback(aliasValue, aliasValue, `data-instrument="${instrumentID}"`));
-                                addResult(result);
+                                for(const alias in aliases) {
+                                    if(aliases.hasOwnProperty(alias)) {
+                                        const aliasValue = aliases[alias];
+                                        result = callback(alias, aliasValue, instrumentID);
+                                        addResult(result);
+                                    }
+                                }
                             }
                         }
                     }
                 }
                 break;
 
-            case 'note-frequencies':
+            case 'note-frequency':
                 noteFrequencies = this.noteFrequencies;
                 // for(let i=1; i<=6; i++) {
                 for(let j=0; j<noteFrequencies.length; j++) {
@@ -116,7 +120,7 @@ class AudioSourceValues {
                 break;
 
 
-            case 'note-frequencies-all':
+            case 'note-frequency-all':
                 noteFrequencies = this.noteFrequencies;
                 for(let i=1; i<=6; i++) {
                     for(let j=0; j<noteFrequencies.length; j++) {

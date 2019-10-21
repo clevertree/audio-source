@@ -91,7 +91,7 @@ class AudioSourceUIMenu extends HTMLElement {
             case 'mouseenter':
                 clearTimeout(this.mouseTimeout);
 
-                if(this.hasSubMenu) {
+                if(this.hasSubMenu && !this.disabled) {
                     this.renderSubMenu(e);
                 }
                 break;
@@ -298,9 +298,15 @@ class AudioSourceUIMenu extends HTMLElement {
         targetElement = targetElement || e.target;
         const rect = targetElement.getBoundingClientRect();
         let containerElm = this.getSubMenuContainer();
-        const containerRect = this.editor.getBoundingClientRect();
-        let x = rect.x + rect.width - containerRect.x;
-        let y = rect.y + rect.height - containerRect.y;
+        let x, y;
+        if(e.clientX && e.clientY) {
+            x = e.clientX;
+            y = e.clientY;
+        } else {
+            const containerRect = this.editor.getBoundingClientRect();
+            x = rect.x + rect.width - containerRect.x;
+            y = rect.y + rect.height - containerRect.y;
+        }
         this.clearSubMenu();
         this.renderSubMenu(e);
         // this.classList.add('stick');

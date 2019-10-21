@@ -251,16 +251,20 @@
 
         }
 
-        async playSample(destination, sampleID, frequencyValue = null, startTime = null, duration = null, velocity = null, adsr = null) {
+        async playSample(destination, sampleID, frequencyValue, startTime = null, duration = null, velocity = null, adsr = null) {
             if (!this.isSampleLoaded(sampleID))
                 await this.initSample(destination.context, sampleID);
 
+            if (Number.isNaN(frequencyValue)) {
+                console.warn("Invalid command frequency: ", frequencyValue, this.config);
+                return null;
+            }
             // throw new Error("Sample not loaded: " + sampleName);
             const sampleData = this.samples[sampleID];
             const sampleConfig = this.config.samples[sampleID];
 
-            if (!frequencyValue)
-                frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
+            // if (!frequencyValue)
+            //     frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
 
             if (sampleData.periodicWave) {
                 this.playPeriodicWave(
@@ -293,23 +297,27 @@
         }
 
         // Instruments return promises
-        async play(destination, commandFrequency, startTime, duration, velocity) {
-            let frequencyValue = this.getCommandFrequency(commandFrequency);
-            if (Number.isNaN(frequencyValue)) {
-                console.warn("Invalid command frequency: ", commandFrequency, this.config);
-                return null;
-            }
+        async play(destination, namedFrequency, startTime, duration, velocity) {
+
+            const commandFrequency = this.getFrequencyFromAlias(namedFrequency);
+            if(!commandFrequency)
+                throw new Error("Invalid named frequency: " + namedFrequency);
 
             // Loop through sample
             const samplePromises = [];
             for (let i = 0; i < this.config.samples.length; i++) {
                 const sampleConfig = this.config.samples[i];
+                let frequencyValue = 440;
 
                 // Filter sample playback
                 if (sampleConfig.keyAlias) {
                     if(sampleConfig.keyAlias !== commandFrequency)
+                    // if(sampleConfig.name !== namedFrequency)
                         continue;
+                } else {
+                    frequencyValue = this.getCommandFrequency(commandFrequency);
                 }
+
                 if (sampleConfig.keyLow && this.getCommandFrequency(sampleConfig.keyLow) > frequencyValue)
                     continue;
                 if (sampleConfig.keyHigh && this.getCommandFrequency(sampleConfig.keyHigh) < frequencyValue)
@@ -415,8 +423,9 @@
 
         async setSampleKeyRoot(sampleID, newKeyRootValue) {
             if(!newKeyRootValue)
-                throw new Error("Invalid keyRoot value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
+                this.song.deleteInstrumentParam(this.id, ['samples', sampleID, 'keyRoot']);
+            else
+                this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
         }
 
         async setSampleKeyAlias(sampleID, newKeyAliasValue) {
@@ -432,6 +441,15 @@
         }
 
 
+        getFrequencyFromAlias(aliasName) {
+            for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
+                const sampleConfig = this.config.samples[sampleID];
+                if (sampleConfig && sampleConfig.keyAlias && aliasName === sampleConfig.name) {
+                    return sampleConfig.keyAlias;
+                }
+            }
+            return null;
+        }
 
 
         getFrequencyAliases() {
@@ -439,7 +457,7 @@
             for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
                 const sampleConfig = this.config.samples[sampleID];
                 if (sampleConfig && sampleConfig.keyAlias)
-                    aliases[sampleConfig.keyAlias] = sampleID;
+                    aliases[sampleConfig.name] = sampleConfig.keyAlias;
             }
             return aliases;
         }

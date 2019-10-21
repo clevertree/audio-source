@@ -43,8 +43,11 @@ class AudioSourceSong {
     /** Rendering Context **/
 
     getAudioContext() {
-        if(this.audioContext)
+        if(this.audioContext) {
+            if(this.audioContext.state === 'suspended')
+                this.audioContext.resume();
             return this.audioContext;
+        }
 
         this.audioContext = new (window.AudioContext||window.webkitAudioContext)();
         const n = this.audioContext.createGain(); // Bug fix
@@ -424,10 +427,11 @@ class AudioSourceSong {
 
 
 
-    playInstructionAtIndex(groupName, instructionIndex, noteStartTime=null) {
+    async playInstructionAtIndex(groupName, instructionIndex, noteStartTime=null) {
+        this.getAudioContext();
         const instruction = this.getInstruction(groupName, instructionIndex, false);
         if(instruction) 
-            this.playInstruction(instruction, noteStartTime);
+            await this.playInstruction(instruction, noteStartTime);
         else 
             console.warn("No instruction at index");
     }
