@@ -198,17 +198,18 @@ class AudioSourceUIMenu extends HTMLElement {
     }
 
     toggleSubMenu(e) {
-        if(this.classList.contains('open'))
+        if(this.classList.contains('stick')) {
             this.clearSubMenu(e);
-        else
+        } else {
             this.renderSubMenu(e);
-
+            this.classList.add('stick');
+        }
     }
 
     clearSubMenu(e) {
         // this.querySelectorAll('asui-menu')
         //     .forEach(menuItem => menuItem.parentNode.removeChild(menuItem));
-        this.classList.remove('open', 'open-context-menu');
+        this.classList.remove('stick', 'open', 'open-context-menu');
         let containerElm = this.getSubMenuContainer();
         containerElm.innerHTML = '';
     }
@@ -1016,17 +1017,19 @@ class AudioSourceUIFileInput extends AudioSourceUIInputAbstract {
         if(accepts)     inputElm.setAttribute('accepts', accepts);
         if(title)       inputElm.setAttribute('title', title);
         labelElm.appendChild(inputElm);
+        // inputElm.addEventListener('change', e => this.onChange(e));
+        this.addEventListener('change', e => this.onChange(e));
     }
 
     get inputElm() { return this.querySelector('input'); }
 
-    connectedCallback() {
-        this.addEventListener('change', e => this.onChange(e));
-    }
-
     onChange(e) {
-        // console.log(e.type);
-        this.callback(e, this.value);
+        try {
+            this.callback(e, this.value);
+        } catch (err) {
+            console.error(err);
+        }
+        this.value = '';
     }
 }
 

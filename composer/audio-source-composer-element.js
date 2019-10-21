@@ -435,14 +435,14 @@ class AudioSourceComposerElement extends HTMLElement {
                 this.formSongPlayback.createIcon('stop'),
                 "Stop Song");
 
-            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load', //TODO: icon file?
-                e => this.actions.songFileLoad(e),
+            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
+                e => this.actions.loadSongFromFileInput(e),
                 this.formSongPlayback.createIcon('file-load'),
                 `.json,.mid,.midi`,
-                "Save Song to File"
+                "Load Song from File"
             );
             this.fieldSongFileSave = this.formSongFile.addButton('file-save',
-                e => this.actions.songFileSave(e),
+                e => this.actions.saveSongToFile(e),
                 this.formSongPlayback.createIcon('file-save'),
                 "Save Song to File"
             );
@@ -555,7 +555,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             const menuFileOpenSong = menu.getOrCreateSubMenu('open', 'Open song ►');
             menuFileOpenSong.populate = (e) => {
-                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('from Memory ►');
+                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('memory', 'from Memory ►');
                 menuFileOpenSongFromMemory.populate = async (e) => {
                     const menu = e.menuElement;
 
@@ -571,30 +571,25 @@ class AudioSourceComposerElement extends HTMLElement {
 
                 };
 
-                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('from File',
-                    `<form name="form-menu-load-file" action="#" class="form-menu-load-file submit-on-change" data-action="song:load-from-file">
-                                <label>from File<input type="file" name="file" accept=".json" style="display: none"></label>
-                            </form>`);
-                // menuFileOpenSongFromFile.action = (e) => this.onAction(e, 'song:load-from-file');
+                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('file', `from File`);
+                menuFileOpenSongFromFile.action = (e) => this.fieldSongFileLoad.inputElm.click(); // this.actions.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                 // menuFileOpenSongFromFile.disabled = true;
-                const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('from URL');
+                const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('url', 'from URL');
                 menuFileOpenSongFromURL.disabled = true;
             };
 
             const menuFileSaveSong = menu.getOrCreateSubMenu('save', 'Save song ►');
             menuFileSaveSong.populate = (e) => {
-                const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('to Memory');
+                const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('memory', 'to Memory');
                 menuFileSaveSongToMemory.action = (e) => this.actions.saveSongToMemory(e);
-                const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('to File');
+                const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('file', 'to File');
                 menuFileSaveSongToFile.action = (e) => this.actions.saveSongToFile(e);
             };
 
             const menuFileImportSong = menu.getOrCreateSubMenu('import', 'Import song ►');
             menuFileImportSong.populate = (e) => {
-                const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('from MIDI File',
-                    `<form name="form-menu-load-file" action="#" class="form-menu-load-file submit-on-change" data-action="song:load-from-file">
-                                <label>from MIDI File<input type="file" name="file" accept=".mid,.midi" style="display: none"></label>
-                            </form>`);
+                const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('midi', 'from MIDI File');
+                menuFileImportSongFromMIDI.action = (e) => this.fieldSongFileLoad.inputElm.click(); // this.actions.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                 // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
                 // menuFileImportSongFromMIDI.disabled = true;
             };
@@ -602,7 +597,7 @@ class AudioSourceComposerElement extends HTMLElement {
             const menuFileExportSong = menu.getOrCreateSubMenu('export', 'Export song ►');
             menuFileExportSong.disabled = true;
             menuFileExportSong.populate = (e) => {
-                const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('to MIDI File');
+                const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('midi', 'to MIDI File');
                 menuFileExportSongToMIDI.disabled = true;
             };
         };

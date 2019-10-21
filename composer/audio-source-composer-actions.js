@@ -80,16 +80,22 @@ class AudioSourceComposerActions {
 //         console.info(songData);
     }
 
-    async loadSongFromFileInput(file) {
+    async loadSongFromFileInput(e, fileInput=null) {
+        fileInput = fileInput || this.editor.fieldSongFileLoad.inputElm;
+        if(!fileInput || !fileInput.files || fileInput.files.length === 0)
+            throw new Error("Invalid file input");
+        if(fileInput.files.length > 1)
+            throw new Error("Invalid file input: only one file allowed");
+        const file = fileInput.files[0];
         const ext = file.name.split('.').pop().toLowerCase();
         switch(ext) {
             case 'mid':
             case 'midi':
-                await this.loadSongFromMIDIFileInput(file);
+                await this.loadSongFromMIDIFile(file);
                 break;
 
             case 'json':
-                await this.loadSongFromJSONFileInput(file);
+                await this.loadSongFromJSONFile(file);
                 break;
 
             default:
@@ -100,7 +106,7 @@ class AudioSourceComposerActions {
 
 
 
-    async loadSongFromJSONFileInput(file) {
+    async loadSongFromJSONFile(file) {
         const storage = new AudioSourceStorage();
         const songData = await storage.loadJSONFile(file);
         if(songData.instruments.length === 0)
@@ -110,7 +116,7 @@ class AudioSourceComposerActions {
         this.editor.setStatus("Song loaded from file: ", songData);
     }
 
-    async loadSongFromMIDIFileInput(file, defaultInstrumentURL=null) {
+    async loadSongFromMIDIFile(file, defaultInstrumentURL=null) {
         defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
         const midiSupport = new MIDISupport();
         const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
