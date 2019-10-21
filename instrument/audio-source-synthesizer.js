@@ -299,9 +299,7 @@
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
 
-            const commandFrequency = this.getFrequencyFromAlias(namedFrequency);
-            if(!commandFrequency)
-                throw new Error("Invalid named frequency: " + namedFrequency);
+            const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
 
             // Loop through sample
             const samplePromises = [];
