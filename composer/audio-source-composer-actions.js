@@ -178,7 +178,7 @@ class AudioSourceComposerActions {
 
     /** Tracker Commands **/
 
-    insertInstructionCommand(e, newCommand=null, promptUser=false) {
+    insertInstructionCommand(e, newCommand=null, promptUser=false, instrumentID=null) {
         //: TODO: check for recursive group
         const tracker = this.editor.trackerElm;
         const song = this.editor.song;
@@ -194,6 +194,8 @@ class AudioSourceComposerActions {
             throw new Error("Invalid Instruction command");
 
         let newInstruction = tracker.getInstructionFormValues(newCommand);
+        if(instrumentID !== null)
+            newInstruction.instrument = instrumentID;
 
         const songPosition = song.getSongPositionInTicks();
         console.log(songPosition);
@@ -203,7 +205,7 @@ class AudioSourceComposerActions {
         tracker.playSelectedInstructions();
     }
 
-    setInstructionCommand(e, newCommand=null, promptUser=false) {
+    setInstructionCommand(e, newCommand=null, promptUser=false, instrumentID=null) {
         //: TODO: check for recursive group
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
@@ -220,6 +222,8 @@ class AudioSourceComposerActions {
 
         for (let i = 0; i < selectedIndicies.length; i++) {
             renderer.replaceInstructionCommand(tracker.groupName, selectedIndicies[i], newCommand);
+            if(instrumentID !== null)
+                renderer.replaceInstructionInstrument(tracker.groupName, selectedIndicies[i], instrumentID);
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();

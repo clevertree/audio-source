@@ -476,11 +476,11 @@ class AudioSourceComposerTracker extends HTMLElement {
                 const subMenuNamed = MENU.getOrCreateSubMenu('named', `Named ►`);
                 subMenuNamed.populate = (e) => {
                     const MENU = e.menuElement;
-                    editor.values.getValues('note-frequency-named', (noteName, label) => {
+                    editor.values.getValues('note-frequency-named', (noteName, frequency, instrumentID) => {
                         const menuOctaveFrequency = MENU.getOrCreateSubMenu(noteName, noteName);
                         menuOctaveFrequency.action = (e) => {
                             editor.trackerElm.fieldInstructionCommand.value = noteName;
-                            this.editor.actions.insertInstructionCommand(e, noteName);
+                            this.editor.actions.insertInstructionCommand(e, noteName, false, instrumentID);
                         }
                     });
                 };
@@ -534,11 +534,11 @@ class AudioSourceComposerTracker extends HTMLElement {
                 const subMenuNamed = MENU.getOrCreateSubMenu('named', `Named ►`);
                 subMenuNamed.populate = (e) => {
                     const MENU = e.menuElement;
-                    editor.values.getValues('note-frequency-named', (noteName, label) => {
+                    editor.values.getValues('note-frequency-named', (noteName, frequency, instrumentID) => {
                         const menuOctaveFrequency = MENU.getOrCreateSubMenu(noteName, noteName);
                         menuOctaveFrequency.action = (e) => {
                             editor.trackerElm.fieldInstructionCommand.value = noteName;
-                            this.editor.actions.setInstructionCommand(e, noteName);
+                            this.editor.actions.setInstructionCommand(e, noteName, false, instrumentID);
                         }
                     });
                 };
