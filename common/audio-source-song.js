@@ -55,6 +55,7 @@ class AudioSourceSong {
 
     /** Data shortcuts **/
 
+    get guid() { return this.data.guid; }
     get timeDivision() { return this.data.timeDivision; }
     get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
     get rootGroup() {
@@ -285,7 +286,9 @@ class AudioSourceSong {
     }
 
 
-    getSongPositionInTicks(positionInSeconds) {
+    getSongPositionInTicks(positionInSeconds=null) {
+        if(positionInSeconds === null)
+            positionInSeconds = this.songPlaybackPosition;
         return this.getGroupPositionInTicks(this.rootGroup, positionInSeconds);
     }
 

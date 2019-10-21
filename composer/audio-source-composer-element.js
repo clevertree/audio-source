@@ -59,10 +59,10 @@ class AudioSourceComposerElement extends HTMLElement {
             'note:start', 'note:end'
         ], this.onSongEvent);
         this.attachEventHandler([
-            'instrument:instance',
-            'instrument:library',
-            'instrument:modified',
-            'instrument:loaded'],
+                'instrument:instance',
+                'instrument:library',
+                'instrument:modified',
+                'instrument:loaded'],
             e => this.onSongEvent(e), document);
 
         this.render();
@@ -104,11 +104,13 @@ class AudioSourceComposerElement extends HTMLElement {
     // }
 
     async loadState(e=null) {
-        await this.loadDefaultSong(); // TODO: refactor
 
         const storage = new AudioSourceStorage();
         const state = storage.loadState();
         console.log('loadState', state);
+
+        await this.loadDefaultSong(state ? state.songGUID : null);
+
 
         if(state) {
             this.trackerElm.groupName = state.groupName;
@@ -118,8 +120,10 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
 
-    saveState(e) {
+    async saveState(e) {
+        // await this.actions.saveSongToMemory(e);
         const state = {
+            songGUID: this.song.guid,
             groupName: this.trackerElm.groupName,
             currentRowSegmentID: this.trackerElm.currentRowSegmentID,
             selectedIndicies: this.trackerElm.getSelectedIndicies()
@@ -131,19 +135,21 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
 
-    async loadDefaultSong() {
+    async loadDefaultSong(recentSongGUID=null) {
+
         const src = this.getAttribute('src');
         if(src) {
-            try {
-                await this.actions.loadSongFromSrc(src);
-                return true;
-            } catch (e) {
-                console.error("Failed to load from src: ", src, e);
-            }
+            await this.actions.loadSongFromSrc(src);
+            return true;
         }
 
-        if(await this.actions.loadRecentSongData())
-            return true;
+        if(recentSongGUID) {
+            await this.actions.loadSongFromMemory(recentSongGUID);
+            return;
+        }
+
+        // if(await this.actions.loadRecentSongData())
+        //     return true;
 
         await this.actions.loadNewSongData();
         return false;
@@ -166,10 +172,6 @@ class AudioSourceComposerElement extends HTMLElement {
     getSongData()       { return this.song.data; }
 
 
-    getDefaultInstrumentURL() {
-        return new URL(this.scriptDirectory + "instrument/audio-source-synthesizer.js", document.location);
-    }
-
 
     /** Playback **/
 
@@ -189,17 +191,27 @@ class AudioSourceComposerElement extends HTMLElement {
     //
     // }
 
-    updateSongPositionValue(fSeconds) {
-        let m = Math.floor(fSeconds / 60);
-        fSeconds = fSeconds % 60;
-        let ms = Math.round((fSeconds - Math.floor(fSeconds)) * 1000);
-        fSeconds = Math.floor(fSeconds);
+    formatPlaybackPosition(seconds) {
+        let m = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+        let ms = Math.round((seconds - Math.floor(seconds)) * 1000);
+        seconds = Math.floor(seconds);
 
         m = (m+'').padStart(2, '0');
-        fSeconds = (fSeconds+'').padStart(2, '0');
-        ms = (ms+'').padStart(4, '0'); // TODO: ticks?
+        seconds = (seconds+'').padStart(2, '0');
+        ms = (ms+'').padStart(3, '0'); // TODO: ticks?
+        return `${m}:${seconds}:${ms}`;
+    }
 
-        this.fieldSongPosition.value = `${m}:${fSeconds}:${ms}`;
+    parsePlaybackPosition(formattedSeconds) {
+        const parts = formattedSeconds.split(':');
+        return (parseInt(parts[0]) * 60)
+        + (parseInt(parts[1]))
+        + (parseInt(parts[2]) / 1000);
+    }
+
+    updateSongPositionValue(playbackPositionInSeconds) {
+        this.fieldSongPosition.value = this.formatPlaybackPosition(playbackPositionInSeconds);
     }
 
 
@@ -323,11 +335,11 @@ class AudioSourceComposerElement extends HTMLElement {
         if(this.webSocket)
             this.webSocket
                 .onError(err);
-                // .send(JSON.stringify({
-                //     type: 'error',
-                //     message: err.message || err,
-                //     stack: err.stack
-                // }));
+        // .send(JSON.stringify({
+        //     type: 'error',
+        //     message: err.message || err,
+        //     stack: err.stack
+        // }));
     }
 
     setStatus(newStatus) {
@@ -450,9 +462,9 @@ class AudioSourceComposerElement extends HTMLElement {
             this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
                 (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
             this.fieldSongPosition = this.formSongPosition.addTextInput('position',
-                e => this.editor.actions.setTrackerSelection(e),
+                e => this.actions.setSongPosition(e),
                 'Song Position',
-                '00:00:0000'
+                '00:00:000'
             );
             this.fieldSongName = this.formSongName.addTextInput('name',
                 (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
@@ -565,7 +577,7 @@ class AudioSourceComposerElement extends HTMLElement {
                         const entry = songRecentUUIDs[i];
                         const menuOpenSongUUID = menu.getOrCreateSubMenu(entry.guid, entry.title);
                         menuOpenSongUUID.action = (e) => {
-                            this.loadSongFromMemory(entry.guid);
+                            this.actions.loadSongFromMemory(entry.guid);
                         }
                     }
 

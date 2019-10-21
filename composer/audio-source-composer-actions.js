@@ -4,6 +4,11 @@ class AudioSourceComposerActions {
         this.editor = editor;
     }
 
+    getDefaultInstrumentURL() {
+        const Libraries = new AudioSourceLibraries;
+        return Libraries.getScriptDirectory('instrument/audio-source-synthesizer.js');
+    }
+
 
     /** Song Commands **/
 
@@ -162,12 +167,21 @@ class AudioSourceComposerActions {
         this.editor.song.setPlaybackPositionInTicks(0);
     }
 
+    setSongPosition(e, playbackPosition=null) {
+        const song = this.editor.song;
+        if(playbackPosition === null) {
+            playbackPosition = this.editor.parsePlaybackPosition(this.editor.fieldSongPosition.value);
+        }
+        song.setPlaybackPosition(playbackPosition);
+
+    }
+
     /** Tracker Commands **/
 
     insertInstructionCommand(e, newCommand=null, promptUser=false) {
-        // TODO: does not update
+        //: TODO: check for recursive group
         const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
+        const song = this.editor.song;
         let selectedIndicies = tracker.getSelectedIndicies();
 
         // if(selectedIndicies.length === 0)
@@ -180,35 +194,23 @@ class AudioSourceComposerActions {
             throw new Error("Invalid Instruction command");
 
         let newInstruction = tracker.getInstructionFormValues(newCommand);
-        let newInstrument = null;
-        // if (tracker.fieldInstructionCommand.selectedOptions[0] && tracker.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument')) // TODO: wtf?
-        //     newInstrument = parseInt(tracker.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
 
-
-        // TODO: use this.insertOrUpdateCommand() ?
-
-        if (tracker.cursorCell) {
-            const insertPosition = tracker.cursorPosition;
-            if (insertPosition === null)
-                throw new Error("No cursor position");
-            const insertIndex = renderer.insertInstructionAtPosition(tracker.groupName, insertPosition, newInstruction);
-            tracker.renderRows();
-            tracker.selectIndicies(e, insertIndex);
-
-        } else {
-            throw new Error("No cursor cell");
-        }
+        const songPosition = song.getSongPositionInTicks();
+        console.log(songPosition);
+        let insertIndex = song.insertInstructionAtPosition(tracker.groupName, songPosition, newInstruction);
+        tracker.renderRows();
+        tracker.selectIndicies(e, insertIndex);
         tracker.playSelectedInstructions();
     }
 
     setInstructionCommand(e, newCommand=null, promptUser=false) {
-        //: TODO: does not allow insert
+        //: TODO: check for recursive group
         const tracker = this.editor.trackerElm;
         const renderer = this.editor.song;
         let selectedIndicies = tracker.getSelectedIndicies();
 
-        // if(selectedIndicies.length === 0)
-        //     throw new Error("No selection");
+        if(selectedIndicies.length === 0)
+            throw new Error("No selection");
         if(newCommand === null)
             newCommand = tracker.fieldInstructionCommand.value || null;
         if (promptUser)
@@ -216,27 +218,9 @@ class AudioSourceComposerActions {
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        // let newInstruction = tracker.getInstructionFormValues(newCommand);
-        let newInstrument = null;
-        // if (tracker.fieldInstructionCommand.selectedOptions[0] && tracker.fieldInstructionCommand.selectedOptions[0].hasAttribute('data-instrument')) // TODO: wtf?
-        //     newInstrument = parseInt(tracker.fieldInstructionCommand.selectedOptions[0].getAttribute('data-instrument'));
-
-
-        // TODO: use this.insertOrUpdateCommand() ?
-
-        if (selectedIndicies.length > 0) {
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                renderer.replaceInstructionCommand(tracker.groupName, selectedIndicies[i], newCommand);
-                if (newInstrument !== null)
-                    renderer.replaceInstructionInstrument(tracker.groupName, selectedIndicies[i], newInstrument);
-                // renderer.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
-                tracker.findInstructionElement(selectedIndicies[i]).render();
-            }
-            // tracker.renderRows();
-            // tracker.selectIndicies(e, selectedIndicies);
-
-        } else {
-            throw new Error("No selection");
+        for (let i = 0; i < selectedIndicies.length; i++) {
+            renderer.replaceInstructionCommand(tracker.groupName, selectedIndicies[i], newCommand);
+            tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();
     }
@@ -256,10 +240,6 @@ class AudioSourceComposerActions {
         }
         this.editor.status.currentInstrumentID = instrumentID;
         tracker.playSelectedInstructions();
-        // tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies);
-        // this.fieldInstructionInstrument.focus();
-
     }
 
     setInstructionDuration(e, duration=null, promptUser=false) {
@@ -278,9 +258,6 @@ class AudioSourceComposerActions {
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();
-        // tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies);
-        // this.fieldInstructionDuration.focus();
 
     }
 
@@ -301,10 +278,6 @@ class AudioSourceComposerActions {
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
         tracker.playSelectedInstructions();
-        // tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies);
-        // this.selectIndicies(e, selectedIndicies[0]);
-        // this.fieldInstructionVelocity.focus();
     }
 
     deleteInstructionCommand(e) {
@@ -315,7 +288,6 @@ class AudioSourceComposerActions {
         for (let i = 0; i < selectedIndicies.length; i++)
             renderer.deleteInstructionAtIndex(tracker.groupName, selectedIndicies[i]);
         tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies[0]);
 
     }
 

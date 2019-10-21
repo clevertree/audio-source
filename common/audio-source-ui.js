@@ -841,6 +841,7 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
 
     addOrSetValue(newValue, newValueTitlePrefix=null) {
         const inputElm = this.inputElm;
+        this.renderOptions();
         let optionElm = inputElm.querySelector(`option[value="${newValue}"]`);
         if(!optionElm) {
             if(!newValueTitlePrefix) {
