@@ -439,7 +439,7 @@
             for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
                 const sampleConfig = this.config.samples[sampleID];
                 if (sampleConfig && sampleConfig.keyAlias)
-                    aliases[sampleConfig.keyAlias] = sampleID;
+                    aliases[sampleConfig.name] = sampleConfig.keyAlias;
             }
             return aliases;
         }

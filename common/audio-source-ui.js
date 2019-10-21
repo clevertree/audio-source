@@ -91,7 +91,7 @@ class AudioSourceUIMenu extends HTMLElement {
             case 'mouseenter':
                 clearTimeout(this.mouseTimeout);
 
-                if(this.hasSubMenu) {
+                if(this.hasSubMenu && !this.disabled) {
                     this.renderSubMenu(e);
                 }
                 break;
