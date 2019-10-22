@@ -116,6 +116,7 @@ asui-form > div.header {
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
     cursor: pointer;
+    padding: 1px 3px;
 }
 
 

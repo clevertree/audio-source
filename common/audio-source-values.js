@@ -195,8 +195,8 @@ class AudioSourceValues {
             case 'song-groups':
             case 'groups':
                 if(songData && songData.instructions)
-                    Object.keys(songData.instructions).forEach(function(key, i) {
-                        result = callback(key, key);
+                    Object.keys(songData.instructions).forEach(function(groupName, i) {
+                        result = callback(groupName, groupName);
                         addResult(result);
                     });
                 break;
@@ -256,6 +256,24 @@ class AudioSourceValues {
         }
     }
 
+    formatPlaybackPosition(seconds) {
+        let m = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+        let ms = Math.round((seconds - Math.floor(seconds)) * 1000);
+        seconds = Math.floor(seconds);
+
+        m = (m+'').padStart(2, '0');
+        seconds = (seconds+'').padStart(2, '0');
+        ms = (ms+'').padStart(3, '0'); // TODO: ticks?
+        return `${m}:${seconds}:${ms}`;
+    }
+
+    parsePlaybackPosition(formattedSeconds) {
+        const parts = formattedSeconds.split(':');
+        return (parseInt(parts[0]) * 60)
+            + (parseInt(parts[1]))
+            + (parseInt(parts[2]) / 1000);
+    }
 }
 
 if(typeof module !== "undefined")

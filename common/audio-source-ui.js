@@ -1024,6 +1024,7 @@ class AudioSourceUIFileInput extends AudioSourceUIInputAbstract {
         if(accepts)     inputElm.setAttribute('accepts', accepts);
         if(title)       inputElm.setAttribute('title', title);
         labelElm.appendChild(inputElm);
+        labelElm.classList.add('button-style');
         // inputElm.addEventListener('change', e => this.onChange(e));
         this.addEventListener('change', e => this.onChange(e));
     }
