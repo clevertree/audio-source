@@ -47,7 +47,7 @@
 }
 
 .audio-source-synthesizer-container:not(.selected):not(.focus) {
-    max-height: 2em;
+    max-height: 24px;
     overflow: hidden;
 }
 

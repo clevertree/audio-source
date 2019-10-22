@@ -198,6 +198,11 @@ class AudioSourceSong {
         return new SongInstruction(instructionList[index], index);
     }
 
+    getInstructionGroupLength(groupName) {
+        let instructionList = this.data.instructions[groupName];
+        return instructionList.length;
+    }
+
     getIterator(groupName, parentStats=null) {
         return new AudioSourceInstructionIterator(
             this,
@@ -404,7 +409,7 @@ class AudioSourceSong {
 
         this.playbackPosition = songPosition;
         const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
-        console.log("Seek position: ", this.playbackPosition, positionInTicks);
+//         console.log("Seek position: ", this.playbackPosition, positionInTicks);
 
         const detail = {
             position: this.playbackPosition,
@@ -436,15 +441,17 @@ class AudioSourceSong {
             console.warn("No instruction at index");
     }
 
-    async playInstruction(instruction, noteStartTime=null) {
+    async playInstruction(instruction, noteStartTime=null, groupName=null) {
         if(!instruction instanceof SongInstruction)
             throw new Error("Invalid instruction");
 
+        // if(this.playback)
+        //     this.stopPlayback();
+
         if(instruction.isGroupCommand()) {
-            if(this.playback)
-                this.playback.stopPlayback();
-            this.playback = new AudioSourceInstructionPlayback(this);
-            return await this.playback.playInstructions(instruction.getGroupFromCommand(), noteStartTime);
+            const groupPlayback = new AudioSourceInstructionPlayback(this, instruction.getGroupFromCommand(), noteStartTime);
+            // const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, notePosition);
+            return await groupPlayback.playGroup();
         }
 
 
@@ -466,6 +473,7 @@ class AudioSourceSong {
             setTimeout(() => {
                 // Dispatch note start event
                 this.dispatchEvent(new CustomEvent('note:start', {detail:{
+                        groupName,
                         instruction,
                     }}));
             }, (noteStartTime - this.getAudioContext().currentTime) * 1000);
@@ -473,6 +481,7 @@ class AudioSourceSong {
                 setTimeout(() => {
                     // Dispatch note end event
                     this.dispatchEvent(new CustomEvent('note:end', {detail:{
+                            groupName,
                             instruction,
                         }}));
                 }, (noteStartTime + noteDuration - this.getAudioContext().currentTime) * 1000);
@@ -750,17 +759,14 @@ class AudioSourceSong {
         });
     }
 
-    generateInstructionGroupName(currentGroup) {
+    generateInstructionGroupName(groupName = 'group') {
         const songData = this.data;
-        let newGroupName;
-        for(let i=99; i>=0; i--) {
-            const currentGroupName = currentGroup + '.' + i;
+        for(let i=0; i<=999; i++) {
+            const currentGroupName = groupName + i;
             if(!songData.instructions.hasOwnProperty(currentGroupName))
-                newGroupName = currentGroupName;
+                return currentGroupName;
         }
-        if(!newGroupName)
-            throw new Error("Failed to generate group name");
-        return newGroupName;
+        throw new Error("Failed to generate group name");
     }
 
 
@@ -1245,11 +1251,12 @@ class AudioSourceInstructionPlayback {
                 groupPlayback.playGroup();
 
             } else {
-                this.song.playInstruction(instruction, notePosition);
+                this.song.playInstruction(instruction, notePosition, this.groupName);
             }
         }
 
         const detail = {
+            groupName: this.groupName,
             position: this.iterator.groupPlaybackTime,
             positionInTicks: this.iterator.groupPositionInTicks
         };

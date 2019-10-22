@@ -170,7 +170,8 @@ class AudioSourceComposerActions {
     setSongPosition(e, playbackPosition=null) {
         const song = this.editor.song;
         if(playbackPosition === null) {
-            playbackPosition = this.editor.parsePlaybackPosition(this.editor.fieldSongPosition.value);
+            const values = new AudioSourceValues();
+            playbackPosition = values.parsePlaybackPosition(this.editor.fieldSongPosition.value);
         }
         song.setPlaybackPosition(playbackPosition);
 
@@ -182,7 +183,7 @@ class AudioSourceComposerActions {
         //: TODO: check for recursive group
         const tracker = this.editor.trackerElm;
         const song = this.editor.song;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        // let selectedIndicies = tracker.getSelectedIndicies();
 
         // if(selectedIndicies.length === 0)
         //     throw new Error("No selection");
@@ -297,15 +298,43 @@ class AudioSourceComposerActions {
 
     /** Groups **/
 
-    addNewSongGroup(e) {
+    songGroupAddNew(e) {
         const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
+        const song = this.editor.song;
 
-        let newGroupName = renderer.generateInstructionGroupName(tracker.groupName);
+        let newGroupName = song.generateInstructionGroupName();
         newGroupName = prompt("Create new instruction group?", newGroupName);
-        if (newGroupName) renderer.addInstructionGroup(newGroupName, []);
-        else this.editor.setStatus("<span style='color: red'>Create instruction group canceled</span>");
-        this.editor.render();
+        if (newGroupName) {
+            song.addInstructionGroup(newGroupName, []);
+            this.editor.render();
+        } else {
+            this.editor.setStatus("<span class='error'>Create instruction group canceled</span>");
+        }
+    }
+
+    songGroupRename(e, groupName, newGroupName=null) {
+        const song = this.editor.song;
+
+        newGroupName = prompt(`Rename instruction group (${groupName})?`, groupName);
+        if (newGroupName !== groupName) {
+            song.renameInstructionGroup(groupName, newGroupName);
+            this.editor.render();
+        } else {
+            this.editor.setStatus("<span class='error'>Rename instruction group canceled</span>");
+        }
+    }
+
+    songGroupRemove(e, groupName) {
+        const song = this.editor.song;
+
+        const result = confirm(`Remove instruction group (${groupName})?`);
+        if (result) {
+            song.removeInstructionGroup(groupName);
+            this.editor.render();
+        } else {
+            this.editor.setStatus("<span class='error'>Remove instruction group canceled</span>");
+        }
+
     }
 
     /** Instruments **/
@@ -314,7 +343,7 @@ class AudioSourceComposerActions {
     songAddInstrument(e, addInstrumentURL=null) {
         addInstrumentURL = addInstrumentURL || e.target.form.elements['instrumentURL'].value;
         if(!addInstrumentURL) {
-            this.editor.setStatus(`<span style='color: red'>Empty URL</span>`);
+            this.editor.setStatus(`<span class='error'>Empty URL</span>`);
             return;
         }
 
@@ -324,7 +353,7 @@ class AudioSourceComposerActions {
             this.editor.setStatus("New instrument Added to song: " + addInstrumentURL);
 
         } else {
-            this.editor.setStatus(`<span style='color: red'>New instrument canceled: ${addInstrumentURL}</span>`);
+            this.editor.setStatus(`<span class='error'>New instrument canceled: ${addInstrumentURL}</span>`);
         }
     }
 
@@ -347,7 +376,7 @@ class AudioSourceComposerActions {
         this.editor.setStatus(`Instrument (${instrumentID}) changed to: ${changeInstrumentURL}`);
         this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
         // } else {
-        //     this.editor.setStatus(`<span style='color: red'>Change instrument canceled: ${changeInstrumentURL}</span>`);
+        //     this.editor.setStatus(`<span class='error'>Change instrument canceled: ${changeInstrumentURL}</span>`);
         // }
     }
 
@@ -359,7 +388,7 @@ class AudioSourceComposerActions {
             this.editor.setStatus(`Instrument (${removeInstrumentID}) removed`);
 
         } else {
-            this.editor.setStatus(`<span style='color: red'>Remove instrument canceled</span>`);
+            this.editor.setStatus(`<span class='error'>Remove instrument canceled</span>`);
         }
     }
 
@@ -430,7 +459,6 @@ class AudioSourceComposerActions {
         tracker.fieldTrackerSelection.focus();
     }
 
-
     /** Toggle Panels **/
 
     togglePanelInstruments(e) {
@@ -447,6 +475,12 @@ class AudioSourceComposerActions {
 
     toggleFullscreen(e) {
         this.editor.classList.toggle('fullscreen')
+    }
+
+    /** Tools **/
+
+    toolReplaceAllNotesWithAliases(e) {
+
     }
 }
 

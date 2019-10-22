@@ -1,3 +1,11 @@
+/** Font styles **/
+
+span.error {
+    font-color: red;
+    font-weight: bold;
+}
+
+
 /** Font Style **/
 .asc-status-container,
 .asc-container {
@@ -105,8 +113,8 @@ asui-form.panel {
 
 asui-form.panel > asui-form {
     background: #DDD;
-    border: 1px outset #FFF;
-    padding: 2px 4px;
+    /* border: 1px outset #FFF; */
+    padding: 0px 0px;
     margin: 0px 0px 0px 0px;
 }
 
@@ -204,16 +212,18 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 .asc-container input.themed[type=text] {
     padding-left: 5px;
 }
+.asc-container .button-style,
 .asc-container button.themed {
-    /* display: inline-block; */
-    /* padding: 0px 0px; */
+    /* border: 1px outset #FFF; */
+    display: block;
+    /* min-height: 44px; */
+    /* margin: 0px 1px; */
     /* border-radius: 2px; */
-    /* transition: border 0.2s; */
 }
 
-.asc-container button.themed > span {
-    margin: 2px 4px;
-}
+/*.asc-container button.themed > span {*/
+/*    margin: 2px 4px;*/
+/*}*/
 
 
 .asc-container input.themed[type='range'] {
@@ -245,13 +255,6 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 
 /** Group Buttons **/
 
-.asc-container  form.form-group > button.selected {
-    font-weight: bold;
-    border-radius: 2px;
-    border: 1px inset #FFF;
-}
-
-
 
 /** Add Instrument Form **/
 
@@ -282,27 +285,20 @@ asc-tracker .tracker-header-pause {
     min-width: 44px;
 }
 
-/** Tracker Row Segments **/
+/** Tracker Row Segments/Groups **/
 
-
-asui-form[key=tracker-row-segments] asui-input-button > button {
-    width: 2em;
-    height: 2em;
-    /* margin: 0px 2px; */
-    background-color: #EEE;
+asui-form[key=tracker-groups] button.themed,
+asui-form[key=tracker-row-segments] button.themed {
     border: 1px outset #FFF;
-    border-radius: 4px 4px 0 0;
-    text-align: center;
-    cursor: pointer;
+    padding: 4px 12px;
 }
 
-asui-form[key=tracker-row-segments] asui-form.selected {
-    background-color: #BBB;
+asui-form[key=tracker-groups] asui-form.selected button,
+asui-form[key=tracker-row-segments] asui-form.selected button{
     font-weight: bold;
-    /* border-bottom: 0px; */
+    background-color: #BBB;
+    border-style: inset;
 }
-
-
 
 /** Tracker Row **/
 

@@ -48,7 +48,6 @@ class AudioSourceComposerElement extends HTMLElement {
 
     connectedCallback() {
         this.loadCSS();
-        this.shadowDOM = this.attachShadow({mode: 'open'});
 
         this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
         // 'change', 'submit',
@@ -91,17 +90,6 @@ class AudioSourceComposerElement extends HTMLElement {
         }
     }
 
-    // async loadDefaultInstrumentLibrary() {
-    //     const Libraries = new AudioSourceLibraries;
-    //     const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
-    //     await Libraries.loadInstrumentLibrary(defaultLibraryURL);
-    //
-    //     this.song.dispatchEvent(new CustomEvent('instrument:library', {
-    //         // detail: this.instrumentLibrary,
-    //         // bubbles: true
-    //     }));
-    //
-    // }
 
     async loadState(e=null) {
 
@@ -155,76 +143,20 @@ class AudioSourceComposerElement extends HTMLElement {
         return false;
     }
 
-    get currentGroup()      { return this.status.currentGroup; }
-    get selectedIndicies()  { return this.status.getSelectedIndicies(); }
-    get selectedRange()     { return this.status.selectedRange; }
-
-    // get selectedPauseIndicies()  {
-    //     const instructionList = this.renderer.getInstructions(this.currentGroup);
-    //     return this.getSelectedIndicies().filter(index => instructionList[index] && instructionList[index].command === '!pause')
-    // }
-    // get selectedIndicies()  {
-    //     const instructionList = this.renderer.getInstructions(this.currentGroup);
-    //     return this.getSelectedIndicies().filter(index => instructionList[index] && instructionList[index].command !== '!pause')
-    // }
-
     getAudioContext()   { return this.song.getAudioContext(); }
-    getSongData()       { return this.song.data; }
 
 
 
     /** Playback **/
 
-    // async play() {
-    //     await this.renderer.play();
-    //     // let playbackInterval = setInterval(e => {
-    //     //     if(this.renderer.isPlaying) {
-    //     //         this.updateSongPositionValue();
-    //     //     } else {
-    //     //         clearInterval(playbackInterval);
-    //     //     }
-    //     // }, 10);
-    //     // if(this.renderer.isPlaybackActive())
-    //     //     this.renderer.stop();
-    //     // else
-    //     //     this.renderer.play();
-    //
-    // }
-
-    formatPlaybackPosition(seconds) {
-        let m = Math.floor(seconds / 60);
-        seconds = seconds % 60;
-        let ms = Math.round((seconds - Math.floor(seconds)) * 1000);
-        seconds = Math.floor(seconds);
-
-        m = (m+'').padStart(2, '0');
-        seconds = (seconds+'').padStart(2, '0');
-        ms = (ms+'').padStart(3, '0'); // TODO: ticks?
-        return `${m}:${seconds}:${ms}`;
-    }
-
-    parsePlaybackPosition(formattedSeconds) {
-        const parts = formattedSeconds.split(':');
-        return (parseInt(parts[0]) * 60)
-        + (parseInt(parts[1]))
-        + (parseInt(parts[2]) / 1000);
-    }
 
     updateSongPositionValue(playbackPositionInSeconds) {
-        this.fieldSongPosition.value = this.formatPlaybackPosition(playbackPositionInSeconds);
+        const values = new AudioSourceValues();
+        this.fieldSongPosition.value = values.formatPlaybackPosition(playbackPositionInSeconds);
     }
 
 
     // Input
-
-    // profileInput(e) {
-    //     e = e || {};
-    //     return {
-    //         gridClearSelected: !e.ctrlKey && !e.shiftKey,
-    //         gridToggleAction: e.key === ' ' || (!e.shiftKey && !e.ctrlKey) ? 'toggle' : (e.ctrlKey && e.type !== 'mousedown' ? null : 'add'),
-    //         gridCompleteSelection: e.shiftKey
-    //     };
-    // }
 
     onInput(e) {
         if(e.defaultPrevented)
@@ -365,11 +297,14 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
     get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
+    get menuGroup() { return this.shadowDOM.querySelector(`asui-menu[key="group"]`)}
+    // get menuSelect() { return this.shadowDOM.querySelector(`asui-menu[key="select"]`)}
     get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
     get menuContext() { return this.shadowDOM.querySelector(`asui-menu[key="context"]`)}
 
     get panelSong() { return this.shadowDOM.querySelector(`asui-form[key='song']`)}
     get panelTracker() { return this.shadowDOM.querySelector(`asui-form[key='tracker']`)}
+    get panelTrackerGroups() { return this.shadowDOM.querySelector(`asui-form[key='tracker-groups']`)}
     get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asui-form[key='tracker-row-segments']`)}
     get panelInstruction() { return this.shadowDOM.querySelector(`asui-form[key='instruction']`)}
     get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
@@ -379,21 +314,27 @@ class AudioSourceComposerElement extends HTMLElement {
         const linkHRefComposer = Libraries.getScriptDirectory('composer/audio-source-composer.css');
         const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
-        this.shadowDOM.innerHTML = `
+        let renderTracker = true;
+        if(!this.shadowDOM) {
+            renderTracker = false;
+            this.shadowDOM = this.attachShadow({mode: 'open'});
+            this.shadowDOM.innerHTML = `
             <link rel="stylesheet" href="${linkHRefComposer}" />
             <link rel="stylesheet" href="${linkHRefCommon}" />
             <div class="asc-container">
                 <div class="asui-menu-container">
                     <asui-menu key="file" caption="File"></asui-menu>
                     <asui-menu key="edit" caption="Edit"></asui-menu>
-                    <asui-menu key="view" caption="View"></asui-menu>
+                    <asui-menu key="group" caption="Group"></asui-menu>
                     <asui-menu key="instrument" caption="Instrument"></asui-menu>
+                    <asui-menu key="view" caption="View"></asui-menu>
                     <asui-menu key="context" caption=""></asui-menu>
                 </div>
                 <asui-form key="song" caption="Song" class="panel"></asui-form><!--
                 --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
                 <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
                 --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
+                --><asui-form key="tracker-groups" caption="Tracker Groups" class="panel"></asui-form><!--
                 --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
                 <asc-tracker group="root"></asc-tracker>
             </div>
@@ -402,12 +343,15 @@ class AudioSourceComposerElement extends HTMLElement {
                 <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
             </div>
             `;
+        }
 
         this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
 
         this.renderMenu();
         this.renderSongForms();
         this.renderInstruments();
+        if(renderTracker)
+            this.trackerElm.render();
     }
 
 
@@ -495,12 +439,6 @@ class AudioSourceComposerElement extends HTMLElement {
         );
         instrumentToggleButton.classList.add('show-on-focus');
 
-        // instrumentForm.addTextInput('instrument-name',
-        //     (e, newInstrumentName) => this.actions.setInstrumentName(e, instrumentID, newInstrumentName),
-        //     'Instrument Name',
-        //     '',
-        //     'Unnamed'
-        // );
 
         if(!instrument) {
             // Render 'empty' instrument
@@ -528,7 +466,7 @@ class AudioSourceComposerElement extends HTMLElement {
                     if(renderedHTML)
                         instrumentForm.innerHTML = renderedHTML;
                 } else {
-                    throw new Error("No Renderer");
+                    instrumentForm.innerHTML = "No Renderer";
                 }
 
             } catch (e) {
@@ -538,10 +476,6 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     renderInstruments() {
-        const instrumentPanel = this.panelInstruments;
-
-        const renderInstrumentContainer = (instrumentID, instrument=null) => {
-        };
 
         const instrumentList = this.song.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
@@ -553,10 +487,10 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
         this.renderInstrument(instrumentList.length, null);
-        // renderInstrumentContainer(instrumentList.length+1);
     }
 
     renderMenu() {
+        /** File Menu **/
         this.menuFile.populate = (e) => {
             const menu = e.menuElement;
             const menuFileNewSong = menu.getOrCreateSubMenu('new', 'New song');
@@ -614,6 +548,7 @@ class AudioSourceComposerElement extends HTMLElement {
             };
         };
 
+        /** View Menu **/
         this.menuView.populate = (e) => {
             const menu = e.menuElement;
 
@@ -634,6 +569,8 @@ class AudioSourceComposerElement extends HTMLElement {
             menuViewToggleFormInstrument.action = (e) => this.actions.togglePanelInstruments(e);
         };
 
+
+        /** Instrument Menu **/
         this.menuInstrument.populate = (e) => {
             const menu = e.menuElement;
 
@@ -691,93 +628,42 @@ class AudioSourceComposerElement extends HTMLElement {
         };
 
 
+        /** Group Menu **/
+        this.menuGroup.populate = (e) => {
+            const menu = e.menuElement;
+
+            const menuGroupAdd = menu.getOrCreateSubMenu('new', `Add To Song`);
+            menuGroupAdd.action = (e) => {
+                this.actions.songGroupAddNew(e);
+            };
+
+
+            let groupCount = 0;
+            this.values.getValues('song-groups', (groupName) => {
+                const menuGroup = menu.getOrCreateSubMenu(groupName, `${groupName} ►`);
+                menuGroup.populate = (e) => {
+                    const menu = e.menuElement;
+
+                    const menuInstrumentChange = menu.getOrCreateSubMenu('change', `Rename`);
+                    menuInstrumentChange.action = (e) => {
+                        this.actions.songGroupRename(e, groupName);
+                    };
+
+
+                    const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
+                    menuInstrumentRemove.action = (e) => {
+                        this.actions.songGroupRemove(e, groupName);
+                    };
+                };
+                if(groupCount === 0)
+                    menuGroup.hasBreak = true;
+                groupCount++;
+            });
+        };
     }
 
-    // Update DOM
-
-    update() {
-        this.menu.update();
-        // this.forms.update();
-        this.trackerElm.update();
-        // this.instruments.update();
-    }
-
-    selectGroup(groupName) {
-        this.status.groupHistory = this.status.groupHistory.filter(historyGroup => historyGroup === this.status.currentGroup);
-        this.status.groupHistory.unshift(this.status.currentGroup);
-        this.status.currentGroup = groupName;
-        console.log("Group Change: ", groupName, this.status.groupHistory);
-        this.trackerElm.groupName = groupName;
-        // this.trackerElm = new AudioSourceComposerTracker(this, groupName);
-        this.render();
-    }
-
-    // selectInstructions(indicies=null) {
-    //     this.status.getSelectedIndicies() = [];
-    //     if(typeof indicies === "number") {
-    //         this.status.getSelectedIndicies() = [indicies];
-    //     } else             if(Array.isArray(indicies)) {
-    //         this.status.getSelectedIndicies() = indicies;
-    //     } else if (typeof indicies === "function") {
-    //         let selectedIndicies = [];
-    //         this.song.eachInstruction(this.status.currentGroup, (index, instruction, stats) => {
-    //             if (indicies(index, instruction, stats))
-    //                 selectedIndicies.push(index);
-    //         });
-    //
-    //         this.getSelectedIndicies()(selectedIndicies);
-    //         return;
-    //     } else {
-    //         throw console.error("Invalid indicies", indicies);
-    //     }
-    //     this.update();
-    //     // this.trackerElm.focus();
-    //     // console.log("selectInstructions", this.status.getSelectedIndicies());
-    // }
-
-    playSelectedInstructions() {
-        this.song.stopPlayback();
-        const selectedIndicies = this.status.getSelectedIndicies();
-        for(let i=0; i<selectedIndicies.length; i++) {
-            this.song.playInstructionAtIndex(this.status.currentGroup, selectedIndicies[i]);
-        }
-    }
-    // selectInstructions2(groupName, selectedRange=null, selectedIndicies=null) {
-    //     if(selectedIndicies === null)
-    //         selectedIndicies = [0]
-    //     if (!Array.isArray(selectedIndicies))
-    //         selectedIndicies = [selectedIndicies];
-    //     this.status.getSelectedIndicies() = selectedIndicies;
-    //     if(this.status.currentGroup !== groupName) {
-    //         this.status.groupHistory = this.status.groupHistory.filter(historyGroup => historyGroup === this.status.currentGroup);
-    //         this.status.groupHistory.unshift(this.status.currentGroup);
-    //         this.status.currentGroup = groupName;
-    //         console.log("Group Change: ", groupName, this.status.groupHistory);
-    //         this.trackerElm = new SongEditorGrid(this, groupName);
-    //         this.render();
-    //     }
-    //     if(selectedRange !== null) {
-    //         if(selectedRange && !Array.isArray(selectedRange))
-    //             selectedRange = [selectedRange,selectedRange];
-    //         this.status.selectedRange = selectedRange;
-    //     } else {
-    //         this.status.selectedRange = this.renderer.getInstructionRange(groupName, selectedIndicies);
-    //     }
-    //
-    //     this.update();
-    //     this.trackerElm.focus();
-    // }
-
-//     getScriptDirectory(appendPath='') {
-//         const scriptElm = document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
-//         const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-// //         console.log("Base Path: ", basePath);
-//         return basePath + appendPath;
-//     }
 
     /** Ajax Loading **/
-
-
 
     loadCSS() {
         const targetDOM = this.shadowDOM || document.head;
