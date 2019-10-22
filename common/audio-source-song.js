@@ -759,17 +759,14 @@ class AudioSourceSong {
         });
     }
 
-    generateInstructionGroupName(currentGroup) {
+    generateInstructionGroupName(groupName = 'group') {
         const songData = this.data;
-        let newGroupName;
-        for(let i=99; i>=0; i--) {
-            const currentGroupName = currentGroup + '.' + i;
+        for(let i=0; i<=999; i++) {
+            const currentGroupName = groupName + i;
             if(!songData.instructions.hasOwnProperty(currentGroupName))
-                newGroupName = currentGroupName;
+                return currentGroupName;
         }
-        if(!newGroupName)
-            throw new Error("Failed to generate group name");
-        return newGroupName;
+        throw new Error("Failed to generate group name");
     }
 
 

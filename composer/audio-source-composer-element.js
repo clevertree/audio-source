@@ -304,7 +304,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     get panelSong() { return this.shadowDOM.querySelector(`asui-form[key='song']`)}
     get panelTracker() { return this.shadowDOM.querySelector(`asui-form[key='tracker']`)}
-    get panelTrackerGroup() { return this.shadowDOM.querySelector(`asui-form[key='tracker-groups']`)}
+    get panelTrackerGroups() { return this.shadowDOM.querySelector(`asui-form[key='tracker-groups']`)}
     get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asui-form[key='tracker-row-segments']`)}
     get panelInstruction() { return this.shadowDOM.querySelector(`asui-form[key='instruction']`)}
     get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
@@ -314,7 +314,9 @@ class AudioSourceComposerElement extends HTMLElement {
         const linkHRefComposer = Libraries.getScriptDirectory('composer/audio-source-composer.css');
         const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
+        let renderTracker = true;
         if(!this.shadowDOM) {
+            renderTracker = false;
             this.shadowDOM = this.attachShadow({mode: 'open'});
             this.shadowDOM.innerHTML = `
             <link rel="stylesheet" href="${linkHRefComposer}" />
@@ -348,6 +350,8 @@ class AudioSourceComposerElement extends HTMLElement {
         this.renderMenu();
         this.renderSongForms();
         this.renderInstruments();
+        if(renderTracker)
+            this.trackerElm.render();
     }
 
 
@@ -630,7 +634,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
             const menuGroupAdd = menu.getOrCreateSubMenu('new', `Add To Song`);
             menuGroupAdd.action = (e) => {
-                this.actions.addNewSongGroup(e);
+                this.actions.songGroupAddNew(e);
             };
 
 
@@ -642,13 +646,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
                     const menuInstrumentChange = menu.getOrCreateSubMenu('change', `Rename`);
                     menuInstrumentChange.action = (e) => {
-                        this.actions.songRenameGroup(e, groupName);
+                        this.actions.songGroupRename(e, groupName);
                     };
 
 
                     const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
                     menuInstrumentRemove.action = (e) => {
-                        this.actions.songRemoveGroup(e, groupName);
+                        this.actions.songGroupRemove(e, groupName);
                     };
                 };
                 if(groupCount === 0)

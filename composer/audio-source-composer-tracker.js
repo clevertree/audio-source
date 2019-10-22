@@ -396,13 +396,13 @@ class AudioSourceComposerTracker extends HTMLElement {
 
 
         // Render Group
-        const panelTrackerGroup = this.editor.panelTrackerGroup;
+        const panelTrackerGroups = this.editor.panelTrackerGroups;
 
-        if(panelTrackerGroup) {
-            panelTrackerGroup.clearInputs();
+        if(panelTrackerGroups) {
+            panelTrackerGroups.clearInputs();
             // let lastRowSegmentID = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
             Object.keys(this.editor.song.data.instructions).forEach((groupName, i) => {
-                const buttonForm = panelTrackerGroup.addForm(groupName);
+                const buttonForm = panelTrackerGroups.addForm(groupName);
                 const button = buttonForm.addButton(
                     groupName,
                     e => this.groupName = groupName,
@@ -410,6 +410,12 @@ class AudioSourceComposerTracker extends HTMLElement {
                 buttonForm.classList.toggle('selected', groupName === this.groupName);
                 button.classList.toggle('selected', groupName === this.groupName);
             });
+
+            const buttonForm = panelTrackerGroups.addForm('+');
+            buttonForm.addButton(
+                '+',
+                e => this.editor.actions.songGroupAddNew(e),
+                '+');
         }
 
         // Render Segments
@@ -462,7 +468,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         menuEditSetCommandGroup.action = action;
                     });
                     const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
-                    menuCustom.action = e => this.editor.actions.addNewSongGroup(e);
+                    menuCustom.action = e => this.editor.actions.songGroupAddNew(e);
                     menuCustom.hasBreak = true;
                 };
             };
@@ -516,7 +522,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                         };
                     });
                     const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
-                    menuCustom.action = e => this.editor.actions.addNewSongGroup(e);
+                    menuCustom.action = e => this.editor.actions.songGroupAddNew(e);
                     menuCustom.hasBreak = true;
                 };
 
@@ -577,7 +583,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                             };
                         });
                         const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
-                        menuCustom.action = e => this.editor.actions.addNewSongGroup(e);
+                        menuCustom.action = e => this.editor.actions.songGroupAddNew(e);
                         menuCustom.hasBreak = true;
                     };
 

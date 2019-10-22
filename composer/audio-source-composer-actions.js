@@ -298,18 +298,43 @@ class AudioSourceComposerActions {
 
     /** Groups **/
 
-    addNewSongGroup(e) {
+    songGroupAddNew(e) {
         const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
+        const song = this.editor.song;
 
-        let newGroupName = renderer.generateInstructionGroupName(tracker.groupName);
+        let newGroupName = song.generateInstructionGroupName();
         newGroupName = prompt("Create new instruction group?", newGroupName);
         if (newGroupName) {
-            renderer.addInstructionGroup(newGroupName, []);
+            song.addInstructionGroup(newGroupName, []);
             this.editor.render();
         } else {
             this.editor.setStatus("<span class='error'>Create instruction group canceled</span>");
         }
+    }
+
+    songGroupRename(e, groupName, newGroupName=null) {
+        const song = this.editor.song;
+
+        newGroupName = prompt(`Rename instruction group (${groupName})?`, groupName);
+        if (newGroupName !== groupName) {
+            song.renameInstructionGroup(groupName, newGroupName);
+            this.editor.render();
+        } else {
+            this.editor.setStatus("<span class='error'>Rename instruction group canceled</span>");
+        }
+    }
+
+    songGroupRemove(e, groupName) {
+        const song = this.editor.song;
+
+        const result = confirm(`Remove instruction group (${groupName})?`);
+        if (result) {
+            song.removeInstructionGroup(groupName);
+            this.editor.render();
+        } else {
+            this.editor.setStatus("<span class='error'>Remove instruction group canceled</span>");
+        }
+
     }
 
     /** Instruments **/
