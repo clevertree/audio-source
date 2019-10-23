@@ -212,23 +212,38 @@ class AudioSourceSong {
     }
 
 
-    eachInstruction(groupName, callback, parentStats=null) {
+    eachGroupInstruction(groupName, callback, parentStats=null) {
         if(!this.data.instructions[groupName])
             throw new Error("Invalid group: " + groupName);
-        const instructionIterator = this.getIterator(groupName, parentStats);
+        const iterator = this.getIterator(groupName, parentStats);
 
-        let instruction = instructionIterator.nextInstruction();
+        let instruction = iterator.nextInstruction();
         while(instruction) {
-            const ret = callback(instructionIterator.groupIndex, instruction, instructionIterator);
+            const ret = callback(instruction, iterator);
             if(ret === false)
                 break;
-            instruction = instructionIterator.nextInstruction();
+            instruction = iterator.nextInstruction();
         }
-        return instructionIterator.groupPlaybackTime;
+        return iterator.groupPlaybackTime;
     }
 
 
-    // async eachInstructionAsync(groupName, callback, parentStats=null) {
+    eachSongInstruction(callback) {
+        const instructionList = [];
+        Object.keys(this.data.instructions).forEach(groupName => {
+            const iterator = this.getIterator(groupName);
+            let instruction;
+            while (instruction = iterator.nextInstruction()) {
+                const ret = callback(instruction, iterator);
+                if(ret === false)
+                    break;
+            }
+        });
+        return instructionList;
+    }
+
+
+// async eachInstructionAsync(groupName, callback, parentStats=null) {
     //     if(!this.data.instructions[groupName])
     //         throw new Error("Invalid group: " + groupName)
     //     const instructionIterator = new InstructionIterator(
@@ -270,9 +285,9 @@ class AudioSourceSong {
 
     getGroupPositionFromTicks(groupName, groupPositionInTicks) {
         let lastStats = null;
-        this.eachInstruction(groupName, (index, instruction, stats) => {
-            lastStats = stats;
-            if(stats.groupPositionInTicks >= groupPositionInTicks)
+        this.eachGroupInstruction(groupName, (instruction, iterator) => {
+            lastStats = iterator;
+            if(iterator.groupPositionInTicks >= groupPositionInTicks)
                 return false;
         });
 
@@ -304,7 +319,7 @@ class AudioSourceSong {
 
     getGroupPositionInTicks(groupName, positionInSeconds) {
         let lastStats = null;
-        this.eachInstruction(groupName, (index, instruction, stats) => {
+        this.eachGroupInstruction(groupName, (instruction, stats) => {
             lastStats = stats;
             if(stats.groupPlaybackTime >= positionInSeconds)
                 return false;
@@ -1058,8 +1073,6 @@ class AudioSourceSong {
         this.replaceDataPath(['instructions', newGroupName], removedGroupData);
     }
 
-
-
     /** History **/
 
     applyHistoryActions(songHistory) {
@@ -1270,6 +1283,7 @@ class AudioSourceInstructionPlayback {
 }
 
 
+
 class AudioSourceInstructionIterator {
     constructor(song, groupName, currentBPM=null, groupPositionInTicks=0) {
         if(!song.data.instructions[groupName])
@@ -1317,6 +1331,20 @@ class AudioSourceInstructionIterator {
     currentInstruction() {
         const index = this.groupIndex === -1 ? 0 : this.groupIndex;
         return this.getInstruction(index, false);
+    }
+
+    nextConditionalInstruction(conditionalCallback) {
+        let nextInstruction;
+        let deltaDurationInTicks=0;
+        while(nextInstruction = this.nextInstruction()) {
+            deltaDurationInTicks += nextInstruction.deltaDuration;
+            const ret = conditionalCallback(nextInstruction);
+            if(ret !== true)
+                continue;
+            nextInstruction.deltaDuration = deltaDurationInTicks;
+            return nextInstruction;
+        }
+        return null;
     }
 
     nextInstruction() {
@@ -1432,6 +1460,28 @@ class AudioSourceInstructionIterator {
     }
 }
 
+class AudioSourceConditionalInstructionIterator extends AudioSourceInstructionIterator {
+    constructor(song, groupName, conditionalCallback=null, currentBPM=null, groupPositionInTicks=0) {
+        super(song, groupName, currentBPM, groupPositionInTicks);
+        if(typeof conditionalCallback !== "function")
+            throw new Error("Invalid conditional callback");
+        this.conditionalCallback = conditionalCallback;
+    }
+
+    nextInstruction() {
+        let nextInstruction;
+        let deltaDurationInTicks=0;
+        while(nextInstruction = super.nextInstruction()) {
+            deltaDurationInTicks += nextInstruction.deltaDuration;
+            const ret = this.conditionalCallback(nextInstruction);
+            if(ret !== true)
+                continue;
+            nextInstruction.deltaDuration = deltaDurationInTicks;
+            return nextInstruction;
+        }
+        return null;
+    }
+}
 
 
 class SongInstruction {

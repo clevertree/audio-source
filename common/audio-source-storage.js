@@ -170,6 +170,43 @@ class AudioSourceStorage {
         return json;
     }
 
+    /** Batch Commands **/
+
+    getBatchRecentCommands() {
+        let batchRecentCommands = localStorage.getItem('batch-recent-commands');
+        if(!batchRecentCommands)
+            return [];
+        batchRecentCommands = JSON.parse(batchRecentCommands);
+        return batchRecentCommands;
+    }
+
+    addBatchRecentCommands(batchCommand) {
+        let batchRecentCommands = this.getBatchRecentCommands();
+        if(batchRecentCommands.indexOf(batchCommand) === -1) {
+            batchRecentCommands.unshift(batchCommand);
+        }
+        localStorage.setItem('batch-recent-commands', JSON.stringify(batchRecentCommands));
+    }
+
+    /** Batch Searches **/
+
+    getBatchRecentSearches() {
+        let batchRecentSearches = localStorage.getItem('batch-recent-searches');
+        if(!batchRecentSearches)
+            return [];
+        batchRecentSearches = JSON.parse(batchRecentSearches);
+        return batchRecentSearches;
+    }
+
+    addBatchRecentSearches(batchCommand) {
+        let batchRecentSearches = this.getBatchRecentSearches();
+        if(batchRecentSearches.indexOf(batchCommand) === -1) {
+            batchRecentSearches.unshift(batchCommand);
+        }
+        localStorage.setItem('batch-recent-searches', JSON.stringify(batchRecentSearches));
+    }
+
+
     //
     // historyQueue(songHistory) {
     //     if(!Array.isArray(songHistory))
