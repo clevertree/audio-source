@@ -484,7 +484,7 @@ class AudioSourceComposerActions {
     batchSelect(e, searchCallbackString=null, promptUser=false) {
         if(promptUser || !searchCallbackString)
             searchCallbackString = prompt("Run custom search:", searchCallbackString ||
-                `/** Example Search **/ !i.command !== "C3"   &&   i.instrument === 0`);
+                `/** Example Search **/ i.command === "C3"   &&   i.instrument === 0`);
         if(!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
 
@@ -493,6 +493,7 @@ class AudioSourceComposerActions {
 
 
         const tracker = this.editor.trackerElm;
+        tracker.clearSelection();
         const groupName = tracker.groupName, g=groupName;
         try {
             const stats = {count:0};
@@ -517,7 +518,7 @@ class AudioSourceComposerActions {
 
         if(promptUser || !searchCallbackString)
             searchCallbackString = prompt("Run custom search:", searchCallbackString ||
-                `/** Example Search **/ !i.command !== "C3"   &&   i.instrument === 0`);
+                `/** Example Search **/ i.command === "C3"   &&   i.instrument === 0`);
         if(!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
         storage.addBatchRecentSearches(searchCallbackString);

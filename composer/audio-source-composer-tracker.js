@@ -1244,7 +1244,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         this.clearSelection();
         for(let i=0; i<selectedIndicies.length; i++)
-            this.selectIndex(selectedIndicies[i]);
+            this.selectIndex(e, selectedIndicies[i]);
 
         this.fieldTrackerSelection.value = selectedIndicies.join(',');
     }
