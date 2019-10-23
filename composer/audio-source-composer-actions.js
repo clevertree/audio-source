@@ -479,9 +479,110 @@ class AudioSourceComposerActions {
 
     /** Tools **/
 
-    toolReplaceAllNotesWithAliases(e) {
 
+
+    batchSelect(e, searchCallbackString=null, promptUser=false) {
+        if(promptUser || !searchCallbackString)
+            searchCallbackString = prompt("Run custom search:", searchCallbackString ||
+                `/** Example Search **/ !i.command !== "C3"   &&   i.instrument === 0`);
+        if(!searchCallbackString)
+            throw new Error("Batch command canceled: Invalid search");
+
+        const storage = new AudioSourceStorage();
+        storage.addBatchRecentSearches(searchCallbackString);
+
+
+        const tracker = this.editor.trackerElm;
+        const groupName = tracker.groupName, g=groupName;
+        try {
+            const stats = {count:0};
+            const iterator = this.editor.song.getIterator(groupName);
+            let instruction;
+            const window=null, document=null;
+            while(instruction = iterator.nextConditionalInstruction((instruction) => {
+                const i=instruction;
+                return eval(searchCallbackString);
+            })) {
+                stats.count++;
+                tracker.selectIndex(e, iterator.groupIndex);
+            }
+            this.editor.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
+        } catch (err) {
+            this.editor.setStatus("Batch Search Failed: " + err.message, err);
+        }
+    }
+
+    batchRunCommand(e, commandCallbackString=null, searchCallbackString=null, promptUser=false) {
+        const storage = new AudioSourceStorage();
+
+        if(promptUser || !searchCallbackString)
+            searchCallbackString = prompt("Run custom search:", searchCallbackString ||
+                `/** Example Search **/ !i.command !== "C3"   &&   i.instrument === 0`);
+        if(!searchCallbackString)
+            throw new Error("Batch command canceled: Invalid search");
+        storage.addBatchRecentSearches(searchCallbackString);
+
+
+        if(promptUser || !commandCallbackString)
+            commandCallbackString = prompt(`Run custom command:`, commandCallbackString ||
+                `/** Example Command **/ i.command='C4';`);
+        if(!commandCallbackString)
+            throw new Error("Batch command canceled: Invalid command");
+        storage.addBatchRecentCommands(commandCallbackString);
+
+        const instructionList = [];
+        const tracker = this.editor.trackerElm;
+        const groupName = tracker.groupName, g=groupName;
+        try {
+            const stats = {count:0, modified:0};
+            const iterator = this.editor.song.getIterator(groupName);
+            let instruction;
+            const window=null, document=null;
+            while(instruction = iterator.nextConditionalInstruction((instruction) => {
+                const i=instruction;
+                return eval(searchCallbackString);
+            })) {
+                const instructionString = JSON.stringify(instruction.data);
+                const i=instruction;
+                eval(commandCallbackString);
+                if(instructionString !== JSON.stringify(instruction.data))
+                    stats.modified++;
+
+                stats.count++;
+                tracker.selectIndex(e, iterator.groupIndex);
+            }
+            this.editor.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
+            return instructionList;
+        } catch (err) {
+            this.editor.setStatus("Batch Command Failed: " + err.message, err);
+            return [];
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

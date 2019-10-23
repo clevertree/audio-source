@@ -203,6 +203,9 @@ class AudioSourceUIMenu extends HTMLElement {
         } else {
             this.renderSubMenu(e);
             this.classList.add('stick');
+            let parentMenu = this;
+            while(parentMenu = parentMenu.parentNode.closest('asui-menu'))
+                parentMenu.classList.add('stick');
         }
     }
 

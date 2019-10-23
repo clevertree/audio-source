@@ -15,13 +15,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.song = new AudioSourceSong({}, this);
         // this.player = null;
-        this.status = {
-            groupHistory: [],
-            // previewInstructionsOnSelect: false,
-            longPressTimeout: 500,
-            doubleClickTimeout: 500,
-            autoSaveTimeout: 4000,
-        };
+        // this.status = {
+        //     groupHistory: [],
+        //     // previewInstructionsOnSelect: false,
+        //     longPressTimeout: 500,
+        //     doubleClickTimeout: 500,
+        //     autoSaveTimeout: 4000,
+        // };
         this.shadowDOM = null;
 
         this.actions = new AudioSourceComposerActions(this);
@@ -297,6 +297,7 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
     get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
+    get menuTools() { return this.shadowDOM.querySelector(`asui-menu[key="tools"]`)}
     get menuGroup() { return this.shadowDOM.querySelector(`asui-menu[key="group"]`)}
     // get menuSelect() { return this.shadowDOM.querySelector(`asui-menu[key="select"]`)}
     get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
@@ -328,6 +329,7 @@ class AudioSourceComposerElement extends HTMLElement {
                     <asui-menu key="group" caption="Group"></asui-menu>
                     <asui-menu key="instrument" caption="Instrument"></asui-menu>
                     <asui-menu key="view" caption="View"></asui-menu>
+                    <asui-menu key="tools" caption="Tools"></asui-menu>
                     <asui-menu key="context" caption=""></asui-menu>
                 </div>
                 <asui-form key="song" caption="Song" class="panel"></asui-form><!--
@@ -574,7 +576,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.menuInstrument.populate = (e) => {
             const menu = e.menuElement;
 
-            const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add To Song ►`);
+            const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add Instrument To Song ►`);
             menuInstrumentAdd.populate = (e) => {
                 const menu = e.menuElement;
                 this.values.getValues('instruments-available', (instrumentURL, label) => {
@@ -632,7 +634,7 @@ class AudioSourceComposerElement extends HTMLElement {
         this.menuGroup.populate = (e) => {
             const menu = e.menuElement;
 
-            const menuGroupAdd = menu.getOrCreateSubMenu('new', `Add To Song`);
+            const menuGroupAdd = menu.getOrCreateSubMenu('new', `Add Group To Song`);
             menuGroupAdd.action = (e) => {
                 this.actions.songGroupAddNew(e);
             };
@@ -660,6 +662,33 @@ class AudioSourceComposerElement extends HTMLElement {
                 groupCount++;
             });
         };
+
+        /** Tool Menu **/
+        this.menuTools.populate = (e) => {
+            const menu = e.menuElement;
+
+            const menuToolBatch = menu.getOrCreateSubMenu('batch', `Batch Command ►`);
+            menuToolBatch.populate = (e) => {
+                const menu = e.menuElement;
+                const menuToolBatchCommandNew = menu.getOrCreateSubMenu('new', `Run Batch Command`);
+                menuToolBatchCommandNew.action = (e) => {
+                    this.actions.batchRunCommand(e);
+                };
+
+                const storage = new AudioSourceStorage();
+                const recentBatchCommands = storage.getBatchRecentCommands();
+                for(let i=0; i<recentBatchCommands.length; i++) {
+                    const recentBatchCommand = recentBatchCommands[i];
+                    // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                    const menuToolBatchCommand = menu.getOrCreateSubMenu(i, recentBatchCommand);
+                    menuToolBatchCommand.action = (e) => {
+                        this.actions.batchRunCommand(e, recentBatchCommand, true);
+                    };
+
+                }
+            };
+        };
+
     }
 
 

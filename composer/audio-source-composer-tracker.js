@@ -18,7 +18,8 @@ class AudioSourceComposerTracker extends HTMLElement {
         if(!this.editor.song.hasGroup(groupName))
             throw new Error("Group not found in song: " + groupName);
         this.setAttribute('group', groupName);
-        this.render(1);
+        this.currentRowSegmentID = 0;
+        this.render();
     }
 
 
@@ -125,8 +126,6 @@ class AudioSourceComposerTracker extends HTMLElement {
         this.renderForms();
         this.renderMenu();
         this.renderRows(); // Rows depend on forms, and get rendered last
-
-
     }
 
 
@@ -649,6 +648,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 menuEditDeleteInstruction.action = e => this.editor.actions.deleteInstructionCommand(e); // handleAction('instruction:delete');
                 menuEditDeleteInstruction.disabled = selectedIndicies.length === 0;
             }
+
             /** Select Instructions **/
 
             const menuEditSelect = MENU.getOrCreateSubMenu('select', 'Select ►');
@@ -667,6 +667,72 @@ class AudioSourceComposerTracker extends HTMLElement {
                 // menuSelectRow.disabled = true;
                 const menuSelectNone = MENU.getOrCreateSubMenu('none', 'Select No Instructions');
                 menuSelectNone.action = (e) => this.editor.actions.setTrackerSelection(e, 'none');
+
+                const menuSelectBatch = MENU.getOrCreateSubMenu('batch', 'Batch Select ►');
+                menuSelectBatch.populate = (e) => {
+                    const MENU = e.menuElement;
+                    const menuSelectBatchNew = MENU.getOrCreateSubMenu('new', 'New Selection Command');
+                    menuSelectBatchNew.action = (e) => this.editor.actions.batchSelect(e);
+
+                    const storage = new AudioSourceStorage();
+                    const recentBatchSearches = storage.getBatchRecentSearches();
+                    for(let i=0; i<recentBatchSearches.length; i++) {
+                        const recentBatchSearch = recentBatchSearches[i];
+                        // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                        const menuSelectRecentBatch = MENU.getOrCreateSubMenu(i, recentBatchSearch);
+                        menuSelectRecentBatch.action = (e) => {
+                            this.editor.actions.batchSelect(e, recentBatchSearch, true);
+                        };
+                    }
+                }
+
+            };
+
+            /** Batch Instructions **/
+
+            const menuEditBatch = MENU.getOrCreateSubMenu('batch', 'Batch ►');
+            menuEditBatch.hasBreak = true;
+            menuEditBatch.populate = (e) => {
+                const MENU = e.menuElement;
+
+                const menuEditBatchNewCommand = MENU.getOrCreateSubMenu('new', 'New Batch Command');
+                menuEditBatchNewCommand.action = (e) => this.editor.actions.batchRunCommand(e);
+
+                const storage = new AudioSourceStorage();
+                const recentBatchCommands = storage.getBatchRecentCommands();
+                for(let i=0; i<recentBatchCommands.length; i++) {
+                    const recentBatchCommand = recentBatchCommands[i];
+                    // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                    const menuEditBatchRunCommand = MENU.getOrCreateSubMenu(i, recentBatchCommand);
+                    menuEditBatchRunCommand.populate = (e) => {
+                        const MENU = e.menuElement;
+
+                        const menuSelectRecentBatchRunSearch = MENU.getOrCreateSubMenu('run', "Execute on Group");
+                        menuSelectRecentBatchRunSearch.action = (e) => {
+                            this.editor.actions.batchRunCommand(e, recentBatchCommand, true);
+                        };
+
+                        const menuSelectRecentBatchRunCommand = MENU.getOrCreateSubMenu('search', "Execute using Search");
+                        menuSelectRecentBatchRunCommand.populate = (e) => {
+                            const MENU = e.menuElement;
+                            const menuSelectRecentBatchRunCommandNew = MENU.getOrCreateSubMenu('new', 'New Search');
+                            menuSelectRecentBatchRunCommandNew.action = (e) => this.editor.actions.batchRunCommand(e, recentBatchCommand, null, true);
+
+                            const storage = new AudioSourceStorage();
+                            const recentBatchSearches = storage.getBatchRecentSearches();
+                            for(let i=0; i<recentBatchSearches.length; i++) {
+                                const recentBatchSearch = recentBatchSearches[i];
+                                // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                                const menuSelectRecentBatchCommand = MENU.getOrCreateSubMenu(i, recentBatchSearch);
+                                menuSelectRecentBatchCommand.action = (e) => {
+                                    this.editor.actions.batchRunCommand(e, recentBatchCommand, recentBatchSearch);
+                                };
+                            }
+                        };
+                    };
+
+                }
+
             };
 
             // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
@@ -1177,14 +1243,20 @@ class AudioSourceComposerTracker extends HTMLElement {
             selectedIndicies = [selectedIndicies];
 
         this.clearSelection();
-        for(let i=0; i<selectedIndicies.length; i++) {
-            const selectedIndex = selectedIndicies[i];
-            const cell = this.findInstructionElement(selectedIndex);
-            if(cell)
-                this.selectCell(e, cell, false);
-        }
+        for(let i=0; i<selectedIndicies.length; i++)
+            this.selectIndex(selectedIndicies[i]);
 
         this.fieldTrackerSelection.value = selectedIndicies.join(',');
+    }
+
+    selectIndex(e, selectedIndex, clearSelection=false) {
+        const cell = this.findInstructionElement(selectedIndex);
+        if(cell) {
+            this.selectCell(e, cell, clearSelection);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     selectNextCell(e) {
