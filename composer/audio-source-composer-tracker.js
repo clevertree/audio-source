@@ -965,7 +965,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                 const lastMouseUp = this.mousePosition.lastUp;
                 e.t = new Date();
                 this.mousePosition.lastUp = e;
-                if(lastMouseUp && lastMouseUp.t.getTime() + this.editor.status.doubleClickTimeout > new Date().getTime()) {
+                if(lastMouseUp && lastMouseUp.t.getTime() + this.editor.doubleClickTimeout > new Date().getTime()) {
                     e.preventDefault();
                     const currentTarget = e.path[0];
                     const originalTarget = lastMouseUp.path[0];

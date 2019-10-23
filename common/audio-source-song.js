@@ -925,9 +925,9 @@ class AudioSourceSong {
 
         const instructionIterator = this.getIterator(groupName);
 
-        let instruction;
+        let instruction = instructionIterator.nextInstruction();
         // noinspection JSAssignmentUsedAsCondition
-        while(instruction = instructionIterator.nextInstruction()) {
+        while(true) {
             // const instruction = new SongInstruction(instructionList[i]);
             // if(instruction.deltaDuration > 0) {
 
@@ -964,11 +964,14 @@ class AudioSourceSong {
             // groupPosition += instruction.deltaDuration;
             // lastDeltaInstructionIndex = i;
             // }
+            if(!instruction)
+                break;
+            instruction = instructionIterator.nextInstruction();
         }
 
         if(instructionIterator.groupPositionInTicks >= insertPositionInTicks)
             throw new Error ("Something went wrong");
-        // Insert a new pause at the end of the song, lasting until the new note
+        // Insert a new pause at the end of the song, lasting until the new note?
         let lastPauseIndex = instructionList.length;
         // this.insertInstructionAtIndex(groupName, lastPauseIndex, {
         //     command: '!pause',

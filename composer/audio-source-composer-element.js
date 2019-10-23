@@ -10,6 +10,7 @@ class AudioSourceComposerElement extends HTMLElement {
         // this.instrumentLibrary = null;
 
         this.longPressTimeout = null;
+        this.doubleClickTimeout = 500;
 
         this.keyboard = new AudioSourceComposerKeyboard();
 

@@ -150,8 +150,8 @@ class MIDISupport {
                         if(newMIDIVelocityOn === 0) {
                             // Note Off
                             if (lastNote[newMIDICommandOn]) {
-                                const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
-                                const insertIndex = lastNote[newMIDICommandOff][1];
+                                // const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
+                                const insertIndex = lastNote[newMIDICommandOn][1];
                                 let noteDuration = songPositionInTicks - lastInsertSongPositionInTicks;
                                 // lastNote[newMIDICommandOn][1][3] = noteDuration;
 

@@ -420,7 +420,7 @@ class AudioSourceUIForm extends HTMLElement {
             if(!headerElm) {
                 headerElm = document.createElement('div');
                 headerElm.classList.add('header');
-                this.prepend(headerElm);
+                this.insertBefore(headerElm, this.firstChild);
             }
             headerElm.innerHTML = value;
         }
@@ -863,7 +863,7 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
             optionElm = document.createElement('option');
             optionElm.setAttribute('value', newValue);
             optionElm.innerText = (newValueTitlePrefix || "Unknown value");
-            inputElm.prepend(optionElm);
+            inputElm.insertBefore(optionElm, inputElm.firstChild);
         }
         optionElm.selected = true;
         // optionElm.setAttribute('selected', 'selected');
@@ -906,7 +906,7 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
         });
 
         if(currentOption)
-            inputElm.prepend(currentOption);
+            inputElm.insertBefore(currentOption, inputElm.firstChild);
         // this.addOrSetValue(currentValue);
     }
 

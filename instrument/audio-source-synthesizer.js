@@ -514,7 +514,7 @@
             this.sampleLibrary = new SampleLibrary();
 
             const sampleLibraryURL = instrument.config.libraryURL
-                || this.DEFAULT_SAMPLE_LIBRARY_URL;
+                || this.DEFAULT_SAMPLE_LIBRARY_URL; // TODO: get element default library url
 
             this.render().then();
             this.loadDefaultSampleLibrary(sampleLibraryURL).then();
@@ -582,7 +582,7 @@
             const linkElm = document.createElement('link');
             linkElm.setAttribute('href', linkHRef);
             linkElm.setAttribute('rel', 'stylesheet');
-            rootElm.prepend(linkElm);
+            rootElm.insertBefore(linkElm, rootElm.firstChild);
         }
 
         async render() {
