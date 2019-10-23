@@ -80,7 +80,7 @@ class AudioSourceComposerActions {
         const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
         await song.loadSongData(songData);
         await song.loadSongHistory(songHistory);
-        this.editor.render();
+        this.editor.render(true);
         this.editor.setStatus("Song loaded from memory: " + songGUID, songData);
 //         console.info(songData);
     }

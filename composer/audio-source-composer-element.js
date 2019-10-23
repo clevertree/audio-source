@@ -310,15 +310,15 @@ class AudioSourceComposerElement extends HTMLElement {
     get panelInstruction() { return this.shadowDOM.querySelector(`asui-form[key='instruction']`)}
     get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
 
-    render() {
+    render(force=false) {
         const Libraries = new AudioSourceLibraries;
         const linkHRefComposer = Libraries.getScriptDirectory('composer/audio-source-composer.css');
         const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
 
         let renderTracker = true;
-        if(!this.shadowDOM) {
+        if(force || !this.shadowDOM) {
             renderTracker = false;
-            this.shadowDOM = this.attachShadow({mode: 'open'});
+            this.shadowDOM = this.shadowDOM || this.attachShadow({mode: 'open'});
             this.shadowDOM.innerHTML = `
             <link rel="stylesheet" href="${linkHRefComposer}" />
             <link rel="stylesheet" href="${linkHRefCommon}" />
