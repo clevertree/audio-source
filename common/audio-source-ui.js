@@ -217,7 +217,7 @@ class AudioSourceUIMenu extends HTMLElement {
         containerElm.innerHTML = '';
     }
 
-    renderSubMenu(e) {
+    async renderSubMenu(e) {
         if(!this.populate)
             throw new Error("Menu has no .populate callback");
 
@@ -225,7 +225,9 @@ class AudioSourceUIMenu extends HTMLElement {
         this.classList.add('open');
 
         e.menuElement = this;
-        this.populate(e);
+        const promise = this.populate(e);
+        if(promise instanceof Promise)
+            await promise;
 
         containerElm.focus();
         const subMenuElms = containerElm.querySelectorAll('asui-menu:not([disabled])');
@@ -799,15 +801,19 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
         // if(optionsCallback)
         //     selectElm.innerHTML = optionsCallback;
         this.appendChild(selectElm);
+        if(defaultValue !== null)
+            this.setValue(defaultValue);
+        else
+            this.setDefaultValue();
 
-        if (defaultValue !== null) {
-            try {
-                this.value = defaultValue;
-            } catch (e) {
-//                 console.warn(e.message, this);
-                this.addOrSetValue(defaultValue, defaultValue);
-            }
-        }
+//         if (defaultValue !== null) {
+//             try {
+//                 this.value = defaultValue;
+//             } catch (e) {
+// //                 console.warn(e.message, this);
+//                 this.addOrSetValue(defaultValue, defaultValue);
+//             }
+//         }
         // this.addOrSetValue('', "No Default value");
 
         this.addEventListener('focus', e => this.renderOptions(e));
@@ -816,75 +822,88 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
 
     get inputElm() { return this.querySelector('select'); }
 
-    get value() {
-        const currentValue = this.inputElm.value;
+    get value() { return this.inputElm.value; }
+    set value(newValue) { this.setValue(newValue); }
+
+    async setDefaultValue() {
         let valueFound = false;
-        this.eachOption((value, title) => {
-            if((value+'') === currentValue)
+        await this.eachOption((value, title) => {
+            if(!valueFound)
                 valueFound = {value, title};
         });
-        if(!valueFound)
-            return null;
-        return valueFound.value;
+
+        let optionElm = this.getOrCreateOption(valueFound.value, valueFound.title);
+        optionElm.selected = true;
     }
-    set value(newValue) {
+
+    async setValue(newValue) {
         let valueFound = false;
-        this.eachOption((value, title) => {
-            if(value === newValue)
+        await this.eachOption((value, title) => {
+            if(value === newValue || title === newValue)
                 valueFound = {value, title};
         });
         if(!valueFound)
             throw new Error(`Value not found: (${typeof newValue}) ${newValue}`);
 
-        this.addOrSetValue(valueFound.value, valueFound.title);
+        let optionElm = this.getOrCreateOption(valueFound.value, valueFound.title);
+        optionElm.selected = true;
     }
 
-    eachOption(callback, groupCallback=null) {
+    getOrCreateOption(value, title) {
+        const inputElm = this.inputElm;
+        let optionElm = inputElm.querySelector(`option[value="${value}"]`);
+        if(!optionElm) {
+            optionElm = document.createElement('option');
+            optionElm.setAttribute('value', value);
+            optionElm.innerText = (title || "Unknown value");
+            inputElm.insertBefore(optionElm, inputElm.firstChild);
+        }
+        return optionElm;
+    }
+
+    async getValue() {
+        const currentValue = this.inputElm.value;
+        let valueFound = false;
+        await this.eachOption((value, title) => {
+            if((value+'') === currentValue)
+                valueFound = {value, title};
+        });
+        if(!valueFound)
+            throw new Error("Value not found: ", currentValue, this);
+        return valueFound.value;
+    }
+
+
+    async eachOption(callback, groupCallback=null) {
         groupCallback = groupCallback || function() {};
-        this.optionsCallback((value, title=null) => {
+        const promise = this.optionsCallback((value, title=null) => {
             title = title !== null ? title : value;
             return callback(value, title);
         }, groupCallback);
+        if(promise instanceof Promise)
+            await promise;
     }
 
 
-    addOrSetValue(newValue, newValueTitlePrefix=null) {
-        const inputElm = this.inputElm;
-        this.renderOptions();
-        let optionElm = inputElm.querySelector(`option[value="${newValue}"]`);
-        if(!optionElm) {
-            if(!newValueTitlePrefix) {
-                this.eachOption((value, title) => {
-                    if(value === newValue)
-                        newValueTitlePrefix = title;
-                });
-            }
-
-            optionElm = document.createElement('option');
-            optionElm.setAttribute('value', newValue);
-            optionElm.innerText = (newValueTitlePrefix || "Unknown value");
-            inputElm.insertBefore(optionElm, inputElm.firstChild);
-        }
+    async addOrSetValue(newValue, newValueTitlePrefix=null) {
+        await this.renderOptions();
+        let optionElm = this.getOrCreateOption(newValue, newValueTitlePrefix || "Unknown value");
         optionElm.selected = true;
-        // optionElm.setAttribute('selected', 'selected');
-        // optionElm.setAttribute('selected1', 'selected');
-        // console.log('optionElm', optionElm);
-        // inputElm.value = newValue+'';
     }
 
-    onChange(e) {
+    async onChange(e) {
         // console.log(e.type, this.value);
-        this.callback(e, this.value);
+        this.callback(e, await this.getValue());
     }
 
-    renderOptions() {
+    async renderOptions() {
         const inputElm = this.inputElm;
         // const currentValue = this.value;
         let currentOption = inputElm.options[inputElm.selectedIndex];
 
         inputElm.innerHTML = '';
         let currentOptGroup = inputElm;
-        this.eachOption((value, title) => {
+        await this.eachOption((value, title) => {
             let newOption = document.createElement('option');
             if(currentOption && (value + '') === currentOption.value) {
                 newOption = currentOption;

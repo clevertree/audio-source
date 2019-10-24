@@ -1,9 +1,0 @@
-{
-  "name": "Instrument Libraries",
-  "instruments": [
-    {
-      "name": "Synthesizer Instrument",
-      "url": "audio-source-synthesizer.js"
-    }
-  ]
-}

@@ -7,6 +7,7 @@
 class AudioSourceSong {
     constructor(songData={}, dispatchElement=null) {
         this.dispatchElement = dispatchElement;
+        // TODO: defaultSampleLibraryURL
 
         this.audioContext = null;
         this.instruments = {
@@ -668,9 +669,7 @@ class AudioSourceSong {
 
     addInstrument(config) {
         if(typeof config !== 'object')
-            config = {
-                url: config
-            };
+            config = {url: config};
         if(!config.url)
             throw new Error("Invalid Instrument URL");
         // config.url = config.url;
@@ -694,9 +693,7 @@ class AudioSourceSong {
         //     throw new Error("Invalid instrument ID: " + instrumentID);
         let oldConfig = instrumentList[instrumentID] || {};
         if(typeof config !== 'object')
-            config = {
-                url: config
-            };
+            config = {url: config};
         if(oldConfig && oldConfig.name && !config.name)
             config.name = oldConfig.name;
         // Preserve old instrument name

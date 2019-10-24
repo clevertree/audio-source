@@ -58,8 +58,8 @@ class AudioSourceStorage {
 
     async encodeForStorage(json, replacer=null, space=null) {
         let encodedString = JSON.stringify(json, replacer, space);
-        const Sources = new AudioSourceLibraries;
-        const LZString = await Sources.getLZString();
+        const Util = new AudioSourceUtilities();
+        const LZString = await Util.getLZString();
         const compressedString = LZString.compress(encodedString);
 //             console.log(`Compression: ${compressedString.length} / ${encodedString.length} = ${Math.round((compressedString.length / encodedString.length)*100)/100}`);
         return compressedString;
@@ -68,8 +68,8 @@ class AudioSourceStorage {
     async decodeForStorage(encodedString) {
         if(!encodedString)
             return null;
-        const Sources = new AudioSourceLibraries;
-        const LZString = await Sources.getLZString();
+        const Util = new AudioSourceUtilities();
+        const LZString = await Util.getLZString();
         encodedString = LZString.decompress(encodedString) || encodedString;
         return JSON.parse(encodedString);
     }

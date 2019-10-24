@@ -11,6 +11,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.longPressTimeout = null;
         this.doubleClickTimeout = 500;
+        this.autoSaveTimeout = 4000;
 
         this.keyboard = new AudioSourceComposerKeyboard();
 
@@ -27,10 +28,9 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.actions = new AudioSourceComposerActions(this);
         this.values = new AudioSourceValues(this.song);
-        const Libraries = new AudioSourceLibraries;
-        const defaultLibraryURL = Libraries.getScriptDirectory('instrument/instrument.library.json');
-        Libraries.loadInstrumentLibrary(defaultLibraryURL);
-        Libraries.loadPackageInfo()
+        const Util = new AudioSourceUtilities;
+        // Util.loadLibrary(defaultLibraryURL);
+        Util.loadPackageInfo()
             .then(packageInfo => this.setVersion(packageInfo.version));
 
         window.addEventListener('unload', e => this.saveState(e));
@@ -39,13 +39,13 @@ class AudioSourceComposerElement extends HTMLElement {
     get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
     get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
-    get scriptDirectory () {
-        const Libraries = new AudioSourceLibraries;
-        return Libraries.getScriptDirectory('');
+    getScriptDirectory(appendPath=null) {
+        const Util = new AudioSourceUtilities;
+        return Util.getScriptDirectory(appendPath);
     }
 
-    get sampleLibraryURL()      { return this.getAttribute('sampleLibraryURL') || this.scriptDirectory('sample/sample.library.json'); }
-    set sampleLibraryURL(url)   { this.setAttribute('sampleLibraryURL', url); }
+    get defaultLibraryURL()      { return this.getAttribute('libraryURL') || this.getScriptDirectory('default.library.json'); }
+    set defaultLibraryURL(url)   { this.setAttribute('libraryURL', url); }
 
     connectedCallback() {
         this.loadCSS();
@@ -243,7 +243,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
                 // TODO: auto save toggle
                 clearTimeout(this.saveSongToMemoryTimer);
-                this.saveSongToMemoryTimer = setTimeout(e => this.actions.saveSongToMemory(e), this.status.autoSaveTimeout);
+                this.saveSongToMemoryTimer = setTimeout(e => this.actions.saveSongToMemory(e), this.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
             case 'instrument:remove':
@@ -262,22 +262,15 @@ class AudioSourceComposerElement extends HTMLElement {
         }
     }
 
-    onError(err) {
-        console.error(err);
-        this.setStatus(`<span style="red">${err}</span>`);
-        if(this.webSocket)
-            this.webSocket
-                .onError(err);
-        // .send(JSON.stringify({
-        //     type: 'error',
-        //     message: err.message || err,
-        //     stack: err.stack
-        // }));
+    setStatus(newStatus) {
+        // console.info.apply(null, arguments); // (newStatus);
+        this.statusElm.innerHTML = newStatus;
     }
 
-    setStatus(newStatus) {
-        console.info.apply(null, arguments); // (newStatus);
-        this.statusElm.innerHTML = newStatus;
+    handleError(err) {
+        this.setStatus(`<span style="red">${err}</span>`);
+        console.error(err);
+        // if(this.webSocket)
     }
 
     setVersion(versionString) {
@@ -312,9 +305,9 @@ class AudioSourceComposerElement extends HTMLElement {
     get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
 
     render(force=false) {
-        const Libraries = new AudioSourceLibraries;
-        const linkHRefComposer = Libraries.getScriptDirectory('composer/audio-source-composer.css');
-        const linkHRefCommon = Libraries.getScriptDirectory('common/audio-source-common.css');
+        const Util = new AudioSourceUtilities;
+        const linkHRefComposer = Util.getScriptDirectory('composer/audio-source-composer.css');
+        const linkHRefCommon = Util.getScriptDirectory('common/audio-source-common.css');
 
         let renderTracker = true;
         if(force || !this.shadowDOM) {
@@ -446,13 +439,15 @@ class AudioSourceComposerElement extends HTMLElement {
         if(!instrument) {
             // Render 'empty' instrument
             instrumentForm.addSelectInput('instrument-add-url',
-                (e, changeInstrumentURL) => this.actions.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
-                (addOption) => {
+                (e, changeInstrumentURL) => this.actions.songAddInstrument(e, changeInstrumentURL),
+                async (addOption) => {
                     addOption('', 'Add Instrument');
-                    this.values.getValues('instruments-available', addOption)
+                    const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
+                    instrumentLibrary.eachInstrument((instrumentConfig) => {
+                        addOption(instrumentConfig.url, instrumentConfig.name);
+                    });
                 },
-                'Add Instrument',
-                '');
+                'Add Instrument');
 
             instrumentForm.addBreak();
         }
@@ -578,14 +573,16 @@ class AudioSourceComposerElement extends HTMLElement {
             const menu = e.menuElement;
 
             const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add Instrument To Song ►`);
-            menuInstrumentAdd.populate = (e) => {
+            menuInstrumentAdd.populate = async (e) => {
                 const menu = e.menuElement;
-                this.values.getValues('instruments-available', (instrumentURL, label) => {
-                    const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
+
+                const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
+                instrumentLibrary.eachInstrument((instrumentConfig) => {
+                    const menuInstrument = menu.getOrCreateSubMenu(instrumentConfig.url, `${instrumentConfig.name}`);
                     // menuInstrument.setAttribute('data-instrument', instrumentURL);
                     menuInstrument.action = (e) => {
 //                         this.fieldSongAddInstrument.value = instrumentURL;
-                        this.actions.songAddInstrument(e, instrumentURL);
+                        this.actions.songAddInstrument(e, instrumentConfig);
                     }
                 });
             };
@@ -600,15 +597,14 @@ class AudioSourceComposerElement extends HTMLElement {
                     const menu = e.menuElement;
 
                     const menuInstrumentChange = menu.getOrCreateSubMenu('change', `Replace ►`);
-                    menuInstrumentChange.populate = (e) => {
+                    menuInstrumentChange.populate = async (e) => {
                         const menu = e.menuElement;
-                        this.values.getValues('instruments-available', (instrumentURL, label) => {
-                            const menuInstrument = menu.getOrCreateSubMenu(instrumentURL, `${label}`);
-                            // menuInstrument.setAttribute('data-instrument', instrumentURL);
+
+                        const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
+                        instrumentLibrary.eachInstrument((instrumentConfig) => {
+                            const menuInstrument = menu.getOrCreateSubMenu(instrumentConfig.url, `${instrumentConfig.name}`);
                             menuInstrument.action = (e) => {
-                                this.fieldSongAddInstrument.value = instrumentURL;
-                                this.actions.songReplaceInstrument(e, instrumentID, instrumentURL);
-                                // this.onAction(e, 'song:replace-instrument', {id: instrumentID, url: instrumentURL});
+                                this.actions.songReplaceInstrument(e, instrumentID, instrumentConfig);
                             }
                         });
                     };
@@ -692,6 +688,114 @@ class AudioSourceComposerElement extends HTMLElement {
 
     }
 
+    /** Utilities **/
+
+
+    /** Javascript Libraries **/
+
+    get sources() {
+        return {
+            'MidiParser': [
+                this.getScriptDirectory('assets/3rdparty/MidiParser/main.js'),
+                'https://cdn.jsdelivr.net/gh/colxi/midi-parser-js/src/main.js'
+            ],
+            'LZString': [
+                this.getScriptDirectory('assets/3rdparty/LZString/lz-string.min.js'),
+                'https://cdn.jsdelivr.net/gh/pieroxy/lz-string/libs/lz-string.min.js'
+            ]
+        }
+    }
+
+
+    async loadJSLibrary(libraryName, test=null) {
+        if(!test)
+            test = () => typeof window[libraryName] !== 'undefined';
+        if(test())
+            return true;
+        const sources = this.sources[libraryName];
+        for(let i=0; i<sources.length; i++) {
+            await this.loadScript(sources[i]);
+            if(test())
+                return true;
+        }
+        throw new Error(`Failed to load ${libraryName} Library`);
+
+    }
+
+    async getMidiParser() {
+        if(typeof window.MidiParser === 'undefined')
+            await this.loadJSLibrary('MidiParser');
+        return window.MidiParser;
+    }
+
+
+    async getLZString() {
+        if(typeof window.LZString === 'undefined')
+            await this.loadJSLibrary('LZString');
+        return window.LZString;
+    }
+
+
+
+
+    /** Package Info **/
+
+    async loadPackageInfo(force=false) {
+        const Util = new AudioSourceUtilities;
+        const url = Util.getScriptDirectory('package.json');
+
+        let packageInfo = AudioSourceLibraries.packageInfo;
+        if (!force && packageInfo)
+            return packageInfo;
+
+        packageInfo = await this.loadJSON(url);
+        if(!packageInfo.version)
+            throw new Error("Invalid package version: " + url);
+
+        console.log("Package Version: ", packageInfo.version, packageInfo);
+        AudioSourceLibraries.packageInfo = packageInfo;
+        return packageInfo;
+    }
+
+
+    /** Utilities **/
+
+    getScriptElement() {
+        return document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
+    }
+
+
+    getScriptDirectory(appendPath='') {
+        const scriptElm = this.getScriptElement(); // document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
+        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+//         console.log("Base Path: ", basePath);
+        return basePath + appendPath;
+    }
+
+    async loadScript(src) {
+        await new Promise((resolve, reject) => {
+            const newScriptElm = document.createElement('script');
+            newScriptElm.src = src;
+            newScriptElm.onload = e => resolve();
+            document.head.appendChild(newScriptElm);
+        });
+    }
+
+    async loadJSON(url) {
+        url = new URL(url, document.location) + '';
+        return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'json';
+            xhr.onload = () => {
+                if (xhr.status !== 200)
+                    return reject("JSON file not found: " + url);
+
+                resolve(xhr.response);
+            };
+            xhr.send();
+        });
+    }
 
     /** Ajax Loading **/
 
@@ -700,8 +804,8 @@ class AudioSourceComposerElement extends HTMLElement {
         if(targetDOM.querySelector('link[href$="audio-source-composer.css"]'))
             return;
 
-        const Libraries = new AudioSourceLibraries;
-        const linkHRef = Libraries.getScriptDirectory('composer/audio-source-composer.css');
+        const Util = new AudioSourceUtilities();
+        const linkHRef = Util.getScriptDirectory('composer/audio-source-composer.css');
         let cssLink=document.createElement("link");
         cssLink.setAttribute("rel", "stylesheet");
         cssLink.setAttribute("type", "text/css");

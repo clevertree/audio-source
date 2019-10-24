@@ -5,8 +5,8 @@ class AudioSourceComposerActions {
     }
 
     getDefaultInstrumentURL() {
-        const Libraries = new AudioSourceLibraries;
-        return Libraries.getScriptDirectory('instrument/audio-source-synthesizer.js');
+        const Util = new AudioSourceUtilities;
+        return Util.getScriptDirectory('instrument/audio-source-synthesizer.js');
     }
 
 
@@ -243,7 +243,7 @@ class AudioSourceComposerActions {
             renderer.replaceInstructionInstrument(tracker.groupName, selectedIndicies[i], instrumentID);
             tracker.findInstructionElement(selectedIndicies[i]).render();
         }
-        this.editor.status.currentInstrumentID = instrumentID;
+        tracker.fieldInstructionInstrument.value = instrumentID;
         tracker.playSelectedInstructions();
     }
 
@@ -340,44 +340,41 @@ class AudioSourceComposerActions {
     /** Instruments **/
 
 
-    songAddInstrument(e, addInstrumentURL=null) {
-        addInstrumentURL = addInstrumentURL || e.target.form.elements['instrumentURL'].value;
-        if(!addInstrumentURL) {
-            this.editor.setStatus(`<span class='error'>Empty URL</span>`);
-            return;
-        }
+    songAddInstrument(e, instrumentURL, instrumentConfig={}) {
+        if(!instrumentURL)
+            return this.editor.handleError(`Empty URL`);
+        instrumentConfig.url = instrumentURL;
+        instrumentConfig.libraryURL = this.editor.libraryURL;
+        // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if(confirm(`Add Instrument to Song?\nURL: ${addInstrumentURL}`)) {
-            this.editor.song.addInstrument(addInstrumentURL);
-            this.editor.setStatus("New instrument Added to song: " + addInstrumentURL);
+        if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
+            const instrumentID = this.editor.song.addInstrument(instrumentConfig);
+            this.editor.setStatus("New instrument Added to song: " + instrumentURL);
+            this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
 
         } else {
-            this.editor.setStatus(`<span class='error'>New instrument canceled: ${addInstrumentURL}</span>`);
+            this.editor.handleError(`New instrument canceled: ${instrumentURL}`);
         }
     }
 
-    async songReplaceInstrument(e, instrumentID, changeInstrumentURL=null) {
+    async songReplaceInstrument(e, instrumentID, instrumentURL, instrumentConfig={}) {
         if(!Number.isInteger(instrumentID))
-            throw new Error("Invalid Instrument ID: Not an integer");
+            return this.editor.handleError(`Invalid Instrument ID: Not an integer`);
+        if(!instrumentURL)
+            return this.editor.handleError(`Empty URL`);
+        instrumentConfig.url = instrumentURL;
+        instrumentConfig.libraryURL = this.editor.libraryURL;
+        // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
+        if(confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
+            await this.editor.song.replaceInstrument(instrumentID, instrumentConfig);
+            await this.editor.song.loadInstrument(instrumentID, true);
+            this.editor.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
+            this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
 
-        changeInstrumentURL = changeInstrumentURL || e.target.form.elements['instrumentURL'].value;
-        if(!changeInstrumentURL)
-            throw new Error('Failed to change instrument: Empty URL');
-
-        const changeInstrument = {
-            url: changeInstrumentURL,
-            // id: instrumentID // wtf?
-        };
-        changeInstrument.title = changeInstrument.url.split('/').pop();
-        // if(confirm(`Set Instrument (${instrumentID}) to ${changeInstrument.title}`)) {
-        await this.editor.song.replaceInstrument(instrumentID, changeInstrument);
-        await this.editor.song.loadInstrument(instrumentID, true);
-        this.editor.setStatus(`Instrument (${instrumentID}) changed to: ${changeInstrumentURL}`);
-        this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
-        // } else {
-        //     this.editor.setStatus(`<span class='error'>Change instrument canceled: ${changeInstrumentURL}</span>`);
-        // }
+        } else {
+            this.editor.handleError(`Change instrument canceled: ${instrumentURL}`);
+        }
     }
 
     songRemoveInstrument(e, removeInstrumentID=null) {
@@ -388,7 +385,7 @@ class AudioSourceComposerActions {
             this.editor.setStatus(`Instrument (${removeInstrumentID}) removed`);
 
         } else {
-            this.editor.setStatus(`<span class='error'>Remove instrument canceled</span>`);
+            this.editor.handleError(`Remove instrument canceled`);
         }
     }
 
@@ -403,10 +400,9 @@ class AudioSourceComposerActions {
         // this.editor.selectGroup(selectedGroupName);
     }
 
-    setTrackerOctave(e) {
-        const tracker = this.editor.trackerElm;
-
-        this.editor.status.currentOctave = parseInt(tracker.fieldTrackerOctave.value); // TODO: refactor
+    setTrackerOctave(e, newOctave=null) {
+        if(newOctave !== null)
+            this.editor.trackerElm.fieldTrackerOctave.value = newOctave;
     }
 
     setTrackerRowLength(e, rowLengthInTicks=null) {

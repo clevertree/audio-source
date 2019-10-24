@@ -1,6 +1,5 @@
-class AudioSourceLibraries {
+class AudioSourceUtilities {
     constructor() {
-        this.instrumentLibrary = null;
     }
 
     /** Javascript Libraries **/
@@ -49,34 +48,13 @@ class AudioSourceLibraries {
 
 
 
-    /** Instrument Libraries **/
 
-    getInstrumentLibrary(throwException=true) {
-        if(!AudioSourceLibraries.instrumentLibrary && throwException)
-            throw new Error("Instrument library not available");
-        return AudioSourceLibraries.instrumentLibrary;
-    }
-
-    async loadInstrumentLibrary(url, force = false) {
-        if (!url)
-            throw new Error("Invalid url");
-        url = new URL(url, document.location) + '';
-        let instrumentLibrary = AudioSourceLibraries.instrumentLibrary;
-        if (!force && instrumentLibrary && instrumentLibrary.url === url)
-            return instrumentLibrary;
-
-        instrumentLibrary = await this.loadJSON(url);
-        instrumentLibrary.url = url + '';
-        console.info("Instrument Library Loaded: ", instrumentLibrary);
-        AudioSourceLibraries.instrumentLibrary = instrumentLibrary;
-        return instrumentLibrary;
-    }
+    /** Package Info **/
 
     async loadPackageInfo(force=false) {
-        const Libraries = new AudioSourceLibraries;
-        const url = Libraries.getScriptDirectory('package.json');
+        const url = this.getScriptDirectory('package.json');
 
-        let packageInfo = AudioSourceLibraries.packageInfo;
+        let packageInfo = AudioSourceUtilities.packageInfo;
         if (!force && packageInfo)
             return packageInfo;
 
@@ -85,7 +63,7 @@ class AudioSourceLibraries {
             throw new Error("Invalid package version: " + url);
 
         console.log("Package Version: ", packageInfo.version, packageInfo);
-        AudioSourceLibraries.packageInfo = packageInfo;
+        AudioSourceUtilities.packageInfo = packageInfo;
         return packageInfo;
     }
 
@@ -131,8 +109,9 @@ class AudioSourceLibraries {
 
 }
 
-AudioSourceLibraries.instrumentLibrary = null;
-AudioSourceLibraries.packageInfo = null;
+AudioSourceUtilities.instrumentLibrary = null;
+AudioSourceUtilities.packageInfo = null;
+
 
 if(typeof module !== "undefined")
-    module.exports = {AudioSourceLibraries};
+    module.exports = {AudioSourceUtilities};

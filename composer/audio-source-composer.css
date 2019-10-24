@@ -111,9 +111,10 @@ asui-form.panel > div.header {
 asui-form.panel {
 }
 
+asui-form.themed,
 asui-form.panel > asui-form {
     background: #DDD;
-    /* border: 1px outset #FFF; */
+     border: 1px outset #FFF;
     padding: 0px 0px;
     margin: 0px 0px 0px 0px;
 }
@@ -291,10 +292,11 @@ asui-form[key=tracker-groups] button.themed,
 asui-form[key=tracker-row-segments] button.themed {
     border: 1px outset #FFF;
     padding: 4px 12px;
+    background-color: #DDD;
 }
 
-asui-form[key=tracker-groups] asui-form.selected button,
-asui-form[key=tracker-row-segments] asui-form.selected button{
+asui-form[key=tracker-groups] > asui-input-button.selected > button.themed,
+asui-form[key=tracker-row-segments] > asui-input-button.selected > button.themed {
     font-weight: bold;
     background-color: #BBB;
     border-style: inset;

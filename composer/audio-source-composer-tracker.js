@@ -215,8 +215,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     setOptgroup('Groups');
                     this.editor.values.getValues('command-group-execute', addOption);
                 },
-                'Instruction Instrument',
-                '');
+                'Instruction Instrument');
 
             this.fieldInstructionInsert = this.formInstructionCommand.addButton(
                 'insert',
@@ -236,8 +235,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     setOptgroup('Song Instruments');
                     this.editor.values.getValues('song-instruments', addOption);
                 },
-                'Instruction Instrument',
-                '');
+                'Instruction Instrument');
 
             this.fieldInstructionVelocity = this.formInstructionVelocity.addRangeInput('velocity',
                 (e, newVelocity) => this.editor.actions.setInstructionVelocity(e, newVelocity), 1, 127);
@@ -248,8 +246,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     addOption('', 'No Duration');
                     this.editor.values.getValues('durations', addOption);
                 },
-                'Instruction Duration',
-                '');
+                'Instruction Duration');
 
 
             /** Tracker Fields **/
@@ -261,8 +258,7 @@ class AudioSourceComposerTracker extends HTMLElement {
                     addGroup("Filter By Instrument");
                     this.editor.values.getValues('song-instruments', addOption)
                 },
-                'Filter By Instrument',
-                '');
+                'Filter By Instrument');
 
             this.fieldTrackerRowLength = this.formTrackerRowLength.addSelectInput('row-length',
                 e => this.editor.actions.setTrackerRowLength(e),
@@ -325,10 +321,10 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
         if(!this.fieldTrackerRowLength.value)
-            this.fieldTrackerRowLength.value = this.editor.song.timeDivision;
+            this.fieldTrackerRowLength.setValue(this.editor.song.timeDivision);
         // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.editor.song.getSongTimeDivision();
         if(!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
-            this.fieldInstructionDuration.value = parseInt(this.fieldTrackerRowLength.value);
+            this.fieldInstructionDuration.setValue(parseInt(this.fieldTrackerRowLength.value));
 
 
         // this.fieldTrackerSelection.value = selectedIndicies.join(',');
@@ -401,17 +397,16 @@ class AudioSourceComposerTracker extends HTMLElement {
             panelTrackerGroups.clearInputs();
             // let lastRowSegmentID = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
             Object.keys(this.editor.song.data.instructions).forEach((groupName, i) => {
-                const buttonForm = panelTrackerGroups.addForm(groupName);
-                const button = buttonForm.addButton(
+                // const buttonForm = panelTrackerGroups.addForm(groupName);
+                const button = panelTrackerGroups.addButton(
                     groupName,
                     e => this.groupName = groupName,
                     groupName);
-                buttonForm.classList.toggle('selected', groupName === this.groupName);
+                // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
                 button.classList.toggle('selected', groupName === this.groupName);
             });
 
-            const buttonForm = panelTrackerGroups.addForm('+');
-            buttonForm.addButton(
+            panelTrackerGroups.addButton(
                 '+',
                 e => this.editor.actions.songGroupAddNew(e),
                 '+');
@@ -427,12 +422,11 @@ class AudioSourceComposerTracker extends HTMLElement {
             if(lastRowSegmentID < this.currentRowSegmentID+1)
                 lastRowSegmentID = this.currentRowSegmentID+1;
             for(let segmentID = 0; segmentID <= lastRowSegmentID; segmentID++) {
-                const buttonForm = panelTrackerRowSegments.addForm(segmentID);
-                const button = buttonForm.addButton(
+                const button = panelTrackerRowSegments.addButton(
                     segmentID,
                     e => this.navigateSegment(segmentID),
                     segmentID);
-                buttonForm.classList.toggle('selected', segmentID === this.currentRowSegmentID);
+                panelTrackerRowSegments.classList.toggle('selected', segmentID === this.currentRowSegmentID);
                 button.classList.toggle('selected', segmentID === this.currentRowSegmentID);
             }
         }

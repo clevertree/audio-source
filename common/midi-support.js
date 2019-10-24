@@ -45,8 +45,8 @@ class MIDISupport {
 
     async loadMIDIFile(file) {
 
-        const Sources = new AudioSourceLibraries;
-        const MidiParser = await Sources.getMidiParser();
+        const Util = new AudioSourceUtilities();
+        const MidiParser = await Util.getMidiParser();
         const fileResult = await new Promise((resolve, reject) => {
             let reader = new FileReader();                                      // prepare the file Reader
             reader.readAsArrayBuffer(file);                 // read the binary data
