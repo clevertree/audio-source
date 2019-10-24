@@ -105,6 +105,11 @@ class AudioSourceComposerElement extends HTMLElement {
             this.trackerElm.groupName = state.groupName;
             this.trackerElm.navigateSegment(state.currentRowSegmentID);
             this.trackerElm.selectIndicies(e, state.selectedIndicies);
+            this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
+            this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
+            this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
+            this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
+            this.trackerElm.render(); // TODO: too many renders
         }
     }
 
@@ -112,14 +117,18 @@ class AudioSourceComposerElement extends HTMLElement {
     async saveState(e) {
         // await this.actions.saveSongToMemory(e);
         const state = {
-            songGUID: this.song.guid,
-            groupName: this.trackerElm.groupName,
-            currentRowSegmentID: this.trackerElm.currentRowSegmentID,
-            selectedIndicies: this.trackerElm.getSelectedIndicies()
+            songGUID:               this.song.guid,
+            groupName:              this.trackerElm.groupName,
+            currentRowSegmentID:    this.trackerElm.currentRowSegmentID,
+            trackerSegmentLength:   this.trackerElm.fieldTrackerSegmentLength.value,
+            trackerRowLength:       this.trackerElm.fieldTrackerRowLength.value,
+            trackerInstrument:      this.trackerElm.fieldTrackerInstrument.value,
+            trackerOctave:          this.trackerElm.fieldTrackerOctave.value,
+            selectedIndicies:       this.trackerElm.getSelectedIndicies()
         };
         const storage = new AudioSourceStorage();
         storage.saveState(state);
-        // console.log('saveState', state);
+        console.log('saveState', state);
     }
 
 

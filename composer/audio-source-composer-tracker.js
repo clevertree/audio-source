@@ -350,9 +350,9 @@ class AudioSourceComposerTracker extends HTMLElement {
         // Instruction Iterator
         let instructionIterator = this.editor.song.getIterator(this.groupName);
 
-        const quantizationInTicks = this.fieldTrackerRowLength.value || timeDivision;
+        const quantizationInTicks = parseInt(this.fieldTrackerRowLength.value) || timeDivision;
 
-        const segmentLengthInTicks = (this.fieldTrackerSegmentLength.value || 16) * timeDivision;
+        const segmentLengthInTicks = (parseInt(this.fieldTrackerSegmentLength.value) || 16) * timeDivision;
 
 
         const filterByInstrumentID = this.fieldTrackerInstrument.value ? parseInt(this.fieldTrackerInstrument.value) : null;

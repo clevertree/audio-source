@@ -790,6 +790,7 @@ customElements.define('asui-input-button', AudioSourceUIButton);
 class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
     constructor(key, callback=null, optionsCallback=null, title=null, defaultValue=null) {
         super(key, callback);
+        this.selectedValue = null;
         this.optionsCallback = optionsCallback || function() { throw new Error("No options callback set") };
 
         this.setAttribute('key', key);
@@ -822,7 +823,7 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
 
     get inputElm() { return this.querySelector('select'); }
 
-    get value() { return this.inputElm.value; }
+    get value() { return this.selectedValue ? this.selectedValue.value : null; }
     set value(newValue) { this.setValue(newValue); }
 
     async setDefaultValue() {
@@ -832,22 +833,26 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
                 valueFound = {value, title};
         });
 
-        let optionElm = this.getOrCreateOption(valueFound.value, valueFound.title);
-        optionElm.selected = true;
+        this.addOrSetValue(valueFound.value, valueFound.title);
     }
 
     async setValue(newValue) {
         let valueFound = false;
         await this.eachOption((value, title) => {
-            if(value === newValue || title === newValue)
+            if(value === newValue)
                 valueFound = {value, title};
         });
-        if(!valueFound)
+        if(!valueFound) {
+            let valueList = [];
+            this.eachOption(function(value) { valueList.push(value) });
+            console.log(`Value not found: (${typeof newValue}) ${newValue}`, valueList);
             throw new Error(`Value not found: (${typeof newValue}) ${newValue}`);
+        }
 
-        let optionElm = this.getOrCreateOption(valueFound.value, valueFound.title);
-        optionElm.selected = true;
+        this.selectedValue = valueFound;
+        this.addOrSetValue(valueFound.value, valueFound.title);
     }
+
 
     getOrCreateOption(value, title) {
         const inputElm = this.inputElm;
@@ -861,19 +866,6 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
         return optionElm;
     }
 
-    async getValue() {
-        const currentValue = this.inputElm.value;
-        let valueFound = false;
-        await this.eachOption((value, title) => {
-            if((value+'') === currentValue)
-                valueFound = {value, title};
-        });
-        if(!valueFound)
-            throw new Error("Value not found: ", currentValue, this);
-        return valueFound.value;
-    }
-
-
     async eachOption(callback, groupCallback=null) {
         groupCallback = groupCallback || function() {};
         const promise = this.optionsCallback((value, title=null) => {
@@ -886,31 +878,36 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
 
 
     async addOrSetValue(newValue, newValueTitlePrefix=null) {
-        await this.renderOptions();
-        let optionElm = this.getOrCreateOption(newValue, newValueTitlePrefix || "Unknown value");
+        this.selectedValue = {value: newValue, title: newValueTitlePrefix || "Unknown value"};
+        let optionElm = this.getOrCreateOption(newValue, this.selectedValue.title);
         optionElm.selected = true;
     }
 
     async onChange(e) {
+        const currentValue = this.inputElm.value;
+        let valueFound = false;
+        await this.eachOption((value, title) => {
+            if((value+'') === currentValue)
+                valueFound = {value, title};
+        });
+        if(!valueFound)
+            throw new Error("Value not found: ", currentValue, this);
+        this.selectedValue = valueFound;
         // console.log(e.type, this.value);
-        this.callback(e, await this.getValue());
+        this.callback(e, this.selectedValue.value);
     }
 
     async renderOptions() {
         const inputElm = this.inputElm;
-        // const currentValue = this.value;
-        let currentOption = inputElm.options[inputElm.selectedIndex];
 
         inputElm.innerHTML = '';
         let currentOptGroup = inputElm;
         await this.eachOption((value, title) => {
             let newOption = document.createElement('option');
-            if(currentOption && (value + '') === currentOption.value) {
-                newOption = currentOption;
-                currentOption = null;
-            } else {
-                newOption.setAttribute('value', value);
-                newOption.innerText = title;
+            newOption.setAttribute('value', value);
+            newOption.innerText = title;
+            if(this.selectedValue && this.selectedValue.value === value) { // (value + '') === currentOption.value) {
+                newOption.selected = true;
             }
             currentOptGroup.appendChild(newOption);
 
@@ -923,10 +920,6 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
                 currentOptGroup = inputElm;
             }
         });
-
-        if(currentOption)
-            inputElm.insertBefore(currentOption, inputElm.firstChild);
-        // this.addOrSetValue(currentValue);
     }
 
 }

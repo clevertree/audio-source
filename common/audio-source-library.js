@@ -24,8 +24,7 @@ class AudioSourceLibrary extends HTMLElement{
 
     eachSample(callback) {
         this.processItemList(this.samples, (sampleConfig) => {
-            sampleConfig.url = new URL(this.urlPrefix + sampleConfig.name, this.url) + '';
-            return callback(sampleConfig);
+            callback(sampleConfig);
         });
     }
 
@@ -64,7 +63,7 @@ class AudioSourceLibrary extends HTMLElement{
         this.processItemList(presetConfig.samples, (sampleConfig) => {
             if(typeof this.samples[sampleConfig.name] !== "undefined")
                 Object.assign(sampleConfig, this.samples[sampleConfig.name]);
-            sampleConfig.url = new URL(this.urlPrefix + sampleConfig.name, this.url) + '';
+            sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
             newConfig.samples.push(sampleConfig);
             // if (typeof sampleConfig.keyRange !== "undefined") {
             //     let pair = sampleConfig.keyRange;
