@@ -7,6 +7,7 @@
     <script>
         // Support older browsers
         window.customElements || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/custom-elements/1.1.2/custom-elements.min.js"><\/script>');
+        Element.prototype.attachShadow || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/shadydom/1.1.0/shadydom.min.js"><\/script>');
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,8 +18,9 @@
 
 <!--    <link href="common/audio-source-common.css" rel="stylesheet">-->
     <script src="common/audio-source-ui.js"></script>
+    <script src="common/audio-source-utilities.js"></script>
     <script src="common/audio-source-values.js"></script>
-    <script src="common/audio-source-libraries.js"></script>
+    <script src="common/audio-source-library.js"></script>
     <script src="common/audio-source-song.js"></script>
     <script src="common/audio-source-storage.js"></script>
     <script src="common/midi-support.js"></script>

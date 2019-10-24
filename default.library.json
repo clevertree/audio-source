@@ -1,0 +1,15 @@
+{
+  "name": "Audio Source Index",
+  "instruments": [
+    {
+      "name": "Synthesizer Instrument",
+      "url": "instrument/audio-source-synthesizer.js"
+    }
+  ],
+  "libraries": [
+    {
+      "name": "General Midi Default Library",
+      "url": "sample/gm/fws/fws.library.json"
+    }
+  ]
+}

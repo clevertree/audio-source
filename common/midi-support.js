@@ -45,8 +45,8 @@ class MIDISupport {
 
     async loadMIDIFile(file) {
 
-        const Sources = new AudioSourceLibraries;
-        const MidiParser = await Sources.getMidiParser();
+        const Util = new AudioSourceUtilities();
+        const MidiParser = await Util.getMidiParser();
         const fileResult = await new Promise((resolve, reject) => {
             let reader = new FileReader();                                      // prepare the file Reader
             reader.readAsArrayBuffer(file);                 // read the binary data
@@ -150,8 +150,8 @@ class MIDISupport {
                         if(newMIDIVelocityOn === 0) {
                             // Note Off
                             if (lastNote[newMIDICommandOn]) {
-                                const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
-                                const insertIndex = lastNote[newMIDICommandOff][1];
+                                // const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
+                                const insertIndex = lastNote[newMIDICommandOn][1];
                                 let noteDuration = songPositionInTicks - lastInsertSongPositionInTicks;
                                 // lastNote[newMIDICommandOn][1][3] = noteDuration;
 

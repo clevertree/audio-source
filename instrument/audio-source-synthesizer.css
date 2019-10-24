@@ -24,7 +24,7 @@
 }
 .audio-source-synthesizer-container  asui-input-button[key=instrument-remove]               {
     float:  right;
-    margin: -2px -2px 0px 0px;
+    margin: 0px 0px 0px 0px;
 }
 
 .audio-source-synthesizer-container  asui-input-text[key=name]        input       {width: 90px;}

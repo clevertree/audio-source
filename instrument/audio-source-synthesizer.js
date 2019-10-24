@@ -12,9 +12,10 @@
             this.activeSources = [];
 
             this.audioContext = null;
-
+            if(typeof config.name === "undefined")
+                config.name = 'Synthesizer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.config = config || {};
-            this.loadConfig(this.config);
+            this.loadConfig(this.config); //TODO: get
         }
 
 
@@ -376,7 +377,7 @@
             if (!sampleURL)
                 throw new Error("Change sample URL canceled");
 
-            let addSampleName = sampleURL.split('/').pop().split('.').slice(0, -1).join('.');
+            let addSampleName = sampleURL.split('/').pop();
             addSampleName = prompt(`Set Sample Name:`, addSampleName);
             const addSampleID = this.config.samples.length;
             this.song.replaceInstrumentParam(this.id, ['samples', addSampleID], {
@@ -495,13 +496,6 @@
      * Used for all Instrument UI. Instance not necessary for song playback
      */
     class AudioSourceSynthesizerFormRenderer {
-        get DEFAULT_SAMPLE_LIBRARY_URL() {
-            return getScriptDirectory('sample/sample.library.json');
-        }
-
-        get noteFrequencies() {
-            return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-        }
 
         /**
          *
@@ -511,22 +505,31 @@
         constructor(instrumentForm, instrument) {
             this.form = instrumentForm;
             this.instrument = instrument;
-            this.sampleLibrary = new SampleLibrary();
 
-            const sampleLibraryURL = instrument.config.libraryURL
-                || this.DEFAULT_SAMPLE_LIBRARY_URL;
 
-            this.render().then();
-            this.loadDefaultSampleLibrary(sampleLibraryURL).then();
+
+            this.loadDefaultSampleLibrary()
+                .then(e => this.render());
 
             const root = instrumentForm.getRootNode() || document;
             this.appendCSS(root);
         }
 
-        async loadDefaultSampleLibrary(sampleLibraryURL) {
-            await this.sampleLibrary.loadURL(sampleLibraryURL);
-            await this.render(); // TODO: inefficient?
-            // this.fieldAddSample.renderOptions();
+        get DEFAULT_SAMPLE_LIBRARY_URL() {
+            return getScriptDirectory('default.library.json');
+        }
+
+        get noteFrequencies() {
+            return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+        }
+
+        async loadDefaultSampleLibrary() {
+            const defaultLibraryURL =
+                this.instrument.config.libraryURL
+                || this.DEFAULT_SAMPLE_LIBRARY_URL;
+            const AudioSourceLibrary = customElements.get('audio-source-library');
+            this.sampleLibrary = await AudioSourceLibrary.loadURL(defaultLibraryURL);
+            // TODO: locate sample/preset library
         }
 
         // TODO: break up / redefine
@@ -582,7 +585,7 @@
             const linkElm = document.createElement('link');
             linkElm.setAttribute('href', linkHRef);
             linkElm.setAttribute('rel', 'stylesheet');
-            rootElm.prepend(linkElm);
+            rootElm.insertBefore(linkElm, rootElm.firstChild);
         }
 
         async render() {
@@ -613,19 +616,24 @@
                 this.form.createIcon('delete'),
                 'Remove Instrument');
 
+            let presetURL = '';
+            if(this.instrument.config.libraryURL && this.instrument.config.preset)
+                presetURL = this.instrument.config.libraryURL + '#' + this.instrument.config.preset;
+
             this.fieldChangePreset = this.form.addSelectInput('instrument-preset',
                 (e, presetURL) => this.setPreset(presetURL),
                 (addOption, setOptgroup) => {
                     addOption('', 'Change Preset');
                     setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
-                    this.sampleLibrary.eachPreset(addOption);
+                    this.sampleLibrary.eachPreset(presetConfig => addOption(presetConfig.url, presetConfig.name));
                     setOptgroup('Libraries');
-                    this.sampleLibrary.eachLibrary(addOption);
+                    this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
                     setOptgroup('Other Libraries');
-                    SampleLibrary.eachHistoricLibrary(addOption);
+                    const AudioSourceLibrary = customElements.get('audio-source-library');
+                    AudioSourceLibrary.eachHistoricLibrary(addOption);
                 },
                 'Change Instrument',
-                '');
+                presetURL);
 
 
             this.form.addBreak();
@@ -658,7 +666,7 @@
                 };
 
                 const getSampleURLs = (addOption) => {
-                    this.sampleLibrary.eachSample(addOption);
+                    this.sampleLibrary.eachSample(sample => addOption(sample.url, sample.name));
                 };
 
 
@@ -688,11 +696,12 @@
                 (addOption, setOptgroup) => {
                     addOption('', 'Add Sample');
                     setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
-                    this.sampleLibrary.eachSample(addOption);
+                    this.sampleLibrary.eachSample(sampleConfig => addOption(sampleConfig.url, sampleConfig.name));
                     setOptgroup('Libraries');
-                    this.sampleLibrary.eachLibrary(addOption);
+                    this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
                     setOptgroup('Other Libraries');
-                    SampleLibrary.eachHistoricLibrary(addOption);
+                    const AudioSourceLibrary = customElements.get('audio-source-library');
+                    AudioSourceLibrary.eachHistoricLibrary(addOption);
                 },
                 'Add Sample',
                 '');
@@ -711,7 +720,8 @@
 
         async setPreset(presetURL) {
             presetURL = new URL(presetURL);
-            await this.sampleLibrary.loadURL(presetURL + '');
+            const AudioSourceLibrary = customElements.get('audio-source-library');
+            this.sampleLibrary = await AudioSourceLibrary.loadURL(presetURL + '');
             if (presetURL.hash) {
                 const newPresetName = presetURL.hash.substr(1);
                 let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
@@ -720,7 +730,7 @@
                 await this.instrument.loadConfig(newPresetConfig);
                 this.render();
             }
-            this.fieldChangePreset.renderOptions();
+            await this.fieldChangePreset.renderOptions();
             this.fieldChangePreset.value = '';
         }
 
@@ -773,161 +783,6 @@
             return this.instrument.setSampleASDR(sampleID, asdr);
         }
     }
-
-
-
-    class SampleLibrary {
-        constructor() {
-            this.url = null;
-            this.sampleLibrary = {
-                "name": "Loading Sample Library...",
-                "samples": {},
-                "libraries": {}
-            };
-        }
-
-        get name() {
-            return this.sampleLibrary.name;
-        }
-
-        eachSample(callback) {
-            for(let sampleName in this.sampleLibrary.samples) {
-                if(this.sampleLibrary.samples.hasOwnProperty(sampleName)) {
-                    let sampleConfig = this.sampleLibrary.samples[sampleName];
-                    let sampleURL = new URL((this.sampleLibrary.urlPrefix || '') + (sampleConfig.url || sampleName), this.url) + '';
-                    // const iSampleFileName = iSampleURL.split('/').pop();
-                    const result = callback(sampleURL, sampleName);
-                    if(result === false)
-                        return;
-                }
-            }
-        }
-
-        eachPreset(callback) {
-            for(let presetName in this.sampleLibrary.presets) {
-                if(this.sampleLibrary.presets.hasOwnProperty(presetName)) {
-                    // let presetConfig = this.sampleLibrary.presets[presetName];
-                    const presetURL = this.url + '#' + presetName; // New Preset URL
-                    const result = callback(presetURL, presetName);
-                    if(result === false)
-                        return;
-                }
-            }
-        }
-
-        eachLibrary(callback) {
-            if (this.sampleLibrary.libraries) {
-                for (let i = 0; i < this.sampleLibrary.libraries.length; i++) {
-                    let libraryConfig = this.sampleLibrary.libraries[i];
-                    if (typeof libraryConfig !== 'object')
-                        libraryConfig = {url: libraryConfig};
-                    const libraryURL = new URL((this.sampleLibrary.urlPrefix || '') + libraryConfig.url, this.url) + ''; // New Library URL
-                    let libraryName = libraryConfig.name || libraryConfig.url.split('/').pop();
-                    const result = callback(libraryURL, libraryName);
-                    if(result === false)
-                        return;
-                }
-            }
-        }
-
-        getPresetConfig(presetName) {
-            const urlPrefix = this.sampleLibrary.urlPrefix || '';
-            const newConfig = {};
-            newConfig.preset = presetName;
-            newConfig.samples = [];
-            if (!this.sampleLibrary.presets[presetName])
-                throw new Error("Invalid Instrument Preset: " + presetName);
-            const presetConfig = this.sampleLibrary.presets[presetName];
-            if (!presetConfig.samples)
-                presetConfig.samples = {};
-            if (Object.keys(presetConfig.samples).length === 0)
-                presetConfig.samples[presetName] = {};
-            // Object.assign(newConfig, presetConfig);
-            Object.keys(presetConfig.samples).forEach((sampleName) => {
-                const sampleConfig =
-                    Object.assign({
-                            url: sampleName
-                        },
-                        presetConfig.samples[sampleName],
-                        this.sampleLibrary.samples[sampleName]);
-                sampleConfig.url = new URL(urlPrefix + sampleConfig.url, this.sampleLibrary.url) + '';
-
-                if (typeof sampleConfig.keyRange !== "undefined") {
-                    let pair = sampleConfig.keyRange;
-                    if (typeof pair === 'string')
-                        pair = pair.split(':');
-                    sampleConfig.keyLow = pair[0];
-                    sampleConfig.keyHigh = pair[1] || pair[0];
-                    delete sampleConfig.keyRange;
-                }
-                sampleConfig.name = sampleName;
-                newConfig.samples.push(sampleConfig);
-            });
-            newConfig.libraryURL = this.url;
-            return newConfig;
-        }
-
-
-        static eachHistoricLibrary(callback) {
-            for(let cacheURL in SampleLibrary.cache) {
-                if(SampleLibrary.cache.hasOwnProperty(cacheURL)) {
-                    let libraryConfig = SampleLibrary.cache[cacheURL];
-                    let libraryName = libraryConfig.name || libraryConfig.url.split('/').pop();
-                    const result = callback(libraryConfig.url, libraryName);
-                    if(result === false)
-                        return;
-                }
-            }
-        }
-
-
-        async loadURL(url) {
-            if (!url)
-                throw new Error("Invalid url");
-            url = new URL((url + '').split('#')[0], document.location) + '';
-            this.url = url;
-            if (SampleLibrary.cache[url]) {
-                this.sampleLibrary = SampleLibrary.cache[url];
-                this.sampleLibrary.url = url;
-                return this.sampleLibrary;
-            }
-
-            if (SampleLibrary.XHRPromises[url]) {
-                this.sampleLibrary = await SampleLibrary.XHRPromises[url];
-                this.sampleLibrary.url = url;
-                return this.sampleLibrary;
-            }
-
-            const promise = new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', url + '', true);
-                xhr.responseType = 'json';
-                xhr.onload = () => {
-                    if (xhr.status !== 200)
-                        return reject("Sample library not found: " + url);
-
-                    this.sampleLibrary = xhr.response;
-                    this.sampleLibrary.url = url + '';
-
-                    Object.keys(SampleLibrary.cache).forEach(cacheURL => {
-                        if (Object.values(SampleLibrary.cache) > 5)
-                            delete SampleLibrary.cache[cacheURL];
-                    });
-                    SampleLibrary.cache[url] = this.sampleLibrary;
-
-                    console.info("Sample Library Loaded: ", url, this.sampleLibrary, SampleLibrary.cache);
-                    resolve(this.sampleLibrary);
-                };
-                xhr.send();
-            });
-            SampleLibrary.XHRPromises[url] = promise;
-            return await promise;
-        }
-    }
-
-
-    SampleLibrary.cache = {};
-    SampleLibrary.XHRPromises = {};
 
 
     /** Utilities & Dispatch Class **/

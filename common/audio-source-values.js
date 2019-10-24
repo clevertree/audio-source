@@ -73,8 +73,8 @@ class AudioSourceValues {
                 break;
 
             case 'instruments-available':
-                const Libraries = new AudioSourceLibraries;
-                const instrumentLibrary = Libraries.getInstrumentLibrary(false);
+                const Util = new AudioSourceUtilities;
+                const instrumentLibrary = Util.getInstrumentLibrary(false);
                 if(instrumentLibrary) {
                     if(instrumentLibrary.instruments) {
                         instrumentLibrary.instruments.forEach((pathConfig) => {
@@ -283,7 +283,7 @@ if(typeof module !== "undefined")
 if(typeof global !== 'undefined') {
 
     if(typeof global.AudioSourceLibraries === "undefined") {
-        global.AudioSourceLibraries = require('./audio-source-libraries.js').AudioSourceLibraries;
+        global.AudioSourceLibraries = require('./audio-source-library.js').AudioSourceLibraries;
     }
 }
 
