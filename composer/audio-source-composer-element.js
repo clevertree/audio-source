@@ -44,8 +44,8 @@ class AudioSourceComposerElement extends HTMLElement {
         return Util.getScriptDirectory(appendPath);
     }
 
-    get defaultLibraryURL()      { return this.getAttribute('libraryURL') || this.getScriptDirectory('default.library.json'); }
-    set defaultLibraryURL(url)   { this.setAttribute('libraryURL', url); }
+    get defaultLibraryURL()      { return this.getAttribute('defaultLibraryURL') || this.getScriptDirectory('default.library.json'); }
+    set defaultLibraryURL(url)   { this.setAttribute('defaultLibraryURL', url); }
 
     connectedCallback() {
         this.loadCSS();

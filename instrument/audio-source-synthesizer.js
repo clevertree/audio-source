@@ -377,7 +377,7 @@
             if (!sampleURL)
                 throw new Error("Change sample URL canceled");
 
-            let addSampleName = sampleURL.split('/').pop().split('.').slice(0, -1).join('.');
+            let addSampleName = sampleURL.split('/').pop();
             addSampleName = prompt(`Set Sample Name:`, addSampleName);
             const addSampleID = this.config.samples.length;
             this.song.replaceInstrumentParam(this.id, ['samples', addSampleID], {

@@ -344,7 +344,7 @@ class AudioSourceComposerActions {
         if(!instrumentURL)
             return this.editor.handleError(`Empty URL`);
         instrumentConfig.url = instrumentURL;
-        instrumentConfig.libraryURL = this.editor.libraryURL;
+        instrumentConfig.libraryURL = this.editor.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
