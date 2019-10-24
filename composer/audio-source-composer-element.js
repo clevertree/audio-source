@@ -263,12 +263,12 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     setStatus(newStatus) {
-        // console.info.apply(null, arguments); // (newStatus);
         this.statusElm.innerHTML = newStatus;
+        console.info.apply(null, arguments); // (newStatus);
     }
 
     handleError(err) {
-        this.setStatus(`<span style="red">${err}</span>`);
+        this.statusElm.innerHTML = `<span style="red">${err}</span>`;
         console.error(err);
         // if(this.webSocket)
     }
@@ -744,7 +744,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const Util = new AudioSourceUtilities;
         const url = Util.getScriptDirectory('package.json');
 
-        let packageInfo = AudioSourceLibraries.packageInfo;
+        let packageInfo = AudioSourceLibrary.packageInfo;
         if (!force && packageInfo)
             return packageInfo;
 
@@ -753,7 +753,7 @@ class AudioSourceComposerElement extends HTMLElement {
             throw new Error("Invalid package version: " + url);
 
         console.log("Package Version: ", packageInfo.version, packageInfo);
-        AudioSourceLibraries.packageInfo = packageInfo;
+        AudioSourceLibrary.packageInfo = packageInfo;
         return packageInfo;
     }
 

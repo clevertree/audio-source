@@ -1,3 +1,6 @@
+if (typeof HTMLElement === "undefined") {
+    global.HTMLElement = class {}
+}
 class AudioSourceLibrary extends HTMLElement{
     constructor(data) {
         super();
@@ -204,8 +207,8 @@ AudioSourceLibrary.loadURL = async function(url) {
 
 AudioSourceLibrary.cache = {};
 
-if(customElements)
+if(typeof customElements !== "undefined")
     customElements.define('audio-source-library', AudioSourceLibrary);
 
 if(typeof module !== "undefined")
-    module.exports = {AudioSourceLibraries};
+    module.exports = {AudioSourceLibrary};
