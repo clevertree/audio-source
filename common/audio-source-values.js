@@ -22,7 +22,7 @@ class AudioSourceValues {
             'note-frequency-named',
             'durations',
             'groups',
-            'instruments-available',
+            // 'instruments-available',
             'named-durations',
             'note-frequency',
             'note-frequency-all',
@@ -72,21 +72,21 @@ class AudioSourceValues {
                 }
                 break;
 
-            case 'instruments-available':
-                const Util = new AudioSourceUtilities;
-                const instrumentLibrary = Util.getInstrumentLibrary(false);
-                if(instrumentLibrary) {
-                    if(instrumentLibrary.instruments) {
-                        instrumentLibrary.instruments.forEach((pathConfig) => {
-                            let instrumentURL = pathConfig.url;
-                            if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
-                            if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
-                            if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
-                            result = callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
-                        });
-                    }
-                }
-                break;
+            // case 'instruments-available':
+            //     const Util = new AudioSourceUtilities;
+            //     const instrumentLibrary = Util.getInstrumentLibrary(false);
+            //     if(instrumentLibrary) {
+            //         if(instrumentLibrary.instruments) {
+            //             instrumentLibrary.instruments.forEach((pathConfig) => {
+            //                 let instrumentURL = pathConfig.url;
+            //                 if(instrumentURL) instrumentURL = new URL(instrumentURL, instrumentLibrary.url) + '';
+            //                 if (typeof pathConfig !== 'object') pathConfig = {url: pathConfig};
+            //                 if(!pathConfig.title) pathConfig.title = pathConfig.url.split('/').pop();
+            //                 result = callback(instrumentURL, pathConfig.title); //  + " (" + pathConfig.url + ")"
+            //             });
+            //         }
+            //     }
+            //     break;
 
             case 'note-frequency-named':
                 if(songData) {
@@ -282,8 +282,8 @@ if(typeof module !== "undefined")
 
 if(typeof global !== 'undefined') {
 
-    if(typeof global.AudioSourceLibraries === "undefined") {
-        global.AudioSourceLibraries = require('./audio-source-library.js').AudioSourceLibraries;
+    if(typeof global.AudioSourceUtilities === "undefined") {
+        global.AudioSourceUtilities = require('./audio-source-utilities.js').AudioSourceUtilities;
     }
 }
 

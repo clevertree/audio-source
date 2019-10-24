@@ -105,6 +105,11 @@ class AudioSourceComposerElement extends HTMLElement {
             this.trackerElm.groupName = state.groupName;
             this.trackerElm.navigateSegment(state.currentRowSegmentID);
             this.trackerElm.selectIndicies(e, state.selectedIndicies);
+            this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
+            this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
+            this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
+            this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
+            this.trackerElm.render(); // TODO: too many renders
         }
     }
 
@@ -112,14 +117,18 @@ class AudioSourceComposerElement extends HTMLElement {
     async saveState(e) {
         // await this.actions.saveSongToMemory(e);
         const state = {
-            songGUID: this.song.guid,
-            groupName: this.trackerElm.groupName,
-            currentRowSegmentID: this.trackerElm.currentRowSegmentID,
-            selectedIndicies: this.trackerElm.getSelectedIndicies()
+            songGUID:               this.song.guid,
+            groupName:              this.trackerElm.groupName,
+            currentRowSegmentID:    this.trackerElm.currentRowSegmentID,
+            trackerSegmentLength:   this.trackerElm.fieldTrackerSegmentLength.value,
+            trackerRowLength:       this.trackerElm.fieldTrackerRowLength.value,
+            trackerInstrument:      this.trackerElm.fieldTrackerInstrument.value,
+            trackerOctave:          this.trackerElm.fieldTrackerOctave.value,
+            selectedIndicies:       this.trackerElm.getSelectedIndicies()
         };
         const storage = new AudioSourceStorage();
         storage.saveState(state);
-        // console.log('saveState', state);
+        console.log('saveState', state);
     }
 
 
@@ -263,12 +272,12 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     setStatus(newStatus) {
-        // console.info.apply(null, arguments); // (newStatus);
         this.statusElm.innerHTML = newStatus;
+        console.info.apply(null, arguments); // (newStatus);
     }
 
     handleError(err) {
-        this.setStatus(`<span style="red">${err}</span>`);
+        this.statusElm.innerHTML = `<span style="red">${err}</span>`;
         console.error(err);
         // if(this.webSocket)
     }
@@ -744,7 +753,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const Util = new AudioSourceUtilities;
         const url = Util.getScriptDirectory('package.json');
 
-        let packageInfo = AudioSourceLibraries.packageInfo;
+        let packageInfo = AudioSourceLibrary.packageInfo;
         if (!force && packageInfo)
             return packageInfo;
 
@@ -753,7 +762,7 @@ class AudioSourceComposerElement extends HTMLElement {
             throw new Error("Invalid package version: " + url);
 
         console.log("Package Version: ", packageInfo.version, packageInfo);
-        AudioSourceLibraries.packageInfo = packageInfo;
+        AudioSourceLibrary.packageInfo = packageInfo;
         return packageInfo;
     }
 
