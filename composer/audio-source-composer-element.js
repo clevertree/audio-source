@@ -98,25 +98,28 @@ class AudioSourceComposerElement extends HTMLElement {
         const state = storage.loadState();
         console.log('loadState', state);
 
-        await this.loadDefaultSong(state ? state.songGUID : null);
 
 
         if(state) {
+            await this.loadDefaultSong(state.songGUID);
             this.trackerElm.groupName = state.groupName;
+            if(state.trackerSegmentLength)  this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
+            if(state.trackerRowLength)      this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
+            if(state.trackerInstrument)     this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
+            if(state.trackerOctave)         this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
             this.trackerElm.navigateSegment(state.currentRowSegmentID);
-            this.trackerElm.selectIndicies(e, state.selectedIndicies);
-            this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
-            this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
-            this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
-            this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
-            this.trackerElm.render(); // TODO: too many renders
+            if(state.selectedIndicies)      this.trackerElm.selectIndicies(e, state.selectedIndicies);
+            // this.trackerElm.render(); // TODO: too many renders
+
+        } else {
+            await this.loadDefaultSong();
         }
     }
 
 
     async saveState(e) {
         // await this.actions.saveSongToMemory(e);
-        const state = {
+        const state = {// TODO: auto-state form fields
             songGUID:               this.song.guid,
             groupName:              this.trackerElm.groupName,
             currentRowSegmentID:    this.trackerElm.currentRowSegmentID,
@@ -438,13 +441,6 @@ class AudioSourceComposerElement extends HTMLElement {
         instrumentForm.clearInputs();
         instrumentForm.classList.add('instrument-container');
 
-        const instrumentToggleButton = instrumentForm.addButton('instrument-id',
-            null, //TODO: toggle view
-            instrumentIDHTML + ':'
-        );
-        instrumentToggleButton.classList.add('show-on-focus');
-
-
         if(!instrument) {
             // Render 'empty' instrument
             instrumentForm.addSelectInput('instrument-add-url',
@@ -464,6 +460,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
         if(instrument) {
             try {
+                const instrumentToggleButton = instrumentForm.addButton('instrument-id',
+                    null, //TODO: toggle view
+                    instrumentIDHTML + ':'
+                );
+                instrumentToggleButton.classList.add('show-on-focus');
+
+
                 if (instrument instanceof HTMLElement) {
                     instrument.setAttribute('data-id', instrumentID+'');
                     instrumentForm.appendChild(instrument);
@@ -483,7 +486,8 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     renderInstruments() {
-
+        const instrumentPanel = this.panelInstruments;
+        instrumentPanel.clearInputs();
         const instrumentList = this.song.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             let instrument = this.song.getInstrument(instrumentID, false);

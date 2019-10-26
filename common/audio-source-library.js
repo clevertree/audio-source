@@ -24,6 +24,7 @@ class AudioSourceLibrary extends HTMLElement{
 
     eachSample(callback) {
         this.processItemList(this.samples, (sampleConfig) => {
+            sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + ''; //TODO: is this okay?
             callback(sampleConfig);
         });
     }

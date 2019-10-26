@@ -39,7 +39,10 @@ class AudioSourceValues {
     getValues(valueType, callback) {
         let noteFrequencies;
         let results = [], result=null;
-        const addResult = (result) => { if(result !== null && typeof result !== "undefined") addResult(result); };
+        const addResult = (result) => {
+            if(result !== null && typeof result !== "undefined")
+                results.push(result);
+        };
         const songData = this.song ? this.song.data : null;
         const timeDivision = this.song ? this.song.timeDivision : 96*4;
 
@@ -190,6 +193,14 @@ class AudioSourceValues {
                     result = callback(vi, vi+ ` beat${vi>1?'s':''} per minute`);
                     addResult(result);
                 }
+                break;
+
+            case 'segment-lengths':
+                [4,5,6,7,8,10,12,16,24,32,48,64,96,128]
+                    .forEach(i => {
+                        result = callback(timeDivision * i, i);
+                        addResult(result);
+                    });
                 break;
 
             case 'song-groups':
