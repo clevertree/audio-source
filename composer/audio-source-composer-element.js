@@ -98,27 +98,32 @@ class AudioSourceComposerElement extends HTMLElement {
         const state = storage.loadState();
         console.log('loadState', state);
 
-        await this.loadDefaultSong(state ? state.songGUID : null);
 
 
         if(state) {
+            await this.loadDefaultSong(state.songGUID);
+            if(state.volume)                this.actions.setSongVolume(e, state.volume);
             this.trackerElm.groupName = state.groupName;
+            if(state.trackerSegmentLength)  this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
+            if(state.trackerRowLength)      this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
+            if(state.trackerInstrument)     this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
+            if(state.trackerOctave)         this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
             this.trackerElm.navigateSegment(state.currentRowSegmentID);
-            this.trackerElm.selectIndicies(e, state.selectedIndicies);
-            this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
-            this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
-            this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
-            this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
-            this.trackerElm.render(); // TODO: too many renders
+            if(state.selectedIndicies)      this.trackerElm.selectIndicies(e, state.selectedIndicies);
+            // this.trackerElm.render(); // TODO: too many renders
+
+        } else {
+            await this.loadDefaultSong();
         }
     }
 
 
     async saveState(e) {
         // await this.actions.saveSongToMemory(e);
-        const state = {
+        const state = {// TODO: auto-state form fields
             songGUID:               this.song.guid,
             groupName:              this.trackerElm.groupName,
+            volume:                 this.song.getVolumeValue(),
             currentRowSegmentID:    this.trackerElm.currentRowSegmentID,
             trackerSegmentLength:   this.trackerElm.fieldTrackerSegmentLength.value,
             trackerRowLength:       this.trackerElm.fieldTrackerRowLength.value,
@@ -205,6 +210,10 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:seek':
                 this.updateSongPositionValue(e.detail.position);
 
+                break;
+
+            case 'song:volume':
+                this.fieldSongVolume.value = e.detail.volume;
                 break;
 
             case 'song:loaded':
@@ -300,7 +309,7 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
     get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
-    get menuTools() { return this.shadowDOM.querySelector(`asui-menu[key="tools"]`)}
+    // get menuTools() { return this.shadowDOM.querySelector(`asui-menu[key="tools"]`)}
     get menuGroup() { return this.shadowDOM.querySelector(`asui-menu[key="group"]`)}
     // get menuSelect() { return this.shadowDOM.querySelector(`asui-menu[key="select"]`)}
     get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
@@ -332,7 +341,6 @@ class AudioSourceComposerElement extends HTMLElement {
                     <asui-menu key="group" caption="Group"></asui-menu>
                     <asui-menu key="instrument" caption="Instrument"></asui-menu>
                     <asui-menu key="view" caption="View"></asui-menu>
-                    <asui-menu key="tools" caption="Tools"></asui-menu>
                     <asui-menu key="context" caption=""></asui-menu>
                 </div>
                 <asui-form key="song" caption="Song" class="panel"></asui-form><!--
@@ -409,7 +417,7 @@ class AudioSourceComposerElement extends HTMLElement {
             );
 
             this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
-                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
+                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
             this.fieldSongPosition = this.formSongPosition.addTextInput('position',
                 e => this.actions.setSongPosition(e),
                 'Song Position',
@@ -426,6 +434,8 @@ class AudioSourceComposerElement extends HTMLElement {
         this.fieldSongName.value = this.song.getName();
         this.fieldSongVersion.value = this.song.getVersion();
 
+        this.fieldSongVolume.value = this.song.getVolumeValue();
+
     }
 
     renderInstrument(instrumentID, instrument=null) {
@@ -437,13 +447,6 @@ class AudioSourceComposerElement extends HTMLElement {
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
         instrumentForm.clearInputs();
         instrumentForm.classList.add('instrument-container');
-
-        const instrumentToggleButton = instrumentForm.addButton('instrument-id',
-            null, //TODO: toggle view
-            instrumentIDHTML + ':'
-        );
-        instrumentToggleButton.classList.add('show-on-focus');
-
 
         if(!instrument) {
             // Render 'empty' instrument
@@ -464,6 +467,13 @@ class AudioSourceComposerElement extends HTMLElement {
 
         if(instrument) {
             try {
+                const instrumentToggleButton = instrumentForm.addButton('instrument-id',
+                    null, //TODO: toggle view
+                    instrumentIDHTML + ':'
+                );
+                instrumentToggleButton.classList.add('show-on-focus');
+
+
                 if (instrument instanceof HTMLElement) {
                     instrument.setAttribute('data-id', instrumentID+'');
                     instrumentForm.appendChild(instrument);
@@ -483,7 +493,8 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     renderInstruments() {
-
+        const instrumentPanel = this.panelInstruments;
+        instrumentPanel.clearInputs();
         const instrumentList = this.song.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
             let instrument = this.song.getInstrument(instrumentID, false);
@@ -670,30 +681,30 @@ class AudioSourceComposerElement extends HTMLElement {
         };
 
         /** Tool Menu **/
-        this.menuTools.populate = (e) => {
-            const menu = e.menuElement;
-
-            const menuToolBatch = menu.getOrCreateSubMenu('batch', `Batch Command ►`);
-            menuToolBatch.populate = (e) => {
-                const menu = e.menuElement;
-                const menuToolBatchCommandNew = menu.getOrCreateSubMenu('new', `Run Batch Command`);
-                menuToolBatchCommandNew.action = (e) => {
-                    this.actions.batchRunCommand(e);
-                };
-
-                const storage = new AudioSourceStorage();
-                const recentBatchCommands = storage.getBatchRecentCommands();
-                for(let i=0; i<recentBatchCommands.length; i++) {
-                    const recentBatchCommand = recentBatchCommands[i];
-                    // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                    const menuToolBatchCommand = menu.getOrCreateSubMenu(i, recentBatchCommand);
-                    menuToolBatchCommand.action = (e) => {
-                        this.actions.batchRunCommand(e, recentBatchCommand, true);
-                    };
-
-                }
-            };
-        };
+        // this.menuTools.populate = (e) => {
+        //     const menu = e.menuElement;
+        //
+        //     const menuToolBatch = menu.getOrCreateSubMenu('batch', `Batch Command ►`);
+        //     menuToolBatch.populate = (e) => {
+        //         const menu = e.menuElement;
+        //         const menuToolBatchCommandNew = menu.getOrCreateSubMenu('new', `Run Batch Command`);
+        //         menuToolBatchCommandNew.action = (e) => {
+        //             this.actions.batchRunCommand(e);
+        //         };
+        //
+        //         const storage = new AudioSourceStorage();
+        //         const recentBatchCommands = storage.getBatchRecentCommands();
+        //         for(let i=0; i<recentBatchCommands.length; i++) {
+        //             const recentBatchCommand = recentBatchCommands[i];
+        //             // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+        //             const menuToolBatchCommand = menu.getOrCreateSubMenu(i, recentBatchCommand);
+        //             menuToolBatchCommand.action = (e) => {
+        //                 this.actions.batchRunCommand(e, recentBatchCommand, true);
+        //             };
+        //
+        //         }
+        //     };
+        // };
 
     }
 

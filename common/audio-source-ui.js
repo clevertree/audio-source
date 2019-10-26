@@ -838,6 +838,7 @@ class AudioSourceUISelectInput extends AudioSourceUIInputAbstract {
 
     async setValue(newValue) {
         let valueFound = false;
+        this.selectedValue = {value: newValue, title: "*"}; // TODO: async hack
         await this.eachOption((value, title) => {
             if(value === newValue)
                 valueFound = {value, title};

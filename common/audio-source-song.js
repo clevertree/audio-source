@@ -92,7 +92,8 @@ class AudioSourceSong {
         const gain = this.getVolumeGain();
         if(gain.gain.value !== volume) {
             gain.gain.value = volume / 100;
-            console.info("Setting volume: ", volume);
+//             console.info("Setting volume: ", volume);
+            this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
         }
     }
 
