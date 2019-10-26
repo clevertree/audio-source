@@ -102,6 +102,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
         if(state) {
             await this.loadDefaultSong(state.songGUID);
+            if(state.volume)                this.actions.setSongVolume(e, state.volume);
             this.trackerElm.groupName = state.groupName;
             if(state.trackerSegmentLength)  this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
             if(state.trackerRowLength)      this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
@@ -122,6 +123,7 @@ class AudioSourceComposerElement extends HTMLElement {
         const state = {// TODO: auto-state form fields
             songGUID:               this.song.guid,
             groupName:              this.trackerElm.groupName,
+            volume:                 this.song.getVolumeValue(),
             currentRowSegmentID:    this.trackerElm.currentRowSegmentID,
             trackerSegmentLength:   this.trackerElm.fieldTrackerSegmentLength.value,
             trackerRowLength:       this.trackerElm.fieldTrackerRowLength.value,
@@ -208,6 +210,10 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:seek':
                 this.updateSongPositionValue(e.detail.position);
 
+                break;
+
+            case 'song:volume':
+                this.fieldSongVolume.value = e.detail.volume;
                 break;
 
             case 'song:loaded':
@@ -303,7 +309,7 @@ class AudioSourceComposerElement extends HTMLElement {
     get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
     get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
     get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
-    get menuTools() { return this.shadowDOM.querySelector(`asui-menu[key="tools"]`)}
+    // get menuTools() { return this.shadowDOM.querySelector(`asui-menu[key="tools"]`)}
     get menuGroup() { return this.shadowDOM.querySelector(`asui-menu[key="group"]`)}
     // get menuSelect() { return this.shadowDOM.querySelector(`asui-menu[key="select"]`)}
     get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
@@ -335,7 +341,6 @@ class AudioSourceComposerElement extends HTMLElement {
                     <asui-menu key="group" caption="Group"></asui-menu>
                     <asui-menu key="instrument" caption="Instrument"></asui-menu>
                     <asui-menu key="view" caption="View"></asui-menu>
-                    <asui-menu key="tools" caption="Tools"></asui-menu>
                     <asui-menu key="context" caption=""></asui-menu>
                 </div>
                 <asui-form key="song" caption="Song" class="panel"></asui-form><!--
@@ -412,7 +417,7 @@ class AudioSourceComposerElement extends HTMLElement {
             );
 
             this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
-                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100);
+                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
             this.fieldSongPosition = this.formSongPosition.addTextInput('position',
                 e => this.actions.setSongPosition(e),
                 'Song Position',
@@ -428,6 +433,8 @@ class AudioSourceComposerElement extends HTMLElement {
 
         this.fieldSongName.value = this.song.getName();
         this.fieldSongVersion.value = this.song.getVersion();
+
+        this.fieldSongVolume.value = this.song.getVolumeValue();
 
     }
 
@@ -674,30 +681,30 @@ class AudioSourceComposerElement extends HTMLElement {
         };
 
         /** Tool Menu **/
-        this.menuTools.populate = (e) => {
-            const menu = e.menuElement;
-
-            const menuToolBatch = menu.getOrCreateSubMenu('batch', `Batch Command ►`);
-            menuToolBatch.populate = (e) => {
-                const menu = e.menuElement;
-                const menuToolBatchCommandNew = menu.getOrCreateSubMenu('new', `Run Batch Command`);
-                menuToolBatchCommandNew.action = (e) => {
-                    this.actions.batchRunCommand(e);
-                };
-
-                const storage = new AudioSourceStorage();
-                const recentBatchCommands = storage.getBatchRecentCommands();
-                for(let i=0; i<recentBatchCommands.length; i++) {
-                    const recentBatchCommand = recentBatchCommands[i];
-                    // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                    const menuToolBatchCommand = menu.getOrCreateSubMenu(i, recentBatchCommand);
-                    menuToolBatchCommand.action = (e) => {
-                        this.actions.batchRunCommand(e, recentBatchCommand, true);
-                    };
-
-                }
-            };
-        };
+        // this.menuTools.populate = (e) => {
+        //     const menu = e.menuElement;
+        //
+        //     const menuToolBatch = menu.getOrCreateSubMenu('batch', `Batch Command ►`);
+        //     menuToolBatch.populate = (e) => {
+        //         const menu = e.menuElement;
+        //         const menuToolBatchCommandNew = menu.getOrCreateSubMenu('new', `Run Batch Command`);
+        //         menuToolBatchCommandNew.action = (e) => {
+        //             this.actions.batchRunCommand(e);
+        //         };
+        //
+        //         const storage = new AudioSourceStorage();
+        //         const recentBatchCommands = storage.getBatchRecentCommands();
+        //         for(let i=0; i<recentBatchCommands.length; i++) {
+        //             const recentBatchCommand = recentBatchCommands[i];
+        //             // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+        //             const menuToolBatchCommand = menu.getOrCreateSubMenu(i, recentBatchCommand);
+        //             menuToolBatchCommand.action = (e) => {
+        //                 this.actions.batchRunCommand(e, recentBatchCommand, true);
+        //             };
+        //
+        //         }
+        //     };
+        // };
 
     }
 

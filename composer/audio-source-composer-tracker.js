@@ -3,7 +3,7 @@ class AudioSourceComposerTracker extends HTMLElement {
         super();
         this.editor = null;
         this.eventHandlers = [];
-        this.segmentLength = 16;
+        // this.segmentLength = 16;
         this.currentRowSegmentID = 0;
         // this.selectedIndicies = []
 
@@ -161,7 +161,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
         const timeDivision = this.editor.song.timeDivision;
-        const segmentLengthInTicks = this.segmentLength * timeDivision;
+        const segmentLengthInTicks = this.fieldTrackerSegmentLength.value;
         const segmentID = Math.floor(positionInTicks/segmentLengthInTicks);
         return segmentID;
     }
@@ -347,7 +347,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
         const quantizationInTicks = parseInt(this.fieldTrackerRowLength.value) || timeDivision;
         const segmentLengthInTicks = parseInt(this.fieldTrackerSegmentLength.value) || (timeDivision * 16);
-        console.log('segmentLengthInTicks', segmentLengthInTicks, this.fieldTrackerSegmentLength.value);
+//         console.log('segmentLengthInTicks', segmentLengthInTicks, this.fieldTrackerSegmentLength.value);
         const filterByInstrumentID = this.fieldTrackerInstrument.value ? parseInt(this.fieldTrackerInstrument.value) : null;
 
         let rowInstructionList = null, lastRowPositionInTicks=0, lastRowStartIndex=0;
@@ -764,7 +764,10 @@ class AudioSourceComposerTracker extends HTMLElement {
                 this.editor.closeAllMenus();
 
                 let keyEvent = e.key;
-                if (!e.ctrlKey && this.editor.keyboard.getKeyboardCommand(e.key, this.fieldTrackerOctave.value))
+                if (!e.ctrlKey && this.editor.keyboard.getKeyboardCommand(
+                    e.key,
+                    this.fieldTrackerOctave.value
+                ))
                     keyEvent = 'PlayFrequency';
                 if (keyEvent === 'Enter' && e.altKey)
                     keyEvent = 'ContextMenu';

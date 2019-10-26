@@ -28,6 +28,7 @@ class AudioSourceComposerActions {
 
     setSongVolume(e, newSongVolume) {
         this.editor.song.setVolume(newSongVolume);
+        this.editor.fieldSongVolume.value = newSongVolume;
         this.editor.setStatus(`Volume modified: ${newSongVolume}`);
     }
 

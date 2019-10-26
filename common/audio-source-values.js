@@ -125,7 +125,7 @@ class AudioSourceValues {
 
             case 'note-frequency-all':
                 noteFrequencies = this.noteFrequencies;
-                for(let i=1; i<=6; i++) {
+                for(let i=1; i<=8; i++) {
                     for(let j=0; j<noteFrequencies.length; j++) {
                         const noteFrequency = noteFrequencies[j] + i;
                         result = callback(noteFrequency, noteFrequency);
@@ -198,7 +198,7 @@ class AudioSourceValues {
             case 'segment-lengths':
                 [4,5,6,7,8,10,12,16,24,32,48,64,96,128]
                     .forEach(i => {
-                        result = callback(timeDivision * i, i);
+                        result = callback(timeDivision * i, i + 'B');
                         addResult(result);
                     });
                 break;

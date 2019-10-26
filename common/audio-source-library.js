@@ -24,7 +24,7 @@ class AudioSourceLibrary extends HTMLElement{
 
     eachSample(callback) {
         this.processItemList(this.samples, (sampleConfig) => {
-            sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + ''; //TODO: is this okay?
+            // sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + ''; //TODO: is this okay?
             callback(sampleConfig);
         });
     }
@@ -126,7 +126,7 @@ class AudioSourceLibrary extends HTMLElement{
             itemConfig = Object.assign({}, itemConfig);
             if(typeof itemConfig.name === "undefined" && itemName)
                 itemConfig.name = itemName;
-            if(typeof itemConfig.url !== "undefined")
+            if(typeof itemConfig.url === "undefined")
                 itemConfig.url = new URL((this.urlPrefix || '') + (itemConfig.url || itemConfig.name), this.url) + '';
             eachCallback(itemConfig);
         };
