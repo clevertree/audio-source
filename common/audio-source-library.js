@@ -5,7 +5,7 @@ class AudioSourceLibrary extends HTMLElement{
     constructor(data) {
         super();
         this.url = null;
-        this.urlPrefix = null;
+        this.urlPrefix = '';
         this.name = "Loading...";
         this.samples = {};
         this.libraries = {};

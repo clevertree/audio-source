@@ -533,6 +533,7 @@
                 || this.DEFAULT_SAMPLE_LIBRARY_URL;
             const AudioSourceLibrary = customElements.get('audio-source-library');
             this.sampleLibrary = await AudioSourceLibrary.loadURL(defaultLibraryURL);
+            console.log(this.instrument.config.name, this.sampleLibrary);
             // TODO: locate sample/preset library
         }
 
@@ -744,6 +745,7 @@
             }
             await this.fieldChangePreset.renderOptions();
             this.fieldChangePreset.value = '';
+            this.form.classList.add('focus');
         }
 
         async addSample(sampleURL, promptUser=false) {

@@ -164,7 +164,7 @@ class MIDISupport {
 
                         // let newInstructionDelta = trackEvent.deltaTime + (songPositionInTicks - lastInsertSongPositionInTicks);
                         lastInsertSongPositionInTicks = songPositionInTicks;
-                        const newInstruction = [0, newMIDICommandOn, instrumentID, 0, newMIDIVelocityOn];
+                        const newInstruction = new SongInstruction([0, newMIDICommandOn, instrumentID, 0, newMIDIVelocityOn]);
                         const insertIndex = song.insertInstructionAtPosition(currentGroup, songPositionInTicks, newInstruction);
 
                         lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];

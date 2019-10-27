@@ -253,7 +253,10 @@ class AudioSourceComposerElement extends HTMLElement {
             case 'song:modified':
                 switch(e.type) {
                     case 'instrument:modified':
-                        this.renderInstruments();
+                        if(e.detail.instrumentID) {
+                            const instrument = this.song.getInstrument(e.detail.instrumentID, false);
+                            this.renderInstrument(e.detail.instrumentID, instrument);
+                        }
                         if(this.trackerElm) // Update aliases
                             this.trackerElm.renderForms();
                         break;
