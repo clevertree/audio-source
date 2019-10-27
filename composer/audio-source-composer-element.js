@@ -174,6 +174,7 @@ class AudioSourceComposerElement extends HTMLElement {
     // Input
 
     onInput(e) {
+        console.log(e.type);
         if(e.defaultPrevented)
             return;
 
@@ -185,18 +186,19 @@ class AudioSourceComposerElement extends HTMLElement {
         }
 
         switch(e.type) {
-            case 'focus':
-                const UIFormElm = e.path[0].closest('asui-form');
-                if(UIFormElm) {
-                    UIFormElm.getRootNode().querySelectorAll('asui-form.focus')
-                        .forEach(formElm => formElm.classList.remove('focus'));
-                    UIFormElm.classList.add('focus');
-                }
-                break;
+            // case 'focus':
+            //     const UIFormElm = e.path[0].closest('asui-form');
+            //     if(UIFormElm) {
+            //         UIFormElm.getRootNode().querySelectorAll('asui-form.focus')
+            //             .forEach(formElm => formElm.classList.remove('focus'));
+            //         UIFormElm.classList.add('focus');
+            //     }
+            //     break;
 
             default:
-                // if(this.trackerElm)
-                //     this.trackerElm.onInput(e);
+            case 'midimessage':
+                if(this.trackerElm)
+                    this.trackerElm.onInput(e);
                 break;
         }
 

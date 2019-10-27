@@ -139,7 +139,7 @@ class MIDISupport {
                             delete lastNote[newMIDICommandOff];
 
                             song.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
-                            console.log("OFF", lastNoteSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOff, noteDuration);
+//                             console.log("OFF", lastNoteSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOff, noteDuration);
 
                             // lastNote[newMIDICommandOff][1][3] = noteDuration;
                         }
@@ -156,7 +156,7 @@ class MIDISupport {
                                 // lastNote[newMIDICommandOn][1][3] = noteDuration;
 
                                 song.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
-                                console.log("OFF", lastInsertSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOn, noteDuration);
+//                                 console.log("OFF", lastInsertSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOn, noteDuration);
                                 delete lastNote[newMIDICommandOn];
                                 break;
                             }
@@ -169,7 +169,7 @@ class MIDISupport {
 
                         lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];
                         // newTrack.push(newInstruction);
-                        console.log("ON ", songPositionInTicks, newMIDICommandOn, newMIDIVelocityOn);
+//                         console.log("ON ", songPositionInTicks, newMIDICommandOn, newMIDIVelocityOn);
                         // newTrack.push
                         break;
                 }

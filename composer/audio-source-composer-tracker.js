@@ -258,7 +258,8 @@ class AudioSourceComposerTracker extends HTMLElement {
                     addGroup("Filter By Instrument");
                     this.editor.values.getValues('song-instruments', addOption)
                 },
-                'Filter By Instrument');
+                'Filter By Instrument',
+                '');
 
             this.fieldTrackerRowLength = this.formTrackerRowLength.addSelectInput('row-length',
                 e => this.editor.actions.setTrackerRowLength(e),
@@ -348,11 +349,17 @@ class AudioSourceComposerTracker extends HTMLElement {
         const quantizationInTicks = parseInt(this.fieldTrackerRowLength.value) || timeDivision;
         const segmentLengthInTicks = parseInt(this.fieldTrackerSegmentLength.value) || (timeDivision * 16);
 //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.fieldTrackerSegmentLength.value);
-        const filterByInstrumentID = this.fieldTrackerInstrument.value ? parseInt(this.fieldTrackerInstrument.value) : null;
+        const filterByInstrumentID = Number.isInteger(this.fieldTrackerInstrument.value) ? this.fieldTrackerInstrument.value : null;
+        const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
+            return conditionalInstruction.instrument === filterByInstrumentID
+        };
 
-        let rowInstructionList = null, lastRowPositionInTicks=0, lastRowStartIndex=0;
+        let rowInstructionList = null, lastRowPositionInTicks=0;
         let lastRowSegmentID = 0, lastRowElm=null;
-        while(rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID)) {
+        while(rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, conditionalCallback)) {
+            if(rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
+                continue;
+            }
             if(lastRowElm !== null) {
                 lastRowElm.renderDelta(instructionIterator.groupPositionInTicks - lastRowPositionInTicks);
                 lastRowElm = null;
@@ -361,8 +368,6 @@ class AudioSourceComposerTracker extends HTMLElement {
             lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
             if(this.currentRowSegmentID === lastRowSegmentID) {
-//                 console.log(lastRowSegmentID, instructionIterator.groupPositionInTicks, segmentLengthInTicks);
-                lastRowStartIndex = rowInstructionList.length > 0 ? rowInstructionList[0].index : instructionIterator.groupIndex;
                 lastRowElm = new AudioSourceComposerTrackerRow(instructionIterator.groupPositionInTicks); // document.createElement('asct-row');
                 this.appendChild(lastRowElm);
                 lastRowElm.renderInstructions(rowInstructionList);
