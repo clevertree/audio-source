@@ -22,9 +22,10 @@ span.error {
 
 /** Container **/
 .asc-container {
-    max-height: 1000px;
+    /* max-height: 1000px; */
     -moz-user-select: none;
     -ms-user-select:none;
+    /* height: 100%; */
 }
 
 /** Status Bar **/
@@ -270,7 +271,8 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 /** Tracker **/
 asc-tracker {
     position: relative;
-    max-height: 60%;
+    height: 100%;
+    max-height: 700px;
     overflow: auto;
     display: block;
 }

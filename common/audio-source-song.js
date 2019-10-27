@@ -1316,6 +1316,31 @@ class AudioSourceInstructionIterator {
         return this.song.data.instructions[this.groupName];
     }
 
+    getCurrentInstruction() {
+        const data = this.instructionList[this.groupIndex];
+        if(!data) {
+            return null;
+        }
+        const instruction = new SongInstruction(data);
+        instruction.index = this.groupIndex;
+        instruction.positionInTicks = this.groupPositionInTicks;
+        return instruction;
+    }
+
+    getCurrentInstructionRow() {
+        const instructionRowList = [];
+        let instruction, currentIndex = this.groupIndex;
+        while(instruction = this.getInstruction(currentIndex)) {
+            instruction.positionInTicks = this.groupPositionInTicks;
+            instructionRowList.push(instruction);
+
+            if(instruction.deltaDuration)
+                break;
+            currentIndex++;
+        }
+        return instructionRowList;
+    }
+
     getInstruction(index, throwException=true) {
         const data = this.instructionList[index];
         if(!data) {
@@ -1325,13 +1350,27 @@ class AudioSourceInstructionIterator {
         }
         const instruction = new SongInstruction(data);
         instruction.index = index;
-        instruction.positionInTicks = this.groupPositionInTicks;
         return instruction;
+    }
+
+    getInstructionRow(startIndex) {
+        const instructionRowList = [];
+        let instruction;
+        while(instruction = this.getInstruction(startIndex)) {
+            instructionRowList.push(instruction);
+
+            if(instruction.deltaDuration)
+                break;
+            startIndex++;
+        }
+        return instructionRowList;
     }
 
     currentInstruction() {
         const index = this.groupIndex === -1 ? 0 : this.groupIndex;
-        return this.getInstruction(index, false);
+        const instruction = this.getInstruction(index, false);
+        instruction.positionInTicks = this.groupPositionInTicks;
+        return instruction;
     }
 
     nextConditionalInstruction(conditionalCallback) {
@@ -1372,7 +1411,7 @@ class AudioSourceInstructionIterator {
     }
 
 
-    nextInstructionRow(filterByInstrumentID = null) {
+    nextInstructionRow(conditionalCallback = null) {
 
         let currentInstruction = this.nextInstruction();
         if(!currentInstruction)
@@ -1398,14 +1437,17 @@ class AudioSourceInstructionIterator {
             currentRowInstructionList.push(nextInstruction);
         }
 
-        if(filterByInstrumentID !== null)
-            currentRowInstructionList = currentRowInstructionList.filter(inst => inst.instrument === filterByInstrumentID);
-
+        if(conditionalCallback !== null) {
+            currentRowInstructionList = currentRowInstructionList.filter(conditionalCallback);
+            // if(currentRowInstructionList.length === 0) {
+            //     return this.nextInstructionRow(conditionalCallback);
+            // }
+        }
         return currentRowInstructionList;
         // throw new Error("Recursion limit");
     }
 
-    nextInstructionQuantizedRow(quantizationInTicks, filterByInstrumentID = null) {
+    nextInstructionQuantizedRow(quantizationInTicks, conditionalCallback = null) {
         if(!quantizationInTicks)
             throw new Error("Invalid Quantization value: " + typeof quantizationInTicks);
         let nextInstruction = this.getInstruction(this.groupIndex+1, false);
@@ -1446,7 +1488,13 @@ class AudioSourceInstructionIterator {
             return [];
         }
 
-        return this.nextInstructionRow(filterByInstrumentID);
+        const currentRowInstructionList = this.nextInstructionRow(conditionalCallback);
+
+        // if(currentRowInstructionList.length === 0) {
+        //     // Empty row returned, indicating condition filter might be active
+        //     return this.nextInstructionQuantizedRow(quantizationInTicks, conditionalCallback);
+        // }
+        return currentRowInstructionList;
         // if(rowLengthInTicks )
         // keep track of tick position
 

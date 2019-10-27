@@ -5,7 +5,7 @@ class AudioSourceLibrary extends HTMLElement{
     constructor(data) {
         super();
         this.url = null;
-        this.urlPrefix = null;
+        this.urlPrefix = '';
         this.name = "Loading...";
         this.samples = {};
         this.libraries = {};
@@ -19,12 +19,15 @@ class AudioSourceLibrary extends HTMLElement{
     // }
     
     eachLibrary(callback) {
-        this.processItemList(this.libraries, callback);
+        this.processItemList(this.libraries, (libraryConfig) => {
+            libraryConfig.url = new URL(this.urlPrefix + (libraryConfig.url || libraryConfig.name), this.url) + '';
+            callback(libraryConfig);
+        });
     }
 
     eachSample(callback) {
         this.processItemList(this.samples, (sampleConfig) => {
-            // sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + ''; //TODO: is this okay?
+            sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
             callback(sampleConfig);
         });
     }
@@ -37,7 +40,10 @@ class AudioSourceLibrary extends HTMLElement{
     }
 
     eachInstrument(callback) {
-        this.processItemList(this.instruments, callback);
+        this.processItemList(this.instruments, (instrumentConfig) => {
+            instrumentConfig.url = new URL(this.urlPrefix + (instrumentConfig.url || instrumentConfig.name), this.url) + '';
+            callback(instrumentConfig);
+        });
     }
 
     getPresetConfig(presetName) {
@@ -126,8 +132,6 @@ class AudioSourceLibrary extends HTMLElement{
             itemConfig = Object.assign({}, itemConfig);
             if(typeof itemConfig.name === "undefined" && itemName)
                 itemConfig.name = itemName;
-            if(typeof itemConfig.url === "undefined")
-                itemConfig.url = new URL((this.urlPrefix || '') + (itemConfig.url || itemConfig.name), this.url) + '';
             eachCallback(itemConfig);
         };
 

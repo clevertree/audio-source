@@ -533,6 +533,7 @@
                 || this.DEFAULT_SAMPLE_LIBRARY_URL;
             const AudioSourceLibrary = customElements.get('audio-source-library');
             this.sampleLibrary = await AudioSourceLibrary.loadURL(defaultLibraryURL);
+            console.log(this.instrument.config.name, this.sampleLibrary);
             // TODO: locate sample/preset library
         }
 
@@ -598,6 +599,14 @@
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.form.clearInputs();
             this.form.classList.add('audio-source-synthesizer-container');
+            if(this.form.focusHandler)
+                this.form.removeEventListener('focus', this.form.focusHandler);
+            this.form.focusHandler = (e) => {
+                this.form.getRootNode().querySelectorAll('asui-form.focus')
+                    .forEach(formElm => formElm.classList.remove('focus'));
+                this.form.classList.add('focus');
+            };
+            this.form.addEventListener('focus', this.form.focusHandler, true);
 
             const instrumentToggleButton = this.form.addButton('instrument-id',
                 e => this.form.classList.toggle('selected'), //TODO: toggle view
@@ -736,6 +745,7 @@
             }
             await this.fieldChangePreset.renderOptions();
             this.fieldChangePreset.value = '';
+            this.form.classList.add('focus');
         }
 
         async addSample(sampleURL, promptUser=false) {

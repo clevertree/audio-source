@@ -471,6 +471,7 @@ class AudioSourceComposerActions {
     }
 
     toggleFullscreen(e) {
+        this.editor.containerElm.classList.toggle('fullscreen')
         this.editor.classList.toggle('fullscreen')
     }
 
