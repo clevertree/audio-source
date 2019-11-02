@@ -1,3 +1,8 @@
+audio-source-composer {
+    display: block;
+}
+
+
 /** Font styles **/
 
 span.error {
@@ -174,6 +179,8 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
 /*}*/
 
 
+/** Visibility **/
+
 .asc-container:not(.playing) .show-on-song-playing,
 .asc-container.playing .hide-on-song-playing,
 .asc-container.hide-panel-song asui-form[key=song],
@@ -184,82 +191,6 @@ asui-form[key=instruments]  asui-input-select[key=instrument-preset]       selec
     display: none;
 }
 
-/** Form Visibility **/
-
-
-/** Form Inputs **/
-
-.asc-container .input-style,
-.asc-container input.themed,
-.asc-container select.themed,
-.asc-container button.themed {
-    /* display: inline-block; */
-    padding: 0px 0px;
-    /* border-radius: 2px; */
-    /* transition: all 0.2s; */
-    border: 0px outset transparent;
-    background: transparent;
-    cursor: pointer;
-    height: 24px;
-}
-
-.asc-container .input-style:hover,
-.asc-container input[type=text].themed:hover,
-.asc-container select.themed:hover,
-.asc-container button.themed:hover,
-.asc-container .input-style:focus,
-.asc-container input[type=text].themed:focus,
-.asc-container select.themed:focus,
-.asc-container button.themed:focus {
-    background: #FFF;
-}
-
-.asc-container input.themed[type=number],
-.asc-container input.themed[type=text] {
-    padding-left: 5px;
-}
-.asc-container .button-style,
-.asc-container button.themed {
-    /* border: 1px outset #FFF; */
-    display: block;
-    /* min-height: 44px; */
-    /* margin: 0px 1px; */
-    /* border-radius: 2px; */
-}
-
-/*.asc-container button.themed > span {*/
-/*    margin: 2px 4px;*/
-/*}*/
-
-
-.asc-container input.themed[type='range'] {
-    -webkit-appearance: none;
-    background-color: #AAA;
-    border-radius: 15px;
-    height: 2px;
-    margin: 11px;
-}
-.asc-container input.themed[type='range']::-webkit-slider-thumb {
-    vertical-align: middle;
-    -webkit-appearance: none;
-    background-color: #444;
-    width: 6px;
-    height: 12px;
-    border-radius: 4px;
-}
-
-
-
-/** Disabled Inputs **/
-
-.asc-container  input:disabled,
-.asc-container  select:disabled,
-.asc-container  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-/** Group Buttons **/
 
 
 /** Add Instrument Form **/

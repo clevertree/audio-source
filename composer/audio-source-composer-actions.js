@@ -117,8 +117,8 @@ class AudioSourceComposerActions {
 
 
     async loadSongFromJSONFile(file) {
-        const storage = new AudioSourceStorage();
-        const songData = await storage.loadJSONFile(file);
+        const Util = new AudioSourceUtilities();
+        const songData = await Util.loadJSONFromURL(file);
         if(songData.instruments.length === 0)
             console.warn("Song contains no instruments");
         await this.editor.song.loadSongData(songData);
@@ -136,18 +136,8 @@ class AudioSourceComposerActions {
     }
 
     async loadSongFromSrc(src) {
-        src = new URL(src, document.location) + '';
-        const songData = await new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', src + '', true);
-            xhr.responseType = 'json';
-            xhr.onload = () => {
-                if(xhr.status !== 200)
-                    return reject("Song file not found: " + url);
-                resolve(xhr.response);
-            };
-            xhr.send();
-        });
+        const Util = new AudioSourceUtilities();
+        const songData = await Util.loadJSONFromURL(src);
         if(songData.instruments.length === 0)
             console.warn("Song contains no instruments");
         await this.editor.song.loadSongData(songData);

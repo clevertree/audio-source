@@ -41,7 +41,7 @@ class AudioSourceComposerElement extends HTMLElement {
 
     getScriptDirectory(appendPath=null) {
         const Util = new AudioSourceUtilities;
-        return Util.getScriptDirectory(appendPath);
+        return Util.getScriptDirectory(appendPath, 'script[src$="audio-source-composer.js"],script[src$="audio-source-composer.min.js"]');
     }
 
     get defaultLibraryURL()      { return this.getAttribute('defaultLibraryURL') || this.getScriptDirectory('default.library.json'); }

@@ -66,7 +66,7 @@ class AudioSourceUtilities {
         if (!force && packageInfo)
             return packageInfo;
 
-        packageInfo = await this.loadJSON(url);
+        packageInfo = await this.loadJSONFromURL(url);
         if(!packageInfo.version)
             throw new Error("Invalid package version: " + url);
 
@@ -76,15 +76,19 @@ class AudioSourceUtilities {
     }
 
 
+
+
     /** Utilities **/
 
-    getScriptElement() {
-        return document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
+    getScriptElement(selector=null) {
+        return document.head.querySelector(selector || 'script[src$="audio-source-utilities.js"],script[src$="audio-source-composer.min.js"],script[src$="audio-source-player.min.js"]');
     }
 
 
-    getScriptDirectory(appendPath='') {
-        const scriptElm = this.getScriptElement(); // document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
+    getScriptDirectory(appendPath='', selector=null) {
+        const scriptElm = this.getScriptElement(selector);
+        if(!scriptElm)
+            throw new Error("Script Element not found");
         const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
 //         console.log("Base Path: ", basePath);
         return basePath + appendPath;
@@ -99,7 +103,7 @@ class AudioSourceUtilities {
         });
     }
 
-    async loadJSON(url) {
+    async loadJSONFromURL(url) {
         url = new URL(url, document.location) + '';
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
@@ -114,6 +118,8 @@ class AudioSourceUtilities {
             xhr.send();
         });
     }
+
+
 
 }
 

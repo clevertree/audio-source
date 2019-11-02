@@ -1,11 +1,11 @@
 {
   "instruments": [
     {
-      "url": "../instrument/audio-source-synthesizer.js",
+      "url": "/audio-source/instrument/audio-source-synthesizer.js",
       "samples": [
         {
-          "name": "Clarinet",
-          "url": "sample/gm/fws/s/1980s-Casio-Clarinet-C5",
+          "name": "Piano",
+          "url": "/sample/snes/ffvi/piano.wav",
           "keyRoot": "C5",
           "loop": true
         }
@@ -338,7 +338,7 @@
         100
       ],
       [
-        30,
+        60,
         "A4",
         0,
         30,
