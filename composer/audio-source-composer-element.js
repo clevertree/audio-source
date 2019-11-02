@@ -146,9 +146,11 @@ class AudioSourceComposerElement extends HTMLElement {
             return true;
         }
 
-        if(recentSongGUID) {
+        if(recentSongGUID) try {
             await this.actions.loadSongFromMemory(recentSongGUID);
             return;
+        } catch (e) {
+            console.error(e);
         }
 
         // if(await this.actions.loadRecentSongData())
@@ -340,7 +342,7 @@ class AudioSourceComposerElement extends HTMLElement {
             <link rel="stylesheet" href="${linkHRefComposer}" />
             <link rel="stylesheet" href="${linkHRefCommon}" />
             <div class="asc-container">
-                <div class="asui-menu-container">
+                <div class="asc-menu-container">
                     <asui-menu key="file" caption="File"></asui-menu>
                     <asui-menu key="edit" caption="Edit"></asui-menu>
                     <asui-menu key="group" caption="Group"></asui-menu>
@@ -348,17 +350,19 @@ class AudioSourceComposerElement extends HTMLElement {
                     <asui-menu key="view" caption="View"></asui-menu>
                     <asui-menu key="context" caption=""></asui-menu>
                 </div>
-                <asui-form key="song" caption="Song" class="panel"></asui-form><!--
-                --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
-                <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
-                --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
-                --><asui-form key="tracker-groups" caption="Tracker Groups" class="panel"></asui-form><!--
-                --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
+                <div class="asc-form-container">
+                    <asui-form key="song" caption="Song" class="panel"></asui-form><!--
+                    --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
+                    <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
+                    --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
+                    --><asui-form key="tracker-groups" caption="Tracker Groups" class="panel"></asui-form><!--
+                    --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
+                </div>
                 <asc-tracker group="root"></asc-tracker>
-            </div>
-            <div class="asc-status-container">
-                <span class="status-text"></span>
-                <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
+                <div class="asc-status-container">
+                    <span class="status-text"></span>
+                    <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
+                </div>
             </div>
             `;
         }
@@ -391,6 +395,7 @@ class AudioSourceComposerElement extends HTMLElement {
             this.formSongFile = panelSong.getOrCreateForm('file', 'File');
             this.formSongName = panelSong.getOrCreateForm('name', 'Name');
             this.formSongVersion = panelSong.getOrCreateForm('version', 'Version');
+            this.formSongBPM = panelSong.getOrCreateForm('bpm', 'BPM');
         }
 
         /** Tracker Fields **/
@@ -432,12 +437,16 @@ class AudioSourceComposerElement extends HTMLElement {
                 (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
             this.fieldSongVersion = this.formSongVersion.addTextInput('version',
                 (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
+            this.fieldSongBPM = this.formSongBPM.addTextInput('bpm',
+                (e, newBPM) => this.actions.setStartingBPM(e, parseInt(newBPM)));
+            this.fieldSongBPM.inputElm.setAttribute('type', 'number');
         }
 
         this.fieldSongPlaybackPause.disabled = true;
 
         this.fieldSongName.value = this.song.getName();
         this.fieldSongVersion.value = this.song.getVersion();
+        this.fieldSongBPM.value = this.song.getStartingBPM();
 
         this.fieldSongVolume.value = this.song.getVolumeValue();
 

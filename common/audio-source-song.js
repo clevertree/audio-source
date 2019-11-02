@@ -209,7 +209,7 @@ class AudioSourceSong {
         return new AudioSourceInstructionIterator(
             this,
             groupName,
-            parentStats ? parentStats.currentBPM : this.startingBeatsPerMinute,
+            parentStats ? parentStats.currentBPM : this.getStartingBPM(),
             parentStats ? parentStats.groupPositionInTicks : 0);
     }
 
@@ -472,7 +472,7 @@ class AudioSourceSong {
         }
 
 
-        let bpm = this.startingBeatsPerMinute;
+        let bpm = this.getStartingBPM();
         // const noteDuration = (instruction.duration || 1) * (60 / bpm);
         let timeDivision = this.timeDivision;
         const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
@@ -667,6 +667,13 @@ class AudioSourceSong {
     setName(newSongTitle)      { return this.replaceDataPath(['name'], newSongTitle); }
     getVersion()               { return this.data.version; }
     setVersion(newSongTitle)   { return this.replaceDataPath(['version'], newSongTitle); }
+
+    getStartingBPM()           { return this.data.beatsPerMinute; }
+    setStartingBPM(newBPM)     {
+        if(!Number.isInteger(newBPM))
+            throw new Error("Invalid BPM");
+        return this.replaceDataPath(['beatsPerMinute'], newBPM);
+    }
 
     addInstrument(config) {
         if(typeof config !== 'object')
@@ -1229,7 +1236,7 @@ class AudioSourceInstructionPlayback {
         if(!this.isPlaybackActive)
             throw new Error("Playback is not active");
 
-        const instructionList = this.iterator.nextInstructionQuantizedRow(this.quantizationInTicks);
+        const instructionList = this.iterator.nextInstructionQuantizedRow(this.quantizationInTicks); // TODO: bad idea
         if(this.iterator.hasReachedEnd) {
             // If there's no next instruction, end playback.
             this.stopPlayback(false);
@@ -1292,7 +1299,7 @@ class AudioSourceInstructionIterator {
 
         this.song = song;
         this.groupName = groupName;
-        this.currentBPM = currentBPM || song.startingBeatsPerMinute;
+        this.currentBPM = currentBPM || song.getStartingBPM();
         // this.lastRowPositionInTicks = 0;
         // this.lastRowPlaybackTime = 0;
         this.groupPositionInTicks = groupPositionInTicks;

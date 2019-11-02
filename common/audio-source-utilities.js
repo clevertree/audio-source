@@ -10,6 +10,9 @@ class AudioSourceUtilities {
                 this.getScriptDirectory('assets/3rdparty/MidiParser/main.js'),
                 'https://cdn.jsdelivr.net/gh/colxi/midi-parser-js/src/main.js'
             ],
+            'MIDIFile': [
+                this.getScriptDirectory('assets/3rdparty/MIDIFile/MIDIFile.min.js')
+            ],
             'LZString': [
                 this.getScriptDirectory('assets/3rdparty/LZString/lz-string.min.js'),
                 'https://cdn.jsdelivr.net/gh/pieroxy/lz-string/libs/lz-string.min.js'
@@ -39,6 +42,11 @@ class AudioSourceUtilities {
         return window.MidiParser;
     }
 
+    async getMIDIFile() {
+        if(typeof window.MIDIFile === 'undefined')
+            await this.loadJSLibrary('MIDIFile');
+        return window.MIDIFile;
+    }
 
     async getLZString() {
         if(typeof window.LZString === 'undefined')

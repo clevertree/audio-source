@@ -730,6 +730,7 @@ class AudioSourceUIInputAbstract extends HTMLElement {
     get value() { return this.inputElm.value; }
     set value(newValue) { this.inputElm.value = newValue; }
 
+    focus() { return this.inputElm.focus(); }
     setContent(innerHTML, inputElm=null) {
         inputElm = inputElm || this.inputElm;
         inputElm.innerHTML = '';

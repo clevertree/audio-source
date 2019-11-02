@@ -25,6 +25,10 @@ class AudioSourceComposerActions {
         this.editor.song.setVersion(newSongVersion);
         this.editor.setStatus(`Song version updated: ${newSongVersion}`);
     }
+    setStartingBPM(e, newSongBPM) {
+        this.editor.song.setStartingBPM(newSongBPM);
+        this.editor.setStatus(`Song beats per minute updated: ${newSongBPM}`);
+    }
 
     setSongVolume(e, newSongVolume) {
         this.editor.song.setVolume(newSongVolume);
@@ -118,7 +122,7 @@ class AudioSourceComposerActions {
         if(songData.instruments.length === 0)
             console.warn("Song contains no instruments");
         await this.editor.song.loadSongData(songData);
-        this.editor.render();
+        this.editor.render(true);
         this.editor.setStatus("Song loaded from file: ", songData);
     }
 
@@ -127,7 +131,7 @@ class AudioSourceComposerActions {
         const midiSupport = new MIDISupport();
         const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
         await this.editor.song.loadSongData(songData);
-        this.editor.render();
+        this.editor.render(true);
         this.editor.setStatus("Song loaded from midi: ", songData);
     }
 
@@ -149,7 +153,7 @@ class AudioSourceComposerActions {
         await this.editor.song.loadSongData(songData);
         this.editor.setStatus("Song loaded from src: " + src);
         console.info(this.editor.song.data);
-        this.editor.render();
+        this.editor.render(true);
     }
 
     /** Song Playback **/
@@ -459,20 +463,25 @@ class AudioSourceComposerActions {
     /** Toggle Panels **/
 
     togglePanelInstruments(e) {
-        this.editor.containerElm.classList.toggle('hide-panel-instruments')
+        this.editor.containerElm.classList.toggle('hide-panel-instruments');
     }
 
     togglePanelTracker(e) {
-        this.editor.containerElm.classList.toggle('hide-panel-tracker')
+        this.editor.containerElm.classList.toggle('hide-panel-tracker');
     }
 
     togglePanelSong(e) {
-        this.editor.containerElm.classList.toggle('hide-panel-song')
+        this.editor.containerElm.classList.toggle('hide-panel-song');
     }
 
     toggleFullscreen(e) {
-        this.editor.containerElm.classList.toggle('fullscreen')
-        this.editor.classList.toggle('fullscreen')
+        const setFullScreen = !this.editor.classList.contains('fullscreen');
+        this.editor.containerElm.classList.toggle('fullscreen', setFullScreen);
+        this.editor.classList.toggle('fullscreen', setFullScreen);
+
+        if(setFullScreen) {
+
+        }
     }
 
     /** Tools **/

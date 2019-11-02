@@ -371,11 +371,19 @@ class AudioSourceComposerTracker extends HTMLElement {
                 lastRowElm = new AudioSourceComposerTrackerRow(instructionIterator.groupPositionInTicks); // document.createElement('asct-row');
                 this.appendChild(lastRowElm);
                 lastRowElm.renderInstructions(rowInstructionList);
+                // TODO: current beat/meausure
             }
             lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
         }
 
-        // Re-render last row with the next note position
+        if(lastRowPositionInTicks < segmentLengthInTicks) {
+            lastRowPositionInTicks = Math.ceil(lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks;
+            while(lastRowPositionInTicks < segmentLengthInTicks) {
+                lastRowElm = new AudioSourceComposerTrackerRow(lastRowPositionInTicks); // document.createElement('asct-row');
+                this.appendChild(lastRowElm);
+                lastRowPositionInTicks += quantizationInTicks;
+            }
+        }
 
 
         // Render Group
@@ -757,7 +765,7 @@ class AudioSourceComposerTracker extends HTMLElement {
 
                         this.insertOrUpdateCommand(e, newMIDICommand);
                         this.playSelectedInstructions(e);
-                        this.focus();
+                        // this.focus();
                         break;
                     case 128:   // Note Off
                         // TODO: turn off playing note, optionally set duration of note
