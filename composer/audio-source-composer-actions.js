@@ -1,8 +1,4 @@
-class AudioSourceComposerActions {
-
-    constructor(editor) {
-        this.editor = editor;
-    }
+class AudioSourceComposerActions extends AudioSourceComposerRenderer {
 
     getDefaultInstrumentURL() {
         const Util = new AudioSourceUtilities;
@@ -13,85 +9,85 @@ class AudioSourceComposerActions {
     /** Song Commands **/
 
     setInstrumentName(e, instrumentID, newInstrumentName) {
-        this.editor.song.setInstrumentName(instrumentID, newInstrumentName);
-        this.editor.setStatus(`Instrument name updated: ${newInstrumentName}`);
+        this.song.setInstrumentName(instrumentID, newInstrumentName);
+        this.setStatus(`Instrument name updated: ${newInstrumentName}`);
     }
 
     setSongName(e, newSongName) {
-        this.editor.song.setName(newSongName);
-        this.editor.setStatus(`Song name updated: ${newSongName}`);
+        this.song.setName(newSongName);
+        this.setStatus(`Song name updated: ${newSongName}`);
     }
     setSongVersion(e, newSongVersion) {
-        this.editor.song.setVersion(newSongVersion);
-        this.editor.setStatus(`Song version updated: ${newSongVersion}`);
+        this.song.setVersion(newSongVersion);
+        this.setStatus(`Song version updated: ${newSongVersion}`);
     }
     setStartingBPM(e, newSongBPM) {
-        this.editor.song.setStartingBPM(newSongBPM);
-        this.editor.setStatus(`Song beats per minute updated: ${newSongBPM}`);
+        this.song.setStartingBPM(newSongBPM);
+        this.setStatus(`Song beats per minute updated: ${newSongBPM}`);
     }
 
     setSongVolume(e, newSongVolume) {
-        this.editor.song.setVolume(newSongVolume);
-        this.editor.fieldSongVolume.value = newSongVolume;
-        this.editor.setStatus(`Volume modified: ${newSongVolume}`);
+        this.song.setVolume(newSongVolume);
+        this.fieldSongVolume.value = newSongVolume;
+        this.setStatus(`Volume modified: ${newSongVolume}`);
     }
 
     async loadNewSongData() {
         const storage = new AudioSourceStorage();
         const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
         let songData = storage.generateDefaultSong(defaultInstrumentURL);
-        await this.editor.song.loadSongData(songData);
-        this.editor.render();
-        this.editor.setStatus("Loaded new song", songData);
+        await this.song.loadSongData(songData);
+        this.render();
+        this.setStatus("Loaded new song", songData);
     }
 
 
     async loadRecentSongData() {
         const storage = new AudioSourceStorage();
-        let songRecentGUIDs = await storage.getRecentSongList();
-        if(songRecentGUIDs[0] && songRecentGUIDs[0].guid) {
-            this.editor.setStatus("Loading recent song: " + songRecentGUIDs[0].guid);
-            await this.loadSongFromMemory(songRecentGUIDs[0].guid);
+        let songRecentUUIDs = await storage.getRecentSongList();
+        if(songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
+            this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
+            await this.loadSongFromMemory(songRecentUUIDs[0].uuid);
             return true;
         }
         return false;
     }
 
     async saveSongToMemory() {
-        const song = this.editor.song;
+        const song = this.song;
         const songData = song.data;
         const songHistory = song.history;
         const storage = new AudioSourceStorage();
-        this.editor.setStatus("Saving song to memory...");
+        this.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
-        this.editor.setStatus("Saved song to memory: " + songData.guid);
+        this.setStatus("Saved song to memory: " + songData.uuid);
     }
 
     saveSongToFile() {
-        const songData = this.editor.song.data;
-        // const songHistory = this.editor.song.history;
+        const songData = this.song.data;
+        // const songHistory = this.song.history;
         const storage = new AudioSourceStorage();
-        this.editor.setStatus("Saving song to file");
+        this.setStatus("Saving song to file");
         storage.saveSongToFile(songData);
     }
 
 
-    async loadSongFromMemory(songGUID) {
-        const song = this.editor.song;
+    async loadSongFromMemory(songUUID) {
+        const song = this.song;
         const storage = new AudioSourceStorage();
-        const songData = await storage.loadSongFromMemory(songGUID);
+        const songData = await storage.loadSongFromMemory(songUUID);
         if(songData.instruments.length === 0)
             console.warn("Song contains no instruments");
-        const songHistory = await storage.loadSongHistoryFromMemory(songGUID);
+        const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
         await song.loadSongData(songData);
         await song.loadSongHistory(songHistory);
-        this.editor.render(true);
-        this.editor.setStatus("Song loaded from memory: " + songGUID, songData);
+        this.render(true);
+        this.setStatus("Song loaded from memory: " + songUUID, songData);
 //         console.info(songData);
     }
 
     async loadSongFromFileInput(e, fileInput=null) {
-        fileInput = fileInput || this.editor.fieldSongFileLoad.inputElm;
+        fileInput = fileInput || this.fieldSongFileLoad.inputElm;
         if(!fileInput || !fileInput.files || fileInput.files.length === 0)
             throw new Error("Invalid file input");
         if(fileInput.files.length > 1)
@@ -118,21 +114,21 @@ class AudioSourceComposerActions {
 
     async loadSongFromJSONFile(file) {
         const Util = new AudioSourceUtilities();
-        const songData = await Util.loadJSONFromURL(file);
+        const songData = await Util.loadJSONFile(file);
         if(songData.instruments.length === 0)
             console.warn("Song contains no instruments");
-        await this.editor.song.loadSongData(songData);
-        this.editor.render(true);
-        this.editor.setStatus("Song loaded from file: ", songData);
+        await this.song.loadSongData(songData);
+        this.render(true);
+        this.setStatus("Song loaded from file: ", songData);
     }
 
     async loadSongFromMIDIFile(file, defaultInstrumentURL=null) {
         defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
         const midiSupport = new MIDISupport();
         const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
-        await this.editor.song.loadSongData(songData);
-        this.editor.render(true);
-        this.editor.setStatus("Song loaded from midi: ", songData);
+        await this.song.loadSongData(songData);
+        this.render(true);
+        this.setStatus("Song loaded from midi: ", songData);
     }
 
     async loadSongFromSrc(src) {
@@ -140,33 +136,33 @@ class AudioSourceComposerActions {
         const songData = await Util.loadJSONFromURL(src);
         if(songData.instruments.length === 0)
             console.warn("Song contains no instruments");
-        await this.editor.song.loadSongData(songData);
-        this.editor.setStatus("Song loaded from src: " + src);
-        console.info(this.editor.song.data);
-        this.editor.render(true);
+        await this.song.loadSongData(songData);
+        this.setStatus("Song loaded from src: " + src);
+        console.info(this.song.data);
+        this.render(true);
     }
 
     /** Song Playback **/
 
 
     async songPlay() {
-        await this.editor.song.play();
+        await this.song.play();
     }
 
     async songPause() {
-        this.editor.song.stopPlayback();
+        this.song.stopPlayback();
     }
 
     async songStop() {
-        this.editor.song.stopPlayback();
-        this.editor.song.setPlaybackPositionInTicks(0);
+        this.song.stopPlayback();
+        this.song.setPlaybackPositionInTicks(0);
     }
 
     setSongPosition(e, playbackPosition=null) {
-        const song = this.editor.song;
+        const song = this.song;
         if(playbackPosition === null) {
             const values = new AudioSourceValues();
-            playbackPosition = values.parsePlaybackPosition(this.editor.fieldSongPosition.value);
+            playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
         }
         song.setPlaybackPosition(playbackPosition);
 
@@ -176,9 +172,9 @@ class AudioSourceComposerActions {
 
     insertInstructionCommand(e, newCommand=null, promptUser=false, instrumentID=null) {
         //: TODO: check for recursive group
-        const tracker = this.editor.trackerElm;
-        const song = this.editor.song;
-        // let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        const song = this.song;
+        // let selectedIndicies = this.getSelectedIndicies();
 
         // if(selectedIndicies.length === 0)
         //     throw new Error("No selection");
@@ -197,15 +193,15 @@ class AudioSourceComposerActions {
         console.log(songPosition);
         let insertIndex = song.insertInstructionAtPosition(tracker.groupName, songPosition, newInstruction);
         tracker.renderRows();
-        tracker.selectIndicies(e, insertIndex);
+        this.selectIndicies(insertIndex);
         tracker.playSelectedInstructions();
     }
 
     setInstructionCommand(e, newCommand=null, promptUser=false, instrumentID=null) {
         //: TODO: check for recursive group
-        const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        const renderer = this.song;
+        let selectedIndicies = this.getSelectedIndicies();
 
         if(selectedIndicies.length === 0)
             throw new Error("No selection");
@@ -227,9 +223,9 @@ class AudioSourceComposerActions {
 
     // TODO: assuming the use of tracker.groupName?
     setInstructionInstrument(e, instrumentID=null) {
-        const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        const renderer = this.song;
+        let selectedIndicies = this.getSelectedIndicies();
 
         instrumentID = instrumentID !== null ? instrumentID : parseInt(tracker.fieldInstructionInstrument.value);
         if (!Number.isInteger(instrumentID))
@@ -243,9 +239,9 @@ class AudioSourceComposerActions {
     }
 
     setInstructionDuration(e, duration=null, promptUser=false) {
-        const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        const renderer = this.song;
+        let selectedIndicies = this.getSelectedIndicies();
 
         if (!duration)
             duration = parseFloat(tracker.fieldInstructionDuration.value);
@@ -262,9 +258,9 @@ class AudioSourceComposerActions {
     }
 
     setInstructionVelocity(e, velocity=null, promptUser=false) {
-        const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        const renderer = this.song;
+        let selectedIndicies = this.getSelectedIndicies();
 
         if(velocity === null)
             velocity = tracker.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(tracker.fieldInstructionVelocity.value) || null;
@@ -281,9 +277,9 @@ class AudioSourceComposerActions {
     }
 
     deleteInstructionCommand(e) {
-        const tracker = this.editor.trackerElm;
-        const renderer = this.editor.song;
-        let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        const renderer = this.song;
+        let selectedIndicies = this.getSelectedIndicies();
 
         for (let i = 0; i < selectedIndicies.length; i++)
             renderer.deleteInstructionAtIndex(tracker.groupName, selectedIndicies[i]);
@@ -294,40 +290,40 @@ class AudioSourceComposerActions {
     /** Groups **/
 
     songGroupAddNew(e) {
-        const tracker = this.editor.trackerElm;
-        const song = this.editor.song;
+        const tracker = this.trackerElm;
+        const song = this.song;
 
         let newGroupName = song.generateInstructionGroupName();
         newGroupName = prompt("Create new instruction group?", newGroupName);
         if (newGroupName) {
             song.addInstructionGroup(newGroupName, []);
-            this.editor.render();
+            this.render();
         } else {
-            this.editor.setStatus("<span class='error'>Create instruction group canceled</span>");
+            this.setStatus("<span class='error'>Create instruction group canceled</span>");
         }
     }
 
     songGroupRename(e, groupName, newGroupName=null) {
-        const song = this.editor.song;
+        const song = this.song;
 
         newGroupName = prompt(`Rename instruction group (${groupName})?`, groupName);
         if (newGroupName !== groupName) {
             song.renameInstructionGroup(groupName, newGroupName);
-            this.editor.render();
+            this.render();
         } else {
-            this.editor.setStatus("<span class='error'>Rename instruction group canceled</span>");
+            this.setStatus("<span class='error'>Rename instruction group canceled</span>");
         }
     }
 
     songGroupRemove(e, groupName) {
-        const song = this.editor.song;
+        const song = this.song;
 
         const result = confirm(`Remove instruction group (${groupName})?`);
         if (result) {
             song.removeInstructionGroup(groupName);
-            this.editor.render();
+            this.render();
         } else {
-            this.editor.setStatus("<span class='error'>Remove instruction group canceled</span>");
+            this.setStatus("<span class='error'>Remove instruction group canceled</span>");
         }
 
     }
@@ -337,38 +333,38 @@ class AudioSourceComposerActions {
 
     songAddInstrument(e, instrumentURL, instrumentConfig={}) {
         if(!instrumentURL)
-            return this.editor.handleError(`Empty URL`);
+            return this.handleError(`Empty URL`);
         instrumentConfig.url = instrumentURL;
-        instrumentConfig.libraryURL = this.editor.defaultLibraryURL;
+        instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
         if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
-            const instrumentID = this.editor.song.addInstrument(instrumentConfig);
-            this.editor.setStatus("New instrument Added to song: " + instrumentURL);
-            this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
+            const instrumentID = this.song.addInstrument(instrumentConfig);
+            this.setStatus("New instrument Added to song: " + instrumentURL);
+            this.trackerElm.fieldInstructionInstrument.value = instrumentID;
 
         } else {
-            this.editor.handleError(`New instrument canceled: ${instrumentURL}`);
+            this.handleError(`New instrument canceled: ${instrumentURL}`);
         }
     }
 
     async songReplaceInstrument(e, instrumentID, instrumentURL, instrumentConfig={}) {
         if(!Number.isInteger(instrumentID))
-            return this.editor.handleError(`Invalid Instrument ID: Not an integer`);
+            return this.handleError(`Invalid Instrument ID: Not an integer`);
         if(!instrumentURL)
-            return this.editor.handleError(`Empty URL`);
+            return this.handleError(`Empty URL`);
         instrumentConfig.url = instrumentURL;
-        instrumentConfig.libraryURL = this.editor.libraryURL;
+        instrumentConfig.libraryURL = this.libraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
         if(confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
-            await this.editor.song.replaceInstrument(instrumentID, instrumentConfig);
-            await this.editor.song.loadInstrument(instrumentID, true);
-            this.editor.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
-            this.editor.trackerElm.fieldInstructionInstrument.value = instrumentID;
+            await this.song.replaceInstrument(instrumentID, instrumentConfig);
+            await this.song.loadInstrument(instrumentID, true);
+            this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
+            this.trackerElm.fieldInstructionInstrument.value = instrumentID;
 
         } else {
-            this.editor.handleError(`Change instrument canceled: ${instrumentURL}`);
+            this.handleError(`Change instrument canceled: ${instrumentURL}`);
         }
     }
 
@@ -376,51 +372,51 @@ class AudioSourceComposerActions {
         if(removeInstrumentID === null)
             removeInstrumentID = parseInt(e.target.form.elements['instrumentID'].value);
         if(confirm(`Remove Instrument ID: ${removeInstrumentID}`)) {
-            this.editor.song.removeInstrument(removeInstrumentID);
-            this.editor.setStatus(`Instrument (${removeInstrumentID}) removed`);
+            this.song.removeInstrument(removeInstrumentID);
+            this.setStatus(`Instrument (${removeInstrumentID}) removed`);
 
         } else {
-            this.editor.handleError(`Remove instrument canceled`);
+            this.handleError(`Remove instrument canceled`);
         }
     }
 
     /** Tracker **/
 
     setTrackerChangeGroup(e, groupName=null) {
-        const tracker = this.editor.trackerElm;
+        const tracker = this.trackerElm;
 
         groupName = groupName || e.target.form.getAttribute('data-group');
         tracker.groupName = groupName;
         //TODO: validate
-        // this.editor.selectGroup(selectedGroupName);
+        // this.selectGroup(selectedGroupName);
     }
 
     setTrackerOctave(e, newOctave=null) {
         if(newOctave !== null)
-            this.editor.trackerElm.fieldTrackerOctave.value = newOctave;
+            this.trackerElm.fieldTrackerOctave.value = newOctave;
     }
 
     setTrackerRowLength(e, rowLengthInTicks=null) {
-        const tracker = this.editor.trackerElm;
-        // let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        // let selectedIndicies = this.getSelectedIndicies();
         if(rowLengthInTicks !== null)
             tracker.fieldTrackerRowLength.value;
         tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies);
+        // this.selectIndicies(e, selectedIndicies);
 
     }
 
     setTrackerSegmentLength(e, segmentLength=null) {
-        const tracker = this.editor.trackerElm;
-        // let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        // let selectedIndicies = this.getSelectedIndicies();
         if(segmentLength !== null)
             tracker.fieldTrackerSegmentLength.value = segmentLength;
         tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies);
+        // this.selectIndicies(e, selectedIndicies);
     }
 
     // setTrackerRowSegment(e) {
-    //     const tracker = this.editor.trackerElm;
+    //     const tracker = this.trackerElm;
     //
     //     this.currentRowSegmentID = parseInt(form.elements.id.value);
     //     tracker.renderRows();
@@ -432,42 +428,42 @@ class AudioSourceComposerActions {
     // }
 
     setTrackerFilterInstrument(e) {
-        const tracker = this.editor.trackerElm;
-        // let selectedIndicies = tracker.getSelectedIndicies();
+        const tracker = this.trackerElm;
+        // let selectedIndicies = this.getSelectedIndicies();
 
         tracker.renderRows();
-        // tracker.selectIndicies(e, selectedIndicies);
+        // this.selectIndicies(e, selectedIndicies);
     }
 
     setTrackerSelection(e, selectedIndicies=null) {
-        const tracker = this.editor.trackerElm;
+        const tracker = this.trackerElm;
 
         if(!selectedIndicies)
             selectedIndicies = tracker.fieldTrackerSelection.value
                 .split(/\D+/)
                 .map(index => parseInt(index));
-        tracker.selectIndicies(e, selectedIndicies);
+        this.selectIndicies(selectedIndicies);
         tracker.fieldTrackerSelection.focus();
     }
 
     /** Toggle Panels **/
 
     togglePanelInstruments(e) {
-        this.editor.containerElm.classList.toggle('hide-panel-instruments');
+        this.containerElm.classList.toggle('hide-panel-instruments');
     }
 
     togglePanelTracker(e) {
-        this.editor.containerElm.classList.toggle('hide-panel-tracker');
+        this.containerElm.classList.toggle('hide-panel-tracker');
     }
 
     togglePanelSong(e) {
-        this.editor.containerElm.classList.toggle('hide-panel-song');
+        this.containerElm.classList.toggle('hide-panel-song');
     }
 
     toggleFullscreen(e) {
-        const setFullScreen = !this.editor.classList.contains('fullscreen');
-        this.editor.containerElm.classList.toggle('fullscreen', setFullScreen);
-        this.editor.classList.toggle('fullscreen', setFullScreen);
+        const setFullScreen = !this.classList.contains('fullscreen');
+        this.containerElm.classList.toggle('fullscreen', setFullScreen);
+        this.classList.toggle('fullscreen', setFullScreen);
 
         if(setFullScreen) {
 
@@ -489,12 +485,12 @@ class AudioSourceComposerActions {
         storage.addBatchRecentSearches(searchCallbackString);
 
 
-        const tracker = this.editor.trackerElm;
+        const tracker = this.trackerElm;
         tracker.clearSelection();
         const groupName = tracker.groupName, g=groupName;
         try {
             const stats = {count:0};
-            const iterator = this.editor.song.getIterator(groupName);
+            const iterator = this.song.getIterator(groupName);
             let instruction;
             const window=null, document=null;
             while(instruction = iterator.nextConditionalInstruction((instruction) => {
@@ -504,9 +500,9 @@ class AudioSourceComposerActions {
                 stats.count++;
                 tracker.selectIndex(e, iterator.groupIndex);
             }
-            this.editor.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
+            this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
         } catch (err) {
-            this.editor.setStatus("Batch Search Failed: " + err.message, err);
+            this.setStatus("Batch Search Failed: " + err.message, err);
         }
     }
 
@@ -529,11 +525,11 @@ class AudioSourceComposerActions {
         storage.addBatchRecentCommands(commandCallbackString);
 
         const instructionList = [];
-        const tracker = this.editor.trackerElm;
+        const tracker = this.trackerElm;
         const groupName = tracker.groupName, g=groupName;
         try {
             const stats = {count:0, modified:0};
-            const iterator = this.editor.song.getIterator(groupName);
+            const iterator = this.song.getIterator(groupName);
             let instruction;
             const window=null, document=null;
             while(instruction = iterator.nextConditionalInstruction((instruction) => {
@@ -549,10 +545,10 @@ class AudioSourceComposerActions {
                 stats.count++;
                 tracker.selectIndex(e, iterator.groupIndex);
             }
-            this.editor.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
+            this.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
             return instructionList;
         } catch (err) {
-            this.editor.setStatus("Batch Command Failed: " + err.message, err);
+            this.setStatus("Batch Command Failed: " + err.message, err);
             return [];
         }
     }

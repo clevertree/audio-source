@@ -1,6 +1,6 @@
 {
 	"name": "Kefka Demo",
-	"guid": "d2804012-28e3-4b7b-abf4-e3e482ed66ea",
+	"uuid": "d2804012-28e3-4b7b-abf4-e3e482ed66ea",
 	"version": "0.0.1",
 	"root": "root",
 	"created": 1572137586250,

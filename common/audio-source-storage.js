@@ -22,7 +22,7 @@ class AudioSourceStorage {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
     }
 
-    generateGUID() {
+    generateUUID() {
         var d = new Date().getTime();
         if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
             d += performance.now(); //use high-precision timer if available
@@ -37,7 +37,7 @@ class AudioSourceStorage {
     generateDefaultSong(defaultInstrumentURL=null) {
         const songData = {
             name: this.generateName(),
-            guid: this.generateGUID(),
+            uuid: this.generateUUID(),
             version: '0.0.1',
             root: 'root',
             created: new Date().getTime(),
@@ -89,28 +89,28 @@ class AudioSourceStorage {
 
     async saveSongToMemory(songData, songHistory) {
         // const song = this.data;
-        if(!songData.guid)
-            songData.guid = this.generateGUID();
-        let songRecentGUIDs = [];
+        if(!songData.uuid)
+            songData.uuid = this.generateUUID();
+        let songRecentUUIDs = [];
         try {
-            songRecentGUIDs = await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+            songRecentUUIDs = await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
         } catch (e) {
             console.error(e);
         }
-        songRecentGUIDs = songRecentGUIDs.filter((entry) => entry.guid !== songData.guid);
-        songRecentGUIDs.unshift({guid: songData.guid, title: songData.name});
-        localStorage.setItem('song-recent-list', await this.encodeForStorage(songRecentGUIDs));
+        songRecentUUIDs = songRecentUUIDs.filter((entry) => entry.uuid !== songData.uuid);
+        songRecentUUIDs.unshift({uuid: songData.uuid, name: songData.name});
+        localStorage.setItem('song-recent-list', await this.encodeForStorage(songRecentUUIDs));
 
 
-        localStorage.setItem('song:' + songData.guid, await this.encodeForStorage(songData));
-        localStorage.setItem('song-history:' + songData.guid, await this.encodeForStorage(songHistory)); // History stored separately due to memory limits
+        localStorage.setItem('song:' + songData.uuid, await this.encodeForStorage(songData));
+        localStorage.setItem('song-history:' + songData.uuid, await this.encodeForStorage(songHistory)); // History stored separately due to memory limits
         // this.querySelector('.song-menu').outerHTML = renderEditorMenuContent(this);
-        console.info("Song saved to memory: " + songData.guid, songData);
+        console.info("Song saved to memory: " + songData.uuid, songData);
     }
 
     saveSongToFile(songData, prompt=true) {
         // const song = this.data;
-        const instructionsKey = "/** INSTRUCTIONS-" + this.generateGUID() + ' **/';
+        const instructionsKey = "/** INSTRUCTIONS-" + this.generateUUID() + ' **/';
         let jsonStringInstructions = JSON.stringify(songData.instructions);
         let jsonString = JSON.stringify(Object.assign({}, songData, {
             instructions: instructionsKey
@@ -135,25 +135,25 @@ class AudioSourceStorage {
 
     /** Loading **/
 
-    async loadSongFromMemory(songGUID) {
-        let songDataString = localStorage.getItem('song:' + songGUID);
+    async loadSongFromMemory(songUUID) {
+        let songDataString = localStorage.getItem('song:' + songUUID);
         if(!songDataString)
-            throw new Error("Song Data not found for guid: " + songGUID);
+            throw new Error("Song Data not found for uuid: " + songUUID);
         let songData = await this.decodeForStorage(songDataString);
         if(!songData)
             throw new Error("Invalid Song Data: " + songDataString);
         return songData;
-        // console.info("Song loaded from memory: " + songGUID, songData, this.songHistory);
+        // console.info("Song loaded from memory: " + songUUID, songData, this.songHistory);
     }
 
-    async loadSongHistoryFromMemory(songGUID) {
-        let songHistoryString = localStorage.getItem('song-history:' + songGUID);
+    async loadSongHistoryFromMemory(songUUID) {
+        let songHistoryString = localStorage.getItem('song-history:' + songUUID);
         if(!songHistoryString)
             return null;
         return await this.decodeForStorage(songHistoryString);
         // this.render();
         //this.gridSelect(null, 0);
-        // console.info("Song loaded from memory: " + songGUID, songData, this.songHistory);
+        // console.info("Song loaded from memory: " + songUUID, songData, this.songHistory);
     }
 
 
@@ -214,7 +214,7 @@ class AudioSourceStorage {
     //             .send(this.encodeForStorage({
     //                 type: 'history:entry',
     //                 songHistory: songHistory,
-    //                 // guid: this.guid
+    //                 // uuid: this.uuid
     //             }))
     //     }
     // }

@@ -59,7 +59,7 @@ class AudioSourceValues {
                 // const Storage = new AudioSourceStorage();
                 // const songRecentUUIDs = Storage.getRecentSongList() ;
                 // for(let i=0; i<songRecentUUIDs.length; i++)
-                //     result = callback(songRecentUUIDs[i].guid, songRecentUUIDs[i].title);
+                //     result = callback(songRecentUUIDs[i].uuid, songRecentUUIDs[i].title);
                 break;
 
             case 'song-instruments':

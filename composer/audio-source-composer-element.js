@@ -1,7 +1,7 @@
 
 
 
-class AudioSourceComposerElement extends HTMLElement {
+class AudioSourceComposerElement extends AudioSourceComposerActions {
     constructor() {
         super();
         this.versionString = '-1';
@@ -24,9 +24,8 @@ class AudioSourceComposerElement extends HTMLElement {
         //     doubleClickTimeout: 500,
         //     autoSaveTimeout: 4000,
         // };
-        this.shadowDOM = null;
+        this.trackerElm = new AudioSourceComposerTracker();
 
-        this.actions = new AudioSourceComposerActions(this);
         this.values = new AudioSourceValues(this.song);
         const Util = new AudioSourceUtilities;
         // Util.loadLibrary(defaultLibraryURL);
@@ -34,14 +33,15 @@ class AudioSourceComposerElement extends HTMLElement {
             .then(packageInfo => this.setVersion(packageInfo.version));
 
         window.addEventListener('unload', e => this.saveState(e));
+        this.ui = {};
     }
 
-    get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
-    get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
+    // get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
+    // get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     getScriptDirectory(appendPath=null) {
         const Util = new AudioSourceUtilities;
-        return Util.getScriptDirectory(appendPath, 'script[src$="audio-source-composer.js"],script[src$="audio-source-composer.min.js"]');
+        return Util.getScriptDirectory(appendPath, 'script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
     }
 
     get defaultLibraryURL()      { return this.getAttribute('defaultLibraryURL') || this.getScriptDirectory('default.library.json'); }
@@ -101,15 +101,15 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
         if(state) {
-            await this.loadDefaultSong(state.songGUID);
-            if(state.volume)                this.actions.setSongVolume(e, state.volume);
-            this.trackerElm.groupName = state.groupName;
-            if(state.trackerSegmentLength)  this.trackerElm.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
-            if(state.trackerRowLength)      this.trackerElm.fieldTrackerRowLength.value = state.trackerRowLength;
-            if(state.trackerInstrument)     this.trackerElm.fieldTrackerInstrument.value = state.trackerInstrument;
-            if(state.trackerOctave)         this.trackerElm.fieldTrackerOctave.value = state.trackerOctave;
-            this.trackerElm.navigateSegment(state.currentRowSegmentID);
-            if(state.selectedIndicies)      this.trackerElm.selectIndicies(e, state.selectedIndicies);
+            await this.loadDefaultSong(state.songUUID);
+            if(typeof state.volume !== "undefined")                this.setSongVolume(e, state.volume);
+            if(typeof state.groupName !== "undefined")             this.trackerElm.groupName = state.groupName;
+            if(typeof state.trackerSegmentLength !== "undefined")  this.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
+            if(typeof state.trackerRowLength !== "undefined")      this.fieldTrackerRowLength.value = state.trackerRowLength;
+            if(typeof state.trackerInstrument !== "undefined")     this.fieldTrackerFilterInstrument.value = state.trackerInstrument;
+            if(typeof state.trackerOctave !== "undefined")         this.fieldTrackerOctave.value = state.trackerOctave;
+            if(typeof state.currentRowSegmentID !== "undefined")   this.trackerElm.navigateSegment(state.currentRowSegmentID);
+            if(typeof state.selectedIndicies !== "undefined")      this.selectIndicies(state.selectedIndicies);
             // this.trackerElm.render(); // TODO: too many renders
 
         } else {
@@ -119,17 +119,17 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
     async saveState(e) {
-        // await this.actions.saveSongToMemory(e);
+        // await this.saveSongToMemory(e);
         const state = {// TODO: auto-state form fields
-            songGUID:               this.song.guid,
+            songUUID:               this.song.uuid,
             groupName:              this.trackerElm.groupName,
-            volume:                 this.song.getVolumeValue(),
             currentRowSegmentID:    this.trackerElm.currentRowSegmentID,
-            trackerSegmentLength:   this.trackerElm.fieldTrackerSegmentLength.value,
-            trackerRowLength:       this.trackerElm.fieldTrackerRowLength.value,
-            trackerInstrument:      this.trackerElm.fieldTrackerInstrument.value,
-            trackerOctave:          this.trackerElm.fieldTrackerOctave.value,
-            selectedIndicies:       this.trackerElm.getSelectedIndicies()
+            volume:                 this.song.getVolumeValue(),
+            trackerSegmentLength:   this.fieldTrackerSegmentLength.value,
+            trackerRowLength:       this.fieldTrackerRowLength.value,
+            trackerInstrument:      this.fieldTrackerFilterInstrument.value,
+            trackerOctave:          this.fieldTrackerOctave.value,
+            selectedIndicies:       this.getSelectedIndicies()
         };
         const storage = new AudioSourceStorage();
         storage.saveState(state);
@@ -138,25 +138,25 @@ class AudioSourceComposerElement extends HTMLElement {
 
 
 
-    async loadDefaultSong(recentSongGUID=null) {
+    async loadDefaultSong(recentSongUUID=null) {
 
         const src = this.getAttribute('src');
         if(src) {
-            await this.actions.loadSongFromSrc(src);
+            await this.loadSongFromSrc(src);
             return true;
         }
 
-        if(recentSongGUID) try {
-            await this.actions.loadSongFromMemory(recentSongGUID);
+        if(recentSongUUID) try {
+            await this.loadSongFromMemory(recentSongUUID);
             return;
         } catch (e) {
             console.error(e);
         }
 
-        // if(await this.actions.loadRecentSongData())
+        // if(await this.loadRecentSongData())
         //     return true;
 
-        await this.actions.loadNewSongData();
+        await this.loadNewSongData();
         return false;
     }
 
@@ -189,11 +189,11 @@ class AudioSourceComposerElement extends HTMLElement {
 
         switch(e.type) {
             // case 'focus':
-            //     const UIFormElm = e.path[0].closest('asui-form');
-            //     if(UIFormElm) {
-            //         UIFormElm.getRootNode().querySelectorAll('asui-form.focus')
+            //     const divElmFormElm = e.path[0].closest('asui-div');
+            //     if(divElmFormElm) {
+            //         divElmFormElm.getRootNode().querySelectorAll('asui-div.focus')
             //             .forEach(formElm => formElm.classList.remove('focus'));
-            //         UIFormElm.classList.add('focus');
+            //         divElmFormElm.classList.add('focus');
             //     }
             //     break;
 
@@ -248,7 +248,7 @@ class AudioSourceComposerElement extends HTMLElement {
                 break;
 
             case 'instrument:instance':
-                this.renderInstrument(e.detail.instrumentID, e.detail.instance);
+                this.renderInstrument(e.detail.instrumentID);
                 break;
 
             case 'instrument:modified':
@@ -256,11 +256,9 @@ class AudioSourceComposerElement extends HTMLElement {
                 switch(e.type) {
                     case 'instrument:modified':
                         if(e.detail.instrumentID) {
-                            const instrument = this.song.getInstrument(e.detail.instrumentID, false);
-                            this.renderInstrument(e.detail.instrumentID, instrument);
+                            this.renderInstrument(e.detail.instrumentID);
                         }
-                        if(this.trackerElm) // Update aliases
-                            this.trackerElm.renderForms();
+                        this.panelInstructions.render();
                         break;
                 }
                 // this.trackerElm.render();
@@ -268,21 +266,19 @@ class AudioSourceComposerElement extends HTMLElement {
 
                 // TODO: auto save toggle
                 clearTimeout(this.saveSongToMemoryTimer);
-                this.saveSongToMemoryTimer = setTimeout(e => this.actions.saveSongToMemory(e), this.autoSaveTimeout);
+                this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                 break;
             case 'instrument:loaded':
             case 'instrument:remove':
                 this.renderInstruments();
-                if(this.trackerElm) // Update aliases
-                    this.trackerElm.renderForms();
+                this.panelInstructions.render();
                 break;
             case 'instrument:library':
 //                 console.log(e.type);
                 // TODO: this.instruments.render();
                 // this.renderInstruments();
-                this.renderSongForms();
-                if(this.trackerElm)
-                    this.trackerElm.renderForms();
+                this.updateForms();
+                this.panelInstructions.render();
                 break;
         }
     }
@@ -310,528 +306,80 @@ class AudioSourceComposerElement extends HTMLElement {
     }
 
     // Rendering
-    get statusElm() { return this.shadowDOM.querySelector(`.asc-status-container .status-text`); }
-    get versionElm() { return this.shadowDOM.querySelector(`.asc-status-container .version-text`); }
-
-    get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
-    get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
-    get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
-    // get menuTools() { return this.shadowDOM.querySelector(`asui-menu[key="tools"]`)}
-    get menuGroup() { return this.shadowDOM.querySelector(`asui-menu[key="group"]`)}
-    // get menuSelect() { return this.shadowDOM.querySelector(`asui-menu[key="select"]`)}
-    get menuInstrument() { return this.shadowDOM.querySelector(`asui-menu[key="instrument"]`)}
-    get menuContext() { return this.shadowDOM.querySelector(`asui-menu[key="context"]`)}
-
-    get panelSong() { return this.shadowDOM.querySelector(`asui-form[key='song']`)}
-    get panelTracker() { return this.shadowDOM.querySelector(`asui-form[key='tracker']`)}
-    get panelTrackerGroups() { return this.shadowDOM.querySelector(`asui-form[key='tracker-groups']`)}
-    get panelTrackerRowSegments() { return this.shadowDOM.querySelector(`asui-form[key='tracker-row-segments']`)}
-    get panelInstruction() { return this.shadowDOM.querySelector(`asui-form[key='instruction']`)}
-    get panelInstruments() { return this.shadowDOM.querySelector(`asui-form[key='instruments']`)}
-
-    render(force=false) {
-        const Util = new AudioSourceUtilities;
-        const linkHRefComposer = Util.getScriptDirectory('composer/audio-source-composer.css');
-        const linkHRefCommon = Util.getScriptDirectory('common/audio-source-common.css');
-
-        let renderTracker = true;
-        if(force || !this.shadowDOM) {
-            renderTracker = false;
-            this.shadowDOM = this.shadowDOM || this.attachShadow({mode: 'open'});
-            this.shadowDOM.innerHTML = `
-            <link rel="stylesheet" href="${linkHRefComposer}" />
-            <link rel="stylesheet" href="${linkHRefCommon}" />
-            <div class="asc-container">
-                <div class="asc-menu-container">
-                    <asui-menu key="file" caption="File"></asui-menu>
-                    <asui-menu key="edit" caption="Edit"></asui-menu>
-                    <asui-menu key="group" caption="Group"></asui-menu>
-                    <asui-menu key="instrument" caption="Instrument"></asui-menu>
-                    <asui-menu key="view" caption="View"></asui-menu>
-                    <asui-menu key="context" caption=""></asui-menu>
-                </div>
-                <div class="asc-form-container">
-                    <asui-form key="song" caption="Song" class="panel"></asui-form><!--
-                    --><asui-form key="instruments" caption="Song Instruments" class="panel"></asui-form>
-                    <asui-form key="instruction" caption="Selected Instruction(s)" class="panel"></asui-form><!--
-                    --><asui-form key="tracker" caption="Tracker" class="panel"></asui-form><!--
-                    --><asui-form key="tracker-groups" caption="Tracker Groups" class="panel"></asui-form><!--
-                    --><asui-form key="tracker-row-segments" caption="Tracker Segments" class="panel"></asui-form>
-                </div>
-                <asc-tracker group="root"></asc-tracker>
-                <div class="asc-status-container">
-                    <span class="status-text"></span>
-                    <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
-                </div>
-            </div>
-            `;
-        }
-
-        this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
-
-        this.renderMenu();
-        this.renderSongForms();
-        this.renderInstruments();
-        if(renderTracker)
-            this.trackerElm.render();
-    }
+    get statusElm() { return this.shadowDOM.querySelector(`asui-div[key=asc-status-container] asui-div[key=status-text]`); }
+    get versionElm() { return this.shadowDOM.querySelector(`asui-div[key=asc-status-container] asui-div[key=version-text]`); }
 
 
+    /** Selection **/
 
+    selectIndicies(selectedIndicies) {
+        if(typeof selectedIndicies === "string") {
 
-
-
-    // get fieldSongAddInstrument()
-    // TODO: AudioSourceComposerSongFormRenderer()
-    renderSongForms() {
-
-        /** Song Forms **/
-
-        const panelSong = this.panelSong;
-        if(!panelSong.hasInput('playback')) {
-            this.formSongPlayback = panelSong.getOrCreateForm('playback', 'Playback');
-            this.formSongPosition = panelSong.getOrCreateForm('position', 'Position');
-            this.formSongVolume = panelSong.getOrCreateForm('volume', 'Volume');
-            this.formSongFile = panelSong.getOrCreateForm('file', 'File');
-            this.formSongName = panelSong.getOrCreateForm('name', 'Name');
-            this.formSongVersion = panelSong.getOrCreateForm('version', 'Version');
-            this.formSongBPM = panelSong.getOrCreateForm('bpm', 'BPM');
-        }
-
-        /** Tracker Fields **/
-
-        if(!this.formSongPlayback.hasInput('play')) {
-            this.fieldSongPlaybackPlay = this.formSongPlayback.addButton('play',
-                e => this.actions.songPlay(e),
-                this.formSongPlayback.createIcon('play'),
-                "Play Song");
-            this.fieldSongPlaybackPause = this.formSongPlayback.addButton('pause',
-                e => this.actions.songPause(e),
-                this.formSongPlayback.createIcon('pause'),
-                "Pause Song");
-            this.fieldSongPlaybackStop = this.formSongPlayback.addButton('pause',
-                e => this.actions.songStop(e),
-                this.formSongPlayback.createIcon('stop'),
-                "Stop Song");
-
-            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
-                e => this.actions.loadSongFromFileInput(e),
-                this.formSongPlayback.createIcon('file-load'),
-                `.json,.mid,.midi`,
-                "Load Song from File"
-            );
-            this.fieldSongFileSave = this.formSongFile.addButton('file-save',
-                e => this.actions.saveSongToFile(e),
-                this.formSongPlayback.createIcon('file-save'),
-                "Save Song to File"
-            );
-
-            this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
-                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
-            this.fieldSongPosition = this.formSongPosition.addTextInput('position',
-                e => this.actions.setSongPosition(e),
-                'Song Position',
-                '00:00:000'
-            );
-            this.fieldSongName = this.formSongName.addTextInput('name',
-                (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
-            this.fieldSongVersion = this.formSongVersion.addTextInput('version',
-                (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
-            this.fieldSongBPM = this.formSongBPM.addTextInput('bpm',
-                (e, newBPM) => this.actions.setStartingBPM(e, parseInt(newBPM)));
-            this.fieldSongBPM.inputElm.setAttribute('type', 'number');
-        }
-
-        this.fieldSongPlaybackPause.disabled = true;
-
-        this.fieldSongName.value = this.song.getName();
-        this.fieldSongVersion.value = this.song.getVersion();
-        this.fieldSongBPM.value = this.song.getStartingBPM();
-
-        this.fieldSongVolume.value = this.song.getVolumeValue();
-
-    }
-
-    renderInstrument(instrumentID, instrument=null) {
-        const instrumentPanel = this.panelInstruments;
-        // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
-
-        let instrumentForm = instrumentPanel.getOrCreateForm(instrumentID);
-
-        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-        instrumentForm.clearInputs();
-        instrumentForm.classList.add('instrument-container');
-
-        if(!instrument) {
-            // Render 'empty' instrument
-            instrumentForm.addSelectInput('instrument-add-url',
-                (e, changeInstrumentURL) => this.actions.songAddInstrument(e, changeInstrumentURL),
-                async (addOption) => {
-                    addOption('', 'Add Instrument');
-                    const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                    instrumentLibrary.eachInstrument((instrumentConfig) => {
-                        addOption(instrumentConfig.url, instrumentConfig.name);
-                    });
-                },
-                'Add Instrument');
-
-            instrumentForm.addBreak();
-        }
-
-
-        if(instrument) {
-            try {
-                const instrumentToggleButton = instrumentForm.addButton('instrument-id',
-                    null, //TODO: toggle view
-                    instrumentIDHTML + ':'
-                );
-                instrumentToggleButton.classList.add('show-on-focus');
-
-
-                if (instrument instanceof HTMLElement) {
-                    instrument.setAttribute('data-id', instrumentID+'');
-                    instrumentForm.appendChild(instrument);
-
-                } else if (typeof instrument.render === "function") {
-                    const renderedHTML = instrument.render(instrumentForm);
-                    if(renderedHTML)
-                        instrumentForm.innerHTML = renderedHTML;
-                } else {
-                    instrumentForm.innerHTML = "No Renderer";
-                }
-
-            } catch (e) {
-                instrumentForm.innerHTML = e;
+            switch(selectedIndicies) {
+                case 'all':
+                    selectedIndicies = [];
+                    const maxLength = this.song.getInstructionGroupLength(this.groupName);
+                    for(let i=0; i<maxLength; i++)
+                        selectedIndicies.push(i);
+                    break;
+                case 'segment':
+                    selectedIndicies = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                    break;
+                case 'row': throw new Error('TODO');
+                case 'none':
+                    selectedIndicies = [];
+                    break;
+                default:
+                    throw new Error("Invalid selection: " + selectedIndicies);
             }
         }
+        if(typeof selectedIndicies === 'number')
+            selectedIndicies = [selectedIndicies];
+        if(!Array.isArray(selectedIndicies))
+            throw new Error("Invalid selection");
+
+        this.fieldTrackerSelection.value = selectedIndicies.join(',');
+
+        this.trackerElm.updateSelection();
     }
 
-    renderInstruments() {
-        const instrumentPanel = this.panelInstruments;
-        instrumentPanel.clearInputs();
-        const instrumentList = this.song.getInstrumentList();
-        for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
-            let instrument = this.song.getInstrument(instrumentID, false);
+    getSelectedIndicies() {
+        const value = this.fieldTrackerSelection.value;
+        if(value === '')
+            return [];
+        return value
+            .split(/\D+/)
+            .map(index => parseInt(index));
+        // return this.selectedIndicies;
+        // const selectedIndicies = [].map.call(this.selectedCells, (elm => elm.index));
+    }
 
-            this.renderInstrument(instrumentID, instrument);
-            // TODO Update selected
+    clearSelectedIndicies() {
+        this.fieldTrackerSelection.value = '';
+    }
+
+    removeSelectedIndex(index) {
+        const selectedIndicies = this.getSelectedIndicies();
+        const pos = selectedIndicies.indexOf(index);
+        if(pos !== -1) {
+            selectedIndicies.splice(pos, 1);
         }
-
-
-        this.renderInstrument(instrumentList.length, null);
+        this.fieldTrackerSelection.value = selectedIndicies.join(',');
     }
 
-    renderMenu() {
-        /** File Menu **/
-        this.menuFile.populate = (e) => {
-            const menu = e.menuElement;
-            const menuFileNewSong = menu.getOrCreateSubMenu('new', 'New song');
-            menuFileNewSong.action = (e) => this.actions.loadNewSongData(e);
-
-
-
-
-            const menuFileOpenSong = menu.getOrCreateSubMenu('open', 'Open song ►');
-            menuFileOpenSong.populate = (e) => {
-                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('memory', 'from Memory ►');
-                menuFileOpenSongFromMemory.populate = async (e) => {
-                    const menu = e.menuElement;
-
-                    const Storage = new AudioSourceStorage();
-                    const songRecentUUIDs = await Storage.getRecentSongList() ;
-                    for(let i=0; i<songRecentUUIDs.length; i++) {
-                        const entry = songRecentUUIDs[i];
-                        const menuOpenSongUUID = menu.getOrCreateSubMenu(entry.guid, entry.title);
-                        menuOpenSongUUID.action = (e) => {
-                            this.actions.loadSongFromMemory(entry.guid);
-                        }
-                    }
-
-                };
-
-                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('file', `from File`);
-                menuFileOpenSongFromFile.action = (e) => this.fieldSongFileLoad.inputElm.click(); // this.actions.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                // menuFileOpenSongFromFile.disabled = true;
-                const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('url', 'from URL');
-                menuFileOpenSongFromURL.disabled = true;
-            };
-
-            const menuFileSaveSong = menu.getOrCreateSubMenu('save', 'Save song ►');
-            menuFileSaveSong.populate = (e) => {
-                const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('memory', 'to Memory');
-                menuFileSaveSongToMemory.action = (e) => this.actions.saveSongToMemory(e);
-                const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('file', 'to File');
-                menuFileSaveSongToFile.action = (e) => this.actions.saveSongToFile(e);
-            };
-
-            const menuFileImportSong = menu.getOrCreateSubMenu('import', 'Import song ►');
-            menuFileImportSong.populate = (e) => {
-                const menuFileImportSongFromMIDI = menuFileImportSong.getOrCreateSubMenu('midi', 'from MIDI File');
-                menuFileImportSongFromMIDI.action = (e) => this.fieldSongFileLoad.inputElm.click(); // this.actions.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
-                // menuFileImportSongFromMIDI.disabled = true;
-            };
-
-            const menuFileExportSong = menu.getOrCreateSubMenu('export', 'Export song ►');
-            menuFileExportSong.disabled = true;
-            menuFileExportSong.populate = (e) => {
-                const menuFileExportSongToMIDI = menuFileExportSong.getOrCreateSubMenu('midi', 'to MIDI File');
-                menuFileExportSongToMIDI.disabled = true;
-            };
-        };
-
-        /** View Menu **/
-        this.menuView.populate = (e) => {
-            const menu = e.menuElement;
-
-            const menuViewToggleFullscreen = menu.getOrCreateSubMenu('fullscreen',
-                `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`);
-            menuViewToggleFullscreen.action = (e) => this.actions.toggleFullscreen(e);
-
-            const menuViewToggleFormSong = menu.getOrCreateSubMenu('forms-song',
-                `${this.containerElm.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms `);
-            menuViewToggleFormSong.action = (e) => this.actions.togglePanelSong(e);
-
-            const menuViewToggleFormTrack = menu.getOrCreateSubMenu('forms-tracker',
-                `${this.containerElm.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`);
-            menuViewToggleFormTrack.action = (e) => this.actions.togglePanelTracker(e);
-
-            const menuViewToggleFormInstrument = menu.getOrCreateSubMenu('forms-instruments',
-                `${this.containerElm.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`);
-            menuViewToggleFormInstrument.action = (e) => this.actions.togglePanelInstruments(e);
-        };
-
-
-        /** Instrument Menu **/
-        this.menuInstrument.populate = (e) => {
-            const menu = e.menuElement;
-
-            const menuInstrumentAdd = menu.getOrCreateSubMenu('instrument', `Add Instrument To Song ►`);
-            menuInstrumentAdd.populate = async (e) => {
-                const menu = e.menuElement;
-
-                const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                instrumentLibrary.eachInstrument((instrumentConfig) => {
-                    const menuInstrument = menu.getOrCreateSubMenu(instrumentConfig.url, `${instrumentConfig.name}`);
-                    // menuInstrument.setAttribute('data-instrument', instrumentURL);
-                    menuInstrument.action = (e) => {
-//                         this.fieldSongAddInstrument.value = instrumentURL;
-                        this.actions.songAddInstrument(e, instrumentConfig);
-                    }
-                });
-            };
-
-
-            let instrumentCount = 0;
-            this.values.getValues('song-instruments', (instrumentID, label) => {
-                const isActive = this.song.isInstrumentLoaded(instrumentID);
-
-                const menuInstrument = menu.getOrCreateSubMenu(instrumentID, `${label} ►`);
-                menuInstrument.populate = (e) => {
-                    const menu = e.menuElement;
-
-                    const menuInstrumentChange = menu.getOrCreateSubMenu('change', `Replace ►`);
-                    menuInstrumentChange.populate = async (e) => {
-                        const menu = e.menuElement;
-
-                        const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                        instrumentLibrary.eachInstrument((instrumentConfig) => {
-                            const menuInstrument = menu.getOrCreateSubMenu(instrumentConfig.url, `${instrumentConfig.name}`);
-                            menuInstrument.action = (e) => {
-                                this.actions.songReplaceInstrument(e, instrumentID, instrumentConfig);
-                            }
-                        });
-                    };
-
-
-                    const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
-                    menuInstrumentRemove.action = (e) => {
-                        this.actions.songRemoveInstrument(e, instrumentID);
-                    };
-                    menuInstrumentRemove.disabled = !isActive;
-
-
-                };
-                if(instrumentCount === 0)
-                    menuInstrument.hasBreak = true;
-                instrumentCount++;
-            });
-
-            // TODO CRUD
-        };
-
-
-        /** Group Menu **/
-        this.menuGroup.populate = (e) => {
-            const menu = e.menuElement;
-
-            const menuGroupAdd = menu.getOrCreateSubMenu('new', `Add Group To Song`);
-            menuGroupAdd.action = (e) => {
-                this.actions.songGroupAddNew(e);
-            };
-
-
-            let groupCount = 0;
-            this.values.getValues('song-groups', (groupName) => {
-                const menuGroup = menu.getOrCreateSubMenu(groupName, `${groupName} ►`);
-                menuGroup.populate = (e) => {
-                    const menu = e.menuElement;
-
-                    const menuInstrumentChange = menu.getOrCreateSubMenu('change', `Rename`);
-                    menuInstrumentChange.action = (e) => {
-                        this.actions.songGroupRename(e, groupName);
-                    };
-
-
-                    const menuInstrumentRemove = menu.getOrCreateSubMenu('remove', `Remove From Song`);
-                    menuInstrumentRemove.action = (e) => {
-                        this.actions.songGroupRemove(e, groupName);
-                    };
-                };
-                if(groupCount === 0)
-                    menuGroup.hasBreak = true;
-                groupCount++;
-            });
-        };
-
-        /** Tool Menu **/
-        // this.menuTools.populate = (e) => {
-        //     const menu = e.menuElement;
-        //
-        //     const menuToolBatch = menu.getOrCreateSubMenu('batch', `Batch Command ►`);
-        //     menuToolBatch.populate = (e) => {
-        //         const menu = e.menuElement;
-        //         const menuToolBatchCommandNew = menu.getOrCreateSubMenu('new', `Run Batch Command`);
-        //         menuToolBatchCommandNew.action = (e) => {
-        //             this.actions.batchRunCommand(e);
-        //         };
-        //
-        //         const storage = new AudioSourceStorage();
-        //         const recentBatchCommands = storage.getBatchRecentCommands();
-        //         for(let i=0; i<recentBatchCommands.length; i++) {
-        //             const recentBatchCommand = recentBatchCommands[i];
-        //             // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-        //             const menuToolBatchCommand = menu.getOrCreateSubMenu(i, recentBatchCommand);
-        //             menuToolBatchCommand.action = (e) => {
-        //                 this.actions.batchRunCommand(e, recentBatchCommand, true);
-        //             };
-        //
-        //         }
-        //     };
-        // };
-
-    }
-
-    /** Utilities **/
-
-
-    /** Javascript Libraries **/
-
-    get sources() {
-        return {
-            'MidiParser': [
-                this.getScriptDirectory('assets/3rdparty/MidiParser/main.js'),
-                'https://cdn.jsdelivr.net/gh/colxi/midi-parser-js/src/main.js'
-            ],
-            'LZString': [
-                this.getScriptDirectory('assets/3rdparty/LZString/lz-string.min.js'),
-                'https://cdn.jsdelivr.net/gh/pieroxy/lz-string/libs/lz-string.min.js'
-            ]
+    addSelectedIndex(index) {
+        const selectedIndicies = this.getSelectedIndicies();
+        if(selectedIndicies.indexOf(index) === -1) {
+            selectedIndicies.push(index);
+            selectedIndicies.sort();
         }
-    }
-
-
-    async loadJSLibrary(libraryName, test=null) {
-        if(!test)
-            test = () => typeof window[libraryName] !== 'undefined';
-        if(test())
-            return true;
-        const sources = this.sources[libraryName];
-        for(let i=0; i<sources.length; i++) {
-            await this.loadScript(sources[i]);
-            if(test())
-                return true;
-        }
-        throw new Error(`Failed to load ${libraryName} Library`);
-
-    }
-
-    async getMidiParser() {
-        if(typeof window.MidiParser === 'undefined')
-            await this.loadJSLibrary('MidiParser');
-        return window.MidiParser;
-    }
-
-
-    async getLZString() {
-        if(typeof window.LZString === 'undefined')
-            await this.loadJSLibrary('LZString');
-        return window.LZString;
+        this.fieldTrackerSelection.value = selectedIndicies.join(',');
+//         console.info('updateSelectedIndicies', selectedIndicies);
     }
 
 
 
-
-    /** Package Info **/
-
-    async loadPackageInfo(force=false) {
-        const Util = new AudioSourceUtilities;
-        const url = Util.getScriptDirectory('package.json');
-
-        let packageInfo = AudioSourceLibrary.packageInfo;
-        if (!force && packageInfo)
-            return packageInfo;
-
-        packageInfo = await this.loadJSON(url);
-        if(!packageInfo.version)
-            throw new Error("Invalid package version: " + url);
-
-        console.log("Package Version: ", packageInfo.version, packageInfo);
-        AudioSourceLibrary.packageInfo = packageInfo;
-        return packageInfo;
-    }
-
-
-    /** Utilities **/
-
-    getScriptElement() {
-        return document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
-    }
-
-
-    getScriptDirectory(appendPath='') {
-        const scriptElm = this.getScriptElement(); // document.head.querySelector('script[src$="audio-source-composer-element.js"],script[src$="audio-source-composer.min.js"]');
-        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-//         console.log("Base Path: ", basePath);
-        return basePath + appendPath;
-    }
-
-    async loadScript(src) {
-        await new Promise((resolve, reject) => {
-            const newScriptElm = document.createElement('script');
-            newScriptElm.src = src;
-            newScriptElm.onload = e => resolve();
-            document.head.appendChild(newScriptElm);
-        });
-    }
-
-    async loadJSON(url) {
-        url = new URL(url, document.location) + '';
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'json';
-            xhr.onload = () => {
-                if (xhr.status !== 200)
-                    return reject("JSON file not found: " + url);
-
-                resolve(xhr.response);
-            };
-            xhr.send();
-        });
-    }
-
-    /** Ajax Loading **/
+    /** Load CSS **/
 
     loadCSS() {
         const targetDOM = this.shadowDOM || document.head;

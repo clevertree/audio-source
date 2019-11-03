@@ -80,164 +80,173 @@ class MusicPlayerElement extends HTMLElement {
         }
     }
 
-    get containerElm() { return this.shadowDOM.querySelector('.asp-container'); }
-    get statusElm() { return this.shadowDOM.querySelector(`.asp-status-container .status-text`); }
-    get versionElm() { return this.shadowDOM.querySelector(`.asp-status-container .version-text`); }
 
-    get menuFile() { return this.shadowDOM.querySelector(`asui-menu[key="file"]`)}
-    get menuEdit() { return this.shadowDOM.querySelector(`asui-menu[key="edit"]`)}
-    get menuView() { return this.shadowDOM.querySelector(`asui-menu[key="view"]`)}
-
-    get panelSong() { return this.shadowDOM.querySelector(`asui-form[key='song']`)}
-
-    render() {
+    render(force=false) {
         const linkHRefComposer = this.getScriptDirectory('player/audio-source-player.css');
         const linkHRefCommon = this.getScriptDirectory('common/audio-source-common.css');
 
-        this.shadowDOM = this.shadowDOM || this.attachShadow({mode: 'open'});
-        this.shadowDOM.innerHTML = `
-        <link rel="stylesheet" href="${linkHRefComposer}" />
-        <link rel="stylesheet" href="${linkHRefCommon}" />
-        <div class="asp-container">
-            <div class="asp-menu-container">
-                <asui-menu key="file" caption="File"></asui-menu>
-                <asui-menu key="edit" caption="Edit"></asui-menu>
-                <asui-menu key="view" caption="View"></asui-menu>
-            </div>
-            <div class="asp-form-container">
-                <asui-form key="song" caption="Song" class="panel"></asui-form>
-            </div>
-            <div class="asp-status-container">
-                <span class="status-text"></span>
-                <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
-            </div>
-        </div>
-        `;
+        if(force || !this.shadowDOM) {
+            this.shadowDOM = this.shadowDOM || this.attachShadow({mode: 'open'});
+            this.shadowDOM.innerHTML = `
+            <link rel="stylesheet" href="${linkHRefComposer}" />
+            <link rel="stylesheet" href="${linkHRefCommon}" />
+            <asui-div key="asp-container"></asui-div>
+            `;
+            this.containerElm = this.shadowDOM.querySelector('asui-div[key=asp-container]');
+        }
+
+        let divElm = this.containerElm;
+        divElm.addDiv('asp-menu-container', (divElm) => {
+            this.menuFile = divElm.addMenu('File', divElm => this.populateMenu(divElm, 'file'));
+            this.menuEdit = divElm.addMenu('Edit', divElm => this.populateMenu(divElm, 'edit'));
+            this.menuView = divElm.addMenu('View', divElm => this.populateMenu(divElm, 'view'));
+        });
+
+        divElm.addDiv('asp-form-container', (divElm) => {
+            divElm.addDiv('asp-form-panel-song', (divElm) => {
+                divElm.classList.add('asp-form-panel');
+                divElm.addDiv('caption', 'Song');
+
+
+                divElm.addDiv('asp-form-playback', divElm => {
+                    divElm.classList.add('asp-form');
+                    divElm.addDiv('caption', 'Playback');
+                    this.fieldSongPlaybackPlay = divElm.addButtonInput('play',
+                        e => this.songPlay(e),
+                        divElm.createIcon('play'),
+                        "Play Song");
+                    this.fieldSongPlaybackPause = divElm.addButtonInput('pause',
+                        e => this.songPause(e),
+                        divElm.createIcon('pause'),
+                        "Pause Song");
+                    this.fieldSongPlaybackPause.disabled = true;
+                    this.fieldSongPlaybackStop = divElm.addButtonInput('pause',
+                        e => this.songStop(e),
+                        divElm.createIcon('stop'),
+                        "Stop Song");
+                });
+
+                divElm.addDiv('asp-form-file', divElm => {
+                    divElm.classList.add('asp-form');
+                    divElm.addDiv('caption', 'File');
+                    this.fieldSongFileLoad = divElm.addFileInput('file-load',
+                        e => this.loadSongFromFileInput(e),
+                        divElm.createIcon('file-load'),
+                        `.json,.mid,.midi`,
+                        "Load Song from File"
+                    );
+                    this.fieldSongFileSave = divElm.addButtonInput('file-save',
+                        e => this.saveSongToFile(e),
+                        divElm.createIcon('file-save'),
+                        "Save Song to File"
+                    );
+                });
+
+                divElm.addDiv('asp-form-volume', divElm => {
+                    divElm.classList.add('asp-form');
+                    divElm.addDiv('caption', 'Volume');
+                    this.fieldSongVolume = divElm.addRangeInput('volume',
+                        (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
+                });
+
+                divElm.addDiv('asp-form-position', divElm => {
+                    divElm.classList.add('asp-form');
+                    divElm.addDiv('caption', 'Position');
+                    this.fieldSongPosition = divElm.addTextInput('position',
+                        e => this.setSongPosition(e),
+                        'Song Position',
+                        '00:00:000'
+                    );
+                });
+
+                divElm.addDiv('asp-form-name', divElm => {
+                    divElm.classList.add('asp-form');
+                    divElm.addDiv('caption', 'Name');
+                    this.fieldSongName = divElm.addTextInput('name',
+                        (e, newSongName) => this.setSongName(e, newSongName), "Song Name");
+                });
+
+                divElm.addDiv('asp-form-version', divElm => {
+                    divElm.classList.add('asp-form');
+                    divElm.addDiv('caption', 'Version');
+                    this.fieldSongVersion = divElm.addTextInput('version',
+                        (e, newSongVersion) => this.setSongVersion(e, newSongVersion));
+                });
+            });
+        });
+
+
+        divElm.addDiv('asp-status-container', (divElm) => {
+            divElm.addDiv('status-text');
+            divElm.addDiv('version-text'); // TODO:        <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
+        });
 
         this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
 
-        this.renderMenu();
-        this.renderSongForms();
+        this.updateSongForms();
     }
 
 
-    renderMenu() {
+
+    populateMenu(divElm, menuKey) {
         /** File Menu **/
-        this.menuFile.populate = (e) => {
-            const menu = e.menuElement;
+        switch(menuKey) {
+            case 'file':
+                divElm.addMenu('New song',
+                    (e) => this.loadNewSongData(e));
 
-            const menuFileOpenSong = menu.getOrCreateSubMenu('open', 'Open song ►');
-            menuFileOpenSong.populate = (e) => {
-                const menuFileOpenSongFromMemory = menuFileOpenSong.getOrCreateSubMenu('memory', 'from Memory ►');
-                menuFileOpenSongFromMemory.populate = async (e) => {
-                    const menu = e.menuElement;
+                divElm.addMenu('Open song ►', divElm => {
+                    divElm.addMenu('from Memory ►',
+                        async (e) => {
+                            const menu = e.menuElement;
 
-                    const Storage = new AudioSourceStorage();
-                    const songRecentUUIDs = await Storage.getRecentSongList() ;
-                    for(let i=0; i<songRecentUUIDs.length; i++) {
-                        const entry = songRecentUUIDs[i];
-                        const menuOpenSongUUID = menu.getOrCreateSubMenu(entry.guid, entry.title);
-                        menuOpenSongUUID.action = (e) => {
-                            this.actions.loadSongFromMemory(entry.guid);
+                            const Storage = new AudioSourceStorage();
+                            const songRecentUUIDs = await Storage.getRecentSongList() ;
+                            for(let i=0; i<songRecentUUIDs.length; i++) {
+                                const entry = songRecentUUIDs[i];
+                                const menuOpenSongUUID = menu.getOrCreateSubMenu(entry.uuid, entry.title);
+                                menuOpenSongUUID.action = (e) => {
+                                    this.loadSongFromMemory(entry.uuid);
+                                }
+                            }
+
                         }
-                    }
+                    );
 
-                };
+                    divElm.addMenu(`from File`, (e) => this.fieldSongFileLoad.inputElm.click()); // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
+                    // menuFileOpenSongFromFile.disabled = true;
+                    let menu = divElm.addMenu('url', 'from URL');
+                    menu.disabled = true;
+                });
 
-                const menuFileOpenSongFromFile = menuFileOpenSong.getOrCreateSubMenu('file', `from File`);
-                menuFileOpenSongFromFile.action = (e) => this.fieldSongFileLoad.inputElm.click(); // this.actions.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                // menuFileOpenSongFromFile.disabled = true;
-                const menuFileOpenSongFromURL = menuFileOpenSong.getOrCreateSubMenu('url', 'from URL');
-                menuFileOpenSongFromURL.disabled = true;
-            };
+                divElm.addMenu('Save song ►', divElm => {
+                    divElm.addMenu('memory', 'to Memory', (e) => this.saveSongToMemory(e));
+                    divElm.addMenu('file', 'to File', (e) => this.saveSongToFile(e));
+                });
 
-            const menuFileSaveSong = menu.getOrCreateSubMenu('save', 'Save song ►');
-            menuFileSaveSong.populate = (e) => {
-                const menuFileSaveSongToMemory = menuFileSaveSong.getOrCreateSubMenu('memory', 'to Memory');
-                menuFileSaveSongToMemory.action = (e) => this.actions.saveSongToMemory(e);
-                const menuFileSaveSongToFile = menuFileSaveSong.getOrCreateSubMenu('file', 'to File');
-                menuFileSaveSongToFile.action = (e) => this.actions.saveSongToFile(e);
-            };
+                divElm.addMenu('Import song ►', divElm => {
+                    divElm.addMenu('midi', 'from MIDI File', (e) => this.fieldSongFileLoad.inputElm.click());
+                    // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
+                    // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+                    // menuFileImportSongFromMIDI.disabled = true;
+                });
 
-        };
+                let menu = divElm.addMenu('Export song ►', divElm => {
+                    let menu = divElm.addMenu('to MIDI File');
+                    menu.disabled = true;
+                });
+                menu.disabled = true;
+                break;
 
-        /** View Menu **/
-        this.menuView.populate = (e) => {
-            const menu = e.menuElement;
-
-            const menuViewToggleFullscreen = menu.getOrCreateSubMenu('fullscreen',
-                `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`);
-            menuViewToggleFullscreen.action = (e) => this.toggleFullscreen(e);
-        };
-
-
-
+        }
     }
 
-    renderSongForms() {
-
-        /** Song Forms **/
-
-        const panelSong = this.panelSong;
-        if(!panelSong.hasInput('playback')) {
-            this.formSongPlayback = panelSong.getOrCreateForm('playback', 'Playback');
-            this.formSongPosition = panelSong.getOrCreateForm('position', 'Position');
-            this.formSongVolume = panelSong.getOrCreateForm('volume', 'Volume');
-            this.formSongFile = panelSong.getOrCreateForm('file', 'File');
-            this.formSongName = panelSong.getOrCreateForm('name', 'Name');
-            this.formSongVersion = panelSong.getOrCreateForm('version', 'Version');
-            this.formSongBPM = panelSong.getOrCreateForm('bpm', 'BPM');
-        }
-
-        /** Tracker Fields **/
-
-        if(!this.formSongPlayback.hasInput('play')) {
-            this.fieldSongPlaybackPlay = this.formSongPlayback.addButton('play',
-                e => this.actions.songPlay(e),
-                this.formSongPlayback.createIcon('play'),
-                "Play Song");
-            this.fieldSongPlaybackPause = this.formSongPlayback.addButton('pause',
-                e => this.actions.songPause(e),
-                this.formSongPlayback.createIcon('pause'),
-                "Pause Song");
-            this.fieldSongPlaybackStop = this.formSongPlayback.addButton('pause',
-                e => this.actions.songStop(e),
-                this.formSongPlayback.createIcon('stop'),
-                "Stop Song");
-
-            this.fieldSongFileLoad = this.formSongFile.addFileInput('file-load',
-                e => this.actions.loadSongFromFileInput(e),
-                this.formSongPlayback.createIcon('file-load'),
-                `.json,.mid,.midi`,
-                "Load Song from File"
-            );
-            this.fieldSongFileSave = this.formSongFile.addButton('file-save',
-                e => this.actions.saveSongToFile(e),
-                this.formSongPlayback.createIcon('file-save'),
-                "Save Song to File"
-            );
-
-            this.fieldSongVolume = this.formSongVolume.addRangeInput('volume',
-                (e, newVolume) => this.actions.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
-            this.fieldSongPosition = this.formSongPosition.addTextInput('position',
-                e => this.actions.setSongPosition(e),
-                'Song Position',
-                '00:00:000'
-            );
-            this.fieldSongName = this.formSongName.addTextInput('name',
-                (e, newSongName) => this.actions.setSongName(e, newSongName), "Song Name");
-            this.fieldSongVersion = this.formSongVersion.addTextInput('version',
-                (e, newSongVersion) => this.actions.setSongVersion(e, newSongVersion));
-            this.fieldSongBPM = this.formSongBPM.addTextInput('bpm',
-                (e, newBPM) => this.actions.setStartingBPM(e, parseInt(newBPM)));
-            this.fieldSongBPM.inputElm.setAttribute('type', 'number');
-        }
+    updateSongForms() {
 
         this.fieldSongPlaybackPause.disabled = true;
 
         this.fieldSongName.value = this.song.getName();
         this.fieldSongVersion.value = this.song.getVersion();
-        this.fieldSongBPM.value = this.song.getStartingBPM();
 
         this.fieldSongVolume.value = this.song.getVolumeValue();
 
@@ -256,7 +265,24 @@ class MusicPlayerElement extends HTMLElement {
     handleError(err) {
         this.statusElm.innerHTML = `<span style="red">${err}</span>`;
         console.error(err);
+        // if(this.webSocket)
     }
+
+    setVersion(versionString) {
+        this.versionString = versionString;
+        this.versionElm.innerHTML = versionString;
+    }
+
+
+    closeAllMenus() {
+        this.shadowDOM.querySelector(`asui-menu`)
+            .closeAllMenus();
+    }
+
+    // Rendering
+    get statusElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=status-text]`); }
+    get versionElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=version-text]`); }
+
 
 
     async loadSongFromSrc(src) {

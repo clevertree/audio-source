@@ -363,7 +363,7 @@
         // }
 
         render(renderObject=null) {
-            if(renderObject instanceof HTMLElement && renderObject.matches('asui-form')) {
+            if(renderObject instanceof HTMLElement && renderObject.matches('asui-div')) {
                 this.form = new AudioSourceSynthesizerFormRenderer(renderObject, this);
             } else {
                 throw new Error("Unknown renderer");
@@ -593,22 +593,23 @@
             rootElm.insertBefore(linkElm, rootElm.firstChild);
         }
 
+        // focusHandler(e) {
+        //     e.target.getRootNode().querySelectorAll('asui-div.focus')
+        //         .forEach(formElm => formElm.classList.remove('focus'));
+        //     e.target.classList.add('focus');
+        // }
+        
         async render() {
             // const instrument = this.instrument;
             const instrumentID = typeof this.instrument.id !== "undefined" ? this.instrument.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            this.form.clearInputs();
+            this.form.innerHTML = '';
             this.form.classList.add('audio-source-synthesizer-container');
-            if(this.form.focusHandler)
-                this.form.removeEventListener('focus', this.form.focusHandler);
-            this.form.focusHandler = (e) => {
-                this.form.getRootNode().querySelectorAll('asui-form.focus')
-                    .forEach(formElm => formElm.classList.remove('focus'));
-                this.form.classList.add('focus');
-            };
-            this.form.addEventListener('focus', this.form.focusHandler, true);
 
-            const instrumentToggleButton = this.form.addButton('instrument-id',
+            // this.form.removeEventListener('focus', this.focusHandler);
+            // this.form.addEventListener('focus', this.focusHandler, true);
+
+            const instrumentToggleButton = this.form.addButtonInput('instrument-id',
                 e => this.form.classList.toggle('selected'), //TODO: toggle view
                 instrumentIDHTML + ':'
             );
@@ -624,7 +625,7 @@
 
 
 
-            this.form.addButton('instrument-remove',
+            this.form.addButtonInput('instrument-remove',
                 (e) => this.remove(e, instrumentID),
                 this.form.createIcon('delete'),
                 'Remove Instrument');
@@ -655,48 +656,49 @@
 
             const samples = this.instrument.config.samples;
             if(samples.length > 0) {
-                const sampleGrid = this.form.addGrid('samples');
-                const headerRow = sampleGrid.getOrCreateRow('header');
-                // headerRow.addText('name', 'Name');
-                headerRow.addText('id', 'ID');
-                headerRow.addText('url', 'URL');
-                headerRow.addText('mixer', 'Mixer');
-                headerRow.addText('detune', 'Detune');
-                headerRow.addText('root', 'Root');
-                headerRow.addText('alias', 'Alias');
-                headerRow.addText('loop', 'Loop');
-                headerRow.addText('adsr', 'ADSR');
-                headerRow.addText('remove', 'Rem');
+                this.form.addGrid('samples', gridDiv => {
+                    const headerRow = gridDiv.addGridRow('header');
+                    // headerRow.addDiv('name', 'Name');
+                    headerRow.addDiv('id', 'ID');
+                    headerRow.addDiv('url', 'URL');
+                    headerRow.addDiv('mixer', 'Mixer');
+                    headerRow.addDiv('detune', 'Detune');
+                    headerRow.addDiv('root', 'Root');
+                    headerRow.addDiv('alias', 'Alias');
+                    headerRow.addDiv('loop', 'Loop');
+                    headerRow.addDiv('adsr', 'ADSR');
+                    headerRow.addDiv('remove', 'Rem');
 
-                const getNoteFrequencies = (addOption) => {
-                    addOption('', "-");
-                    const noteFrequencies = this.noteFrequencies;
-                    for (let i = 1; i <= 6; i++) {
-                        for (let j = 0; j < noteFrequencies.length; j++) {
-                            addOption(noteFrequencies[j] + i);
+                    const getNoteFrequencies = (addOption) => {
+                        addOption('', "-");
+                        const noteFrequencies = this.noteFrequencies;
+                        for (let i = 1; i <= 6; i++) {
+                            for (let j = 0; j < noteFrequencies.length; j++) {
+                                addOption(noteFrequencies[j] + i);
+                            }
                         }
-                    }
-                };
+                    };
 
-                const getSampleURLs = (addOption) => {
-                    this.sampleLibrary.eachSample(sample => addOption(sample.url, sample.name));
-                };
+                    const getSampleURLs = (addOption) => {
+                        this.sampleLibrary.eachSample(sample => addOption(sample.url, sample.name));
+                    };
 
 
-                samples.forEach((sampleData, sampleID) => {
-                    const sampleRow = sampleGrid.getOrCreateRow('sample-' + sampleID);
-                    // const sampleRow = this.form.addGrid(i);
-                    // sampleRow.addTextInput('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-                    // sampleRow.addButton('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
-                    sampleRow.addText('id', sampleID);
-                    sampleRow.addSelectInput('url', (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', new URL(sampleData.url, document.location)+'');
-                    sampleRow.addRangeInput('mixer', (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
-                    sampleRow.addRangeInput('detune', (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
-                    sampleRow.addSelectInput('root', (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot || '');
-                    sampleRow.addSelectInput('alias', (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
-                    sampleRow.addCheckBoxInput('loop', (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
-                    sampleRow.addTextInput('adsr', (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
-                    sampleRow.addButton('remove', (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample');
+                    samples.forEach((sampleData, sampleID) => {
+                        const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
+                        // const sampleRow = this.form.addGrid(i);
+                        // sampleRow.addDiv('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                        // sampleRow.addButtonInput('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
+                        sampleRow.addDiv('id', sampleID);
+                        sampleRow.addSelectInput('url',     (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', new URL(sampleData.url, document.location)+'');
+                        sampleRow.addRangeInput('mixer',        (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
+                        sampleRow.addRangeInput('detune',       (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
+                        sampleRow.addSelectInput('root',    (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot || '');
+                        sampleRow.addSelectInput('alias',   (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
+                        sampleRow.addCheckBoxInput('loop',  (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
+                        sampleRow.addTextInput('adsr', (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
+                        sampleRow.addButtonInput('remove', (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample');
+                    });
                 });
             }
 

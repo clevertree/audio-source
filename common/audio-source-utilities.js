@@ -120,6 +120,19 @@ class AudioSourceUtilities {
     }
 
 
+    async loadJSONFile (file) {
+        const fileResult = await new Promise((resolve, reject) => {
+            let reader = new FileReader();                                      // prepare the file Reader
+            reader.readAsText(file);                 // read the binary data
+            reader.onload =  (e) => {
+                resolve(e.target.result);
+            };
+        });
+
+        const json = JSON.parse(fileResult);
+        return json;
+    }
+
 
 }
 

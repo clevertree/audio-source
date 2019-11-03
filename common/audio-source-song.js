@@ -59,7 +59,7 @@ class AudioSourceSong {
 
     /** Data shortcuts **/
 
-    get guid() { return this.data.guid; }
+    get uuid() { return this.data.uuid; }
     get timeDivision() { return this.data.timeDivision; }
     get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
     get rootGroup() {
@@ -104,7 +104,7 @@ class AudioSourceSong {
     async loadSongData(songData, songURL=null) {
         songData = Object.assign({}, {
             name: this.generateName(),
-            guid: this.generateGUID(),
+            uuid: this.generateUUID(),
             version: '0.0.1',
             root: 'root',
             created: new Date().getTime(),
@@ -767,7 +767,7 @@ class AudioSourceSong {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
     }
 
-    generateGUID() {
+    generateUUID() {
         var d = new Date().getTime();
         if (typeof performance !== 'undefined' && typeof performance.now === 'function'){
             d += performance.now(); //use high-precision timer if available

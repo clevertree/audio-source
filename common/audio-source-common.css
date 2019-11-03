@@ -1,5 +1,166 @@
 
 
+/** Divisor Elements **/
+
+asui-div  {
+    display: block;
+    /* vertical-align: top; */
+    /* flex-grow: 1; */
+}
+
+
+
+/** Form Inputs **/
+
+asui-div.themed {
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 0px 0px;
+    margin: 0px 0px 0px 0px;
+}
+
+asui-div .input-style,
+asui-div input.themed,
+asui-div select.themed,
+asui-div button.themed {
+    /* display: inline-block; */
+    padding: 0px 0px;
+    /* border-radius: 2px; */
+    /* transition: all 0.2s; */
+    border: 0px outset transparent;
+    background: transparent;
+    cursor: pointer;
+    height: 24px;
+}
+
+asui-div .input-style:hover,
+asui-div input[type=text].themed:hover,
+asui-div select.themed:hover,
+asui-div button.themed:hover,
+asui-div .input-style:focus,
+asui-div input[type=text].themed:focus,
+asui-div select.themed:focus,
+asui-div button.themed:focus {
+    background: #FFF;
+}
+
+asui-div input.themed[type=number],
+asui-div input.themed[type=text] {
+    padding-left: 5px;
+}
+asui-div .button-style,
+asui-div button.themed {
+    /* border: 1px outset #FFF; */
+    display: block;
+    /* min-height: 44px; */
+    /* margin: 0px 1px; */
+    /* border-radius: 2px; */
+}
+
+/*asui-div button.themed > span {*/
+/*    margin: 2px 4px;*/
+/*}*/
+
+
+asui-div input.themed[type='range'] {
+    -webkit-appearance: none;
+    background-color: #AAA;
+    border-radius: 15px;
+    height: 2px;
+    margin: 11px;
+}
+asui-div input.themed[type='range']::-webkit-slider-thumb {
+    vertical-align: middle;
+    -webkit-appearance: none;
+    background-color: #444;
+    width: 6px;
+    height: 12px;
+    border-radius: 4px;
+}
+
+
+
+/** Disabled Inputs **/
+
+asui-div  input:disabled,
+asui-div  select:disabled,
+asui-div  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/** Grid **/
+
+asui-grid {
+    display: table;
+    border-collapse: collapse;
+}
+
+asuig-row {
+    display: table-row;
+}
+
+asuig-row > * {
+    display: table-cell;
+    vertical-align: top;
+}
+
+/** Text **/
+
+asui-text {
+    /* display: inline-block; */
+}
+
+/** Editor Inputs **/
+
+asui-input-button,
+asui-input-select,
+asui-input-range,
+asui-input-text,
+asui-input-file {
+    /*display: inline-block; !** TODO: bad idea **!*/
+    vertical-align: top;
+    /* height: 24px; */
+}
+
+asui-input-button,
+asui-input-file  {
+     height: 24px;
+     display: inline-block;
+}
+
+
+/** Group Buttons **/
+
+/** Icons **/
+
+asui-icon {
+    font-size: 24px;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    padding: 0px;
+    margin: 0px;
+    background: url("../assets/img/ui-icons.png");
+    background-size: 10em 5em;
+}
+asui-icon.play { background-position: -3em -1em; }
+asui-icon.pause {background-position: -4em -1em;}
+asui-icon.stop {background-position: -5em -1em;}
+asui-icon.resume { background-position: -3em -1em; }
+
+asui-icon.insert {background-position: -3em -10em;}
+asui-icon.remove {background-position: -6em 0em;}
+asui-icon.subtract {background-position: -4em 0em;}
+asui-icon.delete {background-position: -4em 0em;}
+
+asui-icon.file-load {background-position: 0em 0em;}
+asui-icon.file-save {background-position: -1em 0em;}
+
+
+
+
+
 
 /** Menu **/
 
@@ -52,7 +213,7 @@ asui-menu div.caption > input[type=checkbox] {
 
 
 asui-menu > .dropdown-container {
-     background-color: #bdc3c7;
+    background-color: #bdc3c7;
     display: block;
     z-index: 3;
     flex-direction: column;
@@ -103,160 +264,3 @@ asui-menu > hr {
 }
 
 
-
-/** Editor Forms **/
-
-asui-form  {
-    display: inline-block;
-    vertical-align: top;
-}
-
-asui-form > div.header {
-    font-size: small;
-    border-bottom: 1px solid #BBB;
-    margin-bottom: 1px;
-    cursor: pointer;
-    padding: 1px 3px;
-}
-
-
-
-/** Grid **/
-
-asui-grid {
-    display: table;
-    border-collapse: collapse;
-}
-
-asuig-row {
-    display: table-row;
-}
-
-asuig-row > * {
-    display: table-cell !important;
-}
-
-/** Text **/
-
-asui-text {
-    /* display: inline-block; */
-}
-
-/** Editor Inputs **/
-
-asui-input-button,
-asui-input-select,
-asui-input-range,
-asui-input-text,
-asui-input-file {
-    /*display: inline-block; !** TODO: bad idea **!*/
-    vertical-align: top;
-    /* height: 24px; */
-}
-
-asui-input-button,
-asui-input-file  {
-     height: 24px;
-     display: inline-block;
-}
-
-
-
-/** Form Inputs **/
-
-asui-form .input-style,
-asui-form input.themed,
-asui-form select.themed,
-asui-form button.themed {
-    /* display: inline-block; */
-    padding: 0px 0px;
-    /* border-radius: 2px; */
-    /* transition: all 0.2s; */
-    border: 0px outset transparent;
-    background: transparent;
-    cursor: pointer;
-    height: 24px;
-}
-
-asui-form .input-style:hover,
-asui-form input[type=text].themed:hover,
-asui-form select.themed:hover,
-asui-form button.themed:hover,
-asui-form .input-style:focus,
-asui-form input[type=text].themed:focus,
-asui-form select.themed:focus,
-asui-form button.themed:focus {
-    background: #FFF;
-}
-
-asui-form input.themed[type=number],
-asui-form input.themed[type=text] {
-    padding-left: 5px;
-}
-asui-form .button-style,
-asui-form button.themed {
-    /* border: 1px outset #FFF; */
-    display: block;
-    /* min-height: 44px; */
-    /* margin: 0px 1px; */
-    /* border-radius: 2px; */
-}
-
-/*asui-form button.themed > span {*/
-/*    margin: 2px 4px;*/
-/*}*/
-
-
-asui-form input.themed[type='range'] {
-    -webkit-appearance: none;
-    background-color: #AAA;
-    border-radius: 15px;
-    height: 2px;
-    margin: 11px;
-}
-asui-form input.themed[type='range']::-webkit-slider-thumb {
-    vertical-align: middle;
-    -webkit-appearance: none;
-    background-color: #444;
-    width: 6px;
-    height: 12px;
-    border-radius: 4px;
-}
-
-
-
-/** Disabled Inputs **/
-
-asui-form  input:disabled,
-asui-form  select:disabled,
-asui-form  button:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-/** Group Buttons **/
-
-/** Icons **/
-
-asui-icon {
-    font-size: 24px;
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    padding: 0px;
-    margin: 0px;
-    background: url("../assets/img/ui-icons.png");
-    background-size: 10em 5em;
-}
-asui-icon.play { background-position: -3em -1em; }
-asui-icon.pause {background-position: -4em -1em;}
-asui-icon.stop {background-position: -5em -1em;}
-asui-icon.resume { background-position: -3em -1em; }
-
-asui-icon.insert {background-position: -3em -10em;}
-asui-icon.remove {background-position: -6em 0em;}
-asui-icon.subtract {background-position: -4em 0em;}
-asui-icon.delete {background-position: -4em 0em;}
-
-asui-icon.file-load {background-position: 0em 0em;}
-asui-icon.file-save {background-position: -1em 0em;}
