@@ -1,6 +1,3 @@
-audio-source-player {
-    display: inline-block;
-}
 
 /** Font styles **/
 
@@ -43,18 +40,6 @@ asui-div[key=asp-status-container] asui-div[key=version-text] {
 asui-div[key=asp-status-container] .version-text:not(:hover) {
     text-decoration: none;
 }
-
-/** Full Screen **/
-audio-source-player.fullscreen {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
-
-
-
 
 
 

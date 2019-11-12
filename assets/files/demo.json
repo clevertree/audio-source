@@ -9,7 +9,7 @@
   "beatsPerMeasure": 4,
   "instruments": [
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Synthesizer 00",
       "samples": [
         {
@@ -23,7 +23,7 @@
       "libraryURL": "/sample/snes/ffvi.library.json"
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 2 - $1D9B",
       "samples": [
         {
@@ -37,12 +37,12 @@
       "libraryURL": "/sample/snes/ffvi.library.json"
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 3 - $1ECD",
       "samples": []
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 4 - $1FB4",
       "samples": [
         {
@@ -56,12 +56,12 @@
       "libraryURL": "/sample/snes/ffvi.library.json"
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 5 - $211D",
       "samples": []
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 6 - $2258",
       "samples": [
         {
@@ -75,7 +75,7 @@
       "libraryURL": "/sample/snes/ffvi.library.json"
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 7 - $2331",
       "samples": [
         {
@@ -131,7 +131,7 @@
       "libraryURL": "/sample/snes/ffvi.library.json"
     },
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/instrument/audio-source-synthesizer.js",
       "name": "Track 8 - $23DC",
       "samples": []
     }
