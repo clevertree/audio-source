@@ -1,7 +1,3 @@
-audio-source-composer {
-    display: block;
-}
-
 
 /** Font styles **/
 
@@ -40,17 +36,6 @@ asui-div[key=asc-status-container] asui-div[key=version-text] {
     padding-right: 4px;
 }
 
-.asc-status-container .version-text:not(:hover) {
-    text-decoration: none;
-}
-/** Full Screen **/
-audio-source-composer.fullscreen {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-}
 
 /** Tracker **/
 

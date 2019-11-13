@@ -1,3 +1,5 @@
+throw new Error("DEPRECIATED");
+
 const babel = require("@babel/core");
 var uglify = require("uglify-js");
 const minify = require('minify');

@@ -816,7 +816,7 @@
     }
 
     function getScriptElm() {
-        return document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');
+        return document.head.querySelector('script[src$="audio-source-synthesizer.js"]');
     }
 
     function getScriptDirectory(appendPath = '') {
@@ -825,25 +825,13 @@
         return basePath + appendPath;
     }
 
-    const scriptElm = getScriptElm();
-    if (!scriptElm)
-        throw new Error("Couldn't find head script");
-    const eventData = {
-        detail: {
-            "class": AudioSourceSynthesizer,
-            // "renderClass": SynthesizerInstrumentElement,
-            "url": scriptElm.src,
-            "script": scriptElm
-        },
-        bubbles: true
-    };
-    document.dispatchEvent(new CustomEvent('instrument:loaded', eventData));
 
-    // window.addEventListener('DOMContentLoaded', e => {
-    //     document.dispatchEvent(new CustomEvent('instrument:loaded', eventData));
-    // });
-
-
+    {
+        /** Register Module **/
+        let exports = typeof module !== "undefined" ? module.exports : getScriptElm();
+        exports.instrument =
+            exports.AudioSourceSynthesizer = AudioSourceSynthesizer;
+    }
 }
 
 

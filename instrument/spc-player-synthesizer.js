@@ -207,41 +207,6 @@
         }
     }
 
-
-    /** Utilities & Dispatch Class **/
-
-    function getFileExtension(filePath) {
-        const fileName = filePath.split('/').pop();
-        const ext = fileName.indexOf('.') === -1 ? '' : fileName.split('.').pop();
-        return ext;
-    }
-
-    function getScriptElm() {
-        return document.head.querySelector('script[src$="spc-player-synthesizer.js"],script[src$="spc-player-synthesizer.min.js"]');
-    }
-
-    function getScriptDirectory(appendPath = '') {
-        const scriptElm = getScriptElm();
-        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-        return basePath + appendPath;
-    }
-
-    const scriptElm = getScriptElm();
-    if (!scriptElm)
-        throw new Error("Couldn't find head script");
-    const eventData = {
-        detail: {
-            "class": SPCPlayerSynthesizer,
-            // "renderClass": SynthesizerInstrumentElement,
-            "url": scriptElm.src,
-            "script": scriptElm
-        },
-        bubbles: true
-    };
-    document.dispatchEvent(new CustomEvent('instrument:loaded', eventData));
-
-
-
     // window.addEventListener('DOMContentLoaded', e => {
     //     document.dispatchEvent(new CustomEvent('instrument:loaded', eventData));
     // });
@@ -414,6 +379,35 @@
         //     };
 
     // })(exports);
+
+
+
+    /** Utilities **/
+
+    function getFileExtension(filePath) {
+        const fileName = filePath.split('/').pop();
+        const ext = fileName.indexOf('.') === -1 ? '' : fileName.split('.').pop();
+        return ext;
+    }
+
+    function getScriptElm() {
+        return document.head.querySelector('script[src$="spc-player-synthesizer.js"]');
+    }
+
+    function getScriptDirectory(appendPath = '') {
+        const scriptElm = getScriptElm();
+        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+        return basePath + appendPath;
+    }
+
+
+    {
+        /** Register Module **/
+        let exports = typeof module !== "undefined" ? module.exports :
+            document.head.querySelector('script[src$="instrument/spc-player-synthesizer.js"]');
+        exports.instrument =
+            exports.AudioSourceSynthesizer = AudioSourceSynthesizer;
+    }
 
 
 }
