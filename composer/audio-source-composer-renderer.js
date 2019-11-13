@@ -32,7 +32,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
             this.menuContext =      divElm.addSubMenu('',          divElm => this.populateMenu(divElm, 'context'));
         });
 
-        divElm.addDiv('asc-panel-container', (divElm) => {
+        this.panelContainerElm = divElm.addDiv('asc-panel-container', (divElm) => {
             divElm.addDiv('asc-panel-song', (divElm) => {
                 divElm.classList.add('asc-panel');
                 divElm.addDiv('caption', 'Song');
@@ -117,53 +117,61 @@ class AudioSourceComposerRenderer extends HTMLElement {
                 panelElm.classList.add('asc-panel');
                 panelElm.addDiv('caption', 'Instruments');
 
-
                 // const instrumentPanel = this.panelInstruments;
                 const instrumentList = this.song.getInstrumentList();
                 for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
 
-                    panelElm.addDiv(instrumentID, instrumentFormElm => {
                         // instrumentFormElm.classList.add('asc-form');
 
+                    panelElm.addDiv(instrumentID, instrumentFormElm => {
                         const instrument = this.song.getInstrument(instrumentID, false);
-
 
 
                         if(instrument) {
                             try {
-                                const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-                                const instrumentToggleButton = instrumentFormElm.addButtonInput('instrument-id',
-                                    null, //TODO: toggle view
-                                    instrumentIDHTML + ':'
-                                );
-                                instrumentToggleButton.classList.add('show-on-focus');
 
 
-                                if (instrument instanceof HTMLElement) {
-                                    instrument.setAttribute('data-id', instrumentID+'');
-                                    instrumentFormElm.appendChild(instrument);
+                                    if (instrument instanceof HTMLElement) {
+                                        instrument.setAttribute('data-id', instrumentID+'');
+                                        instrumentFormElm.appendChild(instrument);
 
-                                } else if (typeof instrument.render === "function") {
-                                    const renderedHTML = instrument.render(instrumentFormElm);
-                                    if(renderedHTML)
-                                        instrumentFormElm.innerHTML = renderedHTML;
-                                } else {
-                                    instrumentFormElm.innerHTML = "No Renderer";
-                                }
+                                    } else if (typeof instrument.render === "function") {
+                                        const renderedHTML = instrument.render(instrumentFormElm);
+                                        if(renderedHTML)
+                                            instrumentFormElm.innerHTML = renderedHTML;
+                                    } else {
+                                        instrumentFormElm.innerHTML = "No Renderer";
+                                    }
 
                             } catch (e) {
                                 instrumentFormElm.innerHTML = e;
                             }
 
+                        } else {
+                            const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+                            const instrumentToggleButton = instrumentFormElm.addButtonInput('instrument-id',
+                                null,
+                                instrumentIDHTML + ':'
+                            );
+                            instrumentToggleButton.classList.add('show-on-focus');
+                            instrumentFormElm.classList.add('asc-form');
+                            // Render 'empty' instrument
+                            instrumentFormElm.addSelectInput('instrument-add-url',
+                                (e, changeInstrumentURL) => this.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
+                                async (addOption) => {
+                                    addOption('', 'Set Instrument');
+                                    const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
+                                    instrumentLibrary.eachInstrument((instrumentConfig) => {
+                                        addOption(instrumentConfig.url, instrumentConfig.name);
+                                    });
+                                },
+                                'Set Instrument');
                         }
-
                     });
-
-                    // this.renderInstrument(instrumentID, instrument);
                     // TODO Update selected
                 }
 
-                panelElm.addDiv('add', instrumentFormElm => {
+                panelElm.addDiv('add-new', instrumentFormElm => {
                     instrumentFormElm.classList.add('asc-form');
                     // Render 'empty' instrument
                     instrumentFormElm.addSelectInput('instrument-add-url',
@@ -177,9 +185,6 @@ class AudioSourceComposerRenderer extends HTMLElement {
                         },
                         'Add Instrument');
                 });
-                // instrumentFormElm.addBreak();
-
-                // this.renderInstrument(instrumentList.length, null);
             });
 
             this.panelInstructions = divElm.addDiv('asc-panel-instructions', (divElm) => {
@@ -433,7 +438,9 @@ class AudioSourceComposerRenderer extends HTMLElement {
         let instrumentForm = instrumentPanel.findChild(instrumentID);
         if(instrumentForm) {
             instrumentForm.render();
-            return;
+        } else {
+            this.panelInstruments.render();
+            console.warn("Instrument form not found: " + instrumentID + ". Rendering all instruments");
         }
 
     }
@@ -583,7 +590,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                                 this.values.getValues('note-frequency', (noteName, label) => {
                                     const fullNote = noteName + octave;
                                     divElm.addActionMenu(`${label}${octave}`, (e) => {
-                                        this.trackerElm.fieldInstructionCommand.value = fullNote;
+                                        this.fieldInstructionCommand.value = fullNote;
                                         this.insertInstructionCommand(e, fullNote);
                                     });
                                 });
@@ -594,7 +601,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                     divElm.addSubMenu(`Named ►`, divElm => {
                         this.values.getValues('note-frequency-named', (noteName, frequency, instrumentID) => {
                             divElm.addActionMenu(noteName, (e) => {
-                                this.trackerElm.fieldInstructionCommand.value = noteName;
+                                this.fieldInstructionCommand.value = noteName;
                                 this.insertInstructionCommand(e, noteName, false, instrumentID);
                             })
                         });
@@ -606,7 +613,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                                 return;
                             divElm.addActionMenu(`${groupTitle}`, (e) => {
                                 const fullNote = '@' + groupName;
-                                this.trackerElm.fieldInstructionCommand.value = fullNote;
+                                this.fieldInstructionCommand.value = fullNote;
                                 this.insertInstructionCommand(e, fullNote);
                             });
                         });
@@ -628,7 +635,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                                     this.values.getValues('note-frequency', (noteName, label) => {
                                         const fullNote = noteName + octave;
                                         divElm.addActionMenu(`${label}${octave}`, (e) => {
-                                            this.trackerElm.fieldInstructionCommand.value = fullNote;
+                                            this.fieldInstructionCommand.value = fullNote;
                                             this.setInstructionCommand(e, fullNote);
                                             // handleAction('instruction:command')(e);
                                         })
@@ -640,7 +647,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                         divElm.addSubMenu(`Named ►`, divElm => {
                             this.values.getValues('note-frequency-named', (noteName, frequency, instrumentID) => {
                                 divElm.addActionMenu(noteName, (e) => {
-                                    this.trackerElm.fieldInstructionCommand.value = noteName;
+                                    this.fieldInstructionCommand.value = noteName;
                                     this.setInstructionCommand(e, noteName, false, instrumentID);
                                 })
                             });
@@ -652,7 +659,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                                     return;
                                 divElm.addActionMenu(`${groupTitle}`, (e) => {
                                     const fullNote = '@' + groupName;
-                                    this.trackerElm.fieldInstructionCommand.value = fullNote;
+                                    this.fieldInstructionCommand.value = fullNote;
                                     this.setInstructionCommand(e, fullNote);
                                 });
                             });
@@ -668,7 +675,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                     const menuEditSetInstrument = divElm.addSubMenu(`Set Instrument ►`, divElm => {
                         this.values.getValues('song-instruments', (instrumentID, label) => {
                             divElm.addActionMenu(`${label}`, (e) => {
-                                this.trackerElm.fieldInstructionInstrument.value = instrumentID;
+                                this.fieldInstructionInstrument.value = instrumentID;
                                 this.setInstructionInstrument(e, instrumentID);
                                 // handleAction('instruction:instrument')(e);
                             });
@@ -680,7 +687,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                     const menuEditSetDuration = divElm.addSubMenu(`Set Duration ►`, divElm => {
                         this.values.getValues('durations', (durationInTicks, durationName) => {
                             divElm.addActionMenu(`${durationName}`, (e) => {
-                                this.trackerElm.fieldInstructionDuration.value = durationInTicks;
+                                this.fieldInstructionDuration.value = durationInTicks;
                                 this.setInstructionDuration(e, durationInTicks);
                                 // handleAction('instruction:duration')(e);
                             });
@@ -694,7 +701,7 @@ class AudioSourceComposerRenderer extends HTMLElement {
                     const menuEditSetVelocity = divElm.addSubMenu(`Set Velocity ►`, divElm => {
                         this.values.getValues('velocities', (velocity, velocityName) => {
                             divElm.addActionMenu(`${velocityName}`, (e) => {
-                                this.trackerElm.fieldInstructionVelocity.value = velocity;
+                                this.fieldInstructionVelocity.value = velocity;
                                 this.setInstructionVelocity(e, velocity);
                                 // handleAction('instruction:velocity')(e);
                             });

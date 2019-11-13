@@ -639,8 +639,10 @@ class AudioSourceSong {
         }
     }
 
-    async initInstrument(instrumentID, audioContext) {
-        const instrument = this.getInstrument(instrumentID);
+    async initInstrument(instrumentID, audioContext, throwException=true) {
+        const instrument = this.getInstrument(instrumentID, throwException);
+        if(typeof instrument.init !== "function")
+            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
         await instrument.init(audioContext);
     }
 
@@ -648,9 +650,7 @@ class AudioSourceSong {
         console.time('initAllInstruments');
         const instrumentList = this.getInstrumentList();
         for(let instrumentID=0; instrumentID<instrumentList.length; instrumentID++) {
-            const instrument = this.getInstrument(instrumentID, false);
-            if(instrument)
-                await instrument.init(audioContext);
+            await this.initInstrument(instrumentID, audioContext, false);
         }
         console.timeEnd('initAllInstruments');
     }
@@ -687,7 +687,7 @@ class AudioSourceSong {
 
         this.replaceDataPath(['instruments', instrumentID], config);
         this.loadInstrument(instrumentID);
-        this.dispatchEvent(new CustomEvent('instrument:modified', {bubbles: true, detail: {
+        this.dispatchEvent(new CustomEvent('instrument:added', {bubbles: true, detail: {
             instrumentID,
             config,
             oldConfig: null
@@ -722,12 +722,12 @@ class AudioSourceSong {
         //
         // }
         delete this.instruments.loaded[instrumentID];
-        const oldConfig =  this.deleteDataPath(['instruments', instrumentID]);
-        this.dispatchEvent(new CustomEvent('instrument:modified', {bubbles: true, detail: {
-            instrumentID,
-            config: null,
-            oldConfig: oldConfig
-        }}), 1);
+        const oldConfig =  this.replaceDataPath(['instruments', instrumentID], null); // Replace, don't delete
+        this.dispatchEvent(new CustomEvent('instrument:removed', {bubbles: true, detail: {
+                instrumentID,
+                config: null,
+                oldConfig: oldConfig
+            }}), 1);
         return oldConfig;
     }
 
@@ -823,14 +823,14 @@ class AudioSourceSong {
         let value = this.data, parent, key = null;
         for(let i=0; i<pathList.length; i++) {
             key = pathList[i];
-            if(/^\d+$/.test(key)) {
-                key = parseInt(key);
-                // if(typeof target.length < targetPathPart)
-                //     throw new Error(`Path is out of index: ${target.length} < ${targetPathPart} (Path: -${path}) `);
-            } else {
-                // if(typeof target[targetPathPart] === 'undefined')
-                //     throw new Error("Path not found: " + path);
-            }
+            // if(/^\d+$/.test(key)) {
+            //     key = parseInt(key);
+            //     // if(typeof target.length < targetPathPart)
+            //     //     throw new Error(`Path is out of index: ${target.length} < ${targetPathPart} (Path: -${path}) `);
+            // } else {
+            //     // if(typeof target[targetPathPart] === 'undefined')
+            //     //     throw new Error("Path not found: " + path);
+            // }
             parent = value;
             if(typeof value === "undefined")
                 throw new Error("Invalid path key: " + key);

@@ -4,6 +4,10 @@
     {
       "name": "Synthesizer Instrument",
       "url": "instrument/audio-source-synthesizer.js"
+    },
+    {
+      "name": "SPC Player Instrument",
+      "url": "instrument/spc-player-synthesizer.js"
     }
   ],
   "libraries": [

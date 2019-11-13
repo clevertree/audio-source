@@ -472,9 +472,9 @@
             if (!command)
                 return null;
 
-            const instructions = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+            const noteCommands = this.noteFrequencies; // ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
             let octave = command.length === 3 ? command.charAt(2) : command.charAt(1),
-                keyNumber = instructions.indexOf(command.slice(0, -1));
+                keyNumber = noteCommands.indexOf(command.slice(0, -1));
             if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
             else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
             return keyNumber;
@@ -610,7 +610,7 @@
             // this.form.addEventListener('focus', this.focusHandler, true);
 
             const instrumentToggleButton = this.form.addButtonInput('instrument-id',
-                e => this.form.classList.toggle('selected'), //TODO: toggle view
+                e => this.form.classList.toggle('selected'),
                 instrumentIDHTML + ':'
             );
             instrumentToggleButton.classList.add('show-on-focus');

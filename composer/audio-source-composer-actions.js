@@ -29,7 +29,7 @@ class AudioSourceComposerActions extends AudioSourceComposerRenderer {
     setSongVolume(e, newSongVolume) {
         this.song.setVolume(newSongVolume);
         this.fieldSongVolume.value = newSongVolume;
-        this.setStatus(`Volume modified: ${newSongVolume}`);
+        // this.setStatus(`Volume modified: ${newSongVolume}`);
     }
 
     async loadNewSongData() {
@@ -37,7 +37,7 @@ class AudioSourceComposerActions extends AudioSourceComposerRenderer {
         const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
         let songData = storage.generateDefaultSong(defaultInstrumentURL);
         await this.song.loadSongData(songData);
-        this.render();
+        this.render(true);
         this.setStatus("Loaded new song", songData);
     }
 
@@ -342,7 +342,7 @@ class AudioSourceComposerActions extends AudioSourceComposerRenderer {
         if(confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
             const instrumentID = this.song.addInstrument(instrumentConfig);
             this.setStatus("New instrument Added to song: " + instrumentURL);
-            this.trackerElm.fieldInstructionInstrument.value = instrumentID;
+            this.fieldInstructionInstrument.value = instrumentID;
 
         } else {
             this.handleError(`New instrument canceled: ${instrumentURL}`);
@@ -361,7 +361,7 @@ class AudioSourceComposerActions extends AudioSourceComposerRenderer {
             await this.song.replaceInstrument(instrumentID, instrumentConfig);
             await this.song.loadInstrument(instrumentID, true);
             this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
-            this.trackerElm.fieldInstructionInstrument.value = instrumentID;
+            this.fieldInstructionInstrument.value = instrumentID;
 
         } else {
             this.handleError(`Change instrument canceled: ${instrumentURL}`);
@@ -393,7 +393,7 @@ class AudioSourceComposerActions extends AudioSourceComposerRenderer {
 
     setTrackerOctave(e, newOctave=null) {
         if(newOctave !== null)
-            this.trackerElm.fieldTrackerOctave.value = newOctave;
+            this.fieldTrackerOctave.value = newOctave;
     }
 
     setTrackerRowLength(e, rowLengthInTicks=null) {

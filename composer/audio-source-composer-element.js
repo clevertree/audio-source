@@ -61,7 +61,7 @@ class AudioSourceComposerElement extends AudioSourceComposerActions {
         this.attachEventHandler([
                 'instrument:instance',
                 'instrument:library',
-                'instrument:modified',
+                'instrument:modified', 'instrument:added', 'instrument:removed',
                 'instrument:loaded'],
             e => this.onSongEvent(e), document);
 
@@ -248,16 +248,19 @@ class AudioSourceComposerElement extends AudioSourceComposerActions {
                 break;
 
             case 'instrument:instance':
-                this.renderInstrument(e.detail.instrumentID);
+                // this.renderInstrument(e.detail.instrumentID);
+                // break;
+            case 'instrument:added':
+            case 'instrument:removed':
+                this.renderInstruments();
+                this.panelInstructions.render();
                 break;
 
             case 'instrument:modified':
             case 'song:modified':
                 switch(e.type) {
                     case 'instrument:modified':
-                        if(e.detail.instrumentID) {
-                            this.renderInstrument(e.detail.instrumentID);
-                        }
+                        this.renderInstrument(e.detail.instrumentID);
                         this.panelInstructions.render();
                         break;
                 }

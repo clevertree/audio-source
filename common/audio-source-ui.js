@@ -116,6 +116,7 @@ class AudioSourceUIDiv extends HTMLElement {
     findChild(key=null) {
         if(key === null)
             throw new Error("Invalid Search key");
+        key = key.toString();
         let childNode;
         for(let i=0; i<this.children.length; i++) {
             childNode = this.children[i];
