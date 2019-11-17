@@ -115,8 +115,8 @@
             });
 
             divElm.addDiv('asp-form-container', (divElm) => {
-                divElm.addDiv('asp-form-panel-song', (divElm) => {
-                    divElm.classList.add('asp-form-panel');
+                divElm.addDiv('asp-panel-song', (divElm) => {
+                    divElm.classList.add('asp-panel');
                     divElm.addDiv('caption', 'Song');
 
 
@@ -183,6 +183,31 @@
                         divElm.addDiv('caption', 'Version');
                         this.fieldSongVersion = divElm.addTextInput('version',
                             (e, newSongVersion) => this.setSongVersion(e, newSongVersion));
+                    });
+                });
+
+
+                this.playlistContainerElm =
+                divElm.addDiv('asp-panel-playlist', (divElm) => {
+                    divElm.classList.add('asp-panel');
+                    divElm.addDiv('caption', 'Playlist');
+                    divElm.addGrid('asp-playlist-container', (gridElm) => {
+                        gridElm.addGridRow('header', headerRowElm => {
+                            headerRowElm.classList.add('asp-playlist-header');
+                            headerRowElm.addDiv('id', 'ID');
+                            headerRowElm.addDiv('name', 'Name');
+                            headerRowElm.addDiv('length', 'Length');
+                            headerRowElm.addDiv('url', 'URL');
+                        });
+                        for(let i=0; i<10; i++) {
+                            gridElm.addGridRow(i, (rowElm) => {
+                                rowElm.classList.add('asp-playlist-entry');
+                                rowElm.addDiv('id', i);
+                                rowElm.addDiv('name', 'Name');
+                                rowElm.addDiv('length', 'Length');
+                                rowElm.addDiv('url', 'URL');
+                            });
+                        }
                     });
                 });
             });
