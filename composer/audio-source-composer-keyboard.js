@@ -172,9 +172,19 @@
 
     }
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="composer/audio-source-composer-keyboard.js"]');
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
     exports.AudioSourceComposerKeyboard = AudioSourceComposerKeyboard;
 
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'composer/audio-source-composer-keyboard.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if(!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
 }

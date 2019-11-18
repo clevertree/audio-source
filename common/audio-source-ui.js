@@ -993,9 +993,8 @@
 
 
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="common/audio-source-ui.js"]');
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
     exports.AudioSourceUIDiv            = AudioSourceUIDiv;
     exports.AudioSourceUIButton         = AudioSourceUIButton;
     exports.AudioSourceUIFileInput      = AudioSourceUIFileInput;
@@ -1003,4 +1002,17 @@
     exports.AudioSourceUIGridRow        = AudioSourceUIGridRow;
     exports.AudioSourceUIIcon           = AudioSourceUIIcon;
     exports.AudioSourceUIInputCheckBox  = AudioSourceUIInputCheckBox;
+
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'common/audio-source-ui.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if(!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
 }

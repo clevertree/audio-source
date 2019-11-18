@@ -251,13 +251,11 @@
         return thisScript;
     }
 
-    function requireSync(relativeScriptPath, throwException=true) {
-        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
-        if(scriptElm)
-            return scriptElm;
-        if (throwException)
-            throw new Error("Base script not found: " + relativeScriptPath);
-        return null;
+    function requireSync(relativeScriptPath) {
+        if(typeof require !== "undefined")
+            return require('../' + relativeScriptPath);
+        return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
+            (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
     }
 
 }

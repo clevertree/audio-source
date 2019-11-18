@@ -298,8 +298,44 @@
         }
     }
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="common/audio-source-values.js"]');
-    exports.AudioSourceValues            = AudioSourceValues;
+
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
+    exports.AudioSourceValues = AudioSourceValues;
+
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'common/audio-source-values.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if (!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    // function requireSync(relativeScriptPath) {
+    //     if(typeof require !== "undefined")
+    //         return require('../' + relativeScriptPath);
+    //     return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
+    //         (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
+    // }
+    //
+    // async function requireAsync(relativeScriptPath) {
+    //     if(typeof require !== "undefined")
+    //         return require('../' + relativeScriptPath);
+    //     let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+    //     if (!scriptElm) {
+    //         const scriptURL = findThisScript().basePath + relativeScriptPath;
+    //         await new Promise((resolve, reject) => {
+    //             scriptElm = document.createElement('script');
+    //             scriptElm.src = scriptURL;
+    //             scriptElm.onload = e => resolve();
+    //             document.head.appendChild(scriptElm);
+    //         });
+    //     }
+    //     return scriptElm;
+    // }
 }
+
