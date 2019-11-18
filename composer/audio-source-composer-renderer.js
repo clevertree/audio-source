@@ -1,5 +1,6 @@
 {
 
+    const {AudioSourceLibrary} = requireSync('common/audio-source-library.js');
 
     class AudioSourceComposerRenderer extends HTMLElement {
         constructor() {
@@ -9,8 +10,8 @@
 
 
         render(force = false) {
-            const linkHRefComposer = this.getScriptDirectory('composer/audio-source-composer.css');
-            const linkHRefCommon = this.getScriptDirectory('common/audio-source-common.css');
+            const linkHRefComposer = this.getScriptDirectory('composer/assets/audio-source-composer-internal.css');
+            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
 
             if (force || !this.shadowDOM) {
                 this.shadowDOM = this.shadowDOM || this.attachShadow({mode: 'open'});
@@ -454,6 +455,7 @@
 
                     divElm.addSubMenu('Open song ►', divElm => {
                         divElm.addSubMenu('from Memory ►', async divElm => {
+                            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                             const Storage = new AudioSourceStorage();
                             const songRecentUUIDs = await Storage.getRecentSongList();
                             for (let i = 0; i < songRecentUUIDs.length; i++) {
@@ -466,7 +468,7 @@
 
                         divElm.addActionMenu(`from File`, (e) => this.fieldSongFileLoad.inputElm.click()); // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                         // menuFileOpenSongFromFile.disabled = true;
-                        let menu = divElm.addActionMenu('url', null, 'from URL');
+                        let menu = divElm.addActionMenu(null, 'from URL');
                         menu.disabled = true;
                     });
 
@@ -476,14 +478,14 @@
                     });
 
                     divElm.addSubMenu('Import song ►', divElm => {
-                        divElm.addActionMenu('midi', 'from MIDI File', (e) => this.fieldSongFileLoad.inputElm.click());
+                        divElm.addActionMenu('from MIDI File', (e) => this.fieldSongFileLoad.inputElm.click());
                         // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                         // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
                         // menuFileImportSongFromMIDI.disabled = true;
                     });
 
-                    let menu = divElm.addSubMenu('export', 'Export song ►', divElm => {
-                        let menu = divElm.addActionMenu('midi', 'to MIDI File');
+                    let menu = divElm.addSubMenu('Export song ►', divElm => {
+                        let menu = divElm.addActionMenu('to MIDI File');
                         menu.disabled = true;
                     });
                     menu.disabled = true;
@@ -785,8 +787,46 @@
     }
 
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="composer/audio-source-composer-renderer.js"]');
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
     exports.AudioSourceComposerRenderer = AudioSourceComposerRenderer;
+
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'composer/audio-source-composer-renderer.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if (!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    function requireSync(relativeScriptPath, throwException = true) {
+        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
+        if (scriptElm)
+            return scriptElm;
+        if (throwException)
+            throw new Error("Base script not found: " + relativeScriptPath);
+        return null;
+    }
+
+    async function requireAsync(relativeScriptPath) {
+        if (typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if (!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise((resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+            }
+            return scriptElm;
+        } else {
+            return require('../' + relativeScriptPath);
+        }
+    }
 }

@@ -5,6 +5,7 @@
 {
 //  use server for export http://grimmdude.com/MidiWriterJS/docs/index.html https://github.com/colxi/midi-parser-js/blob/master/src/midi-parser.js
     // TODO: midi file and jsf as data url
+    const {AudioSourceUtilities} = requireSync('common/audio-source-utilities.js');
 
     class AudioSourceStorage {
         constructor() {
@@ -234,8 +235,29 @@
 
     }
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="common/audio-source-storage.js"]');
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
     exports.AudioSourceStorage = AudioSourceStorage;
+
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'common/audio-source-storage.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if(!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    function requireSync(relativeScriptPath, throwException=true) {
+        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
+        if(scriptElm)
+            return scriptElm;
+        if (throwException)
+            throw new Error("Base script not found: " + relativeScriptPath);
+        return null;
+    }
+
 }

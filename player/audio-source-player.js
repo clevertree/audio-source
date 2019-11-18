@@ -1,12 +1,12 @@
 (async function() {
 
     /** Required Modules **/
-    const {AudioSourceUtilities} = await loadModule('common/audio-source-utilities.js');
-    const {AudioSourceUIDiv} = await loadModule('common/audio-source-ui.js');
-    const {AudioSourceValues} = await loadModule('common/audio-source-values.js');
-    const {AudioSourceLibrary} = await loadModule('common/audio-source-library.js');
-    const {AudioSourceSong} = await loadModule('common/audio-source-song.js');
-    const {AudioSourceStorage} = await loadModule('common/audio-source-storage.js');
+    const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+    const {AudioSourceUIDiv} = await requireAsync('common/audio-source-ui.js');
+    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
+    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
 
     /**
      * Player requires a modern browser
@@ -324,7 +324,7 @@
 
         async loadSongFromSrc(src) {
             const Util = new AudioSourceUtilities;
-            const songData = await Util.loadJSONFromURL(src);
+            const songData = await Util.loadSongFromSrc(src);
             await this.song.loadSongData(songData);
             this.setStatus("Song loaded from src: " + src);
             this.render();
@@ -373,27 +373,49 @@
     // MusicPlayerElement.loadStylesheet('client/player/audio-source-player.css');
 
 
-    /** Module Loader **/
 
-    async function loadModule(relativeModulePath) {
+
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
+    exports.MusicPlayerElement = MusicPlayerElement;
+
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'player/audio-source-player.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if(!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    function requireSync(relativeScriptPath, throwException=true) {
+        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
+        if(scriptElm)
+            return scriptElm;
+        if (throwException)
+            throw new Error("Base script not found: " + relativeScriptPath);
+        return null;
+    }
+
+    async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
-            const baseScriptRelativePath = 'player/audio-source-player.js';
-            const thisScript = document.head.querySelector(`script[src$="${baseScriptRelativePath}"]`);
-            if(!thisScript) throw new Error("Base script not found");
-            const baseURL = thisScript.src.replace(document.location.origin, '').replace(baseScriptRelativePath, '');
-            const scriptURL = baseURL + relativeModulePath;
-            let script = document.head.querySelector('script[src$="' + scriptURL + '"]');
-            if(!script) {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if(!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
                 await new Promise((resolve, reject) => {
-                    script = document.createElement('script');
-                    script.src = scriptURL;
-                    script.onload = e => resolve();
-                    document.head.appendChild(script);
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
                 });
             }
-            return script;
+            return scriptElm;
         } else {
-            return require('../' + relativeModulePath);
+            return require('../' + relativeScriptPath);
         }
     }
+
 })();

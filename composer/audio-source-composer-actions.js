@@ -1,5 +1,10 @@
 {
 
+    /** Required Modules **/
+    const {AudioSourceComposerRenderer} = requireSync('composer/audio-source-composer-renderer.js');
+    const {AudioSourceStorage} = requireSync('common/audio-source-storage.js');
+    const {AudioSourceUtilities} = requireSync('common/audio-source-utilities.js');
+
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
 
         getDefaultInstrumentURL() {
@@ -557,9 +562,48 @@
     }
 
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="composer/audio-source-composer-actions.js"]');
+
+
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
     exports.AudioSourceComposerActions = AudioSourceComposerActions;
 
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'composer/audio-source-composer-actions.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if(!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    function requireSync(relativeScriptPath, throwException=true) {
+        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
+        if(scriptElm)
+            return scriptElm;
+        if (throwException)
+            throw new Error("Base script not found: " + relativeScriptPath);
+        return null;
+    }
+
+    async function requireAsync(relativeScriptPath) {
+        if(typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if(!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise((resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+            }
+            return scriptElm;
+        } else {
+            return require('../' + relativeScriptPath);
+        }
+    }
 }

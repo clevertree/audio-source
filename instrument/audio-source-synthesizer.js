@@ -527,11 +527,15 @@
             return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
         }
 
+        async loadAudioSourceLibraryClass() {
+            return (await requireAsync('common/audio-source-library.js')).AudioSourceLibrary;
+        }
+
         async loadDefaultSampleLibrary() {
             const defaultLibraryURL =
                 this.instrument.config.libraryURL
                 || this.DEFAULT_SAMPLE_LIBRARY_URL;
-            const AudioSourceLibrary = customElements.get('audio-source-library');
+            const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
             this.sampleLibrary = await AudioSourceLibrary.loadURL(defaultLibraryURL);
 //             console.log(this.instrument.config.name, this.sampleLibrary);
             // TODO: locate sample/preset library
@@ -636,14 +640,14 @@
 
             this.fieldChangePreset = this.form.addSelectInput('instrument-preset',
                 (e, presetURL) => this.setPreset(presetURL),
-                (addOption, setOptgroup) => {
+                async (addOption, setOptgroup) => {
                     addOption('', 'Change Preset');
                     setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
                     this.sampleLibrary.eachPreset(presetConfig => addOption(presetConfig.url, presetConfig.name));
                     setOptgroup('Libraries');
                     this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
                     setOptgroup('Other Libraries');
-                    const AudioSourceLibrary = customElements.get('audio-source-library');
+                    const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
                     AudioSourceLibrary.eachHistoricLibrary(addOption);
                 },
                 'Change Instrument',
@@ -708,14 +712,14 @@
             this.fieldAddSample = this.form.addSelectInput(
                 'add-sample',
                 (e, sampleURL) => this.addSample(sampleURL),
-                (addOption, setOptgroup) => {
+                async (addOption, setOptgroup) => {
                     addOption('', 'Add Sample');
                     setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
                     this.sampleLibrary.eachSample(sampleConfig => addOption(sampleConfig.url, sampleConfig.name));
                     setOptgroup('Libraries');
                     this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
                     setOptgroup('Other Libraries');
-                    const AudioSourceLibrary = customElements.get('audio-source-library');
+                    const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
                     AudioSourceLibrary.eachHistoricLibrary(addOption);
                 },
                 'Add Sample',
@@ -735,7 +739,7 @@
 
         async setPreset(presetURL) {
             presetURL = new URL(presetURL);
-            const AudioSourceLibrary = customElements.get('audio-source-library');
+            const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
             this.sampleLibrary = await AudioSourceLibrary.loadURL(presetURL + '');
             if (presetURL.hash) {
                 const newPresetName = presetURL.hash.substr(1);
@@ -815,22 +819,57 @@
         return ext;
     }
 
-    function getScriptElm() {
-        return document.head.querySelector('script[src$="audio-source-synthesizer.js"]');
-    }
-
     function getScriptDirectory(appendPath = '') {
-        const scriptElm = getScriptElm();
+        const scriptElm = findThisScript();
         const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
         return basePath + appendPath;
     }
 
 
-    {
-        /** Register Module **/
-        let exports = typeof module !== "undefined" ? module.exports : getScriptElm();
-        exports.instrument =
-            exports.AudioSourceSynthesizer = AudioSourceSynthesizer;
+
+
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
+    exports.instrument =
+    exports.AudioSourceSynthesizer = AudioSourceSynthesizer;
+
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'instrument/audio-source-synthesizer.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if (!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    function requireSync(relativeScriptPath, throwException = true) {
+        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
+        if (scriptElm)
+            return scriptElm;
+        if (throwException)
+            throw new Error("Base script not found: " + relativeScriptPath);
+        return null;
+    }
+
+    async function requireAsync(relativeScriptPath) {
+        if (typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if (!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise((resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+            }
+            return scriptElm;
+        } else {
+            return require('../' + relativeScriptPath);
+        }
     }
 }
 

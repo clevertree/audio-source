@@ -1,8 +1,11 @@
-{
+(async function() {
+
+    /** Required Modules **/
+    // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js'); // TODO: dont do async calls before exports are complete
+
     class AudioSourceUtilities {
         constructor() {
         }
-
         /** Javascript Libraries **/
 
         get sources() {
@@ -82,14 +85,16 @@
         /** Utilities **/
 
         getScriptElement(selector=null) {
-            return document.head.querySelector(selector || 'script[src$="audio-source-utilities.js"],script[src$="audio-source-composer.min.js"],script[src$="audio-source-player.min.js"]');
+            selector = selector || 'script[src$="audio-source-composer.js"]';
+            const scriptElm = document.head.querySelector(selector);
+            if(!scriptElm)
+                throw new Error("Script not found: " + selector);
+            return scriptElm;
         }
 
 
         getScriptDirectory(appendPath='', selector=null) {
             const scriptElm = this.getScriptElement(selector);
-            if(!scriptElm)
-                throw new Error("Script Element not found");
             const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
     //         console.log("Base Path: ", basePath);
             return basePath + appendPath;
@@ -102,6 +107,13 @@
                 newScriptElm.onload = e => resolve();
                 document.head.appendChild(newScriptElm);
             });
+        }
+
+        async loadSongFromSrc(url) {
+            const urlString = url.toString().toLowerCase();
+            if(urlString.endsWith('.json'))
+                return this.loadJSONFromURL(url);
+            throw new Error("Unrecognized file type: " + url);
         }
 
         async loadJSONFromURL(url) {
@@ -134,15 +146,62 @@
             return json;
         }
 
+        /** Midi Support **/
+
+        async loadMIDIInterface(callback) {
+            const {MIDISupport} = await requireAsync('common/midi-support.js');
+            const midiSupport = new MIDISupport();
+            midiSupport.loadMIDIInterface(callback);        // TODO: wait for user input
+        }
+
 
     }
     AudioSourceUtilities.instrumentLibrary = null;
     AudioSourceUtilities.packageInfo = null;
 
-    // Register module
-    let exports = typeof module !== "undefined" ? module.exports :
-        document.head.querySelector('script[src$="common/audio-source-utilities.js"]');
+
+
+    /** Register This Module **/
+    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
     exports.AudioSourceUtilities = AudioSourceUtilities;
 
-}
+
+    /** Module Loader Methods **/
+    function findThisScript() {
+        const SCRIPT_PATH = 'common/audio-source-utilities.js';
+        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
+        if (!thisScript)
+            throw new Error("Base script not found: " + SCRIPT_PATH);
+        thisScript.relativePath = SCRIPT_PATH;
+        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
+        return thisScript;
+    }
+
+    function requireSync(relativeScriptPath, throwException = true) {
+        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
+        if (scriptElm)
+            return scriptElm;
+        if (throwException)
+            throw new Error("Base script not found: " + relativeScriptPath);
+        return null;
+    }
+
+    async function requireAsync(relativeScriptPath) {
+        if (typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if (!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise((resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+            }
+            return scriptElm;
+        } else {
+            return require('../' + relativeScriptPath);
+        }
+    }
+})();
 
