@@ -138,10 +138,27 @@
 
         /** Midi Support **/
 
-        async loadMIDIInterface(callback) {
-            const {MIDISupport} = await requireAsync('common/midi-support.js');
-            const midiSupport = new MIDISupport();
-            midiSupport.loadMIDIInterface(callback);        // TODO: wait for user input
+
+        loadMIDIInterface(callback) {
+            // TODO: wait for user input
+            if (navigator.requestMIDIAccess) {
+                navigator.requestMIDIAccess().then(
+                    (MIDI) => {
+                        console.info("MIDI initialized", MIDI);
+                        const inputDevices = [];
+                        MIDI.inputs.forEach(
+                            (inputDevice) => {
+                                inputDevices.push(inputDevice);
+                                inputDevice.addEventListener('midimessage', callback);
+                            }
+                        );
+                        console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
+                    },
+                    (err) => {
+                        throw new Error("error initializing MIDI: " + err);
+                    }
+                );
+            }
         }
 
         async requireAsync(relativeScriptPath) {

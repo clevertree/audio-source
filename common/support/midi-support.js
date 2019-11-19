@@ -6,30 +6,6 @@
         // addSongEventListener(callback) { this.eventListeners.push(callback); }
 
 
-        loadMIDIInterface(callback) {
-
-
-            // TODO: wait for user input
-            if (navigator.requestMIDIAccess) {
-                navigator.requestMIDIAccess().then(
-                    (MIDI) => {
-                        console.info("MIDI initialized", MIDI);
-                        const inputDevices = [];
-                        MIDI.inputs.forEach(
-                            (inputDevice) => {
-                                inputDevices.push(inputDevice);
-                                inputDevice.addEventListener('midimessage', callback);
-                            }
-                        );
-                        console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-                    },
-                    (err) => {
-                        throw new Error("error initializing MIDI: " + err);
-                    }
-                );
-            }
-        }
-
 
         getCommandFromMIDINote(midiNote) {
             // midiNote -= 4;
@@ -59,7 +35,7 @@
             return midiData;
         }
 
-        async loadSongFromMidiFile(file, defaultInstrumentURL = null) {
+        async loadSongFromFileInput(file, defaultInstrumentURL = null) {
             const midiData = await this.loadMIDIFile(file);
             const songData = this.loadSongFromMIDIData(midiData, defaultInstrumentURL);
             return songData;
@@ -186,7 +162,7 @@
 
     /** Module Loader Methods **/
     function findThisScript() {
-        const SCRIPT_PATH = 'common/midi-support.js';
+        const SCRIPT_PATH = 'common/support/midi-support.js';
         const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
         if (!thisScript)
             throw new Error("Base script not found: " + SCRIPT_PATH);

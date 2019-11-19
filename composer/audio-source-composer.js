@@ -82,8 +82,9 @@
             this.attachEventHandler([
                     'instrument:instance',
                     'instrument:library',
-                    'instrument:modified', 'instrument:added', 'instrument:removed',
-                    'instrument:loaded'],
+                    'instrument:modified',
+                    'instrument:added',
+                    'instrument:removed'],
                 e => this.onSongEvent(e), document);
 
             this.render();
@@ -291,7 +292,6 @@
                     clearTimeout(this.saveSongToMemoryTimer);
                     this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                     break;
-                case 'instrument:loaded':
                 case 'instrument:remove':
                     this.renderInstruments();
                     this.panelInstructions.render();

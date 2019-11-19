@@ -5,11 +5,8 @@
     _module.promise = new Promise((resolve) => _module.resolve = resolve);
 
     /** Required Modules **/
-    const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-    const {AudioSourceUIDiv} = await requireAsync('common/audio-source-ui.js');
     // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
 
     const {AudioSourcePlayerActions} = await requireAsync('player/audio-source-player-actions.js');
     /**
@@ -48,7 +45,7 @@
                 'group:play', 'group:seek',
                 'note:start', 'note:end'
             ], this.onSongEvent);
-            document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
+            // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
             this.attachEventHandler(['keyup', 'keydown', 'click'], e => this.onInput(e), this.shadowDOM, true);
 
@@ -89,14 +86,11 @@
                 case 'song:pause':
                     // this.classList.remove('playing');
                     break;
-                case 'instrument:loaded':
-                    // this.renderer.loadAllInstruments();
-                    break;
             }
         }
 
 
-        render(force=false) {
+        async render(force=false) {
             const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player-internal.css');
             const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
 
@@ -106,6 +100,7 @@
                 <link rel="stylesheet" href="${linkHRefComposer}" />
                 <link rel="stylesheet" href="${linkHRefCommon}" />
                 `;
+                const {AudioSourceUIDiv} = await requireAsync('common/audio-source-ui.js');
                 this.containerElm = new AudioSourceUIDiv('asp-container');
                 this.shadowDOM.appendChild(this.containerElm);
             }
@@ -235,6 +230,7 @@
                     divElm.addSubMenu('Open ►', divElm => {
                         divElm.addSubMenu('from Memory ►',
                             async (divElm) => {
+                                const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
                                 const songRecentUUIDs = await Storage.getRecentSongList() ;
                                 for(let i=0; i<songRecentUUIDs.length; i++) {
@@ -268,8 +264,7 @@
 
 
         getScriptDirectory(appendPath=null) {
-            const Util = new AudioSourceUtilities;
-            return Util.getScriptDirectory(appendPath, 'script[src$="audio-source-player.js"],script[src$="audio-source-player.min.js"]');
+            return findThisScript().basePath + appendPath;
         }
 
         setStatus(newStatus) {
@@ -301,6 +296,7 @@
 
 
         async loadSongFromSrc(src) {
+            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
             const Util = new AudioSourceUtilities;
             const songData = await Util.loadSongFromSrc(src);
             await this.song.loadSongData(songData);

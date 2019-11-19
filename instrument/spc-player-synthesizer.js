@@ -393,11 +393,12 @@
 
 
 
-
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.instrument =
-        exports.SPCPlayerSynthesizer = SPCPlayerSynthesizer;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        instrument: SPCPlayerSynthesizer,
+        SPCPlayerSynthesizer,
+    };
 
 
     /** Module Loader Methods **/
@@ -410,15 +411,6 @@
         thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
         return thisScript;
     }
-
-
-
-    // function requireSync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //     return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-    //         (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
-    // }
 
 
     async function requireAsync(relativeScriptPath) {

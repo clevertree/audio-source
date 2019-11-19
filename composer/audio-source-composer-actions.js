@@ -90,14 +90,7 @@
 
 
         async loadSongFromMemory(songUUID) {
-            const song = this.song;
-            const storage = new AudioSourceStorage();
-            const songData = await storage.loadSongFromMemory(songUUID);
-            if (songData.instruments.length === 0)
-                console.warn("Song contains no instruments");
-            const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
-            await song.loadSongData(songData);
-            await song.loadSongHistory(songHistory);
+            await this.song.loadSongFromMemory(songUUID);
             this.render(true);
             this.setStatus("Song loaded from memory: " + songUUID, songData);
 //         console.info(songData);
@@ -110,48 +103,24 @@
             if (fileInput.files.length > 1)
                 throw new Error("Invalid file input: only one file allowed");
             const file = fileInput.files[0];
-            const ext = file.name.split('.').pop().toLowerCase();
-            switch (ext) {
-                case 'mid':
-                case 'midi':
-                    await this.loadSongFromMIDIFile(file);
-                    break;
-
-                case 'json':
-                    await this.loadSongFromJSONFile(file);
-                    break;
-
-                default:
-                    throw new Error("Unknown file type: " + ext);
-            }
+            await this.song.loadSongFromFileInput(file);
         }
 
 
         async loadSongFromJSONFile(file) {
-            const Util = new AudioSourceUtilities();
-            const songData = await Util.loadJSONFile(file);
-            if (songData.instruments.length === 0)
-                console.warn("Song contains no instruments");
-            await this.song.loadSongData(songData);
+            await this.song.loadSongFromJSONFile(file);
             this.render(true);
-            this.setStatus("Song loaded from file: ", songData);
+            this.setStatus("Song loaded from file: ", this.song.songData);
         }
 
         async loadSongFromMIDIFile(file, defaultInstrumentURL = null) {
-            defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
-            const midiSupport = new MIDISupport();
-            const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
-            await this.song.loadSongData(songData);
+            await this.song.loadSongFromMIDIFile(file, defaultInstrumentURL);
             this.render(true);
-            this.setStatus("Song loaded from midi: ", songData);
+            this.setStatus("Song loaded from file: ", this.song.songData);
         }
 
         async loadSongFromSrc(src) {
-            const Util = new AudioSourceUtilities();
-            const songData = await Util.loadJSONFromURL(src);
-            if (songData.instruments.length === 0)
-                console.warn("Song contains no instruments");
-            await this.song.loadSongData(songData);
+            await this.song.loadSongFromSrc(src);
             this.setStatus("Song loaded from src: " + src);
             console.info(this.song.data);
             this.render(true);

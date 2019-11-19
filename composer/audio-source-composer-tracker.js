@@ -273,8 +273,8 @@
                         case 144:   // Note On
                             // TODO: refactor
                             e.preventDefault();
-                            const midiSupport = new MIDISupport();
-                            let newMIDICommand = midiSupport.getCommandFromMIDINote(e.data[1]);
+                            const midiImport = new MIDIImport();
+                            let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
                             let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
                             console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
