@@ -994,14 +994,16 @@
 
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceUIDiv            = AudioSourceUIDiv;
-    exports.AudioSourceUIButton         = AudioSourceUIButton;
-    exports.AudioSourceUIFileInput      = AudioSourceUIFileInput;
-    exports.AudioSourceUIGrid           = AudioSourceUIGrid;
-    exports.AudioSourceUIGridRow        = AudioSourceUIGridRow;
-    exports.AudioSourceUIIcon           = AudioSourceUIIcon;
-    exports.AudioSourceUIInputCheckBox  = AudioSourceUIInputCheckBox;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        AudioSourceUIDiv,
+        AudioSourceUIButton,
+        AudioSourceUIFileInput,
+        AudioSourceUIGrid,
+        AudioSourceUIGridRow,
+        AudioSourceUIIcon,
+        AudioSourceUIInputCheckBox,
+    };
 
 
     /** Module Loader Methods **/

@@ -420,20 +420,25 @@
     //         (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
     // }
 
+
     async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
+        if(typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if(!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise(async (resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+                if(scriptElm.promise instanceof Promise)
+                    await scriptElm.promise;
+            }
+            return scriptElm.exports;
+        } else {
             return require('../' + relativeScriptPath);
-        let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
-        if (!scriptElm) {
-            const scriptURL = findThisScript().basePath + relativeScriptPath;
-            await new Promise((resolve, reject) => {
-                scriptElm = document.createElement('script');
-                scriptElm.src = scriptURL;
-                scriptElm.onload = e => resolve();
-                document.head.appendChild(scriptElm);
-            });
         }
-        return scriptElm;
     }
 }
 

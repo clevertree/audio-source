@@ -1714,10 +1714,12 @@
 
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceSong = AudioSourceSong;
-    exports.AudioSourceInstructionIterator = AudioSourceInstructionIterator;
-    exports.AudioSourceInstructionPlayback = AudioSourceInstructionPlayback;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        AudioSourceSong,
+        AudioSourceInstructionIterator,
+        AudioSourceInstructionPlayback,
+    };
 
 
     /** Module Loader Methods **/

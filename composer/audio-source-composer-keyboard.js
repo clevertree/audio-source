@@ -173,8 +173,10 @@
     }
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceComposerKeyboard = AudioSourceComposerKeyboard;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        AudioSourceComposerKeyboard,
+    };
 
 
     /** Module Loader Methods **/

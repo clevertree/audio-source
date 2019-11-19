@@ -179,9 +179,10 @@
     }
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.MIDISupport = MIDISupport;
-
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        MIDISupport,
+    };
 
     /** Module Loader Methods **/
     function findThisScript() {

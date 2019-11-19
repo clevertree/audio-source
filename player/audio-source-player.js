@@ -3,22 +3,21 @@
     /** Required Modules **/
     const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
     const {AudioSourceUIDiv} = await requireAsync('common/audio-source-ui.js');
-    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
-    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
     const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
 
+    const {AudioSourcePlayerActions} = await requireAsync('player/audio-source-player-actions.js');
     /**
      * Player requires a modern browser
      */
 
-    class MusicPlayerElement extends HTMLElement {
+    class AudioSourcePlayerElement extends AudioSourcePlayerActions {
         constructor() {
             super();
             this.versionString = '-1';
             this.eventHandlers = [];
             this.shadowDOM = null;
-            this.song = new AudioSourceSong({}, this);
         }
 
         getAudioContext()               { return this.song.getAudioContext(); }
@@ -28,7 +27,7 @@
             if(this.volumeGain) {
                 return this.volumeGain.gain.value * 100;
             }
-            return MusicPlayerElement.DEFAULT_VOLUME * 100;
+            return AudioSourcePlayerElement.DEFAULT_VOLUME * 100;
         }
         setVolume (volume) {
             const gain = this.getVolumeGain();
@@ -102,16 +101,16 @@
                 this.shadowDOM.innerHTML = `
                 <link rel="stylesheet" href="${linkHRefComposer}" />
                 <link rel="stylesheet" href="${linkHRefCommon}" />
-                <asui-div key="asp-container"></asui-div>
                 `;
-                this.containerElm = this.shadowDOM.querySelector('asui-div[key=asp-container]');
+                this.containerElm = new AudioSourceUIDiv('asp-container');
+                this.shadowDOM.appendChild(this.containerElm);
             }
 
             let divElm = this.containerElm;
             divElm.addDiv('asp-menu-container', (divElm) => {
-                this.menuFile = divElm.addMenu('File', divElm => this.populateMenu(divElm, 'file'));
-                this.menuEdit = divElm.addMenu('Edit', divElm => this.populateMenu(divElm, 'edit'));
-                this.menuView = divElm.addMenu('View', divElm => this.populateMenu(divElm, 'view'));
+                this.menuFile = divElm.addSubMenu('File', divElm => this.populateMenu(divElm, 'file'));
+                this.menuEdit = divElm.addSubMenu('Edit', divElm => this.populateMenu(divElm, 'edit'));
+                this.menuView = divElm.addSubMenu('View', divElm => this.populateMenu(divElm, 'view'));
             });
 
             divElm.addDiv('asp-form-container', (divElm) => {
@@ -229,50 +228,24 @@
             /** File Menu **/
             switch(menuKey) {
                 case 'file':
-                    divElm.addMenu('New song',
-                        (e) => this.loadNewSongData(e));
-
-                    divElm.addMenu('Open song ►', divElm => {
-                        divElm.addMenu('from Memory ►',
-                            async (e) => {
-                                const menu = e.menuElement;
-
+                    divElm.addSubMenu('Open ►', divElm => {
+                        divElm.addSubMenu('from Memory ►',
+                            async (divElm) => {
                                 const Storage = new AudioSourceStorage();
                                 const songRecentUUIDs = await Storage.getRecentSongList() ;
                                 for(let i=0; i<songRecentUUIDs.length; i++) {
                                     const entry = songRecentUUIDs[i];
-                                    const menuOpenSongUUID = menu.getOrCreateSubMenu(entry.uuid, entry.title);
-                                    menuOpenSongUUID.action = (e) => {
-                                        this.loadSongFromMemory(entry.uuid);
-                                    }
+                                    divElm.addActionMenu(entry.name || entry.uuid, (e) => this.loadSongFromMemory(entry.uuid));
                                 }
-
                             }
                         );
 
-                        divElm.addMenu(`from File`, (e) => this.fieldSongFileLoad.inputElm.click()); // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
+                        divElm.addActionMenu(`from File`, (e) => this.fieldSongFileLoad.inputElm.click()); // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                         // menuFileOpenSongFromFile.disabled = true;
-                        let menu = divElm.addMenu('url', 'from URL');
+                        let menu = divElm.addActionMenu('url', 'from URL');
                         menu.disabled = true;
                     });
 
-                    divElm.addMenu('Save song ►', divElm => {
-                        divElm.addMenu('memory', 'to Memory', (e) => this.saveSongToMemory(e));
-                        divElm.addMenu('file', 'to File', (e) => this.saveSongToFile(e));
-                    });
-
-                    divElm.addMenu('Import song ►', divElm => {
-                        divElm.addMenu('midi', 'from MIDI File', (e) => this.fieldSongFileLoad.inputElm.click());
-                        // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                        // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
-                        // menuFileImportSongFromMIDI.disabled = true;
-                    });
-
-                    let menu = divElm.addMenu('Export song ►', divElm => {
-                        let menu = divElm.addMenu('to MIDI File');
-                        menu.disabled = true;
-                    });
-                    menu.disabled = true;
                     break;
 
             }
@@ -297,6 +270,7 @@
 
         setStatus(newStatus) {
             this.statusElm.innerHTML = newStatus;
+            console.info.apply(null, arguments); // (newStatus);
         }
 
         handleError(err) {
@@ -365,10 +339,10 @@
         }
 
     }
-    MusicPlayerElement.DEFAULT_VOLUME = 0.3;
+    AudioSourcePlayerElement.DEFAULT_VOLUME = 0.3;
 
     // Define custom elements
-    customElements.define('audio-source-player', MusicPlayerElement);
+    customElements.define('audio-source-player', AudioSourcePlayerElement);
 
     // MusicPlayerElement.loadStylesheet('client/player/audio-source-player.css');
 
@@ -376,8 +350,8 @@
 
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.MusicPlayerElement = MusicPlayerElement;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {AudioSourcePlayerElement};
 
 
     /** Module Loader Methods **/
@@ -391,28 +365,21 @@
         return thisScript;
     }
 
-    function requireSync(relativeScriptPath, throwException=true) {
-        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
-        if(scriptElm)
-            return scriptElm;
-        if (throwException)
-            throw new Error("Base script not found: " + relativeScriptPath);
-        return null;
-    }
-
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
             let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
             if(!scriptElm) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
-                await new Promise((resolve, reject) => {
+                await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');
                     scriptElm.src = scriptURL;
                     scriptElm.onload = e => resolve();
                     document.head.appendChild(scriptElm);
                 });
+                if(scriptElm.promise instanceof Promise)
+                    await scriptElm.promise;
             }
-            return scriptElm;
+            return scriptElm.exports;
         } else {
             return require('../' + relativeScriptPath);
         }

@@ -2,10 +2,9 @@
  * Player requires a modern browser
  */
 
-{
+(function() {
 //  use server for export http://grimmdude.com/MidiWriterJS/docs/index.html https://github.com/colxi/midi-parser-js/blob/master/src/midi-parser.js
     // TODO: midi file and jsf as data url
-    const {AudioSourceUtilities} = requireSync('common/audio-source-utilities.js');
 
     class AudioSourceStorage {
         constructor() {
@@ -58,6 +57,7 @@
         /** Encoding / Decoding **/
 
         async encodeForStorage(json, replacer = null, space = null) {
+            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
             let encodedString = JSON.stringify(json, replacer, space);
             const Util = new AudioSourceUtilities();
             const LZString = await Util.getLZString();
@@ -69,6 +69,7 @@
         async decodeForStorage(encodedString) {
             if (!encodedString)
                 return null;
+            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
             const Util = new AudioSourceUtilities();
             const LZString = await Util.getLZString();
             encodedString = LZString.decompress(encodedString) || encodedString;
@@ -236,8 +237,10 @@
     }
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceStorage = AudioSourceStorage;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        AudioSourceStorage
+    };
 
 
     /** Module Loader Methods **/
@@ -251,11 +254,24 @@
         return thisScript;
     }
 
-    function requireSync(relativeScriptPath) {
-        if(typeof require !== "undefined")
+    async function requireAsync(relativeScriptPath) {
+        if(typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if(!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise(async (resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+                if(scriptElm.promise instanceof Promise)
+                    await scriptElm.promise;
+            }
+            return scriptElm.exports;
+        } else {
             return require('../' + relativeScriptPath);
-        return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-            (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
+        }
     }
 
-}
+})();

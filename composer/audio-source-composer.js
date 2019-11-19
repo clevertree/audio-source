@@ -440,28 +440,21 @@
         return thisScript;
     }
 
-    function requireSync(relativeScriptPath, throwException=true) {
-        const scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`)
-        if(scriptElm)
-            return scriptElm;
-        if (throwException)
-            throw new Error("Base script not found: " + relativeScriptPath);
-        return null;
-    }
-
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
             let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
             if(!scriptElm) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
-                await new Promise((resolve, reject) => {
+                await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');
                     scriptElm.src = scriptURL;
                     scriptElm.onload = e => resolve();
                     document.head.appendChild(scriptElm);
                 });
+                if(scriptElm.promise instanceof Promise)
+                    await scriptElm.promise;
             }
-            return scriptElm;
+            return scriptElm.exports;
         } else {
             return require('../' + relativeScriptPath);
         }

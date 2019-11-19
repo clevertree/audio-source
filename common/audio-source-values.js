@@ -300,9 +300,8 @@
 
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceValues = AudioSourceValues;
-
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {AudioSourceValues};
 
     /** Module Loader Methods **/
     function findThisScript() {
@@ -315,27 +314,5 @@
         return thisScript;
     }
 
-    // function requireSync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //     return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-    //         (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
-    // }
-    //
-    // async function requireAsync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //     let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
-    //     if (!scriptElm) {
-    //         const scriptURL = findThisScript().basePath + relativeScriptPath;
-    //         await new Promise((resolve, reject) => {
-    //             scriptElm = document.createElement('script');
-    //             scriptElm.src = scriptURL;
-    //             scriptElm.onload = e => resolve();
-    //             document.head.appendChild(scriptElm);
-    //         });
-    //     }
-    //     return scriptElm;
-    // }
 }
 

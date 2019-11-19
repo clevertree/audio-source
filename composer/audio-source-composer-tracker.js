@@ -1470,10 +1470,11 @@
 
     customElements.define('asct-delta', AudioSourceComposerTrackerDelta);
 
-
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceComposerTracker = AudioSourceComposerTracker;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        AudioSourceComposerTracker,
+    };
 
 
     /** Module Loader Methods **/

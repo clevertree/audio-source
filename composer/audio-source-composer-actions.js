@@ -7,9 +7,17 @@
 
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
 
+        async getAudioSourceStorage() {
+            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+            return new AudioSourceStorage;
+        }
+        async getAudioSourceUtilities() {
+            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+            return new AudioSourceUtilities;
+        }
+
         getDefaultInstrumentURL() {
-            const Util = new AudioSourceUtilities;
-            return Util.getScriptDirectory('instrument/audio-source-synthesizer.js');
+            return findThisScript().basePath + 'instrument/audio-source-synthesizer.js';
         }
 
 
@@ -565,8 +573,10 @@
 
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceComposerActions = AudioSourceComposerActions;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {
+        AudioSourceComposerActions,
+    };
 
 
     /** Module Loader Methods **/

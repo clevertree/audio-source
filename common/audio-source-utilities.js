@@ -1,7 +1,5 @@
 {
 
-    /** Required Modules **/
-    // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js'); // TODO: dont do async calls before exports are complete
 
     class AudioSourceUtilities {
         constructor() {
@@ -84,20 +82,12 @@
 
         /** Utilities **/
 
-        getScriptElement(selector=null) {
-            selector = selector || 'script[src$="audio-source-composer.js"]';
-            const scriptElm = document.head.querySelector(selector);
-            if(!scriptElm)
-                throw new Error("Script not found: " + selector);
-            return scriptElm;
-        }
-
 
         getScriptDirectory(appendPath='', selector=null) {
-            const scriptElm = this.getScriptElement(selector);
-            const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+            const scriptElm = findThisScript();
+            // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
     //         console.log("Base Path: ", basePath);
-            return basePath + appendPath;
+            return scriptElm.basePath + appendPath;
         }
 
         async loadScript(src) {
@@ -158,11 +148,6 @@
             return await requireAsync(relativeScriptPath);
         }
 
-        requireSync(relativeScriptPath) {
-            return requireSync(relativeScriptPath);
-        }
-
-
     }
     AudioSourceUtilities.instrumentLibrary = null;
     AudioSourceUtilities.packageInfo = null;
@@ -170,8 +155,8 @@
 
 
     /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceUtilities = AudioSourceUtilities;
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.exports = {AudioSourceUtilities};
 
 
     /** Module Loader Methods **/
@@ -185,27 +170,25 @@
         return thisScript;
     }
 
-    function requireSync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-        return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-            (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
-    }
 
     async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
+        if(typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if(!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise(async (resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+                if(scriptElm.promise instanceof Promise)
+                    await scriptElm.promise;
+            }
+            return scriptElm.exports;
+        } else {
             return require('../' + relativeScriptPath);
-        let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
-        if (!scriptElm) {
-            const scriptURL = findThisScript().basePath + relativeScriptPath;
-            await new Promise((resolve, reject) => {
-                scriptElm = document.createElement('script');
-                scriptElm.src = scriptURL;
-                scriptElm.onload = e => resolve();
-                document.head.appendChild(scriptElm);
-            });
         }
-        return scriptElm;
     }
 }
 
