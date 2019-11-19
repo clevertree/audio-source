@@ -1,19 +1,19 @@
-{
+(async function() {
+
+    /** Register This Async Module **/
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.promise = new Promise((resolve) => _module.resolve = resolve);
 
     /** Required Modules **/
-    const {AudioSourceComposerRenderer} = requireSync('composer/audio-source-composer-renderer.js');
-    const {AudioSourceStorage} = requireSync('common/audio-source-storage.js');
-    const {AudioSourceUtilities} = requireSync('common/audio-source-utilities.js');
+    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
+    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+    const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
 
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
-
-        async getAudioSourceStorage() {
-            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-            return new AudioSourceStorage;
-        }
-        async getAudioSourceUtilities() {
-            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-            return new AudioSourceUtilities;
+        constructor(songData={}) {
+            super();
+            this.song = new AudioSourceSong(songData, this);
         }
 
         getDefaultInstrumentURL() {
@@ -572,11 +572,11 @@
 
 
 
-    /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
-    _module.exports = {
-        AudioSourceComposerActions,
-    };
+    /** Finish Registering Async Module **/
+    _module.exports = {AudioSourceComposerActions};
+    _module.resolve(); // Resolve async promise
+    delete _module.resolve;
+    delete _module.promise;
 
 
     /** Module Loader Methods **/
@@ -590,11 +590,24 @@
         return thisScript;
     }
 
-    function requireSync(relativeScriptPath) {
-        if(typeof require !== "undefined")
+    async function requireAsync(relativeScriptPath) {
+        if(typeof require === "undefined") {
+            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            if(!scriptElm) {
+                const scriptURL = findThisScript().basePath + relativeScriptPath;
+                await new Promise(async (resolve, reject) => {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = scriptURL;
+                    scriptElm.onload = e => resolve();
+                    document.head.appendChild(scriptElm);
+                });
+                if(scriptElm.promise instanceof Promise)
+                    await scriptElm.promise;
+            }
+            return scriptElm.exports;
+        } else {
             return require('../' + relativeScriptPath);
-        return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-            (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
+        }
     }
 
-}
+})();

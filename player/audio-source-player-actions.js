@@ -1,7 +1,7 @@
 (async function() {
 
 
-    /** Register This Module **/
+    /** Register This Async Module **/
     const _module = typeof module !== "undefined" ? module : findThisScript();
     _module.promise = new Promise((resolve) => _module.resolve = resolve);
 
@@ -15,18 +15,6 @@
             this.song = new AudioSourceSong({}, this);
         }
 
-        async AudioSourceSong() {
-            const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
-            return new AudioSourceSong;
-        }
-        async getAudioSourceStorage() {
-            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-            return new AudioSourceStorage;
-        }
-        async getAudioSourceUtilities() {
-            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-            return new AudioSourceUtilities;
-        }
 
         getDefaultInstrumentURL() {
             return findThisScript().basePath + 'instrument/audio-source-synthesizer.js';
@@ -44,7 +32,7 @@
 
         async loadSongFromMemory(songUUID) {
             const song = this.song;
-            const storage = await this.getAudioSourceStorage();
+            const storage = new AudioSourceStorage();
             const songData = await storage.loadSongFromMemory(songUUID);
             if (songData.instruments.length === 0)
                 console.warn("Song contains no instruments");
@@ -81,7 +69,7 @@
 
 
         async loadSongFromJSONFile(file) {
-            const Util = await this.getAudioSourceUtilities();
+            const Util = new AudioSourceUtilities();
             const songData = await Util.loadJSONFile(file);
             if (songData.instruments.length === 0)
                 console.warn("Song contains no instruments");
@@ -100,7 +88,7 @@
         }
 
         async loadSongFromSrc(src) {
-            const Util = await this.getAudioSourceUtilities();
+            const Util = new AudioSourceUtilities();
             const songData = await Util.loadJSONFromURL(src);
             if (songData.instruments.length === 0)
                 console.warn("Song contains no instruments");
@@ -138,6 +126,7 @@
 
     }
 
+    /** Finish Registering Async Module **/
     _module.exports = {AudioSourcePlayerActions};
     _module.resolve(); // Resolve async promise
     delete _module.resolve;

@@ -1,6 +1,10 @@
-{
+(async function() {
 
-    const {AudioSourceLibrary} = requireSync('common/audio-source-library.js');
+    /** Register This Async Module **/
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.promise = new Promise((resolve) => _module.resolve = resolve);
+
+    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
 
     class AudioSourceComposerRenderer extends HTMLElement {
         constructor() {
@@ -787,12 +791,11 @@
     }
 
 
-
-    /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
-    _module.exports = {
-        AudioSourceComposerRenderer,
-    };
+    /** Finish Registering Async Module **/
+    _module.exports = {AudioSourceComposerRenderer};
+    _module.resolve(); // Resolve async promise
+    delete _module.resolve;
+    delete _module.promise;
 
 
     /** Module Loader Methods **/
@@ -805,14 +808,6 @@
         thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
         return thisScript;
     }
-
-    function requireSync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-        return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-            (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
-    }
-
 
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
@@ -833,5 +828,5 @@
             return require('../' + relativeScriptPath);
         }
     }
-}
 
+})();

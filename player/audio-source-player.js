@@ -1,5 +1,9 @@
 (async function() {
 
+    /** Register This Async Module **/
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.promise = new Promise((resolve) => _module.resolve = resolve);
+
     /** Required Modules **/
     const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
     const {AudioSourceUIDiv} = await requireAsync('common/audio-source-ui.js');
@@ -349,10 +353,11 @@
 
 
 
-    /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
+    /** Finish Registering Async Module **/
     _module.exports = {AudioSourcePlayerElement};
-
+    _module.resolve(); // Resolve async promise
+    delete _module.resolve;
+    delete _module.promise;
 
     /** Module Loader Methods **/
     function findThisScript() {

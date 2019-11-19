@@ -1,11 +1,15 @@
 (async function() {
 
+    /** Register This Async Module **/
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.promise = new Promise((resolve) => _module.resolve = resolve);
+
     /** Required Modules **/
     const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
     const {AudioSourceUIDiv} = await requireAsync('common/audio-source-ui.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    // const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
     const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
 
     const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
@@ -14,8 +18,8 @@
     const {AudioSourceComposerTracker} = await requireAsync('composer/audio-source-composer-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
-        constructor() {
-            super();
+        constructor(songData={}) {
+            super(songData);
             this.versionString = '-1';
             this.eventHandlers = [];
             this.saveSongToMemoryTimer = null;
@@ -27,7 +31,7 @@
 
             this.keyboard = new AudioSourceComposerKeyboard();
 
-            this.song = new AudioSourceSong({}, this);
+            // this.song = new AudioSourceSong({}, this);
             // this.player = null;
             // this.status = {
             //     groupHistory: [],
@@ -424,10 +428,11 @@
     customElements.define('audio-source-composer', AudioSourceComposerElement);
 
 
-    /** Register This Module **/
-    const exports = typeof module !== "undefined" ? module.exports : findThisScript();
-    exports.AudioSourceComposerElement = AudioSourceComposerElement;
-
+    /** Finish Registering Async Module **/
+    _module.exports = {AudioSourceComposerElement};
+    _module.resolve(); // Resolve async promise
+    delete _module.resolve;
+    delete _module.promise;
 
     /** Module Loader Methods **/
     function findThisScript() {
