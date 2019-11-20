@@ -3,18 +3,43 @@
         constructor() {
         }
 
-        async loadSongDataFromFileInput(file) {
-            const buffer = await new Promise((resolve, reject) => {
+        async getBufferFromFileInput(file) {
+            return await new Promise((resolve, reject) => {
                 let reader = new FileReader();                                      // prepare the file Reader
                 reader.readAsArrayBuffer(file);                 // read the binary data
                 reader.onload = (e) => {
                     resolve(e.target.result);
                 };
             });
+        }
 
+        async getDataURLFromFileInput(file) {
+            return await new Promise((resolve, reject) => {
+                let reader = new FileReader();                                      // prepare the file Reader
+                reader.readAsDataURL(file);                 // read the binary data
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+            });
+        }
+
+        async getBufferFromURL(url) {
+            var request = new XMLHttpRequest();
+            await new Promise((resolve, reject) => {
+                request.open("GET", url, true);
+                request.responseType = "arraybuffer";
+                request.send();
+                request.onload = resolve;
+            });
+
+            return request.response;
+        }
+
+        async loadSongDataFromFileInput(file) {
+            const buffer = await this.getBufferFromFileInput(file);
+            const spcURL = await this.getDataURLFromFileInput(file);
             const player = this.loadSPCPlayerFromBuffer(buffer);
-            const songData = this.loadSongDataFromPlayer(player, spcURL); // TODO: no url??
-            return songData;
+            return this.loadSongDataFromPlayer(player, spcURL);             // TODO: no url??
         }
 
         loadSongDataFromPlayer(player, spcURL) {
@@ -49,19 +74,10 @@
             return songData;
         }
 
-        async loadSongDataFromSrc(src) {
-            var request = new XMLHttpRequest();
-            await new Promise((resolve, reject) => {
-                request.open("GET", src, true);
-                request.responseType = "arraybuffer";
-                request.send();
-                request.onload = resolve;
-            });
-
-            const buffer = request.response;
+        async loadSongDataFromURL(url) {
+            const buffer = await this.getBufferFromURL(url);
             const player = this.loadSPCPlayerFromBuffer(buffer);
-            const songData = this.loadSongDataFromPlayer(player, src);
-            return songData;
+            return this.loadSongDataFromPlayer(player, url);
         }
 
 

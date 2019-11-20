@@ -18,16 +18,17 @@
             if(typeof config.name === "undefined")
                 config.name = 'SPC Player ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.config = config || {};
+            this.spcPlayers = [];
 
-            this.spcPlayer = null;
             if(this.config.spcURL)
-                this.loadSPC();
+                this.loadSPCPlayer();
         }
 
-        async loadSPC(spcURL=null) {
+        async loadSPCPlayer(spcURL=null) {
             spcURL = spcURL || this.config.spcURL;
             const spcSupport = new SPCSupport();
-            this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(spcURL);
+            const buffer = await spcSupport.getBufferFromURL(spcURL);
+            return spcSupport.loadSPCPlayerFromBuffer(buffer);
         }
 
         /** Initializing Audio **/
@@ -41,8 +42,9 @@
 
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
-            const spcSupport = new SPCSupport();
-            this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(this.config.spcURL); // TODO: OMFG HACK
+            const spcPlayer = await this.loadSPCPlayer();
+            this.spcPlayers.push(spcPlayer);
+            // this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(this.config.spcURL); // TODO: OMFG HACK
 
             let currentTime = destination.context.currentTime;
             startTime = startTime !== null ? startTime : currentTime;
@@ -50,20 +52,21 @@
                 const waitTime = startTime - currentTime;
                 await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
             }
-            if(!this.spcPlayer)
-                throw new Error("SPC Player was not loaded");
             // const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
-            this.spcPlayer.play();
+            spcPlayer.play();
 
             if(duration) {
                 const waitTime = (startTime + duration) - destination.context.currentTime;
                 await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
-                this.spcPlayer.stop();
+                spcPlayer.stop();
             }
         }
 
         stopPlayback() {
-            this.spcPlayer.stop();
+            for(let i=0; i<this.spcPlayers.length; i++) {
+                this.spcPlayers[i].stop();
+            }
+            // this.spcPlayer.stop();
 
         }
 

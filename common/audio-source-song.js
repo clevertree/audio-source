@@ -138,7 +138,7 @@
 
         async loadSongFromSrc(src) {
             const library = await this.getFileSupportModule(src);
-            const songData = await library.loadSongDataFromSrc(src);
+            const songData = await library.loadSongDataFromURL(src);
             await this.loadSongData(songData);
         }
 
@@ -181,7 +181,7 @@
             if (songData.instruments.length === 0)
                 console.warn("Song contains no instruments");
 
-            await this.loadAllInstruments();
+            await this.loadAllInstruments(true);
 
             this.dispatchEvent(new CustomEvent('song:loaded', {detail: this}));
         }
@@ -643,12 +643,12 @@
             return true;
         }
 
-        async loadAllInstruments() {
+        async loadAllInstruments(forceReload = false) {
             const instrumentList = this.getInstrumentList();
             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                 if (instrumentList[instrumentID]) {
 //                 console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
-                    await this.loadInstrument(instrumentID);
+                    await this.loadInstrument(instrumentID, forceReload);
                 }
             }
         }
