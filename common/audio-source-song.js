@@ -95,25 +95,25 @@
 
         /** Song Data **/
 
-        async getImportLibrary(filePath) {
+        async getFileSupportModule(filePath) {
             const fileExt = filePath.split('.').pop().toLowerCase();
             switch (fileExt) {
                 case 'mid':
                 case 'midi':
                     const {MIDISupport} = await requireAsync('common/support/midi-support.js');
-                    return MIDISupport;
+                    return new MIDISupport;
 
                 case 'json':
                     const {JSONSupport} = await requireAsync('common/support/json-support.js');
-                    return JSONSupport;
+                    return new JSONSupport;
 
                 case 'spc':
                     const {SPCSupport} = await requireAsync('common/support/spc-support.js');
-                    return SPCSupport;
+                    return new SPCSupport;
 
                 case 'mp3':
                     const {MP3Support} = await requireAsync('common/support/mp3-support.js');
-                    return MP3Support;
+                    return new MP3Support;
 
                 default:
                     throw new Error("Unknown file type: " + fileExt);
@@ -124,8 +124,6 @@
             const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
             const storage = new AudioSourceStorage();
             const songData = await storage.loadSongFromMemory(songUUID);
-            if (songData.instruments.length === 0)
-                console.warn("Song contains no instruments");
             const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
             await this.loadSongData(songData);
             await this.loadSongHistory(songHistory);
@@ -133,19 +131,15 @@
 
 
         async loadSongFromFileInput(file) {
-            const library = await this.getImportLibrary(file.name);
-            return await library.loadSongFromFileInput(file);
+            const library = await this.getFileSupportModule(file.name);
+            const songData = await library.loadSongDataFromFileInput(file);
+            await this.loadSongData(songData);
         }
 
         async loadSongFromSrc(src) {
-            const library = await this.getImportLibrary(src);
-            return await library.loadSongFromSrc(src);
-            // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-            // const Util = new AudioSourceUtilities();
-            // const songData = await Util.loadJSONFromURL(src);
-            // if (songData.instruments.length === 0)
-            //     console.warn("Song contains no instruments");
-            // await this.loadSongData(songData);
+            const library = await this.getFileSupportModule(src);
+            const songData = await library.loadSongDataFromSrc(src);
+            await this.loadSongData(songData);
         }
 
 
@@ -183,6 +177,9 @@
                 this.processAllInstructionData(groupName));
 
             // let loadingInstruments = 0;
+
+            if (songData.instruments.length === 0)
+                console.warn("Song contains no instruments");
 
             await this.loadAllInstruments();
 
@@ -1235,9 +1232,18 @@
                     iterator
                 }
             }));
-            while (this.isPlaybackActive) {
+            while (!this.iterator.hasReachedEnd) {
                 await this.playNextInstructionRow();
             }
+
+            let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
+            if(remainingTime < this.iterator.groupPlaybackEndTime) {
+                // Wait for notes to finish
+                const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
+                await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
+            }
+
+            this.stopPlayback(false);
 
             // if(this.iterator) never happens
             //     this.stopPlayback(false);
@@ -1285,12 +1291,8 @@
             if (!this.isPlaybackActive)
                 throw new Error("Playback is not active");
 
-            const instructionList = this.iterator.nextInstructionQuantizedRow(this.quantizationInTicks); // TODO: bad idea
-            if (this.iterator.hasReachedEnd) {
-                // If there's no next instruction, end playback.
-                this.stopPlayback(false);
-                return 0;
-            }
+            const instructionList = this.iterator.nextInstructionRow();
+
 
             const audioContext = this.song.getAudioContext();
             const notePosition = this.startTime + this.iterator.groupPlaybackTime;
@@ -1303,7 +1305,7 @@
                 await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
             }
             if (!this.isPlaybackActive)
-                return;
+                return false;
 
 
             for (let i = 0; i < instructionList.length; i++) {
@@ -1333,7 +1335,6 @@
             // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
 
 
-            // return rowDuration;
         }
 
     }
@@ -1352,6 +1353,7 @@
             this.groupPositionInTicks = groupPositionInTicks;
             this.lastInstructionGroupPositionInTicks = groupPositionInTicks;
             this.groupPlaybackTime = 0;
+            this.groupPlaybackEndTime = 0;
             this.lastInstructionGroupPlaybacktime = 0;
 
             this.groupIndex = -1;
@@ -1460,7 +1462,12 @@
                 // this.lastRowPlaybackTime = this.groupPlaybackTime;
                 this.groupPlaybackTime = this.lastInstructionGroupPlaybacktime + elapsedTime;
                 this.lastInstructionGroupPlaybacktime = this.groupPlaybackTime; // TODO: Hack.
+
             }
+
+            const groupPlaybackEndTime = this.groupPlaybackTime + (nextInstruction.duration / this.song.timeDivision) / (this.currentBPM / 60);
+            if(groupPlaybackEndTime > this.groupPlaybackEndTime)
+                this.groupPlaybackEndTime = groupPlaybackEndTime;
 
             return this.getInstruction(this.groupIndex);
         }
@@ -1502,6 +1509,7 @@
             // throw new Error("Recursion limit");
         }
 
+        // TODO: refactor
         nextInstructionQuantizedRow(quantizationInTicks, conditionalCallback = null) {
             if (!quantizationInTicks)
                 throw new Error("Invalid Quantization value: " + typeof quantizationInTicks);

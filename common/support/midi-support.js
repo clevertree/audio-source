@@ -35,7 +35,7 @@
             return midiData;
         }
 
-        async loadSongFromFileInput(file, defaultInstrumentURL = null) {
+        async loadSongDataFromFileInput(file, defaultInstrumentURL = null) {
             const midiData = await this.loadMIDIFile(file);
             const songData = this.loadSongFromMIDIData(midiData, defaultInstrumentURL);
             return songData;
@@ -160,15 +160,9 @@
         MIDISupport,
     };
 
-    /** Module Loader Methods **/
     function findThisScript() {
         const SCRIPT_PATH = 'common/support/midi-support.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if (!thisScript)
-            throw new Error("Base script not found: " + SCRIPT_PATH);
-        thisScript.relativePath = SCRIPT_PATH;
-        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
-        return thisScript;
+        return document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`)
+            || (() => throw new Error("Base script not found: " + SCRIPT_PATH))()
     }
-
 }

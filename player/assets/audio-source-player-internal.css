@@ -68,6 +68,13 @@ asui-div.asp-panel > asui-div[key=caption] {
     border-bottom: 1px solid #BBB;
 }
 
+/** Visibility **/
+
+asui-div[key=asp-container].hide-panel-song asui-div[key=asp-panel-song],
+asui-div[key=asp-container].hide-panel-playlist asui-div[key=asp-panel-playlist] {
+    display: none;
+}
+
 
 /** Song Forms **/
 

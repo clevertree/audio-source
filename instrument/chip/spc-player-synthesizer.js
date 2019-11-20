@@ -1,4 +1,11 @@
-{
+(async function() {
+    /** Register This Async Module **/
+    const _module = typeof module !== "undefined" ? module : findThisScript();
+    _module.promise = new Promise((resolve) => _module.resolve = resolve);
+
+
+    const {SPCSupport} = await requireAsync('common/support/spc-support.js');
+
     class SPCPlayerSynthesizer {
 
 
@@ -7,14 +14,20 @@
             this.id = instrumentID;
             this.form = null;
 
-            this.samples = [];
-            this.sampleDataByURL = {};
-            this.activeSources = [];
-
             this.audioContext = null;
             if(typeof config.name === "undefined")
                 config.name = 'SPC Player ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.config = config || {};
+
+            this.spcPlayer = null;
+            if(this.config.spcURL)
+                this.loadSPC();
+        }
+
+        async loadSPC(spcURL=null) {
+            spcURL = spcURL || this.config.spcURL;
+            const spcSupport = new SPCSupport();
+            this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(spcURL);
         }
 
         /** Initializing Audio **/
@@ -29,41 +42,11 @@
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
 
-            const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
-
-            // Loop through sample
-            const samplePromises = [];
-            for (let i = 0; i < this.config.samples.length; i++) {
-                const sampleConfig = this.config.samples[i];
-                let frequencyValue = 440;
-
-                // Filter sample playback
-                if (sampleConfig.keyAlias) {
-                    if(sampleConfig.keyAlias !== commandFrequency)
-                    // if(sampleConfig.name !== namedFrequency)
-                        continue;
-                } else {
-                    frequencyValue = this.getCommandFrequency(commandFrequency);
-                }
-
-                if (sampleConfig.keyLow && this.getCommandFrequency(sampleConfig.keyLow) > frequencyValue)
-                    continue;
-                if (sampleConfig.keyHigh && this.getCommandFrequency(sampleConfig.keyHigh) < frequencyValue)
-                    continue;
-
-                // TODO: polyphony
-
-                const samplePromise = this.playSample(destination, i, frequencyValue, startTime, duration, velocity, sampleConfig.adsr || null);
-                samplePromises.push(samplePromise);
+            // const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
+            if(this.spcPlayer) {
+                this.spcPlayer.play();
             }
 
-            if(samplePromises.length > 0) {
-                for (let i = 0; i < samplePromises.length; i++) {
-                    await samplePromises[i];
-                }
-            } else {
-                console.warn("No samples were played: " + commandFrequency);
-            }
         }
 
         stopPlayback() {
@@ -80,7 +63,33 @@
 
         }
 
+        getFrequencyFromAlias(aliasName) {
+            return null;
+        }
 
+        getCommandFrequency(command) {
+            const keyNumber = this.getCommandKeyNumber(command);
+            return 440 * Math.pow(2, (keyNumber - 49) / 12);
+        }
+
+        getCommandKeyNumber(command) {
+            if (Number(command) === command && command % 1 !== 0)
+                return command;
+            if (!command)
+                return null;
+
+            const noteCommands = this.noteFrequencies; // ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+            let octave = command.length === 3 ? command.charAt(2) : command.charAt(1),
+                keyNumber = noteCommands.indexOf(command.slice(0, -1));
+            if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
+            else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
+            return keyNumber;
+        }
+
+
+        get noteFrequencies() {
+            return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+        }
 
         // get instrumentID() {
         //     return this.getAttribute('data-id');
@@ -128,7 +137,7 @@
         appendCSS(rootElm) {
 
             // Append Instrument CSS
-            const PATH = 'instrument/spc-player-synthesizer.css';
+            const PATH = 'instrument/chip/spc-player-synthesizer.css';
             const linkHRef = getScriptDirectory(PATH);
 //             console.log(rootElm);
             let linkElms = rootElm.querySelectorAll('link');
@@ -332,7 +341,7 @@
         this._dsp = new SPC_DSP(state, this._buffer);
         this._cpu = new SPC_CPU(state, this._dsp);
 
-        this._playTime = this._ctx.currentTime;
+        this.playTime = this._ctx.currentTime;
         this._pumpAudio();
     }
     Driver.prototype._runCPU = function() {
@@ -393,25 +402,28 @@
 
 
 
-    /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
+
+
+    /** Finish Registering Async Module **/
     _module.exports = {
         instrument: SPCPlayerSynthesizer,
         SPCPlayerSynthesizer,
     };
+    _module.resolve(); // Resolve async promise
+    delete _module.resolve;
+    delete _module.promise;
 
 
     /** Module Loader Methods **/
     function findThisScript() {
-        const SCRIPT_PATH = 'instrument/spc-player-synthesizer.js';
+        const SCRIPT_PATH = 'instrument/chip/spc-player-synthesizer.js';
         const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if (!thisScript)
+        if(!thisScript)
             throw new Error("Base script not found: " + SCRIPT_PATH);
         thisScript.relativePath = SCRIPT_PATH;
         thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
         return thisScript;
     }
-
 
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
@@ -432,23 +444,6 @@
             return require('../' + relativeScriptPath);
         }
     }
-}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+})();

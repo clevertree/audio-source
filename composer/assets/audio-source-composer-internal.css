@@ -164,8 +164,6 @@ asui-div[key=asc-container]  form.form-song-add-instrument select[name=instrumen
 
 /** Visibility **/
 
-asui-div[key=asc-container]:not(.playing) .show-on-song-playing,
-asui-div[key=asc-container].playing .hide-on-song-playing,
 asui-div[key=asc-container].hide-panel-song asui-div[key=song],
 asui-div[key=asc-container].hide-panel-tracker asui-div[key=instruction],
 asui-div[key=asc-container].hide-panel-tracker asui-div[key=tracker],

@@ -62,8 +62,7 @@
 
         async loadSongFromSrc(src) {
             await this.song.loadSongFromSrc(src);
-            this.setStatus("Song loaded from src: " + src);
-            console.info(this.song.data);
+            this.setStatus("Song loaded from src: " + src, this.song);
             this.render(true);
         }
 
@@ -92,6 +91,27 @@
             song.setPlaybackPosition(playbackPosition);
 
         }
+
+
+        /** Toggle Panels **/
+
+        togglePanelPlaylist(e) {
+            this.containerElm.classList.toggle('hide-panel-playlist');
+        }
+
+        togglePanelSong(e) {
+            this.containerElm.classList.toggle('hide-panel-song');
+        }
+        toggleFullscreen(e) {
+            const setFullScreen = !this.classList.contains('fullscreen');
+            this.containerElm.classList.toggle('fullscreen', setFullScreen);
+            this.classList.toggle('fullscreen', setFullScreen);
+
+            if (setFullScreen) {
+
+            }
+        }
+
 
     }
 

@@ -7,7 +7,7 @@
     },
     {
       "name": "SPC Player Instrument",
-      "url": "instrument/spc-player-synthesizer.js"
+      "url": "instrument/chip/spc-player-synthesizer.js"
     }
   ],
   "libraries": [
