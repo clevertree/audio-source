@@ -47,7 +47,7 @@
             ], this.onSongEvent);
             // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
-            this.attachEventHandler(['keyup', 'keydown', 'click'], e => this.onInput(e), this.shadowDOM, true);
+            this.attachEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
 
             const src = this.getAttribute('src');
             if(src) {
@@ -136,6 +136,16 @@
                 return;
             switch(e.type) {
                 case 'click':
+                    break;
+                case 'dragover':
+                    e.stopPropagation();
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    break;
+                case 'drop':
+                    var files = e.dataTransfer.files; // Array of all files
+                    this.loadSongFromFileInput(e, files[0]);
+                    console.log(files);
                     break;
             }
         }

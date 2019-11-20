@@ -37,13 +37,16 @@
 //         console.info(songData);
         }
 
-        async loadSongFromFileInput(e, fileInput = null) {
-            fileInput = fileInput || this.fieldSongFileLoad.inputElm;
-            if (!fileInput || !fileInput.files || fileInput.files.length === 0)
+        async loadSongFromFileInput(e, file=null) {
+            if(file === null) {
+                file = this.fieldSongFileLoad.inputElm.files[0];
+            }
+            // fileInput = fileInput || this.fieldSongFileLoad.inputElm;
+            if (!file)
                 throw new Error("Invalid file input");
-            if (fileInput.files.length > 1)
-                throw new Error("Invalid file input: only one file allowed");
-            const file = fileInput.files[0];
+            // if (fileInput.files.length > 1)
+            //     throw new Error("Invalid file input: only one file allowed");
+            // const file = fileInput.files[0];
             await this.song.loadSongFromFileInput(file);
         }
 

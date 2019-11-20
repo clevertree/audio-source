@@ -3,14 +3,21 @@
         constructor() {
         }
 
-        async loadSongDataFromFileInput(file, defaultInstrumentURL = null) {
-            const SPCData = await this.loadSPCFile(file);
-            const songData = this.loadSongFromSPCData(SPCData, defaultInstrumentURL);
+        async loadSongDataFromFileInput(file) {
+            const buffer = await new Promise((resolve, reject) => {
+                let reader = new FileReader();                                      // prepare the file Reader
+                reader.readAsArrayBuffer(file);                 // read the binary data
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+            });
+
+            const player = this.loadSPCPlayerFromBuffer(buffer);
+            const songData = this.loadSongDataFromPlayer(player, spcURL); // TODO: no url??
             return songData;
         }
 
-        async loadSongDataFromSrc(src) {
-            const player = await this.loadSPCPlayerFromSrc(src);
+        loadSongDataFromPlayer(player, spcURL) {
             const id666 = player.state.id666;
             console.log(player.state);
             // id666.length = 5;
@@ -29,7 +36,7 @@
                 instruments: [
                     {
                         url: findThisScript().basePath + 'instrument/chip/spc-player-synthesizer.js',
-                        spcURL: src
+                        spcURL: spcURL
                     }
                 ],
                 instructions: {
@@ -42,7 +49,7 @@
             return songData;
         }
 
-        async loadSPCPlayerFromSrc(src) {
+        async loadSongDataFromSrc(src) {
             var request = new XMLHttpRequest();
             await new Promise((resolve, reject) => {
                 request.open("GET", src, true);
@@ -52,6 +59,13 @@
             });
 
             const buffer = request.response;
+            const player = this.loadSPCPlayerFromBuffer(buffer);
+            const songData = this.loadSongDataFromPlayer(player, src);
+            return songData;
+        }
+
+
+        loadSPCPlayerFromBuffer(buffer) {
             const stream = new DataView(buffer);
             stream.length = buffer.byteLength;
             stream.pos = 0;
