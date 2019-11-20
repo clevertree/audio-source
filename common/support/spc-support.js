@@ -13,15 +13,18 @@
             const player = await this.loadSPCPlayerFromSrc(src);
             const id666 = player.state.id666;
             console.log(player.state);
-
+            // id666.length = 5;
+            const timeDivision = 96;
+            const beatsPerMinute = 120;
+            const lengthInTicks = (id666.length * (beatsPerMinute / 60)) * timeDivision;
 
             const songData = {
                 name: id666.song,
                 version: '0.0.1a',
                 root: 'root',
                 created: new Date().getTime(),
-                timeDivision: 96 * 4,
-                beatsPerMinute: 120,
+                timeDivision: timeDivision,
+                beatsPerMinute: beatsPerMinute,
                 beatsPerMeasure: 4,
                 instruments: [
                     {
@@ -31,7 +34,7 @@
                 ],
                 instructions: {
                     'root': [
-                        ['C4', 0, 1000],
+                        ['C4', 0, lengthInTicks],
                     ]
                 }
             };
@@ -86,9 +89,22 @@
             this.driver = null;
         }
 
-        play() {
-            this.driver = new Driver(this.state);
+        play(restart=false) {
+            if(!this.driver || restart) {
+                this.driver = new Driver(this.state);
+            }
             this.driver.play();
+        }
+
+        pause() {
+            this.driver.stop();
+        }
+
+        stop() {
+            if(this.driver) {
+                this.driver.stop();
+                this.driver = null;
+            }
         }
     }
 
@@ -169,9 +185,12 @@
         id666.game = chop0(readString(stream, 32));
         id666.dumper = chop0(readString(stream, 16));
         id666.comments = chop0(readString(stream, 32));
-        stream.pos += 11; // date
-        stream.pos += 3; // len_secs
-        stream.pos += 5; // fade_msecs
+        id666.date = chop0(readString(stream, 11));
+        id666.length = parseInt(chop0(readString(stream, 3)));
+        id666.fade = parseInt(chop0(readString(stream, 5)));
+        // stream.pos += 11; // date
+        // stream.pos += 3; // len_secs
+        // stream.pos += 5; // fade_msecs
         id666.author = chop0(readString(stream, 32));
         id666.mute_mask = readByte(stream);
         id666.emulator = readByte(stream);

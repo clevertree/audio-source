@@ -41,25 +41,29 @@
 
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
+            const spcSupport = new SPCSupport();
+            this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(this.config.spcURL); // TODO: OMFG HACK
 
-            // const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
-            if(this.spcPlayer) {
-                this.spcPlayer.play();
+            let currentTime = destination.context.currentTime;
+            startTime = startTime !== null ? startTime : currentTime;
+            if(startTime > currentTime) {
+                const waitTime = startTime - currentTime;
+                await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
             }
+            if(!this.spcPlayer)
+                throw new Error("SPC Player was not loaded");
+            // const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
+            this.spcPlayer.play();
 
+            if(duration) {
+                const waitTime = (startTime + duration) - destination.context.currentTime;
+                await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
+                this.spcPlayer.stop();
+            }
         }
 
         stopPlayback() {
-            // Stop all active sources
-//             console.log("activeSources!", this.activeSources);
-            for (let i = 0; i < this.activeSources.length; i++) {
-                try {
-                    this.activeSources[i].stop();
-                } catch (e) {
-                    console.warn(e);
-                }
-            }
-            this.activeSources = [];
+            this.spcPlayer.stop();
 
         }
 
