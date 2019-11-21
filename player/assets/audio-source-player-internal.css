@@ -116,10 +116,19 @@ asui-grid[key=asp-playlist-container] {
     width: 100%;
 }
 
+asuig-row.asp-playlist-entry > asui-div {
+    padding: 4px;
+}
 asuig-row.asp-playlist-entry {
     /* min-width: 180px; */
     background: #DDD;
     border: 2px outset #FFF;
     /* margin: 9px; */
     cursor: pointer;
+    margin: 4px;
+    /* border-collapse: initial; */
+}
+
+asuig-row.asp-playlist-entry.selected {
+    background: #BBB;
 }

@@ -162,7 +162,7 @@
 
             const src = this.getAttribute('src');
             if (src) {
-                await this.loadSongFromSrc(src);
+                await this.loadSongFromURL(src);
                 return true;
             }
 

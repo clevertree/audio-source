@@ -19,6 +19,8 @@
             this.versionString = '-1';
             this.eventHandlers = [];
             this.shadowDOM = null;
+            this.playlist = [];
+            this.playlistPosition = 0;
         }
 
         getAudioContext()               { return this.song.getAudioContext(); }
@@ -49,9 +51,9 @@
 
             this.attachEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
 
-            const src = this.getAttribute('src');
-            if(src) {
-                this.loadSongFromSrc(src);
+            const url = this.getAttribute('src') || this.getAttribute('url');
+            if(url) {
+                this.loadSongFromURL(url);
             }
 
             this.render();
@@ -144,7 +146,7 @@
                     break;
                 case 'drop':
                     var files = e.dataTransfer.files; // Array of all files
-                    this.loadSongFromFileInput(e, files[0]);
+                    this.loadSongFromFileInput(files[0]);
                     console.log(files);
                     break;
             }

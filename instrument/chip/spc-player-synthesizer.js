@@ -4,7 +4,7 @@
     _module.promise = new Promise((resolve) => _module.resolve = resolve);
 
 
-    const {SPCSupport} = await requireAsync('common/support/spc-support.js');
+    const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
 
     class SPCPlayerSynthesizer {
 
@@ -26,9 +26,9 @@
 
         async loadSPCPlayer(spcURL=null) {
             spcURL = spcURL || this.config.spcURL;
-            const spcSupport = new SPCSupport();
-            const buffer = await spcSupport.getBufferFromURL(spcURL);
-            return spcSupport.loadSPCPlayerFromBuffer(buffer);
+            const libGMESupport = new LibGMESupport();
+            const buffer = await libGMESupport.getBufferFromURL(spcURL);
+            return libGMESupport.loadSPCPlayerFromBuffer(buffer);
         }
 
         /** Initializing Audio **/

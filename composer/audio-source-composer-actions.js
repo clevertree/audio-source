@@ -96,7 +96,7 @@
 //         console.info(songData);
         }
 
-        async loadSongFromFileInput(e, fileInput = null) {
+        async loadSongFromFileInput(fileInput = null) {
             fileInput = fileInput || this.fieldSongFileLoad.inputElm;
             if (!fileInput || !fileInput.files || fileInput.files.length === 0)
                 throw new Error("Invalid file input");
@@ -119,8 +119,8 @@
             this.setStatus("Song loaded from file: ", this.song.songData);
         }
 
-        async loadSongFromSrc(src) {
-            await this.song.loadSongFromSrc(src);
+        async loadSongFromURL(src) {
+            await this.song.loadSongFromURL(src);
             this.setStatus("Song loaded from src: " + src);
             console.info(this.song.data);
             this.render(true);

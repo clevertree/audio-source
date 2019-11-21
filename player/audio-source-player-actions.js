@@ -37,37 +37,60 @@
 //         console.info(songData);
         }
 
-        async loadSongFromFileInput(e, file=null) {
-            if(file === null) {
+        async loadSongFromFileInput(file=null) {
+            if(file === null)
                 file = this.fieldSongFileLoad.inputElm.files[0];
-            }
-            // fileInput = fileInput || this.fieldSongFileLoad.inputElm;
             if (!file)
                 throw new Error("Invalid file input");
-            // if (fileInput.files.length > 1)
-            //     throw new Error("Invalid file input: only one file allowed");
-            // const file = fileInput.files[0];
             await this.song.loadSongFromFileInput(file);
-        }
-
-
-        async loadSongFromJSONFile(file) {
-            await this.song.loadSongFromJSONFile(file);
-            this.render(true);
-            this.setStatus("Song loaded from file: ", this.song.songData);
-        }
-
-        async loadSongFromMIDIFile(file, defaultInstrumentURL = null) {
-            await this.song.loadSongFromMIDIFile(file, defaultInstrumentURL);
-            this.render(true);
-            this.setStatus("Song loaded from file: ", this.song.songData);
-        }
-
-        async loadSongFromSrc(src) {
-            await this.song.loadSongFromSrc(src);
-            this.setStatus("Song loaded from src: " + src, this.song);
+            this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLength());
             this.render(true);
         }
+
+        async loadSongFromURL(url) {
+            await this.song.loadSongFromURL(url);
+            this.setStatus("Song loaded from src: " + url, this.song);
+            this.addSongURLToPlaylist(url, this.song.name, this.song.getSongLength());
+            this.render(true);
+        }
+
+        async loadSongFromPlaylistEntry(playlistPosition) {
+            const entry = this.playlist[playlistPosition];
+            if(!entry)
+                throw new Error("Invalid playlist position: " + playlistPosition);
+            this.playlistPosition = playlistPosition;
+            if(entry.file) {
+                await this.song.loadSongFromFileInput(entry.file);
+            } else if(entry.url) {
+                await this.song.loadSongFromURL(entry.url);
+            } else {
+                throw new Error("Invalid Playlist Entry: " + playlistPosition);
+            }
+            this.render(true);
+        }
+
+        /** Song Playlist **/
+
+        addSongURLToPlaylist(url, name=null, length=null) {
+            const entry = {url};
+            entry.name = name || url.split('/').pop();
+            entry.length = length || null;
+            this.playlist.push(entry);
+            this.playlist.push(entry);
+            this.playlist.push(entry);
+            this.playlist.push(entry);
+            this.playlist.push(entry);
+            this.playlist.push(entry);
+        }
+
+        addSongFileToPlaylist(file, name=null, length=null) {
+            const entry = {file};
+            entry.name = name || file.name.split('/').pop();
+            entry.length = length || null;
+            entry.url = 'file://' + file.name;
+            this.playlist.push(entry);
+        }
+
 
         /** Song Playback **/
 

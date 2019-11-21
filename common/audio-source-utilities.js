@@ -99,7 +99,7 @@
             });
         }
 
-        async loadSongFromSrc(url) {
+        async loadSongFromURL(url) {
             const urlString = url.toString().toLowerCase();
             if(urlString.endsWith('.json'))
                 return this.loadJSONFromURL(url);

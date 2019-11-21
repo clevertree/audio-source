@@ -81,13 +81,13 @@
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'File');
                         this.fieldSongFileLoad = divElm.addFileInput('file-load',
-                            e => this.loadSongFromFileInput(e),
+                            e => this.loadSongFromFileInput(),
                             divElm.createIcon('file-load'),
                             `.json,.mid,.midi`,
                             "Load Song from File"
                         );
                         this.fieldSongFileSave = divElm.addButtonInput('file-save',
-                            e => this.saveSongToFile(e),
+                            e => this.saveSongToFile(),
                             divElm.createIcon('file-save'),
                             "Save Song to File"
                         );

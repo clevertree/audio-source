@@ -56,6 +56,7 @@
         /** Data shortcuts **/
 
         get uuid() { return this.data.uuid; }
+        get name() { return this.data.name; }
         get timeDivision() { return this.data.timeDivision; }
         // get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
         get rootGroup() { return this.data.root; }
@@ -108,8 +109,8 @@
                     return new JSONSupport;
 
                 case 'spc':
-                    const {SPCSupport} = await requireAsync('common/support/spc-support.js');
-                    return new SPCSupport;
+                    const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
+                    return new LibGMESupport;
 
                 case 'mp3':
                     const {MP3Support} = await requireAsync('common/support/mp3-support.js');
@@ -136,7 +137,7 @@
             await this.loadSongData(songData);
         }
 
-        async loadSongFromSrc(src) {
+        async loadSongFromURL(src) {
             const library = await this.getFileSupportModule(src);
             const songData = await library.loadSongDataFromURL(src);
             await this.loadSongData(songData);
@@ -155,6 +156,8 @@
 
 
         async loadSongData(songData, songURL = null) {
+            if (this.playback)
+                this.stopPlayback();
             songData = Object.assign({}, {
                 name: this.generateName(),
                 uuid: this.generateUUID(),
@@ -311,7 +314,7 @@
         getGroupLength(groupName) {
             const instructionIterator = this.getIterator(groupName);
             while (instructionIterator.nextInstruction()) {}
-            return instructionIterator.groupPlaybackTime;
+            return instructionIterator.groupPlaybackEndTime;
         }
 
 

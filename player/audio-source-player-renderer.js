@@ -65,13 +65,13 @@
                         divElm.classList.add('asp-form');
                         divElm.addDiv('caption', 'File');
                         this.fieldSongFileLoad = divElm.addFileInput('file-load',
-                            e => this.loadSongFromFileInput(e),
+                            e => this.loadSongFromFileInput(),
                             divElm.createIcon('file-load'),
                             `.json,.mid,.midi`,
                             "Load Song from File"
                         );
                         this.fieldSongFileSave = divElm.addButtonInput('file-save',
-                            e => this.saveSongToFile(e),
+                            e => this.saveSongToFile(),
                             divElm.createIcon('file-save'),
                             "Save Song to File"
                         );
@@ -119,16 +119,24 @@
                             headerRowElm.classList.add('asp-playlist-header');
                             headerRowElm.addDiv('id', 'ID');
                             headerRowElm.addDiv('name', 'Name');
-                            headerRowElm.addDiv('length', 'Length');
                             headerRowElm.addDiv('url', 'URL');
+                            headerRowElm.addDiv('length', 'Length');
                         });
-                        for(let i=0; i<10; i++) {
+                        for(let i=0; i<this.playlist.length; i++) {
                             gridElm.addGridRow(i, (rowElm) => {
+                                const i = parseInt(rowElm.key);
+                                const entry = this.playlist[i];
+                                const formattedLength = new Date(entry.length * 1000).toISOString().substr(14, 5);
                                 rowElm.classList.add('asp-playlist-entry');
                                 rowElm.addDiv('id', i);
-                                rowElm.addDiv('name', 'Name');
-                                rowElm.addDiv('length', 'Length');
-                                rowElm.addDiv('url', 'URL');
+                                rowElm.addDiv('name', entry.name);
+                                rowElm.addDiv('url', entry.url);
+                                rowElm.addDiv('length', formattedLength);
+                                rowElm.classList.toggle('selected', this.playlistPosition === i);
+                                rowElm.addEventListener('click', async e => {
+                                    await this.loadSongFromPlaylistEntry(i);
+                                    await this.songPlay();
+                                })
                             });
                         }
                     });
