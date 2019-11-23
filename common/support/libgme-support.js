@@ -3,7 +3,17 @@
         constructor() {
         }
 
-        async getBufferFromFileInput(file) {
+        async init(audioContext) {
+// TODO: hack
+            var basePath= '';		// not needed here
+            ScriptNodePlayer.createInstance(new SNESBackendAdapter(), basePath, [], true, doOnPlayerReady,
+                doOnTrackReadyToPlay, doOnTrackEnd);
+
+            var p = ScriptNodePlayer.getInstance();
+            p.initByUserGesture();
+        }
+
+        async loadBufferFromFileInput(file) {
             return await new Promise((resolve, reject) => {
                 let reader = new FileReader();                                      // prepare the file Reader
                 reader.readAsArrayBuffer(file);                 // read the binary data
@@ -13,7 +23,7 @@
             });
         }
 
-        async getDataURLFromFileInput(file) {
+        async loadDataURLFromFileInput(file) {
             return await new Promise((resolve, reject) => {
                 let reader = new FileReader();                                      // prepare the file Reader
                 reader.readAsDataURL(file);                 // read the binary data
@@ -23,7 +33,7 @@
             });
         }
 
-        async getBufferFromURL(url) {
+        async loadBufferFromURL(url) {
             var request = new XMLHttpRequest();
             await new Promise((resolve, reject) => {
                 request.open("GET", url, true);
@@ -36,22 +46,28 @@
         }
 
         async loadSongDataFromFileInput(file) {
-            const buffer = await this.getBufferFromFileInput(file);
-            const spcURL = await this.getDataURLFromFileInput(file);
-            const player = this.loadSPCPlayerFromBuffer(buffer);
-            return this.loadSongDataFromPlayer(player, spcURL);             // TODO: no url??
+            const buffer = await this.loadBufferFromFileInput(file);
+            const player = this.loadSPCPlayerFromBuffer(buffer, file.name);
+            const spcURL = await this.loadDataURLFromFileInput(file);
+            const songData = this.loadSongDataFromPlayer(player, spcURL);
+            return songData;
         }
 
         loadSongDataFromPlayer(player, spcURL) {
-            const id666 = player.state.id666;
-            console.log(player.state);
+            const id666 = player._songInfo;
+            console.log(id666);
             // id666.length = 5;
             const timeDivision = 96;
             const beatsPerMinute = 120;
             const lengthInTicks = (id666.length * (beatsPerMinute / 60)) * timeDivision;
 
             const songData = {
-                name: id666.song,
+                name: id666.title2 || id666.title,
+                sourceArtist: id666.artist,
+                sourceGame: id666.game,
+                sourceCopyright: id666.copyright,
+                sourcePlatform: id666.publisher,
+                comment: id666.comment,
                 version: '0.0.1a',
                 root: 'root',
                 created: new Date().getTime(),
@@ -74,99 +90,38 @@
             return songData;
         }
 
-        async loadSongDataFromURL(url, options={}) {
-            // const doOnTrackReadyToPlay = function(e) { console.info(e, 'ready')}
+        async loadSongDataFromURL(spcURL, options={}) {
+            const buffer = await this.loadBufferFromURL(spcURL);
+            const player = this.loadSPCPlayerFromBuffer(buffer, spcURL);
+            const songData = this.loadSongDataFromPlayer(player, spcURL);
+            return songData;
+        }
 
-            // --------------------------- music player -----------------------
+
+        loadSPCPlayerFromBuffer(buffer, spcURL, options={}) {
+            const doOnTrackReadyToPlay = function(e) { console.info(e, 'ready')}
+
             var basePath= '';		// not needed here
             ScriptNodePlayer.createInstance(new SNESBackendAdapter(), basePath, [], true, doOnPlayerReady,
                 doOnTrackReadyToPlay, doOnTrackEnd);
 
             var p = ScriptNodePlayer.getInstance();
+            p.initByUserGesture();
             p.setTraceMode(true);
-            if (p.isReady()) {
-                const buffer = await this.getBufferFromURL(url);
+            if (!p.isReady())
+                throw new Error("Failed to prepare track [not ready]:" + url);
 
-                const options = {};
-                if(!p.prepareTrackForPlayback(url, buffer, options)) {
-                    if (!p.isWaitingForFile()) {
-                        // onFail();
-                    }
-                } else {
-                    // onCompletion(fullFilename);
+            if(!p.prepareTrackForPlayback(spcURL, buffer, options)) {
+                if (!p.isWaitingForFile()) {
+                    throw new Error("Failed to prepare track" + spcURL);
+                    // onFail();
                 }
-
-                // p.loadMusicFromURL(url, options,
-                //     (function(filename){ resolve() }),
-                //     (function(){ this.removeFromPlaylist(someSong);	/* no point trying to play this again */ }.bind(this)),
-                //     (function(total, loaded){}));
-                console.log(p._songInfo);
             }
 
-
-            // const buffer = await this.getBufferFromURL(url);
-//             const player = this.loadSPCPlayerFromBuffer(buffer);
-//             return this.loadSongDataFromPlayer(player, url);
+            return p;
         }
-
-
-        // loadSPCPlayerFromBuffer(buffer) {
-        //     const stream = new DataView(buffer);
-        //     stream.length = buffer.byteLength;
-        //     stream.pos = 0;
-        //
-        //     var signature = readString(stream, 37);
-        //
-        //     if (signature != "SNES-SPC700 Sound File Data v0.30\x1A\x1A\x1A\x1E")
-        //         invalid();
-        //
-        //     var state = {};
-        //     var pcl = readByte(stream);
-        //     var pch = readByte(stream);
-        //     state.pc = (pch * 0x100) + pcl;
-        //     state.a = readByte(stream);
-        //     state.x = readByte(stream);
-        //     state.y = readByte(stream);
-        //     state.psw = readByte(stream);
-        //     state.sp = readByte(stream);
-        //
-        //     stream.pos += 2; // unused
-        //
-        //     state.id666 = parseID666(stream);
-        //     state.ram = mmap(stream, 0x10000);
-        //     state.regs = mmap(stream, 128);
-        //
-        //     const player = new SPCPlayer(state);
-        //     return player;
-        // }
 
     }
-
-    class SPCPlayer {
-        constructor(state) {
-            this.state = state;
-            this.driver = null;
-        }
-
-        play(restart=false) {
-            if(!this.driver || restart) {
-                this.driver = new Driver(this.state);
-            }
-            this.driver.play();
-        }
-
-        pause() {
-            this.driver.stop();
-        }
-
-        stop() {
-            if(this.driver) {
-                this.driver.stop();
-                this.driver = null;
-            }
-        }
-    }
-
 
 
     /** Register This Module **/
@@ -974,7 +929,9 @@
 
                 // this function isn't invoked directly from some "user gesture" (but
                 // indirectly from "onload" handler) so it might not work on braindead iOS shit
-                try { this._bufferSource.start(0); } catch(ignore) {}
+                try { this._bufferSource.start(0); } catch(ignore) {
+                    console.warn(ignore);
+                }
             },
             /*
             * pause audio playback
@@ -1217,8 +1174,6 @@
                 this.initByUserGesture();	// cannot be done from the callbacks below.. see iOS shit
 
                 var fullFilename= this._backendAdapter.mapInternalFilename(options.basePath, this._basePath, url);
-
-                this._fileReadyNotify= "";
 
                 if (this.loadMusicDataFromCache(fullFilename, options, onFail)) { return; }
 
@@ -2194,10 +2149,14 @@
                 result.title= this.Module.Pointer_stringify(array[0]);
                 result.artist= this.Module.Pointer_stringify(array[1]);
                 result.game= this.Module.Pointer_stringify(array[2]);
+                result.title2= this.Module.Pointer_stringify(array[3]);
+                result.copyright= this.Module.Pointer_stringify(array[4]);
                 result.comment= this.Module.Pointer_stringify(array[5]);
-                result.copyright= this.Module.Pointer_stringify(array[6]);
+                result.publisher= this.Module.Pointer_stringify(array[6]);
                 result.dumper= this.Module.Pointer_stringify(array[7]);
                 result.system= this.Module.Pointer_stringify(array[8]);
+
+                result.length = this.getMaxPlaybackPosition() / 1000;
             }
         });	return $this; })();
 
@@ -2237,176 +2196,177 @@
         getSongInfo() { return ScriptNodePlayer.getInstance().getSongInfo(); }
 
         addSong(filename) {
-                    this._someSongs.push(filename);
-                }
+            this._someSongs.push(filename);
+        }
 
         seekPos(relPos) {
-                    var p= ScriptNodePlayer.getInstance();
-                    p.seekPlaybackPosition(Math.round(p.getMaxPlaybackPosition()*relPos));
-                }
+            var p= ScriptNodePlayer.getInstance();
+            p.seekPlaybackPosition(Math.round(p.getMaxPlaybackPosition()*relPos));
+        }
 
 // some playlist handling
         removeFromPlaylist(songname) {
-                    if (this._someSongs[this._current] == songname) {
-                        this._someSongs.splice(this._current, 1);
-                        if (this._current + 1 == this._someSongs.length) this._current= 0;
-                    }
-                }
+            if (this._someSongs[this._current] == songname) {
+                this._someSongs.splice(this._current, 1);
+                if (this._current + 1 == this._someSongs.length) this._current= 0;
+            }
+        }
 
         playNextSong() {
-                    var ready= ScriptNodePlayer.getInstance().isReady();
-                    if (ready && this._someSongs.length) {
-                        this._current= (++this._current >=this._someSongs.length) ? 0 : this._current;
-                        var someSong= this._someSongs[this._current];
-                        this.playSong(someSong);
-                    }
-                }
+            var ready= ScriptNodePlayer.getInstance().isReady();
+            if (ready && this._someSongs.length) {
+                this._current= (++this._current >=this._someSongs.length) ? 0 : this._current;
+                var someSong= this._someSongs[this._current];
+                this.playSong(someSong);
+            }
+        }
 
         playPreviousSong() {
-                    if (ScriptNodePlayer.getInstance().isReady() && this._someSongs.length) {
-                        this._current= (--this._current<0) ? this._current+this._someSongs.length : this._current;
-                        var someSong= this._someSongs[this._current];
-                        this.playSong(someSong);
-                    }
-                }
+            if (ScriptNodePlayer.getInstance().isReady() && this._someSongs.length) {
+                this._current= (--this._current<0) ? this._current+this._someSongs.length : this._current;
+                var someSong= this._someSongs[this._current];
+                this.playSong(someSong);
+            }
+        }
 
         playSongWithBackand(options, onSuccess) {
-                    // backend adapter to be used has been explicitly specified
-                    var o= options.backendAdapter;
-                    ScriptNodePlayer.createInstance(o.adapter, o.basePath, o.preload, o.enableSpectrum,
-                        onSuccess, o.doOnTrackReadyToPlay, o.doOnTrackEnd);
-                }
+            // backend adapter to be used has been explicitly specified
+            var o= options.backendAdapter;
+            ScriptNodePlayer.createInstance(o.adapter, o.basePath, o.preload, o.enableSpectrum,
+                onSuccess, o.doOnTrackReadyToPlay, o.doOnTrackEnd);
+        }
 
         playSong(someSong) {
-                    var audioCtx= ScriptNodePlayer.getInstance().getAudioContext();	// handle Google's bullshit "autoplay policy"
-                    if (audioCtx.state == "suspended") {
-                        var modal = document.getElementById('autoplayConfirm');
-                        modal.style.display = "block";		// force user to click
+            var audioCtx= ScriptNodePlayer.getInstance().getAudioContext();	// handle Google's bullshit "autoplay policy"
+            if (audioCtx.state == "suspended") {
+                var modal = document.getElementById('autoplayConfirm');
+                modal.style.display = "block";		// force user to click
 
-                        window.globalDeferredPlay = function() {	// setup function to be used "onClick"
-                            audioCtx.resume();
-                            this._playSong(someSong);
-                        }.bind(this);
+                window.globalDeferredPlay = function() {	// setup function to be used "onClick"
+                    audioCtx.resume();
+                    this._playSong(someSong);
+                }.bind(this);
 
-                    } else {
-                        this._playSong(someSong);
-                    }
-                }
+            } else {
+                this._playSong(someSong);
+            }
+        }
 
         _playSong(someSong) {
-                    var arr= this._doParseUrl(someSong);
-                    var options= arr[1];
-                    if (typeof options.backendAdapter != 'undefined') {
-                        var name= arr[0];
-                        var o= options.backendAdapter;
-                        this.playSongWithBackand(options, (function(){
-                            var p= ScriptNodePlayer.getInstance();
+            var arr= this._doParseUrl(someSong);
+            var options= arr[1];
+            if (typeof options.backendAdapter != 'undefined') {
+                var name= arr[0];
+                var o= options.backendAdapter;
+                this.playSongWithBackand(options, (function(){
+                    var p= ScriptNodePlayer.getInstance();
 
-                            p.loadMusicFromURL(name, options,
-                                (function(filename){
-                                }),
-                                (function(){
-                                    this.removeFromPlaylist(someSong);	/* no point trying to play this again */ }.bind(this)),
-                                (function(total, loaded){}));
+                    p.loadMusicFromURL(name, options,
+                        (function(filename){
+                        }),
+                        (function(){
+                            this.removeFromPlaylist(someSong);	/* no point trying to play this again */ }.bind(this)),
+                        (function(total, loaded){}));
 
-                            o.doOnPlayerReady();
-                        }.bind(this)));
-                    } else {
-                        var p= ScriptNodePlayer.getInstance();
-                        if (p.isReady()) {
-                            p.loadMusicFromURL(arr[0], options,
-                                (function(filename){}),
-                                (function(){ this.removeFromPlaylist(someSong);	/* no point trying to play this again */ }.bind(this)),
-                                (function(total, loaded){}));
-                        }
-                    }
+                    o.doOnPlayerReady();
+                }.bind(this)));
+            } else {
+                var p= ScriptNodePlayer.getInstance();
+                if (p.isReady()) {
+                    p.loadMusicFromURL(arr[0], options,
+                        (function(filename){}),
+                        (function(){ this.removeFromPlaylist(someSong);	/* no point trying to play this again */ }.bind(this)),
+                        (function(total, loaded){}));
                 }
+            }
+        }
 
         animate() {
-                    // animate playback position slider
-                    var slider = document.getElementById("seekPos");
-                    if(slider && !slider.blockUpdates) {
-                        var p= ScriptNodePlayer.getInstance();
-                        slider.value = Math.round(255*p.getPlaybackPosition()/p.getMaxPlaybackPosition());
-                    }
-                }
+            // animate playback position slider
+            var slider = document.getElementById("seekPos");
+            if(slider && !slider.blockUpdates) {
+                var p= ScriptNodePlayer.getInstance();
+                slider.value = Math.round(255*p.getPlaybackPosition()/p.getMaxPlaybackPosition());
+            }
+        }
 
 // ---------------------    drag&drop feature -----------------------------------
         dropFile(checkReady, ev, funcName, options, onCompletion) {
-                    ev.preventDefault();
-                    var data = ev.dataTransfer.getData("Text");
-                    var file = ev.dataTransfer.files[0];
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("Text");
+            var file = ev.dataTransfer.files[0];
+            var p= ScriptNodePlayer.getInstance();
+
+            if ((!checkReady || ScriptNodePlayer.getInstance().isReady()) && file instanceof File) {
+                if (this._doOnDropFile) {
+                    var options= this._doOnDropFile(file.name);	// get suitable backend, etc
+                    var o= options.backendAdapter;
+
+                    this.pause();	// don't play while reconfiguring..
+
+                    this.playSongWithBackand(options, (function(){
+                        var p= ScriptNodePlayer.getInstance();
+                        var f= p.loadMusicFromTmpFile.bind(p);
+
+                        f(file, options,
+                            onCompletion,
+                            (function(){ /* fail */
+                                this.removeFromPlaylist(file.name);	/* no point trying to play this again */
+                            }.bind(this)),
+                            (function(total, loaded){})	/* progress */
+                        );
+
+                        o.doOnPlayerReady();
+                    }.bind(this)));
+
+                } else {
                     var p= ScriptNodePlayer.getInstance();
-
-                    if ((!checkReady || ScriptNodePlayer.getInstance().isReady()) && file instanceof File) {
-                        if (this._doOnDropFile) {
-                            var options= this._doOnDropFile(file.name);	// get suitable backend, etc
-                            var o= options.backendAdapter;
-
-                            this.pause();	// don't play while reconfiguring..
-
-                            this.playSongWithBackand(options, (function(){
-                                var p= ScriptNodePlayer.getInstance();
-                                var f= p.loadMusicFromTmpFile.bind(p);
-
-                                f(file, options,
-                                    onCompletion,
-                                    (function(){ /* fail */
-                                        this.removeFromPlaylist(file.name);	/* no point trying to play this again */
-                                    }.bind(this)),
-                                    (function(total, loaded){})	/* progress */
-                                );
-
-                                o.doOnPlayerReady();
-                            }.bind(this)));
-
-                        } else {
-                            var p= ScriptNodePlayer.getInstance();
-                            var f= p[funcName].bind(p);
-                            f(file, options, onCompletion, (function(){console.log("fatal error: tmp file could not be stored");}), (function(total, loaded){}));
-                        }
-                    }
+                    var f= p[funcName].bind(p);
+                    f(file, options, onCompletion, (function(){console.log("fatal error: tmp file could not be stored");}), (function(total, loaded){}));
                 }
+            }
+        }
 
         drop(ev) {
-                    var options= {};
-                    this.dropFile(true, ev, 'loadMusicFromTmpFile', options, (function(filename){
-                        this.addSong(filename);
-                    }).bind(this));
-                }
+            var options= {};
+            this.dropFile(true, ev, 'loadMusicFromTmpFile', options, (function(filename){
+                this.addSong(filename);
+            }).bind(this));
+        }
 
         initExtensions() {}
 
         allowDrop(ev) {
-                    ev.preventDefault();
-                    ev.dataTransfer.dropEffect = 'move'; 	// needed for FF
-                }
+            ev.preventDefault();
+            ev.dataTransfer.dropEffect = 'move'; 	// needed for FF
+        }
 
         initUserEngagement() {
-                    // handle Goggle's latest "autoplay policy" bullshit (patch the HTML/Script from here within this
-                    // lib so that the various existing html files need not be touched)
+            return;
+            // handle Goggle's latest "autoplay policy" bullshit (patch the HTML/Script from here within this
+            // lib so that the various existing html files need not be touched)
 
-                    var d = document.createElement("DIV");
-                    d.setAttribute("id", "autoplayConfirm");
-                    d.setAttribute("class", "modal-autoplay");
+            var d = document.createElement("DIV");
+            d.setAttribute("id", "autoplayConfirm");
+            d.setAttribute("class", "modal-autoplay");
 
-                    var dc = document.createElement("DIV");
-                    dc.setAttribute("class", "modal-autoplay-content");
+            var dc = document.createElement("DIV");
+            dc.setAttribute("class", "modal-autoplay-content");
 
-                    var p = document.createElement("P");
-                    var t = document.createTextNode("You may thank the clueless Google Chrome idiots for this useless add-on dialog - without which their \
+            var p = document.createElement("P");
+            var t = document.createTextNode("You may thank the clueless Google Chrome idiots for this useless add-on dialog - without which their \
                 user unfriendly browser will no longer play the music (which is the whole point of this page).\
                 Click outside of this box to continue.");
-                    p.appendChild(t);
+            p.appendChild(t);
 
-                    dc.appendChild(p);
-                    d.appendChild(dc);
+            dc.appendChild(p);
+            d.appendChild(dc);
 
-                    document.body.insertBefore(d, document.body.firstChild);
+            document.body.insertBefore(d, document.body.firstChild);
 
 
-                    var s= document.createElement('script');
-                    s.text = 'var modal = document.getElementById("autoplayConfirm");\
+            var s= document.createElement('script');
+            s.text = 'var modal = document.getElementById("autoplayConfirm");\
                     window.onclick = function(event) {\
                         if (event.target == modal) {\
                             modal.style.display = "none";\
@@ -2414,165 +2374,165 @@
                             delete window.globalDeferredPlay; }\
                         }\
                     }';
-                    document.body.appendChild(s);
+            document.body.appendChild(s);
 
-                }
+        }
 
         initTooltip() {
-                    var tooltipDiv= document.getElementById("tooltip");
+            var tooltipDiv= document.getElementById("tooltip");
 
-                    var f = document.createElement("form");
-                    f.setAttribute('method',"post");
-                    f.setAttribute('action',"https://www.paypal.com/cgi-bin/webscr");
-                    f.setAttribute('target',"_blank");
+            var f = document.createElement("form");
+            f.setAttribute('method',"post");
+            f.setAttribute('action',"https://www.paypal.com/cgi-bin/webscr");
+            f.setAttribute('target',"_blank");
 
-                    var i1 = document.createElement("input");
-                    i1.type = "hidden";
-                    i1.value = "_s-xclick";
-                    i1.name = "cmd";
-                    f.appendChild(i1);
+            var i1 = document.createElement("input");
+            i1.type = "hidden";
+            i1.value = "_s-xclick";
+            i1.name = "cmd";
+            f.appendChild(i1);
 
-                    var i2 = document.createElement("input");
-                    i2.type = "hidden";
-                    i2.value = "E7ACAHA7W5FYC";
-                    i2.name = "hosted_button_id";
-                    f.appendChild(i2);
+            var i2 = document.createElement("input");
+            i2.type = "hidden";
+            i2.value = "E7ACAHA7W5FYC";
+            i2.name = "hosted_button_id";
+            f.appendChild(i2);
 
-                    // var i3 = document.createElement("input");
-                    // i3.type = "image";
-                    // i3.src= "stdlib/btn_donate_LG.gif";
-                    // i3.border= "0";
-                    // i3.name="submit";
-                    // i3.alt="PayPal - The safer, easier way to pay online!";
-                    // f.appendChild(i3);
+            // var i3 = document.createElement("input");
+            // i3.type = "image";
+            // i3.src= "stdlib/btn_donate_LG.gif";
+            // i3.border= "0";
+            // i3.name="submit";
+            // i3.alt="PayPal - The safer, easier way to pay online!";
+            // f.appendChild(i3);
 
-                    var i4 = document.createElement("img");
-                    i4.alt = "";
-                    i4.border = "0";
-                    i4.src = "stdlib/pixel.gif";
-                    i4.width = "1";
-                    i4.height = "1";
-                    f.appendChild(i4);
+            var i4 = document.createElement("img");
+            i4.alt = "";
+            i4.border = "0";
+            i4.src = "stdlib/pixel.gif";
+            i4.width = "1";
+            i4.height = "1";
+            f.appendChild(i4);
 
-                    // tooltipDiv.appendChild(f);
-                }
+            // tooltipDiv.appendChild(f);
+        }
 
         initDrop() {
-                    // the 'window' level handlers are needed to show a useful mouse cursor in Firefox
-                    window.addEventListener("dragover",function(e){
-                        e = e || event;
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'none';
-                    },true);
-                    window.addEventListener("drop",function(e){
-                        e = e || event;
-                        e.preventDefault();
-                    },true);
+            // the 'window' level handlers are needed to show a useful mouse cursor in Firefox
+            window.addEventListener("dragover",function(e){
+                e = e || event;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'none';
+            },true);
+            window.addEventListener("drop",function(e){
+                e = e || event;
+                e.preventDefault();
+            },true);
 
-                    var dropDiv= document.getElementById("drop") || document.body;
-                    dropDiv.ondrop  = this.drop.bind(this);
-                    dropDiv.ondragover  = this.allowDrop.bind(this);
-                }
+            var dropDiv= document.getElementById("drop") || document.body;
+            dropDiv.ondrop  = this.drop.bind(this);
+            dropDiv.ondragover  = this.allowDrop.bind(this);
+        }
 
         appendControlElement(elmt) {
-                    var controls= document.getElementById("controls") || document.body;
-                    controls.appendChild(elmt);
-                    controls.appendChild(document.createTextNode(" "));  	// spacer
-                }
+            var controls= document.getElementById("controls") || document.body;
+            controls.appendChild(elmt);
+            controls.appendChild(document.createTextNode(" "));  	// spacer
+        }
 
         initDomElements() {
-                    var play = document.createElement("BUTTON");
-                    play.id = "play";
-                    play.innerHTML= " &gt;";
-                    play.onclick = function(e){ this.resume(); }.bind(this);
-                    this.appendControlElement(play);
+            var play = document.createElement("BUTTON");
+            play.id = "play";
+            play.innerHTML= " &gt;";
+            play.onclick = function(e){ this.resume(); }.bind(this);
+            this.appendControlElement(play);
 
-                    var pause = document.createElement("BUTTON");
-                    pause.id = "pause";
-                    pause.innerHTML= " ||";
-                    pause.onclick = function(e){ this.pause(); }.bind(this);
-                    this.appendControlElement(pause);
+            var pause = document.createElement("BUTTON");
+            pause.id = "pause";
+            pause.innerHTML= " ||";
+            pause.onclick = function(e){ this.pause(); }.bind(this);
+            this.appendControlElement(pause);
 
-                    var previous = document.createElement("BUTTON");
-                    previous.id = "previous";
-                    previous.innerHTML= " |&lt;&lt;";
-                    previous.onclick = this.playPreviousSong.bind(this);
-                    this.appendControlElement(previous);
+            var previous = document.createElement("BUTTON");
+            previous.id = "previous";
+            previous.innerHTML= " |&lt;&lt;";
+            previous.onclick = this.playPreviousSong.bind(this);
+            this.appendControlElement(previous);
 
-                    var next = document.createElement("BUTTON");
-                    next.id = "next";
-                    next.innerHTML= " &gt;&gt;|";
-                    next.onclick = this.playNextSong.bind(this);
-                    this.appendControlElement(next);
+            var next = document.createElement("BUTTON");
+            next.id = "next";
+            next.innerHTML= " &gt;&gt;|";
+            next.onclick = this.playNextSong.bind(this);
+            this.appendControlElement(next);
 
-                    var gain = document.createElement("input");
-                    gain.id = "gain";
-                    gain.name = "gain";
-                    gain.type = "range";
-                    gain.min = 0;
-                    gain.max = 255;
-                    gain.value = 255;
-                    gain.onchange = function(e){ this.setVolume(gain.value/255); }.bind(this);
-                    this.appendControlElement(gain);
+            var gain = document.createElement("input");
+            gain.id = "gain";
+            gain.name = "gain";
+            gain.type = "range";
+            gain.min = 0;
+            gain.max = 255;
+            gain.value = 255;
+            gain.onchange = function(e){ this.setVolume(gain.value/255); }.bind(this);
+            this.appendControlElement(gain);
 
-                    if (this._enableSeek) {
-                        var seek = document.createElement("input");
-                        seek.type = "range";
-                        seek.min = 0;
-                        seek.max = 255;
-                        seek.value = 0;
-                        seek.id = "seekPos";
-                        seek.name = "seekPos";
-                        // FF: 'onchange' triggers once the final value is selected;
-                        // Chrome: already triggers while dragging; 'oninput' does not exist in IE
-                        // but supposedly has the same functionality in Chrome & FF
-                        seek.oninput  = function(e){
-                            if (window.chrome)
-                                seek.blockUpdates= true;
-                        };
-                        seek.onchange  = function(e){
-                            if (!window.chrome)
-                                seek.onmouseup(e);
-                        };
-                        seek.onmouseup = function(e){
-                            var p= ScriptNodePlayer.getInstance();
-                            this.seekPos(seek.value/255);
-                            seek.blockUpdates= false;
-                        }.bind(this);
-                        this.appendControlElement(seek);
-                    }
-                    if (this._enableSpeedTweak) {
-                        var speed = document.createElement("input");
-                        speed.type = "range";
-                        speed.min = 0;
-                        speed.max = 100;
-                        speed.value = 50;
-                        speed.id = "speed";
-                        speed.name = "speed";
-                        speed.onchange  = function(e){
-                            if (!window.chrome)
-                                speed.onmouseup(e);
-                        };
+            if (this._enableSeek) {
+                var seek = document.createElement("input");
+                seek.type = "range";
+                seek.min = 0;
+                seek.max = 255;
+                seek.value = 0;
+                seek.id = "seekPos";
+                seek.name = "seekPos";
+                // FF: 'onchange' triggers once the final value is selected;
+                // Chrome: already triggers while dragging; 'oninput' does not exist in IE
+                // but supposedly has the same functionality in Chrome & FF
+                seek.oninput  = function(e){
+                    if (window.chrome)
+                        seek.blockUpdates= true;
+                };
+                seek.onchange  = function(e){
+                    if (!window.chrome)
+                        seek.onmouseup(e);
+                };
+                seek.onmouseup = function(e){
+                    var p= ScriptNodePlayer.getInstance();
+                    this.seekPos(seek.value/255);
+                    seek.blockUpdates= false;
+                }.bind(this);
+                this.appendControlElement(seek);
+            }
+            if (this._enableSpeedTweak) {
+                var speed = document.createElement("input");
+                speed.type = "range";
+                speed.min = 0;
+                speed.max = 100;
+                speed.value = 50;
+                speed.id = "speed";
+                speed.name = "speed";
+                speed.onchange  = function(e){
+                    if (!window.chrome)
+                        speed.onmouseup(e);
+                };
 
-                        speed.onmouseup = function(e){
-                            var p= ScriptNodePlayer.getInstance();
+                speed.onmouseup = function(e){
+                    var p= ScriptNodePlayer.getInstance();
 
-                            var tweak= 0.2; 			// allow 20% speed correction
-                            var f= (speed.value/50)-1;	// -1..1
+                    var tweak= 0.2; 			// allow 20% speed correction
+                    var f= (speed.value/50)-1;	// -1..1
 
-                            var s= p.getDefaultSampleRate();
-                            s= Math.round(s*(1+(tweak*f)));
-                            p.resetSampleRate(s);
-                        }.bind(this);
-                        this.appendControlElement(speed);
-                    }
+                    var s= p.getDefaultSampleRate();
+                    s= Math.round(s*(1+(tweak*f)));
+                    p.resetSampleRate(s);
+                }.bind(this);
+                this.appendControlElement(speed);
+            }
 
-                    this.initUserEngagement();
-                    this.initDrop();
-                    this.initTooltip();
+            this.initUserEngagement();
+            this.initDrop();
+            this.initTooltip();
 
-                    this.initExtensions();
-                }
+            this.initExtensions();
+        }
     }
 
 
@@ -2965,6 +2925,6 @@
         if (playerReady) playerControls.playNextSong();	// player was ready before it could trigger the playback
     }
     // init();
-    document.body.addEventListener('click', init);
-    document.addEventListener('DOMContentLoaded', init);
+    // document.body.addEventListener('click', init);
+    // document.addEventListener('DOMContentLoaded', init);
 }

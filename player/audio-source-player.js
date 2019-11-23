@@ -145,6 +145,8 @@
                     e.dataTransfer.dropEffect = 'copy';
                     break;
                 case 'drop':
+                    e.stopPropagation();
+                    e.preventDefault();
                     var files = e.dataTransfer.files; // Array of all files
                     this.loadSongFromFileInput(files[0]);
                     console.log(files);

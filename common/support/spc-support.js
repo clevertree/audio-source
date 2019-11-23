@@ -218,9 +218,6 @@
         id666.date = chop0(readString(stream, 11));
         id666.length = parseInt(chop0(readString(stream, 3)));
         id666.fade = parseInt(chop0(readString(stream, 5)));
-        // stream.pos += 11; // date
-        // stream.pos += 3; // len_secs
-        // stream.pos += 5; // fade_msecs
         id666.author = chop0(readString(stream, 32));
         id666.mute_mask = readByte(stream);
         id666.emulator = readByte(stream);
