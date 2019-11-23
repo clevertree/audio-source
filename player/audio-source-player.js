@@ -9,6 +9,7 @@
     // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
 
     const {AudioSourcePlayerRenderer} = await requireAsync('player/audio-source-player-renderer.js');
+    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     /**
      * Player requires a modern browser
      */
@@ -23,22 +24,6 @@
             this.playlistPosition = 0;
         }
 
-        getAudioContext()               { return this.song.getAudioContext(); }
-        getVolumeGain()                 { return this.song.getVolumeGain(); }
-
-        getVolume () {
-            if(this.volumeGain) {
-                return this.volumeGain.gain.value * 100;
-            }
-            return AudioSourcePlayerElement.DEFAULT_VOLUME * 100;
-        }
-        setVolume (volume) {
-            const gain = this.getVolumeGain();
-            if(gain.gain.value !== volume) {
-                gain.gain.value = volume / 100;
-                console.info("Setting volume: ", volume);
-            }
-        }
         connectedCallback() {
             this.loadCSS();
 
@@ -77,16 +62,37 @@
 
         async onSongEvent(e) {
             switch(e.type) {
+                case 'song:seek':
+                    this.updateSongPositionValue(e.detail.position);
+
+                    break;
+
+                case 'song:volume':
+                    this.fieldSongVolume.value = e.detail.volume;
+                    break;
+
                 case 'song:play':
-                    this.classList.add('playing');
+                    this.containerElm.classList.add('playing');
                     if(e.detail.promise) {
                         await e.detail.promise;
-                        this.classList.remove('playing');
+                        this.containerElm.classList.remove('playing');
                     }
+
+                    this.fieldSongPlaybackPause.disabled = false;
+                    const updateSongPositionInterval = setInterval(e => {
+                        if (!this.song.isPlaying) {
+                            clearInterval(updateSongPositionInterval);
+                            this.fieldSongPlaybackPause.disabled = true;
+                            this.containerElm.classList.remove('playing');
+                            this.classList.remove('playing');
+                        }
+                        this.updateSongPositionValue(this.song.songPlaybackPosition);
+                    }, 10);
                     break;
+
                 case 'song:end':
                 case 'song:pause':
-                    // this.classList.remove('playing');
+                    this.containerElm.classList.remove('playing');
                     break;
             }
         }
@@ -117,6 +123,32 @@
         closeAllMenus() {
             this.shadowDOM.querySelector(`asui-menu`)
                 .closeAllMenus();
+        }
+
+
+        /** Playback **/
+
+
+        updateSongPositionValue(playbackPositionInSeconds) {
+            const values = new AudioSourceValues();
+            this.fieldSongPosition.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+        }
+
+        getAudioContext()               { return this.song.getAudioContext(); }
+        getVolumeGain()                 { return this.song.getVolumeGain(); }
+
+        getVolume () {
+            if(this.volumeGain) {
+                return this.volumeGain.gain.value * 100;
+            }
+            return AudioSourcePlayerElement.DEFAULT_VOLUME * 100;
+        }
+        setVolume (volume) {
+            const gain = this.getVolumeGain();
+            if(gain.gain.value !== volume) {
+                gain.gain.value = volume / 100;
+                console.info("Setting volume: ", volume);
+            }
         }
 
         // Rendering

@@ -10,7 +10,7 @@
                 doOnTrackReadyToPlay, doOnTrackEnd);
 
             var p = ScriptNodePlayer.getInstance();
-            p.initByUserGesture();
+            p.initByUserGesture(audioContext);
         }
 
         async loadBufferFromFileInput(file) {
@@ -102,10 +102,12 @@
             const doOnTrackReadyToPlay = function(e) { console.info(e, 'ready')}
 
             var basePath= '';		// not needed here
-            ScriptNodePlayer.createInstance(new SNESBackendAdapter(), basePath, [], true, doOnPlayerReady,
+            const p = ScriptNodePlayer.createInstance(new SNESBackendAdapter(), basePath, [], true, doOnPlayerReady,
                 doOnTrackReadyToPlay, doOnTrackEnd);
+            if(options.destination)
+                p._contextDestination = options.destination;
 
-            var p = ScriptNodePlayer.getInstance();
+            // var p = ScriptNodePlayer.getInstance();
             p.initByUserGesture();
             p.setTraceMode(true);
             if (!p.isReady())
@@ -843,6 +845,7 @@
             this._analyzerNode;
             this._scriptNode;
             this._freqByteData = 0;
+            this._contextDestination = null;
 
             this._pan= null;	// default: inactive
 
@@ -1111,7 +1114,7 @@
             isAutoPlayCripple: function() {
                 return window.chrome || this.isAppleShit();
             },
-            initByUserGesture: function() {
+            initByUserGesture: function(audioContext=null) {
                 // try to setup as much as possible while it is "directly triggered"
                 // by "user gesture" (i.e. here).. seems POS iOS does not correctly
                 // recognize any async-indirections started from here.. bloody Apple idiots
@@ -1128,12 +1131,20 @@
                     }
                 }
 
+                let ctx = audioContext || window._gPlayerAudioCtx;
+                let contextDestination = this._contextDestination;
+                if(contextDestination) {
+                    ctx = contextDestination.context;
+                } else {
+                    contextDestination = ctx.destination;
+                }
+
                 if (typeof this._bufferSource != 'undefined') {
                     try {
                         this._bufferSource.stop(0);
                     } catch(err) {}	// ignore for the benefit of Safari(OS X)
                 } else {
-                    var ctx= window._gPlayerAudioCtx;
+                    // var ctx= window._gPlayerAudioCtx;
 
                     if (this.isAppleShit()) this.iOSHack(ctx);
 
@@ -1155,9 +1166,9 @@
 
                     if (this._spectrumEnabled) {
                         this._gainNode.connect(this._analyzerNode);
-                        this._analyzerNode.connect(ctx.destination);
+                        this._analyzerNode.connect(contextDestination);
                     } else {
-                        this._gainNode.connect(ctx.destination);
+                        this._gainNode.connect(contextDestination);
 
                     }
                     this._bufferSource = ctx.createBufferSource();
@@ -1816,6 +1827,7 @@
                 var p = new PlayerImpl(backendAdapter, basePath, requiredFiles, enableSpectrum,
                     onPlayerReady, onTrackReadyToPlay, onTrackEnd, doOnUpdate, externalTicker, bufferSize);
                 p._traceSwitch= trace;
+                return p;
             },
             getInstance: function () {
                 if (typeof window.player === 'undefined' ) {

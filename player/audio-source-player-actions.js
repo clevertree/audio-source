@@ -76,11 +76,6 @@
             entry.name = name || url.split('/').pop();
             entry.length = length || null;
             this.playlist.push(entry);
-            this.playlist.push(entry);
-            this.playlist.push(entry);
-            this.playlist.push(entry);
-            this.playlist.push(entry);
-            this.playlist.push(entry);
         }
 
         addSongFileToPlaylist(file, name=null, length=null) {

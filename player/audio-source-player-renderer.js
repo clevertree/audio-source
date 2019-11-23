@@ -50,15 +50,18 @@
                             e => this.songPlay(e),
                             divElm.createIcon('play'),
                             "Play Song");
+                        this.fieldSongPlaybackPlay.classList.add('hide-on-playing');
                         this.fieldSongPlaybackPause = divElm.addButtonInput('pause',
                             e => this.songPause(e),
                             divElm.createIcon('pause'),
                             "Pause Song");
-                        this.fieldSongPlaybackPause.disabled = true;
-                        this.fieldSongPlaybackStop = divElm.addButtonInput('pause',
+                        this.fieldSongPlaybackPause.classList.add('show-on-playing');
+                        // this.fieldSongPlaybackPause.disabled = true;
+                        this.fieldSongPlaybackStop = divElm.addButtonInput('stop',
                             e => this.songStop(e),
                             divElm.createIcon('stop'),
                             "Stop Song");
+                        // this.fieldSongPlaybackStop.classList.add('show-on-playing');
                     });
 
                     divElm.addDiv('asp-form-file', divElm => {
@@ -151,7 +154,11 @@
 
             this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
 
-            this.updateSongForms();
+            this.fieldSongName.value = this.song.getName();
+            this.fieldSongVersion.value = this.song.getVersion();
+
+            this.fieldSongVolume.value = this.song.getVolumeValue();
+
         }
 
 
@@ -185,17 +192,6 @@
                     divElm.addActionMenu(`${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, (e) => this.togglePanelPlaylist(e));
                     break;
             }
-        }
-
-        updateSongForms() {
-
-            this.fieldSongPlaybackPause.disabled = true;
-
-            this.fieldSongName.value = this.song.getName();
-            this.fieldSongVersion.value = this.song.getVersion();
-
-            this.fieldSongVolume.value = this.song.getVolumeValue();
-
         }
 
         /** Load External CSS **/

@@ -414,15 +414,9 @@
 
             await this.playback.playGroup();
 
-            this.dispatchEvent(new CustomEvent('song:end', {
-                detail: {
-                    playback: this.playback
-                }
-            }));
 
-
-            if (playback.isPlaybackActive)
-                playback.stopPlayback();
+            if (this.playback)
+                this.stopPlayback();
 
             // if(this.playback)
             //     this.stopPlayback();
@@ -437,6 +431,13 @@
             this.playback.stopPlayback();
             this.playback = null;
             console.log("End playback:", this.playbackPosition);
+
+
+            this.dispatchEvent(new CustomEvent('song:end', {
+                detail: {
+                    playback: this.playback
+                }
+            }));
         }
 
         get isPlaying() {

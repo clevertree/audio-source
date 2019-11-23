@@ -24,11 +24,13 @@
                 this.loadSPCPlayer();
         }
 
-        async loadSPCPlayer(spcURL=null) {
+        async loadSPCPlayer(destination, spcURL=null) {
             spcURL = spcURL || this.config.spcURL;
             const libGMESupport = new LibGMESupport();
             const buffer = await libGMESupport.loadBufferFromURL(spcURL);
-            return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file');
+            return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file', {
+                destination
+            });
         }
 
         /** Initializing Audio **/
@@ -44,7 +46,7 @@
 
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
-            const spcPlayer = await this.loadSPCPlayer();
+            const spcPlayer = await this.loadSPCPlayer(destination);
             this.spcPlayers.push(spcPlayer);
             // this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(this.config.spcURL); // TODO: OMFG HACK
 
@@ -60,7 +62,7 @@
             if(duration) {
                 const waitTime = (startTime + duration) - destination.context.currentTime;
                 await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
-                spcPlayer.stop();
+                spcPlayer.pause();
             }
         }
 
