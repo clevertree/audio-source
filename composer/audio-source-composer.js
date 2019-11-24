@@ -77,7 +77,7 @@
         connectedCallback() {
             this.loadCSS();
 
-            this.attachEventHandler(['focus'], e => this.onInput(e), this.shadowDOM, true);
+            this.attachEventHandler(['focus', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
             // 'change', 'submit',
 
             this.attachEventHandler([
@@ -223,6 +223,19 @@
                 //         divElmFormElm.classList.add('focus');
                 //     }
                 //     break;
+
+                case 'dragover':
+                    e.stopPropagation();
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    break;
+                case 'drop':
+                    e.stopPropagation();
+                    e.preventDefault();
+                    var files = e.dataTransfer.files; // Array of all files
+                    this.loadSongFromFileInput(files[0]);
+                    console.log(files);
+                    break;
 
                 default:
                 case 'midimessage':

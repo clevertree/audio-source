@@ -736,9 +736,10 @@
                         // menuSelectRow.disabled = true;
                         divElm.addActionMenu('Select No Instructions', (e) => this.setTrackerSelection(e, 'none'));
 
-                        divElm.addSubMenu('Batch Select ►', divElm => {
+                        divElm.addSubMenu('Batch Select ►', async divElm => {
                             divElm.addActionMenu('New Selection Command', (e) => this.batchSelect(e));
 
+                            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                             const storage = new AudioSourceStorage();
                             const recentBatchSearches = storage.getBatchRecentSearches();
                             for (let i = 0; i < recentBatchSearches.length; i++) {
@@ -755,9 +756,10 @@
 
                     /** Batch Instructions **/
 
-                    const menuEditBatch = divElm.addSubMenu('Batch ►', divElm => {
+                    const menuEditBatch = divElm.addSubMenu('Batch ►', async divElm => {
                         divElm.addActionMenu('New Batch Command', (e) => this.batchRunCommand(e));
 
+                        const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                         const storage = new AudioSourceStorage();
                         const recentBatchCommands = storage.getBatchRecentCommands();
                         for (let i = 0; i < recentBatchCommands.length; i++) {

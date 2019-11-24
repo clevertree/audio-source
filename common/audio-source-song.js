@@ -614,18 +614,18 @@
 
 
         async loadInstrumentClass(instrumentClassURL) {
-            let scriptElm = findScript(instrumentClassURL)[0];
-            // let scriptElm = document.head.querySelector(`script[src$="${instrumentClassURL}"]:last-child`);
+            let scriptElm = document.head.querySelectorAll(`script[src$="${instrumentClassURL}"]`)[0];
             if(!scriptElm) {
-                await new Promise(async (resolve, reject) => {
-                    scriptElm = document.createElement('script');
-                    scriptElm.src = instrumentClassURL;
-                    scriptElm.onload = e => resolve();
+                scriptElm = document.createElement('script');
+                scriptElm.src = instrumentClassURL;
+                scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
+                    scriptElm.onload = resolve;
                     document.head.appendChild(scriptElm);
-                });
-                if(scriptElm.promise instanceof Promise)
-                    await scriptElm.promise;
+                }));
             }
+
+            for (let i=0; i<scriptElm.promises.length; i++)
+                await scriptElm.promises[i];
             const {instrument} = scriptElm.exports;
 
             if(!instrument)
