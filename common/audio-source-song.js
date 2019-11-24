@@ -600,8 +600,9 @@
 
 
         async loadInstrumentClass(instrumentClassURL) {
-            let scriptElm = document.head.querySelector(`script[src$="${instrumentClassURL}"]:last-child`);
-            if(!scriptElm || !scriptElm.exports) {
+            let scriptElm = findScript(instrumentClassURL)[0];
+            // let scriptElm = document.head.querySelector(`script[src$="${instrumentClassURL}"]:last-child`);
+            if(!scriptElm) {
                 await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');
                     scriptElm.src = instrumentClassURL;
@@ -1763,24 +1764,21 @@
     }
 
     async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined") {
+        if(typeof require !== "undefined")
             return require('../' + relativeScriptPath);
-        }
 
-        let scriptElm = findScript(relativeScriptPath);
-        for(let i=0; i<scriptElm.length; i++)
-            if(scriptElm[i].exports)
-                return scriptElm[i];
-        const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-        await new Promise(async (resolve, reject) => {
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.onload = e => resolve();
-            document.head.appendChild(scriptElm);
-        });
+        let scriptElm = findScript(relativeScriptPath)[0];
+        if(!scriptElm) {
+            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
+            await new Promise(async (resolve, reject) => {
+                scriptElm = document.createElement('script');
+                scriptElm.src = scriptURL;
+                scriptElm.onload = e => resolve();
+                document.head.appendChild(scriptElm);
+            });
+        }
         if(scriptElm.promise instanceof Promise)
             await scriptElm.promise;
         return scriptElm.exports;
     }
-
 }

@@ -1474,28 +1474,37 @@
 
     customElements.define('asct-delta', AudioSourceComposerTrackerDelta);
 
-    /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
-    _module.exports = {
-        AudioSourceComposerTracker,
-    };
 
+
+
+    /** Register This Module **/
+    registerThisScript(module => module.exports = {
+        AudioSourceComposerTracker,
+    });
 
     /** Module Loader Methods **/
+    function registerThisScript(callback) {
+        if(typeof module !== 'undefined')
+            callback(module);
+        else findThisScript()
+            .forEach(scriptElm => callback(scriptElm))
+    }
+
     function findThisScript() {
         const SCRIPT_PATH = 'composer/audio-source-composer-tracker.js';
-        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+        return findScript(SCRIPT_PATH);
     }
 
     function findScript(scriptURL) {
-        let scriptElm = null;
-        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
-        if(scriptElm) {
+        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
+        scriptElms.forEach(scriptElm => {
             scriptElm.relativePath = scriptURL;
             scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        }
-        return scriptElm;
+        });
+        return scriptElms;
     }
+
+
 
 }
 

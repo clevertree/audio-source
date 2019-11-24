@@ -210,16 +210,22 @@
 
 
     /** Register This Module **/
-    registerThisScript('common/audio-source-library.js', module => module.exports = {
+    registerThisScript(module => module.exports = {
         AudioSourceLibrary
     });
 
+
     /** Module Loader Methods **/
-    function registerThisScript(SCRIPT_PATH, callback) {
+    function registerThisScript(callback) {
         if(typeof module !== 'undefined')
             callback(module);
-        else findScript(SCRIPT_PATH)
+        else findThisScript()
             .forEach(scriptElm => callback(scriptElm))
+    }
+
+    function findThisScript() {
+        const SCRIPT_PATH = 'common/audio-source-library.js';
+        return findScript(SCRIPT_PATH);
     }
 
     function findScript(scriptURL) {
