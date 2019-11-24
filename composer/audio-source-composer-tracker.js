@@ -722,6 +722,10 @@
             return cursorCell ? cursorCell.index : null;
         }
 
+        clearSelection() {
+            this.editorElm.clearSelectedIndicies();
+            this.updateSelection();
+        }
 
         updateSelection() {
             const selectedIndicies = this.editorElm.getSelectedIndicies();
@@ -906,7 +910,7 @@
                 toggleValue = !selectedCell.selected;
             }
             if (clearSelection) {
-                this.editorElm.clearSelectedIndicies();
+                this.clearSelection();
             }
 
             this.editorElm.closeAllMenus();
@@ -934,7 +938,7 @@
         onCellInput(e, selectedCell) {
             e.preventDefault();
             selectedCell = selectedCell || e.target;
-            this.selectCell(e, selectedCell, !e.shiftKey);
+            this.selectCell(e, selectedCell);
             this.playSelectedInstructions(e);
         }
 
@@ -1239,7 +1243,7 @@
         }
 
         get editorElm() {
-            return this.trackerElm.editor;
+            return this.trackerElm.editorElm;
         }
 
         set index(instructionIndex) {

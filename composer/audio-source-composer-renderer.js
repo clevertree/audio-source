@@ -397,7 +397,7 @@
 
             this.updateForms();
             // this.renderInstruments();
-            this.trackerElm.render();
+            // this.trackerElm.render();
         }
 
 
@@ -464,7 +464,8 @@
                             const songRecentUUIDs = await Storage.getRecentSongList();
                             for (let i = 0; i < songRecentUUIDs.length; i++) {
                                 const entry = songRecentUUIDs[i];
-                                divElm.addActionMenu(entry.name || entry.uuid, (e) => {
+                                divElm.addActionMenu(entry.name || entry.title || entry.uuid || "noname." + i,
+                                    (e) => {
                                     this.loadSongFromMemory(entry.uuid);
                                 });
                             }
@@ -472,7 +473,7 @@
 
                         divElm.addActionMenu(`from File`, (e) => this.fieldSongFileLoad.inputElm.click()); // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                         // menuFileOpenSongFromFile.disabled = true;
-                        let menu = divElm.addActionMenu(null, 'from URL');
+                        let menu = divElm.addActionMenu('from URL');
                         menu.disabled = true;
                     });
 

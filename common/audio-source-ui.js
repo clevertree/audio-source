@@ -727,8 +727,8 @@
                 this.eachOption(function (value) {
                     valueList.push(value)
                 });
-                console.log(`Value not found: (${typeof newValue}) ${newValue}`, valueList);
-                throw new Error(`Value not found: (${typeof newValue}) ${newValue}`);
+                console.warn(`Value not found: (${typeof newValue}) ${newValue}`, valueList);
+                // throw new Error(`Value not found: (${typeof newValue}) ${newValue}`); // It may not be something the designer can control
             }
 
             this.selectedValue = valueFound;

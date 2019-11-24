@@ -159,7 +159,7 @@
 
 
 
-        async loadSongData(songData, songURL = null) {
+        async loadSongData(songData) {
             if (this.playback)
                 this.stopPlayback();
             songData = Object.assign({}, {
@@ -185,8 +185,7 @@
 
             // let loadingInstruments = 0;
 
-            if (songData.instruments.length === 0)
-                console.warn("Song contains no instruments");
+            console.log("Song data loaded: ", songData);
 
             await this.loadAllInstruments(true);
 

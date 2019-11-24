@@ -92,7 +92,7 @@
         async loadSongFromMemory(songUUID) {
             await this.song.loadSongFromMemory(songUUID);
             this.render(true);
-            this.setStatus("Song loaded from memory: " + songUUID, songData);
+            this.setStatus("Song loaded from memory: " + songUUID);
 //         console.info(songData);
         }
 
@@ -110,13 +110,13 @@
         async loadSongFromJSONFile(file) {
             await this.song.loadSongFromJSONFile(file);
             this.render(true);
-            this.setStatus("Song loaded from file: ", this.song.songData);
+            this.setStatus("Song loaded from file: ", file);
         }
 
         async loadSongFromMIDIFile(file, defaultInstrumentURL = null) {
             await this.song.loadSongFromMIDIFile(file, defaultInstrumentURL);
             this.render(true);
-            this.setStatus("Song loaded from file: ", this.song.songData);
+            this.setStatus("Song loaded from file: ", file);
         }
 
         async loadSongFromURL(src) {
