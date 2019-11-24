@@ -84,7 +84,7 @@
 
 
         getScriptDirectory(appendPath='', selector=null) {
-            const scriptElm = findThisScript();
+            const scriptElm = findThisScript()[0];
             // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
     //         console.log("Base Path: ", basePath);
             return scriptElm.basePath + appendPath;
