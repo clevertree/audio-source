@@ -58,6 +58,8 @@
         }
 
         async loadSongFromPlaylistEntry(playlistPosition) {
+            if(this.song.playback)
+                this.song.stopPlayback();
             const entry = this.playlist[playlistPosition];
             if(!entry)
                 throw new Error("Invalid playlist position: " + playlistPosition);
