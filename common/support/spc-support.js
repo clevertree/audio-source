@@ -1,4 +1,12 @@
 {
+    /** Register Script Exports **/
+    function getThisScriptPath() { return 'common/support/spc-support.js'; }
+    function exportThisScript(module) {
+        module.exports = {SPCSupport};
+    }
+
+
+
     class SPCSupport {
         constructor() {
         }
@@ -300,19 +308,31 @@
     //         };
     //     };
 
-    /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
-    _module.exports = {
-        SPCSupport,
-    };
+
+
+    /** Export this script **/
+    registerModule(exportThisScript);
+
 
     /** Module Loader Methods **/
-    function findThisScript() {
-        const SCRIPT_PATH = 'common/support/spc-support.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`)
-            || (() => { throw new Error("Base script not found: " + SCRIPT_PATH); })()
-        thisScript.relativePath = SCRIPT_PATH;
-        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
-        return thisScript;
+    function registerModule(callback) {
+        if(typeof module !== 'undefined')
+            callback(module);
+        else findThisScript()
+            .forEach(scriptElm => callback(scriptElm))
     }
+
+    function findThisScript() {
+        return findScript(getThisScriptPath());
+    }
+
+    function findScript(scriptURL) {
+        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
+        scriptElms.forEach(scriptElm => {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        });
+        return scriptElms;
+    }
+
 }

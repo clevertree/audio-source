@@ -1,4 +1,11 @@
 {
+
+    /** Register Script Exports **/
+    function getThisScriptPath() { return 'composer/audio-source-composer-tracker.js'; }
+    function exportThisScript(module) {
+        module.exports = {AudioSourceComposerTracker};
+    }
+
     class AudioSourceComposerTracker extends HTMLElement {
         constructor(groupName = 'root') {
             super();
@@ -1477,13 +1484,13 @@
 
 
 
-    /** Register This Module **/
-    registerThisScript(module => module.exports = {
-        AudioSourceComposerTracker,
-    });
+
+    /** Export this script **/
+    registerModule(exportThisScript);
+
 
     /** Module Loader Methods **/
-    function registerThisScript(callback) {
+    function registerModule(callback) {
         if(typeof module !== 'undefined')
             callback(module);
         else findThisScript()
@@ -1491,8 +1498,7 @@
     }
 
     function findThisScript() {
-        const SCRIPT_PATH = 'composer/audio-source-composer-tracker.js';
-        return findScript(SCRIPT_PATH);
+        return findScript(getThisScriptPath());
     }
 
     function findScript(scriptURL) {

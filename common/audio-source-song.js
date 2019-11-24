@@ -1,4 +1,18 @@
 {
+
+    /** Register Script Exports **/
+    function getThisScriptPath() { return 'common/audio-source-song.js'; }
+    function exportThisScript(module) {
+        module.exports = {
+            AudioSourceSong,
+            AudioSourceInstructionIterator,
+            AudioSourceInstructionPlayback,
+        };
+    }
+
+
+
+
     /**
      * Player requires a modern browser
      */
@@ -1734,15 +1748,12 @@
 
 
 
-    /** Register This Module **/
-    registerThisScript(module => module.exports = {
-        AudioSourceSong,
-        AudioSourceInstructionIterator,
-        AudioSourceInstructionPlayback,
-    });
+
+    /** Export this script **/
+    registerModule(exportThisScript);
 
     /** Module Loader Methods **/
-    function registerThisScript(callback) {
+    function registerModule(callback) {
         if(typeof module !== 'undefined')
             callback(module);
         else findThisScript()
@@ -1750,8 +1761,7 @@
     }
 
     function findThisScript() {
-        const SCRIPT_PATH = 'common/audio-source-song.js';
-        return findScript(SCRIPT_PATH);
+        return findScript(getThisScriptPath());
     }
 
     function findScript(scriptURL) {
@@ -1770,15 +1780,17 @@
         let scriptElm = findScript(relativeScriptPath)[0];
         if(!scriptElm) {
             const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            await new Promise(async (resolve, reject) => {
-                scriptElm = document.createElement('script');
-                scriptElm.src = scriptURL;
-                scriptElm.onload = e => resolve();
+            scriptElm = document.createElement('script');
+            scriptElm.src = scriptURL;
+            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
+                scriptElm.onload = resolve;
                 document.head.appendChild(scriptElm);
-            });
+            }));
         }
-        if(scriptElm.promise instanceof Promise)
-            await scriptElm.promise;
-        return scriptElm.exports;
+        for (let i=0; i<scriptElm.promises.length; i++)
+            await scriptElm.promises[i];
+        return scriptElm.exports
+            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
     }
+
 }

@@ -1,5 +1,12 @@
 {
 
+    /** Register Script Exports **/
+    function getThisScriptPath() { return 'common/audio-source-utilities.js'; }
+    function exportThisScript(module) {
+        module.exports = {
+            AudioSourceUtilities,
+        };
+    }
 
     class AudioSourceUtilities {
         constructor() {
@@ -170,13 +177,13 @@
     AudioSourceUtilities.packageInfo = null;
 
 
-    /** Register This Module **/
-    registerThisScript(module => module.exports = {
-        AudioSourceUtilities,
-    });
+
+
+    /** Export this script **/
+    registerModule(exportThisScript);
 
     /** Module Loader Methods **/
-    function registerThisScript(callback) {
+    function registerModule(callback) {
         if(typeof module !== 'undefined')
             callback(module);
         else findThisScript()
@@ -184,8 +191,7 @@
     }
 
     function findThisScript() {
-        const SCRIPT_PATH = 'common/audio-source-utilities.js';
-        return findScript(SCRIPT_PATH);
+        return findScript(getThisScriptPath());
     }
 
     function findScript(scriptURL) {
@@ -198,24 +204,24 @@
     }
 
     async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined") {
+        if(typeof require !== "undefined")
             return require('../' + relativeScriptPath);
-        }
 
-        let scriptElm = findScript(relativeScriptPath);
-        for(let i=0; i<scriptElm.length; i++)
-            if(scriptElm[i].exports)
-                return scriptElm[i];
-        const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-        await new Promise(async (resolve, reject) => {
+        let scriptElm = findScript(relativeScriptPath)[0];
+        if(!scriptElm) {
+            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
             scriptElm = document.createElement('script');
             scriptElm.src = scriptURL;
-            scriptElm.onload = e => resolve();
-            document.head.appendChild(scriptElm);
-        });
-        if(scriptElm.promise instanceof Promise)
-            await scriptElm.promise;
-        return scriptElm.exports;
+            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
+                scriptElm.onload = resolve;
+                document.head.appendChild(scriptElm);
+            }));
+        }
+        for (let i=0; i<scriptElm.promises.length; i++)
+            await scriptElm.promises[i];
+        return scriptElm.exports
+            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
     }
+
 }
 

@@ -1,4 +1,9 @@
 {
+    /** Register Script Exports **/
+    function getThisScriptPath() { return 'composer/audio-source-composer-keyboard.js'; }
+    function exportThisScript(module) {
+        module.exports = {AudioSourceComposerKeyboard};
+    }
 
 
     class AudioSourceComposerKeyboard {
@@ -53,13 +58,13 @@
     }
 
 
-    /** Register This Module **/
-    registerThisScript(module => module.exports = {
-        AudioSourceComposerKeyboard,
-    });
+
+    /** Export this script **/
+    registerModule(exportThisScript);
+
 
     /** Module Loader Methods **/
-    function registerThisScript(callback) {
+    function registerModule(callback) {
         if(typeof module !== 'undefined')
             callback(module);
         else findThisScript()
@@ -67,8 +72,7 @@
     }
 
     function findThisScript() {
-        const SCRIPT_PATH = 'composer/audio-source-composer-keyboard.js';
-        return findScript(SCRIPT_PATH);
+        return findScript(getThisScriptPath());
     }
 
     function findScript(scriptURL) {
@@ -79,5 +83,6 @@
         });
         return scriptElms;
     }
+
 
 }
