@@ -1387,8 +1387,8 @@
             return this.parentNode.parentNode.trackerElm;
         }
 
-        get editor() {
-            return this.trackerElm.editor;
+        get editorElm() {
+            return this.trackerElm.editorElm;
         }
 
         connectedCallback() {
@@ -1397,14 +1397,14 @@
         }
 
         render() {
-            this.innerHTML = this.editor.values.format(this.row.duration, 'duration');
+            this.innerHTML = this.editorElm.values.format(this.row.duration, 'duration');
         }
     }
 
     class AudioSourceComposerParamCommand extends AudioSourceComposerTrackerParameter {
         render(instruction = null) {
             instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editor.values.format(instruction.command, 'command');
+            this.innerHTML = this.editorElm.values.format(instruction.command, 'command');
         }
     }
 
@@ -1413,7 +1413,7 @@
     class AudioSourceComposerParamInstrument extends AudioSourceComposerTrackerParameter {
         render(instruction = null) {
             instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editor.values.format(instruction.instrument, 'instrument');
+            this.innerHTML = this.editorElm.values.format(instruction.instrument, 'instrument');
         }
     }
 
@@ -1422,7 +1422,7 @@
     class AudioSourceComposerParamVelocity extends AudioSourceComposerTrackerParameter {
         render(instruction = null) {
             instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editor.values.format(instruction.velocity, 'velocity');
+            this.innerHTML = this.editorElm.values.format(instruction.velocity, 'velocity');
         }
     }
 
@@ -1431,7 +1431,7 @@
     class AudioSourceComposerTrackerDuration extends AudioSourceComposerTrackerParameter {
         render(instruction = null) {
             instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editor.values.format(instruction.duration, 'duration');
+            this.innerHTML = this.editorElm.values.format(instruction.duration, 'duration');
         }
     }
 
@@ -1480,35 +1480,18 @@
     /** Module Loader Methods **/
     function findThisScript() {
         const SCRIPT_PATH = 'composer/audio-source-composer-tracker.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if (!thisScript)
-            throw new Error("Base script not found: " + SCRIPT_PATH);
-        thisScript.relativePath = SCRIPT_PATH;
-        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
-        return thisScript;
+        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
     }
 
-    // function requireSync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //     return document.head.querySelector(`script[src$="${relativeScriptPath}"]`) ||
-    //         (() => {throw new Error("Base script not found: " + relativeScriptPath);})()
-    // }
-    //
-    // async function requireAsync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //     let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
-    //     if (!scriptElm) {
-    //         const scriptURL = findThisScript().basePath + relativeScriptPath;
-    //         await new Promise((resolve, reject) => {
-    //             scriptElm = document.createElement('script');
-    //             scriptElm.src = scriptURL;
-    //             scriptElm.onload = e => resolve();
-    //             document.head.appendChild(scriptElm);
-    //         });
-    //     }
-    //     return scriptElm;
-    // }
+    function findScript(scriptURL) {
+        let scriptElm = null;
+        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
+        if(scriptElm) {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        }
+        return scriptElm;
+    }
+
 }
 

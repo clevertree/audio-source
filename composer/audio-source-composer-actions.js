@@ -551,17 +551,22 @@
     /** Module Loader Methods **/
     function findThisScript() {
         const SCRIPT_PATH = 'composer/audio-source-composer-actions.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if(!thisScript)
-            throw new Error("Base script not found: " + SCRIPT_PATH);
-        thisScript.relativePath = SCRIPT_PATH;
-        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
-        return thisScript;
+        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+    }
+
+    function findScript(scriptURL) {
+        let scriptElm = null;
+        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
+        if(scriptElm) {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        }
+        return scriptElm;
     }
 
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
-            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            let scriptElm = findScript(relativeScriptPath);
             if(!scriptElm) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
                 await new Promise(async (resolve, reject) => {
@@ -578,5 +583,6 @@
             return require('../' + relativeScriptPath);
         }
     }
+
 
 })();

@@ -218,10 +218,17 @@
     /** Module Loader Methods **/
     function findThisScript() {
         const SCRIPT_PATH = 'common/audio-source-library.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if(!thisScript)
-            throw new Error("Base script not found: " + SCRIPT_PATH);
-        return thisScript;
+        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+    }
+
+    function findScript(scriptURL) {
+        let scriptElm = null;
+        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
+        if(scriptElm) {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        }
+        return scriptElm;
     }
 
 }

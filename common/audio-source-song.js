@@ -133,12 +133,16 @@
 
         async loadSongFromFileInput(file) {
             const library = await this.getFileSupportModule(file.name);
+            if(typeof library.loadSongDataFromFileInput !== "function")
+                throw new Error("Invalid library.loadSongDataFromFileInput method");
             const songData = await library.loadSongDataFromFileInput(file);
             await this.loadSongData(songData);
         }
 
         async loadSongFromURL(src) {
             const library = await this.getFileSupportModule(src);
+            if(typeof library.loadSongDataFromURL !== "function")
+                throw new Error("Invalid library.loadSongDataFromURL method: " + src);
             const songData = await library.loadSongDataFromURL(src);
             await this.loadSongData(songData);
         }
@@ -597,7 +601,7 @@
 
 
         async loadInstrumentClass(instrumentClassURL) {
-            let scriptElm = document.head.querySelector(`script[src$="${instrumentClassURL}"]`);
+            let scriptElm = document.head.querySelector(`script[src$="${instrumentClassURL}"]:last-child`);
             if(!scriptElm) {
                 await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');
@@ -1741,17 +1745,22 @@
     /** Module Loader Methods **/
     function findThisScript() {
         const SCRIPT_PATH = 'common/audio-source-song.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if(!thisScript)
-            throw new Error("Base script not found: " + SCRIPT_PATH);
-        thisScript.relativePath = SCRIPT_PATH;
-        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
-        return thisScript;
+        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+    }
+
+    function findScript(scriptURL) {
+        let scriptElm = null;
+        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
+        if(scriptElm) {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        }
+        return scriptElm;
     }
 
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
-            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
+            let scriptElm = findScript(relativeScriptPath);
             if(!scriptElm) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
                 await new Promise(async (resolve, reject) => {
@@ -1768,4 +1777,5 @@
             return require('../' + relativeScriptPath);
         }
     }
+
 }

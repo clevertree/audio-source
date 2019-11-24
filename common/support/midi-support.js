@@ -163,6 +163,6 @@
     function findThisScript() {
         const SCRIPT_PATH = 'common/support/midi-support.js';
         return document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`)
-            || (() => throw new Error("Base script not found: " + SCRIPT_PATH))()
+            || (() => { throw new Error("Base script not found: " + SCRIPT_PATH); } )()
     }
 }
