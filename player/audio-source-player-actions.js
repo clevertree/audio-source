@@ -48,6 +48,9 @@
         }
 
         async loadSongFromURL(url) {
+            if(url.toString().toLowerCase().endsWith('.playlist.json')) {
+                return await this.loadPlaylistFromURL(url);
+            }
             await this.song.loadSongFromURL(url);
             this.setStatus("Song loaded from src: " + url, this.song);
             this.addSongURLToPlaylist(url, this.song.name, this.song.getSongLength());
@@ -70,6 +73,30 @@
         }
 
         /** Song Playlist **/
+
+        async loadPlaylistFromURL(playlistURL) {
+            playlistURL = new URL(playlistURL, document.location)
+            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+            const Util = new AudioSourceUtilities;
+            const data = await Util.loadJSONFromURL(playlistURL.toString());
+            if(!data.playlist)
+                throw new Error("No playlist data: " + playlistURL);
+            if(!Array.isArray(data.playlist))
+                throw new Error("Invalid playlist data: " + playlistURL);
+            this.playlist = [];
+            for(let i=0; i<data.playlist.length; i++) {
+                let entry = data.playlist[i];
+                if(typeof entry === "string") {
+                    const split = entry.split(';');
+                    entry = {url: split[0]};
+                    if(split[1]) entry.name = split[1];
+                    if(split[2]) entry.length = split[2];
+                }
+                entry.url = new URL(entry.url, playlistURL).toString();
+                this.addSongURLToPlaylist(entry.url, entry.name, entry.length);
+            }
+            this.render(true);
+        }
 
         addSongURLToPlaylist(url, name=null, length=null) {
             const entry = {url};

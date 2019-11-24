@@ -15,5 +15,8 @@
       "name": "General Midi Default Library",
       "url": "sample/gm/fws/fws.library.json"
     }
+  ],
+  "playlist": [
+    "assets/files/test.playlist.json;Test Playlist"
   ]
 }
