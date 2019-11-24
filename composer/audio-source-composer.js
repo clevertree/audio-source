@@ -432,7 +432,7 @@
     _module.exports = {AudioSourceComposerElement};
     _module.resolve(); // Resolve async promise
     delete _module.resolve;
-    delete _module.promise;
+    delete _module.promise; // TODO: multi script promise?
 
 
 
@@ -455,7 +455,7 @@
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
             let scriptElm = findScript(relativeScriptPath);
-            if(!scriptElm) {
+            if(!scriptElm || !scriptElm.exports) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
                 await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');
@@ -465,11 +465,18 @@
                 });
                 if(scriptElm.promise instanceof Promise)
                     await scriptElm.promise;
+                if(!scriptElm.exports)
+                    throw new Error("Invalid exports: " + relativeScriptPath);
+            }
+            if(!scriptElm.exports) {
+                console.error("Script has no exports ", scriptElm);
             }
             return scriptElm.exports;
         } else {
             return require('../' + relativeScriptPath);
         }
     }
+
+
 
 })();

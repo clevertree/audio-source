@@ -271,7 +271,7 @@
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
             let scriptElm = findScript(relativeScriptPath);
-            if(!scriptElm) {
+            if(!scriptElm || !scriptElm.exports) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
                 await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');

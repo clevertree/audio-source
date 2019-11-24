@@ -206,18 +206,23 @@
     /** Module Loader Methods **/
     function findThisScript() {
         const SCRIPT_PATH = 'player/audio-source-player.js';
-        const thisScript = document.head.querySelector(`script[src$="${SCRIPT_PATH}"]`);
-        if(!thisScript)
-            throw new Error("Base script not found: " + SCRIPT_PATH);
-        thisScript.relativePath = SCRIPT_PATH;
-        thisScript.basePath = thisScript.src.replace(document.location.origin, '').replace(SCRIPT_PATH, '');
-        return thisScript;
+        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+    }
+
+    function findScript(scriptURL) {
+        let scriptElm = null;
+        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
+        if(scriptElm) {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        }
+        return scriptElm;
     }
 
     async function requireAsync(relativeScriptPath) {
         if(typeof require === "undefined") {
-            let scriptElm = document.head.querySelector(`script[src$="${relativeScriptPath}"]`);
-            if(!scriptElm) {
+            let scriptElm = findScript(relativeScriptPath);
+            if(!scriptElm || !scriptElm.exports) {
                 const scriptURL = findThisScript().basePath + relativeScriptPath;
                 await new Promise(async (resolve, reject) => {
                     scriptElm = document.createElement('script');
@@ -227,6 +232,11 @@
                 });
                 if(scriptElm.promise instanceof Promise)
                     await scriptElm.promise;
+                if(!scriptElm.exports)
+                    throw new Error("Invalid exports: " + relativeScriptPath);
+            }
+            if(!scriptElm.exports) {
+                console.error("Script has no exports ", scriptElm);
             }
             return scriptElm.exports;
         } else {

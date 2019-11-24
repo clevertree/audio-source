@@ -210,25 +210,25 @@
 
 
     /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
-    _module.exports = {
-        AudioSourceLibrary,
-    };
+    registerThisScript('common/audio-source-library.js', module => module.exports = {
+        AudioSourceLibrary
+    });
 
     /** Module Loader Methods **/
-    function findThisScript() {
-        const SCRIPT_PATH = 'common/audio-source-library.js';
-        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+    function registerThisScript(SCRIPT_PATH, callback) {
+        if(typeof module !== 'undefined')
+            callback(module);
+        else findScript(SCRIPT_PATH)
+            .forEach(scriptElm => callback(scriptElm))
     }
 
     function findScript(scriptURL) {
-        let scriptElm = null;
-        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
-        if(scriptElm) {
+        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
+        scriptElms.forEach(scriptElm => {
             scriptElm.relativePath = scriptURL;
             scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        }
-        return scriptElm;
+        });
+        return scriptElms;
     }
 
 }

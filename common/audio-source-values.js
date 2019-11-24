@@ -1,6 +1,5 @@
 {
 
-
     class AudioSourceValues {
         constructor(song = null) {
             this.song = song;
@@ -287,38 +286,33 @@
         }
     }
 
-    if (typeof module !== "undefined")
-        module.exports = {AudioSourceValues};
-
-
-    if (typeof global !== 'undefined') {
-
-        if (typeof global.AudioSourceUtilities === "undefined") {
-            global.AudioSourceUtilities = require('./audio-source-utilities.js').AudioSourceUtilities;
-        }
-    }
-
 
     /** Register This Module **/
-    const _module = typeof module !== "undefined" ? module : findThisScript();
-    _module.exports = {AudioSourceValues};
+    registerThisScript(module => module.exports = {
+        AudioSourceValues,
+    });
 
     /** Module Loader Methods **/
+    function registerThisScript(callback) {
+        if(typeof module !== 'undefined')
+            callback(module);
+        else findThisScript()
+            .forEach(scriptElm => callback(scriptElm))
+    }
+
     function findThisScript() {
         const SCRIPT_PATH = 'common/audio-source-values.js';
-        return findScript(SCRIPT_PATH) || (() => { throw new Error("This script not found: " + SCRIPT_PATH); });
+        return findScript(SCRIPT_PATH);
     }
 
     function findScript(scriptURL) {
-        let scriptElm = null;
-        document.head.querySelectorAll(`script[src$="${scriptURL}"]`).forEach(s => scriptElm = s);
-        if(scriptElm) {
+        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
+        scriptElms.forEach(scriptElm => {
             scriptElm.relativePath = scriptURL;
             scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        }
-        return scriptElm;
+        });
+        return scriptElms;
     }
-
 
 }
 
