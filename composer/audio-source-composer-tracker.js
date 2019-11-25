@@ -912,7 +912,7 @@
             // selectedRow.clearAllCursors();
             selectedRow.createAddInstructionElement()
                 .setCursor();
-            this.editorElm.panelTracker.render();
+            // this.editorElm.panelTracker.render(); // TODO: bad idea
             this.focus();
             selectedRow.parentNode.scrollTo();
             this.editorElm.song.setPlaybackPositionInTicks(selectedRow.positionInTicks);
@@ -937,7 +937,9 @@
             this.editorElm.closeAllMenus();
             selectedCell.select(toggleValue);
             selectedCell.setCursor();
-            this.editorElm.panelTracker.render();
+            toggleValue ? this.editorElm.addSelectedIndex(selectedCell.index) : this.editorElm.removeSelectedIndex(selectedCell.index);
+
+            // this.editorElm.panelTracker.render(); // TODO: bad idea
             this.focus();
             this.editorElm.song.setPlaybackPositionInTicks(selectedCell.parentNode.positionInTicks);
             selectedCell.parentNode.scrollTo();
@@ -1338,10 +1340,10 @@
 
             if (selectedValue) {
                 this.classList.add('selected');
-                this.editorElm.addSelectedIndex(this.index);
+                // this.editorElm.addSelectedIndex(this.index);
             } else {
                 this.classList.remove('selected', 'cursor');
-                this.editorElm.removeSelectedIndex(this.index);
+                // this.editorElm.removeSelectedIndex(this.index);
             }
 
 
