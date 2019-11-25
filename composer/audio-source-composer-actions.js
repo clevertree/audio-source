@@ -135,7 +135,8 @@
         }
 
         async songStop() {
-            this.song.stopPlayback();
+            if (this.song.playback)
+                this.song.stopPlayback();
             this.song.setPlaybackPositionInTicks(0);
         }
 

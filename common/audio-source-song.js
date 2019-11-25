@@ -38,11 +38,22 @@
             this.loadSongData(songData);
             // this.eventListeners = [];
             this.history = [];
+            this.waitCancels = [];
 
             // Listen for instrument changes if in a browser
             // if (typeof document !== "undefined")
             //     document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
+        }
+
+        async wait(waitTimeInSeconds) {
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(resolve, waitTimeInSeconds * 1000);
+                this.waitCancels.push(() => {
+                    clearTimeout(timeout);
+                    resolve();
+                });
+            });
         }
 
         // addSongEventListener(callback) { this.eventListeners.push(callback); }
@@ -450,6 +461,10 @@
             this.playbackPosition = this.getAudioContext().currentTime - this.playback.startTime;
             this.playback.stopPlayback();
             this.playback = null;
+
+            for(let i=0; i<this.waitCancels.length; i++) {
+                this.waitCancels[i]();
+            }
             console.log("End playback:", this.playbackPosition);
 
 
@@ -545,7 +560,8 @@
             this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
             // Wait for note to start
             if (noteStartTime > currentTime) {
-                await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime - currentTime) * 1000));
+                await this.wait(noteStartTime - currentTime);
+                // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime - currentTime) * 1000));
             }
 
             // Dispatch note start event
@@ -558,7 +574,8 @@
 
             currentTime = this.getAudioContext().currentTime;
             if (noteStartTime + noteDuration > currentTime) {
-                await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime + noteDuration - currentTime) * 1000));
+                await this.wait(noteStartTime + noteDuration - currentTime);
+                // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime + noteDuration - currentTime) * 1000));
             }
             // TODO: check for song stop
             // Dispatch note end event
@@ -1248,6 +1265,12 @@
             return !!this.iterator;
         }
 
+        async wait(waitTimeInSeconds) {
+            await new Promise((resolve, reject) => {
+                setTimeout(resolve, waitTimeInSeconds * 1000);
+            });
+        }
+
         async playGroup() {
             const iterator = this.song.getIterator(this.groupName);
             this.iterator = iterator;
@@ -1261,15 +1284,14 @@
             while (this.playNextInstructionRow()) {
                 let currentTime = this.song.getAudioContext().currentTime - this.startTime;
                 const waitTime = this.iterator.groupPlaybackTime - currentTime - this.seekLength;
-                if (waitTime > 0)
-                    await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
+                await this.wait(waitTime);
             }
 
             let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
             if(remainingTime < this.iterator.groupPlaybackEndTime) {
                 // Wait for notes to finish
                 const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
-                await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
+                await this.wait(waitTime);
             }
 
             this.stopPlayback(false);
@@ -1303,6 +1325,7 @@
             }));
 
             if (stopInstruments) {
+
                 // Stop all instrument playback (if supported)
                 const instrumentList = this.song.getInstrumentList();
                 for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
@@ -1326,7 +1349,7 @@
 
 
             // const audioContext = this.song.getAudioContext();
-            const notePosition = this.startTime + this.iterator.groupPlaybackTime;
+            const noteStartTime = this.startTime + this.iterator.groupPlaybackTime;
             // const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
 //         console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
 
@@ -1348,12 +1371,12 @@
                         return;
                     }
 
-                    const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, notePosition);
+                    const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, noteStartTime);
                     this.subGroups.push(groupPlayback);
                     groupPlayback.playGroup();
 
                 } else {
-                    this.song.playInstruction(instruction, notePosition, this.groupName);
+                    this.song.playInstruction(instruction, noteStartTime, this.groupName);
                 }
             }
 
