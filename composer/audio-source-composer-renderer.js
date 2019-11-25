@@ -59,8 +59,8 @@
                             e => this.songPause(e),
                             divElm.createIcon('pause'),
                             "Pause Song");
-                        this.fieldSongPlaybackPause.disabled = true;
-                        this.fieldSongPlaybackStop = divElm.addButtonInput('pause',
+                        // this.fieldSongPlaybackPause.disabled = true;
+                        this.fieldSongPlaybackStop = divElm.addButtonInput('stop',
                             e => this.songStop(e),
                             divElm.createIcon('stop'),
                             "Stop Song");

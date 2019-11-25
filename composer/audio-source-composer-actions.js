@@ -110,20 +110,11 @@
                 throw new Error("Invalid file input: only one file allowed");
             const file = fileInput.files[0];
             await this.song.loadSongFromFileInput(file);
-        }
-
-
-        async loadSongFromJSONFile(file) {
-            await this.song.loadSongFromJSONFile(file);
             this.render(true);
             this.setStatus("Song loaded from file: ", file);
         }
 
-        async loadSongFromMIDIFile(file, defaultInstrumentURL = null) {
-            await this.song.loadSongFromMIDIFile(file, defaultInstrumentURL);
-            this.render(true);
-            this.setStatus("Song loaded from file: ", file);
-        }
+
 
         async loadSongFromURL(src) {
             await this.song.loadSongFromURL(src);

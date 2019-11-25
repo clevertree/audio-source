@@ -30,6 +30,8 @@
             this.playbackPosition = 0;
 
             this.volumeGain = null;
+            this.volume = 70;
+
             this.activeGroups = {};
 
             this.data = null;
@@ -87,7 +89,7 @@
             if (!this.volumeGain) {
                 const context = this.getAudioContext();
                 let gain = context.createGain();
-                gain.gain.value = AudioSourceSong.DEFAULT_VOLUME;
+                gain.gain.value = this.volume / 100; // AudioSourceSong.DEFAULT_VOLUME;
                 gain.connect(context.destination);
                 this.volumeGain = gain;
             }
@@ -95,16 +97,17 @@
         }
 
         getVolumeValue() {
-            return this.volumeGain ? this.volumeGain.gain.value * 100 : AudioSourceSong.DEFAULT_VOLUME * 100;
+            return this.volume; // this.volumeGain ? this.volumeGain.gain.value * 100 : AudioSourceSong.DEFAULT_VOLUME * 100;
         }
 
         setVolume(volume) {
-            const gain = this.getVolumeGain();
-            if (gain.gain.value !== volume) {
+            console.info("Setting volume: ", volume);
+            this.volume = volume;
+            if(this.audioContext) {
+                const gain = this.getVolumeGain();
                 gain.gain.value = volume / 100;
-//             console.info("Setting volume: ", volume);
-                this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
             }
+            this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
         }
 
 
@@ -1380,7 +1383,7 @@
 
             this.groupIndex = -1;
 
-            this.nextQuantizationBreakInTicks = 0;
+            this.nextQuantizationBreakInTicks = null;
 
 
             // this.lastRowPositionInTicks = null;
@@ -1532,13 +1535,30 @@
         }
 
         // TODO: refactor
-        nextInstructionQuantizedRow(quantizationInTicks, conditionalCallback = null) {
+        nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks=null, conditionalCallback = null) {
             if (!quantizationInTicks)
                 throw new Error("Invalid Quantization value: " + typeof quantizationInTicks);
             let nextInstruction = this.getInstruction(this.groupIndex + 1, false);
 
+            const incrementQuantizedRow = () => {
+                if(this.nextQuantizationBreakInTicks === null)
+                    this.nextQuantizationBreakInTicks = quantizationInTicks;
+                // Set the last rendered position as the next break position
+                const elapsedTimeInTicks = this.nextQuantizationBreakInTicks - this.groupPositionInTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
+                this.groupPositionInTicks = this.nextQuantizationBreakInTicks;
+                const elapsedTimeInSeconds = (elapsedTimeInTicks / this.song.timeDivision) / (this.currentBPM / 60);
+                this.groupPlaybackTime += elapsedTimeInSeconds;
+
+                this.nextQuantizationBreakInTicks += quantizationInTicks;
+            };
+
             if (!nextInstruction) {
-                // If we found end of the group, we're done
+                // If we found end of the group, we're done, but first, check if we need to render more quantized rows
+                if(this.groupPositionInTicks < maxLengthInTicks) {
+                    incrementQuantizedRow();
+                    return [];
+                }
+                // If we're truly at the end of all things, then return null
                 return null;
             }
 
@@ -1561,14 +1581,7 @@
             ) {
                 // console.info("Q row:", nextInstructionPositionInTicks, '>', nextBreakPositionInTicks);
 
-                // Set the last rendered position as the next break position
-                const elapsedTimeInTicks = this.nextQuantizationBreakInTicks - this.groupPositionInTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
-                this.groupPositionInTicks = this.nextQuantizationBreakInTicks;
-                const elapsedTimeInSeconds = (elapsedTimeInTicks / this.song.timeDivision) / (this.currentBPM / 60);
-                this.groupPlaybackTime += elapsedTimeInSeconds;
-
-                this.nextQuantizationBreakInTicks += quantizationInTicks;
-
+                incrementQuantizedRow();
                 // Return an empty row
                 return [];
             }

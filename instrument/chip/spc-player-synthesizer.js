@@ -1,7 +1,7 @@
 (async function() {
 
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'composer/audio-source-composer.js'; }
+    function getThisScriptPath() { return 'instrument/chip/spc-player-synthesizer.js'; }
     function exportThisScript(module) {
         module.exports = {
             instrument: SPCPlayerSynthesizer,
@@ -30,8 +30,8 @@
             this.config = config || {};
             this.spcPlayers = [];
 
-            if(this.config.spcURL)
-                this.loadSPCPlayer();
+            // if(this.config.spcURL)
+            //     this.loadSPCPlayer();
         }
 
         async loadSPCPlayer(destination, spcURL=null) {

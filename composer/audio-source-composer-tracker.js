@@ -186,6 +186,19 @@
             this.renderRows();
         }
 
+        updateSongPositionValue(playbackPositionInSeconds) {
+            this.querySelectorAll('asct-row').forEach(row => row.classList.remove('position'));
+            let childElm;
+            for(let i=0; i<this.children.length; i++) {
+                if(this.children[i].positionInSeconds > playbackPositionInSeconds)
+                    break;
+                childElm = this.children[i];
+            }
+
+            if(Math.floor(childElm.positionInSeconds) === Math.floor(playbackPositionInSeconds)) {
+                childElm.classList.add('position');
+            }
+        }
         // renderRowSegments() {
         // }
 
@@ -204,6 +217,7 @@
 
             const quantizationInTicks = parseInt(this.editorElm.fieldTrackerRowLength.value) || timeDivision;
             const segmentLengthInTicks = parseInt(this.editorElm.fieldTrackerSegmentLength.value) || (timeDivision * 16);
+            const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
 //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.fieldTrackerSegmentLength.value);
             const filterByInstrumentID = Number.isInteger(this.editorElm.fieldTrackerFilterInstrument.value) ? this.editorElm.fieldTrackerFilterInstrument.value : null;
             const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
@@ -212,14 +226,14 @@
 
             let lastRowSegmentID = 0;
             let rowInstructionList = null, lastRowPositionInTicks = 0;
-            while (rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, conditionalCallback)) {
+            while (rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback)) {
                 if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
                     continue;
                 }
                 lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
                 if (this.currentRowSegmentID === lastRowSegmentID) {
-                    const newRowElm = new AudioSourceComposerTrackerRow(instructionIterator.groupPositionInTicks); // document.createElement('asct-row');
+                    const newRowElm = new AudioSourceComposerTrackerRow(instructionIterator.groupPositionInTicks, instructionIterator.groupPlaybackTime); // document.createElement('asct-row');
                     this.appendChild(newRowElm);
                     newRowElm.renderInstructions(rowInstructionList);
                     // TODO: current beat/meausure
@@ -227,14 +241,14 @@
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
 
-            if (lastRowPositionInTicks < segmentLengthInTicks) {
-                lastRowPositionInTicks = Math.ceil(lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks;
-                while (lastRowPositionInTicks < segmentLengthInTicks) {
-                    const newRowElm = new AudioSourceComposerTrackerRow(lastRowPositionInTicks); // document.createElement('asct-row');
-                    this.appendChild(newRowElm);
-                    lastRowPositionInTicks += quantizationInTicks;
-                }
-            }
+            // if (lastRowPositionInTicks < segmentLengthInTicks) {
+            //     lastRowPositionInTicks = Math.ceil(lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks;
+            //     while (lastRowPositionInTicks < segmentLengthInTicks) {
+            //         const newRowElm = new AudioSourceComposerTrackerRow(lastRowPositionInTicks); // document.createElement('asct-row');
+            //         this.appendChild(newRowElm);
+            //         lastRowPositionInTicks += quantizationInTicks;
+            //     }
+            // }
 
 
             // Render Group
@@ -713,7 +727,7 @@
 
         // get cursorRow() { return this.cursorCell.parentNode; }
         get cursorPosition() {
-            return ((cell) => (cell ? cell.parentNode.position : null))(this.cursorCell);
+            return ((cell) => (cell ? cell.parentNode.positionInTicks : null))(this.cursorCell);
         }
 
         get cursorInstruction() {
@@ -901,7 +915,7 @@
             this.editorElm.panelTracker.render();
             this.focus();
             selectedRow.parentNode.scrollTo();
-            this.editorElm.song.setPlaybackPositionInTicks(selectedRow.position);
+            this.editorElm.song.setPlaybackPositionInTicks(selectedRow.positionInTicks);
             selectedRow.scrollTo();
 
             return selectedRow;
@@ -925,7 +939,7 @@
             selectedCell.setCursor();
             this.editorElm.panelTracker.render();
             this.focus();
-            this.editorElm.song.setPlaybackPositionInTicks(selectedCell.parentNode.position);
+            this.editorElm.song.setPlaybackPositionInTicks(selectedCell.parentNode.positionInTicks);
             selectedCell.parentNode.scrollTo();
 
             // selectedCell.play();
@@ -1051,7 +1065,7 @@
         // }
 
         findRowElement(positionInTicks) {
-            return this.querySelector(`asct-row[p='${positionInTicks}']`);
+            return this.querySelector(`asct-row[t='${positionInTicks}']`);
         }
 
         // if(rowElm)
@@ -1081,9 +1095,11 @@
     const VISIBLE_BUFFER = 100;
 
     class AudioSourceComposerTrackerRow extends HTMLElement {
-        constructor(positionInTicks) {
+        constructor(positionInTicks=null, positionInSeconds=null) {
             super();
-            this.setAttribute('p', positionInTicks)
+            this.setAttribute('t', positionInTicks);
+            if(positionInSeconds !== null)
+                this.setAttribute('s', parseInt(positionInSeconds*1000)/1000 );
         }
 
         get trackerElm() {
@@ -1096,14 +1112,18 @@
         }
 
         // set position(songPositionInTicks)   { this.setAttribute('p', songPositionInTicks); }
-        get position() {
-            return parseInt(this.getAttribute('p'))
+        get positionInTicks() {
+            return parseInt(this.getAttribute('t'))
+        }
+
+        get positionInSeconds() {
+            return parseFloat(this.getAttribute('s'))
         }
 
         // set duration(durationInTicks)       { this.setAttribute('d', durationInTicks); }
         // get duration()                      { return parseInt(this.getAttribute('d'))}
         get duration() {
-            return this.nextElementSibling ? this.nextElementSibling.position - this.position : 'N/A';
+            return this.nextElementSibling ? this.nextElementSibling.positionInTicks - this.positionInTicks : 'N/A';
         }
 
         set index(rowIndex) {
@@ -1128,7 +1148,7 @@
             // setTimeout(e => this.render(), 1);
             // this.setAttribute('draggable', true);
             if (this.previousElementSibling && this.previousElementSibling instanceof AudioSourceComposerTrackerRow) {
-                const rowDurationInTicks = this.position - this.previousElementSibling.position;
+                const rowDurationInTicks = this.positionInTicks - this.previousElementSibling.positionInTicks;
                 this.previousElementSibling.renderDelta(rowDurationInTicks);
             }
         }
@@ -1142,7 +1162,7 @@
 
                 const newInstructionElm = document.createElement('asct-instruction-add');
                 existingInstructionAddElement = newInstructionElm;
-                // newInstructionElm.index = this.index; // setAttribute('p', rowElement.position);
+                // newInstructionElm.index = this.index; // setAttribute('p', rowElement.positionInTicks);
                 newInstructionElm.innerHTML = `+`;
             }
             let deltaElm = this.querySelector('asct-delta');
@@ -1289,7 +1309,7 @@
                 this.index,
                 this.editorElm.song.getAudioContext().currentTime,
                 {
-                    groupPositionInTicks: this.row.position,
+                    groupPositionInTicks: this.row.positionInTicks,
                     currentIndex: this.index
                 });
             return this;
