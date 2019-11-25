@@ -545,29 +545,29 @@
             this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
             // Wait for note to start
             if (noteStartTime > currentTime) {
-                setTimeout(() => {
-                    // Dispatch note start event
-                    this.dispatchEvent(new CustomEvent('note:start', {
-                        detail: {
-                            groupName,
-                            instruction,
-                        }
-                    }));
-                }, (noteStartTime - this.getAudioContext().currentTime) * 1000);
-                if (noteDuration) {
-                    setTimeout(() => {
-                        // Dispatch note end event
-                        this.dispatchEvent(new CustomEvent('note:end', {
-                            detail: {
-                                groupName,
-                                instruction,
-                            }
-                        }));
-                    }, (noteStartTime + noteDuration - this.getAudioContext().currentTime) * 1000);
-                }
+                await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime - currentTime) * 1000));
             }
 
+            // Dispatch note start event
+            this.dispatchEvent(new CustomEvent('note:start', {
+                detail: {
+                    groupName,
+                    instruction,
+                }
+            }));
 
+            currentTime = this.getAudioContext().currentTime;
+            if (noteStartTime + noteDuration > currentTime) {
+                await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime + noteDuration - currentTime) * 1000));
+            }
+            // TODO: check for song stop
+            // Dispatch note end event
+            this.dispatchEvent(new CustomEvent('note:end', {
+                detail: {
+                    groupName,
+                    instruction,
+                }
+            }));
         }
 
 
@@ -1257,8 +1257,12 @@
                     iterator
                 }
             }));
-            while (!this.iterator.hasReachedEnd) {
-                await this.playNextInstructionRow();
+
+            while (this.playNextInstructionRow()) {
+                let currentTime = this.song.getAudioContext().currentTime - this.startTime;
+                const waitTime = this.iterator.groupPlaybackTime - currentTime - this.seekLength;
+                if (waitTime > 0)
+                    await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
             }
 
             let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
@@ -1312,25 +1316,27 @@
             this.subGroups.forEach(playback => playback.stopPlayback(stopInstruments));
         }
 
-        async playNextInstructionRow() {
+        playNextInstructionRow() {
             if (!this.isPlaybackActive)
                 throw new Error("Playback is not active");
 
             const instructionList = this.iterator.nextInstructionRow();
+            if(!instructionList)
+                return false;
 
 
-            const audioContext = this.song.getAudioContext();
+            // const audioContext = this.song.getAudioContext();
             const notePosition = this.startTime + this.iterator.groupPlaybackTime;
-            const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
+            // const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
 //         console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
 
             // Wait ahead of notes if necessary (by seek time)
-            if (waitTime > 0) {
-                // console.log("Waiting ... " + waitTime, notePosition, this.iterator.groupPlaybackTime, audioContext.currentTime);
-                await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
-            }
-            if (!this.isPlaybackActive)
-                return false;
+            // if (waitTime > 0) {
+            //     // console.log("Waiting ... " + waitTime, notePosition, this.iterator.groupPlaybackTime, audioContext.currentTime);
+            //     await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
+            // }
+            // if (!this.isPlaybackActive)
+            //     return false;
 
 
             for (let i = 0; i < instructionList.length; i++) {
@@ -1351,17 +1357,17 @@
                 }
             }
 
-            const detail = {
-                groupName: this.groupName,
-                position: this.iterator.groupPlaybackTime,
-                positionInTicks: this.iterator.groupPositionInTicks
-            };
-            this.song.dispatchEvent(new CustomEvent('group:seek', {detail}));
+            // const detail = {
+            //     groupName: this.groupName,
+            //     position: this.iterator.groupPlaybackTime,
+            //     positionInTicks: this.iterator.groupPositionInTicks
+            // };
+            // this.song.dispatchEvent(new CustomEvent('group:seek', this));
             // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
 
+            return true;
 
         }
-
     }
 
 
