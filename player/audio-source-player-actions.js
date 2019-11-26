@@ -125,6 +125,7 @@
 
 
         async songPlay() {
+            await this.loadSongFromPlaylistEntry(this.playlistPosition);
             await this.song.play();
         }
 
@@ -133,20 +134,38 @@
         }
 
         async songStop() {
-            this.song.stopPlayback();
+            this.playlistActive = false;
+            if(this.song.playback)
+                this.song.stopPlayback();
             this.song.setPlaybackPositionInTicks(0);
         }
 
         setSongPosition(e, playbackPosition = null) {
+            const wasPlaying = !!this.song.playback;
+            if (wasPlaying)
+                this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
                 playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
-
+            if (wasPlaying)
+                this.song.play();
         }
 
+        async playlistPlay() {
+            this.playlistActive = true;
+            await this.songPlay();
+            while(this.playlistActive) {
+                this.playlistPosition++;
+                if (this.playlistPosition >= this.playlist.length)
+                    this.playlistPosition = 0;
+
+                await this.loadSongFromPlaylistEntry(this.playlistPosition);
+                await this.songPlay();
+            }
+        }
 
         /** Toggle Panels **/
 

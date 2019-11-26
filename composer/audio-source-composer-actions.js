@@ -141,14 +141,24 @@
         }
 
         setSongPosition(e, playbackPosition = null) {
+            const wasPlaying = !!this.song.playback;
+            if (wasPlaying)
+                this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
                 playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
-
+            if (wasPlaying)
+                this.song.play();
         }
+
+        // setSongPositionAsPercent(e, playbackPositionPercent) {
+        //     const song = this.song;
+        //     const length = song.getSongLength();
+        //     song.setPlaybackPosition(length * (playbackPositionPercent));
+        // }
 
         /** Tracker Commands **/
 

@@ -28,6 +28,7 @@
             this.shadowDOM = null;
             this.playlist = [];
             this.playlistPosition = 0;
+            this.playlistActive = false;
         }
 
         connectedCallback() {
@@ -137,8 +138,12 @@
 
         updateSongPositionValue(playbackPositionInSeconds) {
             const values = new AudioSourceValues();
-            this.fieldSongPosition.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            const roundedSeconds = Math.round(playbackPositionInSeconds);
+            this.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            if(this.fieldSongPosition.value !== roundedSeconds)
+                this.fieldSongPosition.value = roundedSeconds;
         }
+
 
         getAudioContext()               { return this.song.getAudioContext(); }
         getVolumeGain()                 { return this.song.getVolumeGain(); }

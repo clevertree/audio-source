@@ -100,7 +100,8 @@ asui-div.asp-form > asui-div[key=caption] {
 asui-div[key=asp-form-volume]       asui-input-range[key=volume]    input       { max-width: 71px; }
 asui-div[key=asp-form-version]      asui-input-text[key=version]    input       { max-width: 53px; }
 asui-div[key=asp-form-name]         asui-input-text[key=name]       input       { max-width: 160px; }
-asui-div[key=asp-form-position]     asui-input-text[key=position]   input       { max-width: 77px; }
+asui-div[key=asp-form-timing]       asui-input-text[key=timing]   input       { max-width: 77px; }
+asui-div[key=asp-form-position]     asui-input-range[key=position]  input       { max-width: 77px; }
 asui-div[key=asp-form-bpm]          asui-input-text[key=bpm]        input       { max-width: 43px; }
 
 

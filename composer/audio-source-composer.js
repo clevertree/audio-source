@@ -196,7 +196,10 @@
 
         updateSongPositionValue(playbackPositionInSeconds) {
             const values = new AudioSourceValues();
-            this.fieldSongPosition.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            const roundedSeconds = Math.round(playbackPositionInSeconds);
+            this.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            if(this.fieldSongPosition.value !== roundedSeconds)
+                this.fieldSongPosition.value = roundedSeconds;
             this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
         }
 

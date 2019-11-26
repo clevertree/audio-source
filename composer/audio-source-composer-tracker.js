@@ -13,6 +13,7 @@
             this.eventHandlers = [];
             // this.segmentLength = 16;
             this.currentRowSegmentID = 0;
+            this.rowSegmentCount = 10;
             // this.selectedIndicies = []
 
             this.mousePosition = {};
@@ -195,7 +196,7 @@
                 childElm = this.children[i];
             }
 
-            if(Math.floor(childElm.positionInSeconds) === Math.floor(playbackPositionInSeconds)) {
+            if(childElm && Math.floor(childElm.positionInSeconds) === Math.floor(playbackPositionInSeconds)) {
                 childElm.classList.add('position');
             }
         }
@@ -218,7 +219,8 @@
             const quantizationInTicks = parseInt(this.editorElm.fieldTrackerRowLength.value) || timeDivision;
             const segmentLengthInTicks = parseInt(this.editorElm.fieldTrackerSegmentLength.value) || (timeDivision * 16);
             const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
-//         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.fieldTrackerSegmentLength.value);
+
+            //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.fieldTrackerSegmentLength.value);
             const filterByInstrumentID = Number.isInteger(this.editorElm.fieldTrackerFilterInstrument.value) ? this.editorElm.fieldTrackerFilterInstrument.value : null;
             const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
                 return conditionalInstruction.instrument === filterByInstrumentID
@@ -236,25 +238,11 @@
                     const newRowElm = new AudioSourceComposerTrackerRow(instructionIterator.groupPositionInTicks, instructionIterator.groupPlaybackTime); // document.createElement('asct-row');
                     this.appendChild(newRowElm);
                     newRowElm.renderInstructions(rowInstructionList);
-                    // TODO: current beat/meausure
                 }
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
-
-            // if (lastRowPositionInTicks < segmentLengthInTicks) {
-            //     lastRowPositionInTicks = Math.ceil(lastRowPositionInTicks / quantizationInTicks) * quantizationInTicks;
-            //     while (lastRowPositionInTicks < segmentLengthInTicks) {
-            //         const newRowElm = new AudioSourceComposerTrackerRow(lastRowPositionInTicks); // document.createElement('asct-row');
-            //         this.appendChild(newRowElm);
-            //         lastRowPositionInTicks += quantizationInTicks;
-            //     }
-            // }
-
-
-            // Render Group
-            // const panelTrackerGroups = this.editorElm.panelTrackerGroups;
-            // if(panelTrackerGroups)
-            //     panelTrackerGroups.render();
+            console.log(lastRowSegmentID, lastRowPositionInTicks);
+            this.editorElm.rowSegmentCount = lastRowSegmentID;
 
             // Render Segments
             const panelTrackerRowSegments = this.editorElm.panelTrackerRowSegments;

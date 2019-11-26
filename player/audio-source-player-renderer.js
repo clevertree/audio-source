@@ -55,7 +55,7 @@
                         divElm.classList.add('asp-form');
                         divElm.addDiv('caption', 'Playback');
                         this.fieldSongPlaybackPlay = divElm.addButtonInput('play',
-                            e => this.songPlay(e),
+                            e => this.playlistPlay(e),
                             divElm.createIcon('play'),
                             "Play Song");
                         this.fieldSongPlaybackPlay.classList.add('hide-on-playing');
@@ -95,15 +95,28 @@
                             (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
                     });
 
-                    divElm.addDiv('asp-form-position', divElm => {
+                    divElm.addDiv('asp-form-timing', divElm => {
                         divElm.classList.add('asp-form');
-                        divElm.addDiv('caption', 'Position');
-                        this.fieldSongPosition = divElm.addTextInput('position',
-                            e => this.setSongPosition(e),
-                            'Song Position',
+                        divElm.addDiv('caption', 'Timing');
+                        this.fieldSongTiming = divElm.addTextInput('timing',
+                            (e, pos) => this.setSongPosition(e, pos),
+                            'Song Timing',
                             '00:00:000'
                         );
                     });
+
+                    divElm.addDiv('asp-form-position', divElm => {
+                        divElm.classList.add('asp-form');
+                        divElm.addDiv('caption', 'Position');
+                        this.fieldSongPosition = divElm.addRangeInput('position',
+                            (e, pos) => this.setSongPosition(e, pos),
+                            0,
+                            Math.ceil(this.song.getSongLength()),
+                            'Song Position',
+                            0
+                        );
+                    });
+
 
                     divElm.addDiv('asp-form-name', divElm => {
                         divElm.classList.add('asp-form');

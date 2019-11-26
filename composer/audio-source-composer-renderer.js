@@ -48,7 +48,7 @@
                     divElm.classList.add('asc-panel');
                     divElm.addDiv('caption', 'Song');
 
-                    divElm.addDiv('form-playback', divElm => {
+                    divElm.addDiv('asc-form-playback', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'Playback');
                         this.fieldSongPlaybackPlay = divElm.addButtonInput('play',
@@ -66,24 +66,36 @@
                             "Stop Song");
                     });
 
-                    divElm.addDiv('form-position', divElm => {
+                    divElm.addDiv('asc-form-timing', divElm => {
                         divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Position');
-                        this.fieldSongPosition = divElm.addTextInput('position',
-                            e => this.setSongPosition(e),
-                            'Song Position',
+                        divElm.addDiv('caption', 'Timing');
+                        this.fieldSongTiming = divElm.addTextInput('timing',
+                            (e, pos) => this.setSongPosition(e, pos),
+                            'Song Timing',
                             '00:00:000'
                         );
                     });
 
-                    divElm.addDiv('form-volume', divElm => {
+                    divElm.addDiv('asc-form-position', divElm => {
+                        divElm.classList.add('asc-form');
+                        divElm.addDiv('caption', 'Position');
+                        this.fieldSongPosition = divElm.addRangeInput('position',
+                            (e, pos) => this.setSongPosition(e, pos),
+                            0,
+                            Math.ceil(this.song.getSongLength()),
+                            'Song Position',
+                            0
+                        );
+                    });
+
+                    divElm.addDiv('asc-form-volume', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'Volume');
                         this.fieldSongVolume = divElm.addRangeInput('volume',
                             (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
                     });
 
-                    divElm.addDiv('form-file', divElm => {
+                    divElm.addDiv('asc-form-file', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'File');
                         this.fieldSongFileLoad = divElm.addFileInput('file-load',
@@ -100,21 +112,21 @@
                     });
 
 
-                    divElm.addDiv('form-name', divElm => {
+                    divElm.addDiv('asc-form-name', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'Name');
                         this.fieldSongName = divElm.addTextInput('name',
                             (e, newSongName) => this.setSongName(e, newSongName), "Song Name");
                     });
 
-                    divElm.addDiv('form-version', divElm => {
+                    divElm.addDiv('asc-form-version', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'Version');
                         this.fieldSongVersion = divElm.addTextInput('version',
                             (e, newSongVersion) => this.setSongVersion(e, newSongVersion));
                     });
 
-                    divElm.addDiv('form-bpm', divElm => {
+                    divElm.addDiv('asc-form-bpm', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'BPM');
                         this.fieldSongBPM = divElm.addTextInput('bpm',
@@ -200,7 +212,7 @@
                 this.panelInstructions = divElm.addDiv('asc-panel-instructions', (divElm) => {
                     divElm.classList.add('asc-panel');
                     divElm.addDiv('caption', 'Selected Instruction(s)');
-                    divElm.addDiv('form-instruction-command', formElm => {
+                    divElm.addDiv('asc-form-instruction-command', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Command');
 
@@ -232,7 +244,7 @@
 
                     });
 
-                    divElm.addDiv('form-instruction-instrument', formElm => {
+                    divElm.addDiv('asc-form-instruction-instrument', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Instrument');
 
@@ -245,7 +257,7 @@
                             'Instruction Instrument');
                     });
 
-                    divElm.addDiv('form-instruction-velocity', formElm => {
+                    divElm.addDiv('asc-form-instruction-velocity', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Velocity');
 
@@ -253,7 +265,7 @@
                             (e, newVelocity) => this.setInstructionVelocity(e, newVelocity), 1, 127);
                     });
 
-                    divElm.addDiv('form-instruction-duration', formElm => {
+                    divElm.addDiv('asc-form-instruction-duration', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Duration');
 
@@ -272,7 +284,7 @@
                     divElm.classList.add('asc-panel');
                     divElm.addDiv('caption', 'Tracker');
 
-                    divElm.addDiv('form-tracker-row-length', formElm => {
+                    divElm.addDiv('asc-form-tracker-row-length', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Row &#120491;');
 
@@ -285,7 +297,7 @@
                             'Select Row Length',
                             this.song.timeDivision);
                     });
-                    divElm.addDiv('form-tracker-segment-length', formElm => {
+                    divElm.addDiv('asc-form-tracker-segment-length', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Seg &#120491;');
 
@@ -297,7 +309,7 @@
                             'Select Segment Length',
                             this.song.timeDivision * 16);
                     });
-                    divElm.addDiv('form-tracker-instrument', formElm => {
+                    divElm.addDiv('asc-form-tracker-instrument', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Instrument');
 
@@ -311,7 +323,7 @@
                             'Filter By Instrument',
                             '');
                     });
-                    divElm.addDiv('form-tracker-selection', formElm => {
+                    divElm.addDiv('asc-form-tracker-selection', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Selection');
 
@@ -322,7 +334,7 @@
                             'No selection'
                         );
                     });
-                    divElm.addDiv('form-tracker-octave', formElm => {
+                    divElm.addDiv('asc-form-tracker-octave', formElm => {
                         formElm.classList.add('asc-form');
                         formElm.addDiv('caption', 'Octave');
 
@@ -371,13 +383,14 @@
                 this.panelTrackerRowSegments = divElm.addDiv('asc-panel-tracker-row-segments', (panelElm) => {
                     panelElm.classList.add('asc-panel');
                     panelElm.addDiv('caption', 'Tracker Segments');
-                    let lastRowSegmentID = 10; // TODO: calculate from song group
+                    let rowSegmentCount = this.rowSegmentCount; // TODO: calculate from song group
 
-                    // let lastRowSegmentID = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
+
+                    // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
                     const currentRowSegmentID = this.trackerElm.currentRowSegmentID;
-                    if (lastRowSegmentID < currentRowSegmentID + 1)
-                        lastRowSegmentID = currentRowSegmentID + 1;
-                    for (let segmentID = 0; segmentID <= lastRowSegmentID; segmentID++) {
+                    if (rowSegmentCount < currentRowSegmentID + 1)
+                        rowSegmentCount = currentRowSegmentID + 1;
+                    for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
                         const button = panelElm.addButtonInput(
                             segmentID,
                             e => this.trackerElm.navigateSegment(segmentID),

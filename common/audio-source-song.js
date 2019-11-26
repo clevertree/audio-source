@@ -1583,7 +1583,8 @@
 
             if (!nextInstruction) {
                 // If we found end of the group, we're done, but first, check if we need to render more quantized rows
-                if(this.groupPositionInTicks < maxLengthInTicks) {
+                if((this.groupPlaybackTime < this.groupPlaybackEndTime) || (this.groupPositionInTicks < maxLengthInTicks)) {
+                // if(this.groupPositionInTicks < maxLengthInTicks) {
                     incrementQuantizedRow();
                     return [];
                 }
