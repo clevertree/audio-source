@@ -255,6 +255,11 @@
                     });
                     if (stringValue)
                         return stringValue;
+                    const timeDivision = this.song ? this.song.timeDivision : 96 * 4;
+                    const beatDivisor = input / timeDivision;
+                    if(beatDivisor === Math.round(beatDivisor))
+                        return beatDivisor + 'B';
+
                     input = parseFloat(input).toFixed(2);
                     return input.replace('.00', 't');
 

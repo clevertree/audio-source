@@ -941,12 +941,12 @@
             /*
             * start audio playback
             */
-            play: function() {
+            play: function(offset=0) {
                 this._isPaused= false;
 
                 // this function isn't invoked directly from some "user gesture" (but
                 // indirectly from "onload" handler) so it might not work on braindead iOS shit
-                try { this._bufferSource.start(0); } catch(ignore) {
+                try { this._bufferSource.start(0, offset); } catch(ignore) {
                     console.warn(ignore);
                 }
             },

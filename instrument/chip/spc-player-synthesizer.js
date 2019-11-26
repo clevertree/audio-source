@@ -67,6 +67,11 @@
                 await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
             }
             // const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency;
+            // const max = spcPlayer.getMaxPlaybackPosition();
+            if(startTime < currentTime) {
+                const seekPos = (currentTime - startTime) * 1000;
+                spcPlayer.seekPlaybackPosition(seekPos);
+            }
             spcPlayer.play();
 
             if(duration) {
