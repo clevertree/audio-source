@@ -66,6 +66,7 @@
                     throw new Error("Invalid AudioSourceUIDiv");
                 // TODO: overwriting content renderer
                 childNode.content = content;
+                childNode.render();
                 // if(childNode.content !== content)
                 //     throw new Error("Content mismatch");
             } else {

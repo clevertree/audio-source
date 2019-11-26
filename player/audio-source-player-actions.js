@@ -37,7 +37,7 @@
 
         async loadSongFromMemory(songUUID) {
             await this.song.loadSongFromMemory(songUUID);
-            this.render(true);
+            this.render();
             this.setStatus("Song loaded from memory: " + songUUID, songData);
 //         console.info(songData);
         }
@@ -49,7 +49,7 @@
                 throw new Error("Invalid file input");
             await this.song.loadSongFromFileInput(file);
             this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLength());
-            this.render(true);
+            this.render();
         }
 
         async loadSongFromURL(url) {
@@ -59,7 +59,7 @@
             await this.song.loadSongFromURL(url);
             this.setStatus("Song loaded from src: " + url, this.song);
             this.addSongURLToPlaylist(url, this.song.name, this.song.getSongLength());
-            this.render(true);
+            this.render();
         }
 
         async loadSongFromPlaylistEntry(playlistPosition) {
@@ -76,7 +76,7 @@
             } else {
                 throw new Error("Invalid Playlist Entry: " + playlistPosition);
             }
-            this.render(true);
+            this.render();
         }
 
         /** Song Playlist **/
@@ -102,7 +102,7 @@
                 entry.url = new URL(entry.url, playlistURL).toString();
                 this.addSongURLToPlaylist(entry.url, entry.name, entry.length);
             }
-            this.render(true);
+            this.render();
         }
 
         addSongURLToPlaylist(url, name=null, length=null) {
