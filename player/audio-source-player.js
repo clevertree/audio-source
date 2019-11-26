@@ -94,7 +94,7 @@
                             this.classList.remove('playing');
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
-                    }, 10);
+                    }, 1000);
                     break;
 
                 case 'song:end':
@@ -140,8 +140,9 @@
             const values = new AudioSourceValues();
             const roundedSeconds = Math.round(playbackPositionInSeconds);
             this.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.fieldSongPosition.value !== roundedSeconds)
+            if(this.fieldSongPosition.value !== roundedSeconds) {
                 this.fieldSongPosition.value = roundedSeconds;
+            }
         }
 
 

@@ -63,6 +63,10 @@
         }
 
         async loadSongFromPlaylistEntry(playlistPosition) {
+            if(this.song && this.song.playlistPosition === playlistPosition) {
+                console.info("Skipping load for playlist song: " + playlistPosition);
+                return;
+            }
             if(this.song.playback)
                 this.song.stopPlayback();
             const entry = this.playlist[playlistPosition];
@@ -76,6 +80,9 @@
             } else {
                 throw new Error("Invalid Playlist Entry: " + playlistPosition);
             }
+            entry.name = this.song.name;
+            entry.length = this.song.getSongLength();
+            this.song.playlistPosition = this.playlistPosition;
             this.render();
         }
 
@@ -155,8 +162,12 @@
         }
 
         async playlistPlay() {
-            this.playlistActive = true;
             await this.songPlay();
+            await this.playlistNext();
+        }
+
+        async playlistNext() {
+            this.playlistActive = true;
             while(this.playlistActive) {
                 this.playlistPosition++;
                 if (this.playlistPosition >= this.playlist.length)

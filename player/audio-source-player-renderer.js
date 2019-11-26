@@ -70,6 +70,11 @@
                             divElm.createIcon('stop'),
                             "Stop Song");
                         // this.fieldSongPlaybackStop.classList.add('show-on-playing');
+
+                        this.fieldSongPlaylistNext = divElm.addButtonInput('playlist-next',
+                            e => this.playlistNext(e),
+                            divElm.createIcon('next'),
+                            "Next Song");
                     });
 
                     divElm.addDiv('asp-form-file', divElm => {

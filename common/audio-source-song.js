@@ -206,6 +206,7 @@
             }, songData);
 
             this.data = songData;
+            this.playbackPosition = 0;
 
             // Process all instructions
             Object.keys(songData.instructions).map((groupName, i) =>

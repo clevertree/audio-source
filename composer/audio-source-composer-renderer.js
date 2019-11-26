@@ -361,7 +361,7 @@
 
                 this.panelTrackerGroups = divElm.addDiv('asc-panel-tracker-groups', (panelElm) => {
                     panelElm.classList.add('asc-panel');
-                    panelElm.addDiv('caption', 'Tracker Groups');
+                    panelElm.addDiv('caption', 'Groups');
 
                     const currentGroupName = this.trackerElm.groupName;
                     Object.keys(this.song.data.instructions).forEach((groupName, i) => {
