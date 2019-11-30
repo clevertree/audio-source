@@ -1282,14 +1282,14 @@
                 }
             }));
 
-            while (this.playNextInstructionRow()) {
+            while (this.isPlaybackActive && this.playNextInstructionRow()) {
                 let currentTime = this.song.getAudioContext().currentTime - this.startTime;
                 const waitTime = this.iterator.groupPlaybackTime - currentTime - this.seekLength;
                 await this.wait(waitTime);
             }
 
             let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
-            if(remainingTime < this.iterator.groupPlaybackEndTime) {
+            if(this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
                 // Wait for notes to finish
                 const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
                 await this.wait(waitTime);

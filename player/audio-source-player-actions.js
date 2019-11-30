@@ -18,6 +18,8 @@
         constructor() {
             super();
             this.song = new AudioSourceSong({}, this);
+            // this.activeSong = null;
+            this.nextPlaylistSong = null;
         }
 
 
@@ -54,11 +56,13 @@
 
         async loadSongFromURL(url) {
             if(url.toString().toLowerCase().endsWith('.pl.json')) {
-                return await this.loadPlaylistFromURL(url);
+                await this.loadPlaylistFromURL(url);
+                await this.loadSongFromPlaylistEntry(this.playlistPosition);
+            } else {
+                await this.song.loadSongFromURL(url);
+                this.setStatus("Song loaded from src: " + url, this.song);
+                this.addSongURLToPlaylist(url, this.song.name, this.song.getSongLength());
             }
-            await this.song.loadSongFromURL(url);
-            this.setStatus("Song loaded from src: " + url, this.song);
-            this.addSongURLToPlaylist(url, this.song.name, this.song.getSongLength());
             this.render();
         }
 
@@ -89,7 +93,7 @@
         /** Song Playlist **/
 
         async loadPlaylistFromURL(playlistURL) {
-            playlistURL = new URL(playlistURL, document.location)
+            playlistURL = new URL(playlistURL, document.location);
             const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
             const Util = new AudioSourceUtilities;
             const data = await Util.loadJSONFromURL(playlistURL.toString());
@@ -116,7 +120,8 @@
             const entry = {url};
             entry.name = name || url.split('/').pop();
             entry.length = length || null;
-            this.playlist.push(entry);
+            if(!this.playlist.find(e => e.url === entry.url))
+                this.playlist.push(entry);
         }
 
         addSongFileToPlaylist(file, name=null, length=null) {
@@ -132,7 +137,6 @@
 
 
         async songPlay() {
-            await this.loadSongFromPlaylistEntry(this.playlistPosition);
             await this.song.play();
         }
 
@@ -162,6 +166,7 @@
         }
 
         async playlistPlay() {
+            this.playlistActive = true;
             await this.songPlay();
             await this.playlistNext();
         }

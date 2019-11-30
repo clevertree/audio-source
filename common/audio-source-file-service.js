@@ -8,6 +8,7 @@
         };
     }
 
+    const archiveBuffers = {};
     const torrentCache = {};
     const trackerURLS = [
         "udp://explodie.org:6969",
@@ -53,21 +54,29 @@
             };
 
             const torrentID = parsedURL.hostname;
-            const spcPath = parsedURL.pathname.substr(1);
+            const filePath = parsedURL.pathname.substr(1);
 
             const torrent = await this.getTorrent(torrentID);
             for(let i=0; i<torrent.files.length; i++) {
                 const file = torrent.files[i];
-                if(spcPath === file.path) {
+                if(filePath === file.path) {
                     return await getBuffer(file);
                 }
-                if(spcPath.startsWith(file.path)) {
-                    const spcArchivePath = spcPath.substr(file.path.length);
-                    const archiveBuffer = await getBuffer(file);
-                    return await this.getFileBufferFromArchive(archiveBuffer, spcArchivePath);
+                if(filePath.startsWith(file.path)) {
+                    const archiveFilePath = filePath.substr(file.path.length);
+                    let archiveBuffer;
+                    if(typeof archiveBuffers[file.path] !== "undefined") {
+                        archiveBuffer = archiveBuffers[file.path];
+                    } else {
+                        archiveBuffer = getBuffer(file);
+                        archiveBuffers[file.path] = archiveBuffer;
+                    }
+                    if(archiveBuffer instanceof Promise)
+                        archiveBuffer = await archiveBuffer;
+                    return await this.getFileBufferFromArchive(archiveBuffer, archiveFilePath);
                 }
             }
-            throw new Error("Archive file not found: " + spcPath);
+            throw new Error("Archive file not found: " + filePath);
 
             async function getBuffer(file) {
                 return await new Promise((resolve, reject) => {
@@ -140,9 +149,9 @@
                         return;
                     }
                     if (event.data.type === 1){
-                        console.info(event.data.text);
+                        // console.info(event.data.text);
                     } else if (event.data.type == 2){
-                        console.info(event.data.text);
+                        // console.info(event.data.text);
                     } else if (event.data.type == 3){
                         resolve(event.data.results);
                         worker7z.terminate();//this is very important!!! You have to release memory!

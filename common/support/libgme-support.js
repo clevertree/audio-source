@@ -113,7 +113,7 @@
 
             // var p = ScriptNodePlayer.getInstance();
             p.initByUserGesture();
-            p.setTraceMode(true);
+            // p.setTraceMode(true);
             if (!p.isReady())
                 throw new Error("Failed to prepare track [not ready]:" + url);
 
@@ -941,12 +941,17 @@
             /*
             * start audio playback
             */
-            play: function(offset=0) {
+            play: function(destination=null) {
+
+                if(destination) {
+                    this._gainNode.disconnect(0);
+                    this._gainNode.connect(destination);
+                }
                 this._isPaused= false;
 
                 // this function isn't invoked directly from some "user gesture" (but
                 // indirectly from "onload" handler) so it might not work on braindead iOS shit
-                try { this._bufferSource.start(0, offset); } catch(ignore) {
+                try { this._bufferSource.start(0); } catch(ignore) {
                     console.warn(ignore);
                 }
             },

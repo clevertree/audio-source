@@ -15,6 +15,7 @@
 
 
     const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
+    const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
 
     class SPCPlayerSynthesizer {
 
@@ -29,21 +30,26 @@
                 config.name = 'SPC Player ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.config = config || {};
             this.spcPlayers = [];
+            this.spcBuffer = null;
 
-            // if(this.config.spcURL)
-            //     this.loadSPCPlayer();
+            if(this.config.spcURL)
+                this.loadBuffer();
         }
 
-        async loadBufferFromURL(spcURL) {
-            const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
-            const service = new AudioSourceFileService();
-            return await service.loadBufferFromURL(spcURL);
+        async loadBuffer() {
+            if(!this.spcBuffer) {
+                const spcURL = this.config.spcURL;
+                const service = new AudioSourceFileService();
+                this.spcBuffer = service.loadBufferFromURL(spcURL);
+            }
+            if(this.spcBuffer instanceof Promise)
+                this.spcBuffer = await this.spcBuffer;
+            return this.spcBuffer;
         }
 
-        async loadSPCPlayer(destination, spcURL=null) {
-            spcURL = spcURL || this.config.spcURL;
+        async loadSPCPlayer(destination) {
             const libGMESupport = new LibGMESupport();
-            const buffer = await this.loadBufferFromURL(spcURL);
+            const buffer = await this.loadBuffer();
             return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file', {
                 destination
             });
@@ -55,6 +61,9 @@
             this.audioContext = audioContext;
             const libGMESupport = new LibGMESupport();
             await libGMESupport.init(audioContext);
+            if(this.config.spcURL)
+                await this.loadBuffer();
+            console.info("SPC Player initialized");
         }
 
         /** Playback **/
@@ -63,8 +72,8 @@
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
             const spcPlayer = await this.loadSPCPlayer(destination);
+            console.info("SPC Player loaded");
             this.spcPlayers.push(spcPlayer);
-            // this.spcPlayer = await spcSupport.loadSPCPlayerFromSrc(this.config.spcURL); // TODO: OMFG HACK
 
             let currentTime = destination.context.currentTime;
             startTime = startTime !== null ? startTime : currentTime;
@@ -78,7 +87,7 @@
                 const seekPos = (currentTime - startTime) * 1000;
                 spcPlayer.seekPlaybackPosition(seekPos);
             }
-            spcPlayer.play();
+            spcPlayer.play(destination);
 
             if(duration) {
                 const waitTime = (startTime + duration) - destination.context.currentTime;

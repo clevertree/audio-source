@@ -107,7 +107,7 @@
                             this.classList.remove('playing');
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
-                    }, 1000);
+                    }, 10);
                     break;
 
                 case 'song:end':
