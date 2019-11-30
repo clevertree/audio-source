@@ -1,3 +1,5 @@
+throw new Error("DEPRECIATED");
+
 const babel = require("@babel/core");
 var uglify = require("uglify-js");
 const minify = require('minify');
@@ -32,7 +34,7 @@ const fs = require('fs');
         + await convert('common/audio-source-library.js')
         + await convert('common/audio-source-song.js')
         + await convert('common/audio-source-storage.js')
-        + await convert('common/midi-support.js')
+        + await convert('common/support/midi-support.js')
 
         + '})();';
 

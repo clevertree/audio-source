@@ -4,6 +4,10 @@
     {
       "name": "Synthesizer Instrument",
       "url": "instrument/audio-source-synthesizer.js"
+    },
+    {
+      "name": "SPC Player Instrument",
+      "url": "instrument/chip/spc-player-synthesizer.js"
     }
   ],
   "libraries": [
@@ -11,5 +15,8 @@
       "name": "General Midi Default Library",
       "url": "sample/gm/fws/fws.library.json"
     }
+  ],
+  "playlist": [
+    "assets/files/test.pl.json;Test Playlist"
   ]
 }

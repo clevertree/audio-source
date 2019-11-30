@@ -1,4 +1,13 @@
 {
+    /** Register Script Exports **/
+    function getThisScriptPath() { return 'instrument/audio-source-synthesizer.js'; }
+    function exportThisScript(module) {
+        module.exports = {
+            instrument: AudioSourceSynthesizer,
+            AudioSourceSynthesizer
+        };
+    }
+
     class AudioSourceSynthesizer {
 
 
@@ -363,7 +372,7 @@
         // }
 
         render(renderObject=null) {
-            if(renderObject instanceof HTMLElement && renderObject.matches('asui-form')) {
+            if(renderObject instanceof HTMLElement && renderObject.matches('asui-div')) {
                 this.form = new AudioSourceSynthesizerFormRenderer(renderObject, this);
             } else {
                 throw new Error("Unknown renderer");
@@ -472,9 +481,9 @@
             if (!command)
                 return null;
 
-            const instructions = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+            const noteCommands = this.noteFrequencies; // ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
             let octave = command.length === 3 ? command.charAt(2) : command.charAt(1),
-                keyNumber = instructions.indexOf(command.slice(0, -1));
+                keyNumber = noteCommands.indexOf(command.slice(0, -1));
             if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
             else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
             return keyNumber;
@@ -527,13 +536,17 @@
             return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
         }
 
+        async loadAudioSourceLibraryClass() {
+            return (await requireAsync('common/audio-source-library.js')).AudioSourceLibrary;
+        }
+
         async loadDefaultSampleLibrary() {
             const defaultLibraryURL =
                 this.instrument.config.libraryURL
                 || this.DEFAULT_SAMPLE_LIBRARY_URL;
-            const AudioSourceLibrary = customElements.get('audio-source-library');
+            const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
             this.sampleLibrary = await AudioSourceLibrary.loadURL(defaultLibraryURL);
-            console.log(this.instrument.config.name, this.sampleLibrary);
+//             console.log(this.instrument.config.name, this.sampleLibrary);
             // TODO: locate sample/preset library
         }
 
@@ -593,23 +606,24 @@
             rootElm.insertBefore(linkElm, rootElm.firstChild);
         }
 
+        // focusHandler(e) {
+        //     e.target.getRootNode().querySelectorAll('asui-div.focus')
+        //         .forEach(formElm => formElm.classList.remove('focus'));
+        //     e.target.classList.add('focus');
+        // }
+        
         async render() {
             // const instrument = this.instrument;
             const instrumentID = typeof this.instrument.id !== "undefined" ? this.instrument.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            this.form.clearInputs();
+            this.form.innerHTML = '';
             this.form.classList.add('audio-source-synthesizer-container');
-            if(this.form.focusHandler)
-                this.form.removeEventListener('focus', this.form.focusHandler);
-            this.form.focusHandler = (e) => {
-                this.form.getRootNode().querySelectorAll('asui-form.focus')
-                    .forEach(formElm => formElm.classList.remove('focus'));
-                this.form.classList.add('focus');
-            };
-            this.form.addEventListener('focus', this.form.focusHandler, true);
 
-            const instrumentToggleButton = this.form.addButton('instrument-id',
-                e => this.form.classList.toggle('selected'), //TODO: toggle view
+            // this.form.removeEventListener('focus', this.focusHandler);
+            // this.form.addEventListener('focus', this.focusHandler, true);
+
+            const instrumentToggleButton = this.form.addButtonInput('instrument-id',
+                e => this.form.classList.toggle('selected'),
                 instrumentIDHTML + ':'
             );
             instrumentToggleButton.classList.add('show-on-focus');
@@ -624,7 +638,7 @@
 
 
 
-            this.form.addButton('instrument-remove',
+            this.form.addButtonInput('instrument-remove',
                 (e) => this.remove(e, instrumentID),
                 this.form.createIcon('delete'),
                 'Remove Instrument');
@@ -635,14 +649,14 @@
 
             this.fieldChangePreset = this.form.addSelectInput('instrument-preset',
                 (e, presetURL) => this.setPreset(presetURL),
-                (addOption, setOptgroup) => {
+                async (addOption, setOptgroup) => {
                     addOption('', 'Change Preset');
                     setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
                     this.sampleLibrary.eachPreset(presetConfig => addOption(presetConfig.url, presetConfig.name));
                     setOptgroup('Libraries');
                     this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
                     setOptgroup('Other Libraries');
-                    const AudioSourceLibrary = customElements.get('audio-source-library');
+                    const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
                     AudioSourceLibrary.eachHistoricLibrary(addOption);
                 },
                 'Change Instrument',
@@ -655,48 +669,49 @@
 
             const samples = this.instrument.config.samples;
             if(samples.length > 0) {
-                const sampleGrid = this.form.addGrid('samples');
-                const headerRow = sampleGrid.getOrCreateRow('header');
-                // headerRow.addText('name', 'Name');
-                headerRow.addText('id', 'ID');
-                headerRow.addText('url', 'URL');
-                headerRow.addText('mixer', 'Mixer');
-                headerRow.addText('detune', 'Detune');
-                headerRow.addText('root', 'Root');
-                headerRow.addText('alias', 'Alias');
-                headerRow.addText('loop', 'Loop');
-                headerRow.addText('adsr', 'ADSR');
-                headerRow.addText('remove', 'Rem');
+                this.form.addGrid('samples', gridDiv => {
+                    const headerRow = gridDiv.addGridRow('header');
+                    // headerRow.addDiv('name', 'Name');
+                    headerRow.addDiv('id', 'ID');
+                    headerRow.addDiv('url', 'URL');
+                    headerRow.addDiv('mixer', 'Mixer');
+                    headerRow.addDiv('detune', 'Detune');
+                    headerRow.addDiv('root', 'Root');
+                    headerRow.addDiv('alias', 'Alias');
+                    headerRow.addDiv('loop', 'Loop');
+                    headerRow.addDiv('adsr', 'ADSR');
+                    headerRow.addDiv('remove', 'Rem');
 
-                const getNoteFrequencies = (addOption) => {
-                    addOption('', "-");
-                    const noteFrequencies = this.noteFrequencies;
-                    for (let i = 1; i <= 6; i++) {
-                        for (let j = 0; j < noteFrequencies.length; j++) {
-                            addOption(noteFrequencies[j] + i);
+                    const getNoteFrequencies = (addOption) => {
+                        addOption('', "-");
+                        const noteFrequencies = this.noteFrequencies;
+                        for (let i = 1; i <= 6; i++) {
+                            for (let j = 0; j < noteFrequencies.length; j++) {
+                                addOption(noteFrequencies[j] + i);
+                            }
                         }
-                    }
-                };
+                    };
 
-                const getSampleURLs = (addOption) => {
-                    this.sampleLibrary.eachSample(sample => addOption(sample.url, sample.name));
-                };
+                    const getSampleURLs = (addOption) => {
+                        this.sampleLibrary.eachSample(sample => addOption(sample.url, sample.name));
+                    };
 
 
-                samples.forEach((sampleData, sampleID) => {
-                    const sampleRow = sampleGrid.getOrCreateRow('sample-' + sampleID);
-                    // const sampleRow = this.form.addGrid(i);
-                    // sampleRow.addTextInput('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-                    // sampleRow.addButton('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
-                    sampleRow.addText('id', sampleID);
-                    sampleRow.addSelectInput('url', (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', new URL(sampleData.url, document.location)+'');
-                    sampleRow.addRangeInput('mixer', (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
-                    sampleRow.addRangeInput('detune', (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
-                    sampleRow.addSelectInput('root', (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot || '');
-                    sampleRow.addSelectInput('alias', (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
-                    sampleRow.addCheckBoxInput('loop', (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
-                    sampleRow.addTextInput('adsr', (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
-                    sampleRow.addButton('remove', (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample');
+                    samples.forEach((sampleData, sampleID) => {
+                        const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
+                        // const sampleRow = this.form.addGrid(i);
+                        // sampleRow.addDiv('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                        // sampleRow.addButtonInput('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
+                        sampleRow.addDiv('id', sampleID);
+                        sampleRow.addSelectInput('url',     (e, url) => this.setSampleURL(sampleID, url), getSampleURLs, 'URL', new URL(sampleData.url, document.location)+'');
+                        sampleRow.addRangeInput('mixer',        (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer);
+                        sampleRow.addRangeInput('detune',       (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune);
+                        sampleRow.addSelectInput('root',    (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot), getNoteFrequencies, 'Root', sampleData.keyRoot || '');
+                        sampleRow.addSelectInput('alias',   (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias), getNoteFrequencies, 'Alias', sampleData.keyAlias);
+                        sampleRow.addCheckBoxInput('loop',  (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop);
+                        sampleRow.addTextInput('adsr', (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0');
+                        sampleRow.addButtonInput('remove', (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample');
+                    });
                 });
             }
 
@@ -706,14 +721,14 @@
             this.fieldAddSample = this.form.addSelectInput(
                 'add-sample',
                 (e, sampleURL) => this.addSample(sampleURL),
-                (addOption, setOptgroup) => {
+                async (addOption, setOptgroup) => {
                     addOption('', 'Add Sample');
                     setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
                     this.sampleLibrary.eachSample(sampleConfig => addOption(sampleConfig.url, sampleConfig.name));
                     setOptgroup('Libraries');
                     this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
                     setOptgroup('Other Libraries');
-                    const AudioSourceLibrary = customElements.get('audio-source-library');
+                    const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
                     AudioSourceLibrary.eachHistoricLibrary(addOption);
                 },
                 'Add Sample',
@@ -733,7 +748,7 @@
 
         async setPreset(presetURL) {
             presetURL = new URL(presetURL);
-            const AudioSourceLibrary = customElements.get('audio-source-library');
+            const AudioSourceLibrary = await this.loadAudioSourceLibraryClass();
             this.sampleLibrary = await AudioSourceLibrary.loadURL(presetURL + '');
             if (presetURL.hash) {
                 const newPresetName = presetURL.hash.substr(1);
@@ -744,7 +759,8 @@
                 this.render();
             }
             await this.fieldChangePreset.renderOptions();
-            this.fieldChangePreset.value = '';
+            // this.fieldChangePreset.value = ''; // TODO: why was this?
+            this.fieldChangePreset.focus();
             this.form.classList.add('focus');
         }
 
@@ -812,35 +828,58 @@
         return ext;
     }
 
-    function getScriptElm() {
-        return document.head.querySelector('script[src$="audio-source-synthesizer.js"],script[src$="audio-source-synthesizer.min.js"]');
-    }
-
     function getScriptDirectory(appendPath = '') {
-        const scriptElm = getScriptElm();
-        const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-        return basePath + appendPath;
+        const scriptElm = findThisScript()[0];
+        // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
+        return scriptElm.basePath + appendPath;
     }
 
-    const scriptElm = getScriptElm();
-    if (!scriptElm)
-        throw new Error("Couldn't find head script");
-    const eventData = {
-        detail: {
-            "class": AudioSourceSynthesizer,
-            // "renderClass": SynthesizerInstrumentElement,
-            "url": scriptElm.src,
-            "script": scriptElm
-        },
-        bubbles: true
-    };
-    document.dispatchEvent(new CustomEvent('instrument:loaded', eventData));
-
-    // window.addEventListener('DOMContentLoaded', e => {
-    //     document.dispatchEvent(new CustomEvent('instrument:loaded', eventData));
-    // });
 
 
+    /** Export this script **/
+    registerModule(exportThisScript);
+
+
+    /** Module Loader Methods **/
+    function registerModule(callback) {
+        if(typeof module !== 'undefined')
+            callback(module);
+        else findThisScript()
+            .forEach(scriptElm => callback(scriptElm))
+    }
+
+    function findThisScript() {
+        return findScript(getThisScriptPath());
+    }
+
+    function findScript(scriptURL) {
+        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
+        scriptElms.forEach(scriptElm => {
+            scriptElm.relativePath = scriptURL;
+            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
+        });
+        return scriptElms;
+    }
+
+    async function requireAsync(relativeScriptPath) {
+        if(typeof require !== "undefined")
+            return require('../' + relativeScriptPath);
+
+        let scriptElm = findScript(relativeScriptPath)[0];
+        if(!scriptElm) {
+            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
+            scriptElm = document.createElement('script');
+            scriptElm.src = scriptURL;
+            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
+                scriptElm.onload = resolve;
+                document.head.appendChild(scriptElm);
+            }));
+        }
+        for (let i=0; i<scriptElm.promises.length; i++)
+            await scriptElm.promises[i];
+        return scriptElm.exports
+            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
+    }
 }
 
 

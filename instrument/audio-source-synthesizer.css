@@ -1,6 +1,26 @@
-/** Colors **/
+
+
 .audio-source-synthesizer-container {
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 0px 0px;
+    margin: 0px 0px 0px 0px;
+    display: inline-block;
+    vertical-align: top;
+    /* max-height: 80em; */
+    /* overflow: auto; */
+    /*transition-property: all;*/
+    /*transition-duration: 1s;*/
+    /*transition-timing-function: ease-in-out;*/
+}
+
+
+.audio-source-synthesizer-container > asui-div[key=caption] {
     font-size: smaller;
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 1px;
+    cursor: pointer;
+    padding: 1px 3px;
 }
 
 
@@ -36,25 +56,6 @@
 .audio-source-synthesizer-container  asui-input-text[key=adsr]        input      {width: 60px;}
 
 .audio-source-synthesizer-container  asui-input-select[key=instrument-preset]       select      { width: 120px; }
-
-
-/** Size **/
-.audio-source-synthesizer-container {
-    max-height: 80em;
-    transition-property: all;
-    transition-duration: 1s;
-    transition-timing-function: ease-in-out;
-}
-
-.audio-source-synthesizer-container:not(.selected):not(.focus) {
-    max-height: 24px;
-    overflow: hidden;
-}
-
-.audio-source-synthesizer-container:not(.selected):not(.focus) > *:not(.show-on-focus) {
-    /* min-width: 100px; */
-}
-
 
 
 /** Sample Grid **/

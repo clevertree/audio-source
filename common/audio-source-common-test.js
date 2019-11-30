@@ -12,7 +12,7 @@ class AudioSourceCommonTest {
     }
 
     async test() {
-        console.info("Test Started: ", this.constructor.name);
+        console.info("Test Started: ", this.constructor.name, __filename);
         await this.testStorage();
         await this.testSongClass();
         await this.testValues();
