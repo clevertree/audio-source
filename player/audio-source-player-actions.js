@@ -54,10 +54,16 @@
             this.render();
         }
 
+        isPlaylist(entryUrl) {
+            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
+        }
+
         async loadSongFromURL(url) {
-            if(url.toString().toLowerCase().endsWith('.pl.json')) {
+            if(this.isPlaylist(url)) {
                 await this.loadPlaylistFromURL(url);
-                await this.loadSongFromPlaylistEntry(this.playlistPosition);
+                const entry = this.playlist[this.playlistPosition];
+                if(entry.url && !this.isPlaylist(entry.url))
+                    await this.loadSongFromPlaylistEntry(this.playlistPosition);
             } else {
                 await this.song.loadSongFromURL(url);
                 this.setStatus("Song loaded from src: " + url, this.song);
@@ -102,6 +108,7 @@
             if(!Array.isArray(data.playlist))
                 throw new Error("Invalid playlist data: " + playlistURL);
             this.playlist = [];
+            this.playlistPosition = 0;
             for(let i=0; i<data.playlist.length; i++) {
                 let entry = data.playlist[i];
                 if(typeof entry === "string") {
