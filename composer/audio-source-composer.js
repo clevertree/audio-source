@@ -470,7 +470,7 @@
         return resolve;
     }
     function registerModule(callback) {
-        if(typeof module !== 'undefined')
+        if(typeof window === 'undefined')
             callback(module);
         else findThisScript()
             .forEach(scriptElm => callback(scriptElm))
@@ -505,6 +505,7 @@
         }
         for (let i=0; i<scriptElm.promises.length; i++)
             await scriptElm.promises[i];
+        console.log('scriptElm', scriptElm, scriptElm.exports)
         return scriptElm.exports
             || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
     }

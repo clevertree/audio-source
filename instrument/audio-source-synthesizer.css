@@ -7,11 +7,16 @@
     margin: 0px 0px 0px 0px;
     display: inline-block;
     vertical-align: top;
-    /* max-height: 80em; */
-    /* overflow: auto; */
+     max-height: 24px;
+     overflow: hidden;
     /*transition-property: all;*/
     /*transition-duration: 1s;*/
     /*transition-timing-function: ease-in-out;*/
+}
+.audio-source-synthesizer-container.selected  {
+    max-height: 80em;
+    overflow: auto;
+    border: 1px inset;
 }
 
 
@@ -34,9 +39,6 @@
 .audio-source-synthesizer-container  asui-input-button[key=instrument-id]   button {
     border: 1px outset;
     padding: 0px 2px;
-}
-.audio-source-synthesizer-container.selected  asui-input-button[key=instrument-id]   button {
-    border: 1px inset;
 }
 
 .audio-source-synthesizer-container  asui-input-select[key=instrument-preset]               {

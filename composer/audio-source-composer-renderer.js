@@ -831,7 +831,7 @@
         return resolve;
     }
     function registerModule(callback) {
-        if(typeof module !== 'undefined')
+        if(typeof window === 'undefined')
             callback(module);
         else findThisScript()
             .forEach(scriptElm => callback(scriptElm))
