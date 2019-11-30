@@ -155,7 +155,7 @@
                             gridElm.addGridRow(i, (rowElm) => {
                                 const i = parseInt(rowElm.key);
                                 const entry = this.playlist[i];
-                                const [length, fade] = entry.length.toString().split(':');
+                                const [length, fade] = (entry.length || 0).toString().split(':');
                                 const formattedLength = new Date(length * 1000).toISOString().substr(14, 5);
                                 rowElm.classList.add('asp-playlist-entry');
                                 rowElm.addDiv('id', i);
@@ -258,7 +258,7 @@
         return resolve;
     }
     function registerModule(callback) {
-        if(typeof module !== 'undefined')
+        if(typeof window === 'undefined')
             callback(module);
         else findThisScript()
             .forEach(scriptElm => callback(scriptElm))

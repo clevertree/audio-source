@@ -136,7 +136,7 @@
                     const {JSONSupport} = await requireAsync('common/support/json-support.js');
                     return new JSONSupport;
 
-                case 'game':
+                case 'spc':
                     const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
                     return new LibGMESupport;
 
@@ -1798,7 +1798,7 @@
 
     /** Module Loader Methods **/
     function registerModule(callback) {
-        if(typeof module !== 'undefined')
+        if(typeof window === 'undefined')
             callback(module);
         else findThisScript()
             .forEach(scriptElm => callback(scriptElm))
