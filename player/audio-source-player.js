@@ -16,9 +16,22 @@
 
     const {AudioSourcePlayerRenderer} = await requireAsync('player/audio-source-player-renderer.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
     /**
      * Player requires a modern browser
      */
+
+    // const fs = new AudioSourceFileService();
+    // setTimeout(async e => {
+    //     const torrentID = "005ff6b3e47f34ad254b301481561d3145187467";
+    //     const torrent = await fs.getTorrent(torrentID);
+    //     console.log(torrent.files);
+    //     torrent.files[50].getBuffer(async function(err, buffer) {
+    //         if(err) throw new Error(err);
+    //         const files = await fs.decompress7ZipArchive(buffer);
+    //         console.log(files);
+    //     });
+    // }, 1000);
 
     class AudioSourcePlayerElement extends AudioSourcePlayerRenderer {
         constructor() {

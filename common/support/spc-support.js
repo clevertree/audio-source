@@ -60,6 +60,13 @@
 
             const songData = {
                 name: id666.song,
+                artist: id666.artist || id666.author,
+                game: id666.game,
+                copyright: id666.copyright,
+                comment: id666.comment,
+                publisher: id666.publisher,
+                dumper: id666.dumper,
+                system: id666.system,
                 version: '0.0.1a',
                 root: 'root',
                 created: new Date().getTime(),
@@ -68,7 +75,7 @@
                 beatsPerMeasure: 4,
                 instruments: [
                     {
-                        url: findThisScript().basePath + 'instrument/chip/spc-player-synthesizer.js',
+                        url: findThisScript()[0].basePath + 'instrument/chip/spc-player-synthesizer.js',
                         spcURL: spcURL
                     }
                 ],
@@ -79,6 +86,12 @@
                 }
             };
 
+            for(const key in songData) {
+                if(songData.hasOwnProperty(key)) {
+                    if(!songData[key])
+                        delete songData[key];
+                }
+            }
             return songData;
         }
 
@@ -301,7 +314,7 @@
 
     // window.onclick =
     //     window.onload = function() {
-    //         var req = fetch("brambles.spc");
+    //         var req = fetch("brambles.game");
     //         req.onload = function() {
     //             var stream = makeStream(req.response);
     //             loadSPC(stream);

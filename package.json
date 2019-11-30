@@ -26,11 +26,12 @@
   "homepage": "https://github.com/clevertree/audio-source-composer#readme",
   "dependencies": {
     "bad-words": "^3.0.0",
-    "@babel/core": "^7.6.0",
+    "bittorrent-tracker": "^9.14.4",
     "jsdom": "^15.1.0",
-    "minify": "^4.1.1"
+    "webtorrent": "^0.107.17"
   },
   "devDependencies": {
-    "puppeteer-core": "^1.20.0"
+    "puppeteer-core": "^1.20.0",
+    "minify": "^4.1.1"
   }
 }

@@ -53,7 +53,7 @@
         }
 
         async loadSongFromURL(url) {
-            if(url.toString().toLowerCase().endsWith('.playlist.json')) {
+            if(url.toString().toLowerCase().endsWith('.pl.json')) {
                 return await this.loadPlaylistFromURL(url);
             }
             await this.song.loadSongFromURL(url);
@@ -76,7 +76,7 @@
             if(entry.file) {
                 await this.song.loadSongFromFileInput(entry.file);
             } else if(entry.url) {
-                await this.song.loadSongFromURL(entry.url);
+                await this.loadSongFromURL(entry.url);
             } else {
                 throw new Error("Invalid Playlist Entry: " + playlistPosition);
             }
@@ -102,7 +102,7 @@
                 let entry = data.playlist[i];
                 if(typeof entry === "string") {
                     const split = entry.split(';');
-                    entry = {url: split[0]};
+                    entry = {url: (data.urlPrefix ? data.urlPrefix : "") + split[0]};
                     if(split[1]) entry.name = split[1];
                     if(split[2]) entry.length = split[2];
                 }

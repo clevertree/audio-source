@@ -155,7 +155,8 @@
                             gridElm.addGridRow(i, (rowElm) => {
                                 const i = parseInt(rowElm.key);
                                 const entry = this.playlist[i];
-                                const formattedLength = new Date(entry.length * 1000).toISOString().substr(14, 5);
+                                const [length, fade] = entry.length.toString().split(':');
+                                const formattedLength = new Date(length * 1000).toISOString().substr(14, 5);
                                 rowElm.classList.add('asp-playlist-entry');
                                 rowElm.addDiv('id', i);
                                 rowElm.addDiv('name', entry.name);

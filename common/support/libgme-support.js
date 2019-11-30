@@ -1837,7 +1837,7 @@
 
                     trace= old._traceSwitch;
                 }
-                // FIXME ugly side-effect: internally the below constructor sets window.player to 'p'
+                // FIXME ugly side-effect: internally the below constructor snes window.player to 'p'
                 var p = new PlayerImpl(backendAdapter, basePath, requiredFiles, enableSpectrum,
                     onPlayerReady, onTrackReadyToPlay, onTrackEnd, doOnUpdate, externalTicker, bufferSize);
                 p._traceSwitch= trace;
@@ -2182,7 +2182,7 @@
                 result.dumper= this.Module.Pointer_stringify(array[7]);
                 result.system= this.Module.Pointer_stringify(array[8]);
 
-                result.length = this.getMaxPlaybackPosition() / 1000;
+                result.length = (this.getMaxPlaybackPosition()||0) / 1000;
             }
         });	return $this; })();
 
@@ -2232,11 +2232,11 @@
 
         // --------------------------- UI - basic player controls --------------
         var songs = [
-            "/audio-source/assets/files/kefka.spc",
-            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/Richard Joseph/Super James Pond/super james pond - codename robocod.spc",
-            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/David Whittaker/Batman - Revenge of the Joker/brj-01.spc",
-            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/Allister Brimble/Street Racer/srace-01.spc",
-            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/Barry Leitch/Lethal Weapon/lethal weapon - ending.spc",
+            "/audio-source/assets/files/kefka.game",
+            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/Richard Joseph/Super James Pond/super james pond - codename robocod.game",
+            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/David Whittaker/Batman - Revenge of the Joker/brj-01.game",
+            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/Allister Brimble/Street Racer/srace-01.game",
+            // "/modland/proxy.php?mirror=1&mod=Nintendo SPC/Barry Leitch/Lethal Weapon/lethal weapon - ending.game",
         ];
         playerControls= new BasicPlayerControls(songs, true, false,
             (function(someSong) {

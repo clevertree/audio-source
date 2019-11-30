@@ -136,7 +136,7 @@
                     const {JSONSupport} = await requireAsync('common/support/json-support.js');
                     return new JSONSupport;
 
-                case 'spc':
+                case 'game':
                     const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
                     return new LibGMESupport;
 
