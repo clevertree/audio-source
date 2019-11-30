@@ -1,14 +1,14 @@
 {
     /** Register Script Exports **/
     function getThisScriptPath() { return 'instrument/audio-source-synthesizer.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             instrument: AudioSourceSynthesizer,
             AudioSourceSynthesizer
         };
     }
 
-    class AudioSourceSynthesizer {
+    const AudioSourceSynthesizer = class {
 
 
         constructor(config, song=null, instrumentID=null) {

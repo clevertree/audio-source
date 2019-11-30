@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-file-service.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             AudioSourceFileService
         };

@@ -2,13 +2,13 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-song.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             AudioSourceSong,
             AudioSourceInstructionIterator,
             AudioSourceInstructionPlayback,
         };
-    }
+    };
 
 
 

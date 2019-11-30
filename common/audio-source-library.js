@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-library.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {AudioSourceLibrary};
     }
 

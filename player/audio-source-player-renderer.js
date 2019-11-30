@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'player/audio-source-player-renderer.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {AudioSourcePlayerRenderer};
     }
 

@@ -3,7 +3,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-ui.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             AudioSourceUIDiv,
             AudioSourceUIButton,

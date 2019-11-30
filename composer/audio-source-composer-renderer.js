@@ -3,7 +3,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'composer/audio-source-composer-renderer.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {AudioSourceComposerRenderer};
     }
 

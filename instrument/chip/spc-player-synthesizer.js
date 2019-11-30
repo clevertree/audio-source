@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'instrument/chip/spc-player-synthesizer.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             instrument: SPCPlayerSynthesizer,
             SPCPlayerSynthesizer
