@@ -25,7 +25,9 @@
         }
 
         async loadBufferFromURL(url) {
-            if(torrent)
+            if(url.toString().startsWith('torrent://')) {
+                return await this.getFileBufferFromTorrent(url);
+            }
             var request = new XMLHttpRequest();
             await new Promise((resolve, reject) => {
                 request.open("GET", url, true);
@@ -41,6 +43,53 @@
             // &dn=snes
             const magnetURL = `magnet:?xt=urn:btih:${torrentID}&dn=torrent&${trackerURLS.map(t => 'tr='+t).join('&')}`;
             return magnetURL;
+        }
+
+        async getFileBufferFromTorrent(torrentURL) {
+            var match = torrentURL.match(/^(torrent?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+            const parsedURL = match && {
+                hostname: match[3],
+                pathname: match[5],
+            };
+
+            const torrentID = parsedURL.hostname;
+            const spcPath = parsedURL.pathname.substr(1);
+
+            const torrent = await this.getTorrent(torrentID);
+            for(let i=0; i<torrent.files.length; i++) {
+                const file = torrent.files[i];
+                if(spcPath === file.path) {
+                    return await getBuffer(file);
+                }
+                if(spcPath.startsWith(file.path)) {
+                    const spcArchivePath = spcPath.substr(file.path.length);
+                    const archiveBuffer = await getBuffer(file);
+                    return await this.getFileBufferFromArchive(archiveBuffer, spcArchivePath);
+                }
+            }
+            throw new Error("Archive file not found: " + spcPath);
+
+            async function getBuffer(file) {
+                return await new Promise((resolve, reject) => {
+                    file.getBuffer(async function(err, buffer) {
+                        if(err) throw new Error(err);
+                        resolve(buffer);
+                    });
+                })
+            }
+        }
+
+        async getFileBufferFromArchive(archiveBuffer, filePath) {
+            const files = await this.decompress7ZipArchive(archiveBuffer);
+            for(let i=0; i<files.length; i++) {
+                const file = files[i];
+                if(file.path === filePath) {
+                    return file.data;
+                    break;
+                }
+            }
+            throw new Error("Archive file not found: " + filePath);
+
         }
 
         async getTorrent(torrentID) {
@@ -68,7 +117,6 @@
             console.log('Client is downloading:', torrent.infoHash);
             return torrent;
         }
-        
 
         async decompress7ZipArchive(archiveBuffer) {
             const fda = [];

@@ -34,10 +34,16 @@
             //     this.loadSPCPlayer();
         }
 
+        async loadBufferFromURL(spcURL) {
+            const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
+            const service = new AudioSourceFileService();
+            return await service.loadBufferFromURL(spcURL);
+        }
+
         async loadSPCPlayer(destination, spcURL=null) {
             spcURL = spcURL || this.config.spcURL;
             const libGMESupport = new LibGMESupport();
-            const buffer = await libGMESupport.loadBufferFromURL(spcURL);
+            const buffer = await this.loadBufferFromURL(spcURL);
             return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file', {
                 destination
             });
