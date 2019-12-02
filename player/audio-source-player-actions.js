@@ -80,9 +80,7 @@
             }
             if(this.song.playback)
                 this.song.stopPlayback();
-            const entry = this.playlist[playlistPosition];
-            if(!entry)
-                throw new Error("Invalid playlist position: " + playlistPosition);
+            const entry = this.playlist.getEntry(playlistPosition);
             this.playlistPosition = playlistPosition;
 
             if(entry.file) {
@@ -109,36 +107,22 @@
                 throw new Error("No playlist data: " + playlistURL);
             if(!Array.isArray(data.playlist))
                 throw new Error("Invalid playlist data: " + playlistURL);
-            this.playlist = [];
-            this.playlistPosition = 0;
-            for(let i=0; i<data.playlist.length; i++) {
-                let entry = data.playlist[i];
-                if(typeof entry === "string") {
-                    const split = entry.split(';');
-                    entry = {url: (data.urlPrefix ? data.urlPrefix : "") + split[0]};
-                    if(split[1]) entry.name = split[1];
-                    if(split[2]) entry.length = split[2];
-                }
-                entry.url = new URL(entry.url, playlistURL).toString();
-                this.addSongURLToPlaylist(entry.url, entry.name, entry.length);
-            }
-            await this.rendererElm.playlistElm.renderOS();
+            await this.playlist.loadPlaylistFromData(data);
         }
 
-        addSongURLToPlaylist(url, name=null, length=null) {
+        async addSongURLToPlaylist(url, name=null, length=null) {
             const entry = {url};
             entry.name = name || url.split('/').pop();
             entry.length = length || null;
-            if(!this.playlist.find(e => e.url === entry.url))
-                this.playlist.push(entry);
+            await this.playlist.addEntry(entry);
         }
 
-        addSongFileToPlaylist(file, name=null, length=null) {
+        async addSongFileToPlaylist(file, name=null, length=null) {
             const entry = {file};
             entry.name = name || file.name.split('/').pop();
             entry.length = length || null;
             entry.url = 'file://' + file.name;
-            this.playlist.push(entry);
+            await this.playlist.addEntry(entry);
         }
 
 

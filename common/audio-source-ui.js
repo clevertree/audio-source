@@ -895,35 +895,43 @@
     customElements.define('asui-input-select', ASUSelectInput);
 
 
+
+    class ASUITextInput extends ASUIAbstractInput {
+        constructor(name, callback, title=null, value=null, placeholder = null, props={}) {
+            super(name, callback, null, title, value, props);
+            props.placeholder = placeholder;
+            this.addEventHandler('change', e => this.onChange(e));
+        }
+
+
+        onChange(e) {
+            this.callback(e, this.value);
+        }
+
+        createInputElement() {
+            const inputElm = document.createElement('input');
+            inputElm.classList.add('themed');
+            inputElm.setAttribute('type', 'text');
+            // if (this.state.placeholder)
+            //     inputElm.setAttribute('placeholder', this.state.placeholder);
+            return inputElm;
+        }
+    }
+    customElements.define('asui-input-text', ASUITextInput);
+
     class ASUIRangeInput extends ASUIAbstractInput {
-        constructor(key = null, callback = null, min = 1, max = 100, title = null, value = null) {
-            super(key, callback);
+        constructor(key = null, callback = null, min = 1, max = 100, title = null, value = null, props={}) {
+            super(key, callback, null, title, value, props);
+            props.min = min;
+            props.max = max;
+            this.addEventHandler('change', e => this.onChange(e));
+        }
 
-            // this.setAttribute('key', key);
-
+        createInputElement() {
             const rangeElm = document.createElement('input');
             rangeElm.classList.add('themed');
-
             rangeElm.setAttribute('type', 'range');
-            rangeElm.setAttribute('min', min + '');
-            rangeElm.setAttribute('max', max + '');
-            if (value !== null) rangeElm.setAttribute('value', value);
-            if (title !== null) rangeElm.setAttribute('title', title);
-            this.appendChild(rangeElm);
-
-            this.addEventListener('change', e => this.onChange(e));
-        }
-
-        get inputElm() {
-            return this.querySelector('input');
-        }
-
-        get value() {
-            return parseInt(this.inputElm.value);
-        }
-
-        set value(newRangeValue) {
-            this.inputElm.value = newRangeValue;
+            return rangeElm;
         }
 
         onChange(e) {
@@ -933,28 +941,6 @@
     }
 
     customElements.define('asui-input-range', ASUIRangeInput);
-
-
-    class ASUITextInput extends ASUIAbstractInput {
-        constructor(name, callback, title=null, value=null, placeholder = null, props={}) {
-            super(name, callback, null, props);
-            props.placeholder = placeholder;
-            this.addEventHandler('change', e => this.onChange(e));
-        }
-
-        onChange(e) {
-            this.callback(e, this.value);
-        }
-
-        createInputElement() {
-            const inputElm = document.createElement('input');
-            inputElm.classList.add('themed');
-            if (this.state.placeholder)
-                inputElm.setAttribute('placeholder', placeholder);
-            return inputElm;
-        }
-    }
-    customElements.define('asui-input-text', ASUITextInput);
 
 
     class ASUICheckBoxInput extends ASUIAbstractInput {
@@ -1026,8 +1012,9 @@
 
     /** Icon **/
     class ASUIcon extends ASUIComponent {
-        constructor(key = null, iconClass, props = {}) {
-            super({class: iconClass}, props);
+        constructor(iconClass, props = {}) {
+            props.class = iconClass;
+            super({}, props);
         }
 
         render() { return null; }

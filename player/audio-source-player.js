@@ -15,7 +15,10 @@
     // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
 
     // const {ASUIDiv} = await requireAsync('common/audio-source-ui.js');
-    const {AudioSourcePlayerRenderer} = await requireAsync('player/audio-source-player-renderer.js');
+    const {
+        AudioSourcePlayerRenderer,
+        ASPPlaylist,
+    } = await requireAsync('player/audio-source-player-renderer.js');
     const {AudioSourcePlayerActions} = await requireAsync('player/audio-source-player-actions.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
@@ -41,8 +44,8 @@
             this.versionString = '-1';
             this.eventHandlers = [];
             this.shadowDOM = null;
-            this.playlist = [];
-            this.playlistPosition = 0;
+            this.playlist = new ASPPlaylist();
+            // this.playlistPosition = 0;
             this.playlistActive = false;
             this.rendererElm = new AudioSourcePlayerRenderer(this)
         }
@@ -52,7 +55,7 @@
         connectedCallback() {
             const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player-internal.css');
             const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
-            this.shadowDOM = this.attachShadow({mode: 'open'});
+            this.shadowDOM = this.attachShadow({mode: 'closed'});
             this.shadowDOM.innerHTML = `
                 <link rel="stylesheet" href="${linkHRefComposer}" />
                 <link rel="stylesheet" href="${linkHRefCommon}" />
@@ -82,10 +85,14 @@
 
 
         async render() {
-            console.log("TODO: rerender?");
-            return [
-                this.rendererElm
-            ];
+            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player-internal.css');
+            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
+            return [linkHRefCommon, linkHRefComposer].map(href => {
+                const link = document.createElement('link');
+                link.setAttribute('rel', 'stylesheet');
+                link.href = href;
+                return link;
+            }).concat(this.rendererElm);
         }
         /** Load External CSS **/
 
