@@ -11,10 +11,11 @@
 
 
     const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    const {ASUIComponent} = await requireAsync('common/audio-source-ui.js');
     // const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
     // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
 
-    class AudioSourcePlayerActions extends HTMLElement {
+    class AudioSourcePlayerActions extends ASUIComponent {
         constructor() {
             super();
             this.song = new AudioSourceSong({}, this);
@@ -83,6 +84,7 @@
             if(!entry)
                 throw new Error("Invalid playlist position: " + playlistPosition);
             this.playlistPosition = playlistPosition;
+
             if(entry.file) {
                 await this.song.loadSongFromFileInput(entry.file);
             } else if(entry.url) {

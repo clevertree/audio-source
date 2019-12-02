@@ -51,18 +51,18 @@
                     divElm.addDiv('asc-form-playback', divElm => {
                         divElm.classList.add('asc-form');
                         divElm.addDiv('caption', 'Playback');
-                        this.fieldSongPlaybackPlay = divElm.addButtonInput('play',
+                        this.fieldSongPlaybackPlay = new AudioSourceUIButton('play',
                             e => this.songPlay(e),
-                            divElm.createIcon('play'),
+                            new AudioSourceUIIcon('play'),
                             "Play Song");
-                        this.fieldSongPlaybackPause = divElm.addButtonInput('pause',
+                        this.fieldSongPlaybackPause = new AudioSourceUIButton('pause',
                             e => this.songPause(e),
-                            divElm.createIcon('pause'),
+                            new AudioSourceUIIcon('pause'),
                             "Pause Song");
                         // this.fieldSongPlaybackPause.disabled = true;
-                        this.fieldSongPlaybackStop = divElm.addButtonInput('stop',
+                        this.fieldSongPlaybackStop = new AudioSourceUIButton('stop',
                             e => this.songStop(e),
-                            divElm.createIcon('stop'),
+                            new AudioSourceUIIcon('stop'),
                             "Stop Song");
                     });
 
@@ -100,13 +100,13 @@
                         divElm.addDiv('caption', 'File');
                         this.fieldSongFileLoad = divElm.addFileInput('file-load',
                             e => this.loadSongFromFileInput(),
-                            divElm.createIcon('file-load'),
+                            new AudioSourceUIIcon('file-load'),
                             `.json,.mid,.midi`,
                             "Load Song from File"
                         );
-                        this.fieldSongFileSave = divElm.addButtonInput('file-save',
+                        this.fieldSongFileSave = new AudioSourceUIButton('file-save',
                             e => this.saveSongToFile(),
-                            divElm.createIcon('file-save'),
+                            new AudioSourceUIIcon('file-save'),
                             "Save Song to File"
                         );
                     });

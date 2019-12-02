@@ -5,7 +5,8 @@
     function getThisScriptPath() { return 'common/audio-source-ui.js'; }
     const exportThisScript = function(module) {
         module.exports = {
-            AudioSourceUIDiv,
+            ASUIComponent,
+            ASUIDiv,
             AudioSourceUIButton,
             AudioSourceUIFileInput,
             AudioSourceUIGrid,
@@ -15,158 +16,110 @@
         };
     }
 
-
-    /** Div **/
-    class AudioSourceUIDiv extends HTMLElement {
-        constructor(key = null, content = null) {
+    /** Abstract Component **/
+    class ASUIComponent extends HTMLElement {
+        constructor() {
             super();
-            if (key !== null)
-                this.setAttribute('key', key);
-            this.content = content;
+            this.state = {};
+            this.props = {};
+            this.eventHandlers = [];
         }
 
-        get key() {
-            return this.getAttribute('key');
+        get targetElm() { return this; }
+
+        async setState(newState) {
+            this.state = newState;
+            await this.renderOS();
+        }
+        async setProps(newProps) {
+            this.props = newProps;
+            await this.renderOS();
         }
 
-        get hasContent() {
-            return !!this.content;
-        }
+        async renderRN() { };
+        async renderOS() { return await this.renderHTML(); }
 
-        get targetElm() {
-            return this;
-        }
+        async renderHTML() {
+            let contentList = await this.render();
+            if (!Array.isArray(contentList))
+                contentList = [contentList];
 
-        render() {
             this.targetElm.innerHTML = '';
-            const content = this.content;
-            if (typeof content === "function")
-                content(this.targetElm);
-            else if (content instanceof HTMLElement)
-                this.targetElm.appendChild(content);
-            else
-                this.targetElm.innerHTML += content;
+
+
+            // Render properties
+            while(this.attributes.length > 0)
+                this.removeAttribute(this.attributes[0].name);
+            for(const attrName in this.props) {
+                if(this.props.hasOwnProperty(attrName)) {
+                    this.setAttribute(attrName, this.props[attrName]);
+                }
+            }
+
+            // Render content
+            for (let i = 0; i < contentList.length; i++) {
+                let content = contentList[i];
+                if (typeof content === "function")
+                    content = content(this);
+                else if (content instanceof HTMLElement)
+                    this.targetElm.appendChild(content);
+                else
+                    this.targetElm.innerHTML += content;
+            }
+
+
+        }
+
+        async render() {
+            throw new Error("Not implemented");
         }
 
         connectedCallback() {
-            if (this.content !== null)
-                this.render();
+            this.renderOS();
         }
 
         disconnectedCallback() {
-
+            this.eventHandlers.forEach(eventHandler =>
+                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
         }
 
-        addDiv(key = null, content = null) {
-            if (key === null)
-                throw new Error("Invalid class name");
-            let childNode = this.findChild(key);
-            if (childNode) {
-                if (!childNode instanceof AudioSourceUIDiv)
-                    throw new Error("Invalid AudioSourceUIDiv");
-                // TODO: overwriting content renderer
-                childNode.content = content;
-                childNode.render();
-                // if(childNode.content !== content)
-                //     throw new Error("Content mismatch");
-            } else {
-                childNode = this.appendChild(new AudioSourceUIDiv(key, content));
+        attachEventHandler(eventNames, method, context, options=null) {
+            if(!Array.isArray(eventNames))
+                eventNames = [eventNames];
+            for(let i=0; i<eventNames.length; i++) {
+                const eventName = eventNames[i];
+                context = context || this;
+                context.addEventListener(eventName, method, options);
+                this.eventHandlers.push([eventName, method, context]);
             }
-            return childNode;
         }
+    }
+    customElements.define('asui-component', ASUIComponent);
 
-        addMenu(key, actionCallback = null, populateCallback = null, hasBreak = false) {
-            let menuNode = this.findChild(key);
-            if (menuNode)
-                return menuNode;
-            menuNode = new AudioSourceUIMenu(key, actionCallback, populateCallback, hasBreak);
-            this.targetElm.appendChild(menuNode);
-            return menuNode;
-        }
-
-
-        addActionMenu(key, actionCallback = null, hasBreak = false) {
-            return this.addMenu(key, actionCallback, null, hasBreak);
-        }
-
-        addSubMenu(key, populateCallback = null, hasBreak = false) {
-            return this.addMenu(key, null, populateCallback, hasBreak);
+    /** Div **/
+    class ASUIDiv extends ASUIComponent {
+        constructor(key = null, content = null, props = {}) {
+            super();
+            this.state = {content};
+            this.props = props;
+            props.key = key;
         }
 
 
-        addGrid(key, content = null) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUIGrid(key, content));
+        async render() {
+            return this.state.content;
         }
-
-
-        addButtonInput(key, callback, content = null, title = null) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUIButton(key, callback, content, title));
-        }
-
-        addTextInput(key, callback, title = null, defaultValue = '', placeholder = null) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUITextInput(key, callback, title, defaultValue, placeholder));
-        }
-
-        addRangeInput(key, callback, min = 1, max = 100, title = null, defaultValue = null) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUIRangeInput(key, callback, min, max, title, defaultValue));
-        }
-
-        addCheckBoxInput(key, callback, title = null, defaultValue = false) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUIInputCheckBox(key, callback, title, defaultValue));
-        }
-
-        addFileInput(key, callback, content, accepts = null, title = null) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUIFileInput(key, callback, content, accepts, title));
-        }
-
-        addSelectInput(key, callback, optionContent, title = null, defaultValue = null) {
-            return this.findChild(key)
-                || this.appendChild(new AudioSourceUISelectInput(key, callback, optionContent, title, defaultValue));
-        }
-
-
-        addBreak(className = 'break') {
-            return this.addDiv(className, '');
-        }
-
-
-        findChild(key = null) {
-            if (key === null)
-                throw new Error("Invalid Search key");
-            key = key.toString();
-            let childNode;
-            for (let i = 0; i < this.children.length; i++) {
-                childNode = this.children[i];
-                if (childNode.getAttribute('key') === key) {
-                    return childNode;
-                }
-            }
-            return null;
-        }
-
-
-        /** Content **/
-
-        createIcon(iconClass, key = 'icon') {
-            return new AudioSourceUIIcon(key, iconClass);
-        }
-
     }
 
-    customElements.define('asui-div', AudioSourceUIDiv);
+    customElements.define('asui-div', ASUIDiv);
 
 
     /** Menu **/
 
-    class AudioSourceUIMenu extends HTMLElement {
-        constructor(key, actionCallback = null, populateCallback = null, hasBreak = false) {
-            super();
+    class ASUIMenu extends ASUIComponent {
+        constructor(key, actionCallback = null, populateCallback = null, hasBreak = false, props={}) {
+            if(hasBreak) props.hasBreak = hasBreak;
+            super(key, props);
             if (key !== null)
                 this.setAttribute('key', key);
 
@@ -225,7 +178,7 @@
             let menuNode = this.findMenuItem(key);
             if (menuNode)
                 return menuNode;
-            menuNode = new AudioSourceUIMenu(key, actionCallback, populateCallback, hasBreak);
+            menuNode = new ASUIMenu(key, actionCallback, populateCallback, hasBreak);
             this.containerElm.appendChild(menuNode);
             return menuNode;
         }
@@ -528,22 +481,12 @@
 
 
 // customElements.define('music-song-menu', MusicEditorMenuElement);
-    customElements.define('asui-menu', AudioSourceUIMenu);
+    customElements.define('asui-menu', ASUIMenu);
 
 
     /** Grid **/
 
-    class AudioSourceUIGrid extends HTMLElement {
-        constructor(key = null, content = null) {
-            super();
-            if (key !== null)
-                this.setAttribute('key', key);
-            this.content = content;
-        }
-
-        get key() {
-            return this.getAttribute('key');
-        }
+    class AudioSourceUIGrid extends ASUIComponent {
 
         get targetElm() {
             return this;
@@ -594,7 +537,7 @@
     /** Grid Row **/
 
 
-    class AudioSourceUIGridRow extends AudioSourceUIDiv {
+    class AudioSourceUIGridRow extends ASUIDiv {
         constructor(key, content) {
             super(key, content);
         }
@@ -604,7 +547,7 @@
 
 
     /** Abstract Panel Input **/
-    class AudioSourceUIInputAbstract extends AudioSourceUIDiv {
+    class AudioSourceUIInputAbstract extends ASUIDiv {
         constructor(key = null, callback, content) {
             super(key, content);
             this.listeners = [];
@@ -660,7 +603,7 @@
 
 
     class AudioSourceUIButton extends AudioSourceUIInputAbstract {
-        constructor(key = null, callback = null, content = null, title = null) {
+        constructor(key = null, callback = null, content = null, title = null, classList = null) {
             super(key, callback, content);
 
             // this.setAttribute('key', key);

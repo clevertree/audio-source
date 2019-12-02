@@ -14,7 +14,9 @@
     // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
 
+    // const {ASUIDiv} = await requireAsync('common/audio-source-ui.js');
     const {AudioSourcePlayerRenderer} = await requireAsync('player/audio-source-player-renderer.js');
+    const {AudioSourcePlayerActions} = await requireAsync('player/audio-source-player-actions.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
     /**
@@ -33,7 +35,7 @@
     //     });
     // }, 1000);
 
-    class AudioSourcePlayerElement extends AudioSourcePlayerRenderer {
+    class AudioSourcePlayerElement extends AudioSourcePlayerActions {
         constructor() {
             super();
             this.versionString = '-1';
@@ -44,7 +46,19 @@
             this.playlistActive = false;
         }
 
+        get targetElm() { return this.shadowDOM; }
+
         connectedCallback() {
+            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player-internal.css');
+            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
+            this.shadowDOM = this.attachShadow({mode: 'open'});
+            this.shadowDOM.innerHTML = `
+                <link rel="stylesheet" href="${linkHRefComposer}" />
+                <link rel="stylesheet" href="${linkHRefCommon}" />
+                `;
+
+
+
             this.loadCSS();
 
             this.attachEventHandler([
@@ -61,24 +75,32 @@
                 this.loadSongFromURL(url);
             }
 
-            this.render();
+            super.connectedCallback();
+
         }
 
-        disconnectedCallback() {
-            this.eventHandlers.forEach(eventHandler =>
-                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
+
+        async render() {
+            return [
+                this.rendererElm = new AudioSourcePlayerRenderer('asp-container', this)
+            ];
+        }
+        /** Load External CSS **/
+
+        loadCSS() {
+            const CSS_PATH = 'player/assets/audio-source-player.css';
+            const targetDOM = this.shadowDOM || document.head;
+            if (targetDOM.querySelector(`link[href$="${CSS_PATH}"]`))
+                return;
+
+            const linkHRef = this.getScriptDirectory(CSS_PATH);
+            let cssLink = document.createElement("link");
+            cssLink.setAttribute("rel", "stylesheet");
+            cssLink.setAttribute("type", "text/css");
+            cssLink.setAttribute("href", linkHRef);
+            targetDOM.appendChild(cssLink);
         }
 
-        attachEventHandler(eventNames, method, context, options=null) {
-            if(!Array.isArray(eventNames))
-                eventNames = [eventNames];
-            for(let i=0; i<eventNames.length; i++) {
-                const eventName = eventNames[i];
-                context = context || this;
-                context.addEventListener(eventName, method, options);
-                this.eventHandlers.push([eventName, method, context]);
-            }
-        }
 
         async onSongEvent(e) {
             switch(e.type) {
@@ -88,7 +110,7 @@
                     break;
 
                 case 'song:volume':
-                    this.fieldSongVolume.value = e.detail.volume;
+                    this.rendererElm.fieldSongVolume.value = e.detail.volume;
                     break;
 
                 case 'song:play':
@@ -98,11 +120,11 @@
                         this.containerElm.classList.remove('playing');
                     }
 
-                    this.fieldSongPlaybackPause.disabled = false;
+                    this.rendererElm.fieldSongPlaybackPause.disabled = false;
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
-                            this.fieldSongPlaybackPause.disabled = true;
+                            this.rendererElm.fieldSongPlaybackPause.disabled = true;
                             this.containerElm.classList.remove('playing');
                             this.classList.remove('playing');
                         }
@@ -152,9 +174,9 @@
         updateSongPositionValue(playbackPositionInSeconds) {
             const values = new AudioSourceValues();
             const roundedSeconds = Math.round(playbackPositionInSeconds);
-            this.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.fieldSongPosition.value !== roundedSeconds) {
-                this.fieldSongPosition.value = roundedSeconds;
+            this.rendererElm.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            if(this.rendererElm.fieldSongPosition.value !== roundedSeconds) {
+                this.rendererElm.fieldSongPosition.value = roundedSeconds;
             }
         }
 
