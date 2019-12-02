@@ -11,12 +11,13 @@
 
 
     /** Required Modules **/
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceSong}             = await requireAsync('common/audio-source-song.js');
     const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
-    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-    const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+    const {AudioSourceStorage}          = await requireAsync('common/audio-source-storage.js');
+    const {AudioSourceUtilities}        = await requireAsync('common/audio-source-utilities.js');
+    const {ASUIComponent}               = await requireAsync('common/audio-source-ui.js');
 
-    class AudioSourceComposerActions extends AudioSourceComposerRenderer {
+    class AudioSourceComposerActions extends ASUIComponent {
         constructor(songData={}) {
             super();
             this.song = new AudioSourceSong(songData, this);

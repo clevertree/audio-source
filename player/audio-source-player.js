@@ -44,6 +44,7 @@
             this.playlist = [];
             this.playlistPosition = 0;
             this.playlistActive = false;
+            this.rendererElm = new AudioSourcePlayerRenderer(this)
         }
 
         get targetElm() { return this.shadowDOM; }
@@ -60,29 +61,30 @@
 
 
             this.loadCSS();
+            super.connectedCallback();
 
-            this.attachEventHandler([
+            this.addEventHandler([
                 'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
                 'group:play', 'group:seek',
                 'note:start', 'note:end'
             ], this.onSongEvent);
             // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
-            this.attachEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+            this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
 
             const url = this.getAttribute('src') || this.getAttribute('url');
             if(url) {
                 this.loadSongFromURL(url);
             }
 
-            super.connectedCallback();
 
         }
 
 
         async render() {
+            console.log("TODO: rerender?");
             return [
-                this.rendererElm = new AudioSourcePlayerRenderer('asp-container', this)
+                this.rendererElm
             ];
         }
         /** Load External CSS **/
@@ -146,7 +148,7 @@
         }
 
         setStatus(newStatus) {
-            this.statusElm.innerHTML = newStatus;
+            this.rendererElm.textStatus.content = newStatus;
             console.info.apply(null, arguments); // (newStatus);
         }
 

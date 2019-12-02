@@ -122,7 +122,7 @@
                 entry.url = new URL(entry.url, playlistURL).toString();
                 this.addSongURLToPlaylist(entry.url, entry.name, entry.length);
             }
-            this.render();
+            await this.rendererElm.playlistElm.renderOS();
         }
 
         addSongURLToPlaylist(url, name=null, length=null) {
