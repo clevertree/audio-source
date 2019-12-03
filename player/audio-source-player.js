@@ -3,8 +3,10 @@
     /** Register Script Exports **/
     function getThisScriptPath() { return 'player/audio-source-player.js'; }
     const exportThisScript = function(module) {
-        module.exports = {AudioSourcePlayerElement};
-    }
+        module.exports = {
+            AudioSourcePlayerElement
+        };
+    };
 
     /** Register This Async Module **/
     const resolveExports = registerAsyncModule();

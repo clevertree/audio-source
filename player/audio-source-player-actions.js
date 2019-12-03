@@ -62,9 +62,9 @@
         async loadSongFromURL(url) {
             if(this.isPlaylist(url)) {
                 await this.loadPlaylistFromURL(url);
-                const entry = this.playlist[this.playlistPosition];
+                const entry = this.playlist.getCurrentEntry();
                 if(entry.url && !this.isPlaylist(entry.url))
-                    await this.loadSongFromPlaylistEntry(this.playlistPosition);
+                    await this.loadSongFromPlaylistEntry(this.playlist.position);
             } else {
                 await this.song.loadSongFromURL(url);
                 this.setStatus("Song loaded from src: " + url, this.song);
@@ -80,8 +80,8 @@
             }
             if(this.song.playback)
                 this.song.stopPlayback();
+            await this.playlist.updatePosition(playlistPosition);
             const entry = this.playlist.getEntry(playlistPosition);
-            this.playlistPosition = playlistPosition;
 
             if(entry.file) {
                 await this.song.loadSongFromFileInput(entry.file);
@@ -90,9 +90,11 @@
             } else {
                 throw new Error("Invalid Playlist Entry: " + playlistPosition);
             }
-            entry.name = this.song.name;
-            entry.length = this.song.getSongLength();
-            this.song.playlistPosition = this.playlistPosition;
+            await entry.setState({
+                name: this.song.name,
+                length: this.song.getSongLength(),
+            })
+            this.song.playlistPosition = this.playlist.position;
             this.render();
         }
 
@@ -107,7 +109,7 @@
                 throw new Error("No playlist data: " + playlistURL);
             if(!Array.isArray(data.playlist))
                 throw new Error("Invalid playlist data: " + playlistURL);
-            await this.playlist.loadPlaylistFromData(data);
+            await this.playlist.loadPlaylistFromData(data, playlistURL);
         }
 
         async addSongURLToPlaylist(url, name=null, length=null) {
@@ -167,11 +169,8 @@
         async playlistNext() {
             this.playlistActive = true;
             while(this.playlistActive) {
-                this.playlistPosition++;
-                if (this.playlistPosition >= this.playlist.length)
-                    this.playlistPosition = 0;
-
-                await this.loadSongFromPlaylistEntry(this.playlistPosition);
+                await this.playlist.updateNextPosition();
+                await this.loadSongFromPlaylistEntry(this.playlist.position);
                 await this.songPlay();
             }
         }

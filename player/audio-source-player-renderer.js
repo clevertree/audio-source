@@ -3,7 +3,10 @@
     /** Register Script Exports **/
     function getThisScriptPath() { return 'player/audio-source-player-renderer.js'; }
     const exportThisScript = function(module) {
-        module.exports = {AudioSourcePlayerRenderer};
+        module.exports = {
+            AudioSourcePlayerRenderer,
+            ASPPlaylist
+        };
     };
 
     /** Register This Async Module **/
@@ -63,7 +66,7 @@
                     ]),
                 ]),
 
-                new ASUIDiv('container', () => [
+                new ASUIDiv('asp-forms-container', () => [
                     new ASPPanel('song', 'Song', () => [
                         new ASPForm('playback', 'Playback', () => [
                             this.fieldSongPlaybackPlay = new ASUIButton('play',
@@ -167,13 +170,43 @@
             super({}, props);
             this.state = {
                 position: 0,
-                playlist: playlist
+                playlist: playlist,
+                selected: []
             };
         }
 
+        get position() { return this.state.position; }
+        get playlist() { return this.state.playlist; }
+
         async clearPlaylist() {
-            this.playlist = [];
-            await this.renderOS();
+            this.setState({playlist: []})
+        }
+
+        async updateNextPosition() {
+            let position = this.state.position;
+            position++;
+            if (position >= this.state.playlist.length)
+                position = 0;
+            this.setState({position});
+        }
+
+        async updatePosition(position) {
+            if(!this.state.playlist[position])
+                throw new Error("Invalid playlist position: " + position);
+            this.state.position = position;
+            for(let i=0; i<this.state.playlist.length; i++) {
+                const entry = this.state.playlist[i];
+                const classes = [];
+                if(i === position)                          classes.push('position');
+                if(this.state.selected.indexOf(i) !== -1)   classes.push('selected');
+                entry.props.class = classes.join(' '); // TODO: render only if changed
+            }
+        }
+
+        getCurrentEntry() {
+            if(this.state.playlist.length === 0)
+                throw new Error("Empty playlist");
+            return this.getEntry(this.state.position);
         }
 
         getEntry(position) {
@@ -184,7 +217,7 @@
         }
 
         async addEntry(entry, skipDuplicate=true) {
-            entry = this.parsePlaylistEntry(entry);
+            entry = new ASPPlaylistEntry(this, entry);
             if(skipDuplicate && this.state.playlist.find(e => e.url === entry.url)) {
                 return false;
             }
@@ -193,67 +226,79 @@
             return true;
         }
 
-        async loadPlaylistFromData(playlistData, spliceAtPosition=null) {
+        async loadPlaylistFromData(playlistData, playlistURL, spliceAtPosition=null) {
             if(Array.isArray(playlistData))
                 playlistData = {playlist: playlistData};
             let playlist = playlistData.playlist;
-            const urlPrefix = playlistData.urlPrefix || "";
+            let urlPrefix = playlistData.urlPrefix;
+            if(!urlPrefix || urlPrefix[0] !== '/')
+                urlPrefix = new URL(playlistURL).pathname.split("/").slice(0,-1).join("/") + '/' + (urlPrefix||'');
             if(!Array.isArray(playlist))
                 throw new Error("Invalid playlist");
             let newPlaylist = [];
             for(let i=0; i<playlist.length; i++) {
-                const entry = this.parsePlaylistEntry(playlist[i], urlPrefix);
-                newPlaylist.push(entry);
+                let entry = playlist[i];
+                if(typeof entry === "object")   entry.url = urlPrefix + entry.url;
+                else                            entry = urlPrefix + entry;
+                newPlaylist.push(new ASPPlaylistEntry(this, entry));
             }
-            if(spliceAtPosition !== null) {
-                this.setState({playlist: newPlaylist});
+            if(spliceAtPosition === null) {
+                await this.setState({playlist: newPlaylist});
             } else {
-                newPlaylist = this.playlist.splice(spliceAtPosition, 1, ...newPlaylist);
-                this.setState({playlist: newPlaylist});
+                newPlaylist = this.state.playlist.splice(spliceAtPosition, 1, ...newPlaylist);
+                await this.setState({playlist: newPlaylist});
             }
 
-            await this.renderOS();
         }
 
-        parsePlaylistEntry(entry, urlPrefix) {
-            if(typeof entry === "string") {
-                const split = entry.split(';');
-                entry = {url: split[0]};
-                if(split[1]) entry.name = split[1];
-                if(split[2]) entry.length = split[2];
-            }
-            if(urlPrefix)
-                entry.url = urlPrefix + entry.url;
-            return entry;
-        }
 
         async render() {
-            let playlist = this.state.playlist;
             return [
                 new ASUIGridRow('header', () => [
                     new ASUIDiv('id', 'ID'),
                     new ASUIDiv('name', 'Name'),
-                    new ASUIDiv('url', 'URL'),
+                    // new ASUIDiv('url', 'URL'),
                     new ASUIDiv('length', 'Length'),
                 ], {class: 'asp-playlist-header'}),
-                playlist.map((entry, id) =>
-                     new ASPPlaylistEntry(id, entry.name, entry.length)
-                )
+                new ASUIDiv('asp-playlist-container', () => [
+                    this.state.playlist
+                ]),
             ];
         }
     }
     customElements.define('asp-playlist', ASPPlaylist);
 
     class ASPPlaylistEntry extends ASUIComponent {
-        constructor(i, name, length, selected=false, props={}) {
+        constructor(playlistElm, entry, props={}) {
             super({
-                i, name, length
+                entry
             }, props);
-            props.selected = selected;
+            this.playlistElm = playlistElm;
+        }
+
+        get url() { return this.parseEntry().url; }
+        get name() { return this.parseEntry().name; }
+        get length() { return this.parseEntry().length; }
+
+        parseEntry() {
+            let entry = this.state.entry;
+            if(typeof entry === "string") {
+                const split = entry.split(';');
+                entry = {url: split[0]};
+                if(split[1]) entry.name = split[1];
+                if(split[2]) entry.length = split[2];
+            }
+            if(!entry.url)
+                throw new Error("Invalid Playlist Entry URL");
+            return entry;
         }
 
         render() {
-            const [length, fade] = (this.state.length || 0).toString().split(':');
+            let i = this.playlistElm.playlist.indexOf(this);
+            if(i<9) i = '0' + i;
+
+            const entry = this.parseEntry();
+            const [length, fade] = (entry.length || 0).toString().split(':');
             const formattedLength = new Date(length * 1000).toISOString().substr(14, 5);
             // rowElm.addEventListener('click', async e => {
             //     await this.loadSongFromPlaylistEntry(i);
@@ -261,8 +306,8 @@
             // })
 
             return [
-                new ASUIDiv('i', this.state.i),
-                new ASUIDiv('name', this.state.name),
+                new ASUIDiv('id', i),
+                new ASUIDiv('name', entry.name),
                 // new ASUIDiv('url', this.state.url),
                 new ASUIDiv('length', formattedLength),
             ];

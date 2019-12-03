@@ -109,6 +109,7 @@ asp-form[key=bpm]          asui-input-text[key=bpm]        input       { max-wid
 /** Playlist **/
 
 asp-playlist {
+    display: table;
     width: 100%;
     max-width: 815px;
     max-height: 400px;
@@ -120,10 +121,9 @@ asui-grid[key=asp-playlist-container] {
     width: 100%;
 }
 
-asuig-row.asp-playlist-entry > asui-div {
-    padding: 4px;
-}
-asuig-row.asp-playlist-entry {
+asuig-row.asp-playlist-header,
+aspp-entry {
+    display: table-row;
     /* min-width: 180px; */
     background: #DDD;
     border: 2px outset #FFF;
@@ -132,7 +132,17 @@ asuig-row.asp-playlist-entry {
     margin: 4px;
     /* border-collapse: initial; */
 }
+aspp-entry > asui-div {
+    display: table-cell;
+    padding: 4px;
+}
 
-asuig-row.asp-playlist-entry.selected {
-    background: #BBB;
+asp-playlist asui-div[key=id] { width: 2em; }
+asp-playlist asui-div[key=name] { width: 12em; }
+
+aspp-entry.position {
+    background: #AAA;
+}
+aspp-entry.selected {
+    background: #CCC;
 }
