@@ -84,6 +84,7 @@
 
         get uuid() { return this.data.uuid; }
         get name() { return this.data.name; }
+        get version() { return this.data.version; }
         get timeDivision() { return this.data.timeDivision; }
         // get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
         get rootGroup() { return this.data.root; }

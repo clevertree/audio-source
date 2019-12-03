@@ -171,13 +171,13 @@ asui-menu.selected {
     background-color: #AAA;
 }
 
-.dropdown-container > asui-menu {
+asui-div[key=dropdown] > asui-menu {
     display: block;
 }
 
 
 /** Menu Text **/
-asui-menu > div.caption {
+asui-menu > asui-div[key=caption] {
     padding: 3px 6px;
     display: inline-block;
 }
@@ -185,7 +185,7 @@ asui-menu > div.caption {
 asui-menu:hover {
     background-color: #AAA;
 }
-asui-menu.stick {
+asui-menu[stick] {
     /*transition: background-color 0.3s;*/
     background-color: #888;
 }
@@ -205,7 +205,7 @@ asui-menu div.caption > input[type=checkbox] {
 /** Drop Down Menu **/
 
 
-asui-menu > .dropdown-container {
+asui-menu > asui-div[key=dropdown] {
     background-color: #bdc3c7;
     display: block;
     z-index: 3;
@@ -213,27 +213,26 @@ asui-menu > .dropdown-container {
     position: absolute;
     border-radius: 2px;
     /*transition: all 0.1s 0.2s ease-in;*/
-    transform: scaleY(0);
-    opacity: 0;
-
+    /*transform: scaleY(0);*/
+    /*opacity: 0;*/
     border: 1px solid grey;
 }
 
 /** Drop Down Trigger **/
-asui-menu.open > .dropdown-container {
-    z-index: 5;
-    transform: scaleY(1);
-    opacity: 1;
-}
-asui-menu.stick > .dropdown-container {
-    z-index: 4;
-}
+/*asui-menu[open] > asui-div[key=dropdown] {*/
+/*    z-index: 5;*/
+/*    transform: scaleY(1);*/
+/*    opacity: 1;*/
+/*}*/
+/*asui-menu[stick] > asui-div[key=dropdown] {*/
+/*    z-index: 4;*/
+/*}*/
 
-.dropdown-container > asui-menu > .dropdown-container {
+asui-div[key=dropdown] > asui-menu > asui-div[key=dropdown] {
     display: inline-block;
     /* float: right; */
 }
-.dropdown-container > asui-menu > .caption {
+asui-div[key=dropdown] > asui-menu > .caption {
     min-width: 120px;
 }
 

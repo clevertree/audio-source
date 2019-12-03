@@ -14,7 +14,7 @@
             ASUIGrid,
             ASUIGridRow,
             ASUIcon,
-            ASUIInputCheckBox: ASUICheckBoxInput,
+            ASUICheckBoxInput,
             ASUIMenu,
         };
     };
@@ -26,27 +26,39 @@
             this.state = state;
             this.props = props;
             this.eventHandlers = [];
+            for(let i=0; i<this.attributes.length; i++)
+                this.props[this.attributes[i].name] = this.attributes[i].value;
         }
 
         get targetElm() { return this; }
 
         async setState(newState) {
+            console.info('setState', this.state, newState, this);
             Object.assign(this.state, newState);
             await this.renderOS();
         }
         async setProps(newProps) {
+            console.info('setProps', this.props, newProps, this);
             Object.assign(this.props, newProps);
-            await this.renderOS();
+            await this.renderProps();
         }
 
         async renderRN() { };
-        async renderOS() { return await this.renderHTML(); }
+        async renderOS() {
+            await this.renderProps();
+            await this.renderHTML();
+        }
 
         async renderHTML() {
             let content = await this.render();
             this.targetElm.innerHTML = '';
 
 
+            // Render content
+            await this.renderContent(content, this.targetElm);
+        }
+
+        async renderProps() {
             // Render properties
             while(this.attributes.length > 0)
                 this.removeAttribute(this.attributes[0].name);
@@ -57,11 +69,6 @@
                         this.setAttribute(attrName, value);
                 }
             }
-
-            // Render content
-            await this.renderContent(content, this.targetElm);
-
-
         }
 
         async renderContent(content, targetElm) {
@@ -138,11 +145,11 @@
                 caption,
                 content: dropDownContent,
                 open: false,
-                stick: false,
             }, props);
+            props.stick = false
             this.action = actionCallback;
-            this.addEventHandler('mouseenter', this.onInputEvent);
-            this.addEventHandler('mouseleave', this.onInputEvent);
+            this.addEventHandler('mouseover', this.onInputEvent);
+            this.addEventHandler('mouseout', this.onInputEvent);
             this.addEventHandler('click', this.onInputEvent);
             this.addEventHandler('change', this.onInputEvent);
             this.addEventHandler('keydown', this.onInputEvent);
@@ -151,31 +158,40 @@
 
         async render() {
             return [
-                new ASUIDiv('caption', this.state.caption),
+                new ASUIDiv('caption', this.state.caption, {
+                    class: this.state.stick ? 'stick' : null
+                }),
                 this.state.open ? new ASUIDiv('dropdown', this.state.content) : null,
                 this.state.hasBreak ? new ASUIDiv('break') : null
             ];
         }
 
         async toggleSubMenu(e) {
-            const open = !this.state.open;
-            this.setState({open:open, stick:open});
+            const open = !this.props.stick;
+            let parentMenu = this;
+            while(parentMenu) {
+                await parentMenu.setProps({stick:open});
+                parentMenu = parentMenu.parentNode.closest('asui-menu');
+            }
+            await this.setState({open:open});
         }
 
         onInputEvent(e) {
-            const menuElm = e.target.closest('asui-menu');
-            if (this !== menuElm)
-                return; // console.info("Ignoring submenu action", this, menuElm);
+            // const menuElm = e.target.closest('asui-menu');
+            // if (this !== menuElm)
+            //     return; // console.info("Ignoring submenu action", this, menuElm);
 
-//         console.log(e.type, this);
+            // console.log(e.type, this);
             switch (e.type) {
-                case 'mouseenter':
+                case 'mouseover':
                     clearTimeout(this.mouseTimeout);
-                    this.setState({open: true});
+                    if(!this.state.open) {
+                        this.setState({open: true});
+                    }
                     break;
 
-                case 'mouseleave':
-                    if(!this.state.stick) {
+                case 'mouseout':
+                    if(!this.props.stick) {
                         clearTimeout(this.mouseTimeout);
                         this.mouseTimeout = setTimeout(e => {
                             this.setState({open: false});
@@ -258,369 +274,6 @@
     }
     customElements.define('asui-menu', ASUIMenu);
 
-    class ASUIMenu2 extends ASUIComponent {
-        constructor(key, actionCallback = null, populateCallback = null, hasBreak = false, props={}) {
-            if(hasBreak) props.hasBreak = hasBreak;
-            super(key, props);
-            if (key !== null)
-                this.setAttribute('key', key);
-
-            // Default action sticks the menu, and opens the submenu if there is one
-            this.action = actionCallback;
-            this.populate = populateCallback;
-            this.mouseTimeout = null;
-            this.setAttribute('key', key);
-            if (hasBreak === true)
-                this.hasBreak = hasBreak;
-
-
-            this.containerElm = document.createElement('div');
-            this.containerElm.classList.add('dropdown-container');
-            this.containerElm.setAttribute('tabindex', '0');
-            this.appendChild(this.containerElm);
-        }
-
-        get caption() {
-            return this.getAttribute('caption') || this.key;
-        }
-
-        get key() {
-            return this.getAttribute('key');
-        }
-
-        get disabled() {
-            return this.getAttribute('disabled') === 'true';
-        }
-
-        set disabled(disabled) {
-            disabled ? this.setAttribute('disabled', 'true') : this.removeAttribute('disabled');
-            // this.render();
-        }
-
-
-        get hasBreak() {
-            return this.getAttribute('hasBreak');
-        }
-
-        set hasBreak(hasBreak) {
-            this.setAttribute('hasBreak', hasBreak);
-            this.render();
-        }
-
-
-        addActionMenu(key, actionCallback = null, hasBreak = false) {
-            return this.addMenu(key, actionCallback, null, hasBreak);
-        }
-
-        addSubMenu(key, populateCallback = null, hasBreak = false) {
-            return this.addMenu(key, null, populateCallback, hasBreak);
-        }
-
-        addMenu(key, actionCallback = null, populateCallback = null, hasBreak = false) {
-            let menuNode = this.findMenuItem(key);
-            if (menuNode)
-                return menuNode;
-            menuNode = new ASUIMenu(key, actionCallback, populateCallback, hasBreak);
-            this.containerElm.appendChild(menuNode);
-            return menuNode;
-        }
-
-        findMenuItem(key = null) {
-            if (key === null)
-                throw new Error("Invalid Search key");
-            for (let i = 0; i < this.children.length; i++) {
-                let childNode = this.children[i];
-                if (childNode.getAttribute('key') === key) {
-                    return childNode;
-                }
-            }
-            return null;
-        }
-
-
-        connectedCallback() {
-            // this.editor = this.getRootNode().host;
-            // const captionAttr = this.getAttribute('caption');
-            // if(captionAttr)
-            //     this.caption = captionAttr;
-
-            this.addEventListener('mouseenter', this.onInputEvent);
-            this.addEventListener('mouseleave', this.onInputEvent);
-            this.addEventListener('click', this.onInputEvent);
-            this.addEventListener('change', this.onInputEvent);
-            this.addEventListener('keydown', this.onInputEvent);
-            this.render();
-        }
-
-        disconnectedCallback() {
-            this.removeEventListener('mouseenter', this.onInputEvent);
-            this.removeEventListener('mouseleave', this.onInputEvent);
-            this.removeEventListener('click', this.onInputEvent);
-            this.removeEventListener('change', this.onInputEvent);
-            this.removeEventListener('keydown', this.onInputEvent);
-        }
-
-
-        onInputEvent(e) {
-            if (!this.contains(e.target))
-                return;
-            const menuElm = e.target.closest('asui-menu');
-            if (this !== menuElm)
-                return; // console.info("Ignoring submenu action", this, menuElm);
-
-//         console.log(e.type, this);
-            switch (e.type) {
-                case 'mouseenter':
-                    clearTimeout(this.mouseTimeout);
-
-                    if (this.hasSubMenu && !this.disabled) {
-                        this.renderSubMenu(e);
-                    }
-                    break;
-
-                case 'mouseleave':
-                    if (!this.classList.contains('stick')) {
-                        clearTimeout(this.mouseTimeout);
-                        this.mouseTimeout = setTimeout(e => {
-                            this.clearSubMenu();
-                        }, 200);
-                    }
-                    break;
-                case 'click':
-                    if (e.defaultPrevented)
-                        return;
-
-                    if (this.hasAction) {
-                        e.preventDefault();
-                        this.doAction(e);
-                    } else if (this.hasSubMenu) {
-                        e.preventDefault();
-                        this.toggleSubMenu(e);
-                    } else {
-                        return console.warn("Menu has no submenu or action: ", this);
-                    }
-                    break;
-
-                case 'keydown':
-                    if (e.defaultPrevented)
-                        return;
-                    e.preventDefault();
-
-                    const containerElm = this.containerElm;
-                    const selectedMenuElm = containerElm
-                        .querySelector('asui-menu.selected') || containerElm.firstElementChild;
-                    if (!selectedMenuElm)
-                        throw new Error("No selected menu item found");
-
-                    let keyEvent = e.key;
-                    switch (keyEvent) {
-                        case 'Escape':
-                        case 'Backspace':
-                            this.closeMenu(e);
-                            break;
-
-                        case 'Enter':
-                            if (selectedMenuElm.hasAction) {
-                                selectedMenuElm.doAction(e);
-                            } else if (selectedMenuElm.hasSubMenu) {
-                                selectedMenuElm.toggleSubMenu(e);
-                            } else {
-                                return console.warn("Menu has no submenu or action: ", selectedMenuElm);
-                            }
-
-                            break;
-
-                        // ctrlKey && metaKey skips a measure. shiftKey selects a range
-                        case 'ArrowRight':
-                            if (selectedMenuElm.hasSubMenu) {
-                                selectedMenuElm.toggleSubMenu(e);
-                            } else {
-                                return console.warn("Menu has no submenu: ", selectedMenuElm);
-                            }
-                            break;
-
-                        case 'ArrowLeft':
-                            this.closeMenu(e);
-                            break;
-
-                        case 'ArrowDown':
-                            this.selectNextSubMenuItem();
-                            break;
-
-                        case 'ArrowUp':
-                            this.selectPreviousSubMenuItem();
-                            break;
-
-                    }
-                    break;
-            }
-
-            // if(target.classList.contains('open')) {
-            //     target.dispatchEvent(new CustomEvent('open'));
-            // } else {
-            //     this.clearSubMenu();
-            // }
-        }
-
-        get hasAction() {
-            return !!this.action;
-        }
-
-        doAction(e) {
-            if (!this.hasAction)
-                throw new Error("No .action callback set");
-
-            e.menuElement = this;
-            this.action(this);
-            this.closeAllMenus();
-        }
-
-        get hasSubMenu() {
-            return !!this.populate;
-        }
-
-        toggleSubMenu(e) {
-            if (this.classList.contains('stick')) {
-                this.clearSubMenu(e);
-            } else {
-                this.renderSubMenu(e);
-                this.classList.add('stick');
-                let parentMenu = this;
-                while (parentMenu = parentMenu.parentNode.closest('asui-menu'))
-                    parentMenu.classList.add('stick');
-            }
-        }
-
-        clearSubMenu(e) {
-            // this.querySelectorAll('asui-menu')
-            //     .forEach(menuItem => menuItem.parentNode.removeChild(menuItem));
-            this.classList.remove('stick', 'open', 'open-context-menu');
-            // let containerElm = this.containerElm;
-            this.containerElm.innerHTML = '';
-        }
-
-        async renderSubMenu(e) {
-            if (!this.populate)
-                throw new Error("Menu has no content");
-
-            this.classList.add('open');
-
-            // e.menuElement = this;
-            this.containerElm.innerHTML = '';
-            const promise = this.populate(this);
-            if (promise instanceof Promise)
-                await promise;
-
-            this.containerElm.focus();
-            const subMenuElms = this.containerElm.querySelectorAll('asui-menu:not([disabled])');
-            if (subMenuElms[0])
-                subMenuElms[0].classList.add('selected');
-
-            // this.selectNextSubMenuItem();
-        }
-
-        selectNextSubMenuItem() {
-            const currentMenuElm = this.containerElm.querySelector('asui-menu.selected');
-            this.containerElm.querySelectorAll('asui-menu.selected')
-                .forEach(menuElm => menuElm.classList.remove('selected'));
-            // let selectedItem = currentItem && currentItem.nextElementSibling ? currentItem.nextElementSibling : containerElm.firstElementChild;
-
-            const subMenuElms = this.containerElm.querySelectorAll('asui-menu:not([disabled])');
-            let currentIndex = [].indexOf.call(subMenuElms, currentMenuElm);
-            let selectedItem = currentIndex > -1 && currentIndex < subMenuElms.length - 1 ? subMenuElms[currentIndex + 1] : subMenuElms[0];
-            selectedItem.classList.add('selected');
-//         console.log("selectNextSubMenuItem", currentItem, selectedItem);
-        }
-
-        selectPreviousSubMenuItem() {
-            const currentMenuElm = this.containerElm.querySelector('asui-menu.selected');
-            this.containerElm.querySelectorAll('asui-menu.selected')
-                .forEach(menuElm => menuElm.classList.remove('selected'));
-
-            const subMenuElms = this.containerElm.querySelectorAll('asui-menu:not([disabled])');
-            let currentIndex = [].indexOf.call(subMenuElms, currentMenuElm);
-            let selectedItem = currentIndex > 0 ? subMenuElms[currentIndex - 1] : subMenuElms[subMenuElms.length - 1];
-            // let selectedItem = currentItem && currentItem.previousElementSibling ? currentItem.previousElementSibling : containerElm.lastElementChild;
-            selectedItem.classList.add('selected');
-//         console.log("selectNextSubMenuItem", currentItem, selectedItem);
-        }
-
-        openContextMenu(e, targetElement = null) {
-            targetElement = targetElement || e.target;
-            const rect = targetElement.getBoundingClientRect();
-            let x, y;
-            if (e.clientX && e.clientY) {
-                x = e.clientX;
-                y = e.clientY;
-            } else {
-                const containerRect = this.editor.getBoundingClientRect();
-                x = rect.x + rect.width - containerRect.x;
-                y = rect.y + rect.height - containerRect.y;
-            }
-            this.clearSubMenu();
-            this.renderSubMenu(e);
-            // this.classList.add('stick');
-
-
-            console.info("Context menu ", targetElement, this.containerElm, x, y);
-
-            this.classList.add('open', 'stick', 'open-context-menu');
-
-            this.style.left = x + 'px';
-            this.style.top = y + 'px';
-
-            // containerElm.focus();
-
-            // this.selectNextSubMenuItem();
-        }
-
-        closeAllMenus() {
-            let parentMenu = this;
-            while (parentMenu.parentElement && parentMenu.parentElement.closest('asui-menu')) {
-                parentMenu = parentMenu.parentElement.closest('asui-menu');
-            }
-            parentMenu.parentElement.querySelectorAll(`asui-menu.open,asui-menu.stick`)
-                .forEach(menuElm => menuElm.classList.remove('open', 'stick'))
-//         console.trace("Clear all menus ");
-        }
-
-        closeMenu(e) {
-            // this.classList.remove('open');
-            // this.classList.remove('open-context-menu');
-            this.clearSubMenu(e);
-            let parentMenu = this.parentElement.closest('asui-menu');
-            this.querySelectorAll(`asui-menu.open,asui-menu.stick`)
-                .forEach(menuElm => menuElm.classList.remove('open', 'stick'));
-            if (parentMenu && parentMenu !== this)
-                parentMenu.renderSubMenu(e);
-        }
-
-        render() {
-            const titleElm = this.state.caption; // this.caption === null ? this.key : this.caption;
-            if (titleElm) {
-                let textDiv = this.querySelector('div.caption');
-                if (!textDiv) {
-                    textDiv = document.createElement('div');
-                    textDiv.classList.add('caption');
-                    this.firstElementChild ? this.insertBefore(textDiv, this.firstElementChild) : this.appendChild(textDiv);
-                }
-                textDiv.innerHTML = '';
-                if (typeof titleElm === "string")
-                    textDiv.innerHTML = titleElm;
-                else
-                    textDiv.appendChild(titleElm); // .replace('►', '<span class="arrow"></span>');
-
-            }
-            if (this.hasBreak) {
-                let hrSpan = this.querySelector('hr');
-                if (!hrSpan) {
-                    hrSpan = document.createElement('hr');
-                    this.firstElementChild ? this.insertBefore(hrSpan, this.firstElementChild) : this.appendChild(hrSpan);
-                }
-            }
-        }
-    }
-
 
 // customElements.define('music-song-menu', MusicEditorMenuElement);
 
@@ -643,13 +296,13 @@
 
     /** Abstract Panel Input **/
     class ASUIAbstractInput extends ASUIComponent {
-        constructor(name, callback, content=null, title=null, value=null, props={}) {
+        constructor(key, callback, content=null, title=null, value=null, props={}) {
             super({
                 value,
                 content,
-                name
+                title,
             }, props);
-            props.title = title;
+            props.key = key;
             this.listeners = [];
             this.callback = callback || function () {
                 console.warn("No callback set")
@@ -688,13 +341,15 @@
 
         async render() {
             const inputElm = this.createInputElement();
+            if(this.state.name) inputElm.setAttribute('name', this.state.name);
+            if(this.state.title) inputElm.setAttribute('title', this.state.title);
 
-            for(const attrName in this.props) {
-                if(this.props.hasOwnProperty(attrName)) {
-                    if(this.props[attrName] !== null)
-                        inputElm.setAttribute(attrName, this.props[attrName]);
-                }
-            }
+            // for(const attrName in this.props) {
+            //     if(this.props.hasOwnProperty(attrName)) {
+            //         if(this.props[attrName] !== null)
+            //             inputElm.setAttribute(attrName, this.props[attrName]);
+            //     }
+            // }
 
             if(this.state.content)
                 await this.renderContent(this.state.content, inputElm);
@@ -726,8 +381,8 @@
 
 
     class ASUIButton extends ASUIAbstractInput {
-        constructor(name = null, callback = null, content = null, title = null, props={}) {
-            super(name, callback, content, props);
+        constructor(key = null, callback = null, content = null, title = null, props={}) {
+            super(key, callback, content, title, null, props);
             this.addEventHandler('click', e => this.onClick(e));
         }
 
@@ -746,8 +401,8 @@
 
 
     class ASUSelectInput extends ASUIAbstractInput {
-        constructor(key = null, callback = null, optionContent = null, title = null, defaultValue = null) {
-            super(key, callback, optionContent);
+        constructor(key = null, callback = null, optionContent = null, title = null, value = null, props = {}) {
+            super(key, callback, optionContent, title, value, props);
             this.selectedValue = null;
 
             const selectElm = document.createElement('select');
@@ -755,8 +410,8 @@
             if (title)
                 selectElm.setAttribute('title', title);
             this.appendChild(selectElm);
-            if (defaultValue !== null)
-                this.setValue(defaultValue);
+            if (value !== null)
+                this.setValue(value);
             else
                 this.setDefaultValue();
 
@@ -897,8 +552,8 @@
 
 
     class ASUITextInput extends ASUIAbstractInput {
-        constructor(name, callback, title=null, value=null, placeholder = null, props={}) {
-            super(name, callback, null, title, value, props);
+        constructor(key, callback, title=null, value=null, placeholder = null, props={}) {
+            super(key, callback, null, title, value, props);
             props.placeholder = placeholder;
             this.addEventHandler('change', e => this.onChange(e));
         }
@@ -922,8 +577,8 @@
     class ASUIRangeInput extends ASUIAbstractInput {
         constructor(key = null, callback = null, min = 1, max = 100, title = null, value = null, props={}) {
             super(key, callback, null, title, value, props);
-            props.min = min;
-            props.max = max;
+            this.state.min = min;
+            this.state.max = max;
             this.addEventHandler('change', e => this.onChange(e));
         }
 
@@ -931,6 +586,8 @@
             const rangeElm = document.createElement('input');
             rangeElm.classList.add('themed');
             rangeElm.setAttribute('type', 'range');
+            if(this.state.min !== null) rangeElm.setAttribute('min', this.state.min);
+            if(this.state.max !== null) rangeElm.setAttribute('max', this.state.max);
             return rangeElm;
         }
 
@@ -944,8 +601,8 @@
 
 
     class ASUICheckBoxInput extends ASUIAbstractInput {
-        constructor(name, callback = null, title=null, checked = false, props={}) {
-            super(name, callback, null, title, checked, props);
+        constructor(key, callback = null, title=null, checked = false, props={}) {
+            super(key, callback, null, title, checked, props);
             this.addEventHandler('change', e => this.onChange(e));
         }
 
@@ -971,8 +628,8 @@
 
 
     class ASUIFileInput extends ASUIAbstractInput {
-        constructor(name, callback = null, content, accepts = null, title=null, props={}) {
-            super(name, callback, content, title, null, props);
+        constructor(key, callback = null, content, accepts = null, title=null, props={}) {
+            super(key, callback, content, title, null, props);
             props.accepts = accepts;
             this.addEventHandler('change', e => this.onChange(e));
         }

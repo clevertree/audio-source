@@ -47,7 +47,7 @@
             return [
                 new ASUIDiv('asp-menu-container', () => [
                     new ASUIMenu('File', () => [
-                        new ASUIMenu('from Memory', async () => {
+                        new ASUIMenu('from Memory ►', async () => {
                             const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                             const Storage = new AudioSourceStorage();
                             const songRecentUUIDs = await Storage.getRecentSongList() ;
@@ -130,12 +130,15 @@
                             this.fieldSongName = new ASUITextInput('name',
                                 (e, newSongName) => this.setSongName(e, newSongName),
                                 "Song Name",
+                                this.playerElm.song.name
                                 )
                         ]),
 
                         new ASPForm('version', 'Version', () => [
                             this.fieldSongVersion = new ASUITextInput('version',
-                                (e, newSongVersion) => this.setSongVersion(e, newSongVersion))
+                                (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
+                                "Song Version",
+                                this.playerElm.song.version)
                         ])
                     ]),
 
@@ -173,6 +176,8 @@
                 playlist: playlist,
                 selected: []
             };
+
+            this.addEventHandler('click', e => this.onClick(e));
         }
 
         get position() { return this.state.position; }
@@ -196,11 +201,21 @@
             this.state.position = position;
             for(let i=0; i<this.state.playlist.length; i++) {
                 const entry = this.state.playlist[i];
-                const classes = [];
-                if(i === position)                          classes.push('position');
-                if(this.state.selected.indexOf(i) !== -1)   classes.push('selected');
-                entry.props.class = classes.join(' '); // TODO: render only if changed
+                await entry.updateProps();
             }
+        }
+
+        toggleSelect(position) {
+            const selected = this.state.selected;
+            const i = selected.indexOf(position);
+            if(i === -1) {
+                selected.push(position);
+                selected.sort();
+            } else {
+                selected.splice(i, 1);
+            }
+            this.getEntry(position)
+                .updateProps();
         }
 
         getCurrentEntry() {
@@ -265,6 +280,17 @@
                 ]),
             ];
         }
+
+        async onClick(e) {
+            const entryElm = e.target.closest('aspp-entry');
+            if(entryElm) {
+                // entryElm.toggleSelect();
+                await this.loadSongFromPlaylistEntry(entryElm.position);
+                //     await this.songPlay();
+            } else {
+                console.log(e, this);
+            }
+        }
     }
     customElements.define('asp-playlist', ASPPlaylist);
 
@@ -279,6 +305,7 @@
         get url() { return this.parseEntry().url; }
         get name() { return this.parseEntry().name; }
         get length() { return this.parseEntry().length; }
+        get position() { return this.playlistElm.playlist.indexOf(this); }
 
         parseEntry() {
             let entry = this.state.entry;
@@ -293,9 +320,25 @@
             return entry;
         }
 
+        toggleSelect() {
+            this.playlistElm.toggleSelect(this.position);
+        }
+
+        async updateProps() {
+            let classes = [];
+            const position = this.position;
+            if(position === this.playlistElm.position)
+                classes.push('position');
+            if(this.playlistElm.state.selected.indexOf(position) !== -1)
+                classes.push('selected');
+            classes = classes.join(' ');
+            if((this.props.class||'') !== (classes||''))
+                await this.setProps({class: classes});
+        }
+
         render() {
-            let i = this.playlistElm.playlist.indexOf(this);
-            if(i<9) i = '0' + i;
+            let i = this.position;
+            if(i<=9) i = '0' + i;
 
             const entry = this.parseEntry();
             const [length, fade] = (entry.length || 0).toString().split(':');
