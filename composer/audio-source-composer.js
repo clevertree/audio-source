@@ -75,7 +75,7 @@
         }
 
         connectedCallback() {
-            this.loadCSS();
+            // this.loadCSS();
 
             this.attachEventHandler(['focus', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
             // 'change', 'submit',
@@ -431,20 +431,20 @@
 
 
         /** Load External CSS **/
-        loadCSS() {
-            const CSS_PATH = 'composer/assets/audio-source-composer.css';
-            const targetDOM = this.shadowDOM || document.head;
-            if (targetDOM.querySelector(`link[href$="${CSS_PATH}"]`))
-                return;
-
-            const Util = new AudioSourceUtilities();
-            const linkHRef = Util.getScriptDirectory(CSS_PATH);
-            let cssLink = document.createElement("link");
-            cssLink.setAttribute("rel", "stylesheet");
-            cssLink.setAttribute("type", "text/css");
-            cssLink.setAttribute("href", linkHRef);
-            targetDOM.appendChild(cssLink);
-        }
+        // loadCSS() {
+        //     const CSS_PATH = 'composer/assets/audio-source-composer.css';
+        //     const targetDOM = this.shadowDOM || document.head;
+        //     if (targetDOM.querySelector(`link[href$="${CSS_PATH}"]`))
+        //         return;
+        //
+        //     const Util = new AudioSourceUtilities();
+        //     const linkHRef = Util.getScriptDirectory(CSS_PATH);
+        //     let cssLink = document.createElement("link");
+        //     cssLink.setAttribute("rel", "stylesheet");
+        //     cssLink.setAttribute("type", "text/css");
+        //     cssLink.setAttribute("href", linkHRef);
+        //     targetDOM.appendChild(cssLink);
+        // }
 
     }
 

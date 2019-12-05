@@ -17,13 +17,13 @@
     // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
 
     // const {ASUIDiv} = await requireAsync('common/audio-source-ui.js');
-    const {
-        AudioSourcePlayerRenderer,
-        ASPPlaylist,
-    } = await requireAsync('player/audio-source-player-renderer.js');
+    // const {
+    //     ASPPlaylist,
+    // } = await requireAsync('player/audio-source-player-renderer.js');
     const {AudioSourcePlayerActions} = await requireAsync('player/audio-source-player-actions.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
+    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
     /**
      * Player requires a modern browser
      */
@@ -41,21 +41,18 @@
     // }, 1000);
 
     class AudioSourcePlayerElement extends AudioSourcePlayerActions {
-        constructor() {
-            super();
-            this.versionString = '-1';
-            this.eventHandlers = [];
-            this.shadowDOM = null;
-            this.playlist = new ASPPlaylist();
-            // this.playlistPosition = 0;
-            this.playlistActive = false;
-            this.rendererElm = new AudioSourcePlayerRenderer(this)
-        }
+        constructor(state={}, props={}) {
+            super(state, props);
+            state.version = '-1';
+            state.song = new AudioSourceSong({}, this);
 
+            this.shadowDOM = null;
+        }
+        get song() { return this.state.song; }
         get targetElm() { return this.shadowDOM; }
 
         connectedCallback() {
-            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player-internal.css');
+            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player.css');
             const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
             this.shadowDOM = this.attachShadow({mode: 'closed'});
             this.shadowDOM.innerHTML = `
@@ -65,7 +62,7 @@
 
 
 
-            this.loadCSS();
+            // this.loadCSS();
             super.connectedCallback();
 
             this.addEventHandler([
@@ -85,32 +82,21 @@
 
         }
 
-
-        async render() {
-            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player-internal.css');
-            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
-            return [linkHRefCommon, linkHRefComposer].map(href => {
-                const link = document.createElement('link');
-                link.setAttribute('rel', 'stylesheet');
-                link.href = href;
-                return link;
-            }).concat(this.rendererElm);
-        }
         /** Load External CSS **/
 
-        loadCSS() {
-            const CSS_PATH = 'player/assets/audio-source-player.css';
-            const targetDOM = this.shadowDOM || document.head;
-            if (targetDOM.querySelector(`link[href$="${CSS_PATH}"]`))
-                return;
-
-            const linkHRef = this.getScriptDirectory(CSS_PATH);
-            let cssLink = document.createElement("link");
-            cssLink.setAttribute("rel", "stylesheet");
-            cssLink.setAttribute("type", "text/css");
-            cssLink.setAttribute("href", linkHRef);
-            targetDOM.appendChild(cssLink);
-        }
+        // loadCSS() {
+        //     const CSS_PATH = 'player/assets/audio-source-player.css';
+        //     const targetDOM = this.shadowDOM || document.head;
+        //     if (targetDOM.querySelector(`link[href$="${CSS_PATH}"]`))
+        //         return;
+        //
+        //     const linkHRef = this.getScriptDirectory(CSS_PATH);
+        //     let cssLink = document.createElement("link");
+        //     cssLink.setAttribute("rel", "stylesheet");
+        //     cssLink.setAttribute("type", "text/css");
+        //     cssLink.setAttribute("href", linkHRef);
+        //     targetDOM.appendChild(cssLink);
+        // }
 
 
         async onSongEvent(e) {
@@ -121,22 +107,22 @@
                     break;
 
                 case 'song:volume':
-                    this.rendererElm.fieldSongVolume.value = e.detail.volume;
+                    this.refs.fieldSongVolume.value = e.detail.volume;
                     break;
 
                 case 'song:play':
-                    this.containerElm.classList.add('playing');
+                    this.refs.containerElm.classList.add('playing');
                     if(e.detail.promise) {
                         await e.detail.promise;
-                        this.containerElm.classList.remove('playing');
+                        this.refs.containerElm.classList.remove('playing');
                     }
 
-                    this.rendererElm.fieldSongPlaybackPause.disabled = false;
+                    this.refs.fieldSongPlaybackPause.disabled = false;
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
-                            this.rendererElm.fieldSongPlaybackPause.disabled = true;
-                            this.containerElm.classList.remove('playing');
+                            this.refs.fieldSongPlaybackPause.disabled = true;
+                            this.refs.containerElm.classList.remove('playing');
                             this.classList.remove('playing');
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
@@ -145,7 +131,7 @@
 
                 case 'song:end':
                 case 'song:pause':
-                    this.containerElm.classList.remove('playing');
+                    this.refs.containerElm.classList.remove('playing');
                     break;
             }
         }
@@ -157,7 +143,7 @@
         }
 
         setStatus(newStatus) {
-            this.rendererElm.textStatus.content = newStatus;
+            this.refs.textStatus.content = newStatus;
             console.info.apply(null, arguments); // (newStatus);
         }
 
@@ -174,8 +160,7 @@
 
 
         closeAllMenus() {
-            this.shadowDOM.querySelector(`asui-menu`)
-                .closeAllMenus();
+            this.refs.menuFile.closeAllMenus();
         }
 
 
@@ -185,9 +170,9 @@
         updateSongPositionValue(playbackPositionInSeconds) {
             const values = new AudioSourceValues();
             const roundedSeconds = Math.round(playbackPositionInSeconds);
-            this.rendererElm.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.rendererElm.fieldSongPosition.value !== roundedSeconds) {
-                this.rendererElm.fieldSongPosition.value = roundedSeconds;
+            this.refs.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            if(this.refs.fieldSongPosition.value !== roundedSeconds) {
+                this.refs.fieldSongPosition.value = roundedSeconds;
             }
         }
 
@@ -216,7 +201,7 @@
 
         toggleFullscreen(e) {
             const setFullScreen = !this.classList.contains('fullscreen');
-            this.containerElm.classList.toggle('fullscreen', setFullScreen);
+            this.refs.containerElm.classList.toggle('fullscreen', setFullScreen);
             this.classList.toggle('fullscreen', setFullScreen);
         }
 

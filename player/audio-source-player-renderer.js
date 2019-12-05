@@ -16,150 +16,168 @@
 
 
     /** Required Modules **/
-    // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
-    // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
+        // const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+        // const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
     const {
-        ASUIComponent,
-        ASUIDiv,
-        ASUIMenu,
-        ASUIGrid,
-        ASUIGridRow,
-        ASUIButton,
-        ASUIFileInput,
-        ASUIRangeInput,
-        ASUITextInput,
-        ASUIcon,
-    } = await requireAsync('common/audio-source-ui.js');
+            ASUIComponent,
+            ASUIDiv,
+            ASUIMenu,
+            ASUIGrid,
+            ASUIGridRow,
+            ASUIButton,
+            ASUIFileInput,
+            ASUIRangeInput,
+            ASUITextInput,
+            ASUIcon,
+        } = await requireAsync('common/audio-source-ui.js');
+
 
     class AudioSourcePlayerRenderer extends ASUIComponent {
-        constructor(playerElm, props={}) {
-            super({
-                fullscreen: false,
-                showPanelSong: true,
-                showPanelPlaylist: true,
-            }. props);
-            this.playerElm = playerElm;
-            this.playlistElm = new ASPPlaylist()
+        constructor(state={}, props={}) {
+            super(state, props);
+            state.fullscreen = false;
+            state.showPanelSong = true;
+            state.showPanelPlaylist = true;
+            state.playlist = new ASPPlaylist(this);
 
+        }
+        get playlist() { return this.state.playlist; }
+
+        createStyleSheetLink(stylePath) {
+            const linkHRef = this.getScriptDirectory(stylePath);
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'stylesheet');
+            link.href = linkHRef;
+            return link;
         }
 
         async render() {
             return [
-                new ASUIDiv('asp-menu-container', () => [
-                    new ASUIMenu('File', () => [
-                        new ASUIMenu('from Memory ►', async () => {
-                            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-                            const Storage = new AudioSourceStorage();
-                            const songRecentUUIDs = await Storage.getRecentSongList() ;
-                            return songRecentUUIDs.map(entry => new ASUIMenu(entry.name || entry.uuid,
-                                null, () => this.loadSongFromMemory(entry.uuid)));
-                        }),
+                this.createStyleSheetLink('player/assets/audio-source-player.css'),
+                this.createStyleSheetLink('common/assets/audio-source-common.css'),
+                this.refs.containerElm = new ASUIDiv('asp-container', () => [
+                    new ASUIDiv('asp-menu-container', () => [
+                        this.refs.menuFile = new ASUIMenu('File', () => [
+                            new ASUIMenu('from Memory ►', async () => {
+                                const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+                                const Storage = new AudioSourceStorage();
+                                const songRecentUUIDs = await Storage.getRecentSongList() ;
+                                return songRecentUUIDs.map(entry => new ASUIMenu(entry.name || entry.uuid,
+                                    null, () => this.loadSongFromMemory(entry.uuid)));
+                            }),
 
-                        new ASUIMenu('from File', null, (e) => this.fieldSongFileLoad.inputElm.click()),
-                        new ASUIMenu('from URL', null, null, {disabled: true}),
+                            new ASUIMenu('from File', null, (e) => this.refs.fieldSongFileLoad.click()),
+                            new ASUIMenu('from URL', null, null, {disabled: true}),
+                            new ASUIMenu('from Library', null, null, {disabled: true}),
+                        ]),
+                        this.refs.menuView = new ASUIMenu('Playlist', () => [
+                            new ASUIMenu('Play Next Song', null, (e) => this.playlist.playNextSong()),
+                            new ASUIMenu('Clear Playlist', null, (e) => this.playlist.clear(), {hasBreak: true}),
+
+                        ]),
+                        // this.refs.menuEdit = new ASUIMenu('Edit'),
+                        this.refs.menuView = new ASUIMenu('View', () => [
+                            new ASUIMenu(`${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                            new ASUIMenu(`${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                            new ASUIMenu(`${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                        ]),
                     ]),
-                    new ASUIMenu('Edit'),
-                    new ASUIMenu('View', () => [
-                        new ASUIMenu(`${this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                        new ASUIMenu(`${this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                        new ASUIMenu(`${this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                    ]),
-                ]),
 
-                new ASUIDiv('asp-forms-container', () => [
-                    new ASPPanel('song', 'Song', () => [
-                        new ASPForm('playback', 'Playback', () => [
-                            this.fieldSongPlaybackPlay = new ASUIButton('play',
-                                e => this.playlistPlay(e),
-                                new ASUIcon('play'),
-                                "Play Song",
-                                {class: 'hide-on-playing'}),
-                            this.fieldSongPlaybackPause = new ASUIButton('pause',
-                                e => this.songPause(e),
-                                new ASUIcon('pause'),
-                                "Pause Song",
-                                {class: 'show-on-playing'}),
-                            this.fieldSongPlaybackStop = new ASUIButton('stop',
-                                e => this.songStop(e),
-                                new ASUIcon('stop'),
-                                "Stop Song"),
-                            this.fieldSongPlaylistNext = new ASUIButton('playlist-next',
-                                e => this.playlistNext(e),
-                                new ASUIcon('next'),
-                                "Next Song")
-                        ]),
+                    new ASUIDiv('asp-forms-container', () => [
+                        new ASPPanel('song', 'Song', () => [
+                            new ASPForm('playback', 'Playback', () => [
+                                this.refs.fieldSongPlaybackPlay = new ASUIButton('play',
+                                    e => this.playlistPlay(e),
+                                    new ASUIcon('play'),
+                                    "Play Song",
+                                    {class: 'hide-on-playing'}),
+                                this.refs.fieldSongPlaybackPause = new ASUIButton('pause',
+                                    e => this.songPause(e),
+                                    new ASUIcon('pause'),
+                                    "Pause Song",
+                                    {class: 'show-on-playing'}),
+                                this.refs.fieldSongPlaybackStop = new ASUIButton('stop',
+                                    e => this.songStop(e),
+                                    new ASUIcon('stop'),
+                                    "Stop Song"),
+                                this.refs.fieldSongPlaylistNext = new ASUIButton('playlist-next',
+                                    e => this.playlistNext(e),
+                                    new ASUIcon('next'),
+                                    "Next Song")
+                            ]),
 
-                        new ASPForm('file', 'File', () => [
-                            this.fieldSongFileLoad = new ASUIFileInput('file-load',
-                                e => this.loadSongFromFileInput(),
-                                new ASUIcon('file-load'),
-                                `.json,.mid,.midi`,
-                                "Load Song from File"
-                            ),
-                            this.fieldSongFileSave = new ASUIButton('file-save',
-                                e => this.saveSongToFile(),
-                                new ASUIcon('file-save'),
-                                "Save Song to File"
-                            ),
-                        ]),
+                            new ASPForm('file', 'File', () => [
+                                this.refs.fieldSongFileLoad = new ASUIFileInput('file-load',
+                                    e => this.loadSongFromFileInput(),
+                                    new ASUIcon('file-load'),
+                                    `.json,.mid,.midi`,
+                                    "Load Song from File"
+                                ),
+                                this.refs.fieldSongFileSave = new ASUIButton('file-save',
+                                    e => this.saveSongToFile(),
+                                    new ASUIcon('file-save'),
+                                    "Save Song to File"
+                                ),
+                            ]),
 
-                        new ASPForm('volume', 'Volume', () => [
-                            this.fieldSongVolume = new ASUIRangeInput('volume', 
-                                (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.playerElm.song.getVolumeValue())
-                        ]),
+                            new ASPForm('volume', 'Volume', () => [
+                                this.refs.fieldSongVolume = new ASUIRangeInput('volume',
+                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue())
+                            ]),
 
-                        new ASPForm('timing', 'Timing', () => [
-                            this.fieldSongTiming = new ASUITextInput('timing',
-                                (e, pos) => this.setSongPosition(e, pos),
-                                'Song Timing',
-                                '00:00:000'
-                            )
-                        ]),
-
-                        new ASPForm('position', 'Position', () => [
-                            this.fieldSongPosition = new ASUIRangeInput('position',
-                                (e, pos) => this.setSongPosition(e, pos),
-                                0,
-                                Math.ceil(this.playerElm.song.getSongLength()),
-                                'Song Position',
-                                0
-                            )
-                        ]),
-
-                        new ASPForm('name', 'Name', () => [
-                            this.fieldSongName = new ASUITextInput('name',
-                                (e, newSongName) => this.setSongName(e, newSongName),
-                                "Song Name",
-                                this.playerElm.song.name
+                            new ASPForm('timing', 'Timing', () => [
+                                this.refs.fieldSongTiming = new ASUITextInput('timing',
+                                    (e, pos) => this.setSongPosition(e, pos),
+                                    'Song Timing',
+                                    '00:00:000'
                                 )
+                            ]),
+
+                            new ASPForm('position', 'Position', () => [
+                                this.refs.fieldSongPosition = new ASUIRangeInput('position',
+                                    (e, pos) => this.setSongPosition(e, pos),
+                                    0,
+                                    Math.ceil(this.song.getSongLength()),
+                                    'Song Position',
+                                    0
+                                )
+                            ]),
+
+                            new ASPForm('name', 'Name', () => [
+                                this.refs.fieldSongName = new ASUITextInput('name',
+                                    (e, newSongName) => this.setSongName(e, newSongName),
+                                    "Song Name",
+                                    this.song.name
+                                )
+                            ]),
+
+                            new ASPForm('version', 'Version', () => [
+                                this.refs.fieldSongVersion = new ASUITextInput('version',
+                                    (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
+                                    "Song Version",
+                                    this.song.version)
+                            ])
                         ]),
 
-                        new ASPForm('version', 'Version', () => [
-                            this.fieldSongVersion = new ASUITextInput('version',
-                                (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
-                                "Song Version",
-                                this.playerElm.song.version)
-                        ])
+                        new ASPPanel('playlist', 'Playlist',  () => [
+                            this.playlist
+                        ]),
                     ]),
 
-                    new ASPPanel('playlist', 'Playlist',  () => [
-                        this.playerElm.playlist
-                    ]),
-                ]),
-
-                new ASUIDiv('asp-status-container', () => [
-                    this.textStatus = new ASUIDiv('status-text'),
-                    this.textVersion = new ASUIDiv('version-text'),
+                    new ASUIDiv('asp-status-container', () => [
+                        this.refs.textStatus = new ASUIDiv('status-text'),
+                        this.refs.textVersion = new ASUIDiv('version-text'),
+                    ])
                 ])
 
             ];
 
             // this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
             //
-            // this.fieldSongName.value = this.song.getName();
-            // this.fieldSongVersion.value = this.song.getVersion();
+            // this.refs.fieldSongName.value = this.song.getName();
+            // this.refs.fieldSongVersion.value = this.song.getVersion();
             //
-            // this.fieldSongVolume.value = this.song.getVolumeValue();
+            // this.refs.fieldSongVolume.value = this.song.getVolumeValue();
 
         }
 
@@ -169,13 +187,14 @@
 
 
     class ASPPlaylist extends ASUIComponent {
-        constructor(playlist=[], props={}) {
+        constructor(playerElm, playlist=[], props={}) {
             super({}, props);
             this.state = {
                 position: 0,
                 playlist: playlist,
                 selected: []
             };
+            this.playerElm = playerElm;
 
             this.addEventHandler('click', e => this.onClick(e));
         }
@@ -183,7 +202,7 @@
         get position() { return this.state.position; }
         get playlist() { return this.state.playlist; }
 
-        async clearPlaylist() {
+        async clear() {
             this.setState({playlist: []})
         }
 
@@ -199,10 +218,16 @@
             if(!this.state.playlist[position])
                 throw new Error("Invalid playlist position: " + position);
             this.state.position = position;
+            await this.updateEntries();
+        }
+
+        async updateEntries() {
+            console.time('updateEntries');
             for(let i=0; i<this.state.playlist.length; i++) {
                 const entry = this.state.playlist[i];
-                await entry.updateProps();
+                await entry.updatePlaylist(this);
             }
+            console.timeEnd('updateEntries');
         }
 
         toggleSelect(position) {
@@ -215,7 +240,7 @@
                 selected.splice(i, 1);
             }
             this.getEntry(position)
-                .updateProps();
+                .updatePlaylist(this);
         }
 
         getCurrentEntry() {
@@ -227,7 +252,7 @@
         getEntry(position) {
             const entry = this.state.playlist[position];
             if(!entry)
-                throw new Error("Invalid playlist position: " + playlistPosition);
+                throw new Error("Invalid playlist position: " + position);
             return entry;
         }
 
@@ -239,6 +264,56 @@
             this.state.playlist.push(entry);
             await this.renderOS();
             return true;
+        }
+
+
+        isPlaylist(entryUrl) {
+            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
+        }
+
+        async loadSongFromURL(url) {
+            const song = this.playerElm.song;
+            if(this.isPlaylist(url)) {
+                await this.loadPlaylistFromURL(url);
+                const entry = this.getCurrentEntry();
+                if(entry.url && !this.isPlaylist(entry.url))
+                    await this.loadSongFromPlaylistEntry(this.position);
+            } else {
+                await song.loadSongFromURL(url);
+                this.addSongURLToPlaylist(url, song.name, song.getSongLength());
+            }
+            this.render();
+        }
+
+        async loadSongFromPlaylistEntry(playlistPosition) {
+            const song = this.playerElm.song;
+            if(song && song.playlistPosition === playlistPosition) {
+                console.info("Skipping load for playlist song: " + playlistPosition);
+                return;
+            }
+            if(song.playback)
+                song.stopPlayback();
+            await this.updatePosition(playlistPosition);
+            const entry = this.getEntry(playlistPosition);
+
+            if(entry.file) {
+                await song.loadSongFromFileInput(entry.file);
+            } else if(entry.url) {
+                if(this.isPlaylist(entry.url)) {
+                    await this.loadPlaylistFromURL(entry.url, playlistPosition);
+                } else {
+                    await this.loadSongFromURL(entry.url);
+
+                }
+            } else {
+                throw new Error("Invalid Playlist Entry: " + playlistPosition);
+            }
+            await entry.setState({
+                name: song.name,
+                length: song.getSongLength(),
+            });
+            song.playlistPosition = this.position;
+            this.render();
         }
 
         async loadPlaylistFromData(playlistData, playlistURL, spliceAtPosition=null) {
@@ -255,19 +330,49 @@
                 let entry = playlist[i];
                 if(typeof entry === "object")   entry.url = urlPrefix + entry.url;
                 else                            entry = urlPrefix + entry;
-                newPlaylist.push(new ASPPlaylistEntry(this, entry));
+                entry = ASPPlaylistEntry.parseFromData(entry);
+                newPlaylist.push(entry);
             }
             if(spliceAtPosition === null) {
                 await this.setState({playlist: newPlaylist});
             } else {
-                newPlaylist = this.state.playlist.splice(spliceAtPosition, 1, ...newPlaylist);
-                await this.setState({playlist: newPlaylist});
+                this.state.playlist.splice(spliceAtPosition, 1, ...newPlaylist);
+                await this.setState();
             }
 
         }
 
 
+        async loadPlaylistFromURL(playlistURL, spliceAtPosition=null) {
+            playlistURL = new URL(playlistURL, document.location);
+            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+            const Util = new AudioSourceUtilities;
+            const data = await Util.loadJSONFromURL(playlistURL.toString());
+            if(!data.playlist)
+                throw new Error("No playlist data: " + playlistURL);
+            if(!Array.isArray(data.playlist))
+                throw new Error("Invalid playlist data: " + playlistURL);
+            await this.loadPlaylistFromData(data, playlistURL, spliceAtPosition);
+        }
+
+        async addSongURLToPlaylist(url, name=null, length=null) {
+            const entry = {url};
+            entry.name = name || url.split('/').pop();
+            entry.length = length || null;
+            await this.addEntry(entry);
+        }
+
+        async addSongFileToPlaylist(file, name=null, length=null) {
+            const entry = {file};
+            entry.name = name || file.name.split('/').pop();
+            entry.length = length || null;
+            entry.url = 'file://' + file.name;
+            await this.addEntry(entry);
+        }
+
+
         async render() {
+            await this.updateEntries();
             return [
                 new ASUIGridRow('header', () => [
                     new ASUIDiv('id', 'ID'),
@@ -282,11 +387,12 @@
         }
 
         async onClick(e) {
-            const entryElm = e.target.closest('aspp-entry');
+            const entryElm = e.target.closest('aspp-entry,aspp-playlist-entry');
+            const position = entryElm.getPosition(this);
             if(entryElm) {
                 // entryElm.toggleSelect();
-                await this.loadSongFromPlaylistEntry(entryElm.position);
-                //     await this.songPlay();
+                await this.loadSongFromPlaylistEntry(position);
+                //     await songPlay();
             } else {
                 console.log(e, this);
             }
@@ -295,68 +401,83 @@
     customElements.define('asp-playlist', ASPPlaylist);
 
     class ASPPlaylistEntry extends ASUIComponent {
-        constructor(playlistElm, entry, props={}) {
-            super({
-                entry
-            }, props);
-            this.playlistElm = playlistElm;
+        constructor(entryData, props={}) {
+            super(entryData, props);
+            props.position = null;
+            props.selected = null;
+            // props.isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
         }
 
-        get url() { return this.parseEntry().url; }
-        get name() { return this.parseEntry().name; }
-        get length() { return this.parseEntry().length; }
-        get position() { return this.playlistElm.playlist.indexOf(this); }
+        get url() { return this.state.url; }
+        get name() { return this.state.name; }
+        get length() { return this.state.length; }
+        // get position() { return this.playlistElm.playlist.indexOf(this); }
 
-        parseEntry() {
-            let entry = this.state.entry;
-            if(typeof entry === "string") {
-                const split = entry.split(';');
-                entry = {url: split[0]};
-                if(split[1]) entry.name = split[1];
-                if(split[2]) entry.length = split[2];
-            }
-            if(!entry.url)
-                throw new Error("Invalid Playlist Entry URL");
-            return entry;
+        // toggleSelect(playlistElm) {
+        //     this.playlistElm.toggleSelect(this.getPosition(playlistElm));
+        // }
+
+        getPosition(playlistElm) {
+            return playlistElm.playlist.indexOf(this);
         }
 
-        toggleSelect() {
-            this.playlistElm.toggleSelect(this.position);
-        }
+        async updatePlaylist(playlistElm) {
+            const position = this.getPosition(playlistElm);
 
-        async updateProps() {
-            let classes = [];
-            const position = this.position;
-            if(position === this.playlistElm.position)
-                classes.push('position');
-            if(this.playlistElm.state.selected.indexOf(position) !== -1)
-                classes.push('selected');
-            classes = classes.join(' ');
-            if((this.props.class||'') !== (classes||''))
-                await this.setProps({class: classes});
+            const isCurrentPosition = position === playlistElm.position ? true : null;
+            if(this.props.position !== isCurrentPosition)
+                await this.setProps({position: isCurrentPosition});
+            const isSelected = playlistElm.state.selected.indexOf(position) !== -1 ? true : null;
+            if(this.props.selected !== isSelected)
+                await this.setProps({selected: isSelected});
+
+            if(this.state.id !== position)
+                await this.setState({id:position});
         }
 
         render() {
-            let i = this.position;
-            if(i<=9) i = '0' + i;
+            const entry = this.state;
+            let id = entry.id;
+            if(id<=9) id = '0' + id;
 
-            const entry = this.parseEntry();
             const [length, fade] = (entry.length || 0).toString().split(':');
             const formattedLength = new Date(length * 1000).toISOString().substr(14, 5);
             // rowElm.addEventListener('click', async e => {
             //     await this.loadSongFromPlaylistEntry(i);
-            //     await this.songPlay();
+            //     await songPlay();
             // })
 
             return [
-                new ASUIDiv('id', i),
+                new ASUIDiv('id', id),
                 new ASUIDiv('name', entry.name),
                 // new ASUIDiv('url', this.state.url),
                 new ASUIDiv('length', formattedLength),
             ];
         }
+
+        static parseFromData(entryData, props) {
+            if(typeof entryData === "string") {
+                const split = entryData.split(';');
+                entryData = {url: split[0]};
+                if(split[1]) entryData.name = split[1];
+                if(split[2]) entryData.length = split[2];
+            }
+            if(!entryData.url)
+                throw new Error("Invalid Playlist Entry URL");
+            const isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
+            if(isPlaylist)
+                return new ASPPlaylistPlaylistEntry(entryData, props);
+            return new ASPPlaylistEntry(entryData, props);
+        }
+
     }
     customElements.define('aspp-entry', ASPPlaylistEntry);
+
+    class ASPPlaylistPlaylistEntry extends ASPPlaylistEntry {
+
+
+    }
+    customElements.define('aspp-playlist-entry', ASPPlaylistPlaylistEntry);
 
 
     class ASPPanel extends ASUIDiv {

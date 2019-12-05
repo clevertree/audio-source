@@ -20,7 +20,7 @@
 
 
         render(force = false) {
-            const linkHRefComposer = this.getScriptDirectory('composer/assets/audio-source-composer-internal.css');
+            const linkHRefComposer = this.getScriptDirectory('composer/assets/audio-source-composer.css');
             const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
 
             if (force || !this.shadowDOM) {

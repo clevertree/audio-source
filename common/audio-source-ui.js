@@ -25,6 +25,7 @@
             super();
             this.state = state;
             this.props = props;
+            this.refs = {};
             this.eventHandlers = [];
             for(let i=0; i<this.attributes.length; i++)
                 this.props[this.attributes[i].name] = this.attributes[i].value;
@@ -33,12 +34,12 @@
         get targetElm() { return this; }
 
         async setState(newState) {
-            console.info('setState', this.state, newState, this);
+            // console.info('setState', this.state, newState, this);
             Object.assign(this.state, newState);
             await this.renderOS();
         }
         async setProps(newProps) {
-            console.info('setProps', this.props, newProps, this);
+            // console.info('setProps', this.props, newProps, this);
             Object.assign(this.props, newProps);
             await this.renderProps();
         }
@@ -50,9 +51,12 @@
         }
 
         async renderHTML() {
+            if(!this.parentNode) {
+                // console.log("skipping render, not attached");
+                return;
+            }
             let content = await this.render();
             this.targetElm.innerHTML = '';
-
 
             // Render content
             await this.renderContent(content, this.targetElm);
@@ -65,7 +69,9 @@
             for(const attrName in this.props) {
                 if(this.props.hasOwnProperty(attrName)) {
                     const value = this.props[attrName];
-                    if(value !== null && value !== false)
+                    if(value === true)
+                        this.setAttribute(attrName, '');
+                    else if(value !== null && value !== false)
                         this.setAttribute(attrName, value);
                 }
             }
@@ -140,13 +146,13 @@
     /** Menu **/
     class ASUIMenu extends ASUIComponent {
 
-        constructor(caption = null, dropDownContent = null, actionCallback = null, props = {}) {
-            super({
+        constructor(caption = null, dropDownContent = null, actionCallback = null, state={}, props = {}) {
+            super(Object.assign({
                 caption,
                 content: dropDownContent,
                 open: false,
-            }, props);
-            props.stick = false
+            }, state), props);
+            props.stick = false;
             this.action = actionCallback;
             this.addEventHandler('mouseover', this.onInputEvent);
             this.addEventHandler('mouseout', this.onInputEvent);
@@ -158,11 +164,11 @@
 
         async render() {
             return [
+                this.state.hasBreak ? new ASUIDiv('break') : null,
                 new ASUIDiv('caption', this.state.caption, {
                     class: this.state.stick ? 'stick' : null
                 }),
-                this.state.open ? new ASUIDiv('dropdown', this.state.content) : null,
-                this.state.hasBreak ? new ASUIDiv('break') : null
+                this.state.open && this.state.content ? new ASUIDiv('dropdown', this.state.content) : null,
             ];
         }
 
@@ -174,6 +180,16 @@
                 parentMenu = parentMenu.parentNode.closest('asui-menu');
             }
             await this.setState({open:open});
+        }
+
+        async close(e) { await this.setState({open: false})}
+
+        async closeAllMenus(global=true) {
+            let menu = this;
+            while(menu) {
+                await menu.close();
+                menu = menu.parentNode.closest('asui-menu');
+            }
         }
 
         onInputEvent(e) {
@@ -194,7 +210,7 @@
                     if(!this.props.stick) {
                         clearTimeout(this.mouseTimeout);
                         this.mouseTimeout = setTimeout(e => {
-                            this.setState({open: false});
+                            this.close();
                         }, 200);
                     }
                     break;
@@ -309,6 +325,8 @@
             };
         }
 
+        click() { this.refs.inputElm.click(); }
+
         // get targetElm() {
         //     return this.inputElm;
         // }
@@ -341,6 +359,7 @@
 
         async render() {
             const inputElm = this.createInputElement();
+            this.refs.inputElm = inputElm;
             if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if(this.state.title) inputElm.setAttribute('title', this.state.title);
 

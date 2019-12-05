@@ -250,8 +250,8 @@ asui-menu[disabled] {
 
 /** Menu Break **/
 
-asui-menu > hr {
-    margin: 4px 0;
+asui-menu > asui-div[key=break] {
+    margin: 2px 0;
     border: 1px #666 solid;
 }
 

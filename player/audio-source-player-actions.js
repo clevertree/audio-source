@@ -4,29 +4,29 @@
     function getThisScriptPath() { return 'player/audio-source-player-actions.js'; }
     const exportThisScript = function(module) {
         module.exports = {AudioSourcePlayerActions};
-    }
+    };
 
     /** Register This Async Module **/
     const resolveExports = registerAsyncModule();
 
 
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
-    const {ASUIComponent} = await requireAsync('common/audio-source-ui.js');
+    // const {ASUIComponent} = await requireAsync('common/audio-source-ui.js');
     // const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
     // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+    const {AudioSourcePlayerRenderer} = await requireAsync('player/audio-source-player-renderer.js');
 
-    class AudioSourcePlayerActions extends ASUIComponent {
-        constructor() {
-            super();
-            this.song = new AudioSourceSong({}, this);
+    class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
+        constructor(state={}, props={}) {
+            super(state, props);
+
             // this.activeSong = null;
-            this.nextPlaylistSong = null;
+            // this.nextPlaylistSong = null;
         }
 
 
-        getDefaultInstrumentURL() {
-            return findThisScript()[0].basePath + 'instrument/audio-source-synthesizer.js';
-        }
+        // getDefaultInstrumentURL() {
+        //     return findThisScript()[0].basePath + 'instrument/audio-source-synthesizer.js';
+        // }
 
 
         /** Song Commands **/
@@ -55,76 +55,31 @@
             this.render();
         }
 
-        isPlaylist(entryUrl) {
-            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
-        }
 
         async loadSongFromURL(url) {
-            if(this.isPlaylist(url)) {
-                await this.loadPlaylistFromURL(url);
-                const entry = this.playlist.getCurrentEntry();
-                if(entry.url && !this.isPlaylist(entry.url))
-                    await this.loadSongFromPlaylistEntry(this.playlist.position);
-            } else {
-                await this.song.loadSongFromURL(url);
-                this.setStatus("Song loaded from src: " + url, this.song);
-                this.addSongURLToPlaylist(url, this.song.name, this.song.getSongLength());
-            }
-            this.render();
+            await this.playlist.loadSongFromURL(url);
+            this.setStatus("Loaded from url: " + url);
         }
 
         async loadSongFromPlaylistEntry(playlistPosition) {
-            if(this.song && this.song.playlistPosition === playlistPosition) {
-                console.info("Skipping load for playlist song: " + playlistPosition);
-                return;
-            }
-            if(this.song.playback)
-                this.song.stopPlayback();
-            await this.playlist.updatePosition(playlistPosition);
-            const entry = this.playlist.getEntry(playlistPosition);
-
-            if(entry.file) {
-                await this.song.loadSongFromFileInput(entry.file);
-            } else if(entry.url) {
-                await this.loadSongFromURL(entry.url);
-            } else {
-                throw new Error("Invalid Playlist Entry: " + playlistPosition);
-            }
-            await entry.setState({
-                name: this.song.name,
-                length: this.song.getSongLength(),
-            })
-            this.song.playlistPosition = this.playlist.position;
-            this.render();
+            // this.setStatus("Loading from playlist: " + url);
+            await this.playlist.loadSongFromURL(playlistPosition);
         }
 
         /** Song Playlist **/
 
         async loadPlaylistFromURL(playlistURL) {
-            playlistURL = new URL(playlistURL, document.location);
-            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-            const Util = new AudioSourceUtilities;
-            const data = await Util.loadJSONFromURL(playlistURL.toString());
-            if(!data.playlist)
-                throw new Error("No playlist data: " + playlistURL);
-            if(!Array.isArray(data.playlist))
-                throw new Error("Invalid playlist data: " + playlistURL);
-            await this.playlist.loadPlaylistFromData(data, playlistURL);
+            await this.playlist.loadSongFromURL(playlistURL);
+            this.setStatus("Loaded playlist from url: " + playlistURL);
         }
 
         async addSongURLToPlaylist(url, name=null, length=null) {
-            const entry = {url};
-            entry.name = name || url.split('/').pop();
-            entry.length = length || null;
-            await this.playlist.addEntry(entry);
+            // this.setStatus("Loading playlist from url: " + playlistURL);
+            await this.playlist.loadSongFromURL(url, name, length);
         }
 
         async addSongFileToPlaylist(file, name=null, length=null) {
-            const entry = {file};
-            entry.name = name || file.name.split('/').pop();
-            entry.length = length || null;
-            entry.url = 'file://' + file.name;
-            await this.playlist.addEntry(entry);
+            return await this.playlist.loadSongFromURL(file, name, length);
         }
 
 
@@ -178,15 +133,15 @@
         /** Toggle Panels **/
 
         togglePanelPlaylist(e) {
-            this.containerElm.classList.toggle('hide-panel-playlist');
+            this.classList.toggle('hide-panel-playlist');
         }
 
         togglePanelSong(e) {
-            this.containerElm.classList.toggle('hide-panel-song');
+            this.classList.toggle('hide-panel-song');
         }
         toggleFullscreen(e) {
             const setFullScreen = !this.classList.contains('fullscreen');
-            this.containerElm.classList.toggle('fullscreen', setFullScreen);
+            // this.refs.containerElm.classList.toggle('fullscreen', setFullScreen);
             this.classList.toggle('fullscreen', setFullScreen);
 
             if (setFullScreen) {
