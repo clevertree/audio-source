@@ -18,7 +18,7 @@
         "udp://tracker.opentrackr.org:1337",
         "wss://tracker.fastcast.nz",
         "wss://tracker.openwebtorrent.com",
-        // "wss://tracker.btorrent.xyz",
+        "wss://tracker.btorrent.xyz",
     ];
 
     class AudioSourceFileService {

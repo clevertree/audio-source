@@ -63,7 +63,7 @@
 
 
             // this.loadCSS();
-            super.connectedCallback();
+            const renderPromise = super.connectedCallback();
 
             this.addEventHandler([
                 'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
@@ -75,9 +75,11 @@
             this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
 
             const url = this.getAttribute('src') || this.getAttribute('url');
-            if(url) {
+            if(url) (async () => {
+                await renderPromise;
+                // await this.renderOS();
                 this.loadSongFromURL(url);
-            }
+            })();
 
 
         }

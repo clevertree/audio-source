@@ -40,8 +40,8 @@
 
         async loadSongFromMemory(songUUID) {
             await this.song.loadSongFromMemory(songUUID);
-            this.render();
-            this.setStatus("Song loaded from memory: " + songUUID, songData);
+            // this.render();
+            this.setStatus("Song loaded from memory: " + songUUID, this.song);
 //         console.info(songData);
         }
 
@@ -52,12 +52,13 @@
                 throw new Error("Invalid file input");
             await this.song.loadSongFromFileInput(file);
             this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLength());
-            this.render();
+            // this.render();
         }
 
 
         async loadSongFromURL(url) {
             await this.playlist.loadSongFromURL(url);
+            // this.render();
             this.setStatus("Loaded from url: " + url);
         }
 

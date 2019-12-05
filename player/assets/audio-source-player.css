@@ -156,13 +156,12 @@ aspp-entry {
 asuig-row.asp-playlist-header > asui-div,
 aspp-playlist-entry > asui-div,
 aspp-entry > asui-div {
-    display: inline-block;
-    padding: 4px;
+    padding: 3px 0;
 }
 
-asp-playlist asui-div[key=id] { width: 2em; }
-asp-playlist asui-div[key=name] {width: 23em;}
-asp-playlist asui-div[key=length] {width: 4em;}
+asp-playlist asui-div[key=id]       { display: inline-block; width: 2em;  }
+asp-playlist asui-div[key=name]     { display: inline-block; width: 23em; }
+asp-playlist asui-div[key=length]   { display: inline-block; width: 4em; }
 
 aspp-entry.position {
     background: #9bbdff;

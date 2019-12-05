@@ -34,12 +34,12 @@
         get targetElm() { return this; }
 
         async setState(newState) {
-            // console.info('setState', this.state, newState, this);
+            console.info('setState', this.state, newState, this);
             Object.assign(this.state, newState);
             await this.renderOS();
         }
         async setProps(newProps) {
-            // console.info('setProps', this.props, newProps, this);
+            console.info('setProps', this.props, newProps, this);
             Object.assign(this.props, newProps);
             await this.renderProps();
         }
@@ -52,7 +52,7 @@
 
         async renderHTML() {
             if(!this.parentNode) {
-                // console.log("skipping render, not attached");
+                console.log("skipping render, not attached");
                 return;
             }
             let content = await this.render();
@@ -103,7 +103,7 @@
         connectedCallback() {
             this.eventHandlers.forEach(eventHandler =>
                 eventHandler[2].addEventListener(eventHandler[0], eventHandler[1], eventHandler[2]));
-            this.renderOS();
+            return this.renderOS();
         }
 
         disconnectedCallback() {
