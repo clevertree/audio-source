@@ -135,7 +135,7 @@ asp-playlist {
 
 asui-div[key=asp-playlist-container] {
     width: 100%;
-    max-height: 400px;
+    max-height: 800px;
     overflow-y: overlay;
     overflow-x: hidden;
 }
@@ -156,12 +156,15 @@ aspp-entry {
 asuig-row.asp-playlist-header > asui-div,
 aspp-playlist-entry > asui-div,
 aspp-entry > asui-div {
-    padding: 3px 0;
+     padding: 3px 3px;
 }
 
-asp-playlist asui-div[key=id]       { display: inline-block; width: 2em;  }
+asp-playlist asui-div[key=id]       { display: inline-block; width: 3em; }
 asp-playlist asui-div[key=name]     { display: inline-block; width: 23em; }
 asp-playlist asui-div[key=length]   { display: inline-block; width: 4em; }
+
+/*asp-playlist aspp-playlist-entry asui-div[key=id]       { color: #000; }*/
+/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div[key=id]       { color: #555; }*/
 
 aspp-entry.position {
     background: #9bbdff;
