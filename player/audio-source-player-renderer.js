@@ -24,7 +24,7 @@
             ASUIMenu,
             ASUIGrid,
             ASUIGridRow,
-            ASUIButton,
+            ASUIButtonInput,
             ASUIFileInput,
             ASUIRangeInput,
             ASUITextInput,
@@ -104,7 +104,7 @@
                             new ASUIMenu('from URL', null, null, {disabled: true}),
                             new ASUIMenu('from Library', null, null, {disabled: true}),
                         ]),
-                        this.refs.menuView = new ASUIMenu('Playlist', () => [
+                        this.refs.menuPlaylist = new ASUIMenu('Playlist', () => [
                             new ASUIMenu('Play Next Song', null, (e) => this.playlistNext()),
                             new ASUIMenu('Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
 
@@ -120,21 +120,21 @@
                     new ASUIDiv('asp-forms-container', () => [
                         new ASPPanel('song', 'Song', () => [
                             new ASPForm('playback', 'Playback', () => [
-                                this.refs.fieldSongPlaybackPlay = new ASUIButton('play',
+                                this.refs.fieldSongPlaybackPlay = new ASUIButtonInput('play',
                                     e => this.playlistPlay(e),
                                     new ASUIcon('play'),
                                     "Play Song",
                                     {class: 'hide-on-playing'}),
-                                this.refs.fieldSongPlaybackPause = new ASUIButton('pause',
+                                this.refs.fieldSongPlaybackPause = new ASUIButtonInput('pause',
                                     e => this.songPause(e),
                                     new ASUIcon('pause'),
                                     "Pause Song",
                                     {class: 'show-on-playing'}),
-                                this.refs.fieldSongPlaybackStop = new ASUIButton('stop',
+                                this.refs.fieldSongPlaybackStop = new ASUIButtonInput('stop',
                                     e => this.songStop(e),
                                     new ASUIcon('stop'),
                                     "Stop Song"),
-                                this.refs.fieldSongPlaylistNext = new ASUIButton('playlist-next',
+                                this.refs.fieldSongPlaylistNext = new ASUIButtonInput('playlist-next',
                                     e => this.playlistNext(e),
                                     new ASUIcon('next'),
                                     "Next Song")
@@ -147,7 +147,7 @@
                                     `.json,.mid,.midi`,
                                     "Load Song from File"
                                 ),
-                                this.refs.fieldSongFileSave = new ASUIButton('file-save',
+                                this.refs.fieldSongFileSave = new ASUIButtonInput('file-save',
                                     e => this.saveSongToFile(),
                                     new ASUIcon('file-save'),
                                     "Save Song to File"

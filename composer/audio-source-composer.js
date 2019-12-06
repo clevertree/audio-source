@@ -252,7 +252,7 @@
                 case 'instrument:added':
                 case 'instrument:removed':
                     this.renderInstruments();
-                    this.panelInstructions.render();
+                    this.refs.panelInstructions.render();
                     break;
 
                 case 'instrument:modified':
@@ -260,7 +260,7 @@
                     switch(e.type) {
                         case 'instrument:modified':
                             this.renderInstrument(e.detail.instrumentID);
-                            this.panelInstructions.render();
+                            this.refs.panelInstructions.render();
                             break;
                     }
                     // this.trackerElm.render();
@@ -272,14 +272,14 @@
                     break;
                 case 'instrument:remove':
                     this.renderInstruments();
-                    this.panelInstructions.render();
+                    this.refs.panelInstructions.render();
                     break;
                 case 'instrument:library':
 //                 console.log(e.type);
                     // TODO: this.instruments.render();
                     // this.renderInstruments();
                     this.updateForms();
-                    this.panelInstructions.render();
+                    this.refs.panelInstructions.render();
                     break;
             }
         }

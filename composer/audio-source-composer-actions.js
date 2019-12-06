@@ -17,7 +17,7 @@
     const {AudioSourceUtilities}        = await requireAsync('common/audio-source-utilities.js');
     const {ASUIComponent}               = await requireAsync('common/audio-source-ui.js');
 
-    class AudioSourceComposerActions extends ASUIComponent {
+    class AudioSourceComposerActions extends AudioSourceComposerRenderer {
         constructor(songData={}) {
             super();
             this.song = new AudioSourceSong(songData, this);
@@ -52,7 +52,7 @@
 
         setSongVolume(e, newSongVolume) {
             this.song.setVolume(newSongVolume);
-            this.fieldSongVolume.value = newSongVolume;
+            this.refs.fieldSongVolume.value = newSongVolume;
             // this.setStatus(`Volume modified: ${newSongVolume}`);
         }
 
@@ -104,7 +104,7 @@
         }
 
         async loadSongFromFileInput(fileInput = null) {
-            fileInput = fileInput || this.fieldSongFileLoad.inputElm;
+            fileInput = fileInput || this.refs.fieldSongFileLoad.inputElm;
             if (!fileInput || !fileInput.files || fileInput.files.length === 0)
                 throw new Error("Invalid file input");
             if (fileInput.files.length > 1)
@@ -148,7 +148,7 @@
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
-                playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
+                playbackPosition = values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
             if (wasPlaying)
@@ -335,7 +335,7 @@
             if (confirm(`Add Instrument to Song?\nURL: ${instrumentURL}`)) {
                 const instrumentID = this.song.addInstrument(instrumentConfig);
                 this.setStatus("New instrument Added to song: " + instrumentURL);
-                this.fieldInstructionInstrument.value = instrumentID;
+                this.refs.fieldInstructionInstrument.value = instrumentID;
 
             } else {
                 this.handleError(`New instrument canceled: ${instrumentURL}`);
@@ -354,7 +354,7 @@
                 await this.song.replaceInstrument(instrumentID, instrumentConfig);
                 await this.song.loadInstrument(instrumentID, true);
                 this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
-                this.fieldInstructionInstrument.value = instrumentID;
+                this.refs.fieldInstructionInstrument.value = instrumentID;
 
             } else {
                 this.handleError(`Change instrument canceled: ${instrumentURL}`);
@@ -386,7 +386,7 @@
 
         setTrackerOctave(e, newOctave = null) {
             if (newOctave !== null)
-                this.fieldTrackerOctave.value = newOctave;
+                this.refs.fieldTrackerOctave.value = newOctave;
         }
 
         setTrackerRowLength(e, rowLengthInTicks = null) {

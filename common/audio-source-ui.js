@@ -7,7 +7,7 @@
         module.exports = {
             ASUIComponent,
             ASUIDiv,
-            ASUIButton,
+            ASUIButtonInput,
             ASUIFileInput,
             ASUITextInput,
             ASUIRangeInput,
@@ -418,7 +418,7 @@
     }
 
 
-    class ASUIButton extends ASUIAbstractInput {
+    class ASUIButtonInput extends ASUIAbstractInput {
         constructor(key = null, callback = null, content = null, title = null, props={}) {
             super(key, callback, content, title, null, props);
             this.addEventHandler('click', e => this.onClick(e));
@@ -435,10 +435,10 @@
         }
     }
 
-    customElements.define('asui-input-button', ASUIButton);
+    customElements.define('asui-input-button', ASUIButtonInput);
 
 
-    class ASUSelectInput extends ASUIAbstractInput {
+    class ASUISelectInput extends ASUIAbstractInput {
         constructor(key = null, callback = null, optionContent = null, title = null, value = null, props = {}) {
             super(key, callback, optionContent, title, value, props);
             this.selectedValue = null;
@@ -585,7 +585,7 @@
 
     }
 
-    customElements.define('asui-input-select', ASUSelectInput);
+    customElements.define('asui-input-select', ASUISelectInput);
 
 
 
