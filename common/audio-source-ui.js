@@ -46,7 +46,7 @@
 
         async renderRN() { };
         async renderOS() {
-            await this.renderProps();
+            this.renderProps();
             await this.renderHTML();
         }
 
@@ -55,11 +55,19 @@
                 console.log("skipping render, not attached");
                 return;
             }
-            let content = await this.render();
-            this.targetElm.innerHTML = '';
 
-            // Render content
-            await this.renderContent(content, this.targetElm);
+            // this.targetElm.innerHTML = '';
+            try {
+                let content = await this.render();
+                let t, targetElm= this.targetElm;
+                while (t = targetElm.firstChild)
+                    targetElm.removeChild(t);
+                // Render content
+                await this.renderContent(content, this.targetElm);
+            } catch (e) {
+                this.targetElm.innerHTML = `<span class="error">${e.message}</span>`;
+            }
+
         }
 
         renderProps() {
@@ -88,6 +96,7 @@
                     await this.renderContent(content[i], targetElm);
                 return;
             }
+
             if(content) {
                 if (content instanceof HTMLElement)
                     targetElm.appendChild(content);

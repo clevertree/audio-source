@@ -35,6 +35,7 @@
     class AudioSourcePlayerRenderer extends ASUIComponent {
         constructor(state={}, props={}) {
             super(state, props);
+            this.shadowDOM = null;
             state.fullscreen = false;
             state.showPanelSong = true;
             state.showPanelPlaylist = true;
@@ -49,6 +50,39 @@
             link.setAttribute('rel', 'stylesheet');
             link.href = linkHRef;
             return link;
+        }
+
+        connectedCallback() {
+            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player.css');
+            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
+            this.shadowDOM = this.attachShadow({mode: 'closed'});
+            this.shadowDOM.innerHTML = `
+                <link rel="stylesheet" href="${linkHRefComposer}" />
+                <link rel="stylesheet" href="${linkHRefCommon}" />
+                `;
+
+
+
+
+            this.addEventHandler([
+                'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
+                'group:play', 'group:seek',
+                'note:start', 'note:end'
+            ], this.onSongEvent);
+            // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
+
+            this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+
+            // this.loadCSS();
+            // Render (with promise)
+            const renderPromise = super.connectedCallback();
+
+            const url = this.getAttribute('src') || this.getAttribute('url');
+            if(url) (async () => {
+                await renderPromise;
+                // await this.renderOS();
+                this.loadSongFromURL(url);
+            })();
         }
 
         async render() {
@@ -71,8 +105,8 @@
                             new ASUIMenu('from Library', null, null, {disabled: true}),
                         ]),
                         this.refs.menuView = new ASUIMenu('Playlist', () => [
-                            new ASUIMenu('Play Next Song', null, (e) => this.playlist.playNextSong()),
-                            new ASUIMenu('Clear Playlist', null, (e) => this.playlist.clear(), {hasBreak: true}),
+                            new ASUIMenu('Play Next Song', null, (e) => this.playlistNext()),
+                            new ASUIMenu('Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
 
                         ]),
                         // this.refs.menuEdit = new ASUIMenu('Edit'),
@@ -298,6 +332,7 @@
                     break;
             const nextEntry = entryElms[position+1] || entryElms[0];
             this.setPositionEntry(nextEntry);
+            return nextEntry;
         }
 
         // async updatePosition(position) {
@@ -416,6 +451,7 @@
                 console.error(e, this);
             }
         }
+
     }
     customElements.define('asp-playlist', ASPPlaylist);
 
@@ -459,12 +495,24 @@
             // })
 
             return [
-                new ASUIDiv('id', id),
+                new ASUIDiv('id', id+':'),
                 new ASUIDiv('name', entry.name),
                 // new ASUIDiv('url', this.state.url),
                 new ASUIDiv('length', formattedLength),
             ];
         }
+
+        // scrollIntoView(playlistElm) {
+        //
+        //     // TODO: find height within scrolling container
+        //     const container = this.parentNode;
+        //     // const container = this.tracker; // cursorCell.closest('.composer-tracker-container');
+        //     if (container.scrollTop < this.offsetTop - container.offsetHeight)
+        //         container.scrollTop = this.offsetTop;
+        //     //
+        //     if (container.scrollTop > this.offsetTop)
+        //         container.scrollTop = this.offsetTop - container.offsetHeight;
+        // }
 
         static parseFromData(entryData, id, props={}) {
             if(typeof entryData === "string") {
@@ -486,12 +534,15 @@
     }
     customElements.define('aspp-entry', ASPPlaylistEntry);
 
+
+
     class ASPPlaylistPlaylistEntry extends ASPPlaylistEntry {
         get isPlaylist() { return true; }
 
         constructor(entryData, props={}) {
             super(entryData, props);
-            entryData.closed = null;
+            props.status = null;
+            props.open = null;
             entryData.playlist = entryData.playlist || null;
             // props.isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
         }
@@ -499,9 +550,10 @@
         get playlist() { return this.state.playlist; }
 
         async togglePlaylist() {
+            this.setProps({open: this.props.open ? null : true});
             if(!this.state.playlist)
                 return await this.loadPlaylist();
-            await this.setState({closed: this.state.closed ? null : true})
+            await this.renderOS();
         }
 
         async loadPlaylist() {
@@ -510,6 +562,7 @@
             await this.setState({
                 name: "Loading playlist " + this.state.url.split('/').pop(),
             });
+            await this.setProps({status: 'loading'});
 
             const playlistData = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -541,7 +594,7 @@
 
                 // await entry.updateID(id); d
             }
-
+            await this.setProps({status: 'loaded', open:true});
             await this.setState({
                 name: playlistData.name,
                 playlist: newPlaylist
@@ -564,7 +617,7 @@
 
         async render() {
             const content = super.render();
-            if(this.state.playlist && !this.state.closed) {
+            if(this.state.playlist && this.props.open) {
                 // await this.updateEntries();
                 content.push(new ASUIDiv('container', this.state.playlist));
             }

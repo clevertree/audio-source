@@ -46,45 +46,10 @@
             state.version = '-1';
             state.song = new AudioSourceSong({}, this);
 
-            this.shadowDOM = null;
         }
         get song() { return this.state.song; }
         get targetElm() { return this.shadowDOM; }
 
-        connectedCallback() {
-            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player.css');
-            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
-            this.shadowDOM = this.attachShadow({mode: 'closed'});
-            this.shadowDOM.innerHTML = `
-                <link rel="stylesheet" href="${linkHRefComposer}" />
-                <link rel="stylesheet" href="${linkHRefCommon}" />
-                `;
-
-
-
-
-            this.addEventHandler([
-                'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-                'group:play', 'group:seek',
-                'note:start', 'note:end'
-            ], this.onSongEvent);
-            // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
-
-            this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
-
-            // this.loadCSS();
-            // Render (with promise)
-            const renderPromise = super.connectedCallback();
-
-            const url = this.getAttribute('src') || this.getAttribute('url');
-            if(url) (async () => {
-                await renderPromise;
-                // await this.renderOS();
-                this.loadSongFromURL(url);
-            })();
-
-
-        }
 
         /** Load External CSS **/
 
@@ -109,20 +74,21 @@
             return findThisScript()[0].basePath + appendPath;
         }
 
-        setStatus(newStatus) {
-            this.refs.textStatus.content = newStatus;
-            console.info.apply(null, arguments); // (newStatus);
-        }
-
+        /** @deprecated **/
         handleError(err) {
             this.statusElm.innerHTML = `<span style="red">${err}</span>`;
             console.error(err);
             // if(this.webSocket)
         }
 
+        setStatus(newStatus) {
+            this.refs.textStatus.content = newStatus;
+            console.info.apply(null, arguments); // (newStatus);
+        }
+
         setVersion(versionString) {
             this.versionString = versionString;
-            this.versionElm.innerHTML = versionString;
+            this.refs.textVersion.content = versionString;
         }
 
 

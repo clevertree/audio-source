@@ -116,6 +116,10 @@
                 this.song.play();
         }
 
+        async clearPlaylist() {
+            this.playlist.clear();
+        }
+
         async playlistPlay() {
             this.playlistActive = true;
             await this.songPlay();
@@ -125,7 +129,8 @@
         async playlistNext() {
             this.playlistActive = true;
             while(this.playlistActive) {
-                await this.playlist.updateNextPosition();
+                const entry = await this.playlist.updateNextPosition();
+                (entry.scrollIntoViewIfNeeded || entry.scrollIntoView).apply(entry);
                 await this.playlist.loadSongFromPlaylistEntry();
                 await this.songPlay();
             }

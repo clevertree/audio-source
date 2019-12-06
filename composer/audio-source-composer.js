@@ -54,7 +54,7 @@
             Util.loadPackageInfo()
                 .then(packageInfo => this.setVersion(packageInfo.version));
 
-            window.addEventListener('unload', e => this.saveState(e));
+            this.addEventHandler('unload', e => this.saveState(e), window);
             this.ui = {};
         }
 
@@ -72,51 +72,6 @@
 
         set defaultLibraryURL(url) {
             this.setAttribute('defaultLibraryURL', url);
-        }
-
-        connectedCallback() {
-            // this.loadCSS();
-
-            this.attachEventHandler(['focus', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
-            // 'change', 'submit',
-
-            this.attachEventHandler([
-                'song:loaded', 'song:play', 'song:end', 'song:stop', 'song:modified', 'song:seek',
-                'group:play', 'group:seek',
-                'note:start', 'note:end'
-            ], this.onSongEvent);
-            this.attachEventHandler([
-                    'instrument:instance',
-                    'instrument:library',
-                    'instrument:modified',
-                    'instrument:added',
-                    'instrument:removed'],
-                e => this.onSongEvent(e), document);
-
-            this.render();
-            this.focus();
-
-
-            this.loadState();
-
-            const Util = new AudioSourceUtilities;
-            Util.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
-        }
-
-        disconnectedCallback() {
-            this.eventHandlers.forEach(eventHandler =>
-                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
-        }
-
-        attachEventHandler(eventNames, method, context, options = null) {
-            if (!Array.isArray(eventNames))
-                eventNames = [eventNames];
-            for (let i = 0; i < eventNames.length; i++) {
-                const eventName = eventNames[i];
-                context = context || this;
-                context.addEventListener(eventName, method, options);
-                this.eventHandlers.push([eventName, method, context]);
-            }
         }
 
 
@@ -329,35 +284,9 @@
             }
         }
 
-        setStatus(newStatus) {
-            this.statusElm.innerHTML = newStatus;
-            console.info.apply(null, arguments); // (newStatus);
-        }
-
-        handleError(err) {
-            this.statusElm.innerHTML = `<span style="red">${err}</span>`;
-            console.error(err);
-            // if(this.webSocket)
-        }
-
-        setVersion(versionString) {
-            this.versionString = versionString;
-            this.versionElm.innerHTML = versionString;
-        }
-
-
         closeAllMenus() {
             this.shadowDOM.querySelector(`asui-menu`)
                 .closeAllMenus();
-        }
-
-        // Rendering
-        get statusElm() {
-            return this.shadowDOM.querySelector(`asui-div[key=asc-status-container] asui-div[key=status-text]`);
-        }
-
-        get versionElm() {
-            return this.shadowDOM.querySelector(`asui-div[key=asc-status-container] asui-div[key=version-text]`);
         }
 
 

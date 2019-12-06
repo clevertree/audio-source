@@ -42,7 +42,7 @@
         }
 
         connectedCallback() {
-            this.attachEventHandler([
+            this.addEventHandler([
                     'scroll',
                     'keydown',
                     'mousedown', 'mouseup', 'mousemove', 'mouseout',
@@ -58,22 +58,6 @@
             this.render();
             // setTimeout(e => this.render(), 20);
             // setTimeout(e => this.render(), 1000);
-        }
-
-        disconnectedCallback() {
-            this.eventHandlers.forEach(eventHandler =>
-                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
-        }
-
-        attachEventHandler(eventNames, method, context, options = null) {
-            if (!Array.isArray(eventNames))
-                eventNames = [eventNames];
-            for (let i = 0; i < eventNames.length; i++) {
-                const eventName = eventNames[i];
-                context = context || this;
-                context.addEventListener(eventName, method, options);
-                this.eventHandlers.push([eventName, method, context]);
-            }
         }
 
 

@@ -5,21 +5,104 @@
     function getThisScriptPath() { return 'composer/audio-source-composer-renderer.js'; }
     const exportThisScript = function(module) {
         module.exports = {AudioSourceComposerRenderer};
-    }
+    };
 
     /** Register This Async Module **/
     const resolveExports = registerAsyncModule();
 
     const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
+    const {
+        ASUIComponent,
+        ASUIDiv,
+        ASUIMenu,
+        ASUIGrid,
+        ASUIGridRow,
+        ASUIButton,
+        ASUIFileInput,
+        ASUIRangeInput,
+        ASUITextInput,
+        ASUIcon,
+    } = await requireAsync('common/audio-source-ui.js');
 
-    class AudioSourceComposerRenderer extends HTMLElement {
+    class AudioSourceComposerRenderer extends ASUIComponent {
         constructor() {
             super();
             this.shadowDOM = null;
         }
 
+        createStyleSheetLink(stylePath) {
+            const linkHRef = this.getScriptDirectory(stylePath);
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'stylesheet');
+            link.href = linkHRef;
+            return link;
+        }
 
-        render(force = false) {
+        connectedCallback() {
+            // this.loadCSS();
+
+            this.addEventHandler(['focus', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+            // 'change', 'submit',
+
+            this.addEventHandler([
+                'song:loaded', 'song:play', 'song:end', 'song:stop', 'song:modified', 'song:seek',
+                'group:play', 'group:seek',
+                'note:start', 'note:end'
+            ], this.onSongEvent);
+            this.addEventHandler([
+                    'instrument:instance',
+                    'instrument:library',
+                    'instrument:modified',
+                    'instrument:added',
+                    'instrument:removed'],
+                e => this.onSongEvent(e), document);
+
+            this.render();
+            this.focus();
+
+
+            this.loadState();
+
+            const Util = new AudioSourceUtilities;
+            Util.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
+        }
+
+        async render() {
+            return [
+                this.createStyleSheetLink('composer/assets/audio-source-composer.css'),
+                this.createStyleSheetLink('common/assets/audio-source-common.css'),
+                this.refs.containerElm = new ASUIDiv('asc-container', () => [
+                    new ASUIDiv('asc-menu-container', () => [
+                        this.refs.menuFile = new ASUIMenu('File', () => [
+                            new ASUIMenu('from Memory ►', async () => {
+                                const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+                                const Storage = new AudioSourceStorage();
+                                const songRecentUUIDs = await Storage.getRecentSongList() ;
+                                return songRecentUUIDs.map(entry => new ASUIMenu(entry.name || entry.uuid,
+                                    null, () => this.loadSongFromMemory(entry.uuid)));
+                            }),
+
+                            new ASUIMenu('from File', null, (e) => this.refs.fieldSongFileLoad.click()),
+                            new ASUIMenu('from URL', null, null, {disabled: true}),
+                            new ASUIMenu('from Library', null, null, {disabled: true}),
+                        ]),
+                        this.refs.menuView = new ASUIMenu('Playlist', () => [
+                            new ASUIMenu('Play Next Song', null, (e) => this.playlistNext()),
+                            new ASUIMenu('Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+
+                        ]),
+                        // this.refs.menuEdit = new ASUIMenu('Edit'),
+                        this.refs.menuView = new ASUIMenu('View', () => [
+                            new ASUIMenu(`${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                            new ASUIMenu(`${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                            new ASUIMenu(`${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                        ]),
+                    ]),
+                ]),
+            ];
+        }
+
+        render2(force = false) {
             const linkHRefComposer = this.getScriptDirectory('composer/assets/audio-source-composer.css');
             const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
 
@@ -417,6 +500,18 @@
             this.updateForms();
             // this.renderInstruments();
             // this.trackerElm.render();
+        }
+
+
+
+        setStatus(newStatus) {
+            this.refs.textStatus.content = newStatus;
+            console.info.apply(null, arguments); // (newStatus);
+        }
+
+        setVersion(versionString) {
+            this.versionString = versionString;
+            this.refs.textVersion.content = versionString;
         }
 
 
