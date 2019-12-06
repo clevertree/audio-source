@@ -221,6 +221,12 @@
             this.addEventHandler('click', e => this.onClick(e));
         }
 
+        get nextEntry() {
+            const nextEntry = this.state.positionEntry.nextElementSibling;
+            if(!nextEntry instanceof ASPPlaylistEntry)
+                throw new Error("Invalid next entry");
+            return nextEntry;
+        }
         get position() { return this.state.position; }
         get playlist() { return this.state.playlist; }
 
@@ -230,21 +236,6 @@
 
         async clear() {
             this.setState({playlist: []})
-        }
-
-        async updateNextPosition() {
-            let position = this.state.position;
-            position++;
-            if (position >= this.state.playlist.length)
-                position = 0;
-            this.setState({position});
-        }
-
-        async updatePosition(position) {
-            if(!this.state.playlist[position])
-                throw new Error("Invalid playlist position: " + position);
-            this.state.position = position;
-            // await this.updateEntries();
         }
 
         // async updateEntries() {
@@ -299,6 +290,29 @@
             return true;
         }
 
+        async updateNextPosition() {
+            const entryElms = this.querySelectorAll('aspp-entry,aspp-playlist-entry');
+            let position;
+            for(position=0; position<entryElms.length; position++)
+                if(entryElms[position] === this.state.positionEntry)
+                    break;
+            const nextEntry = entryElms[position+1] || entryElms[0];
+            this.setPositionEntry(nextEntry);
+        }
+
+        // async updatePosition(position) {
+        //     if(!this.state.playlist[position])
+        //         throw new Error("Invalid playlist position: " + position);
+        //     this.state.position = position;
+        //     // await this.updateEntries();
+        // }
+
+        setPositionEntry(entry, status='loading') {
+            if(this.state.positionEntry)
+                this.state.positionEntry.setProps({position: null, status:null});
+            this.state.positionEntry = entry;
+            this.state.positionEntry.setProps({position: true, status});
+        }
 
         isPlaylist(entryUrl) {
             return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
@@ -321,7 +335,9 @@
             // this.render();
         }
 
-        async loadSongFromPlaylistEntry(entry) {
+
+        async loadSongFromPlaylistEntry(entry=null) {
+            entry = entry || this.state.positionEntry;
             // if(song && song.playlistEntry === entry) {
             //     console.info("Skipping load for playlist song: " + playlistEntry);
             //     return;
@@ -336,7 +352,7 @@
                 await this.loadSongFromURL(entry.url);
             }
             await entry.setState({name: song.name, length: song.getSongLength()});
-
+            this.setPositionEntry(entry, 'loaded');
 
             // song.playlistPosition = this.position;
             this.render();
@@ -391,7 +407,9 @@
                 if(entryElm.isPlaylist) {
                     await entryElm.togglePlaylist();
                 } else {
+                    this.setPositionEntry(entryElm, 'loading');
                     await this.loadSongFromPlaylistEntry(entryElm);
+                    await this.playerElm.playlistPlay();
                 }
                 //     await songPlay();
             } else {

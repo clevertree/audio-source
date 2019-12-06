@@ -38,10 +38,10 @@
             Object.assign(this.state, newState);
             await this.renderOS();
         }
-        async setProps(newProps) {
+        setProps(newProps) {
             console.info('setProps', this.props, newProps, this);
             Object.assign(this.props, newProps);
-            await this.renderProps();
+            this.renderProps();
         }
 
         async renderRN() { };
@@ -62,7 +62,7 @@
             await this.renderContent(content, this.targetElm);
         }
 
-        async renderProps() {
+        renderProps() {
             // Render properties
             while(this.attributes.length > 0)
                 this.removeAttribute(this.attributes[0].name);
@@ -323,9 +323,17 @@
             this.callback = callback || function () {
                 console.warn("No callback set")
             };
+            this.addEventHandler('change', e => this.onChange(e));
         }
 
         click() { this.refs.inputElm.click(); }
+
+        parseInputValue(inputValue) { return inputValue; }
+
+        async onChange(e) {
+            this.state.value = this.parseInputValue(this.refs.inputElm.value);
+            this.callback(e, this.state.value);
+        }
 
         // get targetElm() {
         //     return this.inputElm;
@@ -348,7 +356,9 @@
         }
 
         set value(newValue) {
-            this.setState({value: newValue});
+            this.state.value = newValue;
+            this.refs.inputElm.value = newValue;
+            // this.setState({value: newValue});
         }
 
         createInputElement() {
@@ -435,7 +445,7 @@
                 this.setDefaultValue();
 
             this.addEventListener('focus', e => this.renderOptions(e));
-            this.addEventListener('change', e => this.onChange(e));
+            // this.addEventListener('change', e => this.onChange(e));
         }
 
         get inputElm() {
@@ -574,13 +584,13 @@
         constructor(key, callback, title=null, value=null, placeholder = null, props={}) {
             super(key, callback, null, title, value, props);
             props.placeholder = placeholder;
-            this.addEventHandler('change', e => this.onChange(e));
+            // this.addEventHandler('change', e => this.onChange(e));
         }
 
 
-        onChange(e) {
-            this.callback(e, this.value);
-        }
+        // onChange(e) {
+        //     this.callback(e, this.value);
+        // }
 
         createInputElement() {
             const inputElm = document.createElement('input');
@@ -598,7 +608,7 @@
             super(key, callback, null, title, value, props);
             this.state.min = min;
             this.state.max = max;
-            this.addEventHandler('change', e => this.onChange(e));
+            // this.addEventHandler('change', e => this.onChange(e));
         }
 
         createInputElement() {
@@ -610,10 +620,12 @@
             return rangeElm;
         }
 
-        onChange(e) {
-            // console.log(e.type);
-            this.callback(e, this.value);
-        }
+        parseInputValue(inputValue) { return Number.parseFloat(inputValue); }
+
+        // onChange(e) {
+        //     // console.log(e.type);
+        //     this.callback(e, this.value);
+        // }
     }
 
     customElements.define('asui-input-range', ASUIRangeInput);
@@ -622,12 +634,12 @@
     class ASUICheckBoxInput extends ASUIAbstractInput {
         constructor(key, callback = null, title=null, checked = false, props={}) {
             super(key, callback, null, title, checked, props);
-            this.addEventHandler('change', e => this.onChange(e));
+            // this.addEventHandler('change', e => this.onChange(e));
         }
 
-        onChange(e) {
-            this.callback(e, this.value);
-        }
+        // onChange(e) {
+        //     this.callback(e, this.value);
+        // }
 
         createInputElement() {
             const inputElm = document.createElement('input');
@@ -650,12 +662,12 @@
         constructor(key, callback = null, content, accepts = null, title=null, props={}) {
             super(key, callback, content, title, null, props);
             props.accepts = accepts;
-            this.addEventHandler('change', e => this.onChange(e));
+            // this.addEventHandler('change', e => this.onChange(e));
         }
 
-        onChange(e) {
-            this.callback(e, this.value);
-        }
+        // onChange(e) {
+        //     this.callback(e, this.value);
+        // }
 
         createInputElement() {
             const inputElm = document.createElement('input');

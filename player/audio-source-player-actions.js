@@ -33,7 +33,7 @@
 
         setSongVolume(e, newSongVolume) {
             this.song.setVolume(newSongVolume);
-            this.fieldSongVolume.value = newSongVolume;
+            this.refs.fieldSongVolume.value = newSongVolume;
             // this.setStatus(`Volume modified: ${newSongVolume}`);
         }
 
@@ -47,7 +47,7 @@
 
         async loadSongFromFileInput(file=null) {
             if(file === null)
-                file = this.fieldSongFileLoad.inputElm.files[0];
+                file = this.refs.fieldSongFileLoad.inputElm.files[0];
             if (!file)
                 throw new Error("Invalid file input");
             await this.song.loadSongFromFileInput(file);
@@ -62,10 +62,10 @@
             this.setStatus("Loaded from url: " + url);
         }
 
-        async loadSongFromPlaylistEntry(playlistPosition) {
-            // this.setStatus("Loading from playlist: " + url);
-            await this.playlist.loadSongFromURL(playlistPosition);
-        }
+        // async loadSongFromPlaylistEntry(playlistPosition) {
+        //     // this.setStatus("Loading from playlist: " + url);
+        //     await this.playlist.loadSongFromURL(playlistPosition);
+        // }
 
         /** Song Playlist **/
 
@@ -109,7 +109,7 @@
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
-                playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
+                playbackPosition = values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
             if (wasPlaying)
@@ -126,7 +126,7 @@
             this.playlistActive = true;
             while(this.playlistActive) {
                 await this.playlist.updateNextPosition();
-                await this.loadSongFromPlaylistEntry(this.playlist.position);
+                await this.playlist.loadSongFromPlaylistEntry();
                 await this.songPlay();
             }
         }

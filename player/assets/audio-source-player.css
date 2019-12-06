@@ -166,10 +166,14 @@ asp-playlist asui-div[key=length]   { display: inline-block; width: 4em; }
 /*asp-playlist aspp-playlist-entry asui-div[key=id]       { color: #000; }*/
 /*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div[key=id]       { color: #555; }*/
 
-aspp-entry.position {
+
+aspp-entry[status=loading] {
+    background: #ffcb2e;
+}
+aspp-entry[position] {
     background: #9bbdff;
 }
-aspp-entry.selected {
+aspp-entry[selected] {
     background: #AAA;
 }
 

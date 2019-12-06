@@ -62,8 +62,6 @@
 
 
 
-            // this.loadCSS();
-            const renderPromise = super.connectedCallback();
 
             this.addEventHandler([
                 'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
@@ -73,6 +71,10 @@
             // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
             this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+
+            // this.loadCSS();
+            // Render (with promise)
+            const renderPromise = super.connectedCallback();
 
             const url = this.getAttribute('src') || this.getAttribute('url');
             if(url) (async () => {
@@ -100,43 +102,6 @@
         //     targetDOM.appendChild(cssLink);
         // }
 
-
-        async onSongEvent(e) {
-            switch(e.type) {
-                case 'song:seek':
-                    this.updateSongPositionValue(e.detail.position);
-
-                    break;
-
-                case 'song:volume':
-                    this.refs.fieldSongVolume.value = e.detail.volume;
-                    break;
-
-                case 'song:play':
-                    this.refs.containerElm.classList.add('playing');
-                    if(e.detail.promise) {
-                        await e.detail.promise;
-                        this.refs.containerElm.classList.remove('playing');
-                    }
-
-                    this.refs.fieldSongPlaybackPause.disabled = false;
-                    const updateSongPositionInterval = setInterval(e => {
-                        if (!this.song.isPlaying) {
-                            clearInterval(updateSongPositionInterval);
-                            this.refs.fieldSongPlaybackPause.disabled = true;
-                            this.refs.containerElm.classList.remove('playing');
-                            this.classList.remove('playing');
-                        }
-                        this.updateSongPositionValue(this.song.songPlaybackPosition);
-                    }, 10);
-                    break;
-
-                case 'song:end':
-                case 'song:pause':
-                    this.refs.containerElm.classList.remove('playing');
-                    break;
-            }
-        }
 
 
 
@@ -168,12 +133,15 @@
 
         /** Playback **/
 
+        updateSongPositionMaxLength(maxSongLength) {
+            this.refs.fieldSongPosition.setState({max: Math.ceil(maxSongLength)});
+        }
 
         updateSongPositionValue(playbackPositionInSeconds) {
             const values = new AudioSourceValues();
-            const roundedSeconds = Math.round(playbackPositionInSeconds);
             this.refs.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.refs.fieldSongPosition.value !== roundedSeconds) {
+            const roundedSeconds = Math.round(playbackPositionInSeconds);
+            if (this.refs.fieldSongPosition.value !== roundedSeconds) {
                 this.refs.fieldSongPosition.value = roundedSeconds;
             }
         }
@@ -205,6 +173,45 @@
             const setFullScreen = !this.classList.contains('fullscreen');
             this.refs.containerElm.classList.toggle('fullscreen', setFullScreen);
             this.classList.toggle('fullscreen', setFullScreen);
+        }
+
+        async onSongEvent(e) {
+            // console.log(e.type, e);
+            switch(e.type) {
+                case 'song:seek':
+                    this.updateSongPositionValue(e.detail.position);
+
+                    break;
+
+                case 'song:volume':
+                    this.refs.fieldSongVolume.value = e.detail.volume;
+                    break;
+
+                case 'song:play':
+                    this.refs.containerElm.classList.add('playing');
+                    if(e.detail.promise) {
+                        await e.detail.promise;
+                        this.refs.containerElm.classList.remove('playing');
+                    }
+
+                    this.refs.fieldSongPlaybackPause.disabled = false;
+                    this.updateSongPositionMaxLength(this.song.getSongLength());
+                    const updateSongPositionInterval = setInterval(e => {
+                        if (!this.song.isPlaying) {
+                            clearInterval(updateSongPositionInterval);
+                            this.refs.fieldSongPlaybackPause.disabled = true;
+                            this.refs.containerElm.classList.remove('playing');
+                            this.classList.remove('playing');
+                        }
+                        this.updateSongPositionValue(this.song.songPlaybackPosition);
+                    }, 10);
+                    break;
+
+                case 'song:end':
+                case 'song:pause':
+                    this.refs.containerElm.classList.remove('playing');
+                    break;
+            }
         }
 
 
