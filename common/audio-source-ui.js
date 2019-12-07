@@ -109,15 +109,23 @@
             throw new Error("Not implemented");
         }
 
-        connectedCallback() {
+        addAllEventListeners() {
             this.eventHandlers.forEach(eventHandler =>
                 eventHandler[2].addEventListener(eventHandler[0], eventHandler[1], eventHandler[2]));
+        }
+
+        removeAllEventListeners() {
+            this.eventHandlers.forEach(eventHandler =>
+                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
+        }
+
+        connectedCallback() {
+            this.addAllEventListeners();
             return this.renderOS();
         }
 
         disconnectedCallback() {
-            this.eventHandlers.forEach(eventHandler =>
-                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
+            this.removeAllEventListeners();
         }
 
         addEventHandler(eventNames, method, context, options=null) {
@@ -128,6 +136,8 @@
                 context = context || this;
                 this.eventHandlers.push([eventName, method, context]);
             }
+            if(this.parentNode) // i.e. connected
+                this.addAllEventListeners();
         }
     }
     customElements.define('asui-component', ASUIComponent);

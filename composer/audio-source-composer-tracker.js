@@ -1,32 +1,43 @@
-{
+(async function() {
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'composer/audio-source-composer-tracker.js'; }
     const exportThisScript = function(module) {
         module.exports = {AudioSourceComposerTracker};
-    }
+    };
 
-    class AudioSourceComposerTracker extends HTMLElement {
-        constructor(groupName = 'root') {
-            super();
-            this.editorElm = null;
-            this.eventHandlers = [];
-            // this.segmentLength = 16;
-            this.currentRowSegmentID = 0;
-            this.rowSegmentCount = 10;
-            // this.selectedIndicies = []
+    /** Register This Async Module **/
+    const resolveExports = registerAsyncModule();
 
+    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
+    const {
+        ASUIComponent,
+        ASUIDiv,
+        ASUIMenu,
+        ASUIGrid,
+        ASUIGridRow,
+        ASUIButtonInput,
+        ASUIFileInput,
+        ASUIRangeInput,
+        ASUITextInput,
+        ASUIcon,
+    } = await requireAsync('common/audio-source-ui.js');
+
+
+    class AudioSourceComposerTracker extends ASUIComponent {
+        constructor(editorElm, group = 'root') {
+            super({
+                currentRowSegmentID: 0,
+                rowSegmentCount: 10,
+            }, {group});
+
+            this.editorElm = editorElm;
+            /** @deprecated **/
             this.mousePosition = {};
-            if (groupName)
-                this.setAttribute('group', groupName);
-            if (!this.hasAttribute('tabindex'))
-                this.setAttribute('tabindex', '0');
         }
 
 
-        get groupName() {
-            return this.getAttribute('group');
-        }
+        get groupName() { return this.props.group; }
 
         set groupName(groupName) {
             if (!this.editorElm.song.hasGroup(groupName))
@@ -37,9 +48,6 @@
         }
 
 
-        get isConnected() {
-            return this.editorElm.containerElm.contains(this);
-        }
 
         connectedCallback() {
             this.addEventHandler([
@@ -52,35 +60,9 @@
                 ],
                 e => this.onInput(e));
 
-            this.editorElm = this.getRootNode().host;
-            // if(!this.getAttribute('rowLength'))
-            //     this.setAttribute('rowLength', this.editor.song.timeDivision);
-            this.render();
-            // setTimeout(e => this.render(), 20);
-            // setTimeout(e => this.render(), 1000);
+            super.connectedCallback();
         }
 
-
-        // clearSelection(excludeElms=[]) {
-        //     this.editorElm.fieldTrackerSelection.value = '';
-        //     // this.selectedIndicies = [];
-        //
-        //     if(!Array.isArray(excludeElms))
-        //         excludeElms = [excludeElms];
-        //
-        //     // Update rows
-        //     // this.querySelectorAll('asct-row.selected')
-        //     //     .forEach((rowElm) => excludeElms.indexOf(rowElm) !== -1 ? null : rowElm.select(false));
-        //
-        //     // Remove 'add' instructions
-        //
-        //     // Update cells
-        //     this.querySelectorAll('asct-instruction.selected')
-        //         .forEach((instructionElm) => excludeElms.indexOf(instructionElm) !== -1 ? null : instructionElm.select(false));
-        // }
-
-
-        // get cursorCellIndex() {
         playSelectedInstructions() {
             if (this.editorElm.song.isPlaying)
                 this.editorElm.song.stopPlayback();
@@ -90,13 +72,6 @@
             }
         }
 
-        // getInstructions(indicies=null) {
-        //     return this.editor.song.getInstructions(this.groupName, indicies);
-        // }
-
-        // getInstructionRange(start, end=null) {
-        //     return this.editor.song.getInstructionRange(this.groupName, start, end);
-        // }
 
         getInstruction(index) {
             return this.editorElm.song.getInstruction(this.groupName, index);
@@ -104,14 +79,14 @@
 
         getInstructionFormValues(command = null) {
             if (!command)
-                command = this.editorElm.fieldInstructionCommand.value;
+                command = this.editorElm.refs.fieldInstructionCommand.value;
             let newInstruction = new SongInstruction();
 
-            if (this.editorElm.fieldInstructionInstrument.value || this.editorElm.fieldInstructionInstrument.value === 0)
-                newInstruction.instrument = parseInt(this.editorElm.fieldInstructionInstrument.value);
-            if (this.editorElm.fieldInstructionDuration.value) // TODO: refactor DURATIONS
-                newInstruction.duration = parseFloat(this.editorElm.fieldInstructionDuration.value);
-            const velocityValue = parseInt(this.editorElm.fieldInstructionVelocity.value);
+            if (this.editorElm.refs.fieldInstructionInstrument.value || this.editorElm.refs.fieldInstructionInstrument.value === 0)
+                newInstruction.instrument = parseInt(this.editorElm.refs.fieldInstructionInstrument.value);
+            if (this.editorElm.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
+                newInstruction.duration = parseFloat(this.editorElm.refs.fieldInstructionDuration.value);
+            const velocityValue = parseInt(this.editorElm.refs.fieldInstructionVelocity.value);
             if (velocityValue || velocityValue === 0)
                 newInstruction.velocity = velocityValue;
 
@@ -120,19 +95,6 @@
 
             return newInstruction;
         }
-
-
-        render() {
-            //this.renderForms();
-            this.renderRows(); // Rows depend on forms, and get rendered last
-        }
-
-
-        // navigate(groupPositionInTicks, groupName=null) {
-        //     if(groupName && groupName !== this.groupName)
-        //         this.groupName = groupName;
-        //     this.navigateGroup(groupName);
-        // }
 
 
         navigateGroup(groupPositionInTicks) {
@@ -150,16 +112,10 @@
         }
 
 
-        // navigatePop() {
-        //     this.editor.setStatus("Navigate Back: ", this.status.trackers[0].groupName);
-        //     if(this.status.trackers.length > 0)
-        //         this.status.trackers.shift();
-        //     this.render();
-        // }
 
         getSegmentIDFromPositionInTicks(positionInTicks) {
             // const timeDivision = this.editorElm.song.timeDivision;
-            const segmentLengthInTicks = this.editorElm.fieldTrackerSegmentLength.value;
+            const segmentLengthInTicks = this.editorElm.refs.fieldTrackerSegmentLength.value;
             const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
             return segmentID;
         }
@@ -184,12 +140,9 @@
                 childElm.classList.add('position');
             }
         }
-        // renderRowSegments() {
-        // }
 
-        renderRows(selectedIndicies = null) {
-            if (selectedIndicies === null)
-                selectedIndicies = this.editorElm.getSelectedIndicies();
+        render() {
+            const selectedIndicies = this.editorElm.getSelectedIndicies();
 
             console.time('tracker.renderRows()');
 
@@ -200,12 +153,12 @@
             // Instruction Iterator
             let instructionIterator = this.editorElm.song.getIterator(this.groupName);
 
-            const quantizationInTicks = parseInt(this.editorElm.fieldTrackerRowLength.value) || timeDivision;
-            const segmentLengthInTicks = parseInt(this.editorElm.fieldTrackerSegmentLength.value) || (timeDivision * 16);
+            const quantizationInTicks = parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision;
+            const segmentLengthInTicks = parseInt(this.editorElm.refs.fieldTrackerSegmentLength.value) || (timeDivision * 16);
             const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
 
-            //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.fieldTrackerSegmentLength.value);
-            const filterByInstrumentID = Number.isInteger(this.editorElm.fieldTrackerFilterInstrument.value) ? this.editorElm.fieldTrackerFilterInstrument.value : null;
+            //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.refs.fieldTrackerSegmentLength.value);
+            const filterByInstrumentID = Number.isInteger(this.editorElm.refs.fieldTrackerFilterInstrument.value) ? this.editorElm.refs.fieldTrackerFilterInstrument.value : null;
             const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
                 return conditionalInstruction.instrument === filterByInstrumentID
             };
@@ -287,7 +240,7 @@
                     let keyEvent = e.key;
                     if (!e.ctrlKey && this.editorElm.keyboard.getKeyboardCommand(
                         e.key,
-                        this.editorElm.fieldTrackerOctave.value
+                        this.editorElm.refs.fieldTrackerOctave.value
                     ))
                         keyEvent = 'PlayFrequency';
                     if (keyEvent === 'Enter' && e.altKey)
@@ -381,7 +334,7 @@
                             break;
 
                         case 'PlayFrequency':
-                            let newCommand = this.editorElm.keyboard.getKeyboardCommand(e.key, this.editorElm.fieldTrackerOctave.value);
+                            let newCommand = this.editorElm.keyboard.getKeyboardCommand(e.key, this.editorElm.refs.fieldTrackerOctave.value);
                             if (newCommand === null)
                                 break;
 
@@ -995,7 +948,7 @@
             if (this.cursorCell.matches('asct-instruction-add')) {
                 let newInstruction = this.getInstructionFormValues(commandString);
                 if (!newInstruction) {
-                    this.editorElm.fieldInstructionCommand.focus();
+                    this.editorElm.refs.fieldInstructionCommand.focus();
                     return console.info("Insert canceled");
                 }
 
@@ -1482,8 +1435,19 @@
     /** Export this script **/
     registerModule(exportThisScript);
 
+    /** Finish Registering Async Module **/
+    resolveExports();
+
 
     /** Module Loader Methods **/
+    function registerAsyncModule() {
+        let resolve;
+        const promise = new Promise((r) => resolve = r);
+        registerModule(module => {
+            module.promises = (module.promises || []).concat(promise);
+        });
+        return resolve;
+    }
     function registerModule(callback) {
         if(typeof window === 'undefined')
             callback(module);
@@ -1504,7 +1468,27 @@
         return scriptElms;
     }
 
+    async function requireAsync(relativeScriptPath) {
+        if(typeof require !== "undefined")
+            return require('../' + relativeScriptPath);
+
+        let scriptElm = findScript(relativeScriptPath)[0];
+        if(!scriptElm) {
+            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
+            scriptElm = document.createElement('script');
+            scriptElm.src = scriptURL;
+            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
+                scriptElm.onload = resolve;
+                document.head.appendChild(scriptElm);
+            }));
+        }
+        for (let i=0; i<scriptElm.promises.length; i++)
+            await scriptElm.promises[i];
+        console.log('scriptElm', scriptElm, scriptElm.exports)
+        return scriptElm.exports
+            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
+    }
 
 
-}
+})();
 

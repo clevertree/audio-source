@@ -46,7 +46,7 @@
             //     doubleClickTimeout: 500,
             //     autoSaveTimeout: 4000,
             // };
-            this.trackerElm = new AudioSourceComposerTracker();
+            this.trackerElm = new AudioSourceComposerTracker(this);
 
             this.values = new AudioSourceValues(this.song);
             const Util = new AudioSourceUtilities;
@@ -86,10 +86,10 @@
                 await this.loadDefaultSong(state.songUUID);
                 if (typeof state.volume !== "undefined") this.setSongVolume(e, state.volume);
                 if (typeof state.groupName !== "undefined") this.trackerElm.groupName = state.groupName;
-                if (typeof state.trackerSegmentLength !== "undefined") this.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
-                if (typeof state.trackerRowLength !== "undefined") this.fieldTrackerRowLength.value = state.trackerRowLength;
-                if (typeof state.trackerInstrument !== "undefined") this.fieldTrackerFilterInstrument.value = state.trackerInstrument;
-                if (typeof state.trackerOctave !== "undefined") this.fieldTrackerOctave.value = state.trackerOctave;
+                if (typeof state.trackerSegmentLength !== "undefined") this.refs.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
+                if (typeof state.trackerRowLength !== "undefined") this.refs.fieldTrackerRowLength.value = state.trackerRowLength;
+                if (typeof state.trackerInstrument !== "undefined") this.refs.fieldTrackerFilterInstrument.value = state.trackerInstrument;
+                if (typeof state.trackerOctave !== "undefined") this.refs.fieldTrackerOctave.value = state.trackerOctave;
                 if (typeof state.currentRowSegmentID !== "undefined") this.trackerElm.navigateSegment(state.currentRowSegmentID);
                 if (typeof state.selectedIndicies !== "undefined") this.selectIndicies(state.selectedIndicies);
                 // this.trackerElm.render(); // TODO: too many renders
@@ -107,10 +107,10 @@
                 groupName: this.trackerElm.groupName,
                 currentRowSegmentID: this.trackerElm.currentRowSegmentID,
                 volume: this.song.getVolumeValue(),
-                trackerSegmentLength: this.fieldTrackerSegmentLength.value,
-                trackerRowLength: this.fieldTrackerRowLength.value,
-                trackerInstrument: this.fieldTrackerFilterInstrument.value,
-                trackerOctave: this.fieldTrackerOctave.value,
+                trackerSegmentLength: this.refs.fieldTrackerSegmentLength.value,
+                trackerRowLength: this.refs.fieldTrackerRowLength.value,
+                trackerInstrument: this.refs.fieldTrackerFilterInstrument.value,
+                trackerOctave: this.refs.fieldTrackerOctave.value,
                 selectedIndicies: this.getSelectedIndicies()
             };
             const storage = new AudioSourceStorage();
@@ -152,9 +152,9 @@
         updateSongPositionValue(playbackPositionInSeconds) {
             const values = new AudioSourceValues();
             const roundedSeconds = Math.round(playbackPositionInSeconds);
-            this.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.fieldSongPosition.value !== roundedSeconds)
-                this.fieldSongPosition.value = roundedSeconds;
+            this.refs.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
+            if(this.refs.fieldSongPosition.value !== roundedSeconds)
+                this.refs.fieldSongPosition.value = roundedSeconds;
             this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
         }
 
@@ -216,7 +216,7 @@
                     break;
 
                 case 'song:volume':
-                    this.fieldSongVolume.value = e.detail.volume;
+                    this.refs.fieldSongVolume.value = e.detail.volume;
                     break;
 
                 case 'song:loaded':
@@ -225,11 +225,11 @@
                 case 'song:play':
                     this.classList.add('playing');
                     this.containerElm.classList.add('playing');
-                    this.fieldSongPlaybackPause.disabled = false;
+                    this.refs.fieldSongPlaybackPause.disabled = false;
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
-                            this.fieldSongPlaybackPause.disabled = true;
+                            this.refs.fieldSongPlaybackPause.disabled = true;
                             this.containerElm.classList.remove('playing');
                             this.classList.remove('playing');
                         }
@@ -319,13 +319,13 @@
             if (!Array.isArray(selectedIndicies))
                 throw new Error("Invalid selection");
 
-            this.fieldTrackerSelection.value = selectedIndicies.join(',');
+            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
 
             this.trackerElm.updateSelection();
         }
 
         getSelectedIndicies() {
-            const value = this.fieldTrackerSelection.value;
+            const value = this.refs.fieldTrackerSelection.value;
             if (value === '')
                 return [];
             return value
@@ -336,7 +336,7 @@
         }
 
         clearSelectedIndicies() {
-            this.fieldTrackerSelection.value = '';
+            this.refs.fieldTrackerSelection.value = '';
         }
 
         removeSelectedIndex(index) {
@@ -345,7 +345,7 @@
             if (pos !== -1) {
                 selectedIndicies.splice(pos, 1);
             }
-            this.fieldTrackerSelection.value = selectedIndicies.join(',');
+            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
         }
 
         addSelectedIndex(index) {
@@ -354,7 +354,7 @@
                 selectedIndicies.push(index);
                 selectedIndicies.sort();
             }
-            this.fieldTrackerSelection.value = selectedIndicies.join(',');
+            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
 //         console.info('updateSel(async function() {ectedIndicies', selectedIndicies);
         }
 
