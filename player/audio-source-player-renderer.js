@@ -42,6 +42,8 @@
             state.playlist = new ASPPlaylist(this);
 
         }
+        get targetElm() { return this.shadowDOM; }
+
         get playlist() { return this.state.playlist; }
 
         createStyleSheetLink(stylePath) {
@@ -53,15 +55,7 @@
         }
 
         connectedCallback() {
-            const linkHRefComposer = this.getScriptDirectory('player/assets/audio-source-player.css');
-            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
             this.shadowDOM = this.attachShadow({mode: 'closed'});
-            this.shadowDOM.innerHTML = `
-                <link rel="stylesheet" href="${linkHRefComposer}" />
-                <link rel="stylesheet" href="${linkHRefCommon}" />
-                `;
-
-
 
 
             this.addEventHandler([

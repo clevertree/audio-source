@@ -23,6 +23,7 @@
     const {AudioSourcePlayerActions} = await requireAsync('player/audio-source-player-actions.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
+    const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
     const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
     /**
      * Player requires a modern browser
@@ -46,9 +47,11 @@
             state.version = '-1';
             state.song = new AudioSourceSong({}, this);
 
+            const Util = new AudioSourceUtilities;
+            Util.loadPackageInfo()
+                .then(packageInfo => this.setVersion(packageInfo.version));
         }
         get song() { return this.state.song; }
-        get targetElm() { return this.shadowDOM; }
 
 
         /** Load External CSS **/

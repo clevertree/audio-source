@@ -41,7 +41,7 @@ asui-div[key=asp-container] {
 
 /** Status Bar **/
 asui-div[key=asp-status-container] {
-    display: block;
+    display: flex;
     background-color: #FFF;
     color: #000;
     padding: 0px;
@@ -52,16 +52,10 @@ asui-div[key=asp-status-container] asui-div[key=status-text]{
     padding-left: 4px;
 }
 asui-div[key=asp-status-container] asui-div[key=version-text] {
-    float: right;
+    /* float: right; */
     padding-right: 4px;
+    margin-left: auto;
 }
-
-asui-div[key=asp-status-container] .version-text:not(:hover) {
-    text-decoration: none;
-}
-
-
-
 
 
 

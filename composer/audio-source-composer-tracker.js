@@ -29,9 +29,14 @@
     class AudioSourceComposerTracker extends ASUIComponent {
         constructor(editorElm, group = 'root') {
             super({
+                group,
                 currentRowSegmentID: 0,
                 rowSegmentCount: 10,
-            }, {group});
+                quantizationInTicks: null,
+                segmentLengthInTicks: null,
+                filterByInstrumentID: null
+            }, {});
+
 
             this.editorElm = editorElm;
             /** @deprecated **/
@@ -39,7 +44,7 @@
         }
 
 
-        get groupName() { return this.props.group; }
+        get groupName() { return this.state.group; }
 
         set groupName(groupName) {
             if (!this.editorElm.song.hasGroup(groupName))
@@ -149,16 +154,17 @@
             // TODO: const selectedIndicies = this.editorElm.getSelectedIndicies();
             const content = [];
             const timeDivision = this.editorElm.song.timeDivision;
+            const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
+            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
+            const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
+
 
             // Instruction Iterator
             let instructionIterator = this.editorElm.song.getIterator(this.groupName);
 
-            const quantizationInTicks = parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
-            const segmentLengthInTicks = parseInt(this.editorElm.refs.fieldTrackerSegmentLength.value) || (timeDivision * 16);
-            const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
 
             //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.refs.fieldTrackerSegmentLength.value);
-            const filterByInstrumentID = Number.isInteger(this.editorElm.refs.fieldTrackerFilterInstrument.value) ? this.editorElm.refs.fieldTrackerFilterInstrument.value : null;
+            const filterByInstrumentID = Number.isInteger(this.state.filterByInstrumentID) ? this.state.filterByInstrumentID : null;
             const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
                 return conditionalInstruction.instrument === filterByInstrumentID
             };

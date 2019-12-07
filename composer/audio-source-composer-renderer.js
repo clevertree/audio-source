@@ -30,6 +30,7 @@
             super();
             this.shadowDOM = null;
         }
+        get targetElm() { return this.shadowDOM; }
 
         createStyleSheetLink(stylePath) {
             const linkHRef = this.getScriptDirectory(stylePath);
@@ -40,6 +41,8 @@
         }
 
         connectedCallback() {
+            this.shadowDOM = this.attachShadow({mode: 'closed'});
+
             // this.loadCSS();
             super.connectedCallback();
 
@@ -364,7 +367,7 @@
 
                     new ASUIDiv('asc-tracker-container', this.trackerElm),
 
-                    new ASUIDiv('asp-status-container', () => [
+                    new ASUIDiv('asc-status-container', () => [
                         this.refs.textStatus = new ASUIDiv('status-text'),
                         this.refs.textVersion = new ASUIDiv('version-text'),
                     ])
