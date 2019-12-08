@@ -663,22 +663,23 @@
             return instrument;
         }
 
-
         async loadInstrument(instrumentID, forceReload = false) {
             instrumentID = parseInt(instrumentID);
-            if (!forceReload && this.instruments[instrumentID])
-                return true;
-            this.instruments[instrumentID] = null;
+            if (!forceReload || !this.instruments[instrumentID]) {
+                this.instruments[instrumentID] = async () => {
 
-            const instrumentPreset = this.getInstrumentConfig(instrumentID);
-            if (!instrumentPreset.url)
-                throw new Error("Invalid instrument URL");
-            let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
+                    const instrumentPreset = this.getInstrumentConfig(instrumentID);
+                    if (!instrumentPreset.url)
+                        throw new Error("Invalid instrument URL");
+                    let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
-            const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
-
-            const instance = new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
-            this.instruments[instrumentID] = instance;
+                    const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
+                    const instance = new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+                    this.instruments[instrumentID] = instance;
+                    return instance;
+                };
+            }
+            const instance = await this.instruments[instrumentID];
             this.dispatchEvent(new CustomEvent('instrument:instance', {
                 detail: {
                     instance,

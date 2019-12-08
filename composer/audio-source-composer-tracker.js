@@ -51,7 +51,7 @@
                 throw new Error("Group not found in song: " + groupName);
             this.setAttribute('group', groupName);
             this.currentRowSegmentID = 0;
-            this.render();
+            this.setState({group: groupName});
         }
 
 
@@ -1194,25 +1194,6 @@
             ]
         }
 
-        // get row() {
-        //     return this.parentNode;
-        // }
-        //
-        // get trackerElm() {
-        //     if (!this.parentNode)
-        //         throw new Error("Invalid tracker");
-        //     return this.parentNode.trackerElm;
-        // }
-        //
-        // get editorElm() {
-        //     return this.trackerElm.editorElm;
-        // }
-        //
-        // set index(instructionIndex) {
-        //     this.setAttribute('i', instructionIndex);
-        //     // this.render();
-        // }
-
         get index() { return this.state.index; }
         get selected() { return this.state.selected; }
 
@@ -1267,35 +1248,6 @@
 
         render() {
             return this.state.content;
-
-            // let commandElm = this.querySelector('ascti-command');
-            // if (!commandElm) this.appendChild(commandElm = document.createElement('ascti-command'));
-            // commandElm.render(instruction);
-            //
-            // if (this.classList.contains('selected')) {
-            //     let instrumentElm = this.querySelector('ascti-instrument');
-            //     if (!instrumentElm) this.appendChild(instrumentElm = document.createElement('ascti-instrument'));
-            //     instrumentElm.render(instruction);
-            //
-            //     let velocityElm = this.querySelector('ascti-velocity');
-            //     if (!velocityElm) this.appendChild(velocityElm = document.createElement('ascti-velocity'));
-            //     velocityElm.render(instruction);
-            //
-            //     let durationElm = this.querySelector('ascti-duration');
-            //     if (!durationElm) this.appendChild(durationElm = document.createElement('ascti-duration'));
-            //     durationElm.render(instruction);
-            //
-            // } else {
-            //     let instrumentElm = this.querySelector('ascti-instrument');
-            //     if (instrumentElm) instrumentElm.parentNode.removeChild(instrumentElm);
-            //
-            //     let velocityElm = this.querySelector('ascti-velocity');
-            //     if (velocityElm) velocityElm.parentNode.removeChild(velocityElm);
-            //
-            //     let durationElm = this.querySelector('ascti-duration');
-            //     if (durationElm) durationElm.parentNode.removeChild(durationElm);
-            // }
-
         }
 
     }
@@ -1303,14 +1255,10 @@
     customElements.define('asct-instruction', AudioSourceComposerTrackerInstruction);
 
 
-    class AudioSourceComposerTrackerInstructionAdd extends AudioSourceComposerTrackerInstruction {
+    class AudioSourceComposerTrackerInstructionAdd extends ASUIComponent {
 
-
-        render(instruction = null) {
-            if (instruction)
-                throw new Error("Invalid");
-            this.innerHTML = '+';
-            return this;
+        render() {
+            return ['+']
         }
 
     }

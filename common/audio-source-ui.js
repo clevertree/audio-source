@@ -27,7 +27,8 @@
             this.state = state;
             this.props = props;
             this.refs = {};
-            this.eventHandlers = [];
+            this._eventHandlers = [];
+            this._renderOnConnect = true;
             for(let i=0; i<this.attributes.length; i++)
                 this.props[this.attributes[i].name] = this.attributes[i].value;
         }
@@ -99,7 +100,9 @@
             }
 
             if(content !== null && typeof content !== "undefined") {
-                if (content instanceof HTMLElement)
+                if (content instanceof ASUIComponent)
+                    await content.appendTo(targetElm);
+                else if (content instanceof HTMLElement)
                     targetElm.appendChild(content);
                 else
                     targetElm.innerHTML += content;
@@ -111,18 +114,19 @@
         }
 
         addAllEventListeners() {
-            this.eventHandlers.forEach(eventHandler =>
+            this._eventHandlers.forEach(eventHandler =>
                 eventHandler[2].addEventListener(eventHandler[0], eventHandler[1], eventHandler[2]));
         }
 
         removeAllEventListeners() {
-            this.eventHandlers.forEach(eventHandler =>
+            this._eventHandlers.forEach(eventHandler =>
                 eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
         }
 
-        connectedCallback() {
+        connectedCallback(renderOnConnect=true) {
             this.addAllEventListeners();
-            return this.renderOS();
+            if(this._renderOnConnect && renderOnConnect)
+                this.renderOS();
         }
 
         disconnectedCallback() {
@@ -135,10 +139,16 @@
             for(let i=0; i<eventNames.length; i++) {
                 const eventName = eventNames[i];
                 context = context || this;
-                this.eventHandlers.push([eventName, method, context]);
+                this._eventHandlers.push([eventName, method, context]);
             }
             if(this.parentNode) // i.e. connected
                 this.addAllEventListeners();
+        }
+
+        async appendTo(parentNode) {
+            this._renderOnConnect = false;
+            parentNode.appendChild(this);
+            await this.renderOS();
         }
     }
     customElements.define('asui-component', ASUIComponent);
@@ -355,22 +365,6 @@
             this.callback(e, this.state.value);
         }
 
-        // get targetElm() {
-        //     return this.inputElm;
-        // }
-
-        // get inputElm() {
-        //     throw new Error("Not implemented");
-        // }
-
-        // get disabled() {
-        //     return this.inputElm.disabled;
-        // }
-        //
-        // set disabled(value) {
-        //     this.inputElm.disabled = value;
-        // }
-
         get value() {
             return this.state.value;
         }
@@ -393,12 +387,6 @@
             if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if(this.state.title) inputElm.setAttribute('title', this.state.title);
 
-            // for(const attrName in this.props) {
-            //     if(this.props.hasOwnProperty(attrName)) {
-            //         if(this.props[attrName] !== null)
-            //             inputElm.setAttribute(attrName, this.props[attrName]);
-            //     }
-            // }
 
             await this.renderContent(this.state.content, inputElm);
             if(this.state.value !== null)
@@ -406,25 +394,6 @@
             return inputElm;
         }
 
-        // focus() {
-        //     return this.inputElm.focus();
-        // }
-
-        // addEventListener(type, listener, options) {
-        //     this.listeners.push([type, listener, options]);
-        // }
-        //
-        // connectedCallback() {
-        //     super.connectedCallback();
-        //     const inputElm = this.inputElm;
-        //     this.listeners.forEach(listener => inputElm.addEventListener(listener[0], listener[1], listener[2]));
-        // }
-        //
-        // disconnectedCallback() {
-        //     super.disconnectedCallback();
-        //     const inputElm = this.inputElm;
-        //     this.listeners.forEach(listener => inputElm.removeEventListener(listener[0], listener[1]));
-        // }
     }
 
 
@@ -458,7 +427,7 @@
             // else
             //     this.setDefaultValue();
 
-            this.addEventHandler('focus', e => this.renderOptions(e));
+            // this.addEventHandler('focus', e => this.renderOptions(e));
             // this.addEventListener('change', e => this.onChange(e));
         }
 

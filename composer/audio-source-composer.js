@@ -49,10 +49,7 @@
             this.trackerElm = new AudioSourceComposerTracker(this);
 
             this.values = new AudioSourceValues();
-            const Util = new AudioSourceUtilities;
             // Util.loadLibrary(defaultLibraryURL);
-            Util.loadPackageInfo()
-                .then(packageInfo => this.setVersion(packageInfo.version));
 
             this.addEventHandler('unload', e => this.saveState(e), window);
             this.ui = {};
