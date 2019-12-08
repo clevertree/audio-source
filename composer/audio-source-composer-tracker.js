@@ -11,7 +11,6 @@
 
     const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
-    const audioSourceValues = new AudioSourceValues;
     const {
         ASUIComponent,
         ASUIDiv,
@@ -25,6 +24,7 @@
         ASUIcon,
     } = await requireAsync('common/audio-source-ui.js');
 
+    const audioSourceValues = new AudioSourceValues;
 
     class AudioSourceComposerTracker extends ASUIComponent {
         constructor(editorElm, group = 'root') {

@@ -627,6 +627,7 @@
             return null;
         }
 
+        /** @deprecated use loadInstrument**/
         getInstrument(instrumentID, throwException = true) {
             if (this.instruments[instrumentID])
                 return this.instruments[instrumentID];

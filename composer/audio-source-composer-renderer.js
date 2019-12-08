@@ -831,7 +831,7 @@
         async render() {
             const instrumentID = this.state.instrumentID;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            const instrument = this.composerElm. song.getInstrument(instrumentID, false);
+            const instrument = await this.composerElm.song.loadInstrument(instrumentID);
 
             const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
             const content = [
