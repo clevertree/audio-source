@@ -59,11 +59,11 @@
             return results;
         }
 
-        getAllSongGroups(song, callback = (groupName) => groupName) {
+        getAllSongGroups(song, callback = (groupName) => groupName, append='') {
             const results = [];
             const instructionList = song.data.instructions;
             Object.keys(instructionList).forEach(function (key, i) {
-                const result = callback('@' + key);
+                const result = callback(append+key);
                 addResult(results, result);
             });
             return results;

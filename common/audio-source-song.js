@@ -7,6 +7,7 @@
             AudioSourceSong,
             AudioSourceInstructionIterator,
             AudioSourceInstructionPlayback,
+            SongInstruction,
         };
     };
 

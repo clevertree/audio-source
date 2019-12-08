@@ -176,12 +176,12 @@
     /** Menu **/
     class ASUIMenu extends ASUIComponent {
 
-        constructor(caption = null, dropDownContent = null, actionCallback = null, state={}, props = {}) {
-            super(Object.assign({
+        constructor(caption = null, dropDownContent = null, actionCallback = null, props = {}) {
+            super({
                 caption,
                 content: dropDownContent,
                 open: false,
-            }, state), props);
+            }, props);
             props.stick = false;
             this.action = actionCallback;
             this.addEventHandler('mouseover', this.onInputEvent);

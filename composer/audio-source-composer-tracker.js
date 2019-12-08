@@ -9,8 +9,9 @@
     /** Register This Async Module **/
     const resolveExports = registerAsyncModule();
 
-    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    const {SongInstruction}     = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceLibrary}  = await requireAsync('common/audio-source-library.js');
+    const {AudioSourceValues}   = await requireAsync('common/audio-source-values.js');
     const {
         ASUIComponent,
         ASUIDiv,
