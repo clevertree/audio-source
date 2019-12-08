@@ -164,7 +164,7 @@
                     }
 
                     this.refs.fieldSongPlaybackPause.disabled = false;
-                    this.updateSongPositionMaxLength(this.song.getSongLength());
+                    this.updateSongPositionMaxLength(this.song.getSongLengthInSeconds());
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);

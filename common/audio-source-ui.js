@@ -98,7 +98,7 @@
                 return;
             }
 
-            if(content) {
+            if(content !== null && typeof content !== "undefined") {
                 if (content instanceof HTMLElement)
                     targetElm.appendChild(content);
                 else
@@ -400,8 +400,7 @@
             //     }
             // }
 
-            if(this.state.content)
-                await this.renderContent(this.state.content, inputElm);
+            await this.renderContent(this.state.content, inputElm);
             if(this.state.value !== null)
                 inputElm.value = this.state.value;
             return inputElm;

@@ -24,30 +24,30 @@
         // }
 
         eachLibrary(callback) {
-            this.processItemList(this.libraries, (libraryConfig) => {
+            return this.processItemList(this.libraries, (libraryConfig) => {
                 libraryConfig.url = new URL(this.urlPrefix + (libraryConfig.url || libraryConfig.name), this.url) + '';
-                callback(libraryConfig);
+                return callback(libraryConfig);
             });
         }
 
         eachSample(callback) {
-            this.processItemList(this.samples, (sampleConfig) => {
+            return this.processItemList(this.samples, (sampleConfig) => {
                 sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
-                callback(sampleConfig);
+                return callback(sampleConfig);
             });
         }
 
         eachPreset(callback) {
-            this.processItemList(this.presets, (presetConfig) => {
+            return this.processItemList(this.presets, (presetConfig) => {
                 presetConfig.url = this.url + '#' + presetConfig.name;
                 return callback(presetConfig);
             });
         }
 
         eachInstrument(callback) {
-            this.processItemList(this.instruments, (instrumentConfig) => {
+            return this.processItemList(this.instruments, (instrumentConfig) => {
                 instrumentConfig.url = new URL(this.urlPrefix + (instrumentConfig.url || instrumentConfig.name), this.url) + '';
-                callback(instrumentConfig);
+                return callback(instrumentConfig);
             });
         }
 
@@ -91,6 +91,41 @@
             return newConfig;
         }
 
+        processItemList(arrayOrObject, eachCallback, defaultParam='url') {
+            const results = [];
+            const eachItem = (itemConfig, itemName=null) => {
+                if(typeof itemConfig === "string") {
+                    const newItem = {};
+                    newItem[defaultParam] = itemConfig;
+                    itemConfig = newItem;
+                }
+                itemConfig = Object.assign({}, itemConfig);
+                if(typeof itemConfig.name === "undefined" && itemName)
+                    itemConfig.name = itemName;
+                const result = eachCallback(itemConfig);
+                if(result !== null)
+                    results.push(result);
+                return result;
+            };
+
+            if(Array.isArray(arrayOrObject)) {
+                for(let i=0; i<arrayOrObject.length; i++) {
+                    if(eachItem(arrayOrObject[i]) === false)
+                        break;
+                }
+            } else if(typeof arrayOrObject === "object") {
+                for(let itemName in arrayOrObject) {
+                    if(arrayOrObject.hasOwnProperty(itemName)) {
+                        if(eachItem(arrayOrObject[itemName], itemName) === false)
+                            break;
+                    }
+                }
+            } else {
+                throw new Error('Unknown array or object');
+            }
+            return results;
+        }
+
         // getPresetConfig2(presetName) {
         //     const newConfig = {};
         //     newConfig.preset = presetName;
@@ -127,36 +162,6 @@
         //     return newConfig;
         // }
 
-        processItemList(arrayOrObject, eachCallback, defaultParam='url') {
-            const eachItem = (itemConfig, itemName=null) => {
-                if(typeof itemConfig === "string") {
-                    const newItem = {};
-                    newItem[defaultParam] = itemConfig;
-                    itemConfig = newItem;
-                }
-                itemConfig = Object.assign({}, itemConfig);
-                if(typeof itemConfig.name === "undefined" && itemName)
-                    itemConfig.name = itemName;
-                eachCallback(itemConfig);
-            };
-
-            if(Array.isArray(arrayOrObject)) {
-                for(let i=0; i<arrayOrObject.length; i++) {
-                    if(eachItem(arrayOrObject[i]) === false)
-                        break;
-                }
-            } else if(typeof arrayOrObject === "object") {
-                for(let itemName in arrayOrObject) {
-                    if(arrayOrObject.hasOwnProperty(itemName)) {
-                        if(eachItem(arrayOrObject[itemName], itemName) === false)
-                            break;
-                    }
-                }
-            } else {
-                throw new Error('Unknown array or object');
-            }
-        }
-
 
     }
 
@@ -175,18 +180,13 @@
         }
     };
 
-    AudioSourceLibrary.loadURL = async function(url) {
+    AudioSourceLibrary.loadFromURL = async function(url) {
         if (!url)
             throw new Error("Invalid url");
         url = new URL((url + '').split('#')[0], document.location) + '';
 
         let libraryData;
-        if (AudioSourceLibrary.cache[url]) {
-            libraryData = AudioSourceLibrary.cache[url];
-            if(libraryData instanceof Promise)
-                libraryData = await libraryData;
-
-        } else {
+        if (!AudioSourceLibrary.cache[url]) {
             AudioSourceLibrary.cache[url] = new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', url + '', true);
@@ -209,12 +209,19 @@
                 };
                 xhr.send();
             });
-            libraryData = await AudioSourceLibrary.cache[url];
         }
+        libraryData = AudioSourceLibrary.cache[url];
+        if(libraryData instanceof Promise)
+            libraryData = await libraryData;
         return new AudioSourceLibrary(libraryData);
     };
-
+    AudioSourceLibrary.loadDefaultLibrary = async function() {
+        return await AudioSourceLibrary.loadFromURL(AudioSourceLibrary.defaultLibraryURL);
+    };
     AudioSourceLibrary.cache = {};
+    AudioSourceLibrary.defaultLibraryURL = findThisScript()[0].basePath + '/default.library.json';
+
+
 
 
     /** Export this script **/

@@ -86,7 +86,7 @@
         get name() { return this.data.name; }
         get version() { return this.data.version; }
         get timeDivision() { return this.data.timeDivision; }
-        // get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
+        get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
         get rootGroup() { return this.data.root; }
 
         // get history() { return this.data.history; }
@@ -340,6 +340,8 @@
 
         /** Song Timing **/
 
+        getSongLengthInSeconds() { return this.getSongLength().inSeconds; }
+        getSongLengthInTicks() { return this.getSongLength().inTicks; }
         getSongLength() {
             return this.getGroupLength(this.rootGroup);
         }
@@ -347,7 +349,10 @@
         getGroupLength(groupName) {
             const instructionIterator = this.getIterator(groupName);
             while (instructionIterator.nextInstruction()) {}
-            return instructionIterator.groupPlaybackEndTime;
+            return {
+                inSeconds: instructionIterator.groupPlaybackEndTime,
+                inTicks: instructionIterator.groupPositionInTicks
+            }
         }
 
 
@@ -1407,6 +1412,7 @@
             // this.lastRowPositionInTicks = 0;
             // this.lastRowPlaybackTime = 0;
             this.groupPositionInTicks = groupPositionInTicks;
+            this.groupEndPositionInTicks = groupPositionInTicks;
             this.lastInstructionGroupPositionInTicks = groupPositionInTicks;
             this.groupPlaybackTime = 0;
             this.groupPlaybackEndTime = 0;
@@ -1519,12 +1525,16 @@
                 this.groupPlaybackTime = this.lastInstructionGroupPlaybacktime + elapsedTime;
                 this.lastInstructionGroupPlaybacktime = this.groupPlaybackTime; // TODO: Hack.
 
+                if(nextInstruction.duration) {
+                    const groupEndPositionInTicks = this.groupPositionInTicks + nextInstruction.duration;
+                    if(groupEndPositionInTicks > this.groupEndPositionInTicks)
+                        this.groupEndPositionInTicks = groupEndPositionInTicks;
+                    const groupPlaybackEndTime = this.groupPlaybackTime + (nextInstruction.duration / this.song.timeDivision) / (this.currentBPM / 60);
+                    if(groupPlaybackEndTime > this.groupPlaybackEndTime)
+                        this.groupPlaybackEndTime = groupPlaybackEndTime;
+                }
+
             }
-
-            const groupPlaybackEndTime = this.groupPlaybackTime + (nextInstruction.duration / this.song.timeDivision) / (this.currentBPM / 60);
-            if(groupPlaybackEndTime > this.groupPlaybackEndTime)
-                this.groupPlaybackEndTime = groupPlaybackEndTime;
-
             return this.getInstruction(this.groupIndex);
         }
 

@@ -120,7 +120,7 @@ class AudioSourceCommonTest {
         song.addInstructionGroup(newRootGroup, ['A', 'B', 'C', 10, 'D']);
         song.removeInstructionGroup(newRootGroup);
 
-        console.info("Test song: ", Math.round(song.getSongLength() * 10000) / 10000 + 's', songData);
+        console.info("Test song: ", Math.round(song.getSongLengthInSeconds() * 10000) / 10000 + 's', songData);
 
         // TODO: set position
 
@@ -133,7 +133,7 @@ class AudioSourceCommonTest {
 
         // Get Song Info
         console.assert(song.songPlaybackPosition > 0, "songPlaybackPosition");
-        console.assert(song.getSongLength() > 0, "getSongLength()");
+        console.assert(song.getSongLengthInSeconds() > 0, "getSongLengthInSeconds()");
         // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
 

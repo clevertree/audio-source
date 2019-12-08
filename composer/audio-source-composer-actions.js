@@ -18,9 +18,10 @@
     const {ASUIComponent}               = await requireAsync('common/audio-source-ui.js');
 
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
-        constructor(songData={}) {
-            super();
-            this.song = new AudioSourceSong(songData, this);
+        constructor(state={}, props={}) {
+            super(state, props);
+            this.song = new AudioSourceSong({}, this);
+
         }
 
         getDefaultInstrumentURL() {
@@ -61,7 +62,7 @@
             const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
             let songData = storage.generateDefaultSong(defaultInstrumentURL);
             await this.song.loadSongData(songData);
-            this.render(true);
+            await this.renderOS();
             this.setStatus("Loaded new song", songData);
         }
 
@@ -98,7 +99,7 @@
 
         async loadSongFromMemory(songUUID) {
             await this.song.loadSongFromMemory(songUUID);
-            this.render(true);
+            await this.renderOS();
             this.setStatus("Song loaded from memory: " + songUUID);
 //         console.info(songData);
         }
@@ -111,17 +112,24 @@
                 throw new Error("Invalid file input: only one file allowed");
             const file = fileInput.files[0];
             await this.song.loadSongFromFileInput(file);
-            this.render(true);
+            await this.renderOS();
             this.setStatus("Song loaded from file: ", file);
         }
 
 
 
-        async loadSongFromURL(src) {
-            await this.song.loadSongFromURL(src);
-            this.setStatus("Song loaded from src: " + src);
-            console.info(this.song.data);
-            this.render(true);
+        async loadSongFromURL(url) {
+            await this.song.loadSongFromURL(url);
+            this.setStatus("Song loaded from url: " + url);
+            // console.info(this.song.data);
+            await this.renderOS();
+        }
+
+        async loadSongFromData(songData) {
+            await this.song.loadSongData(songData);
+            // this.render(true);
+            this.setStatus("Song loaded from data", songData);
+            await this.renderOS();
         }
 
         /** Song Playback **/
@@ -157,7 +165,7 @@
 
         // setSongPositionAsPercent(e, playbackPositionPercent) {
         //     const song = this.song;
-        //     const length = song.getSongLength();
+        //     const length = song.getSongLengthInSeconds();
         //     song.setPlaybackPosition(length * (playbackPositionPercent));
         // }
 

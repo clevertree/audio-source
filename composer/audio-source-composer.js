@@ -24,8 +24,8 @@
     const {AudioSourceComposerTracker} = await requireAsync('composer/audio-source-composer-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
-        constructor(songData={}) {
-            super(songData);
+        constructor(state={}, props={}) {
+            super(state, props);
             this.versionString = '-1';
             this.eventHandlers = [];
             this.saveSongToMemoryTimer = null;
@@ -48,7 +48,7 @@
             // };
             this.trackerElm = new AudioSourceComposerTracker(this);
 
-            this.values = new AudioSourceValues(this.song);
+            this.values = new AudioSourceValues();
             const Util = new AudioSourceUtilities;
             // Util.loadLibrary(defaultLibraryURL);
             Util.loadPackageInfo()
@@ -434,7 +434,6 @@
         }
         for (let i=0; i<scriptElm.promises.length; i++)
             await scriptElm.promises[i];
-        console.log('scriptElm', scriptElm, scriptElm.exports)
         return scriptElm.exports
             || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
     }

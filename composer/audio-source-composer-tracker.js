@@ -43,7 +43,7 @@
             this.mousePosition = {};
         }
 
-
+        get song()      { return this.editorElm.song; }
         get groupName() { return this.state.group; }
 
         set groupName(groupName) {
@@ -179,6 +179,7 @@
 
                 if (this.currentRowSegmentID === lastRowSegmentID) {
                     const newRowElm = new AudioSourceComposerTrackerRow(
+                        this.song,
                         rowInstructionList,
                         instructionIterator.groupPositionInTicks,
                         instructionIterator.groupPlaybackTime); // document.createElement('asct-row');
@@ -1032,7 +1033,10 @@
     const VISIBLE_BUFFER = 100;
 
     class AudioSourceComposerTrackerRow extends ASUIComponent {
-        constructor(instructionList, positionInTicks=null, positionInSeconds=null, duration=null) {
+        constructor(song, instructionList, positionInTicks=null, positionInSeconds=null, duration=null) {
+            instructionList = instructionList.map(instruction =>
+                new AudioSourceComposerTrackerInstruction(song, instruction, instruction.index)
+            );
             super({
                 instructionList,
                 positionInTicks,
@@ -1143,9 +1147,7 @@
         // }
 
         render() {
-            return this.state.instructionList.map(instruction =>
-                new AudioSourceComposerTrackerInstruction(instruction, instruction.index)
-            );
+            return this.state.instructionList;
         }
 
         renderInstructions(rowInstructionList = []) {
@@ -1179,12 +1181,17 @@
     customElements.define('asct-row', AudioSourceComposerTrackerRow);
 
     class AudioSourceComposerTrackerInstruction extends ASUIComponent {
-        constructor(instruction, index) {
+        constructor(song, instruction, index) {
             super({
-                instruction,
                 index,
                 selected: null
             });
+            this.state.content = [
+                new AudioSourceComposerParamCommand(instruction.command),
+                new AudioSourceComposerParamInstrument(instruction.instrument),
+                new AudioSourceComposerParamVelocity(instruction.velocity),
+                new AudioSourceComposerParamDuration(song, instruction.duration),
+            ]
         }
 
         // get row() {
@@ -1259,13 +1266,7 @@
         }
 
         render() {
-            const instruction = this.state.instruction;
-            return [
-                new AudioSourceComposerParamCommand(instruction.command),
-                new AudioSourceComposerParamInstrument(instruction.instrument),
-                new AudioSourceComposerParamVelocity(instruction.velocity),
-                new AudioSourceComposerParamDuration(instruction.duration),
-            ];
+            return this.state.content;
 
             // let commandElm = this.querySelector('ascti-command');
             // if (!commandElm) this.appendChild(commandElm = document.createElement('ascti-command'));
@@ -1319,46 +1320,55 @@
 
     class AudioSourceComposerParamCommand extends ASUIComponent {
         constructor(command, props= {}) {
-            super({command}, props);
+            super({
+                command: audioSourceValues.formatCommand(command)
+            }, props);
         }
 
         render() {
-            return audioSourceValues.formatCommand(this.state.command);
+            return this.state.command;
         }
+
     }
     customElements.define('ascti-command', AudioSourceComposerParamCommand);
 
 
     class AudioSourceComposerParamInstrument extends ASUIComponent {
         constructor(instrumentID, props= {}) {
-            super({instrumentID}, props);
+            super({
+                instrumentID: audioSourceValues.formatInstrumentID(instrumentID)
+            }, props);
         }
 
         render() {
-            return audioSourceValues.formatInstrumentID(this.state.instrumentID);
+            return this.state.instrumentID;
         }
     }
     customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
 
     class AudioSourceComposerParamVelocity extends ASUIComponent {
         constructor(velocity, props= {}) {
-            super({velocity}, props);
+            super({
+                velocity:audioSourceValues.formatVelocity(velocity)
+            }, props);
         }
 
         render() {
-            return audioSourceValues.formatVelocity(this.state.velocity);
+            return this.state.velocity;
         }
     }
 
     customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
 
     class AudioSourceComposerParamDuration extends ASUIComponent {
-        constructor(duration, props= {}) {
-            super({duration}, props);
+        constructor(song, duration, props= {}) {
+            super({
+                duration:audioSourceValues.formatDuration(song, duration)
+            }, props);
         }
 
         render() {
-            return audioSourceValues.formatDuration(this.state.duration);
+            return this.state.duration;
         }
     }
 
@@ -1367,11 +1377,13 @@
 
     class AudioSourceComposerTrackerDelta extends ASUIComponent {
         constructor(duration, props= {}) {
-            super({duration}, props);
+            super({
+                duration: audioSourceValues.formatDuration(duration)
+            }, props);
         }
 
         render() {
-            return audioSourceValues.formatDuration(this.state.duration);
+            return this.state.duration;
         }
     }
 

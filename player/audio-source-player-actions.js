@@ -51,7 +51,7 @@
             if (!file)
                 throw new Error("Invalid file input");
             await this.song.loadSongFromFileInput(file);
-            this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLength());
+            this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLengthInSeconds());
             // this.render();
         }
 

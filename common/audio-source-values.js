@@ -51,7 +51,7 @@
                 for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                     const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
                     // const instrument = this.renderer.getInstrument(instrumentID);
-                    const result = callback(instrumentID, this.format(instrumentID, 'instrument')
+                    const result = callback(instrumentID, this.formatInstrumentID(instrumentID)
                         + ': ' + (instrumentInfo.name ? instrumentInfo.name : instrumentInfo.url.split('/').pop()));
                     addResult(results, result);
                 }

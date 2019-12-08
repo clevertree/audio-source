@@ -165,7 +165,7 @@
                                 this.refs.fieldSongPosition = new ASUIRangeInput('position',
                                     (e, pos) => this.setSongPosition(e, pos),
                                     0,
-                                    Math.ceil(this.song.getSongLength()),
+                                    Math.ceil(this.song.getSongLengthInSeconds()),
                                     'Song Position',
                                     0
                                 )
@@ -359,7 +359,7 @@
                 //     await this.loadSongFromPlaylistEntry(this.position);
             } else {
                 await song.loadSongFromURL(url);
-                this.addSongURLToPlaylist(url, song.name, song.getSongLength());
+                this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
             }
             // this.render();
         }
@@ -380,7 +380,7 @@
             } else if(entry.url) {
                 await this.loadSongFromURL(entry.url);
             }
-            await entry.setState({name: song.name, length: song.getSongLength()});
+            await entry.setState({name: song.name, length: song.getSongLengthInSeconds()});
             this.setPositionEntry(entry, 'loaded');
 
             // song.playlistPosition = this.position;
