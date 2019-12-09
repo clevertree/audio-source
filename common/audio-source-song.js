@@ -792,7 +792,7 @@
                 console.error(`Instrument ${instrumentID} is not loaded. Playback skipped. `);
                 return;
             }
-            let instrument = this.getInstrument(instrumentID);
+            let instrument = await this.loadInstrument(instrumentID);
             const destination = this.getVolumeGain();
             return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         }
@@ -806,17 +806,17 @@
             return null;
         }
 
-        /** @deprecated use loadInstrument**/
-        getInstrument(instrumentID, throwException = true) {
-            if (this.instruments[instrumentID])
-                return this.instruments[instrumentID];
-            if (throwException)
-                throw new Error("Instrument not yet loaded: " + instrumentID);
-            return null;
-        }
 
         getInstrumentList() {
             return this.data.instruments.slice();
+        }
+
+        async getInstrument(instrumentID, throwException = true) {
+            if (this.instruments[instrumentID])
+                return await this.instruments[instrumentID];
+            if (throwException)
+                throw new Error("Instrument not yet loading: " + instrumentID);
+            return null;
         }
 
 
@@ -842,23 +842,26 @@
             return instrument;
         }
 
+        async loadInstrumentInstance(instrumentID) {
+            const instrumentPreset = this.getInstrumentConfig(instrumentID);
+            if (!instrumentPreset.url)
+                throw new Error("Invalid instrument URL");
+            let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
+
+            const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
+            return new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+        }
+
         async loadInstrument(instrumentID, forceReload = false) {
             instrumentID = parseInt(instrumentID);
-            if (!forceReload || !this.instruments[instrumentID]) {
-                this.instruments[instrumentID] = async () => {
+            if (!forceReload && this.instruments[instrumentID])
+                return await this.instruments[instrumentID];
 
-                    const instrumentPreset = this.getInstrumentConfig(instrumentID);
-                    if (!instrumentPreset.url)
-                        throw new Error("Invalid instrument URL");
-                    let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
+            // Load instrument instance
+            this.instruments[instrumentID] = this.loadInstrumentInstance(instrumentID);
 
-                    const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
-                    const instance = new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
-                    this.instruments[instrumentID] = instance;
-                    return instance;
-                };
-            }
             const instance = await this.instruments[instrumentID];
+            this.instruments[instrumentID] = instance;
             this.dispatchEvent(new CustomEvent('instrument:instance', {
                 detail: {
                     instance,
@@ -870,7 +873,8 @@
             if (this.audioContext)
                 await this.initInstrument(instrumentID, this.audioContext);
 
-            return true;
+            console.info("Instrument loaded: ", instance, instrumentID);
+            return instance;
         }
 
         async loadAllInstruments(forceReload = false) {
@@ -884,7 +888,7 @@
         }
 
         async initInstrument(instrumentID, audioContext, throwException = true) {
-            const instrument = this.getInstrument(instrumentID, throwException);
+            const instrument = await this.getInstrument(instrumentID, throwException);
             if (typeof instrument.init !== "function")
                 throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
             await instrument.init(audioContext);

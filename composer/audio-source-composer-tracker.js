@@ -613,7 +613,13 @@
 
 
         setPlaybackPositionInTicks(groupPositionInTicks) {
-            console.warn('REFACTOR');
+            this.clearRowPositions();
+            const rowElm = this.findRowElement(groupPositionInTicks);
+            if(rowElm)
+                rowElm.setProps({position: true});
+            else
+                console.warn('row not found: ' + groupPositionInTicks);
+            // console.warn('REFACTOR');
             // TODO: get current 'playing' and check position
             // let rowElm = this.navigateGroup(groupPositionInTicks);
             // this.querySelectorAll('asct-row.position')
@@ -694,9 +700,6 @@
 
         updateSelection() {
             const selectedIndicies = this.editorElm.getSelectedIndicies();
-
-            this.querySelectorAll('asct-instruction-add')
-                .forEach((instructionAddElm) => instructionAddElm.parentNode.removeChild(instructionAddElm));
 
             // Update cells
             this.querySelectorAll('asct-instruction')
@@ -854,11 +857,12 @@
             // selectedRow.select();
             // selectedRow.clearAllCursors();
             this.clearAllCursors();
+
             selectedRow.createAddInstructionElement()
                 .setCursor();
             // this.editorElm.panelTracker.render(); // TODO: bad idea
             this.focus();
-            selectedRow.parentNode.scrollTo();
+            // selectedRow.scrollIntoView();
             this.editorElm.song.setPlaybackPositionInTicks(selectedRow.positionInTicks);
             selectedRow.scrollTo();
 
@@ -898,6 +902,10 @@
 
 
         clearAllCursors() {
+            // Remove 'add instruction' elements
+            this.querySelectorAll('asct-instruction-add')
+                .forEach((instructionAddElm) => instructionAddElm.parentNode.removeChild(instructionAddElm));
+
             // Remove other cursor elements
             this.querySelectorAll('[cursor]')
                 .forEach((elm) => elm.setProps({cursor: false}));
@@ -1018,6 +1026,11 @@
         //     return this.selectIndicies(selectedIndicies);
         // }
 
+        clearRowPositions() {
+            this.querySelectorAll(`asct-row[position]`)
+                .forEach(row => row.setProps({position: false}));
+        }
+
         findRowElement(positionInTicks) {
             return this.querySelector(`asct-row[t='${positionInTicks}']`);
         }
@@ -1060,7 +1073,7 @@
                 positionInSeconds,
                 duration,
                 // selected: false
-            }, {p: positionInTicks});
+            }, {t: positionInTicks});
             // this.setAttribute('t', positionInTicks);
             // if(positionInSeconds !== null)
             //     this.setAttribute('s', parseInt(positionInSeconds*1000)/1000 );
@@ -1108,22 +1121,10 @@
         //     }
         // }
 
-        createAddInstructionElement() {
-            let existingInstructionAddElement = this.querySelector('asct-instruction-add');
-            if (!existingInstructionAddElement) {
-                // Remove existing new instruction button
-                this.parentNode.querySelectorAll('asct-instruction-add')
-                    .forEach((elm) => elm.parentNode.removeChild(elm));
-
-                const newInstructionElm = document.createElement('asct-instruction-add');
-                existingInstructionAddElement = newInstructionElm;
-                // newInstructionElm.index = this.index; // setAttribute('p', rowElement.positionInTicks);
-                newInstructionElm.innerHTML = `+`;
-            }
-            let deltaElm = this.querySelector('asct-delta');
-            deltaElm ? this.insertBefore(existingInstructionAddElement, deltaElm) : this.appendChild(existingInstructionAddElement);
-
-            return existingInstructionAddElement;
+        createAddInstructionElement(isCursor=false) {
+            const instructionAddElm = new AudioSourceComposerTrackerInstructionAdd();
+            this.appendChild(instructionAddElm);
+            return instructionAddElm;
         }
 
         clearAddInstructionElement() {
@@ -1280,6 +1281,10 @@
 
 
     class AudioSourceComposerTrackerInstructionAdd extends ASUIComponent {
+
+        setCursor(isCursor=true) {
+            this.setProps({cursor: isCursor});
+        }
 
         render() {
             return ['+']

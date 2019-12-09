@@ -25,6 +25,7 @@
         ASUIFileInput,
         ASUIRangeInput,
         ASUISelectInput,
+        ASUICheckBoxInput,
         ASUITextInput,
         ASUIcon,
     } = await requireAsync('common/audio-source-ui.js');
@@ -49,6 +50,7 @@
             if(typeof config.name === "undefined")
                 config.name = 'Synthesizer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.config = config || {};
+            this.sampleLibrary = this.loadSampleLibrary();
             this.loadConfig(this.config); //TODO: get
 
 
@@ -62,19 +64,18 @@
         //     return this.getAttribute('data-id');
         // }
 
-        render() {
+        async render() {
 
             // const instrument = this.instrument;
-            const instrumentID = typeof this.instrument.id !== "undefined" ? this.instrument.id : -1;
+            const instrumentID = typeof this.state.id !== "undefined" ? this.state.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            this.form.innerHTML = '';
-            this.form.classList.add('audio-source-synthesizer-container');
 
             let defaultPresetURL = '';
-            if(this.instrument.config.libraryURL && this.instrument.config.preset)
-                defaultPresetURL = new URL(this.instrument.config.libraryURL + '#' + this.instrument.config.preset, document.location) + '';
+            if(this.state.config.libraryURL && this.state.config.preset)
+                defaultPresetURL = new URL(this.state.config.libraryURL + '#' + this.state.config.preset, document.location) + '';
 
-            const samples = this.instrument.config.samples;
+            const samples = this.state.config.samples;
+            const sampleLibrary = await this.sampleLibrary;
             
             return [
                 this.refs.buttonToggle = new ASUIButtonInput('instrument-id',
@@ -82,22 +83,22 @@
                     instrumentIDHTML + ':'
                 ),
                 this.refs.textName = new ASUITextInput('instrument-name',
-                    (e, newInstrumentName) => this.instrumentRename(newInstrumentName),
+                    (e, newInstrumentName) => this.stateRename(newInstrumentName),
                     'Instrument Name',
-                    this.instrument.config.name || '',
+                    this.state.config.name || '',
                     'Unnamed'
                 ),
                 this.refs.selectChangePreset = new ASUISelectInput('instrument-preset',
                     (e, presetURL) => this.setPreset(presetURL),
-                    async (addOption, setOptgroup) => {
-                        addOption('', 'Change Preset');
-                        setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
-                        this.sampleLibrary.eachPreset(presetConfig => addOption(presetConfig.url, presetConfig.name));
-                        setOptgroup('Libraries');
-                        this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
-                        setOptgroup('Other Libraries');
-                        AudioSourceLibrary.eachHistoricLibrary(addOption);
-                    },
+                    async (selectElm) => [
+                        selectElm.getOption('', 'Change Preset'),
+                        selectElm.getOptGroup(this.sampleLibrary.name || 'Unnamed Library'),
+                        sampleLibrary.eachPreset(presetConfig => selectElm.getOption(presetConfig.url, presetConfig.name)),
+                        selectElm.getOptGroup('Libraries'),
+                        sampleLibrary.eachLibrary(libraryConfig => selectElm.getOption(libraryConfig.url, libraryConfig.name)),
+                        selectElm.getOptGroup('Other Libraries'),
+                        await AudioSourceLibrary.eachHistoricLibrary(selectElm.getOption), // TODO: refactor async
+                    ],
                     'Change Instrument',
                     defaultPresetURL),
                 new ASUIButtonInput('instrument-remove',
@@ -128,7 +129,7 @@
 
                         new ASUISelectInput('url',
                             (e, url) => this.setSampleURL(sampleID, url),
-                            selectElm => this.sampleLibrary.eachSample(sample => selectElm.getOption),
+                            selectElm => sampleLibrary.eachSample(sample => selectElm.getOption),
                             'URL',
                             new URL(sampleData.url, document.location)+''),
 
@@ -165,10 +166,10 @@
                     (e, sampleURL) => this.addSample(sampleURL),
                     async (selectElm) => [
                         selectElm.getOption('', 'Add Sample'),
-                        selectElm.getOptGroup(this.sampleLibrary.name || 'Unnamed Library'),
-                        this.sampleLibrary.eachSample(sampleConfig => selectElm.getOption),
+                        selectElm.getOptGroup(sampleLibrary.name || 'Unnamed Library'),
+                        sampleLibrary.eachSample(sampleConfig => selectElm.getOption),
                         selectElm.getOptGroup('Libraries'),
-                        this.sampleLibrary.eachLibrary(libraryConfig => selectElm.getOption),
+                        sampleLibrary.eachLibrary(libraryConfig => selectElm.getOption),
                         selectElm.getOptGroup('Other Libraries'),
                         await AudioSourceLibrary.eachHistoricLibrary(selectElm.getOption),
                     ],
@@ -176,6 +177,16 @@
                     '')
             ];
 
+        }
+
+        /** Sample Library **/
+
+        async loadSampleLibrary() {
+            if(this.state.config.libraryURL)
+                this.sampleLibrary = await AudioSourceLibrary.loadFromURL(this.state.config.libraryURL);
+            else
+                this.sampleLibrary = await AudioSourceLibrary.loadDefaultLibrary();
+            return this.sampleLibrary;
         }
 
         /** Loading **/
@@ -641,7 +652,7 @@
         /** Modify Instrument **/
 
         remove() {
-            this.instrument.song.instrumentRemove(this.instrument.id);
+            this.song.instrumentRemove(this.instrument.id);
             document.dispatchEvent(new CustomEvent('instrument:remove', this));
         }
 
@@ -655,7 +666,7 @@
             if (presetURL.hash) {
                 const newPresetName = presetURL.hash.substr(1);
                 let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
-                newPresetConfig = Object.assign({}, this.instrument.config, newPresetConfig);
+                newPresetConfig = Object.assign({}, this.state.config, newPresetConfig);
                 await this.instrument.song.instrumentReplace(this.instrument.id, newPresetConfig);
                 await this.instrument.loadConfig(newPresetConfig);
                 this.render();
@@ -720,82 +731,6 @@
             this.render();
         }
 
-    }
-    customElements.define('audio-source-synthesizer', AudioSourceSynthesizer);
-
-
-
-
-
-    /**
-     * Used for all Instrument UI. Instance not necessary for song playback
-     */
-    class AudioSourceSynthesizerFormRenderer {
-
-        /**
-         *
-         * @param {AudioSourceComposerForm} instrumentForm
-         * @param instrument
-         */
-        constructor(instrumentForm, instrument) {
-            this.form = instrumentForm;
-            this.instrument = instrument;
-
-
-
-
-            const root = instrumentForm.getRootNode() || document;
-            this.appendCSS(root);
-        }
-
-
-        async loadDefaultSampleLibrary() {
-            const defaultLibraryURL =
-                this.instrument.config.libraryURL
-                || this.DEFAULT_SAMPLE_LIBRARY_URL;
-            this.sampleLibrary = await AudioSourceLibrary.loadURL(defaultLibraryURL);
-//             console.log(this.instrument.config.name, this.sampleLibrary);
-            // TODO: locate sample/preset library
-        }
-
-        // TODO: break up / redefine
-//         async loadDefaultSampleLibrary() {
-//             this.loadSamples();
-//
-//             if (!this.sampleLibrary) {
-//                 await this.sampleLibrary.loadURL(this.config.libraryURL || this.DEFAULT_SAMPLE_LIBRARY_URL);
-//                 this.render();
-//             }
-//
-//             // Load first library
-//             if (this.sampleLibrary.libraries && !this.sampleLibrary.instruments && !this.sampleLibrary.samples) {
-//                 const firstLibrary = this.sampleLibrary.libraries[0];
-//                 firstLibrary.url = new URL(firstLibrary.url, this.sampleLibrary.url) + '';
-//                 if (firstLibrary.url !== this.sampleLibrary.url) {
-//                     await this.sampleLibrary.loadURL(firstLibrary.url);
-//                     this.render();
-//                 }
-//
-//             }
-//
-//             // Load default sample
-//             if (this.sampleLibrary.instruments) {
-//                 if (Object.keys(this.config.samples).length === 0) {
-//                     const sampleInstrument = Object.keys(this.sampleLibrary.instruments)[0];
-//
-//                     this.loadConfig(this.sampleLibrary.getPresetConfig(sampleInstrument));
-//
-// //                 console.info("Loaded default sample instrument: " + sampleInstrument, this.config);
-// //                 if(this.audioContext)
-// //                     await this.initSamples(this.audioContext);
-//                 }
-//             }
-//
-//             this.render();
-//         }
-
-
-
 
         appendCSS(rootElm) {
 
@@ -814,16 +749,14 @@
             rootElm.insertBefore(linkElm, rootElm.firstChild);
         }
 
-        // focusHandler(e) {
-        //     e.target.getRootNode().querySelectorAll('asui-div.focus')
-        //         .forEach(formElm => formElm.classList.remove('focus'));
-        //     e.target.classList.add('focus');
-        // }
-        
-        async render() {
-        }
-
     }
+    customElements.define('audio-source-synthesizer', AudioSourceSynthesizer);
+
+
+
+
+
+
 
 
     /** Utilities & Dispatch Class **/

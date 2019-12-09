@@ -12,10 +12,10 @@
             ASUITextInput,
             ASUIRangeInput,
             ASUISelectInput,
+            ASUICheckBoxInput,
             ASUIGrid,
             ASUIGridRow,
             ASUIcon,
-            ASUICheckBoxInput,
             ASUIMenu,
         };
     };

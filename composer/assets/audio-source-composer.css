@@ -300,14 +300,14 @@ asct-row:nth-child(odd) {
 }
 
 asct-row.cursor,
-asct-row.selected {
+asct-row[selected] {
     background-color: #ffeedd;
     position: relative;
     box-shadow: #ffeedd 0px 0px 9px;
     z-index: 2;
 }
-asct-row.position,
-asct-row.playing {
+asct-row[position],
+asct-row[playing] {
     background-color: #609060;
     position: relative;
     box-shadow: #AFA 0px 0px 4px;

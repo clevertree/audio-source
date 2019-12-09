@@ -180,6 +180,10 @@
         }
     };
 
+    /**
+     * @param url
+     * @returns {Promise<AudioSourceLibrary>}
+     */
     AudioSourceLibrary.loadFromURL = async function(url) {
         if (!url)
             throw new Error("Invalid url");
@@ -215,6 +219,7 @@
             libraryData = await libraryData;
         return new AudioSourceLibrary(libraryData);
     };
+    /** @returns {Promise<AudioSourceLibrary>} */
     AudioSourceLibrary.loadDefaultLibrary = async function() {
         return await AudioSourceLibrary.loadFromURL(AudioSourceLibrary.defaultLibraryURL);
     };
