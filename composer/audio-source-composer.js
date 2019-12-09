@@ -82,12 +82,14 @@
             if (state) {
                 await this.loadDefaultSong(state.songUUID);
                 if (typeof state.volume !== "undefined") this.setSongVolume(e, state.volume);
-                if (typeof state.groupName !== "undefined") this.trackerElm.groupName = state.groupName;
                 if (typeof state.trackerSegmentLength !== "undefined") this.refs.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
                 if (typeof state.trackerRowLength !== "undefined") this.refs.fieldTrackerRowLength.value = state.trackerRowLength;
                 if (typeof state.trackerInstrument !== "undefined") this.refs.fieldTrackerFilterInstrument.value = state.trackerInstrument;
                 if (typeof state.trackerOctave !== "undefined") this.refs.fieldTrackerOctave.value = state.trackerOctave;
-                if (typeof state.currentRowSegmentID !== "undefined") this.trackerElm.navigateSegment(state.currentRowSegmentID);
+
+                if (typeof state.groupName !== "undefined") await this.trackerElm.setGroupName(state.groupName);
+                if (typeof state.currentRowSegmentID !== "undefined") await this.trackerElm.navigateSegment(state.currentRowSegmentID);
+
                 if (typeof state.selectedIndicies !== "undefined") this.selectIndicies(state.selectedIndicies);
                 // this.trackerElm.render(); // TODO: too many renders
 

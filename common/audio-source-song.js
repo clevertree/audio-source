@@ -1511,10 +1511,10 @@
                 }
                 // If not, add it to the list and check the next instruction
                 currentRowInstructionList.push(nextInstruction);
-                if (nextInstruction.deltaDuration) {
-                    // If the next instruction has a delta, then we found the end of the current row
-                    break;
-                }
+                // if (nextInstruction.deltaDuration) {
+                //     // If the next instruction has a delta, then we found the end of the current row
+                //     break;
+                // }
 
                 nextInstruction = this.scanAheadInstruction();
                 if (!nextInstruction || nextInstruction.deltaDuration) {
@@ -1543,9 +1543,9 @@
 
             if (!nextInstruction) {
                 // If we found end of the group, we're done, but first, check if we need to render more quantized rows
-                if((this.groupPositionInTicks < maxLengthInTicks)) { // (this.groupPlaybackTime < this.groupPlaybackEndTime) ||
-                // if(this.groupPositionInTicks < maxLengthInTicks) {
-                    this._incrementTo(maxLengthInTicks, quantizationInTicks);
+                if((this.groupPositionInTicks < maxLengthInTicks)) { //
+                    this._incrementTo(this.nextQuantizationBreakInTicks);
+                    this.nextQuantizationBreakInTicks += quantizationInTicks;
                     return [];
                 }
                 if(this.nextInstruction()) // Forward to the end of the array
@@ -1567,7 +1567,8 @@
             if (
                 nextInstructionPositionInTicks > this.nextQuantizationBreakInTicks && this.nextQuantizationBreakInTicks < maxLengthInTicks
             ) {
-                this._incrementTo(this.nextQuantizationBreakInTicks, quantizationInTicks);
+                this._incrementTo(this.nextQuantizationBreakInTicks);
+                this.nextQuantizationBreakInTicks += quantizationInTicks;
                 // Return an empty row
                 return [];
             }
@@ -1595,16 +1596,13 @@
                 this.groupPlaybackEndTime = groupPlaybackEndTime;
         }
 
-        _incrementTo(positionInTicks, quantizationInTicks) {
+        _incrementTo(positionInTicks) {
 
             const elapsedTimeInTicks = positionInTicks - this.groupPositionInTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
             // Set the last rendered position as the next break position
             this.groupPositionInTicks = positionInTicks;
             const elapsedTimeInSeconds = (elapsedTimeInTicks / this.timeDivision) / (this.currentBPM / 60);
             this.groupPlaybackTime += elapsedTimeInSeconds;
-
-            while(this.nextQuantizationBreakInTicks <= positionInTicks)
-                this.nextQuantizationBreakInTicks += quantizationInTicks;
         }
 
         // * [Symbol.iterator]() {

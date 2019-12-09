@@ -91,6 +91,7 @@ class AudioSourceCommonTest {
         });
 
         // Test Iterator
+        let currentIndex = 0;
         let iterator = song.instructionGetIterator(testGroup);
         let instruction, instructionList, positionInTicks=0, playbackTime=0;
         while(instruction = iterator.nextInstruction()) {
@@ -100,6 +101,7 @@ class AudioSourceCommonTest {
         }
 
         // Test Row Iterator
+        currentIndex = 0;
         iterator = song.instructionGetIterator(testGroup);
         positionInTicks = 0;
         while(true) {
@@ -118,9 +120,9 @@ class AudioSourceCommonTest {
                     const instruction = instructionList[i];
                     if(instruction.positionInTicks !== positionInTicks)
                         throw new Error(`instruction[${i}].positionInTicks ${instruction.positionInTicks} !== ${positionInTicks}\n`);
-                    const currentIndex = i + firstIndex;
                     if(instruction.index !== currentIndex)
-                        throw new Error(`instruction[${i}].index ${instruction.index} !== ${currentIndex}\n`)
+                        throw new Error(`instruction[${i}].index ${instruction.index} !== ${currentIndex}\n`);
+                    currentIndex++
                 }
             }
         }

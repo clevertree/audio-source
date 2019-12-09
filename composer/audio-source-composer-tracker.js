@@ -47,12 +47,13 @@
         get song()      { return this.editorElm.song; }
         get groupName() { return this.state.group; }
 
-        set groupName(groupName) {
+        async setGroupName(groupName) {
+            if(this.state.group === groupName)
+                return null;
             if (!this.editorElm.song.hasGroup(groupName))
                 throw new Error("Group not found in song: " + groupName);
-            this.setAttribute('group', groupName);
-            this.currentRowSegmentID = 0;
-            this.setState({group: groupName});
+            // this.setAttribute('group', groupName);
+            await this.setState({group: groupName, currentRowSegmentID: 0});
         }
 
 
@@ -110,7 +111,7 @@
             if (rowElm)
                 return rowElm;
             const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
-            if (newRowSegmentID !== this.currentRowSegmentID) {
+            if (newRowSegmentID !== this.state.currentRowSegmentID) {
                 this.navigateSegment(newRowSegmentID);
                 let rowElm = this.findRowElement(groupPositionInTicks);
                 if (rowElm)
@@ -157,7 +158,7 @@
             const timeDivision = this.editorElm.song.timeDivision;
             const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
             const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
-            const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
+            const maxLengthInTicks = (this.state.currentRowSegmentID + 1) * segmentLengthInTicks;
 
 
             // Instruction Iterator
@@ -178,7 +179,7 @@
                 }
                 lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
-                if (this.currentRowSegmentID === lastRowSegmentID) {
+                if (this.state.currentRowSegmentID === lastRowSegmentID) {
                     const newRowElm = new AudioSourceComposerTrackerRow(
                         this.song,
                         rowInstructionList,
@@ -190,7 +191,7 @@
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
             // console.log(lastRowSegmentID, lastRowPositionInTicks);
-            this.editorElm.rowSegmentCount = lastRowSegmentID;
+            // this.editorElm.rowSegmentCount = lastRowSegmentID;
 
             // // Render Segments
             // const panelTrackerRowSegments = this.editorElm.panelTrackerRowSegments;
@@ -712,19 +713,19 @@
             }
         }
 
-        selectNextCell(e) {
+        async selectNextCell(e) {
             let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction');
 
             if (cursorCell) {
                 if (cursorCell instanceof AudioSourceComposerTrackerInstructionAdd) {
                     // If next element is an add instruction, select the next row
-                    return this.selectNextRowCell(e, 0);
+                    return await this.selectNextRowCell(e, 0);
                 } else if (cursorCell.nextInstructionSibling) {
                     // If next element is an instruction, select it
                     return this.selectCell(e, cursorCell.nextInstructionSibling);
 
                 } else {
-                    return this.selectNextRowCell(e);
+                    return await this.selectNextRowCell(e);
                 }
             } else {
                 // If no cursor is selected, use the first available instruction
@@ -750,15 +751,14 @@
         }
 
 
-        selectNextRowCell(e, cellPosition = null) {
+        async selectNextRowCell(e, cellPosition = null) {
             let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction');
             const cursorRow = cursorCell.parentNode;
             if (cellPosition === null)
                 cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
 
             if (!cursorRow.nextElementSibling) {
-                this.currentRowSegmentID++;
-                this.renderRows();
+                await this.setState({currentRowSegmentID: this.state.currentRowSegmentID+1});
                 this.focus();
                 return this.selectNextCell(e);
             }
@@ -1044,7 +1044,7 @@
                 positionInSeconds,
                 duration,
                 // selected: false
-            }, {});
+            }, {p: positionInTicks});
             // this.setAttribute('t', positionInTicks);
             // if(positionInSeconds !== null)
             //     this.setAttribute('s', parseInt(positionInSeconds*1000)/1000 );

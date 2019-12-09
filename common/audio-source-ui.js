@@ -150,6 +150,7 @@
         async appendTo(parentNode) {
             this._renderOnConnect = false;
             parentNode.appendChild(this);
+            // console.info("appendTo", parentNode, this);
             await this.renderOS();
         }
     }
