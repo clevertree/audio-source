@@ -123,8 +123,8 @@
 
 
         getSegmentIDFromPositionInTicks(positionInTicks) {
-            // const timeDivision = this.editorElm.song.timeDivision;
-            const segmentLengthInTicks = this.editorElm.refs.fieldTrackerSegmentLength.value;
+            const timeDivision = this.editorElm.song.timeDivision;
+            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
             const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
             return segmentID;
         }
@@ -386,10 +386,10 @@
                         return this.onCellInput(e);
 
                     if (e.target.matches('asct-instruction > *'))
-                        return this.onCellInput(e, e.target.instruction);
+                        return this.onCellInput(e, e.target.parentNode);
 
                     if (e.target.matches('asct-instruction-add'))
-                        return this.onRowInput(e, e.target.row);
+                        return this.onRowInput(e, e.target.parentNode);
 
 
                     if (e.target.matches('asct-row'))  // classList.contains('tracker-row')) {
@@ -609,12 +609,12 @@
 
 
         setPlaybackPositionInTicks(groupPositionInTicks) {
-
+            console.warn('REFACTOR');
             // TODO: get current 'playing' and check position
-            let rowElm = this.navigateGroup(groupPositionInTicks);
-            this.querySelectorAll('asct-row.position')
-                .forEach(rowElm => rowElm.classList.remove('position'));
-            rowElm.classList.add('position');
+            // let rowElm = this.navigateGroup(groupPositionInTicks);
+            // this.querySelectorAll('asct-row.position')
+            //     .forEach(rowElm => rowElm.classList.remove('position'));
+            // rowElm.classList.add('position');
 
         }
 
@@ -849,6 +849,7 @@
 
             // selectedRow.select();
             // selectedRow.clearAllCursors();
+            this.clearAllCursors();
             selectedRow.createAddInstructionElement()
                 .setCursor();
             // this.editorElm.panelTracker.render(); // TODO: bad idea
@@ -875,6 +876,7 @@
 
             this.editorElm.closeAllMenus();
             selectedCell.select(toggleValue);
+            this.clearAllCursors();
             selectedCell.setCursor();
             toggleValue ? this.editorElm.addSelectedIndex(selectedCell.index) : this.editorElm.removeSelectedIndex(selectedCell.index);
 
@@ -888,6 +890,13 @@
 
 //         console.timeEnd("selectCell");
             // selectedCell.scrollTo();
+        }
+
+
+        clearAllCursors() {
+            // Remove other cursor elements
+            this.querySelectorAll('[cursor]')
+                .forEach((elm) => elm.setProps({cursor: false}));
         }
 
         onRowInput(e, selectedRow = null) {
@@ -1190,8 +1199,7 @@
         constructor(song, instruction, index) {
             super({
                 index,
-                selected: false
-            });
+            }, {selected: false, cursor: false});
             this.state.command = new AudioSourceComposerParamCommand(instruction.command);
             this.state.params = [
                 new AudioSourceComposerParamInstrument(instruction.instrument),
@@ -1201,7 +1209,7 @@
         }
 
         get index() { return this.state.index; }
-        get selected() { return this.state.selected; }
+        get selected() { return this.props.selected; }
 
         get nextInstructionSibling() {
             if (this.nextElementSibling && this.nextElementSibling.matches('asct-instruction'))
@@ -1216,9 +1224,11 @@
         }
 
 
-        select(selected = true) {
-            if(selected !== this.state.selected)
-                this.setState({selected});
+        async select(selected = true) {
+            if(selected !== this.props.selected) {
+                this.setProps({selected});
+                await this.renderOS();
+            }
         }
 
         instructionFind() {
@@ -1242,20 +1252,21 @@
         //     return this.row.scrollTo();
         // }
 
-        clearAllCursors() {
-            return this.row.clearAllCursors();
-        }
+        // clearAllCursors() {
+        //     return this.row.clearAllCursors();
+        // }
 
         setCursor() {
-            this.clearAllCursors();
-            this.classList.add('cursor');
+            // this.clearAllCursors();
+            // this.classList.add('cursor');
+            this.setProps({cursor: true});
             return this;
         }
 
         render() {
             return [
                 this.state.command,
-                this.state.selected ? this.state.params : null
+                this.props.selected ? this.state.params : null
             ]
         }
 

@@ -141,11 +141,11 @@
             const results = [];
             for (let i = 64; i > 1; i /= 2) {
                 let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
-                let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}t`);
+                let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}T`);
                 addResult(results, result);
-                result = callback(1 / i * timeDivision, `${fraction}`);
+                result = callback(1 / i * timeDivision, `${fraction}B`);
                 addResult(results, result);
-                result = callback(1 / i * 1.5 * timeDivision, `${fraction}d`); //t== ticks or triplets?
+                result = callback(1 / i * 1.5 * timeDivision, `${fraction}D`); //t== ticks or triplets?
                 addResult(results, result);
             }
             for (let i = 1; i <= 16; i++) {

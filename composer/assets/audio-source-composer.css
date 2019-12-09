@@ -336,25 +336,25 @@ asct-instruction:last-child {
 
 
 asct-instruction-add,
-asct-instruction.cursor,
-asct-instruction.selected {
+asct-instruction[cursor],
+asct-instruction[selected] {
+    background-color: white;
     font-weight: bold;
     max-width: 1000px;
     box-shadow: #6b6b6b 0 0px 3px;
     z-index: 2;
 }
 
-asct-instruction-add.cursor,
-asct-instruction.cursor {
+asct-instruction-add[cursor],
+asct-instruction[cursor] {
     border-color: red;
     box-shadow: darkred 0 0 12px;
 }
 
 
-asct-instruction-add.cursor,
-asct-instruction.selecting,
-asct-instruction.selected {
-    background-color: white;
+asct-instruction-add[cursor],
+asct-instruction[selecting],
+asct-instruction[selected] {
 }
 
 asct-instruction.playing {
