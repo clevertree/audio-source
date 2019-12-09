@@ -1477,7 +1477,7 @@
             this.groupIndex++;
             let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.groupIndex]);
             if (currentInstruction && currentInstruction.deltaDuration) {
-                this._incrementPositionBy(currentInstruction.deltaDuration);
+                this._incrementPositionBy(currentInstruction.deltaDuration, currentInstruction.duration);
                 currentInstruction.positionInTicks = this.lastInstructionGroupPositionInTicks;
             }
             return currentInstruction;
@@ -1575,7 +1575,7 @@
             return  this.nextInstructionRow(conditionalCallback);
         }
 
-        _incrementPositionBy(deltaDuration) {
+        _incrementPositionBy(deltaDuration, instructionDuration) {
 
             // this.lastRowPositionInTicks = this.groupPositionInTicks;
             this.groupPositionInTicks = this.lastInstructionGroupPositionInTicks + deltaDuration;
@@ -1586,6 +1586,13 @@
             this.groupPlaybackTime = this.lastInstructionGroupPlaybacktime + elapsedTime;
             this.lastInstructionGroupPlaybacktime = this.groupPlaybackTime;
 
+            instructionDuration = instructionDuration || 0;
+            const groupEndPositionInTicks = this.groupPositionInTicks + instructionDuration;
+            if(groupEndPositionInTicks > this.groupEndPositionInTicks)
+                this.groupEndPositionInTicks = groupEndPositionInTicks;
+            const groupPlaybackEndTime = this.groupPlaybackTime + (instructionDuration / this.song.timeDivision) / (this.currentBPM / 60);
+            if(groupPlaybackEndTime > this.groupPlaybackEndTime)
+                this.groupPlaybackEndTime = groupPlaybackEndTime;
         }
 
         _incrementTo(positionInTicks, quantizationInTicks) {

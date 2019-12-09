@@ -15,7 +15,7 @@ class AudioSourceCommonTest {
         console.info("Test Started: ", this.constructor.name, __filename);
         await this.testStorage();
         await this.testSongClass();
-        await this.testValues();
+        // await this.testValues();
         console.info("Test Complete: ", this.constructor.name);
     }
 
@@ -26,17 +26,17 @@ class AudioSourceCommonTest {
 
     }
 
-    async testValues() {
-        const s = new AudioSourceSong();
-
-        const v = new AudioSourceValues(s);
-        v.valueTypes.forEach(valueType => {
-            v.getValues(valueType, (value, title) => {
-                // console.info(value, title);
-            })
-        })
-
-    }
+    // async testValues() {
+    //     const s = new AudioSourceSong();
+    //
+    //     const v = new AudioSourceValues(s);
+    //     v.valueTypes.forEach(valueType => {
+    //         v.getValues(valueType, (value, title) => {
+    //             // console.info(value, title);
+    //         })
+    //     })
+    //
+    // }
 
     async testSongClass() {
         const song = new AudioSourceSong();
