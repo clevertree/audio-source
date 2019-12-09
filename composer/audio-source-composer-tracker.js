@@ -179,12 +179,14 @@
                 }
                 lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
+                const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
                 if (this.state.currentRowSegmentID === lastRowSegmentID) {
                     const newRowElm = new AudioSourceComposerTrackerRow(
                         this.song,
                         rowInstructionList,
                         instructionIterator.groupPositionInTicks,
-                        instructionIterator.groupPlaybackTime); // document.createElement('asct-row');
+                        instructionIterator.groupPlaybackTime,
+                        deltaDuration); // document.createElement('asct-row');
                     // newRowElm.renderInstructions(rowInstructionList);
                     content.push(newRowElm);
                 }
@@ -1038,6 +1040,7 @@
             instructionList = instructionList.map(instruction =>
                 new AudioSourceComposerTrackerInstruction(song, instruction, instruction.index)
             );
+            instructionList.unshift(new AudioSourceComposerTrackerDelta(song, duration));
             super({
                 instructionList,
                 positionInTicks,
@@ -1148,7 +1151,9 @@
         // }
 
         render() {
-            return this.state.instructionList;
+            return [
+                this.state.instructionList
+            ];
         }
 
         renderInstructions(rowInstructionList = []) {
@@ -1185,14 +1190,14 @@
         constructor(song, instruction, index) {
             super({
                 index,
-                selected: null
+                selected: false
             });
-            this.state.content = [
-                new AudioSourceComposerParamCommand(instruction.command),
+            this.state.command = new AudioSourceComposerParamCommand(instruction.command);
+            this.state.params = [
                 new AudioSourceComposerParamInstrument(instruction.instrument),
                 new AudioSourceComposerParamVelocity(instruction.velocity),
                 new AudioSourceComposerParamDuration(song, instruction.duration),
-            ]
+            ];
         }
 
         get index() { return this.state.index; }
@@ -1248,7 +1253,10 @@
         }
 
         render() {
-            return this.state.content;
+            return [
+                this.state.command,
+                this.state.selected ? this.state.params : null
+            ]
         }
 
     }
@@ -1325,9 +1333,9 @@
 
 
     class AudioSourceComposerTrackerDelta extends ASUIComponent {
-        constructor(duration, props= {}) {
+        constructor(song, duration, props= {}) {
             super({
-                duration: audioSourceValues.formatDuration(duration)
+                duration: audioSourceValues.formatDuration(song, duration)
             }, props);
         }
 

@@ -145,7 +145,7 @@
                 addResult(results, result);
                 result = callback(1 / i * timeDivision, `${fraction}`);
                 addResult(results, result);
-                result = callback(1 / i * 1.5 * timeDivision, `${fraction}d`);
+                result = callback(1 / i * 1.5 * timeDivision, `${fraction}d`); //t== ticks or triplets?
                 addResult(results, result);
             }
             for (let i = 1; i <= 16; i++) {
