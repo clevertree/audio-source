@@ -97,6 +97,7 @@ asc-panel {
     margin: 1px 3px 0px 1px;
 }
 
+.asc-panel-caption,
 asc-panel > asui-div[key=caption] {
     /* display: inline-block; */
     background-color: #333;
@@ -217,16 +218,17 @@ asui-div[key=asc-container].hide-panel-instruments asui-div[key=instruments] {
 asc-tracker {
     position: relative;
     /* height: 100%; */
-    overflow: auto;
+    /*overflow: auto;*/
     display: block;
 }
 
 
 asui-div[key=asc-container]:not(.fullscreen) asc-tracker {
-    max-height: 700px;
+    /* max-height: 700px; */
+    /* margin-bottom: auto; */
 }
 asui-div[key=asc-container].fullscreen asc-tracker {
-    height: 700px;
+    /*height: 700px;*/
 }
 
 /** Tracker Header **/
@@ -248,16 +250,31 @@ asc-panel[key=tracker-row-segments] button.themed {
     background-color: #DDD;
 }
 
-asc-panel[key=tracker-groups] > asui-input-button.selected > button.themed,
-asc-panel[key=tracker-row-segments] > asui-input-button.selected > button.themed {
+asc-panel[key=tracker-groups] > asui-input-button[selected] > button.themed,
+asc-panel[key=tracker-row-segments] > asui-input-button[selected] > button.themed {
     font-weight: bold;
     background-color: #BBB;
     border-style: inset;
 }
 
+/** Tracker Header **/
+asc-tracker asui-div[key=tracker-header] {
+    /*background-color: #333;*/
+    /*color: #FFF;*/
+}
+asc-tracker asui-div[key=tracker-header] > asui-div[key=delta] {
+    float: left;
+    /* padding: 2px; */
+}
+asc-tracker asui-div[key=tracker-header] > asui-div[key=instructions] {
+    display: block;
+    /* padding: 2px; */
+    text-align: center;
+}
+
 /** Tracker Row **/
 
-asc-tracker .row-container {
+asc-tracker asui-div[key=tracker-row-container] {
     overflow-y: auto;
     max-height: 800px;
 }
@@ -302,10 +319,8 @@ asct-row.playing {
 asct-delta {
     padding: 2px;
     color: #500;
-}
-asct-row > asct-delta {
     margin-right: 4px;
-    width: 32px;
+    width: 36px;
     text-align: right;
 }
 

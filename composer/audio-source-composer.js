@@ -88,7 +88,7 @@
                 if (typeof state.trackerOctave !== "undefined") this.refs.fieldTrackerOctave.value = state.trackerOctave;
 
                 if (typeof state.groupName !== "undefined") await this.trackerElm.setGroupName(state.groupName);
-                if (typeof state.currentRowSegmentID !== "undefined") await this.trackerElm.navigateSegment(state.currentRowSegmentID);
+                if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);
 
                 if (typeof state.selectedIndicies !== "undefined") this.selectIndicies(state.selectedIndicies);
                 // this.trackerElm.render(); // TODO: too many renders

@@ -367,22 +367,23 @@
                             let songLengthInTicks = this.song.getSongLengthInTicks();
                             let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
 
-                            const content = [];
+                            this.refs.panelTrackerRowSegmentButtons = [];
 
                             // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-                            const currentRowSegmentID = this.trackerElm.currentRowSegmentID;
+                            const currentRowSegmentID = this.trackerElm.state.currentRowSegmentID;
                             if (rowSegmentCount < currentRowSegmentID + 1)
                                 rowSegmentCount = currentRowSegmentID + 1;
                             for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
-                                const button = new ASUIButtonInput(
+                                this.refs.panelTrackerRowSegmentButtons[segmentID] = new ASUIButtonInput(
                                     segmentID,
-                                    e => this.trackerElm.navigateSegment(segmentID),
-                                    segmentID);
-                                content.push(button);
+                                    e => this.trackerChangeSegment(segmentID),
+                                    segmentID,
+                                    "Segment " + segmentID,
+                                    {selected: segmentID === currentRowSegmentID});
                                 // panelElm.classList.toggle('selected', segmentID === currentRowSegmentID);
                                 // button.classList.toggle('selected', segmentID === currentRowSegmentID);
                             }
-                            return content;
+                            return this.refs.panelTrackerRowSegmentButtons;
                         }),
                     ]),
 

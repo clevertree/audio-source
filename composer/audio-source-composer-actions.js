@@ -388,6 +388,20 @@
             }
         }
 
+        /** Tracker Segments **/
+
+
+        async trackerChangeSegment(newRowSegmentID) {
+            if (!Number.isInteger(newRowSegmentID))
+                throw new Error("Invalid segment ID");
+            const oldSegmentID = this.trackerElm.state.currentRowSegmentID;
+            await this.trackerElm.setState({currentRowSegmentID: newRowSegmentID});
+            this.refs.panelTrackerRowSegmentButtons[oldSegmentID].setProps({selected: false});
+            this.refs.panelTrackerRowSegmentButtons[newRowSegmentID].setProps({selected: true});
+            // this.currentRowSegmentID = newRowSegmentID;
+            // this.renderRows();
+        }
+
         /** Tracker **/
 
         trackerChangeGroup(groupName = null) {

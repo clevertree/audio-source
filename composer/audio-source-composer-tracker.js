@@ -112,7 +112,7 @@
                 return rowElm;
             const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
             if (newRowSegmentID !== this.state.currentRowSegmentID) {
-                this.navigateSegment(newRowSegmentID);
+                this.editorElm.trackerChangeSegment(newRowSegmentID);
                 let rowElm = this.findRowElement(groupPositionInTicks);
                 if (rowElm)
                     return rowElm;
@@ -129,13 +129,6 @@
             return segmentID;
         }
 
-        async navigateSegment(newRowSegmentID) {
-            if (!Number.isInteger(newRowSegmentID))
-                throw new Error("Invalid segment ID");
-            await this.setState({currentRowSegmentID: newRowSegmentID});
-            // this.currentRowSegmentID = newRowSegmentID;
-            // this.renderRows();
-        }
 
         updateSongPositionValue(playbackPositionInSeconds) {
             this.querySelectorAll('asct-row').forEach(row => row.classList.remove('position'));
@@ -203,7 +196,18 @@
 
             // this.selectSegmentIndicies(selectedIndicies);
             console.timeEnd('tracker.renderRows()');
-            return content;
+
+            return [
+                this.refs.rowContainer = new ASUIDiv('tracker-header', () => [
+                    new ASUIDiv('delta', "Delta"),
+                    new ASUIDiv('instructions', "Instructions"),
+                ], {class: 'asc-panel-caption'}),
+                this.refs.rowContainer = new ASUIDiv('tracker-row-container', () => [
+                    content
+                ])
+            ];
+
+            // return content;
         }
 
 

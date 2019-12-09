@@ -213,7 +213,10 @@
             await this.setState({open:open});
         }
 
-        async close(e) { await this.setState({open: false})}
+        async close() {
+            if(this.state.open !== false)
+                await this.setState({open: false})
+        }
 
         async closeAllMenus(global=true) {
             let menu = this;
