@@ -295,7 +295,7 @@
                 switch (selectedIndicies) {
                     case 'all':
                         selectedIndicies = [];
-                        const maxLength = this.song.getInstructionGroupLength(this.groupName);
+                        const maxLength = this.song.instructionFindGroupLength(this.groupName);
                         for (let i = 0; i < maxLength; i++)
                             selectedIndicies.push(i);
                         break;

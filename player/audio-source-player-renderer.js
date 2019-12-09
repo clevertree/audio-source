@@ -202,7 +202,7 @@
 
             // this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
             //
-            // this.refs.fieldSongName.value = this.song.getName();
+            // this.refs.fieldSongName.value = this.song.name;
             // this.refs.fieldSongVersion.value = this.song.getVersion();
             //
             // this.refs.fieldSongVolume.value = this.song.getVolumeValue();

@@ -82,7 +82,7 @@
                     instrumentIDHTML + ':'
                 ),
                 this.refs.textName = new ASUITextInput('instrument-name',
-                    (e, newInstrumentName) => this.setInstrumentName(newInstrumentName),
+                    (e, newInstrumentName) => this.instrumentRename(newInstrumentName),
                     'Instrument Name',
                     this.instrument.config.name || '',
                     'Unnamed'
@@ -529,7 +529,7 @@
             // let addSampleName = sampleURL.split('/').pop();
             // addSampleName = prompt(`Set Sample Name:`, addSampleName);
             const addSampleID = this.config.samples.length;
-            this.song.replaceInstrumentParam(this.id, ['samples', addSampleID], {
+            this.song.instrumentReplaceParam(this.id, ['samples', addSampleID], {
                 url: sampleURL,
                 // name: addSampleName
             });
@@ -542,50 +542,50 @@
         // setSampleName(sampleID, newSampleName) {
         //     if(!newSampleName)
         //         throw new Error("Invalid sample name");
-        //     this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'name'], newSampleName);
+        //     this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'name'], newSampleName);
         // }
 
         setSamplePolyphony(sampleID, polyphonyLimit) {
             if(!Number.isInteger(polyphonyLimit))
                 throw new Error("Invalid polyphony value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
         }
 
         async setSampleURL(sampleID, newSampleURL) {
             newSampleURL = new URL(newSampleURL) + '';
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
             await this.loadAudioSample(sampleID);
         }
 
         setSampleMixer(sampleID, newMixerValue) {
             if(!Number.isInteger(newMixerValue))
                 throw new Error("Invalid mixer value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
         }
 
         setSampleDetune(sampleID, newDetuneValue) {
             if(!Number.isInteger(newDetuneValue))
                 throw new Error("Invalid detune value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
         }
 
         setSampleKeyRoot(sampleID, newKeyRootValue) {
             if(!newKeyRootValue)
                 this.song.deleteInstrumentParam(this.id, ['samples', sampleID, 'keyRoot']);
             else
-                this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
+                this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
         }
 
         setSampleKeyAlias(sampleID, newKeyAliasValue) {
             if(!newKeyAliasValue)
                 throw new Error("Invalid keyAlias value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
         }
 
         setSampleLoop(sampleID, newLoopValue) {
             if(typeof newLoopValue !== 'boolean')
                 throw new Error("Invalid loop value");
-            this.song.replaceInstrumentParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
         }
 
         removeSample(sampleID) {
@@ -641,12 +641,12 @@
         /** Modify Instrument **/
 
         remove() {
-            this.instrument.song.removeInstrument(this.instrument.id);
+            this.instrument.song.instrumentRemove(this.instrument.id);
             document.dispatchEvent(new CustomEvent('instrument:remove', this));
         }
 
-        setInstrumentName(newInstrumentName) {
-            return this.instrument.song.setInstrumentName(this.instrument.id, newInstrumentName);
+        instrumentRename(newInstrumentName) {
+            return this.instrument.song.instrumentRename(this.instrument.id, newInstrumentName);
         }
 
         async setPreset(presetURL) {
@@ -656,7 +656,7 @@
                 const newPresetName = presetURL.hash.substr(1);
                 let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
                 newPresetConfig = Object.assign({}, this.instrument.config, newPresetConfig);
-                await this.instrument.song.replaceInstrument(this.instrument.id, newPresetConfig);
+                await this.instrument.song.instrumentReplace(this.instrument.id, newPresetConfig);
                 await this.instrument.loadConfig(newPresetConfig);
                 this.render();
             }

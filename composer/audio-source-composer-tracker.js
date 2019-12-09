@@ -81,11 +81,11 @@
         }
 
 
-        getInstruction(index) {
-            return this.editorElm.song.getInstruction(this.groupName, index);
+        instructionFind(index) {
+            return this.editorElm.song.instructionFind(this.groupName, index);
         }
 
-        getInstructionFormValues(command = null) {
+        instructionFindFormValues(command = null) {
             if (!command)
                 command = this.editorElm.refs.fieldInstructionCommand.value;
             let newInstruction = new SongInstruction();
@@ -161,7 +161,7 @@
 
 
             // Instruction Iterator
-            let instructionIterator = this.editorElm.song.getIterator(this.groupName);
+            let instructionIterator = this.editorElm.song.instructionGetIterator(this.groupName);
 
 
             //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.refs.fieldTrackerSegmentLength.value);
@@ -222,7 +222,7 @@
             // console.log(e.type);
 
             let selectedIndicies = this.editorElm.getSelectedIndicies();
-            // const instructionList = this.getInstructions();
+            // const instructionList = this.instructionEach();
 
             switch (e.type) {
                 case 'midimessage':
@@ -266,7 +266,7 @@
                             // this.clearSelection();
                             const selectedIndiciesDesc = selectedIndicies.sort((a, b) => b - a);
                             for (let i = 0; i < selectedIndiciesDesc.length; i++)
-                                this.editorElm.song.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
+                                this.editorElm.song.instructionDeleteAtIndex(this.groupName, selectedIndicies[i]);
                             this.renderRows();
                             // this.selectIndicies(selectedIndicies[0]);
                             // song.render(true);
@@ -668,7 +668,7 @@
         }
 
         get cursorInstruction() {
-            return this.getInstruction(this.cursorCell.index);
+            return this.instructionFind(this.cursorCell.index);
         }
 
         getCursorCell() {
@@ -936,36 +936,36 @@
         //         // this.createNewInstructionCell(lastRowElm).select();
         //     }
         // }
-        // insertInstructionAtIndex(instruction, insertIndex) {
-        //     return this.editorElm.song.insertInstructionAtIndex(this.groupName, insertIndex, instruction);
+        // instructionInsertAtIndex(instruction, insertIndex) {
+        //     return this.editorElm.song.instructionInsertAtIndex(this.groupName, insertIndex, instruction);
         // }
 
-        // insertInstructionAtPosition(insertTimePosition, instruction) {
-        //     return this.editorElm.song.insertInstructionAtPosition(this.groupName, insertTimePosition, instruction);
+        // instructionInsertAtPosition(insertTimePosition, instruction) {
+        //     return this.editorElm.song.instructionInsertAtPosition(this.groupName, insertTimePosition, instruction);
         // }
-        // deleteInstructionAtIndex(deleteIndex) {
-        //     return this.editorElm.song.deleteInstructionAtIndex(this.groupName, deleteIndex, 1);
+        // instructionDeleteAtIndex(deleteIndex) {
+        //     return this.editorElm.song.instructionDeleteAtIndex(this.groupName, deleteIndex, 1);
         // }
-        // replaceInstructionCommand(replaceIndex, newCommand) {
-        //     return this.editorElm.song.replaceInstructionCommand(this.groupName, replaceIndex, newCommand);
+        // instructionReplaceCommand(replaceIndex, newCommand) {
+        //     return this.editorElm.song.instructionReplaceCommand(this.groupName, replaceIndex, newCommand);
         // }
 
-        // replaceInstructionVelocity(replaceIndex, newVelocity) {
-        //     return this.editorElm.song.replaceInstructionVelocity(this.groupName, replaceIndex, newVelocity);
+        // instructionReplaceVelocity(replaceIndex, newVelocity) {
+        //     return this.editorElm.song.instructionReplaceVelocity(this.groupName, replaceIndex, newVelocity);
         // }
 
 
         insertOrUpdateCommand(e, commandString = null) {
             let selectedIndicies = this.editorElm.getSelectedIndicies();
             if (this.cursorCell.matches('asct-instruction-add')) {
-                let newInstruction = this.getInstructionFormValues(commandString);
+                let newInstruction = this.instructionFindFormValues(commandString);
                 if (!newInstruction) {
                     this.editorElm.refs.fieldInstructionCommand.focus();
                     return console.info("Insert canceled");
                 }
 
                 const insertPosition = this.cursorPosition;
-                const insertIndex = this.insertInstructionAtPosition(insertPosition, newInstruction);
+                const insertIndex = this.instructionInsertAtPosition(insertPosition, newInstruction);
                 // this.cursorRow.render(true);
                 this.renderRows();
                 this.selectSegmentIndicies(insertIndex, true);
@@ -974,9 +974,9 @@
                 // cursorInstruction = instructionList[insertIndex];
             } else {
                 for (let i = 0; i < selectedIndicies.length; i++) {
-                    const selectedInstruction = this.getInstruction(selectedIndicies[i]);
+                    const selectedInstruction = this.instructionFind(selectedIndicies[i]);
                     const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
-                    this.replaceInstructionCommand(selectedIndicies[i], replaceCommand);
+                    this.instructionReplaceCommand(selectedIndicies[i], replaceCommand);
                 }
                 this.renderRows();
                 this.selectSegmentIndicies(selectedIndicies);
@@ -984,8 +984,8 @@
             }
         }
 
-        // replaceInstructionParams(replaceIndex, replaceParams) {
-        //     return this.editor.song.replaceInstructionParams(this.groupName, replaceIndex, replaceParams);
+        // instructionReplaceParams(replaceIndex, replaceParams) {
+        //     return this.editor.song.instructionReplaceParams(this.groupName, replaceIndex, replaceParams);
         // }
 
         replaceFrequencyAlias(noteFrequency, instrumentID) {
@@ -1216,8 +1216,8 @@
                 this.setState({selected});
         }
 
-        getInstruction() {
-            return this.row.trackerElm.getInstruction(this.index);
+        instructionFind() {
+            return this.row.trackerElm.instructionFind(this.index);
         }
 
         play() {

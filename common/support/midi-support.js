@@ -120,7 +120,7 @@
                                 let noteDuration = songPositionInTicks - lastNoteSongPositionInTicks;
                                 delete lastNote[newMIDICommandOff];
 
-                                song.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
+                                song.instructionReplaceDuration(currentGroup, insertIndex, noteDuration);
 //                             console.log("OFF", lastNoteSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOff, noteDuration);
 
                                 // lastNote[newMIDICommandOff][1][3] = noteDuration;
@@ -137,7 +137,7 @@
                                     let noteDuration = songPositionInTicks - lastInsertSongPositionInTicks;
                                     // lastNote[newMIDICommandOn][1][3] = noteDuration;
 
-                                    song.replaceInstructionDuration(currentGroup, insertIndex, noteDuration);
+                                    song.instructionReplaceDuration(currentGroup, insertIndex, noteDuration);
 //                                 console.log("OFF", lastInsertSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOn, noteDuration);
                                     delete lastNote[newMIDICommandOn];
                                     break;
@@ -147,7 +147,7 @@
                             // let newInstructionDelta = trackEvent.deltaTime + (songPositionInTicks - lastInsertSongPositionInTicks);
                             lastInsertSongPositionInTicks = songPositionInTicks;
                             const newInstruction = new SongInstruction([0, newMIDICommandOn, instrumentID, 0, newMIDIVelocityOn]);
-                            const insertIndex = song.insertInstructionAtPosition(currentGroup, songPositionInTicks, newInstruction);
+                            const insertIndex = song.instructionInsertAtPosition(currentGroup, songPositionInTicks, newInstruction);
 
                             lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];
                             // newTrack.push(newInstruction);

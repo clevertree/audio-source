@@ -79,9 +79,11 @@
             for(const attrName in this.props) {
                 if(this.props.hasOwnProperty(attrName)) {
                     const value = this.props[attrName];
-                    if(value === true)
+                    if (typeof value === "object" && value !== null)
+                        Object.assign(this[attrName], value);
+                    else if (value === true)
                         this.setAttribute(attrName, '');
-                    else if(value !== null && value !== false)
+                    else if (value !== null && value !== false)
                         this.setAttribute(attrName, value);
                 }
             }
@@ -195,9 +197,7 @@
         async render() {
             return [
                 this.state.hasBreak ? new ASUIDiv('break') : null,
-                new ASUIDiv('caption', this.state.caption, {
-                    class: this.state.stick ? 'stick' : null
-                }),
+                this.state.caption ? (this.state.caption instanceof HTMLElement ? this.state.caption : new ASUIDiv('caption', this.state.caption)) : null,
                 this.state.open && this.state.content ? new ASUIDiv('dropdown', this.state.content) : null,
             ];
         }

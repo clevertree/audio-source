@@ -27,6 +27,7 @@ span.error {
 /** Font Style **/
 asui-div[key=asc-container] {
     font-family: monospace;
+    /* font-size: 24px; */
     color: #000;
     background-color: #bdc3c7;
     /* margin-top: -14px; */
@@ -110,11 +111,9 @@ asc-panel > asui-div[key=caption] {
 }
 
 
-
-
-
 /** Song Forms **/
 
+asc-instrument,
 asc-form {
     background: #DDD;
     border: 1px outset #FFF;
@@ -123,6 +122,7 @@ asc-form {
     display: inline-block;
     vertical-align: top;
 }
+asc-instrument > asui-div[key=caption],
 asc-form > asui-div[key=caption] {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
@@ -165,8 +165,8 @@ asui-div[key=instruments]  asui-input-select[key=instrument-preset]       select
 
 /** Add Instrument Form **/
 
-asui-div[key=asc-container]  form.asc-form-song-add-instrument                                    {/* height: 54px; */}
-asui-div[key=asc-container]  form.asc-form-song-add-instrument select[name=instrumentURL]            {min-width: 129px;/* padding: 1em; */}
+/*asui-div[key=asc-container]  form.asc-form-song-add-instrument                                    {!* height: 54px; *!}*/
+/*asui-div[key=asc-container]  form.asc-form-song-add-instrument select[name=instrumentURL]            {min-width: 129px;!* padding: 1em; *!}*/
 
 
 /*@media only screen and (min-width: 1000px) {*/
@@ -179,6 +179,19 @@ asui-div[key=asc-container]  form.asc-form-song-add-instrument select[name=instr
 /*        min-height: 55px;*/
 /*    }*/
 /*}*/
+
+
+/** Editor Instrument Containers **/
+asc-instrument {
+}
+
+/** Add Instrument Form **/
+
+/*asc-instrument  form.asc-form-song-add-instrument                                    {!* height: 54px; *!}*/
+/*asc-instrument  form.asc-form-song-add-instrument select[name=instrumentURL]            {min-width: 129px;!* padding: 1em; *!}*/
+
+
+
 
 
 /** Visibility **/
@@ -194,11 +207,6 @@ asui-div[key=asc-container].hide-panel-instruments asui-div[key=instruments] {
 }
 
 
-
-/** Add Instrument Form **/
-
-asui-div[key=asc-container]  form.asc-form-song-add-instrument                                    {/* height: 54px; */}
-asui-div[key=asc-container]  form.asc-form-song-add-instrument select[name=instrumentURL]            {min-width: 129px;/* padding: 1em; */}
 
 
 /** Editor Tracker **/

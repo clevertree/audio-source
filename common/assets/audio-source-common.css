@@ -30,7 +30,7 @@ asui-div button.themed {
     border: 0px outset transparent;
     background: transparent;
     cursor: pointer;
-    height: 24px;
+    /* height: 24px; */
 }
 
 asui-div .input-style:hover,
@@ -59,7 +59,7 @@ asui-div input.themed[type='range'] {
     background-color: #AAA;
     border-radius: 15px;
     height: 2px;
-    margin: 11px;
+    margin: 6.5px;
 }
 asui-div input.themed[type='range']::-webkit-slider-thumb {
     vertical-align: middle;
@@ -117,7 +117,7 @@ asui-input-file {
 
 asui-input-button,
 asui-input-file  {
-     height: 24px;
+     /* height: 24px; */
      display: inline-block;
 }
 
@@ -127,14 +127,15 @@ asui-input-file  {
 /** Icons **/
 
 asui-icon {
-    font-size: 24px;
+    /* font-size: 24px; */
     display: inline-block;
     width: 1em;
     height: 1em;
     padding: 0px;
-    margin: 0px;
+    margin: 1px 3px;
     background: url("../../assets/img/ui-icons.png");
     background-size: 10em 5em;
+    transform: scale(1.5);
 }
 asui-icon.play { background-position: -3em -1em; }
 asui-icon.pause {background-position: -4em -1em;}
@@ -150,6 +151,7 @@ asui-icon.delete {background-position: -4em 0em;}
 asui-icon.file-load {background-position: 0em 0em;}
 asui-icon.file-save {background-position: -1em 0em;}
 
+asui-icon.config {background-position: 0em 3em;}
 
 
 
