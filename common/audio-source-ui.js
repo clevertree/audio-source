@@ -198,19 +198,30 @@
             this.action = actionCallback;
             this.addEventHandler('mouseover', this.onInputEvent);
             this.addEventHandler('mouseout', this.onInputEvent);
+            this.addEventHandler('mouseout', e => this.onInputEvent(e), document);
             this.addEventHandler('click', this.onInputEvent);
             this.addEventHandler('change', this.onInputEvent);
             this.addEventHandler('keydown', this.onInputEvent);
-            this.addEventHandler('wheel', this.onInputEvent);
         }
 
+        async setTitle(newTitle) {
+            this.state.title = newTitle;
+            if(this.refs.title)
+                await this.refs.title.setState({content: newTitle});
+            else
+                await this.setState({title});
+        }
 
         async render() {
-            return [
+            const content = [
                 this.state.hasBreak ? new ASUIDiv('break') : null,
-                this.state.title ? new ASUIDiv('title', this.state.title) : null,
-                this.state.open && this.state.content ? new ASUIDiv('dropdown', this.renderOptions(this.state.offset, this.state.maxLength)) : null,
+                this.refs.title = (this.state.title ? new ASUIDiv('title', this.state.title) : null),
+                this.refs.dropdown = (this.state.open && this.state.content ? new ASUIDiv('dropdown', this.renderOptions(this.state.offset, this.state.maxLength)) : null),
             ];
+
+            if(this.refs.dropdown)
+                this.refs.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
+            return content;
         }
 
         async renderOptions(offset=0, length=20) {
@@ -218,12 +229,18 @@
             const contentList = [];
             await this.eachContent(this.state.content, (content) => {
                 if(i < offset);
-                else if(i >= offset + length);
-                else contentList.push(content);
+                else if(contentList.length < length)
+                    contentList.push(content);
                 i++;
             });
-            while(contentList.length < length && offset > contentList.length)
-                contentList.push(new ASUIMenu('-'));
+            if(offset > length) {
+                await this.eachContent(this.state.content, (content) => {
+                    if (contentList.length < length)
+                        contentList.push(content);
+                });
+            }
+            // while(contentList.length < length && offset > contentList.length)
+            //     contentList.push(new ASUIMenu('-'));
             this.state.optionCount = i;
             return contentList;
         }
@@ -241,6 +258,10 @@
         async close() {
             if(this.state.open !== false)
                 await this.setState({open: false})
+        }
+        async open() {
+            if(this.state.open !== true)
+                await this.setState({open: true})
         }
 
         async closeAllMenus(global=true) {
@@ -263,9 +284,7 @@
             switch (e.type) {
                 case 'mouseover':
                     clearTimeout(this.mouseTimeout);
-                    if(!this.state.open) {
-                        this.setState({open: true});
-                    }
+                    this.open();
                     break;
 
                 case 'mouseout':
@@ -276,6 +295,7 @@
                         }, 200);
                     }
                     break;
+
                 case 'click':
                     if (e.defaultPrevented)
                         return;
@@ -343,14 +363,16 @@
                     break;
 
                 case 'wheel':
+                    if(e.defaultPrevented)
+                        break;
+                    e.preventDefault();
                     let offset = this.state.offset;
                     if(e.deltaY < 0) offset--; else offset++;
                     if(this.state.optionCount) {
-                        if (offset > this.state.optionCount - this.state.maxLength / 2)
+                        if (offset > this.state.optionCount)
                             offset = 0;
                         else if (offset < 0)
-                            offset = this.state.optionCount - this.state.maxLength;
-                        // TODO: overlap values?
+                            offset = this.state.optionCount;
                     }
                     this.setState({offset});
                     console.log(e);
@@ -475,16 +497,25 @@
         }
 
         getOption(value, title=null) {
-            return new ASUIMenu(title, null, () => this.setState({value, title}));
+            return new ASUIMenu(title, null, () => this.setValue(value, title));
         }
 
         getOptGroup(title, content) {
             return new ASUIMenu(title, content);
         }
 
+        async setValue(value, title=null) {
+            title = title || value;
+            await this.setState({value, title});
+            // title = title || value;
+            // this.state.value = value;
+            // this.state.title = title;
+            // await this.refs.menu.setTitle(title);
+        }
+
         /** @override **/
         async render() {
-            return new ASUIMenu(this.state.title || this.state.value, this.state.content);
+            return this.refs.menu = new ASUIMenu(this.state.title || this.state.value, this.state.content);
         }
     }
     customElements.define('asui-input-select', ASUIInputSelect);

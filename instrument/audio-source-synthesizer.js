@@ -88,7 +88,6 @@
                 new ASUIDiv('title', () => [
                     titleHTML,
                     this.refs.selectChangePreset = new ASUIInputSelect('instrument-preset',
-                        (e, presetURL) => this.setPreset(presetURL),
                         async (selectElm) => [
                             selectElm.getOption('', 'Change Preset'),
                             selectElm.getOptGroup(this.sampleLibrary.name || 'Unnamed Library'),
@@ -98,6 +97,7 @@
                             selectElm.getOptGroup('Other Libraries'),
                             await AudioSourceLibrary.eachHistoricLibrary(selectElm.getOption), // TODO: refactor async
                         ],
+                        (e, presetURL) => this.setPreset(presetURL),
                         'Change Instrument',
                         defaultPresetURL),
 
@@ -205,16 +205,18 @@
                     new ASUIGridRow('footer', () => [
                         /** Add New Sample **/
                         new ASUIDiv('id', '*'),
-                        this.refs.fieldAddSample = new ASUIInputSelect(
-                            'url',
-                            async (selectElm) => [
+                        this.refs.fieldAddSample = new ASUIInputSelect('url',
+                            (selectElm) => [
                                 selectElm.getOption('', '[New Sample]'),
-                                selectElm.getOptGroup(sampleLibrary.name || 'Unnamed Library'),
-                                sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
-                                selectElm.getOptGroup('Libraries'),
-                                sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-                                selectElm.getOptGroup('Other Libraries'),
-                                await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                                selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + ' ►', () =>
+                                    sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+                                ),
+                                selectElm.getOptGroup('Libraries ►', () =>
+                                    sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                                ),
+                                selectElm.getOptGroup('Other Libraries', async () =>
+                                    await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                                ),
                             ],
                             (e, sampleURL) => this.addSample(sampleURL),
                             'Add Sample',

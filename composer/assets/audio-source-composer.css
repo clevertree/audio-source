@@ -204,11 +204,12 @@ asc-instrument {
 
 :host(:not(.playing)) .show-on-playing,
 :host(.playing) .hide-on-playing,
-asui-div[key=asc-container].hide-panel-song asui-div[key=song],
-asui-div[key=asc-container].hide-panel-tracker asui-div[key=instruction],
-asui-div[key=asc-container].hide-panel-tracker asui-div[key=tracker],
-asui-div[key=asc-container].hide-panel-tracker asui-div[key=tracker-row-segments],
-asui-div[key=asc-container].hide-panel-instruments asui-div[key=instruments] {
+:host(.hide-panel-song) asc-panel[key=song],
+:host(.hide-panel-tracker) asc-panel[key=instructions],
+:host(.hide-panel-tracker) asc-panel[key=tracker],
+:host(.hide-panel-tracker) asc-panel[key=tracker-groups],
+:host(.hide-panel-tracker) asc-panel[key=tracker-row-segments],
+:host(.hide-panel-instruments) asc-panel[key=instruments] {
     display: none;
 }
 
@@ -228,11 +229,11 @@ asc-tracker {
 }
 
 
-asui-div[key=asc-container]:not(.fullscreen) asc-tracker {
+:host(:not(.fullscreen)) asc-tracker {
     /* max-height: 700px; */
     /* margin-bottom: auto; */
 }
-asui-div[key=asc-container].fullscreen asc-tracker {
+:host(.fullscreen) asc-tracker {
     /*height: 700px;*/
 }
 
