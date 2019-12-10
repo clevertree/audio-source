@@ -69,7 +69,7 @@ asp-panel {
     /*width: 100%;*/
 }
 
-asp-panel > asui-div[key=caption] {
+asp-panel > asui-div[key=title] {
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -101,7 +101,7 @@ asp-form {
     margin: 0px 0px 0px 0px;
     display: inline-block;
 }
-asp-form > asui-div[key=caption] {
+asp-form > asui-div[key=title] {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;

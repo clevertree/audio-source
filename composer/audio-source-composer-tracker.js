@@ -18,10 +18,10 @@
         ASUIMenu,
         ASUIGrid,
         ASUIGridRow,
-        ASUIButtonInput,
+        ASUIInputButton,
         ASUIFileInput,
-        ASUIRangeInput,
-        ASUITextInput,
+        ASUIInputRange,
+        ASUIInputText,
         ASUIcon,
     } = await requireAsync('common/audio-source-ui.js');
 
@@ -201,7 +201,7 @@
                 this.refs.rowContainer = new ASUIDiv('tracker-header', () => [
                     new ASUIDiv('delta', "Delta"),
                     new ASUIDiv('instructions', "Instructions"),
-                ], {class: 'asc-panel-caption'}),
+                ], {class: 'asc-panel-title'}),
                 this.refs.rowContainer = new ASUIDiv('tracker-row-container', () => [
                     content
                 ])

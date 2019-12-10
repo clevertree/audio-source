@@ -7,16 +7,17 @@
         module.exports = {
             ASUIComponent,
             ASUIDiv,
-            ASUIButtonInput,
+            ASUIInputButton,
             ASUIFileInput,
-            ASUITextInput,
-            ASUIRangeInput,
-            ASUISelectInput,
-            ASUICheckBoxInput,
+            ASUIInputText,
+            ASUIInputRange,
+            ASUIInputSelect,
+            ASUIInputCheckBox,
             ASUIGrid,
             ASUIGridRow,
             ASUIcon,
             ASUIMenu,
+            // ASUISelectMenu,
         };
     };
 
@@ -54,22 +55,11 @@
 
         async renderHTML() {
             if(!this.parentNode) {
-                console.log("skipping render, not attached");
+                console.warn("skipping render, not attached");
                 return;
             }
 
-            // this.targetElm.innerHTML = '';
-            // try {
-                let content = await this.render();
-                let t, targetElm= this.targetElm;
-                while (t = targetElm.firstChild)
-                    targetElm.removeChild(t);
-                // Render content
-                await this.renderContent(content, this.targetElm);
-            // } catch (e) {
-            //     this.targetElm.innerHTML = `<span class="error">${e.message}</span>`;
-            // }
-
+            await this.renderContent();
         }
 
         renderProps() {
@@ -88,8 +78,18 @@
                 }
             }
         }
+        clearContent(targetElm) {
+            let t;
+            while (t = targetElm.firstChild)
+                targetElm.removeChild(t);
+        }
+        async renderContent() {
+            this.clearContent(this.targetElm);
+            let content = await this.render();
+            await this.appendContentTo(content, this.targetElm);
+        }
 
-        async renderContent(content, targetElm) {
+        async eachContent(content, callback) {
             while(true) {
                 if (content instanceof Promise) content = await content;
                 else if (typeof content === "function") content = content(this);
@@ -97,18 +97,24 @@
             }
             if(Array.isArray(content)) {
                 for(let i=0; i<content.length; i++)
-                    await this.renderContent(content[i], targetElm);
+                    await this.eachContent(content[i], callback);
                 return;
             }
 
-            if(content !== null && typeof content !== "undefined") {
-                if (content instanceof ASUIComponent)
-                    await content.appendTo(targetElm);
-                else if (content instanceof HTMLElement)
-                    targetElm.appendChild(content);
-                else
-                    targetElm.innerHTML += content;
-            }
+            await callback(content);
+        }
+
+        async appendContentTo(content, targetElm) {
+            this.eachContent(content, async (content) => {
+                if(content !== null && typeof content !== "undefined") {
+                    if (content instanceof ASUIComponent)
+                        await content.appendTo(targetElm);
+                    else if (content instanceof HTMLElement)
+                        targetElm.appendChild(content);
+                    else
+                        targetElm.innerHTML += content;
+                }
+            });
         }
 
         async render() {
@@ -117,7 +123,7 @@
 
         addAllEventListeners() {
             this._eventHandlers.forEach(eventHandler =>
-                eventHandler[2].addEventListener(eventHandler[0], eventHandler[1], eventHandler[2]));
+                eventHandler[2].addEventListener(eventHandler[0], eventHandler[1], eventHandler[3]));
         }
 
         removeAllEventListeners() {
@@ -141,7 +147,7 @@
             for(let i=0; i<eventNames.length; i++) {
                 const eventName = eventNames[i];
                 context = context || this;
-                this._eventHandlers.push([eventName, method, context]);
+                this._eventHandlers.push([eventName, method, context, options]);
             }
             if(this.parentNode) // i.e. connected
                 this.addAllEventListeners();
@@ -179,11 +185,14 @@
     /** Menu **/
     class ASUIMenu extends ASUIComponent {
 
-        constructor(caption = null, dropDownContent = null, actionCallback = null, props = {}) {
+        constructor(title = null, dropDownContent = null, actionCallback = null, props = {}) {
             super({
-                caption,
+                title,
                 content: dropDownContent,
                 open: false,
+                offset: 0,
+                maxLength: 20,
+                optionCount: 0
             }, props);
             props.stick = false;
             this.action = actionCallback;
@@ -192,15 +201,31 @@
             this.addEventHandler('click', this.onInputEvent);
             this.addEventHandler('change', this.onInputEvent);
             this.addEventHandler('keydown', this.onInputEvent);
+            this.addEventHandler('wheel', this.onInputEvent);
         }
 
 
         async render() {
             return [
                 this.state.hasBreak ? new ASUIDiv('break') : null,
-                this.state.caption ? (this.state.caption instanceof HTMLElement ? this.state.caption : new ASUIDiv('caption', this.state.caption)) : null,
-                this.state.open && this.state.content ? new ASUIDiv('dropdown', this.state.content) : null,
+                this.state.title ? new ASUIDiv('title', this.state.title) : null,
+                this.state.open && this.state.content ? new ASUIDiv('dropdown', this.renderOptions(this.state.offset, this.state.maxLength)) : null,
             ];
+        }
+
+        async renderOptions(offset=0, length=20) {
+            let i=0;
+            const contentList = [];
+            await this.eachContent(this.state.content, (content) => {
+                if(i < offset);
+                else if(i >= offset + length);
+                else contentList.push(content);
+                i++;
+            });
+            while(contentList.length < length && offset > contentList.length)
+                contentList.push(new ASUIMenu('-'));
+            this.state.optionCount = i;
+            return contentList;
         }
 
         async toggleSubMenu(e) {
@@ -219,11 +244,14 @@
         }
 
         async closeAllMenus(global=true) {
-            let menu = this;
-            while(menu) {
-                await menu.close();
-                menu = menu.parentNode.closest('asui-menu');
-            }
+            const root = this.getRootNode() || document;
+            root.querySelectorAll('asui-menu[open]')
+                .forEach(menu => menu.close())
+            // let menu = this;
+            // while(menu) {
+            //     await menu.close();
+            //     menu = menu.parentNode.closest('asui-menu');
+            // }
         }
 
         onInputEvent(e) {
@@ -313,6 +341,20 @@
 
                     }
                     break;
+
+                case 'wheel':
+                    let offset = this.state.offset;
+                    if(e.deltaY < 0) offset--; else offset++;
+                    if(this.state.optionCount) {
+                        if (offset > this.state.optionCount - this.state.maxLength / 2)
+                            offset = 0;
+                        else if (offset < 0)
+                            offset = this.state.optionCount - this.state.maxLength;
+                        // TODO: overlap values?
+                    }
+                    this.setState({offset});
+                    console.log(e);
+                    break;
             }
 
             // if(target.classList.contains('open')) {
@@ -353,7 +395,6 @@
                 title,
             }, props);
             props.key = key;
-            this.listeners = [];
             this.callback = callback || function () {
                 console.warn("No callback set")
             };
@@ -391,17 +432,17 @@
             if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if(this.state.title) inputElm.setAttribute('title', this.state.title);
 
-
-            await this.renderContent(this.state.content, inputElm);
+            await this.appendContentTo(this.state.content, inputElm);
             if(this.state.value !== null)
                 inputElm.value = this.state.value;
             return inputElm;
         }
 
+
     }
 
 
-    class ASUIButtonInput extends ASUIAbstractInput {
+    class ASUIInputButton extends ASUIAbstractInput {
         constructor(key = null, callback = null, content = null, title = null, props={}) {
             super(key, callback, content, title, null, props);
             this.addEventHandler('click', e => this.onClick(e));
@@ -418,172 +459,154 @@
         }
     }
 
-    customElements.define('asui-input-button', ASUIButtonInput);
+    customElements.define('asui-input-button', ASUIInputButton);
 
 
-    class ASUISelectInput extends ASUIAbstractInput {
-        constructor(key = null, callback = null, optionContent = null, title = null, value = null, props = {}) {
-            super(key, callback, optionContent, title, value, props);
-
-            // this.appendChild(selectElm);
-            // if (value !== null)
-            //     this.setValue(value);
-            // else
-            //     this.setDefaultValue();
-
-            // this.addEventHandler('focus', e => this.renderOptions(e));
-            // this.addEventListener('change', e => this.onChange(e));
+    class ASUIInputSelect extends ASUIDiv {
+        constructor(key, optionContent, actionCallback, title = null, value = null, props = {}) {
+            super(key, () => optionContent(this), props);
+            this.state.title = title;
+            this.state.value = value;
+            this.actionCallback = actionCallback;
         }
 
-        createInputElement() {
-            const selectElm = document.createElement('select');
-            selectElm.classList.add('themed');
-            return selectElm;
+        onChange(e) {
+            this.actionCallback();
         }
 
         getOption(value, title=null) {
-            const optionElm= document.createElement('option');
-            optionElm.value = value;
-            if(title!==null)
-                optionElm.text = title;
-            return optionElm;
+            return new ASUIMenu(title, null, () => this.setState({value, title}));
         }
 
-        getOptGroup(label=null) {
-            const optGroupElm = document.createElement('optgroup');
-            optGroupElm.label = label;
-            return optGroupElm;
+        getOptGroup(title, content) {
+            return new ASUIMenu(title, content);
         }
-
-        // get value() {
-        //     return this.selectedValue ? this.selectedValue.value : null;
-        // }
-        //
-        // set value(newValue) {
-        //     this.setValue(newValue);
-        // }
-
-        // async setDefaultValue() {
-        //     let valueFound = false;
-        //     await this.eachOption((value, title) => {
-        //         if (!valueFound)
-        //             valueFound = {value, title};
-        //     });
-        //
-        //     this.addOrSetValue(valueFound.value, valueFound.title);
-        // }
-
-        // async setValue(newValue) {
-        //     let valueFound = false;
-        //     this.selectedValue = {value: newValue, title: "*"}; // TODO: async hack
-        //     await this.eachOption((value, title) => {
-        //         if (value === newValue)
-        //             valueFound = {value, title};
-        //     });
-        //     if (!valueFound) {
-        //         let valueList = [];
-        //         this.eachOption(function (value) {
-        //             valueList.push(value)
-        //         });
-        //         console.warn(`Value not found: (${typeof newValue}) ${newValue}`, valueList);
-        //         // throw new Error(`Value not found: (${typeof newValue}) ${newValue}`); // It may not be something the designer can control
-        //     }
-        //
-        //     this.selectedValue = valueFound;
-        //     this.addOrSetValue(valueFound.value, valueFound.title);
-        // }
-
-
-        // getOrCreateOption(value, title) {
-        //     const inputElm = this.inputElm;
-        //     let optionElm = inputElm.querySelector(`option[value="${value}"]`);
-        //     if (!optionElm) {
-        //         optionElm = document.createElement('option');
-        //         optionElm.setAttribute('value', value);
-        //         optionElm.innerText = (title || "Unknown value");
-        //         inputElm.insertBefore(optionElm, inputElm.firstChild);
-        //     }
-        //     return optionElm;
-        // }
-
-        // async eachOption(callback, groupCallback = null) {
-        //     groupCallback = groupCallback || function () {
-        //     };
-        //     const promise = this.content((value, title = null) => { // TODO: support string content
-        //         title = title !== null ? title : value;
-        //         return callback(value, title);
-        //     }, groupCallback);
-        //     if (promise instanceof Promise)
-        //         await promise;
-        // }
-
-
-        // async addOrSetValue(newValue, newValueTitlePrefix = null) {
-        //     this.selectedValue = {value: newValue, title: newValueTitlePrefix || "Unknown value"};
-        //     let optionElm = this.getOrCreateOption(newValue, this.selectedValue.title);
-        //     optionElm.selected = true;
-        // }
-
-        // async onChange(e) {
-        //     const currentValue = this.inputElm.value;
-        //     let valueFound = false;
-        //     await this.eachOption((value, title) => {
-        //         if ((value + '') === currentValue)
-        //             valueFound = {value, title};
-        //     });
-        //     if (!valueFound)
-        //         throw new Error("Value not found: ", currentValue, this);
-        //     this.selectedValue = valueFound;
-        //     // console.log(e.type, this.value);
-        //     this.callback(e, this.selectedValue.value);
-        // }
-
 
         /** @override **/
-        // render() {
-        //     this.inputElm.innerHTML = '';
-        //     const content = this.content;
-        //     if (typeof content === "function")
-        //         this.renderOptions();
-        //     else if (content instanceof HTMLElement)
-        //         this.inputElm.appendChild(content);
-        //     else
-        //         this.inputElm.innerHTML += content;
-        // }
+        async render() {
+            return new ASUIMenu(this.state.title || this.state.value, this.state.content);
+        }
+    }
+    customElements.define('asui-input-select', ASUIInputSelect);
 
+    class ASUIInputSelect3 extends ASUIDiv {
+        constructor(key = null, callback = null, optionContent = null, title = null, value = null, props = {}) {
+            super(key, () => optionContent(this), props);
+            this.state.title = title;
+            props.key = key;
+            props.tabindex = 0;
+            this.callback = callback || function () {
+                console.warn("No callback set")
+            };
+            this.addEventHandler('focus', e => this.onFocus(e), this,true);
+            // this.addEventHandler('blur', e => this.onBlur(e), this,true);
+            this.state.open = false;
+        }
 
-        // async renderOptions() {
-        //     const inputElm = this.inputElm;
-        //
-        //     inputElm.innerHTML = '';
-        //     let currentOptGroup = inputElm;
-        //     await this.eachOption((value, title) => {
-        //         let newOption = document.createElement('option');
-        //         newOption.setAttribute('value', value);
-        //         newOption.innerText = title;
-        //         if (this.selectedValue && this.selectedValue.value === value) { // (value + '') === currentOption.value) {
-        //             newOption.selected = true;
-        //         }
-        //         currentOptGroup.appendChild(newOption);
-        //
-        //     }, (groupName) => {
-        //         if (groupName !== null) {
-        //             currentOptGroup = document.createElement('optgroup');
-        //             currentOptGroup.setAttribute('label', groupName);
-        //             inputElm.appendChild(currentOptGroup);
-        //         } else {
-        //             currentOptGroup = inputElm;
-        //         }
-        //     });
-        // }
+        async onFocus(e) {
+            console.log('focus', this);
+            // await this.renderDropdown(true);
+            // await this.renderSubmenu();
+            if(this.state.open !== true)
+                await this.setState({open: true});
+        }
+        async onBlur(e) {
+            console.log('blur', e.target.parentNode);
+            // await this.clearSubmenu();
+            // await this.renderDropdown(false);
+            if(this.state.open !== false)
+                await this.setState({open: false});
+        }
+
+        getOption(value, title=null) {
+            return new ASUIMenu(title, null, () => this.setState({value, title}));
+            // const optionElm= document.createElement('option');
+            // optionElm.value = value;
+            // optionElm.text = title !== null ? title : value;
+            // return optionElm;
+        }
+
+        getOptGroup(title, content) {
+            return new ASUIMenu(title, content);
+        }
+
+        /** @override **/
+        async render() {
+            return [
+                this.state.title,
+                this.state.open ? new ASUIDiv('dropdown-container', this.state.content) : null,
+            ];
+        }
 
     }
 
-    customElements.define('asui-input-select', ASUISelectInput);
+    customElements.define('asui-input-select3', ASUIInputSelect3);
 
 
+    class ASUIInputSelect2 extends ASUIComponent {
+        constructor(key = null, callback = null, optionContent = null, title = null, value = null, props = {}) {
+            super(key, callback, optionContent, title, value, props);
+            this.addEventHandler('focus', e => this.onFocus(e), this,true);
+            this.addEventHandler('blur', e => this.onBlur(e), this,true);
+            this.state.open = false;
+        }
 
-    class ASUITextInput extends ASUIAbstractInput {
+        async onFocus(e) {
+            // console.log('focus', this);
+            // await this.renderDropdown(true);
+            // await this.renderSubmenu();
+            if(this.state.open !== true)
+                await this.setState({open: true});
+        }
+        async onBlur(e) {
+            // console.log('blur', e.target.parentNode);
+            // await this.clearSubmenu();
+            // await this.renderDropdown(false);
+            if(this.state.open !== false)
+                await this.setState({open: false});
+        }
+
+        getOption(value, title=null) {
+            return new ASUIInputOption(value, title);
+            // const optionElm= document.createElement('option');
+            // optionElm.value = value;
+            // optionElm.text = title !== null ? title : value;
+            // return optionElm;
+        }
+
+
+        clearDropdown() {
+            const inputElm = this.refs.inputElm;
+            let selectedOption = inputElm.options[inputElm.selectedIndex || 0];
+            // inputElm.appendChild(selectedOption);
+            for(let i=inputElm.options.length; i>=0; i--)
+                if(inputElm.options[i] !== selectedOption)
+                    inputElm.remove(i);
+            // inputElm.selectedIndex = 0;
+        }
+
+        // async renderDropdown(open=true) {
+        //     await this.renderContent();
+        //     if(!open) {
+        //         this.clearDropdown();
+        //     }
+        // }
+
+        /** @override **/
+        async render() {
+            const inputElm = await super.render();
+            if(!this.state.open) {
+                this.clearDropdown();
+            }
+            return inputElm;
+        }
+
+    }
+
+    customElements.define('asui-input-select2', ASUIInputSelect2);
+
+
+    class ASUIInputText extends ASUIAbstractInput {
         constructor(key, callback, title=null, value=null, placeholder = null, props={}) {
             super(key, callback, null, title, value, props);
             props.placeholder = placeholder;
@@ -604,9 +627,9 @@
             return inputElm;
         }
     }
-    customElements.define('asui-input-text', ASUITextInput);
+    customElements.define('asui-input-text', ASUIInputText);
 
-    class ASUIRangeInput extends ASUIAbstractInput {
+    class ASUIInputRange extends ASUIAbstractInput {
         constructor(key = null, callback = null, min = 1, max = 100, title = null, value = null, props={}) {
             super(key, callback, null, title, value, props);
             this.state.min = min;
@@ -631,10 +654,10 @@
         // }
     }
 
-    customElements.define('asui-input-range', ASUIRangeInput);
+    customElements.define('asui-input-range', ASUIInputRange);
 
 
-    class ASUICheckBoxInput extends ASUIAbstractInput {
+    class ASUIInputCheckBox extends ASUIAbstractInput {
         constructor(key, callback = null, title=null, checked = false, props={}) {
             super(key, callback, null, title, checked, props);
             // this.addEventHandler('change', e => this.onChange(e));
@@ -658,7 +681,7 @@
 
     }
 
-    customElements.define('asui-input-checkbox', ASUICheckBoxInput);
+    customElements.define('asui-input-checkbox', ASUIInputCheckBox);
 
 
     class ASUIFileInput extends ASUIAbstractInput {
@@ -690,7 +713,7 @@
             labelElm.appendChild(labelContentElm);
 
             const content = await super.render();
-            this.renderContent(content, labelElm);
+            this.appendContentTo(content, labelElm);
 
             return [
                 labelElm

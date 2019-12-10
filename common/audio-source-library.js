@@ -23,9 +23,11 @@
         //     Object.assign(this, data);
         // }
 
+
         eachLibrary(callback) {
             return this.processItemList(this.libraries, (libraryConfig) => {
                 libraryConfig.url = new URL(this.urlPrefix + (libraryConfig.url || libraryConfig.name), this.url) + '';
+                if(!libraryConfig.name) libraryConfig.name = libraryConfig.url.split('/').pop();
                 return callback(libraryConfig);
             });
         }
@@ -33,6 +35,7 @@
         eachSample(callback) {
             return this.processItemList(this.samples, (sampleConfig) => {
                 sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
+                if(!sampleConfig.name) sampleConfig.name = sampleConfig.url.split('/').pop();
                 return callback(sampleConfig);
             });
         }
@@ -40,6 +43,7 @@
         eachPreset(callback) {
             return this.processItemList(this.presets, (presetConfig) => {
                 presetConfig.url = this.url + '#' + presetConfig.name;
+                if(!presetConfig.name) presetConfig.name = presetConfig.name;
                 return callback(presetConfig);
             });
         }
@@ -47,6 +51,7 @@
         eachInstrument(callback) {
             return this.processItemList(this.instruments, (instrumentConfig) => {
                 instrumentConfig.url = new URL(this.urlPrefix + (instrumentConfig.url || instrumentConfig.name), this.url) + '';
+                if(!instrumentConfig.name) instrumentConfig.name = instrumentConfig.url.split('/').pop();
                 return callback(instrumentConfig);
             });
         }

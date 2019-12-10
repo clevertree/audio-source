@@ -18,6 +18,12 @@
 
 /** Font styles **/
 
+:host input, select, button,
+:host {
+    font-size: 12px;
+    font-family: 'Advent Pro', monospace;
+}
+
 span.error {
     font-color: red;
     font-weight: bold;
@@ -26,7 +32,6 @@ span.error {
 
 /** Font Style **/
 asui-div[key=asc-container] {
-    font-family: monospace;
     /* font-size: 24px; */
     color: #000;
     background-color: #bdc3c7;
@@ -97,8 +102,8 @@ asc-panel {
     margin: 1px 3px 0px 1px;
 }
 
-.asc-panel-caption,
-asc-panel > asui-div[key=caption] {
+.asc-panel-title,
+asc-panel > asui-div[key=title] {
     /* display: inline-block; */
     background-color: #333;
     color: #FFF;
@@ -123,8 +128,8 @@ asc-form {
     display: inline-block;
     vertical-align: top;
 }
-asc-instrument > asui-div[key=caption],
-asc-form > asui-div[key=caption] {
+asc-instrument > asui-div[key=title],
+asc-form > asui-div[key=title] {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;

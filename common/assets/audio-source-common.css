@@ -121,6 +121,15 @@ asui-input-file  {
      display: inline-block;
 }
 
+asui-input-select > asui-div[key=dropdown-container] {
+    /*display: none;*/
+    position: absolute;
+    overflow: hidden;
+}
+asui-input-select > asui-div[key=dropdown-container] > asui-menu {
+    display: block;
+}
+
 
 /** Group Buttons **/
 
@@ -132,10 +141,10 @@ asui-icon {
     width: 1em;
     height: 1em;
     padding: 0px;
-    margin: 1px 3px;
+    margin: 1px 2px;
     background: url("../../assets/img/ui-icons.png");
     background-size: 10em 5em;
-    transform: scale(1.5);
+    transform: scale(1.6);
 }
 asui-icon.play { background-position: -3em -1em; }
 asui-icon.pause {background-position: -4em -1em;}
@@ -179,7 +188,7 @@ asui-div[key=dropdown] > asui-menu {
 
 
 /** Menu Text **/
-asui-menu > asui-div[key=caption] {
+asui-menu > asui-div[key=title] {
     padding: 3px 6px;
     display: inline-block;
 }
@@ -200,12 +209,8 @@ asui-menu span.arrow:after {
     content: '►';
 }
 
-asui-menu div.caption > input[type=checkbox] {
-    vertical-align: text-top;
-}
 
 /** Drop Down Menu **/
-
 
 asui-menu > asui-div[key=dropdown] {
     background-color: #bdc3c7;
@@ -218,6 +223,10 @@ asui-menu > asui-div[key=dropdown] {
     /*transform: scaleY(0);*/
     /*opacity: 0;*/
     border: 1px solid grey;
+    text-align: left;
+    /* max-height: 50%; */
+    /* overflow-y: scroll; */
+    /* overflow: auto; */
 }
 
 /** Drop Down Trigger **/
@@ -234,9 +243,9 @@ asui-div[key=dropdown] > asui-menu > asui-div[key=dropdown] {
     display: inline-block;
     /* float: right; */
 }
-asui-div[key=dropdown] > asui-menu > .caption {
-    min-width: 120px;
-}
+/*asui-div[key=dropdown] > asui-menu > .title {*/
+/*    min-width: 120px;*/
+/*}*/
 
 
 /** Disabled Menu **/

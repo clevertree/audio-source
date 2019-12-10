@@ -24,10 +24,10 @@
             ASUIMenu,
             ASUIGrid,
             ASUIGridRow,
-            ASUIButtonInput,
+            ASUIInputButton,
             ASUIFileInput,
-            ASUIRangeInput,
-            ASUITextInput,
+            ASUIInputRange,
+            ASUIInputText,
             ASUIcon,
         } = await requireAsync('common/audio-source-ui.js');
 
@@ -114,21 +114,21 @@
                     new ASUIDiv('asp-forms-container', () => [
                         new ASPPanel('song', 'Song', () => [
                             new ASPForm('playback', 'Playback', () => [
-                                this.refs.fieldSongPlaybackPlay = new ASUIButtonInput('play',
+                                this.refs.fieldSongPlaybackPlay = new ASUIInputButton('play',
                                     e => this.playlistPlay(e),
                                     new ASUIcon('play'),
                                     "Play Song",
                                     {class: 'hide-on-playing'}),
-                                this.refs.fieldSongPlaybackPause = new ASUIButtonInput('pause',
+                                this.refs.fieldSongPlaybackPause = new ASUIInputButton('pause',
                                     e => this.songPause(e),
                                     new ASUIcon('pause'),
                                     "Pause Song",
                                     {class: 'show-on-playing'}),
-                                this.refs.fieldSongPlaybackStop = new ASUIButtonInput('stop',
+                                this.refs.fieldSongPlaybackStop = new ASUIInputButton('stop',
                                     e => this.songStop(e),
                                     new ASUIcon('stop'),
                                     "Stop Song"),
-                                this.refs.fieldSongPlaylistNext = new ASUIButtonInput('playlist-next',
+                                this.refs.fieldSongPlaylistNext = new ASUIInputButton('playlist-next',
                                     e => this.playlistNext(e),
                                     new ASUIcon('next'),
                                     "Next Song")
@@ -141,7 +141,7 @@
                                     `.json,.mid,.midi`,
                                     "Load Song from File"
                                 ),
-                                this.refs.fieldSongFileSave = new ASUIButtonInput('file-save',
+                                this.refs.fieldSongFileSave = new ASUIInputButton('file-save',
                                     e => this.saveSongToFile(),
                                     new ASUIcon('file-save'),
                                     "Save Song to File"
@@ -149,12 +149,12 @@
                             ]),
 
                             new ASPForm('volume', 'Volume', () => [
-                                this.refs.fieldSongVolume = new ASUIRangeInput('volume',
+                                this.refs.fieldSongVolume = new ASUIInputRange('volume',
                                     (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue())
                             ]),
 
                             new ASPForm('timing', 'Timing', () => [
-                                this.refs.fieldSongTiming = new ASUITextInput('timing',
+                                this.refs.fieldSongTiming = new ASUIInputText('timing',
                                     (e, pos) => this.setSongPosition(e, pos),
                                     'Song Timing',
                                     '00:00:000'
@@ -162,7 +162,7 @@
                             ]),
 
                             new ASPForm('position', 'Position', () => [
-                                this.refs.fieldSongPosition = new ASUIRangeInput('position',
+                                this.refs.fieldSongPosition = new ASUIInputRange('position',
                                     (e, pos) => this.setSongPosition(e, pos),
                                     0,
                                     Math.ceil(this.song.getSongLengthInSeconds()),
@@ -172,7 +172,7 @@
                             ]),
 
                             new ASPForm('name', 'Name', () => [
-                                this.refs.fieldSongName = new ASUITextInput('name',
+                                this.refs.fieldSongName = new ASUIInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
                                     "Song Name",
                                     this.song.name
@@ -180,7 +180,7 @@
                             ]),
 
                             new ASPForm('version', 'Version', () => [
-                                this.refs.fieldSongVersion = new ASUITextInput('version',
+                                this.refs.fieldSongVersion = new ASUIInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
                                     "Song Version",
                                     this.song.version)
@@ -215,14 +215,14 @@
 
 
     class ASPPanel extends ASUIDiv {
-        constructor(key, caption, contentCallback, props={}) {
+        constructor(key, title, contentCallback, props={}) {
             super(key, contentCallback, props);
-            this.state.caption = caption;
+            this.state.title = title;
         }
 
         async render() {
             return [
-                new ASUIDiv('caption', this.state.caption),
+                new ASUIDiv('title', this.state.title),
                 super.render()
             ]
         }

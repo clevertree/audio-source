@@ -15,7 +15,7 @@
 }
 
 
-.spc-player-synthesizer-container > asui-div[key=caption] {
+.spc-player-synthesizer-container > asui-div[key=title] {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
