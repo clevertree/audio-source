@@ -97,18 +97,18 @@
                             new ASUIMenu('from File', null, (e) => this.refs.fieldSongFileLoad.click()),
                             new ASUIMenu('from URL', null, null, {disabled: true}),
                             new ASUIMenu('from Library', null, null, {disabled: true}),
-                        ]),
+                        ], null, {vertical: true}),
                         this.refs.menuPlaylist = new ASUIMenu('Playlist', () => [
                             new ASUIMenu('Play Next Song', null, (e) => this.playlistNext()),
                             new ASUIMenu('Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
 
-                        ]),
+                        ], null, {vertical: true}),
                         // this.refs.menuEdit = new ASUIMenu('Edit'),
                         this.refs.menuView = new ASUIMenu('View', () => [
                             new ASUIMenu(`${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
                             new ASUIMenu(`${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
                             new ASUIMenu(`${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                        ]),
+                        ], null, {vertical: true}),
                     ]),
 
                     new ASUIDiv('asp-forms-container', () => [

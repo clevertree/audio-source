@@ -88,10 +88,10 @@
             if (state) {
                 await this.loadDefaultSong(state.songUUID);
                 if (typeof state.volume !== "undefined") this.setSongVolume(e, state.volume);
-                if (typeof state.trackerSegmentLength !== "undefined") this.refs.fieldTrackerSegmentLength.value = state.trackerSegmentLength;
-                if (typeof state.trackerRowLength !== "undefined") this.refs.fieldTrackerRowLength.value = state.trackerRowLength;
-                if (typeof state.trackerInstrument !== "undefined") this.refs.fieldTrackerFilterInstrument.value = state.trackerInstrument;
-                if (typeof state.trackerOctave !== "undefined") this.refs.fieldTrackerOctave.value = state.trackerOctave;
+                if (typeof state.trackerSegmentLength !== "undefined") await this.refs.fieldTrackerSegmentLength.setValue(state.trackerSegmentLength);
+                if (typeof state.trackerRowLength !== "undefined") await this.refs.fieldTrackerRowLength.setValue(state.trackerRowLength);
+                if (typeof state.trackerInstrument !== "undefined") await this.refs.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
+                if (typeof state.trackerOctave !== "undefined") await this.refs.fieldTrackerOctave.setValue(state.trackerOctave);
 
                 if (typeof state.groupName !== "undefined") await this.trackerElm.setGroupName(state.groupName);
                 if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);

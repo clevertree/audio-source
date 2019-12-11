@@ -192,6 +192,8 @@ asui-menu > asui-div[key=title] {
     padding: 3px 6px;
     display: inline-block;
     min-width: 40px;
+    max-width: 160px;
+    overflow: hidden;
 }
 
 asui-menu:hover {
@@ -215,7 +217,7 @@ asui-menu span.arrow:after {
 
 asui-menu > asui-div[key=dropdown] {
     background-color: #bdc3c7;
-    display: block;
+    display: inline-block;
     z-index: 3;
     flex-direction: column;
     position: absolute;
@@ -230,23 +232,12 @@ asui-menu > asui-div[key=dropdown] {
     /* overflow: auto; */
 }
 
-/** Drop Down Trigger **/
-/*asui-menu[open] > asui-div[key=dropdown] {*/
-/*    z-index: 5;*/
-/*    transform: scaleY(1);*/
-/*    opacity: 1;*/
-/*}*/
-/*asui-menu[stick] > asui-div[key=dropdown] {*/
-/*    z-index: 4;*/
-/*}*/
-
-asui-div[key=dropdown] > asui-menu > asui-div[key=dropdown] {
-    display: inline-block;
+asui-input-select[vertical] > asui-menu > asui-div[key=dropdown],
+asui-menu[vertical] > asui-div[key=dropdown] {
+    display: block;
     /* float: right; */
 }
-/*asui-div[key=dropdown] > asui-menu > .title {*/
-/*    min-width: 120px;*/
-/*}*/
+
 
 
 /** Disabled Menu **/

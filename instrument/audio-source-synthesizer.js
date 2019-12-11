@@ -50,9 +50,9 @@
             this.audioContext = null;
             if(typeof config.name === "undefined")
                 config.name = 'Synthesizer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
-            this.config = config || {};
+            this.state.config = config || {};
             this.sampleLibrary = this.loadSampleLibrary();
-            this.loadConfig(this.config); //TODO: get
+            this.loadConfig(this.state.config); //TODO: get
 
             // this.loadDefaultSampleLibrary()
             //     .then(e => this.render());
@@ -71,13 +71,14 @@
 
         async render() {
 
-            // const instrument = this.instrument;
+            // const instrument = this;
             const instrumentID = typeof this.state.id !== "undefined" ? this.state.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
-            let defaultPresetURL = '';
-            if(this.state.config.libraryURL && this.state.config.preset)
-                defaultPresetURL = new URL(this.state.config.libraryURL + '#' + this.state.config.preset, document.location) + '';
+            let presetURL = this.state.config.presetURL || '';
+            let presetTitle = presetURL.split('#').pop() || presetURL.split('/').pop() || 'Set Preset';
+            // if(this.state.config.presetURL && this.state.config.preset)
+            //     presetURL = new URL(this.state.config.libraryURL + '#' + this.state.config.preset, document.location) + '';
 
             const samples = this.state.config.samples;
             const sampleLibrary = await this.sampleLibrary;
@@ -88,18 +89,22 @@
                 new ASUIDiv('title', () => [
                     titleHTML,
                     this.refs.selectChangePreset = new ASUIInputSelect('instrument-preset',
-                        async (selectElm) => [
-                            selectElm.getOption('', 'Change Preset'),
-                            selectElm.getOptGroup(this.sampleLibrary.name || 'Unnamed Library'),
-                            sampleLibrary.eachPreset(config => selectElm.getOption(config.url, config.name)),
-                            selectElm.getOptGroup('Libraries'),
-                            sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-                            selectElm.getOptGroup('Other Libraries'),
-                            await AudioSourceLibrary.eachHistoricLibrary(selectElm.getOption), // TODO: refactor async
+                        (selectElm) => [
+                            selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + ' ►', () =>
+                                sampleLibrary.eachPreset(config => selectElm.getOption(config.url, config.name)),
+                            ),
+                            selectElm.getOptGroup('Libraries ►', () =>
+                                sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                            ),
+                            selectElm.getOptGroup('Other Libraries', async () =>
+                                await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                            ),
                         ],
                         (e, presetURL) => this.setPreset(presetURL),
-                        'Change Instrument',
-                        defaultPresetURL),
+                        presetURL,
+                        presetTitle,
+                        {vertical: true}
+                    ),
 
                     this.refs.menu = new ASUIMenu(
                         new ASUIcon('config'),
@@ -109,7 +114,7 @@
                                     const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
                                     return instrumentLibrary.eachInstrument((instrumentConfig) =>
                                         new ASUIMenu(instrumentConfig.name, null, () => {
-                                            this.instrumentReplace(instrumentID, instrumentConfig.url);
+                                            thisReplace(instrumentID, instrumentConfig.url);
                                         })
                                     );
                                 }
@@ -120,7 +125,7 @@
                     ),
 
                     // new ASUIInputSelect('url',
-                    //     (e, changeInstrumentURL) => this.instrumentReplace(e, instrumentID, changeInstrumentURL),
+                    //     (e, changeInstrumentURL) => thisReplace(e, instrumentID, changeInstrumentURL),
                     //     async (selectElm) =>
                     //         instrumentLibrary.eachInstrument((instrumentConfig) =>
                     //             selectElm.getOption(instrumentConfig.url, instrumentConfig.name)),
@@ -167,8 +172,8 @@
                         new ASUIInputSelect('url',
                             selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
                             (e, url) => this.setSampleURL(sampleID, url),
-                            'URL',
-                            new URL(sampleData.url, document.location)+''),
+                            sampleData.url,
+                            sampleData.name),
 
                         new ASUIInputRange('mixer',
                             (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer),
@@ -254,14 +259,14 @@
             else
                 newConfig.samples = Object.values(newConfig.samples);
             // TODO: unload samples - this.samples
-            Object.assign(this.config, newConfig);
+            Object.assign(this.state.config, newConfig);
             await this.loadSamples();
         }
 
 
         async loadSamples() {
             this.samples = [];
-            for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
+            for (let sampleID = 0; sampleID < this.state.config.samples.length; sampleID++) {
                 try {
                     await this.loadAudioSample(sampleID);
                 } catch (e) {
@@ -271,7 +276,7 @@
         }
 
         async loadAudioSample(sampleID) {
-            const sampleConfig = this.config.samples[sampleID];
+            const sampleConfig = this.state.config.samples[sampleID];
             if (!sampleConfig)
                 throw new Error("Sample config is missing: " + sampleID);
             let sampleURL = sampleConfig.url;
@@ -343,7 +348,7 @@
 
         // instruments receive audioContext only after user gesture
         async initSample(audioContext, sampleID) {
-            const sampleConfig = this.config.samples[sampleID];
+            const sampleConfig = this.state.config.samples[sampleID];
             let sampleURL = sampleConfig.url;
             if (!sampleURL)
                 throw new Error("Sample config is missing url");
@@ -486,12 +491,12 @@
                 await this.initSample(destination.context, sampleID);
 
             if (Number.isNaN(frequencyValue)) {
-                console.warn("Invalid command frequency: ", frequencyValue, this.config);
+                console.warn("Invalid command frequency: ", frequencyValue, this.state.config);
                 return null;
             }
             // throw new Error("Sample not loaded: " + sampleName);
             const sampleData = this.samples[sampleID];
-            const sampleConfig = this.config.samples[sampleID];
+            const sampleConfig = this.state.config.samples[sampleID];
 
             // if (!frequencyValue)
             //     frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
@@ -533,8 +538,8 @@
 
             // Loop through sample
             const samplePromises = [];
-            for (let i = 0; i < this.config.samples.length; i++) {
-                const sampleConfig = this.config.samples[i];
+            for (let i = 0; i < this.state.config.samples.length; i++) {
+                const sampleConfig = this.state.config.samples[i];
                 let frequencyValue = 440;
 
                 // Filter sample playback
@@ -596,8 +601,8 @@
 
             // let addSampleName = sampleURL.split('/').pop();
             // addSampleName = prompt(`Set Sample Name:`, addSampleName);
-            const addSampleID = this.config.samples.length;
-            this.song.instrumentReplaceParam(this.id, ['samples', addSampleID], {
+            const addSampleID = this.state.config.samples.length;
+            this.song.instrumentReplaceParam(this.state.id, ['samples', addSampleID], {
                 url: sampleURL,
                 // name: addSampleName
             });
@@ -610,60 +615,60 @@
         // setSampleName(sampleID, newSampleName) {
         //     if(!newSampleName)
         //         throw new Error("Invalid sample name");
-        //     this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'name'], newSampleName);
+        //     this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'name'], newSampleName);
         // }
 
         setSamplePolyphony(sampleID, polyphonyLimit) {
             if(!Number.isInteger(polyphonyLimit))
                 throw new Error("Invalid polyphony value");
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
+            this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
         }
 
         async setSampleURL(sampleID, newSampleURL) {
             newSampleURL = new URL(newSampleURL) + '';
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
+            this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'url'], newSampleURL);
             await this.loadAudioSample(sampleID);
         }
 
         setSampleMixer(sampleID, newMixerValue) {
             if(!Number.isInteger(newMixerValue))
                 throw new Error("Invalid mixer value");
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
+            this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'mixer'], newMixerValue);
         }
 
         setSampleDetune(sampleID, newDetuneValue) {
             if(!Number.isInteger(newDetuneValue))
                 throw new Error("Invalid detune value");
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
+            this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'detune'], newDetuneValue);
         }
 
         setSampleKeyRoot(sampleID, newKeyRootValue) {
             if(!newKeyRootValue)
-                this.song.deleteInstrumentParam(this.id, ['samples', sampleID, 'keyRoot']);
+                this.song.deleteInstrumentParam(this.state.id, ['samples', sampleID, 'keyRoot']);
             else
-                this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
+                this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
         }
 
         setSampleKeyAlias(sampleID, newKeyAliasValue) {
             if(!newKeyAliasValue)
                 throw new Error("Invalid keyAlias value");
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
+            this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
         }
 
         setSampleLoop(sampleID, newLoopValue) {
             if(typeof newLoopValue !== 'boolean')
                 throw new Error("Invalid loop value");
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
+            this.song.instrumentReplaceParam(this.state.id, ['samples', sampleID, 'loop'], newLoopValue);
         }
 
         removeSample(sampleID) {
-            this.song.deleteInstrumentParam(this.id, ['samples', sampleID]);
+            this.song.deleteInstrumentParam(this.state.id, ['samples', sampleID]);
         }
 
 
         getFrequencyFromAlias(aliasName) {
-            for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
-                const sampleConfig = this.config.samples[sampleID];
+            for (let sampleID = 0; sampleID < this.state.config.samples.length; sampleID++) {
+                const sampleConfig = this.state.config.samples[sampleID];
                 if (sampleConfig && sampleConfig.keyAlias && aliasName === sampleConfig.name) {
                     return sampleConfig.keyAlias;
                 }
@@ -674,8 +679,8 @@
 
         getFrequencyAliases() {
             const aliases = {};
-            for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
-                const sampleConfig = this.config.samples[sampleID];
+            for (let sampleID = 0; sampleID < this.state.config.samples.length; sampleID++) {
+                const sampleConfig = this.state.config.samples[sampleID];
                 if (sampleConfig && sampleConfig.keyAlias)
                     aliases[sampleConfig.name] = sampleConfig.keyAlias;
             }
@@ -709,29 +714,29 @@
         /** Modify Instrument **/
 
         remove() {
-            this.song.instrumentRemove(this.instrument.id);
+            this.song.instrumentRemove(this.state.id);
             document.dispatchEvent(new CustomEvent('instrument:remove', this));
         }
 
         instrumentRename(newInstrumentName) {
-            return this.instrument.song.instrumentRename(this.instrument.id, newInstrumentName);
+            return this.song.instrumentRename(this.state.id, newInstrumentName);
         }
 
         async setPreset(presetURL) {
             presetURL = new URL(presetURL);
-            this.sampleLibrary = await AudioSourceLibrary.loadURL(presetURL + '');
+            this.sampleLibrary = await AudioSourceLibrary.loadFromURL(presetURL + '');
             if (presetURL.hash) {
                 const newPresetName = presetURL.hash.substr(1);
                 let newPresetConfig = this.sampleLibrary.getPresetConfig(newPresetName);
                 newPresetConfig = Object.assign({}, this.state.config, newPresetConfig);
-                await this.instrument.song.instrumentReplace(this.instrument.id, newPresetConfig);
-                await this.instrument.loadConfig(newPresetConfig);
+                await this.song.instrumentReplace(this.state.id, newPresetConfig);
+                await this.loadConfig(newPresetConfig);
                 this.render();
             }
-            await this.refs.selectChangePreset.renderOptions();
+//             await this.refs.selectChangePreset.renderOptions();
             // this.refs.selectChangePreset.value = ''; // TODO: why was this?
             this.refs.selectChangePreset.focus();
-            this.form.classList.add('focus');
+//             this.form.classList.add('focus');
         }
 
         async addSample(sampleURL, promptUser=false) {
@@ -745,47 +750,10 @@
                 this.refs.fieldAddSample.renderOptions(); // TODO: re-trigger drop down on RN?
                 this.refs.fieldAddSample.value = '';
             } else {
-                await this.instrument.addSample(sampleURL);
+                await this.addSample(sampleURL);
                 this.render();
             }
 
-        }
-
-        // async setSampleName(sampleID, nameString) {
-        //     return this.instrument.setSampleName(sampleID, nameString);
-        // }
-
-        async setSampleURL(sampleID, url) {
-            return this.instrument.setSampleURL(sampleID, url);
-        }
-
-        async setSampleDetune(sampleID, detuneValue) {
-            return this.instrument.setSampleDetune(sampleID, detuneValue);
-        }
-
-        async setSampleMixer(sampleID, mixValue) {
-            return this.instrument.setSampleMixer(sampleID, mixValue);
-        }
-
-        async setSampleKeyRoot(sampleID, keyRoot) {
-            return this.instrument.setSampleKeyRoot(sampleID, keyRoot);
-        }
-
-        async setSampleKeyAlias(sampleID, keyAlias) {
-            return this.instrument.setSampleKeyAlias(sampleID, keyAlias);
-        }
-
-        async setSampleLoop(sampleID, isLoop) {
-            return this.instrument.setSampleLoop(sampleID, isLoop);
-        }
-
-        async setSampleASDR(sampleID, asdr) {
-            return this.instrument.setSampleASDR(sampleID, asdr);
-        }
-
-        async removeSample(sampleID) {
-            this.instrument.removeSample(sampleID);
-            this.render();
         }
 
 

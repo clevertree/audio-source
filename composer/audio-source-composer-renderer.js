@@ -117,12 +117,12 @@
                 this.createStyleSheetLink('common/assets/audio-source-common.css'),
                 this.refs.containerElm = new ASUIDiv('asc-container', () => [
                     new ASUIDiv('asc-menu-container', () => [
-                        this.refs.menuFile          = new ASUIMenu('File',      () => this.populateMenu('file')),
-                        this.refs.menuEdit          = new ASUIMenu('Edit',      () => this.populateMenu('edit')),
-                        this.refs.menuGroup         = new ASUIMenu('Group',     () => this.populateMenu('group')),
-                        this.refs.menuInstrument    = new ASUIMenu('Instrument', () => this.populateMenu('instrument')),
-                        this.refs.menuView          = new ASUIMenu('View',      () => this.populateMenu('view')),
-                        this.refs.menuContext       = new ASUIMenu('Context',   () => this.populateMenu('context')),
+                        this.refs.menuFile          = new ASUIMenu('File',      () => this.populateMenu('file'), null, {vertical: true}),
+                        this.refs.menuEdit          = new ASUIMenu('Edit',      () => this.populateMenu('edit'), null, {vertical: true}),
+                        this.refs.menuGroup         = new ASUIMenu('Group',     () => this.populateMenu('group'), null, {vertical: true}),
+                        this.refs.menuInstrument    = new ASUIMenu('Instrument', () => this.populateMenu('instrument'), null, {vertical: true}),
+                        this.refs.menuView          = new ASUIMenu('View',      () => this.populateMenu('view'), null, {vertical: true}),
+                        this.refs.menuContext       = new ASUIMenu('Context',   () => this.populateMenu('context'), null, {vertical: true}),
                     ]),
 
                     this.refs.panelContainerElm = new ASUIDiv('asc-panel-container', () => [
@@ -204,9 +204,10 @@
                         this.refs.panelInstruments = new ASCPanel('instruments', 'Instruments', () => {
 
                             // const instrumentPanel = this.refs.panelInstruments;
+                            this.refs.instruments = [];
                             const instrumentList = this.song.getInstrumentList();
                             const content = instrumentList.map((instrumentConfig, instrumentID) =>
-                                new ASCInstrumentRenderer(this, instrumentID));
+                                this.refs.instruments[instrumentID] = new ASCInstrumentRenderer(this, instrumentID));
                             
                             content.push(new ASCForm('new', 'Add instrument', () => [
                                 new ASUIInputSelect('add-url',
@@ -441,17 +442,10 @@
 
         }
 
+        /** @deprecated shouldn't be used **/
         renderInstrument(instrumentID) {
-            const instrumentPanel = this.refs.panelInstruments;
-            // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
-            let instrumentForm = instrumentPanel.findChild(instrumentID);
-            if (instrumentForm) {
-                instrumentForm.render();
-            } else {
-                this.refs.panelInstruments.render();
-                console.warn("Instrument form not found: " + instrumentID + ". Rendering all instruments");
-            }
-
+            if(this.refs.instruments[instrumentID])
+                this.refs.instruments[instrumentID].renderOS();
         }
 
         renderInstruments() {

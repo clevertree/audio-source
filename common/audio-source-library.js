@@ -42,8 +42,8 @@
 
         eachPreset(callback) {
             return this.processItemList(this.presets, (presetConfig) => {
-                presetConfig.url = this.url + '#' + presetConfig.name;
-                if(!presetConfig.name) presetConfig.name = presetConfig.name;
+                if(!presetConfig.url)
+                    presetConfig.url = this.url + '#' + presetConfig.name;
                 return callback(presetConfig);
             });
         }
@@ -58,26 +58,28 @@
 
         getPresetConfig(presetName) {
 
-            let presetConfig = null;
-            this.processItemList(this.presets, (presetConfigItem) => {
+            let presetData = null;
+            this.eachPreset((presetConfigItem) => {
                 if(presetConfigItem.name === presetName)  {
-                    presetConfig = presetConfigItem;
+                    presetData = presetConfigItem;
                     return false;
                 }
             });
-            if(!presetConfig)
+            if(!presetData)
                 throw new Error("Preset not found: " + presetName);
 
-            if (!presetConfig.samples)
-                presetConfig.samples = {};
-            if (Object.keys(presetConfig.samples).length === 0)
-                presetConfig.samples[presetName] = {};
+            if (!presetData.samples)
+                presetData.samples = {};
+            if (Object.keys(presetData.samples).length === 0)
+                presetData.samples[presetName] = {};
 
-            const newConfig = {};
-            newConfig.preset = presetName;
+            const newConfig = {
+                presetURL: presetData.url
+            };
+            // newConfig.presetURL = this.url + '#' + presetName;
             newConfig.samples = [];
 
-            this.processItemList(presetConfig.samples, (sampleConfig) => {
+            this.processItemList(presetData.samples, (sampleConfig) => {
                 if(typeof this.samples[sampleConfig.name] !== "undefined")
                     Object.assign(sampleConfig, this.samples[sampleConfig.name]);
                 sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
@@ -91,8 +93,8 @@
                 //     delete sampleConfig.keyRange;
                 // }
             });
-            newConfig.libraryURL = this.url;
-            newConfig.preset = presetName;
+            // newConfig.libraryURL = this.url;
+            // newConfig.preset = presetName;
             return newConfig;
         }
 
