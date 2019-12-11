@@ -15,7 +15,7 @@
     const {ASUIDiv} = await requireAsync('common/audio-source-ui.js');
     const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
     const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    // const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
     const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
 
     const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
@@ -50,7 +50,8 @@
             this.library = AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
 
 
-            this.values = new AudioSourceValues();
+            this.song = new AudioSourceSong({}, this);
+            this.values = new AudioSourceValues(this.song);
             // Util.loadLibrary(defaultLibraryURL);
 
             this.addEventHandler('unload', e => this.saveState(e), window);

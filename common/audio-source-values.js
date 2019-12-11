@@ -44,7 +44,8 @@
         }
 
 
-        getSongInstruments(song, callback = (id, name) => [id, name]) {
+        getSongInstruments(callback = (id, name) => [id, name]) {
+            const song = this.song;
             const results = [];
             if (song && song.data.instruments) {
                 const instrumentList = song.data.instruments;
@@ -53,18 +54,19 @@
                     // const instrument = this.renderer.getInstrument(instrumentID);
                     const result = callback(instrumentID, this.formatInstrumentID(instrumentID)
                         + ': ' + (instrumentInfo.name ? instrumentInfo.name : instrumentInfo.url.split('/').pop()));
-                    addResult(results, result);
+                    if(!addResult(results, result)) return results;
                 }
             }
             return results;
         }
 
-        getAllSongGroups(song, callback = (groupName) => groupName, append='') {
+        getAllSongGroups(callback = (groupName) => groupName) {
+            const song = this.song;
             const results = [];
             const instructionList = song.data.instructions;
             Object.keys(instructionList).forEach(function (key, i) {
-                const result = callback(append+key);
-                addResult(results, result);
+                const result = callback(key);
+                if(!addResult(results, result)) return results;
             });
             return results;
         }
@@ -75,7 +77,7 @@
             for (let j = 0; j < noteFrequencies.length; j++) {
                 const noteFrequency = noteFrequencies[j];
                 const result = callback(noteFrequency);
-                addResult(results, result);
+                if(!addResult(results, result)) return results;
             }
             return results;
         }
@@ -85,7 +87,7 @@
             const results = [];
             for (let i = 1; i <= 8; i++) {
                 const result = callback(i);
-                addResult(results, result);
+                if(!addResult(results, result)) return results;
             }
             return results;
         }
@@ -97,13 +99,14 @@
                 for (let j = 0; j < noteFrequencies.length; j++) {
                     const noteFrequency = noteFrequencies[j] + i;
                     const result = callback(noteFrequency);
-                    addResult(results, result);
+                    if(!addResult(results, result)) return results;
                 }
             }
             return results;
         }
 
-        getAllNamedFrequencies(song, callback = (alias, aliasValue, instrumentID) => [alias, aliasValue, instrumentID]) {
+        getAllNamedFrequencies(callback = (alias, aliasValue, instrumentID) => [alias, aliasValue, instrumentID]) {
+            const song = this.song;
             const results = [];
             const instrumentList = song.data.instruments;
             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
@@ -115,7 +118,7 @@
                             if (aliases.hasOwnProperty(alias)) {
                                 const aliasValue = aliases[alias];
                                 const result = callback(alias, aliasValue, instrumentID);
-                                addResult(results, result);
+                                if(!addResult(results, result)) return results;
                             }
                         }
                     }
@@ -129,68 +132,20 @@
             const results = [];
             for (let vi = 100; vi >= 0; vi -= 10) {
                 const result = callback(vi);
-                addResult(results, result);
+                if(!addResult(results, result)) return results;
             }
             return results;
         }
 
 
-
-        getNoteDurations(song, callback = (duration, durationString) => [duration, durationString]) {
-            const timeDivision = song.timeDivision;
-            const results = [];
-            for (let i = 64; i > 1; i /= 2) {
-                let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
-                let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}T`);
-                addResult(results, result);
-                result = callback(1 / i * timeDivision, `${fraction}B`);
-                addResult(results, result);
-                result = callback(1 / i * 1.5 * timeDivision, `${fraction}D`); //t== ticks or triplets?
-                addResult(results, result);
-            }
-            for (let i = 1; i <= 16; i++) {
-                let result = callback(i * timeDivision, i + 'B');
-                addResult(results, result);
-            }
-            return results;
-        }
-
-        getBeatsPerMeasure(callback = (beatsPerMeasure, beatsPerMeasureString) => [beatsPerMeasure, beatsPerMeasureString]) {
-            const results = [];
-            for (let beatPerMeasure = 1; beatPerMeasure <= 12; beatPerMeasure++) {
-                const result = callback(beatPerMeasure, beatPerMeasure + ` beat${beatPerMeasure > 1 ? 's' : ''} per measure`);
-                addResult(results, result);
-            }
-            return results;
-        }
-
-        getBeatsPerMinute(callback = (beatsPerMinute, beatsPerMinuteString) => [beatsPerMinute, beatsPerMinuteString]) {
-            const results = [];
-            for (let beatPerMinute = 40; beatPerMinute <= 300; beatPerMinute += 10) {
-                const result = callback(beatPerMinute, beatPerMinute + ` beat${beatPerMinute > 1 ? 's' : ''} per minute`);
-                addResult(results, result);
-            }
-            return results;
-        }
-
-        getSegmentLengths(song, callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
-            const timeDivision = song.timeDivision;
-            const results = [];
-            [4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
-                .forEach(i => {
-                    const result = callback(timeDivision * i, i + 'B');
-                    addResult(results, result);
-                });
-            return results;
-        }
-
-
-
-        formatDuration(song, input) {
+        formatDuration(input) {
+            const song = this.song;
             let stringValue;
-            this.getNoteDurations(song, (duration, durationString) => {
-                if (input === duration || input === durationString)
+            this.getNoteDurations((duration, durationString) => {
+                if (input === duration || input === durationString) {
                     stringValue = durationString;
+                    return false;
+                }
             });
             if (stringValue)
                 return stringValue;
@@ -202,6 +157,61 @@
             input = parseFloat(input).toFixed(2);
             return input.replace('.00', 't');
         }
+
+
+        getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
+            const song = this.song;
+            const timeDivision = song.timeDivision;
+            const results = [];
+            for (let i = 64; i > 1; i /= 2) {
+                let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
+
+                let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}T`);
+                if(!addResult(results, result)) return results;
+
+                result = callback(1 / i * timeDivision, `${fraction}B`);
+                if(!addResult(results, result)) return results;
+
+                result = callback(1 / i * 1.5 * timeDivision, `${fraction}D`); //t== ticks or triplets?
+                if(!addResult(results, result)) return results;
+            }
+            for (let i = 1; i <= 16; i++) {
+                let result = callback(i * timeDivision, i + 'B');
+                if(!addResult(results, result)) return results;
+            }
+            return results;
+        }
+
+        getBeatsPerMeasure(callback = (beatsPerMeasure, beatsPerMeasureString) => [beatsPerMeasure, beatsPerMeasureString]) {
+            const results = [];
+            for (let beatPerMeasure = 1; beatPerMeasure <= 12; beatPerMeasure++) {
+                const result = callback(beatPerMeasure, beatPerMeasure + ` beat${beatPerMeasure > 1 ? 's' : ''} per measure`);
+                if(!addResult(results, result)) return results;
+            }
+            return results;
+        }
+
+        getBeatsPerMinute(callback = (beatsPerMinute, beatsPerMinuteString) => [beatsPerMinute, beatsPerMinuteString]) {
+            const results = [];
+            for (let beatPerMinute = 40; beatPerMinute <= 300; beatPerMinute += 10) {
+                const result = callback(beatPerMinute, beatPerMinute + ` beat${beatPerMinute > 1 ? 's' : ''} per minute`);
+                if(!addResult(results, result)) return results;
+            }
+            return results;
+        }
+
+        getSegmentLengths(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
+            const song = this.song;
+            const timeDivision = song.timeDivision;
+            const results = [];
+            [4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
+                .forEach(i => {
+                    const result = callback(timeDivision * i, i + 'B');
+                    if(!addResult(results, result)) return results;
+                });
+            return results;
+        }
+
 
 
         formatVelocity(velocity) {
@@ -243,6 +253,7 @@
     function addResult (results, result) {
         if (result !== null && typeof result !== "undefined")
             results.push(result);
+        return result === false ? result : true;
     }
 
 

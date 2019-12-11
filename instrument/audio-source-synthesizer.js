@@ -32,7 +32,6 @@
     } = await requireAsync('common/audio-source-ui.js');
 
 
-    const audioSourceValues = new AudioSourceValues;
 
     class AudioSourceSynthesizer extends ASUIComponent {
         constructor(config, song=null, instrumentID=null, props={}) {
@@ -40,7 +39,8 @@
                 open: false
             }, props);
             this.state.config = config;
-            this.song = song;
+
+
             this.state.id = instrumentID;
 
             this.samples = [];
@@ -51,6 +51,11 @@
             if(typeof config.name === "undefined")
                 config.name = 'Synthesizer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
             this.state.config = config || {};
+
+
+            this.song = song;
+            this.values = new AudioSourceValues(this.song);
+
             this.sampleLibrary = this.loadSampleLibrary();
             this.loadConfig(this.state.config); //TODO: get
 
@@ -192,18 +197,18 @@
                                 (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune),
 
                             new ASUIInputSelect('root',
-                                selectElm => audioSourceValues.getNoteFrequencies(freq => selectElm.getOption(freq)),
+                                selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
                                 (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
                                 sampleData.keyRoot || ''),
                             // new ASUIMenu('root',
-                            //     selectElm => audioSourceValues.getNoteFrequencies(freq => {
+                            //     selectElm => this.values.getNoteFrequencies(freq => {
                             //         new ASUISelectMenu
                             //     }),
                             //     null,
                             //     'Root', sampleData.keyRoot || ''),
 
                             new ASUIInputSelect('alias',
-                                selectElm => audioSourceValues.getNoteFrequencies(freq => selectElm.getOption(freq)),
+                                selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
                                 (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias),
                                 sampleData.keyAlias),
 

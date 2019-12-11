@@ -58,6 +58,14 @@
                 return callback(instrumentConfig);
             });
         }
+        findInstrument(callback) {
+            let foundItem;
+            const result = this.eachInstrument((config) => {
+                if(foundItem || (foundItem = callback(config)))
+                    return false;
+            })
+            return foundItem;
+        }
 
         getPresetConfig(presetName) {
 
@@ -113,7 +121,7 @@
                 if(typeof itemConfig.name === "undefined" && itemName)
                     itemConfig.name = itemName;
                 const result = eachCallback(itemConfig);
-                if(result !== null)
+                if(result !== null && result !== false)
                     results.push(result);
                 return result;
             };
@@ -135,42 +143,6 @@
             }
             return results;
         }
-
-        // getPresetConfig2(presetName) {
-        //     const newConfig = {};
-        //     newConfig.preset = presetName;
-        //     newConfig.samples = [];
-        //     if (!this.presets[presetName])
-        //         throw new Error("Invalid Instrument Preset: " + presetName);
-        //     const presetConfig = this.presets[presetName];
-        //     if (!presetConfig.samples)
-        //         presetConfig.samples = {};
-        //     if (Object.keys(presetConfig.samples).length === 0)
-        //         presetConfig.samples[presetName] = {};
-        //     // Object.assign(newConfig, presetConfig);
-        //     Object.keys(presetConfig.samples).forEach((sampleName) => {
-        //         const sampleConfig =
-        //             Object.assign({
-        //                     url: sampleName
-        //                 },
-        //                 presetConfig.samples[sampleName],
-        //                 this.samples[sampleName]);
-        //         sampleConfig.url = new URL(this.urlPrefix + sampleConfig.url, this.url) + '';
-        //
-        //         if (typeof sampleConfig.keyRange !== "undefined") {
-        //             let pair = sampleConfig.keyRange;
-        //             if (typeof pair === 'string')
-        //                 pair = pair.split(':');
-        //             sampleConfig.keyLow = pair[0];
-        //             sampleConfig.keyHigh = pair[1] || pair[0];
-        //             delete sampleConfig.keyRange;
-        //         }
-        //         sampleConfig.name = sampleName;
-        //         newConfig.samples.push(sampleConfig);
-        //     });
-        //     newConfig.libraryURL = this.url;
-        //     return newConfig;
-        // }
 
 
     }

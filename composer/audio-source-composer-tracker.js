@@ -25,7 +25,7 @@
         ASUIcon,
     } = await requireAsync('common/audio-source-ui.js');
 
-    const audioSourceValues = new AudioSourceValues;
+    // const audioSourceValues = new AudioSourceValues;
 
     class AudioSourceComposerTracker extends ASUIComponent {
         constructor(editorElm, group = 'root') {
@@ -1220,7 +1220,7 @@
     class AudioSourceComposerParamCommand extends ASUIComponent {
         constructor(command, props= {}) {
             super({
-                command: audioSourceValues.formatCommand(command)
+                command: new AudioSourceValues().formatCommand(command)
             }, props);
         }
 
@@ -1235,7 +1235,7 @@
     class AudioSourceComposerParamInstrument extends ASUIComponent {
         constructor(instrumentID, props= {}) {
             super({
-                instrumentID: audioSourceValues.formatInstrumentID(instrumentID)
+                instrumentID: new AudioSourceValues().formatInstrumentID(instrumentID)
             }, props);
         }
 
@@ -1248,7 +1248,7 @@
     class AudioSourceComposerParamVelocity extends ASUIComponent {
         constructor(velocity, props= {}) {
             super({
-                velocity:audioSourceValues.formatVelocity(velocity)
+                velocity: new AudioSourceValues().formatVelocity(velocity)
             }, props);
         }
 
@@ -1262,7 +1262,7 @@
     class AudioSourceComposerParamDuration extends ASUIComponent {
         constructor(song, duration, props= {}) {
             super({
-                duration:audioSourceValues.formatDuration(song, duration)
+                duration:new AudioSourceValues(song).formatDuration(duration)
             }, props);
         }
 
@@ -1277,7 +1277,7 @@
     class AudioSourceComposerTrackerDelta extends ASUIComponent {
         constructor(song, duration, props= {}) {
             super({
-                duration: audioSourceValues.formatDuration(song, duration)
+                duration: new AudioSourceValues(song).formatDuration(duration)
             }, props);
         }
 

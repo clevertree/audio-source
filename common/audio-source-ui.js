@@ -92,18 +92,17 @@
         }
 
         async eachContent(content, callback) {
-            while(true) {
-                if (content instanceof Promise) content = await content;
-                else if (typeof content === "function") content = content(this);
-                else break;
-            }
+            content = await resolveContent(content);
             if(Array.isArray(content)) {
-                for(let i=0; i<content.length; i++)
-                    await this.eachContent(content[i], callback);
+                for(let i=0; i<content.length; i++) {
+                    const ret = await this.eachContent(content[i], callback);
+                    if(ret === false)
+                        break;
+                }
                 return;
             }
 
-            await callback(content);
+            return await callback(content);
         }
 
         async appendContentTo(content, targetElm) {
@@ -427,12 +426,12 @@
     customElements.define('asuig-row', ASUIGridRow);
 
 
-
     class ASUIInputSelect extends ASUIDiv {
-        constructor(key, optionContent, actionCallback, value = null, valueTitle = null, props = {}) {
+        constructor(key, optionContent, actionCallback, defaultValue = null, valueTitle=null, props = {}) {
             super(key, () => optionContent(this), props);
-            this.state.value = value;
+            this.state.value = defaultValue;
             this.state.title = valueTitle;
+            this.setValue(defaultValue, valueTitle);
             this.actionCallback = actionCallback;
         }
 
@@ -442,8 +441,26 @@
 
         /** @deprecated **/
         set value(newValue) {
-            console.warn('setting .value is depcreciated');
-            this.setValue(newValue, newValue);
+            // console.warn('setting .value is depreciated');
+            this.setValue(newValue);
+        }
+
+        // async getValueTitle(value) {
+        //     return await this.titleCallback(value);
+        // }
+
+        async setValue(value, title=null) {
+            // title = title || this.getValueTitle(value) || value;
+            this.state.value = value;
+            if(title === null) {
+                await resolveContent(this.state.content);
+            }
+            if(this.parentNode)
+                await this.renderOS();
+            // title = title || value;
+            // this.state.value = value;
+            // this.state.title = title;
+            // await this.refs.menu.setTitle(title);
         }
 
         async onChange(e) {
@@ -451,6 +468,8 @@
         }
 
         getOption(value, title=null, props={}) {
+            if(value === this.state.value && title !== null && this.state.title === null)
+                this.state.title = title;
             title = title || value;
             return new ASUIMenu(title, null, async e => {
                 this.setValue(value, title);
@@ -462,25 +481,70 @@
             return new ASUIMenu(title, content, null, props);
         }
 
-        async setValue(value, title=null) {
-            title = title || value;
-            await this.setState({value, title});
-            // title = title || value;
-            // this.state.value = value;
-            // this.state.title = title;
-            // await this.refs.menu.setTitle(title);
-        }
+        // async findValueTitle(value) {
+        //     let valueTitle = null;
+        //     const find = async (content) => {
+        //         await this.eachContent(content, async item => {
+        //             if(valueTitle)
+        //                 return false;
+        //             if(item instanceof ASUISelectMenuOption && item.value === value)
+        //                 valueTitle = item.title;
+        //             else if(item instanceof ASUIComponent) {
+        //                 const content = await item.render();
+        //                 await find(content);
+        //             }
+        //
+        //         });
+        //     };
+        //
+        //     const content = await this.render();
+        //     await find(content);
+        //     return valueTitle;
+        //
+        // }
 
         /** @override **/
         async render() {
-            return this.refs.menu = new ASUIMenu(this.state.title || this.state.value,
+            return this.refs.menu = new ASUIMenu(this.state.title,
                 this.state.content,
                 null,
                 {vertical: true}
             );
         }
+
+
+        // static fromObject(key, object, actionCallback, defaultValue=null, props={}) {
+        //     return new ASUIInputSelect(key, optionContent, actionCallback, defaultValue, titleCallback, props);
+        //
+        //     async function optionContent(s) {
+        //         const obj = await resolveContent(object);
+        //         return Object.values(obj)
+        //             .map(value => s.getOption(value));
+        //     }
+        //
+        //     async function titleCallback(value) {
+        //         const obj = await resolveContent(object);
+        //         if(typeof obj[value] !== "undefined")
+        //             return obj[value];
+        //         console.warn("value not found in object", value, obj);
+        //         return null;
+        //     }
+        // }
     }
     customElements.define('asui-input-select', ASUIInputSelect);
+
+
+
+
+    // class ASUISelectMenuOption extends ASUIMenu {
+    //     constructor(value, title, actionCallback) {
+    //         super(title, null, actionCallback);
+    //         this.props.value = value;
+    //     }
+    //     get value() { return this.props.value; }
+    //     get title() { return this.state.title; }
+    // }
+    // customElements.define('asuim-option', ASUISelectMenuOption);
 
 
 
@@ -692,6 +756,18 @@
     customElements.define('asui-icon', ASUIcon);
 
 
+
+
+    /** Utility functions **/
+
+    async function resolveContent(content) {
+        while(true) {
+            if (content instanceof Promise) content = await content;
+            else if (typeof content === "function") content = content(this);
+            else break;
+        }
+        return content;
+    }
 
 
 
