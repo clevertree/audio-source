@@ -42,6 +42,12 @@ asui-div[key=asc-container] {
     flex-direction: column;
 }
 
+/** Menu Bar **/
+asui-div[key=asc-menu-container] > asui-menu {
+    padding: 3px 0px;
+}
+
+
 /** Status Bar **/
 asui-div[key=asc-status-container] {
     display: flex;

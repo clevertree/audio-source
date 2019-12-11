@@ -57,6 +57,44 @@
             this.ui = {};
         }
 
+        async connectedCallback() {
+            this.shadowDOM = this.attachShadow({mode: 'closed'});
+
+            // this.loadCSS();
+            super.connectedCallback(false);
+
+            this.addEventHandler(['dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+            this.addEventHandler(['focus', 'click'], e => this.onInput(e), this.shadowDOM);
+            // 'change', 'submit',
+
+            this.addEventHandler([
+                'song:loaded', 'song:play', 'song:end', 'song:stop', 'song:modified', 'song:seek',
+                'group:play', 'group:seek',
+                'note:start', 'note:end'
+            ], this.onSongEvent);
+            this.addEventHandler([
+                    'instrument:instance',
+                    'instrument:library',
+                    'instrument:modified',
+                    'instrument:added',
+                    'instrument:removed'],
+                e => this.onSongEvent(e), document);
+
+            this.focus();
+
+            await this.renderOS();
+            this.loadState();
+
+            this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
+
+
+            const Util = new AudioSourceUtilities;
+            Util.loadPackageInfo()
+                .then(packageInfo => this.setVersion(packageInfo.version));
+        }
+
+
+
         async getLibrary() {
             return await this.library;
         }
@@ -180,6 +218,10 @@
 
             switch (e.type) {
                 case 'focus':
+                    break;
+
+                case 'click':
+                    this.closeAllMenus(true);
                     break;
                 //     const divElmFormElm = e.path[0].closest('asui-div');
                 //     if(divElmFormElm) {

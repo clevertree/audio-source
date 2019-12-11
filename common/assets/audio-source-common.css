@@ -141,10 +141,10 @@ asui-icon {
     width: 1em;
     height: 1em;
     padding: 0px;
-    margin: 1px 2px;
+    margin: 3px 3px;
     background: url("../../assets/img/ui-icons.png");
     background-size: 10em 5em;
-    transform: scale(1.6);
+    transform: scale(2);
 }
 asui-icon.play { background-position: -3em -1em; }
 asui-icon.pause {background-position: -4em -1em;}
@@ -170,6 +170,7 @@ asui-icon.config {background-position: 0em 3em;}
 
 
 asui-menu {
+    position: relative;
     color: black;
     padding: 0 0;
     margin: 0 0;
@@ -183,18 +184,31 @@ asui-menu.selected {
 }
 
 asui-div[key=dropdown] > asui-menu {
-    display: block;
+    display: flex;
+    padding: 3px 0px;
 }
 
 
 /** Menu Text **/
-asui-menu > asui-div[key=title] {
-    padding: 3px 6px;
+asui-menu > *:first-child {
     display: inline-block;
-    min-width: 40px;
-    max-width: 160px;
+}
+asui-menu > asui-div[key=title] {
+    padding: 0px 6px;
     overflow: hidden;
 }
+asui-menu > asui-div[key=arrow] {
+    margin: 0 6px 0 auto;
+    display: inline-block;
+}
+
+/*asui-menu[arrow]:after {*/
+/*    content: ' ►';*/
+/*    margin: 0 6px 0 auto;*/
+/*}*/
+/*asui-menu[arrow][vertical] > asui-div[key=title]:after {*/
+/*    content: ' ▼';*/
+/*}*/
 
 asui-menu:hover {
     background-color: #AAA;
@@ -217,24 +231,30 @@ asui-menu span.arrow:after {
 
 asui-menu > asui-div[key=dropdown] {
     background-color: #bdc3c7;
-    display: inline-block;
+    /* display: inline-block; */
     z-index: 3;
-    flex-direction: column;
+    /* flex-direction: column; */
     position: absolute;
-    border-radius: 2px;
+    left: 100%;
+    /* border-radius: 2px; */
     /*transition: all 0.1s 0.2s ease-in;*/
     /*transform: scaleY(0);*/
     /*opacity: 0;*/
     border: 1px solid grey;
     text-align: left;
+    opacity: 0;
+    transition: opacity 0.2s;
     /* max-height: 50%; */
     /* overflow-y: scroll; */
     /* overflow: auto; */
 }
-
+asui-menu[open] > asui-div[key=dropdown] {
+    opacity: 1;
+}
 asui-input-select[vertical] > asui-menu > asui-div[key=dropdown],
 asui-menu[vertical] > asui-div[key=dropdown] {
-    display: block;
+    left: 0;
+    /*display: block;*/
     /* float: right; */
 }
 

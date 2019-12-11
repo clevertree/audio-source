@@ -86,7 +86,7 @@
                 this.refs.containerElm = new ASUIDiv('asp-container', () => [
                     new ASUIDiv('asp-menu-container', () => [
                         this.refs.menuFile = new ASUIMenu('File', () => [
-                            new ASUIMenu('from Memory ►', async () => {
+                            new ASUIMenu('from Memory', async () => {
                                 const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
                                 const songRecentUUIDs = await Storage.getRecentSongList() ;

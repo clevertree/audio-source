@@ -23,7 +23,7 @@
         //     Object.assign(this, data);
         // }
 
-
+        get libraryCount() { return Object.values(this.libraries).length; }
         eachLibrary(callback) {
             return this.processItemList(this.libraries, (libraryConfig) => {
                 libraryConfig.url = new URL(this.urlPrefix + (libraryConfig.url || libraryConfig.name), this.url) + '';
@@ -32,6 +32,7 @@
             });
         }
 
+        get sampleCount() { return Object.values(this.libraries).length; }
         eachSample(callback) {
             return this.processItemList(this.samples, (sampleConfig) => {
                 sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
@@ -40,6 +41,7 @@
             });
         }
 
+        get presetCount() { return Object.values(this.libraries).length; }
         eachPreset(callback) {
             return this.processItemList(this.presets, (presetConfig) => {
                 if(!presetConfig.url)
@@ -48,6 +50,7 @@
             });
         }
 
+        get instrumentCount() { return Object.values(this.libraries).length; }
         eachInstrument(callback) {
             return this.processItemList(this.instruments, (instrumentConfig) => {
                 instrumentConfig.url = new URL(this.urlPrefix + (instrumentConfig.url || instrumentConfig.name), this.url) + '';
@@ -173,6 +176,7 @@
     }
 
 
+    AudioSourceLibrary.historicLibraryCount = function() { return Object.values(AudioSourceLibrary.cache).length; }
     AudioSourceLibrary.eachHistoricLibrary = async (callback) => {
         for (let cacheURL in AudioSourceLibrary.cache) {
             if (AudioSourceLibrary.cache.hasOwnProperty(cacheURL)) {

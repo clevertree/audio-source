@@ -25,7 +25,7 @@ audio-source-synthesizer > asui-div[key=title] {
     border-bottom: 1px solid #AAA;
     margin-bottom: 1px;
     cursor: pointer;
-    padding: 1px 3px;
+    padding: 2px 3px;
     display: flex;
     /* background-color: #CCC; */
 }
