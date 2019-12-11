@@ -242,7 +242,7 @@
                 song.instructionReplaceInstrument(tracker.groupName, selectedIndicies[i], instrumentID);
                 await this.renderInstruction(groupName, selectedIndicies[i]);
             }
-            this.refs.fieldInstructionInstrument.value = instrumentID;
+            await this.refs.fieldInstructionInstrument.setValue(instrumentID);
             tracker.playSelectedInstructions();
         }
 
@@ -353,7 +353,7 @@
             if (confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
                 const instrumentID = this.song.instrumentAdd(instrumentConfig);
                 this.setStatus("New instrument Added to song: " + instrumentURL);
-                this.refs.fieldInstructionInstrument.value = instrumentID;
+                this.refs.fieldInstructionInstrument.setValue(instrumentID);
 
             } else {
                 throw new Error(`New instrument canceled: ${instrumentURL}`);
@@ -372,7 +372,7 @@
                 await this.song.instrumentReplace(instrumentID, instrumentConfig);
                 await this.song.loadInstrument(instrumentID, true);
                 this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
-                this.refs.fieldInstructionInstrument.value = instrumentID;
+                this.refs.fieldInstructionInstrument.setValue(instrumentID);
 
             } else {
                 throw new Error(`Change instrument canceled: ${instrumentURL}`);

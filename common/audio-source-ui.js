@@ -69,7 +69,9 @@
             for(const attrName in this.props) {
                 if(this.props.hasOwnProperty(attrName)) {
                     const value = this.props[attrName];
-                    if (typeof value === "object" && value !== null)
+                    if(typeof value === 'function')
+                        this[attrName] = value;
+                    else if (typeof value === "object" && value !== null)
                         Object.assign(this[attrName], value);
                     else if (value === true)
                         this.setAttribute(attrName, '');
@@ -438,7 +440,9 @@
             return this.state.value;
         }
 
+        /** @deprecated **/
         set value(newValue) {
+            console.warn('setting .value is depcreciated');
             this.setValue(newValue, newValue);
         }
 

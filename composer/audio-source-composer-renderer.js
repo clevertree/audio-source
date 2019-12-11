@@ -200,17 +200,17 @@
                                         // const selectedInstrumentID = this.refs.fieldInstructionInstrument ? parseInt(this.refs.fieldInstructionInstrument.value) : 0;
                                         selectElm.getOption('', 'Select'),
                                         selectElm.getOptGroup('Frequencies'),
-                                        audioSourceValues.getOctaveNoteFrequencies(selectElm.getOption),
+                                        audioSourceValues.getOctaveNoteFrequencies(freq => selectElm.getOption(freq)),
 
                                         selectElm.getOptGroup('Custom Frequencies'),
-                                        audioSourceValues.getAllNamedFrequencies(this.song, selectElm.getOption),
+                                        audioSourceValues.getAllNamedFrequencies(this.song, namedFreq => selectElm.getOption(namedFreq)),
                                         // TODO: filter by selected instrument
 
                                         selectElm.getOptGroup('Groups'),
                                         audioSourceValues.getAllSongGroups(this.song, selectElm.getOption, '@'),
                                     ],
                                     (e, commandString) => this.instructionChangeCommand(commandString),
-                                    'Instruction Instrument'),
+                                    ),
 
                                 this.refs.fieldInstructionInsert = new ASUIInputButton(
                                     'insert',
@@ -230,10 +230,10 @@
                                     (selectElm) => [
                                         selectElm.getOption('', 'Select'),
                                         selectElm.getOptGroup('Song Instruments'),
-                                        audioSourceValues.getSongInstruments(this.song, selectElm.getOption)
+                                        audioSourceValues.getSongInstruments(this.song, (id, name) => selectElm.getOption(id, name))
                                     ],
                                     e => this.instructionChangeInstrument(),
-                                    'Instruction Instrument')
+                                    )
                             ]),
 
                             new ASCForm('instruction-velocity', 'Velocity', () => [
@@ -245,10 +245,10 @@
                                 this.refs.fieldInstructionDuration = new ASUIInputSelect('duration',
                                     (selectElm) => [
                                         selectElm.getOption('', 'No Duration'),
-                                        audioSourceValues.getNoteDurations(this.song, selectElm.getOption)
+                                        audioSourceValues.getNoteDurations(this.song, (duration, title) => selectElm.getOption(duration, title))
                                     ],
                                     e => this.instructionChangeDuration(),
-                                    'Instruction Duration'),
+                                    ),
                             ]),
 
                         ]),
@@ -256,14 +256,14 @@
                         this.refs.panelTracker = new ASCPanel('tracker', 'Tracker', () => [
                             new ASCForm('tracker-row-length', 'Row &#120491;', () => [
                                 this.refs.fieldTrackerRowLength = new ASUIInputSelect('row-length',
-                                    (selectElm) => audioSourceValues.getNoteDurations(this.song, selectElm.getOption),
+                                    (selectElm) => audioSourceValues.getNoteDurations(this.song, (duration, title) => selectElm.getOption(duration, title)),
                                     e => this.trackerChangeRowLength(),
                                     'Select Row Length',
                                     this.state.trackerRowLength),
                             ]),
                             new ASCForm('tracker-segment-length', 'Seg &#120491;', () => [
                                 this.refs.fieldTrackerSegmentLength = new ASUIInputSelect('segment-length',
-                                    (selectElm) => audioSourceValues.getSegmentLengths(this.song,  selectElm.getOption),
+                                    (selectElm) => audioSourceValues.getSegmentLengths(this.song,  opt => selectElm.getOption(opt)),
                                     e => this.trackerChangeSegmentLength(),
                                     'Select Segment Length',
                                     this.state.trackerSegmentLength),
@@ -273,7 +273,7 @@
                                     (selectElm) => [
                                         selectElm.getOption('', 'No Filter'),
                                         selectElm.getOptGroup("Filter By Instrument"),
-                                        audioSourceValues.getSongInstruments(this.song, selectElm.getOption)
+                                        audioSourceValues.getSongInstruments(this.song, (id, name) => selectElm.getOption(id, name))
                                     ],
                                     e => this.trackerChangeInstrumentFilter(),
                                     'Filter By Instrument',
@@ -289,7 +289,7 @@
                             ]),
                             new ASCForm('tracker-octave', 'Octave', () => [
                                 this.refs.fieldTrackerOctave = new ASUIInputSelect('octave',
-                                    (selectElm) => audioSourceValues.getOctaveNoteFrequencies(selectElm.getOption),
+                                    (selectElm) => audioSourceValues.getOctaveNoteFrequencies(opt => selectElm.getOption(opt)),
                                     e => this.trackerChangeOctave(),
                                     // addOption('', 'No Octave Selected');
                                     'Select Octave',

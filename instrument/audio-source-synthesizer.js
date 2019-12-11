@@ -37,7 +37,7 @@
     class AudioSourceSynthesizer extends ASUIComponent {
         constructor(config, song=null, instrumentID=null, props={}) {
             super({
-                open: true
+                open: false
             }, props);
             this.state.config = config;
             this.song = song;
@@ -64,6 +64,10 @@
             this.appendCSS();
         }
 
+        async toggleContainer(e) {
+            const isOpen = !this.state.open;
+            await this.setState({open: isOpen});
+        }
 
         // get instrumentID() {
         //     return this.getAttribute('data-id');
@@ -87,7 +91,7 @@
             return [
 
                 new ASUIDiv('title', () => [
-                    titleHTML,
+                    new ASUIDiv('title', titleHTML, {onclick: e => this.toggleContainer(e)}),
                     this.refs.selectChangePreset = new ASUIInputSelect('instrument-preset',
                         (selectElm) => [
                             selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
@@ -149,99 +153,102 @@
                 //     new ASUIcon('delete'),
                 //     'Remove Instrument'),
 
-                /** Sample Forms **/
-                this.refs.grid = (!this.state.open ? null : new ASUIGrid('samples', () => [
-                    new ASUIGridRow('header', () => [
-                        new ASUIDiv('id', 'ID'),
-                        new ASUIDiv('url', 'URL'),
-                        new ASUIDiv('mixer', 'Mixer'),
-                        new ASUIDiv('detune', 'Detune'),
-                        new ASUIDiv('root', 'Root'),
-                        new ASUIDiv('alias', 'Alias'),
-                        new ASUIDiv('loop', 'Loop'),
-                        new ASUIDiv('adsr', 'ADSR'),
-                        new ASUIDiv('remove', 'Rem'),
-                    ]),
+                (!this.state.open ? null : (
 
-                    samples.map((sampleData, sampleID) => new ASUIGridRow(sampleID, () => [
-                        // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
-                        // const sampleRow = this.form.addGrid(i);
-                        // new ASUIDiv('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-                        // new ASUIInputButton('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
-                        new ASUIDiv('id', sampleID),
+                        /** Sample Forms **/
+                    this.refs.grid = new ASUIGrid('samples', () => [
+                        new ASUIGridRow('header', () => [
+                            new ASUIDiv('id', 'ID'),
+                            new ASUIDiv('url', 'URL'),
+                            new ASUIDiv('mixer', 'Mixer'),
+                            new ASUIDiv('detune', 'Detune'),
+                            new ASUIDiv('root', 'Root'),
+                            new ASUIDiv('alias', 'Alias'),
+                            new ASUIDiv('loop', 'Loop'),
+                            new ASUIDiv('adsr', 'ADSR'),
+                            new ASUIDiv('remove', 'Rem'),
+                        ]),
 
-                        new ASUIInputSelect('url',
-                            selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
-                            async (e, sampleURL, sampleName) => {
-                                await this.setSampleName(sampleID, sampleName);
-                                await this.setSampleURL(sampleID, sampleURL);
-                            },
-                            sampleData.url,
-                            sampleData.name),
+                        samples.map((sampleData, sampleID) => new ASUIGridRow(sampleID, () => [
+                            // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
+                            // const sampleRow = this.form.addGrid(i);
+                            // new ASUIDiv('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                            // new ASUIInputButton('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
+                            new ASUIDiv('id', sampleID),
 
-                        new ASUIInputRange('mixer',
-                            (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer),
+                            new ASUIInputSelect('url',
+                                selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+                                async (e, sampleURL, sampleName) => {
+                                    await this.setSampleName(sampleID, sampleName);
+                                    await this.setSampleURL(sampleID, sampleURL);
+                                },
+                                sampleData.url,
+                                sampleData.name),
 
-                        new ASUIInputRange('detune',
-                            (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune),
+                            new ASUIInputRange('mixer',
+                                (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer),
 
-                        new ASUIInputSelect('root',
-                            selectElm => audioSourceValues.getNoteFrequencies(freq => selectElm.getOption(freq)),
-                            (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
-                            sampleData.keyRoot || ''),
-                        // new ASUIMenu('root',
-                        //     selectElm => audioSourceValues.getNoteFrequencies(freq => {
-                        //         new ASUISelectMenu
-                        //     }),
-                        //     null,
-                        //     'Root', sampleData.keyRoot || ''),
+                            new ASUIInputRange('detune',
+                                (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune),
 
-                        new ASUIInputSelect('alias',
-                            selectElm => audioSourceValues.getNoteFrequencies(freq => selectElm.getOption(freq)),
-                            (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias),
-                            sampleData.keyAlias),
+                            new ASUIInputSelect('root',
+                                selectElm => audioSourceValues.getNoteFrequencies(freq => selectElm.getOption(freq)),
+                                (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
+                                sampleData.keyRoot || ''),
+                            // new ASUIMenu('root',
+                            //     selectElm => audioSourceValues.getNoteFrequencies(freq => {
+                            //         new ASUISelectMenu
+                            //     }),
+                            //     null,
+                            //     'Root', sampleData.keyRoot || ''),
 
-                        new ASUIInputCheckBox('loop',
-                            (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop),
+                            new ASUIInputSelect('alias',
+                                selectElm => audioSourceValues.getNoteFrequencies(freq => selectElm.getOption(freq)),
+                                (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias),
+                                sampleData.keyAlias),
 
-                        new ASUIInputText('adsr',
-                            (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
+                            new ASUIInputCheckBox('loop',
+                                (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop),
 
-                        new ASUIInputButton('remove',
-                            (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample'),
-                    ])),
+                            new ASUIInputText('adsr',
+                                (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
 
-                    new ASUIGridRow('footer', () => [
-                        /** Add New Sample **/
-                        new ASUIDiv('id', '*'),
-                        this.refs.fieldAddSample = new ASUIInputSelect('url',
-                            (selectElm) => [
-                                selectElm.getOption('', '[New Sample]'),
-                                selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
-                                    sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
-                                ),
-                                selectElm.getOptGroup('Libraries', () =>
-                                    sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-                                    {disabled: sampleLibrary.libraryCount === 0}
-                                ),
-                                selectElm.getOptGroup('Other Libraries', async () =>
-                                    await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
-                                    {disabled: AudioSourceLibrary.historicLibraryCount === 0}
-                                ),
-                            ],
-                            (e, sampleURL, sampleName) => this.addSample(sampleURL, sampleName),
-                            'Add Sample',
-                            ''),
-                        new ASUIDiv('id', '-'),
-                        new ASUIDiv('id', '-'),
-                        new ASUIDiv('id', '-'),
-                        new ASUIDiv('id', '-'),
-                        new ASUIDiv('id', '-'),
-                        new ASUIDiv('id', '-'),
-                        new ASUIDiv('id', '-'),
+                            new ASUIInputButton('remove',
+                                (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample'),
+                        ])),
 
-                    ]),
-                ])),
+                        new ASUIGridRow('footer', () => [
+                            /** Add New Sample **/
+                            new ASUIDiv('id', '*'),
+                            this.refs.fieldAddSample = new ASUIInputSelect('url',
+                                (selectElm) => [
+                                    selectElm.getOption('', '[New Sample]'),
+                                    selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
+                                        sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+                                    ),
+                                    selectElm.getOptGroup('Libraries', () =>
+                                        sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                                        {disabled: sampleLibrary.libraryCount === 0}
+                                    ),
+                                    selectElm.getOptGroup('Other Libraries', async () =>
+                                        await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                                        {disabled: AudioSourceLibrary.historicLibraryCount === 0}
+                                    ),
+                                ],
+                                (e, sampleURL, sampleName) => this.addSample(sampleURL, sampleName),
+                                'Add Sample',
+                                ''),
+                            new ASUIDiv('id', '-'),
+                            new ASUIDiv('id', '-'),
+                            new ASUIDiv('id', '-'),
+                            new ASUIDiv('id', '-'),
+                            new ASUIDiv('id', '-'),
+                            new ASUIDiv('id', '-'),
+                            new ASUIDiv('id', '-'),
+
+                        ]),
+                    ])
+                ))
 
             ];
 
