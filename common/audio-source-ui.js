@@ -37,12 +37,12 @@
         get targetElm() { return this; }
 
         async setState(newState) {
-            console.info('setState', this.state, newState, this);
+//             console.info('setState', this.state, newState, this);
             Object.assign(this.state, newState);
             await this.renderOS();
         }
         setProps(newProps) {
-            console.info('setProps', this.props, newProps, this);
+//             console.info('setProps', this.props, newProps, this);
             Object.assign(this.props, newProps);
             this.renderProps();
         }
@@ -105,7 +105,7 @@
         }
 
         async appendContentTo(content, targetElm) {
-            this.eachContent(content, async (content) => {
+            await this.eachContent(content, async (content) => {
                 if(content !== null && typeof content !== "undefined") {
                     if (content instanceof ASUIComponent)
                         await content.appendTo(targetElm);
@@ -189,16 +189,16 @@
             super({
                 title,
                 content: dropDownContent,
-                open: false,
                 offset: 0,
                 maxLength: 20,
                 optionCount: 0
             }, props);
             props.stick = false;
+            props.open = false;
             this.action = actionCallback;
             this.addEventHandler('mouseover', this.onInputEvent);
             this.addEventHandler('mouseout', this.onInputEvent);
-            this.addEventHandler('mouseout', e => this.onInputEvent(e), document);
+            // this.addEventHandler('mouseout', e => this.onInputEvent(e), document);
             this.addEventHandler('click', this.onInputEvent);
             this.addEventHandler('change', this.onInputEvent);
             this.addEventHandler('keydown', this.onInputEvent);
@@ -214,13 +214,12 @@
 
         async render() {
             const content = [
-                this.state.hasBreak ? new ASUIDiv('break') : null,
-                this.refs.title = (this.state.title ? new ASUIDiv('title', this.state.title) : null),
-                this.refs.dropdown = (this.state.open && this.state.content ? new ASUIDiv('dropdown', this.renderOptions(this.state.offset, this.state.maxLength)) : null),
+                this.refs.title = (this.state.title ? (this.state.title instanceof HTMLElement ? this.state.title : new ASUIDiv('title', this.state.title)) : null),
+                this.refs.dropdown = new ASUIDiv('dropdown', (this.props.open && this.state.content ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
+                // this.props.hasBreak ? new ASUIDiv('break') : null,
             ];
 
-            if(this.refs.dropdown)
-                this.refs.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
+            this.refs.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
             return content;
         }
 
@@ -252,27 +251,38 @@
                 await parentMenu.setProps({stick:open});
                 parentMenu = parentMenu.parentNode.closest('asui-menu');
             }
-            await this.setState({open:open});
+            await this.open();
         }
 
         async close() {
-            if(this.state.open !== false)
-                await this.setState({open: false})
+            if(this.props.open !== false) {
+                this.setProps({open: false});
+                await this.refs.dropdown.setContent(null);
+            }
         }
         async open() {
-            if(this.state.open !== true)
-                await this.setState({open: true})
+            if(this.props.open !== true) {
+                this.setProps({open: true});
+                await this.refs.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
+            }
+            this.closeAllMenusButThis();
         }
 
-        async closeAllMenus(global=true) {
+        closeAllMenus() {
             const root = this.getRootNode() || document;
-            root.querySelectorAll('asui-menu[open]')
+            root.querySelectorAll('asui-menu[open]:not([stick])')
                 .forEach(menu => menu.close())
-            // let menu = this;
-            // while(menu) {
-            //     await menu.close();
-            //     menu = menu.parentNode.closest('asui-menu');
-            // }
+        }
+
+        closeAllMenusButThis() {
+            const root = this.getRootNode() || document;
+            root.querySelectorAll('asui-menu[open]:not([stick])')
+                .forEach(menu => {
+                    if(menu !== this
+                        && !menu.contains(this)
+                        && !this.contains(menu))
+                        menu.close()
+                })
         }
 
         onInputEvent(e) {
@@ -292,7 +302,7 @@
                         clearTimeout(this.mouseTimeout);
                         this.mouseTimeout = setTimeout(e => {
                             this.close();
-                        }, 200);
+                        }, 400);
                     }
                     break;
 
@@ -375,7 +385,7 @@
                             offset = this.state.optionCount;
                     }
                     this.setState({offset});
-                    console.log(e);
+//                     console.log(e);
                     break;
             }
 

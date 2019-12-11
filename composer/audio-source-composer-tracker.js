@@ -38,7 +38,7 @@
                 filterByInstrumentID: null
             }, {});
 
-
+            this.props.tabindex = 0;
             this.editorElm = editorElm;
             /** @deprecated **/
             this.mousePosition = {};
@@ -223,8 +223,8 @@
                     break;
             }
 
-            if (e.target instanceof Node && !this.contains(e.target))
-                return;
+            // if (e.target instanceof Node && !this.contains(e.target))
+            //     return;
 
             // console.log(e.type);
 
@@ -232,26 +232,6 @@
             // const instructionList = this.instructionEach();
 
             switch (e.type) {
-                case 'midimessage':
-                    // console.log("MIDI", e.data, e);
-                    switch (e.data[0]) {
-                        case 144:   // Note On
-                            // TODO: refactor
-                            e.preventDefault();
-                            const midiImport = new MIDIImport();
-                            let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
-                            let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
-                            console.log("MIDI ", newMIDICommand, newMIDIVelocity);
-
-                            this.insertOrUpdateCommand(e, newMIDICommand);
-                            this.playSelectedInstructions(e);
-                            // this.focus();
-                            break;
-                        case 128:   // Note Off
-                            // TODO: turn off playing note, optionally set duration of note
-                            break;
-                    }
-                    break;
                 case 'keydown':
                     // All key actions close all menus
                     this.editorElm.closeAllMenus();
@@ -700,12 +680,16 @@
 
         updateSelection() {
             const selectedIndicies = this.editorElm.getSelectedIndicies();
-
+            let cursorFound = false;
             // Update cells
             this.querySelectorAll('asct-instruction')
                 .forEach((instructionElm) => {
                     if (selectedIndicies.indexOf(instructionElm.index) !== -1) {
                         instructionElm.select(true);
+                        if(!cursorFound) {
+                            instructionElm.setCursor();
+                            cursorFound = true;
+                        }
                     } else {
                         instructionElm.select(false)
                     }
@@ -742,7 +726,7 @@
             }
         }
 
-        selectPreviousCell(e) {
+        async selectPreviousCell(e) {
             let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction:last-child');
 
             if (cursorCell) {
@@ -751,7 +735,7 @@
                     return this.selectCell(e, cursorCell.previousInstructionSibling);
 
                 } else {
-                    return this.selectPreviousRowCell(e);
+                    return await this.selectPreviousRowCell(e);
                 }
             } else {
                 // If no cursor is selected, use the first available instruction
@@ -769,7 +753,7 @@
             if (!cursorRow.nextElementSibling) {
                 await this.setState({currentRowSegmentID: this.state.currentRowSegmentID+1});
                 this.focus();
-                return this.selectNextCell(e);
+                return await this.selectNextCell(e);
             }
 
             const nextRowElm = cursorRow.nextElementSibling;
@@ -787,7 +771,7 @@
         }
 
 
-        selectPreviousRowCell(e, cellPosition = null) {
+        async selectPreviousRowCell(e, cellPosition = null) {
             let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction:last-child');
             const cursorRow = cursorCell.parentNode;
             if (cellPosition === null)
@@ -795,10 +779,9 @@
             if (!cursorRow.previousElementSibling) {
                 if (this.currentRowSegmentID === 0)
                     throw new Error("TODO: reached beginning of song");
-                this.currentRowSegmentID--;
-                this.renderRows();
+                await this.setState({currentRowSegmentID: this.state.currentRowSegmentID + 1})
                 this.focus();
-                return this.selectPreviousCell(e);
+                return await this.selectPreviousCell(e);
             }
 
             let previousRowElm = cursorRow.previousElementSibling;
@@ -1203,17 +1186,11 @@
     class AudioSourceComposerTrackerInstruction extends ASUIComponent {
         constructor(song, instruction, index) {
             super({
-                index,
-            }, {selected: false, cursor: false});
-            this.state.command = new AudioSourceComposerParamCommand(instruction.command);
-            this.state.params = [
-                new AudioSourceComposerParamInstrument(instruction.instrument),
-                new AudioSourceComposerParamVelocity(instruction.velocity),
-                new AudioSourceComposerParamDuration(song, instruction.duration),
-            ];
+            }, {i: index, selected: false, cursor: false});
+            this.update(song, instruction);
         }
 
-        get index() { return this.state.index; }
+        get index() { return this.props.i; }
         get selected() { return this.props.selected; }
 
         get nextInstructionSibling() {
@@ -1228,6 +1205,17 @@
             return null;
         }
 
+        async update(song, instruction) {
+        // TODO: partial update?
+            await this.setState({
+                command: new AudioSourceComposerParamCommand(instruction.command),
+                params: [
+                    new AudioSourceComposerParamInstrument(instruction.instrument),
+                    new AudioSourceComposerParamVelocity(instruction.velocity),
+                    new AudioSourceComposerParamDuration(song, instruction.duration),
+                ]
+            });
+        }
 
         async select(selected = true) {
             if(selected !== this.props.selected) {
@@ -1236,9 +1224,9 @@
             }
         }
 
-        instructionFind() {
-            return this.row.trackerElm.instructionFind(this.index);
-        }
+        // instructionFind() {
+        //     return this.row.trackerElm.instructionFind(this.index);
+        // }
 
         play() {
             this.editorElm.song.playInstructionAtIndex(

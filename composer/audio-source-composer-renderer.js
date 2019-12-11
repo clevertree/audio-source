@@ -208,10 +208,10 @@
                             const content = instrumentList.map((instrumentConfig, instrumentID) =>
                                 new ASCInstrumentRenderer(this, instrumentID));
                             
-                            content.push(new ASCForm('new', 'Add Instrument', () => [
+                            content.push(new ASCForm('new', 'Add instrument', () => [
                                 new ASUIInputSelect('add-url',
                                 async (s) => [
-                                    s.getOption('', 'Add Instrument'),
+                                    s.getOption('', 'Add instrument'),
                                     await (async () => {
                                         const content = [];
                                         const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
@@ -222,7 +222,7 @@
                                     })()
                                 ],
                                 (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
-                                'Add Instrument')
+                                'Add instrument')
                             ]));
                             return content;
                         }),
@@ -458,7 +458,8 @@
             this.refs.panelInstruments.render();
         }
 
-        populateMenu(menuKey) {
+        async populateMenu(menuKey) {
+            const library = await this.getLibrary();
             /** File Menu **/
             let content = [];
             switch (menuKey) {
@@ -517,15 +518,14 @@
                     content = [
                         new ASUIMenu(`Insert Command ►`, () => [
                             new ASUIMenu(`Frequency ►`, () =>
-                                audioSourceValues.getNoteOctaves((octave) =>
-                                    new ASUIMenu(`Octave ${octave} ►`, () =>
-                                        audioSourceValues.getNoteFrequencies((noteName) => {
-                                            const fullNote = noteName + octave;
-                                            return new ASUIMenu(fullNote, null, (e) => {
-                                                this.refs.fieldInstructionCommand.value = fullNote;
-                                                this.instructionInsert(fullNote);
-                                            });
-                                        })
+                                audioSourceValues.getNoteFrequencies((noteName, label) =>
+                                    new ASUIMenu(`${noteName} ►`, () =>
+                                        audioSourceValues.getNoteOctaves((octave) =>
+                                            new ASUIMenu(`${noteName}${octave}`, null, (e) => {
+                                                this.refs.fieldInstructionCommand.value = `${noteName}${octave}`;
+                                                this.instructionInsert(`${noteName}${octave}`, false);
+                                            })
+                                        )
                                     )
                                 )
                             ),
@@ -544,27 +544,27 @@
                                     new ASUIMenu(`${groupName}`, null, (e) => {
                                         const fullNote = '@' + groupName;
                                         this.refs.fieldInstructionCommand.value = fullNote;
-                                        this.instructionInsert(fullNote);
+                                        this.instructionInsert(fullNote, false);
                                     }, {disabled: groupName === this.trackerElm.groupName})
                                 ),
                                 new ASUIMenu(`Create New Group`, null, (e) => this.groupAdd(e), {hasBreak: true}),
                             ]),
 
-                            new ASUIMenu(`Custom Command`, null, (e) => this.instructionInsert(true)),
+                            new ASUIMenu(`Custom Command`, null, (e) => this.instructionInsert(null, true)),
                             // menuCustom.hasBreak = true;
-                        ]),
+                        ], null, {hasBreak: true}),
                         // menuEditInsertCommand.disabled = selectedIndicies.length > 0; // !this.cursorCell;
                         // menuEditInsertCommand.action = handleAction('song:new');
 
                         (selectedIndicies.length === 0 ? null : [
                             new ASUIMenu(`Set Command ►`, () => [
                                 new ASUIMenu(`Frequency ►`, () =>
-                                    audioSourceValues.getNoteOctaves((octave) =>
-                                        new ASUIMenu(`Octave ${octave} ►`, () =>
-                                            audioSourceValues.getNoteFrequencies((noteName, label) =>
-                                                new ASUIMenu(`${noteName}${octave}`, (e) => {
+                                    audioSourceValues.getNoteFrequencies((noteName, label) =>
+                                        new ASUIMenu(`${noteName} ►`, () =>
+                                            audioSourceValues.getNoteOctaves((octave) =>
+                                                new ASUIMenu(`${noteName}${octave}`, null, (e) => {
                                                     this.refs.fieldInstructionCommand.value = `${noteName}${octave}`;
-                                                    this.instructionChangeCommand(`${noteName}${octave}`);
+                                                    this.instructionChangeCommand(`${noteName}${octave}`, false);
                                                     // handleAction('instruction:command')(e);
                                                 })
                                             )
@@ -572,94 +572,92 @@
                                     )
                                 ),
 
-                                new ASUIMenu(`Named ►`, () => {
-                                    audioSourceValues.getAllNamedFrequencies((noteName, frequency, instrumentID) => {
-                                        new ASUIMenu(noteName, (e) => {
+                                new ASUIMenu(`Named ►`, () =>
+                                    audioSourceValues.getAllNamedFrequencies(this.song, (noteName, frequency, instrumentID) =>
+                                        new ASUIMenu(noteName, null, (e) => {
                                             this.refs.fieldInstructionCommand.value = noteName;
                                             this.instructionChangeCommand(noteName, false, instrumentID);
                                         })
-                                    });
-                                }),
+                                    )
+                                ),
 
-                                new ASUIMenu(`Group ►`, () => {
-                                    audioSourceValues.getAllSongGroups((groupName, groupTitle) => {
-                                        if (groupName === this.groupName)
-                                            return;
-                                        new ASUIMenu(`${groupTitle}`, null, (e) => {
+                                new ASUIMenu(`Group ►`, () => [
+                                    audioSourceValues.getAllSongGroups(this.song, (groupName) =>
+                                        groupName === this.groupName ? null :
+                                        new ASUIMenu(`${groupName}`, null, (e) => {
                                             const fullNote = '@' + groupName;
                                             this.refs.fieldInstructionCommand.value = fullNote;
-                                            this.instructionChangeCommand(fullNote);
-                                        });
-                                    });
-                                    const menuCustom = new ASUIMenu(`Create New Group`, null, (e) => this.groupAdd(e));
-                                    menuCustom.hasBreak = true;
-                                }),
+                                            this.instructionChangeCommand(fullNote, false);
+                                        })
+                                    ),
+                                    new ASUIMenu(`Create New Group`, null, (e) => this.groupAdd(e), {hasBreak: true})
+                                ]),
 
-                                new ASUIMenu(`Custom Command`, null, (e) => this.instructionChangeCommand(true), null, {hasBreak: true}),
-                            ], null, {disabled: true}),
+                                new ASUIMenu(`Custom Command`, null, (e) => this.instructionChangeCommand(null, true), {hasBreak: true}),
+                            ]),
 
-                            new ASUIMenu(`Set Instrument ►`, () => {
-                                audioSourceValues.getSongInstruments(this.song, (instrumentID, label) => {
+                            new ASUIMenu(`Set Instrument ►`, () =>
+                                audioSourceValues.getSongInstruments(this.song, (instrumentID, label) =>
                                     new ASUIMenu(`${label}`, null, (e) => {
                                         this.refs.fieldInstructionInstrument.value = instrumentID;
                                         this.instructionChangeInstrument(instrumentID);
                                         // handleAction('instruction:instrument')(e);
-                                    });
-                                });
-                            }, null, {disabled: selectedIndicies.length === 0}),
+                                    })
+                                )
+                            , null, {disabled: selectedIndicies.length === 0}),
 
                             new ASUIMenu(`Set Duration ►`, () => [
-                                audioSourceValues.getNoteDurations((durationInTicks, durationName) => {
+                                audioSourceValues.getNoteDurations(this.song, (durationInTicks, durationName) =>
                                     new ASUIMenu(`${durationName}`, null, (e) => {
                                         this.refs.fieldInstructionDuration.value = durationInTicks;
                                         this.instructionChangeDuration(durationInTicks);
                                         // handleAction('instruction:duration')(e);
-                                    });
-                                }),
-                                new ASUIMenu(`Custom Duration`, (e) => this.instructionChangeDuration(null, true), null, {hasBreak: true}),
+                                    })
+                                ),
+                                new ASUIMenu(`Custom Duration`, (e) => this.instructionChangeDuration(null, true), {hasBreak: true}),
                             ], null, {disabled: selectedIndicies.length === 0}),
 
-                            new ASUIMenu(`Set Velocity ►`, () => {
-                                audioSourceValues.getNoteVelocities((velocity, velocityName) => {
-                                    new ASUIMenu(`${velocityName}`, null, (e) => {
+                            new ASUIMenu(`Set Velocity ►`, () => [
+                                audioSourceValues.getNoteVelocities((velocity) =>
+                                    new ASUIMenu(`${velocity}`, null, (e) => {
                                         this.refs.fieldInstructionVelocity.value = velocity;
                                         this.instructionChangeVelocity(velocity);
                                         // handleAction('instruction:velocity')(e);
-                                    });
-                                });
-                                const menuCustom = new ASUIMenu(`Custom Velocity`, null, (e) => this.instructionChangeVelocity(null, true));
-                                menuCustom.hasBreak = true;
-                            }, null, {disabled: selectedIndicies.length === 0}),
+                                    })
+                                ),
+                                new ASUIMenu(`Custom Velocity`, null, (e) => this.instructionChangeVelocity(null, true), {hasBreak: true}),
+                            ], null, {disabled: selectedIndicies.length === 0}),
 
-                            new ASUIMenu(`Delete Instruction(s)`, (e) => this.instructionDelete(e), null, {disabled: selectedIndicies.length === 0}),
+                            new ASUIMenu(`Delete Instruction(s)`,
+                                null,
+                                (e) => this.instructionDelete(e),
+                                {disabled: selectedIndicies.length === 0}),
                         ]),
 
                         /** Select Instructions **/
 
-                        new ASUIMenu('Select ►', () => {
-                            new ASUIMenu('Select Segment Instructions', null, (e) => this.trackerChangeSelection('segment'));
+                        new ASUIMenu('Select ►', () => [
+                            new ASUIMenu('Select Segment Instructions', null, (e) => this.trackerChangeSelection('segment')),
 
-                            new ASUIMenu('Select All Song Instructions', null, (e) => this.trackerChangeSelection('all'));
+                            new ASUIMenu('Select All Song Instructions', null, (e) => this.trackerChangeSelection('all')),
 
                             // const menuSelectRow = MENU.getOrCreateSubMenu('row', 'Select Row Instructions');
                             // menuSelectRow.action = (e) => this.trackerChangeSelection(e, 'row');
                             // menuSelectRow.disabled = true;
-                            new ASUIMenu('Select No Instructions', null, (e) => this.trackerChangeSelection('none'));
+                            new ASUIMenu('Select No Instructions', null, (e) => this.trackerChangeSelection('none')),
 
-                            new ASUIMenu('Batch Select ►', async () => {
-                                new ASUIMenu('New Selection Command', null, (e) => this.batchSelect(e));
+                            new ASUIMenu('Batch Select ►', async () => [
+                                new ASUIMenu('New Selection Command', null, (e) => this.batchSelect(e)),
 
-                                const recentBatchSearches = audioSourceStorage.getBatchRecentSearches();
-                                for (let i = 0; i < recentBatchSearches.length; i++) {
-                                    const recentBatchSearch = recentBatchSearches[i];
+                                audioSourceStorage.getBatchRecentSearches().map(recentBatchSearch =>
                                     // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
                                     new ASUIMenu(recentBatchSearch, null, (e) => {
                                         this.batchSelect(e, recentBatchSearch, true);
-                                    });
-                                }
-                            });
+                                    })
+                                )
+                            ]),
 
-                        }, null, {hasBreak: true}),
+                        ], null, {hasBreak: true}),
 
                         /** Batch Instructions **/
 
@@ -684,7 +682,7 @@
                                 ])
                             ),
 
-                        ], null, {hasBreak: true}),
+                        ], null, {hasBreak: false}),
                     ];
                     // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
                     // menuEditGroup.hasBreak = true;
@@ -702,62 +700,50 @@
                     break;
 
                 case 'instrument':
-                    new ASUIMenu(`Add Instrument To Song ►`, async () => {
-                        const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
-                        return instrumentLibrary.eachInstrument((instrumentConfig) => {
-                            return new ASUIMenu(`${instrumentConfig.name}`, null, (e) => {
-//                         this.refs.fieldinstrumentAdd.value = instrumentURL;
-                                this.instrumentAdd(instrumentConfig);
-                            });
-                        });
-                    });
+                    content = [
+                        new ASUIMenu(`Add instrument to song ►`,
+                            async () =>
+                            library.eachInstrument((instrumentConfig) =>
+                                new ASUIMenu(`${instrumentConfig.name}`, null, (e) => {
+                                    this.instrumentAdd(instrumentConfig);
+                                })
+                            ),
+                            null, {hasBreak: true}),
 
+                        audioSourceValues.getSongInstruments(this.song,(instrumentID, label) =>
+                            new ASUIMenu(`${label} ►`, () => [
+                                new ASUIMenu(`Replace ►`, async (e) =>
+                                    library.eachInstrument((instrumentConfig) =>
+                                        new ASUIMenu(`${instrumentConfig.name}`, null, (e) =>
+                                            this.instrumentReplace(instrumentID, instrumentConfig)
+                                        )
+                                    )
+                                ),
 
-                    let instrumentCount = 0;
-                    audioSourceValues.getSongInstruments(this.song,(instrumentID, label) => {
-                        const isActive = this.song.isInstrumentLoaded(instrumentID);
+                                new ASUIMenu(`Remove from song`, null, (e) => {
+                                    this.instrumentRemove(instrumentID);
+                                }, {disabled: !this.song.isInstrumentLoaded(instrumentID)})
+                            ])
+                        ),
 
-                        const menuInstrument = new ASUIMenu(`${label} ►`, () => {
-                            new ASUIMenu(`Replace ►`, async (e) => {
-                                const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
-                                instrumentLibrary.eachInstrument((instrumentConfig) => {
-                                    new ASUIMenu(`${instrumentConfig.name}`, null, (e) => {
-                                        this.instrumentReplace(instrumentID, instrumentConfig);
-                                    });
-                                });
-                            });
-
-
-                            let menu = new ASUIMenu(`Remove From Song`, null, (e) => {
-                                this.instrumentRemove(instrumentID);
-                            });
-                            menu.disabled = !isActive;
-
-
-                        });
-                        if (instrumentCount === 0)
-                            menuInstrument.hasBreak = true;
-                        instrumentCount++;
-                    });
-
-                    // TODO CRUD
+                    ];
                     break;
 
                 /** Group Menu **/
                 case 'group':
                     let groupCount = 0;
                     content = [
-                        new ASUIMenu(`Add Group To Song`, null, (e) => {
+                        new ASUIMenu(`Add new group to song`, null, (e) => {
                             this.groupAdd(e);
-                        }),
+                        }, {hasBreak: true}),
 
                         audioSourceValues.getAllSongGroups(this.song, (groupName) =>
                             new ASUIMenu(`${groupName} ►`, () => [
-                                new ASUIMenu(`Rename '${groupName}'`, null, (e) => {
+                                new ASUIMenu(`Rename group '${groupName}'`, null, (e) => {
                                     this.groupRename(groupName);
                                 }),
 
-                                new ASUIMenu(`Remove '${groupName}' From Song`, null, (e) => {
+                                new ASUIMenu(`Delete group '${groupName}' from song`, null, (e) => {
                                     this.groupRemove(groupName);
                                 }),
                             ], {hasBreak: groupCount++ === 0})

@@ -26,8 +26,8 @@
     class AudioSourceComposerElement extends AudioSourceComposerActions {
         constructor(state={}, props={}) {
             super(state, props);
-            this.versionString = '-1';
-            this.eventHandlers = [];
+            // this.versionString = '-1';
+            // this.eventHandlers = [];
             this.saveSongToMemoryTimer = null;
             // this.instrumentLibrary = null;
 
@@ -47,12 +47,18 @@
             //     autoSaveTimeout: 4000,
             // };
             this.trackerElm = new AudioSourceComposerTracker(this);
+            this.library = AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
+
 
             this.values = new AudioSourceValues();
             // Util.loadLibrary(defaultLibraryURL);
 
             this.addEventHandler('unload', e => this.saveState(e), window);
             this.ui = {};
+        }
+
+        async getLibrary() {
+            return await this.library;
         }
 
         // get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
@@ -173,7 +179,8 @@
             }
 
             switch (e.type) {
-                // case 'focus':
+                case 'focus':
+                    break;
                 //     const divElmFormElm = e.path[0].closest('asui-div');
                 //     if(divElmFormElm) {
                 //         divElmFormElm.getRootNode().querySelectorAll('asui-div.focus')
@@ -195,11 +202,29 @@
                     console.log(files);
                     break;
 
-                default:
                 case 'midimessage':
-                    if (this.trackerElm)
-                        this.trackerElm.onInput(e);
+                    // console.log("MIDI", e.data, e);
+                    switch (e.data[0]) {
+                        case 144:   // Note On
+                            // TODO: refactor
+                            e.preventDefault();
+                            const midiImport = new MIDIImport();
+                            let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
+                            let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
+                            console.log("MIDI ", newMIDICommand, newMIDIVelocity);
+
+                            this.insertOrUpdateCommand(e, newMIDICommand);
+                            this.playSelectedInstructions(e);
+                            // this.focus();
+                            break;
+                        case 128:   // Note Off
+                            // TODO: turn off playing note, optionally set duration of note
+                            break;
+                    }
                     break;
+
+                default:
+                    throw new Error("Unhandled type: " + e.type);
             }
 
         }

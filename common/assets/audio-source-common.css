@@ -191,6 +191,7 @@ asui-div[key=dropdown] > asui-menu {
 asui-menu > asui-div[key=title] {
     padding: 3px 6px;
     display: inline-block;
+    min-width: 40px;
 }
 
 asui-menu:hover {
@@ -261,9 +262,9 @@ asui-menu[disabled] {
 
 /** Menu Break **/
 
-asui-menu > asui-div[key=break] {
-    margin: 2px 0;
-    border: 1px #666 solid;
+asui-menu[hasbreak] {
+    margin-bottom: 2px;
+    border-bottom: 2px #666 solid;
 }
 
 
