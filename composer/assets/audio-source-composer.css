@@ -372,17 +372,13 @@ asct-instruction[selected] {
     z-index: 2;
 }
 
-asct-instruction-add[cursor],
+asct-instruction-add,
 asct-instruction[cursor] {
     border-color: red;
     box-shadow: darkred 0 0 12px;
 }
 
 
-asct-instruction-add[cursor],
-asct-instruction[selecting],
-asct-instruction[selected] {
-}
 
 asct-instruction.playing {
     font-weight: bold;

@@ -194,15 +194,23 @@
                                     (selectElm) => [
                                         // const selectedInstrumentID = this.refs.fieldInstructionInstrument ? parseInt(this.refs.fieldInstructionInstrument.value) : 0;
                                         selectElm.getOption(null, 'Select'),
-                                        selectElm.getOptGroup('Frequencies'),
-                                        this.values.getOctaveNoteFrequencies(freq => selectElm.getOption(freq)),
+                                        this.refs.fieldInstructionCommand.value ?
+                                            selectElm.getOptGroup('Current Octave', () => {
+                                                const currentOctave = this.refs.fieldInstructionCommand.value.substr(-1, 1);
+                                                return this.values.getNoteFrequencies(freq => selectElm.getOption(freq + currentOctave));
+                                            }) : null,
+                                        selectElm.getOptGroup('Frequencies', () =>
+                                            this.values.getOctaveNoteFrequencies(freq => selectElm.getOption(freq)),
+                                        ),
 
-                                        selectElm.getOptGroup('Custom Frequencies'),
-                                        this.values.getAllNamedFrequencies(namedFreq => selectElm.getOption(namedFreq)),
+                                        selectElm.getOptGroup('Custom Frequencies', () =>
+                                            this.values.getAllNamedFrequencies(namedFreq => selectElm.getOption(namedFreq)),
+                                        ),
                                         // TODO: filter by selected instrument
 
-                                        selectElm.getOptGroup('Groups'),
-                                        this.values.getAllSongGroups(group => selectElm.getOption('@' + group)),
+                                        selectElm.getOptGroup('Groups', () =>
+                                            this.values.getAllSongGroups(group => selectElm.getOption('@' + group)),
+                                        ),
                                     ],
                                     (e, commandString) => this.instructionChangeCommand(commandString),
                                 ),

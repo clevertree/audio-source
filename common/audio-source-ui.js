@@ -445,22 +445,13 @@
             this.setValue(newValue);
         }
 
-        // async getValueTitle(value) {
-        //     return await this.titleCallback(value);
-        // }
-
         async setValue(value, title=null) {
-            // title = title || this.getValueTitle(value) || value;
             this.state.value = value;
             if(title === null) {
                 await resolveContent(this.state.content);
             }
             if(this.parentNode)
-                await this.renderOS();
-            // title = title || value;
-            // this.state.value = value;
-            // this.state.title = title;
-            // await this.refs.menu.setTitle(title);
+                await this.setState({value, title});
         }
 
         async onChange(e) {
@@ -481,27 +472,6 @@
             return new ASUIMenu(title, content, null, props);
         }
 
-        // async findValueTitle(value) {
-        //     let valueTitle = null;
-        //     const find = async (content) => {
-        //         await this.eachContent(content, async item => {
-        //             if(valueTitle)
-        //                 return false;
-        //             if(item instanceof ASUISelectMenuOption && item.value === value)
-        //                 valueTitle = item.title;
-        //             else if(item instanceof ASUIComponent) {
-        //                 const content = await item.render();
-        //                 await find(content);
-        //             }
-        //
-        //         });
-        //     };
-        //
-        //     const content = await this.render();
-        //     await find(content);
-        //     return valueTitle;
-        //
-        // }
 
         /** @override **/
         async render() {
@@ -511,40 +481,8 @@
                 {vertical: true}
             );
         }
-
-
-        // static fromObject(key, object, actionCallback, defaultValue=null, props={}) {
-        //     return new ASUIInputSelect(key, optionContent, actionCallback, defaultValue, titleCallback, props);
-        //
-        //     async function optionContent(s) {
-        //         const obj = await resolveContent(object);
-        //         return Object.values(obj)
-        //             .map(value => s.getOption(value));
-        //     }
-        //
-        //     async function titleCallback(value) {
-        //         const obj = await resolveContent(object);
-        //         if(typeof obj[value] !== "undefined")
-        //             return obj[value];
-        //         console.warn("value not found in object", value, obj);
-        //         return null;
-        //     }
-        // }
     }
     customElements.define('asui-input-select', ASUIInputSelect);
-
-
-
-
-    // class ASUISelectMenuOption extends ASUIMenu {
-    //     constructor(value, title, actionCallback) {
-    //         super(title, null, actionCallback);
-    //         this.props.value = value;
-    //     }
-    //     get value() { return this.props.value; }
-    //     get title() { return this.state.title; }
-    // }
-    // customElements.define('asuim-option', ASUISelectMenuOption);
 
 
 

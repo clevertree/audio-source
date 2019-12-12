@@ -389,6 +389,7 @@
             this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
 
             this.trackerElm.updateSelection();
+            this.trackerElm.focus();
         }
 
         getSelectedIndicies() {
