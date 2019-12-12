@@ -194,7 +194,7 @@
                                     (selectElm) => [
                                         // const selectedInstrumentID = this.refs.fieldInstructionInstrument ? parseInt(this.refs.fieldInstructionInstrument.value) : 0;
                                         selectElm.getOption(null, 'Select'),
-                                        this.refs.fieldInstructionCommand.value ?
+                                        selectElm.value ?
                                             selectElm.getOptGroup('Current Octave', () => {
                                                 const currentOctave = this.refs.fieldInstructionCommand.value.substr(-1, 1);
                                                 return this.values.getNoteFrequencies(freq => selectElm.getOption(freq + currentOctave));

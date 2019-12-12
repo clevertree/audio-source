@@ -13,6 +13,10 @@
     /** Required Modules **/
     // const {AudioSourceSong}             = await requireAsync('common/audio-source-song.js');
     const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
+    const {
+        AudioSourceTracker,
+        AudioSourceComposerTrackerInstruction
+    }          = await requireAsync('composer/audio-source-composer-tracker.js');
     const {AudioSourceStorage}          = await requireAsync('common/audio-source-storage.js');
     // const {AudioSourceUtilities}        = await requireAsync('common/audio-source-utilities.js');
     // const {ASUIComponent}               = await requireAsync('common/audio-source-ui.js');
@@ -166,6 +170,25 @@
 
         /** Tracker Commands **/
 
+        playSelectedInstructions() {
+            if (this.song.isPlaying)
+                this.song.stopPlayback();
+            const selectedIndicies = this.editorElm.getSelectedIndicies();
+            for (let i = 0; i < selectedIndicies.length; i++) {
+                this.song.playInstructionAtIndex(this.trackerElm.groupName, selectedIndicies[i]);
+            }
+        }
+
+        playCursorInstruction() {
+            if (this.song.isPlaying)
+                this.song.stopPlayback();
+            const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListPosition];
+            if(cursorItem instanceof AudioSourceComposerTrackerInstruction) {
+                this.song.playInstructionAtIndex(this.trackerElm.groupName, cursorItem.index);
+            }
+        }
+
+
         async renderInstruction(groupName, index) {
             const instruction = this.song.instructionFind(groupName, index);
             this.trackerElm.findInstructionElement(index)
@@ -188,7 +211,7 @@
             if (!newCommand)
                 throw new Error("Invalid Instruction command");
 
-            let newInstruction = tracker.instructionFindFormValues(newCommand);
+            let newInstruction = tracker.instructionGetFormValues(newCommand);
             if (instrumentID !== null)
                 newInstruction.instrument = instrumentID;
 
@@ -296,6 +319,124 @@
             await tracker.renderOS();
 
         }
+
+        /** Tracker Cells **/
+
+        async setCursor(newCursor, clearSelection=null, toggleValue=null) {
+            await this.trackerElm.setCursorElement(newCursor);
+            if(newCursor instanceof AudioSourceComposerTrackerInstruction)
+                await this.selectIndex(newCursor.index, clearSelection, toggleValue);
+            this.playCursorInstruction();
+        }
+
+        async setNextCursor(clearSelection=null, toggleValue=null) {
+            const nextCursor = this.trackerElm.getNextCursor();
+            if(!nextCursor)
+                throw new Error("Next segment");
+            await this.setCursor(nextCursor, clearSelection, toggleValue);
+        }
+
+        async setPreviousCursor(clearSelection=null, toggleValue=null) {
+            const previousCursor = this.trackerElm.getPreviousCursor();
+            if(!previousCursor)
+                throw new Error("Previous segment");
+            await this.setCursor(previousCursor, clearSelection, toggleValue);
+        }
+
+        async setNextRowCursor(clearSelection=null, toggleValue=null) {
+            const nextRowCursor = this.trackerElm.getNextRowCursor();
+            if(!nextRowCursor)
+                throw new Error("Next segment");
+            await this.setCursor(nextRowCursor, clearSelection, toggleValue);
+        }
+
+        async setPreviousRowCursor(clearSelection=null, toggleValue=null) {
+            const previousRowCursor = this.trackerElm.getPreviousRowCursor();
+            if(!previousRowCursor)
+                throw new Error("Previous segment");
+            await this.setCursor(previousRowCursor, clearSelection, toggleValue);
+        }
+
+
+        /** Selection **/
+
+        async selectIndex(index, clearSelection=null, toggleValue=null) {
+            let selectedIndicies = clearSelection ? [] : this.getSelectedIndicies();
+            if(toggleValue) {
+                selectedIndicies.push(index);
+            } else {
+                const pos = selectedIndicies.indexOf(index);
+                selectedIndicies.splice(pos, 1);
+            }
+            return await this.selectIndicies(selectedIndicies);
+        }
+
+        async selectIndicies(selectedIndicies) {
+            if (typeof selectedIndicies === "string") {
+
+                switch (selectedIndicies) {
+                    case 'all':
+                        selectedIndicies = [];
+                        const maxLength = this.song.instructionFindGroupLength(this.groupName);
+                        for (let i = 0; i < maxLength; i++)
+                            selectedIndicies.push(i);
+                        break;
+                    case 'segment':
+                        selectedIndicies = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                        break;
+                    case 'row':
+                        throw new Error('TODO');
+                    case 'none':
+                        selectedIndicies = [];
+                        break;
+                    default:
+                        throw new Error("Invalid selection: " + selectedIndicies);
+                }
+            }
+            if (typeof selectedIndicies === 'number')
+                selectedIndicies = [selectedIndicies];
+            if (!Array.isArray(selectedIndicies))
+                throw new Error("Invalid selection");
+
+            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
+
+            await this.trackerElm.selectIndicies(selectedIndicies);
+            this.trackerElm.focus();
+        }
+
+        getSelectedIndicies() {
+            const value = this.refs.fieldTrackerSelection.value;
+            if (value === '')
+                return [];
+            return value
+                .split(/\D+/)
+                .map(index => parseInt(index));
+            // return this.selectedIndicies;
+            // const selectedIndicies = [].map.call(this.selectedCells, (elm => elm.index));
+        }
+
+        clearSelectedIndicies() {
+            this.refs.fieldTrackerSelection.value = '';
+            this.trackerElm.selectIndicies([]);
+        }
+
+        toggleSelectionAtIndex(index, toggleValue=null) {
+            const selectedIndicies = this.getSelectedIndicies();
+            const pos = selectedIndicies.indexOf(index);
+            if(toggleValue === null)
+                toggleValue = pos === -1;
+            if (toggleValue) {
+                selectedIndicies.splice(pos, 1);
+            } else {
+                selectedIndicies.push(index);
+            }
+            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
+            return selectedIndicies;
+        }
+
+        // selectIndex(index) { return this.toggleSelectionAtIndex(index, true); }
+        // removeSelectedIndex(index) { return this.toggleSelectionAtIndex(index, false); }
+
 
         /** Groups **/
 
@@ -516,7 +657,7 @@
 
 
             const tracker = this.trackerElm;
-            tracker.clearSelection();
+            this.clearSelectedIndicies();
             const groupName = tracker.groupName, g = groupName;
             try {
                 const stats = {count: 0};
@@ -528,7 +669,7 @@
                     return eval(searchCallbackString);
                 })) {
                     stats.count++;
-                    tracker.selectIndex(e, iterator.groupIndex);
+                    tracker.selectIndicies(e, iterator.groupIndex);
                 }
                 this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
             } catch (err) {
