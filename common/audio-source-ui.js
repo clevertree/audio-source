@@ -165,11 +165,12 @@
 
     /** Div **/
     class ASUIDiv extends ASUIComponent {
-        constructor(key = null, content = null, props = {}) {
+        constructor(name = null, content = null, props = {}) {
             super({content}, props);
-            props.key = key;
+            props.name = name;
         }
 
+        get name() { return this.props.name; }
         set content(newContent) { this.setContent(newContent); }
         async setContent(newContent) {
             await this.setState({content: newContent});
@@ -427,8 +428,8 @@
 
 
     class ASUIInputSelect extends ASUIDiv {
-        constructor(key, optionContent, actionCallback, defaultValue = null, valueTitle=null, props = {}) {
-            super(key, () => optionContent(this), props);
+        constructor(name, optionContent, actionCallback, defaultValue = null, valueTitle=null, props = {}) {
+            super(name, () => optionContent(this), props);
             this.setValue(defaultValue, valueTitle);
             this.actionCallback = actionCallback;
         }
@@ -483,7 +484,7 @@
             );
         }
     }
-    customElements.define('asui-input-select', ASUIInputSelect);
+    customElements.define('asui-select', ASUIInputSelect);
 
     class ASUIInputRange extends ASUIComponent {
         constructor(name = null, callback = null, min = 1, max = 100, value = null, title = null, props = {}) {
@@ -526,7 +527,7 @@
             return rangeElm;
         }
     }
-    customElements.define('asui-input-range', ASUIInputRange);
+    customElements.define('asui-range', ASUIInputRange);
 
 
 
@@ -597,7 +598,7 @@
         }
 
         onClick(e) {
-            this.callback(e, this.value);
+            this.state.callback(e, this.value);
         }
 
         async render() {
@@ -606,7 +607,7 @@
 
     }
 
-    customElements.define('asui-input-button', ASUIInputButton);
+    customElements.define('asui-button', ASUIInputButton);
 
 
     class ASUIInputText extends ASUIComponent {
@@ -648,7 +649,7 @@
             return inputElm;
         }
     }
-    customElements.define('asui-input-text', ASUIInputText);
+    customElements.define('asui-text', ASUIInputText);
 
 
 
@@ -693,7 +694,7 @@
 
 
     class ASUIFileInput extends ASUIComponent {
-        constructor(key, callback = null, content, accepts = null, title = null, props = {}) {
+        constructor(name, callback = null, content, accepts = null, title = null, props = {}) {
             // constructor(name = null, callback = null, checked = false, title = null, props={}) {
             super({
                 callback,
@@ -740,7 +741,7 @@
         }
 
     }
-        customElements.define('asui-input-file', ASUIFileInput);
+        customElements.define('asui-file', ASUIFileInput);
 
 
     /** Icon **/

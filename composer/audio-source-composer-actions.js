@@ -220,7 +220,7 @@
             let insertIndex = song.instructionInsertAtPosition(groupName, songPosition, newInstruction);
             await tracker.renderOS();
             this.selectIndicies(insertIndex);
-            tracker.playSelectedInstructions();
+            this.playCursorInstruction();
         }
 
         async instructionChangeCommand(newCommand = null, promptUser = false, instrumentID = null, groupName=null, selectedIndicies=null) {
@@ -247,7 +247,7 @@
                 }
                 await this.renderInstruction(groupName, selectedIndicies[i]);
             }
-            tracker.playSelectedInstructions();
+            this.playCursorInstruction();
         }
 
         // TODO: assuming the use of tracker.groupName?
@@ -265,7 +265,7 @@
                 await this.renderInstruction(groupName, selectedIndicies[i]);
             }
             await this.refs.fieldInstructionInstrument.setValue(instrumentID);
-            tracker.playSelectedInstructions();
+            this.playCursorInstruction();
         }
 
         async instructionChangeDuration(duration = null, promptUser = false, groupName=null, selectedIndicies=null) {
@@ -284,7 +284,7 @@
                 song.instructionReplaceDuration(tracker.groupName, selectedIndicies[i], duration);
                 await this.renderInstruction(groupName, selectedIndicies[i]);
             }
-            tracker.playSelectedInstructions();
+            this.playCursorInstruction();
 
         }
 
@@ -305,7 +305,7 @@
                 song.instructionReplaceVelocity(tracker.groupName, selectedIndicies[i], velocity);
                 await this.renderInstruction(groupName, selectedIndicies[i]);
             }
-            tracker.playSelectedInstructions();
+            this.playCursorInstruction();
         }
 
         async instructionDelete(groupName=null, selectedIndicies=null) {
@@ -583,23 +583,15 @@
                 this.refs.fieldTrackerOctave.value = newOctave;
         }
 
-        trackerChangeRowLength(rowLengthInTicks = null) {
+        trackerChangeRowLength(trackerRowLength = null) {
             const tracker = this.trackerElm;
-            // let selectedIndicies = this.getSelectedIndicies();
-            if (rowLengthInTicks !== null)
-                this.refs.fieldTrackerRowLength.value;
-            tracker.renderRows();
-            // this.selectIndicies(e, selectedIndicies);
+            tracker.setState({trackerRowLength});
 
         }
 
-        trackerChangeSegmentLength(segmentLength = null) {
+        trackerChangeSegmentLength(segmentLengthInTicks = null) {
             const tracker = this.trackerElm;
-            // let selectedIndicies = this.getSelectedIndicies();
-            if (segmentLength !== null)
-                this.refs.fieldTrackerSegmentLength.value = segmentLength;
-            tracker.renderRows();
-            // this.selectIndicies(e, selectedIndicies);
+            tracker.setState({segmentLengthInTicks});
         }
 
         // setTrackerRowSegment(e) {
@@ -614,11 +606,12 @@
         //     // this.focusOnContainer();
         // }
 
-        trackerChangeInstrumentFilter() {
+        trackerChangeInstrumentFilter(filterByInstrumentID) {
             const tracker = this.trackerElm;
+            tracker.setState({filterByInstrumentID})
             // let selectedIndicies = this.getSelectedIndicies();
 
-            tracker.renderRows();
+            // tracker.renderRows();
             // this.selectIndicies(e, selectedIndicies);
         }
 

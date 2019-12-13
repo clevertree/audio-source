@@ -285,7 +285,7 @@
                                         selectElm.getOption(null, 'No Filter'),
                                         this.values.getSongInstruments((id, name) => selectElm.getOption(id, name))
                                     ],
-                                    e => this.trackerChangeInstrumentFilter(),
+                                    (e, instrumentID) => this.trackerChangeInstrumentFilter(instrumentID),
                                     null),
                             ]),
                             new ASCForm('tracker-selection', 'Selection', () => [
@@ -326,7 +326,9 @@
                                 new ASUIInputButton(
                                     groupName,
                                     e => this.trackerElm.groupName = groupName,
-                                    groupName),
+                                    groupName,
+                                    "Group " + groupName,
+                                    {selected: currentGroupName === groupName})
                                 // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
                                 // TODO button.classList.toggle('selected', groupName === currentGroupName);
                             ]);

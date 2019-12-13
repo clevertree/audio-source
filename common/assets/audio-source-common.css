@@ -105,28 +105,33 @@ asui-text {
 
 /** Editor Inputs **/
 
-asui-input-button,
-asui-input-select,
-asui-input-range,
-asui-input-text,
-asui-input-file {
+asui-button,
+asui-select,
+asui-range,
+asui-text,
+asui-file {
     /*display: inline-block; !** TODO: bad idea **!*/
     /* vertical-align: top; */
     /* height: 24px; */
 }
 
-asui-input-button,
-asui-input-file  {
+asui-button,
+asui-file  {
      /* height: 24px; */
      display: inline-block;
+     cursor: pointer;
+     background-color: #DDD;
+     /* border: 1px outset; */
+     /* border-radius: 4px; */
+     text-align: center;
 }
 
-asui-input-select > asui-div[key=dropdown-container] {
+asui-select > asui-div[name=dropdown-container] {
     /*display: none;*/
     position: absolute;
     overflow: hidden;
 }
-asui-input-select > asui-div[key=dropdown-container] > asui-menu {
+asui-select > asui-div[name=dropdown-container] > asui-menu {
     display: block;
 }
 
@@ -183,7 +188,7 @@ asui-menu.selected {
     background-color: #AAA;
 }
 
-asui-div[key=dropdown] > asui-menu {
+asui-div[name=dropdown] > asui-menu {
     display: flex;
     padding: 3px 0px;
 }
@@ -193,11 +198,12 @@ asui-div[key=dropdown] > asui-menu {
 asui-menu > *:first-child {
     display: inline-block;
 }
-asui-menu > asui-div[key=title] {
+asui-menu > asui-div[name=title] {
     padding: 0px 6px;
     overflow: hidden;
+    min-width: 24px;
 }
-asui-menu > asui-div[key=arrow] {
+asui-menu > asui-div[name=arrow] {
     margin: 0 6px 0 auto;
     display: inline-block;
 }
@@ -206,7 +212,7 @@ asui-menu > asui-div[key=arrow] {
 /*    content: ' ►';*/
 /*    margin: 0 6px 0 auto;*/
 /*}*/
-/*asui-menu[arrow][vertical] > asui-div[key=title]:after {*/
+/*asui-menu[arrow][vertical] > asui-div[name=title]:after {*/
 /*    content: ' ▼';*/
 /*}*/
 
@@ -229,7 +235,7 @@ asui-menu span.arrow:after {
 
 /** Drop Down Menu **/
 
-asui-menu > asui-div[key=dropdown] {
+asui-menu > asui-div[name=dropdown] {
     background-color: #bdc3c7;
     /* display: inline-block; */
     z-index: 3;
@@ -248,11 +254,11 @@ asui-menu > asui-div[key=dropdown] {
     /* overflow-y: scroll; */
     /* overflow: auto; */
 }
-asui-menu[open] > asui-div[key=dropdown] {
+asui-menu[open] > asui-div[name=dropdown] {
     opacity: 1;
 }
-asui-input-select[vertical] > asui-menu > asui-div[key=dropdown],
-asui-menu[vertical] > asui-div[key=dropdown] {
+asui-select[vertical] > asui-menu > asui-div[name=dropdown],
+asui-menu[vertical] > asui-div[name=dropdown] {
     left: 0;
     /*display: block;*/
     /* float: right; */

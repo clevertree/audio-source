@@ -95,7 +95,7 @@
 
             return [
 
-                new ASUIDiv('title', () => [
+                new ASUIDiv('header', () => [
                     new ASUIDiv('title', titleHTML, {onclick: e => this.toggleContainer(e)}),
                     this.refs.selectChangePreset = new ASUIInputSelect('instrument-preset',
                         (selectElm) => [

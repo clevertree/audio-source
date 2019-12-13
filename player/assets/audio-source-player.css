@@ -29,7 +29,7 @@ span.error {
 
 /** Container **/
 /** Font Style **/
-asui-div[key=asp-container] {
+asui-div[name=asp-container] {
     font-family: monospace;
     color: #000;
     background-color: #bdc3c7;
@@ -40,7 +40,7 @@ asui-div[key=asp-container] {
 }
 
 /** Status Bar **/
-asui-div[key=asp-status-container] {
+asui-div[name=asp-status-container] {
     display: flex;
     background-color: #FFF;
     color: #000;
@@ -48,10 +48,10 @@ asui-div[key=asp-status-container] {
 }
 
 
-asui-div[key=asp-status-container] asui-div[key=status-text]{
+asui-div[name=asp-status-container] asui-div[name=status-text]{
     padding-left: 4px;
 }
-asui-div[key=asp-status-container] asui-div[key=version-text] {
+asui-div[name=asp-status-container] asui-div[name=version-text] {
     /* float: right; */
     padding-right: 4px;
     margin-left: auto;
@@ -69,7 +69,7 @@ asp-panel {
     /*width: 100%;*/
 }
 
-asp-panel > asui-div[key=title] {
+asp-panel > asui-div[name=title] {
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -86,8 +86,8 @@ asp-panel > asui-div[key=title] {
 
 :host(:not(.playing)) .show-on-playing,
 :host(.playing) .hide-on-playing,
-:host(.hide-panel-song) asp-panel[key=song],
-:host(.hide-panel-playlist) asp-panel[key=playlist] {
+:host(.hide-panel-song) asp-panel[name=song],
+:host(.hide-panel-playlist) asp-panel[name=playlist] {
     display: none;
 }
 
@@ -101,7 +101,7 @@ asp-form {
     margin: 0px 0px 0px 0px;
     display: inline-block;
 }
-asp-form > asui-div[key=title] {
+asp-form > asui-div[name=title] {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
@@ -110,12 +110,12 @@ asp-form > asui-div[key=title] {
 }
 
 
-asp-form[key=volume]       asui-input-range[key=volume]     input       { max-width: 71px; }
-asp-form[key=version]      asui-input-text[key=version]     input       { max-width: 53px; }
-asp-form[key=name]         asui-input-text[key=name]        input       { max-width: 160px; }
-asp-form[key=timing]       asui-input-text[key=timing]      input       { max-width: 77px; }
-asp-form[key=position]     asui-input-range[key=position]   input       { max-width: 77px; }
-asp-form[key=bpm]          asui-input-text[key=bpm]         input       { max-width: 43px; }
+asp-form[name=volume]       asui-range[name=volume]     input       { max-width: 71px; }
+asp-form[name=version]      asui-text[name=version]     input       { max-width: 53px; }
+asp-form[name=name]         asui-text[name=name]        input       { max-width: 160px; }
+asp-form[name=timing]       asui-text[name=timing]      input       { max-width: 77px; }
+asp-form[name=position]     asui-range[name=position]   input       { max-width: 77px; }
+asp-form[name=bpm]          asui-text[name=bpm]         input       { max-width: 43px; }
 
 
 
@@ -127,7 +127,7 @@ asp-playlist {
     /* max-width: 815px; */
 }
 
-asui-div[key=asp-playlist-container] {
+asui-div[name=asp-playlist-container] {
     width: 100%;
     max-height: 800px;
     overflow-y: overlay;
@@ -153,15 +153,15 @@ aspp-entry > asui-div {
      padding: 3px 0px;
 }
 
-asp-playlist asui-div[key=id]       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
-asp-playlist asui-div[key=name]     {display: inline-block;width: 26em;}
-asp-playlist asui-div[key=length]   { display: inline-block; width: 4em; }
-asp-playlist asui-div[key=container]   {
+asp-playlist asui-div[name=id]       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
+asp-playlist asui-div[name=name]     {display: inline-block;width: 26em;}
+asp-playlist asui-div[name=length]   { display: inline-block; width: 4em; }
+asp-playlist asui-div[name=container]   {
     padding: 3px;
 }
 
-/*asp-playlist aspp-playlist-entry asui-div[key=id]       { color: #000; }*/
-/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div[key=id]       { color: #555; }*/
+/*asp-playlist aspp-playlist-entry asui-div[name=id]       { color: #000; }*/
+/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div[name=id]       { color: #555; }*/
 
 
 aspp-playlist-entry {

@@ -31,31 +31,31 @@
 
 
 /** Inputs **/
-.spc-player-synthesizer-container  asui-input-button[key=instrument-id]   button {
+.spc-player-synthesizer-container  asui-button[key=instrument-id]   button {
     border: 1px outset;
     padding: 0px 2px;
 }
-.spc-player-synthesizer-container.selected  asui-input-button[key=instrument-id]   button {
+.spc-player-synthesizer-container.selected  asui-button[key=instrument-id]   button {
     border: 1px inset;
 }
 
-.spc-player-synthesizer-container  asui-input-select[key=instrument-preset]               {
+.spc-player-synthesizer-container  asui-select[key=instrument-preset]               {
     float:  right;
 }
-.spc-player-synthesizer-container  asui-input-button[key=instrument-remove]               {
+.spc-player-synthesizer-container  asui-button[key=instrument-remove]               {
     float:  right;
     margin: 0px 0px 0px 0px;
 }
 
-.spc-player-synthesizer-container  asui-input-text[key=name]        input       {width: 90px;}
-.spc-player-synthesizer-container  asui-input-select[key=url]       select      {width: 107px;}
-.spc-player-synthesizer-container  asui-input-range[key=mixer]      input      {width: 40px;}
-.spc-player-synthesizer-container  asui-input-range[key=detune]     input      {width: 40px;}
-.spc-player-synthesizer-container  asui-input-select[key=root]      select      {width: 48px;}
-.spc-player-synthesizer-container  asui-input-select[key=alias]     select      {width: 48px;}
-.spc-player-synthesizer-container  asui-input-text[key=adsr]        input      {width: 60px;}
+.spc-player-synthesizer-container  asui-text[key=name]        input       {width: 90px;}
+.spc-player-synthesizer-container  asui-select[key=url]       select      {width: 107px;}
+.spc-player-synthesizer-container  asui-range[key=mixer]      input      {width: 40px;}
+.spc-player-synthesizer-container  asui-range[key=detune]     input      {width: 40px;}
+.spc-player-synthesizer-container  asui-select[key=root]      select      {width: 48px;}
+.spc-player-synthesizer-container  asui-select[key=alias]     select      {width: 48px;}
+.spc-player-synthesizer-container  asui-text[key=adsr]        input      {width: 60px;}
 
-.spc-player-synthesizer-container  asui-input-select[key=instrument-preset]       select      { width: 120px; }
+.spc-player-synthesizer-container  asui-select[key=instrument-preset]       select      { width: 120px; }
 
 
 /** Sample Grid **/
