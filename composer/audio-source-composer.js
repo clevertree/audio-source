@@ -290,27 +290,23 @@
                     this.trackerElm.renderDuration = this.song.timeDivision;
                     break;
                 case 'song:play':
-                    this.classList.add('playing');
-                    this.containerElm.classList.add('playing');
+                    this.setProps({playing: true});
                     this.refs.fieldSongPlaybackPause.disabled = false;
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
                             this.refs.fieldSongPlaybackPause.disabled = true;
-                            this.containerElm.classList.remove('playing');
-                            this.classList.remove('playing');
+                            this.setProps({playing: false, paused: false});
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
                     }, 10);
                     break;
 
                 case 'song:pause':
-                    this.classList.add('paused');
-                    this.containerElm.classList.add('paused');
+                    this.setProps({paused: true});
                     break;
                 case 'song:end':
-                    this.classList.remove('playing', 'paused');
-                    this.containerElm.classList.remove('playing', 'paused');
+                    this.setProps({playing: false, paused: false});
                     break;
 
                 case 'instrument:instance':

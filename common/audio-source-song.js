@@ -1334,7 +1334,7 @@
                     let subGroupName = instruction.getGroupFromCommand();
                     if (subGroupName === this.iterator.groupName) { // TODO group stack
                         console.error("Recursive group call. Skipping group '" + subGroupName + "'");
-                        return;
+                        continue;
                     }
 
                     const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, noteStartTime);
