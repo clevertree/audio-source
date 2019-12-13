@@ -429,33 +429,34 @@
     class ASUIInputSelect extends ASUIDiv {
         constructor(key, optionContent, actionCallback, defaultValue = null, valueTitle=null, props = {}) {
             super(key, () => optionContent(this), props);
-            this.state.value = defaultValue;
-            this.state.title = valueTitle;
             this.setValue(defaultValue, valueTitle);
             this.actionCallback = actionCallback;
         }
 
-        get value() {
-            return this.state.value;
-        }
-
-        /** @deprecated **/
-        set value(newValue) {
-            // console.warn('setting .value is depreciated');
-            this.setValue(newValue);
-        }
+        get value() { return this.state.value; }
+        set value(newValue) { this.setValue(newValue); }
 
         async setValue(value, title=null) {
+            this.state.title = title;
             this.state.value = value;
             if(title === null) {
-                await resolveContent(this.state.content);
+                await this.resolveOptions(this.state.content);
+                if(this.state.title === null)
+                    console.warn('Title not found for value: ', value);
             }
             if(this.parentNode)
-                await this.setState({value, title});
+                await this.renderOS();
         }
 
         async onChange(e) {
             await this.actionCallback(e, this.state.value, this.state.title);
+        }
+
+        async resolveOptions(content) {
+            await this.eachContent(content, async (menu) => {
+                if(menu instanceof ASUIMenu && menu.state.content)
+                    await this.resolveOptions(menu.state.content);
+            });
         }
 
         getOption(value, title=null, props={}) {
@@ -484,67 +485,114 @@
     }
     customElements.define('asui-input-select', ASUIInputSelect);
 
-
-
-    /** Abstract Panel Input **/
-    class ASUIAbstractInput extends ASUIComponent {
-        constructor(key, callback, content=null, title=null, value=null, props={}) {
+    class ASUIInputRange extends ASUIComponent {
+        constructor(name = null, callback = null, min = 1, max = 100, value = null, title = null, props = {}) {
             super({
+                min,
+                max,
                 value,
-                content,
+                callback,
                 title,
             }, props);
-            props.key = key;
-            this.callback = callback || function () {
-                console.warn("No callback set")
-            };
-            this.addEventHandler('change', e => this.onChange(e));
+            props.name = name;
+            // this.addEventHandler('change', e => this.onChange(e));
         }
 
-        click() { this.refs.inputElm.click(); }
-
-        parseInputValue(inputValue) { return inputValue; }
+        get value() { return this.state.value; }
+        set value(newValue) {
+            if(this.refs.inputElm)  this.refs.inputElm.value = newValue;
+            else this.setProps({value: newValue});
+        }
 
         async onChange(e) {
-            this.state.value = this.parseInputValue(this.refs.inputElm.value);
-            this.callback(e, this.state.value);
-        }
-
-        get value() {
-            return this.state.value;
-        }
-
-        set value(newValue) {
-            this.state.value = newValue;
-            this.refs.inputElm.value = newValue;
-            // this.setState({value: newValue});
-        }
-
-        createInputElement() {
-            const inputElm = document.createElement('input');
-            inputElm.classList.add('themed');
-            return inputElm;
+            this.state.value = this.refs.inputElm.value;
+            this.state.callback(e, this.state.value);
         }
 
         async render() {
-            const inputElm = this.createInputElement();
-            this.refs.inputElm = inputElm;
-            if(this.state.name) inputElm.setAttribute('name', this.state.name);
-            if(this.state.title) inputElm.setAttribute('title', this.state.title);
+            const rangeElm = document.createElement('input');
+            rangeElm.addEventListener('change', e => this.onChange(e));
+            rangeElm.classList.add('themed');
+            rangeElm.setAttribute('type', 'range');
+            if(this.state.min !== null) rangeElm.setAttribute('min', this.state.min);
+            if(this.state.max !== null) rangeElm.setAttribute('max', this.state.max);
+            this.refs.inputElm = rangeElm;
+            if(this.state.name) rangeElm.setAttribute('name', this.state.name);
+            if(this.state.title) rangeElm.setAttribute('title', this.state.title);
 
-            await this.appendContentTo(this.state.content, inputElm);
+            await this.appendContentTo(this.state.content, rangeElm);
             if(this.state.value !== null)
-                inputElm.value = this.state.value;
-            return inputElm;
+                rangeElm.value = this.state.value;
+            return rangeElm;
         }
-
-
     }
+    customElements.define('asui-input-range', ASUIInputRange);
 
 
-    class ASUIInputButton extends ASUIAbstractInput {
-        constructor(key = null, callback = null, content = null, title = null, props={}) {
-            super(key, callback, content, title, null, props);
+
+    /** Abstract Panel Input **/
+    // class ASUIAbstractInput extends ASUIComponent {
+    //     constructor(key, callback, content=null, title=null, value=null, props={}) {
+    //         super({
+    //             value,
+    //             content,
+    //             title,
+    //         }, props);
+    //         props.key = key;
+    //         this.callback = callback || function () {
+    //             console.warn("No callback set")
+    //         };
+    //         this.addEventHandler('change', e => this.onChange(e));
+    //     }
+    //
+    //     click() { this.refs.inputElm.click(); }
+    //
+    //     parseInputValue(inputValue) { return inputValue; }
+    //
+    //     async onChange(e) {
+    //         this.state.value = this.parseInputValue(this.refs.inputElm.value);
+    //         this.callback(e, this.state.value);
+    //     }
+    //
+    //     get value() {
+    //         return this.state.value;
+    //     }
+    //
+    //     set value(newValue) {
+    //         this.state.value = newValue;
+    //         this.refs.inputElm.value = newValue;
+    //         // this.setState({value: newValue});
+    //     }
+    //
+    //     createInputElement() {
+    //         const inputElm = document.createElement('input');
+    //         inputElm.classList.add('themed');
+    //         return inputElm;
+    //     }
+    //
+    //     async render() {
+    //         const inputElm = this.createInputElement();
+    //         this.refs.inputElm = inputElm;
+    //         if(this.state.name) inputElm.setAttribute('name', this.state.name);
+    //         if(this.state.title) inputElm.setAttribute('title', this.state.title);
+    //
+    //         await this.appendContentTo(this.state.content, inputElm);
+    //         if(this.state.value !== null)
+    //             inputElm.value = this.state.value;
+    //         return inputElm;
+    //     }
+    // }
+
+
+    class ASUIInputButton extends ASUIComponent {
+        constructor(name = null, callback = null, content = null, title = null, props={}) {
+            super({
+                content,
+                callback,
+                title,
+            }, props);
+            props.name = name;
+
             this.addEventHandler('click', e => this.onClick(e));
         }
 
@@ -552,88 +600,91 @@
             this.callback(e, this.value);
         }
 
-        createInputElement() {
-            const inputElm = document.createElement('button');
-            inputElm.classList.add('themed');
-            return inputElm;
+        async render() {
+            return this.state.content;
         }
+
     }
 
     customElements.define('asui-input-button', ASUIInputButton);
 
 
-
-    class ASUIInputText extends ASUIAbstractInput {
-        constructor(key, callback, title=null, value=null, placeholder = null, props={}) {
-            super(key, callback, null, title, value, props);
-            props.placeholder = placeholder;
+    class ASUIInputText extends ASUIComponent {
+        constructor(name = null, callback = null, value = null, title = null, placeholder = null, props = {}) {
+            super({
+                callback,
+                value,
+                placeholder,
+                title
+            }, props);
+            props.name = name;
+            // props.title = title;
             // this.addEventHandler('change', e => this.onChange(e));
         }
 
+        get value() { return this.state.value; }
+        set value(newValue) {
+            if(this.refs.inputElm)  this.state.value = this.refs.inputElm.value = newValue;
+            else this.setState({value: newValue});
+        }
 
-        // onChange(e) {
-        //     this.callback(e, this.value);
-        // }
+        async onChange(e) {
+            this.state.value = this.refs.inputElm.value;
+            this.state.callback(e, this.state.value);
+        }
 
-        createInputElement() {
+        async render() {
             const inputElm = document.createElement('input');
+            inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
             inputElm.setAttribute('type', 'text');
-            // if (this.state.placeholder)
-            //     inputElm.setAttribute('placeholder', this.state.placeholder);
+            this.refs.inputElm = inputElm;
+            // if(this.state.name) inputElm.setAttribute('name', this.state.name);
+            if(this.state.title) inputElm.setAttribute('title', this.state.title);
+            if (this.state.placeholder)
+                inputElm.setAttribute('placeholder', this.state.placeholder);
+            if(this.state.value !== null)
+                inputElm.value = this.state.value;
             return inputElm;
         }
     }
     customElements.define('asui-input-text', ASUIInputText);
 
-    class ASUIInputRange extends ASUIAbstractInput {
-        constructor(key = null, callback = null, min = 1, max = 100, title = null, value = null, props={}) {
-            super(key, callback, null, title, value, props);
-            this.state.min = min;
-            this.state.max = max;
+
+
+    class ASUIInputCheckBox extends ASUIComponent {
+        constructor(name = null, callback = null, checked = false, title = null, props={}) {
+            super({
+                callback,
+                checked,
+            }, props);
+            props.name = name;
+            props.title = title;
             // this.addEventHandler('change', e => this.onChange(e));
         }
 
-        createInputElement() {
-            const rangeElm = document.createElement('input');
-            rangeElm.classList.add('themed');
-            rangeElm.setAttribute('type', 'range');
-            if(this.state.min !== null) rangeElm.setAttribute('min', this.state.min);
-            if(this.state.max !== null) rangeElm.setAttribute('max', this.state.max);
-            return rangeElm;
+        get value() { return this.state.value; }
+        set value(newValue) {
+            if(this.refs.inputElm)  this.state.value = this.refs.inputElm.value = newValue;
+            else this.setState({value: newValue});
         }
 
-        parseInputValue(inputValue) { return Number.parseFloat(inputValue); }
-
-        // onChange(e) {
-        //     // console.log(e.type);
-        //     this.callback(e, this.value);
-        // }
-    }
-
-    customElements.define('asui-input-range', ASUIInputRange);
-
-
-    class ASUIInputCheckBox extends ASUIAbstractInput {
-        constructor(key, callback = null, title=null, checked = false, props={}) {
-            super(key, callback, null, title, checked, props);
-            // this.addEventHandler('change', e => this.onChange(e));
+        async onChange(e) {
+            this.state.value = this.refs.inputElm.value;
+            this.state.callback(e, this.state.value);
         }
 
-        // onChange(e) {
-        //     this.callback(e, this.value);
-        // }
-
-        createInputElement() {
+        async render() {
             const inputElm = document.createElement('input');
+            inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
             inputElm.setAttribute('type', 'checkbox');
+            this.refs.inputElm = inputElm;
+            // if(this.state.name) inputElm.setAttribute('name', this.state.name);
+            if(this.state.title) inputElm.setAttribute('title', this.state.title);
+
+            inputElm.checked = this.state.checked;
             return inputElm;
-        }
-
-
-        get checked() {
-            return this.status.checked;
         }
 
     }
@@ -641,44 +692,55 @@
     customElements.define('asui-input-checkbox', ASUIInputCheckBox);
 
 
-    class ASUIFileInput extends ASUIAbstractInput {
-        constructor(key, callback = null, content, accepts = null, title=null, props={}) {
-            super(key, callback, content, title, null, props);
-            props.accepts = accepts;
+    class ASUIFileInput extends ASUIComponent {
+        constructor(key, callback = null, content, accepts = null, title = null, props = {}) {
+            // constructor(name = null, callback = null, checked = false, title = null, props={}) {
+            super({
+                callback,
+                content,
+                title,
+            }, props);
+            props.name = name;
             // this.addEventHandler('change', e => this.onChange(e));
         }
 
-        // onChange(e) {
-        //     this.callback(e, this.value);
-        // }
+        get value() { return this.state.value; }
+        set value(newValue) {
+            if(this.refs.inputElm)  this.state.value = this.refs.inputElm.value = newValue;
+            else this.setState({value: newValue});
+        }
 
-        createInputElement() {
+        async onChange(e) {
+            this.state.value = this.refs.inputElm.value;
+            this.state.callback(e, this.state.value);
+        }
+
+        async render() {
             const inputElm = document.createElement('input');
+            inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
             inputElm.setAttribute('type', 'file');
             inputElm.setAttribute('style', 'display: none;');
-            return inputElm;
-        }
+            this.refs.inputElm = inputElm;
+            // if(this.state.name) inputElm.setAttribute('name', this.state.name);
+            if (this.state.title) inputElm.setAttribute('title', this.state.title);
 
-
-        /** @Override **/
-        async render() {
             const labelElm = document.createElement('label');
             labelElm.classList.add('button-style');
 
             const labelContentElm = document.createElement('div');
             labelElm.appendChild(labelContentElm);
 
-            const content = await super.render();
-            this.appendContentTo(content, labelElm);
+            this.appendContentTo(inputElm, labelElm);
 
             return [
                 labelElm
             ]
-        }
-    }
 
-    customElements.define('asui-input-file', ASUIFileInput);
+        }
+
+    }
+        customElements.define('asui-input-file', ASUIFileInput);
 
 
     /** Icon **/

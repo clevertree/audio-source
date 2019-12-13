@@ -326,6 +326,17 @@
             await this.trackerElm.setCursorElement(newCursor);
             if(newCursor instanceof AudioSourceComposerTrackerInstruction)
                 await this.selectIndex(newCursor.index, clearSelection, toggleValue);
+            else if(clearSelection)
+                this.clearSelectedIndicies();
+
+            if(newCursor instanceof AudioSourceComposerTrackerInstruction) {
+                const instruction = newCursor.instructionFind(this.song, this.trackerElm.groupName);
+                this.refs.fieldInstructionCommand.value = instruction.command;
+                this.refs.fieldInstructionInstrument.value = instruction.instrument;
+                this.refs.fieldInstructionVelocity.value = instruction.velocity;
+                this.refs.fieldInstructionDuration.value = instruction.duration;
+            }
+
             this.playCursorInstruction();
         }
 
@@ -363,7 +374,7 @@
         async selectIndex(index, clearSelection=null, toggleValue=null) {
             let selectedIndicies = clearSelection ? [] : this.getSelectedIndicies();
             if(toggleValue) {
-                selectedIndicies.push(index);
+                selectedIndicies.unshift(index); // Cursor goes first
             } else {
                 const pos = selectedIndicies.indexOf(index);
                 selectedIndicies.splice(pos, 1);

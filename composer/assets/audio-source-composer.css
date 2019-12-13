@@ -362,9 +362,7 @@ asct-instruction:last-child {
 }
 
 
-asct-instruction-add,
-asct-instruction[cursor],
-asct-instruction[selected] {
+asct-instruction-add, asct-instruction[selected] {
     background-color: white;
     font-weight: bold;
     max-width: 1000px;

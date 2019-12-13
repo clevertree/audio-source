@@ -306,25 +306,25 @@
                         // ctrlKey && metaKey skips a measure. shiftKey selects a range
                         case 'ArrowRight':
                             e.preventDefault();
-                            this.editorElm.setNextCursor(e);
+                            this.editorElm.setNextCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
                         case 'ArrowLeft':
                             e.preventDefault();
-                            this.editorElm.setPreviousCursor(e);
+                            this.editorElm.setPreviousCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
                         case 'ArrowDown':
                             e.preventDefault();
-                            this.editorElm.setNextRowCursor(e);
+                            this.editorElm.setNextRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
                         case 'ArrowUp':
                             e.preventDefault();
-                            this.editorElm.setPreviousRowCursor(e);
+                            this.editorElm.setPreviousRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
@@ -374,20 +374,20 @@
                     // delete this.mousePosition.lastDrag;
 
                     if (e.target instanceof AudioSourceComposerTrackerInstruction)
-                        return this.editorElm.setCursor(e.target);
+                        return this.editorElm.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
 
                     if (e.target.parentNode instanceof AudioSourceComposerTrackerInstruction)
-                        return this.editorElm.setCursor(e.target.parentNode);
+                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
                     if (e.target instanceof AudioSourceComposerTrackerInstructionAdd)
-                        return this.editorElm.setCursor(e.target.parentNode);
+                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
                     if (e.target instanceof AudioSourceComposerTrackerDelta) // TODO: special command for clicking delta
-                        return this.editorElm.setCursor(e.target.parentNode);
+                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
 
                     if (e.target instanceof AudioSourceComposerTrackerRow)  // classList.contains('tracker-row')) {
-                        return this.editorElm.setCursor(e.target);
+                        return this.editorElm.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
                     // e.preventDefault();
 
 
@@ -681,10 +681,6 @@
             this.state.cursorListOffset = listPos;
             await this.clearAllCursors();
             elm.setCursor();
-            if(elm instanceof AudioSourceComposerTrackerInstruction) {
-                const instruction = elm.instructionFind(this.song, this.groupName);
-                await this.editorElm.refs.fieldInstructionCommand.setValue(instruction.command, instruction.command);
-            }
         }
 
         async selectIndicies(selectedIndicies, cursorIndex=null) {
@@ -766,12 +762,13 @@
                 throw new Error("Shouldn't happen");
             let lastRowOffset = offset, rowPosition=0;
             while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
-
+console.log(rowPosition);
 
             // Find the previous non-instruction entry
             while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--; // TODO: fix
             offset--;
             while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
+            offset++;
             while(cursorList[offset+1] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->0) offset++;
             return cursorList[offset] || null;
         }
@@ -1079,9 +1076,9 @@
             }
         }
 
-        setCursor() {
-            if(this.props.cursor !== true) {
-                this.setProps({cursor: true});
+        setCursor(cursor=true) {
+            if(this.props.cursor !== cursor) {
+                this.setProps({cursor: cursor});
             }
         }
 
