@@ -35,7 +35,7 @@
             super({
                 group,
                 currentRowSegmentID: 0,
-                cursorListPosition: 0,
+                cursorListOffset: 0,
                 rowSegmentCount: 10,
                 quantizationInTicks: null,
                 segmentLengthInTicks: null,
@@ -155,7 +155,7 @@
             let rowInstructionList = null, lastRowPositionInTicks = 0;
             this.refs.selectedInstructions = [];
             this.refs.cursorList = [];
-            // this.refs.cursorListPosition = 0;
+            // this.refs.cursorListOffset = 0;
 
             while (rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback)) {
                 // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
@@ -678,7 +678,7 @@
             const listPos = this.refs.cursorList.indexOf(elm);
             if(listPos === -1)
                 throw new Error("Not a local element");
-            this.state.cursorListPosition = listPos;
+            this.state.cursorListOffset = listPos;
             await this.clearAllCursors();
             elm.setCursor();
             if(elm instanceof AudioSourceComposerTrackerInstruction) {
@@ -730,7 +730,7 @@
         // }
 
         getNextCursor() {
-            let position = this.state.cursorListPosition;
+            let position = this.state.cursorListOffset;
             const cursorList = this.refs.cursorList;
             if(!cursorList[position])
                 throw new Error("Shouldn't happen");
@@ -738,35 +738,46 @@
         }
 
         getNextRowCursor() {
-            let position = this.state.cursorListPosition;
+            let offset = this.state.cursorListOffset;
             const cursorList = this.refs.cursorList;
-            if(!cursorList[position])
+            if(!cursorList[offset])
                 throw new Error("Shouldn't happen");
             // Find the end of the row, and return the next entry
-            while(cursorList[position++] instanceof AudioSourceComposerTrackerInstruction);
-            return cursorList[position] || null;
+            let lastRowOffset = offset, rowPosition=0;
+            while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
+
+            while(cursorList[offset++] instanceof AudioSourceComposerTrackerInstruction);
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->0) offset++;
+            return cursorList[offset] || null;
+        }
+
+        getPreviousCursor() {
+            let offset = this.state.cursorListOffset;
+            const cursorList = this.refs.cursorList;
+            if(!cursorList[offset])
+                throw new Error("Shouldn't happen");
+            return cursorList[offset-1] || null;
         }
 
         getPreviousRowCursor() {
-            let position = this.state.cursorListPosition;
+            let offset = this.state.cursorListOffset;
             const cursorList = this.refs.cursorList;
-            if(!cursorList[position])
+            if(!cursorList[offset])
                 throw new Error("Shouldn't happen");
+            let lastRowOffset = offset, rowPosition=0;
+            while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
+
+
             // Find the previous non-instruction entry
-            while(cursorList[position--] instanceof AudioSourceComposerTrackerInstruction);
-            return cursorList[position] || null;
-        }
-        
-        getPreviousCursor() {
-            let position = this.state.cursorListPosition;
-            const cursorList = this.refs.cursorList;
-            if(!cursorList[position])
-                throw new Error("Shouldn't happen");
-            return cursorList[position-1] || null;
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--; // TODO: fix
+            offset--;
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
+            while(cursorList[offset+1] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->0) offset++;
+            return cursorList[offset] || null;
         }
         //
         // async selectNextCell(e) {
-        //     let position = this.state.cursorListPosition;
+        //     let position = this.state.cursorListOffset;
         //     const cursorList = this.refs.cursorList;
         //     if(!cursorList[position])
         //         throw new Error("Shouldn't happen");
@@ -778,7 +789,7 @@
         // }
         //
         // async selectPreviousCell(e) {
-        //     let position = this.state.cursorListPosition;
+        //     let position = this.state.cursorListOffset;
         //     const cursorList = this.refs.cursorList;
         //     if(!cursorList[position])
         //         throw new Error("Shouldn't happen");

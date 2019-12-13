@@ -182,7 +182,7 @@
         playCursorInstruction() {
             if (this.song.isPlaying)
                 this.song.stopPlayback();
-            const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListPosition];
+            const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListOffset];
             if(cursorItem instanceof AudioSourceComposerTrackerInstruction) {
                 this.song.playInstructionAtIndex(this.trackerElm.groupName, cursorItem.index);
             }
