@@ -37,7 +37,7 @@
         get targetElm() { return this; }
 
         async setState(newState) {
-//             console.info('setState', this.state, newState, this);
+            console.info('setState', this.state, newState, this);
             Object.assign(this.state, newState);
             await this.renderOS();
         }
@@ -502,7 +502,7 @@
         get value() { return this.state.value; }
         set value(newValue) {
             if(this.refs.inputElm)  this.refs.inputElm.value = newValue;
-            else this.setProps({value: newValue});
+            this.state.value = newValue;
         }
 
         async onChange(e) {
@@ -732,6 +732,7 @@
             const labelContentElm = document.createElement('div');
             labelElm.appendChild(labelContentElm);
 
+            this.appendContentTo(this.state.content, labelElm);
             this.appendContentTo(inputElm, labelElm);
 
             return [

@@ -701,17 +701,18 @@
         // }
 
 
-        updateSongPositionValue(playbackPositionInSeconds) {
-            this.querySelectorAll('asct-row').forEach(row => row.classList.remove('position'));
-            let childElm;
-            for(let i=0; i<this.children.length; i++) {
-                if(this.children[i].positionInSeconds > playbackPositionInSeconds)
+        async updateSongPositionValue(playbackPositionInSeconds) {
+            let positionRow;
+            for(let i=0; i<this.refs.rows.length; i++) {
+                positionRow = this.refs.rows[i];
+                if(positionRow.positionInSeconds > playbackPositionInSeconds)
                     break;
-                childElm = this.children[i];
             }
 
-            if(childElm && Math.floor(childElm.positionInSeconds) === Math.floor(playbackPositionInSeconds)) {
-                childElm.classList.add('position');
+
+            if(positionRow && !positionRow.props.position) {
+                await this.clearAllPositions();
+                positionRow.setPosition();
             }
         }
 
@@ -762,7 +763,6 @@
                 throw new Error("Shouldn't happen");
             let lastRowOffset = offset, rowPosition=0;
             while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
-console.log(rowPosition);
 
             // Find the previous non-instruction entry
             while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--; // TODO: fix
@@ -907,6 +907,13 @@ console.log(rowPosition);
             }
         }
 
+        async clearAllPositions() {
+            for(let i=0; i<this.refs.cursorList.length; i++) {
+                const cursorElm = this.refs.cursorList[i];
+                await cursorElm.removePosition();
+            }
+        }
+
         // onRowInput(e, selectedRow = null) {
         //     e.preventDefault();
         //
@@ -1023,6 +1030,18 @@ console.log(rowPosition);
             }
         }
 
+        setPosition() {
+            if(this.props.position !== true) {
+                this.setProps({position: true});
+            }
+        }
+
+        removePosition() {
+            if(this.props.position !== false) {
+                this.setProps({position: false});
+            }
+        }
+
         render() {
             return [
                 this.state.delta,
@@ -1088,6 +1107,11 @@ console.log(rowPosition);
             }
         }
 
+        setPosition() {
+        }
+
+        removePosition() {
+        }
 
         play() {
             this.editorElm.song.playInstructionAtIndex(

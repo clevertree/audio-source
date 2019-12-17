@@ -11,9 +11,13 @@
 
 
     // const {ASUIComponent} = await requireAsync('common/audio-source-ui.js');
-    // const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
     // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-    const {AudioSourcePlayerRenderer} = await requireAsync('player/audio-source-player-renderer.js');
+    const {
+        AudioSourcePlayerRenderer,
+        ASPPlaylistPlaylistEntry
+    } = await requireAsync('player/audio-source-player-renderer.js');
 
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
         constructor(state={}, props={}) {
@@ -28,12 +32,45 @@
         //     return findThisScript()[0].basePath + 'instrument/audio-source-synthesizer.js';
         // }
 
+        /** Song rendering **/
 
-        /** Song Commands **/
+        async setCurrentSong(song) {
+            if(this.song) {
+                if(this.song.isPlaying) {
+                    this.song.stopPlayback();
+                }
+                this.song.removeDispatchElement(this);
+                this.song.stopPlayback();
+                // TODO: unload song?
+            }
+            this.song = song;
+            this.state.songLength = song.getSongLengthInSeconds();
+            this.song.setVolume(this.state.volume);
+            this.song.addDispatchElement(this);
+            song.playlistPosition = this.playlist.getPlaylistPosition();
+            const currentEntry = await this.playlist.getCurrentEntry();
+            await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()});
+            await this.refs.panelSong.renderOS();
+        }
+
+        /** Song loading **/
+
+        saveSongToFile() {
+            const songData = this.song.data;
+            // const songHistory = this.song.history;
+            const storage = new AudioSourceStorage();
+            storage.saveSongToFile(songData);
+            this.setStatus("Saved song to file");
+        }
+
+
+        /** Song commands **/
 
         setSongVolume(e, newSongVolume) {
-            this.song.setVolume(newSongVolume);
+            this.state.volume = newSongVolume;
             this.refs.fieldSongVolume.value = newSongVolume;
+            if(this.song)
+                this.song.setVolume(newSongVolume);
             // this.setStatus(`Volume modified: ${newSongVolume}`);
         }
 
@@ -56,12 +93,49 @@
         }
 
 
+
         async loadSongFromURL(url) {
-            await this.playlist.loadSongFromURL(url);
+            const song = this.playerElm.song;
+            if(this.isPlaylist(url)) {
+                const playlistEntry = new ASPPlaylistPlaylistEntry({url    });
+                this.addEntry(playlistEntry);
+                await this.renderOS();
+                // await this.loadPlaylistFromURL(url);
+                // const entry = this.getCurrentEntry();
+                // if(entry.url && !this.isPlaylist(entry.url))
+                //     await this.loadSongFromPlaylistEntry(this.position);
+            } else {
+                await song.loadSongFromURL(url);
+                this.setStatus("Loaded from url: " + url);
+//                 this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
+            }
             // this.render();
-            this.setStatus("Loaded from url: " + url);
         }
 
+        async moveToNextSongPlaylistEntry() {
+
+        }
+
+        async loadSongFromPlaylistEntry() {
+            const currentEntry = await this.playlist.getCurrentEntry();
+
+            let song;
+            if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
+                throw new Error("I")
+
+            } else {
+                if(currentEntry.file) {
+                    song = await AudioSourceSong.loadSongFromFileInput(currentEntry.file);
+                } else if(currentEntry.url) {
+                    song = await AudioSourceSong.loadSongFromURL(currentEntry.url);
+                }
+            }
+            return song;
+            // this.setPositionEntry(currentEntry);
+
+            // song.playlistPosition = this.position;
+            // this.render();
+        }
         // async loadSongFromPlaylistEntry(playlistPosition) {
         //     // this.setStatus("Loading from playlist: " + url);
         //     await this.playlist.loadSongFromURL(playlistPosition);
@@ -69,33 +143,56 @@
 
         /** Song Playlist **/
 
-        async loadPlaylistFromURL(playlistURL) {
-            await this.playlist.loadSongFromURL(playlistURL);
-            this.setStatus("Loaded playlist from url: " + playlistURL);
-        }
+        // async loadPlaylistFromURL(playlistURL) {
+        //     await this.playlist.loadSongFromURL(playlistURL);
+        //     this.setStatus("Loaded playlist from url: " + playlistURL);
+        // }
 
         async addSongURLToPlaylist(url, name=null, length=null) {
-            // this.setStatus("Loading playlist from url: " + playlistURL);
-            await this.playlist.loadSongFromURL(url, name, length);
+            await this.playlist.addSongURLToPlaylist(url, name, length);
+            this.setStatus("Added URL to playlist: " + url);
         }
 
+
         async addSongFileToPlaylist(file, name=null, length=null) {
-            return await this.playlist.loadSongFromURL(file, name, length);
+            await this.playlist.addSongFileToPlaylist(file, name, length);
+            this.setStatus("Added file to playlist: " + file.name);
         }
 
 
         /** Song Playback **/
 
+        // async songPlay() {
+        //     if(this.playlistActive)
+        //         throw new Error("Playback is already active");
+        //     this.playlistActive = true;
+        //     await this.song.play();
+        //     await this.songNext(); // TODO: prevent async playback
+        // }
+        //
+        // async songNext() {
+        //     this.playlistActive = true;
+        //     while(this.playlistActive) {
+        //         const entry = await this.playlistMovePosition();
+        //         (entry.scrollIntoViewIfNeeded || entry.scrollIntoView).apply(entry);
+        //         const nextSong = await this.playlist.loadSongFromPlaylistEntry();
+        //         this.setCurrentSong(nextSong);
+        //         await this.song.play();
+        //     }
+        // }
+        //
+        // async songPause() {
+        //     this.song.stopPlayback();
+        // }
 
-        async songPlay() {
-            await this.song.play();
+        songStopIfPlaying() {
+            if(this.playlistActive)
+                this.songStop();
         }
 
-        async songPause() {
-            this.song.stopPlayback();
-        }
-
-        async songStop() {
+        songStop() {
+            if(this.playlistActive)
+                throw new Error("Playback was already stopped");
             this.playlistActive = false;
             if(this.song.playback)
                 this.song.stopPlayback();
@@ -103,37 +200,107 @@
         }
 
         setSongPosition(e, playbackPosition = null) {
-            const wasPlaying = !!this.song.playback;
-            if (wasPlaying)
-                this.song.stopPlayback();
+            // const wasPlaying = !!this.song.playback;
+            // if (wasPlaying)
+            //     this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
                 playbackPosition = values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
-            if (wasPlaying)
-                this.song.play();
+            // if (wasPlaying)
+            //     this.song.play();
         }
 
         async clearPlaylist() {
             this.playlist.clear();
         }
 
+        async playlistPlayTest() {
+            let entry = await this.playlist.getCurrentEntry();
+            while(entry) {
+                (entry.scrollIntoViewIfNeeded || entry.scrollIntoView).apply(entry);
+                await new Promise((resolve, reject) => {
+                    setTimeout(resolve, 1000);
+                });
+                entry = await this.playlistMoveToNextSongEntry();
+            }
+        }
+
+        /** Start or resume playback **/
         async playlistPlay() {
+            if(this.playlistActive)
+                throw new Error("Playback is already active");
             this.playlistActive = true;
-            await this.songPlay();
-            await this.playlistNext();
+
+            if(this.song && this.song.playlistPosition === position) {
+                if(this.song.isPaused())
+                    return this.song.resume();
+                return await this.song.play();
+            }
+            let entry = await this.playlist.getCurrentEntry();
+            if(entry instanceof ASPPlaylistPlaylistEntry)
+                entry = await this.playlistMoveToNextSongEntry();
+            const nextSong = await this.loadSongFromPlaylistEntry();
+            this.setCurrentSong(nextSong);
+            const ret = await nextSong.play();
+            if(ret)
+                await this.playlistNext();
         }
 
         async playlistNext() {
-            this.playlistActive = true;
-            while(this.playlistActive) {
-                const entry = await this.playlist.updateNextPosition();
-                (entry.scrollIntoViewIfNeeded || entry.scrollIntoView).apply(entry);
-                await this.playlist.loadSongFromPlaylistEntry();
-                await this.songPlay();
+            if(this.song && this.song.isPlaying) {
+                await this.song.stopPlayback();
             }
+            let playlistActive = true;
+            while(playlistActive) {
+                const entry = await this.playlistMoveToNextSongEntry();
+                (entry.scrollIntoViewIfNeeded || entry.scrollIntoView).apply(entry);
+                const nextSong = await this.loadSongFromPlaylistEntry();
+                this.setCurrentSong(nextSong);
+                playlistActive = await nextSong.play();
+            }
+        }
+
+        async playlistMovePosition(position) {
+            // let totalCount = await this.playlist.getPlaylistCount();
+            const currentEntry = await this.playlist.getEntry(position);
+            await currentEntry.removePosition();
+            // console.log('offset', position, offset);
+            // position+=offset;
+            // if(position >= totalCount)
+            //     position = 0;
+            let nextEntry = await this.playlist.getEntry(position,false);
+            if(!nextEntry) position = 0;
+            return await this.playlist.setPlaylistPosition(position);
+        }
+
+        async playlistMoveToEntry(nextEntry) {
+            const position = await this.playlist.getEntryPosition(nextEntry);
+            return await this.playlistMovePosition(position);
+        }
+
+        async playlistMoveToNextSongEntry() {
+            let position = this.playlist.getPlaylistPosition();
+            const currentEntry = await this.playlist.getEntry(position);
+            if(currentEntry instanceof ASPPlaylistPlaylistEntry)
+                await currentEntry.togglePlaylist(true);
+
+            let totalCount = await this.playlist.getPlaylistCount();
+            for(let i=0; i<totalCount; i++) {
+                position++;
+
+                const currentEntry = await this.playlist.getEntry(position);
+                if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
+                    await currentEntry.togglePlaylist(true);
+                    totalCount = await this.playlist.getPlaylistCount();
+                } else {
+                    await this.playlistMovePosition(position);
+                    return currentEntry;
+                }
+            }
+            throw new Error("Song entry not found");
         }
 
         /** Toggle Panels **/

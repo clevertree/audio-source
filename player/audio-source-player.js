@@ -42,16 +42,18 @@
     // }, 1000);
 
     class AudioSourcePlayerElement extends AudioSourcePlayerActions {
-        constructor(state={}, props={}) {
-            super(state, props);
-            state.version = '-1';
-            state.song = new AudioSourceSong({}, this);
+        constructor(props={}) {
+            super({
+                volume: AudioSourceSong.DEFAULT_VOLUME,
+                version: -1,
+                songLength: 0,
+            }, props);
+            this.song = null;
 
             const Util = new AudioSourceUtilities;
             Util.loadPackageInfo()
                 .then(packageInfo => this.setVersion(packageInfo.version));
         }
-        get song() { return this.state.song; }
 
 
         /** Load External CSS **/
@@ -79,7 +81,7 @@
 
         /** @deprecated **/
         handleError(err) {
-            this.statusElm.innerHTML = `<span style="red">${err}</span>`;
+            this.setStatus(`<span style="error">${err}</span>`);
             console.error(err);
             // if(this.webSocket)
         }
@@ -134,8 +136,8 @@
         }
 
         // Rendering
-        get statusElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=status-text]`); }
-        get versionElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=version-text]`); }
+        // get statusElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=status-text]`); }
+        // get versionElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=version-text]`); }
 
 
         toggleFullscreen(e) {

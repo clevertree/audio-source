@@ -5,7 +5,9 @@
     const exportThisScript = function(module) {
         module.exports = {
             AudioSourcePlayerRenderer,
-            ASPPlaylist
+            ASPPlaylist,
+            ASPPlaylistEntry,
+            ASPPlaylistPlaylistEntry,
         };
     };
 
@@ -54,7 +56,7 @@
             return link;
         }
 
-        connectedCallback() {
+        async connectedCallback() {
             this.shadowDOM = this.attachShadow({mode: 'closed'});
 
 
@@ -69,14 +71,12 @@
 
             // this.loadCSS();
             // Render (with promise)
-            const renderPromise = super.connectedCallback();
+            super.connectedCallback(false);
+            await this.renderOS();
 
             const url = this.getAttribute('src') || this.getAttribute('url');
-            if(url) (async () => {
-                await renderPromise;
-                // await this.renderOS();
-                this.loadSongFromURL(url);
-            })();
+            if(url)
+                this.addSongURLToPlaylist(url);
         }
 
         async render() {
@@ -112,7 +112,7 @@
                     ]),
 
                     new ASUIDiv('asp-forms-container', () => [
-                        new ASPPanel('song', 'Song', () => [
+                        this.refs.panelSong = new ASPPanel('song', 'Song', () => [
                             new ASPForm('playback', 'Playback', () => [
                                 this.refs.fieldSongPlaybackPlay = new ASUIInputButton('play',
                                     e => this.playlistPlay(e),
@@ -150,14 +150,14 @@
 
                             new ASPForm('volume', 'Volume', () => [
                                 this.refs.fieldSongVolume = new ASUIInputRange('volume',
-                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue())
+                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, this.state.volume, 'Song Volume')
                             ]),
 
                             new ASPForm('timing', 'Timing', () => [
                                 this.refs.fieldSongTiming = new ASUIInputText('timing',
                                     (e, pos) => this.setSongPosition(e, pos),
+                                    '00:00:000',
                                     'Song Timing',
-                                    '00:00:000'
                                 )
                             ]),
 
@@ -165,25 +165,26 @@
                                 this.refs.fieldSongPosition = new ASUIInputRange('position',
                                     (e, pos) => this.setSongPosition(e, pos),
                                     0,
-                                    Math.ceil(this.song.getSongLengthInSeconds()),
+                                    Math.ceil(this.state.songLength),
+                                    0,
                                     'Song Position',
-                                    0
                                 )
                             ]),
 
                             new ASPForm('name', 'Name', () => [
                                 this.refs.fieldSongName = new ASUIInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
-                                    "Song Name",
-                                    this.song.name
+                                    this.song ? this.song.name : "[ no song loaded ]",
+                                    "Song Name"
                                 )
                             ]),
 
                             new ASPForm('version', 'Version', () => [
                                 this.refs.fieldSongVersion = new ASUIInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
+                                    this.song ? this.song.version : "0.0.0",
                                     "Song Version",
-                                    this.song.version)
+                                )
                             ])
                         ]),
 
@@ -242,19 +243,13 @@
                 position: 0,
                 playlist: playlist,
                 selectedEntries: [],
-                positionEntry: null,
+                // positionEntry: null,
             };
             this.playerElm = playerElm;
 
             this.addEventHandler('click', e => this.onClick(e));
         }
 
-        get nextEntry() {
-            const nextEntry = this.state.positionEntry.nextElementSibling;
-            if(!nextEntry instanceof ASPPlaylistEntry)
-                throw new Error("Invalid next entry");
-            return nextEntry;
-        }
         get position() { return this.state.position; }
         get playlist() { return this.state.playlist; }
 
@@ -275,31 +270,69 @@
         //     console.timeEnd('updateEntries');
         // }
 
-        toggleSelect(position) {
-            const selected = this.state.selected;
-            const i = selected.indexOf(position);
-            if(i === -1) {
-                selected.push(position);
-                selected.sort();
-            } else {
-                selected.splice(i, 1);
+        // toggleSelect(position) {
+        //     const selected = this.state.selected;
+        //     const i = selected.indexOf(position);
+        //     if(i === -1) {
+        //         selected.push(position);
+        //         selected.sort();
+        //     } else {
+        //         selected.splice(i, 1);
+        //     }
+        //     this.getEntry(position)
+        //         .updatePlaylist(this);
+        // }
+
+        /** Entries **/
+
+        async eachEntry(callback) {
+            const results = [];
+            let offset=0;
+            await each(this.state.playlist);
+            return results;
+
+            async function each(playlist) {
+                for (let i = 0; i < playlist.length; i++) {
+                    const entry = playlist[i];
+                    const ret = await callback(entry, offset);
+                    if (ret === false) return false;
+                    if (ret !== null) results.push(ret);
+                    offset++;
+                    if (entry instanceof ASPPlaylistPlaylistEntry) {
+                        if (entry.state.playlist) {
+                            const ret = await each(entry.state.playlist);
+                            if (ret === false)
+                                return false;
+                        }
+                    }
+                }
+                return true;
             }
-            this.getEntry(position)
-                .updatePlaylist(this);
         }
 
-        getCurrentEntry() {
-            if(this.state.playlist.length === 0)
-                throw new Error("Empty playlist");
-            return this.getEntry(this.state.position);
-        }
+        // async eachEntry(callback) {
+        //     let offset=0;
+        //     return await this.eachEntry(async (entry, i) => {
+        //         if(entry instanceof ASPPlaylistPlaylistEntry)
+        //             return null;
+        //         return await callback(entry, offset++);
+        //     })
+        // }
+        //
+        // async eachPlaylistEntry(callback) {
+        //     let offset=0;
+        //     return await this.eachEntry(async (entry, i) => {
+        //         if(!entry instanceof ASPPlaylistPlaylistEntry)
+        //             return null;
+        //         return await callback(entry, offset++);
+        //     })
+        // }
 
-        getEntry(position) {
-            const entry = this.state.playlist[position];
-            if(!entry)
-                throw new Error("Invalid playlist position: " + position);
-            return entry;
-        }
+        // getCurrentEntry() {
+        //     if(this.state.playlist.length === 0)
+        //         throw new Error("Empty playlist");
+        //     return this.getEntry(this.state.position);
+        // }
 
         async addEntry(entry, insertAtPosition=null, skipDuplicate=true) {
             if(!entry instanceof ASPPlaylistEntry)
@@ -318,14 +351,68 @@
             return true;
         }
 
-        async updateNextPosition() {
-            const entryElms = this.querySelectorAll('aspp-entry,aspp-playlist-entry');
-            let position;
-            for(position=0; position<entryElms.length; position++)
-                if(entryElms[position] === this.state.positionEntry)
-                    break;
-            const nextEntry = entryElms[position+1] || entryElms[0];
-            this.setPositionEntry(nextEntry);
+        async getCurrentEntry(throwException=true) {
+            if(this.state.playlist.length === 0)
+                throw new Error("Empty playlist");
+            return await this.getEntry(this.getPlaylistPosition(), throwException);
+        }
+        async getEntry(position, throwException=true) {
+            let foundEntry=null;
+            await this.eachEntry((entry, i) => {
+                // console.log('entry', i, position);
+                if(i === position)
+                    foundEntry = entry;
+                if(foundEntry)
+                    return false;
+            });
+            if(!foundEntry && throwException)
+                throw new Error("Invalid playlist position: " + position);
+            // console.log('found', foundEntry.state.id, position);
+            return foundEntry;
+        }
+
+        async getEntryPosition(searchEntry) {
+            let foundEntryPosition=null;
+            await this.eachEntry((entry, i) => {
+                if(entry === searchEntry)
+                    foundEntryPosition = i;
+                if(foundEntryPosition !== null)
+                    return false;
+            });
+            if(foundEntryPosition === null)
+                throw new Error("Entry position not found");
+            return foundEntryPosition;
+        }
+
+        // async updateNextPosition() {
+        //     let position = this.state.position;
+        //     const currentEntry = await this.getEntry(position);
+        //     await currentEntry.removePosition();
+        //     position++;
+        //     let nextEntry = await this.getEntry(position,false);
+        //     if(!nextEntry) position = 0;
+        //     return await this.setPlaylistPosition(position);
+        // }
+
+        
+        getPlaylistPosition() { return this.state.position; }
+
+        async getPlaylistCount() {
+            let count;
+            await this.eachEntry((entry, i) => count = i);
+            return count;
+        }
+        
+        async setPlaylistPosition(position) {
+            const currentEntry = await this.getEntry(this.state.position);
+            if(position === this.state.position)
+                return currentEntry;
+
+            const nextEntry = await this.getEntry(position);
+            await currentEntry.removePosition();
+            await nextEntry.setPosition();
+            this.state.position = position;
+            // this.setState({position});
             return nextEntry;
         }
 
@@ -336,58 +423,18 @@
         //     // await this.updateEntries();
         // }
 
-        setPositionEntry(entry, status='loading') {
-            if(this.state.positionEntry)
-                this.state.positionEntry.setProps({position: null, status:null});
-            this.state.positionEntry = entry;
-            this.state.positionEntry.setProps({position: true, status});
+        async setPositionEntry(entry) {
+            const position = await this.getEntryPosition(entry);
+            await this.setPlaylistPosition(position);
         }
 
         isPlaylist(entryUrl) {
             return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
         }
 
-        async loadSongFromURL(url) {
-            const song = this.playerElm.song;
-            if(this.isPlaylist(url)) {
-                const playlistEntry = new ASPPlaylistPlaylistEntry({url    });
-                this.addEntry(playlistEntry);
-                await this.renderOS();
-                // await this.loadPlaylistFromURL(url);
-                // const entry = this.getCurrentEntry();
-                // if(entry.url && !this.isPlaylist(entry.url))
-                //     await this.loadSongFromPlaylistEntry(this.position);
-            } else {
-                await song.loadSongFromURL(url);
-                this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
-            }
-            // this.render();
-        }
 
 
-        async loadSongFromPlaylistEntry(entry=null) {
-            entry = entry || this.state.positionEntry;
-            // if(song && song.playlistEntry === entry) {
-            //     console.info("Skipping load for playlist song: " + playlistEntry);
-            //     return;
-            // }
-            const song = this.playerElm.song;
-            if(song.playback)
-                song.stopPlayback();
-
-            if(entry.file) {
-                await song.loadSongFromFileInput(entry.file);
-            } else if(entry.url) {
-                await this.loadSongFromURL(entry.url);
-            }
-            await entry.setState({name: song.name, length: song.getSongLengthInSeconds()});
-            this.setPositionEntry(entry, 'loaded');
-
-            // song.playlistPosition = this.position;
-            this.render();
-        }
-
-
+        /** @deprecated **/
         async loadPlaylistFromURL(playlistURL, insertAtPosition=null) {
             const playlistEntry = new ASPPlaylistPlaylistEntry({
                 url: playlistURL
@@ -436,8 +483,7 @@
                 if(entryElm.isPlaylist) {
                     await entryElm.togglePlaylist();
                 } else {
-                    this.setPositionEntry(entryElm, 'loading');
-                    await this.loadSongFromPlaylistEntry(entryElm);
+                    await this.playerElm.playlistMoveToEntry(entryElm);
                     await this.playerElm.playlistPlay();
                 }
                 //     await songPlay();
@@ -470,6 +516,15 @@
         //     this.playlistElm.toggleSelect(this.getPosition(playlistElm));
         // }
 
+        setPosition() {
+            if(this.props.position !== true)
+                this.setProps({position: true});
+        }
+
+        removePosition() {
+            if(this.props.position !== false)
+                this.setProps({position: false});
+        }
 
         async updateID(id) {
             if(this.state.id !== id)
@@ -482,7 +537,10 @@
             if(id<=9) id = '0' + id;
 
             const [length, fade] = (entry.length || 0).toString().split(':');
-            const formattedLength = new Date(length * 1000).toISOString().substr(14, 5);
+            const formattedLength = (() => {
+                try { return new Date(length * 1000).toISOString().substr(14, 5); }
+                catch { return "N/A"; }
+            })();
             // rowElm.addEventListener('click', async e => {
             //     await this.loadSongFromPlaylistEntry(i);
             //     await songPlay();
@@ -543,8 +601,9 @@
 
         get playlist() { return this.state.playlist; }
 
-        async togglePlaylist() {
-            this.setProps({open: this.props.open ? null : true});
+        async togglePlaylist(toggleValue = null) {
+            toggleValue = toggleValue === null ? this.props.open ? null : true : toggleValue;
+            this.setProps({open: toggleValue});
             if(!this.state.playlist)
                 return await this.loadPlaylist();
             await this.renderOS();

@@ -21,14 +21,16 @@
 // TODO: refactor into Song class and Renderer
 
     class AudioSourceSong {
-        constructor(songData = {}, dispatchElement = null) {
-            this.dispatchElement = dispatchElement;
+        constructor() {
+            this.dispatchElements = [];
 
             this.audioContext = null;
             this.instruments = [];
 
             // this.seekLength = 0.5;
+            this.playback = null;
             this.playbackPosition = 0;
+            this.paused = false;
 
             this.volumeGain = null;
             this.volume = 70;
@@ -36,10 +38,11 @@
             this.activeGroups = {};
 
             this.data = null;
-            this.loadSongData(songData);
+            // this.loadSongData(songData);
             // this.eventListeners = [];
             this.history = [];
             this.waitCancels = [];
+            this.playbackEndCallbacks = [];
 
             // Listen for instrument changes if in a browser
             // if (typeof document !== "undefined")
@@ -60,25 +63,27 @@
         // addSongEventListener(callback) { this.eventListeners.push(callback); }
         // Check for initiated, await if not
 
-        dispatchEvent(event) {
-            if (this.dispatchElement)
-                this.dispatchElement.dispatchEvent(event);
+        addDispatchElement(dispatchElement) {
+            if(this.dispatchElements.indexOf(dispatchElement) !== -1) {
+                console.warn("Dispatch element already added");
+            } else {
+                this.dispatchElements.push(dispatchElement);
+            }
+            return this;
         }
 
-        /** Rendering Context **/
-
-        getAudioContext() {
-            if (this.audioContext) {
-                if (this.audioContext.state === 'suspended')
-                    this.audioContext.resume();
-                return this.audioContext;
+        removeDispatchElement(dispatchElement) {
+            const i = this.dispatchElements.indexOf(dispatchElement);
+            if(i !== -1) {
+                this.dispatchElements.splice(i, 1);
+            } else {
+                console.warn("Dispatch element was not found");
             }
+        }
 
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const n = this.audioContext.createGain(); // Bug fix
-            // console.info("bug fix", n);
-            // this.initAllInstruments(this.audioContext);
-            return this.audioContext;
+        dispatchEvent(event) {
+            for (let i=0; i<this.dispatchElements.length; i++)
+                this.dispatchElements[i].dispatchEvent(event);
         }
 
         /** Data shortcuts **/
@@ -109,6 +114,7 @@
             return this.volumeGain;
         }
 
+        /** @deprecated **/
         getVolumeValue() {
             return this.volume; // this.volumeGain ? this.volumeGain.gain.value * 100 : AudioSourceSong.DEFAULT_VOLUME * 100;
         }
@@ -125,67 +131,6 @@
 
 
         /** Song Data **/
-
-        async getFileSupportModule(filePath) {
-            const fileExt = filePath.split('.').pop().toLowerCase();
-            switch (fileExt) {
-                case 'mid':
-                case 'midi':
-                    const {MIDISupport} = await requireAsync('common/support/midi-support.js');
-                    return new MIDISupport;
-
-                case 'json':
-                    const {JSONSupport} = await requireAsync('common/support/json-support.js');
-                    return new JSONSupport;
-
-                case 'spc':
-                    const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
-                    return new LibGMESupport;
-
-                case 'mp3':
-                    const {MP3Support} = await requireAsync('common/support/mp3-support.js');
-                    return new MP3Support;
-
-                default:
-                    throw new Error("Unknown file type: " + fileExt);
-            }
-        }
-
-        async loadSongFromMemory(songUUID) {
-            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-            const storage = new AudioSourceStorage();
-            const songData = await storage.loadSongFromMemory(songUUID);
-            const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
-            await this.loadSongData(songData);
-            await this.loadSongHistory(songHistory);
-        }
-
-
-        async loadSongFromFileInput(file) {
-            const library = await this.getFileSupportModule(file.name);
-            if(typeof library.loadSongDataFromFileInput !== "function")
-                throw new Error("Invalid library.loadSongDataFromFileInput method");
-            const songData = await library.loadSongDataFromFileInput(file);
-            await this.loadSongData(songData);
-        }
-
-        async loadSongFromURL(src) {
-            const library = await this.getFileSupportModule(src);
-            if(typeof library.loadSongDataFromURL !== "function")
-                throw new Error("Invalid library.loadSongDataFromURL method: " + src);
-            const songData = await library.loadSongDataFromURL(src);
-            await this.loadSongData(songData);
-        }
-
-
-
-        async loadSongFromMIDIFile(file, defaultInstrumentURL = null) {
-            defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
-            const midiSupport = new MIDIImport();
-            const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
-            await this.loadSongData(songData);
-        }
-
 
 
 
@@ -289,7 +234,7 @@
                     foundInstruction = instruction;
                 if(foundInstruction)
                     return false;
-            })
+            });
             if (!foundInstruction) {
                 if (throwException)
                     throw new Error(`Instruction not found at index: ${index} for groupName: ${groupName}`);
@@ -565,59 +510,27 @@
 
         /** Playback **/
 
-        async play() {
-            if (this.playback) {
-                this.stopPlayback();
-                this.setPlaybackPosition(0);
-                // throw new Error("Song is already playing");
-            }
-
-            await this.initAllInstruments(this.getAudioContext());
-
-            const playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
-            this.playback = playback;
-            console.log("Start playback:", this.playbackPosition);
-
-            this.dispatchEvent(new CustomEvent('song:play', {
-                detail: {
-                    playback: this.playback,
-                }
-            }));
-
-            await this.playback.playGroup();
-
-
-            if (this.playback)
-                this.stopPlayback();
-
-            // if(this.playback)
-            //     this.stopPlayback();
-
-
+        setAudioContext(audioContext) {
+            if (audioContext.state === 'suspended')
+                audioContext.resume();
+            this.audioContext = audioContext;
         }
 
-        stopPlayback() {
-            if (!this.playback)
-                throw new Error("Playback is already stopped");
-            this.playbackPosition = this.getAudioContext().currentTime - this.playback.startTime;
-            this.playback.stopPlayback();
-            this.playback = null;
+        getAudioContext() {
+            if (this.audioContext)
+                return this.audioContext;
 
-            for(let i=0; i<this.waitCancels.length; i++) {
-                this.waitCancels[i]();
-            }
-            console.log("End playback:", this.playbackPosition);
-
-
-            this.dispatchEvent(new CustomEvent('song:end', {
-                detail: {
-                    playback: this.playback
-                }
-            }));
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.setAudioContext(audioContext);
+            return audioContext;
         }
 
-        get isPlaying() {
-            return !!this.playback;
+
+        async init(audioContext=null) {
+            if(audioContext !== null)
+                await this.setAudioContext(audioContext);
+            audioContext = audioContext || this.getAudioContext();
+            await this.initAllInstruments(audioContext);
         }
 
         get songPlaybackPosition() {
@@ -641,16 +554,31 @@
             if (Number.isNaN(songPosition))
                 throw new Error("Invalid start position");
 
+            if(this.playback)
+                this.playback.stopPlayback();
             this.playbackPosition = songPosition;
-            const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
+            this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
+            this.playback.playGroup()
+                .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
+
+            // const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 //         console.log("Seek position: ", this.playbackPosition, positionInTicks);
 
             const detail = {
                 position: this.playbackPosition,
-                positionInTicks
+                // positionInTicks
             };
             this.dispatchEvent(new CustomEvent('song:seek', {detail}));
         }
+
+        async waitForPlaybackToEnd() {
+            const ret = await new Promise((resolve, reject) => {
+                this.playbackEndCallbacks.push(resolve);
+            });
+            console.log("Playback finished: ", ret);
+            return ret;
+        }
+
 
         isPlaybackActive() {
             for (const key in this.activeGroups) {
@@ -660,6 +588,86 @@
                 }
             }
             return false;
+        }
+
+        async play(audioContext=null) {
+            if (this.playback) {
+                this.stopPlayback();
+                this.setPlaybackPosition(0);
+                // throw new Error("Song is already playing");
+            }
+
+            await this.init(audioContext);
+
+            const playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
+            this.playback = playback;
+            console.log("Start playback:", this.playbackPosition);
+
+            this.dispatchEvent(new CustomEvent('song:play', {
+                detail: {
+                    playback: this.playback,
+                }
+            }));
+
+            this.playback.playGroup()
+                .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
+
+            return await this.waitForPlaybackToEnd();
+
+
+            // if (this.playback)
+            //     this.stopPlayback();
+
+            // if(this.playback)
+            //     this.stopPlayback();
+
+
+        }
+
+        stopPlayback(playlistContinue=false) {
+            if (!this.playback)
+                console.error("Playback is already stopped");
+
+            this.playbackEndCallbacks.forEach(callback => callback(playlistContinue));
+            this.playbackEndCallbacks = [];
+
+            for(let i=0; i<this.waitCancels.length; i++) {
+                this.waitCancels[i]();
+            }
+            
+            if(this.playback) {
+                this.playbackPosition = this.getAudioContext().currentTime - this.playback.startTime;
+                this.playback.stopPlayback();
+                this.playback = null;
+            }
+
+            console.log("End playback:", this.playbackPosition);
+
+
+            this.dispatchEvent(new CustomEvent('song:end', {
+                detail: {
+                    playback: this.playback
+                }
+            }));
+        }
+
+        pause() {
+            if(this.isPaused)
+                throw new Error("Song is already paused");
+            this.paused = true;
+        }
+
+        resume() {
+            if(!this.isPaused)
+                throw new Error("Song is not paused");
+            this.paused = false;
+        }
+
+        get isPlaying() {
+            return !!this.playback;
+        }
+        get isPaused() {
+            return this.paused;
         }
 
 
@@ -1206,6 +1214,78 @@
 
     }
 
+
+    AudioSourceSong.loadSongFromMemory = async function(songUUID) {
+        const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+        const storage = new AudioSourceStorage();
+        const songData = await storage.loadSongFromMemory(songUUID);
+        const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
+        const song = new AudioSourceSong(songData);
+        await song.loadSongData(songData);
+        await song.loadSongHistory(songHistory);
+        return song;
+    };
+
+
+    AudioSourceSong.loadSongFromFileInput = async function(file) {
+        const library = await AudioSourceSong.getFileSupportModule(file.name);
+        if(typeof library.loadSongDataFromFileInput !== "function")
+            throw new Error("Invalid library.loadSongDataFromFileInput method");
+        const songData = await library.loadSongDataFromFileInput(file);
+        const song = new AudioSourceSong();
+        await song.loadSongData(songData);
+        return song;
+    };
+
+    AudioSourceSong.loadSongFromURL = async function(src) {
+        const library = await AudioSourceSong.getFileSupportModule(src);
+        if(typeof library.loadSongDataFromURL !== "function")
+            throw new Error("Invalid library.loadSongDataFromURL method: " + src);
+        const songData = await library.loadSongDataFromURL(src);
+        const song = new AudioSourceSong();
+        await song.loadSongData(songData);
+        return song;
+    };
+
+
+
+    AudioSourceSong.loadSongFromMIDIFile = async function(file, defaultInstrumentURL = null) {
+        defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
+        const midiSupport = new MIDIImport();
+        const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
+        const song = new AudioSourceSong();
+        await song.loadSongData(songData);
+        return song;
+    };
+
+
+
+    AudioSourceSong.getFileSupportModule = async function(filePath) {
+        const fileExt = filePath.split('.').pop().toLowerCase();
+        switch (fileExt) {
+            case 'mid':
+            case 'midi':
+                const {MIDISupport} = await requireAsync('common/support/midi-support.js');
+                return new MIDISupport;
+
+            case 'json':
+                const {JSONSupport} = await requireAsync('common/support/json-support.js');
+                return new JSONSupport;
+
+            case 'spc':
+                const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
+                return new LibGMESupport;
+
+            case 'mp3':
+                const {MP3Support} = await requireAsync('common/support/mp3-support.js');
+                return new MP3Support;
+
+            default:
+                throw new Error("Unknown file type: " + fileExt);
+        }
+    };
+
+
     AudioSourceSong.DEFAULT_VOLUME = 0.7;
 
     class AudioSourceInstructionPlayback {
@@ -1216,6 +1296,7 @@
             this.groupName = groupName;
             this.seekLength = seekLength; //TODO: implement?
             this.iterator = null;
+            this.cancelCallback = null;
             this.subGroups = [];
             this.startTime = startTime;
             // this.lastRowPlaybackTime = 0;
@@ -1232,8 +1313,10 @@
         }
 
         async wait(waitTimeInSeconds) {
-            await new Promise((resolve, reject) => {
-                setTimeout(resolve, waitTimeInSeconds * 1000);
+            console.info("Waiting... ", waitTimeInSeconds);
+            return await new Promise((resolve, reject) => {
+                this.cancelCallback = () => resolve(false);
+                setTimeout(() => resolve(true), waitTimeInSeconds * 1000);
             });
         }
 
@@ -1257,7 +1340,11 @@
             if(this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
                 // Wait for notes to finish
                 const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
-                await this.wait(waitTime);
+                const ret = await this.wait(waitTime);
+                if(ret === false) {
+                    console.info("Group aborted: ", this.groupName);
+                    return false;
+                }
             }
 
             this.stopPlayback(false);
@@ -1275,11 +1362,15 @@
 
             let elapsedTime = this.song.getAudioContext().currentTime - this.startTime;
             console.info("Group finished: ", this.groupName, elapsedTime);
+            return true;
         }
 
 
         stopPlayback(stopInstruments = true) {
-
+            if(this.cancelCallback) {
+                this.cancelCallback();
+                this.cancelCallback = null;
+            }
             const iterator = this.iterator;
             this.iterator = null;
             // If we reached the end of the iterator, trigger event
@@ -1480,7 +1571,7 @@
             
             this.groupIndex++;
             let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.groupIndex]);
-            if (currentInstruction && currentInstruction.deltaDuration) {
+            if (currentInstruction) {
                 this._incrementPositionBy(currentInstruction.deltaDuration, currentInstruction.duration);
                 currentInstruction.positionInTicks = this.lastInstructionGroupPositionInTicks;
             }

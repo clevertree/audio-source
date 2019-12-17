@@ -96,40 +96,42 @@
         }
 
 
-        async loadSongFromMemory(songUUID) {
-            await this.song.loadSongFromMemory(songUUID);
-            await this.renderOS();
-            this.setStatus("Song loaded from memory: " + songUUID);
-//         console.info(songData);
-        }
-
-        async loadSongFromFileInput(fileInput = null) {
-            fileInput = fileInput || this.refs.fieldSongFileLoad.inputElm;
-            if (!fileInput || !fileInput.files || fileInput.files.length === 0)
-                throw new Error("Invalid file input");
-            if (fileInput.files.length > 1)
-                throw new Error("Invalid file input: only one file allowed");
-            const file = fileInput.files[0];
-            await this.song.loadSongFromFileInput(file);
-            await this.renderOS();
-            this.setStatus("Song loaded from file: ", file);
-        }
-
-
-
-        async loadSongFromURL(url) {
-            await this.song.loadSongFromURL(url);
-            this.setStatus("Song loaded from url: " + url);
-            // console.info(this.song.data);
-            await this.renderOS();
-        }
-
-        async loadSongFromData(songData) {
-            await this.song.loadSongData(songData);
-            // this.render(true);
-            this.setStatus("Song loaded from data", songData);
-            await this.renderOS();
-        }
+//         async loadSongFromMemory(songUUID) {
+//             await this.song.loadSongFromMemory(songUUID);
+//             await this.renderOS();
+//             this.setStatus("Song loaded from memory: " + songUUID);
+// //         console.info(songData);
+//         }
+//
+//         async loadSongFromFileInput(fileInput = null) {
+//             fileInput = fileInput || this.refs.fieldSongFileLoad.inputElm;
+//             if (!fileInput || !fileInput.files || fileInput.files.length === 0)
+//                 throw new Error("Invalid file input");
+//             if (fileInput.files.length > 1)
+//                 throw new Error("Invalid file input: only one file allowed");
+//             const file = fileInput.files[0];
+//             await this.song.loadSongFromFileInput(file);
+//             await this.renderOS();
+//             this.setStatus("Song loaded from file: ", file);
+//         }
+//
+//
+//
+//         async loadSongFromURL(url=null, promptUser=true) {
+//             if (promptUser)
+//                 url = prompt("Enter a Song URL:", url || 'https://mysite.com/songs/mysong.json');
+//             await this.song.loadSongFromURL(url);
+//             this.setStatus("Song loaded from url: " + url);
+//             // console.info(this.song.data);
+//             await this.renderOS();
+//         }
+//
+//         async loadSongFromData(songData) {
+//             await this.song.loadSongData(songData);
+//             // this.render(true);
+//             this.setStatus("Song loaded from data", songData);
+//             await this.renderOS();
+//         }
 
         /** Song Playback **/
 
@@ -149,17 +151,17 @@
         }
 
         setSongPosition(e, playbackPosition = null) {
-            const wasPlaying = !!this.song.playback;
-            if (wasPlaying)
-                this.song.stopPlayback();
+            // const wasPlaying = !!this.song.playback;
+            // if (wasPlaying)
+            //     this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
                 playbackPosition = values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
-            if (wasPlaying)
-                this.song.play();
+            // if (wasPlaying)
+            //     this.song.play();
         }
 
         // setSongPositionAsPercent(e, playbackPositionPercent) {

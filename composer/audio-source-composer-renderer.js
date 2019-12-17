@@ -128,7 +128,7 @@
 
                             new ASCForm('volume', 'Volume',() => [
                                 this.refs.fieldSongVolume = new ASUIInputRange('volume',
-                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue())
+                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, this.state.volume, 'Song Volume')
                             ]),
 
                             new ASCForm('file', 'File', () => [
@@ -450,7 +450,7 @@
 
                             new ASUIMenu(`from File`, null, (e) => this.refs.fieldSongFileLoad.click()), // this.loadSongFromFileInput(this.refs.fieldSongFileLoad.inputElm);
                             // menuFileOpenSongFromFile.disabled = true;
-                            new ASUIMenu('from URL', null, null, {disabled: true}),
+                            new ASUIMenu('from URL', null, (e) => this.loadSongFromURL()),
                         ]),
 
                         new ASUIMenu('Save song', () => [

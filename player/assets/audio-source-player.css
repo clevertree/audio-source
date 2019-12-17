@@ -100,6 +100,7 @@ asp-form {
     padding: 0px 0px;
     margin: 0px 0px 0px 0px;
     display: inline-block;
+    vertical-align: top;
 }
 asp-form > asui-div[name=title] {
     font-size: smaller;
