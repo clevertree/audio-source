@@ -120,12 +120,12 @@
                                     "Play Song",
                                     {class: 'hide-on-playing'}),
                                 this.refs.fieldSongPlaybackPause = new ASUIInputButton('pause',
-                                    e => this.songPause(e),
+                                    e => this.playlistPause(e),
                                     new ASUIcon('pause'),
                                     "Pause Song",
                                     {class: 'show-on-playing'}),
                                 this.refs.fieldSongPlaybackStop = new ASUIInputButton('stop',
-                                    e => this.songStop(e),
+                                    e => this.playlistStop(e),
                                     new ASUIcon('stop'),
                                     "Stop Song"),
                                 this.refs.fieldSongPlaylistNext = new ASUIInputButton('playlist-next',
@@ -185,6 +185,15 @@
                                     this.song ? this.song.version : "0.0.0",
                                     "Song Version",
                                 )
+                            ]),
+
+                            new ASPForm('source', null, () => [
+                                this.refs.fieldSongVersion = new ASUIInputButton('version',
+                                    (e) => this.openSongSource(e),
+                                    "Edit<br/>Source",
+                                    "Open Song Source",
+                                    {disabled: true}
+                                )
                             ])
                         ]),
 
@@ -223,7 +232,7 @@
 
         async render() {
             return [
-                new ASUIDiv('title', this.state.title),
+                this.state.title ? new ASUIDiv('title', this.state.title) : null,
                 super.render()
             ]
         }

@@ -74,9 +74,10 @@ asui-div input.themed[type='range']::-webkit-slider-thumb {
 
 /** Disabled Inputs **/
 
-asui-div  input:disabled,
-asui-div  select:disabled,
-asui-div  button:disabled {
+
+asui-text[disabled],
+asui-select[disabled],
+asui-button[disabled] {
     cursor: not-allowed;
     opacity: 0.5;
 }

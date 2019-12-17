@@ -28,7 +28,10 @@
 
         async loadBufferFromURL(url) {
             if(url.toString().startsWith('torrent://')) {
-                return await this.getFileBufferFromTorrent(url);
+                console.time('getFileBufferFromTorrent');
+                const buffer = await this.getFileBufferFromTorrent(url);
+                console.timeEnd('getFileBufferFromTorrent');
+                return buffer;
             }
             var request = new XMLHttpRequest();
             await new Promise((resolve, reject) => {

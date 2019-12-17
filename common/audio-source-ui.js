@@ -598,7 +598,8 @@
         }
 
         onClick(e) {
-            this.state.callback(e, this.value);
+            if(!this.props.disabled)
+                this.state.callback(e, this.value);
         }
 
         async render() {

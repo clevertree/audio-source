@@ -32,11 +32,15 @@ span.error {
 asui-div[name=asp-container] {
     font-family: monospace;
     color: #000;
-    background-color: #bdc3c7;
+    background-color: #EEE;
     /* margin-top: -14px; */
     user-select: none;
     display: flex;
     flex-direction: column;
+}
+
+asui-div[name=asp-menu-container] {
+    background-color: #bdc3c7;
 }
 
 /** Status Bar **/

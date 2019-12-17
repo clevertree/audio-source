@@ -11,7 +11,7 @@
 
 
     /** Required Modules **/
-    // const {AudioSourceSong}             = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceSong}             = await requireAsync('common/audio-source-song.js');
     const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
     const {
         AudioSourceTracker,
@@ -75,6 +75,43 @@
                 return true;
             }
             return false;
+        }
+
+
+        async loadSongFromMemory(songUUID) {
+            this.song = await AudioSourceSong.loadSongFromMemory(songUUID);
+            this.setStatus("Song loaded from memory: " + songUUID, this.song);
+//         console.info(songData);
+        }
+
+        async loadSongFromFileInput(file=null) {
+            if(file === null)
+                file = this.refs.fieldSongFileLoad.inputElm.files[0];
+            if (!file)
+                throw new Error("Invalid file input");
+            await this.song.loadSongFromFileInput(file);
+            this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLengthInSeconds());
+            // this.render();
+        }
+
+
+
+        async loadSongFromURL(url) {
+            const song = this.playerElm.song;
+            if(this.isPlaylist(url)) {
+                const playlistEntry = new ASPPlaylistPlaylistEntry({url    });
+                this.addEntry(playlistEntry);
+                await this.renderOS();
+                // await this.loadPlaylistFromURL(url);
+                // const entry = this.getCurrentEntry();
+                // if(entry.url && !this.isPlaylist(entry.url))
+                //     await this.loadSongFromPlaylistEntry(this.position);
+            } else {
+                await song.loadSongFromURL(url);
+                this.setStatus("Loaded from url: " + url);
+//                 this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
+            }
+            // this.render();
         }
 
         async saveSongToMemory() {

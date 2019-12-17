@@ -49,12 +49,21 @@
                 songLength: 0,
             }, props);
             this.song = null;
+            this.props.playlistActive = false;
+            this.props.playing = false;
+            this.props.paused = false;
 
             const Util = new AudioSourceUtilities;
             Util.loadPackageInfo()
                 .then(packageInfo => this.setVersion(packageInfo.version));
         }
 
+        get isPlaylistActive()      { return this.props.playlistActive; }
+        set isPlaylistActive(value) { this.setProps({playlistActive: value}); }
+        get isPlaying()             { return this.props.playing; }
+        set isPlaying(value)        { this.setProps({playing: value}); }
+        get isPaused()              { return this.props.paused; }
+        set isPaused(value)         { this.setProps({paused: value}); }
 
         /** Load External CSS **/
 

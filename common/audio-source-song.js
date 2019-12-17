@@ -30,7 +30,7 @@
             // this.seekLength = 0.5;
             this.playback = null;
             this.playbackPosition = 0;
-            this.paused = false;
+            this.isPaused = false;
 
             this.volumeGain = null;
             this.volume = 70;
@@ -554,6 +554,11 @@
             if (Number.isNaN(songPosition))
                 throw new Error("Invalid start position");
 
+            this.dispatchEvent(new CustomEvent('song:seek', {detail:{
+                position: this.playbackPosition,
+            }}));
+
+            // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
             if(this.playback)
                 this.playback.stopPlayback();
             this.playbackPosition = songPosition;
@@ -564,11 +569,6 @@
             // const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 //         console.log("Seek position: ", this.playbackPosition, positionInTicks);
 
-            const detail = {
-                position: this.playbackPosition,
-                // positionInTicks
-            };
-            this.dispatchEvent(new CustomEvent('song:seek', {detail}));
         }
 
         async waitForPlaybackToEnd() {
@@ -580,7 +580,7 @@
         }
 
 
-        isPlaybackActive() {
+        isActive() {
             for (const key in this.activeGroups) {
                 if (this.activeGroups.hasOwnProperty(key)) {
                     if (this.activeGroups[key] === true)
@@ -611,9 +611,7 @@
 
             this.playback.playGroup()
                 .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
-
             return await this.waitForPlaybackToEnd();
-
 
             // if (this.playback)
             //     this.stopPlayback();
@@ -624,29 +622,28 @@
 
         }
 
-        stopPlayback(playlistContinue=false) {
+        stopPlayback() {
             if (!this.playback)
-                console.error("Playback is already stopped");
+                throw new Error("Playback is already stopped");
+            const playback = this.playback;
+            this.playback = null;
+            this.playbackPosition = this.getAudioContext().currentTime - playback.startTime;
+            playback.stopPlayback();
 
-            this.playbackEndCallbacks.forEach(callback => callback(playlistContinue));
+            for(let i=0; i<this.playbackEndCallbacks.length; i++)
+                this.playbackEndCallbacks[i]();
             this.playbackEndCallbacks = [];
-
-            for(let i=0; i<this.waitCancels.length; i++) {
+            for(let i=0; i<this.waitCancels.length; i++)
                 this.waitCancels[i]();
-            }
-            
-            if(this.playback) {
-                this.playbackPosition = this.getAudioContext().currentTime - this.playback.startTime;
-                this.playback.stopPlayback();
-                this.playback = null;
-            }
+            this.waitCancels = [];
+
 
             console.log("End playback:", this.playbackPosition);
 
 
             this.dispatchEvent(new CustomEvent('song:end', {
                 detail: {
-                    playback: this.playback
+                    playback
                 }
             }));
         }
@@ -654,20 +651,17 @@
         pause() {
             if(this.isPaused)
                 throw new Error("Song is already paused");
-            this.paused = true;
+            this.isPaused = true;
         }
 
         resume() {
             if(!this.isPaused)
                 throw new Error("Song is not paused");
-            this.paused = false;
+            this.isPaused = false;
         }
 
         get isPlaying() {
             return !!this.playback;
-        }
-        get isPaused() {
-            return this.paused;
         }
 
 
@@ -1294,13 +1288,15 @@
 
             this.song = song;
             this.groupName = groupName;
-            this.seekLength = seekLength; //TODO: implement?
+            this.seekLength = seekLength;
             this.iterator = null;
-            this.cancelCallback = null;
+            this.stopPlaybackCallback = null;
             this.subGroups = [];
             this.startTime = startTime;
             // this.lastRowPlaybackTime = 0;
             this.quantizationInTicks = song.timeDivision;
+            this.isActive = false;
+            this.isPaused = false;
             // this.activeGroups =
         }
 
@@ -1308,19 +1304,21 @@
             return this.iterator.groupPositionInTicks;
         }
 
-        get isPlaybackActive() {
-            return !!this.iterator;
-        }
 
         async wait(waitTimeInSeconds) {
             console.info("Waiting... ", waitTimeInSeconds);
             return await new Promise((resolve, reject) => {
-                this.cancelCallback = () => resolve(false);
+                this.stopPlaybackCallback = () => {
+                    console.info("Group aborted: ", this.groupName);
+                    this.isActive = false;
+                    resolve(false);
+                };
                 setTimeout(() => resolve(true), waitTimeInSeconds * 1000);
             });
         }
 
         async playGroup() {
+            this.isActive = true;
             const iterator = this.song.instructionGetIterator(this.groupName);
             this.iterator = iterator;
             this.song.dispatchEvent(new CustomEvent('group:play', {
@@ -1330,24 +1328,20 @@
                 }
             }));
 
-            while (this.isPlaybackActive && this.playNextInstructionRow()) {
+            while (this.isActive && this.playNextInstructionRow()) {
                 let currentTime = this.song.getAudioContext().currentTime - this.startTime;
                 const waitTime = this.iterator.groupPlaybackTime - currentTime - this.seekLength;
                 await this.wait(waitTime);
             }
 
             let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
-            if(this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
+            if(this.isActive && this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
                 // Wait for notes to finish
                 const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
-                const ret = await this.wait(waitTime);
-                if(ret === false) {
-                    console.info("Group aborted: ", this.groupName);
-                    return false;
-                }
+                await this.wait(waitTime);
             }
 
-            this.stopPlayback(false);
+            // this.stopPlayback(false);
 
             // if(this.iterator) never happens
             //     this.stopPlayback(false);
@@ -1362,14 +1356,16 @@
 
             let elapsedTime = this.song.getAudioContext().currentTime - this.startTime;
             console.info("Group finished: ", this.groupName, elapsedTime);
-            return true;
+            const wasActive = this.isActive;
+            this.isActive = true;
+            return wasActive; // Determines if the playlist should play the next song
         }
 
 
         stopPlayback(stopInstruments = true) {
-            if(this.cancelCallback) {
-                this.cancelCallback();
-                this.cancelCallback = null;
+            if(this.stopPlaybackCallback) {
+                this.stopPlaybackCallback();
+                this.stopPlaybackCallback = null;
             }
             const iterator = this.iterator;
             this.iterator = null;
@@ -1397,7 +1393,7 @@
         }
 
         playNextInstructionRow() {
-            if (!this.isPlaybackActive)
+            if (!this.isActive)
                 throw new Error("Playback is not active");
 
             const instructionList = this.iterator.nextInstructionRow();
@@ -1415,7 +1411,7 @@
             //     // console.log("Waiting ... " + waitTime, notePosition, this.iterator.groupPlaybackTime, audioContext.currentTime);
             //     await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
             // }
-            // if (!this.isPlaybackActive)
+            // if (!this.isActive)
             //     return false;
 
 

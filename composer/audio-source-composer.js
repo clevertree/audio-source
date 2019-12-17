@@ -50,7 +50,9 @@
             this.library = AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
 
 
-            this.song = new AudioSourceSong({}, this);
+            this.song = new AudioSourceSong();
+            this.song.addDispatchElement(this);
+            this.song.loadSongData({});
             this.values = new AudioSourceValues(this.song);
             // Util.loadLibrary(defaultLibraryURL);
 

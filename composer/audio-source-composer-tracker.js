@@ -332,7 +332,7 @@
                             e.preventDefault();
                             // this.selectCell(e, this.cursorCell);
                             // if(e.ctrlKey) e.preventDefault();
-                            if (this.editorElm.song.isPlaybackActive()) {
+                            if (this.editorElm.song.isActive()) {
                                 this.editorElm.song.stopPlayback();
                             } else {
                                 this.editorElm.song.play();

@@ -40,7 +40,6 @@
                     this.song.stopPlayback();
                 }
                 this.song.removeDispatchElement(this);
-                this.song.stopPlayback();
                 // TODO: unload song?
             }
             this.song = song;
@@ -75,22 +74,22 @@
         }
 
 
-        async loadSongFromMemory(songUUID) {
-            await this.song.loadSongFromMemory(songUUID);
-            // this.render();
-            this.setStatus("Song loaded from memory: " + songUUID, this.song);
-//         console.info(songData);
-        }
-
-        async loadSongFromFileInput(file=null) {
-            if(file === null)
-                file = this.refs.fieldSongFileLoad.inputElm.files[0];
-            if (!file)
-                throw new Error("Invalid file input");
-            await this.song.loadSongFromFileInput(file);
-            this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLengthInSeconds());
-            // this.render();
-        }
+//         async loadSongFromMemory(songUUID) {
+//             await this.song.loadSongFromMemory(songUUID);
+//             // this.render();
+//             this.setStatus("Song loaded from memory: " + songUUID, this.song);
+// //         console.info(songData);
+//         }
+//
+//         async loadSongFromFileInput(file=null) {
+//             if(file === null)
+//                 file = this.refs.fieldSongFileLoad.inputElm.files[0];
+//             if (!file)
+//                 throw new Error("Invalid file input");
+//             await this.song.loadSongFromFileInput(file);
+//             this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLengthInSeconds());
+//             // this.render();
+//         }
 
 
 
@@ -185,19 +184,11 @@
         //     this.song.stopPlayback();
         // }
 
-        songStopIfPlaying() {
-            if(this.playlistActive)
-                this.songStop();
-        }
+        // songStopIfPlaying() {
+        //     if(this.playlistActive)
+        //         this.songStop();
+        // }
 
-        songStop() {
-            if(this.playlistActive)
-                throw new Error("Playback was already stopped");
-            this.playlistActive = false;
-            if(this.song.playback)
-                this.song.stopPlayback();
-            this.song.setPlaybackPositionInTicks(0);
-        }
 
         setSongPosition(e, playbackPosition = null) {
             // const wasPlaying = !!this.song.playback;
@@ -230,37 +221,45 @@
 
         /** Start or resume playback **/
         async playlistPlay() {
-            if(this.playlistActive)
-                throw new Error("Playback is already active");
-            this.playlistActive = true;
-
+            this.playlistStop();
+            let position = this.playlist.getPlaylistPosition();
             if(this.song && this.song.playlistPosition === position) {
                 if(this.song.isPaused())
                     return this.song.resume();
+                if(this.song.isPlaying)
+                    throw new Error("Song is already playing");
                 return await this.song.play();
             }
             let entry = await this.playlist.getCurrentEntry();
             if(entry instanceof ASPPlaylistPlaylistEntry)
                 entry = await this.playlistMoveToNextSongEntry();
-            const nextSong = await this.loadSongFromPlaylistEntry();
-            this.setCurrentSong(nextSong);
-            const ret = await nextSong.play();
-            if(ret)
-                await this.playlistNext();
+
+            this.isPlaylistActive = true;
+            let currentEntry = await this.playlist.getCurrentEntry();
+            while(this.isPlaylistActive) {
+                (currentEntry.scrollIntoViewIfNeeded || currentEntry.scrollIntoView).apply(currentEntry);
+                const currentSong = await this.loadSongFromPlaylistEntry();
+                this.setCurrentSong(currentSong);
+                this.isPlaying = true;
+                await currentSong.play();
+                this.isPlaying = false;
+                currentEntry = await this.playlistMoveToNextSongEntry();
+            }
+        }
+
+        playlistStop() {
+            if(this.song && this.song.isPlaying) {
+                this.song.stopPlayback();
+                this.song.setPlaybackPositionInTicks(0);
+            }
+            this.isPlaylistActive = false;
+            this.isPlaying = false;
         }
 
         async playlistNext() {
-            if(this.song && this.song.isPlaying) {
-                await this.song.stopPlayback();
-            }
-            let playlistActive = true;
-            while(playlistActive) {
-                const entry = await this.playlistMoveToNextSongEntry();
-                (entry.scrollIntoViewIfNeeded || entry.scrollIntoView).apply(entry);
-                const nextSong = await this.loadSongFromPlaylistEntry();
-                this.setCurrentSong(nextSong);
-                playlistActive = await nextSong.play();
-            }
+            this.playlistStop();
+            await this.playlistMoveToNextSongEntry();
+            await this.playlistPlay();
         }
 
         async playlistMovePosition(position) {
