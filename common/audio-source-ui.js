@@ -282,6 +282,16 @@
             this.closeAllMenusButThis();
         }
 
+        async openContextMenu(e) {
+            this.setProps({
+                style: {
+                    left: e.clientX,
+                    top: e.clientY
+                }
+            });
+            await this.open();
+        }
+
         closeAllMenus(includeStickMenus=false) {
             const root = this.getRootNode() || document;
             root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
@@ -506,7 +516,7 @@
         }
 
         async onChange(e) {
-            this.state.value = this.refs.inputElm.value;
+            this.state.value = parseFloat(this.refs.inputElm.value);
             this.state.callback(e, this.state.value);
         }
 
@@ -583,31 +593,6 @@
     //         return inputElm;
     //     }
     // }
-
-
-    class ASUIInputButton extends ASUIComponent {
-        constructor(props = {}, content = null, callback = null, title = null) {
-            super(props, {
-                content,
-                callback,
-                title,
-            });
-
-            this.addEventHandler('click', e => this.onClick(e));
-        }
-
-        onClick(e) {
-            if(!this.props.disabled)
-                this.state.callback(e, this.value);
-        }
-
-        async render() {
-            return this.state.content;
-        }
-
-    }
-
-    customElements.define('asui-button', ASUIInputButton);
 
 
     class ASUIInputText extends ASUIComponent {
@@ -739,6 +724,36 @@
 
     }
         customElements.define('asui-file', ASUIFileInput);
+
+
+    class ASUIInputButton extends ASUIComponent {
+        constructor(props = {}, content = null, callback = null, title = null) {
+            super(props, {
+                content,
+                callback,
+                title,
+            });
+
+            this.addEventHandler('click', e => this.onClick(e));
+        }
+
+        onClick(e) {
+            if(!this.props.disabled)
+                this.state.callback(e, this.value);
+        }
+
+        async render() {
+            if(!(this.state.content instanceof HTMLElement)) {
+                const divElm = document.createElement('div');
+                divElm.innerHTML = this.state.content;
+                return divElm;
+            }
+            return this.state.content;
+        }
+
+    }
+
+    customElements.define('asui-button', ASUIInputButton);
 
 
     /** Icon **/

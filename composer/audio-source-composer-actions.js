@@ -541,6 +541,11 @@
         // selectIndex(index) { return this.toggleSelectionAtIndex(index, true); }
         // removeSelectedIndex(index) { return this.toggleSelectionAtIndex(index, false); }
 
+        /** Context menu **/
+        async openContextMenu(e) {
+            const contextMenu = this.refs.menuContext;
+            await contextMenu.openContextMenu(e);
+        }
 
         /** Groups **/
 

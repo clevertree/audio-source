@@ -134,6 +134,7 @@ asc-form {
     margin: 0px 0px 0px 0px;
     display: inline-block;
     vertical-align: top;
+    /*min-height: 33px;*/
 }
 asc-instrument > asui-div.title,
 asc-form > asui-div.title {

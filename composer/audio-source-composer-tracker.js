@@ -483,7 +483,7 @@
                     // }
                     if (!e.altKey) {
                         e.preventDefault();
-                        this.editorElm.menuContext.openContextMenu(e, this.cursorCell);
+                        this.editorElm.openContextMenu(e);
                     }
                     break;
 

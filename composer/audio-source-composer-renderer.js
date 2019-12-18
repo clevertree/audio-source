@@ -86,7 +86,7 @@
                         this.refs.menuGroup         = new ASUIMenu({vertical: true}, 'Group',     () => this.populateMenu('group')),
                         this.refs.menuInstrument    = new ASUIMenu({vertical: true}, 'Instrument', () => this.populateMenu('instrument')),
                         this.refs.menuView          = new ASUIMenu({vertical: true}, 'View',      () => this.populateMenu('view')),
-                        this.refs.menuContext       = new ASUIMenu({vertical: true}, 'Context',   () => this.populateMenu('context')),
+                        this.refs.menuContext       = new ASUIMenu({vertical: true, context: true}, 'Context Menu',   () => this.populateMenu('context')),
                     ]),
 
                     this.refs.panelContainerElm = new ASUIDiv('asc-panel-container', () => [
@@ -473,6 +473,7 @@
                     break;
 
                 case 'edit':
+                case 'context':
                     const selectedIndicies = this.getSelectedIndicies();
 
                     // const populateGroupCommands = (subMenuGroup, action) => {

@@ -24,7 +24,7 @@ asui-div input.themed,
 asui-div select.themed,
 asui-div button.themed {
     /* display: inline-block; */
-    padding: 0px 0px;
+    /* padding: 0px 0px; */
     /* border-radius: 2px; */
     /* transition: all 0.2s; */
     border: 0px outset transparent;
@@ -59,7 +59,7 @@ asui-div input.themed[type='range'] {
     background-color: #AAA;
     border-radius: 15px;
     height: 2px;
-    margin: 6px;
+    margin: 7px;
 }
 asui-div input.themed[type='range']::-webkit-slider-thumb {
     vertical-align: middle;
@@ -121,7 +121,7 @@ asui-file {
 asui-button,
 asui-file  {
      /* height: 24px; */
-     display: inline-block;
+     /* display: inline-block; */
      cursor: pointer;
      background-color: #DDD;
      /* border: 1px outset; */
@@ -129,10 +129,14 @@ asui-file  {
      text-align: center;
 }
 
+asui-button > div,
 asui-range,
-asui-text,
-asui-select {
-     margin: 3px 0px;
+asui-text {
+     padding: 2px 0px;
+}
+
+asui-select > asui-menu {
+    padding: 3px 0px;
 }
 
 asui-select > asui-div.dropdown-container {
@@ -147,43 +151,13 @@ asui-select > asui-div.dropdown-container > asui-menu {
 
 /** Group Buttons **/
 
-/** Icons **/
-
-asui-icon {
-    font-size: 20px;
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    padding: 0px;
-    /* margin: 3px 3px; */
-    background: url("../../assets/img/ui-icons.png");
-    background-size: 10em 5em;
-    /* transform: scale(1.7); */
-}
-asui-icon.play { background-position: -3em -1em; }
-asui-icon.pause {background-position: -4em -1em;}
-asui-icon.stop {background-position: -5em -1em;}
-asui-icon.resume { background-position: -3em -1em; }
-asui-icon.next { background-position: 3em -1em; }
-
-asui-icon.insert {background-position: -3em -10em;}
-asui-icon.remove {background-position: -6em 0em;}
-asui-icon.subtract {background-position: -4em 0em;}
-asui-icon.delete {background-position: -4em 0em;}
-
-asui-icon.file-load {background-position: 0em 0em;}
-asui-icon.file-save {background-position: -1em 0em;}
-
-asui-icon.config {background-position: 0em 3em;}
-
-
-
 
 
 /** Menu **/
 
 
 asui-menu {
+    /* z-index: 3; */
     position: relative;
     color: black;
     padding: 0 0;
@@ -193,14 +167,10 @@ asui-menu {
     white-space: nowrap;
 }
 
-asui-menu.selected {
-    background-color: #AAA;
-}
+/*asui-menu.selected {*/
+/*    background-color: #AAA;*/
+/*}*/
 
-asui-div.dropdown > asui-menu {
-    display: flex;
-    padding: 3px 0px;
-}
 
 
 /** Menu Text **/
@@ -228,6 +198,14 @@ asui-menu > asui-div.arrow {
 asui-menu:hover {
     background-color: #AAA;
 }
+asui-menu[context]:not([open]) {
+    display: none;
+}
+asui-menu[context] {
+    position: absolute;
+    z-index: 4;
+    background-color: #bdc3c7;
+}
 asui-menu[stick] {
     /*transition: background-color 0.3s;*/
     background-color: #888;
@@ -243,6 +221,11 @@ asui-menu span.arrow:after {
 
 
 /** Drop Down Menu **/
+
+asui-div.dropdown > asui-menu {
+    display: flex;
+    padding: 3px 0px;
+}
 
 asui-menu > asui-div.dropdown {
     background-color: #bdc3c7;
@@ -292,5 +275,37 @@ asui-menu[hasbreak] {
     margin-bottom: 2px;
     border-bottom: 2px #666 solid;
 }
+
+
+
+
+/** Icons **/
+
+asui-icon {
+    font-size: 20px;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    padding: 0px;
+    /* margin: 3px 3px; */
+    background: url("../../assets/img/ui-icons.png");
+    background-size: 10em 5em;
+    /* transform: scale(1.7); */
+}
+asui-icon.play { background-position: -3em -1em; }
+asui-icon.pause {background-position: -4em -1em;}
+asui-icon.stop {background-position: -5em -1em;}
+asui-icon.resume { background-position: -3em -1em; }
+asui-icon.next { background-position: 3em -1em; }
+
+asui-icon.insert {background-position: -3em -10em;}
+asui-icon.remove {background-position: -6em 0em;}
+asui-icon.subtract {background-position: -4em 0em;}
+asui-icon.delete {background-position: -4em 0em;}
+
+asui-icon.file-load {background-position: 0em 0em;}
+asui-icon.file-save {background-position: -1em 0em;}
+
+asui-icon.config {background-position: 0em 3em;}
 
 
