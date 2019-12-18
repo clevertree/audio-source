@@ -33,8 +33,8 @@
     class AudioSourceComposerRenderer extends ASUIComponent {
         constructor(state={}, props={}) {
             super(state, props);
-            this.state.trackerSegmentLength = null;
-            this.state.trackerRowLength = null;
+            // this.state.trackerSegmentLength = null;
+            // this.state.trackerRowLength = null;
 
             this.shadowDOM = null;
         }
@@ -277,7 +277,7 @@
                                         selectElm.getOption(null, 'Default'),
                                         this.values.getSegmentLengths((length, title) => selectElm.getOption(length, title)),
                                     ],
-                                    e => this.trackerChangeSegmentLength(),
+                                    (e, segmentLengthInTicks) => this.trackerChangeSegmentLength(segmentLengthInTicks),
                                     this.state.trackerSegmentLength),
                             ]),
                             new ASCForm('tracker-instrument', 'Instrument', () => [
@@ -327,7 +327,7 @@
                                 new ASUIInputButton(
                                     {selected: currentGroupName === groupName},
                                     groupName,
-                                    e => this.trackerElm.groupName = groupName,
+                                    e => this.trackerChangeGroup(groupName),
                                     "Group " + groupName,
                                     )
                                 // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
@@ -343,9 +343,11 @@
                         }),
 
                         this.refs.panelTrackerRowSegments = new ASCPanel('tracker-row-segments', 'Tracker Segments', () => {
-                            const segmentLengthInTicks = this.trackerSegmentLengthInTicks;
+                            const segmentLengthInTicks = this.trackerElm.segmentLengthInTicks || (this.song.timeDivision * 16);
                             let songLengthInTicks = this.song.getSongLengthInTicks();
                             let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
+                            if(rowSegmentCount > 256)
+                                rowSegmentCount = 256;
 
                             this.refs.panelTrackerRowSegmentButtons = [];
 

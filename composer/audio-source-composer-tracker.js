@@ -50,6 +50,7 @@
 
         get song()      { return this.editorElm.song; }
         get groupName() { return this.state.group; }
+        get segmentLengthInTicks() { return this.state.segmentLengthInTicks; }
 
         async setGroupName(groupName) {
             if(this.state.group === groupName)
@@ -681,6 +682,7 @@
             this.state.cursorListOffset = listPos;
             await this.clearAllCursors();
             elm.setCursor();
+            this.focus();
         }
 
         async selectIndicies(selectedIndicies, cursorIndex=null) {
@@ -726,6 +728,9 @@
         //     }
         // }
 
+        getFirstCursor() { return this.refs.cursorList[0]; }
+        getLastCursor() { return this.refs.cursorList[this.refs.cursorList.length-1]; }
+
         getNextCursor() {
             let position = this.state.cursorListOffset;
             const cursorList = this.refs.cursorList;
@@ -756,6 +761,7 @@
             return cursorList[offset-1] || null;
         }
 
+        /** @todo fix **/
         getPreviousRowCursor() {
             let offset = this.state.cursorListOffset;
             const cursorList = this.refs.cursorList;
@@ -763,13 +769,14 @@
                 throw new Error("Shouldn't happen");
             let lastRowOffset = offset, rowPosition=0;
             while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
+            offset -= rowPosition+1;
 
             // Find the previous non-instruction entry
-            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--; // TODO: fix
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
             offset--;
             while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
-            offset++;
-            while(cursorList[offset+1] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->0) offset++;
+            // offset++;
+            while(cursorList[offset+1] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->-1) offset++;
             return cursorList[offset] || null;
         }
         //
@@ -987,11 +994,13 @@
         get duration() { return this.state.duration; }
         get instructions() { return this.state.instructions; }
 
-        async setCursor() {
-            if(this.props.cursor !== true) {
-                this.setProps({cursor: true});
+        async setCursor(cursor=true) {
+            if(this.props.cursor !== cursor) {
+                this.setProps({cursor});
                 await this.renderOS();
             }
+            if(cursor)
+                (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
         }
 
         async removeCursor() {
@@ -1068,8 +1077,12 @@
 
         setCursor(cursor=true) {
             if(this.props.cursor !== cursor) {
-                this.setProps({cursor: cursor});
+                this.setProps({cursor});
             }
+            if(cursor)
+                (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
+            // if(this.parentNode)
+            //     (this.parentNode.scrollIntoViewIfNeeded || this.parentNode.scrollIntoView).apply(this.parentNode);
         }
 
         removeCursor() {

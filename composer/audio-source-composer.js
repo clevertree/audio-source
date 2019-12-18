@@ -154,7 +154,7 @@
                 if (typeof state.trackerInstrument !== "undefined") await this.refs.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
                 if (typeof state.trackerOctave !== "undefined") await this.refs.fieldTrackerOctave.setValue(state.trackerOctave);
 
-                if (typeof state.groupName !== "undefined") await this.trackerElm.setGroupName(state.groupName);
+                if (typeof state.groupName !== "undefined") await this.trackerChangeGroup(state.groupName);
                 if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);
 
                 if (typeof state.selectedIndicies !== "undefined") this.selectIndicies(state.selectedIndicies);

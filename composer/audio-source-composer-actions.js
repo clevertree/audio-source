@@ -435,29 +435,42 @@
 
         async setNextCursor(clearSelection=null, toggleValue=null) {
             const nextCursor = this.trackerElm.getNextCursor();
-            if(!nextCursor)
-                throw new Error("Next segment");
+            if(!nextCursor) {
+                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID + 1);
+                return this.setCursor(this.trackerElm.getFirstCursor(), clearSelection, toggleValue);
+            }
+
             await this.setCursor(nextCursor, clearSelection, toggleValue);
         }
 
         async setPreviousCursor(clearSelection=null, toggleValue=null) {
             const previousCursor = this.trackerElm.getPreviousCursor();
-            if(!previousCursor)
-                throw new Error("Previous segment");
+            if(!previousCursor) {
+                if(this.trackerElm.state.currentRowSegmentID <= 0)
+                    throw new Error("Beginning of song");
+                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID - 1);
+                return this.setCursor(this.trackerElm.getLastCursor(), clearSelection, toggleValue);
+            }
             await this.setCursor(previousCursor, clearSelection, toggleValue);
         }
 
         async setNextRowCursor(clearSelection=null, toggleValue=null) {
             const nextRowCursor = this.trackerElm.getNextRowCursor();
-            if(!nextRowCursor)
-                throw new Error("Next segment");
+            if(!nextRowCursor) {
+                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID + 1);
+                return this.setCursor(this.trackerElm.getFirstCursor(), clearSelection, toggleValue);
+            }
             await this.setCursor(nextRowCursor, clearSelection, toggleValue);
         }
 
         async setPreviousRowCursor(clearSelection=null, toggleValue=null) {
             const previousRowCursor = this.trackerElm.getPreviousRowCursor();
-            if(!previousRowCursor)
-                throw new Error("Previous segment");
+            if(!previousRowCursor) {
+                if(this.trackerElm.state.currentRowSegmentID <= 0)
+                    throw new Error("Beginning of song");
+                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID - 1);
+                return this.setCursor(this.trackerElm.getLastCursor(), clearSelection, toggleValue);
+            }
             await this.setCursor(previousRowCursor, clearSelection, toggleValue);
         }
 
@@ -501,6 +514,8 @@
                 selectedIndicies = [selectedIndicies];
             if (!Array.isArray(selectedIndicies))
                 throw new Error("Invalid selection");
+
+            selectedIndicies = selectedIndicies.filter((v, i, a) => a.indexOf(v) === i);
 
             this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
 
@@ -557,7 +572,7 @@
             newGroupName = prompt("Create new instruction group?", newGroupName);
             if (newGroupName) {
                 song.groupAdd(newGroupName, []);
-                this.render();
+                this.refs.panelTrackerGroups.renderOS();
             } else {
                 this.setStatus("<span class='error'>Create instruction group canceled</span>");
             }
@@ -667,11 +682,13 @@
 
         /** Tracker **/
 
-        trackerChangeGroup(groupName = null) {
+        async trackerChangeGroup(groupName = null) {
             const tracker = this.trackerElm;
 
             groupName = groupName || e.target.form.getAttribute('data-group');
-            tracker.groupName = groupName;
+            await tracker.setGroupName(groupName);
+            await this.refs.panelTrackerGroups.renderOS();
+            await this.refs.panelTrackerRowSegments.renderOS();
             //TODO: validate
             // this.selectGroup(selectedGroupName);
         }
@@ -687,9 +704,10 @@
 
         }
 
-        trackerChangeSegmentLength(segmentLengthInTicks = null) {
+        async trackerChangeSegmentLength(segmentLengthInTicks = null) {
             const tracker = this.trackerElm;
-            tracker.setState({segmentLengthInTicks});
+            await tracker.setState({segmentLengthInTicks});
+            await this.refs.panelTrackerRowSegments.renderOS();
         }
 
         // setTrackerRowSegment(e) {
