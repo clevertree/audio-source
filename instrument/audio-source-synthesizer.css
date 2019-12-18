@@ -21,7 +21,7 @@ audio-source-synthesizer {
 /*}*/
 
 
-audio-source-synthesizer > asui-div[name=header] {
+audio-source-synthesizer > asui-div.header {
     /* font-size: smaller; */
     border-bottom: 1px solid #AAA;
     margin-bottom: 1px;
@@ -30,15 +30,15 @@ audio-source-synthesizer > asui-div[name=header] {
     /* background-color: #CCC; */
 }
 
-audio-source-synthesizer > asui-div[name=header] > asui-div[name=title] {
+audio-source-synthesizer > asui-div.header > asui-div.title {
     cursor: pointer;
 }
-audio-source-synthesizer > asui-div[name=header] > asui-div[name=title]:hover {
+audio-source-synthesizer > asui-div.header > asui-div.title:hover {
     background-color: #AAA;
 }
 
 
-audio-source-synthesizer  asuig-row[name=header] {
+audio-source-synthesizer  asuig-row.header {
     /* font-weight: bold; */
     text-align: center;
     /* text-decoration: underline; */
@@ -47,35 +47,32 @@ audio-source-synthesizer  asuig-row[name=header] {
 
 
 /** Inputs **/
-audio-source-synthesizer  asui-button[name=instrument-id]   button {
+audio-source-synthesizer  asui-button.instrument-id   button {
     border: 1px outset;
     padding: 0px 2px;
 }
 
-audio-source-synthesizer  asui-select[name=instrument-preset]               {
-    /* float:  right; */
-    /* margin-top: 0px; */
-    /* font-size: smaller; */
+audio-source-synthesizer  asui-select.instrument-preset               {
     margin-left: auto;
 }
-audio-source-synthesizer  asui-button[name=instrument-remove]               {
+audio-source-synthesizer  asui-button.instrument-remove               {
     float:  right;
     margin: 0px 0px 0px 0px;
 }
 
-audio-source-synthesizer  asui-text[name=name]        input       {width: 90px;}
-audio-source-synthesizer  asui-select[name=url]       select      {width: 107px;}
-audio-source-synthesizer  asui-range[name=mixer]      input      {width: 40px;}
-audio-source-synthesizer  asui-range[name=detune]     input      {width: 40px;}
-audio-source-synthesizer  asui-select[name=root]      select      {width: 48px;}
-audio-source-synthesizer  asui-select[name=alias]     select      {width: 48px;}
-audio-source-synthesizer  asui-text[name=adsr]        input      {width: 60px;}
+audio-source-synthesizer  asui-text.name        input       {width: 90px;}
+audio-source-synthesizer  asui-select.url       select      {width: 107px;}
+audio-source-synthesizer  asui-range.mixer      input      {width: 40px;}
+audio-source-synthesizer  asui-range.detune     input      {width: 40px;}
+audio-source-synthesizer  asui-select.root      select      {width: 48px;}
+audio-source-synthesizer  asui-select.alias     select      {width: 48px;}
+audio-source-synthesizer  asui-text.adsr        input      {width: 60px;}
 
-audio-source-synthesizer  asui-select[name=instrument-preset]       select      { width: 120px; }
+audio-source-synthesizer  asui-select.instrument-preset       select      { width: 120px; }
 
 
 /** Sample Grid **/
-audio-source-synthesizer asui-grid[name=samples] {
+audio-source-synthesizer asui-grid.samples {
     min-width: 480px;
     text-align: center;
     margin: 5px;

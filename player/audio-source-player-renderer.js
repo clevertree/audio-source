@@ -35,13 +35,13 @@
 
 
     class AudioSourcePlayerRenderer extends ASUIComponent {
-        constructor(state={}, props={}) {
-            super(state, props);
+        constructor(props={}, state={}) {
+            super(props, state);
             this.shadowDOM = null;
             state.fullscreen = false;
             state.showPanelSong = true;
             state.showPanelPlaylist = true;
-            state.playlist = new ASPPlaylist(this);
+            state.playlist = new ASPPlaylist({}, this);
 
         }
         get targetElm() { return this.shadowDOM; }
@@ -85,52 +85,52 @@
                 this.createStyleSheetLink('common/assets/audio-source-common.css'),
                 this.refs.containerElm = new ASUIDiv('asp-container', () => [
                     new ASUIDiv('asp-menu-container', () => [
-                        this.refs.menuFile = new ASUIMenu('File', () => [
-                            new ASUIMenu('from Memory', async () => {
+                        this.refs.menuFile = new ASUIMenu({vertical: true}, 'File', () => [
+                            new ASUIMenu({}, 'from Memory', async () => {
                                 const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
                                 const songRecentUUIDs = await Storage.getRecentSongList() ;
-                                return songRecentUUIDs.map(entry => new ASUIMenu(entry.name || entry.uuid,
+                                return songRecentUUIDs.map(entry => new ASUIMenu({}, entry.name || entry.uuid,
                                     null, () => this.loadSongFromMemory(entry.uuid)));
                             }),
 
-                            new ASUIMenu('from File', null, (e) => this.refs.fieldSongFileLoad.click()),
-                            new ASUIMenu('from URL', null, null, {disabled: true}),
-                            new ASUIMenu('from Library', null, null, {disabled: true}),
-                        ], null, {vertical: true}),
-                        this.refs.menuPlaylist = new ASUIMenu('Playlist', () => [
-                            new ASUIMenu('Play Next Song', null, (e) => this.playlistNext()),
-                            new ASUIMenu('Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+                            new ASUIMenu({}, 'from File', null, (e) => this.refs.fieldSongFileLoad.click()),
+                            new ASUIMenu({}, 'from URL', null, null, {disabled: true}),
+                            new ASUIMenu({}, 'from Library', null, null, {disabled: true}),
+                        ]),
+                        this.refs.menuPlaylist = new ASUIMenu({vertical: true}, 'Playlist', () => [
+                            new ASUIMenu({}, 'Play Next Song', null, (e) => this.playlistNext()),
+                            new ASUIMenu({}, 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
 
-                        ], null, {vertical: true}),
-                        // this.refs.menuEdit = new ASUIMenu('Edit'),
-                        this.refs.menuView = new ASUIMenu('View', () => [
-                            new ASUIMenu(`${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                            new ASUIMenu(`${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                            new ASUIMenu(`${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                        ], null, {vertical: true}),
+                        ]),
+                        // this.refs.menuEdit = new ASUIMenu({vertical: true}, 'Edit'),
+                        this.refs.menuView = new ASUIMenu({vertical: true}, 'View', () => [
+                            new ASUIMenu({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                            new ASUIMenu({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                            new ASUIMenu({}, `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                        ]),
                     ]),
 
                     new ASUIDiv('asp-forms-container', () => [
                         this.refs.panelSong = new ASPPanel('song', 'Song', () => [
                             new ASPForm('playback', 'Playback', () => [
                                 this.refs.fieldSongPlaybackPlay = new ASUIInputButton('play',
-                                    e => this.playlistPlay(e),
                                     new ASUIcon('play'),
+                                    e => this.playlistPlay(e),
                                     "Play Song",
                                     {class: 'hide-on-playing'}),
                                 this.refs.fieldSongPlaybackPause = new ASUIInputButton('pause',
-                                    e => this.playlistPause(e),
                                     new ASUIcon('pause'),
+                                    e => this.playlistPause(e),
                                     "Pause Song",
                                     {class: 'show-on-playing'}),
                                 this.refs.fieldSongPlaybackStop = new ASUIInputButton('stop',
-                                    e => this.playlistStop(e),
                                     new ASUIcon('stop'),
+                                    e => this.playlistStop(e),
                                     "Stop Song"),
                                 this.refs.fieldSongPlaylistNext = new ASUIInputButton('playlist-next',
-                                    e => this.playlistNext(e),
                                     new ASUIcon('next'),
+                                    e => this.playlistNext(e),
                                     "Next Song")
                             ]),
 
@@ -142,8 +142,8 @@
                                     "Load Song from File"
                                 ),
                                 this.refs.fieldSongFileSave = new ASUIInputButton('file-save',
-                                    e => this.saveSongToFile(),
                                     new ASUIcon('file-save'),
+                                    e => this.saveSongToFile(),
                                     "Save Song to File"
                                 ),
                             ]),
@@ -189,8 +189,8 @@
 
                             new ASPForm('source', null, () => [
                                 this.refs.fieldSongVersion = new ASUIInputButton('version',
-                                    (e) => this.openSongSource(e),
                                     "Edit<br/>Source",
+                                    (e) => this.openSongSource(e),
                                     "Open Song Source",
                                     {disabled: true}
                                 )
@@ -225,8 +225,8 @@
 
 
     class ASPPanel extends ASUIDiv {
-        constructor(key, title, contentCallback, props={}) {
-            super(key, contentCallback, props);
+        constructor(props={}, title, contentCallback) {
+            super(props, contentCallback);
             this.state.title = title;
         }
 
@@ -246,8 +246,8 @@
 
 
     class ASPPlaylist extends ASUIComponent {
-        constructor(playerElm, playlist=[], props={}) {
-            super({}, props);
+        constructor(props = {}, playerElm, playlist = []) {
+            super(props, {});
             this.state = {
                 position: 0,
                 playlist: playlist,
@@ -505,12 +505,12 @@
     customElements.define('asp-playlist', ASPPlaylist);
 
     class ASPPlaylistEntry extends ASUIComponent {
-        constructor(entryData, props={}) {
-            super(entryData, props);
-            if(!entryData.name)
-                entryData.name = entryData.url.split('/').pop();
-            props.position = null;
-            props.selected = null;
+        constructor(props = {}, state) {
+            super(props, state);
+            if(!this.state.name)
+                this.state.name = state.url.split('/').pop();
+            this.props.position = null;
+            this.props.selected = null;
             // props.isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
         }
 
@@ -588,8 +588,8 @@
             entryData.id = id;
             const isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
             if(isPlaylist)
-                return new ASPPlaylistPlaylistEntry(entryData, props);
-            return new ASPPlaylistEntry(entryData, props);
+                return new ASPPlaylistPlaylistEntry(props, entryData);
+            return new ASPPlaylistEntry(props, entryData);
         }
 
     }
@@ -600,11 +600,11 @@
     class ASPPlaylistPlaylistEntry extends ASPPlaylistEntry {
         get isPlaylist() { return true; }
 
-        constructor(entryData, props={}) {
-            super(entryData, props);
-            props.status = null;
-            props.open = null;
-            entryData.playlist = entryData.playlist || null;
+        constructor(props={}, state) {
+            super(props, state);
+            this.props.status = null;
+            this.props.open = null;
+            this.state.playlist = this.state.playlist || null;
             // props.isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
         }
 

@@ -120,6 +120,8 @@
         }
 
         setVolume(volume) {
+            if(typeof volume !== "number")
+                throw new Error("Invalid volume");
             console.info("Setting volume: ", volume);
             this.volume = volume;
             if(this.audioContext) {
@@ -875,7 +877,7 @@
             if (this.audioContext)
                 await this.initInstrument(instrumentID, this.audioContext);
 
-            console.info("Instrument loaded: ", instance, instrumentID);
+//             console.info("Instrument loaded: ", instance, instrumentID);
             return instance;
         }
 

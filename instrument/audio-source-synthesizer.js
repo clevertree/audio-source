@@ -96,7 +96,7 @@
             return [
 
                 new ASUIDiv('header', () => [
-                    new ASUIDiv('title', titleHTML, {onclick: e => this.toggleContainer(e)}),
+                    new ASUIInputButton('title', titleHTML, e => this.toggleContainer(e)),
                     this.refs.selectChangePreset = new ASUIInputSelect('instrument-preset',
                         (selectElm) => [
                             selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
@@ -117,21 +117,22 @@
                     ),
 
                     this.refs.menu = new ASUIMenu(
+                        {vertical: true},
                         new ASUIcon('config'),
                         () => [
-                            new ASUIMenu('Change Instrument to',
+                            new ASUIMenu({}, 'Change Instrument to',
                                 async () => {
                                     const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
                                     return instrumentLibrary.eachInstrument((instrumentConfig) =>
-                                        new ASUIMenu(instrumentConfig.name, null, () => {
-                                            thisReplace(instrumentID, instrumentConfig.url);
+                                        new ASUIMenu({}, instrumentConfig.name, null, () => {
+                                            this.replace(instrumentID, instrumentConfig.url);
                                         })
                                     );
                                 }
                             ),
-                            new ASUIMenu('Rename Instrument', null, () => this.composerElm.instrumentRename(instrumentID)),
-                            new ASUIMenu('Remove Instrument', null, () => this.composerElm.instrumentRemove(instrumentID)),
-                        ], null, {vertical: true}
+                            new ASUIMenu({}, 'Rename Instrument', null, () => this.composerElm.instrumentRename(instrumentID)),
+                            new ASUIMenu({}, 'Remove Instrument', null, () => this.composerElm.instrumentRemove(instrumentID)),
+                        ]
                     ),
 
                     // new ASUIInputSelect('url',
@@ -200,7 +201,7 @@
                                 selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
                                 (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
                                 sampleData.keyRoot || ''),
-                            // new ASUIMenu('root',
+                            // new ASUIMenu({}, 'root',
                             //     selectElm => this.values.getNoteFrequencies(freq => {
                             //         new ASUISelectMenu
                             //     }),
@@ -219,7 +220,9 @@
                                 (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
 
                             new ASUIInputButton('remove',
-                                (e) => this.removeSample(sampleID), '&nbsp;X&nbsp;', 'Remove sample'),
+                                '&nbsp;X&nbsp;',
+                                (e) => this.removeSample(sampleID),
+                                'Remove sample'),
                         ])),
 
                         new ASUIGridRow('footer', () => [

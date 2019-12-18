@@ -29,7 +29,7 @@ span.error {
 
 /** Container **/
 /** Font Style **/
-asui-div[name=asp-container] {
+asui-div.asp-container {
     font-family: monospace;
     color: #000;
     background-color: #EEE;
@@ -39,12 +39,12 @@ asui-div[name=asp-container] {
     flex-direction: column;
 }
 
-asui-div[name=asp-menu-container] {
+asui-div.asp-menu-container {
     background-color: #bdc3c7;
 }
 
 /** Status Bar **/
-asui-div[name=asp-status-container] {
+asui-div.asp-status-container {
     display: flex;
     background-color: #FFF;
     color: #000;
@@ -52,10 +52,10 @@ asui-div[name=asp-status-container] {
 }
 
 
-asui-div[name=asp-status-container] asui-div[name=status-text]{
+asui-div.asp-status-container asui-div.status-text{
     padding-left: 4px;
 }
-asui-div[name=asp-status-container] asui-div[name=version-text] {
+asui-div.asp-status-container asui-div.version-text {
     /* float: right; */
     padding-right: 4px;
     margin-left: auto;
@@ -73,7 +73,7 @@ asp-panel {
     /*width: 100%;*/
 }
 
-asp-panel > asui-div[name=title] {
+asp-panel > asui-div.title {
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -90,8 +90,8 @@ asp-panel > asui-div[name=title] {
 
 :host(:not(.playing)) .show-on-playing,
 :host(.playing) .hide-on-playing,
-:host(.hide-panel-song) asp-panel[name=song],
-:host(.hide-panel-playlist) asp-panel[name=playlist] {
+:host(.hide-panel-song) asp-panel.song,
+:host(.hide-panel-playlist) asp-panel.playlist {
     display: none;
 }
 
@@ -106,7 +106,7 @@ asp-form {
     display: inline-block;
     vertical-align: top;
 }
-asp-form > asui-div[name=title] {
+asp-form > asui-div.title {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
@@ -115,12 +115,12 @@ asp-form > asui-div[name=title] {
 }
 
 
-asp-form[name=volume]       asui-range[name=volume]     input       { max-width: 71px; }
-asp-form[name=version]      asui-text[name=version]     input       { max-width: 53px; }
-asp-form[name=name]         asui-text[name=name]        input       { max-width: 160px; }
-asp-form[name=timing]       asui-text[name=timing]      input       { max-width: 77px; }
-asp-form[name=position]     asui-range[name=position]   input       { max-width: 77px; }
-asp-form[name=bpm]          asui-text[name=bpm]         input       { max-width: 43px; }
+asp-form.volume       asui-range.volume     input       { max-width: 71px; }
+asp-form.version      asui-text.version     input       { max-width: 53px; }
+asp-form.name         asui-text.name        input       { max-width: 160px; }
+asp-form.timing       asui-text.timing      input       { max-width: 77px; }
+asp-form.position     asui-range.position   input       { max-width: 77px; }
+asp-form.bpm          asui-text.bpm         input       { max-width: 43px; }
 
 
 
@@ -132,7 +132,7 @@ asp-playlist {
     /* max-width: 815px; */
 }
 
-asui-div[name=asp-playlist-container] {
+asui-div.asp-playlist-container {
     width: 100%;
     max-height: 800px;
     overflow-y: overlay;
@@ -158,15 +158,15 @@ aspp-entry > asui-div {
      padding: 3px 0px;
 }
 
-asp-playlist asui-div[name=id]       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
-asp-playlist asui-div[name=name]     {display: inline-block;width: 26em;}
-asp-playlist asui-div[name=length]   { display: inline-block; width: 4em; }
-asp-playlist asui-div[name=container]   {
+asp-playlist asui-div.id       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
+asp-playlist asui-div.name     {display: inline-block;width: 26em;}
+asp-playlist asui-div.length   { display: inline-block; width: 4em; }
+asp-playlist asui-div.container   {
     padding: 3px;
 }
 
-/*asp-playlist aspp-playlist-entry asui-div[name=id]       { color: #000; }*/
-/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div[name=id]       { color: #555; }*/
+/*asp-playlist aspp-playlist-entry asui-div.id       { color: #000; }*/
+/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div.id       { color: #555; }*/
 
 
 aspp-playlist-entry {

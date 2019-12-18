@@ -7,7 +7,7 @@
         module.exports = {
             AudioSourceValues,
         };
-    }
+    };
 
 
     class AudioSourceValues {

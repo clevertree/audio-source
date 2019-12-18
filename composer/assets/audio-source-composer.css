@@ -31,7 +31,7 @@ span.error {
 
 
 /** Font Style **/
-asui-div[name=asc-container] {
+asui-div.asc-container {
     /* font-size: 24px; */
     color: #000;
     background-color: #bdc3c7;
@@ -43,13 +43,13 @@ asui-div[name=asc-container] {
 }
 
 /** Menu Bar **/
-asui-div[name=asc-menu-container] > asui-menu {
+asui-div.asc-menu-container > asui-menu {
     padding: 3px 0px;
 }
 
 
 /** Status Bar **/
-asui-div[name=asc-status-container] {
+asui-div.asc-status-container {
     display: flex;
     background-color: #FFF;
     color: #000;
@@ -57,10 +57,10 @@ asui-div[name=asc-status-container] {
 }
 
 
-asui-div[name=asc-status-container] asui-div[name=status-text]{
+asui-div.asc-status-container asui-div.status-text{
     padding-left: 4px;
 }
-asui-div[name=asc-status-container] asui-div[name=version-text] {
+asui-div.asc-status-container asui-div.version-text {
     /* float: right; */
     padding-right: 4px;
     margin-left: auto;
@@ -69,10 +69,10 @@ asui-div[name=asc-status-container] asui-div[name=version-text] {
 
 /** Tracker **/
 
-asui-div[name=asc-tracker-container] {
+asui-div.asc-tracker-container {
     flex: 1 1 auto;
 }
-:host(.fullscreen) asui-div[name=asc-container] {
+:host(.fullscreen) asui-div.asc-container {
     height: 100%;
 }
 
@@ -81,13 +81,13 @@ asui-div[name=asc-tracker-container] {
 
 
 /** Context Menu **/
-asui-menu[name=context].open-context-menu {
+asui-menu.context.open-context-menu {
     display: block;
     position: fixed;
     z-index: 99;
     transition: all 0s;
 }
-asui-menu[name=context].open-context-menu:not(.open) {
+asui-menu.context.open-context-menu:not(.open) {
     display: none;
 }
 
@@ -102,14 +102,15 @@ asui-menu[name=context].open-context-menu:not(.open) {
 
 /** Editor Panels **/
 
+asc-tracker,
 asc-panel {
     vertical-align: top;
     display: inline-block;
     margin: 1px 3px 0px 1px;
 }
 
-.asc-panel-title,
-asc-panel > asui-div[name=title] {
+asc-tracker > asui-div.title,
+asc-panel > asui-div.title {
     /* display: inline-block; */
     background-color: #333;
     color: #FFF;
@@ -134,55 +135,57 @@ asc-form {
     display: inline-block;
     vertical-align: top;
 }
-asc-instrument > asui-div[name=title],
-asc-form > asui-div[name=title] {
+asc-instrument > asui-div.title,
+asc-form > asui-div.title {
     font-size: smaller;
+    height: 9px;
+    color: #666;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
     cursor: pointer;
     padding: 1px 3px;
 }
 
-asc-form[name=volume]       asui-range[name=volume]    input       { max-width: 71px; }
-asc-form[name=version]      asui-text[name=version]    input       {max-width: 53px;}
-asc-form[name=name]         asui-text[name=name]       input       { max-width: 160px; }
-asc-form[name=timing]       asui-text[name=timing]     input       { max-width: 77px; }
-asc-form[name=position]     asui-range[name=position]   input       { max-width: 77px; }
-asc-form[name=bpm]          asui-text[name=bpm]        input       {max-width: 43px;}
+asc-form.volume       asui-range.volume    input       { max-width: 71px; }
+asc-form.version      asui-text.version    input       {max-width: 53px;}
+asc-form.name         asui-text.name       input       { max-width: 160px; }
+asc-form.timing       asui-text.timing     input       { max-width: 77px; }
+asc-form.position     asui-range.position   input       { max-width: 77px; }
+asc-form.bpm          asui-text.bpm        input       {max-width: 43px;}
 
 
 
 /** Instruction Form **/
 
-asc-form[name=instruction-command]      asui-select[name=command]       select      {width: 72px;}
-asc-form[name=instruction-velocity]     asui-range[name=velocity]       input       { width: 64px; }
-asc-form[name=instruction-duration]     asui-select[name=duration]      select      {width: 42px;}
+asc-form.instruction-command      asui-select.command       select      {width: 72px;}
+asc-form.instruction-velocity     asui-range.velocity       input       { width: 64px; }
+asc-form.instruction-duration     asui-select.duration      select      {width: 42px;}
 
-asc-form[name=instruction-instrument]   asui-select[name=instrument]    select      {width: 83px;}
+asc-form.instruction-instrument   asui-select.instrument    select      {width: 83px;}
 
 /** Tracker Render Forms **/
 
-asc-form[name=tracker-row-length]       asui-select[name=row-length]        select      {width: 42px;}
-asc-form[name=tracker-segment-length]   asui-select[name=segment-length]    select      {width: 44px;}
-asc-form[name=tracker-instrument]       asui-select[name=filter-instrument] select      {width: 72px;}
-asc-form[name=tracker-selection]        asui-text[name=selection]           input       {width: 99px;}
-asc-form[name=tracker-octave]           asui-select[name=octave]            select      {width: 36px;}
-asc-form[name=tracker-octave]           asui-select[name=octave]            select      {width: 36px;}
+asc-form.tracker-row-length       asui-select.row-length        select      {width: 42px;}
+asc-form.tracker-segment-length   asui-select.segment-length    select      {width: 44px;}
+asc-form.tracker-instrument       asui-select.filter-instrument select      {width: 72px;}
+asc-form.tracker-selection        asui-text.selection           input       {width: 99px;}
+asc-form.tracker-octave           asui-select.octave            select      {width: 36px;}
+asc-form.tracker-octave           asui-select.octave            select      {width: 36px;}
 
 
 /** Instrument Form **/
 
-asui-div[name=instruments]  asui-select[name=instrument-add-url]       select      { width: 120px; }
-asui-div[name=instruments]  asui-select[name=instrument-preset]       select      { width: 120px; }
+asui-div.instruments  asui-select.instrument-add-url       select      { width: 120px; }
+asui-div.instruments  asui-select.instrument-preset       select      { width: 120px; }
 
 /** Add instrument Form **/
 
-/*asui-div[name=asc-container]  form.asc-form-song-add-instrument                                    {!* height: 54px; *!}*/
-/*asui-div[name=asc-container]  form.asc-form-song-add-instrument select[name=instrumentURL]            {min-width: 129px;!* padding: 1em; *!}*/
+/*asui-div.asc-container  form.asc-form-song-add-instrument                                    {!* height: 54px; *!}*/
+/*asui-div.asc-container  form.asc-form-song-add-instrument select.instrumentURL            {min-width: 129px;!* padding: 1em; *!}*/
 
 
 /*@media only screen and (min-width: 1000px) {*/
-/*    asui-div[name=asc-container] .asc-form-section-divide {*/
+/*    asui-div.asc-container .asc-form-section-divide {*/
 /*        width: 12px;*/
 /*        writing-mode: vertical-rl;*/
 /*        padding: 10px 2px 6px 2px;*/
@@ -200,7 +203,7 @@ asc-instrument {
 /** Add instrument Form **/
 
 /*asc-instrument  form.asc-form-song-add-instrument                                    {!* height: 54px; *!}*/
-/*asc-instrument  form.asc-form-song-add-instrument select[name=instrumentURL]            {min-width: 129px;!* padding: 1em; *!}*/
+/*asc-instrument  form.asc-form-song-add-instrument select.instrumentURL            {min-width: 129px;!* padding: 1em; *!}*/
 
 
 
@@ -210,12 +213,12 @@ asc-instrument {
 
 :host(:not(.playing)) .show-on-playing,
 :host(.playing) .hide-on-playing,
-:host(.hide-panel-song) asc-panel[name=song],
-:host(.hide-panel-tracker) asc-panel[name=instructions],
-:host(.hide-panel-tracker) asc-panel[name=tracker],
-:host(.hide-panel-tracker) asc-panel[name=tracker-groups],
-:host(.hide-panel-tracker) asc-panel[name=tracker-row-segments],
-:host(.hide-panel-instruments) asc-panel[name=instruments] {
+:host(.hide-panel-song) asc-panel.song,
+:host(.hide-panel-tracker) asc-panel.instructions,
+:host(.hide-panel-tracker) asc-panel.tracker,
+:host(.hide-panel-tracker) asc-panel.tracker-groups,
+:host(.hide-panel-tracker) asc-panel.tracker-row-segments,
+:host(.hide-panel-instruments) asc-panel.instruments {
     display: none;
 }
 
@@ -255,38 +258,39 @@ asc-tracker .tracker-header-pause {
 
 /** Tracker Row Segments/Groups **/
 
-asc-panel[name=tracker-groups] > asui-button,
-asc-panel[name=tracker-row-segments] > asui-button {
+asc-panel.tracker-groups > asui-button,
+asc-panel.tracker-row-segments > asui-button {
     border: 1px outset #FFF;
     padding: 4px 12px;
+    margin: 0px 0px;
     background-color: #DDD;
 }
 
-asc-panel[name=tracker-groups] > asui-button[selected],
-asc-panel[name=tracker-row-segments] > asui-button[selected] {
+asc-panel.tracker-groups > asui-button[selected],
+asc-panel.tracker-row-segments > asui-button[selected] {
     font-weight: bold;
     background-color: #BBB;
     border-style: inset;
 }
 
 /** Tracker Header **/
-asc-tracker asui-div[name=tracker-header] {
+asc-tracker asui-div.tracker-header {
     /*background-color: #333;*/
     /*color: #FFF;*/
 }
-asc-tracker asui-div[name=tracker-header] > asui-div[name=delta] {
+asc-tracker asui-div.title > asui-div.delta {
     float: left;
     /* padding: 2px; */
 }
-asc-tracker asui-div[name=tracker-header] > asui-div[name=instructions] {
-    display: block;
+asc-tracker asui-div.title > asui-div.instructions {
+    /*display: block;*/
     /* padding: 2px; */
-    text-align: center;
+    /*text-align: center;*/
 }
 
 /** Tracker Row **/
 
-asc-tracker asui-div[name=tracker-row-container] {
+asc-tracker asui-div.tracker-row-container {
     overflow-y: auto;
     max-height: 800px;
 }

@@ -42,12 +42,14 @@
     // }, 1000);
 
     class AudioSourcePlayerElement extends AudioSourcePlayerActions {
-        constructor(props={}) {
-            super({
+        constructor(props={}, state={}) {
+            super(props, Object.assign({
                 volume: AudioSourceSong.DEFAULT_VOLUME,
                 version: -1,
                 songLength: 0,
-            }, props);
+            }, state));
+
+
             this.song = null;
             this.props.playlistActive = false;
             this.props.playing = false;
@@ -101,7 +103,7 @@
         }
 
         setVersion(versionString) {
-            this.versionString = versionString;
+            this.state.version = versionString;
             this.refs.textVersion.content = versionString;
         }
 

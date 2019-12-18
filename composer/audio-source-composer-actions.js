@@ -32,7 +32,25 @@
         }
 
 
-        /** Song Commands **/
+        /** Song rendering **/
+
+        async setCurrentSong(song) {
+            if(this.song) {
+                if(this.song.isPlaying) {
+                    this.song.stopPlayback();
+                }
+                this.song.removeDispatchElement(this);
+                // TODO: unload song?
+            }
+            this.song = song;
+            this.state.songLength = song.getSongLengthInSeconds();
+            this.song.setVolume(this.state.volume);
+            this.song.addDispatchElement(this);
+            await this.renderOS();
+        }
+
+
+        /** Song commands **/
 
 
         setSongName(e, newSongName) {
@@ -79,7 +97,8 @@
 
 
         async loadSongFromMemory(songUUID) {
-            this.song = await AudioSourceSong.loadSongFromMemory(songUUID);
+            const song = await AudioSourceSong.loadSongFromMemory(songUUID);
+            await this.setCurrentSong(song);
             this.setStatus("Song loaded from memory: " + songUUID, this.song);
 //         console.info(songData);
         }
@@ -89,8 +108,9 @@
                 file = this.refs.fieldSongFileLoad.inputElm.files[0];
             if (!file)
                 throw new Error("Invalid file input");
+            const song = await AudioSourceSong.loadSongFromFileInput(file);
+            await this.setCurrentSong(song);
             await this.song.loadSongFromFileInput(file);
-            this.addSongFileToPlaylist(file, this.song.name, this.song.getSongLengthInSeconds());
             // this.render();
         }
 
@@ -233,6 +253,40 @@
             this.trackerElm.findInstructionElement(index)
                 .update(this.song, instruction);
         }
+
+
+
+
+        instructionInsertOrUpdate(e, commandString = null) {
+            let selectedIndicies = this.editorElm.getSelectedIndicies();
+            if (this.cursorCell.matches('asct-instruction-add')) {
+                let newInstruction = this.instructionGetFormValues(commandString);
+                if (!newInstruction) {
+                    this.editorElm.refs.fieldInstructionCommand.focus();
+                    return console.info("Insert canceled");
+                }
+
+                const insertPosition = this.cursorPosition;
+                const insertIndex = this.instructionInsertAtPosition(insertPosition, newInstruction);
+                // this.cursorRow.render(true);
+                this.renderRows();
+                this.selectSegmentIndicies(insertIndex, true);
+                // selectedIndicies = [insertIndex];
+//                             console.timeEnd("new");
+                // cursorInstruction = instructionList[insertIndex];
+            } else {
+                for (let i = 0; i < selectedIndicies.length; i++) {
+                    const selectedInstruction = this.instructionFind(selectedIndicies[i]);
+                    const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
+                    this.instructionReplaceCommand(selectedIndicies[i], replaceCommand);
+                }
+                this.renderRows();
+                this.selectSegmentIndicies(selectedIndicies);
+                // this.selectIndicies(this.editorElm.getSelectedIndicies()[0]); // TODO: select all
+            }
+        }
+
+
 
         async instructionInsert(newCommand = null, promptUser = false, instrumentID = null, groupName=null) {
             //: TODO: check for recursive group

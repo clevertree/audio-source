@@ -20,8 +20,8 @@
     } = await requireAsync('player/audio-source-player-renderer.js');
 
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
-        constructor(state={}, props={}) {
-            super(state, props);
+        constructor(props={}, state={}) {
+            super(props, state);
 
             // this.activeSong = null;
             // this.nextPlaylistSong = null;

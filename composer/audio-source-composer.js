@@ -24,8 +24,18 @@
     const {AudioSourceComposerTracker} = await requireAsync('composer/audio-source-composer-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
-        constructor(state={}, props={}) {
-            super(state, props);
+        constructor(props={}, state={}) {
+            super(props, Object.assign({
+                volume: AudioSourceSong.DEFAULT_VOLUME,
+                version: -1,
+                songLength: 0,
+            }, state));
+
+
+            this.props.playlistActive = false;
+            this.props.playing = false;
+            this.props.paused = false;
+
             // this.versionString = '-1';
             // this.eventHandlers = [];
             this.saveSongToMemoryTimer = null;
@@ -53,12 +63,22 @@
             this.song = new AudioSourceSong();
             this.song.addDispatchElement(this);
             this.song.loadSongData({});
-            this.values = new AudioSourceValues(this.song);
+            // this.values = new AudioSourceValues(this.song);
             // Util.loadLibrary(defaultLibraryURL);
 
             this.addEventHandler('unload', e => this.saveState(e), window);
             this.ui = {};
         }
+
+
+        get isPlaylistActive()      { return this.props.playlistActive; }
+        set isPlaylistActive(value) { this.setProps({playlistActive: value}); }
+        get isPlaying()             { return this.props.playing; }
+        set isPlaying(value)        { this.setProps({playing: value}); }
+        get isPaused()              { return this.props.paused; }
+        set isPaused(value)         { this.setProps({paused: value}); }
+
+        get values() { return new AudioSourceValues(this.song); }
 
         async connectedCallback() {
             this.shadowDOM = this.attachShadow({mode: 'closed'});
@@ -173,17 +193,17 @@
                 return true;
             }
 
-            if (recentSongUUID) try {
+            await this.loadNewSongData();
+
+            if (recentSongUUID) {
                 await this.loadSongFromMemory(recentSongUUID);
                 return;
-            } catch (e) {
-                console.error(e);
             }
+
 
             // if(await this.loadRecentSongData())
             //     return true;
 
-            await this.loadNewSongData();
             return false;
         }
 
@@ -258,7 +278,7 @@
                             let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
                             console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
-                            this.insertOrUpdateCommand(e, newMIDICommand);
+                            this.instructionInsertOrUpdate(e, newMIDICommand);
                             this.playSelectedInstructions(e);
                             // this.focus();
                             break;

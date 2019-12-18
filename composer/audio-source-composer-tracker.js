@@ -32,7 +32,7 @@
 
     class AudioSourceComposerTracker extends ASUIComponent {
         constructor(editorElm, group = 'root') {
-            super({
+            super({}, {
                 group,
                 currentRowSegmentID: 0,
                 cursorListOffset: 0,
@@ -40,7 +40,7 @@
                 quantizationInTicks: null,
                 segmentLengthInTicks: null,
                 filterByInstrumentID: null
-            }, {});
+            });
 
             this.props.tabindex = 0;
             this.editorElm = editorElm;
@@ -209,7 +209,7 @@
             console.timeEnd('tracker.renderRows()');
 
             return [
-                this.refs.rowContainer = new ASUIDiv('tracker-header', () => [
+                this.refs.rowContainer = new ASUIDiv('title', () => [
                     new ASUIDiv('delta', "Delta"),
                     new ASUIDiv('instructions', "Instructions"),
                 ], {class: 'asc-panel-title'}),
@@ -283,7 +283,7 @@
                             if (this.contains(e.target)) {
 
                                 e.preventDefault();
-                                this.insertOrUpdateCommand(e);
+                                this.editorElm.instructionInsertOrUpdate(e);
 
                                 let cursorInstruction = this.cursorInstruction;
                                 if (cursorInstruction.isGroupCommand()) {
@@ -346,7 +346,7 @@
 
                             e.preventDefault();
 
-                            this.insertOrUpdateCommand(e, newCommand);
+                            this.editorElm.instructionInsertOrUpdate(e, newCommand);
 
                             // this.render();
                             // this.renderCursorRow();
@@ -930,35 +930,6 @@
 
 
 
-        insertOrUpdateCommand(e, commandString = null) {
-            let selectedIndicies = this.editorElm.getSelectedIndicies();
-            if (this.cursorCell.matches('asct-instruction-add')) {
-                let newInstruction = this.instructionGetFormValues(commandString);
-                if (!newInstruction) {
-                    this.editorElm.refs.fieldInstructionCommand.focus();
-                    return console.info("Insert canceled");
-                }
-
-                const insertPosition = this.cursorPosition;
-                const insertIndex = this.instructionInsertAtPosition(insertPosition, newInstruction);
-                // this.cursorRow.render(true);
-                this.renderRows();
-                this.selectSegmentIndicies(insertIndex, true);
-                // selectedIndicies = [insertIndex];
-//                             console.timeEnd("new");
-                // cursorInstruction = instructionList[insertIndex];
-            } else {
-                for (let i = 0; i < selectedIndicies.length; i++) {
-                    const selectedInstruction = this.instructionFind(selectedIndicies[i]);
-                    const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
-                    this.instructionReplaceCommand(selectedIndicies[i], replaceCommand);
-                }
-                this.renderRows();
-                this.selectSegmentIndicies(selectedIndicies);
-                // this.selectIndicies(this.editorElm.getSelectedIndicies()[0]); // TODO: select all
-            }
-        }
-
         // instructionReplaceParams(replaceIndex, replaceParams) {
         //     return this.editor.song.instructionReplaceParams(this.groupName, replaceIndex, replaceParams);
         // }
@@ -1001,13 +972,13 @@
 
     class AudioSourceComposerTrackerRow extends ASUIComponent {
         constructor(song, instructions, positionInTicks=null, positionInSeconds=null, duration=null) {
-            super({
+            super({t: positionInTicks, cursor: false}, {
                 instructions,
                 delta: new AudioSourceComposerTrackerDelta(song, duration),
                 positionInSeconds,
                 duration,
                 // selected: false
-            }, {t: positionInTicks, cursor: false});
+            });
         }
 
 
@@ -1056,11 +1027,11 @@
 
     class AudioSourceComposerTrackerInstruction extends ASUIComponent {
         constructor(song, instruction, props={}) {
-            super({}, Object.assign({
-                i: instruction.index,
-                selected: false,
-                cursor: false
-            }, props));
+            super(props, {});
+            this.props.i = instruction.index;
+            // this.props.selected = false;
+            // this.props.cursor = false;
+
             this.state = this.getInstructionContent(song, instruction);
         }
 
@@ -1163,9 +1134,9 @@
 
     class AudioSourceComposerParamCommand extends ASUIComponent {
         constructor(command, props= {}) {
-            super({
+            super(props, {
                 command: new AudioSourceValues().formatCommand(command)
-            }, props);
+            });
         }
 
         render() {
@@ -1178,9 +1149,9 @@
 
     class AudioSourceComposerParamInstrument extends ASUIComponent {
         constructor(instrumentID, props= {}) {
-            super({
+            super(props, {
                 instrumentID: new AudioSourceValues().formatInstrumentID(instrumentID)
-            }, props);
+            });
         }
 
         render() {
@@ -1191,9 +1162,9 @@
 
     class AudioSourceComposerParamVelocity extends ASUIComponent {
         constructor(velocity, props= {}) {
-            super({
+            super(props, {
                 velocity: new AudioSourceValues().formatVelocity(velocity)
-            }, props);
+            });
         }
 
         render() {
@@ -1205,9 +1176,9 @@
 
     class AudioSourceComposerParamDuration extends ASUIComponent {
         constructor(song, duration, props= {}) {
-            super({
+            super(props, {
                 duration:new AudioSourceValues(song).formatDuration(duration)
-            }, props);
+            });
         }
 
         render() {
@@ -1220,9 +1191,9 @@
 
     class AudioSourceComposerTrackerDelta extends ASUIComponent {
         constructor(song, duration, props= {}) {
-            super({
+            super(props, {
                 duration: new AudioSourceValues(song).formatDuration(duration)
-            }, props);
+            });
         }
 
         render() {

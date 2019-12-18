@@ -23,10 +23,12 @@
 
     /** Abstract Component **/
     class ASUIComponent extends HTMLElement {
-        constructor(state={}, props={}) {
+        constructor(props = {}, state = {}) {
             super();
-            this.state = state;
-            this.props = props;
+            if(typeof props !== "object")
+                props = {class: props};
+            this.state = state || {};
+            this.props = props || {};
             this.refs = {};
             this._eventHandlers = [];
             this._renderOnConnect = true;
@@ -165,9 +167,12 @@
 
     /** Div **/
     class ASUIDiv extends ASUIComponent {
-        constructor(name = null, content = null, props = {}) {
-            super({content}, props);
-            props.name = name;
+        /**
+         * @param props
+         * @param content
+         */
+        constructor(props = {}, content = null) {
+            super(props, {content});
         }
 
         get name() { return this.props.name; }
@@ -187,18 +192,18 @@
     /** Menu **/
     class ASUIMenu extends ASUIComponent {
 
-        constructor(title = null, dropDownContent = null, actionCallback = null, props = {}) {
-            super({
-                title: title || '▼',
+        constructor(props = {}, menuContent = null, dropDownContent = null, actionCallback = null) {
+            super(props, {
+                menuContent: menuContent || '▼',
                 content: dropDownContent,
                 offset: 0,
                 maxLength: 20,
                 optionCount: 0
-            }, props);
-            props.stick = false;
-            props.open = false;
-            if(dropDownContent && typeof props.vertical === "undefined" && typeof props.arrow === "undefined")
-                props.arrow = true;
+            });
+            this.props.stick = false;
+            this.props.open = false;
+            if(dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
+                this.props.arrow = true;
             this.action = actionCallback;
             this.addEventHandler('mouseover', this.onInputEvent);
             this.addEventHandler('mouseout', this.onInputEvent);
@@ -209,16 +214,16 @@
         }
 
         async setTitle(newTitle) {
-            this.state.title = newTitle;
-            if(this.refs.title)
-                await this.refs.title.setState({content: newTitle});
+            this.state.menuContent = newTitle;
+            if(this.refs.menuContent)
+                await this.refs.menuContent.setState({content: newTitle});
             else
                 await this.setState({title});
         }
 
         async render() {
             const content = [
-                this.refs.title = (this.state.title ? (this.state.title instanceof HTMLElement ? this.state.title : new ASUIDiv('title', this.state.title)) : null),
+                this.refs.menuContent = (this.state.menuContent ? (this.state.menuContent instanceof HTMLElement ? this.state.menuContent : new ASUIDiv('title', this.state.menuContent)) : null),
                 this.props.arrow ? new ASUIDiv('arrow', this.props.vertical ? '▼' : '►') : null,
                 this.refs.dropdown = new ASUIDiv('dropdown', (this.props.open && this.state.content ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
                 // this.props.hasBreak ? new ASUIDiv('break') : null,
@@ -245,10 +250,10 @@
             }
             if(offset + length < i) {
                 const left = i - (offset + length);
-                contentList.push(new ASUIMenu(`${left} items left`))
+                contentList.push(new ASUIMenu({}, `${left} items left`))
             }
             // while(contentList.length < length && offset > contentList.length)
-            //     contentList.push(new ASUIMenu('-'));
+            //     contentList.push(new ASUIMenu({}, '-'));
             this.state.optionCount = i;
             return contentList;
         }
@@ -428,8 +433,8 @@
 
 
     class ASUIInputSelect extends ASUIDiv {
-        constructor(name, optionContent, actionCallback, defaultValue = null, valueTitle=null, props = {}) {
-            super(name, () => optionContent(this), props);
+        constructor(props, optionContent, actionCallback, defaultValue = null, valueTitle=null) {
+            super(props, () => optionContent(this));
             this.setValue(defaultValue, valueTitle);
             this.actionCallback = actionCallback;
         }
@@ -464,38 +469,33 @@
             if(value === this.state.value && title !== null && this.state.title === null)
                 this.state.title = title;
             title = title || value;
-            return new ASUIMenu(title, null, async e => {
+            return new ASUIMenu(props, title, null, async e => {
                 this.setValue(value, title);
                 await this.onChange(e);
-            }, props);
+            });
         }
 
         getOptGroup(title, content, props={}) {
-            return new ASUIMenu(title, content, null, props);
+            return new ASUIMenu(props, title, content);
         }
 
 
         /** @override **/
         async render() {
-            return this.refs.menu = new ASUIMenu(this.state.title,
-                this.state.content,
-                null,
-                {vertical: true}
-            );
+            return this.refs.menu = new ASUIMenu({vertical: true}, this.state.title, this.state.content);
         }
     }
     customElements.define('asui-select', ASUIInputSelect);
 
     class ASUIInputRange extends ASUIComponent {
-        constructor(name = null, callback = null, min = 1, max = 100, value = null, title = null, props = {}) {
-            super({
+        constructor(props = {}, callback = null, min = 1, max = 100, value = null, title = null,) {
+            super(props, {
                 min,
                 max,
                 value,
                 callback,
                 title,
-            }, props);
-            props.name = name;
+            });
             // this.addEventHandler('change', e => this.onChange(e));
         }
 
@@ -586,13 +586,12 @@
 
 
     class ASUIInputButton extends ASUIComponent {
-        constructor(name = null, callback = null, content = null, title = null, props={}) {
-            super({
+        constructor(props = {}, content = null, callback = null, title = null) {
+            super(props, {
                 content,
                 callback,
                 title,
-            }, props);
-            props.name = name;
+            });
 
             this.addEventHandler('click', e => this.onClick(e));
         }
@@ -612,14 +611,13 @@
 
 
     class ASUIInputText extends ASUIComponent {
-        constructor(name = null, callback = null, value = null, title = null, placeholder = null, props = {}) {
-            super({
+        constructor(props={}, callback = null, value = null, title = null, placeholder = null) {
+            super(props, {
                 callback,
                 value,
                 placeholder,
                 title
-            }, props);
-            props.name = name;
+            });
             // props.title = title;
             // this.addEventHandler('change', e => this.onChange(e));
         }
@@ -655,13 +653,13 @@
 
 
     class ASUIInputCheckBox extends ASUIComponent {
-        constructor(name = null, callback = null, checked = false, title = null, props={}) {
-            super({
+        constructor(props={}, name = null, callback = null, checked = false, title = null) {
+            super(props, {
                 callback,
                 checked,
-            }, props);
-            props.name = name;
-            props.title = title;
+            });
+            // props.name = name;
+            this.props.title = title;
             // this.addEventHandler('change', e => this.onChange(e));
         }
 
@@ -695,14 +693,14 @@
 
 
     class ASUIFileInput extends ASUIComponent {
-        constructor(name, callback = null, content, accepts = null, title = null, props = {}) {
+        constructor(props={}, callback = null, content, accepts = null, title = null) {
             // constructor(name = null, callback = null, checked = false, title = null, props={}) {
-            super({
+            super(props, {
                 callback,
                 content,
                 title,
-            }, props);
-            props.name = name;
+            });
+//             props.name = name;
             // this.addEventHandler('change', e => this.onChange(e));
         }
 
@@ -730,9 +728,6 @@
             const labelElm = document.createElement('label');
             labelElm.classList.add('button-style');
 
-            const labelContentElm = document.createElement('div');
-            labelElm.appendChild(labelContentElm);
-
             this.appendContentTo(this.state.content, labelElm);
             this.appendContentTo(inputElm, labelElm);
 
@@ -748,9 +743,8 @@
 
     /** Icon **/
     class ASUIcon extends ASUIComponent {
-        constructor(iconClass, props = {}) {
-            props.class = iconClass;
-            super({}, props);
+        constructor(props = {}) {
+            super(props, {});
         }
 
         render() { return null; }
