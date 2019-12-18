@@ -606,7 +606,7 @@
         /** Instruments **/
 
 
-        instrumentAdd(instrumentURL, instrumentConfig = {}) {
+        async instrumentAdd(instrumentURL, instrumentConfig = {}) {
             if (!instrumentURL)
                 throw new Error(`Empty URL`);
             instrumentConfig.url = instrumentURL;
@@ -618,6 +618,7 @@
                 const instrumentID = this.song.instrumentAdd(instrumentConfig);
                 this.setStatus("New instrument Added to song: " + instrumentURL);
                 this.refs.fieldInstructionInstrument.setValue(instrumentID);
+                await this.refs.panelInstruments.renderOS();
 
             } else {
                 throw new Error(`New instrument canceled: ${instrumentURL}`);

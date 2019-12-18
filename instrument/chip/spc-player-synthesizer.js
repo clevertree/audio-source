@@ -197,7 +197,7 @@
 
         remove() {
             this.instrument.song.instrumentRemove(this.instrument.id);
-            document.dispatchEvent(new CustomEvent('instrument:remove', this));
+            // document.dispatchEvent(new CustomEvent('instrument:remove', this));
         }
 
         instrumentRename(newInstrumentName) {

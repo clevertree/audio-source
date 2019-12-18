@@ -149,18 +149,23 @@
 
 
     AudioSourceLibrary.historicLibraryCount = function() { return Object.values(AudioSourceLibrary.cache).length; }
-    AudioSourceLibrary.eachHistoricLibrary = async (callback) => {
+    AudioSourceLibrary.eachHistoricLibrary = (callback) => {
+        const results = [];
         for (let cacheURL in AudioSourceLibrary.cache) {
             if (AudioSourceLibrary.cache.hasOwnProperty(cacheURL)) {
                 let libraryConfig = AudioSourceLibrary.cache[cacheURL];
                 if(libraryConfig instanceof Promise)
-                    libraryConfig = await libraryConfig;
-                let libraryName = libraryConfig.name || libraryConfig.url.split('/').pop();
-                const result = callback(libraryConfig.url, libraryName);
+                    continue;
+                    // libraryConfig = await libraryConfig;
+                libraryConfig.name = libraryConfig.name || libraryConfig.url.split('/').pop();
+                const result = callback(libraryConfig);
                 if (result === false)
-                    return;
+                    break;
+                if(result !== null)
+                    results.push(result);
             }
         }
+        return results;
     };
 
     /**
@@ -207,7 +212,7 @@
         return await AudioSourceLibrary.loadFromURL(AudioSourceLibrary.defaultLibraryURL);
     };
     AudioSourceLibrary.cache = {};
-    AudioSourceLibrary.defaultLibraryURL = findThisScript()[0].basePath + '/default.library.json';
+    AudioSourceLibrary.defaultLibraryURL = findThisScript()[0].basePath + 'default.library.json';
 
 
 

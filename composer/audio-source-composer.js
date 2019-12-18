@@ -336,8 +336,8 @@
                 // break;
                 case 'instrument:added':
                 case 'instrument:removed':
-                    this.renderInstruments();
-                    this.refs.panelInstructions.render();
+                    await this.renderInstruments();
+                    await this.renderInstruments();
                     break;
 
                 case 'instrument:modified':
@@ -355,16 +355,11 @@
                     clearTimeout(this.saveSongToMemoryTimer);
                     this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                     break;
-                case 'instrument:remove':
-                    this.renderInstruments();
-                    this.refs.panelInstructions.render();
-                    break;
                 case 'instrument:library':
 //                 console.log(e.type);
                     // TODO: this.instruments.render();
                     // this.renderInstruments();
                     this.updateForms();
-                    this.refs.panelInstructions.render();
                     break;
             }
         }

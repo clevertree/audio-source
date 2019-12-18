@@ -139,14 +139,14 @@ asui-select > asui-menu {
     padding: 3px 0px;
 }
 
-asui-select > asui-div.dropdown-container {
-    /*display: none;*/
-    position: absolute;
-    overflow: hidden;
-}
-asui-select > asui-div.dropdown-container > asui-menu {
-    display: block;
-}
+/*asui-select > asui-div.dropdown-container {*/
+/*    !*display: none;*!*/
+/*    position: absolute;*/
+/*    overflow: hidden;*/
+/*}*/
+/*asui-select > asui-div.dropdown-container > asui-menu {*/
+/*    display: block;*/
+/*}*/
 
 
 /** Group Buttons **/
@@ -246,6 +246,11 @@ asui-menu > asui-div.dropdown {
     /* overflow-y: scroll; */
     /* overflow: auto; */
 }
+
+asui-menu > asui-div.dropdown:hover {
+    z-index: 4;
+}
+
 asui-menu[open] > asui-div.dropdown {
     opacity: 1;
 }

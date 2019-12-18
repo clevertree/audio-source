@@ -106,8 +106,8 @@
                                 sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
                                 {disabled: sampleLibrary.libraryCount === 0}
                             ),
-                            selectElm.getOptGroup('Other Libraries', async () =>
-                                await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                            selectElm.getOptGroup('Other Libraries', () =>
+                                AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
                                 {disabled: AudioSourceLibrary.historicLibraryCount === 0}
                             ),
                         ],
@@ -125,13 +125,13 @@
                                     const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
                                     return instrumentLibrary.eachInstrument((instrumentConfig) =>
                                         new ASUIMenu({}, instrumentConfig.name, null, () => {
-                                            this.replace(instrumentID, instrumentConfig.url);
+                                            this.song.instrumentReplace(instrumentID, instrumentConfig);
                                         })
                                     );
                                 }
                             ),
-                            new ASUIMenu({}, 'Rename Instrument', null, () => this.composerElm.instrumentRename(instrumentID)),
-                            new ASUIMenu({}, 'Remove Instrument', null, () => this.composerElm.instrumentRemove(instrumentID)),
+                            new ASUIMenu({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
+                            new ASUIMenu({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
                         ]
                     ),
 
@@ -761,9 +761,9 @@
 
         /** Modify Instrument **/
 
-        remove() {
+        instrumentRemove() {
             this.song.instrumentRemove(this.state.id);
-            document.dispatchEvent(new CustomEvent('instrument:remove', this));
+            // document.dispatchEvent(new CustomEvent('instrument:remove', this));
         }
 
         instrumentRename(newInstrumentName) {
@@ -779,7 +779,10 @@
                 newPresetConfig = Object.assign({}, this.state.config, newPresetConfig);
                 await this.song.instrumentReplace(this.state.id, newPresetConfig);
                 await this.loadConfig(newPresetConfig);
-                this.render();
+            }
+            await this.renderOS();
+            if (!presetURL.hash) {
+                await this.refs.selectChangePreset.open();
             }
 //             await this.refs.selectChangePreset.renderOptions();
             // this.refs.selectChangePreset.value = ''; // TODO: why was this?
@@ -807,8 +810,12 @@
         }
 
     }
-    customElements.define('audio-source-synthesizer', AudioSourceSynthesizer);
-
+    try {
+        customElements.define('audio-source-synthesizer', AudioSourceSynthesizer);
+    } catch (e) {
+        console.error(e);
+        customElements.define('audio-source-synthesizer-duplicate', AudioSourceSynthesizer);
+    }
 
 
 

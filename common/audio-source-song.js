@@ -801,6 +801,11 @@
             return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         }
 
+        hasInstrument(instrumentID) {
+            const instrumentList = this.getInstrumentList();
+            return !!instrumentList[instrumentID];
+        }
+
         getInstrumentConfig(instrumentID, throwException = true) {
             const instrumentList = this.getInstrumentList();
             if (instrumentList[instrumentID])
@@ -956,11 +961,14 @@
             const instrumentList = this.data.instruments;
             if (!instrumentList[instrumentID])
                 throw new Error("Invalid instrument ID: " + instrumentID);
+            const isLastInstrument = instrumentID === instrumentList.length - 1;
             // if(instrumentList.length === instrumentID) {
             //
             // }
             delete this.instruments[instrumentID];
-            const oldConfig = this.replaceDataPath(['instruments', instrumentID], null); // Replace, don't delete
+            const oldConfig = isLastInstrument
+                ? this.deleteDataPath(['instruments', instrumentID])
+                : this.replaceDataPath(['instruments', instrumentID], null);
             this.dispatchEvent(new CustomEvent('instrument:removed', {
                 bubbles: true, detail: {
                     instrumentID,

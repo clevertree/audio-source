@@ -86,7 +86,7 @@
                         this.refs.menuGroup         = new ASUIMenu({vertical: true}, 'Group',     () => this.populateMenu('group')),
                         this.refs.menuInstrument    = new ASUIMenu({vertical: true}, 'Instrument', () => this.populateMenu('instrument')),
                         this.refs.menuView          = new ASUIMenu({vertical: true}, 'View',      () => this.populateMenu('view')),
-                        this.refs.menuContext       = new ASUIMenu({vertical: true, context: true}, 'Context Menu',   () => this.populateMenu('context')),
+                        this.refs.menuContext       = new ASUIMenu({vertical: true, context: true}, null,   () => this.populateMenu('context')),
                     ]),
 
                     this.refs.panelContainerElm = new ASUIDiv('asc-panel-container', () => [
@@ -175,14 +175,14 @@
                             this.refs.instruments = [];
                             const instrumentList = this.song.getInstrumentList();
                             const content = instrumentList.map((instrumentConfig, instrumentID) =>
-                                this.refs.instruments[instrumentID] = new ASCInstrumentRenderer({}, this, instrumentID));
+                                this.refs.instruments[instrumentID] = new ASCInstrumentRenderer({}, this.song, instrumentID));
                             
                             content.push(new ASCForm('new', null, () => [
                                 new ASUIInputSelect('add-url',
                                 (s) => [
                                     // s.getOption('', 'Add instrument'),
                                     instrumentLibrary.eachInstrument((instrumentConfig) =>
-                                        s.getOption(instrumentConfig.url)),
+                                        s.getOption(instrumentConfig.url, instrumentConfig.name)),
                                 ],
                                 (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
                                 '',
@@ -428,8 +428,9 @@
                 this.refs.instruments[instrumentID].renderOS();
         }
 
-        renderInstruments() {
-            this.refs.panelInstruments.render();
+        async renderInstruments() {
+            await this.refs.panelInstruments.renderOS();
+            await this.refs.panelInstructions.renderOS();
         }
 
         async populateMenu(menuKey) {
@@ -745,25 +746,24 @@
     
 
     class ASCInstrumentRenderer extends ASUIComponent {
-        constructor(props={}, composerElm, instrumentID) {
+        constructor(props={}, song, instrumentID) {
             super(props, {});
             this.props.id = instrumentID;
-            this.composerElm = composerElm;
+            this.song = song;
         }
 
         async render() {
             const instrumentID = this.props.id;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-            const instrument = await this.composerElm.song.loadInstrument(instrumentID);
-            const instrumentConfig = await this.composerElm.song.getInstrumentConfig(instrumentID);
-            let titleHTML = `${instrumentIDHTML}: ${instrumentConfig.name || "Unnamed"}`;
 
-            const content = [
+            let content = [
             ];
 
-            if (instrument) {
-                try {
+            if(this.song.hasInstrument(instrumentID)) {
 
+                try {
+                    const instrument = await this.song.loadInstrument(instrumentID);
+                    const instrumentConfig = await this.song.getInstrumentConfig(instrumentID);
 
                     if (instrument instanceof HTMLElement) {
                         content.push(instrument);
@@ -776,6 +776,30 @@
                 } catch (e) {
                     content.push(new ASUIDiv('error', e.message));
                 }
+            } else {
+                let titleHTML = `${instrumentIDHTML}: No Instrument`;
+                content = [
+                    new ASUIDiv('header', () => [
+                        this.refs.menu = new ASUIMenu(
+                            {vertical: true},
+                            titleHTML,
+                            () => [
+                                new ASUIMenu({}, 'Change Instrument to',
+                                    async () => {
+                                        const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
+                                        return instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                            new ASUIMenu({}, instrumentConfig.name, null, () => {
+                                                this.song.instrumentReplace(instrumentID, instrumentConfig);
+                                            })
+                                        );
+                                    }
+                                ),
+                                new ASUIMenu({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
+                                new ASUIMenu({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
+                            ]
+                        ),
+                    ]),
+                ]
             }
 
             return content;

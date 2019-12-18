@@ -194,7 +194,7 @@
 
         constructor(props = {}, menuContent = null, dropDownContent = null, actionCallback = null) {
             super(props, {
-                menuContent: menuContent || '▼',
+                menuContent,
                 content: dropDownContent,
                 offset: 0,
                 maxLength: 20,
@@ -213,13 +213,13 @@
             this.addEventHandler('keydown', this.onInputEvent);
         }
 
-        async setTitle(newTitle) {
-            this.state.menuContent = newTitle;
-            if(this.refs.menuContent)
-                await this.refs.menuContent.setState({content: newTitle});
-            else
-                await this.setState({title});
-        }
+        // async setTitle(newTitle) {
+        //     this.state.menuContent = newTitle;
+        //     if(this.refs.menuContent)
+        //         await this.refs.menuContent.setState({content: newTitle});
+        //     else
+        //         await this.setState({title});
+        // }
 
         async render() {
             const content = [
@@ -318,7 +318,9 @@
             switch (e.type) {
                 case 'mouseover':
                     clearTimeout(this.mouseTimeout);
-                    this.open();
+                    this.mouseTimeout = setTimeout(e => {
+                        this.open();
+                    }, 100);
                     break;
 
                 case 'mouseout':
@@ -473,6 +475,10 @@
                 if(menu instanceof ASUIMenu && menu.state.content)
                     await this.resolveOptions(menu.state.content);
             });
+        }
+
+        async open() {
+            await this.refs.menu.open();
         }
 
         getOption(value, title=null, props={}) {

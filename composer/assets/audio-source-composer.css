@@ -200,6 +200,10 @@ asui-div.instruments  asui-select.instrument-preset       select      { width: 1
 /** Editor Instrument Containers **/
 asc-instrument {
 }
+asc-instrument > asui-div.header {
+    display: flex;
+    padding: 2px 3px;
+}
 
 /** Add instrument Form **/
 
