@@ -14,8 +14,8 @@
 
 
 
-    const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
-    const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
+    const {LibGMESupport} = require('../common/support/libgme-support.js');
+    const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
 
     class SPCPlayerSynthesizer {
 

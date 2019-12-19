@@ -13,8 +13,8 @@
     const resolveExports = registerAsyncModule();
 
 
-    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
+    const {AudioSourceValues} = require('../common/audio-source-values.js');
     const {
         ASUIComponent,
         ASUIDiv,
@@ -29,7 +29,7 @@
         ASUIInputCheckBox,
         ASUIInputText,
         ASUIcon,
-    } = await requireAsync('common/audio-source-ui.js');
+    } = require('../common/audio-source-ui.js');
 
 
 

@@ -130,9 +130,12 @@ asui-file  {
 }
 
 asui-button > div,
-asui-range,
+asui-range {
+    padding: 2px 0px;
+}
+
 asui-text {
-     padding: 2px 0px;
+    padding: 3px 0px;
 }
 
 asui-select > asui-menu {

@@ -1,27 +1,21 @@
-(async function() {
-
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'composer/audio-source-composer.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {AudioSourceComposerElement};
-    }
-
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
+{
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
 
     /** Required Modules **/
-    const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-    const {ASUIDiv} = await requireAsync('common/audio-source-ui.js');
-    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
-    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
-    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    const {ASUIDiv} = require('../common/audio-source-ui.js');
+    const {AudioSourceValues} = require('../common/audio-source-values.js');
+    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
+    const {AudioSourceSong} = require('../common/audio-source-song.js');
+    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
 
-    const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
-    const {AudioSourceComposerActions} = await requireAsync('composer/audio-source-composer-actions.js');
-    const {AudioSourceComposerKeyboard} = await requireAsync('composer/audio-source-composer-keyboard.js');
-    const {AudioSourceComposerTracker} = await requireAsync('composer/audio-source-composer-tracker.js');
+    const {AudioSourceComposerRenderer} = require('../composer/audio-source-composer-renderer.js');
+    const {AudioSourceComposerActions} = require('../composer/audio-source-composer-actions.js');
+    const {AudioSourceComposerKeyboard} = require('../composer/audio-source-composer-keyboard.js');
+    const {AudioSourceComposerTracker} = require('../composer/audio-source-composer-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
         constructor(props={}, state={}) {
@@ -379,63 +373,12 @@
     customElements.define('audio-source-composer', AudioSourceComposerElement);
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
+    const thisScriptPath = 'composer/audio-source-composer.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceComposerElement,
+    };
 
 
-})();
+}

@@ -1,19 +1,7 @@
-/**
- * Player requires a modern browser
- */
-
-(function() {
-//  use server for export http://grimmdude.com/MidiWriterJS/docs/index.html https://github.com/colxi/midi-parser-js/blob/master/src/midi-parser.js
-    // TODO: midi file and jsf as data url
-
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/audio-source-storage.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            AudioSourceStorage,
-        };
-    }
-
+{
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
     class AudioSourceStorage {
         constructor() {
@@ -66,7 +54,7 @@
         /** Encoding / Decoding **/
 
         async encodeForStorage(json, replacer = null, space = null) {
-            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+            const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
             let encodedString = JSON.stringify(json, replacer, space);
             const Util = new AudioSourceUtilities();
             const LZString = await Util.getLZString();
@@ -78,7 +66,7 @@
         async decodeForStorage(encodedString) {
             if (!encodedString)
                 return null;
-            const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+            const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
             const Util = new AudioSourceUtilities();
             const LZString = await Util.getLZString();
             encodedString = LZString.decompress(encodedString) || encodedString;
@@ -246,48 +234,13 @@
     }
 
 
+
     /** Export this script **/
-    registerModule(exportThisScript);
+    const thisScriptPath = 'common/audio-source-storage.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceStorage,
+    };
 
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
 
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
-})();
+}

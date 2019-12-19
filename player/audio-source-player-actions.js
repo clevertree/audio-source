@@ -1,23 +1,16 @@
-(async function() {
+{
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'player/audio-source-player-actions.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {AudioSourcePlayerActions};
-    };
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
-
-
-    // const {ASUIComponent} = await requireAsync('common/audio-source-ui.js');
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
-    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-    // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+    const {AudioSourceSong}             = require('../common/audio-source-song.js');
+    const {AudioSourceStorage}          = require('../common/audio-source-storage.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {
         AudioSourcePlayerRenderer,
         ASPPlaylistPlaylistEntry
-    } = await requireAsync('player/audio-source-player-renderer.js');
+    }                                   = require('../player/audio-source-player-renderer.js');
 
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
         constructor(props={}, state={}) {
@@ -325,63 +318,10 @@
     }
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
-
-})();
+    const thisScriptPath = 'player/audio-source-player-actions.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourcePlayerActions,
+    };
+}

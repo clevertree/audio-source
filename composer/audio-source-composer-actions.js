@@ -1,28 +1,22 @@
-(async function() {
-
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'composer/audio-source-composer-actions.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {AudioSourceComposerActions};
-    }
-
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
+{
+    /** Required Modules **/
+    if (typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
 
     /** Required Modules **/
-    const {AudioSourceSong}             = await requireAsync('common/audio-source-song.js');
-    const {AudioSourceComposerRenderer} = await requireAsync('composer/audio-source-composer-renderer.js');
+    const {AudioSourceSong}                 = require('../common/audio-source-song.js');
+    const {AudioSourceComposerRenderer}     = require('../composer/audio-source-composer-renderer.js');
     const {
         AudioSourceTracker,
         AudioSourceComposerTrackerInstruction
-    }          = await requireAsync('composer/audio-source-composer-tracker.js');
-    const {AudioSourceStorage}          = await requireAsync('common/audio-source-storage.js');
-    // const {AudioSourceUtilities}        = await requireAsync('common/audio-source-utilities.js');
-    // const {ASUIComponent}               = await requireAsync('common/audio-source-ui.js');
+    } = require('../composer/audio-source-composer-tracker.js');
+    const {AudioSourceStorage}              = require('../common/audio-source-storage.js');
+    // const {AudioSourceUtilities}        = require('../common/audio-source-utilities.js');
+    // const {ASUIComponent}               = require('../common/audio-source-ui.js');
 
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
-        constructor(state={}, props={}) {
+        constructor(state = {}, props = {}) {
             super(state, props);
 
         }
@@ -35,8 +29,8 @@
         /** Song rendering **/
 
         async setCurrentSong(song) {
-            if(this.song) {
-                if(this.song.isPlaying) {
+            if (this.song) {
+                if (this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
                 this.song.removeDispatchElement(this);
@@ -103,8 +97,8 @@
 //         console.info(songData);
         }
 
-        async loadSongFromFileInput(file=null) {
-            if(file === null)
+        async loadSongFromFileInput(file = null) {
+            if (file === null)
                 file = this.refs.fieldSongFileLoad.inputElm.files[0];
             if (!file)
                 throw new Error("Invalid file input");
@@ -113,7 +107,6 @@
             // await this.song.loadSongFromFileInput(file);
             // this.render();
         }
-
 
 
         async loadSongFromURL(url) {
@@ -213,7 +206,7 @@
         updateSongPositionValue(playbackPositionInSeconds) {
             const roundedSeconds = Math.round(playbackPositionInSeconds);
             this.refs.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.refs.fieldSongPosition.value !== roundedSeconds)
+            if (this.refs.fieldSongPosition.value !== roundedSeconds)
                 this.refs.fieldSongPosition.value = roundedSeconds;
             this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
         }
@@ -239,7 +232,7 @@
             if (this.song.isPlaying)
                 this.song.stopPlayback();
             const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListOffset];
-            if(cursorItem instanceof AudioSourceComposerTrackerInstruction) {
+            if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
                 this.song.playInstructionAtIndex(this.trackerElm.groupName, cursorItem.index);
             }
         }
@@ -250,8 +243,6 @@
             this.trackerElm.findInstructionElement(index)
                 .update(this.song, instruction);
         }
-
-
 
 
         instructionInsertOrUpdate(e, commandString = null) {
@@ -284,8 +275,7 @@
         }
 
 
-
-        async instructionInsert(newCommand = null, promptUser = false, instrumentID = null, groupName=null) {
+        async instructionInsert(newCommand = null, promptUser = false, instrumentID = null, groupName = null) {
             //: TODO: check for recursive group
             const tracker = this.trackerElm;
             groupName = groupName || tracker.groupName;
@@ -313,7 +303,7 @@
             this.playCursorInstruction();
         }
 
-        async instructionChangeCommand(newCommand = null, promptUser = false, instrumentID = null, groupName=null, selectedIndicies=null) {
+        async instructionChangeCommand(newCommand = null, promptUser = false, instrumentID = null, groupName = null, selectedIndicies = null) {
             //: TODO: check for recursive group
             const song = this.song;
             const tracker = this.trackerElm;
@@ -341,7 +331,7 @@
         }
 
         // TODO: assuming the use of tracker.groupName?
-        async instructionChangeInstrument(instrumentID = null, groupName=null, selectedIndicies=null) {
+        async instructionChangeInstrument(instrumentID = null, groupName = null, selectedIndicies = null) {
             const tracker = this.trackerElm;
             const song = this.song;
             groupName = groupName || tracker.groupName;
@@ -358,7 +348,7 @@
             this.playCursorInstruction();
         }
 
-        async instructionChangeDuration(duration = null, promptUser = false, groupName=null, selectedIndicies=null) {
+        async instructionChangeDuration(duration = null, promptUser = false, groupName = null, selectedIndicies = null) {
             const tracker = this.trackerElm;
             const song = this.song;
             groupName = groupName || tracker.groupName;
@@ -378,7 +368,7 @@
 
         }
 
-        async instructionChangeVelocity(velocity = null, promptUser = false, groupName=null, selectedIndicies=null) {
+        async instructionChangeVelocity(velocity = null, promptUser = false, groupName = null, selectedIndicies = null) {
             const tracker = this.trackerElm;
             const song = this.song;
             groupName = groupName || tracker.groupName;
@@ -398,7 +388,7 @@
             this.playCursorInstruction();
         }
 
-        async instructionDelete(groupName=null, selectedIndicies=null) {
+        async instructionDelete(groupName = null, selectedIndicies = null) {
             const tracker = this.trackerElm;
             const song = this.song;
             groupName = groupName || tracker.groupName;
@@ -412,14 +402,14 @@
 
         /** Tracker Cells **/
 
-        async setCursor(newCursor, clearSelection=null, toggleValue=null) {
+        async setCursor(newCursor, clearSelection = null, toggleValue = null) {
             await this.trackerElm.setCursorElement(newCursor);
-            if(newCursor instanceof AudioSourceComposerTrackerInstruction)
+            if (newCursor instanceof AudioSourceComposerTrackerInstruction)
                 await this.selectIndex(newCursor.index, clearSelection, toggleValue);
-            else if(clearSelection)
+            else if (clearSelection)
                 this.clearSelectedIndicies();
 
-            if(newCursor instanceof AudioSourceComposerTrackerInstruction) {
+            if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
                 const instruction = newCursor.instructionFind(this.song, this.trackerElm.groupName);
                 this.refs.fieldInstructionCommand.value = instruction.command;
                 this.refs.fieldInstructionInstrument.value = instruction.instrument;
@@ -430,9 +420,9 @@
             this.playCursorInstruction();
         }
 
-        async setNextCursor(clearSelection=null, toggleValue=null) {
+        async setNextCursor(clearSelection = null, toggleValue = null) {
             const nextCursor = this.trackerElm.getNextCursor();
-            if(!nextCursor) {
+            if (!nextCursor) {
                 await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID + 1);
                 return this.setCursor(this.trackerElm.getFirstCursor(), clearSelection, toggleValue);
             }
@@ -440,10 +430,10 @@
             await this.setCursor(nextCursor, clearSelection, toggleValue);
         }
 
-        async setPreviousCursor(clearSelection=null, toggleValue=null) {
+        async setPreviousCursor(clearSelection = null, toggleValue = null) {
             const previousCursor = this.trackerElm.getPreviousCursor();
-            if(!previousCursor) {
-                if(this.trackerElm.state.currentRowSegmentID <= 0)
+            if (!previousCursor) {
+                if (this.trackerElm.state.currentRowSegmentID <= 0)
                     throw new Error("Beginning of song");
                 await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID - 1);
                 return this.setCursor(this.trackerElm.getLastCursor(), clearSelection, toggleValue);
@@ -451,19 +441,19 @@
             await this.setCursor(previousCursor, clearSelection, toggleValue);
         }
 
-        async setNextRowCursor(clearSelection=null, toggleValue=null) {
+        async setNextRowCursor(clearSelection = null, toggleValue = null) {
             const nextRowCursor = this.trackerElm.getNextRowCursor();
-            if(!nextRowCursor) {
+            if (!nextRowCursor) {
                 await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID + 1);
                 return this.setCursor(this.trackerElm.getFirstCursor(), clearSelection, toggleValue);
             }
             await this.setCursor(nextRowCursor, clearSelection, toggleValue);
         }
 
-        async setPreviousRowCursor(clearSelection=null, toggleValue=null) {
+        async setPreviousRowCursor(clearSelection = null, toggleValue = null) {
             const previousRowCursor = this.trackerElm.getPreviousRowCursor();
-            if(!previousRowCursor) {
-                if(this.trackerElm.state.currentRowSegmentID <= 0)
+            if (!previousRowCursor) {
+                if (this.trackerElm.state.currentRowSegmentID <= 0)
                     throw new Error("Beginning of song");
                 await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID - 1);
                 return this.setCursor(this.trackerElm.getLastCursor(), clearSelection, toggleValue);
@@ -474,9 +464,9 @@
 
         /** Selection **/
 
-        async selectIndex(index, clearSelection=null, toggleValue=null) {
+        async selectIndex(index, clearSelection = null, toggleValue = null) {
             let selectedIndicies = clearSelection ? [] : this.getSelectedIndicies();
-            if(toggleValue) {
+            if (toggleValue) {
                 selectedIndicies.unshift(index); // Cursor goes first
             } else {
                 const pos = selectedIndicies.indexOf(index);
@@ -536,10 +526,10 @@
             this.trackerElm.selectIndicies([]);
         }
 
-        toggleSelectionAtIndex(index, toggleValue=null) {
+        toggleSelectionAtIndex(index, toggleValue = null) {
             const selectedIndicies = this.getSelectedIndicies();
             const pos = selectedIndicies.indexOf(index);
-            if(toggleValue === null)
+            if (toggleValue === null)
                 toggleValue = pos === -1;
             if (toggleValue) {
                 selectedIndicies.splice(pos, 1);
@@ -641,12 +631,12 @@
             }
         }
 
-        instrumentRename(instrumentID, newInstrumentName=null) {
+        instrumentRename(instrumentID, newInstrumentName = null) {
             const config = this.song.getInstrumentConfig(instrumentID);
             let oldInstrumentName = config.name;
-            if(!newInstrumentName)
+            if (!newInstrumentName)
                 newInstrumentName = prompt(`Change name for instrument ${instrumentID}: `, oldInstrumentName);
-            if(!newInstrumentName)
+            if (!newInstrumentName)
                 throw new Error("Instrument name change canceled");
             this.song.instrumentRename(instrumentID, newInstrumentName);
             this.setStatus(`Instrument name updated: ${newInstrumentName}`);
@@ -844,63 +834,10 @@
     }
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
-
-})();
+    const thisScriptPath = 'composer/audio-source-composer-actions.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceComposerActions,
+    };
+}

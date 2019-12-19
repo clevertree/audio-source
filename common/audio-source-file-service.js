@@ -1,12 +1,8 @@
-(function() {
+{
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/audio-source-file-service.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            AudioSourceFileService
-        };
-    }
 
     const archiveBuffers = {};
     const torrentCache = {};
@@ -218,50 +214,12 @@
 
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    // async function requireAsync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //
-    //     let scriptElm = findScript(relativeScriptPath)[0];
-    //     if(!scriptElm) {
-    //         const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-    //         scriptElm = document.createElement('script');
-    //         scriptElm.src = scriptURL;
-    //         scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-    //             scriptElm.onload = resolve;
-    //             document.head.appendChild(scriptElm);
-    //         }));
-    //     }
-    //     for (let i=0; i<scriptElm.promises.length; i++)
-    //         await scriptElm.promises[i];
-    //     return scriptElm.exports
-    //         || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    // }
+    const thisScriptPath = 'common/audio-source-file-service.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceFileService,
+    };
 
 
-})();
+}

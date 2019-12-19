@@ -1,19 +1,12 @@
-(async function() {
+{
+    /** Required Modules **/
+    if (typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
-
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'composer/audio-source-composer-renderer.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {AudioSourceComposerRenderer};
-    };
-
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
-
-    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
-    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
-    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    const {AudioSourceValues} = require('../common/audio-source-values.js');
+    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
     const {
         ASUIComponent,
         ASUIDiv,
@@ -26,22 +19,26 @@
         ASUIInputSelect,
         ASUIInputText,
         ASUIcon,
-    } = await requireAsync('common/audio-source-ui.js');
+    } = require('../common/audio-source-ui.js');
 
     const audioSourceStorage = new AudioSourceStorage();
 
     class AudioSourceComposerRenderer extends ASUIComponent {
-        constructor(state={}, props={}) {
+        constructor(state = {}, props = {}) {
             super(state, props);
             // this.state.trackerSegmentLength = null;
             // this.state.trackerRowLength = null;
 
             this.shadowDOM = null;
         }
-        get targetElm() { return this.shadowDOM; }
+
+        get targetElm() {
+            return this.shadowDOM;
+        }
 
         createStyleSheetLink(stylePath) {
-            const linkHRef = this.getScriptDirectory(stylePath);
+            const AudioSourceLoader = customElements.get('audio-source-loader');
+            const linkHRef = AudioSourceLoader.resolveURL(stylePath);
             const link = document.createElement('link');
             link.setAttribute('rel', 'stylesheet');
             link.href = linkHRef;
@@ -71,8 +68,13 @@
             }
         }
 
-        get trackerSegmentLengthInTicks() { return this.state.trackerSegmentLength || this.song.timeDivision * 16; }
-        get trackerRowLengthInTicks() { return this.state.trackerRowLength || this.song.timeDivision; }
+        get trackerSegmentLengthInTicks() {
+            return this.state.trackerSegmentLength || this.song.timeDivision * 16;
+        }
+
+        get trackerRowLengthInTicks() {
+            return this.state.trackerRowLength || this.song.timeDivision;
+        }
 
         async render() {
             const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
@@ -81,18 +83,21 @@
                 this.createStyleSheetLink('common/assets/audio-source-common.css'),
                 this.refs.containerElm = new ASUIDiv('asc-container', () => [
                     new ASUIDiv('asc-menu-container', () => [
-                        this.refs.menuFile          = new ASUIMenu({vertical: true}, 'File',      () => this.populateMenu('file')),
-                        this.refs.menuEdit          = new ASUIMenu({vertical: true}, 'Edit',      () => this.populateMenu('edit')),
-                        this.refs.menuGroup         = new ASUIMenu({vertical: true}, 'Group',     () => this.populateMenu('group')),
-                        this.refs.menuInstrument    = new ASUIMenu({vertical: true}, 'Instrument', () => this.populateMenu('instrument')),
-                        this.refs.menuView          = new ASUIMenu({vertical: true}, 'View',      () => this.populateMenu('view')),
-                        this.refs.menuContext       = new ASUIMenu({vertical: true, context: true}, null,   () => this.populateMenu('context')),
+                        this.refs.menuFile = new ASUIMenu({vertical: true}, 'File', () => this.populateMenu('file')),
+                        this.refs.menuEdit = new ASUIMenu({vertical: true}, 'Edit', () => this.populateMenu('edit')),
+                        this.refs.menuGroup = new ASUIMenu({vertical: true}, 'Group', () => this.populateMenu('group')),
+                        this.refs.menuInstrument = new ASUIMenu({vertical: true}, 'Instrument', () => this.populateMenu('instrument')),
+                        this.refs.menuView = new ASUIMenu({vertical: true}, 'View', () => this.populateMenu('view')),
+                        this.refs.menuContext = new ASUIMenu({
+                            vertical: true,
+                            context: true
+                        }, null, () => this.populateMenu('context')),
                     ]),
 
                     this.refs.panelContainerElm = new ASUIDiv('asc-panel-container', () => [
                         new ASCPanel('song', 'Song', () => [
 
-                            new ASCForm('playback',  'Playback',() => [
+                            new ASCForm('playback', 'Playback', () => [
                                 this.refs.fieldSongPlaybackPlay = new ASUIInputButton('play',
                                     new ASUIcon('play'),
                                     e => this.songPlay(e),
@@ -126,7 +131,7 @@
                                 )
                             ]),
 
-                            new ASCForm('volume', 'Volume',() => [
+                            new ASCForm('volume', 'Volume', () => [
                                 this.refs.fieldSongVolume = new ASUIInputRange('volume',
                                     (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, this.state.volume, 'Song Volume')
                             ]),
@@ -176,17 +181,17 @@
                             const instrumentList = this.song.getInstrumentList();
                             const content = instrumentList.map((instrumentConfig, instrumentID) =>
                                 this.refs.instruments[instrumentID] = new ASCInstrumentRenderer({}, this.song, instrumentID));
-                            
+
                             content.push(new ASCForm('new', null, () => [
                                 new ASUIInputSelect('add-url',
-                                (s) => [
-                                    // s.getOption('', 'Add instrument'),
-                                    instrumentLibrary.eachInstrument((instrumentConfig) =>
-                                        s.getOption(instrumentConfig.url, instrumentConfig.name)),
-                                ],
-                                (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
-                                '',
-                                'Add instrument')
+                                    (s) => [
+                                        // s.getOption('', 'Add instrument'),
+                                        instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                            s.getOption(instrumentConfig.url, instrumentConfig.name)),
+                                    ],
+                                    (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
+                                    '',
+                                    'Add instrument')
                             ]));
                             return content;
                         }),
@@ -256,7 +261,7 @@
                                         this.values.getNoteDurations((duration, title) => selectElm.getOption(duration, title))
                                     ],
                                     e => this.instructionChangeDuration(),
-                                    ),
+                                ),
                             ]),
 
                         ]),
@@ -319,7 +324,7 @@
                             //     this.refs.fieldTrackerOctave.value = 3; // this.status.currentOctave;
                         ]),
 
-                        this.refs.panelTrackerGroups = new ASCPanel('tracker-groups',  'Groups', () => {
+                        this.refs.panelTrackerGroups = new ASCPanel('tracker-groups', 'Groups', () => {
 
                             const currentGroupName = this.trackerElm.groupName;
                             const content = Object.keys(this.song.data.instructions).map((groupName, i) => [
@@ -329,7 +334,7 @@
                                     groupName,
                                     e => this.trackerChangeGroup(groupName),
                                     "Group " + groupName,
-                                    )
+                                )
                                 // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
                                 // TODO button.classList.toggle('selected', groupName === currentGroupName);
                             ]);
@@ -346,7 +351,7 @@
                             const segmentLengthInTicks = this.trackerElm.segmentLengthInTicks || (this.song.timeDivision * 16);
                             let songLengthInTicks = this.song.getSongLengthInTicks();
                             let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
-                            if(rowSegmentCount > 256)
+                            if (rowSegmentCount > 256)
                                 rowSegmentCount = 256;
 
                             this.refs.panelTrackerRowSegmentButtons = [];
@@ -377,7 +382,6 @@
                 ])
             ];
         }
-
 
 
         setStatus(newStatus) {
@@ -424,7 +428,7 @@
 
         /** @deprecated shouldn't be used **/
         renderInstrument(instrumentID) {
-            if(this.refs.instruments[instrumentID])
+            if (this.refs.instruments[instrumentID])
                 this.refs.instruments[instrumentID].renderOS();
         }
 
@@ -439,7 +443,7 @@
             let content = [];
             switch (menuKey) {
                 case 'file':
-        
+
                     content = [
 
                         new ASUIMenu({}, 'New song', null,
@@ -447,7 +451,7 @@
 
                         new ASUIMenu({}, 'Open song', () => [
                             new ASUIMenu({}, 'from Memory', async () => {
-                                const songRecentUUIDs = await audioSourceStorage.getRecentSongList() ;
+                                const songRecentUUIDs = await audioSourceStorage.getRecentSongList();
                                 return songRecentUUIDs.map(entry => new ASUIMenu({}, entry.name || entry.uuid, null,
                                     () => this.loadSongFromMemory(entry.uuid)));
                             }),
@@ -662,9 +666,9 @@
 
                 case 'view':
                     content = [
-                        new ASUIMenu({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`,              null, (e) => this.toggleFullscreen(e)),
-                        new ASUIMenu({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`,              null, (e) => this.togglePanelSong(e)),
-                        new ASUIMenu({}, `${this.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`,          null, (e) => this.togglePanelTracker(e)),
+                        new ASUIMenu({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                        new ASUIMenu({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                        new ASUIMenu({}, `${this.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`, null, (e) => this.togglePanelTracker(e)),
                         new ASUIMenu({}, `${this.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`, null, (e) => this.togglePanelInstruments(e)),
                     ];
                     break;
@@ -673,11 +677,11 @@
                     content = [
                         new ASUIMenu({}, `Add instrument to song`,
                             async () =>
-                            library.eachInstrument((instrumentConfig) =>
-                                new ASUIMenu({}, `${instrumentConfig.name}`, null, (e) => {
-                                    this.instrumentAdd(instrumentConfig);
-                                })
-                            ),
+                                library.eachInstrument((instrumentConfig) =>
+                                    new ASUIMenu({}, `${instrumentConfig.name}`, null, (e) => {
+                                        this.instrumentAdd(instrumentConfig);
+                                    })
+                                ),
                             null, {hasBreak: true}),
 
                         this.values.getSongInstruments((instrumentID, label) =>
@@ -727,7 +731,7 @@
     }
 
     class ASCPanel extends ASUIDiv {
-        constructor(props={}, title, contentCallback) {
+        constructor(props = {}, title, contentCallback) {
             super(props, contentCallback);
             this.state.title = title;
         }
@@ -739,14 +743,17 @@
             ]
         }
     }
+
     customElements.define('asc-panel', ASCPanel);
 
-    class ASCForm extends ASCPanel {}
+    class ASCForm extends ASCPanel {
+    }
+
     customElements.define('asc-form', ASCForm);
-    
+
 
     class ASCInstrumentRenderer extends ASUIComponent {
-        constructor(props={}, song, instrumentID) {
+        constructor(props = {}, song, instrumentID) {
             super(props, {});
             this.props.id = instrumentID;
             this.song = song;
@@ -756,10 +763,9 @@
             const instrumentID = this.props.id;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
-            let content = [
-            ];
+            let content = [];
 
-            if(this.song.hasInstrument(instrumentID)) {
+            if (this.song.hasInstrument(instrumentID)) {
 
                 try {
                     const instrument = await this.song.loadInstrument(instrumentID);
@@ -805,67 +811,15 @@
             return content;
         }
     }
-    
+
     customElements.define('asc-instrument', ASCInstrumentRenderer);
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
+    const thisScriptPath = 'composer/audio-source-composer-renderer.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceComposerRenderer,
+    };
 
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
-
-})();
+}

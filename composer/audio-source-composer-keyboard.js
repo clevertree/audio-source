@@ -1,10 +1,7 @@
 {
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'composer/audio-source-composer-keyboard.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {AudioSourceComposerKeyboard};
-    }
-
+    /** Required Modules **/
+    if (typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
     class AudioSourceComposerKeyboard {
         constructor() {
@@ -84,5 +81,10 @@
         return scriptElms;
     }
 
-
+    /** Export this script **/
+    const thisScriptPath = 'composer/audio-source-composer-keyboard.js';
+    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceComposerKeyboard,
+    };
 }
