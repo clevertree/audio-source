@@ -88,7 +88,7 @@
 
 
         getScriptDirectory(appendPath='', selector=null) {
-            const AudioSourceLoader = customElements.get('audio-source-loader')
+            const AudioSourceLoader = customElements.get('audio-source-loader');
             return AudioSourceLoader.resolveURL(appendPath);
         }
 

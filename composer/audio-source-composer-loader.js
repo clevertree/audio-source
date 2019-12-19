@@ -28,6 +28,7 @@
                 throw new Error("Required script not found: " + relativeScriptURL);
             return scriptElm;
         }
+
         static getBasePath() { return basePathURL; }
     }
     AudioSourceLoader.requireAsync = async function(relativeScriptURL) {
@@ -36,16 +37,18 @@
             const scriptURL = AudioSourceLoader.resolveURL(relativeScriptURL);
             scriptElm = document.createElement('script');
             scriptElm.src = scriptURL;
-            await new Promise(async (resolve, reject) => {
+            scriptElm.loadPromise = new Promise(async (resolve, reject) => {
                 scriptElm.onload = resolve;
                 document.head.appendChild(scriptElm);
             });
         }
+        await scriptElm.loadPromise;
         return scriptElm.exports
             || (() => { throw new Error("Script module has no exports: " + relativeScriptURL); })()
     };
 
-    customElements.define('audio-source-loader', AudioSourceLoader);
+    if(!customElements.get('audio-source-loader'))
+        customElements.define('audio-source-loader', AudioSourceLoader);
 
     const thisScriptPath = 'audio-source-composer-loader.js';
     const thisScript = customElements.get('audio-source-loader').findScript(thisScriptPath);

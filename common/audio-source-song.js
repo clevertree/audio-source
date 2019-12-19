@@ -1,7 +1,7 @@
 {
     /** Required Modules **/
-    if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+    // if (typeof window !== "undefined")
+    //     window.require = AudioSourceLoader.require;
 
 
     /**
@@ -1282,23 +1282,24 @@
 
 
     AudioSourceSong.getFileSupportModule = async function (filePath) {
+        const AudioSourceLoader = customElements.get('audio-source-loader');
         const fileExt = filePath.split('.').pop().toLowerCase();
         switch (fileExt) {
             case 'mid':
             case 'midi':
-                const {MIDISupport} = require('../common/support/midi-support.js');
+                const {MIDISupport} = await AudioSourceLoader.requireAsync('../common/support/midi-support.js');
                 return new MIDISupport;
 
             case 'json':
-                const {JSONSupport} = require('../common/support/json-support.js');
+                const {JSONSupport} = await AudioSourceLoader.requireAsync('../common/support/json-support.js');
                 return new JSONSupport;
 
             case 'spc':
-                const {LibGMESupport} = require('../common/support/libgme-support.js');
+                const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
                 return new LibGMESupport;
 
             case 'mp3':
-                const {MP3Support} = require('../common/support/mp3-support.js');
+                const {MP3Support} = await AudioSourceLoader.requireAsync('../common/support/mp3-support.js');
                 return new MP3Support;
 
             default:

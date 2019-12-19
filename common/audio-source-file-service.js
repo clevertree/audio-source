@@ -186,11 +186,10 @@
 
 
     async function requireWebTorrent() {
+        const AudioSourceLoader = customElements.get('audio-source-loader');
         const relativeScriptPath = 'node_modules/webtorrent/webtorrent.min.js';
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
 
-        let scriptElm = findScript(relativeScriptPath)[0];
+        let scriptElm = AudioSourceLoader.findScript(relativeScriptPath, false);
         if(!scriptElm) {
             window.exports = {};
             window.module = {exports: window.exports};

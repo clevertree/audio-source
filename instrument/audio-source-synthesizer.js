@@ -1,16 +1,8 @@
-(async function() {
+{
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'instrument/audio-source-synthesizer.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            instrument: AudioSourceSynthesizer,
-            AudioSourceSynthesizer
-        };
-    };
-    
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
 
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
@@ -843,66 +835,16 @@
     }
 
     function getScriptDirectory(appendPath = '') {
-        const scriptElm = findThisScript()[0];
-        // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-        return scriptElm.basePath + appendPath;
+        const AudioSourceLoader = customElements.get('audio-source-loader')
+        return AudioSourceLoader.resolveURL(appendPath);
     }
-
 
 
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-})();
+    const thisScriptPath = 'instrument/audio-source-synthesizer.js';
+    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        instrument: AudioSourceSynthesizer,
+        AudioSourceSynthesizer
+    };
+}
