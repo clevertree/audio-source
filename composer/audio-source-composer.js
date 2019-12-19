@@ -212,18 +212,6 @@
         }
 
 
-        /** Playback **/
-
-
-        updateSongPositionValue(playbackPositionInSeconds) {
-            const values = new AudioSourceValues();
-            const roundedSeconds = Math.round(playbackPositionInSeconds);
-            this.refs.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            if(this.refs.fieldSongPosition.value !== roundedSeconds)
-                this.refs.fieldSongPosition.value = roundedSeconds;
-            this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
-        }
-
 
         // Input
 

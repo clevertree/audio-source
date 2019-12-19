@@ -221,6 +221,15 @@
             //     this.song.play();
         }
 
+
+        updateSongPositionValue(playbackPositionInSeconds) {
+            const roundedSeconds = Math.round(playbackPositionInSeconds);
+            this.refs.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
+            if(this.refs.fieldSongPosition.value !== roundedSeconds)
+                this.refs.fieldSongPosition.value = roundedSeconds;
+            this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
+        }
+
         // setSongPositionAsPercent(e, playbackPositionPercent) {
         //     const song = this.song;
         //     const length = song.getSongLengthInSeconds();

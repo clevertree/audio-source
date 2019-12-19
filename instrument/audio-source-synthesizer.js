@@ -34,7 +34,7 @@
 
 
     class AudioSourceSynthesizer extends ASUIComponent {
-        constructor(config, song=null, instrumentID=null, props={}) {
+        constructor(config={}, song=null, instrumentID=null, props={}) {
             super({
                 open: false
             }, props);
@@ -49,7 +49,7 @@
 
             this.audioContext = null;
             if(typeof config.name === "undefined")
-                config.name = 'Synthesizer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
+                config.name = 'Synthesizer' + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
             this.state.config = config || {};
 
 
@@ -440,7 +440,12 @@
         }
 
 
-
+        updateActive() {
+            const active = this.activeSources.length > 0;
+            // console.info('active', active, this.activeSources);
+            if(this.props.active !== active)
+                this.setProps({active});
+        }
 
         /** Playback **/
 
@@ -476,13 +481,7 @@
             adsr = adsr || [0, 0, 0, .1];
             let currentTime = destination.context.currentTime;
             startTime = startTime !== null ? startTime : currentTime;
-            // Play note
-            if (startTime) {
-                source.start(startTime);
-                if (duration) {
-                    source.stop(startTime + duration + adsr[3]);
-                }
-            }
+            duration = duration !== null ? duration : 0;
 
             let velocityGain = destination.context.createGain();
             velocityGain.gain.value = parseFloat(velocity || 127) / 127;
@@ -491,20 +490,32 @@
 
             velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
             velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + adsr[3]);
-            await new Promise((resolve, reject) => {
 
+            // Add to active sources
+            this.activeSources.push(source);
+            this.updateActive();
+
+            await new Promise((resolve, reject) => {
+                setTimeout(reject, 10000);
                 // Set up 'ended' event listener
                 source.addEventListener('ended', e => {
-                    this.onSourceEnd(e, source);
                     resolve();
                 });
-                // Add to active sources
-                this.activeSources.push(source);
 
                 // Start Playback
                 source.connect(destination);
+
+                // Play note
+                source.start(startTime);
+                source.stop(startTime + duration + adsr[3]);
             });
 
+            const activeSourceI = this.activeSources.indexOf(source);
+            if (activeSourceI !== -1)
+                this.activeSources.splice(activeSourceI, 1);
+            else
+                throw new Error("Active source not found: " + activeSourceI);
+            this.updateActive();
         }
 
         async playSample(destination, sampleID, frequencyValue, startTime = null, duration = null, velocity = null, adsr = null) {
@@ -606,11 +617,11 @@
 
         }
 
-        onSourceEnd(e, source) {
-            const activeSourceI = this.activeSources.indexOf(source);
-            if (activeSourceI !== -1)
-                this.activeSources.splice(activeSourceI, 1);
-        }
+        // onSourceEnd(e, source) {
+        //     const activeSourceI = this.activeSources.indexOf(source);
+        //     if (activeSourceI !== -1)
+        //         this.activeSources.splice(activeSourceI, 1);
+        // }
 
 
         /** Modify Instrument **/

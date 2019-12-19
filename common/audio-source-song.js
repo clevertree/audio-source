@@ -558,16 +558,21 @@
 
             this.dispatchEvent(new CustomEvent('song:seek', {detail:{
                 position: this.playbackPosition,
+                positionInTicks: this.getSongPositionInTicks(this.playbackPosition),
             }}));
 
             // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
-            if(this.playback)
+            let isPlaying = !!this.playback;
+            if(this.playback) {
                 this.playback.stopPlayback();
+            }
             this.playbackPosition = songPosition;
-            this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
-            this.playback.playGroup()
-                .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
 
+            if(isPlaying) {
+                this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
+                this.playback.playGroup()
+                    .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
+            }
             // const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 //         console.log("Seek position: ", this.playbackPosition, positionInTicks);
 

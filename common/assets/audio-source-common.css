@@ -94,7 +94,7 @@ asuig-row {
 }
 
 asuig-row > * {
-    display: table-cell;
+    display: table-cell !important;
     vertical-align: top;
 }
 
@@ -123,7 +123,7 @@ asui-file  {
      /* height: 24px; */
      /* display: inline-block; */
      cursor: pointer;
-     background-color: #DDD;
+     /* background-color: #DDD; */
      /* border: 1px outset; */
      /* border-radius: 4px; */
      text-align: center;

@@ -619,6 +619,22 @@
 
         }
 
+        async updateSongPositionValue(playbackPositionInSeconds) {
+            let positionRow;
+            for(let i=this.refs.rows.length-1; i>=0; i--) {
+                positionRow = this.refs.rows[i];
+                if(playbackPositionInSeconds > positionRow.positionInSeconds)
+                    break;
+            }
+            // console.info('playbackPositionInSeconds', playbackPositionInSeconds, positionRow.positionInSeconds, positionRow);
+
+
+            if(positionRow && !positionRow.props.position) {
+                await this.clearAllPositions();
+                positionRow.setPosition();
+            }
+        }
+
 
         async onSongEvent(e) {
 //         console.log("onSongEvent", e.type);
@@ -703,20 +719,6 @@
         // }
 
 
-        async updateSongPositionValue(playbackPositionInSeconds) {
-            let positionRow;
-            for(let i=0; i<this.refs.rows.length; i++) {
-                positionRow = this.refs.rows[i];
-                if(positionRow.positionInSeconds > playbackPositionInSeconds)
-                    break;
-            }
-
-
-            if(positionRow && !positionRow.props.position) {
-                await this.clearAllPositions();
-                positionRow.setPosition();
-            }
-        }
 
         // selectIndex(e, selectedIndex, clearSelection = false) {
         //     const cell = this.findInstructionElement(selectedIndex);
