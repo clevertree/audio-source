@@ -110,28 +110,16 @@
                 throw new Error("Invalid file input");
             const song = await AudioSourceSong.loadSongFromFileInput(file);
             await this.setCurrentSong(song);
-            await this.song.loadSongFromFileInput(file);
+            // await this.song.loadSongFromFileInput(file);
             // this.render();
         }
 
 
 
         async loadSongFromURL(url) {
-            const song = this.playerElm.song;
-            if(this.isPlaylist(url)) {
-                const playlistEntry = new ASPPlaylistPlaylistEntry({url    });
-                this.addEntry(playlistEntry);
-                await this.renderOS();
-                // await this.loadPlaylistFromURL(url);
-                // const entry = this.getCurrentEntry();
-                // if(entry.url && !this.isPlaylist(entry.url))
-                //     await this.loadSongFromPlaylistEntry(this.position);
-            } else {
-                await song.loadSongFromURL(url);
-                this.setStatus("Loaded from url: " + url);
-//                 this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
-            }
-            // this.render();
+            const song = await AudioSourceSong.loadSongFromURL(url);
+            await this.setCurrentSong(song);
+            this.setStatus("Loaded from url: " + url);
         }
 
         async saveSongToMemory() {
