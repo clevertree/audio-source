@@ -3,593 +3,480 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'composer/audio-source-composer-renderer.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {AudioSourceComposerRenderer};
-    }
+    };
 
     /** Register This Async Module **/
     const resolveExports = registerAsyncModule();
 
     const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
+    // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+    const {
+        ASUIComponent,
+        ASUIDiv,
+        ASUIMenu,
+        ASUIGrid,
+        ASUIGridRow,
+        ASUIInputButton,
+        ASUIFileInput,
+        ASUIInputRange,
+        ASUIInputSelect,
+        ASUIInputText,
+        ASUIcon,
+    } = await requireAsync('common/audio-source-ui.js');
 
-    class AudioSourceComposerRenderer extends HTMLElement {
-        constructor() {
-            super();
+    const audioSourceStorage = new AudioSourceStorage();
+
+    class AudioSourceComposerRenderer extends ASUIComponent {
+        constructor(state={}, props={}) {
+            super(state, props);
+            // this.state.trackerSegmentLength = null;
+            // this.state.trackerRowLength = null;
+
             this.shadowDOM = null;
         }
+        get targetElm() { return this.shadowDOM; }
 
-
-        render(force = false) {
-            const linkHRefComposer = this.getScriptDirectory('composer/assets/audio-source-composer-internal.css');
-            const linkHRefCommon = this.getScriptDirectory('common/assets/audio-source-common.css');
-
-            if (force || !this.shadowDOM) {
-                this.shadowDOM = this.shadowDOM || this.attachShadow({mode: 'open'});
-                this.shadowDOM.innerHTML = `
-            <link rel="stylesheet" href="${linkHRefComposer}" />
-            <link rel="stylesheet" href="${linkHRefCommon}" />
-            <asui-div key="asc-container"></asui-div>
-            `;
-                this.containerElm = this.shadowDOM.querySelector('asui-div[key=asc-container]');
-            }
-
-            let divElm = this.containerElm;
-            divElm.addDiv('asc-menu-container', (divElm) => {
-                this.menuFile = divElm.addSubMenu('File', divElm => this.populateMenu(divElm, 'file'));
-                this.menuEdit = divElm.addSubMenu('Edit', divElm => this.populateMenu(divElm, 'edit'));
-                this.menuGroup = divElm.addSubMenu('Group', divElm => this.populateMenu(divElm, 'group'));
-                this.menuInstrument = divElm.addSubMenu('Instrument', divElm => this.populateMenu(divElm, 'instrument'));
-                this.menuView = divElm.addSubMenu('View', divElm => this.populateMenu(divElm, 'view'));
-                this.menuContext = divElm.addSubMenu('', divElm => this.populateMenu(divElm, 'context'));
-            });
-
-            this.panelContainerElm = divElm.addDiv('asc-panel-container', (divElm) => {
-                divElm.addDiv('asc-panel-song', (divElm) => {
-                    divElm.classList.add('asc-panel');
-                    divElm.addDiv('caption', 'Song');
-
-                    divElm.addDiv('asc-form-playback', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Playback');
-                        this.fieldSongPlaybackPlay = divElm.addButtonInput('play',
-                            e => this.songPlay(e),
-                            divElm.createIcon('play'),
-                            "Play Song");
-                        this.fieldSongPlaybackPause = divElm.addButtonInput('pause',
-                            e => this.songPause(e),
-                            divElm.createIcon('pause'),
-                            "Pause Song");
-                        // this.fieldSongPlaybackPause.disabled = true;
-                        this.fieldSongPlaybackStop = divElm.addButtonInput('stop',
-                            e => this.songStop(e),
-                            divElm.createIcon('stop'),
-                            "Stop Song");
-                    });
-
-                    divElm.addDiv('asc-form-timing', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Timing');
-                        this.fieldSongTiming = divElm.addTextInput('timing',
-                            (e, pos) => this.setSongPosition(e, pos),
-                            'Song Timing',
-                            '00:00:000'
-                        );
-                    });
-
-                    divElm.addDiv('asc-form-position', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Position');
-                        this.fieldSongPosition = divElm.addRangeInput('position',
-                            (e, pos) => this.setSongPosition(e, pos),
-                            0,
-                            Math.ceil(this.song.getSongLength()),
-                            'Song Position',
-                            0
-                        );
-                    });
-
-                    divElm.addDiv('asc-form-volume', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Volume');
-                        this.fieldSongVolume = divElm.addRangeInput('volume',
-                            (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, 'Song Volume', this.song.getVolumeValue());
-                    });
-
-                    divElm.addDiv('asc-form-file', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'File');
-                        this.fieldSongFileLoad = divElm.addFileInput('file-load',
-                            e => this.loadSongFromFileInput(),
-                            divElm.createIcon('file-load'),
-                            `.json,.mid,.midi`,
-                            "Load Song from File"
-                        );
-                        this.fieldSongFileSave = divElm.addButtonInput('file-save',
-                            e => this.saveSongToFile(),
-                            divElm.createIcon('file-save'),
-                            "Save Song to File"
-                        );
-                    });
-
-
-                    divElm.addDiv('asc-form-name', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Name');
-                        this.fieldSongName = divElm.addTextInput('name',
-                            (e, newSongName) => this.setSongName(e, newSongName), "Song Name");
-                    });
-
-                    divElm.addDiv('asc-form-version', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'Version');
-                        this.fieldSongVersion = divElm.addTextInput('version',
-                            (e, newSongVersion) => this.setSongVersion(e, newSongVersion));
-                    });
-
-                    divElm.addDiv('asc-form-bpm', divElm => {
-                        divElm.classList.add('asc-form');
-                        divElm.addDiv('caption', 'BPM');
-                        this.fieldSongBPM = divElm.addTextInput('bpm',
-                            (e, newBPM) => this.setStartingBPM(e, parseInt(newBPM)));
-                        this.fieldSongBPM.inputElm.setAttribute('type', 'number');
-                    });
-                });
-
-                this.panelInstruments = divElm.addDiv('asc-panel-instruments', (panelElm) => {
-                    panelElm.classList.add('asc-panel');
-                    panelElm.addDiv('caption', 'Instruments');
-
-                    // const instrumentPanel = this.panelInstruments;
-                    const instrumentList = this.song.getInstrumentList();
-                    for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-
-                        // instrumentFormElm.classList.add('asc-form');
-
-                        panelElm.addDiv(instrumentID, instrumentFormElm => {
-                            const instrument = this.song.getInstrument(instrumentID, false);
-
-
-                            if (instrument) {
-                                try {
-
-
-                                    if (instrument instanceof HTMLElement) {
-                                        instrument.setAttribute('data-id', instrumentID + '');
-                                        instrumentFormElm.appendChild(instrument);
-
-                                    } else if (typeof instrument.render === "function") {
-                                        const renderedHTML = instrument.render(instrumentFormElm);
-                                        if (renderedHTML)
-                                            instrumentFormElm.innerHTML = renderedHTML;
-                                    } else {
-                                        instrumentFormElm.innerHTML = "No Renderer";
-                                    }
-
-                                } catch (e) {
-                                    instrumentFormElm.innerHTML = e;
-                                }
-
-                            } else {
-                                const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-                                const instrumentToggleButton = instrumentFormElm.addButtonInput('instrument-id',
-                                    null,
-                                    instrumentIDHTML + ':'
-                                );
-                                instrumentToggleButton.classList.add('show-on-focus');
-                                instrumentFormElm.classList.add('asc-form');
-                                // Render 'empty' instrument
-                                instrumentFormElm.addSelectInput('instrument-add-url',
-                                    (e, changeInstrumentURL) => this.songReplaceInstrument(e, instrumentID, changeInstrumentURL),
-                                    async (addOption) => {
-                                        addOption('', 'Set Instrument');
-                                        const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                                        instrumentLibrary.eachInstrument((instrumentConfig) => {
-                                            addOption(instrumentConfig.url, instrumentConfig.name);
-                                        });
-                                    },
-                                    'Set Instrument');
-                            }
-                        });
-                        // TODO Update selected
-                    }
-
-                    panelElm.addDiv('add-new', instrumentFormElm => {
-                        instrumentFormElm.classList.add('asc-form');
-                        // Render 'empty' instrument
-                        instrumentFormElm.addSelectInput('instrument-add-url',
-                            (e, changeInstrumentURL) => this.songAddInstrument(e, changeInstrumentURL),
-                            async (addOption) => {
-                                addOption('', 'Add Instrument');
-                                const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                                instrumentLibrary.eachInstrument((instrumentConfig) => {
-                                    addOption(instrumentConfig.url, instrumentConfig.name);
-                                });
-                            },
-                            'Add Instrument');
-                    });
-                });
-
-                this.panelInstructions = divElm.addDiv('asc-panel-instructions', (divElm) => {
-                    divElm.classList.add('asc-panel');
-                    divElm.addDiv('caption', 'Selected Instruction(s)');
-                    divElm.addDiv('asc-form-instruction-command', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Command');
-
-                        this.fieldInstructionCommand = formElm.addSelectInput(
-                            'command',
-                            (e, commandString) => this.setInstructionCommand(e, commandString), (addOption, setOptgroup) => {
-                                // const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
-                                addOption('', 'Select');
-                                setOptgroup('Frequencies');
-                                this.values.getValues('note-frequency-all', addOption);
-                                setOptgroup('Custom Frequencies');
-                                // TODO: filter by selected instrument
-                                this.values.getValues('note-frequency-named', addOption);
-                                setOptgroup('Groups');
-                                this.values.getValues('command-group-execute', addOption);
-                            },
-                            'Instruction Instrument');
-
-                        this.fieldInstructionInsert = formElm.addButtonInput(
-                            'insert',
-                            e => this.insertInstructionCommand(e),
-                            formElm.createIcon('insert'),
-                            "Insert Instruction");
-
-                        this.fieldInstructionDelete = formElm.addButtonInput('delete',
-                            e => this.deleteInstructionCommand(e),
-                            formElm.createIcon('delete'),
-                            "Delete Instruction");
-
-                    });
-
-                    divElm.addDiv('asc-form-instruction-instrument', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Instrument');
-
-                        this.fieldInstructionInstrument = formElm.addSelectInput('instrument',
-                            e => this.setInstructionInstrument(e), (addOption, setOptgroup) => {
-                                addOption('', 'Select');
-                                setOptgroup('Song Instruments');
-                                this.values.getValues('song-instruments', addOption);
-                            },
-                            'Instruction Instrument');
-                    });
-
-                    divElm.addDiv('asc-form-instruction-velocity', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Velocity');
-
-                        this.fieldInstructionVelocity = formElm.addRangeInput('velocity',
-                            (e, newVelocity) => this.setInstructionVelocity(e, newVelocity), 1, 127);
-                    });
-
-                    divElm.addDiv('asc-form-instruction-duration', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Duration');
-
-                        this.fieldInstructionDuration = formElm.addSelectInput('duration',
-                            e => this.setInstructionDuration(e),
-                            (addOption, setOptgroup) => {
-                                addOption('', 'No Duration');
-                                this.values.getValues('durations', addOption);
-                            },
-                            'Instruction Duration');
-                    });
-
-                });
-
-                this.panelTracker = divElm.addDiv('asc-panel-tracker', (divElm) => {
-                    divElm.classList.add('asc-panel');
-                    divElm.addDiv('caption', 'Tracker');
-
-                    divElm.addDiv('asc-form-tracker-row-length', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Row &#120491;');
-
-                        this.fieldTrackerRowLength = formElm.addSelectInput('row-length',
-                            e => this.setTrackerRowLength(e),
-                            (addOption) => {
-                                // addOption('', '-');
-                                this.values.getValues('durations', addOption)
-                            },
-                            'Select Row Length',
-                            this.song.timeDivision);
-                    });
-                    divElm.addDiv('asc-form-tracker-segment-length', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Seg &#120491;');
-
-                        this.fieldTrackerSegmentLength = formElm.addSelectInput('segment-length',
-                            e => this.setTrackerSegmentLength(e),
-                            (addOption) => {
-                                this.values.getValues('segment-lengths', addOption)
-                            },
-                            'Select Segment Length',
-                            this.song.timeDivision * 16);
-                    });
-                    divElm.addDiv('asc-form-tracker-instrument', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Instrument');
-
-                        this.fieldTrackerFilterInstrument = formElm.addSelectInput('filter-instrument',
-                            e => this.setTrackerFilterInstrument(e),
-                            (addOption, addGroup) => {
-                                addOption('', 'No Filter');
-                                addGroup("Filter By Instrument");
-                                this.values.getValues('song-instruments', addOption)
-                            },
-                            'Filter By Instrument',
-                            '');
-                    });
-                    divElm.addDiv('asc-form-tracker-selection', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Selection');
-
-                        this.fieldTrackerSelection = formElm.addTextInput('selection',
-                            e => this.setTrackerSelection(e),
-                            'Selection',
-                            '',
-                            'No selection'
-                        );
-                    });
-                    divElm.addDiv('asc-form-tracker-octave', formElm => {
-                        formElm.classList.add('asc-form');
-                        formElm.addDiv('caption', 'Octave');
-
-                        this.fieldTrackerOctave = formElm.addSelectInput('octave',
-                            e => this.setTrackerOctave(e),
-                            (addOption) => {
-                                // addOption('', 'No Octave Selected');
-                                this.values.getValues('note-frequency-octaves', addOption)
-                            },
-                            'Select Octave',
-                            3);
-                    });
-
-
-                    // this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
-
-                    // Status Fields
-
-                    // const trackerOctave = this.fieldTrackerOctave.value;
-                    // this.fieldTrackerOctave.value = trackerOctave !== null ? trackerOctave : 3;
-                    // if(this.fieldTrackerOctave.value === null)
-                    //     this.fieldTrackerOctave.value = 3; // this.status.currentOctave;
-                });
-
-                this.panelTrackerGroups = divElm.addDiv('asc-panel-tracker-groups', (panelElm) => {
-                    panelElm.classList.add('asc-panel');
-                    panelElm.addDiv('caption', 'Groups');
-
-                    const currentGroupName = this.trackerElm.groupName;
-                    Object.keys(this.song.data.instructions).forEach((groupName, i) => {
-                        // const buttonForm = panelTrackerGroups.addForm(groupName);
-                        const button = panelElm.addButtonInput(
-                            groupName,
-                            e => this.trackerElm.groupName = groupName,
-                            groupName);
-                        // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
-                        button.classList.toggle('selected', groupName === currentGroupName);
-                    });
-
-                    panelElm.addButtonInput(
-                        'add-group',
-                        e => this.songGroupAddNew(e),
-                        '+');
-                });
-
-                this.panelTrackerRowSegments = divElm.addDiv('asc-panel-tracker-row-segments', (panelElm) => {
-                    panelElm.classList.add('asc-panel');
-                    panelElm.addDiv('caption', 'Tracker Segments');
-                    let rowSegmentCount = this.rowSegmentCount; // TODO: calculate from song group
-
-
-                    // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-                    const currentRowSegmentID = this.trackerElm.currentRowSegmentID;
-                    if (rowSegmentCount < currentRowSegmentID + 1)
-                        rowSegmentCount = currentRowSegmentID + 1;
-                    for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
-                        const button = panelElm.addButtonInput(
-                            segmentID,
-                            e => this.trackerElm.navigateSegment(segmentID),
-                            segmentID);
-                        panelElm.classList.toggle('selected', segmentID === currentRowSegmentID);
-                        button.classList.toggle('selected', segmentID === currentRowSegmentID);
-                    }
-
-                });
-            });
-
-
-            divElm.addDiv('asc-tracker-container', this.trackerElm);
-
-
-            divElm.addDiv('asc-status-container', (divElm) => {
-                divElm.addDiv('status-text');
-                divElm.addDiv('version-text'); // TODO:        <a href="https://github.com/clevertree/audio-source-composer" target="_blank" class="version-text">${this.versionString}</a>
-            });
-
-
-            this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
-
-            this.updateForms();
-            // this.renderInstruments();
-            // this.trackerElm.render();
+        createStyleSheetLink(stylePath) {
+            const linkHRef = this.getScriptDirectory(stylePath);
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'stylesheet');
+            link.href = linkHRef;
+            return link;
         }
 
 
-        // get fieldSongAddInstrument()
+        loadMIDIInterface(callback) {
+            // TODO: wait for user input
+            if (navigator.requestMIDIAccess) {
+                navigator.requestMIDIAccess().then(
+                    (MIDI) => {
+                        console.info("MIDI initialized", MIDI);
+                        const inputDevices = [];
+                        MIDI.inputs.forEach(
+                            (inputDevice) => {
+                                inputDevices.push(inputDevice);
+                                inputDevice.addEventListener('midimessage', callback);
+                            }
+                        );
+                        console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
+                    },
+                    (err) => {
+                        throw new Error("error initializing MIDI: " + err);
+                    }
+                );
+            }
+        }
+
+        get trackerSegmentLengthInTicks() { return this.state.trackerSegmentLength || this.song.timeDivision * 16; }
+        get trackerRowLengthInTicks() { return this.state.trackerRowLength || this.song.timeDivision; }
+
+        async render() {
+            const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
+            return [
+                this.createStyleSheetLink('composer/assets/audio-source-composer.css'),
+                this.createStyleSheetLink('common/assets/audio-source-common.css'),
+                this.refs.containerElm = new ASUIDiv('asc-container', () => [
+                    new ASUIDiv('asc-menu-container', () => [
+                        this.refs.menuFile          = new ASUIMenu({vertical: true}, 'File',      () => this.populateMenu('file')),
+                        this.refs.menuEdit          = new ASUIMenu({vertical: true}, 'Edit',      () => this.populateMenu('edit')),
+                        this.refs.menuGroup         = new ASUIMenu({vertical: true}, 'Group',     () => this.populateMenu('group')),
+                        this.refs.menuInstrument    = new ASUIMenu({vertical: true}, 'Instrument', () => this.populateMenu('instrument')),
+                        this.refs.menuView          = new ASUIMenu({vertical: true}, 'View',      () => this.populateMenu('view')),
+                        this.refs.menuContext       = new ASUIMenu({vertical: true, context: true}, null,   () => this.populateMenu('context')),
+                    ]),
+
+                    this.refs.panelContainerElm = new ASUIDiv('asc-panel-container', () => [
+                        new ASCPanel('song', 'Song', () => [
+
+                            new ASCForm('playback',  'Playback',() => [
+                                this.refs.fieldSongPlaybackPlay = new ASUIInputButton('play',
+                                    new ASUIcon('play'),
+                                    e => this.songPlay(e),
+                                    "Play Song"),
+                                this.refs.fieldSongPlaybackPause = new ASUIInputButton('pause',
+                                    new ASUIcon('pause'),
+                                    e => this.songPause(e),
+                                    "Pause Song"),
+                                // this.refs.fieldSongPlaybackPause.disabled = true;
+                                this.refs.fieldSongPlaybackStop = new ASUIInputButton('stop',
+                                    new ASUIcon('stop'),
+                                    e => this.songStop(e),
+                                    "Stop Song")
+                            ]),
+
+                            new ASCForm('timing', 'Timing', () => [
+                                this.refs.fieldSongTiming = new ASUIInputText('timing',
+                                    (e, pos) => this.setSongPosition(e, pos),
+                                    '00:00:000',
+                                    'Song Timing',
+                                )
+                            ]),
+
+                            new ASCForm('position', 'Position', () => [
+                                this.refs.fieldSongPosition = new ASUIInputRange('position',
+                                    (e, pos) => this.setSongPosition(e, pos),
+                                    0,
+                                    Math.ceil(this.song.getSongLengthInSeconds()),
+                                    'Song Position',
+                                    0
+                                )
+                            ]),
+
+                            new ASCForm('volume', 'Volume',() => [
+                                this.refs.fieldSongVolume = new ASUIInputRange('volume',
+                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, this.state.volume, 'Song Volume')
+                            ]),
+
+                            new ASCForm('file', 'File', () => [
+                                this.refs.fieldSongFileLoad = new ASUIFileInput('file-load',
+                                    e => this.loadSongFromFileInput(),
+                                    new ASUIcon('file-load'),
+                                    `.json,.mid,.midi`,
+                                    "Load Song from File"
+                                ),
+                                this.refs.fieldSongFileSave = new ASUIInputButton('file-save',
+                                    new ASUIcon('file-save'),
+                                    e => this.saveSongToFile(),
+                                    "Save Song to File"
+                                ),
+                            ]),
+
+
+                            new ASCForm('name', 'Name', () => [
+                                this.refs.fieldSongName = new ASUIInputText('name',
+                                    (e, newSongName) => this.setSongName(e, newSongName),
+                                    this.song.name,
+                                    "Song Name",
+                                )
+                            ]),
+
+                            new ASCForm('version', 'Version', () => [
+                                this.refs.fieldSongVersion = new ASUIInputText('version',
+                                    (e, newSongVersion) => this.setSongVersion(e, newSongVersion), this.song.version, "Song Version")
+                            ]),
+
+                            new ASCForm('bpm', 'BPM', () => [
+                                this.refs.fieldSongBPM = new ASUIInputText('bpm',
+                                    (e, newBPM) => this.songChangeStartingBPM(e, parseInt(newBPM)),
+                                    this.song.startingBeatsPerMinute,
+                                    "Song BPM",
+                                )
+                                // this.refs.fieldSongBPM.inputElm.setAttribute('type', 'number')
+                            ]),
+                        ]),
+
+                        this.refs.panelInstruments = new ASCPanel('instruments', 'Instruments', () => {
+
+                            // const instrumentPanel = this.refs.panelInstruments;
+                            this.refs.instruments = [];
+                            const instrumentList = this.song.getInstrumentList();
+                            const content = instrumentList.map((instrumentConfig, instrumentID) =>
+                                this.refs.instruments[instrumentID] = new ASCInstrumentRenderer({}, this.song, instrumentID));
+                            
+                            content.push(new ASCForm('new', null, () => [
+                                new ASUIInputSelect('add-url',
+                                (s) => [
+                                    // s.getOption('', 'Add instrument'),
+                                    instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                        s.getOption(instrumentConfig.url, instrumentConfig.name)),
+                                ],
+                                (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
+                                '',
+                                'Add instrument')
+                            ]));
+                            return content;
+                        }),
+
+                        this.refs.panelInstructions = new ASCPanel('instructions', 'Selected Instruction(s)', () => [
+                            new ASCForm('instruction-command', 'Command', () => [
+                                this.refs.fieldInstructionCommand = new ASUIInputSelect(
+                                    'command',
+                                    (selectElm) => [
+                                        // const selectedInstrumentID = this.refs.fieldInstructionInstrument ? parseInt(this.refs.fieldInstructionInstrument.value) : 0;
+                                        selectElm.getOption(null, 'Select'),
+                                        selectElm.value ?
+                                            selectElm.getOptGroup('Current Octave', () => {
+                                                const currentOctave = this.refs.fieldInstructionCommand.value.substr(-1, 1);
+                                                return this.values.getNoteFrequencies(freq => selectElm.getOption(freq + currentOctave, freq + currentOctave));
+                                            }) : null,
+                                        selectElm.getOptGroup('Frequencies', () =>
+                                            this.values.getOctaveNoteFrequencies(freq => selectElm.getOption(freq, freq)),
+                                        ),
+
+                                        selectElm.getOptGroup('Custom Frequencies', () =>
+                                            this.values.getAllNamedFrequencies(namedFreq => selectElm.getOption(namedFreq, namedFreq)),
+                                        ),
+                                        // TODO: filter by selected instrument
+
+                                        selectElm.getOptGroup('Groups', () =>
+                                            this.values.getAllSongGroups(group => selectElm.getOption('@' + group, '@' + group)),
+                                        ),
+                                    ],
+                                    (e, commandString) => this.instructionChangeCommand(commandString),
+                                ),
+
+                                this.refs.fieldInstructionInsert = new ASUIInputButton(
+                                    'insert',
+                                    new ASUIcon('insert'),
+                                    e => this.instructionInsert(),
+                                    "Insert Instruction"),
+
+                                this.refs.fieldInstructionDelete = new ASUIInputButton('delete',
+                                    new ASUIcon('delete'),
+                                    e => this.instructionDelete(e),
+                                    "Delete Instruction"),
+
+                            ]),
+
+                            new ASCForm('instruction-instrument', 'Instrument', () => [
+                                this.refs.fieldInstructionInstrument = new ASUIInputSelect('instrument',
+                                    (selectElm) => [
+                                        selectElm.getOption(null, 'Select'),
+                                        selectElm.getOptGroup('Song Instruments',
+                                            () => this.values.getSongInstruments((id, name) => selectElm.getOption(id, name))
+                                        ),
+                                    ],
+                                    e => this.instructionChangeInstrument(),
+                                )
+                            ]),
+
+                            new ASCForm('instruction-velocity', 'Velocity', () => [
+                                this.refs.fieldInstructionVelocity = new ASUIInputRange('velocity',
+                                    (e, newVelocity) => this.instructionChangeVelocity(newVelocity), 1, 127)
+                            ]),
+
+                            new ASCForm('instruction-duration', 'Duration', () => [
+                                this.refs.fieldInstructionDuration = new ASUIInputSelect('duration',
+                                    (selectElm) => [
+                                        selectElm.getOption(null, 'No Duration'),
+                                        this.values.getNoteDurations((duration, title) => selectElm.getOption(duration, title))
+                                    ],
+                                    e => this.instructionChangeDuration(),
+                                    ),
+                            ]),
+
+                        ]),
+
+                        this.refs.panelTracker = new ASCPanel('tracker', 'Tracker', () => [
+                            new ASCForm('tracker-row-length', 'Row &#120491;', () => [
+                                this.refs.fieldTrackerRowLength = new ASUIInputSelect('row-length',
+                                    (selectElm) => [
+                                        selectElm.getOption(null, 'Default'),
+                                        this.values.getNoteDurations((duration, title) => selectElm.getOption(duration, title)),
+                                    ],
+                                    e => this.trackerChangeRowLength(),
+                                    this.state.trackerRowLength),
+                            ]),
+                            new ASCForm('tracker-segment-length', 'Seg &#120491;', () => [
+                                this.refs.fieldTrackerSegmentLength = new ASUIInputSelect('segment-length',
+                                    (selectElm) => [
+                                        selectElm.getOption(null, 'Default'),
+                                        this.values.getSegmentLengths((length, title) => selectElm.getOption(length, title)),
+                                    ],
+                                    (e, segmentLengthInTicks) => this.trackerChangeSegmentLength(segmentLengthInTicks),
+                                    this.state.trackerSegmentLength),
+                            ]),
+                            new ASCForm('tracker-instrument', 'Instrument', () => [
+                                this.refs.fieldTrackerFilterInstrument = new ASUIInputSelect('filter-instrument',
+                                    (selectElm) => [
+                                        selectElm.getOption(null, 'No Filter'),
+                                        this.values.getSongInstruments((id, name) => selectElm.getOption(id, name))
+                                    ],
+                                    (e, instrumentID) => this.trackerChangeInstrumentFilter(instrumentID),
+                                    null),
+                            ]),
+                            new ASCForm('tracker-selection', 'Selection', () => [
+                                this.refs.fieldTrackerSelection = new ASUIInputText('selection',
+                                    e => this.trackerChangeSelection(),
+                                    '',
+                                    'Selection',
+                                    'No selection'
+                                ),
+                            ]),
+                            new ASCForm('tracker-octave', 'Octave', () => [
+                                this.refs.fieldTrackerOctave = new ASUIInputSelect('octave',
+                                    (selectElm) => [
+                                        selectElm.getOption(null, 'Default'),
+                                        this.values.getNoteOctaves(opt => selectElm.getOption(opt, opt)),
+                                    ],
+                                    e => this.trackerChangeOctave(),
+                                    // addOption('', 'No Octave Selected');
+                                    3),
+                            ]),
+
+
+                            // this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
+
+                            // Status Fields
+
+                            // const trackerOctave = this.refs.fieldTrackerOctave.value;
+                            // this.refs.fieldTrackerOctave.value = trackerOctave !== null ? trackerOctave : 3;
+                            // if(this.refs.fieldTrackerOctave.value === null)
+                            //     this.refs.fieldTrackerOctave.value = 3; // this.status.currentOctave;
+                        ]),
+
+                        this.refs.panelTrackerGroups = new ASCPanel('tracker-groups',  'Groups', () => {
+
+                            const currentGroupName = this.trackerElm.groupName;
+                            const content = Object.keys(this.song.data.instructions).map((groupName, i) => [
+                                // const buttonForm = panelTrackerGroups.addForm(groupName);
+                                new ASUIInputButton(
+                                    {selected: currentGroupName === groupName},
+                                    groupName,
+                                    e => this.trackerChangeGroup(groupName),
+                                    "Group " + groupName,
+                                    )
+                                // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
+                                // TODO button.classList.toggle('selected', groupName === currentGroupName);
+                            ]);
+
+                            content.push(new ASUIInputButton(
+                                'add-group',
+                                '+',
+                                e => this.groupAdd(e)
+                            ));
+                            return content;
+                        }),
+
+                        this.refs.panelTrackerRowSegments = new ASCPanel('tracker-row-segments', 'Tracker Segments', () => {
+                            const segmentLengthInTicks = this.trackerElm.segmentLengthInTicks || (this.song.timeDivision * 16);
+                            let songLengthInTicks = this.song.getSongLengthInTicks();
+                            let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
+                            if(rowSegmentCount > 256)
+                                rowSegmentCount = 256;
+
+                            this.refs.panelTrackerRowSegmentButtons = [];
+
+                            // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
+                            const currentRowSegmentID = this.trackerElm.state.currentRowSegmentID;
+                            if (rowSegmentCount < currentRowSegmentID + 1)
+                                rowSegmentCount = currentRowSegmentID + 1;
+                            for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
+                                this.refs.panelTrackerRowSegmentButtons[segmentID] = new ASUIInputButton(
+                                    {selected: segmentID === currentRowSegmentID},
+                                    segmentID,
+                                    e => this.trackerChangeSegment(segmentID),
+                                    "Segment " + segmentID);
+                                // panelElm.classList.toggle('selected', segmentID === currentRowSegmentID);
+                                // button.classList.toggle('selected', segmentID === currentRowSegmentID);
+                            }
+                            return this.refs.panelTrackerRowSegmentButtons;
+                        }),
+                    ]),
+
+                    new ASUIDiv('asc-tracker-container', this.trackerElm),
+
+                    new ASUIDiv('asc-status-container', () => [
+                        this.refs.textStatus = new ASUIDiv('status-text'),
+                        this.refs.textVersion = new ASUIDiv('version-text', this.state.version),
+                    ])
+                ])
+            ];
+        }
+
+
+
+        setStatus(newStatus) {
+            this.refs.textStatus.content = newStatus;
+            console.info.apply(null, arguments); // (newStatus);
+        }
+
+        setVersion(versionString) {
+            this.state.version = versionString;
+            this.refs.textVersion.content = versionString;
+        }
+
+
+        // get fieldinstrumentAdd()
         // TODO: AudioSourceComposerSongFormRenderer()
         updateForms() {
-            this.fieldSongName.value = this.song.getName();
-            this.fieldSongVersion.value = this.song.getVersion();
-            this.fieldSongBPM.value = this.song.getStartingBPM();
+            this.refs.fieldSongName.value = this.song.name;
+            this.refs.fieldSongVersion.value = this.song.version;
+            this.refs.fieldSongBPM.value = this.song.startingBeatsPerMinute;
 
-            this.fieldSongVolume.value = this.song.getVolumeValue();
+            this.refs.fieldSongVolume.value = this.song.getVolumeValue();
 
             let selectedIndicies = this.getSelectedIndicies();
             // let timeDivision = this.rowLengthInTicks || this.song.getSongTimeDivision();
-            const selectedInstructionList = this.song.getInstructions(this.trackerElm.groupName, selectedIndicies);
-            let cursorInstruction = selectedInstructionList[0];
+            const cursorInstruction = this.song.instructionFind(this.trackerElm.groupName, selectedIndicies[0]);
 
 
             if (cursorInstruction) {
-                this.fieldInstructionCommand.value = cursorInstruction.command; // , "Unknown Instrument");
-                this.fieldInstructionInstrument.addOrSetValue(cursorInstruction.instrument, cursorInstruction.instrument + ": Unknown Instrument");
-                this.fieldInstructionVelocity.value = cursorInstruction.velocity;
-                this.fieldInstructionDuration.value = cursorInstruction.duration;
+                this.refs.fieldInstructionCommand.value = cursorInstruction.command; // , "Unknown Instrument");
+                this.refs.fieldInstructionInstrument.addOrSetValue(cursorInstruction.instrument, cursorInstruction.instrument + ": Unknown Instrument");
+                this.refs.fieldInstructionVelocity.value = cursorInstruction.velocity;
+                this.refs.fieldInstructionDuration.value = cursorInstruction.duration;
             }
 
-            this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
-            if (!this.fieldTrackerRowLength.value)
-                this.fieldTrackerRowLength.setValue(this.song.timeDivision);
-            // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();
-            if (!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
-                this.fieldInstructionDuration.setValue(parseInt(this.fieldTrackerRowLength.value));
+            this.refs.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
+            if (!this.refs.fieldTrackerRowLength.value)
+                this.refs.fieldTrackerRowLength.setValue(this.song.timeDivision);
+            // this.refs.fieldTrackerRowLength.value = this.refs.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();
+            if (!this.refs.fieldInstructionDuration.value && this.refs.fieldTrackerRowLength.value)
+                this.refs.fieldInstructionDuration.setValue(parseInt(this.refs.fieldTrackerRowLength.value));
 
 
         }
 
+        /** @deprecated shouldn't be used **/
         renderInstrument(instrumentID) {
-            const instrumentPanel = this.panelInstruments;
-            // this.headerElm.innerHTML = `${instrumentIDHTML}: Loading...`;
-            let instrumentForm = instrumentPanel.findChild(instrumentID);
-            if (instrumentForm) {
-                instrumentForm.render();
-            } else {
-                this.panelInstruments.render();
-                console.warn("Instrument form not found: " + instrumentID + ". Rendering all instruments");
-            }
-
+            if(this.refs.instruments[instrumentID])
+                this.refs.instruments[instrumentID].renderOS();
         }
 
-        renderInstruments() {
-            this.panelInstruments.render();
+        async renderInstruments() {
+            await this.refs.panelInstruments.renderOS();
+            await this.refs.panelInstructions.renderOS();
         }
 
-        populateMenu(divElm, menuKey) {
+        async populateMenu(menuKey) {
+            const library = await this.getLibrary();
             /** File Menu **/
+            let content = [];
             switch (menuKey) {
                 case 'file':
-                    divElm.addActionMenu('New song',
-                        (e) => this.loadNewSongData(e));
+        
+                    content = [
 
-                    divElm.addSubMenu('Open song ►', divElm => {
-                        divElm.addSubMenu('from Memory ►', async divElm => {
-                            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-                            const Storage = new AudioSourceStorage();
-                            const songRecentUUIDs = await Storage.getRecentSongList();
-                            for (let i = 0; i < songRecentUUIDs.length; i++) {
-                                const entry = songRecentUUIDs[i];
-                                divElm.addActionMenu(entry.name || entry.title || entry.uuid || "noname." + i,
-                                    (e) => {
-                                    this.loadSongFromMemory(entry.uuid);
-                                });
-                            }
-                        });
+                        new ASUIMenu({}, 'New song', null,
+                            (e) => this.loadNewSongData(e)),
 
-                        divElm.addActionMenu(`from File`, (e) => this.fieldSongFileLoad.inputElm.click()); // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                        // menuFileOpenSongFromFile.disabled = true;
-                        let menu = divElm.addActionMenu('from URL');
-                        menu.disabled = true;
-                    });
+                        new ASUIMenu({}, 'Open song', () => [
+                            new ASUIMenu({}, 'from Memory', async () => {
+                                const songRecentUUIDs = await audioSourceStorage.getRecentSongList() ;
+                                return songRecentUUIDs.map(entry => new ASUIMenu({}, entry.name || entry.uuid, null,
+                                    () => this.loadSongFromMemory(entry.uuid)));
+                            }),
 
-                    divElm.addSubMenu('Save song ►', divElm => {
-                        divElm.addActionMenu('to Memory', (e) => this.saveSongToMemory(e));
-                        divElm.addActionMenu('to File', (e) => this.saveSongToFile(e));
-                    });
+                            new ASUIMenu({}, `from File`, null, (e) => this.refs.fieldSongFileLoad.click()), // this.loadSongFromFileInput(this.refs.fieldSongFileLoad.inputElm);
+                            // menuFileOpenSongFromFile.disabled = true;
+                            new ASUIMenu({}, 'from URL', null, (e) => this.loadSongFromURL()),
+                        ]),
 
-                    divElm.addSubMenu('Import song ►', divElm => {
-                        divElm.addActionMenu('from MIDI File', (e) => this.fieldSongFileLoad.inputElm.click());
-                        // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                        // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
-                        // menuFileImportSongFromMIDI.disabled = true;
-                    });
+                        new ASUIMenu({}, 'Save song', () => [
+                            new ASUIMenu({}, 'to Memory', null, (e) => this.saveSongToMemory(e)),
+                            new ASUIMenu({}, 'to File', null, (e) => this.saveSongToFile(e)),
+                        ]),
 
-                    let menu = divElm.addSubMenu('Export song ►', divElm => {
-                        let menu = divElm.addActionMenu('to MIDI File');
-                        menu.disabled = true;
-                    });
-                    menu.disabled = true;
-                    break;
+                        new ASUIMenu({}, 'Import song', () => [
+                            new ASUIMenu({}, 'from MIDI File', null, (e) => this.refs.fieldSongFileLoad.inputElm.click()),
+                            // this.loadSongFromFileInput(this.refs.fieldSongFileLoad.inputElm);
+                            // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+                            // menuFileImportSongFromMIDI.disabled = true;
+                        ]),
 
-                case 'view':
-                    divElm.addActionMenu(`${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, (e) => this.toggleFullscreen(e));
-                    divElm.addActionMenu(`${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, (e) => this.togglePanelSong(e));
-                    divElm.addActionMenu(`${this.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`, (e) => this.togglePanelTracker(e));
-                    divElm.addActionMenu(`${this.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`, (e) => this.togglePanelInstruments(e));
-                    break;
-
-                case 'instrument':
-                    divElm.addSubMenu(`Add Instrument To Song ►`, async divElm => {
-                        const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                        instrumentLibrary.eachInstrument((instrumentConfig) => {
-                            divElm.addActionMenu(`${instrumentConfig.name}`, (e) => {
-//                         this.fieldSongAddInstrument.value = instrumentURL;
-                                this.songAddInstrument(e, instrumentConfig);
-                            });
-                        });
-                    });
-
-
-                    let instrumentCount = 0;
-                    this.values.getValues('song-instruments', (instrumentID, label) => {
-                        const isActive = this.song.isInstrumentLoaded(instrumentID);
-
-                        const menuInstrument = divElm.addSubMenu(`${label} ►`, divElm => {
-                            divElm.addSubMenu(`Replace ►`, async (e) => {
-                                const instrumentLibrary = await AudioSourceLibrary.loadURL(this.defaultLibraryURL);
-                                instrumentLibrary.eachInstrument((instrumentConfig) => {
-                                    divElm.addActionMenu(`${instrumentConfig.name}`, (e) => {
-                                        this.songReplaceInstrument(e, instrumentID, instrumentConfig);
-                                    });
-                                });
-                            });
-
-
-                            let menu = divElm.addActionMenu(`Remove From Song`, (e) => {
-                                this.songRemoveInstrument(e, instrumentID);
-                            });
-                            menu.disabled = !isActive;
-
-
-                        });
-                        if (instrumentCount === 0)
-                            menuInstrument.hasBreak = true;
-                        instrumentCount++;
-                    });
-
-                    // TODO CRUD
-                    break;
-
-                /** Group Menu **/
-                case 'group':
-                    divElm.addActionMenu(`Add Group To Song`, (e) => {
-                        this.songGroupAddNew(e);
-                    });
-
-
-                    let groupCount = 0;
-                    this.values.getValues('song-groups', (groupName) => {
-                        let menu = divElm.addSubMenu(`${groupName} ►`, divElm => {
-                            divElm.addActionMenu(`Rename`, (e) => {
-                                this.songGroupRename(e, groupName);
-                            });
-
-
-                            divElm.addActionMenu(`Remove From Song`, (e) => {
-                                this.songGroupRemove(e, groupName);
-                            });
-                        });
-                        if (groupCount === 0)
-                            menu.hasBreak = true;
-                        groupCount++;
-                    });
+                        new ASUIMenu({disabled: false}, 'Export song', () => [
+                            new ASUIMenu({}, 'to MIDI File', null, null, {disabled: true}),
+                        ]),
+                    ];
                     break;
 
                 case 'edit':
+                case 'context':
                     const selectedIndicies = this.getSelectedIndicies();
 
                     // const populateGroupCommands = (subMenuGroup, action) => {
@@ -600,217 +487,327 @@
                     //             menuEditSetCommandGroup.action = action;
                     //         });
                     //         const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
-                    //         menuCustom.action = e => this.songGroupAddNew(e);
+                    //         menuCustom.action = e => this.groupAdd(e);
                     //         menuCustom.hasBreak = true;
                     //     };
                     // };
-
-                    divElm.addSubMenu(`Insert Command ►`, divElm => {
-                        divElm.addSubMenu(`Frequency ►`, divElm => {
-                            this.values.getValues('note-frequency-octaves', (octave, label) => {
-                                divElm.addSubMenu(`Octave ${label} ►`, divElm => {
-                                    this.values.getValues('note-frequency', (noteName, label) => {
-                                        const fullNote = noteName + octave;
-                                        divElm.addActionMenu(`${label}${octave}`, (e) => {
-                                            this.fieldInstructionCommand.value = fullNote;
-                                            this.insertInstructionCommand(e, fullNote);
-                                        });
-                                    });
-                                });
-                            });
-                        });
-
-                        divElm.addSubMenu(`Named ►`, divElm => {
-                            this.values.getValues('note-frequency-named', (noteName, frequency, instrumentID) => {
-                                divElm.addActionMenu(noteName, (e) => {
-                                    this.fieldInstructionCommand.value = noteName;
-                                    this.insertInstructionCommand(e, noteName, false, instrumentID);
-                                })
-                            });
-                        });
-
-                        divElm.addSubMenu(`Group ►`, divElm => {
-                            this.values.getValues('song-groups', (groupName, groupTitle) => {
-                                if (groupName === this.groupName)
-                                    return;
-                                divElm.addActionMenu(`${groupTitle}`, (e) => {
-                                    const fullNote = '@' + groupName;
-                                    this.fieldInstructionCommand.value = fullNote;
-                                    this.insertInstructionCommand(e, fullNote);
-                                });
-                            });
-                            let menuGroup = divElm.addActionMenu(`Create New Group`, (e) => this.songGroupAddNew(e));
-                            menuGroup.hasBreak = true;
-                        });
-
-                        let menuCustom = divElm.addActionMenu(`Custom Command`, (e) => this.insertInstructionCommand(e, true));
-                        menuCustom.hasBreak = true;
-                    });
-                    // menuEditInsertCommand.disabled = selectedIndicies.length > 0; // !this.cursorCell;
-                    // menuEditInsertCommand.action = handleAction('song:new');
-
-                    if (selectedIndicies.length > 0) {
-                        const menuEditSetCommand = divElm.addSubMenu(`Set Command ►`, divElm => {
-                            divElm.addSubMenu(`Frequency ►`, divElm => {
-                                this.values.getValues('note-frequency-octaves', (octave, label) => {
-                                    divElm.addSubMenu(`Octave ${label} ►`, divElm => {
-                                        this.values.getValues('note-frequency', (noteName, label) => {
-                                            const fullNote = noteName + octave;
-                                            divElm.addActionMenu(`${label}${octave}`, (e) => {
-                                                this.fieldInstructionCommand.value = fullNote;
-                                                this.setInstructionCommand(e, fullNote);
-                                                // handleAction('instruction:command')(e);
+                    content = [
+                        new ASUIMenu({}, `Insert Command`, () => [
+                            new ASUIMenu({}, `Frequency`, () =>
+                                this.values.getNoteFrequencies((noteName, label) =>
+                                    new ASUIMenu({}, `${noteName}`, () =>
+                                        this.values.getNoteOctaves((octave) =>
+                                            new ASUIMenu({}, `${noteName}${octave}`, null, (e) => {
+                                                this.refs.fieldInstructionCommand.value = `${noteName}${octave}`;
+                                                this.instructionInsert(`${noteName}${octave}`, false);
                                             })
-                                        });
-                                    });
-                                });
-                            });
+                                        )
+                                    )
+                                )
+                            ),
 
-                            divElm.addSubMenu(`Named ►`, divElm => {
-                                this.values.getValues('note-frequency-named', (noteName, frequency, instrumentID) => {
-                                    divElm.addActionMenu(noteName, (e) => {
-                                        this.fieldInstructionCommand.value = noteName;
-                                        this.setInstructionCommand(e, noteName, false, instrumentID);
-                                    })
-                                });
-                            });
+                            new ASUIMenu({}, `Named`, () =>
+                                this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
+                                    new ASUIMenu({}, noteName, null, (e) => {
+                                        this.refs.fieldInstructionCommand.value = noteName;
+                                        this.instructionInsert(noteName, false, instrumentID);
+                                    }))
+                            ),
 
-                            divElm.addSubMenu(`Group ►`, divElm => {
-                                this.values.getValues('song-groups', (groupName, groupTitle) => {
-                                    if (groupName === this.groupName)
-                                        return;
-                                    divElm.addActionMenu(`${groupTitle}`, (e) => {
+                            new ASUIMenu({}, `Group`, () => [
+                                this.values.getAllSongGroups((groupName) =>
+                                    new ASUIMenu({disabled: groupName === this.trackerElm.groupName}, `${groupName}`, (e) => {
                                         const fullNote = '@' + groupName;
-                                        this.fieldInstructionCommand.value = fullNote;
-                                        this.setInstructionCommand(e, fullNote);
-                                    });
-                                });
-                                const menuCustom = divElm.addActionMenu(`Create New Group`, (e) => this.songGroupAddNew(e));
-                                menuCustom.hasBreak = true;
-                            });
+                                        this.refs.fieldInstructionCommand.value = fullNote;
+                                        this.instructionInsert(fullNote, false);
+                                    })),
+                                new ASUIMenu({}, `Create New Group`, null, (e) => this.groupAdd(e), {hasBreak: true}),
+                            ]),
 
-                            const menuCustom = divElm.addActionMenu(`Custom Command`, (e) => this.setInstructionCommand(e, true));
-                            menuCustom.hasBreak = true;
-                        });
-                        menuEditSetCommand.disabled = selectedIndicies.length === 0;
+                            new ASUIMenu({}, `Custom Command`, null, (e) => this.instructionInsert(null, true)),
+                            // menuCustom.hasBreak = true;
+                        ], null, {hasBreak: true}),
+                        // menuEditInsertCommand.disabled = selectedIndicies.length > 0; // !this.cursorCell;
+                        // menuEditInsertCommand.action = handleAction('song:new');
 
-                        const menuEditSetInstrument = divElm.addSubMenu(`Set Instrument ►`, divElm => {
-                            this.values.getValues('song-instruments', (instrumentID, label) => {
-                                divElm.addActionMenu(`${label}`, (e) => {
-                                    this.fieldInstructionInstrument.value = instrumentID;
-                                    this.setInstructionInstrument(e, instrumentID);
-                                    // handleAction('instruction:instrument')(e);
-                                });
-                            });
-                        });
-                        menuEditSetInstrument.disabled = selectedIndicies.length === 0;
+                        (selectedIndicies.length === 0 ? null : [
+                            new ASUIMenu({}, `Set Command`, () => [
+                                new ASUIMenu({}, `Frequency`, () =>
+                                    this.values.getNoteFrequencies((noteName, label) =>
+                                        new ASUIMenu({}, `${noteName}`, () =>
+                                            this.values.getNoteOctaves((octave) =>
+                                                new ASUIMenu({}, `${noteName}${octave}`, null, (e) => {
+                                                    this.refs.fieldInstructionCommand.value = `${noteName}${octave}`;
+                                                    this.instructionChangeCommand(`${noteName}${octave}`, false);
+                                                    // handleAction('instruction:command')(e);
+                                                })
+                                            )
+                                        )
+                                    )
+                                ),
 
+                                new ASUIMenu({}, `Named`, () =>
+                                    this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
+                                        new ASUIMenu({}, noteName, null, (e) => {
+                                            this.refs.fieldInstructionCommand.value = noteName;
+                                            this.instructionChangeCommand(noteName, false, instrumentID);
+                                        }))
+                                ),
 
-                        const menuEditSetDuration = divElm.addSubMenu(`Set Duration ►`, divElm => {
-                            this.values.getValues('durations', (durationInTicks, durationName) => {
-                                divElm.addActionMenu(`${durationName}`, (e) => {
-                                    this.fieldInstructionDuration.value = durationInTicks;
-                                    this.setInstructionDuration(e, durationInTicks);
-                                    // handleAction('instruction:duration')(e);
-                                });
-                            });
-                            const menuCustom = divElm.addActionMenu(`Custom Duration`, (e) => this.setInstructionDuration(e, null, true));
-                            menuCustom.hasBreak = true;
-                        });
-                        menuEditSetDuration.disabled = selectedIndicies.length === 0;
+                                new ASUIMenu({}, `Group`, () => [
+                                    this.values.getAllSongGroups((groupName) =>
+                                        groupName === this.groupName ? null :
+                                            new ASUIMenu({}, `${groupName}`, null, (e) => {
+                                                const fullNote = '@' + groupName;
+                                                this.refs.fieldInstructionCommand.value = fullNote;
+                                                this.instructionChangeCommand(fullNote, false);
+                                            })),
+                                    new ASUIMenu({}, `Create New Group`, null, (e) => this.groupAdd(e), {hasBreak: true})
+                                ]),
 
+                                new ASUIMenu({}, `Custom Command`, null, (e) => this.instructionChangeCommand(null, true), {hasBreak: true}),
+                            ]),
 
-                        const menuEditSetVelocity = divElm.addSubMenu(`Set Velocity ►`, divElm => {
-                            this.values.getValues('velocities', (velocity, velocityName) => {
-                                divElm.addActionMenu(`${velocityName}`, (e) => {
-                                    this.fieldInstructionVelocity.value = velocity;
-                                    this.setInstructionVelocity(e, velocity);
-                                    // handleAction('instruction:velocity')(e);
-                                });
-                            });
-                            const menuCustom = divElm.addActionMenu(`Custom Velocity`, (e) => this.setInstructionVelocity(e, null, true));
-                            menuCustom.hasBreak = true;
-                        });
-                        menuEditSetVelocity.disabled = selectedIndicies.length === 0;
+                            new ASUIMenu({disabled: selectedIndicies.length === 0}, `Set Instrument`, () =>
+                                this.values.getSongInstruments((instrumentID, label) =>
+                                    new ASUIMenu({}, `${label}`, null, (e) => {
+                                        this.refs.fieldInstructionInstrument.value = instrumentID;
+                                        this.instructionChangeInstrument(instrumentID);
+                                        // handleAction('instruction:instrument')(e);
+                                    }))
+                            ),
 
-                        const menuEditDeleteInstruction = divElm.addActionMenu(`Delete Instruction(s)`, (e) => this.deleteInstructionCommand(e));
-                        menuEditDeleteInstruction.disabled = selectedIndicies.length === 0;
-                    }
+                            new ASUIMenu({disabled: selectedIndicies.length === 0}, `Set Duration`, () => [
+                                this.values.getNoteDurations((durationInTicks, durationName) =>
+                                    new ASUIMenu({}, `${durationName}`, null, (e) => {
+                                        this.refs.fieldInstructionDuration.value = durationInTicks;
+                                        this.instructionChangeDuration(durationInTicks);
+                                        // handleAction('instruction:duration')(e);
+                                    })),
+                                new ASUIMenu({}, `Custom Duration`, (e) => this.instructionChangeDuration(null, true), {hasBreak: true}),
+                            ]),
 
-                    /** Select Instructions **/
+                            new ASUIMenu({disabled: selectedIndicies.length === 0}, `Set Velocity`, () => [
+                                this.values.getNoteVelocities((velocity) =>
+                                    new ASUIMenu({}, `${velocity}`, null, (e) => {
+                                        this.refs.fieldInstructionVelocity.value = velocity;
+                                        this.instructionChangeVelocity(velocity);
+                                        // handleAction('instruction:velocity')(e);
+                                    })
+                                ),
+                                new ASUIMenu({}, `Custom Velocity`, null, (e) => this.instructionChangeVelocity(null, true), {hasBreak: true}),
+                            ]),
 
-                    const menuEditSelect = divElm.addSubMenu('Select ►', divElm => {
-                        divElm.addActionMenu('Select Segment Instructions', (e) => this.setTrackerSelection(e, 'segment'));
+                            new ASUIMenu({disabled: selectedIndicies.length === 0}, `Delete Instruction(s)`,
+                                null,
+                                (e) => this.instructionDelete(e)
+                            ),
+                        ]),
 
-                        divElm.addActionMenu('Select All Song Instructions', (e) => this.setTrackerSelection(e, 'all'));
+                        /** Select Instructions **/
 
-                        // const menuSelectRow = MENU.getOrCreateSubMenu('row', 'Select Row Instructions');
-                        // menuSelectRow.action = (e) => this.setTrackerSelection(e, 'row');
-                        // menuSelectRow.disabled = true;
-                        divElm.addActionMenu('Select No Instructions', (e) => this.setTrackerSelection(e, 'none'));
+                        new ASUIMenu({}, 'Select', () => [
+                            new ASUIMenu({}, 'Select Segment Instructions', null, (e) => this.trackerChangeSelection('segment')),
 
-                        divElm.addSubMenu('Batch Select ►', async divElm => {
-                            divElm.addActionMenu('New Selection Command', (e) => this.batchSelect(e));
+                            new ASUIMenu({}, 'Select All Song Instructions', null, (e) => this.trackerChangeSelection('all')),
 
-                            const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-                            const storage = new AudioSourceStorage();
-                            const recentBatchSearches = storage.getBatchRecentSearches();
-                            for (let i = 0; i < recentBatchSearches.length; i++) {
-                                const recentBatchSearch = recentBatchSearches[i];
-                                // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                                divElm.addActionMenu(recentBatchSearch, (e) => {
-                                    this.batchSelect(e, recentBatchSearch, true);
-                                });
-                            }
-                        });
+                            // const menuSelectRow = MENU.getOrCreateSubMenu('row', 'Select Row Instructions');
+                            // menuSelectRow.action = (e) => this.trackerChangeSelection(e, 'row');
+                            // menuSelectRow.disabled = true;
+                            new ASUIMenu({}, 'Select No Instructions', null, (e) => this.trackerChangeSelection('none')),
 
-                    });
-                    menuEditSelect.hasBreak = true;
+                            new ASUIMenu({}, 'Batch Select', async () => [
+                                new ASUIMenu({}, 'New Selection Command', null, (e) => this.batchSelect(e)),
 
-                    /** Batch Instructions **/
+                                audioSourceStorage.getBatchRecentSearches().map(recentBatchSearch =>
+                                    // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                                    new ASUIMenu({}, recentBatchSearch, null, (e) => {
+                                        this.batchSelect(e, recentBatchSearch, true);
+                                    })
+                                )
+                            ]),
 
-                    const menuEditBatch = divElm.addSubMenu('Batch ►', async divElm => {
-                        divElm.addActionMenu('New Batch Command', (e) => this.batchRunCommand(e));
+                        ], null, {hasBreak: true}),
 
-                        const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-                        const storage = new AudioSourceStorage();
-                        const recentBatchCommands = storage.getBatchRecentCommands();
-                        for (let i = 0; i < recentBatchCommands.length; i++) {
-                            const recentBatchCommand = recentBatchCommands[i];
-                            // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                            divElm.addSubMenu(recentBatchCommand, divElm => {
-                                divElm.addActionMenu("Execute on Group", (e) => {
-                                    this.batchRunCommand(e, recentBatchCommand, true);
-                                });
+                        /** Batch Instructions **/
 
-                                divElm.addSubMenu("Execute using Search", (e) => {
-                                    divElm.addActionMenu('New Search', (e) => this.batchRunCommand(e, recentBatchCommand, null, true));
+                        new ASUIMenu({}, 'Batch', async () => [
+                            new ASUIMenu({}, 'New Batch Command', null, (e) => this.batchRunCommand(e)),
+                            audioSourceStorage.getBatchRecentCommands().map((recentBatchCommand, i) =>
+                                new ASUIMenu({}, recentBatchCommand, () => [
+                                    new ASUIMenu({}, "Execute on Group", null, (e) => {
+                                        this.batchRunCommand(e, recentBatchCommand, true);
+                                    }),
 
-                                    const storage = new AudioSourceStorage();
-                                    const recentBatchSearches = storage.getBatchRecentSearches();
-                                    for (let i = 0; i < recentBatchSearches.length; i++) {
-                                        const recentBatchSearch = recentBatchSearches[i];
-                                        // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                                        divElm.addActionMenu(recentBatchSearch, (e) => {
-                                            this.batchRunCommand(e, recentBatchCommand, recentBatchSearch);
-                                        });
-                                    }
-                                });
-                            });
+                                    new ASUIMenu({}, "Execute using Search", (e) => [
+                                        new ASUIMenu({}, 'New Search', null, (e) => this.batchRunCommand(e, recentBatchCommand, null, true)),
+                                        audioSourceStorage.getBatchRecentSearches().map((recentBatchSearch, i) => {
 
-                        }
+                                            // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                                            new ASUIMenu({}, recentBatchSearch, null, (e) => {
+                                                this.batchRunCommand(e, recentBatchCommand, recentBatchSearch);
+                                            });
+                                        })
+                                    ])
+                                ])
+                            ),
 
-                    });
-                    menuEditBatch.hasBreak = true;
-
+                        ], null, {hasBreak: false}),
+                    ];
                     // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
                     // menuEditGroup.hasBreak = true;
                     // menuEditGroup.disabled = true;
 
                     break;
+
+                case 'view':
+                    content = [
+                        new ASUIMenu({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`,              null, (e) => this.toggleFullscreen(e)),
+                        new ASUIMenu({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`,              null, (e) => this.togglePanelSong(e)),
+                        new ASUIMenu({}, `${this.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`,          null, (e) => this.togglePanelTracker(e)),
+                        new ASUIMenu({}, `${this.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`, null, (e) => this.togglePanelInstruments(e)),
+                    ];
+                    break;
+
+                case 'instrument':
+                    content = [
+                        new ASUIMenu({}, `Add instrument to song`,
+                            async () =>
+                            library.eachInstrument((instrumentConfig) =>
+                                new ASUIMenu({}, `${instrumentConfig.name}`, null, (e) => {
+                                    this.instrumentAdd(instrumentConfig);
+                                })
+                            ),
+                            null, {hasBreak: true}),
+
+                        this.values.getSongInstruments((instrumentID, label) =>
+                            new ASUIMenu({}, `${label}`, () => [
+                                new ASUIMenu({}, `Replace`, async (e) =>
+                                    library.eachInstrument((instrumentConfig) =>
+                                        new ASUIMenu({}, `${instrumentConfig.name}`, null, (e) =>
+                                            this.instrumentReplace(instrumentID, instrumentConfig)
+                                        )
+                                    )
+                                ),
+
+                                new ASUIMenu({}, `Remove from song`, null, (e) => {
+                                    this.instrumentRemove(instrumentID);
+                                }, {disabled: !this.song.isInstrumentLoaded(instrumentID)})
+                            ])),
+
+                    ];
+                    break;
+
+                /** Group Menu **/
+                case 'group':
+                    let groupCount = 0;
+                    content = [
+                        new ASUIMenu({}, `Add new group to song`, null, (e) => {
+                            this.groupAdd(e);
+                        }, {hasBreak: true}),
+
+                        this.values.getAllSongGroups((groupName) =>
+                            new ASUIMenu({}, `${groupName}`, () => [
+                                new ASUIMenu({}, `Rename group '${groupName}'`, null, (e) => {
+                                    this.groupRename(groupName);
+                                }),
+
+                                new ASUIMenu({}, `Delete group '${groupName}' from song`, null, (e) => {
+                                    this.groupRemove(groupName);
+                                }),
+                            ], {hasBreak: groupCount++ === 0}))
+                    ];
+                    break;
+
             }
+
+            return content;
+        }
+
+    }
+
+    class ASCPanel extends ASUIDiv {
+        constructor(props={}, title, contentCallback) {
+            super(props, contentCallback);
+            this.state.title = title;
+        }
+
+        async render() {
+            return [
+                this.state.title ? new ASUIDiv('title', this.state.title) : null,
+                super.render()
+            ]
         }
     }
+    customElements.define('asc-panel', ASCPanel);
+
+    class ASCForm extends ASCPanel {}
+    customElements.define('asc-form', ASCForm);
+    
+
+    class ASCInstrumentRenderer extends ASUIComponent {
+        constructor(props={}, song, instrumentID) {
+            super(props, {});
+            this.props.id = instrumentID;
+            this.song = song;
+        }
+
+        async render() {
+            const instrumentID = this.props.id;
+            const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+
+            let content = [
+            ];
+
+            if(this.song.hasInstrument(instrumentID)) {
+
+                try {
+                    const instrument = await this.song.loadInstrument(instrumentID);
+                    const instrumentConfig = await this.song.getInstrumentConfig(instrumentID);
+
+                    if (instrument instanceof HTMLElement) {
+                        content.push(instrument);
+                    } else if (typeof instrument.render === "function") {
+                        content.push(await instrument.render());
+                    } else {
+                        content.push(new ASUIDiv('error', "No Instrument Renderer"));
+                    }
+
+                } catch (e) {
+                    content.push(new ASUIDiv('error', e.message));
+                }
+            } else {
+                let titleHTML = `${instrumentIDHTML}: No Instrument`;
+                content = [
+                    new ASUIDiv('header', () => [
+                        this.refs.menu = new ASUIMenu(
+                            {vertical: true},
+                            titleHTML,
+                            () => [
+                                new ASUIMenu({}, 'Change Instrument to',
+                                    async () => {
+                                        const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
+                                        return instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                            new ASUIMenu({}, instrumentConfig.name, null, () => {
+                                                this.song.instrumentReplace(instrumentID, instrumentConfig);
+                                            })
+                                        );
+                                    }
+                                ),
+                                new ASUIMenu({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
+                                new ASUIMenu({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
+                            ]
+                        ),
+                    ]),
+                ]
+            }
+
+            return content;
+        }
+    }
+    
+    customElements.define('asc-instrument', ASCInstrumentRenderer);
+
 
 
     /** Export this script **/

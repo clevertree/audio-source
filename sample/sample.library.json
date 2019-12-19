@@ -1,9 +1,0 @@
-{
-  "name": "Sample Library Index",
-  "libraries": [
-    {
-      "name": "General Midi Default Library",
-      "url": "gm/fws/fws.library.json"
-    }
-  ]
-}

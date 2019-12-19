@@ -1,7 +1,7 @@
 {
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/support/libgme-support.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {LibGMESupport};
     }
 
@@ -72,7 +72,7 @@
             const songData = {
                 name: (id666.game ? id666.game + ': ' : '') + (id666.title2 || id666.title),
                 id666,
-                version: '0.0.1a',
+                version: 'auto',
                 root: 'root',
                 created: new Date().getTime(),
                 timeDivision: timeDivision,

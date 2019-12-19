@@ -1,7 +1,7 @@
 {
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/support/spc-support.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {SPCSupport};
     }
 
@@ -67,7 +67,7 @@
                 publisher: id666.publisher,
                 dumper: id666.dumper,
                 system: id666.system,
-                version: '0.0.1a',
+                version: 'auto',
                 root: 'root',
                 created: new Date().getTime(),
                 timeDivision: timeDivision,

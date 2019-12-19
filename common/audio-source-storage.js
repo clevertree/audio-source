@@ -8,7 +8,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-storage.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             AudioSourceStorage,
         };

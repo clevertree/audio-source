@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-file-service.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             AudioSourceFileService
         };
@@ -16,9 +16,10 @@
         "udp://tracker.empire-js.us:1337",
         "udp://tracker.leechers-paradise.org:6969",
         "udp://tracker.opentrackr.org:1337",
+        // "wss://snesology.net/wss",
         "wss://tracker.fastcast.nz",
         "wss://tracker.openwebtorrent.com",
-        // "wss://tracker.btorrent.xyz",
+        "wss://tracker.btorrent.xyz",
     ];
 
     class AudioSourceFileService {
@@ -27,7 +28,10 @@
 
         async loadBufferFromURL(url) {
             if(url.toString().startsWith('torrent://')) {
-                return await this.getFileBufferFromTorrent(url);
+                console.time('getFileBufferFromTorrent');
+                const buffer = await this.getFileBufferFromTorrent(url);
+                console.timeEnd('getFileBufferFromTorrent');
+                return buffer;
             }
             var request = new XMLHttpRequest();
             await new Promise((resolve, reject) => {

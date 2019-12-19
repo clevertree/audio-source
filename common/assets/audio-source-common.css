@@ -24,13 +24,13 @@ asui-div input.themed,
 asui-div select.themed,
 asui-div button.themed {
     /* display: inline-block; */
-    padding: 0px 0px;
+    /* padding: 0px 0px; */
     /* border-radius: 2px; */
     /* transition: all 0.2s; */
     border: 0px outset transparent;
     background: transparent;
     cursor: pointer;
-    height: 24px;
+    /* height: 24px; */
 }
 
 asui-div .input-style:hover,
@@ -59,7 +59,7 @@ asui-div input.themed[type='range'] {
     background-color: #AAA;
     border-radius: 15px;
     height: 2px;
-    margin: 11px;
+    margin: 7px;
 }
 asui-div input.themed[type='range']::-webkit-slider-thumb {
     vertical-align: middle;
@@ -74,9 +74,10 @@ asui-div input.themed[type='range']::-webkit-slider-thumb {
 
 /** Disabled Inputs **/
 
-asui-div  input:disabled,
-asui-div  select:disabled,
-asui-div  button:disabled {
+
+asui-text[disabled],
+asui-select[disabled],
+asui-button[disabled] {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -93,7 +94,7 @@ asuig-row {
 }
 
 asuig-row > * {
-    display: table-cell;
+    display: table-cell !important;
     vertical-align: top;
 }
 
@@ -105,53 +106,50 @@ asui-text {
 
 /** Editor Inputs **/
 
-asui-input-button,
-asui-input-select,
-asui-input-range,
-asui-input-text,
-asui-input-file {
+asui-button,
+asui-select,
+asui-range,
+asui-text,
+asui-file {
     /*display: inline-block; !** TODO: bad idea **!*/
-    vertical-align: top;
-    /* height: 24px; */
+    display: inline-block;
+    vertical-align: middle;
+    /* min-height: 20px; */
+    /* margin: 3px 0px; */
 }
 
-asui-input-button,
-asui-input-file  {
-     height: 24px;
-     display: inline-block;
+asui-button,
+asui-file  {
+     /* height: 24px; */
+     /* display: inline-block; */
+     cursor: pointer;
+     /* background-color: #DDD; */
+     /* border: 1px outset; */
+     /* border-radius: 4px; */
+     text-align: center;
 }
+
+asui-button > div,
+asui-range,
+asui-text {
+     padding: 2px 0px;
+}
+
+asui-select > asui-menu {
+    padding: 3px 0px;
+}
+
+/*asui-select > asui-div.dropdown-container {*/
+/*    !*display: none;*!*/
+/*    position: absolute;*/
+/*    overflow: hidden;*/
+/*}*/
+/*asui-select > asui-div.dropdown-container > asui-menu {*/
+/*    display: block;*/
+/*}*/
 
 
 /** Group Buttons **/
-
-/** Icons **/
-
-asui-icon {
-    font-size: 24px;
-    display: inline-block;
-    width: 1em;
-    height: 1em;
-    padding: 0px;
-    margin: 0px;
-    background: url("../../assets/img/ui-icons.png");
-    background-size: 10em 5em;
-}
-asui-icon.play { background-position: -3em -1em; }
-asui-icon.pause {background-position: -4em -1em;}
-asui-icon.stop {background-position: -5em -1em;}
-asui-icon.resume { background-position: -3em -1em; }
-asui-icon.next { background-position: 3em -1em; }
-
-asui-icon.insert {background-position: -3em -10em;}
-asui-icon.remove {background-position: -6em 0em;}
-asui-icon.subtract {background-position: -4em 0em;}
-asui-icon.delete {background-position: -4em 0em;}
-
-asui-icon.file-load {background-position: 0em 0em;}
-asui-icon.file-save {background-position: -1em 0em;}
-
-
-
 
 
 
@@ -159,6 +157,8 @@ asui-icon.file-save {background-position: -1em 0em;}
 
 
 asui-menu {
+    /* z-index: 3; */
+    position: relative;
     color: black;
     padding: 0 0;
     margin: 0 0;
@@ -167,25 +167,46 @@ asui-menu {
     white-space: nowrap;
 }
 
-asui-menu.selected {
-    background-color: #AAA;
-}
+/*asui-menu.selected {*/
+/*    background-color: #AAA;*/
+/*}*/
 
-.dropdown-container > asui-menu {
-    display: block;
-}
 
 
 /** Menu Text **/
-asui-menu > div.caption {
-    padding: 3px 6px;
+asui-menu > *:first-child {
     display: inline-block;
 }
+asui-menu > asui-div.title {
+    padding: 0px 6px;
+    overflow: hidden;
+    min-width: 24px;
+}
+asui-menu > asui-div.arrow {
+    margin: 0 6px 0 auto;
+    display: inline-block;
+}
+
+/*asui-menu[arrow]:after {*/
+/*    content: ' ►';*/
+/*    margin: 0 6px 0 auto;*/
+/*}*/
+/*asui-menu[arrow][vertical] > asui-div.title:after {*/
+/*    content: ' ▼';*/
+/*}*/
 
 asui-menu:hover {
     background-color: #AAA;
 }
-asui-menu.stick {
+asui-menu[context]:not([open]) {
+    display: none;
+}
+asui-menu[context] {
+    position: absolute;
+    z-index: 4;
+    background-color: #bdc3c7;
+}
+asui-menu[stick] {
     /*transition: background-color 0.3s;*/
     background-color: #888;
 }
@@ -198,44 +219,48 @@ asui-menu span.arrow:after {
     content: '►';
 }
 
-asui-menu div.caption > input[type=checkbox] {
-    vertical-align: text-top;
-}
 
 /** Drop Down Menu **/
 
+asui-div.dropdown > asui-menu {
+    display: flex;
+    padding: 3px 0px;
+}
 
-asui-menu > .dropdown-container {
+asui-menu > asui-div.dropdown {
     background-color: #bdc3c7;
-    display: block;
+    /* display: inline-block; */
     z-index: 3;
-    flex-direction: column;
+    /* flex-direction: column; */
     position: absolute;
-    border-radius: 2px;
+    left: 100%;
+    /* border-radius: 2px; */
     /*transition: all 0.1s 0.2s ease-in;*/
-    transform: scaleY(0);
-    opacity: 0;
-
+    /*transform: scaleY(0);*/
+    /*opacity: 0;*/
     border: 1px solid grey;
+    text-align: left;
+    opacity: 0;
+    transition: opacity 0.2s;
+    /* max-height: 50%; */
+    /* overflow-y: scroll; */
+    /* overflow: auto; */
 }
 
-/** Drop Down Trigger **/
-asui-menu.open > .dropdown-container {
-    z-index: 5;
-    transform: scaleY(1);
-    opacity: 1;
-}
-asui-menu.stick > .dropdown-container {
+asui-menu > asui-div.dropdown:hover {
     z-index: 4;
 }
 
-.dropdown-container > asui-menu > .dropdown-container {
-    display: inline-block;
+asui-menu[open] > asui-div.dropdown {
+    opacity: 1;
+}
+asui-select[vertical] > asui-menu > asui-div.dropdown,
+asui-menu[vertical] > asui-div.dropdown {
+    left: 0;
+    /*display: block;*/
     /* float: right; */
 }
-.dropdown-container > asui-menu > .caption {
-    min-width: 120px;
-}
+
 
 
 /** Disabled Menu **/
@@ -251,9 +276,41 @@ asui-menu[disabled] {
 
 /** Menu Break **/
 
-asui-menu > hr {
-    margin: 4px 0;
-    border: 1px #666 solid;
+asui-menu[hasbreak] {
+    margin-bottom: 2px;
+    border-bottom: 2px #666 solid;
 }
+
+
+
+
+/** Icons **/
+
+asui-icon {
+    font-size: 20px;
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    padding: 0px;
+    /* margin: 3px 3px; */
+    background: url("../../assets/img/ui-icons.png");
+    background-size: 10em 5em;
+    /* transform: scale(1.7); */
+}
+asui-icon.play { background-position: -3em -1em; }
+asui-icon.pause {background-position: -4em -1em;}
+asui-icon.stop {background-position: -5em -1em;}
+asui-icon.resume { background-position: -3em -1em; }
+asui-icon.next { background-position: 3em -1em; }
+
+asui-icon.insert {background-position: -3em -10em;}
+asui-icon.remove {background-position: -6em 0em;}
+asui-icon.subtract {background-position: -4em 0em;}
+asui-icon.delete {background-position: -4em 0em;}
+
+asui-icon.file-load {background-position: 0em 0em;}
+asui-icon.file-save {background-position: -1em 0em;}
+
+asui-icon.config {background-position: 0em 3em;}
 
 

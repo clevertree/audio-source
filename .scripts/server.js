@@ -1,11 +1,13 @@
+const express = require('express');
 const path = require('path');
-const {AudioSourceServer} = require('../server/audio-source-server');
 
+const ROOT_DIR = path.dirname(__dirname);
 
-(async () => {
-    const server = new AudioSourceServer({
-        httpPort: 8090,
-        baseDir: path.dirname(__dirname)
-    });
-    await server.listen();
-})();
+const app = express();
+
+app.use(express.static(ROOT_DIR));
+
+const httpPort = 8090;
+app.listen(httpPort, function() {
+    console.log('Server listening on port: ' + httpPort);
+});

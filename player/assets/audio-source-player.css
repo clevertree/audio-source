@@ -1,9 +1,11 @@
-audio-source-player {
+/** Host Element **/
+
+:host {
     display: inline-block;
 }
 
 /** Full Screen **/
-audio-source-player.fullscreen {
+:host(.fullscreen) {
     position: fixed;
     left: 0;
     top: 0;
@@ -13,3 +15,177 @@ audio-source-player.fullscreen {
 
 
 
+
+
+
+/** Font styles **/
+
+span.error {
+    font-color: red;
+    font-weight: bold;
+}
+
+
+
+/** Container **/
+/** Font Style **/
+asui-div.asp-container {
+    font-family: monospace;
+    color: #000;
+    background-color: #EEE;
+    /* margin-top: -14px; */
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+}
+
+asui-div.asp-menu-container {
+    background-color: #bdc3c7;
+}
+
+/** Status Bar **/
+asui-div.asp-status-container {
+    display: flex;
+    background-color: #FFF;
+    color: #000;
+    padding: 0px;
+}
+
+
+asui-div.asp-status-container asui-div.status-text{
+    padding-left: 4px;
+}
+asui-div.asp-status-container asui-div.version-text {
+    /* float: right; */
+    padding-right: 4px;
+    margin-left: auto;
+}
+
+
+
+
+/** Editor Panels **/
+
+asp-panel {
+    vertical-align: top;
+    display: inline-block;
+    margin: 1px 3px 0px 1px;
+    /*width: 100%;*/
+}
+
+asp-panel > asui-div.title {
+    background-color: #333;
+    color: #FFF;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 6px 0px 6px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #BBB;
+}
+
+/** Visibility **/
+
+
+:host(:not(.playing)) .show-on-playing,
+:host(.playing) .hide-on-playing,
+:host(.hide-panel-song) asp-panel.song,
+:host(.hide-panel-playlist) asp-panel.playlist {
+    display: none;
+}
+
+
+/** Song Forms **/
+
+asp-form {
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 0px 0px;
+    margin: 0px 0px 0px 0px;
+    display: inline-block;
+    vertical-align: top;
+}
+asp-form > asui-div.title {
+    font-size: smaller;
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 1px;
+    cursor: pointer;
+    padding: 1px 3px;
+}
+
+
+asp-form.volume       asui-range.volume     input       { max-width: 71px; }
+asp-form.version      asui-text.version     input       { max-width: 53px; }
+asp-form.name         asui-text.name        input       { max-width: 160px; }
+asp-form.timing       asui-text.timing      input       { max-width: 77px; }
+asp-form.position     asui-range.position   input       { max-width: 77px; }
+asp-form.bpm          asui-text.bpm         input       { max-width: 43px; }
+
+
+
+/** Playlist **/
+
+asp-playlist {
+    display: inline-block;
+    /* width: 100%; */
+    /* max-width: 815px; */
+}
+
+asui-div.asp-playlist-container {
+    width: 100%;
+    max-height: 800px;
+    overflow-y: overlay;
+    overflow-x: hidden;
+}
+
+
+asuig-row.asp-playlist-header,
+aspp-playlist-entry,
+aspp-entry {
+    display: block;
+    /* min-width: 180px; */
+    background: #DDD;
+    border: 1px outset #FFF;
+    /* margin: 9px; */
+    cursor: pointer;
+    margin: 0px;
+    /* border-collapse: initial; */
+}
+asuig-row.asp-playlist-header > asui-div,
+aspp-playlist-entry > asui-div,
+aspp-entry > asui-div {
+     padding: 3px 0px;
+}
+
+asp-playlist asui-div.id       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
+asp-playlist asui-div.name     {display: inline-block;width: 26em;}
+asp-playlist asui-div.length   { display: inline-block; width: 4em; }
+asp-playlist asui-div.container   {
+    padding: 3px;
+}
+
+/*asp-playlist aspp-playlist-entry asui-div.id       { color: #000; }*/
+/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div.id       { color: #555; }*/
+
+
+aspp-playlist-entry {
+    background: #b9dabf;
+}
+
+
+aspp-playlist-entry[status=loaded],
+aspp-entry[status=loaded] {
+    background: #d4c4da;
+}
+
+aspp-playlist-entry[status=loading],
+aspp-entry[status=loading] {
+    background: #bfb9da;
+}
+aspp-entry[position] {
+    background: #9bbdff;
+}
+aspp-entry[selected] {
+    background: #AAA;
+}

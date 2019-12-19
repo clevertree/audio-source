@@ -1,48 +1,70 @@
-{
+(async function() {
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'composer/audio-source-composer-tracker.js'; }
-    function exportThisScript(module) {
-        module.exports = {AudioSourceComposerTracker};
-    }
+    const exportThisScript = function(module) {
+        module.exports = {
+            AudioSourceComposerTracker,
+            AudioSourceComposerTrackerInstruction,
+        };
+    };
 
-    class AudioSourceComposerTracker extends HTMLElement {
-        constructor(groupName = 'root') {
-            super();
-            this.editorElm = null;
-            this.eventHandlers = [];
-            // this.segmentLength = 16;
-            this.currentRowSegmentID = 0;
-            this.rowSegmentCount = 10;
-            // this.selectedIndicies = []
+    /** Register This Async Module **/
+    const resolveExports = registerAsyncModule();
 
+    const {SongInstruction}     = await requireAsync('common/audio-source-song.js');
+    const {AudioSourceLibrary}  = await requireAsync('common/audio-source-library.js');
+    const {AudioSourceValues}   = await requireAsync('common/audio-source-values.js');
+    const {
+        ASUIComponent,
+        ASUIDiv,
+        // ASUIMenu,
+        // ASUIGrid,
+        // ASUIGridRow,
+        // ASUIInputButton,
+        // ASUIFileInput,
+        // ASUIInputRange,
+        // ASUIInputText,
+        // ASUIcon,
+    } = await requireAsync('common/audio-source-ui.js');
+
+    // const audioSourceValues = new AudioSourceValues;
+
+    class AudioSourceComposerTracker extends ASUIComponent {
+        constructor(editorElm, group = 'root') {
+            super({}, {
+                group,
+                currentRowSegmentID: 0,
+                cursorListOffset: 0,
+                rowSegmentCount: 10,
+                quantizationInTicks: null,
+                segmentLengthInTicks: null,
+                filterByInstrumentID: null
+            });
+
+            this.props.tabindex = 0;
+            this.editorElm = editorElm;
+            /** @deprecated **/
             this.mousePosition = {};
-            if (groupName)
-                this.setAttribute('group', groupName);
-            if (!this.hasAttribute('tabindex'))
-                this.setAttribute('tabindex', '0');
         }
 
+        get song()      { return this.editorElm.song; }
+        get groupName() { return this.state.group; }
+        get segmentLengthInTicks() { return this.state.segmentLengthInTicks; }
 
-        get groupName() {
-            return this.getAttribute('group');
-        }
-
-        set groupName(groupName) {
+        async setGroupName(groupName) {
+            if(this.state.group === groupName)
+                return null;
             if (!this.editorElm.song.hasGroup(groupName))
                 throw new Error("Group not found in song: " + groupName);
-            this.setAttribute('group', groupName);
-            this.currentRowSegmentID = 0;
-            this.render();
+            // this.setAttribute('group', groupName);
+            await this.setState({group: groupName, currentRowSegmentID: 0});
         }
 
 
-        get isConnected() {
-            return this.editorElm.containerElm.contains(this);
-        }
 
         connectedCallback() {
-            this.attachEventHandler([
+            this.addEventHandler([
                     'scroll',
                     'keydown',
                     'mousedown', 'mouseup', 'mousemove', 'mouseout',
@@ -52,82 +74,24 @@
                 ],
                 e => this.onInput(e));
 
-            this.editorElm = this.getRootNode().host;
-            // if(!this.getAttribute('rowLength'))
-            //     this.setAttribute('rowLength', this.editor.song.timeDivision);
-            this.render();
-            // setTimeout(e => this.render(), 20);
-            // setTimeout(e => this.render(), 1000);
-        }
-
-        disconnectedCallback() {
-            this.eventHandlers.forEach(eventHandler =>
-                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
-        }
-
-        attachEventHandler(eventNames, method, context, options = null) {
-            if (!Array.isArray(eventNames))
-                eventNames = [eventNames];
-            for (let i = 0; i < eventNames.length; i++) {
-                const eventName = eventNames[i];
-                context = context || this;
-                context.addEventListener(eventName, method, options);
-                this.eventHandlers.push([eventName, method, context]);
-            }
+            super.connectedCallback();
         }
 
 
-        // clearSelection(excludeElms=[]) {
-        //     this.editorElm.fieldTrackerSelection.value = '';
-        //     // this.selectedIndicies = [];
-        //
-        //     if(!Array.isArray(excludeElms))
-        //         excludeElms = [excludeElms];
-        //
-        //     // Update rows
-        //     // this.querySelectorAll('asct-row.selected')
-        //     //     .forEach((rowElm) => excludeElms.indexOf(rowElm) !== -1 ? null : rowElm.select(false));
-        //
-        //     // Remove 'add' instructions
-        //
-        //     // Update cells
-        //     this.querySelectorAll('asct-instruction.selected')
-        //         .forEach((instructionElm) => excludeElms.indexOf(instructionElm) !== -1 ? null : instructionElm.select(false));
-        // }
-
-
-        // get cursorCellIndex() {
-        playSelectedInstructions() {
-            if (this.editorElm.song.isPlaying)
-                this.editorElm.song.stopPlayback();
-            const selectedIndicies = this.editorElm.getSelectedIndicies();
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                this.editorElm.song.playInstructionAtIndex(this.groupName, selectedIndicies[i]);
-            }
+        instructionFind(index) {
+            return this.editorElm.song.instructionFind(this.groupName, index);
         }
 
-        // getInstructions(indicies=null) {
-        //     return this.editor.song.getInstructions(this.groupName, indicies);
-        // }
-
-        // getInstructionRange(start, end=null) {
-        //     return this.editor.song.getInstructionRange(this.groupName, start, end);
-        // }
-
-        getInstruction(index) {
-            return this.editorElm.song.getInstruction(this.groupName, index);
-        }
-
-        getInstructionFormValues(command = null) {
+        instructionGetFormValues(command = null) {
             if (!command)
-                command = this.editorElm.fieldInstructionCommand.value;
+                command = this.editorElm.refs.fieldInstructionCommand.value;
             let newInstruction = new SongInstruction();
 
-            if (this.editorElm.fieldInstructionInstrument.value || this.editorElm.fieldInstructionInstrument.value === 0)
-                newInstruction.instrument = parseInt(this.editorElm.fieldInstructionInstrument.value);
-            if (this.editorElm.fieldInstructionDuration.value) // TODO: refactor DURATIONS
-                newInstruction.duration = parseFloat(this.editorElm.fieldInstructionDuration.value);
-            const velocityValue = parseInt(this.editorElm.fieldInstructionVelocity.value);
+            if (this.editorElm.refs.fieldInstructionInstrument.value || this.editorElm.refs.fieldInstructionInstrument.value === 0)
+                newInstruction.instrument = parseInt(this.editorElm.refs.fieldInstructionInstrument.value);
+            if (this.editorElm.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
+                newInstruction.duration = parseFloat(this.editorElm.refs.fieldInstructionDuration.value);
+            const velocityValue = parseInt(this.editorElm.refs.fieldInstructionVelocity.value);
             if (velocityValue || velocityValue === 0)
                 newInstruction.velocity = velocityValue;
 
@@ -138,26 +102,13 @@
         }
 
 
-        render() {
-            //this.renderForms();
-            this.renderRows(); // Rows depend on forms, and get rendered last
-        }
-
-
-        // navigate(groupPositionInTicks, groupName=null) {
-        //     if(groupName && groupName !== this.groupName)
-        //         this.groupName = groupName;
-        //     this.navigateGroup(groupName);
-        // }
-
-
         navigateGroup(groupPositionInTicks) {
             let rowElm = this.findRowElement(groupPositionInTicks);
             if (rowElm)
                 return rowElm;
             const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
-            if (newRowSegmentID !== this.currentRowSegmentID) {
-                this.navigateSegment(newRowSegmentID);
+            if (newRowSegmentID !== this.state.currentRowSegmentID) {
+                this.editorElm.trackerChangeSegment(newRowSegmentID);
                 let rowElm = this.findRowElement(groupPositionInTicks);
                 if (rowElm)
                     return rowElm;
@@ -166,92 +117,109 @@
         }
 
 
-        // navigatePop() {
-        //     this.editor.setStatus("Navigate Back: ", this.status.trackers[0].groupName);
-        //     if(this.status.trackers.length > 0)
-        //         this.status.trackers.shift();
-        //     this.render();
-        // }
 
         getSegmentIDFromPositionInTicks(positionInTicks) {
-            // const timeDivision = this.editorElm.song.timeDivision;
-            const segmentLengthInTicks = this.editorElm.fieldTrackerSegmentLength.value;
+            const timeDivision = this.editorElm.song.timeDivision;
+            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
             const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
             return segmentID;
         }
 
-        navigateSegment(newRowSegmentID) {
-            if (!Number.isInteger(newRowSegmentID))
-                throw new Error("Invalid segment ID");
-            this.currentRowSegmentID = newRowSegmentID;
-            this.renderRows();
-        }
 
-        updateSongPositionValue(playbackPositionInSeconds) {
-            this.querySelectorAll('asct-row').forEach(row => row.classList.remove('position'));
-            let childElm;
-            for(let i=0; i<this.children.length; i++) {
-                if(this.children[i].positionInSeconds > playbackPositionInSeconds)
-                    break;
-                childElm = this.children[i];
-            }
-
-            if(childElm && Math.floor(childElm.positionInSeconds) === Math.floor(playbackPositionInSeconds)) {
-                childElm.classList.add('position');
-            }
-        }
-        // renderRowSegments() {
-        // }
-
-        renderRows(selectedIndicies = null) {
-            if (selectedIndicies === null)
-                selectedIndicies = this.editorElm.getSelectedIndicies();
-
+        render() {
             console.time('tracker.renderRows()');
-
+            // TODO: const selectedIndicies = this.editorElm.getSelectedIndicies();
+            const rowContent = [];
+            this.refs.rows = rowContent;
             const timeDivision = this.editorElm.song.timeDivision;
+            const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
+            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
+            const maxLengthInTicks = (this.state.currentRowSegmentID + 1) * segmentLengthInTicks;
 
-            this.innerHTML = '';
 
             // Instruction Iterator
-            let instructionIterator = this.editorElm.song.getIterator(this.groupName);
+            let instructionIterator = this.editorElm.song.instructionGetIterator(this.groupName);
 
-            const quantizationInTicks = parseInt(this.editorElm.fieldTrackerRowLength.value) || timeDivision;
-            const segmentLengthInTicks = parseInt(this.editorElm.fieldTrackerSegmentLength.value) || (timeDivision * 16);
-            const maxLengthInTicks = (this.currentRowSegmentID + 1) * segmentLengthInTicks;
 
-            //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.fieldTrackerSegmentLength.value);
-            const filterByInstrumentID = Number.isInteger(this.editorElm.fieldTrackerFilterInstrument.value) ? this.editorElm.fieldTrackerFilterInstrument.value : null;
+            //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.refs.fieldTrackerSegmentLength.value);
+            const filterByInstrumentID = Number.isInteger(this.state.filterByInstrumentID) ? this.state.filterByInstrumentID : null;
             const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
                 return conditionalInstruction.instrument === filterByInstrumentID
             };
 
+            const selectedIndicies = this.editorElm.getSelectedIndicies();
+            const cursorIndex = (this.refs.cursorInstruction ? this.refs.cursorInstruction.index : (selectedIndicies.length > 0 ? selectedIndicies[0] : null));
+            const cursorPosition = (this.refs.cursorRow ? this.refs.cursorRow.positionInTicks : null);
+            // TODO: solve
+
             let lastRowSegmentID = 0;
             let rowInstructionList = null, lastRowPositionInTicks = 0;
+            this.refs.selectedInstructions = [];
+            this.refs.cursorList = [];
+            // this.refs.cursorListOffset = 0;
+
             while (rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback)) {
-                if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
-                    continue;
-                }
+                // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
+                //     continue;
+                // }
+
                 lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
-                if (this.currentRowSegmentID === lastRowSegmentID) {
-                    const newRowElm = new AudioSourceComposerTrackerRow(instructionIterator.groupPositionInTicks, instructionIterator.groupPlaybackTime); // document.createElement('asct-row');
-                    this.appendChild(newRowElm);
-                    newRowElm.renderInstructions(rowInstructionList);
+                const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
+                if (this.state.currentRowSegmentID === lastRowSegmentID) {
+
+                    // let isCursorRow = false;
+                    const rowInstructionElms = rowInstructionList.map(instruction => {
+                        const props = {};
+                        if(selectedIndicies.indexOf(instruction.index) !== -1) props.selected = true;
+                        if(instruction.index === cursorIndex) props.cursor = true;
+                        const elm = new AudioSourceComposerTrackerInstruction(this.song, instruction, props);
+                        if(props.selected) this.refs.selectedInstructions.push(elm);
+                        if(props.cursor) {
+                            this.refs.cursorInstruction = elm;
+                            // isCursorRow = true;
+                        }
+                        this.refs.cursorList.push(elm);
+                        return elm;
+                    });
+
+                    const newRowElm = new AudioSourceComposerTrackerRow(
+                        this.song,
+                        rowInstructionElms,
+                        instructionIterator.groupPositionInTicks,
+                        instructionIterator.groupPlaybackTime,
+                        deltaDuration); // document.createElement('asct-row');
+                    // newRowElm.renderInstructions(rowInstructionList);
+                    rowContent.push(newRowElm);
+                    this.refs.cursorList.push(newRowElm);
+                    // if(isCursorRow)
+                    //     this.refs.cursorRow = newRowElm;
                 }
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
-            console.log(lastRowSegmentID, lastRowPositionInTicks);
-            this.editorElm.rowSegmentCount = lastRowSegmentID;
+            // console.log(lastRowSegmentID, lastRowPositionInTicks);
+            // this.editorElm.rowSegmentCount = lastRowSegmentID;
 
-            // Render Segments
-            const panelTrackerRowSegments = this.editorElm.panelTrackerRowSegments;
-            if (panelTrackerRowSegments)
-                panelTrackerRowSegments.render();
+            // // Render Segments
+            // const panelTrackerRowSegments = this.editorElm.panelTrackerRowSegments;
+            // if (panelTrackerRowSegments)
+            //     panelTrackerRowSegments.render();
 
 
-            this.selectSegmentIndicies(selectedIndicies);
+            // this.selectSegmentIndicies(selectedIndicies);
             console.timeEnd('tracker.renderRows()');
+
+            return [
+                this.refs.rowContainer = new ASUIDiv('title', () => [
+                    new ASUIDiv('delta', "Delta"),
+                    new ASUIDiv('instructions', "Instructions"),
+                ], {class: 'asc-panel-title'}),
+                this.refs.rowContainer = new ASUIDiv('tracker-row-container', () => [
+                    rowContent
+                ])
+            ];
+
+            // return rowContent;
         }
 
 
@@ -267,35 +235,15 @@
                     break;
             }
 
-            if (e.target instanceof Node && !this.contains(e.target))
-                return;
+            // if (e.target instanceof Node && !this.contains(e.target))
+            //     return;
 
             // console.log(e.type);
 
             let selectedIndicies = this.editorElm.getSelectedIndicies();
-            // const instructionList = this.getInstructions();
+            // const instructionList = this.instructionEach();
 
             switch (e.type) {
-                case 'midimessage':
-                    // console.log("MIDI", e.data, e);
-                    switch (e.data[0]) {
-                        case 144:   // Note On
-                            // TODO: refactor
-                            e.preventDefault();
-                            const midiImport = new MIDIImport();
-                            let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
-                            let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
-                            console.log("MIDI ", newMIDICommand, newMIDIVelocity);
-
-                            this.insertOrUpdateCommand(e, newMIDICommand);
-                            this.playSelectedInstructions(e);
-                            // this.focus();
-                            break;
-                        case 128:   // Note Off
-                            // TODO: turn off playing note, optionally set duration of note
-                            break;
-                    }
-                    break;
                 case 'keydown':
                     // All key actions close all menus
                     this.editorElm.closeAllMenus();
@@ -303,7 +251,7 @@
                     let keyEvent = e.key;
                     if (!e.ctrlKey && this.editorElm.keyboard.getKeyboardCommand(
                         e.key,
-                        this.editorElm.fieldTrackerOctave.value
+                        this.editorElm.refs.fieldTrackerOctave.value
                     ))
                         keyEvent = 'PlayFrequency';
                     if (keyEvent === 'Enter' && e.altKey)
@@ -317,7 +265,7 @@
                             // this.clearSelection();
                             const selectedIndiciesDesc = selectedIndicies.sort((a, b) => b - a);
                             for (let i = 0; i < selectedIndiciesDesc.length; i++)
-                                this.editorElm.song.deleteInstructionAtIndex(this.groupName, selectedIndicies[i]);
+                                this.editorElm.song.instructionDeleteAtIndex(this.groupName, selectedIndicies[i]);
                             this.renderRows();
                             // this.selectIndicies(selectedIndicies[0]);
                             // song.render(true);
@@ -336,21 +284,21 @@
                             if (this.contains(e.target)) {
 
                                 e.preventDefault();
-                                this.insertOrUpdateCommand(e);
+                                this.editorElm.instructionInsertOrUpdate(e);
 
                                 let cursorInstruction = this.cursorInstruction;
                                 if (cursorInstruction.isGroupCommand()) {
                                     const groupName = cursorInstruction.command.substr(1);
                                     this.editorElm.selectGroup(groupName);
                                 } else {
-                                    this.playSelectedInstructions(e);
+                                    this.editorElm.playCursorInstruction(e);
                                 }
                             }
                             break;
 
                         case 'Play':
                             e.preventDefault();
-                            this.playSelectedInstructions(e);
+                            this.editorElm.playCursorInstruction(e);
                             // for(let i=0; i<selectedIndicies.length; i++) {
                             //     this.editor.song.playInstruction(instructionList[i]);
                             // }
@@ -359,37 +307,33 @@
                         // ctrlKey && metaKey skips a measure. shiftKey selects a range
                         case 'ArrowRight':
                             e.preventDefault();
-                            this.selectNextCell(e);
-                            this.playSelectedInstructions(e);
-                            this.focus();
+                            this.editorElm.setNextCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            // this.focus();
                             break;
 
                         case 'ArrowLeft':
                             e.preventDefault();
-                            this.selectPreviousCell(e);
-                            this.playSelectedInstructions(e);
-                            this.focus();
+                            this.editorElm.setPreviousCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            // this.focus();
                             break;
 
                         case 'ArrowDown':
                             e.preventDefault();
-                            this.selectNextRowCell(e);
-                            this.playSelectedInstructions(e);
-                            this.focus();
+                            this.editorElm.setNextRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            // this.focus();
                             break;
 
                         case 'ArrowUp':
                             e.preventDefault();
-                            this.selectPreviousRowCell(e);
-                            this.playSelectedInstructions(e);
-                            this.focus();
+                            this.editorElm.setPreviousRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            // this.focus();
                             break;
 
                         case ' ':
                             e.preventDefault();
                             // this.selectCell(e, this.cursorCell);
                             // if(e.ctrlKey) e.preventDefault();
-                            if (this.editorElm.song.isPlaybackActive()) {
+                            if (this.editorElm.song.isActive()) {
                                 this.editorElm.song.stopPlayback();
                             } else {
                                 this.editorElm.song.play();
@@ -397,17 +341,17 @@
                             break;
 
                         case 'PlayFrequency':
-                            let newCommand = this.editorElm.keyboard.getKeyboardCommand(e.key, this.editorElm.fieldTrackerOctave.value);
+                            let newCommand = this.editorElm.keyboard.getKeyboardCommand(e.key, this.editorElm.refs.fieldTrackerOctave.value);
                             if (newCommand === null)
                                 break;
 
                             e.preventDefault();
 
-                            this.insertOrUpdateCommand(e, newCommand);
+                            this.editorElm.instructionInsertOrUpdate(e, newCommand);
 
                             // this.render();
                             // this.renderCursorRow();
-                            this.playSelectedInstructions(e);
+                            this.editorElm.playCursorInstruction(e);
                             this.focus();
 
                             // song.gridSelectInstructions([selectedInstruction]);
@@ -430,18 +374,21 @@
                     // delete this.mousePosition.lastUp;
                     // delete this.mousePosition.lastDrag;
 
-                    if (e.target.matches('asct-instruction'))
-                        return this.onCellInput(e);
+                    if (e.target instanceof AudioSourceComposerTrackerInstruction)
+                        return this.editorElm.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
 
-                    if (e.target.matches('asct-instruction > *'))
-                        return this.onCellInput(e, e.target.instruction);
+                    if (e.target.parentNode instanceof AudioSourceComposerTrackerInstruction)
+                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
-                    if (e.target.matches('asct-instruction-add'))
-                        return this.onRowInput(e, e.target.row);
+                    if (e.target instanceof AudioSourceComposerTrackerInstructionAdd)
+                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+
+                    if (e.target instanceof AudioSourceComposerTrackerDelta) // TODO: special command for clicking delta
+                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
 
-                    if (e.target.matches('asct-row'))  // classList.contains('tracker-row')) {
-                        return this.onRowInput(e);
+                    if (e.target instanceof AudioSourceComposerTrackerRow)  // classList.contains('tracker-row')) {
+                        return this.editorElm.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
                     // e.preventDefault();
 
 
@@ -537,7 +484,7 @@
                     // }
                     if (!e.altKey) {
                         e.preventDefault();
-                        this.editorElm.menuContext.openContextMenu(e, this.cursorCell);
+                        this.editorElm.openContextMenu(e);
                     }
                     break;
 
@@ -633,7 +580,7 @@
             rectElm.parentNode.removeChild(rectElm);
 
 
-            this.clearSelection();
+            this.editorElm.clearSelectedIndicies();
 
             const searchElements = this.querySelectorAll('asct-instruction,asct-row');
             const selectionList = [];
@@ -657,13 +604,35 @@
 
 
         setPlaybackPositionInTicks(groupPositionInTicks) {
-
+            this.clearRowPositions();
+            const rowElm = this.findRowElement(groupPositionInTicks);
+            if(rowElm)
+                rowElm.setProps({position: true});
+            else
+                console.warn('row not found: ' + groupPositionInTicks);
+            // console.warn('REFACTOR');
             // TODO: get current 'playing' and check position
-            let rowElm = this.navigateGroup(groupPositionInTicks);
-            this.querySelectorAll('asct-row.position')
-                .forEach(rowElm => rowElm.classList.remove('position'));
-            rowElm.classList.add('position');
+            // let rowElm = this.navigateGroup(groupPositionInTicks);
+            // this.querySelectorAll('asct-row.position')
+            //     .forEach(rowElm => rowElm.classList.remove('position'));
+            // rowElm.classList.add('position');
 
+        }
+
+        async updateSongPositionValue(playbackPositionInSeconds) {
+            let positionRow;
+            for(let i=this.refs.rows.length-1; i>=0; i--) {
+                positionRow = this.refs.rows[i];
+                if(playbackPositionInSeconds > positionRow.positionInSeconds)
+                    break;
+            }
+            // console.info('playbackPositionInSeconds', playbackPositionInSeconds, positionRow.positionInSeconds, positionRow);
+
+
+            if(positionRow && !positionRow.props.position) {
+                await this.clearAllPositions();
+                positionRow.setPosition();
+            }
         }
 
 
@@ -705,155 +674,204 @@
         }
 
         // TODO: refactor?
-        get selectedCells() {
-            return this.querySelectorAll('asct-instruction.selected');
+        // get selectedCells() {
+        //     return this.querySelectorAll('asct-instruction.selected');
+        // }
+        //
+        // get cursorCell() {
+        //     return this.querySelector('asct-instruction.cursor,asct-instruction-add.cursor');
+        // }
+        //
+        // // get cursorRow() { return this.cursorCell.parentNode; }
+        // get cursorPosition() {
+        //     return ((cell) => (cell ? cell.parentNode.positionInTicks : null))(this.cursorCell);
+        // }
+        //
+        // get cursorInstruction() {
+        //     return this.instructionFind(this.cursorCell.index);
+        // }
+
+        async setCursorElement(elm) {
+            const listPos = this.refs.cursorList.indexOf(elm);
+            if(listPos === -1)
+                throw new Error("Not a local element");
+            this.state.cursorListOffset = listPos;
+            await this.clearAllCursors();
+            elm.setCursor();
+            this.focus();
         }
 
-        get cursorCell() {
-            return this.querySelector('asct-instruction.cursor,asct-instruction-add.cursor');
-        }
-
-        // get cursorRow() { return this.cursorCell.parentNode; }
-        get cursorPosition() {
-            return ((cell) => (cell ? cell.parentNode.positionInTicks : null))(this.cursorCell);
-        }
-
-        get cursorInstruction() {
-            return this.getInstruction(this.cursorCell.index);
-        }
-
-        getCursorCell() {
-            return this.querySelector('.cursor');
-        }
-
-        getCursorIndex() {
-            const cursorCell = this.querySelector('.cursor');
-            return cursorCell ? cursorCell.index : null;
-        }
-
-        clearSelection() {
-            this.editorElm.clearSelectedIndicies();
-            this.updateSelection();
-        }
-
-        updateSelection() {
-            const selectedIndicies = this.editorElm.getSelectedIndicies();
-
-            this.querySelectorAll('asct-instruction-add')
-                .forEach((instructionAddElm) => instructionAddElm.parentNode.removeChild(instructionAddElm));
-
-            // Update cells
-            this.querySelectorAll('asct-instruction')
-                .forEach((instructionElm) => {
-                    if (selectedIndicies.indexOf(instructionElm.index) !== -1) {
-                        instructionElm.select(true);
-                    } else {
-                        instructionElm.select(false)
-                    }
-                });
-        }
-
-        selectIndex(e, selectedIndex, clearSelection = false) {
-            const cell = this.findInstructionElement(selectedIndex);
-            if (cell) {
-                this.selectCell(e, cell, clearSelection);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        selectNextCell(e) {
-            let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction');
-
-            if (cursorCell) {
-                if (cursorCell instanceof AudioSourceComposerTrackerInstructionAdd) {
-                    // If next element is an add instruction, select the next row
-                    return this.selectNextRowCell(e, 0);
-                } else if (cursorCell.nextInstructionSibling) {
-                    // If next element is an instruction, select it
-                    return this.selectCell(e, cursorCell.nextInstructionSibling);
-
-                } else {
-                    return this.selectNextRowCell(e);
+        async selectIndicies(selectedIndicies, cursorIndex=null) {
+            if(cursorIndex === null)
+                cursorIndex = selectedIndicies.length > 0 ? selectedIndicies[0] : null;
+            for(let i=0; i<this.refs.cursorList.length; i++) {
+                const cursorItem = this.refs.cursorList[i];
+                if(cursorItem instanceof AudioSourceComposerTrackerInstruction) {
+                    await cursorItem.select(selectedIndicies.indexOf(cursorItem.index) !== -1);
+                    if(cursorIndex !== null)
+                        cursorItem.setCursor(cursorIndex === cursorItem.index);
                 }
-            } else {
-                // If no cursor is selected, use the first available instruction
-                return this.selectRow(e, this.querySelector('asct-row'));
             }
         }
 
-        selectPreviousCell(e) {
-            let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction:last-child');
+        // async selectCell(selectedCell, clearSelection = null, toggleValue=null) {
+        //     this.selectIndex(selectedCell.index, clearSelection, toggleValue);
+        // }
 
-            if (cursorCell) {
-                if (cursorCell.previousInstructionSibling) {
-                    // If previous element is an instruction, select it
-                    return this.selectCell(e, cursorCell.previousInstructionSibling);
 
-                } else {
-                    return this.selectPreviousRowCell(e);
-                }
-            } else {
-                // If no cursor is selected, use the first available instruction
-                return this.selectRow(e, this.querySelector('asct-row:last-child'));
-            }
+
+        // selectIndex(e, selectedIndex, clearSelection = false) {
+        //     const cell = this.findInstructionElement(selectedIndex);
+        //     if (cell) {
+        //         this.selectCell(e, cell, clearSelection);
+        //         return true;
+        //     } else {
+        //         return false;
+        //     }
+        // }
+
+        getFirstCursor() { return this.refs.cursorList[0]; }
+        getLastCursor() { return this.refs.cursorList[this.refs.cursorList.length-1]; }
+
+        getNextCursor() {
+            let position = this.state.cursorListOffset;
+            const cursorList = this.refs.cursorList;
+            if(!cursorList[position])
+                throw new Error("Shouldn't happen");
+            return cursorList[position+1] || null;
         }
 
+        getNextRowCursor() {
+            let offset = this.state.cursorListOffset;
+            const cursorList = this.refs.cursorList;
+            if(!cursorList[offset])
+                throw new Error("Shouldn't happen");
+            // Find the end of the row, and return the next entry
+            let lastRowOffset = offset, rowPosition=0;
+            while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
 
-        selectNextRowCell(e, cellPosition = null) {
-            let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction');
-            const cursorRow = cursorCell.parentNode;
-            if (cellPosition === null)
-                cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
-
-            if (!cursorRow.nextElementSibling) {
-                this.currentRowSegmentID++;
-                this.renderRows();
-                this.focus();
-                return this.selectNextCell(e);
-            }
-
-            const nextRowElm = cursorRow.nextElementSibling;
-
-            let selectedCell = nextRowElm.querySelector('asct-instruction');
-            if (nextRowElm.children[cellPosition] && nextRowElm.children[cellPosition].matches('asct-instruction')) {
-                selectedCell = nextRowElm.children[cellPosition];
-            }
-
-
-            if (selectedCell) this.selectCell(e, selectedCell);
-            else this.selectRow(e, cursorRow.nextElementSibling);
-
-            return selectedCell;
+            while(cursorList[offset++] instanceof AudioSourceComposerTrackerInstruction);
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->0) offset++;
+            return cursorList[offset] || null;
         }
 
-
-        selectPreviousRowCell(e, cellPosition = null) {
-            let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction:last-child');
-            const cursorRow = cursorCell.parentNode;
-            if (cellPosition === null)
-                cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
-            if (!cursorRow.previousElementSibling) {
-                if (this.currentRowSegmentID === 0)
-                    throw new Error("TODO: reached beginning of song");
-                this.currentRowSegmentID--;
-                this.renderRows();
-                this.focus();
-                return this.selectPreviousCell(e);
-            }
-
-            let previousRowElm = cursorRow.previousElementSibling;
-
-            let selectedCell; // = previousRowElm.querySelector('asct-instruction:last-child');
-            if (previousRowElm.children[cellPosition] && previousRowElm.children[cellPosition].matches('asct-instruction,asct-instruction-add')) {
-                selectedCell = previousRowElm.children[cellPosition];
-            }
-
-            if (!selectedCell) this.selectRow(e, previousRowElm);
-            else this.selectCell(e, selectedCell);
-            return selectedCell;
+        getPreviousCursor() {
+            let offset = this.state.cursorListOffset;
+            const cursorList = this.refs.cursorList;
+            if(!cursorList[offset])
+                throw new Error("Shouldn't happen");
+            return cursorList[offset-1] || null;
         }
+
+        /** @todo fix **/
+        getPreviousRowCursor() {
+            let offset = this.state.cursorListOffset;
+            const cursorList = this.refs.cursorList;
+            if(!cursorList[offset])
+                throw new Error("Shouldn't happen");
+            let lastRowOffset = offset, rowPosition=0;
+            while(cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
+            offset -= rowPosition+1;
+
+            // Find the previous non-instruction entry
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
+            offset--;
+            while(cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
+            // offset++;
+            while(cursorList[offset+1] instanceof AudioSourceComposerTrackerInstruction && rowPosition-->-1) offset++;
+            return cursorList[offset] || null;
+        }
+        //
+        // async selectNextCell(e) {
+        //     let position = this.state.cursorListOffset;
+        //     const cursorList = this.refs.cursorList;
+        //     if(!cursorList[position])
+        //         throw new Error("Shouldn't happen");
+        //     if(!cursorList[position+1]) {
+        //         throw new Error("Next segment");
+        //     }
+        //     const nextCursorElm = cursorList[position+1];
+        //     await this.selectCell(e, nextCursorElm);
+        // }
+        //
+        // async selectPreviousCell(e) {
+        //     let position = this.state.cursorListOffset;
+        //     const cursorList = this.refs.cursorList;
+        //     if(!cursorList[position])
+        //         throw new Error("Shouldn't happen");
+        //     if(!cursorList[position-1]) {
+        //         throw new Error("Previous segment");
+        //     }
+        //     const nextCursorElm = cursorList[position-1];
+        //     await this.selectCell(e, nextCursorElm);
+        //     // let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction:last-child');
+        //     //
+        //     // if (cursorCell) {
+        //     //     if (cursorCell.previousInstructionSibling) {
+        //     //         // If previous element is an instruction, select it
+        //     //         return this.selectCell(e, cursorCell.previousInstructionSibling);
+        //     //
+        //     //     } else {
+        //     //         return await this.selectPreviousRowCell(e);
+        //     //     }
+        //     // } else {
+        //     //     // If no cursor is selected, use the first available instruction
+        //     //     return this.selectCell(e, this.querySelector('asct-row:last-child'));
+        //     // }
+        // }
+        //
+        //
+        // async selectNextRowCell(e, cellPosition = null) {
+        //     let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction');
+        //     const cursorRow = cursorCell.parentNode;
+        //     if (cellPosition === null)
+        //         cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
+        //
+        //     if (!cursorRow.nextElementSibling) {
+        //         await this.setState({currentRowSegmentID: this.state.currentRowSegmentID+1});
+        //         this.focus();
+        //         return await this.selectNextCell(e);
+        //     }
+        //
+        //     const nextRowElm = cursorRow.nextElementSibling;
+        //
+        //     let selectedCell = nextRowElm.querySelector('asct-instruction');
+        //     if (nextRowElm.children[cellPosition] && nextRowElm.children[cellPosition].matches('asct-instruction')) {
+        //         selectedCell = nextRowElm.children[cellPosition];
+        //     }
+        //
+        //
+        //     if (selectedCell) this.selectCell(e, selectedCell);
+        //     else this.selectCell(e, cursorRow.nextElementSibling);
+        //
+        //     return selectedCell;
+        // }
+        //
+        //
+        // async selectPreviousRowCell(e, cellPosition = null) {
+        //     let cursorCell = this.querySelector('.cursor') || this.querySelector('asct-instruction:last-child');
+        //     const cursorRow = cursorCell.parentNode;
+        //     if (cellPosition === null)
+        //         cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
+        //     if (!cursorRow.previousElementSibling) {
+        //         if (this.currentRowSegmentID === 0)
+        //             throw new Error("TODO: reached beginning of song");
+        //         await this.setState({currentRowSegmentID: this.state.currentRowSegmentID + 1})
+        //         this.focus();
+        //         return await this.selectPreviousCell(e);
+        //     }
+        //
+        //     let previousRowElm = cursorRow.previousElementSibling;
+        //
+        //     let selectedCell; // = previousRowElm.querySelector('asct-instruction:last-child');
+        //     if (previousRowElm.children[cellPosition] && previousRowElm.children[cellPosition].matches('asct-instruction,asct-instruction-add')) {
+        //         selectedCell = previousRowElm.children[cellPosition];
+        //     }
+        //
+        //     if (!selectedCell) this.selectCell(e, previousRowElm);
+        //     else this.selectCell(e, selectedCell);
+        //     return selectedCell;
+        // }
 
 
         //
@@ -875,14 +893,14 @@
             if (!Array.isArray(indicies))
                 indicies = [indicies];
             if (clearSelection)
-                this.clearSelection();
+                this.editorElm.clearSelectedIndicies();
             for (let i = 0; i < indicies.length; i++) {
                 const index = indicies[i];
                 const cell = this.findInstructionElement(index);
                 if (cell) {
                     cell.select(true, false);
                     if (i === 0)
-                        cell.setCursor();
+                        this.setCursorElement(cell);
                 } else {
 //                 console.warn("Instruction not found: " + index);
                 }
@@ -890,153 +908,39 @@
             //    this.focus(); // Prevents tab from working
         }
 
-        selectRow(e, selectedRow) {
 
-            if (!e.ctrlKey) {
-                this.clearSelection();
+        async clearAllCursors() {
+            for(let i=0; i<this.refs.cursorList.length; i++) {
+                const cursorElm = this.refs.cursorList[i];
+                await cursorElm.removeCursor();
             }
-
-            // selectedRow.select();
-            // selectedRow.clearAllCursors();
-            selectedRow.createAddInstructionElement()
-                .setCursor();
-            // this.editorElm.panelTracker.render(); // TODO: bad idea
-            this.focus();
-            selectedRow.parentNode.scrollTo();
-            this.editorElm.song.setPlaybackPositionInTicks(selectedRow.positionInTicks);
-            selectedRow.scrollTo();
-
-            return selectedRow;
         }
 
-        selectCell(e, selectedCell, clearSelection = null) {
-//         console.time("selectCell");
-            let toggleValue = true;
-            if (clearSelection === null) {
-                clearSelection = !(e && e.ctrlKey);
+        async clearAllPositions() {
+            for(let i=0; i<this.refs.cursorList.length; i++) {
+                const cursorElm = this.refs.cursorList[i];
+                await cursorElm.removePosition();
             }
-            if (e && e.shiftKey) {
-                toggleValue = !selectedCell.selected;
-            }
-            if (clearSelection) {
-                this.clearSelection();
-            }
-
-            this.editorElm.closeAllMenus();
-            selectedCell.select(toggleValue);
-            selectedCell.setCursor();
-            toggleValue ? this.editorElm.addSelectedIndex(selectedCell.index) : this.editorElm.removeSelectedIndex(selectedCell.index);
-
-            // this.editorElm.panelTracker.render(); // TODO: bad idea
-            this.focus();
-            this.editorElm.song.setPlaybackPositionInTicks(selectedCell.parentNode.positionInTicks);
-            selectedCell.parentNode.scrollTo();
-
-            // selectedCell.play();
-            return selectedCell;
-
-//         console.timeEnd("selectCell");
-            // selectedCell.scrollTo();
         }
 
-        onRowInput(e, selectedRow = null) {
-            e.preventDefault();
-
-            selectedRow = selectedRow || e.target;
-            this.selectRow(e, selectedRow);
-        }
-
-        onCellInput(e, selectedCell) {
-            e.preventDefault();
-            selectedCell = selectedCell || e.target;
-            this.selectCell(e, selectedCell);
-            this.playSelectedInstructions(e);
-        }
-
-
-        // navigate(groupName, parentInstruction) {
-        //     console.log("Navigate: ", groupName);
-        //     const existingTracker = this.status.trackers.find(obj => obj.groupName === groupName);
-        //     if(existingTracker)
-        //         this.status.trackers.unshift(existingTracker);
-        //     else
-        //         this.status.trackers.unshift(
-        //             Object.assign({}, AudioSourceComposerElement.DEFAULT_TRACKER_STATUS, {
-        //                 groupName: groupName,
-        //                 parentInstruction: parentInstruction,
-        //             })
-        //         );
-        //     this.render();
-        // }
-
-
-        // increaseTrackerSize(e, selectNewRow=true) {
-        //     // TODO: sloppy
-        //     // this.editor.song.eachInstruction(this.groupName, (index, instruction, stats) => {
-        //     //     if (this.minimumTrackerLengthTicks < stats.groupPositionInTicks)
-        //     //         this.minimumTrackerLengthTicks = stats.groupPositionInTicks;
-        //     // });
+        // onRowInput(e, selectedRow = null) {
+        //     e.preventDefault();
         //
-        //     // const defaultDuration = parseFloat(this.editorForms.fieldTrackerRowLength.value);
-        //     // this.minimumTrackerLengthTicks += this.rowLengthInTicks;
-        //     this.renderMinimumRows+=1;
-        //     this.render();
-        //     if(selectNewRow) {
-        //         const lastRowElm = this.querySelector('asc-tracker > asct-row:last-child');
-        //         lastRowElm.setCursor();
-        //         // this.createNewInstructionCell(lastRowElm).select();
-        //     }
+        //     selectedRow = selectedRow || e.target;
+        //     this.selectCell(e, selectedRow);
         // }
-        // insertInstructionAtIndex(instruction, insertIndex) {
-        //     return this.editorElm.song.insertInstructionAtIndex(this.groupName, insertIndex, instruction);
-        // }
-
-        // insertInstructionAtPosition(insertTimePosition, instruction) {
-        //     return this.editorElm.song.insertInstructionAtPosition(this.groupName, insertTimePosition, instruction);
-        // }
-        // deleteInstructionAtIndex(deleteIndex) {
-        //     return this.editorElm.song.deleteInstructionAtIndex(this.groupName, deleteIndex, 1);
-        // }
-        // replaceInstructionCommand(replaceIndex, newCommand) {
-        //     return this.editorElm.song.replaceInstructionCommand(this.groupName, replaceIndex, newCommand);
-        // }
-
-        // replaceInstructionVelocity(replaceIndex, newVelocity) {
-        //     return this.editorElm.song.replaceInstructionVelocity(this.groupName, replaceIndex, newVelocity);
+        //
+        // onCellInput(e, selectedCell) {
+        //     e.preventDefault();
+        //     selectedCell = selectedCell || e.target;
+        //     this.selectCell(e, selectedCell);
+        //     this.editorElm.playCursorInstruction(e);
         // }
 
 
-        insertOrUpdateCommand(e, commandString = null) {
-            let selectedIndicies = this.editorElm.getSelectedIndicies();
-            if (this.cursorCell.matches('asct-instruction-add')) {
-                let newInstruction = this.getInstructionFormValues(commandString);
-                if (!newInstruction) {
-                    this.editorElm.fieldInstructionCommand.focus();
-                    return console.info("Insert canceled");
-                }
 
-                const insertPosition = this.cursorPosition;
-                const insertIndex = this.insertInstructionAtPosition(insertPosition, newInstruction);
-                // this.cursorRow.render(true);
-                this.renderRows();
-                this.selectSegmentIndicies(insertIndex, true);
-                // selectedIndicies = [insertIndex];
-//                             console.timeEnd("new");
-                // cursorInstruction = instructionList[insertIndex];
-            } else {
-                for (let i = 0; i < selectedIndicies.length; i++) {
-                    const selectedInstruction = this.getInstruction(selectedIndicies[i]);
-                    const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
-                    this.replaceInstructionCommand(selectedIndicies[i], replaceCommand);
-                }
-                this.renderRows();
-                this.selectSegmentIndicies(selectedIndicies);
-                // this.selectIndicies(this.editorElm.getSelectedIndicies()[0]); // TODO: select all
-            }
-        }
-
-        // replaceInstructionParams(replaceIndex, replaceParams) {
-        //     return this.editor.song.replaceInstructionParams(this.groupName, replaceIndex, replaceParams);
+        // instructionReplaceParams(replaceIndex, replaceParams) {
+        //     return this.editor.song.instructionReplaceParams(this.groupName, replaceIndex, replaceParams);
         // }
 
         replaceFrequencyAlias(noteFrequency, instrumentID) {
@@ -1054,24 +958,15 @@
         //     return this.selectIndicies(selectedIndicies);
         // }
 
+        clearRowPositions() {
+            this.querySelectorAll(`asct-row[position]`)
+                .forEach(row => row.setProps({position: false}));
+        }
+
         findRowElement(positionInTicks) {
             return this.querySelector(`asct-row[t='${positionInTicks}']`);
         }
 
-        // if(rowElm)
-        //     return rowElm;
-
-//         let rowElms = this.querySelectorAll(`asct-row`);
-//         for(let i=rowElms.length-1; i>=0; i--) {
-//             const rowElm = rowElms[i];
-//             if(rowElm.position < positionInTicks) {
-//                 // TODO: inefficient?
-// //                 console.log('findRowElement', rowElm, rowElm.position, '<', positionInTicks);
-//                 return rowElm;
-//             }
-//         }
-
-        // return null;
 
         findInstructionElement(instructionIndex) {
             return this.querySelector(`asct-instruction[i='${instructionIndex}']`);
@@ -1082,215 +977,126 @@
     customElements.define('asc-tracker', AudioSourceComposerTracker);
 
 
-    const VISIBLE_BUFFER = 100;
+    // const VISIBLE_BUFFER = 100;
 
-    class AudioSourceComposerTrackerRow extends HTMLElement {
-        constructor(positionInTicks=null, positionInSeconds=null) {
-            super();
-            this.setAttribute('t', positionInTicks);
-            if(positionInSeconds !== null)
-                this.setAttribute('s', parseInt(positionInSeconds*1000)/1000 );
+    class AudioSourceComposerTrackerRow extends ASUIComponent {
+        constructor(song, instructions, positionInTicks=null, positionInSeconds=null, duration=null) {
+            super({t: positionInTicks, cursor: false}, {
+                instructions,
+                delta: new AudioSourceComposerTrackerDelta(song, duration),
+                positionInSeconds,
+                duration,
+                // selected: false
+            });
         }
 
-        get trackerElm() {
-            return this.closest('asc-tracker');
+
+        get positionInTicks() { return this.props.t; }
+        get positionInSeconds() { return this.state.positionInSeconds; }
+        get duration() { return this.state.duration; }
+        get instructions() { return this.state.instructions; }
+
+        async setCursor(cursor=true) {
+            if(this.props.cursor !== cursor) {
+                this.setProps({cursor});
+                await this.renderOS();
+            }
+            if(cursor)
+                (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
         }
 
-        // get editor() { return this.tracker.editor; }
-        get selected() {
-            return this.classList.contains('selected');
-        }
-
-        // set position(songPositionInTicks)   { this.setAttribute('p', songPositionInTicks); }
-        get positionInTicks() {
-            return parseInt(this.getAttribute('t'))
-        }
-
-        get positionInSeconds() {
-            return parseFloat(this.getAttribute('s'))
-        }
-
-        // set duration(durationInTicks)       { this.setAttribute('d', durationInTicks); }
-        // get duration()                      { return parseInt(this.getAttribute('d'))}
-        get duration() {
-            return this.nextElementSibling ? this.nextElementSibling.positionInTicks - this.positionInTicks : 'N/A';
-        }
-
-        set index(rowIndex) {
-            this.setAttribute('i', rowIndex);
-        }
-
-        get index() {
-            return parseInt(this.getAttribute('i'))
-        }
-
-        get visible() {
-            const parentBottom = this.parentNode.scrollTop + this.parentNode.offsetHeight;
-            const offsetBottom = this.offsetTop + this.offsetHeight;
-            if (this.offsetTop - parentBottom > VISIBLE_BUFFER)
-                return false;
-            if (offsetBottom < this.parentNode.scrollTop - VISIBLE_BUFFER)
-                return false;
-            return true;
-        }
-
-        connectedCallback() {
-            // setTimeout(e => this.render(), 1);
-            // this.setAttribute('draggable', true);
-            if (this.previousElementSibling && this.previousElementSibling instanceof AudioSourceComposerTrackerRow) {
-                const rowDurationInTicks = this.positionInTicks - this.previousElementSibling.positionInTicks;
-                this.previousElementSibling.renderDelta(rowDurationInTicks);
+        async removeCursor() {
+            if(this.props.cursor !== false) {
+                this.setProps({cursor: false});
+                await this.renderOS();
             }
         }
 
-        createAddInstructionElement() {
-            let existingInstructionAddElement = this.querySelector('asct-instruction-add');
-            if (!existingInstructionAddElement) {
-                // Remove existing new instruction button
-                this.parentNode.querySelectorAll('asct-instruction-add')
-                    .forEach((elm) => elm.parentNode.removeChild(elm));
-
-                const newInstructionElm = document.createElement('asct-instruction-add');
-                existingInstructionAddElement = newInstructionElm;
-                // newInstructionElm.index = this.index; // setAttribute('p', rowElement.positionInTicks);
-                newInstructionElm.innerHTML = `+`;
-            }
-            let deltaElm = this.querySelector('asct-delta');
-            deltaElm ? this.insertBefore(existingInstructionAddElement, deltaElm) : this.appendChild(existingInstructionAddElement);
-
-            return existingInstructionAddElement;
-        }
-
-        clearAddInstructionElement() {
-            this.parentNode.querySelectorAll('asct-instruction-add')
-                .forEach((elm) => elm.parentNode.removeChild(elm));
-            // let existingInstructionAddElement = this.querySelector('asct-instruction-add');
-            // if(existingInstructionAddElement) {
-            //     existingInstructionAddElement.parentNode.removeChild(existingInstructionAddElement);
-            // }
-        }
-
-
-        select(selectedValue = true) {
-            if (selectedValue) {
-                if (this.selected) {
-                    console.warn("Already selected ", this);
-                    return;
-                }
-                this.classList.add('selected');
-            } else {
-                if (!this.selected) {
-                    console.warn("Already unselected ", this);
-                    return;
-                }
-                this.classList.remove('selected');
+        setPosition() {
+            if(this.props.position !== true) {
+                this.setProps({position: true});
             }
         }
 
-        clearAllCursors() {
-            // Remove other cursor elements
-            this.trackerElm.querySelectorAll('.cursor')
-                .forEach((elm) => elm.classList.remove('cursor'));
+        removePosition() {
+            if(this.props.position !== false) {
+                this.setProps({position: false});
+            }
         }
 
-
-        scrollTo() {
-            const container = this.parentNode;
-            // const container = this.tracker; // cursorCell.closest('.composer-tracker-container');
-            if (container.scrollTop < this.offsetTop - container.offsetHeight)
-                container.scrollTop = this.offsetTop;
-            //
-            if (container.scrollTop > this.offsetTop)
-                container.scrollTop = this.offsetTop - container.offsetHeight;
-        }
-
-        renderDelta(rowDurationInTicks) {
-            let deltaElm = this.querySelector('asct-delta');
-            if (!deltaElm) {
-                deltaElm = document.createElement('asct-delta');
-                this.appendChild(deltaElm);
-            }
-            deltaElm.render(rowDurationInTicks);
-            return this;
-        }
-
-        renderInstructions(rowInstructionList = []) {
-            const instructionElms = this.querySelectorAll('asct-instruction');
-            let i = 0;
-            for (; i < instructionElms.length; i++) {
-                const instruction = rowInstructionList[i];
-                const instructionElm = instructionElms[i];
-                if (i >= rowInstructionList.length) {
-                    instructionElm.parentNode.removeChild(instructionElm);
-                } else {
-                    instructionElm.index = instruction.index;
-                    instructionElm.render(rowInstructionList[i]);
-
-                }
-            }
-
-            let deltaElm = this.querySelector('asct-delta');
-            for (; i < rowInstructionList.length; i++) {
-                const instruction = rowInstructionList[i];
-                const instructionElm = document.createElement('asct-instruction');
-                instructionElm.index = instruction.index;
-                deltaElm ? this.insertBefore(instructionElm, deltaElm) : this.appendChild(instructionElm);
-                instructionElm.render(rowInstructionList[i]);
-            }
-            return this;
+        render() {
+            return [
+                this.state.delta,
+                this.state.instructions,
+                this.props.cursor ? new AudioSourceComposerTrackerInstructionAdd() : null
+            ];
         }
 
     }
 
     customElements.define('asct-row', AudioSourceComposerTrackerRow);
 
-    class AudioSourceComposerTrackerInstruction extends HTMLElement {
-        constructor() {
-            super();
+    class AudioSourceComposerTrackerInstruction extends ASUIComponent {
+        constructor(song, instruction, props={}) {
+            super(props, {});
+            this.props.i = instruction.index;
+            // this.props.selected = false;
+            // this.props.cursor = false;
+
+            this.state = this.getInstructionContent(song, instruction);
         }
 
-        get row() {
-            return this.parentNode;
+        get index() { return this.props.i; }
+        get selected() { return this.props.selected; }
+
+
+        instructionFind(song, groupName, throwException=true) {
+            return song.instructionFind(groupName, this.index, throwException);
         }
 
-        get trackerElm() {
-            if (!this.parentNode)
-                throw new Error("Invalid tracker");
-            return this.parentNode.trackerElm;
+        async update(song, instruction) {
+        // TODO: partial update?
+            await this.setState(this.getInstructionContent(song, instruction));
         }
 
-        get editorElm() {
-            return this.trackerElm.editorElm;
+        getInstructionContent(song, instruction) {
+            return {
+                command: new AudioSourceComposerParamCommand(instruction.command),
+                params: [
+                    new AudioSourceComposerParamInstrument(instruction.instrument),
+                    new AudioSourceComposerParamVelocity(instruction.velocity),
+                    new AudioSourceComposerParamDuration(song, instruction.duration),
+                ]
+            };
         }
 
-        set index(instructionIndex) {
-            this.setAttribute('i', instructionIndex);
-            // this.render();
+        async select(selected = true) {
+            if(selected !== this.props.selected) {
+                this.setProps({selected});
+                await this.renderOS();
+            }
         }
 
-        get index() {
-            return parseInt(this.getAttribute('i'))
+        setCursor(cursor=true) {
+            if(this.props.cursor !== cursor) {
+                this.setProps({cursor});
+            }
+            if(cursor)
+                (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
+            // if(this.parentNode)
+            //     (this.parentNode.scrollIntoViewIfNeeded || this.parentNode.scrollIntoView).apply(this.parentNode);
         }
 
-        get selected() {
-            return this.classList.contains('selected');
+        removeCursor() {
+            if(this.props.cursor !== false) {
+                this.setProps({cursor: false});
+            }
         }
 
-        get nextInstructionSibling() {
-            if (this.nextElementSibling && this.nextElementSibling.matches('asct-instruction'))
-                return this.nextElementSibling;
-            return null;
+        setPosition() {
         }
 
-        get previousInstructionSibling() {
-            if (this.previousElementSibling && this.previousElementSibling.matches('asct-instruction'))
-                return this.previousElementSibling;
-            return null;
-        }
-
-
-        getInstruction() {
-            return this.row.trackerElm.getInstruction(this.index);
+        removePosition() {
         }
 
         play() {
@@ -1305,74 +1111,20 @@
             return this;
         }
 
-        connectedCallback() {
-            // this.render();
-            // this.setAttribute('draggable', true);
-        }
+        //
+        // scrollTo() {
+        //     return this.row.scrollTo();
+        // }
 
-        scrollTo() {
-            return this.row.scrollTo();
-        }
+        // clearAllCursors() {
+        //     return this.row.clearAllCursors();
+        // }
 
-        clearAllCursors() {
-            return this.row.clearAllCursors();
-        }
-
-        setCursor() {
-            this.clearAllCursors();
-            this.classList.add('cursor');
-            return this;
-        }
-
-        select(selectedValue = true) {
-
-            if (selectedValue) {
-                this.classList.add('selected');
-                // this.editorElm.addSelectedIndex(this.index);
-            } else {
-                this.classList.remove('selected', 'cursor');
-                // this.editorElm.removeSelectedIndex(this.index);
-            }
-
-
-            this.render();
-            return this;
-        }
-
-
-        render(instruction = null) {
-            // this.innerHTML = '';
-            instruction = instruction || this.getInstruction();
-
-            let commandElm = this.querySelector('ascti-command');
-            if (!commandElm) this.appendChild(commandElm = document.createElement('ascti-command'));
-            commandElm.render(instruction);
-
-            if (this.classList.contains('selected')) {
-                let instrumentElm = this.querySelector('ascti-instrument');
-                if (!instrumentElm) this.appendChild(instrumentElm = document.createElement('ascti-instrument'));
-                instrumentElm.render(instruction);
-
-                let velocityElm = this.querySelector('ascti-velocity');
-                if (!velocityElm) this.appendChild(velocityElm = document.createElement('ascti-velocity'));
-                velocityElm.render(instruction);
-
-                let durationElm = this.querySelector('ascti-duration');
-                if (!durationElm) this.appendChild(durationElm = document.createElement('ascti-duration'));
-                durationElm.render(instruction);
-
-            } else {
-                let instrumentElm = this.querySelector('ascti-instrument');
-                if (instrumentElm) instrumentElm.parentNode.removeChild(instrumentElm);
-
-                let velocityElm = this.querySelector('ascti-velocity');
-                if (velocityElm) velocityElm.parentNode.removeChild(velocityElm);
-
-                let durationElm = this.querySelector('ascti-duration');
-                if (durationElm) durationElm.parentNode.removeChild(durationElm);
-            }
-
-            return this;
+        render() {
+            return [
+                this.state.command,
+                this.props.selected ? this.state.params : null
+            ]
         }
 
     }
@@ -1380,14 +1132,14 @@
     customElements.define('asct-instruction', AudioSourceComposerTrackerInstruction);
 
 
-    class AudioSourceComposerTrackerInstructionAdd extends AudioSourceComposerTrackerInstruction {
+    class AudioSourceComposerTrackerInstructionAdd extends ASUIComponent {
 
+        setCursor(isCursor=true) {
+            this.setProps({cursor: isCursor});
+        }
 
-        render(instruction = null) {
-            if (instruction)
-                throw new Error("Invalid");
-            this.innerHTML = '+';
-            return this;
+        render() {
+            return ['+']
         }
 
     }
@@ -1395,97 +1147,72 @@
     customElements.define('asct-instruction-add', AudioSourceComposerTrackerInstructionAdd);
 
 
-    class AudioSourceComposerTrackerParameter extends HTMLElement {
-        constructor() {
-            super();
-        }
-
-        get instruction() {
-            return this.parentNode;
-        }
-
-        get trackerElm() {
-            return this.parentNode.parentNode.trackerElm;
-        }
-
-        get editorElm() {
-            return this.trackerElm.editorElm;
-        }
-
-        connectedCallback() {
-            //this.render();
-            // this.setAttribute('draggable', true);
+    class AudioSourceComposerParamCommand extends ASUIComponent {
+        constructor(command, props= {}) {
+            super(props, {
+                command: new AudioSourceValues().formatCommand(command)
+            });
         }
 
         render() {
-            this.innerHTML = this.editorElm.values.format(this.row.duration, 'duration');
+            return this.state.command;
         }
-    }
 
-    class AudioSourceComposerParamCommand extends AudioSourceComposerTrackerParameter {
-        render(instruction = null) {
-            instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editorElm.values.format(instruction.command, 'command');
-        }
     }
-
     customElements.define('ascti-command', AudioSourceComposerParamCommand);
 
-    class AudioSourceComposerParamInstrument extends AudioSourceComposerTrackerParameter {
-        render(instruction = null) {
-            instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editorElm.values.format(instruction.instrument, 'instrument');
+
+    class AudioSourceComposerParamInstrument extends ASUIComponent {
+        constructor(instrumentID, props= {}) {
+            super(props, {
+                instrumentID: new AudioSourceValues().formatInstrumentID(instrumentID)
+            });
+        }
+
+        render() {
+            return this.state.instrumentID;
         }
     }
-
     customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
 
-    class AudioSourceComposerParamVelocity extends AudioSourceComposerTrackerParameter {
-        render(instruction = null) {
-            instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editorElm.values.format(instruction.velocity, 'velocity');
+    class AudioSourceComposerParamVelocity extends ASUIComponent {
+        constructor(velocity, props= {}) {
+            super(props, {
+                velocity: new AudioSourceValues().formatVelocity(velocity)
+            });
+        }
+
+        render() {
+            return this.state.velocity;
         }
     }
 
     customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
 
-    class AudioSourceComposerTrackerDuration extends AudioSourceComposerTrackerParameter {
-        render(instruction = null) {
-            instruction = instruction || this.instruction.getInstruction();
-            this.innerHTML = this.editorElm.values.format(instruction.duration, 'duration');
+    class AudioSourceComposerParamDuration extends ASUIComponent {
+        constructor(song, duration, props= {}) {
+            super(props, {
+                duration:new AudioSourceValues(song).formatDuration(duration)
+            });
+        }
+
+        render() {
+            return this.state.duration;
         }
     }
 
-    customElements.define('ascti-duration', AudioSourceComposerTrackerDuration);
+    customElements.define('ascti-duration', AudioSourceComposerParamDuration);
 
 
-    class AudioSourceComposerTrackerDelta extends HTMLElement {
-        constructor() {
-            super();
+    class AudioSourceComposerTrackerDelta extends ASUIComponent {
+        constructor(song, duration, props= {}) {
+            super(props, {
+                duration: new AudioSourceValues(song).formatDuration(duration)
+            });
         }
 
-        get editorElm() {
-            return this.trackerElm.editorElm;
-        }
-
-        get trackerElm() {
-            return this.parentNode.trackerElm;
-        }
-
-        get row() {
-            return this.parentNode;
-        }
-
-        // set duration(durationInTicks) { this.setAttribute('d', durationInTicks)}
-        // get duration() { return parseInt(this.parentNode.getAttribute('d'))}
-
-        connectedCallback() {
-            // setTimeout(e => this.render(), 1); // TODO: inefficient
-        }
-
-        render(duration) {
-            duration = duration || (this.row ? this.row.duration : -1);
-            this.innerHTML = this.editorElm.values.format(duration, 'duration');
+        render() {
+            return this.state.duration;
         }
     }
 
@@ -1498,8 +1225,19 @@
     /** Export this script **/
     registerModule(exportThisScript);
 
+    /** Finish Registering Async Module **/
+    resolveExports();
+
 
     /** Module Loader Methods **/
+    function registerAsyncModule() {
+        let resolve;
+        const promise = new Promise((r) => resolve = r);
+        registerModule(module => {
+            module.promises = (module.promises || []).concat(promise);
+        });
+        return resolve;
+    }
     function registerModule(callback) {
         if(typeof window === 'undefined')
             callback(module);
@@ -1520,7 +1258,27 @@
         return scriptElms;
     }
 
+    async function requireAsync(relativeScriptPath) {
+        if(typeof require !== "undefined")
+            return require('../' + relativeScriptPath);
+
+        let scriptElm = findScript(relativeScriptPath)[0];
+        if(!scriptElm) {
+            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
+            scriptElm = document.createElement('script');
+            scriptElm.src = scriptURL;
+            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
+                scriptElm.onload = resolve;
+                document.head.appendChild(scriptElm);
+            }));
+        }
+        for (let i=0; i<scriptElm.promises.length; i++)
+            await scriptElm.promises[i];
+        console.log('scriptElm', scriptElm, scriptElm.exports)
+        return scriptElm.exports
+            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
+    }
 
 
-}
+})();
 

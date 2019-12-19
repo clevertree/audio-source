@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'common/audio-source-library.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {AudioSourceLibrary};
     }
 
@@ -23,56 +23,74 @@
         //     Object.assign(this, data);
         // }
 
+        get libraryCount() { return Object.values(this.libraries).length; }
         eachLibrary(callback) {
-            this.processItemList(this.libraries, (libraryConfig) => {
+            return this.processItemList(this.libraries, (libraryConfig) => {
                 libraryConfig.url = new URL(this.urlPrefix + (libraryConfig.url || libraryConfig.name), this.url) + '';
-                callback(libraryConfig);
+                if(!libraryConfig.name) libraryConfig.name = libraryConfig.url.split('/').pop();
+                return callback(libraryConfig);
             });
         }
 
+        get sampleCount() { return Object.values(this.libraries).length; }
         eachSample(callback) {
-            this.processItemList(this.samples, (sampleConfig) => {
+            return this.processItemList(this.samples, (sampleConfig) => {
                 sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
-                callback(sampleConfig);
+                if(!sampleConfig.name) sampleConfig.name = sampleConfig.url.split('/').pop();
+                return callback(sampleConfig);
             });
         }
 
+        get presetCount() { return Object.values(this.libraries).length; }
         eachPreset(callback) {
-            this.processItemList(this.presets, (presetConfig) => {
-                presetConfig.url = this.url + '#' + presetConfig.name;
+            return this.processItemList(this.presets, (presetConfig) => {
+                if(!presetConfig.url)
+                    presetConfig.url = this.url + '#' + presetConfig.name;
                 return callback(presetConfig);
             });
         }
 
+        get instrumentCount() { return Object.values(this.libraries).length; }
         eachInstrument(callback) {
-            this.processItemList(this.instruments, (instrumentConfig) => {
+            return this.processItemList(this.instruments, (instrumentConfig) => {
                 instrumentConfig.url = new URL(this.urlPrefix + (instrumentConfig.url || instrumentConfig.name), this.url) + '';
-                callback(instrumentConfig);
+                if(!instrumentConfig.name) instrumentConfig.name = instrumentConfig.url.split('/').pop();
+                return callback(instrumentConfig);
             });
+        }
+        findInstrument(callback) {
+            let foundItem;
+            const result = this.eachInstrument((config) => {
+                if(foundItem || (foundItem = callback(config)))
+                    return false;
+            })
+            return foundItem;
         }
 
         getPresetConfig(presetName) {
 
-            let presetConfig = null;
-            this.processItemList(this.presets, (presetConfigItem) => {
+            let presetData = null;
+            this.eachPreset((presetConfigItem) => {
                 if(presetConfigItem.name === presetName)  {
-                    presetConfig = presetConfigItem;
+                    presetData = presetConfigItem;
                     return false;
                 }
             });
-            if(!presetConfig)
+            if(!presetData)
                 throw new Error("Preset not found: " + presetName);
 
-            if (!presetConfig.samples)
-                presetConfig.samples = {};
-            if (Object.keys(presetConfig.samples).length === 0)
-                presetConfig.samples[presetName] = {};
+            if (!presetData.samples)
+                presetData.samples = {};
+            if (Object.keys(presetData.samples).length === 0)
+                presetData.samples[presetName] = {};
 
-            const newConfig = {};
-            newConfig.preset = presetName;
+            const newConfig = {
+                presetURL: presetData.url
+            };
+            // newConfig.presetURL = this.url + '#' + presetName;
             newConfig.samples = [];
 
-            this.processItemList(presetConfig.samples, (sampleConfig) => {
+            this.processItemList(presetData.samples, (sampleConfig) => {
                 if(typeof this.samples[sampleConfig.name] !== "undefined")
                     Object.assign(sampleConfig, this.samples[sampleConfig.name]);
                 sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
@@ -86,48 +104,13 @@
                 //     delete sampleConfig.keyRange;
                 // }
             });
-            newConfig.libraryURL = this.url;
-            newConfig.preset = presetName;
+            // newConfig.libraryURL = this.url;
+            // newConfig.preset = presetName;
             return newConfig;
         }
 
-        // getPresetConfig2(presetName) {
-        //     const newConfig = {};
-        //     newConfig.preset = presetName;
-        //     newConfig.samples = [];
-        //     if (!this.presets[presetName])
-        //         throw new Error("Invalid Instrument Preset: " + presetName);
-        //     const presetConfig = this.presets[presetName];
-        //     if (!presetConfig.samples)
-        //         presetConfig.samples = {};
-        //     if (Object.keys(presetConfig.samples).length === 0)
-        //         presetConfig.samples[presetName] = {};
-        //     // Object.assign(newConfig, presetConfig);
-        //     Object.keys(presetConfig.samples).forEach((sampleName) => {
-        //         const sampleConfig =
-        //             Object.assign({
-        //                     url: sampleName
-        //                 },
-        //                 presetConfig.samples[sampleName],
-        //                 this.samples[sampleName]);
-        //         sampleConfig.url = new URL(this.urlPrefix + sampleConfig.url, this.url) + '';
-        //
-        //         if (typeof sampleConfig.keyRange !== "undefined") {
-        //             let pair = sampleConfig.keyRange;
-        //             if (typeof pair === 'string')
-        //                 pair = pair.split(':');
-        //             sampleConfig.keyLow = pair[0];
-        //             sampleConfig.keyHigh = pair[1] || pair[0];
-        //             delete sampleConfig.keyRange;
-        //         }
-        //         sampleConfig.name = sampleName;
-        //         newConfig.samples.push(sampleConfig);
-        //     });
-        //     newConfig.libraryURL = this.url;
-        //     return newConfig;
-        // }
-
         processItemList(arrayOrObject, eachCallback, defaultParam='url') {
+            const results = [];
             const eachItem = (itemConfig, itemName=null) => {
                 if(typeof itemConfig === "string") {
                     const newItem = {};
@@ -137,7 +120,10 @@
                 itemConfig = Object.assign({}, itemConfig);
                 if(typeof itemConfig.name === "undefined" && itemName)
                     itemConfig.name = itemName;
-                eachCallback(itemConfig);
+                const result = eachCallback(itemConfig);
+                if(result !== null && result !== false)
+                    results.push(result);
+                return result;
             };
 
             if(Array.isArray(arrayOrObject)) {
@@ -155,38 +141,44 @@
             } else {
                 throw new Error('Unknown array or object');
             }
+            return results;
         }
 
 
     }
 
 
-    AudioSourceLibrary.eachHistoricLibrary = async (callback) => {
+    AudioSourceLibrary.historicLibraryCount = function() { return Object.values(AudioSourceLibrary.cache).length; }
+    AudioSourceLibrary.eachHistoricLibrary = (callback) => {
+        const results = [];
         for (let cacheURL in AudioSourceLibrary.cache) {
             if (AudioSourceLibrary.cache.hasOwnProperty(cacheURL)) {
                 let libraryConfig = AudioSourceLibrary.cache[cacheURL];
                 if(libraryConfig instanceof Promise)
-                    libraryConfig = await libraryConfig;
-                let libraryName = libraryConfig.name || libraryConfig.url.split('/').pop();
-                const result = callback(libraryConfig.url, libraryName);
+                    continue;
+                    // libraryConfig = await libraryConfig;
+                libraryConfig.name = libraryConfig.name || libraryConfig.url.split('/').pop();
+                const result = callback(libraryConfig);
                 if (result === false)
-                    return;
+                    break;
+                if(result !== null)
+                    results.push(result);
             }
         }
+        return results;
     };
 
-    AudioSourceLibrary.loadURL = async function(url) {
+    /**
+     * @param url
+     * @returns {Promise<AudioSourceLibrary>}
+     */
+    AudioSourceLibrary.loadFromURL = async function(url) {
         if (!url)
             throw new Error("Invalid url");
         url = new URL((url + '').split('#')[0], document.location) + '';
 
         let libraryData;
-        if (AudioSourceLibrary.cache[url]) {
-            libraryData = AudioSourceLibrary.cache[url];
-            if(libraryData instanceof Promise)
-                libraryData = await libraryData;
-
-        } else {
+        if (!AudioSourceLibrary.cache[url]) {
             AudioSourceLibrary.cache[url] = new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', url + '', true);
@@ -209,12 +201,20 @@
                 };
                 xhr.send();
             });
-            libraryData = await AudioSourceLibrary.cache[url];
         }
+        libraryData = AudioSourceLibrary.cache[url];
+        if(libraryData instanceof Promise)
+            libraryData = await libraryData;
         return new AudioSourceLibrary(libraryData);
     };
-
+    /** @returns {Promise<AudioSourceLibrary>} */
+    AudioSourceLibrary.loadDefaultLibrary = async function() {
+        return await AudioSourceLibrary.loadFromURL(AudioSourceLibrary.defaultLibraryURL);
+    };
     AudioSourceLibrary.cache = {};
+    AudioSourceLibrary.defaultLibraryURL = findThisScript()[0].basePath + 'default.library.json';
+
+
 
 
     /** Export this script **/

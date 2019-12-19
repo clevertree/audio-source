@@ -2,7 +2,7 @@
 
     /** Register Script Exports **/
     function getThisScriptPath() { return 'instrument/chip/spc-player-synthesizer.js'; }
-    function exportThisScript(module) {
+    const exportThisScript = function(module) {
         module.exports = {
             instrument: SPCPlayerSynthesizer,
             SPCPlayerSynthesizer
@@ -196,12 +196,12 @@
         /** Modify Instrument **/
 
         remove() {
-            this.instrument.song.removeInstrument(this.instrument.id);
-            document.dispatchEvent(new CustomEvent('instrument:remove', this));
+            this.instrument.song.instrumentRemove(this.instrument.id);
+            // document.dispatchEvent(new CustomEvent('instrument:remove', this));
         }
 
-        setInstrumentName(newInstrumentName) {
-            return this.instrument.song.setInstrumentName(this.instrument.id, newInstrumentName);
+        instrumentRename(newInstrumentName) {
+            return this.instrument.song.instrumentRename(this.instrument.id, newInstrumentName);
         }
 
         async render() {
@@ -221,7 +221,7 @@
             instrumentToggleButton.classList.add('show-on-focus');
 
             const instrumentNameInput = this.form.addTextInput('instrument-name',
-                (e, newInstrumentName) => this.setInstrumentName(newInstrumentName),
+                (e, newInstrumentName) => this.instrumentRename(newInstrumentName),
                 'Instrument Name',
                 this.instrument.config.name || '',
                 'Unnamed'
