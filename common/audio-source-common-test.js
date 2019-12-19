@@ -40,6 +40,7 @@ class AudioSourceCommonTest {
 
     async testSongClass() {
         const song = new AudioSourceSong();
+        await song.loadSongData({});
         const songData = song.data;
 
 

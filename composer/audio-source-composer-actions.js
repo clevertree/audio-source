@@ -836,7 +836,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'composer/audio-source-composer-actions.js';
-    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceComposerActions,
     };

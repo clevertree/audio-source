@@ -216,7 +216,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'common/audio-source-file-service.js';
-    let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceFileService,
     };
