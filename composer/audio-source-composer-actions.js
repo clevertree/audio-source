@@ -22,7 +22,7 @@
         }
 
         getDefaultInstrumentURL() {
-            return findThisScript()[0].basePath + 'instrument/audio-source-synthesizer.js';
+            return customElements.get('audio-source-loader').resolveURL('../instrument/audio-source-synthesizer.js');
         }
 
 

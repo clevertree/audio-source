@@ -79,8 +79,8 @@
         async render() {
             const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
             return [
-                this.createStyleSheetLink('composer/assets/audio-source-composer.css'),
-                this.createStyleSheetLink('common/assets/audio-source-common.css'),
+                this.createStyleSheetLink('../composer/assets/audio-source-composer.css'),
+                this.createStyleSheetLink('../common/assets/audio-source-common.css'),
                 this.refs.containerElm = new ASUIDiv('asc-container', () => [
                     new ASUIDiv('asc-menu-container', () => [
                         this.refs.menuFile = new ASUIMenu({vertical: true}, 'File', () => this.populateMenu('file')),

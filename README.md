@@ -35,7 +35,7 @@ http://localhost:8090
 
 ## How to put the composer element on your website
 ```
-<script src="https://audiosource.io/composer/audio-source-composer.min.js"></script>
+<script src="https://audiosource.io/composer/audio-source-composer-loader.js"></script>
 <audio-source-composer></audio-source-composer>
 ```
 
@@ -51,7 +51,7 @@ Coming Soon!
 * Plays MIDI files
 * How to put the player on your website
 ```
-<script src="https://audiosource.io/player/audio-source-player.min.js"></script>
+<script src="https://audiosource.io/player/audio-source-player-loader.js"></script>
 <audio-source-player></audio-source-player>
 ```
 
@@ -64,7 +64,7 @@ Coming Soon!
 * Supports MIDI input events
 * Embeddable within other DAWs
 
-## How to put the synthesizer on your website
+## How to put the synthesizer on your website (not currently working)
 ```
 <script src="https://audiosource.io/instrument/audio-source-synthesizer.js"></script>
 <audio-source-synthesizer></audio-source-synthesizer>

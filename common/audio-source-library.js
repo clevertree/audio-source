@@ -210,7 +210,7 @@
         return await AudioSourceLibrary.loadFromURL(AudioSourceLibrary.defaultLibraryURL);
     };
     AudioSourceLibrary.cache = {};
-    AudioSourceLibrary.defaultLibraryURL = findThisScript()[0].basePath + 'default.library.json';
+    AudioSourceLibrary.defaultLibraryURL = customElements.get('audio-source-loader').resolveURL('../default.library.json');
 
 
 

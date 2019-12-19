@@ -55,32 +55,6 @@
     }
 
 
-
-    /** Export this script **/
-    registerModule(exportThisScript);
-
-
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
     /** Export this script **/
     const thisScriptPath = 'composer/audio-source-composer-keyboard.js';
     let thisModule = typeof window !== undefined ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;

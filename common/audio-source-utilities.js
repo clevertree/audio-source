@@ -12,14 +12,14 @@
         get sources() {
             return {
                 'MidiParser': [
-                    this.getScriptDirectory('assets/3rdparty/MidiParser/main.js'),
+                    this.getScriptDirectory('../assets/3rdparty/MidiParser/main.js'),
                     'https://cdn.jsdelivr.net/gh/colxi/midi-parser-js/src/main.js'
                 ],
                 'MIDIFile': [
-                    this.getScriptDirectory('assets/3rdparty/MIDIFile/MIDIFile.min.js')
+                    this.getScriptDirectory('../assets/3rdparty/MIDIFile/MIDIFile.min.js')
                 ],
                 'LZString': [
-                    this.getScriptDirectory('assets/3rdparty/LZString/lz-string.min.js'),
+                    this.getScriptDirectory('../assets/3rdparty/LZString/lz-string.min.js'),
                     'https://cdn.jsdelivr.net/gh/pieroxy/lz-string/libs/lz-string.min.js'
                 ]
             }
@@ -88,10 +88,8 @@
 
 
         getScriptDirectory(appendPath='', selector=null) {
-            const scriptElm = findThisScript()[0];
-            // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-    //         console.log("Base Path: ", basePath);
-            return scriptElm.basePath + appendPath;
+            const AudioSourceLoader = customElements.get('audio-source-loader')
+            return AudioSourceLoader.resolveURL(appendPath);
         }
 
         async loadScript(src) {

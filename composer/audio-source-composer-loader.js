@@ -28,6 +28,7 @@
                 throw new Error("Required script not found: " + relativeScriptURL);
             return scriptElm;
         }
+        static getBasePath() { return basePathURL; }
     }
     AudioSourceLoader.requireAsync = async function(relativeScriptURL) {
         let scriptElm = AudioSourceLoader.findScript(relativeScriptURL, false);
@@ -54,14 +55,15 @@
 
     await req('../common/audio-source-song.js');
     await req('../common/audio-source-storage.js');
+    await req('../common/audio-source-library.js');
     await req('../common/audio-source-ui.js');
     await req('../common/audio-source-values.js');
     await req('../common/audio-source-file-service.js');
     await req('../common/audio-source-utilities.js');
 
+    await req('../composer/audio-source-composer-tracker.js');
     await req('../composer/audio-source-composer-renderer.js');
     await req('../composer/audio-source-composer-actions.js');
     await req('../composer/audio-source-composer-keyboard.js');
-    await req('../composer/audio-source-composer-tracker.js');
     await req('../composer/audio-source-composer.js');
 })();

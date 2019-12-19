@@ -28,6 +28,8 @@
                 throw new Error("Required script not found: " + relativeScriptURL);
             return scriptElm;
         }
+
+        static getBasePath() { return basePathURL; }
     }
     AudioSourceLoader.requireAsync = async function(relativeScriptURL) {
         let scriptElm = AudioSourceLoader.findScript(relativeScriptURL, false);
