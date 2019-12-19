@@ -1,11 +1,19 @@
 {
+    const isRN = typeof document === 'undefined';
 
     /** Required Modules **/
-    if(typeof window !== "undefined")
+    let ASUIComponentBase;
+    if(isRN) {
+        window.customElements = require('../../app/support/customElements.js').default;
+        ASUIComponentBase = require('../../app/support/ASUIComponentBase.js').default;
+        // console.log(ASUIComponentBase);
+    } else {
         window.require = customElements.get('audio-source-loader').require;
+        ASUIComponentBase = HTMLElement;
+    }
 
     /** Abstract Component **/
-    class ASUIComponent extends HTMLElement {
+    class ASUIComponent extends ASUIComponentBase {
         constructor(props = {}, state = {}) {
             super();
             if(typeof props !== "object")
@@ -773,7 +781,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'common/audio-source-ui.js';
-    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     thisModule.exports = {
         ASUIComponent,
         ASUIDiv,
