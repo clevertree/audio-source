@@ -1,8 +1,14 @@
 {
-    /** Required Modules **/
-    if(typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
 
+    const isRN = typeof document === 'undefined';
+
+    /** Required Modules **/
+    if(isRN) {
+        window.customElements = require('../../app/support/customElements.js').default;
+        // console.log(ASUIComponentBase);
+    } else {
+        window.require = customElements.get('audio-source-loader').require;
+    }
 
     /** Required Modules **/
     const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
@@ -375,7 +381,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'composer/audio-source-composer.js';
-    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     thisModule.exports = {
         AudioSourceComposerElement,
     };

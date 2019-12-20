@@ -263,7 +263,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'instrument/chip/spc-player-synthesizer.js';
-    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         instrument: SPCPlayerSynthesizer,
         SPCPlayerSynthesizer

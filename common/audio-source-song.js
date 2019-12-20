@@ -1888,7 +1888,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'common/audio-source-song.js';
-    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceSong,
         AudioSourceInstructionIterator,

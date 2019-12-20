@@ -842,7 +842,7 @@
 
     /** Export this script **/
     const thisScriptPath = 'instrument/audio-source-synthesizer.js';
-    let thisModule = typeof customElements !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         instrument: AudioSourceSynthesizer,
         AudioSourceSynthesizer
