@@ -149,7 +149,7 @@
 
             if (state) {
                 await this.loadDefaultSong(state.songUUID);
-                if (typeof state.volume !== "undefined") this.setSongVolume(e, state.volume);
+                if (typeof state.volume !== "undefined") this.setVolume(state.volume);
                 if (typeof state.trackerSegmentLength !== "undefined") await this.refs.fieldTrackerSegmentLength.setValue(state.trackerSegmentLength);
                 if (typeof state.trackerRowLength !== "undefined") await this.refs.fieldTrackerRowLength.setValue(state.trackerRowLength);
                 if (typeof state.trackerInstrument !== "undefined") await this.refs.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);

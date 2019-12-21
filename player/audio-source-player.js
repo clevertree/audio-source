@@ -10,11 +10,12 @@
     }
 
 
-    const {AudioSourcePlayerActions} = require('player/audio-source-player-actions.js');
+    const {AudioSourcePlayerActions} = require('../player/audio-source-player-actions.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
     const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
     const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {AudioSourceSong} = require('../common/audio-source-song.js');
+    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
     /**
      * Player requires a modern browser
      */
@@ -39,7 +40,8 @@
                 songLength: 0,
             }, state));
 
-
+            this.audioContext = null;
+            this.volumeGain = null;
             this.song = null;
             this.props.playlistActive = false;
             this.props.playing = false;
@@ -48,6 +50,7 @@
             const Util = new AudioSourceUtilities;
             Util.loadPackageInfo()
                 .then(packageInfo => this.setVersion(packageInfo.version));
+            this.addEventHandler('unload', e => this.saveState(e), window);
         }
 
         get isPlaylistActive()      { return this.props.playlistActive; }
@@ -57,86 +60,32 @@
         get isPaused()              { return this.props.paused; }
         set isPaused(value)         { this.setProps({paused: value}); }
 
-        /** Load External CSS **/
-
-        // loadCSS() {
-        //     const CSS_PATH = 'player/assets/audio-source-player.css';
-        //     const targetDOM = this.shadowDOM || document.head;
-        //     if (targetDOM.querySelector(`link[href$="${CSS_PATH}"]`))
-        //         return;
-        //
-        //     const linkHRef = this.getScriptDirectory(CSS_PATH);
-        //     let cssLink = document.createElement("link");
-        //     cssLink.setAttribute("rel", "stylesheet");
-        //     cssLink.setAttribute("type", "text/css");
-        //     cssLink.setAttribute("href", linkHRef);
-        //     targetDOM.appendChild(cssLink);
-        // }
+        get values() { return new AudioSourceValues(this.song); }
 
 
 
+        async loadState() {
 
-        // getScriptDirectory(appendPath=null) {
-        //     return findThisScript()[0].basePath + appendPath;
-        // }
-
-        /** @deprecated **/
-        handleError(err) {
-            this.setStatus(`<span style="error">${err}</span>`);
-            console.error(err);
-            // if(this.webSocket)
-        }
-
-        async setStatus(newStatus) {
-            if(newStatus.length > 64)
-                newStatus = newStatus.substr(0, 64) + '...';
-            await this.refs.textStatus.setContent(newStatus);
-            console.info.apply(null, arguments); // (newStatus);
-        }
-
-        setVersion(versionString) {
-            this.state.version = versionString;
-            this.refs.textVersion.content = versionString;
-        }
+            const storage = new AudioSourceStorage();
+            const state = storage.loadState('audio-source-player-state');
+            console.log('loadState', state);
 
 
-        closeAllMenus() {
-            this.refs.menuFile.closeAllMenus();
-        }
-
-
-        /** Playback **/
-
-        updateSongPositionMaxLength(maxSongLength) {
-            this.refs.fieldSongPosition.setState({max: Math.ceil(maxSongLength)});
-        }
-
-        updateSongPositionValue(playbackPositionInSeconds) {
-            const values = new AudioSourceValues();
-            this.refs.fieldSongTiming.value = values.formatPlaybackPosition(playbackPositionInSeconds);
-            const roundedSeconds = Math.round(playbackPositionInSeconds);
-            if (this.refs.fieldSongPosition.value !== roundedSeconds) {
-                this.refs.fieldSongPosition.value = roundedSeconds;
+            if (state) {
+                await this.setState(state);
             }
         }
 
 
-        getAudioContext()               { return this.song.getAudioContext(); }
-        getVolumeGain()                 { return this.song.getVolumeGain(); }
+        async saveState() {
+            // await this.saveSongToMemory(e);
+            const state = this.state;
+            const storage = new AudioSourceStorage();
+            storage.saveState(state, 'audio-source-player-state');
+            console.log('saveState', state);
+        }
 
-        getVolume () {
-            if(this.volumeGain) {
-                return this.volumeGain.gain.value * 100;
-            }
-            return AudioSourcePlayerElement.DEFAULT_VOLUME * 100;
-        }
-        setVolume (volume) {
-            const gain = this.getVolumeGain();
-            if(gain.gain.value !== volume) {
-                gain.gain.value = volume / 100;
-                console.info("Setting volume: ", volume);
-            }
-        }
+
 
         // Rendering
         // get statusElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=status-text]`); }

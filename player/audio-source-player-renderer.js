@@ -27,12 +27,12 @@
             state.fullscreen = false;
             state.showPanelSong = true;
             state.showPanelPlaylist = true;
-            state.playlist = new ASPPlaylist({}, this);
+            this.playlist = new ASPPlaylist({}, this); // TODO: move into state
 
         }
         get targetElm() { return this.shadowDOM; }
 
-        get playlist() { return this.state.playlist; }
+        // get playlist() { return this.state.playlist; }
 
         createStyleSheetLink(stylePath) {
             const AudioSourceLoader = customElements.get('audio-source-loader');
@@ -60,7 +60,8 @@
             // this.loadCSS();
             // Render (with promise)
             super.connectedCallback(false);
-            await this.renderOS();
+            await this.renderOS(); // TODO: duplicate render?
+            await this.loadState();
 
             const url = this.getAttribute('src') || this.getAttribute('url');
             if(url)
@@ -138,7 +139,7 @@
 
                             new ASPForm('volume', 'Volume', () => [
                                 this.refs.fieldSongVolume = new ASUIInputRange('volume',
-                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, this.state.volume, 'Song Volume')
+                                    (e, newVolume) => this.setVolume(newVolume/100), 1, 100, this.state.volume*100, 'Song Volume')
                             ]),
 
                             new ASPForm('timing', 'Timing', () => [
@@ -186,7 +187,7 @@
                         ]),
 
                         new ASPPanel('playlist', 'Playlist',  () => [
-                            this.state.playlist
+                            this.playlist
                         ]),
                     ]),
 

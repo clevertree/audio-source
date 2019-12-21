@@ -39,9 +39,48 @@
             }
             this.song = song;
             this.state.songLength = song.getSongLengthInSeconds();
-            this.song.setVolume(this.state.volume);
+            // this.song.setVolume(this.state.volume);
             this.song.addDispatchElement(this);
             await this.renderOS();
+        }
+
+
+        /** Playback **/
+
+        getAudioContext()               {
+            if (this.audioContext)
+                return this.audioContext;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.audioContext = audioContext;
+            return audioContext;
+        }
+
+        getVolumeGain()                 {
+            if (!this.volumeGain) {
+                const context = this.getAudioContext();
+                let gain = context.createGain();
+                gain.gain.value = this.state.volume; // AudioSourceSong.DEFAULT_VOLUME;
+                gain.connect(context.destination);
+                this.volumeGain = gain;
+            }
+            return this.volumeGain; }
+
+        getVolume () {
+            if(this.volumeGain) {
+                return this.volumeGain.gain.value;
+            }
+            return AudioSourcePlayerElement.DEFAULT_VOLUME;
+        }
+
+        setVolume (volume) {
+            console.info("Setting volume: ", volume);
+            const gain = this.getVolumeGain();
+            if(gain.gain.value !== volume) {
+                gain.gain.value = volume;
+            }
+            this.state.volume = volume;
+            this.refs.fieldSongVolume.value = volume * 100;
         }
 
 
@@ -63,11 +102,6 @@
             this.setStatus(`Song beats per minute updated: ${newSongBPM}`);
         }
 
-        setSongVolume(e, newSongVolume) {
-            this.song.setVolume(newSongVolume);
-            this.refs.fieldSongVolume.value = newSongVolume;
-            // this.setStatus(`Volume modified: ${newSongVolume}`);
-        }
 
         async loadNewSongData() {
             const storage = new AudioSourceStorage();
@@ -221,11 +255,12 @@
         /** Tracker Commands **/
 
         playSelectedInstructions() {
+            const audioContext = this.getVolumeGain()
             if (this.song.isPlaying)
                 this.song.stopPlayback();
             const selectedIndicies = this.editorElm.getSelectedIndicies();
             for (let i = 0; i < selectedIndicies.length; i++) {
-                this.song.playInstructionAtIndex(this.trackerElm.groupName, selectedIndicies[i]);
+                this.song.playInstructionAtIndex(destination, this.trackerElm.groupName, selectedIndicies[i]);
             }
         }
 
@@ -234,7 +269,7 @@
                 this.song.stopPlayback();
             const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListOffset];
             if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
-                this.song.playInstructionAtIndex(this.trackerElm.groupName, cursorItem.index);
+                this.song.playInstructionAtIndex(destination, this.trackerElm.groupName, cursorItem.index);
             }
         }
 
