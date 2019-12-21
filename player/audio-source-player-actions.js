@@ -1,23 +1,16 @@
-(async function() {
+{
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'player/audio-source-player-actions.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {AudioSourcePlayerActions};
-    };
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
-
-
-    // const {ASUIComponent} = await requireAsync('common/audio-source-ui.js');
-    const {AudioSourceSong} = await requireAsync('common/audio-source-song.js');
-    const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
-    // const {AudioSourceUtilities} = await requireAsync('common/audio-source-utilities.js');
+    const {AudioSourceSong}             = require('../common/audio-source-song.js');
+    const {AudioSourceStorage}          = require('../common/audio-source-storage.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {
         AudioSourcePlayerRenderer,
         ASPPlaylistPlaylistEntry
-    } = await requireAsync('player/audio-source-player-renderer.js');
+    }                                   = require('../player/audio-source-player-renderer.js');
 
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
         constructor(props={}, state={}) {
@@ -36,6 +29,7 @@
 
         async setCurrentSong(song) {
             if(this.song) {
+                this.setStatus("Unloading song: " + this.song);
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
@@ -50,7 +44,9 @@
             const currentEntry = await this.playlist.getCurrentEntry();
             await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()});
             await this.refs.panelSong.renderOS();
+            await this.setStatus("Current song: " + song.name);
         }
+
 
         /** Song loading **/
 
@@ -105,7 +101,7 @@
                 //     await this.loadSongFromPlaylistEntry(this.position);
             } else {
                 await song.loadSongFromURL(url);
-                this.setStatus("Loaded from url: " + url);
+                await this.setStatus("Loaded from url: " + url);
 //                 this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
             }
             // this.render();
@@ -120,12 +116,13 @@
 
             let song;
             if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
-                throw new Error("I")
-
+                throw new Error("Implement")
             } else {
                 if(currentEntry.file) {
+                    this.setStatus("Loading playlist song from file: " + currentEntry.file.name);
                     song = await AudioSourceSong.loadSongFromFileInput(currentEntry.file);
                 } else if(currentEntry.url) {
+                    this.setStatus("Loading playlist song from url: " + currentEntry.url);
                     song = await AudioSourceSong.loadSongFromURL(currentEntry.url);
                 }
             }
@@ -149,13 +146,13 @@
 
         async addSongURLToPlaylist(url, name=null, length=null) {
             await this.playlist.addSongURLToPlaylist(url, name, length);
-            this.setStatus("Added URL to playlist: " + url);
+            await this.setStatus("Added URL to playlist: " + url);
         }
 
 
         async addSongFileToPlaylist(file, name=null, length=null) {
             await this.playlist.addSongFileToPlaylist(file, name, length);
-            this.setStatus("Added file to playlist: " + file.name);
+            await this.setStatus("Added file to playlist: " + file.name);
         }
 
 
@@ -228,6 +225,7 @@
                     return this.song.resume();
                 if(this.song.isPlaying)
                     throw new Error("Song is already playing");
+                await this.setStatus("Playing: " + this.song.name);
                 return await this.song.play();
             }
             let entry = await this.playlist.getCurrentEntry();
@@ -240,9 +238,8 @@
                 (currentEntry.scrollIntoViewIfNeeded || currentEntry.scrollIntoView).apply(currentEntry);
                 const currentSong = await this.loadSongFromPlaylistEntry();
                 this.setCurrentSong(currentSong);
-                this.isPlaying = true;
+                await this.setStatus("Playing: " + currentSong.name);
                 await currentSong.play();
-                this.isPlaying = false;
                 currentEntry = await this.playlistMoveToNextSongEntry();
             }
         }
@@ -253,7 +250,6 @@
                 this.song.setPlaybackPositionInTicks(0);
             }
             this.isPlaylistActive = false;
-            this.isPlaying = false;
         }
 
         async playlistNext() {
@@ -325,63 +321,10 @@
     }
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
-
-})();
+    const thisScriptPath = 'player/audio-source-player-actions.js';
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourcePlayerActions,
+    };
+}

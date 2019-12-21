@@ -1,28 +1,19 @@
 {
+    const isRN = typeof document === 'undefined';
 
-
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/audio-source-ui.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            ASUIComponent,
-            ASUIDiv,
-            ASUIInputButton,
-            ASUIFileInput,
-            ASUIInputText,
-            ASUIInputRange,
-            ASUIInputSelect,
-            ASUIInputCheckBox,
-            ASUIGrid,
-            ASUIGridRow,
-            ASUIcon,
-            ASUIMenu,
-            // ASUISelectMenu,
-        };
-    };
+    /** Required Modules **/
+    let ASUIComponentBase;
+    if(isRN) {
+        window.customElements = require('../../app/support/customElements.js').default;
+        ASUIComponentBase = require('../../app/support/ASUIComponentBase.js').default;
+        // console.log(ASUIComponentBase);
+    } else {
+        window.require = customElements.get('audio-source-loader').require;
+        ASUIComponentBase = HTMLElement;
+    }
 
     /** Abstract Component **/
-    class ASUIComponent extends HTMLElement {
+    class ASUIComponent extends ASUIComponentBase {
         constructor(props = {}, state = {}) {
             super();
             if(typeof props !== "object")
@@ -788,50 +779,22 @@
     }
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
+    const thisScriptPath = 'common/audio-source-ui.js';
+    let thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    thisModule.exports = {
+        ASUIComponent,
+        ASUIDiv,
+        ASUIInputButton,
+        ASUIFileInput,
+        ASUIInputText,
+        ASUIInputRange,
+        ASUIInputSelect,
+        ASUIInputCheckBox,
+        ASUIGrid,
+        ASUIGridRow,
+        ASUIcon,
+        ASUIMenu,
+    };
 
 }

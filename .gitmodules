@@ -3,4 +3,4 @@
 	url = https://github.com/clevertree/audio-source-3rdparty.git
 [submodule "sample"]
 	path = sample
-	url = ssh://git@github.com/clevertree/audio-source-samples
+	url = https://github.com/clevertree/audio-source-samples.git

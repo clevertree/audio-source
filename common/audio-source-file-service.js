@@ -1,12 +1,8 @@
-(function() {
+{
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/audio-source-file-service.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            AudioSourceFileService
-        };
-    }
 
     const archiveBuffers = {};
     const torrentCache = {};
@@ -23,10 +19,18 @@
     ];
 
     class AudioSourceFileService {
-        constructor() {
+        constructor(song) {
+            this.song = song;
+        }
+
+        log(message) {
+            if(this.song) {
+                this.song.dispatchEvent(new CustomEvent('log', {detail: message}))
+            }
         }
 
         async loadBufferFromURL(url) {
+            this.log("Loading buffer from url: " + url);
             if(url.toString().startsWith('torrent://')) {
                 console.time('getFileBufferFromTorrent');
                 const buffer = await this.getFileBufferFromTorrent(url);
@@ -119,7 +123,7 @@
             var client = new WebTorrent();
 
             torrentCache[torrentID] = new Promise((resolve, reject) => {
-                console.log("Connecting to " + magnetURL);
+                this.log("Connecting to cloud url: " + magnetURL);
                 client.add(magnetURL, function (torrent) {
                     // Got torrent metadata!
                     resolve(torrent);
@@ -127,7 +131,7 @@
             });
             torrentCache[torrentID] = await torrentCache[torrentID];
             const torrent = torrentCache[torrentID];
-            console.log('Client is downloading:', torrent.infoHash);
+            this.log("Connected to cloud: " + torrent.infoHash);
             return torrent;
         }
 
@@ -190,11 +194,10 @@
 
 
     async function requireWebTorrent() {
+        const AudioSourceLoader = customElements.get('audio-source-loader');
         const relativeScriptPath = 'node_modules/webtorrent/webtorrent.min.js';
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
 
-        let scriptElm = findScript(relativeScriptPath)[0];
+        let scriptElm = AudioSourceLoader.findScript(relativeScriptPath, false);
         if(!scriptElm) {
             window.exports = {};
             window.module = {exports: window.exports};
@@ -218,50 +221,12 @@
 
 
 
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    // async function requireAsync(relativeScriptPath) {
-    //     if(typeof require !== "undefined")
-    //         return require('../' + relativeScriptPath);
-    //
-    //     let scriptElm = findScript(relativeScriptPath)[0];
-    //     if(!scriptElm) {
-    //         const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-    //         scriptElm = document.createElement('script');
-    //         scriptElm.src = scriptURL;
-    //         scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-    //             scriptElm.onload = resolve;
-    //             document.head.appendChild(scriptElm);
-    //         }));
-    //     }
-    //     for (let i=0; i<scriptElm.promises.length; i++)
-    //         await scriptElm.promises[i];
-    //     return scriptElm.exports
-    //         || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    // }
+    const thisScriptPath = 'common/audio-source-file-service.js';
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceFileService,
+    };
 
 
-})();
+}

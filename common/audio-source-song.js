@@ -1,17 +1,7 @@
 {
-
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/audio-source-song.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            AudioSourceSong,
-            AudioSourceInstructionIterator,
-            AudioSourceInstructionPlayback,
-            SongInstruction,
-        };
-    };
-
-
+    /** Required Modules **/
+    // if (typeof window !== "undefined")
+    //     window.require = AudioSourceLoader.require;
 
 
     /**
@@ -64,7 +54,7 @@
         // Check for initiated, await if not
 
         addDispatchElement(dispatchElement) {
-            if(this.dispatchElements.indexOf(dispatchElement) !== -1) {
+            if (this.dispatchElements.indexOf(dispatchElement) !== -1) {
                 console.warn("Dispatch element already added");
             } else {
                 this.dispatchElements.push(dispatchElement);
@@ -74,7 +64,7 @@
 
         removeDispatchElement(dispatchElement) {
             const i = this.dispatchElements.indexOf(dispatchElement);
-            if(i !== -1) {
+            if (i !== -1) {
                 this.dispatchElements.splice(i, 1);
             } else {
                 console.warn("Dispatch element was not found");
@@ -82,18 +72,35 @@
         }
 
         dispatchEvent(event) {
-            for (let i=0; i<this.dispatchElements.length; i++)
+            for (let i = 0; i < this.dispatchElements.length; i++)
                 this.dispatchElements[i].dispatchEvent(event);
         }
 
         /** Data shortcuts **/
 
-        get uuid() { return this.data.uuid; }
-        get name() { return this.data.name; }
-        get version() { return this.data.version; }
-        get timeDivision() { return this.data.timeDivision; }
-        get startingBeatsPerMinute() { return this.data.beatsPerMinute; }
-        get rootGroup() { return this.data.root; }
+        get uuid() {
+            return this.data.uuid;
+        }
+
+        get name() {
+            return this.data.name;
+        }
+
+        get version() {
+            return this.data.version;
+        }
+
+        get timeDivision() {
+            return this.data.timeDivision;
+        }
+
+        get startingBeatsPerMinute() {
+            return this.data.beatsPerMinute;
+        }
+
+        get rootGroup() {
+            return this.data.root;
+        }
 
         // get history() { return this.data.history; }
         // getGroupTimeDivision(groupName) { // Bad idea
@@ -120,11 +127,11 @@
         }
 
         setVolume(volume) {
-            if(typeof volume !== "number")
+            if (typeof volume !== "number")
                 throw new Error("Invalid volume");
             console.info("Setting volume: ", volume);
             this.volume = volume;
-            if(this.audioContext) {
+            if (this.audioContext) {
                 const gain = this.getVolumeGain();
                 gain.gain.value = volume / 100;
             }
@@ -186,10 +193,9 @@
         }
 
 
-
         /** Instructions **/
 
-        instructionEach(groupName, callback, parentStats=null) {
+        instructionEach(groupName, callback, parentStats = null) {
             if (!this.data.instructions[groupName])
                 throw new Error("Invalid group: " + groupName);
             const iterator = this.instructionGetIterator(groupName, parentStats);
@@ -200,7 +206,7 @@
                 const result = callback(instruction, iterator);
                 if (result === false)
                     break;
-                if(result !== null)
+                if (result !== null)
                     results.push(result);
                 instruction = iterator.nextInstruction();
             }
@@ -217,7 +223,7 @@
             return p;
         }
 
-        instructionFind(groupName, index, throwException=true) {
+        instructionFind(groupName, index, throwException = true) {
             let instructionList = this.data.instructions[groupName];
             if (!Number.isInteger(index)) {
                 if (throwException)
@@ -231,10 +237,10 @@
                 return null;
             }
             let foundInstruction = null;
-            this.instructionEach(groupName, function(instruction) {
-                if(instruction.index === index)
+            this.instructionEach(groupName, function (instruction) {
+                if (instruction.index === index)
                     foundInstruction = instruction;
-                if(foundInstruction)
+                if (foundInstruction)
                     return false;
             });
             if (!foundInstruction) {
@@ -421,15 +427,22 @@
 
         /** Song Timing **/
 
-        getSongLengthInSeconds() { return this.getSongLength().inSeconds; }
-        getSongLengthInTicks() { return this.getSongLength().inTicks; }
+        getSongLengthInSeconds() {
+            return this.getSongLength().inSeconds;
+        }
+
+        getSongLengthInTicks() {
+            return this.getSongLength().inTicks;
+        }
+
         getSongLength() {
             return this.getGroupLength(this.rootGroup);
         }
 
         getGroupLength(groupName) {
             const instructionIterator = this.instructionGetIterator(groupName);
-            while (instructionIterator.nextInstruction()) {}
+            while (instructionIterator.nextInstruction()) {
+            }
             return {
                 inSeconds: instructionIterator.groupPlaybackEndTime,
                 inTicks: instructionIterator.groupPositionInTicks
@@ -528,8 +541,8 @@
         }
 
 
-        async init(audioContext=null) {
-            if(audioContext !== null)
+        async init(audioContext = null) {
+            if (audioContext !== null)
                 await this.setAudioContext(audioContext);
             audioContext = audioContext || this.getAudioContext();
             await this.initAllInstruments(audioContext);
@@ -556,19 +569,21 @@
             if (Number.isNaN(songPosition))
                 throw new Error("Invalid start position");
 
-            this.dispatchEvent(new CustomEvent('song:seek', {detail:{
-                position: this.playbackPosition,
-                positionInTicks: this.getSongPositionInTicks(this.playbackPosition),
-            }}));
+            this.dispatchEvent(new CustomEvent('song:seek', {
+                detail: {
+                    position: this.playbackPosition,
+                    positionInTicks: this.getSongPositionInTicks(this.playbackPosition),
+                }
+            }));
 
             // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
             let isPlaying = !!this.playback;
-            if(this.playback) {
+            if (this.playback) {
                 this.playback.stopPlayback();
             }
             this.playbackPosition = songPosition;
 
-            if(isPlaying) {
+            if (isPlaying) {
                 this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
                 this.playback.playGroup()
                     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
@@ -597,7 +612,7 @@
             return false;
         }
 
-        async play(audioContext=null) {
+        async play(audioContext = null) {
             if (this.playback) {
                 this.stopPlayback();
                 this.setPlaybackPosition(0);
@@ -637,10 +652,10 @@
             this.playbackPosition = this.getAudioContext().currentTime - playback.startTime;
             playback.stopPlayback();
 
-            for(let i=0; i<this.playbackEndCallbacks.length; i++)
+            for (let i = 0; i < this.playbackEndCallbacks.length; i++)
                 this.playbackEndCallbacks[i]();
             this.playbackEndCallbacks = [];
-            for(let i=0; i<this.waitCancels.length; i++)
+            for (let i = 0; i < this.waitCancels.length; i++)
                 this.waitCancels[i]();
             this.waitCancels = [];
 
@@ -656,13 +671,13 @@
         }
 
         pause() {
-            if(this.isPaused)
+            if (this.isPaused)
                 throw new Error("Song is already paused");
             this.isPaused = true;
         }
 
         resume() {
-            if(!this.isPaused)
+            if (!this.isPaused)
                 throw new Error("Song is not paused");
             this.isPaused = false;
         }
@@ -757,6 +772,7 @@
                 throw new Error("Invalid BPM");
             return this.replaceDataPath(['beatsPerMinute'], newBPM);
         }
+
         generateName() {
             return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
         }
@@ -836,7 +852,7 @@
 
         async loadInstrumentClass(instrumentClassURL) {
             let scriptElm = document.head.querySelectorAll(`script[src$="${instrumentClassURL}"]`)[0];
-            if(!scriptElm) {
+            if (!scriptElm) {
                 scriptElm = document.createElement('script');
                 scriptElm.src = instrumentClassURL;
                 scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
@@ -845,13 +861,13 @@
                 }));
             }
 
-            for (let i=0; i<scriptElm.promises.length; i++)
+            for (let i = 0; i < scriptElm.promises.length; i++)
                 await scriptElm.promises[i];
             const {instrument} = scriptElm.exports;
 
-            if(!instrument)
+            if (!instrument)
                 throw new Error("Script element does not have '.instrument' attribute: " + instrumentClassURL);
-            if(typeof instrument !== "function")
+            if (typeof instrument !== "function")
                 throw new Error("Script element '.instrument' attribute is not a function: " + instrumentClassURL);
             return instrument;
         }
@@ -863,7 +879,11 @@
             let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
             const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
-            return new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+            const instrument =  new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+            if (typeof instrument.init !== "function")
+                throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+            await instrument.init();
+            return instrument;
         }
 
         async loadInstrument(instrumentID, forceReload = false) {
@@ -903,8 +923,7 @@
 
         async initInstrument(instrumentID, audioContext, throwException = true) {
             const instrument = await this.getInstrument(instrumentID, throwException);
-            if (typeof instrument.init !== "function")
-                throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+            if(!instrument) return;
             await instrument.init(audioContext);
         }
 
@@ -916,7 +935,6 @@
             }
             console.timeEnd('initAllInstruments');
         }
-
 
 
         instrumentAdd(config) {
@@ -1014,7 +1032,6 @@
         instrumentRename(instrumentID, newInstrumentName) {
             return this.instrumentReplaceParam(instrumentID, 'name', newInstrumentName);
         }
-
 
 
         // instrumentReplaceParams(instrumentID, replaceParams) {
@@ -1224,8 +1241,8 @@
     }
 
 
-    AudioSourceSong.loadSongFromMemory = async function(songUUID) {
-        const {AudioSourceStorage} = await requireAsync('common/audio-source-storage.js');
+    AudioSourceSong.loadSongFromMemory = async function (songUUID) {
+        const {AudioSourceStorage} = require('../common/audio-source-storage.js');
         const storage = new AudioSourceStorage();
         const songData = await storage.loadSongFromMemory(songUUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
@@ -1236,9 +1253,9 @@
     };
 
 
-    AudioSourceSong.loadSongFromFileInput = async function(file) {
+    AudioSourceSong.loadSongFromFileInput = async function (file) {
         const library = await AudioSourceSong.getFileSupportModule(file.name);
-        if(typeof library.loadSongDataFromFileInput !== "function")
+        if (typeof library.loadSongDataFromFileInput !== "function")
             throw new Error("Invalid library.loadSongDataFromFileInput method");
         const songData = await library.loadSongDataFromFileInput(file);
         const song = new AudioSourceSong();
@@ -1246,9 +1263,9 @@
         return song;
     };
 
-    AudioSourceSong.loadSongFromURL = async function(src) {
+    AudioSourceSong.loadSongFromURL = async function (src) {
         const library = await AudioSourceSong.getFileSupportModule(src);
-        if(typeof library.loadSongDataFromURL !== "function")
+        if (typeof library.loadSongDataFromURL !== "function")
             throw new Error("Invalid library.loadSongDataFromURL method: " + src);
         const songData = await library.loadSongDataFromURL(src);
         const song = new AudioSourceSong();
@@ -1257,8 +1274,7 @@
     };
 
 
-
-    AudioSourceSong.loadSongFromMIDIFile = async function(file, defaultInstrumentURL = null) {
+    AudioSourceSong.loadSongFromMIDIFile = async function (file, defaultInstrumentURL = null) {
         defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
         const midiSupport = new MIDIImport();
         const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
@@ -1268,25 +1284,25 @@
     };
 
 
-
-    AudioSourceSong.getFileSupportModule = async function(filePath) {
+    AudioSourceSong.getFileSupportModule = async function (filePath) {
+        const AudioSourceLoader = customElements.get('audio-source-loader');
         const fileExt = filePath.split('.').pop().toLowerCase();
         switch (fileExt) {
             case 'mid':
             case 'midi':
-                const {MIDISupport} = await requireAsync('common/support/midi-support.js');
+                const {MIDISupport} = await AudioSourceLoader.requireAsync('../common/support/midi-support.js');
                 return new MIDISupport;
 
             case 'json':
-                const {JSONSupport} = await requireAsync('common/support/json-support.js');
+                const {JSONSupport} = await AudioSourceLoader.requireAsync('../common/support/json-support.js');
                 return new JSONSupport;
 
             case 'spc':
-                const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
+                const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
                 return new LibGMESupport;
 
             case 'mp3':
-                const {MP3Support} = await requireAsync('common/support/mp3-support.js');
+                const {MP3Support} = await AudioSourceLoader.requireAsync('../common/support/mp3-support.js');
                 return new MP3Support;
 
             default:
@@ -1350,7 +1366,7 @@
             }
 
             let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
-            if(this.isActive && this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
+            if (this.isActive && this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
                 // Wait for notes to finish
                 const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
                 await this.wait(waitTime);
@@ -1378,7 +1394,7 @@
 
 
         stopPlayback(stopInstruments = true) {
-            if(this.stopPlaybackCallback) {
+            if (this.stopPlaybackCallback) {
                 this.stopPlaybackCallback();
                 this.stopPlaybackCallback = null;
             }
@@ -1412,7 +1428,7 @@
                 throw new Error("Playback is not active");
 
             const instructionList = this.iterator.nextInstructionRow();
-            if(!instructionList)
+            if (!instructionList)
                 return false;
 
 
@@ -1551,10 +1567,10 @@
         // }
 
         currentInstruction() {
-            if(this.groupIndex === -1)
+            if (this.groupIndex === -1)
                 return null;
             const data = this.instructionList[this.groupIndex];
-            if(!data)
+            if (!data)
                 return null;
             const instruction = new SongInstruction(data);
             instruction.index = this.groupIndex;
@@ -1577,9 +1593,9 @@
         }
 
         nextInstruction() {
-            if (this.groupIndex >= this.instructionList.length) 
+            if (this.groupIndex >= this.instructionList.length)
                 return null;
-            
+
             this.groupIndex++;
             let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.groupIndex]);
             if (currentInstruction) {
@@ -1640,7 +1656,7 @@
         }
 
         // TODO: refactor
-        nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks=null, conditionalCallback = null) {
+        nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks = null, conditionalCallback = null) {
             if (!quantizationInTicks)
                 throw new Error("Invalid Quantization value: " + typeof quantizationInTicks);
             let nextInstruction = this.scanAheadInstruction();
@@ -1649,12 +1665,12 @@
 
             if (!nextInstruction) {
                 // If we found end of the group, we're done, but first, check if we need to render more quantized rows
-                if((this.groupPositionInTicks < maxLengthInTicks)) { //
+                if ((this.groupPositionInTicks < maxLengthInTicks)) { //
                     this._incrementTo(this.nextQuantizationBreakInTicks);
                     this.nextQuantizationBreakInTicks += quantizationInTicks;
                     return [];
                 }
-                if(this.nextInstruction()) // Forward to the end of the array
+                if (this.nextInstruction()) // Forward to the end of the array
                     throw new Error("Shouldn't be a next instruction");
                 // If we're truly at the end of all things, then return null
                 return null;
@@ -1662,7 +1678,7 @@
 
             // Calculate the next instruction position
             let nextInstructionPositionInTicks = nextInstruction.positionInTicks; // this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
-            if(nextInstructionPositionInTicks > maxLengthInTicks)
+            if (nextInstructionPositionInTicks > maxLengthInTicks)
                 maxLengthInTicks = nextInstructionPositionInTicks;
 
             // Skip quantization if equal to current position
@@ -1679,7 +1695,7 @@
                 return [];
             }
 
-            return  this.nextInstructionRow(conditionalCallback);
+            return this.nextInstructionRow(conditionalCallback);
         }
 
         _incrementPositionBy(deltaDuration, instructionDuration) {
@@ -1695,10 +1711,10 @@
 
             instructionDuration = instructionDuration || 0;
             const groupEndPositionInTicks = this.groupPositionInTicks + instructionDuration;
-            if(groupEndPositionInTicks > this.groupEndPositionInTicks)
+            if (groupEndPositionInTicks > this.groupEndPositionInTicks)
                 this.groupEndPositionInTicks = groupEndPositionInTicks;
             const groupPlaybackEndTime = this.groupPlaybackTime + (instructionDuration / this.song.timeDivision) / (this.currentBPM / 60);
-            if(groupPlaybackEndTime > this.groupPlaybackEndTime)
+            if (groupPlaybackEndTime > this.groupPlaybackEndTime)
                 this.groupPlaybackEndTime = groupPlaybackEndTime;
         }
 
@@ -1873,50 +1889,13 @@
     }
 
 
-
-
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
+    const thisScriptPath = 'common/audio-source-song.js';
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceSong,
+        AudioSourceInstructionIterator,
+        AudioSourceInstructionPlayback,
+        SongInstruction,
+    };
 }

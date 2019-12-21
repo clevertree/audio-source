@@ -1,21 +1,11 @@
-(async function() {
+{
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'instrument/chip/spc-player-synthesizer.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            instrument: SPCPlayerSynthesizer,
-            SPCPlayerSynthesizer
-        };
-    }
-
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
 
-
-    const {LibGMESupport} = await requireAsync('common/support/libgme-support.js');
-    const {AudioSourceFileService} = await requireAsync('common/audio-source-file-service.js');
+    const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
 
     class SPCPlayerSynthesizer {
 
@@ -31,15 +21,12 @@
             this.config = config || {};
             this.spcPlayers = [];
             this.spcBuffer = null;
-
-            if(this.config.spcURL)
-                this.loadBuffer();
         }
 
         async loadBuffer() {
             if(!this.spcBuffer) {
                 const spcURL = this.config.spcURL;
-                const service = new AudioSourceFileService();
+                const service = new AudioSourceFileService(this.song);
                 this.spcBuffer = service.loadBufferFromURL(spcURL);
             }
             if(this.spcBuffer instanceof Promise)
@@ -48,6 +35,8 @@
         }
 
         async loadSPCPlayer(destination) {
+            const AudioSourceLoader = customElements.get('audio-source-loader');
+            const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
             const libGMESupport = new LibGMESupport();
             const buffer = await this.loadBuffer();
             return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file', {
@@ -57,11 +46,16 @@
 
         /** Initializing Audio **/
 
-        async init(audioContext) {
-            this.audioContext = audioContext;
-            const libGMESupport = new LibGMESupport();
-            await libGMESupport.init(audioContext);
-            if(this.config.spcURL)
+        async init(audioContext=null) {
+
+            if(audioContext) {
+                this.audioContext = audioContext;
+                const AudioSourceLoader = customElements.get('audio-source-loader');
+                const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
+                const libGMESupport = new LibGMESupport();
+                await libGMESupport.init(audioContext);
+            }
+            if (this.config.spcURL)
                 await this.loadBuffer();
             console.info("SPC Player initialized");
         }
@@ -263,68 +257,15 @@
 
 
     function getScriptDirectory(appendPath = '') {
-        const scriptElm = findThisScript()[0];
-        // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-        return scriptElm.basePath + appendPath;
+        const AudioSourceLoader = customElements.get('audio-source-loader')
+        return AudioSourceLoader.resolveURL(appendPath);
     }
-
-
 
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-
-})();
+    const thisScriptPath = 'instrument/chip/spc-player-synthesizer.js';
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        instrument: SPCPlayerSynthesizer,
+        SPCPlayerSynthesizer
+    };
+}

@@ -1,20 +1,13 @@
-(async function() {
+{
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'instrument/audio-source-synthesizer.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            instrument: AudioSourceSynthesizer,
-            AudioSourceSynthesizer
-        };
-    };
-    
-    /** Register This Async Module **/
-    const resolveExports = registerAsyncModule();
+    /** Required Modules **/
+    let AudioSourceLoader = typeof document !== 'undefined' ? customElements.get('audio-source-loader') : null;
+    if(typeof window !== "undefined")
+        window.require = AudioSourceLoader.require;
 
 
-    const {AudioSourceLibrary} = await requireAsync('common/audio-source-library.js');
-    const {AudioSourceValues} = await requireAsync('common/audio-source-values.js');
+    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
+    const {AudioSourceValues} = require('../common/audio-source-values.js');
     const {
         ASUIComponent,
         ASUIDiv,
@@ -29,7 +22,7 @@
         ASUIInputCheckBox,
         ASUIInputText,
         ASUIcon,
-    } = await requireAsync('common/audio-source-ui.js');
+    } = require('../common/audio-source-ui.js');
 
 
 
@@ -57,7 +50,6 @@
             this.values = new AudioSourceValues(this.song);
 
             this.sampleLibrary = this.loadSampleLibrary();
-            this.loadConfig(this.state.config); //TODO: get
 
             // this.loadDefaultSampleLibrary()
             //     .then(e => this.render());
@@ -77,6 +69,101 @@
         // get instrumentID() {
         //     return this.getAttribute('data-id');
         // }
+
+
+        /** Initializing Audio **/
+
+
+        async init(audioContext=null) {
+            await this.loadConfig(this.state.config);
+            if(audioContext) {
+                this.audioContext = audioContext;
+                for (let sampleID = 0; sampleID < this.samples.length; sampleID++) {
+                    await this.initSample(audioContext, sampleID);
+                }
+            }
+        }
+
+        // instruments receive audioContext only after user gesture
+        async initSample(audioContext, sampleID) {
+            const sampleConfig = this.state.config.samples[sampleID];
+            let sampleURL = sampleConfig.url;
+            if (!sampleURL)
+                throw new Error("Sample config is missing url");
+
+            if (typeof this.samples[sampleID] !== "undefined")
+                console.warn("Sample is already loaded: " + sampleID);
+
+            const sampleData = {};
+
+            const ext = getFileExtension(sampleURL).toLowerCase();
+            switch (ext) {
+                case '':
+                case 'wav':
+                    sampleData.buffer = await this.initAudioSample(audioContext, sampleURL);
+                    break;
+
+                case 'json':
+                    sampleData.periodicWave = await this.initAudioSample(audioContext, sampleURL);
+                    break;
+                default:
+                    reject("Unknown extension: " + ext);
+            }
+
+            this.samples[sampleID] = sampleData;
+        }
+
+        async initAudioSample(audioContext, sampleURL) {
+            sampleURL = new URL(sampleURL, document.location) + '';
+
+            let sampleData = await this.loadAudioSampleData(sampleURL, false);
+            let audioBuffer;
+
+            console.info("Loading Initiated: ", sampleURL);
+            const ext = getFileExtension(sampleURL).toLowerCase();
+            switch (ext) {
+                // default:
+                case '':
+                case 'wav':
+                    // sampleCache.buffer = await audioContext.decodeAudioData(audioData);
+                    audioBuffer = await new Promise((resolve, reject) => {
+                        audioContext.decodeAudioData(sampleData, // Safari does not support await for decodeAudioData
+                            (buffer) => {
+                                resolve(buffer);
+                            },
+
+                            (e) => {
+                                reject("Error with decoding audio data" + e.error);
+                            }
+                        );
+                    });
+                    break;
+
+                case 'json':
+                    if (!sampleData.real || !sampleData.imag)
+                        throw new Error("Invalid JSON for periodic wave");
+
+                    audioBuffer = audioContext.createPeriodicWave(
+                        new Float32Array(sampleData.real),
+                        new Float32Array(sampleData.imag)
+                    );
+                    break;
+                default:
+                    throw new Error("Unknown extension: " + ext);
+            }
+
+            console.info("Sample Initiated: ", sampleURL);
+            return audioBuffer;
+        }
+
+
+        updateActive() {
+            const active = this.activeSources.length > 0;
+            // console.info('active', active, this.activeSources);
+            if(this.props.active !== active)
+                this.setProps({active});
+        }
+
 
         async render() {
 
@@ -356,97 +443,6 @@
         isSampleLoaded(sampleID) {
             return typeof this.samples[sampleID] !== 'undefined';
         }
-
-        /** Initializing Audio **/
-
-
-        async init(audioContext) {
-            this.audioContext = audioContext;
-            for (let sampleID = 0; sampleID < this.samples.length; sampleID++) {
-                await this.initSample(audioContext, sampleID);
-            }
-        }
-
-        // instruments receive audioContext only after user gesture
-        async initSample(audioContext, sampleID) {
-            const sampleConfig = this.state.config.samples[sampleID];
-            let sampleURL = sampleConfig.url;
-            if (!sampleURL)
-                throw new Error("Sample config is missing url");
-
-            if (typeof this.samples[sampleID] !== "undefined")
-                console.warn("Sample is already loaded: " + sampleID);
-
-            const sampleData = {};
-
-            const ext = getFileExtension(sampleURL).toLowerCase();
-            switch (ext) {
-                case '':
-                case 'wav':
-                    sampleData.buffer = await this.initAudioSample(audioContext, sampleURL);
-                    break;
-
-                case 'json':
-                    sampleData.periodicWave = await this.initAudioSample(audioContext, sampleURL);
-                    break;
-                default:
-                    reject("Unknown extension: " + ext);
-            }
-
-            this.samples[sampleID] = sampleData;
-        }
-
-        async initAudioSample(audioContext, sampleURL) {
-            sampleURL = new URL(sampleURL, document.location) + '';
-
-            let sampleData = await this.loadAudioSampleData(sampleURL, false);
-            let audioBuffer;
-
-            console.info("Loading Initiated: ", sampleURL);
-            const ext = getFileExtension(sampleURL).toLowerCase();
-            switch (ext) {
-                // default:
-                case '':
-                case 'wav':
-                    // sampleCache.buffer = await audioContext.decodeAudioData(audioData);
-                    audioBuffer = await new Promise((resolve, reject) => {
-                        audioContext.decodeAudioData(sampleData, // Safari does not support await for decodeAudioData
-                            (buffer) => {
-                                resolve(buffer);
-                            },
-
-                            (e) => {
-                                reject("Error with decoding audio data" + e.error);
-                            }
-                        );
-                    });
-                    break;
-
-                case 'json':
-                    if (!sampleData.real || !sampleData.imag)
-                        throw new Error("Invalid JSON for periodic wave");
-
-                    audioBuffer = audioContext.createPeriodicWave(
-                        new Float32Array(sampleData.real),
-                        new Float32Array(sampleData.imag)
-                    );
-                    break;
-                default:
-                    throw new Error("Unknown extension: " + ext);
-            }
-
-            console.info("Sample Initiated: ", sampleURL);
-            return audioBuffer;
-        }
-
-
-        updateActive() {
-            const active = this.activeSources.length > 0;
-            // console.info('active', active, this.activeSources);
-            if(this.props.active !== active)
-                this.setProps({active});
-        }
-
         /** Playback **/
 
         async playPeriodicWave(destination, periodicWave, frequency, startTime = null, duration = null, velocity = null, detune = null, adsr = null) {
@@ -803,21 +799,8 @@
 
 
         appendCSS() {
-            const rootElm = this.getRootNode() || document;
-
-            // Append Instrument CSS
-            const PATH = 'instrument/audio-source-synthesizer.css';
-            const linkHRef = getScriptDirectory(PATH);
-//             console.log(rootElm);
-            let linkElms = rootElm.querySelectorAll('link');
-            for(let i=0; i<linkElms.length; i++) {
-                if(linkElms[i].href.endsWith(PATH))
-                    return;
-            }
-            const linkElm = document.createElement('link');
-            linkElm.setAttribute('rel', 'stylesheet');
-            linkElm.setAttribute('href', linkHRef);
-            rootElm.insertBefore(linkElm, rootElm.firstChild);
+            const PATH = '../instrument/audio-source-synthesizer.css';
+            AudioSourceLoader.appendCSS(PATH, this.getRootNode());
         }
 
     }
@@ -843,66 +826,15 @@
     }
 
     function getScriptDirectory(appendPath = '') {
-        const scriptElm = findThisScript()[0];
-        // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-        return scriptElm.basePath + appendPath;
+        return AudioSourceLoader.resolveURL(appendPath);
     }
-
 
 
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Finish Registering Async Module **/
-    resolveExports();
-
-
-    /** Module Loader Methods **/
-    function registerAsyncModule() {
-        let resolve;
-        const promise = new Promise((r) => resolve = r);
-        registerModule(module => {
-            module.promises = (module.promises || []).concat(promise);
-        });
-        return resolve;
-    }
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
-})();
+    const thisScriptPath = 'instrument/audio-source-synthesizer.js';
+    let thisModule = typeof document !== 'undefined' ? AudioSourceLoader.findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        instrument: AudioSourceSynthesizer,
+        AudioSourceSynthesizer
+    };
+}

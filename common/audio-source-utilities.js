@@ -1,12 +1,8 @@
 {
+    /** Required Modules **/
+    if(typeof window !== "undefined")
+        window.require = customElements.get('audio-source-loader').require;
 
-    /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/audio-source-utilities.js'; }
-    const exportThisScript = function(module) {
-        module.exports = {
-            AudioSourceUtilities,
-        };
-    }
 
     class AudioSourceUtilities {
         constructor() {
@@ -16,14 +12,14 @@
         get sources() {
             return {
                 'MidiParser': [
-                    this.getScriptDirectory('assets/3rdparty/MidiParser/main.js'),
+                    this.getScriptDirectory('../assets/3rdparty/MidiParser/main.js'),
                     'https://cdn.jsdelivr.net/gh/colxi/midi-parser-js/src/main.js'
                 ],
                 'MIDIFile': [
-                    this.getScriptDirectory('assets/3rdparty/MIDIFile/MIDIFile.min.js')
+                    this.getScriptDirectory('../assets/3rdparty/MIDIFile/MIDIFile.min.js')
                 ],
                 'LZString': [
-                    this.getScriptDirectory('assets/3rdparty/LZString/lz-string.min.js'),
+                    this.getScriptDirectory('../assets/3rdparty/LZString/lz-string.min.js'),
                     'https://cdn.jsdelivr.net/gh/pieroxy/lz-string/libs/lz-string.min.js'
                 ]
             }
@@ -69,7 +65,8 @@
         /** Package Info **/
 
         async loadPackageInfo(force=false) {
-            const url = this.getScriptDirectory('package.json');
+            const AudioSourceLoader = customElements.get('audio-source-loader')
+            const url = AudioSourceLoader.resolveURL('../package.json');
 
             let packageInfo = AudioSourceUtilities.packageInfo;
             if (!force && packageInfo)
@@ -91,10 +88,8 @@
 
 
         getScriptDirectory(appendPath='', selector=null) {
-            const scriptElm = findThisScript()[0];
-            // const basePath = scriptElm.src.split('/').slice(0, -2).join('/') + '/';
-    //         console.log("Base Path: ", basePath);
-            return scriptElm.basePath + appendPath;
+            const AudioSourceLoader = customElements.get('audio-source-loader');
+            return AudioSourceLoader.resolveURL(appendPath);
         }
 
         async loadScript(src) {
@@ -169,7 +164,7 @@
         }
 
         async requireAsync(relativeScriptPath) {
-            return await requireAsync(relativeScriptPath);
+            return require(relativeScriptPath);
         }
 
     }
@@ -180,48 +175,11 @@
 
 
     /** Export this script **/
-    registerModule(exportThisScript);
-
-    /** Module Loader Methods **/
-    function registerModule(callback) {
-        if(typeof window === 'undefined')
-            callback(module);
-        else findThisScript()
-            .forEach(scriptElm => callback(scriptElm))
-    }
-
-    function findThisScript() {
-        return findScript(getThisScriptPath());
-    }
-
-    function findScript(scriptURL) {
-        let scriptElms = document.head.querySelectorAll(`script[src$="${scriptURL}"]`);
-        scriptElms.forEach(scriptElm => {
-            scriptElm.relativePath = scriptURL;
-            scriptElm.basePath = scriptElm.src.replace(document.location.origin, '').replace(scriptURL, '');
-        });
-        return scriptElms;
-    }
-
-    async function requireAsync(relativeScriptPath) {
-        if(typeof require !== "undefined")
-            return require('../' + relativeScriptPath);
-
-        let scriptElm = findScript(relativeScriptPath)[0];
-        if(!scriptElm) {
-            const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-        for (let i=0; i<scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-    }
+    const thisScriptPath = 'common/audio-source-utilities.js';
+    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+    thisModule.exports = {
+        AudioSourceUtilities,
+    };
 
 }
 
