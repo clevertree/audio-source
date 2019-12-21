@@ -1244,5 +1244,6 @@
     thisModule.exports = {
         AudioSourceComposerTracker,
         AudioSourceComposerTrackerInstruction,
+        AudioSourceComposerTrackerRow
     };
 }

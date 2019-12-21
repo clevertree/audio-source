@@ -879,7 +879,11 @@
             let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
             const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
-            return new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+            const instrument =  new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+            if (typeof instrument.init !== "function")
+                throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+            await instrument.init();
+            return instrument;
         }
 
         async loadInstrument(instrumentID, forceReload = false) {
@@ -919,8 +923,7 @@
 
         async initInstrument(instrumentID, audioContext, throwException = true) {
             const instrument = await this.getInstrument(instrumentID, throwException);
-            if (typeof instrument.init !== "function")
-                throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+            if(!instrument) return;
             await instrument.init(audioContext);
         }
 

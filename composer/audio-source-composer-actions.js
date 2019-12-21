@@ -9,7 +9,8 @@
     const {AudioSourceComposerRenderer}     = require('../composer/audio-source-composer-renderer.js');
     const {
         AudioSourceTracker,
-        AudioSourceComposerTrackerInstruction
+        AudioSourceComposerTrackerInstruction,
+        AudioSourceComposerTrackerRow
     } = require('../composer/audio-source-composer-tracker.js');
     const {AudioSourceStorage}              = require('../common/audio-source-storage.js');
     // const {AudioSourceUtilities}        = require('../common/audio-source-utilities.js');
@@ -74,7 +75,7 @@
             let songData = storage.generateDefaultSong(defaultInstrumentURL);
             await this.song.loadSongData(songData);
             await this.renderOS();
-            this.setStatus("Loaded new song", songData);
+            await this.setStatus("Loaded new song", songData);
         }
 
 
@@ -82,7 +83,7 @@
             const storage = new AudioSourceStorage();
             let songRecentUUIDs = await storage.getRecentSongList();
             if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
-                this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
+                await this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
                 await this.loadSongFromMemory(songRecentUUIDs[0].uuid);
                 return true;
             }
@@ -93,7 +94,7 @@
         async loadSongFromMemory(songUUID) {
             const song = await AudioSourceSong.loadSongFromMemory(songUUID);
             await this.setCurrentSong(song);
-            this.setStatus("Song loaded from memory: " + songUUID, this.song);
+            await this.setStatus("Song loaded from memory: " + songUUID, this.song);
 //         console.info(songData);
         }
 
@@ -112,7 +113,7 @@
         async loadSongFromURL(url) {
             const song = await AudioSourceSong.loadSongFromURL(url);
             await this.setCurrentSong(song);
-            this.setStatus("Loaded from url: " + url);
+            await this.setStatus("Loaded from url: " + url);
         }
 
         async saveSongToMemory() {
@@ -120,16 +121,16 @@
             const songData = song.data;
             const songHistory = song.history;
             const storage = new AudioSourceStorage();
-            this.setStatus("Saving song to memory...");
+            await this.setStatus("Saving song to memory...");
             await storage.saveSongToMemory(songData, songHistory);
-            this.setStatus("Saved song to memory: " + songData.uuid);
+            await this.setStatus("Saved song to memory: " + songData.uuid);
         }
 
-        saveSongToFile() {
+        async saveSongToFile() {
             const songData = this.song.data;
             // const songHistory = this.song.history;
             const storage = new AudioSourceStorage();
-            this.setStatus("Saving song to file");
+            await this.setStatus("Saving song to file");
             storage.saveSongToFile(songData);
         }
 
@@ -137,7 +138,7 @@
 //         async loadSongFromMemory(songUUID) {
 //             await this.song.loadSongFromMemory(songUUID);
 //             await this.renderOS();
-//             this.setStatus("Song loaded from memory: " + songUUID);
+//             await this.setStatus("Song loaded from memory: " + songUUID);
 // //         console.info(songData);
 //         }
 //
@@ -150,7 +151,7 @@
 //             const file = fileInput.files[0];
 //             await this.song.loadSongFromFileInput(file);
 //             await this.renderOS();
-//             this.setStatus("Song loaded from file: ", file);
+//             await this.setStatus("Song loaded from file: ", file);
 //         }
 //
 //
@@ -159,7 +160,7 @@
 //             if (promptUser)
 //                 url = prompt("Enter a Song URL:", url || 'https://mysite.com/songs/mysong.json');
 //             await this.song.loadSongFromURL(url);
-//             this.setStatus("Song loaded from url: " + url);
+//             await this.setStatus("Song loaded from url: " + url);
 //             // console.info(this.song.data);
 //             await this.renderOS();
 //         }
@@ -167,7 +168,7 @@
 //         async loadSongFromData(songData) {
 //             await this.song.loadSongData(songData);
 //             // this.render(true);
-//             this.setStatus("Song loaded from data", songData);
+//             await this.setStatus("Song loaded from data", songData);
 //             await this.renderOS();
 //         }
 
@@ -188,7 +189,7 @@
             this.song.setPlaybackPositionInTicks(0);
         }
 
-        setSongPosition(e, playbackPosition = null) {
+        setSongPosition(playbackPosition = null) {
             // const wasPlaying = !!this.song.playback;
             // if (wasPlaying)
             //     this.song.stopPlayback();
@@ -404,17 +405,19 @@
 
         async setCursor(newCursor, clearSelection = null, toggleValue = null) {
             await this.trackerElm.setCursorElement(newCursor);
-            if (newCursor instanceof AudioSourceComposerTrackerInstruction)
-                await this.selectIndex(newCursor.index, clearSelection, toggleValue);
-            else if (clearSelection)
-                this.clearSelectedIndicies();
 
             if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
+                await this.selectIndex(newCursor.index, clearSelection, toggleValue);
                 const instruction = newCursor.instructionFind(this.song, this.trackerElm.groupName);
                 this.refs.fieldInstructionCommand.value = instruction.command;
                 this.refs.fieldInstructionInstrument.value = instruction.instrument;
                 this.refs.fieldInstructionVelocity.value = instruction.velocity;
                 this.refs.fieldInstructionDuration.value = instruction.duration;
+            } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
+                await this.setSongPosition(newCursor.positionInSeconds);
+                if (clearSelection)
+                    this.clearSelectedIndicies();
+
             }
 
             this.playCursorInstruction();
@@ -603,7 +606,7 @@
 //         e.target.form.elements['instrumentURL'].value = '';
             if (confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
                 const instrumentID = this.song.instrumentAdd(instrumentConfig);
-                this.setStatus("New instrument Added to song: " + instrumentURL);
+                await this.setStatus("New instrument Added to song: " + instrumentURL);
                 this.refs.fieldInstructionInstrument.setValue(instrumentID);
                 await this.refs.panelInstruments.renderOS();
 
@@ -623,7 +626,7 @@
             if (confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
                 await this.song.instrumentReplace(instrumentID, instrumentConfig);
                 await this.song.loadInstrument(instrumentID, true);
-                this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
+                await this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
                 this.refs.fieldInstructionInstrument.setValue(instrumentID);
 
             } else {

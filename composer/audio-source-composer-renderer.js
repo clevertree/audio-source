@@ -115,7 +115,7 @@
 
                             new ASCForm('timing', 'Timing', () => [
                                 this.refs.fieldSongTiming = new ASUIInputText('timing',
-                                    (e, pos) => this.setSongPosition(e, pos),
+                                    (e, pos) => this.setSongPosition(pos),
                                     '00:00:000',
                                     'Song Timing',
                                 )
@@ -123,7 +123,7 @@
 
                             new ASCForm('position', 'Position', () => [
                                 this.refs.fieldSongPosition = new ASUIInputRange('position',
-                                    (e, pos) => this.setSongPosition(e, pos),
+                                    (e, pos) => this.setSongPosition(pos),
                                     0,
                                     Math.ceil(this.song.getSongLengthInSeconds()),
                                     'Song Position',
@@ -384,8 +384,10 @@
         }
 
 
-        setStatus(newStatus) {
-            this.refs.textStatus.content = newStatus;
+        async setStatus(newStatus) {
+            if(newStatus.length > 64)
+                newStatus = newStatus.substr(0, 64) + '...';
+            await this.refs.textStatus.setContent(newStatus);
             console.info.apply(null, arguments); // (newStatus);
         }
 

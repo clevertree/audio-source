@@ -87,8 +87,10 @@
             // if(this.webSocket)
         }
 
-        setStatus(newStatus) {
-            this.refs.textStatus.content = newStatus;
+        async setStatus(newStatus) {
+            if(newStatus.length > 64)
+                newStatus = newStatus.substr(0, 64) + '...';
+            await this.refs.textStatus.setContent(newStatus);
             console.info.apply(null, arguments); // (newStatus);
         }
 
@@ -150,6 +152,10 @@
         async onSongEvent(e) {
             // console.log(e.type, e);
             switch(e.type) {
+                case 'log':
+                    await this.setStatus(e.detail);
+                    break;
+
                 case 'song:seek':
                     this.updateSongPositionValue(e.detail.position);
 

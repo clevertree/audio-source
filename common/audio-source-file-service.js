@@ -19,10 +19,18 @@
     ];
 
     class AudioSourceFileService {
-        constructor() {
+        constructor(song) {
+            this.song = song;
+        }
+
+        log(message) {
+            if(this.song) {
+                this.song.dispatchEvent(new CustomEvent('log', {detail: message}))
+            }
         }
 
         async loadBufferFromURL(url) {
+            this.log("Loading buffer from url: " + url);
             if(url.toString().startsWith('torrent://')) {
                 console.time('getFileBufferFromTorrent');
                 const buffer = await this.getFileBufferFromTorrent(url);
@@ -115,7 +123,7 @@
             var client = new WebTorrent();
 
             torrentCache[torrentID] = new Promise((resolve, reject) => {
-                console.log("Connecting to " + magnetURL);
+                this.log("Connecting to cloud url: " + magnetURL);
                 client.add(magnetURL, function (torrent) {
                     // Got torrent metadata!
                     resolve(torrent);
@@ -123,7 +131,7 @@
             });
             torrentCache[torrentID] = await torrentCache[torrentID];
             const torrent = torrentCache[torrentID];
-            console.log('Client is downloading:', torrent.infoHash);
+            this.log("Connected to cloud: " + torrent.infoHash);
             return torrent;
         }
 

@@ -93,7 +93,8 @@
             this.addEventHandler([
                 'song:loaded', 'song:play', 'song:end', 'song:stop', 'song:modified', 'song:seek',
                 'group:play', 'group:seek',
-                'note:start', 'note:end'
+                'note:start', 'note:end',
+                'log'
             ], this.onSongEvent);
             this.addEventHandler([
                     'instrument:instance',
@@ -287,6 +288,9 @@
             if (this.trackerElm)
                 this.trackerElm.onSongEvent(e);
             switch (e.type) {
+                case 'log':
+                    this.setStatus(e.detail);
+                    break;
                 case 'song:seek':
                     this.updateSongPositionValue(e.detail.position);
 

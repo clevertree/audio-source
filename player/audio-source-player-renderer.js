@@ -50,7 +50,8 @@
             this.addEventHandler([
                 'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
                 'group:play', 'group:seek',
-                'note:start', 'note:end'
+                'note:start', 'note:end',
+                'log'
             ], this.onSongEvent);
             // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
@@ -142,7 +143,7 @@
 
                             new ASPForm('timing', 'Timing', () => [
                                 this.refs.fieldSongTiming = new ASUIInputText('timing',
-                                    (e, pos) => this.setSongPosition(e, pos),
+                                    (e, pos) => this.setSongPosition(pos),
                                     '00:00:000',
                                     'Song Timing',
                                 )
@@ -150,7 +151,7 @@
 
                             new ASPForm('position', 'Position', () => [
                                 this.refs.fieldSongPosition = new ASUIInputRange('position',
-                                    (e, pos) => this.setSongPosition(e, pos),
+                                    (e, pos) => this.setSongPosition(pos),
                                     0,
                                     Math.ceil(this.state.songLength),
                                     0,

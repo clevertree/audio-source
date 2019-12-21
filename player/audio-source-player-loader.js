@@ -5,6 +5,24 @@
             super();
         }
 
+        /** Append Instrument CSS */
+        static appendCSS(cssPath, destination=null) {
+            destination = destination || document.head;
+
+            const linkHRef = AudioSourceLoader.resolveURL(cssPath);
+            let linkElms = destination.querySelectorAll('link');
+            for(let i=0; i<linkElms.length; i++) {
+                if(linkElms[i].href.endsWith(linkHRef))
+                    return;
+            }
+            const linkElm = document.createElement('link');
+            linkElm.setAttribute('rel', 'stylesheet');
+            linkElm.setAttribute('href', linkHRef);
+            destination.insertBefore(linkElm, destination.firstChild);
+            return linkElm;
+        }
+
+
         static require(relativeScriptPath) {
             let scriptElm = AudioSourceLoader.findScript(relativeScriptPath);
             // console.info('require', relativeScriptPath, scriptElm.exports);
@@ -15,7 +33,7 @@
         }
 
         static resolveURL(relativeScriptURL) {
-            if (relativeScriptURL.startsWith('../')) {
+            if (typeof relativeScriptURL === "string" && relativeScriptURL.startsWith('../')) {
                 relativeScriptURL = new URL(basePathURL + relativeScriptURL, document.location) + ''
             }
             return relativeScriptURL;
@@ -31,6 +49,7 @@
 
         static getBasePath() { return basePathURL; }
     }
+
     AudioSourceLoader.requireAsync = async function(relativeScriptURL) {
         let scriptElm = AudioSourceLoader.findScript(relativeScriptURL, false);
         if(!scriptElm) {

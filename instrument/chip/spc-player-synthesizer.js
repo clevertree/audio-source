@@ -21,15 +21,12 @@
             this.config = config || {};
             this.spcPlayers = [];
             this.spcBuffer = null;
-
-            if(this.config.spcURL)
-                this.loadBuffer();
         }
 
         async loadBuffer() {
             if(!this.spcBuffer) {
                 const spcURL = this.config.spcURL;
-                const service = new AudioSourceFileService();
+                const service = new AudioSourceFileService(this.song);
                 this.spcBuffer = service.loadBufferFromURL(spcURL);
             }
             if(this.spcBuffer instanceof Promise)
@@ -49,13 +46,16 @@
 
         /** Initializing Audio **/
 
-        async init(audioContext) {
-            this.audioContext = audioContext;
-            const AudioSourceLoader = customElements.get('audio-source-loader');
-            const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
-            const libGMESupport = new LibGMESupport();
-            await libGMESupport.init(audioContext);
-            if(this.config.spcURL)
+        async init(audioContext=null) {
+
+            if(audioContext) {
+                this.audioContext = audioContext;
+                const AudioSourceLoader = customElements.get('audio-source-loader');
+                const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
+                const libGMESupport = new LibGMESupport();
+                await libGMESupport.init(audioContext);
+            }
+            if (this.config.spcURL)
                 await this.loadBuffer();
             console.info("SPC Player initialized");
         }
