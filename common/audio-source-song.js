@@ -14,7 +14,7 @@
         constructor() {
             this.dispatchElements = [];
 
-            this.audioContext = null;
+            // this.audioContext = null;
             this.instruments = [];
 
             // this.seekLength = 0.5;
@@ -23,7 +23,7 @@
             this.isPaused = false;
 
             this.volumeGain = null;
-            this.volume = 70;
+            this.volume = AudioSourceSong.DEFAULT_VOLUME;
 
             this.activeGroups = {};
 
@@ -110,40 +110,82 @@
 
         /** Rendering Volume **/
 
-        getVolumeGain() {
-            if (!this.volumeGain) {
-                const context = this.getAudioContext();
-                let gain = context.createGain();
-                gain.gain.value = this.volume / 100; // AudioSourceSong.DEFAULT_VOLUME;
-                gain.connect(context.destination);
-                this.volumeGain = gain;
-            }
-            return this.volumeGain;
-        }
+        // getVolumeGain() {
+        //     if (!this.volumeGain) {
+        //         const context = this.getAudioContext();
+        //         let gain = context.createGain();
+        //         gain.gain.value = this.volume; // AudioSourceSong.DEFAULT_VOLUME;
+        //         gain.connect(context.destination);
+        //         this.volumeGain = gain;
+        //     }
+        //     return this.volumeGain;
+        // }
 
         /** @deprecated **/
-        getVolumeValue() {
-            return this.volume; // this.volumeGain ? this.volumeGain.gain.value * 100 : AudioSourceSong.DEFAULT_VOLUME * 100;
+        // getVolumeValue() {
+        //     return this.volume; // this.volumeGain ? this.volumeGain.gain.value * 100 : AudioSourceSong.DEFAULT_VOLUME * 100;
+        // }
+
+        // setVolume(volume) {
+        //     if (typeof volume !== "number")
+        //         throw new Error("Invalid volume");
+        //     console.info("Setting volume: ", volume);
+        //     this.volume = volume;
+        //     if (this.audioContext) {
+        //         const gain = this.getVolumeGain();
+        //         gain.gain.value = volume;
+        //     }
+        //     this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
+        // }
+
+        /** Context **/
+
+        // setAudioContext(audioContext) {
+        //     if (audioContext.state === 'suspended')
+        //         audioContext.resume();
+        //     this.audioContext = audioContext;
+        // }
+        //
+        // getAudioContext() {
+        //     if (this.audioContext)
+        //         return this.audioContext;
+        //
+        //     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        //     this.setAudioContext(audioContext);
+        //     return audioContext;
+        // }
+
+        /** Initialization **/
+
+
+        async init(audioContext = null) {
+            // if (audioContext !== null)
+            //     await this.setAudioContext(audioContext);
+            await this.loadAllInstruments(true);
+            if(audioContext !== null)
+                await this.initAllInstruments(audioContext);
         }
 
-        setVolume(volume) {
-            if (typeof volume !== "number")
-                throw new Error("Invalid volume");
-            console.info("Setting volume: ", volume);
-            this.volume = volume;
-            if (this.audioContext) {
-                const gain = this.getVolumeGain();
-                gain.gain.value = volume / 100;
+        async initInstrument(instrumentID, audioContext, throwException = true) {
+            const instrument = await this.getInstrument(instrumentID, throwException);
+            if(!instrument) return;
+            await instrument.init(audioContext);
+        }
+
+        /** @todo combine with loadAllInstruments **/
+        async initAllInstruments(audioContext) {
+            console.time('initAllInstruments');
+            const instrumentList = this.getInstrumentList();
+            for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
+                await this.initInstrument(instrumentID, audioContext, false);
             }
-            this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
+            console.timeEnd('initAllInstruments');
         }
-
-
         /** Song Data **/
 
 
 
-        async loadSongData(songData) {
+        loadSongData(songData) {
             if (this.playback)
                 this.stopPlayback();
             songData = Object.assign({}, {
@@ -171,8 +213,6 @@
             // let loadingInstruments = 0;
 
             console.log("Song data loaded: ", songData);
-
-            await this.loadAllInstruments(true);
 
             this.dispatchEvent(new CustomEvent('song:loaded', {detail: this}));
         }
@@ -525,32 +565,10 @@
 
         /** Playback **/
 
-        setAudioContext(audioContext) {
-            if (audioContext.state === 'suspended')
-                audioContext.resume();
-            this.audioContext = audioContext;
-        }
-
-        getAudioContext() {
-            if (this.audioContext)
-                return this.audioContext;
-
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            this.setAudioContext(audioContext);
-            return audioContext;
-        }
-
-
-        async init(audioContext = null) {
-            if (audioContext !== null)
-                await this.setAudioContext(audioContext);
-            audioContext = audioContext || this.getAudioContext();
-            await this.initAllInstruments(audioContext);
-        }
 
         get songPlaybackPosition() {
             if (this.playback)
-                return this.getAudioContext().currentTime - this.playback.startTime;
+                return this.playback.audioContext.currentTime - this.playback.startTime;
             return this.playbackPosition;
         }
 
@@ -584,8 +602,9 @@
             this.playbackPosition = songPosition;
 
             if (isPlaying) {
-                this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
-                this.playback.playGroup()
+                const oldDestination = this.playback.destination;
+                this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, oldDestination.context.currentTime - this.playbackPosition);
+                this.playback.playGroup(oldDestination)
                     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
             }
             // const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
@@ -612,7 +631,10 @@
             return false;
         }
 
-        async play(audioContext = null) {
+        async play(destination) {
+            if(!destination || !destination.context)
+                throw new Error("Invalid destination");
+            const audioContext = destination.context;
             if (this.playback) {
                 this.stopPlayback();
                 this.setPlaybackPosition(0);
@@ -621,7 +643,7 @@
 
             await this.init(audioContext);
 
-            const playback = new AudioSourceInstructionPlayback(this, this.rootGroup, this.getAudioContext().currentTime - this.playbackPosition);
+            const playback = new AudioSourceInstructionPlayback(destination, this, this.rootGroup, this.playbackPosition);
             this.playback = playback;
             console.log("Start playback:", this.playbackPosition);
 
@@ -631,7 +653,7 @@
                 }
             }));
 
-            this.playback.playGroup()
+            this.playback.playGroup(destination)
                 .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
             return await this.waitForPlaybackToEnd();
 
@@ -649,7 +671,7 @@
                 throw new Error("Playback is already stopped");
             const playback = this.playback;
             this.playback = null;
-            this.playbackPosition = this.getAudioContext().currentTime - playback.startTime;
+            this.playbackPosition = playback.getGroupPositionInSeconds();
             playback.stopPlayback();
 
             for (let i = 0; i < this.playbackEndCallbacks.length; i++)
@@ -687,16 +709,16 @@
         }
 
 
-        async playInstructionAtIndex(groupName, instructionIndex, noteStartTime = null) {
-            this.getAudioContext();
+        async playInstructionAtIndex(destination, groupName, instructionIndex, noteStartTime = null) {
             const instruction = this.instructionFind(groupName, instructionIndex, false);
             if (instruction)
-                await this.playInstruction(instruction, noteStartTime);
+                await this.playInstruction(destination, instruction, noteStartTime);
             else
                 console.warn("No instruction at index");
         }
 
-        async playInstruction(instruction, noteStartTime = null, groupName = null) {
+        async playInstruction(destination, instruction, noteStartTime = null, groupName = null) {
+            const audioContext = destination.context;
             if (!instruction instanceof SongInstruction)
                 throw new Error("Invalid instruction");
 
@@ -706,7 +728,7 @@
             if (instruction.isGroupCommand()) {
                 const groupPlayback = new AudioSourceInstructionPlayback(this, instruction.getGroupFromCommand(), noteStartTime);
                 // const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, notePosition);
-                return await groupPlayback.playGroup();
+                return await groupPlayback.playGroup(destination);
             }
 
 
@@ -716,13 +738,13 @@
             const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
             const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
 
-            let currentTime = this.getAudioContext().currentTime;
+            let currentTime = audioContext.currentTime;
 
             if (!noteStartTime && noteStartTime !== 0)
                 noteStartTime = currentTime;
 
 
-            this.playInstrument(instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+            this.playInstrument(destination, instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
             // Wait for note to start
             if (noteStartTime > currentTime) {
                 await this.wait(noteStartTime - currentTime);
@@ -737,7 +759,7 @@
                 }
             }));
 
-            currentTime = this.getAudioContext().currentTime;
+            currentTime = audioContext.currentTime;
             if (noteStartTime + noteDuration > currentTime) {
                 await this.wait(noteStartTime + noteDuration - currentTime);
                 // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime + noteDuration - currentTime) * 1000));
@@ -807,7 +829,7 @@
             return !!this.instruments[instrumentID];
         }
 
-        async playInstrument(instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
+        async playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
             if (!instrumentID && instrumentID !== 0) {
                 console.warn("No instrument set for instruction. Using instrument 0");
                 instrumentID = 0;
@@ -818,7 +840,6 @@
                 return;
             }
             let instrument = await this.loadInstrument(instrumentID);
-            const destination = this.getVolumeGain();
             return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         }
 
@@ -904,8 +925,8 @@
                 bubbles: true
             }));
 
-            if (this.audioContext)
-                await this.initInstrument(instrumentID, this.audioContext);
+            // if (this.audioContext)
+            //     await this.initInstrument(instrumentID, this.audioContext);
 
 //             console.info("Instrument loaded: ", instance, instrumentID);
             return instance;
@@ -919,21 +940,6 @@
                     await this.loadInstrument(instrumentID, forceReload);
                 }
             }
-        }
-
-        async initInstrument(instrumentID, audioContext, throwException = true) {
-            const instrument = await this.getInstrument(instrumentID, throwException);
-            if(!instrument) return;
-            await instrument.init(audioContext);
-        }
-
-        async initAllInstruments(audioContext) {
-            console.time('initAllInstruments');
-            const instrumentList = this.getInstrumentList();
-            for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-                await this.initInstrument(instrumentID, audioContext, false);
-            }
-            console.timeEnd('initAllInstruments');
         }
 
 
@@ -1314,9 +1320,10 @@
     AudioSourceSong.DEFAULT_VOLUME = 0.7;
 
     class AudioSourceInstructionPlayback {
-        constructor(song, groupName, startTime = null, seekLength = 1) {
-            startTime = startTime || song.getAudioContext().currentTime;
+        constructor(destination, song, groupName, startTime = null, seekLength = 1) {
+            startTime = startTime || destination.context.currentTime;
 
+            this.destination = destination;
             this.song = song;
             this.groupName = groupName;
             this.seekLength = seekLength;
@@ -1331,10 +1338,13 @@
             // this.activeGroups =
         }
 
+        get audioContext() { return this.destination.context; }
+
         get groupPositionInTicks() {
             return this.iterator.groupPositionInTicks;
         }
 
+        getGroupPositionInSeconds() { return this.audioContext.currentTime - this.startTime; }
 
         async wait(waitTimeInSeconds) {
             console.info("Waiting... ", waitTimeInSeconds);
@@ -1349,6 +1359,7 @@
         }
 
         async playGroup() {
+            const audioContext = this.audioContext;
             this.isActive = true;
             const iterator = this.song.instructionGetIterator(this.groupName);
             this.iterator = iterator;
@@ -1359,13 +1370,13 @@
                 }
             }));
 
-            while (this.isActive && this.playNextInstructionRow()) {
-                let currentTime = this.song.getAudioContext().currentTime - this.startTime;
+            while (this.isActive && this.playNextInstructionRow(this.destination)) {
+                let currentTime = audioContext.currentTime - this.startTime;
                 const waitTime = this.iterator.groupPlaybackTime - currentTime - this.seekLength;
                 await this.wait(waitTime);
             }
 
-            let remainingTime = this.song.getAudioContext().currentTime - this.startTime;
+            let remainingTime = audioContext.currentTime - this.startTime;
             if (this.isActive && this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
                 // Wait for notes to finish
                 const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
@@ -1385,7 +1396,7 @@
             }));
 
 
-            let elapsedTime = this.song.getAudioContext().currentTime - this.startTime;
+            let elapsedTime = audioContext.currentTime - this.startTime;
             console.info("Group finished: ", this.groupName, elapsedTime);
             const wasActive = this.isActive;
             this.isActive = true;
@@ -1393,7 +1404,7 @@
         }
 
 
-        stopPlayback(stopInstruments = true) {
+        async stopPlayback(stopInstruments = true) {
             if (this.stopPlaybackCallback) {
                 this.stopPlaybackCallback();
                 this.stopPlaybackCallback = null;
@@ -1413,7 +1424,7 @@
                 // Stop all instrument playback (if supported)
                 const instrumentList = this.song.getInstrumentList();
                 for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-                    const instrument = this.song.getInstrument(instrumentID, false);
+                    const instrument = await this.song.getInstrument(instrumentID, false);
                     if (instrument && instrument.stopPlayback)
                         instrument.stopPlayback();
                 }
@@ -1423,7 +1434,8 @@
             this.subGroups.forEach(playback => playback.stopPlayback(stopInstruments));
         }
 
-        playNextInstructionRow() {
+        playNextInstructionRow(destination) {
+            const audioContext = this.audioContext;
             if (!this.isActive)
                 throw new Error("Playback is not active");
 
@@ -1432,7 +1444,7 @@
                 return false;
 
 
-            // const audioContext = this.song.getAudioContext();
+            // const audioContext = audioContext;
             const noteStartTime = this.startTime + this.iterator.groupPlaybackTime;
             // const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
 //         console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
@@ -1455,12 +1467,12 @@
                         continue;
                     }
 
-                    const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, noteStartTime);
+                    const groupPlayback = new AudioSourceInstructionPlayback(destination, this.song, subGroupName, audioContext.startTime - noteStartTime);
                     this.subGroups.push(groupPlayback);
                     groupPlayback.playGroup();
 
                 } else {
-                    this.song.playInstruction(instruction, noteStartTime, this.groupName);
+                    this.song.playInstruction(destination, instruction, noteStartTime, this.groupName);
                 }
             }
 

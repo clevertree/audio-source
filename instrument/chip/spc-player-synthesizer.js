@@ -28,6 +28,7 @@
                 const spcURL = this.config.spcURL;
                 const service = new AudioSourceFileService(this.song);
                 this.spcBuffer = service.loadBufferFromURL(spcURL);
+                console.info("SPC Player loaded");
             }
             if(this.spcBuffer instanceof Promise)
                 this.spcBuffer = await this.spcBuffer;
@@ -66,7 +67,6 @@
         // Instruments return promises
         async play(destination, namedFrequency, startTime, duration, velocity) {
             const spcPlayer = await this.loadSPCPlayer(destination);
-            console.info("SPC Player loaded");
             this.spcPlayers.push(spcPlayer);
 
             let currentTime = destination.context.currentTime;

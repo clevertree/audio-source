@@ -1117,14 +1117,7 @@
         }
 
         play() {
-            this.editorElm.song.playInstructionAtIndex(
-                this.trackerElm.groupName,
-                this.index,
-                this.editorElm.song.getAudioContext().currentTime,
-                {
-                    groupPositionInTicks: this.row.positionInTicks,
-                    currentIndex: this.index
-                });
+            this.editorElm.song.playInstructionAtIndex(destination, this.trackerElm.groupName, this.index, this.editorElm.song.getAudioContext().currentTime);
             return this;
         }
 

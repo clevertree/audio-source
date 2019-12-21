@@ -29,7 +29,7 @@
 
         async setCurrentSong(song) {
             if(this.song) {
-                this.setStatus("Unloading song: " + this.song);
+                await this.setStatus("Unloading song: " + this.song.name);
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
@@ -38,13 +38,39 @@
             }
             this.song = song;
             this.state.songLength = song.getSongLengthInSeconds();
-            this.song.setVolume(this.state.volume);
+            // this.song.setVolume(this.state.volume);
             this.song.addDispatchElement(this);
             song.playlistPosition = this.playlist.getPlaylistPosition();
             const currentEntry = await this.playlist.getCurrentEntry();
             await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()});
             await this.refs.panelSong.renderOS();
-            await this.setStatus("Current song: " + song.name);
+            await this.setStatus("Initializing song: " + song.name);
+            await this.song.init(this.getAudioContext());
+            await this.setStatus("Loaded song: " + song.name);
+        }
+
+        /** @deprecated **/
+        handleError(err) {
+            this.setStatus(`<span style="error">${err}</span>`);
+            console.error(err);
+            // if(this.webSocket)
+        }
+
+        async setStatus(newStatus) {
+            console.info.apply(null, arguments); // (newStatus);
+            if(newStatus.length > 64)
+                newStatus = newStatus.substr(0, 64) + '...';
+            await this.refs.textStatus.setContent(newStatus);
+        }
+
+        setVersion(versionString) {
+            this.state.version = versionString;
+            this.refs.textVersion.content = versionString;
+        }
+
+
+        closeAllMenus() {
+            this.refs.menuFile.closeAllMenus();
         }
 
 
@@ -61,12 +87,55 @@
 
         /** Song commands **/
 
-        setSongVolume(e, newSongVolume) {
-            this.state.volume = newSongVolume;
-            this.refs.fieldSongVolume.value = newSongVolume;
-            if(this.song)
-                this.song.setVolume(newSongVolume);
-            // this.setStatus(`Volume modified: ${newSongVolume}`);
+
+
+        /** Playback **/
+
+        getAudioContext()               {
+            if (this.audioContext)
+                return this.audioContext;
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.audioContext = audioContext;
+            return audioContext;
+        }
+
+        getVolumeGain()                 {
+            if (!this.volumeGain) {
+                const context = this.getAudioContext();
+                let gain = context.createGain();
+                gain.gain.value = this.state.volume; // AudioSourceSong.DEFAULT_VOLUME;
+                gain.connect(context.destination);
+                this.volumeGain = gain;
+            }
+            return this.volumeGain; }
+
+        getVolume () {
+            if(this.volumeGain) {
+                return this.volumeGain.gain.value;
+            }
+            return AudioSourcePlayerElement.DEFAULT_VOLUME;
+        }
+        setVolume (volume) {
+            console.info("Setting volume: ", volume);
+            const gain = this.getVolumeGain();
+            if(gain.gain.value !== volume) {
+                gain.gain.value = volume;
+            }
+            this.state.volume = volume;
+            this.refs.fieldSongVolume.value = volume * 100;
+        }
+
+
+        async updateSongPositionMaxLength(maxSongLength) {
+            await this.refs.fieldSongPosition.setState({max: Math.ceil(maxSongLength)});
+        }
+
+        updateSongPositionValue(playbackPositionInSeconds) {
+            const roundedSeconds = Math.round(playbackPositionInSeconds);
+            this.refs.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
+            if (this.refs.fieldSongPosition.value !== roundedSeconds)
+                this.refs.fieldSongPosition.value = roundedSeconds;
         }
 
 
@@ -221,12 +290,13 @@
             this.playlistStop();
             let position = this.playlist.getPlaylistPosition();
             if(this.song && this.song.playlistPosition === position) {
-                if(this.song.isPaused())
+                if(this.song.isPaused)
                     return this.song.resume();
                 if(this.song.isPlaying)
                     throw new Error("Song is already playing");
+                await this.setCurrentSong(this.song);
                 await this.setStatus("Playing: " + this.song.name);
-                return await this.song.play();
+                return await this.song.play(this.getVolumeGain());
             }
             let entry = await this.playlist.getCurrentEntry();
             if(entry instanceof ASPPlaylistPlaylistEntry)
@@ -237,19 +307,23 @@
             while(this.isPlaylistActive) {
                 (currentEntry.scrollIntoViewIfNeeded || currentEntry.scrollIntoView).apply(currentEntry);
                 const currentSong = await this.loadSongFromPlaylistEntry();
-                this.setCurrentSong(currentSong);
+                await this.setCurrentSong(currentSong);
                 await this.setStatus("Playing: " + currentSong.name);
-                await currentSong.play();
+                await currentSong.play(this.getVolumeGain());
+                if(!this.isPlaylistActive)
+                    break;
                 currentEntry = await this.playlistMoveToNextSongEntry();
             }
         }
 
-        playlistStop() {
+        async playlistStop() {
+            this.isPlaylistActive = false;
             if(this.song && this.song.isPlaying) {
+                await this.setStatus("Stopping: " + this.song.name);
                 this.song.stopPlayback();
                 this.song.setPlaybackPositionInTicks(0);
+                await this.setStatus("Stopped: " + this.song.name);
             }
-            this.isPlaylistActive = false;
         }
 
         async playlistNext() {

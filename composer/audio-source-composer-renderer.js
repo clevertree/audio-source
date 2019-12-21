@@ -133,7 +133,7 @@
 
                             new ASCForm('volume', 'Volume', () => [
                                 this.refs.fieldSongVolume = new ASUIInputRange('volume',
-                                    (e, newVolume) => this.setSongVolume(e, newVolume), 1, 100, this.state.volume, 'Song Volume')
+                                    (e, newVolume) => this.setVolume(newVolume/100), 1, 100, this.state.volume*100, 'Song Volume')
                             ]),
 
                             new ASCForm('file', 'File', () => [

@@ -75,12 +75,12 @@
 
         /** Saving **/
 
-        saveState(state) {
-            localStorage.setItem('audio-source-state', JSON.stringify(state));
+        saveState(state, key='audio-source-state') {
+            localStorage.setItem(key, JSON.stringify(state));
         }
 
-        loadState() {
-            let state = localStorage.getItem('audio-source-state');
+        loadState(key='audio-source-state') {
+            let state = localStorage.getItem(key);
             if (state)
                 state = JSON.parse(state);
             return state;
