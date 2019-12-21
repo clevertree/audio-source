@@ -79,8 +79,8 @@
                 targetElm.removeChild(t);
         }
         async renderContent() {
-            this.clearContent(this.targetElm);
             let content = await this.render();
+            this.clearContent(this.targetElm);
             await this.appendContentTo(content, this.targetElm);
         }
 

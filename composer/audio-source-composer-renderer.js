@@ -435,8 +435,12 @@
         }
 
         async renderInstruments() {
-            await this.refs.panelInstruments.renderOS();
-            await this.refs.panelInstructions.renderOS();
+            // console.log("rendering instruments");
+            clearTimeout(this.timeouts.renderInstruments);
+            this.timeouts.renderInstruments = setTimeout(async () => {
+                await this.refs.panelInstruments.renderOS();
+                await this.refs.panelInstructions.renderOS();
+            }, 200);
         }
 
         async populateMenu(menuKey) {

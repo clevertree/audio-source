@@ -30,8 +30,9 @@
         /** Song rendering **/
 
         async setCurrentSong(song) {
-            if (this.song) {
-                if (this.song.isPlaying) {
+            if(this.song) {
+                await this.setStatus("Unloading song: " + this.song.name);
+                if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
                 this.song.removeDispatchElement(this);
@@ -41,9 +42,11 @@
             this.state.songLength = song.getSongLengthInSeconds();
             // this.song.setVolume(this.state.volume);
             this.song.addDispatchElement(this);
+            await this.setStatus("Initializing song: " + song.name);
+            await this.song.init(this.getAudioContext());
+            await this.setStatus("Loaded song: " + song.name);
             await this.renderOS();
         }
-
 
         /** Playback **/
 

@@ -38,7 +38,10 @@
 
             // this.versionString = '-1';
             // this.eventHandlers = [];
-            this.saveSongToMemoryTimer = null;
+            this.timeouts = {
+                saveSongToMemory: null,
+                renderInstruments: null
+            };
             // this.instrumentLibrary = null;
 
             this.longPressTimeout = null;
@@ -324,7 +327,6 @@
                 case 'instrument:added':
                 case 'instrument:removed':
                     await this.renderInstruments();
-                    await this.renderInstruments();
                     break;
 
                 case 'instrument:modified':
@@ -339,8 +341,8 @@
                     // this.forms.render();
 
                     // TODO: auto save toggle
-                    clearTimeout(this.saveSongToMemoryTimer);
-                    this.saveSongToMemoryTimer = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
+                    clearTimeout(this.timeouts.saveSongToMemory);
+                    this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                     break;
                 case 'instrument:library':
 //                 console.log(e.type);
