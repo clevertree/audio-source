@@ -30,7 +30,7 @@
         }
 
         async loadBufferFromURL(url) {
-            this.log("Loading buffer from url: " + url);
+            // this.log("Loading buffer from url: " + url);
             if(url.toString().startsWith('torrent://')) {
                 console.time('getFileBufferFromTorrent');
                 const buffer = await this.getFileBufferFromTorrent(url);

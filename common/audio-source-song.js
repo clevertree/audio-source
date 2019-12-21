@@ -632,6 +632,8 @@
         }
 
         async play(destination) {
+            if(!destination || !destination.context)
+                throw new Error("Invalid destination");
             const audioContext = destination.context;
             if (this.playback) {
                 this.stopPlayback();
@@ -1402,7 +1404,7 @@
         }
 
 
-        stopPlayback(stopInstruments = true) {
+        async stopPlayback(stopInstruments = true) {
             if (this.stopPlaybackCallback) {
                 this.stopPlaybackCallback();
                 this.stopPlaybackCallback = null;
@@ -1422,7 +1424,7 @@
                 // Stop all instrument playback (if supported)
                 const instrumentList = this.song.getInstrumentList();
                 for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-                    const instrument = this.song.getInstrument(instrumentID, false);
+                    const instrument = await this.song.getInstrument(instrumentID, false);
                     if (instrument && instrument.stopPlayback)
                         instrument.stopPlayback();
                 }

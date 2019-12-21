@@ -143,7 +143,7 @@
         async loadState(e = null) {
 
             const storage = new AudioSourceStorage();
-            const state = storage.loadState();
+            const state = storage.loadState('audio-source-composer-state');
             console.log('loadState', state);
 
 
@@ -173,7 +173,7 @@
                 songUUID: this.song.uuid,
                 groupName: this.trackerElm.groupName,
                 currentRowSegmentID: this.trackerElm.currentRowSegmentID,
-                volume: this.song.getVolumeValue(),
+                volume: this.state.volume,
                 trackerSegmentLength: this.refs.fieldTrackerSegmentLength.value,
                 trackerRowLength: this.refs.fieldTrackerRowLength.value,
                 trackerInstrument: this.refs.fieldTrackerFilterInstrument.value,
@@ -181,7 +181,7 @@
                 selectedIndicies: this.getSelectedIndicies()
             };
             const storage = new AudioSourceStorage();
-            storage.saveState(state);
+            storage.saveState(state, 'audio-source-composer-state');
             console.log('saveState', state);
         }
 
@@ -208,11 +208,6 @@
             return false;
         }
 
-        getAudioContext() {
-            return this.song.getAudioContext();
-        }
-
-
 
         // Input
 
@@ -221,12 +216,12 @@
             if (e.defaultPrevented)
                 return;
 
-            switch (e.type) {
-                case 'focus':
-                    break;
-                default:
-                    this.song.getAudioContext();
-            }
+            // switch (e.type) {
+            //     case 'focus':
+            //         break;
+            //     default:
+            //         this.song.getAudioContext();
+            // }
 
             switch (e.type) {
                 case 'focus':

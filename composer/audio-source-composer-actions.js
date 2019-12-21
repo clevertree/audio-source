@@ -47,6 +47,7 @@
 
         /** Playback **/
 
+
         getAudioContext()               {
             if (this.audioContext)
                 return this.audioContext;
@@ -72,7 +73,6 @@
             }
             return AudioSourcePlayerElement.DEFAULT_VOLUME;
         }
-
         setVolume (volume) {
             console.info("Setting volume: ", volume);
             const gain = this.getVolumeGain();
@@ -210,7 +210,7 @@
 
 
         async songPlay() {
-            await this.song.play();
+            await this.song.play(this.getVolumeGain());
         }
 
         async songPause() {
@@ -238,12 +238,12 @@
         }
 
 
-        updateSongPositionValue(playbackPositionInSeconds) {
+        async updateSongPositionValue(playbackPositionInSeconds) {
             const roundedSeconds = Math.round(playbackPositionInSeconds);
             this.refs.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
             if (this.refs.fieldSongPosition.value !== roundedSeconds)
                 this.refs.fieldSongPosition.value = roundedSeconds;
-            this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
+            await this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
         }
 
         // setSongPositionAsPercent(e, playbackPositionPercent) {
