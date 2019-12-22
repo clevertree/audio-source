@@ -603,7 +603,7 @@
 
             if (isPlaying) {
                 const oldDestination = this.playback.destination;
-                this.playback = new AudioSourceInstructionPlayback(this, this.rootGroup, oldDestination.context.currentTime - this.playbackPosition);
+                this.playback = new AudioSourceInstructionPlayback(oldDestination, this, this.rootGroup, oldDestination.context.currentTime - this.playbackPosition);
                 this.playback.playGroup(oldDestination)
                     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
             }
@@ -726,7 +726,7 @@
             //     this.stopPlayback();
 
             if (instruction.isGroupCommand()) {
-                const groupPlayback = new AudioSourceInstructionPlayback(this, instruction.getGroupFromCommand(), noteStartTime);
+                const groupPlayback = new AudioSourceInstructionPlayback(destination, this, instruction.getGroupFromCommand(), noteStartTime);
                 // const groupPlayback = new AudioSourceInstructionPlayback(this.song, subGroupName, notePosition);
                 return await groupPlayback.playGroup(destination);
             }
@@ -1321,6 +1321,8 @@
 
     class AudioSourceInstructionPlayback {
         constructor(destination, song, groupName, startTime = null, seekLength = 1) {
+            if(!destination || !destination.context)
+                throw new Error("Invalid destination");
             startTime = startTime || destination.context.currentTime;
 
             this.destination = destination;
@@ -1347,7 +1349,7 @@
         getGroupPositionInSeconds() { return this.audioContext.currentTime - this.startTime; }
 
         async wait(waitTimeInSeconds) {
-            console.info("Waiting... ", waitTimeInSeconds);
+//             console.info("Waiting... ", waitTimeInSeconds);
             return await new Promise((resolve, reject) => {
                 this.stopPlaybackCallback = () => {
                     console.info("Group aborted: ", this.groupName);

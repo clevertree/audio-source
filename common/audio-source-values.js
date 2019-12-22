@@ -238,7 +238,7 @@
         }
 
         parsePlaybackPosition(formattedSeconds) {
-            const parts = formattedSeconds.split(':');
+            const parts = formattedSeconds.toString().split(':');
             return (parseInt(parts[0]) * 60)
                 + (parseInt(parts[1]))
                 + (parseInt(parts[2]) / 1000);

@@ -256,14 +256,13 @@
         // }
 
 
-        setSongPosition(e, playbackPosition = null) {
+        setSongPosition(playbackPosition = null) {
             // const wasPlaying = !!this.song.playback;
             // if (wasPlaying)
             //     this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
-                const values = new AudioSourceValues();
-                playbackPosition = values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
+                playbackPosition = this.refs.fieldSongPosition.value; // this.values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
             // if (wasPlaying)
