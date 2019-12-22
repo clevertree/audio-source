@@ -263,7 +263,7 @@
                 this.song.stopPlayback();
             const selectedIndicies = this.editorElm.getSelectedIndicies();
             for (let i = 0; i < selectedIndicies.length; i++) {
-                this.song.playInstructionAtIndex(destination, this.trackerElm.groupName, selectedIndicies[i]);
+                this.song.playInstructionAtIndex(this.getVolumeGain(), this.trackerElm.groupName, selectedIndicies[i]);
             }
         }
 
@@ -272,7 +272,7 @@
                 this.song.stopPlayback();
             const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListOffset];
             if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
-                this.song.playInstructionAtIndex(destination, this.trackerElm.groupName, cursorItem.index);
+                this.song.playInstructionAtIndex(this.getVolumeGain(), this.trackerElm.groupName, cursorItem.index);
             }
         }
 

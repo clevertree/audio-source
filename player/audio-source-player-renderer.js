@@ -4,7 +4,8 @@
     if(typeof window !== "undefined")
         window.require = customElements.get('audio-source-loader').require;
 
-        // const {AudioSourceValues} = require('../common/audio-source-values.js');
+    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    // const {AudioSourceValues} = require('../common/audio-source-values.js');
         // const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     const {
             ASUIComponent,
@@ -66,6 +67,10 @@
             const url = this.getAttribute('src') || this.getAttribute('url');
             if(url)
                 this.addSongURLToPlaylist(url);
+
+            const Util = new AudioSourceUtilities;
+            Util.loadPackageInfo()
+                .then(packageInfo => this.setVersion(packageInfo.version));
         }
 
         async render() {

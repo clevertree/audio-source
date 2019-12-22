@@ -12,8 +12,8 @@
 
     const {AudioSourcePlayerActions} = require('../player/audio-source-player-actions.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
-    const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
-    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    // const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {AudioSourceSong} = require('../common/audio-source-song.js');
     const {AudioSourceStorage} = require('../common/audio-source-storage.js');
     /**
@@ -47,9 +47,6 @@
             this.props.playing = false;
             this.props.paused = false;
 
-            const Util = new AudioSourceUtilities;
-            Util.loadPackageInfo()
-                .then(packageInfo => this.setVersion(packageInfo.version));
             this.addEventHandler('unload', e => this.saveState(e), window);
         }
 
