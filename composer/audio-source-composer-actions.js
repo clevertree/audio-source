@@ -51,7 +51,7 @@
         /** Playback **/
 
 
-        getAudioContext()               {
+        getAudioContext() {
             if (this.audioContext)
                 return this.audioContext;
 
@@ -60,7 +60,7 @@
             return audioContext;
         }
 
-        getVolumeGain()                 {
+        getVolumeGain() {
             if (!this.volumeGain) {
                 const context = this.getAudioContext();
                 let gain = context.createGain();
@@ -68,7 +68,8 @@
                 gain.connect(context.destination);
                 this.volumeGain = gain;
             }
-            return this.volumeGain; }
+            return this.volumeGain;
+        }
 
         getVolume () {
             if(this.volumeGain) {

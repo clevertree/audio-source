@@ -97,7 +97,7 @@
                     this.refs.panelContainerElm = new ASUIDiv('asc-panel-container', () => [
                         new ASCPanel('song', 'Song', () => [
 
-                            new ASCForm('playback', 'Playback', () => [
+                            this.refs.panelSong = new ASCForm('playback', 'Playback', () => [
                                 this.refs.fieldSongPlaybackPlay = new ASUIInputButton('play',
                                     new ASUIcon('play'),
                                     e => this.songPlay(e),
@@ -195,6 +195,8 @@
                             ]));
                             return content;
                         }),
+
+                        new ASUIDiv(),
 
                         this.refs.panelInstructions = new ASCPanel('instructions', 'Selected Instruction(s)', () => [
                             new ASCForm('instruction-command', 'Command', () => [
