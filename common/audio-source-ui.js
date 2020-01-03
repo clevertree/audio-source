@@ -190,10 +190,7 @@
                 return new this(props);
             }
         }
-
-        static createFactory() {
-            return (props, content) => this.createElement(props, content);
-        }
+        static cE(props, children=null) { return ASUIComponent.createElement(props, children); }
 
     }
     customElements.define('asui-component', ASUIComponent);
@@ -458,14 +455,14 @@
             //     this.clearSubMenu();
             // }
         }
-
-        static createFactory() {
-            return (props, content, dropDownContent=null) => {
-                props = ASUIComponent.processProps(props);
-                if(dropDownContent !== null)
-                    props.dropDownContent = dropDownContent;
-                return this.createElement(props, content);
-            }
+        static createMenuElement(props, children=null, dropDownContent=null) {
+            props = ASUIComponent.processProps(props);
+            if(dropDownContent !== null)
+                props.dropDownContent = dropDownContent;
+            return ASUIComponent.createElement(props, content);
+        }
+        static cME(props, children=null, dropDownContent=null) {
+            return ASUIMenu.createMenuElement(props, children, dropDownContent);
         }
     }
     customElements.define('asui-menu', ASUIMenu);
@@ -851,8 +848,4 @@
         ASUIcon,
         ASUIMenu,
     };
-    Object.keys(thisModule.exports).forEach(key => {
-        if(!thisModule.exports.factories) thisModule.exports.factories = {};
-        thisModule.exports.factories[key] = thisModule.exports[key]
-    })
 }
