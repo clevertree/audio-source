@@ -56,16 +56,18 @@
             // if(this.webSocket)
         }
 
-        async setStatus(newStatus) {
+        setStatus(newStatus) {
             console.info.apply(null, arguments); // (newStatus);
             if(newStatus.length > 64)
                 newStatus = newStatus.substr(0, 64) + '...';
-            await this.textStatus.setContent(newStatus);
+            if(this.textStatus)
+                this.textStatus.setContent(newStatus);
         }
 
         setVersion(versionString) {
             this.state.version = versionString;
-            this.textVersion.content = versionString;
+            if(this.textVersion)
+                this.textVersion.content = versionString;
         }
 
 
@@ -213,15 +215,50 @@
         //     this.setStatus("Loaded playlist from url: " + playlistURL);
         // }
 
-        async addSongURLToPlaylist(url, name=null, length=null) {
-            await this.playlist.addSongURLToPlaylist(url, name, length);
-            await this.setStatus("Added URL to playlist: " + url);
+
+        parseEntryData(entryData) {
+            if(typeof entryData === "string") {
+                const split = entryData.split(';');
+                entryData = {url: split[0]};
+                if(split[1]) entryData.name = split[1];
+                if(split[2]) entryData.length = split[2];
+            }
+            if(!entryData.url)
+                throw new Error("Invalid Playlist Entry URL");
+            return entryData;
+        }
+
+        addEntryToPlaylist(entryData, insertAtPosition=null) {
+            entryData = this.parseEntryData(entryData);
+            const playlist = this.state.playlist;
+            if(!playlist.entries)
+                playlist.entries = [];
+            const entries = this.state.playlist.entries;
+            if(insertAtPosition === null) {
+                insertAtPosition = entries.length;
+                entries.push(entryData);
+            } else {
+                entries.splice(insertAtPosition, 0, entryData);
+            }
+        }
+
+        addSongURLToPlaylist(url, name=null, length=null) {
+            this.addEntryToPlaylist({url, name, length});
+            this.renderOS();
+            // await this.playlist.addSongURLToPlaylist(url, name, length);
+            this.setStatus("Added URL to playlist: " + url);
         }
 
 
-        async addSongFileToPlaylist(file, name=null, length=null) {
-            await this.playlist.addSongFileToPlaylist(file, name, length);
-            await this.setStatus("Added file to playlist: " + file.name);
+        addSongFileToPlaylist(file, name=null, length=null) {
+            const entryData = {
+                url: 'file://' + file.name,
+                name: name || file.name.split('/').pop(),
+                length
+            };
+            this.addEntryToPlaylist(entryData);
+            this.renderOS();
+            this.setStatus("Added file to playlist: " + file.name);
         }
 
 

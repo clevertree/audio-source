@@ -76,8 +76,7 @@
             return this.state.trackerRowLength || this.song.timeDivision;
         }
 
-        async render() {
-            const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
+        render() {
             return [
                 this.createStyleSheetLink('../composer/assets/audio-source-composer.css'),
                 this.createStyleSheetLink('../common/assets/audio-source-common.css'),
@@ -185,6 +184,7 @@
                             content.push(new ASCForm('new', null, () => [
                                 new ASUIInputSelect('add-url',
                                     (s) => [
+                                        // const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
                                         // s.getOption('', 'Add instrument'),
                                         instrumentLibrary.eachInstrument((instrumentConfig) =>
                                             s.getOption(instrumentConfig.url, instrumentConfig.name)),

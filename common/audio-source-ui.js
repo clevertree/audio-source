@@ -16,10 +16,8 @@
     class ASUIComponent extends ASUIComponentBase {
         constructor(props = {}, state = {}) {
             super();
-            if(typeof props !== "object")
-                props = {class: props};
             this.state = state || {};
-            this.props = props || {};
+            this.props = ASUIComponent.processProps(props) || {};
             this._eventHandlers = [];
             this._renderOnConnect = true;
             // for(let i=0; i<this.attributes.length; i++)
@@ -41,7 +39,7 @@
 
         renderRN() { };
         renderOS() {
-            // this.renderProps();
+            this.renderAttributes();
             this.renderHTML();
         }
 
@@ -54,23 +52,26 @@
             this.renderContent();
         }
 
-        renderProps() {
-            // Render properties
-            // while(this.attributes.length > 0)
-            //     this.removeAttribute(this.attributes[0].name);
-            // for(const attrName in this.props) {
-            //     if(this.props.hasOwnProperty(attrName)) {
-            //         const value = this.props[attrName];
-            //         if(typeof value === 'function')
-            //             this[attrName] = value;
-            //         else if (typeof value === "object" && value !== null)
-            //             Object.assign(this[attrName], value);
-            //         else if (value === true)
-            //             this.setAttribute(attrName, '');
-            //         else if (value !== null && value !== false)
-            //             this.setAttribute(attrName, value);
-            //     }
-            // }
+        renderAttributes() {
+            // Render attributes
+            while(this.attributes.length > 0)
+                this.removeAttribute(this.attributes[0].name);
+            if(!this.props.attrs)
+                return;
+            const attrs = this.props.attrs;
+            for(const attrName in attrs) {
+                if(attrs.hasOwnProperty(attrName)) {
+                    const value = attrs[attrName];
+                    if(typeof value === 'function')
+                        this[attrName] = value;
+                    else if (typeof value === "object" && value !== null)
+                        Object.assign(this[attrName], value);
+                    else if (value === true)
+                        this.setAttribute(attrName, '');
+                    else if (value !== null && value !== false)
+                        this.setAttribute(attrName, value);
+                }
+            }
         }
 
 
@@ -87,7 +88,9 @@
         }
 
         eachContent(content, callback) {
-            content = resolveContent(content);
+            if(typeof content === "function") {
+                return this.eachContent(content(), callback);
+            }
             if(Array.isArray(content)) {
                 for(let i=0; i<content.length; i++) {
                     const ret = this.eachContent(content[i], callback);
@@ -171,8 +174,10 @@
         }
 
         static processProps(props) {
+            if(typeof props === "string")
+                props = {attrs: {class: props}};
             if(typeof props !== "object")
-                props = {class: props};
+                throw new Error("Invalid props: " + typeof props);
             return props;
         }
 
@@ -190,7 +195,7 @@
                 return new this(props);
             }
         }
-        static cE(props, children=null) { return ASUIComponent.createElement(props, children); }
+        static cE(props, children=null) { return this.createElement(props, children); }
 
     }
     customElements.define('asui-component', ASUIComponent);
@@ -459,10 +464,10 @@
             props = ASUIComponent.processProps(props);
             if(dropDownContent !== null)
                 props.dropDownContent = dropDownContent;
-            return ASUIComponent.createElement(props, content);
+            return this.createElement(props, children);
         }
         static cME(props, children=null, dropDownContent=null) {
-            return ASUIMenu.createMenuElement(props, children, dropDownContent);
+            return this.createMenuElement(props, children, dropDownContent);
         }
     }
     customElements.define('asui-menu', ASUIMenu);

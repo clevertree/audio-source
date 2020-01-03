@@ -35,9 +35,15 @@
     class AudioSourcePlayerElement extends AudioSourcePlayerActions {
         constructor(props={}, state={}) {
             super(props, Object.assign({
+                playlist: {
+                    entries: []
+                },
                 volume: AudioSourceSong.DEFAULT_VOLUME,
                 version: -1,
                 songLength: 0,
+                fullscreen: false,
+                showPanelSong: true,
+                showPanelPlaylist: true,
             }, state));
 
             this.audioContext = null;
