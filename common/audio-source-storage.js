@@ -1,7 +1,8 @@
 {
     /** Required Modules **/
-    if(typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+    const isRN  = typeof document === 'undefined';
+    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
+
 
     class AudioSourceStorage {
         constructor() {
@@ -54,7 +55,7 @@
         /** Encoding / Decoding **/
 
         async encodeForStorage(json, replacer = null, space = null) {
-            const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+            const {AudioSourceUtilities} = await require('../common/audio-source-utilities.js');
             let encodedString = JSON.stringify(json, replacer, space);
             const Util = new AudioSourceUtilities();
             const LZString = await Util.getLZString();
@@ -66,7 +67,7 @@
         async decodeForStorage(encodedString) {
             if (!encodedString)
                 return null;
-            const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+            const {AudioSourceUtilities} = await require('../common/audio-source-utilities.js');
             const Util = new AudioSourceUtilities();
             const LZString = await Util.getLZString();
             encodedString = LZString.decompress(encodedString) || encodedString;

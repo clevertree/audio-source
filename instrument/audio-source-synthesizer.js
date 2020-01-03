@@ -182,9 +182,9 @@
 
             return [
 
-                new ASUIDiv('header', () => [
-                    new ASUIInputButton('title', titleHTML, e => this.toggleContainer(e)),
-                    this.refs.selectChangePreset = new ASUIInputSelect('instrument-preset',
+                ASUIDiv.createElement('header', () => [
+                    ASUIInputButton.createElement('title', titleHTML, e => this.toggleContainer(e)),
+                    this.selectChangePreset = new ASUIInputSelect('instrument-preset',
                         (selectElm) => [
                             selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
                                 sampleLibrary.eachPreset(config => selectElm.getOption(config.url, config.name)),
@@ -203,22 +203,22 @@
                         presetTitle,
                     ),
 
-                    this.refs.menu = new ASUIMenu(
+                    this.menu = ASUIMenu.createElement(
                         {vertical: true},
                         new ASUIcon('config'),
                         () => [
-                            new ASUIMenu({}, 'Change Instrument to',
+                            ASUIMenu.createElement({}, 'Change Instrument to',
                                 async () => {
                                     const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
                                     return instrumentLibrary.eachInstrument((instrumentConfig) =>
-                                        new ASUIMenu({}, instrumentConfig.name, null, () => {
+                                        ASUIMenu.createElement({}, instrumentConfig.name, null, () => {
                                             this.song.instrumentReplace(instrumentID, instrumentConfig);
                                         })
                                     );
                                 }
                             ),
-                            new ASUIMenu({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
-                            new ASUIMenu({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
+                            ASUIMenu.createElement({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
+                            ASUIMenu.createElement({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
                         ]
                     ),
 
@@ -231,17 +231,17 @@
                     // )
                 ]),
 
-                // this.refs.buttonToggle = new ASUIInputButton('instrument-id',
+                // this.buttonToggle = ASUIInputButton.createElement('instrument-id',
                 //     e => this.form.classList.toggle('selected'),
                 //     instrumentIDHTML + ':'
                 // ),
-                // this.refs.textName = new ASUIInputText('instrument-name',
+                // this.textName = ASUIInputText.createElement('instrument-name',
                 //     (e, newInstrumentName) => this.stateRename(newInstrumentName),
                 //     'Instrument Name',
                 //     this.state.config.name || '',
                 //     'Unnamed'
                 // ),
-                // new ASUIInputButton('instrument-remove',
+                // ASUIInputButton.createElement('instrument-remove',
                 //     (e) => this.remove(e, instrumentID),
                 //     new ASUIcon('delete'),
                 //     'Remove Instrument'),
@@ -249,25 +249,25 @@
                 (!this.state.open ? null : (
 
                         /** Sample Forms **/
-                    this.refs.grid = new ASUIGrid('samples', () => [
+                    this.grid = new ASUIGrid('samples', () => [
                         new ASUIGridRow('header', () => [
-                            new ASUIDiv('id', 'ID'),
-                            new ASUIDiv('url', 'URL'),
-                            new ASUIDiv('mixer', 'Mixer'),
-                            new ASUIDiv('detune', 'Detune'),
-                            new ASUIDiv('root', 'Root'),
-                            new ASUIDiv('alias', 'Alias'),
-                            new ASUIDiv('loop', 'Loop'),
-                            new ASUIDiv('adsr', 'ADSR'),
-                            new ASUIDiv('remove', 'Rem'),
+                            ASUIDiv.createElement('id', 'ID'),
+                            ASUIDiv.createElement('url', 'URL'),
+                            ASUIDiv.createElement('mixer', 'Mixer'),
+                            ASUIDiv.createElement('detune', 'Detune'),
+                            ASUIDiv.createElement('root', 'Root'),
+                            ASUIDiv.createElement('alias', 'Alias'),
+                            ASUIDiv.createElement('loop', 'Loop'),
+                            ASUIDiv.createElement('adsr', 'ADSR'),
+                            ASUIDiv.createElement('remove', 'Rem'),
                         ]),
 
                         samples.map((sampleData, sampleID) => new ASUIGridRow(sampleID, () => [
                             // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
                             // const sampleRow = this.form.addGrid(i);
-                            // new ASUIDiv('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-                            // new ASUIInputButton('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
-                            new ASUIDiv('id', sampleID),
+                            // ASUIDiv.createElement('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                            // ASUIInputButton.createElement('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
+                            ASUIDiv.createElement('id', sampleID),
 
                             new ASUIInputSelect('url',
                                 selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
@@ -278,17 +278,17 @@
                                 sampleData.url,
                                 sampleData.name),
 
-                            new ASUIInputRange('mixer',
+                            ASUIInputRange.createElement('mixer',
                                 (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer),
 
-                            new ASUIInputRange('detune',
+                            ASUIInputRange.createElement('detune',
                                 (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune),
 
                             new ASUIInputSelect('root',
                                 selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
                                 (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
                                 sampleData.keyRoot || ''),
-                            // new ASUIMenu({}, 'root',
+                            // ASUIMenu.createElement({}, 'root',
                             //     selectElm => this.values.getNoteFrequencies(freq => {
                             //         new ASUISelectMenu
                             //     }),
@@ -303,10 +303,10 @@
                             new ASUIInputCheckBox('loop',
                                 (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop),
 
-                            new ASUIInputText('adsr',
+                            ASUIInputText.createElement('adsr',
                                 (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
 
-                            new ASUIInputButton('remove',
+                            ASUIInputButton.createElement('remove',
                                 '&nbsp;X&nbsp;',
                                 (e) => this.removeSample(sampleID),
                                 'Remove sample'),
@@ -314,8 +314,8 @@
 
                         new ASUIGridRow('footer', () => [
                             /** Add New Sample **/
-                            new ASUIDiv('id', '*'),
-                            this.refs.fieldAddSample = new ASUIInputSelect('url',
+                            ASUIDiv.createElement('id', '*'),
+                            this.fieldAddSample = new ASUIInputSelect('url',
                                 (selectElm) => [
                                     selectElm.getOption('', '[New Sample]'),
                                     selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
@@ -333,13 +333,13 @@
                                 (e, sampleURL, sampleName) => this.addSample(sampleURL, sampleName),
                                 'Add Sample',
                                 ''),
-                            new ASUIDiv('id', '-'),
-                            new ASUIDiv('id', '-'),
-                            new ASUIDiv('id', '-'),
-                            new ASUIDiv('id', '-'),
-                            new ASUIDiv('id', '-'),
-                            new ASUIDiv('id', '-'),
-                            new ASUIDiv('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
+                            ASUIDiv.createElement('id', '-'),
 
                         ]),
                     ])
@@ -639,7 +639,7 @@
             // if (sampleURL.endsWith('.library.json')) {
             //     console.log("Loading library: " + sampleURL);
             //     await this.sampleLibrary.loadFromURL(sampleURL);
-            //     this.refs.fieldAddSample.value = '';
+            //     this.fieldAddSample.value = '';
             // } else {
 
             if(!sampleName && promptUser)
@@ -652,7 +652,7 @@
             });
             await this.loadAudioSample(addSampleID);
 
-            if(this.refs.grid) await this.refs.grid.renderOS();
+            if(this.grid) await this.grid.renderOS();
             else await this.renderOS();
         }
 
@@ -716,7 +716,7 @@
 
         async removeSample(sampleID) {
             this.song.deleteInstrumentParam(this.state.id, ['samples', sampleID]);
-            if(this.refs.grid) await this.refs.grid.renderOS();
+            if(this.grid) await this.grid.renderOS();
             else await this.renderOS();
         }
 
@@ -789,11 +789,11 @@
             }
             await this.renderOS();
             if (!presetURL.hash) {
-                await this.refs.selectChangePreset.open();
+                await this.selectChangePreset.open();
             }
-//             await this.refs.selectChangePreset.renderOptions();
-            // this.refs.selectChangePreset.value = ''; // TODO: why was this?
-            this.refs.selectChangePreset.focus();
+//             await this.selectChangePreset.renderOptions();
+            // this.selectChangePreset.value = ''; // TODO: why was this?
+            this.selectChangePreset.focus();
 //             this.form.classList.add('focus');
         }
 

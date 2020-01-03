@@ -153,10 +153,10 @@
             if (state) {
                 await this.loadDefaultSong(state.songUUID);
                 if (typeof state.volume !== "undefined") this.setVolume(state.volume);
-                if (typeof state.trackerSegmentLength !== "undefined") await this.refs.fieldTrackerSegmentLength.setValue(state.trackerSegmentLength);
-                if (typeof state.trackerRowLength !== "undefined") await this.refs.fieldTrackerRowLength.setValue(state.trackerRowLength);
-                if (typeof state.trackerInstrument !== "undefined") await this.refs.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
-                if (typeof state.trackerOctave !== "undefined") await this.refs.fieldTrackerOctave.setValue(state.trackerOctave);
+                if (typeof state.trackerSegmentLength !== "undefined") await this.fieldTrackerSegmentLength.setValue(state.trackerSegmentLength);
+                if (typeof state.trackerRowLength !== "undefined") await this.fieldTrackerRowLength.setValue(state.trackerRowLength);
+                if (typeof state.trackerInstrument !== "undefined") await this.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
+                if (typeof state.trackerOctave !== "undefined") await this.fieldTrackerOctave.setValue(state.trackerOctave);
 
                 if (typeof state.groupName !== "undefined") await this.trackerChangeGroup(state.groupName);
                 if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);
@@ -177,10 +177,10 @@
                 groupName: this.trackerElm.groupName,
                 currentRowSegmentID: this.trackerElm.currentRowSegmentID,
                 volume: this.state.volume,
-                trackerSegmentLength: this.refs.fieldTrackerSegmentLength.value,
-                trackerRowLength: this.refs.fieldTrackerRowLength.value,
-                trackerInstrument: this.refs.fieldTrackerFilterInstrument.value,
-                trackerOctave: this.refs.fieldTrackerOctave.value,
+                trackerSegmentLength: this.fieldTrackerSegmentLength.value,
+                trackerRowLength: this.fieldTrackerRowLength.value,
+                trackerInstrument: this.fieldTrackerFilterInstrument.value,
+                trackerOctave: this.fieldTrackerOctave.value,
                 selectedIndicies: this.getSelectedIndicies()
             };
             const storage = new AudioSourceStorage();
@@ -295,7 +295,7 @@
                     break;
 
                 case 'song:volume':
-                    this.refs.fieldSongVolume.value = e.detail.volume;
+                    this.fieldSongVolume.value = e.detail.volume;
                     break;
 
                 case 'song:loaded':
@@ -303,11 +303,11 @@
                     break;
                 case 'song:play':
                     this.setProps({playing: true});
-                    this.refs.fieldSongPlaybackPause.disabled = false;
+                    this.fieldSongPlaybackPause.disabled = false;
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
-                            this.refs.fieldSongPlaybackPause.disabled = true;
+                            this.fieldSongPlaybackPause.disabled = true;
                             this.setProps({playing: false, paused: false});
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
@@ -334,7 +334,7 @@
                     switch(e.type) {
                         case 'instrument:modified':
                             this.renderInstrument(e.detail.instrumentID);
-                            this.refs.panelInstructions.render();
+                            this.panelInstructions.render();
                             break;
                     }
                     // this.trackerElm.render();

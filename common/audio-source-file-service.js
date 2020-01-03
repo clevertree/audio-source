@@ -1,7 +1,8 @@
 {
     /** Required Modules **/
-    if(typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+    const isRN  = typeof document === 'undefined';
+    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
+
 
 
     const archiveBuffers = {};

@@ -20,89 +20,91 @@
                 props = {class: props};
             this.state = state || {};
             this.props = props || {};
-            this.refs = {};
             this._eventHandlers = [];
             this._renderOnConnect = true;
-            for(let i=0; i<this.attributes.length; i++)
-                this.props[this.attributes[i].name] = this.attributes[i].value;
+            // for(let i=0; i<this.attributes.length; i++)
+            //     this.props[this.attributes[i].name] = this.attributes[i].value;
         }
 
         get targetElm() { return this; }
 
-        async setState(newState) {
+        setState(newState) {
             console.info('setState', this.state, newState, this);
             Object.assign(this.state, newState);
-            await this.renderOS();
+            this.renderOS();
         }
         setProps(newProps) {
 //             console.info('setProps', this.props, newProps, this);
             Object.assign(this.props, newProps);
-            this.renderProps();
+            // this.renderProps();
         }
 
-        async renderRN() { };
-        async renderOS() {
-            this.renderProps();
-            await this.renderHTML();
+        renderRN() { };
+        renderOS() {
+            // this.renderProps();
+            this.renderHTML();
         }
 
-        async renderHTML() {
+        renderHTML() {
             if(!this.parentNode) {
                 console.warn("skipping render, not attached");
                 return;
             }
 
-            await this.renderContent();
+            this.renderContent();
         }
 
         renderProps() {
             // Render properties
-            while(this.attributes.length > 0)
-                this.removeAttribute(this.attributes[0].name);
-            for(const attrName in this.props) {
-                if(this.props.hasOwnProperty(attrName)) {
-                    const value = this.props[attrName];
-                    if(typeof value === 'function')
-                        this[attrName] = value;
-                    else if (typeof value === "object" && value !== null)
-                        Object.assign(this[attrName], value);
-                    else if (value === true)
-                        this.setAttribute(attrName, '');
-                    else if (value !== null && value !== false)
-                        this.setAttribute(attrName, value);
-                }
-            }
+            // while(this.attributes.length > 0)
+            //     this.removeAttribute(this.attributes[0].name);
+            // for(const attrName in this.props) {
+            //     if(this.props.hasOwnProperty(attrName)) {
+            //         const value = this.props[attrName];
+            //         if(typeof value === 'function')
+            //             this[attrName] = value;
+            //         else if (typeof value === "object" && value !== null)
+            //             Object.assign(this[attrName], value);
+            //         else if (value === true)
+            //             this.setAttribute(attrName, '');
+            //         else if (value !== null && value !== false)
+            //             this.setAttribute(attrName, value);
+            //     }
+            // }
         }
+
+
+
         clearContent(targetElm) {
             let t;
             while (t = targetElm.firstChild)
                 targetElm.removeChild(t);
         }
-        async renderContent() {
-            let content = await this.render();
+        renderContent() {
+            let content = this.render();
             this.clearContent(this.targetElm);
-            await this.appendContentTo(content, this.targetElm);
+            this.appendContentTo(content, this.targetElm);
         }
 
-        async eachContent(content, callback) {
-            content = await resolveContent(content);
+        eachContent(content, callback) {
+            content = resolveContent(content);
             if(Array.isArray(content)) {
                 for(let i=0; i<content.length; i++) {
-                    const ret = await this.eachContent(content[i], callback);
+                    const ret = this.eachContent(content[i], callback);
                     if(ret === false)
                         break;
                 }
                 return;
             }
 
-            return await callback(content);
+            return callback(content);
         }
 
-        async appendContentTo(content, targetElm) {
-            await this.eachContent(content, async (content) => {
+        appendContentTo(content, targetElm) {
+            this.eachContent(content, (content) => {
                 if(content !== null && typeof content !== "undefined") {
                     if (content instanceof ASUIComponent)
-                        await content.appendTo(targetElm);
+                        content.appendTo(targetElm);
                     else if (content instanceof HTMLElement)
                         targetElm.appendChild(content);
                     else
@@ -111,7 +113,7 @@
             });
         }
 
-        async render() {
+        render() {
             throw new Error("Not implemented");
         }
 
@@ -147,33 +149,74 @@
                 this.addAllEventListeners();
         }
 
-        async appendTo(parentNode) {
+        appendTo(parentNode) {
             this._renderOnConnect = false;
             parentNode.appendChild(this);
             // console.info("appendTo", parentNode, this);
-            await this.renderOS();
+            this.renderOS();
         }
+
+
+        createStyleSheetLink(stylePath) {
+            if(isRN) {
+                return null;    // TODO: sloppy
+            } else {
+                const AudioSourceLoader = customElements.get('audio-source-loader');
+                const linkHRef = AudioSourceLoader.resolveURL(stylePath);
+                const link = document.createElement('link');
+                link.setAttribute('rel', 'stylesheet');
+                link.href = linkHRef;
+                return link;
+            }
+        }
+
+        static processProps(props) {
+            if(typeof props !== "object")
+                props = {class: props};
+            return props;
+        }
+
+        static createElement(props, children=null) {
+            props = ASUIComponent.processProps(props);
+            if(isRN) {
+                const React = require('react');
+                const thisClass = this;
+                console.log('React.createElement', React.createElement, thisClass, children);
+                const ret = React.createElement(thisClass, props, children);
+                return ret;
+            } else {
+                if(children !== null)
+                    props.children = children;
+                return new this(props);
+            }
+        }
+
+        static createFactory() {
+            return (props, content) => this.createElement(props, content);
+        }
+
     }
     customElements.define('asui-component', ASUIComponent);
 
     /** Div **/
     class ASUIDiv extends ASUIComponent {
-        /**
-         * @param props
-         * @param content
-         */
-        constructor(props = {}, content = null) {
-            super(props, {content});
-        }
+        // constructor(props = {}) {
+        //     super(props);
+        // }
 
         get name() { return this.props.name; }
-        set content(newContent) { this.setContent(newContent); }
-        async setContent(newContent) {
-            await this.setState({content: newContent});
+        set content(newContent) {
+            this.setContent(newContent);
+        }
+        setContent(newContent) {
+            this.setState({content: newContent});
         }
 
-        async render() {
-            return this.state.content;
+        render() {
+            let children = this.props.children;
+            if(typeof children === "function")
+                children = children(this);
+            return children;
         }
     }
 
@@ -186,7 +229,7 @@
         constructor(props = {}, menuContent = null, dropDownContent = null, actionCallback = null) {
             super(props, {
                 menuContent,
-                content: dropDownContent,
+                dropDownContent,
                 offset: 0,
                 maxLength: 20,
                 optionCount: 0
@@ -206,45 +249,48 @@
 
         // async setTitle(newTitle) {
         //     this.state.menuContent = newTitle;
-        //     if(this.refs.menuContent)
-        //         await this.refs.menuContent.setState({content: newTitle});
+        //     if(this.menuContent)
+        //         await this.menuContent.setState({content: newTitle});
         //     else
         //         await this.setState({title});
         // }
 
-        async render() {
+        render() {
+            let children = this.props.children;
+            if(typeof children === "function")
+                children = children(this);
             const content = [
-                this.refs.menuContent = (this.state.menuContent ? (this.state.menuContent instanceof HTMLElement ? this.state.menuContent : new ASUIDiv('title', this.state.menuContent)) : null),
-                this.props.arrow ? new ASUIDiv('arrow', this.props.vertical ? '▼' : '►') : null,
-                this.refs.dropdown = new ASUIDiv('dropdown', (this.props.open && this.state.content ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
-                // this.props.hasBreak ? new ASUIDiv('break') : null,
+                this.menuContent = (children ? (children instanceof ASUIComponent ? children : ASUIDiv.createElement('title', children)) : null),
+                this.props.arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+                this.dropdown = ASUIDiv.createElement('dropdown', (this.props.open && this.state.dropDownContent ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
+                // this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
 
-            this.refs.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
+            this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
             return content;
         }
 
-        async renderOptions(offset=0, length=20) {
+        renderOptions(offset=0, length=20) {
             let i=0;
             const contentList = [];
-            await this.eachContent(this.state.content, (content) => {
+            this.eachContent(this.state.dropDownContent, (content) => {
                 if(i < offset);
                 else if(contentList.length < length)
                     contentList.push(content);
                 i++;
             });
             if(offset > length) {
-                await this.eachContent(this.state.content, (content) => {
+                this.eachContent(this.state.dropDownContent, (content) => {
                     if (contentList.length < length)
                         contentList.push(content);
                 });
             }
             if(offset + length < i) {
                 const left = i - (offset + length);
-                contentList.push(new ASUIMenu({}, `${left} items left`))
+                contentList.push(ASUIMenu.createElement({}, `${left} items left`))
             }
             // while(contentList.length < length && offset > contentList.length)
-            //     contentList.push(new ASUIMenu({}, '-'));
+            //     contentList.push(ASUIMenu.createElement({}, '-'));
             this.state.optionCount = i;
             return contentList;
         }
@@ -262,13 +308,13 @@
         async close() {
             if(this.props.open !== false) {
                 this.setProps({open: false, stick:false});
-                await this.refs.dropdown.setContent(null);
+                await this.dropdown.setContent(null);
             }
         }
         async open() {
             if(this.props.open !== true) {
                 this.setProps({open: true});
-                await this.refs.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
+                await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
             }
             this.closeAllMenusButThis();
         }
@@ -412,6 +458,15 @@
             //     this.clearSubMenu();
             // }
         }
+
+        static createFactory() {
+            return (props, content, dropDownContent=null) => {
+                props = ASUIComponent.processProps(props);
+                if(dropDownContent !== null)
+                    props.dropDownContent = dropDownContent;
+                return this.createElement(props, content);
+            }
+        }
     }
     customElements.define('asui-menu', ASUIMenu);
 
@@ -469,27 +524,27 @@
         }
 
         async open() {
-            await this.refs.menu.open();
+            await this.menu.open();
         }
 
         getOption(value, title=null, props={}) {
             if(value === this.state.value && title !== null && this.state.title === null)
                 this.state.title = title;
             title = title || value;
-            return new ASUIMenu(props, title, null, async e => {
+            return ASUIMenu.createElement(props, title, null, async e => {
                 this.setValue(value, title);
                 await this.onChange(e);
             });
         }
 
         getOptGroup(title, content, props={}) {
-            return new ASUIMenu(props, title, content);
+            return ASUIMenu.createElement(props, title, content);
         }
 
 
         /** @override **/
-        async render() {
-            return this.refs.menu = new ASUIMenu({vertical: true}, this.state.title, this.state.content);
+        render() {
+            return this.menu = ASUIMenu.createElement({vertical: true}, this.state.title, this.state.content);
         }
     }
     customElements.define('asui-select', ASUIInputSelect);
@@ -508,27 +563,27 @@
 
         get value() { return this.state.value; }
         set value(newValue) {
-            if(this.refs.inputElm)  this.refs.inputElm.value = newValue;
+            if(this.inputElm)  this.inputElm.value = newValue;
             this.state.value = newValue;
         }
 
         async onChange(e) {
-            this.state.value = parseFloat(this.refs.inputElm.value);
+            this.state.value = parseFloat(this.inputElm.value);
             this.state.callback(e, this.state.value);
         }
 
-        async render() {
+        render() {
             const rangeElm = document.createElement('input');
             rangeElm.addEventListener('change', e => this.onChange(e));
             rangeElm.classList.add('themed');
             rangeElm.setAttribute('type', 'range');
             if(this.state.min !== null) rangeElm.setAttribute('min', this.state.min);
             if(this.state.max !== null) rangeElm.setAttribute('max', this.state.max);
-            this.refs.inputElm = rangeElm;
+            this.inputElm = rangeElm;
             if(this.state.name) rangeElm.setAttribute('name', this.state.name);
             if(this.state.title) rangeElm.setAttribute('title', this.state.title);
 
-            await this.appendContentTo(this.state.content, rangeElm);
+            this.appendContentTo(this.state.content, rangeElm);
             if(this.state.value !== null)
                 rangeElm.value = this.state.value;
             return rangeElm;
@@ -553,12 +608,12 @@
     //         this.addEventHandler('change', e => this.onChange(e));
     //     }
     //
-    //     click() { this.refs.inputElm.click(); }
+    //     click() { this.inputElm.click(); }
     //
     //     parseInputValue(inputValue) { return inputValue; }
     //
     //     async onChange(e) {
-    //         this.state.value = this.parseInputValue(this.refs.inputElm.value);
+    //         this.state.value = this.parseInputValue(this.inputElm.value);
     //         this.callback(e, this.state.value);
     //     }
     //
@@ -568,7 +623,7 @@
     //
     //     set value(newValue) {
     //         this.state.value = newValue;
-    //         this.refs.inputElm.value = newValue;
+    //         this.inputElm.value = newValue;
     //         // this.setState({value: newValue});
     //     }
     //
@@ -578,9 +633,9 @@
     //         return inputElm;
     //     }
     //
-    //     async render() {
+    //     render() {
     //         const inputElm = this.createInputElement();
-    //         this.refs.inputElm = inputElm;
+    //         this.inputElm = inputElm;
     //         if(this.state.name) inputElm.setAttribute('name', this.state.name);
     //         if(this.state.title) inputElm.setAttribute('title', this.state.title);
     //
@@ -606,21 +661,21 @@
 
         get value() { return this.state.value; }
         set value(newValue) {
-            if(this.refs.inputElm)  this.state.value = this.refs.inputElm.value = newValue;
+            if(this.inputElm)  this.state.value = this.inputElm.value = newValue;
             else this.setState({value: newValue});
         }
 
         async onChange(e) {
-            this.state.value = this.refs.inputElm.value;
+            this.state.value = this.inputElm.value;
             this.state.callback(e, this.state.value);
         }
 
-        async render() {
+        render() {
             const inputElm = document.createElement('input');
             inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
             inputElm.setAttribute('type', 'text');
-            this.refs.inputElm = inputElm;
+            this.inputElm = inputElm;
             // if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if(this.state.title) inputElm.setAttribute('title', this.state.title);
             if (this.state.placeholder)
@@ -647,21 +702,21 @@
 
         get value() { return this.state.value; }
         set value(newValue) {
-            if(this.refs.inputElm)  this.state.value = this.refs.inputElm.value = newValue;
+            if(this.inputElm)  this.state.value = this.inputElm.value = newValue;
             else this.setState({value: newValue});
         }
 
         async onChange(e) {
-            this.state.value = this.refs.inputElm.value;
+            this.state.value = this.inputElm.value;
             this.state.callback(e, this.state.value);
         }
 
-        async render() {
+        render() {
             const inputElm = document.createElement('input');
             inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
             inputElm.setAttribute('type', 'checkbox');
-            this.refs.inputElm = inputElm;
+            this.inputElm = inputElm;
             // if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if(this.state.title) inputElm.setAttribute('title', this.state.title);
 
@@ -688,22 +743,22 @@
 
         get value() { return this.state.value; }
         set value(newValue) {
-            if(this.refs.inputElm)  this.state.value = this.refs.inputElm.value = newValue;
+            if(this.inputElm)  this.state.value = this.inputElm.value = newValue;
             else this.setState({value: newValue});
         }
 
         async onChange(e) {
-            this.state.value = this.refs.inputElm.value;
+            this.state.value = this.inputElm.value;
             this.state.callback(e, this.state.value);
         }
 
-        async render() {
+        render() {
             const inputElm = document.createElement('input');
             inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
             inputElm.setAttribute('type', 'file');
             inputElm.setAttribute('style', 'display: none;');
-            this.refs.inputElm = inputElm;
+            this.inputElm = inputElm;
             // if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if (this.state.title) inputElm.setAttribute('title', this.state.title);
 
@@ -739,7 +794,7 @@
                 this.state.callback(e, this.value);
         }
 
-        async render() {
+        render() {
             if(!(this.state.content instanceof HTMLElement)) {
                 const divElm = document.createElement('div');
                 divElm.innerHTML = this.state.content;
@@ -796,5 +851,8 @@
         ASUIcon,
         ASUIMenu,
     };
-
+    Object.keys(thisModule.exports).forEach(key => {
+        if(!thisModule.exports.factories) thisModule.exports.factories = {};
+        thisModule.exports.factories[key] = thisModule.exports[key]
+    })
 }

@@ -127,7 +127,7 @@
             console.time('tracker.renderRows()');
             // TODO: const selectedIndicies = this.editorElm.getSelectedIndicies();
             const rowContent = [];
-            this.refs.rows = rowContent;
+            this.rows = rowContent;
             const timeDivision = this.editorElm.song.timeDivision;
             const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
             const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
@@ -145,15 +145,15 @@
             };
 
             const selectedIndicies = this.editorElm.getSelectedIndicies();
-            const cursorIndex = (this.refs.cursorInstruction ? this.refs.cursorInstruction.index : (selectedIndicies.length > 0 ? selectedIndicies[0] : null));
-            const cursorPosition = (this.refs.cursorRow ? this.refs.cursorRow.positionInTicks : null);
+            const cursorIndex = (this.cursorInstruction ? this.cursorInstruction.index : (selectedIndicies.length > 0 ? selectedIndicies[0] : null));
+            const cursorPosition = (this.cursorRow ? this.cursorRow.positionInTicks : null);
             // TODO: solve
 
             let lastRowSegmentID = 0;
             let rowInstructionList = null, lastRowPositionInTicks = 0;
-            this.refs.selectedInstructions = [];
-            this.refs.cursorList = [];
-            // this.refs.cursorListOffset = 0;
+            this.selectedInstructions = [];
+            this.cursorList = [];
+            // this.cursorListOffset = 0;
 
             while (rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback)) {
                 // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
@@ -171,12 +171,12 @@
                         if (selectedIndicies.indexOf(instruction.index) !== -1) props.selected = true;
                         if (instruction.index === cursorIndex) props.cursor = true;
                         const elm = new AudioSourceComposerTrackerInstruction(this.song, instruction, props);
-                        if (props.selected) this.refs.selectedInstructions.push(elm);
+                        if (props.selected) this.selectedInstructions.push(elm);
                         if (props.cursor) {
-                            this.refs.cursorInstruction = elm;
+                            this.cursorInstruction = elm;
                             // isCursorRow = true;
                         }
-                        this.refs.cursorList.push(elm);
+                        this.cursorList.push(elm);
                         return elm;
                     });
 
@@ -188,9 +188,9 @@
                         deltaDuration); // document.createElement('asct-row');
                     // newRowElm.renderInstructions(rowInstructionList);
                     rowContent.push(newRowElm);
-                    this.refs.cursorList.push(newRowElm);
+                    this.cursorList.push(newRowElm);
                     // if(isCursorRow)
-                    //     this.refs.cursorRow = newRowElm;
+                    //     this.cursorRow = newRowElm;
                 }
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
@@ -207,11 +207,11 @@
             console.timeEnd('tracker.renderRows()');
 
             return [
-                this.refs.rowContainer = new ASUIDiv('title', () => [
-                    new ASUIDiv('delta', "Delta"),
-                    new ASUIDiv('instructions', "Instructions"),
+                this.rowContainer = ASUIDiv.createElement('title', () => [
+                    ASUIDiv.createElement('delta', "Delta"),
+                    ASUIDiv.createElement('instructions', "Instructions"),
                 ], {class: 'asc-panel-title'}),
-                this.refs.rowContainer = new ASUIDiv('tracker-row-container', () => [
+                this.rowContainer = ASUIDiv.createElement('tracker-row-container', () => [
                     rowContent
                 ])
             ];
@@ -618,8 +618,8 @@
 
         async updateSongPositionValue(playbackPositionInSeconds) {
             let positionRow;
-            for (let i = this.refs.rows.length - 1; i >= 0; i--) {
-                positionRow = this.refs.rows[i];
+            for (let i = this.rows.length - 1; i >= 0; i--) {
+                positionRow = this.rows[i];
                 if (playbackPositionInSeconds > positionRow.positionInSeconds)
                     break;
             }
@@ -689,7 +689,7 @@
         // }
 
         async setCursorElement(elm) {
-            const listPos = this.refs.cursorList.indexOf(elm);
+            const listPos = this.cursorList.indexOf(elm);
             if (listPos === -1)
                 throw new Error("Not a local element");
             this.state.cursorListOffset = listPos;
@@ -701,8 +701,8 @@
         async selectIndicies(selectedIndicies, cursorIndex = null) {
             if (cursorIndex === null)
                 cursorIndex = selectedIndicies.length > 0 ? selectedIndicies[0] : null;
-            for (let i = 0; i < this.refs.cursorList.length; i++) {
-                const cursorItem = this.refs.cursorList[i];
+            for (let i = 0; i < this.cursorList.length; i++) {
+                const cursorItem = this.cursorList[i];
                 if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
                     await cursorItem.select(selectedIndicies.indexOf(cursorItem.index) !== -1);
                     if (cursorIndex !== null)
@@ -727,16 +727,16 @@
         // }
 
         getFirstCursor() {
-            return this.refs.cursorList[0];
+            return this.cursorList[0];
         }
 
         getLastCursor() {
-            return this.refs.cursorList[this.refs.cursorList.length - 1];
+            return this.cursorList[this.cursorList.length - 1];
         }
 
         getNextCursor() {
             let position = this.state.cursorListOffset;
-            const cursorList = this.refs.cursorList;
+            const cursorList = this.cursorList;
             if (!cursorList[position])
                 throw new Error("Shouldn't happen");
             return cursorList[position + 1] || null;
@@ -744,7 +744,7 @@
 
         getNextRowCursor() {
             let offset = this.state.cursorListOffset;
-            const cursorList = this.refs.cursorList;
+            const cursorList = this.cursorList;
             if (!cursorList[offset])
                 throw new Error("Shouldn't happen");
             // Find the end of the row, and return the next entry
@@ -758,7 +758,7 @@
 
         getPreviousCursor() {
             let offset = this.state.cursorListOffset;
-            const cursorList = this.refs.cursorList;
+            const cursorList = this.cursorList;
             if (!cursorList[offset])
                 throw new Error("Shouldn't happen");
             return cursorList[offset - 1] || null;
@@ -767,7 +767,7 @@
         /** @todo fix **/
         getPreviousRowCursor() {
             let offset = this.state.cursorListOffset;
-            const cursorList = this.refs.cursorList;
+            const cursorList = this.cursorList;
             if (!cursorList[offset])
                 throw new Error("Shouldn't happen");
             let lastRowOffset = offset, rowPosition = 0;
@@ -786,7 +786,7 @@
         //
         // async selectNextCell(e) {
         //     let position = this.state.cursorListOffset;
-        //     const cursorList = this.refs.cursorList;
+        //     const cursorList = this.cursorList;
         //     if(!cursorList[position])
         //         throw new Error("Shouldn't happen");
         //     if(!cursorList[position+1]) {
@@ -798,7 +798,7 @@
         //
         // async selectPreviousCell(e) {
         //     let position = this.state.cursorListOffset;
-        //     const cursorList = this.refs.cursorList;
+        //     const cursorList = this.cursorList;
         //     if(!cursorList[position])
         //         throw new Error("Shouldn't happen");
         //     if(!cursorList[position-1]) {
@@ -912,15 +912,15 @@
 
 
         async clearAllCursors() {
-            for (let i = 0; i < this.refs.cursorList.length; i++) {
-                const cursorElm = this.refs.cursorList[i];
+            for (let i = 0; i < this.cursorList.length; i++) {
+                const cursorElm = this.cursorList[i];
                 await cursorElm.removeCursor();
             }
         }
 
         async clearAllPositions() {
-            for (let i = 0; i < this.refs.cursorList.length; i++) {
-                const cursorElm = this.refs.cursorList[i];
+            for (let i = 0; i < this.cursorList.length; i++) {
+                const cursorElm = this.cursorList[i];
                 await cursorElm.removePosition();
             }
         }

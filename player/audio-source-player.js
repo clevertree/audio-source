@@ -43,9 +43,9 @@
             this.audioContext = null;
             this.volumeGain = null;
             this.song = null;
-            this.props.playlistActive = false;
-            this.props.playing = false;
-            this.props.paused = false;
+            // this.props.playlistActive = false;
+            // this.props.playing = false;
+            // this.props.paused = false;
 
             this.addEventHandler('unload', e => this.saveState(e), window);
         }
@@ -91,7 +91,7 @@
 
         toggleFullscreen(e) {
             const setFullScreen = !this.classList.contains('fullscreen');
-            this.refs.containerElm.classList.toggle('fullscreen', setFullScreen);
+            this.containerElm.classList.toggle('fullscreen', setFullScreen);
             this.classList.toggle('fullscreen', setFullScreen);
         }
 
@@ -108,23 +108,23 @@
                     break;
 
                 case 'song:volume':
-                    this.refs.fieldSongVolume.value = e.detail.volume;
+                    this.fieldSongVolume.value = e.detail.volume;
                     break;
 
                 case 'song:play':
-                    this.refs.containerElm.classList.add('playing');
+                    this.containerElm.classList.add('playing');
                     if(e.detail.promise) {
                         await e.detail.promise;
-                        this.refs.containerElm.classList.remove('playing');
+                        this.containerElm.classList.remove('playing');
                     }
 
-                    this.refs.fieldSongPlaybackPause.disabled = false;
+                    this.fieldSongPlaybackPause.disabled = false;
                     this.updateSongPositionMaxLength(this.song.getSongLengthInSeconds());
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
-                            this.refs.fieldSongPlaybackPause.disabled = true;
-                            this.refs.containerElm.classList.remove('playing');
+                            this.fieldSongPlaybackPause.disabled = true;
+                            this.containerElm.classList.remove('playing');
                             this.classList.remove('playing');
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
@@ -133,7 +133,7 @@
 
                 case 'song:end':
                 case 'song:pause':
-                    this.refs.containerElm.classList.remove('playing');
+                    this.containerElm.classList.remove('playing');
                     break;
             }
         }

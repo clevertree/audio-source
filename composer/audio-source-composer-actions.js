@@ -84,7 +84,7 @@
                 gain.gain.value = volume;
             }
             this.state.volume = volume;
-            this.refs.fieldSongVolume.value = volume * 100;
+            this.fieldSongVolume.value = volume * 100;
         }
 
 
@@ -138,7 +138,7 @@
 
         async loadSongFromFileInput(file = null) {
             if (file === null)
-                file = this.refs.fieldSongFileLoad.inputElm.files[0];
+                file = this.fieldSongFileLoad.inputElm.files[0];
             if (!file)
                 throw new Error("Invalid file input");
             const song = await AudioSourceSong.loadSongFromFileInput(file);
@@ -181,7 +181,7 @@
 //         }
 //
 //         async loadSongFromFileInput(fileInput = null) {
-//             fileInput = fileInput || this.refs.fieldSongFileLoad.inputElm;
+//             fileInput = fileInput || this.fieldSongFileLoad.inputElm;
 //             if (!fileInput || !fileInput.files || fileInput.files.length === 0)
 //                 throw new Error("Invalid file input");
 //             if (fileInput.files.length > 1)
@@ -234,7 +234,7 @@
             const song = this.song;
             if (playbackPosition === null) {
                 const values = new AudioSourceValues();
-                playbackPosition = values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
+                playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
             // if (wasPlaying)
@@ -244,9 +244,9 @@
 
         async updateSongPositionValue(playbackPositionInSeconds) {
             const roundedSeconds = Math.round(playbackPositionInSeconds);
-            this.refs.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
-            if (this.refs.fieldSongPosition.value !== roundedSeconds)
-                this.refs.fieldSongPosition.value = roundedSeconds;
+            this.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
+            if (this.fieldSongPosition.value !== roundedSeconds)
+                this.fieldSongPosition.value = roundedSeconds;
             await this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
         }
 
@@ -325,7 +325,7 @@
             // if(selectedIndicies.length === 0)
             //     throw new Error("No selection");
             if (newCommand === null)
-                newCommand = this.refs.fieldInstructionCommand.value || null;
+                newCommand = this.fieldInstructionCommand.value || null;
             if (promptUser)
                 newCommand = prompt("Set custom command:", newCommand || '');
             if (!newCommand)
@@ -354,7 +354,7 @@
                 throw new Error("No selection");
             const firstInstruction = this.song.instructionFind(groupName, selectedIndicies[0]);
             if (newCommand === null)
-                newCommand = firstInstruction.command || this.refs.fieldInstructionCommand.value || null;
+                newCommand = firstInstruction.command || this.fieldInstructionCommand.value || null;
             if (promptUser)
                 newCommand = prompt("Set custom command:", newCommand || '');
             if (!newCommand)
@@ -377,14 +377,14 @@
             groupName = groupName || tracker.groupName;
             selectedIndicies = selectedIndicies || this.getSelectedIndicies();
 
-            instrumentID = instrumentID !== null ? instrumentID : parseInt(this.refs.fieldInstructionInstrument.value);
+            instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
             if (!Number.isInteger(instrumentID))
                 throw new Error("Invalid Instruction ID");
             for (let i = 0; i < selectedIndicies.length; i++) {
                 song.instructionReplaceInstrument(tracker.groupName, selectedIndicies[i], instrumentID);
                 await this.renderInstruction(groupName, selectedIndicies[i]);
             }
-            await this.refs.fieldInstructionInstrument.setValue(instrumentID);
+            await this.fieldInstructionInstrument.setValue(instrumentID);
             this.playCursorInstruction();
         }
 
@@ -395,7 +395,7 @@
             selectedIndicies = selectedIndicies || this.getSelectedIndicies();
 
             if (!duration)
-                duration = parseFloat(this.refs.fieldInstructionDuration.value);
+                duration = parseFloat(this.fieldInstructionDuration.value);
             if (promptUser)
                 duration = parseInt(prompt("Set custom duration in ticks:", duration));
             if (isNaN(duration))
@@ -415,10 +415,10 @@
             selectedIndicies = selectedIndicies || this.getSelectedIndicies();
 
             if (velocity === null)
-                velocity = this.refs.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(this.refs.fieldInstructionVelocity.value) || null;
+                velocity = this.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
             velocity = parseFloat(velocity);
             if (promptUser)
-                velocity = parseInt(prompt("Set custom velocity (0-127):", this.refs.fieldInstructionVelocity.value));
+                velocity = parseInt(prompt("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
             if (velocity === null || isNaN(velocity))
                 throw new Error("Invalid velocity: " + typeof velocity);
             for (let i = 0; i < selectedIndicies.length; i++) {
@@ -448,10 +448,10 @@
             if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
                 await this.selectIndex(newCursor.index, clearSelection, toggleValue);
                 const instruction = newCursor.instructionFind(this.song, this.trackerElm.groupName);
-                this.refs.fieldInstructionCommand.value = instruction.command;
-                this.refs.fieldInstructionInstrument.value = instruction.instrument;
-                this.refs.fieldInstructionVelocity.value = instruction.velocity;
-                this.refs.fieldInstructionDuration.value = instruction.duration;
+                this.fieldInstructionCommand.value = instruction.command;
+                this.fieldInstructionInstrument.value = instruction.instrument;
+                this.fieldInstructionVelocity.value = instruction.velocity;
+                this.fieldInstructionDuration.value = instruction.duration;
             } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
                 await this.setSongPosition(newCursor.positionInSeconds);
                 if (clearSelection)
@@ -546,14 +546,14 @@
 
             selectedIndicies = selectedIndicies.filter((v, i, a) => a.indexOf(v) === i);
 
-            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
+            this.fieldTrackerSelection.value = selectedIndicies.join(',');
 
             await this.trackerElm.selectIndicies(selectedIndicies);
             this.trackerElm.focus();
         }
 
         getSelectedIndicies() {
-            const value = this.refs.fieldTrackerSelection.value;
+            const value = this.fieldTrackerSelection.value;
             if (value === '')
                 return [];
             return value
@@ -564,7 +564,7 @@
         }
 
         clearSelectedIndicies() {
-            this.refs.fieldTrackerSelection.value = '';
+            this.fieldTrackerSelection.value = '';
             this.trackerElm.selectIndicies([]);
         }
 
@@ -578,7 +578,7 @@
             } else {
                 selectedIndicies.push(index);
             }
-            this.refs.fieldTrackerSelection.value = selectedIndicies.join(',');
+            this.fieldTrackerSelection.value = selectedIndicies.join(',');
             return selectedIndicies;
         }
 
@@ -587,7 +587,7 @@
 
         /** Context menu **/
         async openContextMenu(e) {
-            const contextMenu = this.refs.menuContext;
+            const contextMenu = this.menuContext;
             await contextMenu.openContextMenu(e);
         }
 
@@ -601,7 +601,7 @@
             newGroupName = prompt("Create new instruction group?", newGroupName);
             if (newGroupName) {
                 song.groupAdd(newGroupName, []);
-                this.refs.panelTrackerGroups.renderOS();
+                this.panelTrackerGroups.renderOS();
             } else {
                 this.setStatus("<span class='error'>Create instruction group canceled</span>");
             }
@@ -646,8 +646,8 @@
             if (confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
                 const instrumentID = this.song.instrumentAdd(instrumentConfig);
                 await this.setStatus("New instrument Added to song: " + instrumentURL);
-                this.refs.fieldInstructionInstrument.setValue(instrumentID);
-                await this.refs.panelInstruments.renderOS();
+                this.fieldInstructionInstrument.setValue(instrumentID);
+                await this.panelInstruments.renderOS();
 
             } else {
                 throw new Error(`New instrument canceled: ${instrumentURL}`);
@@ -666,7 +666,7 @@
                 await this.song.instrumentReplace(instrumentID, instrumentConfig);
                 await this.song.loadInstrument(instrumentID, true);
                 await this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
-                this.refs.fieldInstructionInstrument.setValue(instrumentID);
+                this.fieldInstructionInstrument.setValue(instrumentID);
 
             } else {
                 throw new Error(`Change instrument canceled: ${instrumentURL}`);
@@ -704,8 +704,8 @@
                 throw new Error("Invalid segment ID");
             const oldSegmentID = this.trackerElm.state.currentRowSegmentID;
             await this.trackerElm.setState({currentRowSegmentID: newRowSegmentID});
-            this.refs.panelTrackerRowSegmentButtons[oldSegmentID].setProps({selected: false});
-            this.refs.panelTrackerRowSegmentButtons[newRowSegmentID].setProps({selected: true});
+            this.panelTrackerRowSegmentButtons[oldSegmentID].setProps({selected: false});
+            this.panelTrackerRowSegmentButtons[newRowSegmentID].setProps({selected: true});
             // this.currentRowSegmentID = newRowSegmentID;
             // this.renderRows();
         }
@@ -717,15 +717,15 @@
 
             groupName = groupName || e.target.form.getAttribute('data-group');
             await tracker.setGroupName(groupName);
-            await this.refs.panelTrackerGroups.renderOS();
-            await this.refs.panelTrackerRowSegments.renderOS();
+            await this.panelTrackerGroups.renderOS();
+            await this.panelTrackerRowSegments.renderOS();
             //TODO: validate
             // this.selectGroup(selectedGroupName);
         }
 
         trackerChangeOctave(newOctave = null) {
             if (newOctave !== null)
-                this.refs.fieldTrackerOctave.value = newOctave;
+                this.fieldTrackerOctave.value = newOctave;
         }
 
         trackerChangeRowLength(trackerRowLength = null) {
@@ -737,7 +737,7 @@
         async trackerChangeSegmentLength(segmentLengthInTicks = null) {
             const tracker = this.trackerElm;
             await tracker.setState({segmentLengthInTicks});
-            await this.refs.panelTrackerRowSegments.renderOS();
+            await this.panelTrackerRowSegments.renderOS();
         }
 
         // setTrackerRowSegment(e) {
@@ -765,11 +765,11 @@
             const tracker = this.trackerElm;
 
             if (!selectedIndicies)
-                selectedIndicies = this.refs.fieldTrackerSelection.value
+                selectedIndicies = this.fieldTrackerSelection.value
                     .split(/\D+/)
                     .map(index => parseInt(index));
             this.selectIndicies(selectedIndicies);
-            this.refs.fieldTrackerSelection.focus();
+            this.fieldTrackerSelection.focus();
         }
 
         /** Toggle Panels **/

@@ -1,8 +1,8 @@
 {
 
     /** Required Modules **/
-    if(typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+    const isRN  = typeof document === 'undefined';
+    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
 
     const {AudioSourceSong}             = require('../common/audio-source-song.js');
     const {AudioSourceStorage}          = require('../common/audio-source-storage.js');
@@ -43,7 +43,7 @@
             song.playlistPosition = this.playlist.getPlaylistPosition();
             const currentEntry = await this.playlist.getCurrentEntry();
             await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()});
-            await this.refs.panelSong.renderOS();
+            await this.panelSong.renderOS();
             await this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
             await this.setStatus("Loaded song: " + song.name);
@@ -60,17 +60,17 @@
             console.info.apply(null, arguments); // (newStatus);
             if(newStatus.length > 64)
                 newStatus = newStatus.substr(0, 64) + '...';
-            await this.refs.textStatus.setContent(newStatus);
+            await this.textStatus.setContent(newStatus);
         }
 
         setVersion(versionString) {
             this.state.version = versionString;
-            this.refs.textVersion.content = versionString;
+            this.textVersion.content = versionString;
         }
 
 
         closeAllMenus() {
-            this.refs.menuFile.closeAllMenus();
+            this.menuFile.closeAllMenus();
         }
 
 
@@ -123,19 +123,19 @@
                 gain.gain.value = volume;
             }
             this.state.volume = volume;
-            this.refs.fieldSongVolume.value = volume * 100;
+            this.fieldSongVolume.value = volume * 100;
         }
 
 
         async updateSongPositionMaxLength(maxSongLength) {
-            await this.refs.fieldSongPosition.setState({max: Math.ceil(maxSongLength)});
+            await this.fieldSongPosition.setState({max: Math.ceil(maxSongLength)});
         }
 
         updateSongPositionValue(playbackPositionInSeconds) {
             const roundedSeconds = Math.round(playbackPositionInSeconds);
-            this.refs.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
-            if (this.refs.fieldSongPosition.value !== roundedSeconds)
-                this.refs.fieldSongPosition.value = roundedSeconds;
+            this.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
+            if (this.fieldSongPosition.value !== roundedSeconds)
+                this.fieldSongPosition.value = roundedSeconds;
         }
 
 
@@ -148,7 +148,7 @@
 //
 //         async loadSongFromFileInput(file=null) {
 //             if(file === null)
-//                 file = this.refs.fieldSongFileLoad.inputElm.files[0];
+//                 file = this.fieldSongFileLoad.inputElm.files[0];
 //             if (!file)
 //                 throw new Error("Invalid file input");
 //             await this.song.loadSongFromFileInput(file);
@@ -262,7 +262,7 @@
             //     this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
-                playbackPosition = this.refs.fieldSongPosition.value; // this.values.parsePlaybackPosition(this.refs.fieldSongPosition.value);
+                playbackPosition = this.fieldSongPosition.value; // this.values.parsePlaybackPosition(this.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
             // if (wasPlaying)
@@ -382,7 +382,7 @@
         }
         toggleFullscreen(e) {
             const setFullScreen = !this.classList.contains('fullscreen');
-            // this.refs.containerElm.classList.toggle('fullscreen', setFullScreen);
+            // this.containerElm.classList.toggle('fullscreen', setFullScreen);
             this.classList.toggle('fullscreen', setFullScreen);
 
             if (setFullScreen) {
