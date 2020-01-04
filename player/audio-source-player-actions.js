@@ -58,10 +58,9 @@
 
         setStatus(newStatus) {
             console.info.apply(null, arguments); // (newStatus);
-            if(newStatus.length > 64)
-                newStatus = newStatus.substr(0, 64) + '...';
+            this.state.status = newStatus;
             if(this.textStatus)
-                this.textStatus.setContent(newStatus);
+                this.textStatus.renderOS();
         }
 
         setVersion(versionString) {
@@ -225,6 +224,8 @@
             }
             if(!entryData.url)
                 throw new Error("Invalid Playlist Entry URL");
+            if(!entryData.name)
+                entryData.name = entryData.url.split('/').pop();
             return entryData;
         }
 

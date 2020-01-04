@@ -744,7 +744,7 @@
             this.state.title = title;
         }
 
-        async render() {
+        render() {
             return [
                 this.state.title ? ASUIDiv.createElement('title', this.state.title) : null,
                 super.render()
@@ -767,7 +767,7 @@
             this.song = song;
         }
 
-        async render() {
+        render() {
             const instrumentID = this.props.id;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 

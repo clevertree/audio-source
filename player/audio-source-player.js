@@ -13,7 +13,7 @@
     const {AudioSourcePlayerActions} = require('../player/audio-source-player-actions.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
     // const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
-    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {AudioSourceSong} = require('../common/audio-source-song.js');
     const {AudioSourceStorage} = require('../common/audio-source-storage.js');
     /**
@@ -67,7 +67,37 @@
 
 
 
-        async loadState() {
+        connectedCallback() {
+            this.shadowDOM = this.attachShadow({mode: 'closed'});
+
+
+            this.addEventHandler([
+                'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
+                'group:play', 'group:seek',
+                'note:start', 'note:end',
+                'log'
+            ], this.onSongEvent);
+            // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
+
+            this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+
+            // this.loadCSS();
+            // Render (with promise)
+            super.connectedCallback();
+
+            const url = this.getAttribute('src') || this.getAttribute('url');
+            if(url)
+                this.addSongURLToPlaylist(url);
+            else
+                this.loadState();
+
+            const Util = new AudioSourceUtilities;
+            Util.loadPackageInfo()
+                .then(packageInfo => this.setVersion(packageInfo.version));
+        }
+
+
+        loadState() {
 
             const storage = new AudioSourceStorage();
             const state = storage.loadState('audio-source-player-state');
@@ -75,7 +105,7 @@
 
 
             if (state) {
-                await this.setState(state);
+                this.setState(state);
             }
         }
 

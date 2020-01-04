@@ -199,7 +199,7 @@
             return this.instrument.song.instrumentRename(this.instrument.id, newInstrumentName);
         }
 
-        async render() {
+        render() {
             // const instrument = this.instrument;
             const instrumentID = typeof this.instrument.id !== "undefined" ? this.instrument.id : -1;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);

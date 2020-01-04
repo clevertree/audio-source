@@ -165,7 +165,7 @@
         }
 
 
-        async render() {
+        render() {
 
             // const instrument = this;
             const instrumentID = typeof this.state.id !== "undefined" ? this.state.id : -1;

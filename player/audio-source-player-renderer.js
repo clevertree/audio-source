@@ -5,7 +5,7 @@
     if(!isRN)   window.require = customElements.get('audio-source-loader').require;
 
 
-    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     // const {AudioSourceValues} = require('../common/audio-source-values.js');
         // const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     const {
@@ -32,36 +32,6 @@
 
         // get playlist() { return this.state.playlist; }
 
-
-        connectedCallback() {
-            this.shadowDOM = this.attachShadow({mode: 'closed'});
-
-
-            this.addEventHandler([
-                'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-                'group:play', 'group:seek',
-                'note:start', 'note:end',
-                'log'
-            ], this.onSongEvent);
-            // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
-
-            this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
-
-            // this.loadCSS();
-            // Render (with promise)
-            super.connectedCallback(false);
-            this.renderOS(); // TODO: duplicate render?
-            this.loadState();
-
-            const url = this.getAttribute('src') || this.getAttribute('url');
-            if(url)
-                this.addSongURLToPlaylist(url);
-
-            const Util = new AudioSourceUtilities;
-            Util.loadPackageInfo()
-                .then(packageInfo => this.setVersion(packageInfo.version));
-        }
-
         render() {
             console.log('ohok');
             return [
@@ -69,7 +39,7 @@
                 this.createStyleSheetLink('../common/assets/audio-source-common.css'),
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
-                        ASUIMenu.cME({vertical: true, ref:ref=>this.menuFile=ref}, 'File', () => [
+                        ASUIMenu.cME({vertical: true}, 'File', () => [
                             ASUIMenu.cME({}, 'from Memory', async () => {
                                 const {AudioSourceStorage} = require('../common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
@@ -82,13 +52,13 @@
                             ASUIMenu.cME({}, 'from URL', null, null, {disabled: true}),
                             ASUIMenu.cME({}, 'from Library', null, null, {disabled: true}),
                         ]),
-                        ASUIMenu.cME({vertical: true, ref:ref=>this.menuPlaylist=ref}, 'Playlist', () => [
+                        ASUIMenu.cME({vertical: true}, 'Playlist', () => [
                             ASUIMenu.cME({}, 'Play Next Song', null, (e) => this.playlistNext()),
                             ASUIMenu.cME({}, 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
 
                         ]),
                         // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
-                        ASUIMenu.cME({vertical: true, ref:ref=>this.menuView=ref}, 'View', () => [
+                        ASUIMenu.cME({vertical: true}, 'View', () => [
                             ASUIMenu.cME({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
                             ASUIMenu.cME({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
                             ASUIMenu.cME({}, `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
@@ -191,13 +161,16 @@
 
                         ASPPanel.cE('playlist', () => [
                             ASUIDiv.cE('title', 'Playlist'),
-                            ASPPlaylist.cE(this.state.playlist)
+                            ASPPlaylist.cE({
+                                state: this.state.playlist,
+                                ref:ref=>this.elmPlayer=ref
+                            })
                         ]),
                     ]),
 
                     ASUIDiv.cE('asp-status-container', () => [
-                        ASUIDiv.cE({class: 'status-text', ref:ref=>this.textStatus=ref}),
-                        ASUIDiv.cE({class: 'version-text', ref:ref=>this.textVersion=ref}),
+                        ASUIDiv.cE({attrClass: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
+                        ASUIDiv.cE({attrClass: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
                     ])
                 ])
 
@@ -222,7 +195,7 @@
         //     super(props, contentCallback);
         // }
 
-        // async render() {
+        // render() {
         //     return [
         //         this.props.title ? ASUIDiv.createElement('title', this.props.title) : null,
         //         super.render()
@@ -241,12 +214,10 @@
     class ASPPlaylist extends ASUIComponent {
         constructor(props = {}) {
             super(props, {});
-            this.state = Object.assign({
-                entries: [],
-                position: 0,
-                selectedEntries: [],
-            }, props.entries || {});
-
+            this.state = props.state;
+            this.state.position = this.state.position || 0;
+            this.state.entries = this.state.entries || [];
+            this.state.selectedEntries = this.state.selectedEntries || [];
             this.addEventHandler('click', e => this.onClick(e));
         }
 
@@ -285,22 +256,22 @@
 
         /** Entries **/
 
-        async eachEntry(callback) {
+        eachEntry(callback) {
             const results = [];
             let offset=0;
-            await each(this.entries);
+            each(this.entries);
             return results;
 
-            async function each(playlist) {
+            function each(playlist) {
                 for (let i = 0; i < playlist.length; i++) {
                     const entry = playlist[i];
-                    const ret = await callback(entry, offset);
+                    const ret = callback(entry, offset);
                     if (ret === false) return false;
                     if (ret !== null) results.push(ret);
                     offset++;
                     if (entry instanceof ASPPlaylistPlaylistEntry) {
                         if (entry.state.entries) {
-                            const ret = await each(entry.state.entries);
+                            const ret = each(entry.state.entries);
                             if (ret === false)
                                 return false;
                         }
@@ -461,7 +432,7 @@
         }
 
 
-        async render() {
+        render() {
             // await this.updateEntries();
             return [
                 new ASUIGridRow('header', () => [
@@ -471,7 +442,7 @@
                     ASUIDiv.createElement('length', 'Length'),
                 ], {class: 'asp-playlist-header'}),
                 ASUIDiv.createElement('asp-playlist-container', () => [
-                    this.entries.map(/**TODO*/)
+                    this.entries.map((entryData, id) => ASPPlaylistEntry.createElement({id, data:entryData}))
                 ], {'style': `max-height:${Math.round(window.innerHeight / 2)}px;`}),
             ];
         }
@@ -496,20 +467,24 @@
     customElements.define('asp-playlist', ASPPlaylist);
 
     class ASPPlaylistEntry extends ASUIComponent {
-        constructor(props = {}, state) {
-            super(props, state);
-            if(!this.state.name)
-                this.state.name = state.url.split('/').pop();
-            this.props.position = null;
-            this.props.selected = null;
+        constructor(props = {}) {
+            super(props, {});
+            if(!this.props.data)
+                throw new Error("Invalid Entry data");
+            // if(!this.state.name)
+            //     this.state.name = state.url.split('/').pop();
+            // this.props.position = null;
+            // this.props.selected = null;
             // props.isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
         }
 
-        get file() { return this.state.file; }
-        get url() { return this.state.url; }
-        get name() { return this.state.name; }
-        get length() { return this.state.length; }
-        get isPlaylist() { return false; }
+        get id()            { return this.props.id; }
+        get data()          { return this.props.data; }
+        get file()          { return this.data.file; }
+        get url()           { return this.data.url; }
+        get name()          { return this.data.name; }
+        get length()        { return this.data.length; }
+        get isPlaylist()    { return false; }
         // get position() { return this.playlistElm.playlist.indexOf(this); }
 
         // toggleSelect(playlistElm) {
@@ -532,11 +507,12 @@
         }
 
         render() {
-            const entry = this.state;
-            let id = entry.id;
-            if(id<=9) id = '0' + id;
-
-            const [length, fade] = (entry.length || 0).toString().split(':');
+            let id = '-';
+            if(Number.isInteger(this.id)) {
+                id = this.id;
+                if (id <= 9) id = '0' + id;
+            }
+            const [length, fade] = (this.length || 0).toString().split(':');
             const formattedLength = (() => {
                 try { return new Date(length * 1000).toISOString().substr(14, 5); }
                 catch { return "N/A"; }
@@ -548,7 +524,7 @@
 
             return [
                 ASUIDiv.createElement('id', id+':'),
-                ASUIDiv.createElement('name', entry.name),
+                ASUIDiv.createElement('name', this.name),
                 // ASUIDiv.createElement('url', this.state.url),
                 ASUIDiv.createElement('length', formattedLength),
             ];
@@ -566,22 +542,22 @@
         //         container.scrollTop = this.offsetTop - container.offsetHeight;
         // }
 
-        static parseFromData(entryData, id, props={}) {
-            if(typeof entryData === "string") {
-                const split = entryData.split(';');
-                entryData = {url: split[0]};
-                if(split[1]) entryData.name = split[1];
-                if(split[2]) entryData.length = split[2];
-            }
-            if(!entryData.url)
-                throw new Error("Invalid Playlist Entry URL");
-
-            entryData.id = id;
-            const isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
-            if(isPlaylist)
-                return new ASPPlaylistPlaylistEntry(props, entryData);
-            return new ASPPlaylistEntry(props, entryData);
-        }
+        // static parseFromData(entryData, id, props={}) {
+        //     if(typeof entryData === "string") {
+        //         const split = entryData.split(';');
+        //         entryData = {url: split[0]};
+        //         if(split[1]) entryData.name = split[1];
+        //         if(split[2]) entryData.length = split[2];
+        //     }
+        //     if(!entryData.url)
+        //         throw new Error("Invalid Playlist Entry URL");
+        //
+        //     entryData.id = id;
+        //     const isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
+        //     if(isPlaylist)
+        //         return new ASPPlaylistPlaylistEntry(props, entryData);
+        //     return new ASPPlaylistEntry(props, entryData);
+        // }
 
     }
     customElements.define('aspp-entry', ASPPlaylistEntry);
@@ -668,7 +644,7 @@
         //     }
         // }
 
-        async render() {
+        render() {
             const content = super.render();
             if(this.entries && this.props.open) {
                 // await this.updateEntries();

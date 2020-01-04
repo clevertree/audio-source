@@ -22,6 +22,8 @@
             this._renderOnConnect = true;
             // for(let i=0; i<this.attributes.length; i++)
             //     this.props[this.attributes[i].name] = this.attributes[i].value;
+            this.renderAttributes();
+
         }
 
         get targetElm() { return this; }
@@ -39,7 +41,6 @@
 
         renderRN() { };
         renderOS() {
-            this.renderAttributes();
             this.renderHTML();
         }
 
@@ -54,22 +55,22 @@
 
         renderAttributes() {
             // Render attributes
-            while(this.attributes.length > 0)
-                this.removeAttribute(this.attributes[0].name);
-            if(!this.props.attrs)
-                return;
-            const attrs = this.props.attrs;
-            for(const attrName in attrs) {
-                if(attrs.hasOwnProperty(attrName)) {
-                    const value = attrs[attrName];
-                    if(typeof value === 'function')
-                        this[attrName] = value;
-                    else if (typeof value === "object" && value !== null)
-                        Object.assign(this[attrName], value);
-                    else if (value === true)
-                        this.setAttribute(attrName, '');
-                    else if (value !== null && value !== false)
-                        this.setAttribute(attrName, value);
+            // while(this.attributes.length > 0)
+            //     this.removeAttribute(this.attributes[0].name);
+            if(this.props.attrs) {
+                const attrs = this.props.attrs;
+                for (const attrName in attrs) {
+                    if (attrs.hasOwnProperty(attrName)) {
+                        const value = attrs[attrName];
+                        if (typeof value === 'function')
+                            this[attrName] = value;
+                        else if (typeof value === "object" && value !== null)
+                            Object.assign(this[attrName], value);
+                        else if (value === true)
+                            this.setAttribute(attrName, '');
+                        else if (value !== null && value !== false)
+                            this.setAttribute(attrName, value);
+                    }
                 }
             }
         }
@@ -178,6 +179,10 @@
                 props = {attrs: {class: props}};
             if(typeof props !== "object")
                 throw new Error("Invalid props: " + typeof props);
+            if(props.attrClass) {
+               if(!props.attrs) props.attrs = {};
+               props.attrs.class = props.attrClass;
+            }
             return props;
         }
 
@@ -192,7 +197,10 @@
             } else {
                 if(children !== null)
                     props.children = children;
-                return new this(props);
+                const ref = new this(Object.freeze(props));
+                if(typeof props.ref === "function")
+                    props.ref(ref);
+                return ref;
             }
         }
         static cE(props, children=null) { return this.createElement(props, children); }
