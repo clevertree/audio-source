@@ -242,12 +242,12 @@
                 dropDownContent,
                 offset: 0,
                 maxLength: 20,
-                optionCount: 0
+                optionCount: 0,
+                open: false,
+                stick: false,
             });
-            this.props.stick = false;
-            this.props.open = false;
-            if(dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
-                this.props.arrow = true;
+            // this.props.stick = false;
+            // this.props.open = false;
             this.action = actionCallback;
             this.addEventHandler('mouseover', this.onInputEvent);
             this.addEventHandler('mouseout', this.onInputEvent);
@@ -266,13 +266,16 @@
         // }
 
         render() {
+            let arrow = false;
+            if(this.state.dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
+                arrow = true;
             let children = this.props.children;
             if(typeof children === "function")
                 children = children(this);
             const content = [
                 this.menuContent = (children ? (children instanceof ASUIComponent ? children : ASUIDiv.createElement('title', children)) : null),
                 this.props.arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
-                this.dropdown = ASUIDiv.createElement('dropdown', (this.props.open && this.state.dropDownContent ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
+                this.dropdown = ASUIDiv.createElement('dropdown', (this.state.open && this.state.dropDownContent ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
                 // this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
 
@@ -306,7 +309,7 @@
         }
 
         async toggleSubMenu(e) {
-            const open = !this.props.stick;
+            const open = !this.state.stick;
             let parentMenu = this;
             while(parentMenu) {
                 await parentMenu.setProps({stick:open});
@@ -316,14 +319,14 @@
         }
 
         async close() {
-            if(this.props.open !== false) {
-                this.setProps({open: false, stick:false});
+            if(this.state.open !== false) {
+                this.setState({open: false, stick:false});
                 await this.dropdown.setContent(null);
             }
         }
         async open() {
-            if(this.props.open !== true) {
-                this.setProps({open: true});
+            if(this.state.open !== true) {
+                this.setState({open: true});
                 await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
             }
             this.closeAllMenusButThis();
@@ -371,7 +374,7 @@
                     break;
 
                 case 'mouseout':
-                    if(!this.props.stick) {
+                    if(!this.state.stick) {
                         clearTimeout(this.mouseTimeout);
                         this.mouseTimeout = setTimeout(e => {
                             this.close();
@@ -500,11 +503,66 @@
     customElements.define('asuig-row', ASUIGridRow);
 
 
+
+    /** Icon **/
+    class ASUIcon extends ASUIComponent {
+        constructor(props = {}) {
+            super(props, {});
+        }
+
+        render() { return null; }
+
+        static createIcon(propsOrClassName={}) {
+            return this.createElement(propsOrClassName);
+        }
+    }
+
+    customElements.define('asui-icon', ASUIcon);
+
+    /** Inputs **/
+
+    class ASUIInputButton extends ASUIComponent {
+        constructor(props = {}) {
+            super(props, {
+                // pressed: false
+            });
+
+            this.addEventHandler('click', e => this.onClick(e));
+        }
+
+        onClick(e) {
+            if(!this.props.disabled)
+                this.state.callback(e, this.value);
+        }
+
+        render() {
+            if(!(this.props.children instanceof HTMLElement)) {
+                const divElm = document.createElement('div');
+                divElm.innerHTML = this.props.children;
+                return divElm;
+            }
+            return this.props.children;
+        }
+
+
+        static createInputButton(props, children = null, callback = null, title = null) {
+            props = Object.assign({
+                callback,
+                title,
+            }, ASUIComponent.processProps(props));
+            return this.createElement(props, children);
+        }
+    }
+
+    customElements.define('asui-button', ASUIInputButton);
+
+
+
     class ASUIInputSelect extends ASUIDiv {
-        constructor(props, optionContent, actionCallback, defaultValue = null, valueTitle=null) {
-            super(props, () => optionContent(this));
-            this.setValue(defaultValue, valueTitle);
-            this.actionCallback = actionCallback;
+        constructor(props) {
+            super(props);
+            // this.setValue(defaultValue, valueTitle);
+            // this.actionCallback = actionCallback;
         }
 
         get value() { return this.state.value; }
@@ -514,7 +572,7 @@
             this.state.title = title;
             this.state.value = value;
             if(title === null) {
-                await this.resolveOptions(this.state.content);
+                await this.resolveOptions(this.props.children);
                 if(this.state.title === null)
                     console.warn('Title not found for value: ', value);
             }
@@ -528,8 +586,8 @@
 
         async resolveOptions(content) {
             await this.eachContent(content, async (menu) => {
-                if(menu instanceof ASUIMenu && menu.state.content)
-                    await this.resolveOptions(menu.state.content);
+                if(menu instanceof ASUIMenu && menu.props.children)
+                    await this.resolveOptions(menu.props.children);
             });
         }
 
@@ -554,21 +612,27 @@
 
         /** @override **/
         render() {
-            return this.menu = ASUIMenu.createElement({vertical: true}, this.state.title, this.state.content);
+            return this.menu = ASUIMenu.createElement({vertical: true}, this.state.title, this.props.children);
+        }
+
+        static createInputSelect(props, optionContent, actionCallback, defaultValue = null, valueTitle=null) {
+            props = Object.assign({
+                optionContent: () => optionContent(this),            // TODO: , () => optionContent(this)
+                actionCallback,
+                defaultValue,
+                valueTitle,
+            }, ASUIComponent.processProps(props));
+            return this.createElement(props);
         }
     }
     customElements.define('asui-select', ASUIInputSelect);
 
+
+
+
     class ASUIInputRange extends ASUIComponent {
-        constructor(props = {}, callback = null, min = 1, max = 100, value = null, title = null,) {
-            super(props, {
-                min,
-                max,
-                value,
-                callback,
-                title,
-            });
-            // this.addEventHandler('change', e => this.onChange(e));
+        constructor(props = {}) {
+            super(props);
         }
 
         get value() { return this.state.value; }
@@ -593,80 +657,32 @@
             if(this.state.name) rangeElm.setAttribute('name', this.state.name);
             if(this.state.title) rangeElm.setAttribute('title', this.state.title);
 
-            this.appendContentTo(this.state.content, rangeElm);
+            this.appendContentTo(this.props.children, rangeElm);
             if(this.state.value !== null)
                 rangeElm.value = this.state.value;
             return rangeElm;
+        }
+
+        static createInputRange(props, callback = null, min = 1, max = 100, value = null, title = null) {
+            props = Object.assign({
+                min,
+                max,
+                value,
+                callback,
+                title,
+            }, ASUIComponent.processProps(props));
+            return this.createElement(props);
         }
     }
     customElements.define('asui-range', ASUIInputRange);
 
 
 
-    /** Abstract Panel Input **/
-    // class ASUIAbstractInput extends ASUIComponent {
-    //     constructor(key, callback, content=null, title=null, value=null, props={}) {
-    //         super({
-    //             value,
-    //             content,
-    //             title,
-    //         }, props);
-    //         props.key = key;
-    //         this.callback = callback || function () {
-    //             console.warn("No callback set")
-    //         };
-    //         this.addEventHandler('change', e => this.onChange(e));
-    //     }
-    //
-    //     click() { this.inputElm.click(); }
-    //
-    //     parseInputValue(inputValue) { return inputValue; }
-    //
-    //     async onChange(e) {
-    //         this.state.value = this.parseInputValue(this.inputElm.value);
-    //         this.callback(e, this.state.value);
-    //     }
-    //
-    //     get value() {
-    //         return this.state.value;
-    //     }
-    //
-    //     set value(newValue) {
-    //         this.state.value = newValue;
-    //         this.inputElm.value = newValue;
-    //         // this.setState({value: newValue});
-    //     }
-    //
-    //     createInputElement() {
-    //         const inputElm = document.createElement('input');
-    //         inputElm.classList.add('themed');
-    //         return inputElm;
-    //     }
-    //
-    //     render() {
-    //         const inputElm = this.createInputElement();
-    //         this.inputElm = inputElm;
-    //         if(this.state.name) inputElm.setAttribute('name', this.state.name);
-    //         if(this.state.title) inputElm.setAttribute('title', this.state.title);
-    //
-    //         await this.appendContentTo(this.state.content, inputElm);
-    //         if(this.state.value !== null)
-    //             inputElm.value = this.state.value;
-    //         return inputElm;
-    //     }
-    // }
-
-
     class ASUIInputText extends ASUIComponent {
-        constructor(props={}, callback = null, value = null, title = null, placeholder = null) {
+        constructor(props = {}) {
             super(props, {
-                callback,
-                value,
-                placeholder,
-                title
+                value: props.value
             });
-            // props.title = title;
-            // this.addEventHandler('change', e => this.onChange(e));
         }
 
         get value() { return this.state.value; }
@@ -694,20 +710,27 @@
                 inputElm.value = this.state.value;
             return inputElm;
         }
+
+        static createInputText(props={}, callback = null, value = null, title = null, placeholder = null) {
+            props = Object.assign({
+                callback,
+                value,
+                placeholder,
+                title
+            }, ASUIComponent.processProps(props));
+            return this.createElement(props);
+        }
+
     }
     customElements.define('asui-text', ASUIInputText);
 
 
 
     class ASUIInputCheckBox extends ASUIComponent {
-        constructor(props={}, name = null, callback = null, checked = false, title = null) {
+        constructor(props = {}) {
             super(props, {
-                callback,
-                checked,
+                checked: false
             });
-            // props.name = name;
-            this.props.title = title;
-            // this.addEventHandler('change', e => this.onChange(e));
         }
 
         get value() { return this.state.value; }
@@ -734,19 +757,24 @@
             return inputElm;
         }
 
+        static createInputCheckBox(props={}, callback = null, checked = false, title = null) {
+            props = Object.assign({
+                callback,
+                checked,
+                title,
+            }, ASUIComponent.processProps(props));
+            return this.createElement(props);
+        }
+
     }
 
     customElements.define('asui-input-checkbox', ASUIInputCheckBox);
 
 
-    class ASUIFileInput extends ASUIComponent {
+    class ASUIInputFile extends ASUIComponent {
         constructor(props={}, callback = null, content, accepts = null, title = null) {
             // constructor(name = null, callback = null, checked = false, title = null, props={}) {
-            super(props, {
-                callback,
-                content,
-                title,
-            });
+            super(props, );
 //             props.name = name;
             // this.addEventHandler('change', e => this.onChange(e));
         }
@@ -775,7 +803,7 @@
             const labelElm = document.createElement('label');
             labelElm.classList.add('button-style');
 
-            this.appendContentTo(this.state.content, labelElm);
+            this.appendContentTo(this.props.children, labelElm);
             this.appendContentTo(inputElm, labelElm);
 
             return [
@@ -784,64 +812,31 @@
 
         }
 
-    }
-        customElements.define('asui-file', ASUIFileInput);
-
-
-    class ASUIInputButton extends ASUIComponent {
-        constructor(props = {}, content = null, callback = null, title = null) {
-            super(props, {
-                content,
+        static createInputFile(props={}, callback = null, children, accepts = null, title = null) {
+            props = Object.assign({
                 callback,
+                accepts,
                 title,
-            });
-
-            this.addEventHandler('click', e => this.onClick(e));
+            }, ASUIComponent.processProps(props));
+            return this.createElement(props, children);
         }
-
-        onClick(e) {
-            if(!this.props.disabled)
-                this.state.callback(e, this.value);
-        }
-
-        render() {
-            if(!(this.state.content instanceof HTMLElement)) {
-                const divElm = document.createElement('div');
-                divElm.innerHTML = this.state.content;
-                return divElm;
-            }
-            return this.state.content;
-        }
-
     }
+    customElements.define('asui-input-file', ASUIInputFile);
 
-    customElements.define('asui-button', ASUIInputButton);
-
-
-    /** Icon **/
-    class ASUIcon extends ASUIComponent {
-        constructor(props = {}) {
-            super(props, {});
-        }
-
-        render() { return null; }
-    }
-
-    customElements.define('asui-icon', ASUIcon);
 
 
 
 
     /** Utility functions **/
 
-    async function resolveContent(content) {
-        while(true) {
-            if (content instanceof Promise) content = await content;
-            else if (typeof content === "function") content = content(this);
-            else break;
-        }
-        return content;
-    }
+    // async function resolveContent(content) {
+    //     while(true) {
+    //         if (content instanceof Promise) content = await content;
+    //         else if (typeof content === "function") content = content(this);
+    //         else break;
+    //     }
+    //     return content;
+    // }
 
 
     /** Export this script **/
@@ -851,7 +846,7 @@
         ASUIComponent,
         ASUIDiv,
         ASUIInputButton,
-        ASUIFileInput,
+        ASUIInputFile,
         ASUIInputText,
         ASUIInputRange,
         ASUIInputSelect,

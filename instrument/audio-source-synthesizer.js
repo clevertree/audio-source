@@ -16,7 +16,7 @@
         ASUIGrid,
         ASUIGridRow,
         ASUIInputButton,
-        ASUIFileInput,
+        ASUIInputFile,
         ASUIInputRange,
         ASUIInputSelect,
         ASUIInputCheckBox,
@@ -205,7 +205,7 @@
 
                     this.menu = ASUIMenu.createElement(
                         {vertical: true},
-                        new ASUIcon('config'),
+                        ASUIcon.createIcon('config'),
                         () => [
                             ASUIMenu.createElement({}, 'Change Instrument to',
                                 async () => {
@@ -243,7 +243,7 @@
                 // ),
                 // ASUIInputButton.createElement('instrument-remove',
                 //     (e) => this.remove(e, instrumentID),
-                //     new ASUIcon('delete'),
+                //     ASUIcon.createIcon('delete'),
                 //     'Remove Instrument'),
 
                 (!this.state.open ? null : (

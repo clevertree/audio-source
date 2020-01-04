@@ -14,7 +14,7 @@
         ASUIGrid,
         ASUIGridRow,
         ASUIInputButton,
-        ASUIFileInput,
+        ASUIInputFile,
         ASUIInputRange,
         ASUIInputSelect,
         ASUIInputText,
@@ -98,16 +98,16 @@
 
                             this.panelSong = new ASCForm('playback', 'Playback', () => [
                                 this.fieldSongPlaybackPlay = ASUIInputButton.createElement('play',
-                                    new ASUIcon('play'),
+                                    ASUIcon.createIcon('play'),
                                     e => this.songPlay(e),
                                     "Play Song"),
                                 this.fieldSongPlaybackPause = ASUIInputButton.createElement('pause',
-                                    new ASUIcon('pause'),
+                                    ASUIcon.createIcon('pause'),
                                     e => this.songPause(e),
                                     "Pause Song"),
                                 // this.fieldSongPlaybackPause.disabled = true;
                                 this.fieldSongPlaybackStop = ASUIInputButton.createElement('stop',
-                                    new ASUIcon('stop'),
+                                    ASUIcon.createIcon('stop'),
                                     e => this.songStop(e),
                                     "Stop Song")
                             ]),
@@ -136,14 +136,14 @@
                             ]),
 
                             new ASCForm('file', 'File', () => [
-                                this.fieldSongFileLoad = new ASUIFileInput('file-load',
+                                this.fieldSongFileLoad = new ASUIInputFile('file-load',
                                     e => this.loadSongFromFileInput(),
-                                    new ASUIcon('file-load'),
+                                    ASUIcon.createIcon('file-load'),
                                     `.json,.mid,.midi`,
                                     "Load Song from File"
                                 ),
                                 this.fieldSongFileSave = ASUIInputButton.createElement('file-save',
-                                    new ASUIcon('file-save'),
+                                    ASUIcon.createIcon('file-save'),
                                     e => this.saveSongToFile(),
                                     "Save Song to File"
                                 ),
@@ -228,12 +228,12 @@
 
                                 this.fieldInstructionInsert = ASUIInputButton.createElement(
                                     'insert',
-                                    new ASUIcon('insert'),
+                                    ASUIcon.createIcon('insert'),
                                     e => this.instructionInsert(),
                                     "Insert Instruction"),
 
                                 this.fieldInstructionDelete = ASUIInputButton.createElement('delete',
-                                    new ASUIcon('delete'),
+                                    ASUIcon.createIcon('delete'),
                                     e => this.instructionDelete(e),
                                     "Delete Instruction"),
 

@@ -15,7 +15,7 @@
             ASUIGrid,
             ASUIGridRow,
             ASUIInputButton,
-            ASUIFileInput,
+            ASUIInputFile,
             ASUIInputRange,
             ASUIInputText,
             ASUIcon,
@@ -70,36 +70,34 @@
                             ASUIDiv.cE('title', 'Song'),
                             ASPForm.cE('playback', () => [
                                 ASUIDiv.cE('title', 'Playback'),
-                                this.fieldSongPlaybackPlay = ASUIInputButton.cE('play',
-                                    new ASUIcon('play'),
+                                ASUIInputButton.createInputButton('hide-on-playing',
+                                    ASUIcon.createIcon('play'),
                                     e => this.playlistPlay(e),
-                                    "Play Song",
-                                    {class: 'hide-on-playing'}),
-                                this.fieldSongPlaybackPause = ASUIInputButton.cE('pause',
-                                    new ASUIcon('pause'),
+                                    "Play Song"),
+                                ASUIInputButton.createInputButton('show-on-playing',
+                                    ASUIcon.createIcon('pause'),
                                     e => this.playlistPause(e),
-                                    "Pause Song",
-                                    {class: 'show-on-playing'}),
-                                this.fieldSongPlaybackStop = ASUIInputButton.cE('stop',
-                                    new ASUIcon('stop'),
+                                    "Pause Song"),
+                                ASUIInputButton.createInputButton({},
+                                    ASUIcon.createIcon('stop'),
                                     e => this.playlistStop(e),
                                     "Stop Song"),
-                                this.fieldSongPlaylistNext = ASUIInputButton.cE('playlist-next',
-                                    new ASUIcon('next'),
+                                ASUIInputButton.createInputButton('playlist-next',
+                                    ASUIcon.createIcon('next'),
                                     e => this.playlistNext(e),
                                     "Next Song")
                             ]),
 
                             ASPForm.cE('file', () => [
                                 ASUIDiv.cE('title', 'File'),
-                                this.fieldSongFileLoad = ASUIFileInput.cE('file-load',
+                                this.fieldSongFileLoad = ASUIInputFile.createInputFile('file-load',
                                     e => this.loadSongFromFileInput(),
-                                    new ASUIcon('file-load'),
+                                    ASUIcon.createIcon('file-load'),
                                     `.json,.mid,.midi`,
                                     "Load Song from File"
                                 ),
                                 this.fieldSongFileSave = ASUIInputButton.cE('file-save',
-                                    new ASUIcon('file-save'),
+                                    ASUIcon.createIcon('file-save'),
                                     e => this.saveSongToFile(),
                                     "Save Song to File"
                                 ),
@@ -107,13 +105,13 @@
 
                             ASPForm.cE('volume', () => [
                                 ASUIDiv.cE('title', 'Volume'),
-                                this.fieldSongVolume = ASUIInputRange.cE('volume',
+                                this.fieldSongVolume = ASUIInputRange.createInputRange('volume',
                                     (e, newVolume) => this.setVolume(newVolume / 100), 1, 100, this.state.volume * 100, 'Song Volume')
                             ]),
 
                             ASPForm.cE('timing', () => [
                                 ASUIDiv.cE('title', 'Timing'),
-                                this.fieldSongTiming = ASUIInputText.cE('timing',
+                                this.fieldSongTiming = ASUIInputText.createInputText('timing',
                                     (e, pos) => this.setSongPosition(pos),
                                     '00:00:000',
                                     'Song Timing',
@@ -122,7 +120,7 @@
 
                             ASPForm.cE('position', () => [
                                 ASUIDiv.cE('title', 'Position'),
-                                this.fieldSongPosition = ASUIInputRange.cE('position',
+                                this.fieldSongPosition = ASUIInputRange.createInputRange('position',
                                     (e, pos) => this.setSongPosition(pos),
                                     0,
                                     Math.ceil(this.state.songLength),
@@ -133,7 +131,7 @@
 
                             ASPForm.cE('name', () => [
                                 ASUIDiv.cE('title', 'Name'),
-                                this.fieldSongName = ASUIInputText.cE('name',
+                                this.fieldSongName = ASUIInputText.createInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
                                     this.song ? this.song.name : "[ no song loaded ]",
                                     "Song Name"
@@ -142,7 +140,7 @@
 
                             ASPForm.cE('version', () => [
                                 ASUIDiv.cE('title', 'Version'),
-                                this.fieldSongVersion = ASUIInputText.cE('version',
+                                this.fieldSongVersion = ASUIInputText.createInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
                                     this.song ? this.song.version : "0.0.0",
                                     "Song Version",
@@ -150,7 +148,7 @@
                             ]),
 
                             ASPForm.cE('source', () => [
-                                this.fieldSongVersion = ASUIInputButton.cE('version',
+                                this.fieldSongVersion = ASUIInputButton.createInputButton('version',
                                     "Edit<br/>Source",
                                     (e) => this.openSongSource(e),
                                     "Open Song Source",
