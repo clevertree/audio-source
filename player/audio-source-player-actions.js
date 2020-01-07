@@ -15,6 +15,7 @@
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
         constructor(props={}, state={}) {
             super(props, state);
+            this._onSongEventCallback = (e) => this.onSongEvent(e);
 
             // this.activeSong = null;
             // this.nextPlaylistSong = null;
@@ -33,17 +34,19 @@
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
-                this.song.removeDispatchElement(this);
+                this.song.removeEventListener('*', this._onSongEventCallback);
+                // this.song.removeDispatchElement(this);
                 // TODO: unload song?
             }
             this.song = song;
+            this.song.addEventListener('*', this._onSongEventCallback);
             this.state.songLength = song.getSongLengthInSeconds();
             // this.song.setVolume(this.state.volume);
-            this.song.addDispatchElement(this);
+            // this.song.addDispatchElement(this);
             song.playlistPosition = this.playlist.getPlaylistPosition();
             const currentEntry = await this.playlist.getCurrentEntry();
             await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()});
-            await this.panelSong.renderOS();
+            await this.panelSong.forceUpdate();
             await this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
             await this.setStatus("Loaded song: " + song.name);
@@ -60,7 +63,7 @@
             console.info.apply(null, arguments); // (newStatus);
             this.state.status = newStatus;
             if(this.textStatus)
-                this.textStatus.renderOS();
+                this.textStatus.forceUpdate();
         }
 
         setVersion(versionString) {
@@ -164,7 +167,7 @@
             if(this.isPlaylist(url)) {
                 const playlistEntry = new ASPPlaylistPlaylistEntry({url    });
                 this.addEntry(playlistEntry);
-                await this.renderOS();
+                await this.forceUpdate();
                 // await this.loadPlaylistFromURL(url);
                 // const entry = this.getCurrentEntry();
                 // if(entry.url && !this.isPlaylist(entry.url))
@@ -245,7 +248,7 @@
 
         addSongURLToPlaylist(url, name=null, length=null) {
             this.addEntryToPlaylist({url, name, length});
-            this.renderOS();
+            this.forceUpdate();
             // await this.playlist.addSongURLToPlaylist(url, name, length);
             this.setStatus("Added URL to playlist: " + url);
         }
@@ -258,7 +261,7 @@
                 length
             };
             this.addEntryToPlaylist(entryData);
-            this.renderOS();
+            this.forceUpdate();
             this.setStatus("Added file to playlist: " + file.name);
         }
 

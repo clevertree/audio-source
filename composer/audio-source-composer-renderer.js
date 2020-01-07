@@ -433,15 +433,15 @@
         /** @deprecated shouldn't be used **/
         renderInstrument(instrumentID) {
             if (this.instruments[instrumentID])
-                this.instruments[instrumentID].renderOS();
+                this.instruments[instrumentID].forceUpdate();
         }
 
         async renderInstruments() {
             // console.log("rendering instruments");
             clearTimeout(this.timeouts.renderInstruments);
             this.timeouts.renderInstruments = setTimeout(async () => {
-                await this.panelInstruments.renderOS();
-                await this.panelInstructions.renderOS();
+                await this.panelInstruments.forceUpdate();
+                await this.panelInstructions.forceUpdate();
             }, 200);
         }
 
@@ -777,7 +777,7 @@
 
                 try {
                     const instrument = await this.song.loadInstrument(instrumentID);
-                    const instrumentConfig = await this.song.getInstrumentConfig(instrumentID);
+                    const instrumentConfig = this.song.getInstrumentConfig(instrumentID);
 
                     if (instrument instanceof HTMLElement) {
                         content.push(instrument);

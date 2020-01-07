@@ -45,7 +45,7 @@
             await this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
             await this.setStatus("Loaded song: " + song.name);
-            await this.renderOS();
+            await this.forceUpdate();
         }
 
         /** Playback **/
@@ -112,7 +112,7 @@
             const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
             let songData = storage.generateDefaultSong(defaultInstrumentURL);
             await this.song.loadSongData(songData);
-            await this.renderOS();
+            await this.forceUpdate();
             await this.setStatus("Loaded new song", songData);
         }
 
@@ -175,7 +175,7 @@
 
 //         async loadSongFromMemory(songUUID) {
 //             await this.song.loadSongFromMemory(songUUID);
-//             await this.renderOS();
+//             await this.forceUpdate();
 //             await this.setStatus("Song loaded from memory: " + songUUID);
 // //         console.info(songData);
 //         }
@@ -188,7 +188,7 @@
 //                 throw new Error("Invalid file input: only one file allowed");
 //             const file = fileInput.files[0];
 //             await this.song.loadSongFromFileInput(file);
-//             await this.renderOS();
+//             await this.forceUpdate();
 //             await this.setStatus("Song loaded from file: ", file);
 //         }
 //
@@ -200,14 +200,14 @@
 //             await this.song.loadSongFromURL(url);
 //             await this.setStatus("Song loaded from url: " + url);
 //             // console.info(this.song.data);
-//             await this.renderOS();
+//             await this.forceUpdate();
 //         }
 //
 //         async loadSongFromData(songData) {
 //             await this.song.loadSongData(songData);
 //             // this.render(true);
 //             await this.setStatus("Song loaded from data", songData);
-//             await this.renderOS();
+//             await this.forceUpdate();
 //         }
 
         /** Song Playback **/
@@ -338,7 +338,7 @@
             const songPosition = song.getSongPositionInTicks();
             console.log(songPosition);
             let insertIndex = song.instructionInsertAtPosition(groupName, songPosition, newInstruction);
-            await tracker.renderOS();
+            await tracker.forceUpdate();
             this.selectIndicies(insertIndex);
             this.playCursorInstruction();
         }
@@ -436,7 +436,7 @@
 
             for (let i = 0; i < selectedIndicies.length; i++)
                 song.instructionDeleteAtIndex(tracker.groupName, selectedIndicies[i]);
-            await tracker.renderOS();
+            await tracker.forceUpdate();
 
         }
 
@@ -601,7 +601,7 @@
             newGroupName = prompt("Create new instruction group?", newGroupName);
             if (newGroupName) {
                 song.groupAdd(newGroupName, []);
-                this.panelTrackerGroups.renderOS();
+                this.panelTrackerGroups.forceUpdate();
             } else {
                 this.setStatus("<span class='error'>Create instruction group canceled</span>");
             }
@@ -647,7 +647,7 @@
                 const instrumentID = this.song.instrumentAdd(instrumentConfig);
                 await this.setStatus("New instrument Added to song: " + instrumentURL);
                 this.fieldInstructionInstrument.setValue(instrumentID);
-                await this.panelInstruments.renderOS();
+                await this.panelInstruments.forceUpdate();
 
             } else {
                 throw new Error(`New instrument canceled: ${instrumentURL}`);
@@ -717,8 +717,8 @@
 
             groupName = groupName || e.target.form.getAttribute('data-group');
             await tracker.setGroupName(groupName);
-            await this.panelTrackerGroups.renderOS();
-            await this.panelTrackerRowSegments.renderOS();
+            await this.panelTrackerGroups.forceUpdate();
+            await this.panelTrackerRowSegments.forceUpdate();
             //TODO: validate
             // this.selectGroup(selectedGroupName);
         }
@@ -737,7 +737,7 @@
         async trackerChangeSegmentLength(segmentLengthInTicks = null) {
             const tracker = this.trackerElm;
             await tracker.setState({segmentLengthInTicks});
-            await this.panelTrackerRowSegments.renderOS();
+            await this.panelTrackerRowSegments.forceUpdate();
         }
 
         // setTrackerRowSegment(e) {

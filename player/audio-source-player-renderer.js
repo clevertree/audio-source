@@ -30,10 +30,15 @@
         }
         get targetElm() { return this.shadowDOM; }
 
+        getAttributeMap() {
+            return Object.assign(super.getAttributeMap(), {
+                src: 'src',
+            });
+        }
         // get playlist() { return this.state.playlist; }
 
         render() {
-            console.log('ohok');
+//             console.log('ohok');
             return [
                 this.createStyleSheetLink('../player/assets/audio-source-player.css'),
                 this.createStyleSheetLink('../common/assets/audio-source-common.css'),
@@ -167,8 +172,8 @@
                     ]),
 
                     ASUIDiv.cE('asp-status-container', () => [
-                        ASUIDiv.cE({attrClass: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
-                        ASUIDiv.cE({attrClass: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
+                        ASUIDiv.cE({class: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
+                        ASUIDiv.cE({class: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
                     ])
                 ])
 
@@ -216,7 +221,6 @@
             this.state.position = this.state.position || 0;
             this.state.entries = this.state.entries || [];
             this.state.selectedEntries = this.state.selectedEntries || [];
-            this.addEventHandler('click', e => this.onClick(e));
         }
 
         get position() { return this.state.position; }
@@ -316,7 +320,7 @@
                 this.entries.splice(insertAtPosition, 0, entry);
             }
             await entry.updateID(insertAtPosition);
-            // await this.renderOS();
+            // await this.forceUpdate();
             return true;
         }
 
@@ -416,7 +420,7 @@
         async addSongURLToPlaylist(url, name=null, length=null) {
             const entry = ASPPlaylistEntry.parseFromData({url, name, length});
             await this.addEntry(entry);
-            await this.renderOS();
+            await this.forceUpdate();
         }
 
         async addSongFileToPlaylist(file, name=null, length=null) {
@@ -426,11 +430,12 @@
                 length
             });
             await this.addEntry(entry);
-            await this.renderOS();
+            await this.forceUpdate();
         }
 
 
         render() {
+            // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
             // await this.updateEntries();
             return [
                 new ASUIGridRow('header', () => [
@@ -580,7 +585,7 @@
             this.setProps({open: toggleValue});
             if(!this.entries)
                 return await this.loadPlaylist();
-            await this.renderOS();
+            await this.forceUpdate();
         }
 
         async loadPlaylist() {

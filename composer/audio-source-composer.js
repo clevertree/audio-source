@@ -109,7 +109,7 @@
 
             this.focus();
 
-            await this.renderOS();
+            await this.forceUpdate();
             this.loadState();
 
             this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input

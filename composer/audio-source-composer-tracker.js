@@ -1011,7 +1011,7 @@
         async setCursor(cursor = true) {
             if (this.props.cursor !== cursor) {
                 this.setProps({cursor});
-                await this.renderOS();
+                await this.forceUpdate();
             }
             if (cursor)
                 (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
@@ -1020,7 +1020,7 @@
         async removeCursor() {
             if (this.props.cursor !== false) {
                 this.setProps({cursor: false});
-                await this.renderOS();
+                await this.forceUpdate();
             }
         }
 
@@ -1090,7 +1090,7 @@
         async select(selected = true) {
             if (selected !== this.props.selected) {
                 this.setProps({selected});
-                await this.renderOS();
+                await this.forceUpdate();
             }
         }
 

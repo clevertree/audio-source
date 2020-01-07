@@ -652,8 +652,8 @@
             });
             await this.loadAudioSample(addSampleID);
 
-            if(this.grid) await this.grid.renderOS();
-            else await this.renderOS();
+            if(this.grid) await this.grid.forceUpdate();
+            else await this.forceUpdate();
         }
 
 
@@ -716,8 +716,8 @@
 
         async removeSample(sampleID) {
             this.song.deleteInstrumentParam(this.state.id, ['samples', sampleID]);
-            if(this.grid) await this.grid.renderOS();
-            else await this.renderOS();
+            if(this.grid) await this.grid.forceUpdate();
+            else await this.forceUpdate();
         }
 
 
@@ -787,7 +787,7 @@
                 await this.song.instrumentReplace(this.state.id, newPresetConfig);
                 await this.loadConfig(newPresetConfig);
             }
-            await this.renderOS();
+            await this.forceUpdate();
             if (!presetURL.hash) {
                 await this.selectChangePreset.open();
             }

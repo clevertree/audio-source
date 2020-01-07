@@ -13,6 +13,7 @@
     class AudioSourceSong {
         constructor() {
             this.dispatchElements = [];
+            this.eventListeners = [];
 
             // this.audioContext = null;
             this.instruments = [];
@@ -71,9 +72,27 @@
             }
         }
 
-        dispatchEvent(event) {
-            for (let i = 0; i < this.dispatchElements.length; i++)
-                this.dispatchElements[i].dispatchEvent(event);
+        dispatchEvent(e) {
+            for (let i = 0; i < this.eventListeners.length; i++) {
+                const [eventName, listenerCallback] = this.eventListeners[i];
+                if(e.name === eventName || eventName === '*') {
+                    listenerCallback(e);
+                }
+            }
+        }
+
+        addEventListener(eventName, listenerCallback) {
+            this.eventListeners.push([eventName, listenerCallback]);
+        }
+
+        removeEventListener(eventName, listenerCallback) {
+            for (let i = 0; i < this.eventListeners.length; i++) {
+                const [eventName2, listenerCallback2] = this.eventListeners[i];
+                if(eventName === eventName && listenerCallback === listenerCallback2) {
+                    this.eventListeners.splice(i, 1);
+                    break;
+                }
+            }
         }
 
         /** Data shortcuts **/
@@ -156,7 +175,6 @@
         // }
 
         /** Initialization **/
-
 
         async init(audioContext = null) {
             // if (audioContext !== null)

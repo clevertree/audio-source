@@ -33,8 +33,8 @@
     // }, 1000);
 
     class AudioSourcePlayerElement extends AudioSourcePlayerActions {
-        constructor(props={}, state={}) {
-            super(props, Object.assign({
+        constructor(props=null) {
+            super(props, {
                 playlist: {
                     entries: []
                 },
@@ -44,7 +44,7 @@
                 fullscreen: false,
                 showPanelSong: true,
                 showPanelPlaylist: true,
-            }, state));
+            });
 
             this.audioContext = null;
             this.volumeGain = null;
@@ -53,8 +53,15 @@
             // this.props.playing = false;
             // this.props.paused = false;
 
-            this.addEventHandler('unload', e => this.saveState(e), window);
         }
+
+        // static getDefaultProps() {
+        //     return {
+        //         onPress: e => this.onInput(e),
+        //         onPressIn: e => this.onInput(e),
+        //         onPressOut: e => this.onInput(e)
+        //     };
+        // }
 
         get isPlaylistActive()      { return this.props.playlistActive; }
         set isPlaylistActive(value) { this.setProps({playlistActive: value}); }
@@ -71,15 +78,15 @@
             this.shadowDOM = this.attachShadow({mode: 'closed'});
 
 
-            this.addEventHandler([
-                'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-                'group:play', 'group:seek',
-                'note:start', 'note:end',
-                'log'
-            ], this.onSongEvent);
+            // this.addEventHandler([ // TODO: listen directly to song emitter
+            //     'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
+            //     'group:play', 'group:seek',
+            //     'note:start', 'note:end',
+            //     'log'
+            // ], this.onSongEvent);
             // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
-            this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+            // this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
 
             // this.loadCSS();
             // Render (with promise)
@@ -96,6 +103,12 @@
                 .then(packageInfo => this.setVersion(packageInfo.version));
         }
 
+        disconnectedCallback() {
+            super.disconnectedCallback();
+            if(!isRN)
+                this.saveState(e); // TODO: save state on state change, not page unload
+                // window.addEventListener('unload', e => this.saveState(e));
+        }
 
         loadState() {
 

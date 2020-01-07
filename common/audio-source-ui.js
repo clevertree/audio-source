@@ -2,169 +2,208 @@
     const isRN = typeof document === 'undefined';
 
     /** Required Modules **/
-    let ASUIComponentBase;
+    let ASUIComponentBase, TouchableHighlight;
     if(isRN) {
+        TouchableHighlight = require('react-native').TouchableHighlight;
+
         window.customElements = require('../../app/support/customElements.js').default;
         ASUIComponentBase = require('../../app/support/ASUIComponentBase.js').default;
         // console.log(ASUIComponentBase);
     } else {
         window.require = customElements.get('audio-source-loader').require;
-        ASUIComponentBase = HTMLElement;
-    }
-
-    /** Abstract Component **/
-    class ASUIComponent extends ASUIComponentBase {
-        constructor(props = {}, state = {}) {
-            super();
-            this.state = state || {};
-            this.props = ASUIComponent.processProps(props) || {};
-            this._eventHandlers = [];
-            this._renderOnConnect = true;
-            // for(let i=0; i<this.attributes.length; i++)
-            //     this.props[this.attributes[i].name] = this.attributes[i].value;
-            this.renderAttributes();
-
-        }
-
-        get targetElm() { return this; }
-
-        setState(newState) {
-            console.info('setState', this.state, newState, this);
-            Object.assign(this.state, newState);
-            this.renderOS();
-        }
-        setProps(newProps) {
-//             console.info('setProps', this.props, newProps, this);
-            Object.assign(this.props, newProps);
-            // this.renderProps();
-        }
-
-        renderRN() { };
-        renderOS() {
-            this.renderHTML();
-        }
-
-        renderHTML() {
-            if(!this.parentNode) {
-                console.warn("skipping render, not attached");
-                return;
+        ASUIComponentBase = class extends HTMLElement {
+            constructor(props = {}) {
+                super();
+                // this.state = state || {};
+                if(!props) {
+                    props = this.constructor.getDefaultProps();
+                    for (let i=0; i<this.attributes.length; i++) {
+                        const key = this.attributes[i].nodeName;
+                        const value = this.attributes[i].nodeValue;
+                        const map = this.getAttributeMap();
+                        if(typeof map[key] !== "undefined")
+                            props[map[key]] = value;
+                    }
+                    Object.freeze(props);
+                }
+                this.props = props;
             }
 
-            this.renderContent();
-        }
+            /** @deprecated **/
+            get targetElm() { return this; }
 
-        renderAttributes() {
-            // Render attributes
-            // while(this.attributes.length > 0)
-            //     this.removeAttribute(this.attributes[0].name);
-            if(this.props.attrs) {
-                const attrs = this.props.attrs;
-                for (const attrName in attrs) {
-                    if (attrs.hasOwnProperty(attrName)) {
-                        const value = attrs[attrName];
-                        if (typeof value === 'function')
-                            this[attrName] = value;
-                        else if (typeof value === "object" && value !== null)
-                            Object.assign(this[attrName], value);
-                        else if (value === true)
-                            this.setAttribute(attrName, '');
-                        else if (value !== null && value !== false)
-                            this.setAttribute(attrName, value);
+            componentDidMount() {
+
+            }
+
+            connectedCallback(renderOnConnect=true) {
+                this.addAllEventListeners();
+                if(this._renderOnConnect && renderOnConnect)
+                    this.forceUpdate();
+                this.componentDidMount();
+            }
+
+            disconnectedCallback() {
+                this.removeAllEventListeners();
+            }
+
+
+            addAllEventListeners() {
+                const map = this.getRNEventMap();
+                for(const key in map) {
+                    if(map.hasOwnProperty(key)) {
+                        if(this.props.hasOwnProperty(key)) {
+                            this.addEventListener(map[key], this.props[key]);
+                        }
                     }
                 }
             }
-        }
 
-
-
-        clearContent(targetElm) {
-            let t;
-            while (t = targetElm.firstChild)
-                targetElm.removeChild(t);
-        }
-        renderContent() {
-            let content = this.render();
-            this.clearContent(this.targetElm);
-            this.appendContentTo(content, this.targetElm);
-        }
-
-        eachContent(content, callback) {
-            if(typeof content === "function") {
-                return this.eachContent(content(), callback);
-            }
-            if(Array.isArray(content)) {
-                for(let i=0; i<content.length; i++) {
-                    const ret = this.eachContent(content[i], callback);
-                    if(ret === false)
-                        break;
+            removeAllEventListeners() {
+                const map = this.getRNEventMap();
+                for(const key in map) {
+                    if(map.hasOwnProperty(key)) {
+                        if(this.props.hasOwnProperty(key)) {
+                            this.removeEventListener(map[key], this.props[key]);
+                        }
+                    }
                 }
-                return;
             }
 
-            return callback(content);
-        }
 
-        appendContentTo(content, targetElm) {
-            this.eachContent(content, (content) => {
-                if(content !== null && typeof content !== "undefined") {
-                    if (content instanceof ASUIComponent)
-                        content.appendTo(targetElm);
-                    else if (content instanceof HTMLElement)
-                        targetElm.appendChild(content);
-                    else
-                        targetElm.innerHTML += content;
+
+
+            /** @deprecated **/
+            addEventHandler(eventNames, method, context, options=null) {
+                throw new Error("Obsolete");
+                // if(!Array.isArray(eventNames))
+                //     eventNames = [eventNames];
+                // for(let i=0; i<eventNames.length; i++) {
+                //     const eventName = eventNames[i];
+                //     context = context || this;
+                //     this._eventHandlers.push([eventName, method, context, options]);
+                // }
+                // if(this.parentNode) // i.e. connected
+                //     this.addAllEventListeners();
+            }
+
+
+            setState(newState) {
+                console.info('setState', this.state, newState, this);
+                Object.assign(this.state, newState);
+                this.forceUpdate();
+            }
+            setProps(newProps) {
+//             console.info('setProps', this.props, newProps, this);
+                Object.assign(this.props, newProps);
+                // this.renderProps();
+            }
+
+
+            forceUpdate() {
+                this.renderHTML();
+            }
+
+            renderHTML() {
+                if(!this.parentNode) {
+                    console.warn("skipping render, not attached");
+                    return;
                 }
-            });
-        }
 
-        render() {
-            throw new Error("Not implemented");
-        }
-
-        addAllEventListeners() {
-            this._eventHandlers.forEach(eventHandler =>
-                eventHandler[2].addEventListener(eventHandler[0], eventHandler[1], eventHandler[3]));
-        }
-
-        removeAllEventListeners() {
-            this._eventHandlers.forEach(eventHandler =>
-                eventHandler[2].removeEventListener(eventHandler[0], eventHandler[1]));
-        }
-
-        connectedCallback(renderOnConnect=true) {
-            this.addAllEventListeners();
-            if(this._renderOnConnect && renderOnConnect)
-                this.renderOS();
-        }
-
-        disconnectedCallback() {
-            this.removeAllEventListeners();
-        }
-
-        addEventHandler(eventNames, method, context, options=null) {
-            if(!Array.isArray(eventNames))
-                eventNames = [eventNames];
-            for(let i=0; i<eventNames.length; i++) {
-                const eventName = eventNames[i];
-                context = context || this;
-                this._eventHandlers.push([eventName, method, context, options]);
+                let content = this.render();
+                this.clearContent(this.targetElm);
+                this.appendContentTo(content, this.targetElm);
+                this.renderAttributes();
             }
-            if(this.parentNode) // i.e. connected
-                this.addAllEventListeners();
-        }
 
-        appendTo(parentNode) {
-            this._renderOnConnect = false;
-            parentNode.appendChild(this);
-            // console.info("appendTo", parentNode, this);
-            this.renderOS();
-        }
+            getAttributeMap() {
+                return {
+                    class: 'class'
+                }
+            }
 
 
-        createStyleSheetLink(stylePath) {
-            if(isRN) {
-                return null;    // TODO: sloppy
-            } else {
+            renderAttributes() {
+                // Render attributes
+                // while(this.attributes.length > 0)
+                //     this.removeAttribute(this.attributes[0].name);
+                const map = this.getAttributeMap();
+                for(const attrName in map) {
+                    if(map.hasOwnProperty(attrName)) {
+                        if(this.props.hasOwnProperty(attrName)) {
+                            const value = this.props[attrName];
+                            if (typeof value === 'function')
+                                this[attrName] = value;
+                            else if (typeof value === "object" && value !== null)
+                                Object.assign(this[attrName], value);
+                            else if (value === true)
+                                this.setAttribute(attrName, '');
+                            else if (value !== null && value !== false)
+                                this.setAttribute(attrName, value);
+                        }
+                    }
+                }
+            }
+
+
+            clearContent(targetElm) {
+                let t;
+                while (t = targetElm.firstChild)
+                    targetElm.removeChild(t);
+            }
+
+            eachContent(content, callback) {
+                if(typeof content === "function") {
+                    return this.eachContent(content(), callback);
+                }
+                if(Array.isArray(content)) {
+                    for(let i=0; i<content.length; i++) {
+                        const ret = this.eachContent(content[i], callback);
+                        if(ret === false)
+                            break;
+                    }
+                    return;
+                }
+
+                return callback(content);
+            }
+
+            appendContentTo(content, targetElm) {
+                this.eachContent(content, (content) => {
+                    if(content !== null && typeof content !== "undefined") {
+                        if (content instanceof ASUIComponent)
+                            content.appendTo(targetElm);
+                        else if (content instanceof HTMLElement)
+                            targetElm.appendChild(content);
+                        else
+                            targetElm.innerHTML += content;
+                    }
+                });
+            }
+
+            render() {
+                throw new Error("Not implemented");
+            }
+
+            appendTo(parentNode) {
+                this._renderOnConnect = false;
+                parentNode.appendChild(this);
+                // console.info("appendTo", parentNode, this);
+                this.forceUpdate();
+            }
+
+            static createElement(props, children=null, ...additionalProps) {
+                props = ASUIComponent.processProps(props, additionalProps);
+                if(children !== null)
+                    props.children = children;
+                props = Object.freeze(Object.assign(this.getDefaultProps(), props));
+                const ref = new this(props);
+                if(typeof props.ref === "function")
+                    props.ref(ref);
+                return ref;
+            }
+
+            createStyleSheetLink(stylePath) {
                 const AudioSourceLoader = customElements.get('audio-source-loader');
                 const linkHRef = AudioSourceLoader.resolveURL(stylePath);
                 const link = document.createElement('link');
@@ -172,38 +211,53 @@
                 link.href = linkHRef;
                 return link;
             }
+
+            getRNEventMap() {
+                return {
+                    onPress: 'click',
+                    onPressIn: 'mousedown',
+                    onPressOut: 'mouseup',
+                }
+            }
+
+
+            static getDefaultProps() {
+                return {};
+            }
+        };
+    }
+
+    /** Abstract Component **/
+    class ASUIComponent extends ASUIComponentBase {
+        constructor(props = {}, state = {}) {
+            super(props);
+            this.state = state || {};
+            // this.props = props || {};
+            // this._eventHandlers = [];
+            // this._renderOnConnect = true;
+            // for(let i=0; i<this.attributes.length; i++)
+            //     this.props[this.attributes[i].name] = this.attributes[i].value;
+
         }
 
-        static processProps(props) {
+
+        static processProps(props, additionalProps=[]) {
             if(typeof props === "string")
-                props = {attrs: {class: props}};
+                props = {class: props};
             if(typeof props !== "object")
                 throw new Error("Invalid props: " + typeof props);
-            if(props.attrClass) {
-               if(!props.attrs) props.attrs = {};
-               props.attrs.class = props.attrClass;
-            }
+            for(let i=0; i<additionalProps.length; i++)
+                Object.assign(props, additionalProps[i]);
+            // if(props.attrClass) {
+            //    if(!props.attrs) props.attrs = {};
+            //    props.attrs.class = props.attrClass;
+            // }
             return props;
         }
 
-        static createElement(props, children=null) {
-            props = ASUIComponent.processProps(props);
-            if(isRN) {
-                const React = require('react');
-                const thisClass = this;
-                console.log('React.createElement', React.createElement, thisClass, children);
-                const ret = React.createElement(thisClass, props, children);
-                return ret;
-            } else {
-                if(children !== null)
-                    props.children = children;
-                const ref = new this(Object.freeze(props));
-                if(typeof props.ref === "function")
-                    props.ref(ref);
-                return ref;
-            }
+        static cE(props, children=null) {
+            return this.createElement(props, children);
         }
-        static cE(props, children=null) { return this.createElement(props, children); }
 
     }
     customElements.define('asui-component', ASUIComponent);
@@ -249,14 +303,26 @@
             // this.props.stick = false;
             // this.props.open = false;
             this.action = actionCallback;
-            this.addEventHandler('mouseover', this.onInputEvent);
-            this.addEventHandler('mouseout', this.onInputEvent);
+            // this.addEventHandler('mouseover', this.onInputEvent);
+            // this.addEventHandler('mouseout', this.onInputEvent);
             // this.addEventHandler('mouseout', e => this.onInputEvent(e), document);
-            this.addEventHandler('click', this.onInputEvent);
-            this.addEventHandler('change', this.onInputEvent);
-            this.addEventHandler('keydown', this.onInputEvent);
+            // this.addEventHandler('click', this.onInputEvent);
+            // this.addEventHandler('change', this.onInputEvent);
+            // this.addEventHandler('keydown', this.onInputEvent);
         }
 
+        // static getDefaultProps() {
+        //     const callback = e => this.onInputEvent(e);
+        //     return {
+        //         onKeyDown: callback,
+        //         onChange: callback,
+        //         onMouseOut: callback,
+        //         onMouseOver: callback,
+        //         onPress: callback,
+        //         onPressIn: callback,
+        //         onPressOut: callback,
+        //     };
+        // }
         // async setTitle(newTitle) {
         //     this.state.menuContent = newTitle;
         //     if(this.menuContent)
@@ -275,11 +341,14 @@
             const content = [
                 this.menuContent = (children ? (children instanceof ASUIComponent ? children : ASUIDiv.createElement('title', children)) : null),
                 this.props.arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
-                this.dropdown = ASUIDiv.createElement('dropdown', (this.state.open && this.state.dropDownContent ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
+                this.dropdown = ASUIDiv.createElement({
+                    class: 'dropdown',
+                    onWheel: e => this.onInputEvent(e)
+                }, (this.state.open && this.state.dropDownContent ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
                 // this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
 
-            this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
+            // this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
             return content;
         }
 
@@ -472,10 +541,9 @@
             // }
         }
         static createMenuElement(props, children=null, dropDownContent=null) {
-            props = ASUIComponent.processProps(props);
-            if(dropDownContent !== null)
-                props.dropDownContent = dropDownContent;
-            return this.createElement(props, children);
+            return this.createElement(props, children, {
+                dropDownContent
+            });
         }
         static cME(props, children=null, dropDownContent=null) {
             return this.createMenuElement(props, children, dropDownContent);
@@ -527,30 +595,42 @@
                 // pressed: false
             });
 
-            this.addEventHandler('click', e => this.onClick(e));
+            // this.addEventHandler('click', e => this.onClick(e));
         }
 
-        onClick(e) {
+        // static getDefaultProps() {
+        //     return {
+        //         onPress: e => this.onInput(e),
+        //         // onPressIn: e => this.onInput(e),
+        //         // onPressOut: e => this.onInput(e)
+        //     };
+        // }
+
+        onInput(e) {
             if(!this.props.disabled)
                 this.state.callback(e, this.value);
         }
 
         render() {
-            if(!(this.props.children instanceof HTMLElement)) {
-                const divElm = document.createElement('div');
-                divElm.innerHTML = this.props.children;
-                return divElm;
+            // if(!(this.props.children instanceof ASUIComponent)) {
+            //     const divElm = ASUIDiv.createElement('div');
+            //     divElm.innerHTML = this.props.children;
+            //     return divElm;
+            // }
+            if(isRN) {
+                return TouchableHighlight.createElement({
+                    onPress: this.props.onPress
+                }, this.props.children)
             }
             return this.props.children;
         }
 
 
-        static createInputButton(props, children = null, callback = null, title = null) {
-            props = Object.assign({
-                callback,
+        static createInputButton(props, children = null, onPress = null, title = null) {
+            return this.createElement(props, children, {
+                onPress,
                 title,
-            }, ASUIComponent.processProps(props));
-            return this.createElement(props, children);
+            });
         }
     }
 
@@ -577,7 +657,7 @@
                     console.warn('Title not found for value: ', value);
             }
             if(this.parentNode)
-                await this.renderOS();
+                await this.forceUpdate();
         }
 
         async onChange(e) {
@@ -616,13 +696,12 @@
         }
 
         static createInputSelect(props, optionContent, actionCallback, defaultValue = null, valueTitle=null) {
-            props = Object.assign({
+            return this.createElement(props, null, {
                 optionContent: () => optionContent(this),            // TODO: , () => optionContent(this)
                 actionCallback,
                 defaultValue,
                 valueTitle,
-            }, ASUIComponent.processProps(props));
-            return this.createElement(props);
+            });
         }
     }
     customElements.define('asui-select', ASUIInputSelect);
@@ -664,14 +743,13 @@
         }
 
         static createInputRange(props, callback = null, min = 1, max = 100, value = null, title = null) {
-            props = Object.assign({
+            return this.createElement(props, null, {
                 min,
                 max,
                 value,
                 callback,
                 title,
-            }, ASUIComponent.processProps(props));
-            return this.createElement(props);
+            });
         }
     }
     customElements.define('asui-range', ASUIInputRange);
@@ -712,13 +790,12 @@
         }
 
         static createInputText(props={}, callback = null, value = null, title = null, placeholder = null) {
-            props = Object.assign({
+            return this.createElement(props, null, {
                 callback,
                 value,
                 placeholder,
                 title
-            }, ASUIComponent.processProps(props));
-            return this.createElement(props);
+            });
         }
 
     }
@@ -758,12 +835,11 @@
         }
 
         static createInputCheckBox(props={}, callback = null, checked = false, title = null) {
-            props = Object.assign({
+            return this.createElement(props, null, {
                 callback,
                 checked,
                 title,
-            }, ASUIComponent.processProps(props));
-            return this.createElement(props);
+            });
         }
 
     }
@@ -813,12 +889,11 @@
         }
 
         static createInputFile(props={}, callback = null, children, accepts = null, title = null) {
-            props = Object.assign({
+            return this.createElement(props, children, {
                 callback,
                 accepts,
                 title,
-            }, ASUIComponent.processProps(props));
-            return this.createElement(props, children);
+            });
         }
     }
     customElements.define('asui-input-file', ASUIInputFile);
