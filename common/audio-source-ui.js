@@ -2,9 +2,11 @@
     const isRN = typeof document === 'undefined';
 
     /** Required Modules **/
-    let ASUIComponentBase, TouchableHighlight;
+    let ASUIComponentBase;
+    let React, TouchableHighlight;
     if(isRN) {
         TouchableHighlight = require('react-native').TouchableHighlight;
+        React = require('react');
 
         window.customElements = require('../../app/support/customElements.js').default;
         ASUIComponentBase = require('../../app/support/ASUIComponentBase.js').default;
@@ -116,6 +118,20 @@
                 this.renderAttributes();
             }
 
+            // render() {
+            //     throw new Error("Not implemented");
+            // }
+
+            render() {
+                let children = this.getChildren();
+                if(typeof children === "function")
+                    children = children(this);
+                console.log("ASUIComponentBase.render", children);
+                // if(typeof children === "undefined")
+                //     throw new Error("Invalid ASUIDiv content: " + typeof children);
+                return children;
+            }
+
             getAttributeMap() {
                 return {
                     class: 'class'
@@ -181,9 +197,6 @@
                 });
             }
 
-            render() {
-                throw new Error("Not implemented");
-            }
 
             appendTo(parentNode) {
                 this._renderOnConnect = false;
@@ -192,15 +205,8 @@
                 this.forceUpdate();
             }
 
-            static createElement(props, children=null, ...additionalProps) {
-                props = ASUIComponent.processProps(props, additionalProps);
-                if(children !== null)
-                    props.children = children;
-                props = Object.freeze(Object.assign(this.getDefaultProps(), props));
-                const ref = new this(props);
-                if(typeof props.ref === "function")
-                    props.ref(ref);
-                return ref;
+            getChildren() {
+                return this.props.children;
             }
 
             createStyleSheetLink(stylePath) {
@@ -220,10 +226,36 @@
                 }
             }
 
+            static createElement(props, children=null, ...additionalProps) {
+                props = ASUIComponent.processProps(props, additionalProps);
+                if(children !== null)
+                    props.children = children;
+                props = Object.freeze(Object.assign(this.getDefaultProps(), props));
+                const ref = new this(props);
+                if(typeof props.ref === "function")
+                    props.ref(ref);
+                return ref;
+            }
+
 
             static getDefaultProps() {
                 return {};
             }
+
+            static processProps(props, additionalProps=[]) {
+                if(typeof props === "string")
+                    props = {class: props};
+                if(typeof props !== "object")
+                    throw new Error("Invalid props: " + typeof props);
+                for(let i=0; i<additionalProps.length; i++)
+                    Object.assign(props, additionalProps[i]);
+                // if(props.attrClass) {
+                //    if(!props.attrs) props.attrs = {};
+                //    props.attrs.class = props.attrClass;
+                // }
+                return props;
+            }
+
         };
     }
 
@@ -240,20 +272,6 @@
 
         }
 
-
-        static processProps(props, additionalProps=[]) {
-            if(typeof props === "string")
-                props = {class: props};
-            if(typeof props !== "object")
-                throw new Error("Invalid props: " + typeof props);
-            for(let i=0; i<additionalProps.length; i++)
-                Object.assign(props, additionalProps[i]);
-            // if(props.attrClass) {
-            //    if(!props.attrs) props.attrs = {};
-            //    props.attrs.class = props.attrClass;
-            // }
-            return props;
-        }
 
         static cE(props, children=null) {
             return this.createElement(props, children);
@@ -276,12 +294,6 @@
             this.setState({content: newContent});
         }
 
-        render() {
-            let children = this.props.children;
-            if(typeof children === "function")
-                children = children(this);
-            return children;
-        }
     }
 
     customElements.define('asui-div', ASUIDiv);
@@ -335,7 +347,7 @@
             let arrow = false;
             if(this.state.dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
                 arrow = true;
-            let children = this.props.children;
+            let children = this.getChildren();
             if(typeof children === "function")
                 children = children(this);
             const content = [
@@ -618,11 +630,11 @@
             //     return divElm;
             // }
             if(isRN) {
-                return TouchableHighlight.createElement({
+                return React.createElement(TouchableHighlight, {
                     onPress: this.props.onPress
-                }, this.props.children)
+                }, this.getChildren())
             }
-            return this.props.children;
+            return this.getChildren();
         }
 
 
@@ -652,7 +664,7 @@
             this.state.title = title;
             this.state.value = value;
             if(title === null) {
-                await this.resolveOptions(this.props.children);
+                await this.resolveOptions(this.getChildren());
                 if(this.state.title === null)
                     console.warn('Title not found for value: ', value);
             }
@@ -692,7 +704,7 @@
 
         /** @override **/
         render() {
-            return this.menu = ASUIMenu.createElement({vertical: true}, this.state.title, this.props.children);
+            return this.menu = ASUIMenu.createElement({vertical: true}, this.state.title, this.getChildren());
         }
 
         static createInputSelect(props, optionContent, actionCallback, defaultValue = null, valueTitle=null) {
@@ -725,7 +737,7 @@
             this.state.callback(e, this.state.value);
         }
 
-        render() {
+        render2() {
             const rangeElm = document.createElement('input');
             rangeElm.addEventListener('change', e => this.onChange(e));
             rangeElm.classList.add('themed');
@@ -736,7 +748,7 @@
             if(this.state.name) rangeElm.setAttribute('name', this.state.name);
             if(this.state.title) rangeElm.setAttribute('title', this.state.title);
 
-            this.appendContentTo(this.props.children, rangeElm);
+            this.appendContentTo(this.getChildren(), rangeElm);
             if(this.state.value !== null)
                 rangeElm.value = this.state.value;
             return rangeElm;
@@ -774,7 +786,7 @@
             this.state.callback(e, this.state.value);
         }
 
-        render() {
+        render2() {
             const inputElm = document.createElement('input');
             inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
@@ -821,7 +833,7 @@
             this.state.callback(e, this.state.value);
         }
 
-        render() {
+        render2() {
             const inputElm = document.createElement('input');
             inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
@@ -866,7 +878,7 @@
             this.state.callback(e, this.state.value);
         }
 
-        render() {
+        render2() {
             const inputElm = document.createElement('input');
             inputElm.addEventListener('change', e => this.onChange(e));
             inputElm.classList.add('themed');
@@ -876,10 +888,10 @@
             // if(this.state.name) inputElm.setAttribute('name', this.state.name);
             if (this.state.title) inputElm.setAttribute('title', this.state.title);
 
-            const labelElm = document.createElement('label');
+            const labelElm = ASUIDiv.createElement('button-style');
             labelElm.classList.add('button-style');
 
-            this.appendContentTo(this.props.children, labelElm);
+            this.appendContentTo(this.getChildren(), labelElm);
             this.appendContentTo(inputElm, labelElm);
 
             return [

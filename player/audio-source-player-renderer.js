@@ -164,10 +164,10 @@
 
                         ASPPanel.cE('playlist', () => [
                             ASUIDiv.cE('title', 'Playlist'),
-                            ASPPlaylist.cE({
-                                state: this.state.playlist,
-                                ref:ref=>this.elmPlayer=ref
-                            })
+                            // ASPPlaylist.cE({
+                            //     state: this.state.playlist,
+                            //     ref:ref=>this.elmPlayer=ref
+                            // })
                         ]),
                     ]),
 

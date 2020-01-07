@@ -41,6 +41,11 @@
                 volume: AudioSourceSong.DEFAULT_VOLUME,
                 version: -1,
                 songLength: 0,
+
+                playlistActive: false,
+                playing: false,
+                paused: false,
+
                 fullscreen: false,
                 showPanelSong: true,
                 showPanelPlaylist: true,
@@ -63,12 +68,12 @@
         //     };
         // }
 
-        get isPlaylistActive()      { return this.props.playlistActive; }
-        set isPlaylistActive(value) { this.setProps({playlistActive: value}); }
-        get isPlaying()             { return this.props.playing; }
-        set isPlaying(value)        { this.setProps({playing: value}); }
-        get isPaused()              { return this.props.paused; }
-        set isPaused(value)         { this.setProps({paused: value}); }
+        get isPlaylistActive()      { return this.state.playlistActive; }
+        set isPlaylistActive(value) { this.setStatus({playlistActive: value}); }
+        get isPlaying()             { return this.state.playing; }
+        set isPlaying(value)        { this.setStatus({playing: value}); }
+        get isPaused()              { return this.state.paused; }
+        set isPaused(value)         { this.setStatus({paused: value}); }
 
         get values() { return new AudioSourceValues(this.song); }
 
