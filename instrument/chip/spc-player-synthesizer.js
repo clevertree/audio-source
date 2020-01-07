@@ -2,7 +2,7 @@
 
     /** Required Modules **/
     const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
+    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
 
 

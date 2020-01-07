@@ -1,9 +1,10 @@
 {
+    const thisScriptPath = 'player/audio-source-player-actions.js';
+    const isRN = typeof document === 'undefined';
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
 
     /** Required Modules **/
-    const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
-
     const {AudioSourceSong}             = require('../common/audio-source-song.js');
     const {AudioSourceStorage}          = require('../common/audio-source-storage.js');
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
@@ -436,8 +437,6 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'player/audio-source-player-actions.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourcePlayerActions,
     };

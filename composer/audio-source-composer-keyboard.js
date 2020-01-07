@@ -1,7 +1,7 @@
 {
     /** Required Modules **/
     if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
     class AudioSourceComposerKeyboard {
         constructor() {

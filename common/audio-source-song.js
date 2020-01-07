@@ -1,8 +1,10 @@
 {
-    /** Required Modules **/
-    // if (typeof window !== "undefined")
-    //     window.require = AudioSourceLoader.require;
+    const isRN  = typeof document === 'undefined';
+    const thisScriptPath = 'common/audio-source-song.js';
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
+    /** Required Modules **/
 
     /**
      * Player requires a modern browser
@@ -1922,8 +1924,6 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'common/audio-source-song.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceSong,
         AudioSourceInstructionIterator,

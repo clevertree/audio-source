@@ -1,25 +1,24 @@
 {
-
-    /** Required Modules **/
-    const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
-
+    const thisScriptPath = 'player/audio-source-player-renderer.js';
+    const isRN = typeof document === 'undefined';
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
 
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     // const {AudioSourceValues} = require('../common/audio-source-values.js');
         // const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     const {
-            ASUIComponent,
-            ASUIDiv,
-            ASUIMenu,
-            ASUIGrid,
-            ASUIGridRow,
-            ASUIInputButton,
-            ASUIInputFile,
-            ASUIInputRange,
-            ASUIInputText,
-            ASUIcon,
-        } = require('../common/audio-source-ui.js');
+        ASUIComponent,
+        ASUIDiv,
+        ASUIIcon
+    } = require('../common/ui/asui-component.js');
+    const {ASUIMenu} = require('../common/ui/asui-menu.js');
+    const {ASUIGrid, ASUIGridRow} = require('../common/ui/asui-grid.js');
+    const {ASUIInputCheckBox} = require('../common/ui/asui-input-checkbox.js');
+    const {ASUIInputButton} = require('../common/ui/asui-input-button.js');
+    const {ASUIInputFile} = require('../common/ui/asui-input-file.js');
+    const {ASUIInputRange} = require('../common/ui/asui-input-range.js');
+    const {ASUIInputText} = require('../common/ui/asui-input-text.js');
 
 
     class AudioSourcePlayerRenderer extends ASUIComponent {
@@ -40,8 +39,10 @@
         render() {
 //             console.log('ohok');
             return [
-                this.createStyleSheetLink('../player/assets/audio-source-player.css'),
-                this.createStyleSheetLink('../common/assets/audio-source-common.css'),
+                isRN ? null : [
+                    this.createStyleSheetLink('../player/assets/audio-source-player.css', thisModule),
+                    this.createStyleSheetLink('../common/assets/audio-source-common.css', thisModule),
+                ],
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
                         ASUIMenu.cME({vertical: true}, 'File', () => [
@@ -76,19 +77,19 @@
                             ASPForm.cE('playback', () => [
                                 ASUIDiv.cE('title', 'Playback'),
                                 ASUIInputButton.createInputButton('hide-on-playing',
-                                    ASUIcon.createIcon('play'),
+                                    ASUIIcon.createIcon('play'),
                                     e => this.playlistPlay(e),
                                     "Play Song"),
                                 ASUIInputButton.createInputButton('show-on-playing',
-                                    ASUIcon.createIcon('pause'),
+                                    ASUIIcon.createIcon('pause'),
                                     e => this.playlistPause(e),
                                     "Pause Song"),
                                 ASUIInputButton.createInputButton({},
-                                    ASUIcon.createIcon('stop'),
+                                    ASUIIcon.createIcon('stop'),
                                     e => this.playlistStop(e),
                                     "Stop Song"),
                                 ASUIInputButton.createInputButton('playlist-next',
-                                    ASUIcon.createIcon('next'),
+                                    ASUIIcon.createIcon('next'),
                                     e => this.playlistNext(e),
                                     "Next Song")
                             ]),
@@ -97,12 +98,12 @@
                                 ASUIDiv.cE('title', 'File'),
                                 this.fieldSongFileLoad = ASUIInputFile.createInputFile('file-load',
                                     e => this.loadSongFromFileInput(),
-                                    ASUIcon.createIcon('file-load'),
+                                    ASUIIcon.createIcon('file-load'),
                                     `.json,.mid,.midi`,
                                     "Load Song from File"
                                 ),
                                 this.fieldSongFileSave = ASUIInputButton.cE('file-save',
-                                    ASUIcon.createIcon('file-save'),
+                                    ASUIIcon.createIcon('file-save'),
                                     e => this.saveSongToFile(),
                                     "Save Song to File"
                                 ),
@@ -164,10 +165,10 @@
 
                         ASPPanel.cE('playlist', () => [
                             ASUIDiv.cE('title', 'Playlist'),
-                            // ASPPlaylist.cE({
-                            //     state: this.state.playlist,
-                            //     ref:ref=>this.elmPlayer=ref
-                            // })
+                            ASPPlaylist.cE({
+                                state: this.state.playlist,
+                                ref:ref=>this.elmPlayer=ref
+                            })
                         ]),
                     ]),
 
@@ -438,7 +439,7 @@
             // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
             // await this.updateEntries();
             return [
-                new ASUIGridRow('header', () => [
+                ASUIGridRow.createElement('header', () => [
                     ASUIDiv.createElement('id', 'ID'),
                     ASUIDiv.createElement('name', 'Name'),
                     // ASUIDiv.createElement('url', 'URL'),
@@ -661,8 +662,6 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'player/audio-source-player-renderer.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourcePlayerRenderer,
         ASPPlaylist,

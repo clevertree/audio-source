@@ -1,7 +1,7 @@
 {
     /** Required Modules **/
     if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
     const {SongInstruction} = require('../common/audio-source-song.js');
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
@@ -16,8 +16,8 @@
         // ASUIInputFile,
         // ASUIInputRange,
         // ASUIInputText,
-        // ASUIcon,
-    } = require('../common/audio-source-ui.js');
+        // ASUIIcon,
+    } = require('../common/ui/asui-component.js');
 
     // const audioSourceValues = new AudioSourceValues;
 

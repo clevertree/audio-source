@@ -1,7 +1,7 @@
 {
     /** Required Modules **/
     if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
@@ -18,8 +18,8 @@
         ASUIInputRange,
         ASUIInputSelect,
         ASUIInputText,
-        ASUIcon,
-    } = require('../common/audio-source-ui.js');
+        ASUIIcon,
+    } = require('../common/ui/asui-component.js');
 
     const audioSourceStorage = new AudioSourceStorage();
 
@@ -98,16 +98,16 @@
 
                             this.panelSong = new ASCForm('playback', 'Playback', () => [
                                 this.fieldSongPlaybackPlay = ASUIInputButton.createElement('play',
-                                    ASUIcon.createIcon('play'),
+                                    ASUIIcon.createIcon('play'),
                                     e => this.songPlay(e),
                                     "Play Song"),
                                 this.fieldSongPlaybackPause = ASUIInputButton.createElement('pause',
-                                    ASUIcon.createIcon('pause'),
+                                    ASUIIcon.createIcon('pause'),
                                     e => this.songPause(e),
                                     "Pause Song"),
                                 // this.fieldSongPlaybackPause.disabled = true;
                                 this.fieldSongPlaybackStop = ASUIInputButton.createElement('stop',
-                                    ASUIcon.createIcon('stop'),
+                                    ASUIIcon.createIcon('stop'),
                                     e => this.songStop(e),
                                     "Stop Song")
                             ]),
@@ -138,12 +138,12 @@
                             new ASCForm('file', 'File', () => [
                                 this.fieldSongFileLoad = new ASUIInputFile('file-load',
                                     e => this.loadSongFromFileInput(),
-                                    ASUIcon.createIcon('file-load'),
+                                    ASUIIcon.createIcon('file-load'),
                                     `.json,.mid,.midi`,
                                     "Load Song from File"
                                 ),
                                 this.fieldSongFileSave = ASUIInputButton.createElement('file-save',
-                                    ASUIcon.createIcon('file-save'),
+                                    ASUIIcon.createIcon('file-save'),
                                     e => this.saveSongToFile(),
                                     "Save Song to File"
                                 ),
@@ -228,12 +228,12 @@
 
                                 this.fieldInstructionInsert = ASUIInputButton.createElement(
                                     'insert',
-                                    ASUIcon.createIcon('insert'),
+                                    ASUIIcon.createIcon('insert'),
                                     e => this.instructionInsert(),
                                     "Insert Instruction"),
 
                                 this.fieldInstructionDelete = ASUIInputButton.createElement('delete',
-                                    ASUIcon.createIcon('delete'),
+                                    ASUIIcon.createIcon('delete'),
                                     e => this.instructionDelete(e),
                                     "Delete Instruction"),
 

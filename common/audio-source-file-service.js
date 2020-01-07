@@ -1,7 +1,9 @@
 {
     /** Required Modules **/
     const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
+    const thisScriptPath = 'common/audio-source-file-service.js';
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
 
 
@@ -223,8 +225,6 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'common/audio-source-file-service.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceFileService,
     };

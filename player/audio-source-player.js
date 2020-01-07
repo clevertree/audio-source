@@ -1,19 +1,15 @@
 {
+
+    const thisScriptPath = 'player/audio-source-player.js';
     const isRN = typeof document === 'undefined';
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
 
     /** Required Modules **/
-    if(isRN) {
-        window.customElements = require('../../app/support/customElements.js').default;
-        // console.log(ASUIComponentBase);
-    } else {
-        window.require = customElements.get('audio-source-loader').require;
-    }
-
-
     const {AudioSourcePlayerActions} = require('../player/audio-source-player-actions.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
     // const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
-    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {AudioSourceSong} = require('../common/audio-source-song.js');
     const {AudioSourceStorage} = require('../common/audio-source-storage.js');
     /**
@@ -103,8 +99,7 @@
             else
                 this.loadState();
 
-            const Util = new AudioSourceUtilities;
-            Util.loadPackageInfo()
+            this.loadPackageInfo()
                 .then(packageInfo => this.setVersion(packageInfo.version));
         }
 
@@ -136,6 +131,26 @@
             console.log('saveState', state);
         }
 
+
+
+        /** Package Info **/
+
+        async loadPackageInfo(force=false) {
+            const url = new URL('../package.json', thisModule.src);
+
+            let packageInfo = this.packageInfo;
+            if (!force && packageInfo)
+                return packageInfo;
+
+            const response = await fetch(url);
+            packageInfo = await response.json();
+            if(!packageInfo.version)
+                throw new Error("Invalid package version: " + url);
+
+            console.log("Package Version: ", packageInfo.version, packageInfo);
+            this.packageInfo = packageInfo;
+            return packageInfo;
+        }
 
 
         // Rendering
@@ -227,8 +242,6 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'player/audio-source-player.js';
-    let thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     thisModule.exports = {
         AudioSourcePlayerElement,
     };

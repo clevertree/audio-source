@@ -31,7 +31,8 @@
     "bittorrent-tracker": "^9.14.4",
     "webtorrent": "^0.107.17",
 
-    "bad-words": "^3.0.0"
+    "bad-words": "^3.0.0",
+    "@react-native-community/slider": "latest"
   },
   "devDependencies": {
     "puppeteer-core": "^1.20.0",

@@ -21,8 +21,8 @@
         ASUIInputSelect,
         ASUIInputCheckBox,
         ASUIInputText,
-        ASUIcon,
-    } = require('../common/audio-source-ui.js');
+        ASUIIcon,
+    } = require('../common/ui/asui-component.js');
 
 
 
@@ -205,7 +205,7 @@
 
                     this.menu = ASUIMenu.createElement(
                         {vertical: true},
-                        ASUIcon.createIcon('config'),
+                        ASUIIcon.createIcon('config'),
                         () => [
                             ASUIMenu.createElement({}, 'Change Instrument to',
                                 async () => {
@@ -243,7 +243,7 @@
                 // ),
                 // ASUIInputButton.createElement('instrument-remove',
                 //     (e) => this.remove(e, instrumentID),
-                //     ASUIcon.createIcon('delete'),
+                //     ASUIIcon.createIcon('delete'),
                 //     'Remove Instrument'),
 
                 (!this.state.open ? null : (

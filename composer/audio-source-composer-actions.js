@@ -1,7 +1,7 @@
 {
     /** Required Modules **/
     if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').require;
+        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
 
     /** Required Modules **/
@@ -14,7 +14,7 @@
     } = require('../composer/audio-source-composer-tracker.js');
     const {AudioSourceStorage}              = require('../common/audio-source-storage.js');
     // const {AudioSourceUtilities}        = require('../common/audio-source-utilities.js');
-    // const {ASUIComponent}               = require('../common/audio-source-ui.js');
+    // const {ASUIComponent}               = require('../common/asui-component.js');
 
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
         constructor(state = {}, props = {}) {

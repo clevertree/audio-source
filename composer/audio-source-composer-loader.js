@@ -78,7 +78,7 @@
     await req('../common/audio-source-song.js');
     await req('../common/audio-source-storage.js');
     await req('../common/audio-source-library.js');
-    await req('../common/audio-source-ui.js');
+    await req('../common/asui-component.js');
     await req('../common/audio-source-values.js');
     await req('../common/audio-source-file-service.js');
     await req('../common/audio-source-utilities.js');

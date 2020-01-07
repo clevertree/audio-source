@@ -1,15 +1,14 @@
 {
+    const thisScriptPath = 'common/audio-source-utilities.js';
+    const isRN = typeof document === 'undefined';
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    // const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
+
     /** Required Modules **/
-    const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
 
 
 
-    class AudioSourceUtilities {
-        constructor() {
-        }
-        /** Javascript Libraries **/
-
+    class AudioSourceUtilitiesBase {
         get sources() {
             return {
                 'MidiParser': [
@@ -62,122 +61,60 @@
 
 
 
-
-        /** Package Info **/
-
-        async loadPackageInfo(force=false) {
-            const AudioSourceLoader = customElements.get('audio-source-loader')
-            const url = AudioSourceLoader.resolveURL('../package.json');
-
-            let packageInfo = AudioSourceUtilities.packageInfo;
-            if (!force && packageInfo)
-                return packageInfo;
-
-            packageInfo = await this.loadJSONFromURL(url);
-            if(!packageInfo.version)
-                throw new Error("Invalid package version: " + url);
-
-            console.log("Package Version: ", packageInfo.version, packageInfo);
-            AudioSourceUtilities.packageInfo = packageInfo;
-            return packageInfo;
-        }
-
-
-
-
-        /** Utilities **/
-
-
-        getScriptDirectory(appendPath='', selector=null) {
-            const AudioSourceLoader = customElements.get('audio-source-loader');
-            return AudioSourceLoader.resolveURL(appendPath);
-        }
-
-        async loadScript(src) {
-            await new Promise((resolve, reject) => {
-                const newScriptElm = document.createElement('script');
-                newScriptElm.src = src;
-                newScriptElm.onload = e => resolve();
-                document.head.appendChild(newScriptElm);
-            });
-        }
-
-        async loadSongFromURL(url) {
-            const urlString = url.toString().toLowerCase();
-            if(urlString.endsWith('.json'))
-                return this.loadJSONFromURL(url);
-            throw new Error("Unrecognized file type: " + url);
-        }
-
-        async loadJSONFromURL(url) {
-            url = new URL(url, document.location) + '';
-            return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', url, true);
-                xhr.responseType = 'json';
-                xhr.onload = () => {
-                    if (xhr.status !== 200)
-                        return reject("JSON file not found: " + url);
-
-                    resolve(xhr.response);
-                };
-                xhr.send();
-            });
-        }
-
-
-        async loadJSONFile (file) {
-            const fileResult = await new Promise((resolve, reject) => {
-                let reader = new FileReader();                                      // prepare the file Reader
-                reader.readAsText(file);                 // read the binary data
-                reader.onload =  (e) => {
-                    resolve(e.target.result);
-                };
-            });
-
-            const json = JSON.parse(fileResult);
-            return json;
-        }
-
         /** Midi Support **/
 
 
-        loadMIDIInterface(callback) {
-            // TODO: wait for user input
-            if (navigator.requestMIDIAccess) {
-                navigator.requestMIDIAccess().then(
-                    (MIDI) => {
-                        console.info("MIDI initialized", MIDI);
-                        const inputDevices = [];
-                        MIDI.inputs.forEach(
-                            (inputDevice) => {
-                                inputDevices.push(inputDevice);
-                                inputDevice.addEventListener('midimessage', callback);
-                            }
-                        );
-                        console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-                    },
-                    (err) => {
-                        throw new Error("error initializing MIDI: " + err);
-                    }
-                );
-            }
-        }
-
-        // async requireAsync(relativeScriptPath) {
-        //     return require(relativeScriptPath);
-        // }
-
     }
-    AudioSourceUtilities.instrumentLibrary = null;
-    AudioSourceUtilities.packageInfo = null;
+    AudioSourceUtilitiesBase.instrumentLibrary = null;
+    AudioSourceUtilitiesBase.packageInfo = null;
+
+    let AudioSourceUtilities;
+    if(isRN) {
+        class AudioSourceUtilitiesReactNative extends AudioSourceUtilitiesBase {
+
+            async loadJSONFromURL(url) {
+                url = new URL(url, document.location) + '';
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.responseType = 'json';
+                    xhr.onload = () => {
+                        if (xhr.status !== 200)
+                            return reject("JSON file not found: " + url);
+
+                        resolve(xhr.response);
+                    };
+                    xhr.send();
+                });
+            }
+
+        }
+        AudioSourceUtilities = AudioSourceUtilitiesReactNative;
+    } else {
+        class AudioSourceUtilitiesBrowser extends AudioSourceUtilitiesBase {
+
+            async loadJSONFromURL(url) {
+                url = new URL(url, document.location) + '';
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.responseType = 'json';
+                    xhr.onload = () => {
+                        if (xhr.status !== 200)
+                            return reject("JSON file not found: " + url);
+
+                        resolve(xhr.response);
+                    };
+                    xhr.send();
+                });
+            }
+
+        }
+        AudioSourceUtilities = AudioSourceUtilitiesBrowser;
+    }
 
 
-
-
-    /** Export this script **/
-    const thisScriptPath = 'common/audio-source-utilities.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
+        /** Export this script **/
     thisModule.exports = {
         AudioSourceUtilities,
     };

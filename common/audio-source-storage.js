@@ -1,8 +1,11 @@
 {
-    /** Required Modules **/
+    const thisScriptPath = 'common/audio-source-storage.js';
     const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').require;
+    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
 
+    /** Required Modules **/
+    const {LZString} = require('../assets/3rdparty/LZString/lz-string.min.js');
 
     class AudioSourceStorage {
         constructor() {
@@ -55,10 +58,7 @@
         /** Encoding / Decoding **/
 
         async encodeForStorage(json, replacer = null, space = null) {
-            const {AudioSourceUtilities} = await require('../common/audio-source-utilities.js');
             let encodedString = JSON.stringify(json, replacer, space);
-            const Util = new AudioSourceUtilities();
-            const LZString = await Util.getLZString();
             const compressedString = LZString.compress(encodedString);
 //             console.log(`Compression: ${compressedString.length} / ${encodedString.length} = ${Math.round((compressedString.length / encodedString.length)*100)/100}`);
             return compressedString;
@@ -67,9 +67,6 @@
         async decodeForStorage(encodedString) {
             if (!encodedString)
                 return null;
-            const {AudioSourceUtilities} = await require('../common/audio-source-utilities.js');
-            const Util = new AudioSourceUtilities();
-            const LZString = await Util.getLZString();
             encodedString = LZString.decompress(encodedString) || encodedString;
             return JSON.parse(encodedString);
         }
@@ -237,8 +234,6 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'common/audio-source-storage.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceStorage,
     };

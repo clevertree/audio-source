@@ -7,12 +7,12 @@
         window.customElements = require('../../app/support/customElements.js').default;
         // console.log(ASUIComponentBase);
     } else {
-        window.require = customElements.get('audio-source-loader').require;
+        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
     }
 
     /** Required Modules **/
     const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
-    const {ASUIDiv} = require('../common/audio-source-ui.js');
+    const {ASUIDiv} = require('../common/ui/asui-component.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     const {AudioSourceSong} = require('../common/audio-source-song.js');

@@ -28,7 +28,7 @@ const fs = require('fs');
         // + await convert('composer/audio-source-composer-menu.js')
         + await convert('composer/audio-source-composer-actions.js')
 
-        + await convert('common/audio-source-ui.js')
+        + await convert('common/asui-component.js')
         + await convert('common/audio-source-utilities.js')
         + await convert('common/audio-source-values.js')
         + await convert('common/audio-source-library.js')
