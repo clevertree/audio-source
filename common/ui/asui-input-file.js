@@ -1,11 +1,9 @@
-{
-    const thisScriptPath = 'common/ui/asui-input-file.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const {ASUIComponent} = require('asui-component.js');
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+
+    const {ASUIComponent} = require('./asui-component.js');
 
 
     class ASUIInputFile extends ASUIComponent {
@@ -57,7 +55,8 @@
             });
         }
     }
-    customElements.define('asui-input-file', ASUIInputFile);
+    if(isBrowser)
+        customElements.define('asui-input-file', ASUIInputFile);
 
 
 
@@ -66,4 +65,17 @@
     thisModule.exports = {
         ASUIInputFile,
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-input-file.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

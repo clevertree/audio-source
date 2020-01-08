@@ -1,11 +1,8 @@
-{
-    const thisScriptPath = 'common/ui/asui-input-range.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const {ASUIComponent} = require('asui-component.js');
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+    const {ASUIComponent} = require('./asui-component.js');
 
 
 
@@ -51,7 +48,7 @@
         }
 
         render() {
-            return isRN ? this.renderReactNative() : this.renderBrowser();
+            return !isBrowser ? this.renderReactNative() : this.renderBrowser();
         }
 
         static createInputRange(props, onChange = null, min = 1, max = 100, initialValue = null, title = null) {
@@ -64,7 +61,8 @@
             });
         }
     }
-    customElements.define('asui-range', ASUIInputRange);
+    if(isBrowser)
+        customElements.define('asui-range', ASUIInputRange);
 
 
 
@@ -73,4 +71,17 @@
     thisModule.exports = {
         ASUIInputRange,
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-input-range.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

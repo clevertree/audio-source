@@ -1,11 +1,7 @@
-{
-    const isRN  = typeof document === 'undefined';
-    const thisScriptPath = 'common/audio-source-values.js';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
 
 
 
@@ -265,5 +261,15 @@
 
 
 
-}
-
+}).apply(null, (function() {
+    const thisScriptPath = 'common/audio-source-values.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

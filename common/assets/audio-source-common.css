@@ -170,63 +170,32 @@ asui-menu {
     white-space: nowrap;
 }
 
-/*asui-menu.selected {*/
-/*    background-color: #AAA;*/
-/*}*/
 
-
-
-/** Menu Text **/
-asui-menu > *:first-child {
-    /* display: inline-block; */
-}
+/** Menu Title **/
 asui-menu > .title {
-    padding: 3px 6px;
     /* overflow: hidden; */
-    min-width: 24px;
+    /*min-width: 24px;*/
     display: block;
-    padding-right: 19px;
+    padding: 3px 19px 3px 6px;
 }
+asui-menu:hover {
+    background-color: #AAA;
+}
+
+/** Menu Stick **/
+asui-menu > .title.stick {
+    transition: background-color 0.3s;
+    background-color: #888;
+}
+
+/** Menu Arrow **/
+
 asui-menu > .arrow {
-    /* margin: 0 0px 0 auto; */
-    /* display: inline-block; */
-    /* float: right; */
     position: absolute;
     right: 4px;
     top: 2px;
 }
 
-/*asui-menu[arrow]:after {*/
-/*    content: ' ►';*/
-/*    margin: 0 6px 0 auto;*/
-/*}*/
-/*asui-menu[arrow][vertical] > asui-div.title:after {*/
-/*    content: ' ▼';*/
-/*}*/
-
-asui-menu:hover {
-    background-color: #AAA;
-}
-asui-menu[context]:not([open]) {
-    display: none;
-}
-asui-menu[context] {
-    position: absolute;
-    z-index: 4;
-    background-color: #bdc3c7;
-}
-asui-menu > asui-touchable.stick {
-    /*transition: background-color 0.3s;*/
-    background-color: #888;
-}
-
-
-asui-menu span.arrow {
-    padding: 4px;
-}
-asui-menu span.arrow:after {
-    content: '►';
-}
 
 
 /** Drop Down Menu **/
@@ -274,13 +243,23 @@ asui-menu > .title.disabled {
 
 
 
-
-
 /** Menu Break **/
 
 asui-menu > .break {
     margin-bottom: 2px;
     border-bottom: 2px #666 solid;
+}
+
+/** Context Menu **/
+
+
+asui-menu[context]:not([open]) {
+    display: none;
+}
+asui-menu[context] {
+    position: absolute;
+    z-index: 4;
+    background-color: #bdc3c7;
 }
 
 

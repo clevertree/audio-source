@@ -1,11 +1,8 @@
-{
-    const thisScriptPath = 'common/ui/asui-input-select.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const {ASUIDiv} = require('asui-component.js');
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+    const {ASUIDiv} = require('./asui-component.js');
 
     class ASUIInputSelect extends ASUIDiv {
         constructor(props) {
@@ -73,11 +70,25 @@
             });
         }
     }
-    customElements.define('asui-select', ASUIInputSelect);
+    if(isBrowser)
+        customElements.define('asui-select', ASUIInputSelect);
 
 
     /** Export this script **/
     thisModule.exports = {
         ASUIInputSelect,
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-input-select.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

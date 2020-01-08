@@ -1,8 +1,7 @@
-{
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
-
+    // if(isBrowser) // Hack for browsers
+    //     window.require = thisRequire;
     class AudioSourceComposerKeyboard {
         constructor() {
         }
@@ -56,9 +55,19 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'composer/audio-source-composer-keyboard.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceComposerKeyboard,
     };
-}
+
+}).apply(null, (function() {
+    const thisScriptPath = 'composer/audio-source-composer-keyboard.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

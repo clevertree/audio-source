@@ -1,8 +1,7 @@
-{
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
-
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
@@ -752,12 +751,14 @@
         }
     }
 
-    customElements.define('asc-panel', ASCPanel);
+    if(isBrowser)
+        customElements.define('asc-panel', ASCPanel);
 
     class ASCForm extends ASCPanel {
     }
 
-    customElements.define('asc-form', ASCForm);
+    if(isBrowser)
+        customElements.define('asc-form', ASCForm);
 
 
     class ASCInstrumentRenderer extends ASUIComponent {
@@ -820,14 +821,24 @@
         }
     }
 
-    customElements.define('asc-instrument', ASCInstrumentRenderer);
+    if(isBrowser)
+        customElements.define('asc-instrument', ASCInstrumentRenderer);
 
 
     /** Export this script **/
-    const thisScriptPath = 'composer/audio-source-composer-renderer.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceComposerRenderer,
     };
 
-}
+}).apply(null, (function() {
+    const thisScriptPath = 'composer/audio-source-composer-renderer.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

@@ -1,10 +1,8 @@
-{
-    const thisScriptPath = 'player/audio-source-player-actions.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+
     const {AudioSourceSong}             = require('../common/audio-source-song.js');
     const {AudioSourceStorage}          = require('../common/audio-source-storage.js');
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
@@ -440,4 +438,16 @@
     thisModule.exports = {
         AudioSourcePlayerActions,
     };
-}
+
+}).apply(null, (function() {
+    const thisScriptPath = 'player/audio-source-player-actions.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

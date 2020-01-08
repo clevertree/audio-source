@@ -1,11 +1,8 @@
-{
-    const thisScriptPath = 'common/ui/asui-input-text.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const {ASUIComponent} = require('asui-component.js');
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+    const {ASUIComponent} = require('./asui-component.js');
 
     class ASUIInputText extends ASUIComponent {
         constructor(props = {}) {
@@ -46,7 +43,7 @@
         }
 
         render() {
-            return isRN ? this.renderReactNative() : this.renderBrowser();
+            return !isBrowser ? this.renderReactNative() : this.renderBrowser();
         }
 
         static createInputText(props={}, callback = null, initialValue = null, title = null, placeholder = null) {
@@ -59,7 +56,8 @@
         }
 
     }
-    customElements.define('asui-text', ASUIInputText);
+    if(isBrowser)
+        customElements.define('asui-text', ASUIInputText);
 
 
 
@@ -67,4 +65,17 @@
     thisModule.exports = {
         ASUIInputText,
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-input-text.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

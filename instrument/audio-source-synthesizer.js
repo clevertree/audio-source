@@ -1,9 +1,7 @@
-{
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    let AudioSourceLoader = typeof document !== 'undefined' ? customElements.get('audio-source-loader') : null;
-    if(typeof window !== "undefined")
-        window.require = AudioSourceLoader.require;
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
 
 
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
@@ -805,9 +803,11 @@
 
     }
     try {
+        if(isBrowser)
         customElements.define('audio-source-synthesizer', AudioSourceSynthesizer);
     } catch (e) {
         console.error(e);
+        if(isBrowser)
         customElements.define('audio-source-synthesizer-duplicate', AudioSourceSynthesizer);
     }
 
@@ -831,10 +831,21 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'instrument/audio-source-synthesizer.js';
-    let thisModule = typeof document !== 'undefined' ? AudioSourceLoader.findScript(thisScriptPath) : module;
     thisModule.exports = {
         instrument: AudioSourceSynthesizer,
         AudioSourceSynthesizer
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'instrument/audio-source-synthesizer.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

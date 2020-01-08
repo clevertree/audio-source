@@ -1,14 +1,11 @@
-{
-    const thisScriptPath = 'common/ui/asui-component.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    // const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
+    // if(isBrowser) // Hack for browsers
+    //     window.require = thisRequire;
+
     let ASUIComponentBase;
     let React, ASUITouchableHighlight;
-    if(isRN) {
+    if(!isBrowser) {
         ASUITouchableHighlight = require('react-native').TouchableHighlight;
         React = require('react');
 
@@ -285,7 +282,8 @@
         }
 
     }
-    customElements.define('asui-component', ASUIComponent);
+    if(isBrowser)
+        customElements.define('asui-component', ASUIComponent);
 
     /** Div **/
     class ASUIDiv extends ASUIComponent {
@@ -303,7 +301,8 @@
 
     }
 
-    customElements.define('asui-div', ASUIDiv);
+    if(isBrowser)
+        customElements.define('asui-div', ASUIDiv);
 
 
 
@@ -321,13 +320,15 @@
         }
     }
 
-    customElements.define('asui-icon', ASUIIcon);
+    if(isBrowser)
+        customElements.define('asui-icon', ASUIIcon);
 
 
-    if(!isRN) {
+    if(!!isBrowser) {
         ASUITouchableHighlight = class extends ASUIComponent {
 
         }
+        if(isBrowser)
         customElements.define('asui-touchable', ASUITouchableHighlight);
     }
 
@@ -351,4 +352,17 @@
         ASUIIcon,
         ASUITouchableHighlight
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-component.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

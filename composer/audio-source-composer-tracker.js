@@ -1,8 +1,7 @@
-{
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if (typeof window !== "undefined")
-        window.require = customElements.get('audio-source-loader').getRequire(thisModule);
-
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
     const {SongInstruction} = require('../common/audio-source-song.js');
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
@@ -975,7 +974,8 @@
 
     }
 
-    customElements.define('asc-tracker', AudioSourceComposerTracker);
+    if(isBrowser)
+        customElements.define('asc-tracker', AudioSourceComposerTracker);
 
 
     // const VISIBLE_BUFFER = 100;
@@ -1046,7 +1046,8 @@
 
     }
 
-    customElements.define('asct-row', AudioSourceComposerTrackerRow);
+    if(isBrowser)
+        customElements.define('asct-row', AudioSourceComposerTrackerRow);
 
     class AudioSourceComposerTrackerInstruction extends ASUIComponent {
         constructor(song, instruction, props = {}) {
@@ -1139,7 +1140,8 @@
 
     }
 
-    customElements.define('asct-instruction', AudioSourceComposerTrackerInstruction);
+    if(isBrowser)
+        customElements.define('asct-instruction', AudioSourceComposerTrackerInstruction);
 
 
     class AudioSourceComposerTrackerInstructionAdd extends ASUIComponent {
@@ -1154,7 +1156,8 @@
 
     }
 
-    customElements.define('asct-instruction-add', AudioSourceComposerTrackerInstructionAdd);
+    if(isBrowser)
+        customElements.define('asct-instruction-add', AudioSourceComposerTrackerInstructionAdd);
 
 
     class AudioSourceComposerParamCommand extends ASUIComponent {
@@ -1170,7 +1173,8 @@
 
     }
 
-    customElements.define('ascti-command', AudioSourceComposerParamCommand);
+    if(isBrowser)
+        customElements.define('ascti-command', AudioSourceComposerParamCommand);
 
 
     class AudioSourceComposerParamInstrument extends ASUIComponent {
@@ -1185,7 +1189,8 @@
         }
     }
 
-    customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
+    if(isBrowser)
+        customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
 
     class AudioSourceComposerParamVelocity extends ASUIComponent {
         constructor(velocity, props = {}) {
@@ -1199,7 +1204,8 @@
         }
     }
 
-    customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
+    if(isBrowser)
+        customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
 
     class AudioSourceComposerParamDuration extends ASUIComponent {
         constructor(song, duration, props = {}) {
@@ -1213,7 +1219,8 @@
         }
     }
 
-    customElements.define('ascti-duration', AudioSourceComposerParamDuration);
+    if(isBrowser)
+        customElements.define('ascti-duration', AudioSourceComposerParamDuration);
 
 
     class AudioSourceComposerTrackerDelta extends ASUIComponent {
@@ -1228,15 +1235,26 @@
         }
     }
 
-    customElements.define('asct-delta', AudioSourceComposerTrackerDelta);
+    if(isBrowser)
+        customElements.define('asct-delta', AudioSourceComposerTrackerDelta);
 
 
     /** Export this script **/
-    const thisScriptPath = 'composer/audio-source-composer-tracker.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceComposerTracker,
         AudioSourceComposerTrackerInstruction,
         AudioSourceComposerTrackerRow
     };
-}
+
+}).apply(null, (function() {
+    const thisScriptPath = 'composer/audio-source-composer-tracker.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

@@ -1,10 +1,7 @@
-{
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
-
-
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
 
     const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
 
@@ -255,18 +252,26 @@
 
 
     /** Utilities **/
-
-
     function getScriptDirectory(appendPath = '') {
         const AudioSourceLoader = customElements.get('audio-source-loader')
         return AudioSourceLoader.resolveURL(appendPath);
     }
 
     /** Export this script **/
-    const thisScriptPath = 'instrument/chip/spc-player-synthesizer.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         instrument: SPCPlayerSynthesizer,
         SPCPlayerSynthesizer
     };
-}
+
+}).apply(null, (function() {
+    const thisScriptPath = 'instrument/chip/spc-player-synthesizer.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

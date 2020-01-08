@@ -67,6 +67,7 @@
     };
 
     if(!customElements.get('audio-source-loader'))
+        if(isBrowser)
         customElements.define('audio-source-loader', AudioSourceLoader);
 
     const thisScriptPath = 'audio-source-composer-loader.js';

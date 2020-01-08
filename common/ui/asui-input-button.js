@@ -1,11 +1,9 @@
-{
-    const thisScriptPath = 'common/ui/asui-input-button.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const {ASUIComponent} = require('asui-component.js');
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+
+    const {ASUIComponent} = require('./asui-component.js');
 
     class ASUIInputButton extends ASUIComponent {
         constructor(props = {}) {
@@ -35,7 +33,7 @@
             //     divElm.innerHTML = this.props.children;
             //     return divElm;
             // }
-            if(isRN) {
+            if(!isBrowser) {
                 return React.createElement(TouchableHighlight, {
                     onPress: this.props.onPress
                 }, this.getChildren())
@@ -52,10 +50,24 @@
         }
     }
 
-    customElements.define('asui-button', ASUIInputButton);
+    if(isBrowser)
+        customElements.define('asui-button', ASUIInputButton);
 
     /** Export this script **/
     thisModule.exports = {
         ASUIInputButton,
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-input-button.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

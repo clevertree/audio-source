@@ -1,8 +1,7 @@
-{
-    const thisScriptPath = 'player/audio-source-player-renderer.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
+    /** Required Modules **/
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
 
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     // const {AudioSourceValues} = require('../common/audio-source-values.js');
@@ -39,10 +38,10 @@
         render() {
 //             console.log('ohok');
             return [
-                isRN ? null : [
+                isBrowser ? [
                     this.createStyleSheetLink('../player/assets/audio-source-player.css', thisModule),
                     this.createStyleSheetLink('../common/assets/audio-source-common.css', thisModule),
-                ],
+                ] : null,
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
                         ASUIMenu.cME({vertical: true}, 'File', () => [
@@ -193,7 +192,8 @@
 
 
     }
-    // customElements.define('asp-renderer', AudioSourcePlayerRenderer);
+    // if(isBrowser)
+        customElements.define('asp-renderer', AudioSourcePlayerRenderer);
 
 
     class ASPPanel extends ASUIDiv {
@@ -209,10 +209,12 @@
         // }
 
     }
-    customElements.define('asp-panel', ASPPanel);
+    if(isBrowser)
+        customElements.define('asp-panel', ASPPanel);
 
     class ASPForm extends ASPPanel {}
-    customElements.define('asp-form', ASPForm);
+    if(isBrowser)
+        customElements.define('asp-form', ASPForm);
 
 
 
@@ -470,7 +472,8 @@
         }
 
     }
-    customElements.define('asp-playlist', ASPPlaylist);
+    if(isBrowser)
+        customElements.define('asp-playlist', ASPPlaylist);
 
     class ASPPlaylistEntry extends ASUIComponent {
         constructor(props = {}) {
@@ -566,7 +569,8 @@
         // }
 
     }
-    customElements.define('aspp-entry', ASPPlaylistEntry);
+    if(isBrowser)
+        customElements.define('aspp-entry', ASPPlaylistEntry);
 
 
 
@@ -659,7 +663,8 @@
             return content;
         }
     }
-    customElements.define('aspp-playlist-entry', ASPPlaylistPlaylistEntry);
+    if(isBrowser)
+        customElements.define('aspp-playlist-entry', ASPPlaylistPlaylistEntry);
 
 
 
@@ -671,4 +676,16 @@
         ASPPlaylistPlaylistEntry,
     };
 
-}
+
+}).apply(null, (function() {
+    const thisScriptPath = 'player/audio-source-player-renderer.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

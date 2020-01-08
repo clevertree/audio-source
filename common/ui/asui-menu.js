@@ -1,15 +1,12 @@
-{
-    const thisScriptPath = 'common/ui/asui-menu.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
     const {
         ASUIDiv,
         ASUIComponent,
         ASUITouchableHighlight
-    } = require('asui-component.js');
+    } = require('./asui-component.js');
 
     class ASUIMenu extends ASUIComponent {
 
@@ -105,7 +102,7 @@
         }
 
         render() {
-            return isRN ? this.renderReactNative() : this.renderBrowser();
+            return !isBrowser ? this.renderReactNative() : this.renderBrowser();
         }
 
         renderOptions(offset=0, length=20) {
@@ -309,7 +306,8 @@
             return this.createMenuElement(props, children, dropDownContent);
         }
     }
-    customElements.define('asui-menu', ASUIMenu);
+    if(isBrowser)
+        customElements.define('asui-menu', ASUIMenu);
 
 
 
@@ -317,4 +315,17 @@
     thisModule.exports = {
         ASUIMenu,
     };
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-menu.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

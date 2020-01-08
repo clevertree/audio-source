@@ -1,11 +1,9 @@
-{
-    const thisScriptPath = 'common/ui/asui-input-checkbox.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const {ASUIComponent} = require('asui-component.js');
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
+
+    const {ASUIComponent} = require('./asui-component.js');
 
     class ASUIInputCheckBox extends ASUIComponent {
         constructor(props = {}) {
@@ -48,11 +46,27 @@
 
     }
 
-    customElements.define('asui-input-checkbox', ASUIInputCheckBox);
+    if(isBrowser)
+        customElements.define('asui-input-checkbox', ASUIInputCheckBox);
 
 
     /** Export this script **/
     thisModule.exports = {
         ASUIInputCheckBox,
     };
-}
+
+
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/ui/asui-input-checkbox.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

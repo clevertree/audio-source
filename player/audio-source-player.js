@@ -1,11 +1,7 @@
-{
-
-    const thisScriptPath = 'player/audio-source-player.js';
-    const isRN = typeof document === 'undefined';
-    const thisModule = isRN ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const require =  isRN ? window.require : customElements.get('audio-source-loader').getRequire(thisModule);
-
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
+    if(isBrowser) // Hack for browsers
+        window.require = thisRequire;
     const {AudioSourcePlayerActions} = require('../player/audio-source-player-actions.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
     // const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
@@ -105,7 +101,7 @@
 
         disconnectedCallback() {
             super.disconnectedCallback();
-            if(!isRN)
+            if(isBrowser)
                 this.saveState(e); // TODO: save state on state change, not page unload
                 // window.addEventListener('unload', e => this.saveState(e));
         }
@@ -235,7 +231,8 @@
     AudioSourcePlayerElement.DEFAULT_VOLUME = 0.3;
 
     // Define custom elements
-    customElements.define('audio-source-player', AudioSourcePlayerElement);
+    if(isBrowser)
+        customElements.define('audio-source-player', AudioSourcePlayerElement);
 
     // MusicPlayerElement.loadStylesheet('client/player/audio-source-player.css');
 
@@ -247,4 +244,15 @@
     };
 
 
-}
+}).apply(null, (function() {
+    const thisScriptPath = 'player/audio-source-player.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());

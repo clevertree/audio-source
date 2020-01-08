@@ -1,9 +1,7 @@
-{
+(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    const isRN  = typeof document === 'undefined';
-    if(!isRN)   window.require = customElements.get('audio-source-loader').getRequire(thisModule);
-
-
+    // if(isBrowser) // Hack for browsers
+    //     window.require = thisRequire;
 
 
     class AudioSourceLibrary {
@@ -217,11 +215,22 @@
 
 
     /** Export this script **/
-    const thisScriptPath = 'common/audio-source-library.js';
-    let thisModule = typeof document !== 'undefined' ? customElements.get('audio-source-loader').findScript(thisScriptPath) : module;
     thisModule.exports = {
         AudioSourceLibrary,
     };
 
 
-}
+
+
+}).apply(null, (function() {
+    const thisScriptPath = 'common/audio-source-library.js';
+    const isBrowser = typeof document === 'object';
+    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
+    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
+    return [
+        thisRequire,
+        thisModule,
+        thisScriptPath,
+        isBrowser
+    ]
+})());
