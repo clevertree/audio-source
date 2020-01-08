@@ -178,16 +178,22 @@ asui-menu {
 
 /** Menu Text **/
 asui-menu > *:first-child {
-    display: inline-block;
+    /* display: inline-block; */
 }
-asui-menu > asui-div.title {
-    padding: 0px 6px;
-    overflow: hidden;
+asui-menu > .title {
+    padding: 3px 6px;
+    /* overflow: hidden; */
     min-width: 24px;
+    display: block;
+    padding-right: 19px;
 }
-asui-menu > asui-div.arrow {
-    margin: 0 6px 0 auto;
-    display: inline-block;
+asui-menu > .arrow {
+    /* margin: 0 0px 0 auto; */
+    /* display: inline-block; */
+    /* float: right; */
+    position: absolute;
+    right: 4px;
+    top: 2px;
 }
 
 /*asui-menu[arrow]:after {*/
@@ -226,28 +232,20 @@ asui-menu span.arrow:after {
 /** Drop Down Menu **/
 
 asui-div.dropdown > asui-menu {
-    display: flex;
-    padding: 3px 0px;
+    display: block;
+    /* padding: 3px 0px; */
 }
 
 asui-menu > asui-div.dropdown {
     background-color: #bdc3c7;
     /* display: inline-block; */
     z-index: 3;
-    /* flex-direction: column; */
     position: absolute;
     left: 100%;
-    /* border-radius: 2px; */
-    /*transition: all 0.1s 0.2s ease-in;*/
-    /*transform: scaleY(0);*/
-    /*opacity: 0;*/
+    top: 0;
     border: 1px solid grey;
     text-align: left;
-    /* opacity: 0; */
     transition: opacity 0.2s;
-    /* max-height: 50%; */
-    /* overflow-y: scroll; */
-    /* overflow: auto; */
 }
 
 asui-menu > asui-div.dropdown:hover {
@@ -259,6 +257,8 @@ asui-menu[open] > asui-div.dropdown {
 }
 asui-menu > asui-div.dropdown.vertical {
     left: 0;
+    top: inherit;
+    /*bottom: 0;*/
     /*display: block;*/
     /* float: right; */
 }
@@ -266,8 +266,8 @@ asui-menu > asui-div.dropdown.vertical {
 
 
 /** Disabled Menu **/
-asui-menu[disabled] {
-    opacity: 0.5;
+asui-menu > .title.disabled {
+    /*opacity: 0.5;*/
     color: #777;
     cursor: not-allowed;
 }
@@ -278,7 +278,7 @@ asui-menu[disabled] {
 
 /** Menu Break **/
 
-asui-menu[hasbreak] {
+asui-menu > .break {
     margin-bottom: 2px;
     border-bottom: 2px #666 solid;
 }

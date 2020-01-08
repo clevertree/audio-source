@@ -41,6 +41,7 @@ asui-div.asp-container {
 
 asui-div.asp-menu-container {
     background-color: #bdc3c7;
+    padding: 2px;
 }
 
 /** Status Bar **/

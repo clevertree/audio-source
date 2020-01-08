@@ -82,20 +82,20 @@
                 children = children(this);
             const content = [
                 ASUITouchableHighlight.cE({
-                    class: this.state.stick ? 'stick' : null
+                    class: 'title' + (this.state.stick ? ' stick' : '') + (this.props.disabled ? ' disabled' : '')
                 }, [
-                    this.menuContent = (typeof children === "string" ? ASUIDiv.createElement('title', children) : null),
-                    this.props.arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+                    children,
                 ]),
+                arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
                 !this.state.open ? null : ASUIDiv.cE({
                     class: 'dropdown' + (this.props.vertical ? ' vertical' : ''),
                     onWheel: e => this.onInputEvent(e)
                 }, this.props.dropDownContent),
-                // this.props.hasBreak ? ASUIDiv.createElement('break') : null,
+                this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
 
             // this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
-            console.log('ASUIMenu', content);
+//             console.log('ASUIMenu', content);
             return content;
         }
 
@@ -133,23 +133,25 @@
             return contentList;
         }
 
-        async toggleSubMenu(e) {
-            const open = !this.state.stick;
-            let parentMenu = this;
-            while(parentMenu) {
-                await parentMenu.setState({stick:open});
-                parentMenu = parentMenu.parentNode.closest('asui-menu');
-            }
-            await this.open();
+        toggleSubMenu(e) {
+            // let parentMenu = this;
+            // while(parentMenu) {
+            //     parentMenu.setState({stick:open});
+            //     parentMenu = parentMenu.parentNode.closest('asui-menu');
+            // }
+            this.state.stick = !this.state.stick;
+            if(!this.state.open)
+                this.state.open = this.state.stick;
+            this.forceUpdate();
         }
 
-        async close() {
+        close() {
             if(this.state.open !== false) {
                 this.setState({open: false, stick:false});
                 // await this.dropdown.setContent(null);
             }
         }
-        async open() {
+        open() {
             if(this.state.open !== true) {
                 this.setState({open: true});
                 // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
@@ -157,14 +159,14 @@
             this.closeAllMenusButThis();
         }
 
-        async openContextMenu(e) {
+        openContextMenu(e) {
             this.setProps({
                 style: {
                     left: e.clientX,
                     top: e.clientY
                 }
             });
-            await this.open();
+            this.open();
         }
 
         closeAllMenus(includeStickMenus=false) {
@@ -189,7 +191,6 @@
             // if (this !== menuElm)
             //     return; // console.info("Ignoring submenu action", this, menuElm);
 
-            // console.log(e.type, this);
             switch (e.type) {
                 case 'mouseover':
                     clearTimeout(this.mouseTimeout);
@@ -210,13 +211,16 @@
                 case 'click':
                     if (e.defaultPrevented)
                         return;
+                    console.log(e.type, this);
                     e.preventDefault();
 
                     if (this.action) {
                         this.action(e, this);
                         this.closeAllMenus();
-                    } else {
+                    } else if(this.props.dropDownContent) {
                         this.toggleSubMenu(e);
+                    } else {
+                        console.log("Menu has no dropdown or action content: ", this);
                     }
                     break;
 

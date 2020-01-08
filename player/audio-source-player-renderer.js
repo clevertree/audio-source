@@ -46,17 +46,19 @@
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
                         ASUIMenu.cME({vertical: true}, 'File', () => [
-                            ASUIMenu.cME({}, 'from Memory', () => {
+                            ASUIMenu.cME({}, 'Load from Memory', () => {
                                 const {AudioSourceStorage} = require('../common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
                                 const songRecentUUIDs = Storage.getRecentSongList() ;
-                                return songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
-                                    null, () => this.loadSongFromMemory(entry.uuid)));
+                                return songRecentUUIDs.length > 0
+                                    ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
+                                    null, () => this.loadSongFromMemory(entry.uuid)))
+                                    : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
                             }),
 
-                            ASUIMenu.cME({}, 'from File', null, (e) => this.fieldSongFileLoad.click()),
-                            ASUIMenu.cME({}, 'from URL', null, null, {disabled: true}),
-                            ASUIMenu.cME({}, 'from Library', null, null, {disabled: true}),
+                            ASUIMenu.cME({}, 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
+                            ASUIMenu.cME({}, 'Load from URL', null, null, {disabled: true}),
+                            ASUIMenu.cME({}, 'Load from Library', null, null, {disabled: true}),
                         ]),
                         ASUIMenu.cME({vertical: true}, 'Playlist', () => [
                             ASUIMenu.cME({}, 'Play Next Song', null, (e) => this.playlistNext()),
