@@ -80,9 +80,9 @@
             const content = [
                 ASUITouchableHighlight.cE({
                     class: 'title' + (this.state.stick ? ' stick' : '') + (this.props.disabled ? ' disabled' : '')
-                }, [
+                },
                     children,
-                ]),
+                ),
                 arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
                 !this.state.open ? null : ASUIDiv.cE({
                     class: 'dropdown' + (this.props.vertical ? ' vertical' : ''),
@@ -102,7 +102,7 @@
         }
 
         render() {
-            return !isBrowser ? this.renderReactNative() : this.renderBrowser();
+            return !isBrowser ? this.renderBrowser() : this.renderBrowser();
         }
 
         renderOptions(offset=0, length=20) {

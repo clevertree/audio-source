@@ -4,9 +4,9 @@
     //     window.require = thisRequire;
 
     let ASUIComponentBase;
-    let React, ASUITouchableHighlight;
+    let React, ASUITouchableHighlightBase;
     if(!isBrowser) {
-        ASUITouchableHighlight = require('react-native').TouchableHighlight;
+        ASUITouchableHighlightBase = require('react-native').TouchableHighlight;
         React = require('react');
 
         window.customElements = require('../../../app/support/customElements.js').default;
@@ -261,6 +261,7 @@
             }
 
         };
+        ASUITouchableHighlightBase = ASUIComponentBase;
     }
 
     /** Abstract Component **/
@@ -324,13 +325,12 @@
         customElements.define('asui-icon', ASUIIcon);
 
 
-    if(!!isBrowser) {
-        ASUITouchableHighlight = class extends ASUIComponent {
-
-        }
-        if(isBrowser)
+    const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {} // TODO: Hack
+    ASUITouchableHighlight.processProps = ASUIComponent.processProps;
+    ASUITouchableHighlight.createElement = ASUIComponent.createElement;
+    ASUITouchableHighlight.cE = ASUIComponent.cE;
+    if(isBrowser)
         customElements.define('asui-touchable', ASUITouchableHighlight);
-    }
 
 
     /** Utility functions **/

@@ -5,7 +5,7 @@
             super();
         }
 
-        /** Append Instrument CSS */
+        /** Append CSS */
         static appendCSS(cssPath, destination=null) {
             destination = destination || document.head;
 
@@ -51,24 +51,24 @@
             }
         }
 
-        /** @deprecated **/
-        static require(relativeScriptPath) {
-            let scriptElm = AudioSourceLoader.findScript(relativeScriptPath);
-            // console.info('require', relativeScriptPath, scriptElm.exports);
-            return scriptElm.exports
-                || (() => {
-                    throw new Error("Script module has no exports: " + relativeScriptPath);
-                })()
-        }
-
-        /** @deprecated **/
-        static resolveURL(relativeScriptURL) {
-            throw new Error("Depreciated");
-            if (relativeScriptURL.toString().startsWith('../'))
-                relativeScriptURL = relativeScriptURL.substr(3);
-            relativeScriptURL = new URL(basePathURL + relativeScriptURL, document.location) + ''
-            return relativeScriptURL;
-        }
+        // /** @deprecated **/
+        // static require(relativeScriptPath) {
+        //     let scriptElm = AudioSourceLoader.findScript(relativeScriptPath);
+        //     // console.info('require', relativeScriptPath, scriptElm.exports);
+        //     return scriptElm.exports
+        //         || (() => {
+        //             throw new Error("Script module has no exports: " + relativeScriptPath);
+        //         })()
+        // }
+        //
+        // /** @deprecated **/
+        // static resolveURL(relativeScriptURL) {
+        //     throw new Error("Depreciated");
+        //     if (relativeScriptURL.toString().startsWith('../'))
+        //         relativeScriptURL = relativeScriptURL.substr(3);
+        //     relativeScriptURL = new URL(basePathURL + relativeScriptURL, document.location) + ''
+        //     return relativeScriptURL;
+        // }
 
         static findScript(relativeScriptURL, throwException = true) {
             // relativeScriptURL = AudioSourceLoader.resolveURL(relativeScriptURL);
@@ -82,7 +82,6 @@
     }
 
     if(!customElements.get('audio-source-loader'))
-        if(isBrowser)
         customElements.define('audio-source-loader', AudioSourceLoader);
 
     const thisScriptPath = 'audio-source-player-loader.js';
