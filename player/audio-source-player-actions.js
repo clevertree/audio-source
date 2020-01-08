@@ -247,7 +247,8 @@
 
         addSongURLToPlaylist(url, name=null, length=null) {
             this.addEntryToPlaylist({url, name, length});
-            this.forceUpdate();
+            console.warn("TODO: refresh playlist");
+            // this.forceUpdate();
             // await this.playlist.addSongURLToPlaylist(url, name, length);
             this.setStatus("Added URL to playlist: " + url);
         }
@@ -444,10 +445,5 @@
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [
-        thisRequire,
-        thisModule,
-        thisScriptPath,
-        isBrowser
-    ]
+    return [thisRequire, thisModule, thisScriptPath, isBrowser]
 })());

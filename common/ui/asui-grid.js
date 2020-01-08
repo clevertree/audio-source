@@ -37,14 +37,9 @@
 
 
 }).apply(null, (function() {
-    const thisScriptPath = 'common/ui/asui-input-grid.js';
+    const thisScriptPath = 'common/ui/asui-grid.js';
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [
-        thisRequire,
-        thisModule,
-        thisScriptPath,
-        isBrowser
-    ]
+    return [thisRequire, thisModule, thisScriptPath, isBrowser]
 })());

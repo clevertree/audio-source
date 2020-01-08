@@ -213,14 +213,6 @@
                 return this.props.children;
             }
 
-            createStyleSheetLink(stylePath, scriptElm=null) {
-                // const AudioSourceLoader = customElements.get('audio-source-loader');
-                const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);
-                const link = document.createElement('link');
-                link.setAttribute('rel', 'stylesheet');
-                link.href = linkHRef;
-                return link;
-            }
 
             getRNEventMap() {
                 return {
@@ -359,10 +351,5 @@
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [
-        thisRequire,
-        thisModule,
-        thisScriptPath,
-        isBrowser
-    ]
+    return [thisRequire, thisModule, thisScriptPath, isBrowser]
 })());

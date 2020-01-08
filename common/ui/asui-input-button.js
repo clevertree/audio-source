@@ -3,7 +3,7 @@
     if(isBrowser) // Hack for browsers
         window.require = thisRequire;
 
-    const {ASUIComponent} = require('./asui-component.js');
+    const {ASUIComponent, ASUITouchableHighlight} = require('./asui-component.js');
 
     class ASUIInputButton extends ASUIComponent {
         constructor(props = {}) {
@@ -34,7 +34,7 @@
             //     return divElm;
             // }
             if(!isBrowser) {
-                return React.createElement(TouchableHighlight, {
+                return ASUITouchableHighlight.createElement({
                     onPress: this.props.onPress
                 }, this.getChildren())
             }
@@ -64,10 +64,5 @@
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [
-        thisRequire,
-        thisModule,
-        thisScriptPath,
-        isBrowser
-    ]
+    return [thisRequire, thisModule, thisScriptPath, isBrowser]
 })());

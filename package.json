@@ -29,8 +29,7 @@
     "jsdom": "^15.1.0",
     "bittorrent-tracker": "^9.14.4",
     "webtorrent": "^0.107.17",
-    "bad-words": "^3.0.0",
-    "@react-native-community/slider": "^2.0.8"
+    "bad-words": "^3.0.0"
   },
   "devDependencies": {
     "puppeteer-core": "^1.20.0",

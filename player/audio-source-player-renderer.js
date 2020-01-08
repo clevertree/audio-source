@@ -35,8 +35,17 @@
         }
         // get playlist() { return this.state.playlist; }
 
+        createStyleSheetLink(stylePath, scriptElm=null) {
+            // const AudioSourceLoader = customElements.get('audio-source-loader');
+            const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'stylesheet');
+            link.href = linkHRef;
+            return link;
+        }
+
         render() {
-//             console.log('ohok');
+            console.log('ohok');
             return [
                 isBrowser ? [
                     this.createStyleSheetLink('../player/assets/audio-source-player.css', thisModule),
@@ -682,10 +691,5 @@
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [
-        thisRequire,
-        thisModule,
-        thisScriptPath,
-        isBrowser
-    ]
+    return [thisRequire, thisModule, thisScriptPath, isBrowser]
 })());
