@@ -7,9 +7,9 @@
 
     /** Required Modules **/
     let ASUIComponentBase;
-    let React, TouchableHighlight;
+    let React, ASUITouchableHighlight;
     if(isRN) {
-        TouchableHighlight = require('react-native').TouchableHighlight;
+        ASUITouchableHighlight = require('react-native').TouchableHighlight;
         React = require('react');
 
         window.customElements = require('../../../app/support/customElements.js').default;
@@ -46,7 +46,7 @@
             connectedCallback() {
                 this.addAllEventListeners();
                 if(this.props._renderOnConnect)
-                    this.renderHTML();
+                    this.updateHTMLContent();
                 this.componentDidMount();
             }
 
@@ -110,10 +110,10 @@
 
 
             forceUpdate() {
-                this.renderHTML();
+                this.updateHTMLContent();
             }
 
-            renderHTML() {
+            updateHTMLContent() {
                 if(!this.parentNode) {
                     console.warn("skipping render, not attached");
                     return;
@@ -324,6 +324,12 @@
     customElements.define('asui-icon', ASUIIcon);
 
 
+    if(!isRN) {
+        ASUITouchableHighlight = class extends ASUIComponent {
+
+        }
+        customElements.define('asui-touchable', ASUITouchableHighlight);
+    }
 
 
     /** Utility functions **/
@@ -342,6 +348,7 @@
     thisModule.exports = {
         ASUIComponent,
         ASUIDiv,
-        ASUIIcon
+        ASUIIcon,
+        ASUITouchableHighlight
     };
 }

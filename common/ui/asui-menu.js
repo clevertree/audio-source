@@ -7,15 +7,14 @@
     /** Required Modules **/
     const {
         ASUIDiv,
-        ASUIComponent
+        ASUIComponent,
+        ASUITouchableHighlight
     } = require('asui-component.js');
 
     class ASUIMenu extends ASUIComponent {
 
-        constructor(props = {}, menuContent = null, dropDownContent = null, actionCallback = null) {
+        constructor(props = {}) {
             super(props, {
-                menuContent,
-                dropDownContent,
                 offset: 0,
                 maxLength: 20,
                 optionCount: 0,
@@ -24,7 +23,7 @@
             });
             // this.props.stick = false;
             // this.props.open = false;
-            this.action = actionCallback;
+            // this.action = actionCallback;
             // this.addEventHandler('mouseover', this.onInputEvent);
             // this.addEventHandler('mouseout', this.onInputEvent);
             // this.addEventHandler('mouseout', e => this.onInputEvent(e), document);
@@ -33,13 +32,14 @@
             // this.addEventHandler('keydown', this.onInputEvent);
         }
 
-        getAttributeMap() {
-            return {
-                class: 'class',
-                stick: 'stick',
-                open: 'open',
-            }
-        }
+        // getAttributeMap() {
+        //     return {
+        //         class: 'class',
+        //         stick: 'stick',
+        //         open: 'open',
+        //         // vertical: 'vertical',
+        //     }
+        // }
 
         // static getDefaultProps() {
         //     const callback = e => this.onInputEvent(e);
@@ -81,16 +81,21 @@
             if(typeof children === "function")
                 children = children(this);
             const content = [
-                this.menuContent = (typeof children === "string" ? ASUIDiv.createElement('title', children) : null),
-                this.props.arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
-                this.dropdown = ASUIDiv.createElement({
-                    class: 'dropdown',
+                ASUITouchableHighlight.cE({
+                    class: this.state.stick ? 'stick' : null
+                }, [
+                    this.menuContent = (typeof children === "string" ? ASUIDiv.createElement('title', children) : null),
+                    this.props.arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+                ]),
+                !this.state.open ? null : ASUIDiv.cE({
+                    class: 'dropdown' + (this.props.vertical ? ' vertical' : ''),
                     onWheel: e => this.onInputEvent(e)
-                }, (this.state.open && this.props.dropDownContent ? this.renderOptions(this.state.offset, this.state.maxLength) : null)),
+                }, this.props.dropDownContent),
                 // this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
 
             // this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
+            console.log('ASUIMenu', content);
             return content;
         }
 
@@ -141,13 +146,13 @@
         async close() {
             if(this.state.open !== false) {
                 this.setState({open: false, stick:false});
-                await this.dropdown.setContent(null);
+                // await this.dropdown.setContent(null);
             }
         }
         async open() {
             if(this.state.open !== true) {
                 this.setState({open: true});
-                await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
+                // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
             }
             this.closeAllMenusButThis();
         }

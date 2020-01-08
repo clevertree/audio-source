@@ -46,10 +46,10 @@
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
                         ASUIMenu.cME({vertical: true}, 'File', () => [
-                            ASUIMenu.cME({}, 'from Memory', async () => {
+                            ASUIMenu.cME({}, 'from Memory', () => {
                                 const {AudioSourceStorage} = require('../common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
-                                const songRecentUUIDs = await Storage.getRecentSongList() ;
+                                const songRecentUUIDs = Storage.getRecentSongList() ;
                                 return songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
                                     null, () => this.loadSongFromMemory(entry.uuid)));
                             }),

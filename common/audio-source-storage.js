@@ -13,8 +13,8 @@
 
         /** Loading **/
 
-        async getRecentSongList() {
-            return await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+        getRecentSongList() {
+            return this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
         }
 
         /** Generate Song Data **/
@@ -57,14 +57,14 @@
 
         /** Encoding / Decoding **/
 
-        async encodeForStorage(json, replacer = null, space = null) {
+        encodeForStorage(json, replacer = null, space = null) {
             let encodedString = JSON.stringify(json, replacer, space);
             const compressedString = LZString.compress(encodedString);
 //             console.log(`Compression: ${compressedString.length} / ${encodedString.length} = ${Math.round((compressedString.length / encodedString.length)*100)/100}`);
             return compressedString;
         }
 
-        async decodeForStorage(encodedString) {
+        decodeForStorage(encodedString) {
             if (!encodedString)
                 return null;
             encodedString = LZString.decompress(encodedString) || encodedString;
@@ -84,23 +84,23 @@
             return state;
         }
 
-        async saveSongToMemory(songData, songHistory) {
+        saveSongToMemory(songData, songHistory) {
             // const song = this.data;
             if (!songData.uuid)
                 songData.uuid = this.generateUUID();
             let songRecentUUIDs = [];
             try {
-                songRecentUUIDs = await this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+                songRecentUUIDs = this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
             } catch (e) {
                 console.error(e);
             }
             songRecentUUIDs = songRecentUUIDs.filter((entry) => entry.uuid !== songData.uuid);
             songRecentUUIDs.unshift({uuid: songData.uuid, name: songData.name});
-            localStorage.setItem('song-recent-list', await this.encodeForStorage(songRecentUUIDs));
+            localStorage.setItem('song-recent-list', this.encodeForStorage(songRecentUUIDs));
 
 
-            localStorage.setItem('song:' + songData.uuid, await this.encodeForStorage(songData));
-            localStorage.setItem('song-history:' + songData.uuid, await this.encodeForStorage(songHistory)); // History stored separately due to memory limits
+            localStorage.setItem('song:' + songData.uuid, this.encodeForStorage(songData));
+            localStorage.setItem('song-history:' + songData.uuid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
             // this.querySelector('.song-menu').outerHTML = renderEditorMenuContent(this);
             console.info("Song saved to memory: " + songData.uuid, songData);
         }
@@ -132,22 +132,22 @@
 
         /** Loading **/
 
-        async loadSongFromMemory(songUUID) {
+        loadSongFromMemory(songUUID) {
             let songDataString = localStorage.getItem('song:' + songUUID);
             if (!songDataString)
                 throw new Error("Song Data not found for uuid: " + songUUID);
-            let songData = await this.decodeForStorage(songDataString);
+            let songData = this.decodeForStorage(songDataString);
             if (!songData)
                 throw new Error("Invalid Song Data: " + songDataString);
             return songData;
             // console.info("Song loaded from memory: " + songUUID, songData, this.songHistory);
         }
 
-        async loadSongHistoryFromMemory(songUUID) {
+        loadSongHistoryFromMemory(songUUID) {
             let songHistoryString = localStorage.getItem('song-history:' + songUUID);
             if (!songHistoryString)
                 return null;
-            return await this.decodeForStorage(songHistoryString);
+            return this.decodeForStorage(songHistoryString);
             // this.render();
             //this.gridSelect(null, 0);
             // console.info("Song loaded from memory: " + songUUID, songData, this.songHistory);

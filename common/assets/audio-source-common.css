@@ -209,7 +209,7 @@ asui-menu[context] {
     z-index: 4;
     background-color: #bdc3c7;
 }
-asui-menu[stick] {
+asui-menu > asui-touchable.stick {
     /*transition: background-color 0.3s;*/
     background-color: #888;
 }
@@ -243,7 +243,7 @@ asui-menu > asui-div.dropdown {
     /*opacity: 0;*/
     border: 1px solid grey;
     text-align: left;
-    opacity: 0;
+    /* opacity: 0; */
     transition: opacity 0.2s;
     /* max-height: 50%; */
     /* overflow-y: scroll; */
@@ -257,8 +257,7 @@ asui-menu > asui-div.dropdown:hover {
 asui-menu[open] > asui-div.dropdown {
     opacity: 1;
 }
-asui-select[vertical] > asui-menu > asui-div.dropdown,
-asui-menu[vertical] > asui-div.dropdown {
+asui-menu > asui-div.dropdown.vertical {
     left: 0;
     /*display: block;*/
     /* float: right; */
