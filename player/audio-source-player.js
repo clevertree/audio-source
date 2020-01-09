@@ -31,6 +31,8 @@
                     entries: []
                 },
                 volume: AudioSourceSong.DEFAULT_VOLUME,
+
+                status: "Loading Player...",
                 version: -1,
                 songLength: 0,
 
@@ -41,11 +43,14 @@
                 fullscreen: false,
                 showPanelSong: true,
                 showPanelPlaylist: true,
+
+
             });
 
             this.audioContext = null;
             this.volumeGain = null;
             this.song = null;
+            this.shadowDOM = null;
             // this.props.playlistActive = false;
             // this.props.playing = false;
             // this.props.paused = false;
@@ -72,7 +77,8 @@
 
 
         connectedCallback() {
-            this.shadowDOM = this.attachShadow({mode: 'closed'});
+            if(!this.shadowDOM)
+                this.shadowDOM = this.attachShadow({mode: 'closed'});
 
 
             // this.addEventHandler([ // TODO: listen directly to song emitter

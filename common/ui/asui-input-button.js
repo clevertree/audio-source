@@ -51,7 +51,7 @@
     }
 
     if(isBrowser)
-        customElements.define('asui-button', ASUIInputButton);
+        customElements.define('asui-input-button', ASUIInputButton);
 
     /** Export this script **/
     thisModule.exports = {

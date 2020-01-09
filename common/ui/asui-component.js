@@ -137,6 +137,7 @@
 
             getAttributeMap() {
                 return {
+                    key: 'key',
                     class: 'class'
                 }
             }
@@ -257,7 +258,7 @@
 
         static processProps(props, additionalProps=[]) {
             if(typeof props === "string")
-                props = {class: props};
+                props = {key: props};
             if(typeof props !== "object")
                 throw new Error("Invalid props: " + typeof props);
             for(let i=0; i<additionalProps.length; i++)

@@ -29,7 +29,7 @@ span.error {
 
 /** Container **/
 /** Font Style **/
-asui-div.asp-container {
+asui-div[key=asp-container] {
     font-family: monospace;
     color: #000;
     background-color: #EEE;
@@ -39,13 +39,13 @@ asui-div.asp-container {
     flex-direction: column;
 }
 
-asui-div.asp-menu-container {
+asui-div[key=asp-menu-container] {
     background-color: #bdc3c7;
     padding: 2px;
 }
 
 /** Status Bar **/
-asui-div.asp-status-container {
+asui-div[key=asp-status-container] {
     display: flex;
     background-color: #FFF;
     color: #000;
@@ -53,10 +53,10 @@ asui-div.asp-status-container {
 }
 
 
-asui-div.asp-status-container asui-div.status-text{
+asui-div[key=asp-status-container] asui-div[key=status-text]{
     padding-left: 4px;
 }
-asui-div.asp-status-container asui-div.version-text {
+asui-div[key=asp-status-container] asui-div[key=version-text] {
     /* float: right; */
     padding-right: 4px;
     margin-left: auto;
@@ -74,7 +74,7 @@ asp-panel {
     /*width: 100%;*/
 }
 
-asp-panel > asui-div.title {
+asp-panel > asui-div[key=title] {
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -107,7 +107,7 @@ asp-form {
     display: inline-block;
     vertical-align: top;
 }
-asp-form > asui-div.title {
+asp-form > asui-div[key=title] {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
@@ -116,12 +116,12 @@ asp-form > asui-div.title {
 }
 
 
-asp-form.volume       asui-range.volume     input       { max-width: 71px; }
-asp-form.version      asui-text.version     input       { max-width: 53px; }
-asp-form.name         asui-text.name        input       { max-width: 160px; }
-asp-form.timing       asui-text.timing      input       { max-width: 77px; }
-asp-form.position     asui-range.position   input       { max-width: 77px; }
-asp-form.bpm          asui-text.bpm         input       { max-width: 43px; }
+asp-form[key=volume]       asui-input-range[key=volume]     input       { max-width: 71px; }
+asp-form[key=version]      asui-input-text[key=version]     input       { max-width: 53px; }
+asp-form[key=name]         asui-input-text[key=name]        input       { max-width: 160px; }
+asp-form[key=timing]       asui-input-text[key=timing]      input       { max-width: 77px; }
+asp-form[key=position]     asui-input-range[key=position]   input       { max-width: 77px; }
+asp-form[key=bpm]          asui-input-text[key=bpm]         input       { max-width: 43px; }
 
 
 
@@ -133,7 +133,7 @@ asp-playlist {
     /* max-width: 815px; */
 }
 
-asui-div.asp-playlist-container {
+asui-div[key=asp-playlist-container] {
     width: 100%;
     max-height: 800px;
     overflow-y: overlay;
@@ -153,16 +153,16 @@ aspp-entry {
     margin: 0px;
     /* border-collapse: initial; */
 }
-asuig-row.asp-playlist-header > asui-div,
+asuig-row[key=asp-playlist-header] > asui-div,
 aspp-playlist-entry > asui-div,
 aspp-entry > asui-div {
      padding: 3px 0px;
 }
 
-asp-playlist asui-div.id       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
-asp-playlist asui-div.name     {display: inline-block;width: 26em;}
-asp-playlist asui-div.length   { display: inline-block; width: 4em; }
-asp-playlist asui-div.container   {
+asp-playlist asui-div[key=id]       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
+asp-playlist asui-div[key=name]     {display: inline-block;width: 26em;}
+asp-playlist asui-div[key=length]   { display: inline-block; width: 4em; }
+asp-playlist asui-div[key=container]   {
     padding: 3px;
 }
 

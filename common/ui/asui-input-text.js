@@ -59,7 +59,7 @@
 
     }
     if(isBrowser)
-        customElements.define('asui-text', ASUIInputText);
+        customElements.define('asui-input-text', ASUIInputText);
 
 
 

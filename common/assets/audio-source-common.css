@@ -12,72 +12,56 @@ asui-div  {
 
 /** Form Inputs **/
 
-asui-div.themed {
-    background: #DDD;
-    border: 1px outset #FFF;
-    padding: 0px 0px;
-    margin: 0px 0px 0px 0px;
-}
+/*asui-div.themed {*/
+/*    background: #DDD;*/
+/*    border: 1px outset #FFF;*/
+/*    padding: 0px 0px;*/
+/*    margin: 0px 0px 0px 0px;*/
+/*}*/
 
-asui-div .input-style,
-asui-div input.themed,
-asui-div select.themed,
-asui-div button.themed {
-    /* display: inline-block; */
-    /* padding: 0px 0px; */
-    /* border-radius: 2px; */
-    /* transition: all 0.2s; */
-    border: 0px outset transparent;
-    background: transparent;
-    cursor: pointer;
-    /* height: 24px; */
-}
+/*asui-div .input-style,*/
+/*asui-div input.themed,*/
+/*asui-div select.themed,*/
+/*asui-div button.themed {*/
+/*    !* display: inline-block; *!*/
+/*    !* padding: 0px 0px; *!*/
+/*    !* border-radius: 2px; *!*/
+/*    !* transition: all 0.2s; *!*/
+/*    border: 0px outset transparent;*/
+/*    background: transparent;*/
+/*    cursor: pointer;*/
+/*    !* height: 24px; *!*/
+/*}*/
 
-asui-div .input-style:hover,
-asui-div input[type=text].themed:hover,
-asui-div select.themed:hover,
-asui-div button.themed:hover,
-asui-div .input-style:focus,
-asui-div input[type=text].themed:focus,
-asui-div select.themed:focus,
-asui-div button.themed:focus {
-    background: #FFF;
-}
+/*asui-div .input-style:hover,*/
+/*asui-div input[type=text].themed:hover,*/
+/*asui-div select.themed:hover,*/
+/*asui-div button.themed:hover,*/
+/*asui-div .input-style:focus,*/
+/*asui-div input[type=text].themed:focus,*/
+/*asui-div select.themed:focus,*/
+/*asui-div button.themed:focus {*/
+/*    background: #FFF;*/
+/*}*/
 
-asui-div input.themed[type=number],
-asui-div input.themed[type=text] {
-    padding-left: 5px;
-}
-asui-div .button-style,
-asui-div button.themed {
-    display: block;
-}
+/*asui-div input.themed[type=number],*/
+/*asui-div input.themed[type=text] {*/
+/*    padding-left: 5px;*/
+/*}*/
+/*asui-div .button-style,*/
+/*asui-div button.themed {*/
+/*    display: block;*/
+/*}*/
 
-
-asui-div input.themed[type='range'] {
-    -webkit-appearance: none;
-    background-color: #AAA;
-    border-radius: 15px;
-    height: 2px;
-    margin: 7px;
-}
-asui-div input.themed[type='range']::-webkit-slider-thumb {
-    vertical-align: middle;
-    -webkit-appearance: none;
-    background-color: #444;
-    width: 6px;
-    height: 12px;
-    border-radius: 4px;
-}
 
 
 
 /** Disabled Inputs **/
 
 
-asui-text[disabled],
-asui-select[disabled],
-asui-button[disabled] {
+asui-input-text[disabled],
+asui-input-select[disabled],
+asui-input-button[disabled] {
     cursor: not-allowed;
     opacity: 0.5;
 }
@@ -100,17 +84,17 @@ asuig-row > * {
 
 /** Text **/
 
-asui-text {
+asui-input-text {
     /* display: inline-block; */
 }
 
 /** Editor Inputs **/
 
-asui-button,
-asui-select,
-asui-range,
-asui-text,
-asui-file {
+asui-input-button,
+asui-input-select,
+asui-input-range,
+asui-input-text,
+asui-input-file {
     /*display: inline-block; !** TODO: bad idea **!*/
     display: inline-block;
     vertical-align: middle;
@@ -118,8 +102,8 @@ asui-file {
     /* margin: 3px 0px; */
 }
 
-asui-button,
-asui-file  {
+asui-input-button,
+asui-input-file  {
      /* height: 24px; */
      /* display: inline-block; */
      cursor: pointer;
@@ -129,25 +113,42 @@ asui-file  {
      text-align: center;
 }
 
-asui-button > div,
-asui-range {
+asui-input-button > div,
+asui-input-range {
     padding: 2px 0px;
 }
 
-asui-text {
+asui-input-range input[type='range'] {
+    -webkit-appearance: none;
+    background-color: #AAA;
+    border-radius: 15px;
+    height: 2px;
+    margin: 7px;
+}
+asui-input-range input[type='range']::-webkit-slider-thumb {
+    vertical-align: middle;
+    -webkit-appearance: none;
+    background-color: #444;
+    width: 6px;
+    height: 12px;
+    border-radius: 4px;
+}
+
+
+asui-input-text {
     padding: 3px 0px;
 }
 
-asui-select > asui-menu {
+asui-input-select > asui-menu {
     padding: 3px 0px;
 }
 
-/*asui-select > asui-div.dropdown-container {*/
+/*asui-input-select > asui-div.dropdown-container {*/
 /*    !*display: none;*!*/
 /*    position: absolute;*/
 /*    overflow: hidden;*/
 /*}*/
-/*asui-select > asui-div.dropdown-container > asui-menu {*/
+/*asui-input-select > asui-div.dropdown-container > asui-menu {*/
 /*    display: block;*/
 /*}*/
 
@@ -172,7 +173,7 @@ asui-menu {
 
 
 /** Menu Title **/
-asui-menu > .title {
+asui-menu > [key=title] {
     /* overflow: hidden; */
     /*min-width: 24px;*/
     display: block;
@@ -183,14 +184,14 @@ asui-menu:hover {
 }
 
 /** Menu Stick **/
-asui-menu > .title.stick {
+asui-menu > [key=title].stick {
     transition: background-color 0.3s;
     background-color: #888;
 }
 
 /** Menu Arrow **/
 
-asui-menu > .arrow {
+asui-menu > [key=arrow] {
     position: absolute;
     right: 4px;
     top: 2px;
@@ -200,12 +201,12 @@ asui-menu > .arrow {
 
 /** Drop Down Menu **/
 
-asui-div.dropdown > asui-menu {
+asui-div[key=dropdown] > asui-menu {
     display: block;
     /* padding: 3px 0px; */
 }
 
-asui-menu > asui-div.dropdown {
+asui-menu > asui-div[key=dropdown] {
     background-color: #bdc3c7;
     /* display: inline-block; */
     z-index: 3;
@@ -217,14 +218,14 @@ asui-menu > asui-div.dropdown {
     transition: opacity 0.2s;
 }
 
-asui-menu > asui-div.dropdown:hover {
+asui-menu > asui-div[key=dropdown]:hover {
     z-index: 4;
 }
 
-asui-menu[open] > asui-div.dropdown {
+asui-menu[open] > asui-div[key=dropdown] {
     opacity: 1;
 }
-asui-menu > asui-div.dropdown.vertical {
+asui-menu > asui-div[key=dropdown].vertical {
     left: 0;
     top: inherit;
     /*bottom: 0;*/
@@ -235,7 +236,7 @@ asui-menu > asui-div.dropdown.vertical {
 
 
 /** Disabled Menu **/
-asui-menu > .title.disabled {
+asui-menu > [key=title].disabled {
     /*opacity: 0.5;*/
     color: #777;
     cursor: not-allowed;
@@ -245,7 +246,7 @@ asui-menu > .title.disabled {
 
 /** Menu Break **/
 
-asui-menu > .break {
+asui-menu > [key=break] {
     margin-bottom: 2px;
     border-bottom: 2px #666 solid;
 }
@@ -278,20 +279,20 @@ asui-icon {
     background-size: 10em 5em;
     /* transform: scale(1.7); */
 }
-asui-icon.play { background-position: -3em -1em; }
-asui-icon.pause {background-position: -4em -1em;}
-asui-icon.stop {background-position: -5em -1em;}
-asui-icon.resume { background-position: -3em -1em; }
-asui-icon.next { background-position: 3em -1em; }
+asui-icon[key=play] { background-position: -3em -1em; }
+asui-icon[key=pause] {background-position: -4em -1em;}
+asui-icon[key=stop] {background-position: -5em -1em;}
+asui-icon[key=resume] { background-position: -3em -1em; }
+asui-icon[key=next] { background-position: 3em -1em; }
 
-asui-icon.insert {background-position: -3em -10em;}
-asui-icon.remove {background-position: -6em 0em;}
-asui-icon.subtract {background-position: -4em 0em;}
-asui-icon.delete {background-position: -4em 0em;}
+asui-icon[key=insert] {background-position: -3em -10em;}
+asui-icon[key=remove] {background-position: -6em 0em;}
+asui-icon[key=subtract] {background-position: -4em 0em;}
+asui-icon[key=delete] {background-position: -4em 0em;}
 
-asui-icon.file-load {background-position: 0em 0em;}
-asui-icon.file-save {background-position: -1em 0em;}
+asui-icon[key=file-load] {background-position: 0em 0em;}
+asui-icon[key=file-save] {background-position: -1em 0em;}
 
-asui-icon.config {background-position: 0em 3em;}
+asui-icon[key=config] {background-position: 0em 3em;}
 
 

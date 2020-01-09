@@ -71,7 +71,7 @@
         }
     }
     if(isBrowser)
-        customElements.define('asui-select', ASUIInputSelect);
+        customElements.define('asui-input-select', ASUIInputSelect);
 
 
     /** Export this script **/

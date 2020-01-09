@@ -184,8 +184,8 @@
                     ]),
 
                     ASUIDiv.cE('asp-status-container', () => [
-                        ASUIDiv.cE({class: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
-                        ASUIDiv.cE({class: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
+                        ASUIDiv.cE({key: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
+                        ASUIDiv.cE({key: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
                     ])
                 ])
 
@@ -459,7 +459,7 @@
                     ASUIDiv.createElement('name', 'Name'),
                     // ASUIDiv.createElement('url', 'URL'),
                     ASUIDiv.createElement('length', 'Length'),
-                ], {class: 'asp-playlist-header'}),
+                ], {key: 'asp-playlist-header'}),
                 ASUIDiv.createElement('asp-playlist-container', () => [
                     this.entries.map((entryData, id) => ASPPlaylistEntry.createElement({id, data:entryData}))
                 ], {'style': `max-height:${Math.round(window.innerHeight / 2)}px;`}),

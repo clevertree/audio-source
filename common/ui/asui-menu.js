@@ -79,13 +79,15 @@
                 children = children(this);
             const content = [
                 ASUITouchableHighlight.cE({
-                    class: 'title' + (this.state.stick ? ' stick' : '') + (this.props.disabled ? ' disabled' : '')
+                    key: 'title',
+                    class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
                 },
                     children,
                 ),
                 arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
                 !this.state.open ? null : ASUIDiv.cE({
-                    class: 'dropdown' + (this.props.vertical ? ' vertical' : ''),
+                    key: 'dropdown',
+                    class: (this.props.vertical ? 'vertical' : ''),
                     onWheel: e => this.onInputEvent(e)
                 }, this.props.dropDownContent),
                 this.props.hasBreak ? ASUIDiv.createElement('break') : null,

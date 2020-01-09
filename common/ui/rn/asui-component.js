@@ -72,8 +72,8 @@ class ASUIComponentBase extends React.Component {
 
     static createElement(props, children=null, ...additionalProps) {
         props = this.processProps(props, additionalProps);
-        if(typeof props.class !== "undefined" && typeof props.key === "undefined")
-            props.key = props.class; // TODO: Hack to suppress warning
+        // if(typeof props.class !== "undefined" && typeof props.key === "undefined")
+        //     props.key = props.class; // TODO: Hack to suppress warning
 
         const React = require('react');
         const thisClass = this;

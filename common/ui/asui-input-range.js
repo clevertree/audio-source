@@ -63,7 +63,7 @@
         }
     }
     if(isBrowser)
-        customElements.define('asui-range', ASUIInputRange);
+        customElements.define('asui-input-range', ASUIInputRange);
 
 
 
