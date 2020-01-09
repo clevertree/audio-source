@@ -45,7 +45,7 @@
         }
 
         render() {
-            console.log('ohok');
+            // console.log('ohok');
             return [
                 isBrowser ? [
                     this.createStyleSheetLink('../player/assets/audio-source-player.css', thisModule),
@@ -53,8 +53,8 @@
                 ] : null,
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
-                        ASUIMenu.cME({vertical: true}, 'File', () => [
-                            ASUIMenu.cME({}, 'Load from Memory', () => {
+                        ASUIMenu.cME({key: 'file', vertical: true}, 'File', () => [
+                            ASUIMenu.cME('memory', 'Load from Memory', () => {
                                 const {AudioSourceStorage} = require('../common/audio-source-storage.js');
                                 const Storage = new AudioSourceStorage();
                                 const songRecentUUIDs = Storage.getRecentSongList() ;
@@ -64,20 +64,20 @@
                                     : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
                             }),
 
-                            ASUIMenu.cME({}, 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
-                            ASUIMenu.cME({}, 'Load from URL', null, null, {disabled: true}),
-                            ASUIMenu.cME({}, 'Load from Library', null, null, {disabled: true}),
+                            ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
+                            ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
+                            ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
                         ]),
-                        ASUIMenu.cME({vertical: true}, 'Playlist', () => [
-                            ASUIMenu.cME({}, 'Play Next Song', null, (e) => this.playlistNext()),
-                            ASUIMenu.cME({}, 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+                        ASUIMenu.cME({vertical: true, key:'playlist'}, 'Playlist', () => [
+                            ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
+                            ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
 
                         ]),
                         // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
-                        ASUIMenu.cME({vertical: true}, 'View', () => [
-                            ASUIMenu.cME({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                            ASUIMenu.cME({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                            ASUIMenu.cME({}, `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                        ASUIMenu.cME({vertical: true, key:'view'}, 'View', () => [
+                            ASUIMenu.cME('fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                            ASUIMenu.cME('hide-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                            ASUIMenu.cME('hide-panel-playlist', `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
                         ]),
                     ]),
 
@@ -86,19 +86,19 @@
                             ASUIDiv.cE('title', 'Song'),
                             ASPForm.cE('playback', () => [
                                 ASUIDiv.cE('title', 'Playback'),
-                                ASUIInputButton.createInputButton('hide-on-playing',
+                                ASUIInputButton.createInputButton('song-play',
                                     ASUIIcon.createIcon('play'),
                                     e => this.playlistPlay(e),
                                     "Play Song"),
-                                ASUIInputButton.createInputButton('show-on-playing',
+                                ASUIInputButton.createInputButton('song-pause',
                                     ASUIIcon.createIcon('pause'),
                                     e => this.playlistPause(e),
                                     "Pause Song"),
-                                ASUIInputButton.createInputButton({},
+                                ASUIInputButton.createInputButton('song-stop',
                                     ASUIIcon.createIcon('stop'),
                                     e => this.playlistStop(e),
                                     "Stop Song"),
-                                ASUIInputButton.createInputButton('playlist-next',
+                                ASUIInputButton.createInputButton('song-next',
                                     ASUIIcon.createIcon('next'),
                                     e => this.playlistNext(e),
                                     "Next Song")
@@ -176,6 +176,7 @@
                         ASPPanel.cE('playlist', () => [
                             ASUIDiv.cE('title', 'Playlist'),
                             ASPPlaylist.cE({
+                                key: 'playlist',
                                 state: this.state.playlist,
                                 ref:ref=>this.elmPlayer=ref
                             })
@@ -201,7 +202,8 @@
 
 
     }
-    // if(isBrowser)
+
+    if(isBrowser)
         customElements.define('asp-renderer', AudioSourcePlayerRenderer);
 
 

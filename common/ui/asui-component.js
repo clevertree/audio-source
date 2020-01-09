@@ -9,8 +9,7 @@
         ASUITouchableHighlightBase = require('react-native').TouchableHighlight;
         React = require('react');
 
-        window.customElements = require('../../../app/support/customElements.js').default;
-        ASUIComponentBase = require('../../../app/support/ASUIComponentBase.js').default;
+        ASUIComponentBase = require('./rn/asui-component.js').default;
         // console.log(ASUIComponentBase);
     } else {
         window.require = customElements.get('audio-source-loader').getRequire(thisModule);
@@ -238,19 +237,6 @@
                 return {};
             }
 
-            static processProps(props, additionalProps=[]) {
-                if(typeof props === "string")
-                    props = {class: props};
-                if(typeof props !== "object")
-                    throw new Error("Invalid props: " + typeof props);
-                for(let i=0; i<additionalProps.length; i++)
-                    Object.assign(props, additionalProps[i]);
-                // if(props.attrClass) {
-                //    if(!props.attrs) props.attrs = {};
-                //    props.attrs.class = props.attrClass;
-                // }
-                return props;
-            }
 
         };
         ASUITouchableHighlightBase = ASUIComponentBase;
@@ -269,6 +255,19 @@
 
         }
 
+        static processProps(props, additionalProps=[]) {
+            if(typeof props === "string")
+                props = {class: props};
+            if(typeof props !== "object")
+                throw new Error("Invalid props: " + typeof props);
+            for(let i=0; i<additionalProps.length; i++)
+                Object.assign(props, additionalProps[i]);
+            // if(props.attrClass) {
+            //    if(!props.attrs) props.attrs = {};
+            //    props.attrs.class = props.attrClass;
+            // }
+            return props;
+        }
 
         static cE(props, children=null) {
             return this.createElement(props, children);

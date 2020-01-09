@@ -40,8 +40,8 @@
         renderReactNative() {
 
             const React = require('react');
-            const {Text} = require('react-native');
-            return React.createElement(Text, this.props, null);
+            const {TextInput} = require('react-native');
+            return React.createElement(TextInput, this.props, null);
         }
 
         render() {
