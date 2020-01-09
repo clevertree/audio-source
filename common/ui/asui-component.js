@@ -130,7 +130,7 @@
             }
 
             renderBrowser() {
-                return this.getChildren();
+                return this.renderAll();
             }
 
             getAttributeMap() {
@@ -220,6 +220,19 @@
                 }
             }
 
+            static processProps(props, additionalProps=[]) {
+                if(typeof props === "string")
+                    props = {key: props};
+                if(typeof props !== "object")
+                    throw new Error("Invalid props: " + typeof props);
+                for(let i=0; i<additionalProps.length; i++)
+                    Object.assign(props, additionalProps[i]);
+            }
+
+            static getStyles() {
+                return [];
+            }
+
             static createElement(props, children=null, ...additionalProps) {
                 props = ASUIComponent.processProps(props, additionalProps);
                 if(children !== null)
@@ -253,19 +266,10 @@
             //     this.props[this.attributes[i].name] = this.attributes[i].value;
 
         }
+        get key() { return this.props.key; }
 
-        static processProps(props, additionalProps=[]) {
-            if(typeof props === "string")
-                props = {key: props};
-            if(typeof props !== "object")
-                throw new Error("Invalid props: " + typeof props);
-            for(let i=0; i<additionalProps.length; i++)
-                Object.assign(props, additionalProps[i]);
-            // if(props.attrClass) {
-            //    if(!props.attrs) props.attrs = {};
-            //    props.attrs.class = props.attrClass;
-            // }
-            return props;
+        renderAll() {
+            return this.getChildren();
         }
 
         static cE(props, children=null) {
@@ -282,7 +286,6 @@
         //     super(props);
         // }
 
-        get name() { return this.props.name; }
         set content(newContent) {
             this.setContent(newContent);
         }
@@ -304,7 +307,7 @@
             super(props, {});
         }
 
-        render() { return null; }
+        renderAll() { return null; }
 
         static createIcon(propsOrClassName={}) {
             return this.createElement(propsOrClassName);
@@ -315,9 +318,11 @@
         customElements.define('asui-icon', ASUIIcon);
 
 
-    const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {} // TODO: Hack
+    const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {} // TODO: Hack, get rid of
     ASUITouchableHighlight.processProps = ASUIComponent.processProps;
     ASUITouchableHighlight.createElement = ASUIComponent.createElement;
+    ASUITouchableHighlight.addStyleList = ASUIComponent.addStyleList;
+    ASUITouchableHighlight.getStyles = ASUIComponent.getStyles;
     ASUITouchableHighlight.cE = ASUIComponent.cE;
     if(isBrowser)
         customElements.define('asui-touchable', ASUITouchableHighlight);

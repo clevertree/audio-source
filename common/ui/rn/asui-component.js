@@ -12,8 +12,8 @@ import {DebugInstructions, Header, LearnMoreLinks, ReloadInstructions} from "rea
 import Colors from "react-native/Libraries/NewAppScreen/components/Colors";
 
 
-
-class ASUIComponentBase extends React.Component {
+type Props = {};
+class ASUIComponentBase extends React.Component<Props> {
 
     constructor(props={}) {
         super(props);
@@ -47,7 +47,48 @@ class ASUIComponentBase extends React.Component {
     }
 
     renderReactNative() {
-        return this.getChildren();
+        return <View style={[this.props.style, {display: 'flex'}]}>{this.renderAll()}</View>;
+    }
+
+    renderAll() {
+        throw new Error("Not Implemented")
+    }
+
+    static getStyles() {
+        return [
+            require('../../assets/audio-source-common.style.js').default
+        ]
+    }
+
+
+    static addStyleList(props, key) {
+        let styleList = props.style;
+        if(!Array.isArray(styleList))
+            styleList = styleList ? [styleList] : [];
+
+        const styleObjectList = this.getStyles();
+        for(let i=0; i<styleObjectList.length; i++) {
+            const styleObject = styleObjectList[i][key];
+            if(typeof styleObject === 'object') {
+                // console.log("Adding style ", key, styleObject, styleObjectList);
+                styleList.push(styleObject);
+            }
+        }
+        if(styleList.length > 0)
+            props.style = StyleSheet.flatten(styleList);
+    }
+
+    static processProps(props, additionalProps=[]) {
+        if(typeof props === "string")
+            props = {key: props};
+        if(typeof props !== "object")
+            throw new Error("Invalid props: " + typeof props);
+        for(let i=0; i<additionalProps.length; i++)
+            Object.assign(props, additionalProps[i]);
+        this.addStyleList(props, this.name);
+        if(props.key)
+            this.addStyleList(props, props.key);
+        return props;
     }
 
     static createElement(props, children=null, ...additionalProps) {

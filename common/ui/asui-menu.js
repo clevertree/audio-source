@@ -100,8 +100,9 @@
         }
 
         renderReactNative() {
-            const {Slider} = require('@react-native-community/slider');
-            throw new Slider;
+            return this.renderBrowser();
+            // const {Slider} = require('@react-native-community/slider');
+            // throw new Slider;
         }
 
         // render() {

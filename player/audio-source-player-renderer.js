@@ -88,10 +88,10 @@
                         ),
                     ]),
 
-                    ASUIDiv.cE('asp-forms-container', () => [
-                        ASPPanel.cE('song', () => [
+                    ASUIDiv.cE('asp-forms-container', [
+                        ASPPanel.cE('song', [
                             ASUIDiv.cE('title', 'Song'),
-                            ASPForm.cE('playback', () => [
+                            ASPForm.cE('playback', [
                                 ASUIDiv.cE('title', 'Playback'),
                                 ASUIInputButton.createInputButton('song-play',
                                     ASUIIcon.createIcon('play'),
@@ -111,7 +111,7 @@
                                     "Next Song")
                             ]),
 
-                            ASPForm.cE('file', () => [
+                            ASPForm.cE('file', [
                                 ASUIDiv.cE('title', 'File'),
                                 this.fieldSongFileLoad = ASUIInputFile.createInputFile('file-load',
                                     e => this.loadSongFromFileInput(),
@@ -126,13 +126,13 @@
                                 ),
                             ]),
 
-                            ASPForm.cE('volume', () => [
+                            ASPForm.cE('volume', [
                                 ASUIDiv.cE('title', 'Volume'),
                                 this.fieldSongVolume = ASUIInputRange.createInputRange('volume',
                                     (e, newVolume) => this.setVolume(newVolume / 100), 1, 100, this.state.volume * 100, 'Song Volume')
                             ]),
 
-                            ASPForm.cE('timing', () => [
+                            ASPForm.cE('timing', [
                                 ASUIDiv.cE('title', 'Timing'),
                                 this.fieldSongTiming = ASUIInputText.createInputText('timing',
                                     (e, pos) => this.setSongPosition(pos),
@@ -141,7 +141,7 @@
                                 )
                             ]),
 
-                            ASPForm.cE('position', () => [
+                            ASPForm.cE('position', [
                                 ASUIDiv.cE('title', 'Position'),
                                 this.fieldSongPosition = ASUIInputRange.createInputRange('position',
                                     (e, pos) => this.setSongPosition(pos),
@@ -152,7 +152,7 @@
                                 )
                             ]),
 
-                            ASPForm.cE('name', () => [
+                            ASPForm.cE('name', [
                                 ASUIDiv.cE('title', 'Name'),
                                 this.fieldSongName = ASUIInputText.createInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
@@ -161,7 +161,7 @@
                                 )
                             ]),
 
-                            ASPForm.cE('version', () => [
+                            ASPForm.cE('version', [
                                 ASUIDiv.cE('title', 'Version'),
                                 this.fieldSongVersion = ASUIInputText.createInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
@@ -170,7 +170,7 @@
                                 )
                             ]),
 
-                            ASPForm.cE('source', () => [
+                            ASPForm.cE('source', [
                                 this.fieldSongVersion = ASUIInputButton.createInputButton('version',
                                     "Edit<br/>Source",
                                     (e) => this.openSongSource(e),
@@ -180,7 +180,7 @@
                             ])
                         ]),
 
-                        ASPPanel.cE('playlist', () => [
+                        ASPPanel.cE('playlist', [
                             ASUIDiv.cE('title', 'Playlist'),
                             ASPPlaylist.cE({
                                 key: 'playlist',
@@ -190,7 +190,7 @@
                         ]),
                     ]),
 
-                    ASUIDiv.cE('asp-status-container', () => [
+                    ASUIDiv.cE('asp-status-container', [
                         ASUIDiv.cE({key: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
                         ASUIDiv.cE({key: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
                     ])
@@ -461,13 +461,13 @@
             // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
             // await this.updateEntries();
             return [
-                ASUIDiv.createElement('header', () => [
+                ASUIDiv.createElement('header', [
                     ASUIDiv.createElement('id', 'ID'),
                     ASUIDiv.createElement('name', 'Name'),
                     // ASUIDiv.createElement('url', 'URL'),
                     ASUIDiv.createElement('length', 'Length'),
                 ], {key: 'asp-playlist-header'}),
-                ASUIDiv.createElement('asp-playlist-container', () => [
+                ASUIDiv.createElement('asp-playlist-container', [
                     this.entries.map((entryData, id) => ASPPlaylistEntry.createElement({id, data:entryData}))
                 ], {'style': `max-height:${Math.round(window.innerHeight / 2)}px;`}),
             ];
