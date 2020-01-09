@@ -53,6 +53,20 @@ asui-div[key=asp-status-container] {
 }
 
 
+asui-div[key=asp-menu-container] > asui-menu[key=menu-button] {
+    float: left;
+    /* float: right; */
+}
+asui-div[key=asp-menu-container] asui-div[key=title-text]{
+    position: absolute;
+    /* display: block; */
+    width: 100%;
+    /* margin: auto; */
+    text-align: center;
+    padding-top: 3px;
+    font-weight: bold;
+    color: #333;
+}
 asui-div[key=asp-status-container] asui-div[key=status-text]{
     padding-left: 4px;
 }

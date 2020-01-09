@@ -171,22 +171,31 @@ asui-menu {
     white-space: nowrap;
 }
 
+/** Hover **/
+
+asui-menu:hover {
+    background-color: #AAA;
+}
 
 /** Menu Title **/
-asui-menu > [key=title] {
+asui-menu asui-menu > [key=title] {
     /* overflow: hidden; */
     /*min-width: 24px;*/
     display: block;
     padding: 3px 19px 3px 6px;
-}
-asui-menu:hover {
-    background-color: #AAA;
 }
 
 /** Menu Stick **/
 asui-menu > [key=title].stick {
     transition: background-color 0.3s;
     background-color: #888;
+}
+
+/** Disabled Menu **/
+asui-menu > [key=title].disabled {
+    /*opacity: 0.5;*/
+    color: #777;
+    cursor: not-allowed;
 }
 
 /** Menu Arrow **/
@@ -234,13 +243,6 @@ asui-menu > asui-div[key=dropdown].vertical {
 }
 
 
-
-/** Disabled Menu **/
-asui-menu > [key=title].disabled {
-    /*opacity: 0.5;*/
-    color: #777;
-    cursor: not-allowed;
-}
 
 
 
@@ -294,5 +296,6 @@ asui-icon[key=file-load] {background-position: 0em 0em;}
 asui-icon[key=file-save] {background-position: -1em 0em;}
 
 asui-icon[key=config] {background-position: 0em 3em;}
+asui-icon[key=menu] {background-position: -1em 3em;}
 
 

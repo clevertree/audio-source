@@ -12,7 +12,7 @@
         ASUIIcon
     } = require('../common/ui/asui-component.js');
     const {ASUIMenu} = require('../common/ui/asui-menu.js');
-    const {ASUIGrid, ASUIGridRow} = require('../common/ui/asui-grid.js');
+    // const {ASUIGrid, ASUIGridRow} = require('../common/ui/asui-grid.js');
     const {ASUIInputCheckBox} = require('../common/ui/asui-input-checkbox.js');
     const {ASUIInputButton} = require('../common/ui/asui-input-button.js');
     const {ASUIInputFile} = require('../common/ui/asui-input-file.js');
@@ -53,32 +53,39 @@
                 ] : null,
                 this.containerElm = ASUIDiv.cE('asp-container', () => [
                     ASUIDiv.cE('asp-menu-container', () => [
-                        ASUIMenu.cME({key: 'file', vertical: true}, 'File', () => [
-                            ASUIMenu.cME('memory', 'Load from Memory', () => {
-                                const {AudioSourceStorage} = require('../common/audio-source-storage.js');
-                                const Storage = new AudioSourceStorage();
-                                const songRecentUUIDs = Storage.getRecentSongList() ;
-                                return songRecentUUIDs.length > 0
-                                    ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
-                                    null, () => this.loadSongFromMemory(entry.uuid)))
-                                    : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
-                            }),
+                        ASUIDiv.cE({key: 'title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
 
-                            ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
-                            ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
-                            ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
-                        ]),
-                        ASUIMenu.cME({vertical: true, key:'playlist'}, 'Playlist', () => [
-                            ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
-                            ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+                        ASUIMenu.cME({key: 'menu-button', arrow: false},
+                            ASUIIcon.cE('menu'),
+                            () => [
+                                ASUIMenu.cME({key: 'file'}, 'File', () => [
+                                    ASUIMenu.cME('memory', 'Load from Memory', () => {
+                                        const {AudioSourceStorage} = require('../common/audio-source-storage.js');
+                                        const Storage = new AudioSourceStorage();
+                                        const songRecentUUIDs = Storage.getRecentSongList() ;
+                                        return songRecentUUIDs.length > 0
+                                            ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
+                                            null, () => this.loadSongFromMemory(entry.uuid)))
+                                            : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
+                                    }),
 
-                        ]),
-                        // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
-                        ASUIMenu.cME({vertical: true, key:'view'}, 'View', () => [
-                            ASUIMenu.cME('fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                            ASUIMenu.cME('hide-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                            ASUIMenu.cME('hide-panel-playlist', `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                        ]),
+                                    ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
+                                    ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
+                                    ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
+                                ]),
+                                ASUIMenu.cME({key:'playlist'}, 'Playlist', () => [
+                                    ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
+                                    ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+
+                                ]),
+                                // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
+                                ASUIMenu.cME({key:'view'}, 'View', () => [
+                                    ASUIMenu.cME('fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                                    ASUIMenu.cME('hide-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                                    ASUIMenu.cME('hide-panel-playlist', `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                                ]),
+                            ]
+                        ),
                     ]),
 
                     ASUIDiv.cE('asp-forms-container', () => [
@@ -454,7 +461,7 @@
             // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
             // await this.updateEntries();
             return [
-                ASUIGridRow.createElement('header', () => [
+                ASUIDiv.createElement('header', () => [
                     ASUIDiv.createElement('id', 'ID'),
                     ASUIDiv.createElement('name', 'Name'),
                     // ASUIDiv.createElement('url', 'URL'),

@@ -5,7 +5,8 @@
     const {
         ASUIDiv,
         ASUIComponent,
-        ASUITouchableHighlight
+        ASUITouchableHighlight,
+        ASUIIcon
     } = require('./asui-component.js');
 
     class ASUIMenu extends ASUIComponent {
@@ -103,9 +104,9 @@
             throw new Slider;
         }
 
-        render() {
-            return !isBrowser ? this.renderBrowser() : this.renderBrowser();
-        }
+        // render() {
+        //     return !isBrowser ? this.renderBrowser() : this.renderBrowser();
+        // }
 
         renderOptions(offset=0, length=20) {
             let i=0;
@@ -299,6 +300,7 @@
             //     this.clearSubMenu();
             // }
         }
+
         static createMenuElement(props, children=null, dropDownContent=null) {
             return this.createElement(props, children, {
                 dropDownContent
@@ -312,10 +314,34 @@
         customElements.define('asui-menu', ASUIMenu);
 
 
+    // class ASUIMenuContainer extends ASUIComponent {
+    //     constructor(props={}) {
+    //         super(props, {
+    //             open: false
+    //         });
+    //     }
+    //
+    //     render() {
+    //         return [
+    //             ASUITouchableHighlight.cE({
+    //                     key: 'menu-button',
+    //                     class: [this.state.open ? 'open' : ''].join(' ').trim()
+    //                 },
+    //                 ASUIIcon.cE('menu')
+    //             ),
+    //             this.state.open ? this.getChildren() : null,
+    //         ];
+    //     }
+    // }
+    //
+    // if(isBrowser)
+    //     customElements.define('asui-menu-container', ASUIMenuContainer);
+
 
     /** Export this script **/
     thisModule.exports = {
         ASUIMenu,
+        // ASUIMenuContainer
     };
 
 

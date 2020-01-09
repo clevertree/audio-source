@@ -44,9 +44,9 @@
             return React.createElement(TextInput, this.props, null);
         }
 
-        render() {
-            return !isBrowser ? this.renderReactNative() : this.renderBrowser();
-        }
+        // render() {
+        //     return !isBrowser ? this.renderReactNative() : this.renderBrowser();
+        // }
 
         static createInputText(props={}, callback = null, initialValue = null, title = null, placeholder = null) {
             return this.createElement(props, null, {

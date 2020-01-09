@@ -94,7 +94,7 @@
 
 
     await require('../common/ui/asui-component.js');
-    await require('../common/ui/asui-grid.js');
+    // await require('../common/ui/asui-grid.js');
     await require('../common/ui/asui-menu.js');
     await require('../common/ui/asui-input-button.js');
     await require('../common/ui/asui-input-checkbox.js');

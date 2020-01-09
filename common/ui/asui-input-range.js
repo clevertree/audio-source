@@ -48,9 +48,9 @@
             return React.createElement(Slider, this.props, null);
         }
 
-        render() {
-            return !isBrowser ? this.renderReactNative() : this.renderBrowser();
-        }
+        // render() {
+        //     return !isBrowser ? this.renderReactNative() : this.renderBrowser();
+        // }
 
         static createInputRange(props, onChange = null, min = 1, max = 100, initialValue = null, title = null) {
             return this.createElement(props, null, {

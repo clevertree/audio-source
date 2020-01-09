@@ -126,13 +126,11 @@
             // }
 
             render() {
-                let children = this.getChildren();
-                if(typeof children === "function")
-                    children = children(this);
-//                 console.log("ASUIComponentBase.render", children);
-                // if(typeof children === "undefined")
-                //     throw new Error("Invalid ASUIDiv content: " + typeof children);
-                return children;
+                return this.renderBrowser();
+            }
+
+            renderBrowser() {
+                return this.getChildren();
             }
 
             getAttributeMap() {
@@ -191,7 +189,7 @@
             appendContentTo(content, targetElm) {
                 this.eachContent(content, (content) => {
                     if(content !== null && typeof content !== "undefined") {
-                        if (content instanceof ASUIComponent)
+                        if (content instanceof ASUIComponentBase)
                             content.appendTo(targetElm);
                         else if (content instanceof HTMLElement)
                             targetElm.appendChild(content);
@@ -203,7 +201,7 @@
 
 
             appendTo(parentNode) {
-                this._renderOnConnect = false;
+                // this._renderOnConnect = false;
                 parentNode.appendChild(this);
                 // console.info("appendTo", parentNode, this);
                 this.forceUpdate();

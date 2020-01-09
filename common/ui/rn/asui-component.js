@@ -42,32 +42,12 @@ class ASUIComponentBase extends React.Component {
         return each(children);
     }
 
-    // createStyleSheetLink(stylePath) {
-    //     return null;
-    // }
-
-    // renderAttributes() {
-    //     // React Native has no attributes
-    // }
-
-    // renderOS() {
-    //     this.forceUpdate();
-    // }
-    // forceUpdate() {
-    //     this.renderHTML();
-    // }
-
-
     render() {
-        let children = this.getChildren();
-        // if(typeof children === "function")
-        //     children = children(this);
-        // if(typeof children === 'string')
-        //     children = <Text>{children}</Text>;
-        // if(typeof children === "undefined")
-        //     throw new Error("Invalid ASUIDiv content: " + typeof children);
-        // console.log("ASUIComponentBase.render", children);
-        return children;
+        return this.renderReactNative();
+    }
+
+    renderReactNative() {
+        return this.getChildren();
     }
 
     static createElement(props, children=null, ...additionalProps) {
@@ -81,20 +61,6 @@ class ASUIComponentBase extends React.Component {
         const ret = React.createElement(thisClass, props, children);
         return ret;
     }
-
-    // static processProps(props, additionalProps=[]) {
-    //     if(typeof props === "string")
-    //         props = {class: props};
-    //     if(typeof props !== "object")
-    //         throw new Error("Invalid props: " + typeof props);
-    //     for(let i=0; i<additionalProps.length; i++)
-    //         Object.assign(props, additionalProps[i]);
-    //     // if(props.attrClass) {
-    //     //    if(!props.attrs) props.attrs = {};
-    //     //    props.attrs.class = props.attrClass;
-    //     // }
-    //     return props;
-    // }
 
 }
 
