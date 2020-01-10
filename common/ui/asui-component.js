@@ -227,6 +227,7 @@
                     throw new Error("Invalid props: " + typeof props);
                 for(let i=0; i<additionalProps.length; i++)
                     Object.assign(props, additionalProps[i]);
+                return props;
             }
 
             static getStyles() {
@@ -307,10 +308,29 @@
             super(props, {});
         }
 
-        renderAll() { return null; }
+        renderBrowser() { return null; }
+        renderReactNative() {
+            const Image = require('react-native').Image;
+            const React = require('react');
 
-        static createIcon(propsOrClassName={}) {
-            return this.createElement(propsOrClassName);
+            return React.createElement(Image, this.props);
+        }
+
+        static createIcon(iconName) {
+            let props = {};
+            if(!isBrowser) {
+                switch(iconName) {
+                    case 'menu':        props.source = require('../assets/img/icon/ui-icon-menu.png'); break;
+                    case 'play':        props.source = require('../assets/img/icon/ui-icon-play.png'); break;
+                    case 'pause':       props.source = require('../assets/img/icon/ui-icon-pause.png'); break;
+                    case 'stop':        props.source = require('../assets/img/icon/ui-icon-stop.png'); break;
+                    case 'next':        props.source = require('../assets/img/icon/ui-icon-next.png'); break;
+                    case 'file-save':   props.source = require('../assets/img/icon/ui-icon-file-save.png'); break;
+                    case 'file-load':   props.source = require('../assets/img/icon/ui-icon-file-load.png'); break;
+                    default: console.error("Unknown icon: " + iconName); break;
+                }
+            }
+            return this.createElement(iconName, null, props);
         }
     }
 
@@ -318,7 +338,12 @@
         customElements.define('asui-icon', ASUIIcon);
 
 
-    const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {} // TODO: Hack, get rid of
+    const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {
+        renderAll() {
+            return this.getChildren();
+        }
+
+    } // TODO: Hack, get rid of
     ASUITouchableHighlight.processProps = ASUIComponent.processProps;
     ASUITouchableHighlight.createElement = ASUIComponent.createElement;
     ASUITouchableHighlight.addStyleList = ASUIComponent.addStyleList;
