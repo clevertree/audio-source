@@ -55,8 +55,8 @@
                     ASUIDiv.cE('asp-menu-container', () => [
                         ASUIDiv.cE({key: 'title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
 
-                        ASUIMenu.cME({key: 'menu-button', arrow: false},
-                            ASUIIcon.cE('menu'),
+                        ASUIMenu.cME({key: 'menu-button', arrow: false, style:{float: 'right'}},
+                            ASUIIcon.createIcon('menu'),
                             () => [
                                 ASUIMenu.cME({key: 'file'}, 'File', () => [
                                     ASUIMenu.cME('memory', 'Load from Memory', () => {

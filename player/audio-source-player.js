@@ -32,7 +32,7 @@
                 },
                 volume: AudioSourceSong.DEFAULT_VOLUME,
 
-                status: "Loading Player...",
+                status: "[No Song Loaded]",
                 version: -1,
                 songLength: 0,
 

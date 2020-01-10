@@ -4,13 +4,105 @@
     //     window.require = thisRequire;
 
     let ASUIComponentBase;
-    let React, ASUITouchableHighlightBase;
+    let React;
     if(!isBrowser) {
-        ASUITouchableHighlightBase = require('react-native').TouchableHighlight;
         React = require('react');
 
-        ASUIComponentBase = require('./rn/asui-component.js').default;
-        // console.log(ASUIComponentBase);
+        ASUIComponentBase = class extends React.Component {
+
+            constructor(props={}) {
+                super(props);
+                this.attributes = [];
+                this.state = {
+                };
+            }
+
+            getChildren() {
+                const each = (child) =>  {
+                    if(typeof child === "function")
+                        child = child(this);
+                    if(child === null || typeof child === "undefined") {
+                        child = null;
+                    } else if(Array.isArray(child)) {
+                        for(let i=0; i<child.length; i++) {
+                            child[i] = each(child[i]);
+                        }
+                    } else if(typeof child === "string" || typeof child === "number") {
+                        // throw new Error("Strings are not allowed in react native");
+                        // console.log("Converting to string", child);
+                        const Text = require('react-native').Text;
+                        child = React.createElement(Text, this.props, child);
+                    }
+                    return child;
+                };
+
+                const children = this.props.children || null;
+                return each(children);
+            }
+
+            render() {
+                return this.renderReactNative();
+            }
+
+            renderReactNative() {
+                return this.renderAll();
+            }
+
+            renderAll() {
+                throw new Error("Not Implemented")
+            }
+
+            static getStyles() {
+                return [
+                    require('../assets/audio-source-common.style.js').default
+                ]
+            }
+
+
+            static addStyleList(props, key) {
+                let styleList = props.style;
+                if(!Array.isArray(styleList))
+                    styleList = styleList ? [styleList] : [];
+
+                const styleObjectList = this.getStyles();
+                for(let i=0; i<styleObjectList.length; i++) {
+                    const styleObject = styleObjectList[i][key];
+                    if(typeof styleObject === 'object') {
+                        // console.log("Adding style ", key, styleObject, styleObjectList);
+                        styleList.push(styleObject);
+                    }
+                }
+                if(styleList.length > 0)
+                    props.style = styleList;
+            }
+
+            static processProps(props, additionalProps=[]) {
+                if(typeof props === "string")
+                    props = {key: props};
+                if(typeof props !== "object")
+                    throw new Error("Invalid props: " + typeof props);
+                for(let i=0; i<additionalProps.length; i++)
+                    Object.assign(props, additionalProps[i]);
+                this.addStyleList(props, this.name);
+                if(props.key)
+                    this.addStyleList(props, props.key);
+                return props;
+            }
+
+            static createElement(props, children=null, ...additionalProps) {
+                props = this.processProps(props, additionalProps);
+                // if(typeof props.class !== "undefined" && typeof props.key === "undefined")
+                //     props.key = props.class; // TODO: Hack to suppress warning
+
+                // const React = require('react');
+                const thisClass = this;
+                // console.log('React.createElement', React.createElement, thisClass, children);
+                const ret = React.createElement(thisClass, props, children);
+                return ret;
+            }
+
+        }
+        // ASUITouchableHighlight = require('./rn/asui-touchable.js').default;
     } else {
         window.require = customElements.get('audio-source-loader').getRequire(thisModule);
         ASUIComponentBase = class extends HTMLElement {
@@ -252,7 +344,6 @@
 
 
         };
-        ASUITouchableHighlightBase = ASUIComponentBase;
     }
 
     /** Abstract Component **/
@@ -281,17 +372,43 @@
     if(isBrowser)
         customElements.define('asui-component', ASUIComponent);
 
+
+    /** Text **/
+
+    class ASUIText extends ASUIComponent {
+        // constructor(props = {}) {
+        //     super(props);
+        // }
+
+        renderReactNative() {
+            // const React = require('react');
+            const Text = require('react-native').Text;
+            return React.createElement(Text, null, this.renderAll());
+        }
+
+    }
+
+    if(isBrowser)
+        customElements.define('asui-text', ASUIText);
+
+
     /** Div **/
     class ASUIDiv extends ASUIComponent {
         // constructor(props = {}) {
         //     super(props);
         // }
 
-        set content(newContent) {
-            this.setContent(newContent);
-        }
-        setContent(newContent) {
-            this.setState({content: newContent});
+        // getChildren() {
+        //     let children = super.getChildren();
+        //     if(typeof children === 'string')
+        //         children = React.createElement(ASUIText, this.props, children);
+        //     return children;
+        // }
+
+        renderReactNative() {
+            // const React = require('react');
+            const View = require('react-native').View;
+            return React.createElement(View, null, this.renderAll());
         }
 
     }
@@ -299,6 +416,21 @@
     if(isBrowser)
         customElements.define('asui-div', ASUIDiv);
 
+
+
+    /** Touchable **/
+    /** @deprecated **/
+    class ASUITouchableHighlight extends ASUIComponent {
+
+        renderReactNative() {
+            // const React = require('react');
+            const TouchableHighlight = require('react-native').TouchableHighlight;
+            return React.createElement(TouchableHighlight, this.props, this.props.children);
+        }
+    }
+
+    if(isBrowser)
+        customElements.define('asui-touchable', ASUITouchableHighlight);
 
 
 
@@ -310,9 +442,9 @@
 
         renderBrowser() { return null; }
         renderReactNative() {
+            // console.log('ASUIIcon', this.props);
             const Image = require('react-native').Image;
-            const React = require('react');
-
+            // const React = require('react');
             return React.createElement(Image, this.props);
         }
 
@@ -338,19 +470,19 @@
         customElements.define('asui-icon', ASUIIcon);
 
 
-    const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {
-        renderAll() {
-            return this.getChildren();
-        }
-
-    } // TODO: Hack, get rid of
-    ASUITouchableHighlight.processProps = ASUIComponent.processProps;
-    ASUITouchableHighlight.createElement = ASUIComponent.createElement;
-    ASUITouchableHighlight.addStyleList = ASUIComponent.addStyleList;
-    ASUITouchableHighlight.getStyles = ASUIComponent.getStyles;
-    ASUITouchableHighlight.cE = ASUIComponent.cE;
-    if(isBrowser)
-        customElements.define('asui-touchable', ASUITouchableHighlight);
+    // const ASUITouchableHighlight = class extends ASUITouchableHighlightBase {
+    //     renderAll() {
+    //         return this.getChildren();
+    //     }
+    //
+    // } // TODO: Hack, get rid of
+    // ASUITouchableHighlight.processProps = ASUIComponent.processProps;
+    // ASUITouchableHighlight.createElement = ASUIComponent.createElement;
+    // ASUITouchableHighlight.addStyleList = ASUIComponent.addStyleList;
+    // ASUITouchableHighlight.getStyles = ASUIComponent.getStyles;
+    // ASUITouchableHighlight.cE = ASUIComponent.cE;
+    // if(isBrowser)
+    //     customElements.define('asui-touchable', ASUITouchableHighlight);
 
 
     /** Utility functions **/

@@ -95,12 +95,14 @@
             ];
 
             // this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
-//             console.log('ASUIMenu', content);
+            console.log('ASUIMenu', content);
             return content;
         }
 
         renderReactNative() {
-            return this.renderBrowser();
+            const View = require('react-native').View;
+            const React = require('react');
+            return React.createElement(View, this.props, this.renderBrowser());
             // const {Slider} = require('@react-native-community/slider');
             // throw new Slider;
         }

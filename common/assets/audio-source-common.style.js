@@ -17,14 +17,19 @@ export default StyleSheet.create({
 
 
     'title-text': {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        borderColor: 'red',
-        borderStyle: 'dotted',
-        borderWidth: 2,
-        borderRadius: 1,
-        position: 'relative',
+        textAlign: 'center', // <-- the magic
+        fontWeight: 'bold',
+        fontSize: 18,
+        padding: 4,
+        // paddingTop: 3,
+        // width: '100%',
+        color: "#333",
+        backgroundColor: '#bdc3c7',
+    },
+
+    'menu-button': {
+        padding: 2,
+        position: 'absolute'
     }
 });
 
