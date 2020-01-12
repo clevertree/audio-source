@@ -29,9 +29,9 @@
                         }
                     } else if(typeof child === "string" || typeof child === "number") {
                         // throw new Error("Strings are not allowed in react native");
-                        // console.log("Converting to string", child);
+                        console.log("Converting to string", child);
                         const Text = require('react-native').Text;
-                        child = React.createElement(Text, this.props, child);
+                        child = React.createElement(Text, null, child);
                     }
                     return child;
                 };
@@ -93,6 +93,13 @@
                 props = this.processProps(props, additionalProps);
                 // if(typeof props.class !== "undefined" && typeof props.key === "undefined")
                 //     props.key = props.class; // TODO: Hack to suppress warning
+
+                // if(typeof children === "string" || typeof children === "number") {
+
+                    // const Text = require('react-native').Text;
+                    // child = React.createElement(Text, null, child);
+                // }
+
 
                 // const React = require('react');
                 const thisClass = this;
@@ -381,9 +388,13 @@
         // }
 
         renderReactNative() {
+            console.log('ASUIText', this.props);
             // const React = require('react');
+            let content = super.renderReactNative();
+
             const Text = require('react-native').Text;
-            return React.createElement(Text, null, this.renderAll());
+            content = React.createElement(Text, this.props, content);
+            return content;
         }
 
     }
@@ -408,7 +419,7 @@
         renderReactNative() {
             // const React = require('react');
             const View = require('react-native').View;
-            return React.createElement(View, null, this.renderAll());
+            return React.createElement(View, this.props, super.renderReactNative());
         }
 
     }
@@ -501,6 +512,7 @@
     thisModule.exports = {
         ASUIComponent,
         ASUIDiv,
+        ASUIText,
         ASUIIcon,
         ASUITouchableHighlight
     };

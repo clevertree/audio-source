@@ -16,7 +16,7 @@
                 offset: 0,
                 maxLength: 20,
                 optionCount: 0,
-                open: false,
+                open: props.open || false,
                 stick: false,
             });
             // this.props.stick = false;
@@ -76,10 +76,9 @@
             if(this.props.dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
                 arrow = true;
             let children = this.getChildren();
-            if(typeof children === "function")
-                children = children(this);
-            const content = [
-                ASUITouchableHighlight.cE({
+            return [
+                ASUIDiv.cE({
+                    onclick: e => this.doMenuAction(e),
                     key: 'title',
                     class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
                 },
@@ -93,23 +92,36 @@
                 }, this.props.dropDownContent),
                 this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
-
-            // this.dropdown.addEventHandler('wheel', e => this.onInputEvent(e));
-            console.log('ASUIMenu', content);
-            return content;
         }
 
         renderReactNative() {
-            const View = require('react-native').View;
+        // console.log('renderReactNative', this.props);
             const React = require('react');
-            return React.createElement(View, this.props, this.renderBrowser());
-            // const {Slider} = require('@react-native-community/slider');
-            // throw new Slider;
+            const TouchableHighlight = require('react-native').TouchableHighlight;
+            const View = require('react-native').View;
+
+            let arrow = false;
+            if(this.props.dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
+                arrow = true;
+            let children = this.getChildren();
+            return React.createElement(View, this.props, [
+                React.createElement(TouchableHighlight, {
+                    onPress: e => this.doMenuAction(e),
+                    key: 'title',
+                        class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
+                    },
+                    children
+                ),
+                arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+                !this.state.open ? null : ASUIDiv.cE({
+                    key: 'asui-menu-dropdown',
+                    class: (this.props.vertical ? 'vertical' : ''),
+                    onWheel: e => this.onInputEvent(e)
+                }, this.props.dropDownContent),
+                this.props.hasBreak ? ASUIDiv.createElement('break') : null,
+            ]);
         }
 
-        // render() {
-        //     return !isBrowser ? this.renderBrowser() : this.renderBrowser();
-        // }
 
         renderOptions(offset=0, length=20) {
             let i=0;
@@ -143,7 +155,7 @@
             //     parentMenu = parentMenu.parentNode.closest('asui-menu');
             // }
             this.state.stick = !this.state.stick;
-            if(!this.state.open)
+            if(!this.state.open || !isBrowser)
                 this.state.open = this.state.stick;
             this.forceUpdate();
         }
@@ -173,28 +185,52 @@
         }
 
         closeAllMenus(includeStickMenus=false) {
-            const root = this.getRootNode() || document;
-            root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
-                .forEach(menu => menu.close())
+            if(isBrowser) {
+                const root = this.getRootNode() || document;
+                root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
+                    .forEach(menu => menu.close())
+            } else {
+                console.warn("Unimplemented");
+            }
         }
 
         closeAllMenusButThis() {
-            const root = this.getRootNode() || document;
-            root.querySelectorAll('asui-menu[open]:not([stick])')
-                .forEach(menu => {
-                    if(menu !== this
-                        && !menu.contains(this)
-                        && !this.contains(menu))
-                        menu.close()
-                })
+            if(isBrowser) {
+
+                const root = this.getRootNode() || document;
+                root.querySelectorAll('asui-menu[open]:not([stick])')
+                    .forEach(menu => {
+                        if(menu !== this
+                            && !menu.contains(this)
+                            && !this.contains(menu))
+                            menu.close()
+                    });
+
+            } else {
+                console.warn("Unimplemented");
+            }
         }
 
-        onInputEvent(e) {
+        doMenuAction(e) {
+            console.log("Doing menu action: ", this);
+            if (this.props.action) {
+                this.props.action(e, this);
+                this.closeAllMenus();
+            } else if(this.props.dropDownContent) {
+                this.toggleSubMenu(e);
+            } else {
+                console.log("Menu has no dropdown or action content: ", this);
+            }
+        }
+
+        onInputEvent(e, type=null) {
+            type = type || e.type;
+            // console.log(type, e);
             // const menuElm = e.target.closest('asui-menu');
             // if (this !== menuElm)
             //     return; // console.info("Ignoring submenu action", this, menuElm);
 
-            switch (e.type) {
+            switch (type) {
                 case 'mouseover':
                     clearTimeout(this.mouseTimeout);
                     this.mouseTimeout = setTimeout(e => {
@@ -216,15 +252,7 @@
                         return;
                     console.log(e.type, this);
                     e.preventDefault();
-
-                    if (this.action) {
-                        this.action(e, this);
-                        this.closeAllMenus();
-                    } else if(this.props.dropDownContent) {
-                        this.toggleSubMenu(e);
-                    } else {
-                        console.log("Menu has no dropdown or action content: ", this);
-                    }
+                    this.doMenuAction();
                     break;
 
                 case 'keydown':
@@ -304,13 +332,13 @@
             // }
         }
 
-        static createMenuElement(props, children=null, dropDownContent=null) {
+        static createMenuElement(props, children=null, dropDownContent=null, action=null) {
             return this.createElement(props, children, {
-                dropDownContent
+                dropDownContent, action
             });
         }
-        static cME(props, children=null, dropDownContent=null) {
-            return this.createMenuElement(props, children, dropDownContent);
+        static cME(props, children=null, dropDownContent=null, action=null) {
+            return this.createMenuElement(props, children, dropDownContent, action);
         }
     }
     if(isBrowser)

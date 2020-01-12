@@ -9,6 +9,7 @@
     const {
         ASUIComponent,
         ASUIDiv,
+        ASUIText,
         ASUIIcon
     } = require('../common/ui/asui-component.js');
     const {ASUIMenu} = require('../common/ui/asui-menu.js');
@@ -44,48 +45,28 @@
             return link;
         }
 
+        restart() {
+            const RNRestart = require('react-native-restart').default;
+            RNRestart.Restart();
+        }
+
         render() {
+
+// @refresh full
+
             // console.log('ohok');
             return [
+                // require('react').createElement(require('react-native-webview').WebView, {
+                //     source: {uri: Platform.OS ==='android' ?'file:///android_asset/html/index.html' :'./external/html/index.html'}, key: 'browser', width: 200, height: 200
+                // }),
                 isBrowser ? [
                     this.createStyleSheetLink('../player/assets/audio-source-player.css', thisModule),
                     this.createStyleSheetLink('../common/assets/audio-source-common.css', thisModule),
                 ] : null,
-                this.containerElm = ASUIDiv.cE('asp-container', () => [
-                    ASUIDiv.cE('asp-menu-container', () => [
-                        ASUIDiv.cE({key: 'title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
+                this.containerElm = ASUIDiv.cE('asp-container', [
+                    ASUIDiv.cE('asp-title-container', [
+                        ASUIText.cE({onclick: e => this.restart(), key: 'asp-title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
 
-                        ASUIMenu.cME({key: 'menu-button', arrow: false, style:{float: 'right'}},
-                            ASUIIcon.createIcon('menu'),
-                            () => [
-                                ASUIMenu.cME({key: 'file'}, 'File', () => [
-                                    ASUIMenu.cME('memory', 'Load from Memory', () => {
-                                        const {AudioSourceStorage} = require('../common/audio-source-storage.js');
-                                        const Storage = new AudioSourceStorage();
-                                        const songRecentUUIDs = Storage.getRecentSongList() ;
-                                        return songRecentUUIDs.length > 0
-                                            ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
-                                            null, () => this.loadSongFromMemory(entry.uuid)))
-                                            : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
-                                    }),
-
-                                    ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
-                                    ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
-                                    ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
-                                ]),
-                                ASUIMenu.cME({key:'playlist'}, 'Playlist', () => [
-                                    ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
-                                    ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
-
-                                ]),
-                                // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
-                                ASUIMenu.cME({key:'view'}, 'View', () => [
-                                    ASUIMenu.cME('fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                                    ASUIMenu.cME('hide-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                                    ASUIMenu.cME('hide-panel-playlist', `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                                ]),
-                            ]
-                        ),
                     ]),
 
                     ASUIDiv.cE('asp-forms-container', [
@@ -193,7 +174,42 @@
                     ASUIDiv.cE('asp-status-container', [
                         ASUIDiv.cE({key: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
                         ASUIDiv.cE({key: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
-                    ])
+                    ]),
+
+
+                    /** Menu Button **/
+                    ASUIMenu.cME({open: true, key: 'asp-menu-button', arrow: false, style:{float: 'right'}},
+                        ASUIIcon.createIcon('menu'),
+                        () => [
+                            ASUIMenu.cME('refresh', 'Refresh', null, (e) => this.restart()),
+                            ASUIMenu.cME({key: 'file'}, 'File', () => [
+                                ASUIMenu.cME('memory', 'Load from Memory', () => {
+                                    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
+                                    const Storage = new AudioSourceStorage();
+                                    const songRecentUUIDs = Storage.getRecentSongList() ;
+                                    return songRecentUUIDs.length > 0
+                                        ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
+                                            null, () => this.loadSongFromMemory(entry.uuid)))
+                                        : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
+                                }),
+
+                                ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
+                                ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
+                                ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
+                            ]),
+                            ASUIMenu.cME({key:'playlist'}, 'Playlist', () => [
+                                ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
+                                ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+
+                            ]),
+                            // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
+                            ASUIMenu.cME({key:'view'}, 'View', () => [
+                                ASUIMenu.cME('fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                                ASUIMenu.cME('hide-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                                ASUIMenu.cME('hide-panel-playlist', `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                            ]),
+                        ]
+                    ),
                 ])
 
             ];
