@@ -172,8 +172,8 @@
                     ]),
 
                     ASUIDiv.cE('asp-status-container', [
-                        ASUIDiv.cE({key: 'status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
-                        ASUIDiv.cE({key: 'version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
+                        ASUIDiv.cE({key: 'status-text', ref:ref=>this.textStatus=ref}, this.state.status),
+                        ASUIDiv.cE({key: 'version-text', ref:ref=>this.textVersion=ref}, this.state.version),
                     ]),
 
 

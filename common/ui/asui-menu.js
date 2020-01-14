@@ -6,6 +6,7 @@
         ASUIDiv,
         ASUIComponent,
         ASUITouchableHighlight,
+        ASUIText,
         ASUIIcon
     } = require('./asui-component.js');
 
@@ -84,7 +85,7 @@
                 },
                     children,
                 ),
-                arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+                arrow ? ASUIText.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
                 !this.state.open ? null : ASUIDiv.cE({
                     key: 'dropdown',
                     class: (this.props.vertical ? 'vertical' : ''),
@@ -95,10 +96,48 @@
         }
 
         renderReactNative() {
+            const {Animated, Easing} = require('react-native');
+            const a = new Animated.Value(1);
+            const b = Animated.divide(1, a);
+
+            Animated.spring(a, {
+                toValue: 2,
+            }).start();
+
+            const animation = new Animated.Value(0);
+            const slideInValue = new Animated.Value(-300);
+            let scaleValue = new Animated.Value(0); // declare an animated value
+            const cardScale = scaleValue.interpolate({
+                inputRange: [0, 0.5, 1],
+                outputRange: [1, 1.1, 1.2]
+            });
+            // let transformStyle = [{ scale: cardScale }];
+            // setTimeout(() => {
+            //     scaleValue.setValue(0);
+            Animated.spring(slideInValue, {
+                toValue: 0,
+                // useNativeDriver: true, // TODO:
+            }).start();
+
+            // Animated.timing(scaleValue, {
+                //     toValue: 1,
+                //     duration: 250,
+                //     easing: Easing.linear,
+                //     useNativeDriver: true
+                // }).start();
+            //     Animated.timing(animation,{
+            //         toValue : 300,
+            //         duration : 2000
+            //     }).start(()=>{
+            //         animation.setValue(0);
+            //         //If you remove above line then it will stop the animation at toValue point
+            //     });
+            //
+            // }, 2000);
+
         // console.log('renderReactNative', this.props);
             const React = require('react');
-            const TouchableHighlight = require('react-native').TouchableHighlight;
-            const View = require('react-native').View;
+            const {Text, View, TouchableHighlight} = require('react-native');
 
             let arrow = false;
             if(this.props.dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
@@ -106,18 +145,31 @@
             let children = this.getChildren();
             return React.createElement(View, this.props, [
                 React.createElement(TouchableHighlight, {
-                    onPress: e => this.doMenuAction(e),
-                    key: 'title',
-                        class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
+                        onPress: e => this.doMenuAction(e),
+                        key: 'ASUIMenu.title',
+                        class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim(),
                     },
                     children
                 ),
-                arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
-                !this.state.open ? null : ASUIDiv.cE({
-                    key: 'asui-menu-dropdown',
-                    class: (this.props.vertical ? 'vertical' : ''),
-                    onWheel: e => this.onInputEvent(e)
-                }, this.props.dropDownContent),
+                // arrow ? ASUIText.createElement('ASUIMenu.arrow', this.props.vertical ? '▼' : '►') : null,
+
+                !this.state.open ? null :
+                    React.createElement(Animated.View, {
+                        key: 'ASUIMenu.slider',
+                            style: {
+                                position: 'absolute',
+                                left: slideInValue,
+                            }
+                        // transform: transformStyle
+                    },
+                        ASUIDiv.cE({
+                            key: 'ASUIMenu.dropdown',
+                            class: (this.props.vertical ? 'vertical' : ''),
+                            onWheel: e => this.onInputEvent(e),
+
+                        }, this.props.dropDownContent),
+                    ),
+
                 this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ]);
         }
@@ -166,12 +218,25 @@
                 // await this.dropdown.setContent(null);
             }
         }
+
         open() {
             if(this.state.open !== true) {
                 this.setState({open: true});
                 // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
             }
             this.closeAllMenusButThis();
+        }
+
+        doMenuAction(e) {
+            console.log("Doing menu action: ", this);
+            if (this.props.action) {
+                this.props.action(e, this);
+                this.closeAllMenus();
+            } else if(this.props.dropDownContent) {
+                this.toggleSubMenu(e);
+            } else {
+                console.log("Menu has no dropdown or action content: ", this);
+            }
         }
 
         openContextMenu(e) {
@@ -193,7 +258,6 @@
                 console.warn("Unimplemented");
             }
         }
-
         closeAllMenusButThis() {
             if(isBrowser) {
 
@@ -208,18 +272,7 @@
 
             } else {
                 console.warn("Unimplemented");
-            }
-        }
 
-        doMenuAction(e) {
-            console.log("Doing menu action: ", this);
-            if (this.props.action) {
-                this.props.action(e, this);
-                this.closeAllMenus();
-            } else if(this.props.dropDownContent) {
-                this.toggleSubMenu(e);
-            } else {
-                console.log("Menu has no dropdown or action content: ", this);
             }
         }
 
@@ -333,6 +386,7 @@
         }
 
         static createMenuElement(props, children=null, dropDownContent=null, action=null) {
+            children = this.convertStringChildrenToComponent(children);
             return this.createElement(props, children, {
                 dropDownContent, action
             });

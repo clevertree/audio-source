@@ -43,6 +43,7 @@
 
 
         static createInputButton(props, children = null, onPress = null, title = null) {
+            children = this.convertStringChildrenToComponent(children);
             return this.createElement(props, children, {
                 onPress,
                 title,

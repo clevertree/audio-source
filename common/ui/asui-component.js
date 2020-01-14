@@ -28,10 +28,10 @@
                             child[i] = each(child[i]);
                         }
                     } else if(typeof child === "string" || typeof child === "number") {
-                        // throw new Error("Strings are not allowed in react native");
-                        console.log("Converting to string", child);
-                        const Text = require('react-native').Text;
-                        child = React.createElement(Text, null, child);
+                        throw new Error("Strings are not allowed in react native");
+                        // console.log("Converting to string", child);
+                        // const Text = require('react-native').Text;
+                        // child = React.createElement(Text, {style: this.constructor.getStyleListFromKey('default-text')}, child);
                     }
                     return child;
                 };
@@ -52,6 +52,8 @@
                 throw new Error("Not Implemented")
             }
 
+
+
             static getStyles() {
                 return [
                     require('../assets/audio-source-common.style.js').default
@@ -59,11 +61,8 @@
             }
 
 
-            static addStyleList(props, key) {
-                let styleList = props.style;
-                if(!Array.isArray(styleList))
-                    styleList = styleList ? [styleList] : [];
-
+            static getStyleListFromKey(key) {
+                let styleList = [];
                 const styleObjectList = this.getStyles();
                 for(let i=0; i<styleObjectList.length; i++) {
                     const styleObject = styleObjectList[i][key];
@@ -72,6 +71,14 @@
                         styleList.push(styleObject);
                     }
                 }
+                return styleList;
+            }
+
+            static addStyleList(props, key) {
+                let styleList = props.style;
+                if(!Array.isArray(styleList))
+                    styleList = styleList ? [styleList] : [];
+                styleList = styleList.concat(this.getStyleListFromKey(key));
                 if(styleList.length > 0)
                     props.style = styleList;
             }
@@ -89,16 +96,22 @@
                 return props;
             }
 
+
+            static convertStringChildrenToComponent(children) {
+                if(typeof children === "string" || typeof children === "number") {
+                    const key = this.name + '.default-text';
+                    console.info(`Converting ${this.name} children to string [key=${key}]`, children);
+                    const Text = require('react-native').Text;
+                    children = React.createElement(Text, {style: this.getStyleListFromKey(key)}, children);
+                }
+                return children;
+            }
+
             static createElement(props, children=null, ...additionalProps) {
                 props = this.processProps(props, additionalProps);
                 // if(typeof props.class !== "undefined" && typeof props.key === "undefined")
                 //     props.key = props.class; // TODO: Hack to suppress warning
 
-                // if(typeof children === "string" || typeof children === "number") {
-
-                    // const Text = require('react-native').Text;
-                    // child = React.createElement(Text, null, child);
-                // }
 
 
                 // const React = require('react');
@@ -344,6 +357,9 @@
                 return ref;
             }
 
+            static convertStringChildrenToComponent(children) {
+                return children;
+            }
 
             static getDefaultProps() {
                 return {};
@@ -388,9 +404,9 @@
         // }
 
         renderReactNative() {
-            console.log('ASUIText', this.props);
+            // console.log('ASUIText', this.props);
             // const React = require('react');
-            let content = super.renderReactNative();
+            let content = this.props.children; // super.renderReactNative();
 
             const Text = require('react-native').Text;
             content = React.createElement(Text, this.props, content);
@@ -418,10 +434,15 @@
 
         renderReactNative() {
             // const React = require('react');
-            const View = require('react-native').View;
+            const {View, Animated} = require('react-native');
+//this.props.transform ? Animated.View :
             return React.createElement(View, this.props, super.renderReactNative());
         }
 
+        static createElement(props, children=null, ...additionalProps) {
+            children = this.convertStringChildrenToComponent(children);
+            return super.createElement(props, children, ...additionalProps);
+        }
     }
 
     if(isBrowser)
