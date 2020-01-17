@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 import { Dimensions } from 'react-native'
 var D = Dimensions.get('window');
-console.log('Dimensions:', D);
+// console.log('Dimensions:', D);
 
 export default StyleSheet.create({
     /** Divisor Elements **/
@@ -20,12 +20,14 @@ export default StyleSheet.create({
 
     'ASUIMenu': {
         // minWidth: 160,
+        padding: 6,
+        backgroundColor: '#bdc3c7',
 
     },
 
 
     'ASUIMenu.default-text': {
-        // color: 'blue'
+        color: '#EEE'
     },
 
     'ASUIMenu.arrow': {
@@ -63,7 +65,7 @@ export default StyleSheet.create({
     },
 
     'asp-menu-button': {
-        padding: 2,
+        padding: 0,
         position: 'absolute',
         // height: 400,
         // zIndex: 10,

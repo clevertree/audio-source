@@ -23,7 +23,12 @@
 
     class AudioSourcePlayerRenderer extends ASUIComponent {
         constructor(props={}, state={}) {
-            super(props, state);
+            super(props, Object.assign({
+                menuKey: null,
+                fullscreen: false,
+                showPanelSong: true,
+                showPanelPlaylist: true,
+            }, state));
             this.shadowDOM = null;
 
         }
@@ -50,9 +55,64 @@
             RNRestart.Restart();
         }
 
-        render() {
+        switchToMenu(menuKey) {
+            this.state.menuKey = menuKey;
+            // if(this.props.onUpdateMenu)
+                this.props.onUpdateMenu();
+            // setTimeout(e => this.toggleMenu(), 10);
+        }
 
-// @refresh full
+        toggleMenu(menuKey=null) {
+            if(this.props.onToggleMenu)
+                this.props.onToggleMenu();
+        }
+
+        renderMenu() {
+            console.log('renderMenu', this.state.menuKey);
+            switch(this.state.menuKey) {
+                default:
+                    return [
+                        ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
+                        ASUIMenu.cME('file',        'File',     (e) => this.switchToMenu('file')),
+                        ASUIMenu.cME('playlist',    'Playlist', (e) => this.switchToMenu('playlist')),
+                        ASUIMenu.cME('view',        'View',     (e) => this.switchToMenu('view')),
+                    ];
+
+                case 'file':
+                    return [
+                        ASUIMenu.cME('memory', 'Load from Memory',     (e) => this.toggleMenu('file-memory')),
+
+                        ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
+                        ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
+                        ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
+                    ];
+
+                case 'file-memory':
+                    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
+                    const Storage = new AudioSourceStorage();
+                    const songRecentUUIDs = Storage.getRecentSongList() ;
+                    return songRecentUUIDs.length > 0
+                        ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
+                            null, () => this.loadSongFromMemory(entry.uuid)))
+                        : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
+
+                case 'playlist':
+                    return [
+                        ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
+                        ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
+                    ];
+
+                case 'view':
+                    return [
+                        ASUIMenu.cME('fullscreen', `${this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
+                        ASUIMenu.cME('hide-panel-song', `${this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
+                        ASUIMenu.cME('hide-panel-playlist', `${this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
+                    ];
+
+            }
+        }
+
+        render() {
 
             // console.log('ohok');
             return [
@@ -71,35 +131,7 @@
                         /** Menu Button **/
                         ASUIMenu.cME({key: 'asp-menu-button', arrow: false},
                             ASUIIcon.createIcon('menu'),
-                            () => [
-                                ASUIMenu.cME('refresh', 'Refresh', null, (e) => this.restart()),
-                                ASUIMenu.cME({key: 'file'}, 'File', () => [
-                                    ASUIMenu.cME('memory', 'Load from Memory', () => {
-                                        const {AudioSourceStorage} = require('../common/audio-source-storage.js');
-                                        const Storage = new AudioSourceStorage();
-                                        const songRecentUUIDs = Storage.getRecentSongList() ;
-                                        return songRecentUUIDs.length > 0
-                                            ? songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid,
-                                                null, () => this.loadSongFromMemory(entry.uuid)))
-                                            : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
-                                    }),
-
-                                    ASUIMenu.cME('file', 'Load from File', null, (e) => this.fieldSongFileLoad.click()),
-                                    ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
-                                    ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
-                                ]),
-                                ASUIMenu.cME({key:'playlist'}, 'Playlist', () => [
-                                    ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
-                                    ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
-
-                                ]),
-                                // this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit'),
-                                ASUIMenu.cME({key:'view'}, 'View', () => [
-                                    ASUIMenu.cME('fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                                    ASUIMenu.cME('hide-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                                    ASUIMenu.cME('hide-panel-playlist', `${this.classList.contains('hide-panel-playlist') ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                                ]),
-                            ]
+                            (e) => this.toggleMenu()
                         ),
                     ]),
 

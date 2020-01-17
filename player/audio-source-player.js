@@ -40,9 +40,6 @@
                 playing: false,
                 paused: false,
 
-                fullscreen: false,
-                showPanelSong: true,
-                showPanelPlaylist: true,
 
 
             });

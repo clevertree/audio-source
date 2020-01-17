@@ -207,10 +207,10 @@
             if (this.props.action) {
                 this.props.action(e, this);
                 this.closeAllMenus();
-            } else if(this.props.dropDownContent) {
-                this.toggleSubMenu(e);
+            // } else if(this.props.dropDownContent) {
+            //     this.toggleSubMenu(e);
             } else {
-                console.log("Menu has no dropdown or action content: ", this);
+                throw new Error("Menu has no action content: ", this);
             }
         }
 
@@ -230,7 +230,7 @@
                 root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
                     .forEach(menu => menu.close())
             } else {
-                console.warn("Unimplemented");
+                // console.warn("Unimplemented");
             }
         }
         closeAllMenusButThis() {
@@ -246,7 +246,7 @@
                     });
 
             } else {
-                console.warn("Unimplemented");
+                // console.warn("Unimplemented");
 
             }
         }
@@ -360,14 +360,14 @@
             // }
         }
 
-        static createMenuElement(props, children=null, dropDownContent=null, action=null) {
+        static createMenuElement(props, children=null, action=null) {
             children = this.convertStringChildrenToComponent(children);
             return this.createElement(props, children, {
-                dropDownContent, action
+                action
             });
         }
-        static cME(props, children=null, dropDownContent=null, action=null) {
-            return this.createMenuElement(props, children, dropDownContent, action);
+        static cME(props, children=null, action=null) {
+            return this.createMenuElement(props, children, action);
         }
     }
     if(isBrowser)
