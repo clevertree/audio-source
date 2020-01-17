@@ -104,36 +104,11 @@
                 toValue: 2,
             }).start();
 
-            const animation = new Animated.Value(0);
             const slideInValue = new Animated.Value(-300);
-            let scaleValue = new Animated.Value(0); // declare an animated value
-            const cardScale = scaleValue.interpolate({
-                inputRange: [0, 0.5, 1],
-                outputRange: [1, 1.1, 1.2]
-            });
-            // let transformStyle = [{ scale: cardScale }];
-            // setTimeout(() => {
-            //     scaleValue.setValue(0);
-            Animated.spring(slideInValue, {
+            __DEV__ && Animated.spring(slideInValue, {
                 toValue: 0,
                 // useNativeDriver: true, // TODO:
             }).start();
-
-            // Animated.timing(scaleValue, {
-                //     toValue: 1,
-                //     duration: 250,
-                //     easing: Easing.linear,
-                //     useNativeDriver: true
-                // }).start();
-            //     Animated.timing(animation,{
-            //         toValue : 300,
-            //         duration : 2000
-            //     }).start(()=>{
-            //         animation.setValue(0);
-            //         //If you remove above line then it will stop the animation at toValue point
-            //     });
-            //
-            // }, 2000);
 
         // console.log('renderReactNative', this.props);
             const React = require('react');
@@ -154,21 +129,21 @@
                 // arrow ? ASUIText.createElement('ASUIMenu.arrow', this.props.vertical ? '▼' : '►') : null,
 
                 !this.state.open ? null :
-                    React.createElement(Animated.View, {
-                        key: 'ASUIMenu.slider',
-                            style: {
-                                position: 'absolute',
-                                left: slideInValue,
-                            }
-                        // transform: transformStyle
-                    },
+                    // React.createElement(Animated.View, {
+                    //     key: 'ASUIMenu.slider',
+                    //         style: {
+                    //             // position: 'absolute',
+                    //             paddingLeft: __DEV__ ? 0 : slideInValue,
+                    //         }
+                    //     // transform: transformStyle
+                    // },
                         ASUIDiv.cE({
                             key: 'ASUIMenu.dropdown',
                             class: (this.props.vertical ? 'vertical' : ''),
                             onWheel: e => this.onInputEvent(e),
 
                         }, this.props.dropDownContent),
-                    ),
+                    // ),
 
                 this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ]);

@@ -19,7 +19,7 @@ export default StyleSheet.create({
     },
 
     'ASUIMenu': {
-        minWidth: 160,
+        // minWidth: 160,
 
     },
 
@@ -33,13 +33,14 @@ export default StyleSheet.create({
     },
 
     'ASUIMenu.dropdown': {
-        padding: 8,
-        backgroundColor: '#bdc3c7',
+        // padding: 8,
+        // backgroundColor: '#bdc3c7',
         // zIndex: 11,
         // zIndex: 10,
-        position: 'absolute',
-        height: D.height - 60,
-        top: 35,
+        // position: 'absolute',
+        // height: D.height - 60,
+        // paddingTop: 35,
+        // top: 35,
         // width: 300
         // left: 0,
         // top: 36,
@@ -64,7 +65,9 @@ export default StyleSheet.create({
     'asp-menu-button': {
         padding: 2,
         position: 'absolute',
+        // height: 400,
         // zIndex: 10,
     },
+
 });
 
