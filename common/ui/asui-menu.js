@@ -175,7 +175,8 @@
             return contentList;
         }
 
-        toggleSubMenu(e) {
+        toggleSubMenu(children) {
+
             // let parentMenu = this;
             // while(parentMenu) {
             //     parentMenu.setState({stick:open});
@@ -184,6 +185,12 @@
             this.state.stick = !this.state.stick;
             if(!this.state.open || !isBrowser)
                 this.state.open = this.state.stick;
+            if(this.state.open) {
+
+                if(typeof children === "function")
+                    children = children(this);
+                // TODO
+            }
             this.forceUpdate();
         }
 
@@ -360,7 +367,9 @@
             // }
         }
 
-        static createMenuElement(props, children=null, action=null) {
+
+        static createMenuElement(props, children, action=null) {
+
             children = this.convertStringChildrenToComponent(children);
             return this.createElement(props, children, {
                 action
@@ -369,6 +378,22 @@
         static cME(props, children=null, action=null) {
             return this.createMenuElement(props, children, action);
         }
+
+
+        static createSubMenuElement(props, children, subMenuChildren) {
+            return this.createMenuElement(props, children, (e, menu) => {
+                e.preventDefault();
+                menu.toggleSubMenu(subMenuChildren);
+            })
+        }
+        static cSME(props, children, subMenuChildren) {
+            return this.createSubMenuElement(props, children, subMenuChildren);
+        }
+
+
+
+        static getStyleKeys() { return ['ASUIMenu.class']; }
+
     }
     if(isBrowser)
         customElements.define('asui-menu', ASUIMenu);

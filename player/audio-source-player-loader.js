@@ -109,7 +109,11 @@
     await require('../common/audio-source-file-service.js');
     // await require('../common/audio-source-utilities.js');
 
+    await require('ui/asp-header.js');
+
     await require('audio-source-player-renderer.js');
     await require('audio-source-player-actions.js');
     await require('audio-source-player.js');
+
+
 })();

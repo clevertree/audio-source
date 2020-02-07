@@ -6,6 +6,9 @@
     let ASUIComponentBase;
     let React;
     if(!isBrowser) {
+        const globalStyles = [
+            require('../assets/audio-source-common.style.js').default
+        ];
         React = require('react');
 
         ASUIComponentBase = class extends React.Component {
@@ -52,12 +55,14 @@
                 throw new Error("Not Implemented")
             }
 
+            static addGlobalStyle(styleObject) {
+                globalStyles.push(styleObject)
+            }
 
-
+            static getStyleKeys() { return ['DEFAULT']; }
             static getStyles() {
-                return [
-                    require('../assets/audio-source-common.style.js').default
-                ]
+                // console.log('getStyles', globalStyles);
+                return globalStyles;
             }
 
 
@@ -90,7 +95,7 @@
                     throw new Error("Invalid props: " + typeof props);
                 for(let i=0; i<additionalProps.length; i++)
                     Object.assign(props, additionalProps[i]);
-                this.addStyleList(props, this.name);
+                this.getStyleKeys().forEach(key => this.addStyleList(props, key));
                 if(props.key)
                     this.addStyleList(props, props.key);
                 return props;
@@ -100,7 +105,7 @@
             static convertStringChildrenToComponent(children) {
                 if(typeof children === "string" || typeof children === "number") {
                     const key = this.name + '.default-text';
-                    console.info(`Converting ${this.name} children to string [key=${key}]`, children);
+                    // console.info(`Converting ${this.name} children to string [key=${key}]`, children);
                     const Text = require('react-native').Text;
                     children = React.createElement(Text, {style: this.getStyleListFromKey(key)}, children);
                 }
@@ -258,10 +263,11 @@
                 // while(this.attributes.length > 0)
                 //     this.removeAttribute(this.attributes[0].name);
                 const map = this.getAttributeMap();
-                for(const attrName in map) {
-                    if(map.hasOwnProperty(attrName)) {
-                        if(this.props.hasOwnProperty(attrName)) {
-                            const value = this.props[attrName];
+                for(const propName in map) {
+                    if(map.hasOwnProperty(propName)) {
+                        const attrName = map[propName];
+                        if(this.props.hasOwnProperty(propName)) {
+                            const value = this.props[propName];
                             if (typeof value === 'function')
                                 this[attrName] = value;
                             else if (typeof value === "object" && value !== null)
@@ -342,6 +348,8 @@
                 return props;
             }
 
+            static addStyleList(props, key) { return null; }
+
             static getStyles() {
                 return [];
             }
@@ -398,25 +406,25 @@
 
     /** Text **/
 
-    class ASUIText extends ASUIComponent {
-        // constructor(props = {}) {
-        //     super(props);
-        // }
-
-        renderReactNative() {
-            // console.log('ASUIText', this.props);
-            // const React = require('react');
-            let content = this.props.children; // super.renderReactNative();
-
-            const Text = require('react-native').Text;
-            content = React.createElement(Text, this.props, content);
-            return content;
-        }
-
-    }
-
-    if(isBrowser)
-        customElements.define('asui-text', ASUIText);
+    // class ASUIText extends ASUIComponent {
+    //     // constructor(props = {}) {
+    //     //     super(props);
+    //     // }
+    //
+    //     renderReactNative() {
+    //         // console.log('ASUIText', this.props);
+    //         // const React = require('react');
+    //         let content = this.props.children; // super.renderReactNative();
+    //
+    //         const Text = require('react-native').Text;
+    //         content = React.createElement(Text, this.props, content);
+    //         return content;
+    //     }
+    //
+    // }
+    //
+    // if(isBrowser)
+    //     customElements.define('asui-text', ASUIText);
 
 
     /** Div **/
@@ -533,7 +541,7 @@
     thisModule.exports = {
         ASUIComponent,
         ASUIDiv,
-        ASUIText,
+        // ASUIText,
         ASUIIcon,
         ASUITouchableHighlight
     };

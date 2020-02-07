@@ -9,7 +9,7 @@
     const {
         ASUIComponent,
         ASUIDiv,
-        ASUIText,
+        // ASUIText,
         ASUIIcon
     } = require('../common/ui/asui-component.js');
     const {ASUIMenu} = require('../common/ui/asui-menu.js');
@@ -20,15 +20,18 @@
     const {ASUIInputRange} = require('../common/ui/asui-input-range.js');
     const {ASUIInputText} = require('../common/ui/asui-input-text.js');
 
+    const {ASPHeader} = require('./ui/asp-header.js');
+
+    if(!isBrowser)
+        ASUIComponent.addGlobalStyle(require('./assets/audio-source-player.style.js').default);
 
     class AudioSourcePlayerRenderer extends ASUIComponent {
-        constructor(props={}, state={}) {
-            super(props, Object.assign({
-                menuKey: null,
-                fullscreen: false,
-                showPanelSong: true,
-                showPanelPlaylist: true,
-            }, state));
+        constructor(props={}) {
+            super(props);
+            this.state.menuKey = null;
+            this.state.fullscreen = false;
+            this.state.showPanelSong = true;
+            this.state.showPanelPlaylist = true;
             this.shadowDOM = null;
 
         }
@@ -55,7 +58,7 @@
             RNRestart.Restart();
         }
 
-        switchToMenu(menuKey) {
+        openSubMenu(menuKey) {
             this.state.menuKey = menuKey;
             // if(this.props.onUpdateMenu)
                 this.props.onUpdateMenu();
@@ -67,15 +70,15 @@
                 this.props.onToggleMenu();
         }
 
-        renderMenu() {
-            console.log('renderMenu', this.state.menuKey);
-            switch(this.state.menuKey) {
+        renderMenu(menuKey = null) {
+            console.log('renderMenu', menuKey);
+            switch(menuKey) {
                 default:
                     return [
                         ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
-                        ASUIMenu.cME('file',        'File',     (e) => this.switchToMenu('file')),
-                        ASUIMenu.cME('playlist',    'Playlist', (e) => this.switchToMenu('playlist')),
-                        ASUIMenu.cME('view',        'View',     (e) => this.switchToMenu('view')),
+                        ASUIMenu.cSME('file',        'File',     () => this.renderMenu('file')),
+                        ASUIMenu.cSME('playlist',    'Playlist', () => this.renderMenu('playlist')),
+                        ASUIMenu.cSME('view',        'View',     () => this.renderMenu('view')),
                     ];
 
                 case 'file':
@@ -113,8 +116,6 @@
         }
 
         render() {
-
-            // console.log('ohok');
             return [
                 // require('react').createElement(require('react-native-webview').WebView, {
                 //     source: {uri: Platform.OS ==='android' ?'file:///android_asset/html/index.html' :'./external/html/index.html'}, key: 'browser', width: 200, height: 200
@@ -124,35 +125,31 @@
                     this.createStyleSheetLink('../common/assets/audio-source-common.css', thisModule),
                 ] : null,
                 this.containerElm = ASUIDiv.cE('asp-container', [
-                    ASUIDiv.cE('asp-title-container', [
-                        ASUIText.cE({onclick: e => this.restart(), key: 'asp-title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
-
-
-                        /** Menu Button **/
-                        ASUIMenu.cME({key: 'asp-menu-button', arrow: false},
-                            ASUIIcon.createIcon('menu'),
-                            (e) => this.toggleMenu()
-                        ),
-                    ]),
+                    ASPHeader.cE({
+                        // portrait: !!this.state.portrait,
+                        key: 'asp-title-container',
+                        menuContent: () => this.renderMenu(this.state.menuKey),
+                        // onMenuPress: (e) => this.toggleMenu()
+                    }),
 
                     ASUIDiv.cE('asp-forms-container', [
                         ASPPanel.cE('song', [
                             ASUIDiv.cE('title', 'Song'),
                             ASPForm.cE('playback', [
                                 ASUIDiv.cE('title', 'Playback'),
-                                ASUIInputButton.createInputButton('song-play',
+                                ASUIInputButton.cIB('song-play',
                                     ASUIIcon.createIcon('play'),
                                     e => this.playlistPlay(e),
                                     "Play Song"),
-                                ASUIInputButton.createInputButton('song-pause',
+                                ASUIInputButton.cIB('song-pause',
                                     ASUIIcon.createIcon('pause'),
                                     e => this.playlistPause(e),
                                     "Pause Song"),
-                                ASUIInputButton.createInputButton('song-stop',
+                                ASUIInputButton.cIB('song-stop',
                                     ASUIIcon.createIcon('stop'),
                                     e => this.playlistStop(e),
                                     "Stop Song"),
-                                ASUIInputButton.createInputButton('song-next',
+                                ASUIInputButton.cIB('song-next',
                                     ASUIIcon.createIcon('next'),
                                     e => this.playlistNext(e),
                                     "Next Song")
@@ -218,7 +215,7 @@
                             ]),
 
                             ASPForm.cE('source', [
-                                this.fieldSongVersion = ASUIInputButton.createInputButton('version',
+                                this.fieldSongVersion = ASUIInputButton.cIB('version',
                                     "Edit<br/>Source",
                                     (e) => this.openSongSource(e),
                                     "Open Song Source",
@@ -238,8 +235,8 @@
                     ]),
 
                     ASUIDiv.cE('asp-status-container', [
-                        ASUIDiv.cE({key: 'status-text', ref:ref=>this.textStatus=ref}, this.state.status),
-                        ASUIDiv.cE({key: 'version-text', ref:ref=>this.textVersion=ref}, this.state.version),
+                        ASUIDiv.cE({key: 'asp-status-text', ref:ref=>this.textStatus=ref}, this.state.status),
+                        ASUIDiv.cE({key: 'asp-version-text', ref:ref=>this.textVersion=ref}, this.state.version),
                     ]),
 
                 ])

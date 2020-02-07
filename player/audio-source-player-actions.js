@@ -12,8 +12,8 @@
     }                                   = require('../player/audio-source-player-renderer.js');
 
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
-        constructor(props={}, state={}) {
-            super(props, state);
+        constructor(props={}) {
+            super(props);
             this._onSongEventCallback = (e) => this.onSongEvent(e);
 
             // this.activeSong = null;

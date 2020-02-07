@@ -26,23 +26,17 @@
 
     class AudioSourcePlayerElement extends AudioSourcePlayerActions {
         constructor(props=null) {
-            super(props, {
-                playlist: {
-                    entries: []
-                },
-                volume: AudioSourceSong.DEFAULT_VOLUME,
-
-                status: "[No Song Loaded]",
-                version: -1,
-                songLength: 0,
-
-                playlistActive: false,
-                playing: false,
-                paused: false,
-
-
-
-            });
+            super(props);
+            this.state.playlist = {
+                entries: []
+            };
+            this.state.volume = AudioSourceSong.DEFAULT_VOLUME;
+            this.state.status = "[No Song Loaded]";
+            this.state.version = -1;
+            this.state.songLength = 0;
+            this.state.playlistActive = false;
+            this.state.playing = false;
+            this.state.paused= false;
 
             this.audioContext = null;
             this.volumeGain = null;

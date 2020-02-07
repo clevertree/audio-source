@@ -20,7 +20,10 @@ export default StyleSheet.create({
 
     'ASUIMenu': {
         // minWidth: 160,
+        // margin: 1,
         padding: 6,
+        borderWidth: 1,
+        borderColor: '#666',
         backgroundColor: '#bdc3c7',
 
     },
@@ -51,8 +54,8 @@ export default StyleSheet.create({
 
     'asp-title-container': {
         borderColor: '#333',
-        borderWidth: 1,
-        borderRadius: 1,
+        // borderWidth: 1,
+        // borderRadius: 1,
         backgroundColor: '#bdc3c7',
     },
 
@@ -62,13 +65,6 @@ export default StyleSheet.create({
         fontSize: 18,
         padding: 4,
         color: "#333",
-    },
-
-    'asp-menu-button': {
-        padding: 0,
-        position: 'absolute',
-        // height: 400,
-        // zIndex: 10,
     },
 
 });

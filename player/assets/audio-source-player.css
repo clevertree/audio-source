@@ -39,6 +39,14 @@ asui-div[key=asp-container] {
     flex-direction: column;
 }
 
+asui-div[key=asp-title-container] {
+    /* display: flex; */
+    /* width: 100%; */
+    /* flex-direction: row; */
+    background-color: #bdc3c7;
+    padding: 2px;
+}
+
 asui-div[key=asp-menu-container] {
     background-color: #bdc3c7;
     padding: 2px;
@@ -53,24 +61,26 @@ asui-div[key=asp-status-container] {
 }
 
 
-asui-div[key=asp-menu-container] > asui-menu[key=menu-button] {
+asui-input-button[key=asp-menu-button] {
     float: left;
     /* float: right; */
+    /* align-items: flex-start; */
 }
-asui-div[key=asp-menu-container] asui-div[key=title-text]{
-    position: absolute;
+asui-div[key=asp-title-text]{
+    /* position: absolute; */
     /* display: block; */
-    width: 100%;
+    /* width: 100%; */
     /* margin: auto; */
     text-align: center;
+    align-items: center;
     padding-top: 3px;
     font-weight: bold;
     color: #333;
 }
-asui-div[key=asp-status-container] asui-div[key=status-text]{
+asui-div[key=asp-status-text]{
     padding-left: 4px;
 }
-asui-div[key=asp-status-container] asui-div[key=version-text] {
+asui-div[key=asp-version-text] {
     /* float: right; */
     padding-right: 4px;
     margin-left: auto;

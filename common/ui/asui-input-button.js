@@ -22,28 +22,41 @@
         //     };
         // }
 
+        getAttributeMap() {
+            return Object.assign({}, super.getAttributeMap(), {
+                onPress: 'onclick',
+            });
+        }
+
         onInput(e) {
             if(!this.props.disabled)
                 this.state.callback(e, this.value);
         }
 
-        render() {
-            // if(!(this.props.children instanceof ASUIComponent)) {
-            //     const divElm = ASUIDiv.createElement('div');
-            //     divElm.innerHTML = this.props.children;
-            //     return divElm;
-            // }
-            if(!isBrowser) {
-                return ASUITouchableHighlight.createElement({
+
+        renderReactNative() {
+            const React = require('react');
+            const {View, TouchableHighlight} = require('react-native');
+            return React.createElement(View, this.props,
+                React.createElement(TouchableHighlight, {
                     onPress: this.props.onPress
                 }, this.getChildren())
-            }
+            );
+        }
+
+        renderBrowser() {
             return this.getChildren();
         }
 
 
+        static cIB(props, children = null, onPress = null, title = null) {
+            return ASUIInputButton.createInputButton(props, children, onPress, title);
+        }
+
         static createInputButton(props, children = null, onPress = null, title = null) {
+            // props = this.processProps(props);
             children = this.convertStringChildrenToComponent(children);
+            // console.log('ASUIInputButton', arguments);
             return this.createElement(props, children, {
                 onPress,
                 title,
