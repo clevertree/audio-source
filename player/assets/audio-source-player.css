@@ -52,6 +52,10 @@ asui-div[key=asp-menu-container] {
     padding: 2px;
 }
 
+asui-div[key=asp-menu-container] > asui-menu {
+    min-width: 120px;
+}
+
 /** Status Bar **/
 asui-div[key=asp-status-container] {
     display: flex;

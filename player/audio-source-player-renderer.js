@@ -75,7 +75,7 @@
             switch(menuKey) {
                 default:
                     return [
-                        ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
+                        // ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
                         ASUIMenu.cSME('file',        'File',     () => this.renderMenu('file')),
                         ASUIMenu.cSME('playlist',    'Playlist', () => this.renderMenu('playlist')),
                         ASUIMenu.cSME('view',        'View',     () => this.renderMenu('view')),

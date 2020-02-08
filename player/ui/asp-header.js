@@ -21,8 +21,11 @@
         renderLandscape() {
             let menuContent = this.props.menuContent;
             if(typeof menuContent === "function")
-                menuContent = menuContent(this);
-            return menuContent;
+                menuContent = menuContent(this); // TODO: cause dropdown
+            return [
+                ASUIDiv.cE({onclick: e => this.restart(), key: 'asp-title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
+                ASUIDiv.cE('asp-menu-container', menuContent),
+            ]
         }
 
         renderPortrait() {

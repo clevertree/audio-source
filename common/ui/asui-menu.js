@@ -20,45 +20,7 @@
                 open: props.open || false,
                 stick: false,
             });
-            // this.props.stick = false;
-            // this.props.open = false;
-            // this.action = actionCallback;
-            // this.addEventHandler('mouseover', this.onInputEvent);
-            // this.addEventHandler('mouseout', this.onInputEvent);
-            // this.addEventHandler('mouseout', e => this.onInputEvent(e), document);
-            // this.addEventHandler('click', this.onInputEvent);
-            // this.addEventHandler('change', this.onInputEvent);
-            // this.addEventHandler('keydown', this.onInputEvent);
         }
-
-        // getAttributeMap() {
-        //     return {
-        //         class: 'class',
-        //         stick: 'stick',
-        //         open: 'open',
-        //         // vertical: 'vertical',
-        //     }
-        // }
-
-        // static getDefaultProps() {
-        //     const callback = e => this.onInputEvent(e);
-        //     return {
-        //         onKeyDown: callback,
-        //         onChange: callback,
-        //         onMouseOut: callback,
-        //         onMouseOver: callback,
-        //         onPress: callback,
-        //         onPressIn: callback,
-        //         onPressOut: callback,
-        //     };
-        // }
-        // async setTitle(newTitle) {
-        //     this.state.menuContent = newTitle;
-        //     if(this.menuContent)
-        //         await this.menuContent.setState({content: newTitle});
-        //     else
-        //         await this.setState({title});
-        // }
 
         connectedCallback() {
             super.connectedCallback();
@@ -72,28 +34,45 @@
                 .forEach(eventName => this.removeEventListener(eventName, this.onInputEvent));
         }
 
+        getSubMenuChildren() {
+            let subMenuChildren = this.props.subMenuChildren;
+            if(typeof subMenuChildren === "function")
+                subMenuChildren = subMenuChildren(this);
+            return subMenuChildren;
+        }
+
         renderBrowser() {
             let arrow = false;
-            if(this.props.dropDownContent && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
+            if(this.props.subMenuChildren && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
                 arrow = true;
-            let children = this.getChildren();
+
             return [
                 ASUIDiv.cE({
-                    onclick: e => this.doMenuAction(e),
-                    key: 'title',
-                    class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
-                },
-                    children,
+                        onclick: e => this.doMenuAction(e),
+                        key: 'title',
+                        class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
+                    },
+                    this.getChildren(),
                 ),
-                arrow ? ASUIText.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+                arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+
+                // ASUIDropDownMenu.cE({
+                //         ref: ref => this.dropdown = ref,
+                //         // open: this.state.open,
+                //         children: this.props.subMenuChildren,
+                //         key: 'dropdown',
+                //         class: (this.props.vertical ? 'vertical' : ''),
+                //     },
+                // ),
                 !this.state.open ? null : ASUIDiv.cE({
                     key: 'dropdown',
                     class: (this.props.vertical ? 'vertical' : ''),
                     onWheel: e => this.onInputEvent(e)
-                }, this.props.dropDownContent),
+                }, this.getSubMenuChildren()),
                 this.props.hasBreak ? ASUIDiv.createElement('break') : null,
             ];
         }
+
 
         renderReactNative() {
             const {Animated, Easing} = require('react-native');
@@ -175,38 +154,32 @@
             return contentList;
         }
 
-        toggleSubMenu(children) {
+        toggleSubMenu() {
 
             // let parentMenu = this;
             // while(parentMenu) {
             //     parentMenu.setState({stick:open});
             //     parentMenu = parentMenu.parentNode.closest('asui-menu');
             // }
-            this.state.stick = !this.state.stick;
-            if(!this.state.open || !isBrowser)
-                this.state.open = this.state.stick;
-            if(this.state.open) {
+            const stick = !this.state.stick;
+            this.setState({stick});
 
-                if(typeof children === "function")
-                    children = children(this);
-                // TODO
-            }
-            this.forceUpdate();
+            // this.state.stick = !this.state.stick;
+            // if(!this.state.open || !isBrowser)
+            //     this.state.open = this.state.stick;
+            // this.state.open ? this.openSubmenu() : this.closeSubmenu();
         }
 
-        close() {
-            if(this.state.open !== false) {
-                this.setState({open: false, stick:false});
-                // await this.dropdown.setContent(null);
-            }
+        closeSubmenu() {
+            if(this.state.open !== false)
+                this.setState({open: false});
         }
 
-        open() {
-            if(this.state.open !== true) {
+        openSubmenu() {
+            if(this.state.open !== true)
                 this.setState({open: true});
                 // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
-            }
-            this.closeAllMenusButThis();
+            // this.closeAllMenusButThis();
         }
 
         doMenuAction(e) {
@@ -269,17 +242,17 @@
                 case 'mouseover':
                     clearTimeout(this.mouseTimeout);
                     this.mouseTimeout = setTimeout(e => {
-                        this.open();
+                        this.openSubmenu();
                     }, 100);
                     break;
 
                 case 'mouseout':
-                    if(!this.state.stick) {
-                        clearTimeout(this.mouseTimeout);
-                        this.mouseTimeout = setTimeout(e => {
-                            this.close();
-                        }, 400);
-                    }
+                    clearTimeout(this.mouseTimeout);
+                    this.mouseTimeout = setTimeout(e => {
+                        if(!this.state.stick) {
+                            this.closeSubmenu();
+                        }
+                    }, 400);
                     break;
 
                 case 'click':
@@ -287,7 +260,7 @@
                         return;
                     console.log(e.type, this);
                     e.preventDefault();
-                    this.doMenuAction();
+                    this.doMenuAction(e);
                     break;
 
                 case 'keydown':
@@ -368,23 +341,23 @@
         }
 
 
-        static createMenuElement(props, children, action=null) {
+        static createMenuElement(props, children, action=null, subMenuChildren=null) {
 
             children = this.convertStringChildrenToComponent(children);
             return this.createElement(props, children, {
-                action
+                action, subMenuChildren
             });
         }
-        static cME(props, children=null, action=null) {
-            return this.createMenuElement(props, children, action);
+        static cME(props, children=null, action=null, subMenuChildren=null) {
+            return this.createMenuElement(props, children, action, subMenuChildren);
         }
 
 
         static createSubMenuElement(props, children, subMenuChildren) {
             return this.createMenuElement(props, children, (e, menu) => {
                 e.preventDefault();
-                menu.toggleSubMenu(subMenuChildren);
-            })
+                menu.toggleSubMenu();
+            }, subMenuChildren)
         }
         static cSME(props, children, subMenuChildren) {
             return this.createSubMenuElement(props, children, subMenuChildren);
@@ -398,6 +371,23 @@
     if(isBrowser)
         customElements.define('asui-menu', ASUIMenu);
 
+
+    class ASUIDropDownMenu extends ASUIComponent {
+        render() {
+            return [
+                !this.state.open ? null : this.getChildren(),
+            ]
+            // return [
+            //     !this.props.open ? null : ASUIDiv.cE({
+            //         key: 'dropdown',
+            //         class: (this.props.vertical ? 'vertical' : ''),
+            //         onWheel: e => this.onInputEvent(e)
+            //     }, this.getSubMenuChildren()),
+            // ]
+        }
+    }
+    if(isBrowser)
+        customElements.define('asui-menu-dropdown', ASUIDropDownMenu);
 
     // class ASUIMenuContainer extends ASUIComponent {
     //     constructor(props={}) {

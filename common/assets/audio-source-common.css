@@ -178,7 +178,7 @@ asui-menu:hover {
 }
 
 /** Menu Title **/
-asui-menu asui-menu > [key=title] {
+asui-menu > [key=title] {
     /* overflow: hidden; */
     /*min-width: 24px;*/
     display: block;
