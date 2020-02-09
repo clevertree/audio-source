@@ -30,6 +30,7 @@
             super(props);
             this.state.menuKey = null;
             this.state.fullscreen = false;
+            this.state.portrait = false;
             this.state.showPanelSong = true;
             this.state.showPanelPlaylist = true;
             this.shadowDOM = null;
@@ -74,11 +75,12 @@
             console.log('renderMenu', menuKey);
             switch(menuKey) {
                 default:
+                    const vertical = !this.state.portrait;
                     return [
                         // ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
-                        ASUIMenu.cSME('file',        'File',     () => this.renderMenu('file')),
-                        ASUIMenu.cSME('playlist',    'Playlist', () => this.renderMenu('playlist')),
-                        ASUIMenu.cSME('view',        'View',     () => this.renderMenu('view')),
+                        ASUIMenu.cSME({vertical, key:'file'},        'File',     () => this.renderMenu('file')),
+                        ASUIMenu.cSME({vertical, key:'playlist'},    'Playlist', () => this.renderMenu('playlist')),
+                        ASUIMenu.cSME({vertical, key:'view'},        'View',     () => this.renderMenu('view')),
                     ];
 
                 case 'file':
