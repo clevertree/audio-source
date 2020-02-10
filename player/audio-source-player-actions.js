@@ -52,11 +52,11 @@
         }
 
         /** @deprecated **/
-        handleError(err) {
-            this.setStatus(`<span style="error">${err}</span>`);
-            console.error(err);
-            // if(this.webSocket)
-        }
+        // handleError(err) {
+        //     this.setStatus(`<span style="error">${err}</span>`);
+        //     console.error(err);
+        //     // if(this.webSocket)
+        // }
 
         setStatus(newStatus) {
             console.info.apply(null, arguments); // (newStatus);
@@ -68,7 +68,7 @@
         setVersion(versionString) {
             this.state.version = versionString;
             if(this.textVersion)
-                this.textVersion.content = versionString;
+                this.textVersion.forceUpdate();
         }
 
 
@@ -236,7 +236,7 @@
             const playlist = this.state.playlist;
             if(!playlist.entries)
                 playlist.entries = [];
-            const entries = this.state.playlist.entries;
+            const entries = playlist.entries;
             if(insertAtPosition === null) {
                 insertAtPosition = entries.length;
                 entries.push(entryData);
@@ -247,9 +247,8 @@
 
         addSongURLToPlaylist(url, name=null, length=null) {
             this.addEntryToPlaylist({url, name, length});
-            console.warn("TODO: refresh playlist");
-            // this.forceUpdate();
-            // await this.playlist.addSongURLToPlaylist(url, name, length);
+            if(this.playlist)
+                this.playlist.forceUpdate();
             this.setStatus("Added URL to playlist: " + url);
         }
 

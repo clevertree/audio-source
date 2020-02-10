@@ -109,6 +109,8 @@
     await require('../common/audio-source-file-service.js');
     // await require('../common/audio-source-utilities.js');
 
+    await require('ui/asp-playlist-entry.js');
+    await require('ui/asp-playlist.js');
     await require('ui/asp-header.js');
 
     await require('audio-source-player-renderer.js');

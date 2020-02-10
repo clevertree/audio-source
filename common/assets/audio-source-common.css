@@ -182,7 +182,7 @@ asui-menu > [key=title] {
     /* overflow: hidden; */
     /*min-width: 24px;*/
     display: block;
-    padding: 3px 19px 3px 6px;
+    padding: 0 6px 0 4px;
 }
 
 /** Menu Stick **/
@@ -215,6 +215,9 @@ asui-div[key=dropdown] > asui-menu {
     /* padding: 3px 0px; */
 }
 
+asui-div[key=dropdown] > asui-menu > [key=title] {
+    padding: 3px 19px 3px 6px;
+}
 asui-menu > asui-div[key=dropdown] {
     background-color: #bdc3c7;
     /* display: inline-block; */

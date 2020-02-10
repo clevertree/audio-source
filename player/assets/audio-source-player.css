@@ -39,21 +39,21 @@ asui-div[key=asp-container] {
     flex-direction: column;
 }
 
-asui-div[key=asp-title-container] {
+asp-header[key=asp-title-container] {
     /* display: flex; */
     /* width: 100%; */
     /* flex-direction: row; */
-    background-color: #bdc3c7;
-    padding: 2px;
+    background-color: #888;
+    /* padding: 2px; */
 }
 
 asui-div[key=asp-menu-container] {
     background-color: #bdc3c7;
-    padding: 2px;
 }
 
 asui-div[key=asp-menu-container] > asui-menu {
-    min-width: 120px;
+    /* min-width: 120px; */
+    /* padding: 0px 8px 0px 0px; */
 }
 
 /** Status Bar **/
@@ -170,7 +170,6 @@ asui-div[key=asp-playlist-container] {
 
 
 asuig-row.asp-playlist-header,
-aspp-playlist-entry,
 aspp-entry {
     display: block;
     /* min-width: 180px; */
@@ -182,7 +181,6 @@ aspp-entry {
     /* border-collapse: initial; */
 }
 asuig-row[key=asp-playlist-header] > asui-div,
-aspp-playlist-entry > asui-div,
 aspp-entry > asui-div {
      padding: 3px 0px;
 }
@@ -212,9 +210,9 @@ aspp-playlist-entry[status=loading],
 aspp-entry[status=loading] {
     background: #bfb9da;
 }
-aspp-entry[position] {
+aspp-entry.position {
     background: #9bbdff;
 }
-aspp-entry[selected] {
+aspp-entry.selected {
     background: #AAA;
 }

@@ -164,6 +164,12 @@
             const stick = !this.state.stick;
             this.setState({stick});
 
+            let parentMenu = this;
+            while((parentMenu.parentNode) && (parentMenu = parentMenu.parentNode.closest('asui-menu'))) {
+                parentMenu.state.stick = stick;
+                // parentMenu.setState({stick}); // Don't re-render parent
+            }
+
             // this.state.stick = !this.state.stick;
             // if(!this.state.open || !isBrowser)
             //     this.state.open = this.state.stick;

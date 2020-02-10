@@ -31,8 +31,6 @@
                 entries: []
             };
             this.state.volume = AudioSourceSong.DEFAULT_VOLUME;
-            this.state.status = "[No Song Loaded]";
-            this.state.version = -1;
             this.state.songLength = 0;
             this.state.playlistActive = false;
             this.state.playing = false;
