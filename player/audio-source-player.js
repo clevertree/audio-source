@@ -34,7 +34,8 @@
             this.state.songLength = 0;
             this.state.playlistActive = false;
             this.state.playing = false;
-            this.state.paused= false;
+            this.state.paused = false;
+            // this.state.position = 0;
 
             this.audioContext = null;
             this.volumeGain = null;
@@ -54,12 +55,12 @@
         //     };
         // }
 
-        get isPlaylistActive()      { return this.state.playlistActive; }
-        set isPlaylistActive(value) { this.setStatus({playlistActive: value}); }
-        get isPlaying()             { return this.state.playing; }
-        set isPlaying(value)        { this.setStatus({playing: value}); }
-        get isPaused()              { return this.state.paused; }
-        set isPaused(value)         { this.setStatus({paused: value}); }
+        // get isPlaylistActive()      { return this.state.playlistActive; }
+        // set isPlaylistActive(value) { this.setStatus({playlistActive: value}); }
+        // get isPlaying()             { return this.state.playing; }
+        // set isPlaying(value)        { this.setStatus({playing: value}); }
+        // get isPaused()              { return this.state.paused; }
+        // set isPaused(value)         { this.setStatus({paused: value}); }
 
         get values() { return new AudioSourceValues(this.song); }
 
@@ -178,22 +179,28 @@
                         this.containerElm.classList.remove('playing');
                     }
 
-                    this.fieldSongPlaybackPause.disabled = false;
+                    this.setState({playing: true, paused: false});
+                    // this.fieldSongPlaybackPause.disabled = false;
                     this.updateSongPositionMaxLength(this.song.getSongLengthInSeconds());
                     const updateSongPositionInterval = setInterval(e => {
                         if (!this.song.isPlaying) {
                             clearInterval(updateSongPositionInterval);
-                            this.fieldSongPlaybackPause.disabled = true;
-                            this.containerElm.classList.remove('playing');
-                            this.classList.remove('playing');
+                            // this.fieldSongPlaybackPause.disabled = true;
+                            this.setState({playing: false, paused: false});
+                            // this.containerElm.classList.remove('playing');
+                            // this.classList.remove('playing');
                         }
                         this.updateSongPositionValue(this.song.songPlaybackPosition);
                     }, 10);
                     break;
 
-                case 'song:end':
                 case 'song:pause':
-                    this.containerElm.classList.remove('playing');
+                    this.setState({paused: true});
+                    // this.containerElm.classList.remove('playing');
+                    break;
+                case 'song:end':
+                    this.setState({playing: false, paused: false});
+                    // this.containerElm.classList.remove('playing');
                     break;
             }
         }

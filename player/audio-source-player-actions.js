@@ -42,10 +42,10 @@
             this.state.songLength = song.getSongLengthInSeconds();
             // this.song.setVolume(this.state.volume);
             // this.song.addDispatchElement(this);
-            song.playlistPosition = this.playlist.getPlaylistPosition();
-            const currentEntry = await this.playlist.getCurrentEntry();
-            await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()});
-            await this.panelSong.forceUpdate();
+            song.playlistPosition = this.getCurrentEntryPosition();
+            // const currentEntry = await this.getCurrentEntry();
+            // await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()}); // TODO: use this?
+            await this.forceUpdate();
             await this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
             await this.setStatus("Loaded song: " + song.name);
@@ -159,50 +159,6 @@
 //         }
 
 
-
-        async loadSongFromURL(url) {
-            const song = this.playerElm.song;
-            if(this.isPlaylist(url)) {
-                const playlistEntry = new ASPPlaylistPlaylistEntry({url    });
-                this.addEntry(playlistEntry);
-                await this.forceUpdate();
-                // await this.loadPlaylistFromURL(url);
-                // const entry = this.getCurrentEntry();
-                // if(entry.url && !this.isPlaylist(entry.url))
-                //     await this.loadSongFromPlaylistEntry(this.position);
-            } else {
-                await song.loadSongFromURL(url);
-                await this.setStatus("Loaded from url: " + url);
-//                 this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
-            }
-            // this.render();
-        }
-
-        async moveToNextSongPlaylistEntry() {
-
-        }
-
-        async loadSongFromPlaylistEntry() {
-            const currentEntry = await this.playlist.getCurrentEntry();
-
-            let song;
-            if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
-                throw new Error("Implement")
-            } else {
-                if(currentEntry.file) {
-                    this.setStatus("Loading playlist song from file: " + currentEntry.file.name);
-                    song = await AudioSourceSong.loadSongFromFileInput(currentEntry.file);
-                } else if(currentEntry.url) {
-                    this.setStatus("Loading playlist song from url: " + currentEntry.url);
-                    song = await AudioSourceSong.loadSongFromURL(currentEntry.url);
-                }
-            }
-            return song;
-            // this.setPositionEntry(currentEntry);
-
-            // song.playlistPosition = this.position;
-            // this.render();
-        }
         // async loadSongFromPlaylistEntry(playlistPosition) {
         //     // this.setStatus("Loading from playlist: " + url);
         //     await this.playlist.loadSongFromURL(playlistPosition);
@@ -218,10 +174,11 @@
         /** Entries **/
 
 
+        getCurrentEntryPosition() { return this.state.playlist.position || 0; }
         getCurrentEntry(throwException=true) {
             if(this.state.playlist.entries.length === 0)
                 throw new Error("Empty playlist");
-            return this.getEntry(this.getPlaylistPosition(), throwException);
+            return this.getEntry(this.getCurrentEntryPosition(), throwException);
         }
 
         getEntry(position, throwException=true) {
@@ -238,29 +195,6 @@
             // console.log('found', foundEntry.state.id, position);
             return foundEntry;
         }
-
-        // findEntryPosition(findEntry) {
-        //     if(findEntry instanceof ASPPlaylistEntry)
-        //         findEntry = findEntry.props.data;
-        //     let foundPosition = -1;
-        //     this.eachEntry((entry, position) => {
-        //         if(findEntry === entry) {
-        //             foundPosition = position;
-        //             return false;
-        //         }
-        //     });
-        //     return foundPosition;
-        // }
-
-        selectEntries(selectedPositions) {
-            if(!Array.isArray(selectedPositions))
-                selectedPositions = [selectedPositions];
-            this.setState({selectedPositions}); // TODO: optimize
-        }
-
-
-
-        // parseEntryData(entryData) { return this.player.parseEntryData(entryData); }
 
 
         eachEntry(callback) {
@@ -287,29 +221,84 @@
         }
 
         async toggleEntryAtPosition(entryPosition) {
-            const entry = this.getEntry(entryPosition);
-            if(this.isPlaylist(entry.url)) {
-                entry.open = !entry.open;
-                if(entry.open === true) {
-                    if(!entry.playlist) {
-                        entry.loading = true;
-                        this.playlist.forceUpdate();
-                        entry.playlist = await this.loadPlaylistDataFromURL(entry.url);
-                        delete entry.loading;
-                    }
-
-                }
-                this.playlist.forceUpdate();
+            const entryData = this.getEntry(entryPosition);
+            if(this.isPlaylist(entryData.url)) {
+                await this.togglePlaylistEntry(entryData);
             } else {
-                console.log("TODO Play", entryPosition, entry);
+                if(this.state.playlist.position !== entryPosition) {
+                    this.state.playlist.position = entryPosition;
+                    this.playlistPlay();
+                } else {
+                    console.warn('no action');
+                }
 
             }
         }
 
-        isPlaylist(entryUrl) {
-            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
+        async togglePlaylistEntry(entryData) {
+            if(!this.isPlaylist(entryData.url))
+                throw new Error("Invalid playlist entry");
+            entryData.open = !entryData.open;
+            if(entryData.open === true) {
+                if(!entryData.playlist) {
+                    entryData.loading = true;
+                    this.playlist.forceUpdate();
+                    entryData.playlist = await this.loadPlaylistDataFromURL(entryData.url);
+                    delete entryData.loading;
+                }
+
+            }
+            this.playlist.forceUpdate();
         }
 
+        playEntry(entryData) {
+
+        }
+
+        /** Loading **/
+
+        /** @deprecated **/
+        async loadSongFromURL(url) {
+            const song = this.song;
+            if(this.isPlaylist(url)) {
+                const playlistEntry = new ASPPlaylistPlaylistEntry({url});
+                this.addEntry(playlistEntry);
+                await this.forceUpdate();
+                // await this.loadPlaylistFromURL(url);
+                // const entry = this.getCurrentEntry();
+                // if(entry.url && !this.isPlaylist(entry.url))
+                //     await this.loadSongFromPlaylistEntry(this.position);
+            } else {
+                await song.loadSongFromURL(url);
+                await this.setStatus("Loaded from url: " + url);
+//                 this.addSongURLToPlaylist(url, song.name, song.getSongLengthInSeconds());
+            }
+            // this.render();
+        }
+
+
+        async loadSongFromPlaylistEntry() {
+            const currentEntry = await this.getCurrentEntry();
+
+            let song;
+            if(this.isPlaylist(currentEntry.url))
+                throw new Error("Invalid song (playlist): " + currentEntry.url);
+
+            if(currentEntry.file) {
+                this.setStatus("Loading playlist song from file: " + currentEntry.file.name);
+                song = await AudioSourceSong.loadSongFromFileInput(currentEntry.file);
+            } else if(currentEntry.url) {
+                this.setStatus("Loading playlist song from url: " + currentEntry.url);
+                song = await AudioSourceSong.loadSongFromURL(currentEntry.url);
+            } else {
+                throw new Error("Invalid song entry: " + JSON.stringify(currentEntry));
+            }
+            return song;
+            // this.setPositionEntry(currentEntry);
+
+            // song.playlistPosition = this.position;
+            // this.render();
+        }
 
         async loadPlaylistDataFromURL(playlistURL) {
             console.log("Loading playlist: ", playlistURL);
@@ -345,6 +334,144 @@
             return playlistData;
         }
 
+        addEntryToPlaylist(entryData, insertAtPosition=null) {
+            entryData = this.parseEntryData(entryData);
+            const playlist = this.state.playlist;
+            if(!playlist.entries)
+                playlist.entries = [];
+            const entries = playlist.entries;
+            if(insertAtPosition === null) {
+                insertAtPosition = entries.length;
+                entries.push(entryData);
+            } else {
+                entries.splice(insertAtPosition, 0, entryData);
+            }
+        }
+
+
+        // addSongURLToPlaylist(url, name=null, length=null) {
+        //     this.addEntryToPlaylist({url, name, length});
+        //     if(this.playlist)
+        //         this.playlist.forceUpdate();
+        //     this.setStatus("Added URL to playlist: " + url);
+        // }
+        // addSongFileToPlaylist(file, name=null, length=null) {
+        //     const entryData = {
+        //         url: 'file://' + file.name,
+        //         name: name || file.name.split('/').pop(),
+        //         length
+        //     };
+        //     this.addEntryToPlaylist(entryData);
+        //     this.forceUpdate();
+        //     this.setStatus("Added file to playlist: " + file.name);
+        // }
+
+        scrollToEntry(entryPosition) {
+            console.log('TODO scrollToEntry', entryPosition)
+            // (currentEntry.scrollIntoViewIfNeeded || currentEntry.scrollIntoView).apply(currentEntry);
+        }
+
+        /** Playback **/
+
+        async playlistPlay() {
+            // this.playlistStop();
+            let position = this.getCurrentEntryPosition();
+            if(this.song && this.song.playlistPosition === position) {
+                if(this.song.isPaused)
+                    return this.song.resume();
+                if(this.song.isPlaying)
+                    throw new Error("Song is already playing");
+                await this.setCurrentSong(this.song);
+                await this.setStatus("Playing: " + this.song.name);
+                return await this.song.play(this.getVolumeGain());
+            }
+            // let entry = await this.playlist.getCurrentEntry();
+            // if(entry instanceof ASPPlaylistPlaylistEntry)
+            //     entry = await this.playlistMoveToNextSongEntry();
+
+            this.setState({playing: true});
+            let currentEntry = await this.getCurrentEntry();
+            while(this.state.playing) {
+                this.scrollToEntry(this.getCurrentEntryPosition());
+                const currentSong = await this.loadSongFromPlaylistEntry();
+                await this.setCurrentSong(currentSong);
+                await this.setStatus("Playing: " + currentSong.name);
+                await currentSong.play(this.getVolumeGain());
+                if(!this.state.playing)
+                    break;
+                currentEntry = await this.playlistMoveToNextSongEntry();
+            }
+            this.setState({playing: false});
+        }
+
+        /** @deprecated **/
+        async playlistStop() {
+            this.isPlaylistActive = false;
+            if(this.song && this.song.isPlaying) {
+                await this.setStatus("Stopping: " + this.song.name);
+                this.song.stopPlayback();
+                this.song.setPlaybackPositionInTicks(0);
+                await this.setStatus("Stopped: " + this.song.name);
+            }
+        }
+
+        /** @deprecated **/
+        async playlistNext() {
+            this.playlistStop();
+            await this.playlistMoveToNextSongEntry();
+            await this.playlistPlay();
+        }
+
+        /** @deprecated **/
+        async playlistMovePosition(position) {
+            // let totalCount = await this.playlist.getPlaylistCount();
+            const currentEntry = await this.playlist.getEntry(position);
+            await currentEntry.removePosition();
+            // console.log('offset', position, offset);
+            // position+=offset;
+            // if(position >= totalCount)
+            //     position = 0;
+            let nextEntry = await this.playlist.getEntry(position,false);
+            if(!nextEntry) position = 0;
+            return await this.playlist.setPlaylistPosition(position);
+        }
+
+        /** @deprecated **/
+        async playlistMoveToEntry(nextEntry) {
+            const position = await this.playlist.getEntryPosition(nextEntry);
+            return await this.playlistMovePosition(position);
+        }
+
+        /** @deprecated **/
+        async playlistMoveToNextSongEntry() {
+            let position = this.playlist.getPlaylistPosition();
+            const currentEntry = await this.playlist.getEntry(position);
+            if(currentEntry instanceof ASPPlaylistPlaylistEntry)
+                await currentEntry.togglePlaylist(true);
+
+            let totalCount = await this.playlist.getPlaylistCount();
+            for(let i=0; i<totalCount; i++) {
+                position++;
+
+                const currentEntry = await this.playlist.getEntry(position);
+                if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
+                    await currentEntry.togglePlaylist(true);
+                    totalCount = await this.playlist.getPlaylistCount();
+                } else {
+                    await this.playlistMovePosition(position);
+                    return currentEntry;
+                }
+            }
+            throw new Error("Song entry not found");
+        }
+
+
+        /** Utilities **/
+
+        isPlaylist(entryUrl) {
+            return entryUrl && (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
+        }
+
         parseEntryData(entryData) {
             if(typeof entryData === "string") {
                 const split = entryData.split(';');
@@ -358,6 +485,7 @@
                 entryData.name = '../' + entryData.url.split('/').pop();
             return entryData;
         }
+
         // async updateEntries() {
         //     console.time('updateEntries');
         //     for(let i=0; i<this.playlist.length; i++) {
@@ -434,10 +562,10 @@
         // }
 
 
-        getPlaylistPosition() { return this.state.position; }
+        // getPlaylistPosition() { return this.state.position; }
 
         async getPlaylistCount() {
-            let count;
+            let count=0;
             await this.eachEntry((entry, i) => count = i);
             return count;
         }
@@ -475,40 +603,6 @@
             // this.forceUpdate();
         }
 
-
-        addEntryToPlaylist(entryData, insertAtPosition=null) {
-            entryData = this.parseEntryData(entryData);
-            const playlist = this.state.playlist;
-            if(!playlist.entries)
-                playlist.entries = [];
-            const entries = playlist.entries;
-            if(insertAtPosition === null) {
-                insertAtPosition = entries.length;
-                entries.push(entryData);
-            } else {
-                entries.splice(insertAtPosition, 0, entryData);
-            }
-        }
-
-
-        addSongURLToPlaylist(url, name=null, length=null) {
-            this.addEntryToPlaylist({url, name, length});
-            if(this.playlist)
-                this.playlist.forceUpdate();
-            this.setStatus("Added URL to playlist: " + url);
-        }
-
-
-        addSongFileToPlaylist(file, name=null, length=null) {
-            const entryData = {
-                url: 'file://' + file.name,
-                name: name || file.name.split('/').pop(),
-                length
-            };
-            this.addEntryToPlaylist(entryData);
-            this.forceUpdate();
-            this.setStatus("Added file to playlist: " + file.name);
-        }
 
 
         /** Song Playback **/
@@ -555,10 +649,11 @@
             //     this.song.play();
         }
 
-        async clearPlaylist() {
-            this.playlist.clear();
-        }
+        // async clearPlaylist() {
+        //     this.playlist.clear();
+        // }
 
+        /** @deprecated **/
         async playlistPlayTest() {
             let entry = await this.playlist.getCurrentEntry();
             while(entry) {
@@ -568,93 +663,6 @@
                 });
                 entry = await this.playlistMoveToNextSongEntry();
             }
-        }
-
-        /** Start or resume playback **/
-        async playlistPlay() {
-            this.playlistStop();
-            let position = this.playlist.getPlaylistPosition();
-            if(this.song && this.song.playlistPosition === position) {
-                if(this.song.isPaused)
-                    return this.song.resume();
-                if(this.song.isPlaying)
-                    throw new Error("Song is already playing");
-                await this.setCurrentSong(this.song);
-                await this.setStatus("Playing: " + this.song.name);
-                return await this.song.play(this.getVolumeGain());
-            }
-            let entry = await this.playlist.getCurrentEntry();
-            if(entry instanceof ASPPlaylistPlaylistEntry)
-                entry = await this.playlistMoveToNextSongEntry();
-
-            this.isPlaylistActive = true;
-            let currentEntry = await this.playlist.getCurrentEntry();
-            while(this.isPlaylistActive) {
-                (currentEntry.scrollIntoViewIfNeeded || currentEntry.scrollIntoView).apply(currentEntry);
-                const currentSong = await this.loadSongFromPlaylistEntry();
-                await this.setCurrentSong(currentSong);
-                await this.setStatus("Playing: " + currentSong.name);
-                await currentSong.play(this.getVolumeGain());
-                if(!this.isPlaylistActive)
-                    break;
-                currentEntry = await this.playlistMoveToNextSongEntry();
-            }
-        }
-
-        async playlistStop() {
-            this.isPlaylistActive = false;
-            if(this.song && this.song.isPlaying) {
-                await this.setStatus("Stopping: " + this.song.name);
-                this.song.stopPlayback();
-                this.song.setPlaybackPositionInTicks(0);
-                await this.setStatus("Stopped: " + this.song.name);
-            }
-        }
-
-        async playlistNext() {
-            this.playlistStop();
-            await this.playlistMoveToNextSongEntry();
-            await this.playlistPlay();
-        }
-
-        async playlistMovePosition(position) {
-            // let totalCount = await this.playlist.getPlaylistCount();
-            const currentEntry = await this.playlist.getEntry(position);
-            await currentEntry.removePosition();
-            // console.log('offset', position, offset);
-            // position+=offset;
-            // if(position >= totalCount)
-            //     position = 0;
-            let nextEntry = await this.playlist.getEntry(position,false);
-            if(!nextEntry) position = 0;
-            return await this.playlist.setPlaylistPosition(position);
-        }
-
-        async playlistMoveToEntry(nextEntry) {
-            const position = await this.playlist.getEntryPosition(nextEntry);
-            return await this.playlistMovePosition(position);
-        }
-
-        async playlistMoveToNextSongEntry() {
-            let position = this.playlist.getPlaylistPosition();
-            const currentEntry = await this.playlist.getEntry(position);
-            if(currentEntry instanceof ASPPlaylistPlaylistEntry)
-                await currentEntry.togglePlaylist(true);
-
-            let totalCount = await this.playlist.getPlaylistCount();
-            for(let i=0; i<totalCount; i++) {
-                position++;
-
-                const currentEntry = await this.playlist.getEntry(position);
-                if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
-                    await currentEntry.togglePlaylist(true);
-                    totalCount = await this.playlist.getPlaylistCount();
-                } else {
-                    await this.playlistMovePosition(position);
-                    return currentEntry;
-                }
-            }
-            throw new Error("Song entry not found");
         }
 
         /** Toggle Panels **/

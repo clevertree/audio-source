@@ -3,7 +3,7 @@
     if(isBrowser) // Hack for browsers
         window.require = thisRequire;
 
-    const {AudioSourceFileService} = require('../common/audio-source-file-service.js');
+    const {AudioSourceFileService} = require('../../common/audio-source-file-service.js');
 
     class SPCPlayerSynthesizer {
 
@@ -34,9 +34,7 @@
         }
 
         async loadSPCPlayer(destination) {
-            const AudioSourceLoader = customElements.get('audio-source-loader');
-            const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
-            const libGMESupport = new LibGMESupport();
+            const libGMESupport = await this.getLibGMESupport();
             const buffer = await this.loadBuffer();
             return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file', {
                 destination
@@ -45,13 +43,19 @@
 
         /** Initializing Audio **/
 
+        async getLibGMESupport() {
+            const AudioSourceLoader = customElements.get('audio-source-loader');
+            const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
+            const {LibGMESupport} = await requireAsync('../../common/support/libgme-support.js');
+            const libGMESupport = new LibGMESupport();
+            return libGMESupport;
+        }
+
         async init(audioContext=null) {
 
             if(audioContext) {
                 this.audioContext = audioContext;
-                const AudioSourceLoader = customElements.get('audio-source-loader');
-                const {LibGMESupport} = await AudioSourceLoader.requireAsync('../common/support/libgme-support.js');
-                const libGMESupport = new LibGMESupport();
+                const libGMESupport = await this.getLibGMESupport();
                 await libGMESupport.init(audioContext);
             }
             if (this.config.spcURL)
