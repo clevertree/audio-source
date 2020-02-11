@@ -51,7 +51,6 @@
             await this.setStatus("Loaded song: " + song.name);
         }
 
-        /** @deprecated **/
         // handleError(err) {
         //     this.setStatus(`<span style="error">${err}</span>`);
         //     console.error(err);
@@ -216,6 +215,135 @@
         //     this.setStatus("Loaded playlist from url: " + playlistURL);
         // }
 
+        /** Entries **/
+
+
+        getCurrentEntry(throwException=true) {
+            if(this.state.playlist.entries.length === 0)
+                throw new Error("Empty playlist");
+            return this.getEntry(this.getPlaylistPosition(), throwException);
+        }
+
+        getEntry(position, throwException=true) {
+            let foundEntry=null;
+            this.eachEntry((entry, i) => {
+                // console.log('entry', i, position);
+                if(i === position)
+                    foundEntry = entry;
+                if(foundEntry)
+                    return false;
+            });
+            if(!foundEntry && throwException)
+                throw new Error("Invalid playlist position: " + position);
+            // console.log('found', foundEntry.state.id, position);
+            return foundEntry;
+        }
+
+        // findEntryPosition(findEntry) {
+        //     if(findEntry instanceof ASPPlaylistEntry)
+        //         findEntry = findEntry.props.data;
+        //     let foundPosition = -1;
+        //     this.eachEntry((entry, position) => {
+        //         if(findEntry === entry) {
+        //             foundPosition = position;
+        //             return false;
+        //         }
+        //     });
+        //     return foundPosition;
+        // }
+
+        selectEntries(selectedPositions) {
+            if(!Array.isArray(selectedPositions))
+                selectedPositions = [selectedPositions];
+            this.setState({selectedPositions}); // TODO: optimize
+        }
+
+
+
+        // parseEntryData(entryData) { return this.player.parseEntryData(entryData); }
+
+
+        eachEntry(callback) {
+            const results = [];
+            let offset=0;
+            each(this.state.playlist.entries, 0);
+            return results;
+
+            function each(playlist, depth) {
+                for (let i = 0; i < playlist.length; i++) {
+                    const entry = playlist[i];
+                    const ret = callback(entry, offset, depth);
+                    if (ret === false) return false;
+                    if (ret !== null) results.push(ret);
+                    offset++;
+                    if(entry.playlist && entry.open === true) {
+                        const ret = each(entry.playlist.entries, depth+1);
+                        if (ret === false)
+                            return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        async toggleEntryAtPosition(entryPosition) {
+            const entry = this.getEntry(entryPosition);
+            if(this.isPlaylist(entry.url)) {
+                entry.open = !entry.open;
+                if(entry.open === true) {
+                    if(!entry.playlist) {
+                        entry.loading = true;
+                        this.playlist.forceUpdate();
+                        entry.playlist = await this.loadPlaylistDataFromURL(entry.url);
+                        delete entry.loading;
+                    }
+
+                }
+                this.playlist.forceUpdate();
+            } else {
+                console.log("TODO Play", entryPosition, entry);
+
+            }
+        }
+
+        isPlaylist(entryUrl) {
+            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
+        }
+
+
+        async loadPlaylistDataFromURL(playlistURL) {
+            console.log("Loading playlist: ", playlistURL);
+            playlistURL = new URL(playlistURL, document.location);
+
+            const playlistData = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', playlistURL.toString(), true);
+                xhr.responseType = 'json';
+                xhr.onload = () => resolve(xhr.response);
+                xhr.onerror = reject;
+                xhr.send();
+            });
+
+            if(!playlistData.entries)
+                throw new Error("No playlist entries: " + playlistURL);
+            if(!Array.isArray(playlistData.entries))
+                throw new Error("Invalid playlist entries: " + playlistURL);
+
+            let urlPrefix = playlistData.urlPrefix;
+            if(!urlPrefix || urlPrefix[0] !== '/')
+                urlPrefix = playlistURL.pathname.split("/").slice(0,-1).join("/") + '/' + (urlPrefix||'');
+            for(let id=0; id<playlistData.entries.length; id++) {
+                let entry = playlistData.entries[id];
+                if(typeof entry === "object")   entry.url = urlPrefix + entry.url;
+                else                            entry = urlPrefix + entry;
+
+                entry = this.parseEntryData(entry);
+                playlistData.entries[id] = entry;
+            }
+
+            console.log("Loaded playlist: ", playlistURL, playlistData);
+            return playlistData;
+        }
 
         parseEntryData(entryData) {
             if(typeof entryData === "string") {
@@ -227,9 +355,126 @@
             if(!entryData.url)
                 throw new Error("Invalid Playlist Entry URL");
             if(!entryData.name)
-                entryData.name = entryData.url.split('/').pop();
+                entryData.name = '../' + entryData.url.split('/').pop();
             return entryData;
         }
+        // async updateEntries() {
+        //     console.time('updateEntries');
+        //     for(let i=0; i<this.playlist.length; i++) {
+        //         const entry = this.playlist[i];
+        //         await entry.updateID(i);
+        //     }
+        //     console.timeEnd('updateEntries');
+        // }
+
+        // toggleSelect(position) {
+        //     const selected = this.state.selected;
+        //     const i = selected.indexOf(position);
+        //     if(i === -1) {
+        //         selected.push(position);
+        //         selected.sort();
+        //     } else {
+        //         selected.splice(i, 1);
+        //     }
+        //     this.getEntry(position)
+        //         .updatePlaylist(this);
+        // }
+
+
+        // async eachEntry(callback) {
+        //     let offset=0;
+        //     return await this.eachEntry(async (entry, i) => {
+        //         if(entry instanceof ASPPlaylistPlaylistEntry)
+        //             return null;
+        //         return await callback(entry, offset++);
+        //     })
+        // }
+        //
+        // async eachPlaylistEntry(callback) {
+        //     let offset=0;
+        //     return await this.eachEntry(async (entry, i) => {
+        //         if(!entry instanceof ASPPlaylistPlaylistEntry)
+        //             return null;
+        //         return await callback(entry, offset++);
+        //     })
+        // }
+
+        // getCurrentEntry() {
+        //     if(this.state.playlist.length === 0)
+        //         throw new Error("Empty playlist");
+        //     return this.getEntry(this.state.position);
+        // }
+
+        // async addEntry(entry, insertAtPosition=null, skipDuplicate=true) {
+        //     if(!entry instanceof ASPPlaylistEntry)
+        //         throw new Error("Invalid ASPPlaylistEntry");
+        //     if(skipDuplicate && this.entries.find(e => e.url === entry.url)) {
+        //         return false;
+        //     }
+        //     if(insertAtPosition === null) {
+        //         insertAtPosition = this.entries.length;
+        //         this.entries.push(entry);
+        //     } else {
+        //         this.entries.splice(insertAtPosition, 0, entry);
+        //     }
+        //     await entry.updateID(insertAtPosition);
+        //     // await this.forceUpdate();
+        //     return true;
+        // }
+
+
+        // async updateNextPosition() {
+        //     let position = this.state.position;
+        //     const currentEntry = await this.getEntry(position);
+        //     await currentEntry.removePosition();
+        //     position++;
+        //     let nextEntry = await this.getEntry(position,false);
+        //     if(!nextEntry) position = 0;
+        //     return await this.setPlaylistPosition(position);
+        // }
+
+
+        getPlaylistPosition() { return this.state.position; }
+
+        async getPlaylistCount() {
+            let count;
+            await this.eachEntry((entry, i) => count = i);
+            return count;
+        }
+
+        async setPlaylistPosition(position) {
+            const currentEntry = await this.getEntry(this.state.position);
+            if(position === this.state.position)
+                return currentEntry;
+
+            const nextEntry = await this.getEntry(position);
+            await currentEntry.removePosition();
+            await nextEntry.setPosition();
+            this.state.position = position;
+            // this.setState({position});
+            return nextEntry;
+        }
+
+        // async updatePosition(position) {
+        //     if(!this.playlist[position])
+        //         throw new Error("Invalid playlist position: " + position);
+        //     this.state.position = position;
+        //     // await this.updateEntries();
+        // }
+
+        async setPositionEntry(entry) {
+            const position = await this.findEntryPosition(entry);
+            await this.setPlaylistPosition(position);
+        }
+
+
+        async loadURLAsPlaylist(playlistURL) {
+            this.addEntryToPlaylist(playlistURL);
+            this.toggleEntryAtPosition(0);
+            // this.state.playlist = await this.loadPlaylistDataFromURL(playlistURL);
+            // this.forceUpdate();
+        }
+
 
         addEntryToPlaylist(entryData, insertAtPosition=null) {
             entryData = this.parseEntryData(entryData);
@@ -244,6 +489,7 @@
                 entries.splice(insertAtPosition, 0, entryData);
             }
         }
+
 
         addSongURLToPlaylist(url, name=null, length=null) {
             this.addEntryToPlaylist({url, name, length});

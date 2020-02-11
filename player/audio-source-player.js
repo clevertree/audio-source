@@ -86,7 +86,7 @@
 
             const url = this.getAttribute('src') || this.getAttribute('url');
             if(url)
-                this.addSongURLToPlaylist(url);
+                this.loadURLAsPlaylist(url);
             else
                 this.loadState();
 
