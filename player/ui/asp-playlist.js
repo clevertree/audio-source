@@ -42,21 +42,23 @@
                 ], {key: 'asp-playlist-header'}),
                 ASUIDiv.createElement('asp-playlist-container', [
                     this.state.entries.length > 0
-                    ? this.eachEntry((entryData, position) => {
+                    ? this.eachEntry((entryData, position, depth) => {
                         const props = {
                             key: position,
                             data:entryData,
                             playlist: this,
-                            onPress: (e) => this.selectEntryPosition(position)
+                            depth,
+                            onPress: (e) => this.toggleEntryAtPosition(position)
                         };
                         const classes = [];
                         if(this.state.position === position)
                             classes.push('position');
-                        if(this.state.selectedPositions.indexOf(position) !== -1)
-                            classes.push('selected');
+                            if(this.state.selectedPositions.indexOf(position) !== -1)
+                                classes.push('selected');
+                            if(entryData.loading)
+                                classes.push('loading');
                         if(classes.length > 0)
                             props.class = classes.join(' ');
-
                         return ASPPlaylistEntry.createElement(props)
                     })
                     : ASUIDiv.createElement('empty-playlist', "Empty Playlist")
@@ -124,17 +126,102 @@
             this.setState({selectedPositions}); // TODO: optimize
         }
 
-        selectEntryPosition(entryPosition) {
+        async toggleEntryAtPosition(entryPosition) {
             const entry = this.getEntry(entryPosition);
-            if(entry.playlist) { // TODO: test if playlist
-                entry.playlist.open = !entry.playlist.open;
-                if(entry.playlist.open === true) {
-                    console.log("TODO Open Playlist", entryPosition, entry);
+            if(this.isPlaylist(entry.url)) {
+                entry.open = !entry.open;
+                if(entry.open === true) {
+                    if(!entry.playlist) {
+                        entry.loading = true;
+                        this.forceUpdate(); // TODO: optimize
+                        entry.playlist = await this.loadPlaylistFromURL(entry.url);
+                        delete entry.loading;
+                        this.forceUpdate(); // TODO: optimize
+                    }
 
                 }
             } else {
                 console.log("TODO Play", entryPosition, entry);
 
+            }
+        }
+
+        isPlaylist(entryUrl) {
+            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
+        }
+
+
+        async loadPlaylistFromURL(playlistURL) {
+            console.log("Loading playlist: ", playlistURL);
+            playlistURL = new URL(playlistURL, document.location);
+
+            const playlistData = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', playlistURL.toString(), true);
+                xhr.responseType = 'json';
+                xhr.onload = () => resolve(xhr.response);
+                xhr.onerror = reject;
+                xhr.send();
+            });
+
+            if(!playlistData.entries)
+                throw new Error("No playlist entries: " + playlistURL);
+            if(!Array.isArray(playlistData.entries))
+                throw new Error("Invalid playlist entries: " + playlistURL);
+
+            let urlPrefix = playlistData.urlPrefix;
+            if(!urlPrefix || urlPrefix[0] !== '/')
+                urlPrefix = playlistURL.pathname.split("/").slice(0,-1).join("/") + '/' + (urlPrefix||'');
+            for(let id=0; id<playlistData.entries.length; id++) {
+                let entry = playlistData.entries[id];
+                if(typeof entry === "object")   entry.url = urlPrefix + entry.url;
+                else                            entry = urlPrefix + entry;
+
+                entry = this.parseEntryData(entry);
+                playlistData.entries[id] = entry;
+            }
+
+            console.log("Loaded playlist: ", playlistURL, playlistData);
+            return playlistData;
+        }
+
+
+        parseEntryData(entryData) {
+            if(typeof entryData === "string") {
+                const split = entryData.split(';');
+                entryData = {url: split[0]};
+                if(split[1]) entryData.name = split[1];
+                if(split[2]) entryData.length = split[2];
+            }
+            if(!entryData.url)
+                throw new Error("Invalid Playlist Entry URL");
+            if(!entryData.name)
+                entryData.name = '../' + entryData.url.split('/').pop();
+            return entryData;
+        }
+
+        /** Entries **/
+
+        eachEntry(callback) {
+            const results = [];
+            let offset=0;
+            each(this.state.entries, 0);
+            return results;
+
+            function each(playlist, depth) {
+                for (let i = 0; i < playlist.length; i++) {
+                    const entry = playlist[i];
+                    const ret = callback(entry, offset, depth);
+                    if (ret === false) return false;
+                    if (ret !== null) results.push(ret);
+                    offset++;
+                    if(entry.playlist && entry.open === true) {
+                        const ret = each(entry.playlist.entries, depth+1);
+                        if (ret === false)
+                            return false;
+                    }
+                }
+                return true;
             }
         }
 
@@ -160,30 +247,6 @@
         //         .updatePlaylist(this);
         // }
 
-        /** Entries **/
-
-        eachEntry(callback) {
-            const results = [];
-            let offset=0;
-            each(this.state.entries);
-            return results;
-
-            function each(playlist) {
-                for (let i = 0; i < playlist.length; i++) {
-                    const entry = playlist[i];
-                    const ret = callback(entry, offset);
-                    if (ret === false) return false;
-                    if (ret !== null) results.push(ret);
-                    offset++;
-                    if(entry.playlist && entry.playlist.open === true) {
-                        const ret = each(entry.playlist.entries);
-                        if (ret === false)
-                            return false;
-                    }
-                }
-                return true;
-            }
-        }
 
         // async eachEntry(callback) {
         //     let offset=0;
@@ -269,22 +332,6 @@
         async setPositionEntry(entry) {
             const position = await this.findEntryPosition(entry);
             await this.setPlaylistPosition(position);
-        }
-
-        isPlaylist(entryUrl) {
-            return (entryUrl.toString().toLowerCase().endsWith('.pl.json'));
-        }
-
-
-
-        /** @deprecated **/
-        async loadPlaylistFromURL(playlistURL, insertAtPosition=null) {
-            const playlistEntry = new ASPPlaylistPlaylistEntry({
-                url: playlistURL
-            });
-            await this.addEntry(playlistEntry);
-            await playlistEntry.loadPlaylist();
-
         }
 
         async addSongURLToPlaylist(url, name=null, length=null) {

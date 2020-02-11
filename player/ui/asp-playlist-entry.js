@@ -70,6 +70,7 @@
                 ASUIDiv.createElement('name', this.props.data.name),
                 // ASUIDiv.createElement('url', this.state.url),
                 ASUIDiv.createElement('length', formattedLength),
+                ASUIDiv.createElement('id', this.props.depth), // TODO: depth
             ];
         }
 
