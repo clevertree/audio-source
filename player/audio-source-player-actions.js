@@ -43,8 +43,9 @@
             // this.song.setVolume(this.state.volume);
             // this.song.addDispatchElement(this);
             song.playlistPosition = this.getCurrentEntryPosition();
-            // const currentEntry = await this.getCurrentEntry();
-            // await currentEntry.setState({name: song.name, length: song.getSongLengthInSeconds()}); // TODO: use this?
+            const currentEntry = await this.getCurrentEntry();
+            currentEntry.name = song.name;
+            currentEntry.length = song.getSongLengthInSeconds();
             await this.forceUpdate();
             await this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
@@ -277,6 +278,14 @@
         }
 
 
+        /** @deprecated **/
+        async loadURLAsPlaylist(playlistURL) {
+            this.addEntryToPlaylist(playlistURL);
+            this.toggleEntryAtPosition(0);
+            // this.state.playlist = await this.loadPlaylistDataFromURL(playlistURL);
+            // this.forceUpdate();
+        }
+
         async loadSongFromPlaylistEntry() {
             const currentEntry = await this.getCurrentEntry();
 
@@ -390,7 +399,8 @@
             //     entry = await this.playlistMoveToNextSongEntry();
 
             this.setState({playing: true});
-            let currentEntry = await this.getCurrentEntry();
+            let currentEntry = await this.playlistMoveToNextSongEntry();
+            // let currentEntry = await this.getCurrentEntry();
             while(this.state.playing) {
                 this.scrollToEntry(this.getCurrentEntryPosition());
                 const currentSong = await this.loadSongFromPlaylistEntry();
@@ -422,47 +432,66 @@
             await this.playlistPlay();
         }
 
-        /** @deprecated **/
         async playlistMovePosition(position) {
-            // let totalCount = await this.playlist.getPlaylistCount();
-            const currentEntry = await this.playlist.getEntry(position);
-            await currentEntry.removePosition();
-            // console.log('offset', position, offset);
-            // position+=offset;
-            // if(position >= totalCount)
-            //     position = 0;
-            let nextEntry = await this.playlist.getEntry(position,false);
+            let nextEntry = await this.getEntry(position,false);
             if(!nextEntry) position = 0;
-            return await this.playlist.setPlaylistPosition(position);
+            return await this.setPlaylistPosition(position);
         }
 
         /** @deprecated **/
         async playlistMoveToEntry(nextEntry) {
-            const position = await this.playlist.getEntryPosition(nextEntry);
+            const position = await this.getEntryPosition(nextEntry);
             return await this.playlistMovePosition(position);
         }
 
-        /** @deprecated **/
         async playlistMoveToNextSongEntry() {
-            let position = this.playlist.getPlaylistPosition();
-            const currentEntry = await this.playlist.getEntry(position);
-            if(currentEntry instanceof ASPPlaylistPlaylistEntry)
-                await currentEntry.togglePlaylist(true);
-
-            let totalCount = await this.playlist.getPlaylistCount();
+            let position = this.getCurrentEntryPosition();
+            const currentEntry = await this.getEntry(position);
+            if(this.isPlaylist(currentEntry.url)) {
+                await this.togglePlaylistEntry(currentEntry);
+                this.playlist.forceUpdate();
+                // await currentEntry.togglePlaylist(true);
+            }
+            let totalCount = await this.getPlaylistCount();
             for(let i=0; i<totalCount; i++) {
                 position++;
 
-                const currentEntry = await this.playlist.getEntry(position);
-                if(currentEntry instanceof ASPPlaylistPlaylistEntry) {
-                    await currentEntry.togglePlaylist(true);
-                    totalCount = await this.playlist.getPlaylistCount();
+                const currentEntry = await this.getEntry(position);
+                if(this.isPlaylist(currentEntry.url)) {
+                    await this.togglePlaylistEntry(currentEntry);
+                    this.playlist.forceUpdate();
+                    totalCount = await this.getPlaylistCount();
                 } else {
-                    await this.playlistMovePosition(position);
-                    return currentEntry;
+                    if(position >= totalCount)
+                        position = 0;
+                    await this.setPlaylistPosition(position);
+                    return; // Done
+                    // return currentEntry;
                 }
             }
             throw new Error("Song entry not found");
+        }
+
+        async getPlaylistCount() {
+            let count=0;
+            await this.eachEntry((entry, i) => count = i);
+            return count;
+        }
+
+        async setPlaylistPosition(position) {
+            if(position !== this.state.position) {
+                this.state.position = position;
+                this.playlist.forceUpdate();
+                // const nextEntry = await this.getEntry(position);
+                // await currentEntry.removePosition();
+                // await nextEntry.setPosition();
+            }
+            // this.setState({position});
+            // return nextEntry;
+        }
+        async setPositionEntry(entry) {
+            const position = await this.findEntryPosition(entry);
+            await this.setPlaylistPosition(position);
         }
 
 
@@ -564,24 +593,6 @@
 
         // getPlaylistPosition() { return this.state.position; }
 
-        async getPlaylistCount() {
-            let count=0;
-            await this.eachEntry((entry, i) => count = i);
-            return count;
-        }
-
-        async setPlaylistPosition(position) {
-            const currentEntry = await this.getEntry(this.state.position);
-            if(position === this.state.position)
-                return currentEntry;
-
-            const nextEntry = await this.getEntry(position);
-            await currentEntry.removePosition();
-            await nextEntry.setPosition();
-            this.state.position = position;
-            // this.setState({position});
-            return nextEntry;
-        }
 
         // async updatePosition(position) {
         //     if(!this.playlist[position])
@@ -590,18 +601,6 @@
         //     // await this.updateEntries();
         // }
 
-        async setPositionEntry(entry) {
-            const position = await this.findEntryPosition(entry);
-            await this.setPlaylistPosition(position);
-        }
-
-
-        async loadURLAsPlaylist(playlistURL) {
-            this.addEntryToPlaylist(playlistURL);
-            this.toggleEntryAtPosition(0);
-            // this.state.playlist = await this.loadPlaylistDataFromURL(playlistURL);
-            // this.forceUpdate();
-        }
 
 
 

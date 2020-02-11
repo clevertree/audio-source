@@ -113,7 +113,6 @@ asui-input-file  {
      text-align: center;
 }
 
-asui-input-button > div,
 asui-input-range {
     padding: 2px 0px;
 }
@@ -126,6 +125,7 @@ asui-input-range input[type='range'] {
     margin: 7px;
 }
 asui-input-range input[type='range']::-webkit-slider-thumb {
+    cursor: pointer;
     vertical-align: middle;
     -webkit-appearance: none;
     background-color: #444;
@@ -136,7 +136,8 @@ asui-input-range input[type='range']::-webkit-slider-thumb {
 
 
 asui-input-text {
-    padding: 3px 0px;
+    cursor: pointer;
+    /* padding: 3px 0px; */
 }
 
 asui-input-select > asui-menu {

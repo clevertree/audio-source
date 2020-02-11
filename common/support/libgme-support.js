@@ -70,7 +70,8 @@
             const lengthInTicks = (id666.length * (beatsPerMinute / 60)) * timeDivision;
 
             const songData = {
-                name: (id666.game ? id666.game + ': ' : '') + (id666.title2 || id666.title),
+                name: (id666.title2 || id666.title), // (id666.game ? id666.game + ': ' : '') +
+                // game: (id666.game ? id666.game + ': ' : ''),
                 id666,
                 version: 'auto',
                 root: 'root',

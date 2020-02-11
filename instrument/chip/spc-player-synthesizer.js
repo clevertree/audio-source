@@ -47,8 +47,7 @@
             const AudioSourceLoader = customElements.get('audio-source-loader');
             const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
             const {LibGMESupport} = await requireAsync('../../common/support/libgme-support.js');
-            const libGMESupport = new LibGMESupport();
-            return libGMESupport;
+            return new LibGMESupport();
         }
 
         async init(audioContext=null) {

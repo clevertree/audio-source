@@ -209,7 +209,7 @@
 
 
             setState(newState) {
-//                 console.info('setState', this.state, newState, this);
+                // console.info('setState', this.state, newState, this);
                 Object.assign(this.state, newState);
                 this.forceUpdate();
             }
@@ -223,6 +223,7 @@
 
 
             forceUpdate() {
+                console.info('forceUpdate', this);
                 this.updateHTMLContent();
             }
 
