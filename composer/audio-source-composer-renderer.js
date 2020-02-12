@@ -149,9 +149,11 @@
                     }),
 
                     ASUIDiv.createElement('asc-panel-container', [
-                        new ASCPanel('song', 'Song', [
+                        ASCPanel.createElement('song', [
+                            ASUIDiv.cE('title', 'Song'),
 
-                            new ASCForm('playback', 'Playback', [
+                            ASCForm.createElement('playback',  [
+                                ASUIDiv.cE('title', 'Playback'),
                                 ASUIInputButton.createElement('play',
                                     ASUIIcon.createIcon('play'),
                                     e => this.songPlay(e),
@@ -167,7 +169,8 @@
                                     "Stop Song")
                             ]),
 
-                            new ASCForm('timing', 'Timing', [
+                            ASCForm.createElement('timing', [
+                                ASUIDiv.cE('title', 'Timing'),
                                 ASUIInputText.createInputText('timing',
                                     (e, pos) => this.setSongPosition(pos),
                                     '00:00:000',
@@ -176,7 +179,8 @@
                                 )
                             ]),
 
-                            new ASCForm('position', 'Position', [
+                            ASCForm.createElement('position', [
+                                ASUIDiv.cE('title', 'Position'),
                                 ASUIInputRange.createInputRange('position',
                                     (e, pos) => this.setSongPosition(pos),
                                     0,
@@ -187,8 +191,9 @@
                                 )
                             ]),
 
-                            new ASCForm('volume', 'Volume', [
-                                this.fieldSongVolume = ASUIInputRange.createInputRange('volume',
+                            ASCForm.createElement('volume', [
+                                ASUIDiv.cE('title', 'Volume'),
+                                ASUIInputRange.createInputRange('volume',
                                     (e, newVolume) => this.setVolume(newVolume/100),
                                     1,
                                     100,
@@ -198,7 +203,8 @@
                                 )
                             ]),
 
-                            new ASCForm('file', 'File', [
+                            ASCForm.createElement('file', [
+                                ASUIDiv.cE('title', 'File'),
                                 this.fieldSongFileLoad = new ASUIInputFile('file-load',
                                     e => this.loadSongFromFileInput(),
                                     ASUIIcon.createIcon('file-load'),
@@ -213,7 +219,8 @@
                             ]),
 
 
-                            new ASCForm('name', 'Name', [
+                            ASCForm.createElement('name', [
+                                ASUIDiv.cE('title', 'Name'),
                                 ASUIInputText.createInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
                                     this.song.name,
@@ -222,7 +229,8 @@
                                 )
                             ]),
 
-                            new ASCForm('version', 'Version', [
+                            ASCForm.createElement('version', [
+                                ASUIDiv.cE('title', 'Version'),
                                 ASUIInputText.createInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
                                     this.song.version,
@@ -230,7 +238,8 @@
                                     ref => this.fieldSongVersion = ref)
                             ]),
 
-                            new ASCForm('bpm', 'BPM', [
+                            ASCForm.createElement('bpm', [
+                                ASUIDiv.cE('title', 'BPM'),
                                 ASUIInputText.createInputText('bpm',
                                     (e, newBPM) => this.songChangeStartingBPM(e, parseInt(newBPM)),
                                     this.song.startingBeatsPerMinute,
@@ -241,33 +250,37 @@
                             ]),
                         ]),
 
-                        this.panelInstruments = new ASCPanel('instruments', 'Instruments', () => {
+                        this.panelInstruments = ASCPanel.createElement('instruments', [
+                            ASUIDiv.cE('title', 'Instruments'),
+                            () => {
+                                // const instrumentPanel = this.panelInstruments;
+                                this.instruments = [];
+                                const instrumentList = this.song.getInstrumentList();
+                                const content = instrumentList.map((instrumentConfig, instrumentID) =>
+                                    this.instruments[instrumentID] = new ASCInstrumentRenderer({}, this.song, instrumentID));
 
-                            // const instrumentPanel = this.panelInstruments;
-                            this.instruments = [];
-                            const instrumentList = this.song.getInstrumentList();
-                            const content = instrumentList.map((instrumentConfig, instrumentID) =>
-                                this.instruments[instrumentID] = new ASCInstrumentRenderer({}, this.song, instrumentID));
-
-                            content.push(new ASCForm('new', null, [
-                                new ASUIInputSelect('add-url',
-                                    (s) => [
-                                        // const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
-                                        // s.getOption('', 'Add instrument'),
-                                        instrumentLibrary.eachInstrument((instrumentConfig) =>
-                                            s.getOption(instrumentConfig.url, instrumentConfig.name)),
-                                    ],
-                                    (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
-                                    '',
-                                    'Add instrument')
-                            ]));
-                            return content;
-                        }),
+                                content.push(ASCForm.createElement('new', null, [
+                                    new ASUIInputSelect('add-url',
+                                        (s) => [
+                                            // const instrumentLibrary = await AudioSourceLibrary.loadFromURL(this.defaultLibraryURL);
+                                            // s.getOption('', 'Add instrument'),
+                                            instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                                s.getOption(instrumentConfig.url, instrumentConfig.name)),
+                                        ],
+                                        (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
+                                        '',
+                                        'Add instrument')
+                                ]));
+                                return content;
+                            }
+                        ]),
 
                         ASUIDiv.createElement('break'),
 
-                        this.panelInstructions = new ASCPanel('instructions', 'Selected Instruction(s)', [
-                            new ASCForm('instruction-command', 'Command', [
+                        this.panelInstructions = ASCPanel.createElement('instructions', [
+                            ASUIDiv.cE('title', 'Selected Instruction(s)'),
+                            ASCForm.createElement('instruction-command', [
+                                ASUIDiv.cE('title', 'Command'),
                                 this.fieldInstructionCommand = new ASUIInputSelect(
                                     'command',
                                     (selectElm) => [
@@ -307,7 +320,8 @@
 
                             ]),
 
-                            new ASCForm('instruction-instrument', 'Instrument', [
+                            ASCForm.createElement('instruction-instrument', [
+                                ASUIDiv.cE('title', 'Instrument'),
                                 this.fieldInstructionInstrument = new ASUIInputSelect('instrument',
                                     (selectElm) => [
                                         selectElm.getOption(null, 'Select'),
@@ -319,7 +333,8 @@
                                 )
                             ]),
 
-                            new ASCForm('instruction-velocity', 'Velocity', [
+                            ASCForm.createElement('instruction-velocity', [
+                                ASUIDiv.cE('title', 'Velocity'),
                                 this.fieldInstructionVelocity = ASUIInputRange.createInputRange('velocity',
                                     (e, newVelocity) => this.instructionChangeVelocity(newVelocity),
                                     1,
@@ -330,7 +345,8 @@
                                 )
                             ]),
 
-                            new ASCForm('instruction-duration', 'Duration', [
+                            ASCForm.createElement('instruction-duration', [
+                                ASUIDiv.cE('title', 'Duration'),
                                 this.fieldInstructionDuration = new ASUIInputSelect('duration',
                                     (selectElm) => [
                                         selectElm.getOption(null, 'No Duration'),
@@ -342,8 +358,10 @@
 
                         ]),
 
-                        this.panelTracker = new ASCPanel('tracker', 'Tracker', [
-                            new ASCForm('tracker-row-length', 'Row &#120491;', [
+                        this.panelTracker = ASCPanel.createElement('tracker', [
+                            ASUIDiv.cE('title', 'Tracker'),
+                            ASCForm.createElement('tracker-row-length', [
+                                ASUIDiv.cE('title', 'Row &#120491;'),
                                 this.fieldTrackerRowLength = new ASUIInputSelect('row-length',
                                     (selectElm) => [
                                         selectElm.getOption(null, 'Default'),
@@ -352,7 +370,8 @@
                                     e => this.trackerChangeRowLength(),
                                     this.state.trackerRowLength),
                             ]),
-                            new ASCForm('tracker-segment-length', 'Seg &#120491;', [
+                            ASCForm.createElement('tracker-segment-length', [
+                                ASUIDiv.cE('title', 'Seg &#120491;'),
                                 this.fieldTrackerSegmentLength = new ASUIInputSelect('segment-length',
                                     (selectElm) => [
                                         selectElm.getOption(null, 'Default'),
@@ -361,7 +380,8 @@
                                     (e, segmentLengthInTicks) => this.trackerChangeSegmentLength(segmentLengthInTicks),
                                     this.state.trackerSegmentLength),
                             ]),
-                            new ASCForm('tracker-instrument', 'Instrument', [
+                            ASCForm.createElement('tracker-instrument', [
+                                ASUIDiv.cE('title', 'Instrument'),
                                 this.fieldTrackerFilterInstrument = new ASUIInputSelect('filter-instrument',
                                     (selectElm) => [
                                         selectElm.getOption(null, 'No Filter'),
@@ -370,7 +390,8 @@
                                     (e, instrumentID) => this.trackerChangeInstrumentFilter(instrumentID),
                                     null),
                             ]),
-                            new ASCForm('tracker-selection', 'Selection', [
+                            ASCForm.createElement('tracker-selection', [
+                                ASUIDiv.cE('title', 'Selection'),
                                 ASUIInputText.createInputText('selection',
                                     e => this.trackerChangeSelection(),
                                     '',
@@ -379,7 +400,8 @@
                                     // 'No selection'
                                 ),
                             ]),
-                            new ASCForm('tracker-octave', 'Octave', [
+                            ASCForm.createElement('tracker-octave', [
+                                ASUIDiv.cE('title', 'Octave'),
                                 this.fieldTrackerOctave = new ASUIInputSelect('octave',
                                     (selectElm) => [
                                         selectElm.getOption(null, 'Default'),
@@ -401,53 +423,58 @@
                             //     this.fieldTrackerOctave.value = 3; // this.status.currentOctave;
                         ]),
 
-                        this.panelTrackerGroups = new ASCPanel('tracker-groups', 'Groups', () => {
+                        this.panelTrackerGroups = ASCPanel.createElement('tracker-groups', [
+                            ASUIDiv.cE('title', 'Groups'),
+                            () => {
+                                const currentGroupName = this.trackerElm.groupName;
+                                const content = Object.keys(this.song.data.instructions).map((groupName, i) => [
+                                    // const buttonForm = panelTrackerGroups.addForm(groupName);
+                                    ASUIInputButton.createElement(
+                                        {selected: currentGroupName === groupName},
+                                        groupName,
+                                        e => this.trackerChangeGroup(groupName),
+                                        "Group " + groupName,
+                                    )
+                                    // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
+                                    // TODO button.classList.toggle('selected', groupName === currentGroupName);
+                                ]);
 
-                            const currentGroupName = this.trackerElm.groupName;
-                            const content = Object.keys(this.song.data.instructions).map((groupName, i) => [
-                                // const buttonForm = panelTrackerGroups.addForm(groupName);
-                                ASUIInputButton.createElement(
-                                    {selected: currentGroupName === groupName},
-                                    groupName,
-                                    e => this.trackerChangeGroup(groupName),
-                                    "Group " + groupName,
-                                )
-                                // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
-                                // TODO button.classList.toggle('selected', groupName === currentGroupName);
-                            ]);
-
-                            content.push(ASUIInputButton.createElement(
-                                'add-group',
-                                '+',
-                                e => this.groupAdd(e)
-                            ));
-                            return content;
-                        }),
-
-                        this.panelTrackerRowSegments = new ASCPanel('tracker-row-segments', 'Tracker Segments', () => {
-                            const segmentLengthInTicks = this.trackerElm.segmentLengthInTicks || (this.song.timeDivision * 16);
-                            let songLengthInTicks = this.song.getSongLengthInTicks();
-                            let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
-                            if (rowSegmentCount > 256)
-                                rowSegmentCount = 256;
-
-                            this.panelTrackerRowSegmentButtons = [];
-
-                            // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-                            const currentRowSegmentID = this.trackerElm.state.currentRowSegmentID;
-                            if (rowSegmentCount < currentRowSegmentID + 1)
-                                rowSegmentCount = currentRowSegmentID + 1;
-                            for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
-                                this.panelTrackerRowSegmentButtons[segmentID] = ASUIInputButton.createElement(
-                                    {selected: segmentID === currentRowSegmentID},
-                                    segmentID,
-                                    e => this.trackerChangeSegment(segmentID),
-                                    "Segment " + segmentID);
-                                // panelElm.classList.toggle('selected', segmentID === currentRowSegmentID);
-                                // button.classList.toggle('selected', segmentID === currentRowSegmentID);
+                                content.push(ASUIInputButton.createElement(
+                                    'add-group',
+                                    '+',
+                                    e => this.groupAdd(e)
+                                ));
+                                return content;
                             }
-                            return this.panelTrackerRowSegmentButtons;
-                        }),
+                        ]),
+
+                        this.panelTrackerRowSegments = ASCPanel.createElement('tracker-row-segments', 'Tracker Segments', [
+                            ASUIDiv.cE('title', 'Groups'),
+                            () => {
+                                const segmentLengthInTicks = this.trackerElm.segmentLengthInTicks || (this.song.timeDivision * 16);
+                                let songLengthInTicks = this.song.getSongLengthInTicks();
+                                let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
+                                if (rowSegmentCount > 256)
+                                    rowSegmentCount = 256;
+
+                                this.panelTrackerRowSegmentButtons = [];
+
+                                // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
+                                const currentRowSegmentID = this.trackerElm.state.currentRowSegmentID;
+                                if (rowSegmentCount < currentRowSegmentID + 1)
+                                    rowSegmentCount = currentRowSegmentID + 1;
+                                for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
+                                    this.panelTrackerRowSegmentButtons[segmentID] = ASUIInputButton.createElement(
+                                        {selected: segmentID === currentRowSegmentID},
+                                        segmentID,
+                                        e => this.trackerChangeSegment(segmentID),
+                                        "Segment " + segmentID);
+                                    // panelElm.classList.toggle('selected', segmentID === currentRowSegmentID);
+                                    // button.classList.toggle('selected', segmentID === currentRowSegmentID);
+                                }
+                                return this.panelTrackerRowSegmentButtons;
+                            }
+                        ]),
                     ]),
 
                     ASUIDiv.createElement('asc-tracker-container', [
@@ -458,25 +485,26 @@
                         }, )
                     ]),
 
-                    ASUIDiv.createElement('asc-status-container', [
-                        this.textStatus = ASUIDiv.createElement('status-text'),
-                        this.textVersion = ASUIDiv.createElement('version-text', this.state.version),
-                    ])
+                    ASUIDiv.cE('asc-status-container', [
+                        ASUIDiv.cE({key: 'asc-status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
+                        ASUIDiv.cE({key: 'asc-version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
+                    ]),
                 ])
             ];
         }
 
 
-        async setStatus(newStatus) {
-            if(newStatus.length > 64)
-                newStatus = newStatus.substr(0, 64) + '...';
-            await this.textStatus.setContent(newStatus);
+        setStatus(newStatus) {
             console.info.apply(null, arguments); // (newStatus);
+            this.state.status = newStatus;
+            if(this.textStatus)
+                this.textStatus.forceUpdate();
         }
 
         setVersion(versionString) {
             this.state.version = versionString;
-            this.textVersion.content = versionString;
+            if(this.textVersion)
+                this.textVersion.forceUpdate();
         }
 
 

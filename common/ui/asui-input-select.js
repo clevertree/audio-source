@@ -3,6 +3,7 @@
     if(isBrowser) // Hack for browsers
         window.require = thisRequire;
     const {ASUIDiv} = require('./asui-component.js');
+    const {ASUIMenu} = require('./asui-menu.js');
 
     class ASUIInputSelect extends ASUIDiv {
         constructor(props) {
@@ -23,7 +24,7 @@
                     console.warn('Title not found for value: ', value);
             }
             if(this.parentNode)
-                await this.forceUpdate();
+                this.forceUpdate();
         }
 
         async onChange(e) {

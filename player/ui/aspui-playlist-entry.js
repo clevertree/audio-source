@@ -127,7 +127,7 @@
     //         this.setProps({open: toggleValue});
     //         if(!this.entries)
     //             return await this.loadPlaylist();
-    //         await this.forceUpdate();
+    //         this.forceUpdate();
     //     }
     //
     //     async loadPlaylist() {

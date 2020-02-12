@@ -651,7 +651,7 @@
             await this.loadAudioSample(addSampleID);
 
             if(this.grid) await this.grid.forceUpdate();
-            else await this.forceUpdate();
+            else this.forceUpdate();
         }
 
 
@@ -715,7 +715,7 @@
         async removeSample(sampleID) {
             this.song.deleteInstrumentParam(this.id, ['samples', sampleID]);
             if(this.grid) await this.grid.forceUpdate();
-            else await this.forceUpdate();
+            else this.forceUpdate();
         }
 
 
@@ -785,7 +785,7 @@
                 await this.song.instrumentReplace(this.id, newPresetConfig);
                 await this.loadConfig(newPresetConfig);
             }
-            await this.forceUpdate();
+            this.forceUpdate();
             if (!presetURL.hash) {
                 await this.selectChangePreset.open();
             }

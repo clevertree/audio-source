@@ -17,17 +17,13 @@
     // const {AudioSourceComposerTracker} = require('./ui/ascui-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
-        constructor(props={}, state={}) {
-            super(props, Object.assign({
-                volume: AudioSourceSong.DEFAULT_VOLUME,
-                version: -1,
-                songLength: 0,
-            }, state));
-
-
-            this.props.playlistActive = false;
-            this.props.playing = false;
-            this.props.paused = false;
+        constructor(props={}) {
+            super(props);
+            this.state.volume = AudioSourceSong.DEFAULT_VOLUME;
+            this.state.version = -1;
+            this.state.songLength = 0;
+            this.state.playing = false;
+            this.state.paused = false;
 
             // this.versionString = '-1';
             // this.eventHandlers = [];
@@ -103,7 +99,7 @@
 
             this.focus();
 
-            await this.forceUpdate();
+            this.forceUpdate();
             this.loadState();
 
             this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input

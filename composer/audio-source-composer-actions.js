@@ -20,7 +20,7 @@
         }
 
         getDefaultInstrumentURL() {
-            return customElements.get('audio-source-loader').resolveURL('../instrument/audio-source-synthesizer.js');
+            return new URL('../instrument/audio-source-synthesizer.js', thisModule.src);
         }
 
 
@@ -28,7 +28,7 @@
 
         async setCurrentSong(song) {
             if(this.song) {
-                await this.setStatus("Unloading song: " + this.song.name);
+                this.setStatus("Unloading song: " + this.song.name);
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
@@ -39,10 +39,10 @@
             this.state.songLength = song.getSongLengthInSeconds();
             // this.song.setVolume(this.state.volume);
             this.song.addEventListener('*', this.onSongEvent);
-            await this.setStatus("Initializing song: " + song.name);
+            this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
-            await this.setStatus("Loaded song: " + song.name);
-            await this.forceUpdate();
+            this.setStatus("Loaded song: " + song.name);
+            this.forceUpdate();
         }
 
         /** Playback **/
@@ -109,8 +109,8 @@
             const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
             let songData = storage.generateDefaultSong(defaultInstrumentURL);
             await this.song.loadSongData(songData);
-            await this.forceUpdate();
-            await this.setStatus("Loaded new song", songData);
+            this.forceUpdate();
+            this.setStatus("Loaded new song", songData);
         }
 
 
@@ -118,7 +118,7 @@
             const storage = new AudioSourceStorage();
             let songRecentUUIDs = await storage.getRecentSongList();
             if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
-                await this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
+                this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
                 await this.loadSongFromMemory(songRecentUUIDs[0].uuid);
                 return true;
             }
@@ -129,7 +129,7 @@
         async loadSongFromMemory(songUUID) {
             const song = await AudioSourceSong.loadSongFromMemory(songUUID);
             await this.setCurrentSong(song);
-            await this.setStatus("Song loaded from memory: " + songUUID, this.song);
+            this.setStatus("Song loaded from memory: " + songUUID, this.song);
 //         console.info(songData);
         }
 
@@ -148,7 +148,7 @@
         async loadSongFromURL(url) {
             const song = await AudioSourceSong.loadSongFromURL(url);
             await this.setCurrentSong(song);
-            await this.setStatus("Loaded from url: " + url);
+            this.setStatus("Loaded from url: " + url);
         }
 
         async saveSongToMemory() {
@@ -156,24 +156,24 @@
             const songData = song.data;
             const songHistory = song.history;
             const storage = new AudioSourceStorage();
-            await this.setStatus("Saving song to memory...");
+            this.setStatus("Saving song to memory...");
             await storage.saveSongToMemory(songData, songHistory);
-            await this.setStatus("Saved song to memory: " + songData.uuid);
+            this.setStatus("Saved song to memory: " + songData.uuid);
         }
 
         async saveSongToFile() {
             const songData = this.song.data;
             // const songHistory = this.song.history;
             const storage = new AudioSourceStorage();
-            await this.setStatus("Saving song to file");
+            this.setStatus("Saving song to file");
             storage.saveSongToFile(songData);
         }
 
 
 //         async loadSongFromMemory(songUUID) {
 //             await this.song.loadSongFromMemory(songUUID);
-//             await this.forceUpdate();
-//             await this.setStatus("Song loaded from memory: " + songUUID);
+//             this.forceUpdate();
+//             this.setStatus("Song loaded from memory: " + songUUID);
 // //         console.info(songData);
 //         }
 //
@@ -185,8 +185,8 @@
 //                 throw new Error("Invalid file input: only one file allowed");
 //             const file = fileInput.files[0];
 //             await this.song.loadSongFromFileInput(file);
-//             await this.forceUpdate();
-//             await this.setStatus("Song loaded from file: ", file);
+//             this.forceUpdate();
+//             this.setStatus("Song loaded from file: ", file);
 //         }
 //
 //
@@ -195,16 +195,16 @@
 //             if (promptUser)
 //                 url = prompt("Enter a Song URL:", url || 'https://mysite.com/songs/mysong.json');
 //             await this.song.loadSongFromURL(url);
-//             await this.setStatus("Song loaded from url: " + url);
+//             this.setStatus("Song loaded from url: " + url);
 //             // console.info(this.song.data);
-//             await this.forceUpdate();
+//             this.forceUpdate();
 //         }
 //
 //         async loadSongFromData(songData) {
 //             await this.song.loadSongData(songData);
 //             // this.render(true);
-//             await this.setStatus("Song loaded from data", songData);
-//             await this.forceUpdate();
+//             this.setStatus("Song loaded from data", songData);
+//             this.forceUpdate();
 //         }
 
         /** Song Playback **/
@@ -550,7 +550,7 @@
         }
 
         getSelectedIndicies() {
-            const value = this.fieldTrackerSelection.value; // TODO: move to state
+            const value = this.fieldTrackerSelection ? this.fieldTrackerSelection.value : '';
             if (value === '')
                 return [];
             return value
@@ -642,7 +642,7 @@
 //         e.target.form.elements['instrumentURL'].value = '';
             if (confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
                 const instrumentID = this.song.instrumentAdd(instrumentConfig);
-                await this.setStatus("New instrument Added to song: " + instrumentURL);
+                this.setStatus("New instrument Added to song: " + instrumentURL);
                 this.fieldInstructionInstrument.setValue(instrumentID);
                 await this.panelInstruments.forceUpdate();
 
@@ -662,7 +662,7 @@
             if (confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
                 await this.song.instrumentReplace(instrumentID, instrumentConfig);
                 await this.song.loadInstrument(instrumentID, true);
-                await this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
+                this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
                 this.fieldInstructionInstrument.setValue(instrumentID);
 
             } else {

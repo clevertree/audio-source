@@ -161,7 +161,7 @@
             // console.log(e.type, e);
             switch(e.type) {
                 case 'log':
-                    await this.setStatus(e.detail);
+                    this.setStatus(e.detail);
                     break;
 
                 case 'song:seek':
