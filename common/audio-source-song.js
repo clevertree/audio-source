@@ -953,6 +953,11 @@
             }
         }
 
+        getLoadedInstrument(instrumentID) {
+            if(typeof this.instruments[instrumentID] === "undefined" || this.instruments[instrumentID] instanceof Promise)
+                return null;
+            return this.instruments[instrumentID];
+        }
 
         instrumentAdd(config) {
             if (typeof config !== 'object')

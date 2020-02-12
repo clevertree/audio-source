@@ -2,9 +2,9 @@
     /** Required Modules **/
     if(isBrowser) // Hack for browsers
         window.require = thisRequire;
-    const {SongInstruction} = require('../common/audio-source-song.js');
-    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
-    const {AudioSourceValues} = require('../common/audio-source-values.js');
+    const {SongInstruction} = require('../../common/audio-source-song.js');
+    const {AudioSourceLibrary} = require('../../common/audio-source-library.js');
+    const {AudioSourceValues} = require('../../common/audio-source-values.js');
     const {
         ASUIComponent,
         ASUIDiv,
@@ -16,14 +16,14 @@
         // ASUIInputRange,
         // ASUIInputText,
         // ASUIIcon,
-    } = require('../common/ui/asui-component.js');
+    } = require('../../common/ui/asui-component.js');
 
     // const audioSourceValues = new AudioSourceValues;
 
-    class AudioSourceComposerTracker extends ASUIComponent {
-        constructor(editorElm, group = 'root') {
-            super({}, {
-                group,
+    class ASCUITracker extends ASUIComponent {
+        constructor(props) {
+            super(props, {
+                group: 'root',
                 currentRowSegmentID: 0,
                 cursorListOffset: 0,
                 rowSegmentCount: 10,
@@ -32,14 +32,15 @@
                 filterByInstrumentID: null
             });
 
-            this.props.tabindex = 0;
-            this.editorElm = editorElm;
+            if(!props.composer)
+                throw new Error("Invalid composer");
             /** @deprecated **/
             this.mousePosition = {};
         }
 
+        // get composer() { return this.props.composer; }
         get song() {
-            return this.editorElm.song;
+            return this.props.composer.song;
         }
 
         get groupName() {
@@ -53,7 +54,7 @@
         async setGroupName(groupName) {
             if (this.state.group === groupName)
                 return null;
-            if (!this.editorElm.song.hasGroup(groupName))
+            if (!this.song.hasGroup(groupName))
                 throw new Error("Group not found in song: " + groupName);
             // this.setAttribute('group', groupName);
             await this.setState({group: groupName, currentRowSegmentID: 0});
@@ -61,34 +62,35 @@
 
 
         connectedCallback() {
-            this.addEventHandler([
-                    'scroll',
-                    'keydown',
-                    'mousedown', 'mouseup', 'mousemove', 'mouseout',
-                    'touchstart', 'touchend', 'touchmove',
-                    'dragstart', 'drag', 'dragend',
-                    'contextmenu'
-                ],
-                e => this.onInput(e));
+            // this.addEventHandler([ // TODO: input
+            //         'scroll',
+            //         'keydown',
+            //         'mousedown', 'mouseup', 'mousemove', 'mouseout',
+            //         'touchstart', 'touchend', 'touchmove',
+            //         'dragstart', 'drag', 'dragend',
+            //         'contextmenu'
+            //     ],
+            //     e => this.onInput(e));
 
             super.connectedCallback();
         }
 
 
         instructionFind(index) {
-            return this.editorElm.song.instructionFind(this.groupName, index);
+            return this.song.instructionFind(this.groupName, index);
         }
 
         instructionGetFormValues(command = null) {
+            const composer = this.props.composer;
             if (!command)
-                command = this.editorElm.refs.fieldInstructionCommand.value;
+                command = composer.refs.fieldInstructionCommand.value;
             let newInstruction = new SongInstruction();
 
-            if (this.editorElm.refs.fieldInstructionInstrument.value || this.editorElm.refs.fieldInstructionInstrument.value === 0)
-                newInstruction.instrument = parseInt(this.editorElm.refs.fieldInstructionInstrument.value);
-            if (this.editorElm.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
-                newInstruction.duration = parseFloat(this.editorElm.refs.fieldInstructionDuration.value);
-            const velocityValue = parseInt(this.editorElm.refs.fieldInstructionVelocity.value);
+            if (composer.refs.fieldInstructionInstrument.value || composer.refs.fieldInstructionInstrument.value === 0)
+                newInstruction.instrument = parseInt(composer.refs.fieldInstructionInstrument.value);
+            if (composer.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
+                newInstruction.duration = parseFloat(composer.refs.fieldInstructionDuration.value);
+            const velocityValue = parseInt(composer.refs.fieldInstructionVelocity.value);
             if (velocityValue || velocityValue === 0)
                 newInstruction.velocity = velocityValue;
 
@@ -100,12 +102,13 @@
 
 
         navigateGroup(groupPositionInTicks) {
+            const composer = this.props.composer;
             let rowElm = this.findRowElement(groupPositionInTicks);
             if (rowElm)
                 return rowElm;
             const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
             if (newRowSegmentID !== this.state.currentRowSegmentID) {
-                this.editorElm.trackerChangeSegment(newRowSegmentID);
+                composer.trackerChangeSegment(newRowSegmentID);
                 let rowElm = this.findRowElement(groupPositionInTicks);
                 if (rowElm)
                     return rowElm;
@@ -115,7 +118,8 @@
 
 
         getSegmentIDFromPositionInTicks(positionInTicks) {
-            const timeDivision = this.editorElm.song.timeDivision;
+            const composer = this.props.composer;
+            const timeDivision = composer.song.timeDivision;
             const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
             const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
             return segmentID;
@@ -123,27 +127,28 @@
 
 
         render() {
+            const composer = this.props.composer;
             console.time('tracker.renderRows()');
-            // TODO: const selectedIndicies = this.editorElm.getSelectedIndicies();
+            // TODO: const selectedIndicies = composer.getSelectedIndicies();
             const rowContent = [];
             this.rows = rowContent;
-            const timeDivision = this.editorElm.song.timeDivision;
-            const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(this.editorElm.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
+            const timeDivision = composer.song.timeDivision;
+            const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(composer.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
             const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
             const maxLengthInTicks = (this.state.currentRowSegmentID + 1) * segmentLengthInTicks;
 
 
             // Instruction Iterator
-            let instructionIterator = this.editorElm.song.instructionGetIterator(this.groupName);
+            let instructionIterator = composer.song.instructionGetIterator(this.groupName);
 
 
-            //         console.log('segmentLengthInTicks', segmentLengthInTicks, this.editorElm.refs.fieldTrackerSegmentLength.value);
+            //         console.log('segmentLengthInTicks', segmentLengthInTicks, composer.refs.fieldTrackerSegmentLength.value);
             const filterByInstrumentID = Number.isInteger(this.state.filterByInstrumentID) ? this.state.filterByInstrumentID : null;
             const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
                 return conditionalInstruction.instrument === filterByInstrumentID
             };
 
-            const selectedIndicies = this.editorElm.getSelectedIndicies();
+            const selectedIndicies = composer.getSelectedIndicies();
             const cursorIndex = (this.cursorInstruction ? this.cursorInstruction.index : (selectedIndicies.length > 0 ? selectedIndicies[0] : null));
             const cursorPosition = (this.cursorRow ? this.cursorRow.positionInTicks : null);
             // TODO: solve
@@ -169,7 +174,7 @@
                         const props = {};
                         if (selectedIndicies.indexOf(instruction.index) !== -1) props.selected = true;
                         if (instruction.index === cursorIndex) props.cursor = true;
-                        const elm = new AudioSourceComposerTrackerInstruction(this.song, instruction, props);
+                        const elm = new ASCUITrackerInstruction(this.song, instruction, props);
                         if (props.selected) this.selectedInstructions.push(elm);
                         if (props.cursor) {
                             this.cursorInstruction = elm;
@@ -179,7 +184,7 @@
                         return elm;
                     });
 
-                    const newRowElm = new AudioSourceComposerTrackerRow(
+                    const newRowElm = new ASCUITrackerRow(
                         this.song,
                         rowInstructionElms,
                         instructionIterator.groupPositionInTicks,
@@ -194,10 +199,10 @@
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
             // console.log(lastRowSegmentID, lastRowPositionInTicks);
-            // this.editorElm.rowSegmentCount = lastRowSegmentID;
+            // composer.rowSegmentCount = lastRowSegmentID;
 
             // // Render Segments
-            // const panelTrackerRowSegments = this.editorElm.panelTrackerRowSegments;
+            // const panelTrackerRowSegments = composer.panelTrackerRowSegments;
             // if (panelTrackerRowSegments)
             //     panelTrackerRowSegments.render();
 
@@ -236,18 +241,19 @@
 
             // console.log(e.type);
 
-            let selectedIndicies = this.editorElm.getSelectedIndicies();
+            const composer = this.props.composer;
+            let selectedIndicies = composer.getSelectedIndicies();
             // const instructionList = this.instructionEach();
 
             switch (e.type) {
                 case 'keydown':
                     // All key actions close all menus
-                    this.editorElm.closeAllMenus();
+                    composer.closeAllMenus();
 
                     let keyEvent = e.key;
-                    if (!e.ctrlKey && this.editorElm.keyboard.getKeyboardCommand(
+                    if (!e.ctrlKey && composer.keyboard.getKeyboardCommand(
                         e.key,
-                        this.editorElm.refs.fieldTrackerOctave.value
+                        composer.refs.fieldTrackerOctave.value
                     ))
                         keyEvent = 'PlayFrequency';
                     if (keyEvent === 'Enter' && e.altKey)
@@ -261,7 +267,7 @@
                             // this.clearSelection();
                             const selectedIndiciesDesc = selectedIndicies.sort((a, b) => b - a);
                             for (let i = 0; i < selectedIndiciesDesc.length; i++)
-                                this.editorElm.song.instructionDeleteAtIndex(this.groupName, selectedIndicies[i]);
+                                composer.song.instructionDeleteAtIndex(this.groupName, selectedIndicies[i]);
                             this.renderRows();
                             // this.selectIndicies(selectedIndicies[0]);
                             // song.render(true);
@@ -280,21 +286,21 @@
                             if (this.contains(e.target)) {
 
                                 e.preventDefault();
-                                this.editorElm.instructionInsertOrUpdate(e);
+                                composer.instructionInsertOrUpdate(e);
 
                                 let cursorInstruction = this.cursorInstruction;
                                 if (cursorInstruction.isGroupCommand()) {
                                     const groupName = cursorInstruction.command.substr(1);
-                                    this.editorElm.selectGroup(groupName);
+                                    composer.selectGroup(groupName);
                                 } else {
-                                    this.editorElm.playCursorInstruction(e);
+                                    composer.playCursorInstruction(e);
                                 }
                             }
                             break;
 
                         case 'Play':
                             e.preventDefault();
-                            this.editorElm.playCursorInstruction(e);
+                            composer.playCursorInstruction(e);
                             // for(let i=0; i<selectedIndicies.length; i++) {
                             //     this.editor.song.playInstruction(instructionList[i]);
                             // }
@@ -303,25 +309,25 @@
                         // ctrlKey && metaKey skips a measure. shiftKey selects a range
                         case 'ArrowRight':
                             e.preventDefault();
-                            this.editorElm.setNextCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            composer.setNextCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
                         case 'ArrowLeft':
                             e.preventDefault();
-                            this.editorElm.setPreviousCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            composer.setPreviousCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
                         case 'ArrowDown':
                             e.preventDefault();
-                            this.editorElm.setNextRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            composer.setNextRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
                         case 'ArrowUp':
                             e.preventDefault();
-                            this.editorElm.setPreviousRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
+                            composer.setPreviousRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
                             // this.focus();
                             break;
 
@@ -329,25 +335,25 @@
                             e.preventDefault();
                             // this.selectCell(e, this.cursorCell);
                             // if(e.ctrlKey) e.preventDefault();
-                            if (this.editorElm.song.isActive()) {
-                                this.editorElm.song.stopPlayback();
+                            if (composer.song.isActive()) {
+                                composer.song.stopPlayback();
                             } else {
-                                this.editorElm.song.play();
+                                composer.song.play();
                             }
                             break;
 
                         case 'PlayFrequency':
-                            let newCommand = this.editorElm.keyboard.getKeyboardCommand(e.key, this.editorElm.refs.fieldTrackerOctave.value);
+                            let newCommand = composer.keyboard.getKeyboardCommand(e.key, composer.refs.fieldTrackerOctave.value);
                             if (newCommand === null)
                                 break;
 
                             e.preventDefault();
 
-                            this.editorElm.instructionInsertOrUpdate(e, newCommand);
+                            composer.instructionInsertOrUpdate(e, newCommand);
 
                             // this.render();
                             // this.renderCursorRow();
-                            this.editorElm.playCursorInstruction(e);
+                            composer.playCursorInstruction(e);
                             this.focus();
 
                             // song.gridSelectInstructions([selectedInstruction]);
@@ -360,7 +366,7 @@
                 case 'touchstart':
                 case 'mousedown':
                     // All mouse actions close all menus
-                    this.editorElm.closeAllMenus();
+                    composer.closeAllMenus();
 
                     this.mousePosition.isDown = true;
                     this.mousePosition.isDragging = false;
@@ -370,21 +376,21 @@
                     // delete this.mousePosition.lastUp;
                     // delete this.mousePosition.lastDrag;
 
-                    if (e.target instanceof AudioSourceComposerTrackerInstruction)
-                        return this.editorElm.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
+                    if (e.target instanceof ASCUITrackerInstruction)
+                        return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
 
-                    if (e.target.parentNode instanceof AudioSourceComposerTrackerInstruction)
-                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+                    if (e.target.parentNode instanceof ASCUITrackerInstruction)
+                        return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
-                    if (e.target instanceof AudioSourceComposerTrackerInstructionAdd)
-                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+                    if (e.target instanceof ASCUITrackerInstructionAdd)
+                        return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
-                    if (e.target instanceof AudioSourceComposerTrackerDelta) // TODO: special command for clicking delta
-                        return this.editorElm.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+                    if (e.target instanceof ASCUITrackerDelta) // TODO: special command for clicking delta
+                        return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
 
-                    if (e.target instanceof AudioSourceComposerTrackerRow)  // classList.contains('tracker-row')) {
-                        return this.editorElm.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
+                    if (e.target instanceof ASCUITrackerRow)  // classList.contains('tracker-row')) {
+                        return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
                     // e.preventDefault();
 
 
@@ -424,7 +430,7 @@
                     const lastMouseUp = this.mousePosition.lastUp;
                     e.t = new Date();
                     this.mousePosition.lastUp = e;
-                    if (lastMouseUp && lastMouseUp.t.getTime() + this.editorElm.doubleClickTimeout > new Date().getTime()) {
+                    if (lastMouseUp && lastMouseUp.t.getTime() + composer.doubleClickTimeout > new Date().getTime()) {
                         e.preventDefault();
                         const currentTarget = e.path[0];
                         const originalTarget = lastMouseUp.path[0];
@@ -469,7 +475,7 @@
                     e.preventDefault();
                     // console.log("Longpress", e);
                     if (this.contains(e.target)) {
-                        this.editorElm.menuContext.openContextMenu(e);
+                        composer.menuContext.openContextMenu(e);
                     }
                     // }
                     break;
@@ -480,7 +486,7 @@
                     // }
                     if (!e.altKey) {
                         e.preventDefault();
-                        this.editorElm.openContextMenu(e);
+                        composer.openContextMenu(e);
                     }
                     break;
 
@@ -576,7 +582,8 @@
             rectElm.parentNode.removeChild(rectElm);
 
 
-            this.editorElm.clearSelectedIndicies();
+            const composer = this.props.composer;
+            composer.clearSelectedIndicies();
 
             const searchElements = this.querySelectorAll('asct-instruction,asct-row');
             const selectionList = [];
@@ -702,7 +709,7 @@
                 cursorIndex = selectedIndicies.length > 0 ? selectedIndicies[0] : null;
             for (let i = 0; i < this.cursorList.length; i++) {
                 const cursorItem = this.cursorList[i];
-                if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
+                if (cursorItem instanceof ASCUITrackerInstruction) {
                     await cursorItem.select(selectedIndicies.indexOf(cursorItem.index) !== -1);
                     if (cursorIndex !== null)
                         cursorItem.setCursor(cursorIndex === cursorItem.index);
@@ -748,10 +755,10 @@
                 throw new Error("Shouldn't happen");
             // Find the end of the row, and return the next entry
             let lastRowOffset = offset, rowPosition = 0;
-            while (cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
+            while (cursorList[--lastRowOffset] instanceof ASCUITrackerInstruction) rowPosition++;
 
-            while (cursorList[offset++] instanceof AudioSourceComposerTrackerInstruction) ;
-            while (cursorList[offset] instanceof AudioSourceComposerTrackerInstruction && rowPosition-- > 0) offset++;
+            while (cursorList[offset++] instanceof ASCUITrackerInstruction) ;
+            while (cursorList[offset] instanceof ASCUITrackerInstruction && rowPosition-- > 0) offset++;
             return cursorList[offset] || null;
         }
 
@@ -770,15 +777,15 @@
             if (!cursorList[offset])
                 throw new Error("Shouldn't happen");
             let lastRowOffset = offset, rowPosition = 0;
-            while (cursorList[--lastRowOffset] instanceof AudioSourceComposerTrackerInstruction) rowPosition++;
+            while (cursorList[--lastRowOffset] instanceof ASCUITrackerInstruction) rowPosition++;
             offset -= rowPosition + 1;
 
             // Find the previous non-instruction entry
-            while (cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
+            while (cursorList[offset] instanceof ASCUITrackerInstruction) offset--;
             offset--;
-            while (cursorList[offset] instanceof AudioSourceComposerTrackerInstruction) offset--;
+            while (cursorList[offset] instanceof ASCUITrackerInstruction) offset--;
             // offset++;
-            while (cursorList[offset + 1] instanceof AudioSourceComposerTrackerInstruction && rowPosition-- > -1) offset++;
+            while (cursorList[offset + 1] instanceof ASCUITrackerInstruction && rowPosition-- > -1) offset++;
             return cursorList[offset] || null;
         }
 
@@ -888,13 +895,14 @@
 
 
         selectSegmentIndicies(indicies, clearSelection = false) {
-            // const currentSelectedIndicies = this.editorElm.getSelectedIndicies();
+            const composer = this.props.composer;
+            // const currentSelectedIndicies = composer.getSelectedIndicies();
             // if(indicies.length === currentSelectedIndicies.length && indicies.sort().every(function(value, index) { return value === currentSelectedIndicies.sort()[index]}))
             //     return;
             if (!Array.isArray(indicies))
                 indicies = [indicies];
             if (clearSelection)
-                this.editorElm.clearSelectedIndicies();
+                composer.clearSelectedIndicies();
             for (let i = 0; i < indicies.length; i++) {
                 const index = indicies[i];
                 const cell = this.findInstructionElement(index);
@@ -935,7 +943,7 @@
         //     e.preventDefault();
         //     selectedCell = selectedCell || e.target;
         //     this.selectCell(e, selectedCell);
-        //     this.editorElm.playCursorInstruction(e);
+        //     composer.playCursorInstruction(e);
         // }
 
 
@@ -944,7 +952,8 @@
         // }
 
         replaceFrequencyAlias(noteFrequency, instrumentID) {
-            const instrument = this.editorElm.song.getInstrument(instrumentID, false);
+            const composer = this.props.composer;
+            const instrument = composer.song.getInstrument(instrumentID, false);
             if (!instrument || !instrument.getFrequencyAliases)
                 return noteFrequency;
             const aliases = instrument.getFrequencyAliases(noteFrequency);
@@ -975,16 +984,16 @@
     }
 
     if(isBrowser)
-        customElements.define('asc-tracker', AudioSourceComposerTracker);
+        customElements.define('asc-tracker', ASCUITracker);
 
 
     // const VISIBLE_BUFFER = 100;
 
-    class AudioSourceComposerTrackerRow extends ASUIComponent {
+    class ASCUITrackerRow extends ASUIComponent {
         constructor(song, instructions, positionInTicks = null, positionInSeconds = null, duration = null) {
             super({t: positionInTicks, cursor: false}, {
                 instructions,
-                delta: new AudioSourceComposerTrackerDelta(song, duration),
+                delta: new ASCUITrackerDelta(song, duration),
                 positionInSeconds,
                 duration,
                 // selected: false
@@ -1040,16 +1049,16 @@
             return [
                 this.state.delta,
                 this.state.instructions,
-                this.props.cursor ? new AudioSourceComposerTrackerInstructionAdd() : null
+                this.props.cursor ? new ASCUITrackerInstructionAdd() : null
             ];
         }
 
     }
 
     if(isBrowser)
-        customElements.define('asct-row', AudioSourceComposerTrackerRow);
+        customElements.define('asct-row', ASCUITrackerRow);
 
-    class AudioSourceComposerTrackerInstruction extends ASUIComponent {
+    class ASCUITrackerInstruction extends ASUIComponent {
         constructor(song, instruction, props = {}) {
             super(props, {});
             this.props.i = instruction.index;
@@ -1118,7 +1127,8 @@
         }
 
         play() {
-            this.editorElm.song.playInstructionAtIndex(destination, this.trackerElm.groupName, this.index, this.editorElm.song.getAudioContext().currentTime);
+            const composer = this.props.composer;
+            composer.song.playInstructionAtIndex(destination, this.trackerElm.groupName, this.index, composer.song.getAudioContext().currentTime);
             return this;
         }
 
@@ -1141,10 +1151,10 @@
     }
 
     if(isBrowser)
-        customElements.define('asct-instruction', AudioSourceComposerTrackerInstruction);
+        customElements.define('asct-instruction', ASCUITrackerInstruction);
 
 
-    class AudioSourceComposerTrackerInstructionAdd extends ASUIComponent {
+    class ASCUITrackerInstructionAdd extends ASUIComponent {
 
         setCursor(isCursor = true) {
             this.setProps({cursor: isCursor});
@@ -1157,7 +1167,7 @@
     }
 
     if(isBrowser)
-        customElements.define('asct-instruction-add', AudioSourceComposerTrackerInstructionAdd);
+        customElements.define('asct-instruction-add', ASCUITrackerInstructionAdd);
 
 
     class AudioSourceComposerParamCommand extends ASUIComponent {
@@ -1223,7 +1233,7 @@
         customElements.define('ascti-duration', AudioSourceComposerParamDuration);
 
 
-    class AudioSourceComposerTrackerDelta extends ASUIComponent {
+    class ASCUITrackerDelta extends ASUIComponent {
         constructor(song, duration, props = {}) {
             super(props, {
                 duration: new AudioSourceValues(song).formatDuration(duration)
@@ -1236,18 +1246,18 @@
     }
 
     if(isBrowser)
-        customElements.define('asct-delta', AudioSourceComposerTrackerDelta);
+        customElements.define('asct-delta', ASCUITrackerDelta);
 
 
     /** Export this script **/
     thisModule.exports = {
-        AudioSourceComposerTracker,
-        AudioSourceComposerTrackerInstruction,
-        AudioSourceComposerTrackerRow
+        ASCUITracker,
+        ASCUITrackerInstruction,
+        ASCUITrackerRow
     };
 
 }).apply(null, (function() {
-    const thisScriptPath = 'composer/audio-source-composer-tracker.js';
+    const thisScriptPath = 'composer/ui/ascui-tracker.js';
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);

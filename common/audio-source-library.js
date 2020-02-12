@@ -209,7 +209,7 @@
         return await AudioSourceLibrary.loadFromURL(AudioSourceLibrary.defaultLibraryURL);
     };
     AudioSourceLibrary.cache = {};
-    AudioSourceLibrary.defaultLibraryURL = customElements.get('audio-source-loader').resolveURL('../default.library.json');
+    AudioSourceLibrary.defaultLibraryURL = new URL('../default.library.json', thisModule.src);
 
 
 

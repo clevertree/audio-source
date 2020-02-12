@@ -4,7 +4,7 @@
         window.require = thisRequire;
 
     /** Required Modules **/
-    const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
+    // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {ASUIDiv} = require('../common/ui/asui-component.js');
     const {AudioSourceValues} = require('../common/audio-source-values.js');
     const {AudioSourceLibrary} = require('../common/audio-source-library.js');
@@ -14,7 +14,7 @@
     const {AudioSourceComposerRenderer} = require('../composer/audio-source-composer-renderer.js');
     const {AudioSourceComposerActions} = require('../composer/audio-source-composer-actions.js');
     const {AudioSourceComposerKeyboard} = require('../composer/audio-source-composer-keyboard.js');
-    const {AudioSourceComposerTracker} = require('../composer/audio-source-composer-tracker.js');
+    // const {AudioSourceComposerTracker} = require('./ui/ascui-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
         constructor(props={}, state={}) {
@@ -52,7 +52,7 @@
             //     doubleClickTimeout: 500,
             //     autoSaveTimeout: 4000,
             // };
-            this.trackerElm = new AudioSourceComposerTracker(this);
+            // this.trackerElm = new AudioSourceComposerTracker(this);
             this.library = AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
 
 
@@ -62,7 +62,8 @@
             // this.values = new AudioSourceValues(this.song);
             // Util.loadLibrary(defaultLibraryURL);
 
-            this.addEventHandler('unload', e => this.saveState(e), window);
+            this.onSongEvent = (e) => this.onSongEvent(e);
+            window.addEventListener('unload', e => this.saveState(e));
             this.ui = {};
         }
 
@@ -82,23 +83,23 @@
             // this.loadCSS();
             super.connectedCallback(false);
 
-            this.addEventHandler(['dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
-            this.addEventHandler(['focus', 'click'], e => this.onInput(e), this.shadowDOM);
+            // this.addEventHandler(['dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
+            // this.addEventHandler(['focus', 'click'], e => this.onInput(e), this.shadowDOM);
             // 'change', 'submit',
 
-            this.addEventHandler([
-                'song:loaded', 'song:play', 'song:end', 'song:stop', 'song:modified', 'song:seek',
-                'group:play', 'group:seek',
-                'note:start', 'note:end',
-                'log'
-            ], this.onSongEvent);
-            this.addEventHandler([
-                    'instrument:instance',
-                    'instrument:library',
-                    'instrument:modified',
-                    'instrument:added',
-                    'instrument:removed'],
-                e => this.onSongEvent(e), document);
+            // this.addEventHandler([
+            //     'song:loaded', 'song:play', 'song:end', 'song:stop', 'song:modified', 'song:seek',
+            //     'group:play', 'group:seek',
+            //     'note:start', 'note:end',
+            //     'log'
+            // ], this.onSongEvent);
+            // this.addEventHandler([
+            //         'instrument:instance',
+            //         'instrument:library',
+            //         'instrument:modified',
+            //         'instrument:added',
+            //         'instrument:removed'],
+            //     e => this.onSongEvent(e), document);
 
             this.focus();
 
@@ -108,11 +109,29 @@
             this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
 
 
-            const Util = new AudioSourceUtilities;
-            Util.loadPackageInfo()
+            this.loadPackageInfo()
                 .then(packageInfo => this.setVersion(packageInfo.version));
         }
 
+
+        /** Package Info **/
+
+        async loadPackageInfo(force=false) {
+            const url = new URL('../package.json', thisModule.src);
+
+            let packageInfo = this.packageInfo;
+            if (!force && packageInfo)
+                return packageInfo;
+
+            const response = await fetch(url);
+            packageInfo = await response.json();
+            if(!packageInfo.version)
+                throw new Error("Invalid package version: " + url);
+
+            console.log("Package Version: ", packageInfo.version, packageInfo);
+            this.packageInfo = packageInfo;
+            return packageInfo;
+        }
 
 
         async getLibrary() {
@@ -128,7 +147,7 @@
         }
 
         get defaultLibraryURL() {
-            return this.getAttribute('defaultLibraryURL') || this.getScriptDirectory('default.library.json');
+            return this.getAttribute('defaultLibraryURL') || new URL('../default.library.json', thisModule.src);
         }
 
         set defaultLibraryURL(url) {

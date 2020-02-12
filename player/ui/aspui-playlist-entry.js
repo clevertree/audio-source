@@ -12,7 +12,7 @@
     const {ASUIMenu} = require('../../common/ui/asui-menu.js');
 
 
-    class ASPPlaylistEntry extends ASUIComponent {
+    class ASPUIPlaylistEntry extends ASUIComponent {
         constructor(props = {}) {
             super(props, {});
             if(!this.props.data)
@@ -99,17 +99,17 @@
         //     entryData.key = id;
         //     const isPlaylist = entryData.url.toString().toLowerCase().endsWith('.pl.json');
         //     if(isPlaylist)
-        //         return new ASPPlaylistPlaylistEntry(props, entryData);
-        //     return new ASPPlaylistEntry(props, entryData);
+        //         return new ASPUIPlaylistPlaylistEntry(props, entryData);
+        //     return new ASPUIPlaylistEntry(props, entryData);
         // }
 
     }
     if(isBrowser)
-        customElements.define('aspp-entry', ASPPlaylistEntry);
+        customElements.define('aspp-entry', ASPUIPlaylistEntry);
 
 
 
-    // class ASPPlaylistPlaylistEntry extends ASPPlaylistEntry {
+    // class ASPUIPlaylistPlaylistEntry extends ASPUIPlaylistEntry {
     //     get isPlaylist() { return true; }
     //
     //     constructor(props={}) {
@@ -163,7 +163,7 @@
     //             let entry = playlist[id];
     //             if(typeof entry === "object")   entry.url = urlPrefix + entry.url;
     //             else                            entry = urlPrefix + entry;
-    //             entry = ASPPlaylistEntry.parseFromData(entry, id);
+    //             entry = ASPUIPlaylistEntry.parseFromData(entry, id);
     //             newPlaylist.push(entry);
     //
     //             // await entry.updateID(id); d
@@ -199,18 +199,18 @@
     //     }
     // }
     // if(isBrowser)
-    //     customElements.define('aspp-playlist-entry', ASPPlaylistPlaylistEntry);
+    //     customElements.define('aspp-playlist-entry', ASPUIPlaylistPlaylistEntry);
 
 
     /** Export this script **/
     thisModule.exports = {
-        ASPPlaylistEntry,
-        // ASPHeaderContainer
+        ASPUIPlaylistEntry,
+        // ASPUIHeaderContainer
     };
 
 
 }).apply(null, (function() {
-    const thisScriptPath = 'player/ui/asp-playlist-entry.js';
+    const thisScriptPath = 'player/ui/asc-playlist-entry.js';
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);

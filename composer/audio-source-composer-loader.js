@@ -5,14 +5,14 @@
             super();
         }
 
-        /** Append Instrument CSS */
+        /** Append CSS */
         static appendCSS(cssPath, destination=null) {
             destination = destination || document.head;
 
             const linkHRef = AudioSourceLoader.resolveURL(cssPath);
             let linkElms = destination.querySelectorAll('link');
             for(let i=0; i<linkElms.length; i++) {
-                if(linkElms[i].href.endsWith(cssPath))
+                if(linkElms[i].href.endsWith(linkHRef))
                     return;
             }
             const linkElm = document.createElement('link');
@@ -22,71 +22,78 @@
             return linkElm;
         }
 
-
-        static require(relativeScriptPath) {
-            let scriptElm = AudioSourceLoader.findScript(relativeScriptPath);
-            // console.info('require', relativeScriptPath, scriptElm.exports);
-            return scriptElm.exports
-                || (() => {
-                    throw new Error("Script module has no exports: " + relativeScriptPath);
-                })()
+        static getRequire(sourceScriptElm) {
+            // const sourceScriptElm = AudioSourceLoader.findScript(sourceScriptElm);
+            return function(relativeScriptPath) {
+                const absScriptPath = new URL(relativeScriptPath, sourceScriptElm.src);
+                let scriptElm = AudioSourceLoader.findScript(absScriptPath);
+                return scriptElm.exports
+                    || (() => {throw new Error("Script module has no exports: " + absScriptPath);})()
+            }
         }
 
-        static resolveURL(relativeScriptURL) {
-            if (typeof relativeScriptURL === "string" && relativeScriptURL.startsWith('../')) {
-                relativeScriptURL = new URL(basePathURL + relativeScriptURL, document.location) + ''
+        static getRequireAsync(sourceScriptElm) {
+            // const sourceScriptElm = AudioSourceLoader.findScript(sourceScriptPath);
+            return async function(relativeScriptPath) {
+                const absScriptPath = new URL(relativeScriptPath, sourceScriptElm.src);
+                let scriptElm = AudioSourceLoader.findScript(absScriptPath, false);
+                if(!scriptElm) {
+                    scriptElm = document.createElement('script');
+                    scriptElm.src = absScriptPath;
+                    scriptElm.loadPromise = new Promise(async (resolve, reject) => {
+                        scriptElm.onload = resolve;
+                        document.head.appendChild(scriptElm);
+                    });
+                }
+                await scriptElm.loadPromise;
+                return scriptElm.exports
+                    || (() => {throw new Error("Script module has no exports: " + absScriptPath);})()
             }
-            return relativeScriptURL;
         }
 
         static findScript(relativeScriptURL, throwException = true) {
-            relativeScriptURL = AudioSourceLoader.resolveURL(relativeScriptURL);
+            // relativeScriptURL = AudioSourceLoader.resolveURL(relativeScriptURL);
             const scriptElm = document.head.querySelector(`script[src$="${relativeScriptURL}"]`);
             if (!scriptElm && throwException)
                 throw new Error("Required script not found: " + relativeScriptURL);
             return scriptElm;
         }
 
-        static getBasePath() { return basePathURL; }
+        // static getBasePath() { return basePathURL; }
     }
 
-    AudioSourceLoader.requireAsync = async function(relativeScriptURL) {
-        let scriptElm = AudioSourceLoader.findScript(relativeScriptURL, false);
-        if(!scriptElm) {
-            const scriptURL = AudioSourceLoader.resolveURL(relativeScriptURL);
-            scriptElm = document.createElement('script');
-            scriptElm.src = scriptURL;
-            scriptElm.loadPromise = new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            });
-        }
-        await scriptElm.loadPromise;
-        return scriptElm.exports
-            || (() => { throw new Error("Script module has no exports: " + relativeScriptURL); })()
-    };
-
     if(!customElements.get('audio-source-loader'))
-        if(isBrowser)
         customElements.define('audio-source-loader', AudioSourceLoader);
 
     const thisScriptPath = 'audio-source-composer-loader.js';
     const thisScript = customElements.get('audio-source-loader').findScript(thisScriptPath);
     const basePathURL = thisScript.src.replace(document.location.origin, '').replace(thisScriptPath, '');
 
-    const req = AudioSourceLoader.requireAsync;
+    const require = AudioSourceLoader.getRequireAsync(thisScript);
 
-    await req('../common/audio-source-song.js');
-    await req('../common/audio-source-storage.js');
-    await req('../common/audio-source-library.js');
-    await req('../common/asui-component.js');
-    await req('../common/audio-source-values.js');
-    await req('../common/audio-source-file-service.js');
-    await req('../common/audio-source-utilities.js');
+    await require('../assets/3rdparty/LZString/lz-string.min.js');
 
-    await req('../composer/audio-source-composer-tracker.js');
-    await req('../composer/audio-source-composer-renderer.js');
-    await req('../composer/audio-source-composer-actions.js');
-    await req('../composer/audio-source-composer-keyboard.js');
-    await req('../composer/audio-source-composer.js');
+
+    await require('../common/ui/asui-component.js');
+    // await require('../common/ui/asui-grid.js');
+    await require('../common/ui/asui-menu.js');
+    await require('../common/ui/asui-input-button.js');
+    await require('../common/ui/asui-input-checkbox.js');
+    await require('../common/ui/asui-input-file.js');
+    await require('../common/ui/asui-input-range.js');
+    await require('../common/ui/asui-input-select.js');
+    await require('../common/ui/asui-input-text.js');
+
+    await require('../common/audio-source-song.js');
+    await require('../common/audio-source-storage.js');
+    await require('../common/audio-source-library.js');
+    await require('../common/audio-source-values.js');
+    await require('../common/audio-source-file-service.js');
+
+    await require('./ui/ascui-header.js');
+    await require('./ui/ascui-tracker.js');
+    await require('../composer/audio-source-composer-renderer.js');
+    await require('../composer/audio-source-composer-actions.js');
+    await require('../composer/audio-source-composer-keyboard.js');
+    await require('../composer/audio-source-composer.js');
 })();

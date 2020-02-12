@@ -8,13 +8,13 @@
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
     const {
         AudioSourcePlayerRenderer,
-        ASPPlaylistPlaylistEntry
+        ASPUIPlaylistPlaylistEntry
     }                                   = require('../player/audio-source-player-renderer.js');
 
     class AudioSourcePlayerActions extends AudioSourcePlayerRenderer {
         constructor(props={}) {
             super(props);
-            this._onSongEventCallback = (e) => this.onSongEvent(e);
+            this.onSongEvent = (e) => this.onSongEvent(e);
 
             // this.activeSong = null;
             // this.nextPlaylistSong = null;
@@ -33,12 +33,12 @@
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
-                this.song.removeEventListener('*', this._onSongEventCallback);
+                this.song.removeEventListener('*', this.onSongEvent);
                 // this.song.removeDispatchElement(this);
                 // TODO: unload song?
             }
             this.song = song;
-            this.song.addEventListener('*', this._onSongEventCallback);
+            this.song.addEventListener('*', this.onSongEvent);
             this.state.songLength = song.getSongLengthInSeconds();
             // this.song.setVolume(this.state.volume);
             // this.song.addDispatchElement(this);
@@ -262,7 +262,7 @@
         async loadSongFromURL(url) {
             const song = this.song;
             if(this.isPlaylist(url)) {
-                const playlistEntry = new ASPPlaylistPlaylistEntry({url});
+                const playlistEntry = new ASPUIPlaylistPlaylistEntry({url});
                 this.addEntry(playlistEntry);
                 await this.forceUpdate();
                 // await this.loadPlaylistFromURL(url);
@@ -395,7 +395,7 @@
                 return await this.song.play(this.getVolumeGain());
             }
             // let entry = await this.playlist.getCurrentEntry();
-            // if(entry instanceof ASPPlaylistPlaylistEntry)
+            // if(entry instanceof ASPUIPlaylistPlaylistEntry)
             //     entry = await this.playlistMoveToNextSongEntry();
 
             this.setState({playing: true});
@@ -542,7 +542,7 @@
         // async eachEntry(callback) {
         //     let offset=0;
         //     return await this.eachEntry(async (entry, i) => {
-        //         if(entry instanceof ASPPlaylistPlaylistEntry)
+        //         if(entry instanceof ASPUIPlaylistPlaylistEntry)
         //             return null;
         //         return await callback(entry, offset++);
         //     })
@@ -551,7 +551,7 @@
         // async eachPlaylistEntry(callback) {
         //     let offset=0;
         //     return await this.eachEntry(async (entry, i) => {
-        //         if(!entry instanceof ASPPlaylistPlaylistEntry)
+        //         if(!entry instanceof ASPUIPlaylistPlaylistEntry)
         //             return null;
         //         return await callback(entry, offset++);
         //     })
@@ -564,8 +564,8 @@
         // }
 
         // async addEntry(entry, insertAtPosition=null, skipDuplicate=true) {
-        //     if(!entry instanceof ASPPlaylistEntry)
-        //         throw new Error("Invalid ASPPlaylistEntry");
+        //     if(!entry instanceof ASPUIPlaylistEntry)
+        //         throw new Error("Invalid ASPUIPlaylistEntry");
         //     if(skipDuplicate && this.entries.find(e => e.url === entry.url)) {
         //         return false;
         //     }

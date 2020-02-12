@@ -51,25 +51,6 @@
             }
         }
 
-        // /** @deprecated **/
-        // static require(relativeScriptPath) {
-        //     let scriptElm = AudioSourceLoader.findScript(relativeScriptPath);
-        //     // console.info('require', relativeScriptPath, scriptElm.exports);
-        //     return scriptElm.exports
-        //         || (() => {
-        //             throw new Error("Script module has no exports: " + relativeScriptPath);
-        //         })()
-        // }
-        //
-        // /** @deprecated **/
-        // static resolveURL(relativeScriptURL) {
-        //     throw new Error("Depreciated");
-        //     if (relativeScriptURL.toString().startsWith('../'))
-        //         relativeScriptURL = relativeScriptURL.substr(3);
-        //     relativeScriptURL = new URL(basePathURL + relativeScriptURL, document.location) + ''
-        //     return relativeScriptURL;
-        // }
-
         static findScript(relativeScriptURL, throwException = true) {
             // relativeScriptURL = AudioSourceLoader.resolveURL(relativeScriptURL);
             const scriptElm = document.head.querySelector(`script[src$="${relativeScriptURL}"]`);
@@ -105,13 +86,13 @@
 
     await require('../common/audio-source-song.js');
     await require('../common/audio-source-storage.js');
+    await require('../common/audio-source-library.js');
     await require('../common/audio-source-values.js');
     await require('../common/audio-source-file-service.js');
-    // await require('../common/audio-source-utilities.js');
 
-    await require('ui/asp-playlist-entry.js');
-    await require('ui/asp-playlist.js');
-    await require('ui/asp-header.js');
+    await require('audio-source/player/ui/aspui-playlist-entry.js');
+    await require('audio-source/player/ui/aspui-playlist.js');
+    await require('audio-source/player/ui/aspui-header.js');
 
     await require('audio-source-player-renderer.js');
     await require('audio-source-player-actions.js');

@@ -20,8 +20,8 @@
     const {ASUIInputRange} = require('../common/ui/asui-input-range.js');
     const {ASUIInputText} = require('../common/ui/asui-input-text.js');
 
-    const {ASPHeader} = require('./ui/asp-header.js');
-    const {ASPPlaylist} = require('./ui/asp-playlist.js');
+    const {ASPUIHeader} = require('./ui/aspui-header.js');
+    const {ASPUIPlaylist} = require('./ui/aspui-playlist.js');
 
 
     if(!isBrowser)
@@ -136,7 +136,7 @@
                     this.createStyleSheetLink('../common/assets/audio-source-common.css', thisModule),
                 ] : null,
                 this.containerElm = ASUIDiv.cE('asp-container', [
-                    ASPHeader.cE({
+                    ASPUIHeader.cE({
                         // portrait: !!this.state.portrait,
                         key: 'asp-title-container',
                         menuContent: () => this.renderMenu(this.state.menuKey),
@@ -244,7 +244,7 @@
 
                         ASPPanel.cE('playlist', [
                             ASUIDiv.cE('title', 'Playlist'),
-                            ASPPlaylist.cE({
+                            ASPUIPlaylist.cE({
                                 key: 'playlist',
                                 player: this,
                                 // playlist: this.state.playlist,

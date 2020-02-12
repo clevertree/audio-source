@@ -12,7 +12,7 @@
     const {ASUIMenu} = require('../../common/ui/asui-menu.js');
 
 
-    class ASPHeader extends ASUIComponent {
+    class ASPUIHeader extends ASUIComponent {
 
         render() {
             return this.props.portrait ? this.renderPortrait() : this.renderLandscape();
@@ -44,19 +44,19 @@
 
     }
     if(isBrowser)
-        customElements.define('asp-header', ASPHeader);
+        customElements.define('asp-header', ASPUIHeader);
 
 
 
     /** Export this script **/
     thisModule.exports = {
-        ASPHeader,
-        // ASPHeaderContainer
+        ASPUIHeader,
+        // ASPUIHeaderContainer
     };
 
 
 }).apply(null, (function() {
-    const thisScriptPath = 'player/ui/asp-header.js';
+    const thisScriptPath = 'player/ui/ascui-header.js';
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);

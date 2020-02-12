@@ -11,21 +11,21 @@
     // const {ASUIInputButton} = require('../../common/ui/asui-input-button.js');
     // const {ASUIMenu} = require('../../common/ui/asui-menu.js');
 
-    const {ASPPlaylistEntry} = require('./asp-playlist-entry.js');
+    const {ASPUIPlaylistEntry} = require('./aspui-playlist-entry.js');
 
-    class ASPPlaylist extends ASUIComponent {
+    class ASPUIPlaylist extends ASUIComponent {
         constructor(props = {}) {
             super(props, {});
             if(!this.player)
                 throw new Error("Invalid player");
 
-            this.state = this.player.state.playlist;
+            this.state = this.props.player.state.playlist;
             this.state.position = this.state.position || 0;
             this.state.entries = this.state.entries || [];
             this.state.selectedPositions = this.state.selectedPositions || [];
         }
 
-        get player() { return this.props.player; }
+        // get player() { return this.props.player; }
         // get position() { return this.state.position; }
         // get entries() { return this.state.entries; }
 
@@ -33,6 +33,7 @@
         render() {
             // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
             // await this.updateEntries();
+            const player = this.props.player;
             return [
                 ASUIDiv.createElement('header', [
                     ASUIDiv.createElement('id', 'ID'),
@@ -42,13 +43,13 @@
                 ], {key: 'asp-playlist-header'}),
                 ASUIDiv.createElement('asp-playlist-container', [
                     this.state.entries.length > 0
-                    ? this.player.eachEntry((entryData, position, depth) => {
+                    ? player.eachEntry((entryData, position, depth) => {
                         const props = {
                             key: position,
                             data:entryData,
                             playlist: this,
                             depth,
-                            onPress: (e) => this.player.toggleEntryAtPosition(position)
+                            onPress: (e) => player.toggleEntryAtPosition(position)
                         };
                         const classes = [];
                         if(this.state.position === position)
@@ -59,7 +60,7 @@
                                 classes.push('loading');
                         if(classes.length > 0)
                             props.class = classes.join(' ');
-                        return ASPPlaylistEntry.createElement(props)
+                        return ASPUIPlaylistEntry.createElement(props)
                     })
                     : ASUIDiv.createElement('empty-playlist', "Empty Playlist")
                 ], {'style': `max-height:${Math.round(window.innerHeight / 2)}px;`}),
@@ -73,8 +74,8 @@
                 if(entryElm.isPlaylist) {
                     await entryElm.togglePlaylist();
                 } else {
-                    await this.playerElm.playlistMoveToEntry(entryElm);
-                    await this.playerElm.playlistPlay();
+                    await this.props.player.playlistMoveToEntry(entryElm);
+                    await this.props.player.playlistPlay();
                 }
                 //     await songPlay();
             } else {
@@ -89,18 +90,18 @@
 
     }
     if(isBrowser)
-        customElements.define('asp-playlist', ASPPlaylist);
+        customElements.define('asp-playlist', ASPUIPlaylist);
 
 
     /** Export this script **/
     thisModule.exports = {
-        ASPPlaylist,
-        // ASPPlaylistContainer
+        ASPUIPlaylist,
+        // ASPUIPlaylistContainer
     };
 
 
 }).apply(null, (function() {
-    const thisScriptPath = 'player/ui/asp-playlist.js';
+    const thisScriptPath = 'player/ui/asc-playlist.js';
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);

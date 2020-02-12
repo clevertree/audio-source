@@ -252,7 +252,8 @@
             getAttributeMap() {
                 return {
                     key: 'key',
-                    class: 'class'
+                    class: 'class',
+                    tabindex: 'tabindex'
                 }
             }
 

@@ -8,7 +8,7 @@
         AudioSourceTracker,
         AudioSourceComposerTrackerInstruction,
         AudioSourceComposerTrackerRow
-    } = require('../composer/audio-source-composer-tracker.js');
+    } = require('./ui/ascui-tracker.js');
     const {AudioSourceStorage}              = require('../common/audio-source-storage.js');
     // const {AudioSourceUtilities}        = require('../common/audio-source-utilities.js');
     // const {ASUIComponent}               = require('../common/asui-component.js');
@@ -32,13 +32,13 @@
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
-                this.song.removeDispatchElement(this);
+                this.song.removeEventListener('*', this.onSongEvent);
                 // TODO: unload song?
             }
             this.song = song;
             this.state.songLength = song.getSongLengthInSeconds();
             // this.song.setVolume(this.state.volume);
-            this.song.addDispatchElement(this);
+            this.song.addEventListener('*', this.onSongEvent);
             await this.setStatus("Initializing song: " + song.name);
             await this.song.init(this.getAudioContext());
             await this.setStatus("Loaded song: " + song.name);
