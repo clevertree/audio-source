@@ -22,11 +22,12 @@
         //     };
         // }
 
-        getAttributeMap() {
-            return Object.assign({}, super.getAttributeMap(), {
-                onPress: 'onclick',
-            });
-        }
+        // getAttributeMap() {
+        //     return Object.assign({}, super.getAttributeMap(), {
+        //         onPress: 'onclick',
+        //     });
+        // }
+
 
         onInput(e) {
             if(!this.props.disabled)

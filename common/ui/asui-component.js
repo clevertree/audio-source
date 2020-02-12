@@ -152,19 +152,20 @@
             /** @deprecated **/
             get targetElm() { return this; }
 
-            componentDidMount() {
-
-            }
+            // componentDidMount() {
+            //
+            // }
 
             connectedCallback() {
                 this.addAllEventListeners();
-                if(this.props._renderOnConnect)
+                if(this.props._renderOnConnect) // TODO: hack
                     this.updateHTMLContent();
-                this.componentDidMount();
+                // this.componentDidMount();
             }
 
             disconnectedCallback() {
                 this.removeAllEventListeners();
+                this.clearHTMLContent();
             }
 
 
@@ -196,20 +197,11 @@
             /** @deprecated **/
             addEventHandler(eventNames, method, context, options=null) {
                 throw new Error("Obsolete");
-                // if(!Array.isArray(eventNames))
-                //     eventNames = [eventNames];
-                // for(let i=0; i<eventNames.length; i++) {
-                //     const eventName = eventNames[i];
-                //     context = context || this;
-                //     this._eventHandlers.push([eventName, method, context, options]);
-                // }
-                // if(this.parentNode) // i.e. connected
-                //     this.addAllEventListeners();
             }
 
 
             setState(newState) {
-                // console.info('setState', this.state, newState, this);
+                console.info('setState', this.state, newState, this);
                 Object.assign(this.state, newState);
                 this.forceUpdate();
             }
@@ -223,8 +215,14 @@
 
 
             forceUpdate() {
-                console.info('forceUpdate', this);
+//                 console.info('forceUpdate', this);
                 this.updateHTMLContent();
+            }
+
+            clearHTMLContent() {
+                while (this.firstChild) {
+                    this.removeChild(this.firstChild);
+                }
             }
 
             updateHTMLContent() {
@@ -269,14 +267,16 @@
                         const attrName = map[propName];
                         if(this.props.hasOwnProperty(propName)) {
                             const value = this.props[propName];
-                            if (typeof value === 'function')
-                                this[attrName] = value;
-                            else if (typeof value === "object" && value !== null)
+                            if (typeof value === 'function') {
+                                throw new Error('attribute functions disabled');
+                                // this[attrName] = value;
+                            } else if (typeof value === "object" && value !== null) {
                                 Object.assign(this[attrName], value);
-                            else if (value === true)
+                            } else if (value === true) {
                                 this.setAttribute(attrName, '');
-                            else if (value !== null && value !== false)
+                            } else if (value !== null && value !== false) {
                                 this.setAttribute(attrName, value);
+                            }
                         }
                     }
                 }

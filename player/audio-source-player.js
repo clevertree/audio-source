@@ -28,7 +28,8 @@
         constructor(props=null) {
             super(props);
             this.state.playlist = {
-                entries: []
+                entries: [],
+                position: 0
             };
             this.state.volume = AudioSourceSong.DEFAULT_VOLUME;
             this.state.songLength = 0;

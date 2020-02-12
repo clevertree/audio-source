@@ -399,8 +399,9 @@
             //     entry = await this.playlistMoveToNextSongEntry();
 
             this.setState({playing: true});
-            let currentEntry = await this.playlistMoveToNextSongEntry();
-            // let currentEntry = await this.getCurrentEntry();
+            let currentEntry = await this.getCurrentEntry();
+            if(this.isPlaylist(currentEntry.url))
+                await this.playlistMoveToNextSongEntry();
             while(this.state.playing) {
                 this.scrollToEntry(this.getCurrentEntryPosition());
                 const currentSong = await this.loadSongFromPlaylistEntry();
@@ -409,7 +410,7 @@
                 await currentSong.play(this.getVolumeGain());
                 if(!this.state.playing)
                     break;
-                currentEntry = await this.playlistMoveToNextSongEntry();
+                // currentEntry = await this.playlistMoveToNextSongEntry();
             }
             this.setState({playing: false});
         }
@@ -447,9 +448,9 @@
         async playlistMoveToNextSongEntry() {
             let position = this.getCurrentEntryPosition();
             const currentEntry = await this.getEntry(position);
-            if(this.isPlaylist(currentEntry.url)) {
+            if(this.isPlaylist(currentEntry.url) && currentEntry.open !== true) {
                 await this.togglePlaylistEntry(currentEntry);
-                this.playlist.forceUpdate();
+                // this.playlist.forceUpdate();
                 // await currentEntry.togglePlaylist(true);
             }
             let totalCount = await this.getPlaylistCount();
@@ -459,7 +460,7 @@
                 const currentEntry = await this.getEntry(position);
                 if(this.isPlaylist(currentEntry.url)) {
                     await this.togglePlaylistEntry(currentEntry);
-                    this.playlist.forceUpdate();
+                    // this.playlist.forceUpdate();
                     totalCount = await this.getPlaylistCount();
                 } else {
                     if(position >= totalCount)
@@ -474,13 +475,13 @@
 
         async getPlaylistCount() {
             let count=0;
-            await this.eachEntry((entry, i) => count = i);
+            await this.eachEntry((entry, i) => count = i+1);
             return count;
         }
 
         async setPlaylistPosition(position) {
-            if(position !== this.state.position) {
-                this.state.position = position;
+            if(position !== this.state.playlist.position) {
+                this.state.playlist.position = position;
                 this.playlist.forceUpdate();
                 // const nextEntry = await this.getEntry(position);
                 // await currentEntry.removePosition();
@@ -559,7 +560,7 @@
         // getCurrentEntry() {
         //     if(this.state.playlist.length === 0)
         //         throw new Error("Empty playlist");
-        //     return this.getEntry(this.state.position);
+        //     return this.getEntry(this.state.playlist.position);
         // }
 
         // async addEntry(entry, insertAtPosition=null, skipDuplicate=true) {
@@ -581,7 +582,7 @@
 
 
         // async updateNextPosition() {
-        //     let position = this.state.position;
+        //     let position = this.state.playlist.position;
         //     const currentEntry = await this.getEntry(position);
         //     await currentEntry.removePosition();
         //     position++;
@@ -591,13 +592,13 @@
         // }
 
 
-        // getPlaylistPosition() { return this.state.position; }
+        // getPlaylistPosition() { return this.state.playlist.position; }
 
 
         // async updatePosition(position) {
         //     if(!this.playlist[position])
         //         throw new Error("Invalid playlist position: " + position);
-        //     this.state.position = position;
+        //     this.state.playlist.position = position;
         //     // await this.updateEntries();
         // }
 

@@ -12,7 +12,10 @@
 
         get value()         { return this.state.value; }
         set value(newValue) {
-             this.setState({value: newValue});
+            if(isBrowser)
+                this.innerText = newValue
+            else
+                this.setState({value: newValue});
         }
 
         // async onChange(e) {

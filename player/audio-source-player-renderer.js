@@ -187,18 +187,6 @@
                                     (e, newVolume) => this.setVolume(newVolume / 100), 1, 100, this.state.volume * 100, 'Song Volume')
                             ]),
 
-                            ASPForm.cE('timing', [
-                                ASUIDiv.cE('title', 'Timing'),
-                                ASUIInputText.createInputText({
-                                        key:'timing',
-                                        ref: ref => this.fieldSongTiming = ref,
-                                    },
-                                    (e, pos) => this.setSongPosition(pos),
-                                    '00:00:000',
-                                    'Song Timing',
-                                )
-                            ]),
-
                             ASPForm.cE('position', [
                                 ASUIDiv.cE('title', 'Position'),
                                 ASUIInputRange.createInputRange({
@@ -210,6 +198,18 @@
                                     Math.ceil(this.state.songLength),
                                     0,
                                     'Song Position',
+                                )
+                            ]),
+
+                            ASPForm.cE('timing', [
+                                ASUIDiv.cE('title', 'Timing'),
+                                ASUIInputText.createInputText({
+                                        key:'timing',
+                                        ref: ref => this.fieldSongTiming = ref,
+                                    },
+                                    (e, pos) => this.setSongPosition(pos),
+                                    '00:00:000',
+                                    'Song Timing',
                                 )
                             ]),
 

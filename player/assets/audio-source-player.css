@@ -169,10 +169,11 @@ asui-div[key=asp-playlist-container] {
 }
 
 
-asuig-row.asp-playlist-header,
+asui-div[key=asp-playlist-header],
 aspp-entry {
-    display: block;
-    /* min-width: 180px; */
+    display: flex;
+    flex-direction: row;
+    min-width: 49em;
     background: #DDD;
     border: 1px outset #FFF;
     /* margin: 9px; */
@@ -180,14 +181,14 @@ aspp-entry {
     margin: 0px;
     /* border-collapse: initial; */
 }
-asuig-row[key=asp-playlist-header] > asui-div,
+asui-div[key=asp-playlist-header] > asui-div,
 aspp-entry > asui-div {
      padding: 3px 0px;
 }
 
-asp-playlist asui-div[key=id]       {display: inline-block;width: 2.5em;text-align: right;margin-right: 1em;}
-asp-playlist asui-div[key=name]     {display: inline-block;width: 26em;}
-asp-playlist asui-div[key=length]   { display: inline-block; width: 4em; }
+asp-playlist asui-div[key=id]       {display: inline-block;width: 2.5em;text-align: center;margin-right: 1em;}
+asp-playlist asui-div[key=name]     { display: inline-block;}
+asp-playlist asui-div[key=length]   {/* display: inline-block; */width: 4em;/* align-items: flex-end; */margin-left: auto;}
 asp-playlist asui-div[key=container]   {
     padding: 3px;
 }
