@@ -112,7 +112,7 @@
                 return children;
             }
 
-            static createElement(props, children=null, ...additionalProps) {
+            static createElement(props, children=null, additionalProps={}) {
                 props = this.processProps(props, additionalProps);
                 // if(typeof props.class !== "undefined" && typeof props.key === "undefined")
                 //     props.key = props.class; // TODO: Hack to suppress warning
@@ -356,7 +356,7 @@
                 return [];
             }
 
-            static createElement(props, children=null, ...additionalProps) {
+            static createElement(props, children=null, additionalProps) {
                 props = ASUIComponent.processProps(props, additionalProps);
                 if(children !== null)
                     props.children = children;
@@ -449,9 +449,9 @@
             return React.createElement(View, this.props, super.renderReactNative());
         }
 
-        static createElement(props, children=null, ...additionalProps) {
+        static createElement(props, children=null, additionalProps) {
             children = this.convertStringChildrenToComponent(children);
-            return super.createElement(props, children, ...additionalProps);
+            return super.createElement(props, children, additionalProps);
         }
     }
 

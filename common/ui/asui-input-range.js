@@ -52,13 +52,14 @@
         //     return !isBrowser ? this.renderReactNative() : this.renderBrowser();
         // }
 
-        static createInputRange(props, onChange = null, min = 1, max = 100, initialValue = null, title = null) {
+        static createInputRange(props, onChange = null, min = 1, max = 100, initialValue = null, title = null, ref = null) {
             return this.createElement(props, null, {
                 min,
                 max,
                 initialValue,
                 onChange,
                 title,
+                ref
             });
         }
     }

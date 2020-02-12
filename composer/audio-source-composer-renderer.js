@@ -148,10 +148,10 @@
                         // onMenuPress: (e) => this.toggleMenu()
                     }),
 
-                    this.panelContainerElm = ASUIDiv.createElement('asc-panel-container', [
+                    ASUIDiv.createElement('asc-panel-container', [
                         new ASCPanel('song', 'Song', [
 
-                            this.panelSong = new ASCForm('playback', 'Playback', [
+                            new ASCForm('playback', 'Playback', [
                                 ASUIInputButton.createElement('play',
                                     ASUIIcon.createIcon('play'),
                                     e => this.songPlay(e),
@@ -168,26 +168,34 @@
                             ]),
 
                             new ASCForm('timing', 'Timing', [
-                                this.fieldSongTiming = ASUIInputText.createElement('timing',
+                                ASUIInputText.createInputText('timing',
                                     (e, pos) => this.setSongPosition(pos),
                                     '00:00:000',
                                     'Song Timing',
+                                    ref => this.fieldSongTiming = ref
                                 )
                             ]),
 
                             new ASCForm('position', 'Position', [
-                                this.fieldSongPosition = ASUIInputRange.createElement('position',
+                                ASUIInputRange.createInputRange('position',
                                     (e, pos) => this.setSongPosition(pos),
                                     0,
                                     Math.ceil(this.song.getSongLengthInSeconds()),
+                                    0,
                                     'Song Position',
-                                    0
+                                    ref => this.fieldSongPosition = ref
                                 )
                             ]),
 
                             new ASCForm('volume', 'Volume', [
-                                this.fieldSongVolume = ASUIInputRange.createElement('volume',
-                                    (e, newVolume) => this.setVolume(newVolume/100), 1, 100, this.state.volume*100, 'Song Volume')
+                                this.fieldSongVolume = ASUIInputRange.createInputRange('volume',
+                                    (e, newVolume) => this.setVolume(newVolume/100),
+                                    1,
+                                    100,
+                                    this.state.volume*100,
+                                    'Song Volume',
+                                    ref => this.fieldSongVolume = ref
+                                )
                             ]),
 
                             new ASCForm('file', 'File', [
@@ -206,23 +214,28 @@
 
 
                             new ASCForm('name', 'Name', [
-                                this.fieldSongName = ASUIInputText.createElement('name',
+                                ASUIInputText.createInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
                                     this.song.name,
                                     "Song Name",
+                                    ref => this.fieldSongName = ref
                                 )
                             ]),
 
                             new ASCForm('version', 'Version', [
-                                this.fieldSongVersion = ASUIInputText.createElement('version',
-                                    (e, newSongVersion) => this.setSongVersion(e, newSongVersion), this.song.version, "Song Version")
+                                ASUIInputText.createInputText('version',
+                                    (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
+                                    this.song.version,
+                                    "Song Version",
+                                    ref => this.fieldSongVersion = ref)
                             ]),
 
                             new ASCForm('bpm', 'BPM', [
-                                this.fieldSongBPM = ASUIInputText.createElement('bpm',
+                                ASUIInputText.createInputText('bpm',
                                     (e, newBPM) => this.songChangeStartingBPM(e, parseInt(newBPM)),
                                     this.song.startingBeatsPerMinute,
                                     "Song BPM",
+                                    ref => this.fieldSongBPM = ref
                                 )
                                 // this.fieldSongBPM.inputElm.setAttribute('type', 'number')
                             ]),
@@ -307,8 +320,14 @@
                             ]),
 
                             new ASCForm('instruction-velocity', 'Velocity', [
-                                this.fieldInstructionVelocity = ASUIInputRange.createElement('velocity',
-                                    (e, newVelocity) => this.instructionChangeVelocity(newVelocity), 1, 127)
+                                this.fieldInstructionVelocity = ASUIInputRange.createInputRange('velocity',
+                                    (e, newVelocity) => this.instructionChangeVelocity(newVelocity),
+                                    1,
+                                    127,
+                                    this.state.volume,
+                                    "Velocity",
+                                    ref => this.fieldSongVolume = ref
+                                )
                             ]),
 
                             new ASCForm('instruction-duration', 'Duration', [
@@ -352,11 +371,12 @@
                                     null),
                             ]),
                             new ASCForm('tracker-selection', 'Selection', [
-                                this.fieldTrackerSelection = ASUIInputText.createElement('selection',
+                                ASUIInputText.createInputText('selection',
                                     e => this.trackerChangeSelection(),
                                     '',
                                     'Selection',
-                                    'No selection'
+                                    ref => this.fieldTrackerSelection = ref,
+                                    // 'No selection'
                                 ),
                             ]),
                             new ASCForm('tracker-octave', 'Octave', [

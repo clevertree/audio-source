@@ -63,12 +63,13 @@
         //     return !isBrowser ? this.renderReactNative() : this.renderBrowser();
         // }
 
-        static createInputText(props={}, callback = null, initialValue = null, title = null, placeholder = null) {
+        static createInputText(props={}, callback = null, initialValue = null, title = null, ref = null) {
             return this.createElement(props, null, {
                 callback,
                 initialValue,
-                placeholder,
-                title
+                // placeholder,
+                title,
+                ref
             });
         }
 

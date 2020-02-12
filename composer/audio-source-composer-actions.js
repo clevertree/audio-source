@@ -550,7 +550,7 @@
         }
 
         getSelectedIndicies() {
-            const value = this.fieldTrackerSelection.value;
+            const value = this.fieldTrackerSelection.value; // TODO: move to state
             if (value === '')
                 return [];
             return value
