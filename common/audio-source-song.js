@@ -5,7 +5,7 @@
 
     class AudioSourceSong {
         constructor() {
-            this.dispatchElements = [];
+            // this.dispatchElements = [];
             this.eventListeners = [];
 
             // this.audioContext = null;
@@ -47,23 +47,23 @@
         // addSongEventListener(callback) { this.eventListeners.push(callback); }
         // Check for initiated, await if not
 
-        addDispatchElement(dispatchElement) {
-            if (this.dispatchElements.indexOf(dispatchElement) !== -1) {
-                console.warn("Dispatch element already added");
-            } else {
-                this.dispatchElements.push(dispatchElement);
-            }
-            return this;
-        }
-
-        removeDispatchElement(dispatchElement) {
-            const i = this.dispatchElements.indexOf(dispatchElement);
-            if (i !== -1) {
-                this.dispatchElements.splice(i, 1);
-            } else {
-                console.warn("Dispatch element was not found");
-            }
-        }
+        // addDispatchElement(dispatchElement) {
+        //     if (this.dispatchElements.indexOf(dispatchElement) !== -1) {
+        //         console.warn("Dispatch element already added");
+        //     } else {
+        //         this.dispatchElements.push(dispatchElement);
+        //     }
+        //     return this;
+        // }
+        //
+        // removeDispatchElement(dispatchElement) {
+        //     const i = this.dispatchElements.indexOf(dispatchElement);
+        //     if (i !== -1) {
+        //         this.dispatchElements.splice(i, 1);
+        //     } else {
+        //         console.warn("Dispatch element was not found");
+        //     }
+        // }
 
         dispatchEvent(e) {
             for (let i = 0; i < this.eventListeners.length; i++) {
@@ -90,27 +90,27 @@
 
         /** Data shortcuts **/
 
-        get uuid() {
+        getUUID() {
             return this.data.uuid;
         }
 
-        get name() {
+        getName() {
             return this.data.name;
         }
 
-        get version() {
+        getVersion() {
             return this.data.version;
         }
 
-        get timeDivision() {
+        getTimeDivision() {
             return this.data.timeDivision;
         }
 
-        get startingBeatsPerMinute() {
+        getStartingBeatsPerMinute() {
             return this.data.beatsPerMinute;
         }
 
-        get rootGroup() {
+        getRootGroup() {
             return this.data.root;
         }
 
@@ -312,14 +312,14 @@
             return new AudioSourceInstructionIterator(
                 this,
                 groupName,
-                parentStats ? parentStats.currentBPM : this.startingBeatsPerMinute,
+                parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
                 parentStats ? parentStats.groupPositionInTicks : 0);
         }
 
 
         instructionInsertAtPosition(groupName, insertPositionInTicks, insertInstructionData) {
             if (typeof insertPositionInTicks === 'string')
-                insertPositionInTicks = SongInstruction.parseDurationAsTicks(insertPositionInTicks, this.timeDivision);
+                insertPositionInTicks = SongInstruction.parseDurationAsTicks(insertPositionInTicks, this.getTimeDivision());
 
             if (!Number.isInteger(insertPositionInTicks))
                 throw new Error("Invalid integer: " + typeof insertPositionInTicks);
@@ -487,7 +487,7 @@
         }
 
         getSongLength() {
-            return this.getGroupLength(this.rootGroup);
+            return this.getGroupLength(this.getRootGroup());
         }
 
         getGroupLength(groupName) {
@@ -502,7 +502,7 @@
 
 
         getSongPositionFromTicks(songPositionInTicks) {
-            return this.getGroupPositionFromTicks(this.rootGroup, songPositionInTicks);
+            return this.getGroupPositionFromTicks(this.getRootGroup(), songPositionInTicks);
         }
 
         getGroupPositionFromTicks(groupName, groupPositionInTicks) {
@@ -534,7 +534,7 @@
         getSongPositionInTicks(positionInSeconds = null) {
             if (positionInSeconds === null)
                 positionInSeconds = this.songPlaybackPosition;
-            return this.getGroupPositionInTicks(this.rootGroup, positionInSeconds);
+            return this.getGroupPositionInTicks(this.getRootGroup(), positionInSeconds);
         }
 
 
@@ -614,7 +614,7 @@
 
             if (isPlaying) {
                 const oldDestination = this.playback.destination;
-                this.playback = new AudioSourceInstructionPlayback(oldDestination, this, this.rootGroup, oldDestination.context.currentTime - this.playbackPosition);
+                this.playback = new AudioSourceInstructionPlayback(oldDestination, this, this.getRootGroup(), oldDestination.context.currentTime - this.playbackPosition);
                 this.playback.playGroup(oldDestination)
                     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
             }
@@ -654,7 +654,7 @@
 
             await this.init(audioContext);
 
-            const playback = new AudioSourceInstructionPlayback(destination, this, this.rootGroup, this.playbackPosition);
+            const playback = new AudioSourceInstructionPlayback(destination, this, this.getRootGroup(), this.playbackPosition);
             this.playback = playback;
             console.log("Start playback:", this.playbackPosition);
 
@@ -743,7 +743,7 @@
             }
 
 
-            let bpm = this.startingBeatsPerMinute;
+            let bpm = this.getStartingBeatsPerMinute();
             // const noteDuration = (instruction.duration || 1) * (60 / bpm);
             let timeDivision = this.timeDivision;
             const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
@@ -1351,7 +1351,7 @@
             this.subGroups = [];
             this.startTime = startTime;
             // this.lastRowPlaybackTime = 0;
-            this.quantizationInTicks = song.timeDivision;
+            this.quantizationInTicks = song.getTimeDivision();
             this.isActive = false;
             this.isPaused = false;
             // this.activeGroups =
@@ -1516,8 +1516,8 @@
 
             this.song = song;
             this.groupName = groupName;
-            this.currentBPM = currentBPM || song.startingBeatsPerMinute;
-            this.timeDivision = song.timeDivision;
+            this.currentBPM = currentBPM || song.getStartingBeatsPerMinute();
+            this.timeDivision = song.getTimeDivision();
             this.groupIndex = -1;
 
             // this.lastRowPositionInTicks = 0;
@@ -1744,7 +1744,7 @@
             const groupEndPositionInTicks = this.groupPositionInTicks + instructionDuration;
             if (groupEndPositionInTicks > this.groupEndPositionInTicks)
                 this.groupEndPositionInTicks = groupEndPositionInTicks;
-            const groupPlaybackEndTime = this.groupPlaybackTime + (instructionDuration / this.song.timeDivision) / (this.currentBPM / 60);
+            const groupPlaybackEndTime = this.groupPlaybackTime + (instructionDuration / this.song.getTimeDivision()) / (this.currentBPM / 60);
             if (groupPlaybackEndTime > this.groupPlaybackEndTime)
                 this.groupPlaybackEndTime = groupPlaybackEndTime;
         }

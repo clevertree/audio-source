@@ -113,39 +113,43 @@
 
         getSegmentIDFromPositionInTicks(positionInTicks) {
             const composer = this.props.composer;
-            const timeDivision = composer.song.timeDivision;
+            const timeDivision = composer.song.getTimeDivision();
             const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
             const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
             return segmentID;
         }
 
+        getTimeDivision() { return this.props.composer.song.getTimeDivision(); }
+        getQuantizationInTicks() { return this.state.quantizationInTicks; }
+        getSegmentLengthInTicks() { return this.state.segmentLengthInTicks; }
+        getMaxLengthInTicks() { return (this.state.currentRowSegmentID + 1) * this.getSegmentLengthInTicks(); }
 
         render() {
-            const composer = this.props.composer;
             console.time('tracker.renderRows()');
-            // TODO: const selectedIndicies = composer.getSelectedIndicies();
-            const rowContent = [];
-            this.rows = rowContent;
-            const timeDivision = composer.song.timeDivision;
-            const quantizationInTicks = this.state.quantizationInTicks || timeDivision; // parseInt(composer.refs.fieldTrackerRowLength.value) || timeDivision; // TODO: use status instead of refs
-            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
-            const maxLengthInTicks = (this.state.currentRowSegmentID + 1) * segmentLengthInTicks;
 
+            const composer = this.props.composer;
+
+            const quantizationInTicks = this.getQuantizationInTicks();
+            const segmentLengthInTicks = this.getSegmentLengthInTicks();
+            const maxLengthInTicks = this.getMaxLengthInTicks();
 
             // Instruction Iterator
             let instructionIterator = composer.song.instructionGetIterator(this.groupName);
 
 
-            //         console.log('segmentLengthInTicks', segmentLengthInTicks, composer.refs.fieldTrackerSegmentLength.value);
-            const filterByInstrumentID = Number.isInteger(this.state.filterByInstrumentID) ? this.state.filterByInstrumentID : null;
-            const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
-                return conditionalInstruction.instrument === filterByInstrumentID
+            const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
+                return conditionalInstruction.instrument === this.state.filterByInstrumentID
             };
 
             const selectedIndicies = composer.getSelectedIndicies();
             const cursorIndex = (this.cursorInstruction ? this.cursorInstruction.index : (selectedIndicies.length > 0 ? selectedIndicies[0] : null));
-            const cursorPosition = (this.cursorRow ? this.cursorRow.positionInTicks : null);
+            // const cursorPosition = (this.cursorRow ? this.cursorRow.positionInTicks : null);
             // TODO: solve
+
+
+
+            const rowContent = [];
+            // this.rows = rowContent;
 
             let lastRowSegmentID = 0;
             let rowInstructionList = null, lastRowPositionInTicks = 0;
@@ -153,7 +157,11 @@
             this.cursorList = [];
             // this.cursorListOffset = 0;
 
-            while (rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback)) {
+
+            while (true) {
+                rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback);
+                if(!rowInstructionList)
+                    break;
                 // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
                 //     continue;
                 // }
@@ -163,53 +171,35 @@
                 const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
                 if (this.state.currentRowSegmentID === lastRowSegmentID) {
 
-                    // let isCursorRow = false;
+                    // Render instructions
                     const rowInstructionElms = rowInstructionList.map(instruction => {
                         const props = {};
                         if (selectedIndicies.indexOf(instruction.index) !== -1) props.selected = true;
                         if (instruction.index === cursorIndex) props.cursor = true;
-                        const elm = new ASCUITrackerInstruction(this.song, instruction, props);
-                        if (props.selected) this.selectedInstructions.push(elm);
-                        if (props.cursor) {
-                            this.cursorInstruction = elm;
-                            // isCursorRow = true;
-                        }
-                        this.cursorList.push(elm);
-                        return elm;
+                        return ASCUITrackerInstruction.createInstruction(props, instruction);
                     });
 
-                    const newRowElm = new ASCUITrackerRow(
-                        this.song,
-                        rowInstructionElms,
-                        instructionIterator.groupPositionInTicks,
-                        instructionIterator.groupPlaybackTime,
-                        deltaDuration); // document.createElement('asct-row');
-                    // newRowElm.renderInstructions(rowInstructionList);
+                    // Render Row
+                    const newRowElm = ASCUITrackerRow.createRow({
+                            positionInTicks: instructionIterator.groupPositionInTicks,
+                            playbackTime: instructionIterator.groupPlaybackTime,
+                            deltaDuration: deltaDuration
+                        },
+                        rowInstructionElms
+                    );
                     rowContent.push(newRowElm);
-                    this.cursorList.push(newRowElm);
-                    // if(isCursorRow)
-                    //     this.cursorRow = newRowElm;
                 }
                 lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
             }
-            // console.log(lastRowSegmentID, lastRowPositionInTicks);
-            // composer.rowSegmentCount = lastRowSegmentID;
 
-            // // Render Segments
-            // const panelTrackerRowSegments = composer.panelTrackerRowSegments;
-            // if (panelTrackerRowSegments)
-            //     panelTrackerRowSegments.render();
-
-
-            // this.selectSegmentIndicies(selectedIndicies);
             console.timeEnd('tracker.renderRows()');
 
             return [
-                this.rowContainer = ASUIDiv.createElement('tracker-header', () => [
+                ASUIDiv.createElement('tracker-header', () => [
                     ASUIDiv.createElement('delta', "Delta"),
                     ASUIDiv.createElement('instructions', "Instructions"),
                 ], {class: 'asc-panel-title'}),
-                this.rowContainer = ASUIDiv.createElement('tracker-row-container', () => [
+                ASUIDiv.createElement('tracker-row-container', () => [
                     rowContent
                 ])
             ];
@@ -983,141 +973,83 @@
 
     // const VISIBLE_BUFFER = 100;
 
-    class ASCUITrackerRow extends ASUIComponent {
-        constructor(song, instructions, positionInTicks = null, positionInSeconds = null, duration = null) {
-            super({t: positionInTicks, cursor: false}, {
-                instructions,
-                delta: new ASCUITrackerDelta(song, duration),
-                positionInSeconds,
-                duration,
-                // selected: false
-            });
+    class ASCUITrackerRow  extends ASUIComponent {
+        constructor(props) {
+            super(props);
         }
 
-
-        get positionInTicks() {
-            return this.props.t;
-        }
-
-        get positionInSeconds() {
-            return this.state.positionInSeconds;
-        }
-
-        get duration() {
-            return this.state.duration;
-        }
-
-        get instructions() {
-            return this.state.instructions;
-        }
-
-        async setCursor(cursor = true) {
-            if (this.props.cursor !== cursor) {
-                this.setProps({cursor});
-                this.forceUpdate();
-            }
-            if (cursor)
-                (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
-        }
-
-        async removeCursor() {
-            if (this.props.cursor !== false) {
-                this.setProps({cursor: false});
-                this.forceUpdate();
-            }
-        }
-
-        setPosition() {
-            if (this.props.position !== true) {
-                this.setProps({position: true});
-            }
-        }
-
-        removePosition() {
-            if (this.props.position !== false) {
-                this.setProps({position: false});
-            }
-        }
 
         render() {
             return [
-                this.state.delta,
-                this.state.instructions,
-                this.props.cursor ? new ASCUITrackerInstructionAdd() : null
+                ASCUITrackerDelta.createDelta(this.props.deltaDuration),
+                this.props.children,
+                this.props.cursor ? ASCUITrackerInstructionAdd.createElement() : null
             ];
         }
 
+        static createRow(props, instructions=null) {
+            return this.createElement(props, instructions)
+        }
+
+        // get positionInTicks() {
+        //     return this.props.t;
+        // }
+        //
+        // get positionInSeconds() {
+        //     return this.props.positionInSeconds;
+        // }
+        //
+        // get duration() {
+        //     return this.props.duration;
+        // }
+        //
+        // get instructions() {
+        //     return this.props.instructions;
+        // }
+
+        // async setCursor(cursor = true) {
+        //     if (this.props.cursor !== cursor) {
+        //         this.setProps({cursor});
+        //         this.forceUpdate();
+        //     }
+        //     if (cursor)
+        //         (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
+        // }
+        //
+        // async removeCursor() {
+        //     if (this.props.cursor !== false) {
+        //         this.setProps({cursor: false});
+        //         this.forceUpdate();
+        //     }
+        // }
+
+        // setPosition() {
+        //     if (this.props.position !== true) {
+        //         this.setProps({position: true});
+        //     }
+        // }
+        //
+        // removePosition() {
+        //     if (this.props.position !== false) {
+        //         this.setProps({position: false});
+        //     }
+        // }
     }
 
     if(isBrowser)
         customElements.define('asct-row', ASCUITrackerRow);
 
     class ASCUITrackerInstruction extends ASUIComponent {
-        constructor(song, instruction, props = {}) {
-            super(props, {});
-            this.props.i = instruction.index;
-            // this.props.selected = false;
-            // this.props.cursor = false;
-
-            this.state = this.getInstructionContent(song, instruction);
+        constructor(props) {
+            super(props);
         }
 
         get index() {
-            return this.props.i;
+            return this.props.instruction.index;
         }
 
         get selected() {
             return this.props.selected;
-        }
-
-
-        instructionFind(song, groupName, throwException = true) {
-            return song.instructionFind(groupName, this.index, throwException);
-        }
-
-        async update(song, instruction) {
-            // TODO: partial update?
-            await this.setState(this.getInstructionContent(song, instruction));
-        }
-
-        getInstructionContent(song, instruction) {
-            return {
-                command: new AudioSourceComposerParamCommand(instruction.command),
-                params: [
-                    new AudioSourceComposerParamInstrument(instruction.instrument),
-                    new AudioSourceComposerParamVelocity(instruction.velocity),
-                    new AudioSourceComposerParamDuration(song, instruction.duration),
-                ]
-            };
-        }
-
-        async select(selected = true) {
-            if (selected !== this.props.selected) {
-                this.setProps({selected});
-                this.forceUpdate();
-            }
-        }
-
-        setCursor(cursor = true) {
-            if (this.props.cursor !== cursor) {
-                this.setProps({cursor});
-            }
-            if (cursor)
-                (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
-            // if(this.parentNode)
-            //     (this.parentNode.scrollIntoViewIfNeeded || this.parentNode.scrollIntoView).apply(this.parentNode);
-        }
-
-        removeCursor() {
-            if (this.props.cursor !== false) {
-                this.setProps({cursor: false});
-            }
-        }
-
-        setPosition() {
-        }
-
-        removePosition() {
         }
 
         play() {
@@ -1126,21 +1058,53 @@
             return this;
         }
 
-        //
-        // scrollTo() {
-        //     return this.row.scrollTo();
-        // }
-
-        // clearAllCursors() {
-        //     return this.row.clearAllCursors();
-        // }
-
         render() {
+            const instruction = this.props.instruction;
             return [
-                this.state.command,
-                this.props.selected ? this.state.params : null
+                AudioSourceComposerParamCommand.createParameter(instruction),
+                AudioSourceComposerParamInstrument.createParameter(instruction),
+                AudioSourceComposerParamVelocity.createParameter(instruction),
+                AudioSourceComposerParamDuration.createParameter(instruction),
             ]
         }
+
+        static createInstruction(props, instruction) {
+            return this.createElement(props, null, {
+                instruction
+            });
+        }
+
+        // instructionFind(song, groupName, throwException = true) {
+        //     return song.instructionFind(groupName, this.index, throwException);
+        // }
+
+        // async update(song, instruction) {
+        //     // TODO: partial update?
+        //     await this.setState(this.getInstructionContent(song, instruction));
+        // }
+
+        // async select(selected = true) {
+        //     if (selected !== this.props.selected) {
+        //         this.setProps({selected});
+        //         this.forceUpdate();
+        //     }
+        // }
+
+        // setCursor(cursor = true) {
+        //     if (this.props.cursor !== cursor) {
+        //         this.setProps({cursor});
+        //     }
+        //     if (cursor)
+        //         (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
+        //     // if(this.parentNode)
+        //     //     (this.parentNode.scrollIntoViewIfNeeded || this.parentNode.scrollIntoView).apply(this.parentNode);
+        // }
+        //
+        // removeCursor() {
+        //     if (this.props.cursor !== false) {
+        //         this.setProps({cursor: false});
+        //     }
+        // }
 
     }
 
@@ -1149,10 +1113,9 @@
 
 
     class ASCUITrackerInstructionAdd extends ASUIComponent {
-
-        setCursor(isCursor = true) {
-            this.setProps({cursor: isCursor});
-        }
+        // setCursor(isCursor = true) {
+        //     this.setProps({cursor: isCursor});
+        // }
 
         render() {
             return ['+']
@@ -1165,16 +1128,15 @@
 
 
     class AudioSourceComposerParamCommand extends ASUIComponent {
-        constructor(command, props = {}) {
-            super(props, {
-                command: new AudioSourceValues().formatCommand(command)
-            });
-        }
-
         render() {
-            return this.state.command;
+            return this.props.command;
         }
 
+        static createParameter(instruction) {
+            return this.createElement({
+                command: instruction.command
+            })
+        }
     }
 
     if(isBrowser)
@@ -1182,14 +1144,14 @@
 
 
     class AudioSourceComposerParamInstrument extends ASUIComponent {
-        constructor(instrumentID, props = {}) {
-            super(props, {
-                instrumentID: new AudioSourceValues().formatInstrumentID(instrumentID)
-            });
+        render() {
+            return this.props.command;
         }
 
-        render() {
-            return this.state.instrumentID;
+        static createParameter(instruction) {
+            return this.createElement({
+                instrumentID: instruction.instrument
+            })
         }
     }
 
@@ -1197,14 +1159,14 @@
         customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
 
     class AudioSourceComposerParamVelocity extends ASUIComponent {
-        constructor(velocity, props = {}) {
-            super(props, {
-                velocity: new AudioSourceValues().formatVelocity(velocity)
-            });
+        render() {
+            return this.props.velocity;
         }
 
-        render() {
-            return this.state.velocity;
+        static createParameter(instruction) {
+            return this.createElement({
+                velocity: instruction.velocity
+            })
         }
     }
 
@@ -1212,14 +1174,14 @@
         customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
 
     class AudioSourceComposerParamDuration extends ASUIComponent {
-        constructor(song, duration, props = {}) {
-            super(props, {
-                duration: new AudioSourceValues(song).formatDuration(duration)
-            });
+        render() {
+            return this.props.duration;
         }
 
-        render() {
-            return this.state.duration;
+        static createParameter(instruction) {
+            return this.createElement({
+                duration: instruction.duration
+            })
         }
     }
 
@@ -1228,14 +1190,14 @@
 
 
     class ASCUITrackerDelta extends ASUIComponent {
-        constructor(song, duration, props = {}) {
-            super(props, {
-                duration: new AudioSourceValues(song).formatDuration(duration)
-            });
+        render() {
+            return this.props.duration;
         }
 
-        render() {
-            return this.state.duration;
+        static createDelta(deltaDuration) {
+            return this.createElement({
+                duration: deltaDuration
+            })
         }
     }
 

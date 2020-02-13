@@ -44,7 +44,7 @@ class AudioSourceCommonTest {
         const songData = song.data;
 
 
-        const testGroup = song.rootGroup;
+        const testGroup = song.getRootGroup();
         const root = song.data.instructions.root;
 
         // Insert Instructions
@@ -142,7 +142,7 @@ class AudioSourceCommonTest {
                 throw new Error("Iterator quantization failed");
             positionInTicks = iterator.groupPositionInTicks;
 
-            // if(iterator.groupPositionInTicks - positionInTicks > song.timeDivision)
+            // if(iterator.groupPositionInTicks - positionInTicks > song.getTimeDivision())
             //     throw new Error('quantization failed for groupPositionInTicks');
             if(iterator.groupPlaybackTime - playbackTime > 0.5)
                 throw new Error('quantization failed for groupPlaybackTime');

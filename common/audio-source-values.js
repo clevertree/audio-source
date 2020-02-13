@@ -144,7 +144,7 @@
             });
             if (stringValue)
                 return stringValue;
-            const timeDivision = song.timeDivision || 96 * 4;
+            const timeDivision = song.getTimeDivision() || 96 * 4;
             const beatDivisor = input / timeDivision;
             if(beatDivisor === Math.round(beatDivisor))
                 return beatDivisor + 'B';
@@ -156,7 +156,7 @@
 
         getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
             const song = this.song;
-            const timeDivision = song.timeDivision;
+            const timeDivision = song.getTimeDivision();
             const results = [];
             for (let i = 64; i > 1; i /= 2) {
                 let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
@@ -197,7 +197,7 @@
 
         getSegmentLengths(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
             const song = this.song;
-            const timeDivision = song.timeDivision;
+            const timeDivision = song.getTimeDivision();
             const results = [];
             [4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
                 .forEach(i => {

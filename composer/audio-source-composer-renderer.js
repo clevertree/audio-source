@@ -88,11 +88,11 @@
         }
 
         get trackerSegmentLengthInTicks() {
-            return this.state.trackerSegmentLength || this.song.timeDivision * 16;
+            return this.state.trackerSegmentLength || this.song.getTimeDivision() * 16;
         }
 
         get trackerRowLengthInTicks() {
-            return this.state.trackerRowLength || this.song.timeDivision;
+            return this.state.trackerRowLength || this.song.getTimeDivision();
         }
 
         renderMenu(menuKey=null, menuParam=null) {
@@ -529,7 +529,7 @@
                                 ASUIDiv.cE('title', 'Name'),
                                 ASUIInputText.createInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
-                                    this.song.name,
+                                    this.song.getName(),
                                     "Song Name",
                                     ref => this.fieldSongName = ref
                                 )
@@ -539,7 +539,7 @@
                                 ASUIDiv.cE('title', 'Version'),
                                 ASUIInputText.createInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
-                                    this.song.version,
+                                    this.song.getVersion(),
                                     "Song Version",
                                     ref => this.fieldSongVersion = ref)
                             ]),
@@ -548,7 +548,7 @@
                                 ASUIDiv.cE('title', 'BPM'),
                                 ASUIInputText.createInputText('bpm',
                                     (e, newBPM) => this.songChangeStartingBPM(e, parseInt(newBPM)),
-                                    this.song.startingBeatsPerMinute,
+                                    this.song.getStartingBeatsPerMinute(),
                                     "Song BPM",
                                     ref => this.fieldSongBPM = ref
                                 )
@@ -757,7 +757,7 @@
                         this.panelTrackerRowSegments = ASCPanel.createElement('tracker-row-segments', [
                             ASUIDiv.cE('title', 'Tracker Segments'),
                             () => {
-                                const segmentLengthInTicks = this.state.tracker.segmentLengthInTicks || (this.song.timeDivision * 16);
+                                const segmentLengthInTicks = this.state.tracker.segmentLengthInTicks || (this.song.getTimeDivision() * 16);
                                 let songLengthInTicks = this.song.getSongLengthInTicks();
                                 let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
                                 if (rowSegmentCount > 256)
@@ -816,10 +816,11 @@
 
         // get fieldinstrumentAdd()
         // TODO: AudioSourceComposerSongFormRenderer()
+        /** @deprecated **/
         updateForms() {
-            this.fieldSongName.value = this.song.name;
-            this.fieldSongVersion.value = this.song.version;
-            this.fieldSongBPM.value = this.song.startingBeatsPerMinute;
+            this.fieldSongName.value = this.song.getName();
+            this.fieldSongVersion.value = this.song.getVersion();
+            this.fieldSongBPM.value = this.song.getStartingBeatsPerMinute();
 
             this.fieldSongVolume.value = this.song.getVolumeValue();
 
@@ -837,7 +838,7 @@
 
             this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
             if (!this.fieldTrackerRowLength.value)
-                this.fieldTrackerRowLength.setValue(this.song.timeDivision);
+                this.fieldTrackerRowLength.setValue(this.song.getTimeDivision());
             // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();
             if (!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
                 this.fieldInstructionDuration.setValue(parseInt(this.fieldTrackerRowLength.value));

@@ -217,7 +217,7 @@
                                 ASUIDiv.cE('title', 'Name'),
                                 ASUIInputText.createInputText('name',
                                     (e, newSongName) => this.setSongName(e, newSongName),
-                                    this.song ? this.song.name : "no song loaded",
+                                    this.song ? this.song.getName() : "no song loaded",
                                     "Song Name"
                                 )
                             ]),
@@ -226,7 +226,7 @@
                                 ASUIDiv.cE('title', 'Version'),
                                 ASUIInputText.createInputText('version',
                                     (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
-                                    this.song ? this.song.version : "0.0.0",
+                                    this.song ? this.song.getVersion() : "0.0.0",
                                     "Song Version",
                                 )
                             ]),
@@ -264,7 +264,7 @@
 
             // this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
             //
-            // this.fieldSongName.value = this.song.name;
+            // this.fieldSongName.value = this.song.getName();
             // this.fieldSongVersion.value = this.song.getVersion();
             //
             // this.fieldSongVolume.value = this.song.getVolumeValue();

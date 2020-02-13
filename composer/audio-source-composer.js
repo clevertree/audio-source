@@ -48,12 +48,12 @@
 
 
             this.song = new AudioSourceSong();
-            this.song.addDispatchElement(this);
             this.song.loadSongData({});
+            this.setCurrentSong(this.song);
             // this.values = new AudioSourceValues(this.song);
             // Util.loadLibrary(defaultLibraryURL);
 
-            this.onSongEvent = (e) => this.onSongEvent(e);
+            // this.onSongEvent = (e) => this.onSongEvent(e);
             window.addEventListener('unload', e => this.saveState(e));
             this.ui = {};
         }
@@ -176,7 +176,7 @@
         async saveState(e) {
             // await this.saveSongToMemory(e);
             const state = {// TODO: auto-state form fields
-                songUUID: this.song.uuid,
+                songUUID: this.song.getUUID(),
                 groupName: this.state.tracker.currentGroup,
                 currentRowSegmentID: this.trackerElm.currentRowSegmentID,
                 volume: this.state.volume,
@@ -302,7 +302,7 @@
                     break;
 
                 case 'song:loaded':
-                    this.trackerElm.renderDuration = this.song.timeDivision;
+                    // this.trackerElm.renderDuration = this.song.getTimeDivision();
                     break;
                 case 'song:play':
                     this.setProps({playing: true});

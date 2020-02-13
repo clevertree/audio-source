@@ -16,7 +16,7 @@
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
         constructor(state = {}, props = {}) {
             super(state, props);
-
+            this.onSongEventCallback = (e) => this.onSongEvent(e);
         }
 
         getDefaultInstrumentURL() {
@@ -28,20 +28,29 @@
 
         async setCurrentSong(song) {
             if(this.song) {
-                this.setStatus("Unloading song: " + this.song.name);
+                this.setStatus("Unloading song: " + this.song.getName());
                 if(this.song.isPlaying) {
                     this.song.stopPlayback();
                 }
-                this.song.removeEventListener('*', this.onSongEvent);
+                this.song.removeEventListener('*', this.onSongEventCallback);
                 // TODO: unload song?
             }
             this.song = song;
             this.state.songLength = song.getSongLengthInSeconds();
+            this.state.tracker.currentGroup = song.getRootGroup() || 'root';
+            this.state.tracker.currentRowSegmentID = 0;
+            this.state.tracker.quantizationInTicks = song.getTimeDivision();
+            this.state.tracker.segmentLengthInTicks = this.state.tracker.quantizationInTicks * 16;
+
+            this.state.tracker.filterByInstrumentID = null;
+            // this.state.tracker.segmentLengthInTicks = null;
+
+
             // this.song.setVolume(this.state.volume);
-            this.song.addEventListener('*', this.onSongEvent);
-            this.setStatus("Initializing song: " + song.name);
+            this.song.addEventListener('*', this.onSongEventCallback);
+            this.setStatus("Initializing song: " + song.getName());
             await this.song.init(this.getAudioContext());
-            this.setStatus("Loaded song: " + song.name);
+            this.setStatus("Loaded song: " + song.getName());
             this.forceUpdate();
         }
 
