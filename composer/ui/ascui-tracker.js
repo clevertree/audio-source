@@ -32,28 +32,6 @@
             this.mousePosition = {};
         }
 
-        // get composer() { return this.props.composer; }
-        get song() {
-            return this.props.composer.song;
-        }
-
-        get groupName() {
-            return this.state.currentGroup;
-        }
-
-        get segmentLengthInTicks() {
-            return this.state.segmentLengthInTicks;
-        }
-
-        async setGroupName(groupName) {
-            if (this.state.currentGroup === groupName)
-                return null;
-            if (!this.song.hasGroup(groupName))
-                throw new Error("Group not found in song: " + groupName);
-            // this.setAttribute('group', groupName);
-            await this.setState({group: groupName, currentRowSegmentID: 0});
-        }
-
 
         connectedCallback() {
             // this.addEventHandler([ // TODO: input
@@ -70,8 +48,114 @@
         }
 
 
+        render() {
+            console.time('tracker.renderRows()');
+
+            const composer = this.props.composer;
+
+            const quantizationInTicks = this.getQuantizationInTicks();
+            const segmentLengthInTicks = this.getSegmentLengthInTicks();
+            const maxLengthInTicks = this.getMaxLengthInTicks();
+
+            // Instruction Iterator
+            let instructionIterator = composer.song.instructionGetIterator(this.state.currentGroup);
+
+
+            const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
+                return conditionalInstruction.instrument === this.state.filterByInstrumentID
+            };
+
+            const selectedIndices = this.state.selectedIndices;
+            const cursorIndex = this.state.cursorIndex;
+
+
+
+            const rowContent = [];
+
+            let lastRowSegmentID = 0;
+            let rowInstructionList = null, lastRowPositionInTicks = 0;
+
+            while (true) {
+                rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback);
+                if(!rowInstructionList)
+                    break;
+                // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
+                //     continue;
+                // }
+
+                lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
+
+                const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
+                if (this.state.currentRowSegmentID === lastRowSegmentID) {
+
+                    // Render instructions
+                    const rowInstructionElms = rowInstructionList.map(instruction => {
+                        const props = {};
+                        if (selectedIndices.indexOf(instruction.index) !== -1) props.selected = true;
+                        if (instruction.index === cursorIndex) props.cursor = true;
+                        return ASCUITrackerInstruction.createInstruction(props, instruction);
+                    });
+
+                    // Render Row
+                    const newRowElm = ASCUITrackerRow.createRow({
+                            positionInTicks: instructionIterator.groupPositionInTicks,
+                            playbackTime: instructionIterator.groupPlaybackTime,
+                            deltaDuration: deltaDuration
+                        },
+                        rowInstructionElms
+                    );
+                    rowContent.push(newRowElm);
+                }
+                lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
+            }
+
+            console.timeEnd('tracker.renderRows()');
+
+            return [
+                ASUIDiv.createElement('tracker-header', () => [
+                    ASUIDiv.createElement('delta', "Delta"),
+                    ASUIDiv.createElement('instructions', "Instructions"),
+                ], {class: 'asc-panel-title'}),
+                ASUIDiv.createElement('tracker-row-container', () => [
+                    rowContent
+                ])
+            ];
+
+            // return rowContent;
+        }
+
+
+
+        getTimeDivision()           { return this.props.composer.song.getTimeDivision(); }
+        getQuantizationInTicks()    { return this.state.quantizationInTicks; }
+        getSegmentLengthInTicks()   { return this.state.segmentLengthInTicks; }
+        getMaxLengthInTicks()       { return (this.state.currentRowSegmentID + 1) * this.getSegmentLengthInTicks(); }
+        getComposer()               { return this.props.composer; }
+        getSong()                   { return this.props.composer.song; }
+        getGroupName()              { return this.state.currentGroup; }
+
+        getSegmentIDFromPositionInTicks(positionInTicks) {
+            const composer = this.props.composer;
+            const timeDivision = composer.song.getTimeDivision();
+            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
+            const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
+            return segmentID;
+        }
+
+
+        setGroupName(currentGroup) {
+            if (this.state.currentGroup === currentGroup)
+                return null;
+            if (!this.getSong().hasGroup(currentGroup))
+                throw new Error("Group not found in song: " + currentGroup);
+            // this.setAttribute('group', groupName);
+            this.setState({currentGroup, currentRowSegmentID: 0});
+        }
+
+
+
         instructionFind(index) {
-            return this.song.instructionFind(this.groupName, index);
+            return this.getSong().instructionFind(this.state.currentGroup, index);
         }
 
         instructionGetFormValues(command = null) {
@@ -111,103 +195,6 @@
         }
 
 
-        getSegmentIDFromPositionInTicks(positionInTicks) {
-            const composer = this.props.composer;
-            const timeDivision = composer.song.getTimeDivision();
-            const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
-            const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
-            return segmentID;
-        }
-
-        getTimeDivision() { return this.props.composer.song.getTimeDivision(); }
-        getQuantizationInTicks() { return this.state.quantizationInTicks; }
-        getSegmentLengthInTicks() { return this.state.segmentLengthInTicks; }
-        getMaxLengthInTicks() { return (this.state.currentRowSegmentID + 1) * this.getSegmentLengthInTicks(); }
-
-        render() {
-            console.time('tracker.renderRows()');
-
-            const composer = this.props.composer;
-
-            const quantizationInTicks = this.getQuantizationInTicks();
-            const segmentLengthInTicks = this.getSegmentLengthInTicks();
-            const maxLengthInTicks = this.getMaxLengthInTicks();
-
-            // Instruction Iterator
-            let instructionIterator = composer.song.instructionGetIterator(this.groupName);
-
-
-            const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
-                return conditionalInstruction.instrument === this.state.filterByInstrumentID
-            };
-
-            const selectedIndicies = composer.getSelectedIndicies();
-            const cursorIndex = (this.cursorInstruction ? this.cursorInstruction.index : (selectedIndicies.length > 0 ? selectedIndicies[0] : null));
-            // const cursorPosition = (this.cursorRow ? this.cursorRow.positionInTicks : null);
-            // TODO: solve
-
-
-
-            const rowContent = [];
-            // this.rows = rowContent;
-
-            let lastRowSegmentID = 0;
-            let rowInstructionList = null, lastRowPositionInTicks = 0;
-            this.selectedInstructions = [];
-            this.cursorList = [];
-            // this.cursorListOffset = 0;
-
-
-            while (true) {
-                rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback);
-                if(!rowInstructionList)
-                    break;
-                // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
-                //     continue;
-                // }
-
-                lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
-
-                const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
-                if (this.state.currentRowSegmentID === lastRowSegmentID) {
-
-                    // Render instructions
-                    const rowInstructionElms = rowInstructionList.map(instruction => {
-                        const props = {};
-                        if (selectedIndicies.indexOf(instruction.index) !== -1) props.selected = true;
-                        if (instruction.index === cursorIndex) props.cursor = true;
-                        return ASCUITrackerInstruction.createInstruction(props, instruction);
-                    });
-
-                    // Render Row
-                    const newRowElm = ASCUITrackerRow.createRow({
-                            positionInTicks: instructionIterator.groupPositionInTicks,
-                            playbackTime: instructionIterator.groupPlaybackTime,
-                            deltaDuration: deltaDuration
-                        },
-                        rowInstructionElms
-                    );
-                    rowContent.push(newRowElm);
-                }
-                lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
-            }
-
-            console.timeEnd('tracker.renderRows()');
-
-            return [
-                ASUIDiv.createElement('tracker-header', () => [
-                    ASUIDiv.createElement('delta', "Delta"),
-                    ASUIDiv.createElement('instructions', "Instructions"),
-                ], {class: 'asc-panel-title'}),
-                ASUIDiv.createElement('tracker-row-container', () => [
-                    rowContent
-                ])
-            ];
-
-            // return rowContent;
-        }
-
-
         onInput(e) {
             if (e.defaultPrevented)
                 return;
@@ -226,7 +213,7 @@
             // console.log(e.type);
 
             const composer = this.props.composer;
-            let selectedIndicies = composer.getSelectedIndicies();
+            let selectedIndices = this.state.selectedIndices;
             // const instructionList = this.instructionEach();
 
             switch (e.type) {
@@ -249,11 +236,11 @@
                         case 'Delete':
                             e.preventDefault();
                             // this.clearSelection();
-                            const selectedIndiciesDesc = selectedIndicies.sort((a, b) => b - a);
-                            for (let i = 0; i < selectedIndiciesDesc.length; i++)
-                                composer.song.instructionDeleteAtIndex(this.groupName, selectedIndicies[i]);
+                            const selectedIndicesDesc = selectedIndices.sort((a, b) => b - a);
+                            for (let i = 0; i < selectedIndicesDesc.length; i++)
+                                composer.song.instructionDeleteAtIndex(this.state.currentGroup, selectedIndices[i]);
                             this.renderRows();
-                            // this.selectIndicies(selectedIndicies[0]);
+                            // this.selectIndicies(selectedIndices[0]);
                             // song.render(true);
                             break;
 
@@ -285,7 +272,7 @@
                         case 'Play':
                             e.preventDefault();
                             composer.playCursorInstruction(e);
-                            // for(let i=0; i<selectedIndicies.length; i++) {
+                            // for(let i=0; i<selectedIndices.length; i++) {
                             //     this.editor.song.playInstruction(instructionList[i]);
                             // }
                             break;
@@ -567,7 +554,7 @@
 
 
             const composer = this.props.composer;
-            composer.clearSelectedIndicies();
+            composer.clearselectedIndices();
 
             const searchElements = this.querySelectorAll('asct-instruction,asct-row');
             const selectionList = [];
@@ -633,7 +620,7 @@
 
                 case 'group:seek':
 //                 console.log(e.type, e.detail);
-                    if (e.detail.groupName === this.groupName)
+                    if (e.detail.groupName === this.state.currentGroup)
                         this.setPlaybackPositionInTicks(e.detail.positionInTicks);
 
                     break;
@@ -642,7 +629,7 @@
                     break;
 
                 case 'note:start':
-                    if (e.detail.groupName === this.groupName) {
+                    if (e.detail.groupName === this.state.currentGroup) {
                         let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                         if (instructionElm) {
                             instructionElm.classList.add('playing');
@@ -650,7 +637,7 @@
                     }
                     break;
                 case 'note:end':
-                    if (e.detail.groupName === this.groupName) {
+                    if (e.detail.groupName === this.state.currentGroup) {
                         let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                         if (instructionElm) {
                             instructionElm.classList.remove('playing');
@@ -688,13 +675,13 @@
             this.focus();
         }
 
-        async selectIndicies(selectedIndicies, cursorIndex = null) {
+        async selectIndicies(selectedIndices, cursorIndex = null) {
             if (cursorIndex === null)
-                cursorIndex = selectedIndicies.length > 0 ? selectedIndicies[0] : null;
+                cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : null;
             for (let i = 0; i < this.cursorList.length; i++) {
                 const cursorItem = this.cursorList[i];
                 if (cursorItem instanceof ASCUITrackerInstruction) {
-                    await cursorItem.select(selectedIndicies.indexOf(cursorItem.index) !== -1);
+                    await cursorItem.select(selectedIndices.indexOf(cursorItem.index) !== -1);
                     if (cursorIndex !== null)
                         cursorItem.setCursor(cursorIndex === cursorItem.index);
                 }
@@ -880,13 +867,13 @@
 
         selectSegmentIndicies(indicies, clearSelection = false) {
             const composer = this.props.composer;
-            // const currentSelectedIndicies = composer.getSelectedIndicies();
-            // if(indicies.length === currentSelectedIndicies.length && indicies.sort().every(function(value, index) { return value === currentSelectedIndicies.sort()[index]}))
+            // const currentselectedIndices = composer.getSelectedIndices();
+            // if(indicies.length === currentselectedIndices.length && indicies.sort().every(function(value, index) { return value === currentselectedIndices.sort()[index]}))
             //     return;
             if (!Array.isArray(indicies))
                 indicies = [indicies];
             if (clearSelection)
-                composer.clearSelectedIndicies();
+                composer.clearselectedIndices();
             for (let i = 0; i < indicies.length; i++) {
                 const index = indicies[i];
                 const cell = this.findInstructionElement(index);
@@ -932,7 +919,7 @@
 
 
         // instructionReplaceParams(replaceIndex, replaceParams) {
-        //     return this.editor.song.instructionReplaceParams(this.groupName, replaceIndex, replaceParams);
+        //     return this.editor.song.instructionReplaceParams(this.state.currentGroup, replaceIndex, replaceParams);
         // }
 
         replaceFrequencyAlias(noteFrequency, instrumentID) {
@@ -947,8 +934,8 @@
         }
 
 
-        // selectInstructions(selectedIndicies) {
-        //     return this.selectIndicies(selectedIndicies);
+        // selectInstructions(selectedIndices) {
+        //     return this.selectIndicies(selectedIndices);
         // }
 
         clearRowPositions() {
@@ -1036,6 +1023,8 @@
         // }
     }
 
+
+
     if(isBrowser)
         customElements.define('asct-row', ASCUITrackerRow);
 
@@ -1062,10 +1051,19 @@
             const instruction = this.props.instruction;
             return [
                 AudioSourceComposerParamCommand.createParameter(instruction),
-                AudioSourceComposerParamInstrument.createParameter(instruction),
-                AudioSourceComposerParamVelocity.createParameter(instruction),
-                AudioSourceComposerParamDuration.createParameter(instruction),
+                (this.props.cursor || this.props.selected) ? [
+                    AudioSourceComposerParamInstrument.createParameter(instruction),
+                    AudioSourceComposerParamVelocity.createParameter(instruction),
+                    AudioSourceComposerParamDuration.createParameter(instruction),
+                ] : null
             ]
+        }
+
+        getAttributeMap() {
+            return Object.assign(super.getAttributeMap(), {
+                selected: 'selected',
+                cursor: 'cursor',
+            });
         }
 
         static createInstruction(props, instruction) {
@@ -1074,42 +1072,13 @@
             });
         }
 
-        // instructionFind(song, groupName, throwException = true) {
-        //     return song.instructionFind(groupName, this.index, throwException);
-        // }
-
-        // async update(song, instruction) {
-        //     // TODO: partial update?
-        //     await this.setState(this.getInstructionContent(song, instruction));
-        // }
-
-        // async select(selected = true) {
-        //     if (selected !== this.props.selected) {
-        //         this.setProps({selected});
-        //         this.forceUpdate();
-        //     }
-        // }
-
-        // setCursor(cursor = true) {
-        //     if (this.props.cursor !== cursor) {
-        //         this.setProps({cursor});
-        //     }
-        //     if (cursor)
-        //         (this.scrollIntoViewIfNeeded || this.scrollIntoView).apply(this);
-        //     // if(this.parentNode)
-        //     //     (this.parentNode.scrollIntoViewIfNeeded || this.parentNode.scrollIntoView).apply(this.parentNode);
-        // }
-        //
-        // removeCursor() {
-        //     if (this.props.cursor !== false) {
-        //         this.setProps({cursor: false});
-        //     }
-        // }
-
     }
 
     if(isBrowser)
         customElements.define('asct-instruction', ASCUITrackerInstruction);
+
+
+
 
 
     class ASCUITrackerInstructionAdd extends ASUIComponent {

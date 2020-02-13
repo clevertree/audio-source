@@ -253,7 +253,7 @@
             this.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
             if (this.fieldSongPosition.value !== roundedSeconds)
                 this.fieldSongPosition.value = roundedSeconds;
-            await this.trackerElm.updateSongPositionValue(playbackPositionInSeconds);
+            await this.tracker.updateSongPositionValue(playbackPositionInSeconds);
         }
 
         // setSongPositionAsPercent(e, playbackPositionPercent) {
@@ -268,16 +268,16 @@
             const audioContext = this.getVolumeGain()
             if (this.song.isPlaying)
                 this.song.stopPlayback();
-            const selectedIndicies = this.editorElm.getSelectedIndicies();
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, selectedIndicies[i]);
+            const selectedIndices = this.state.tracker.selectedIndices;
+            for (let i = 0; i < selectedIndices.length; i++) {
+                this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, selectedIndices[i]);
             }
         }
 
         playCursorInstruction() {
             if (this.song.isPlaying)
                 this.song.stopPlayback();
-            const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListOffset];
+            const cursorItem = this.tracker.refs.cursorList[this.tracker.state.cursorListOffset];
             if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
                 this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, cursorItem.index);
             }
@@ -286,13 +286,13 @@
 
         async renderInstruction(groupName, index) {
             const instruction = this.song.instructionFind(groupName, index);
-            this.trackerElm.findInstructionElement(index)
+            this.tracker.findInstructionElement(index)
                 .update(this.song, instruction);
         }
 
 
         instructionInsertOrUpdate(e, commandString = null) {
-            let selectedIndicies = this.editorElm.getSelectedIndicies();
+            let selectedIndices = this.state.tracker.selectedIndices;
             if (this.cursorCell.matches('asct-instruction-add')) {
                 let newInstruction = this.instructionGetFormValues(commandString);
                 if (!newInstruction) {
@@ -305,30 +305,30 @@
                 // this.cursorRow.render(true);
                 this.renderRows();
                 this.selectSegmentIndicies(insertIndex, true);
-                // selectedIndicies = [insertIndex];
+                // selectedIndices = [insertIndex];
 //                             console.timeEnd("new");
                 // cursorInstruction = instructionList[insertIndex];
             } else {
-                for (let i = 0; i < selectedIndicies.length; i++) {
-                    const selectedInstruction = this.instructionFind(selectedIndicies[i]);
+                for (let i = 0; i < selectedIndices.length; i++) {
+                    const selectedInstruction = this.instructionFind(selectedIndices[i]);
                     const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
-                    this.instructionReplaceCommand(selectedIndicies[i], replaceCommand);
+                    this.instructionReplaceCommand(selectedIndices[i], replaceCommand);
                 }
                 this.renderRows();
-                this.selectSegmentIndicies(selectedIndicies);
-                // this.selectIndicies(this.editorElm.getSelectedIndicies()[0]); // TODO: select all
+                this.selectSegmentIndicies(selectedIndices);
+                // this.selectIndicies(this.state.tracker.selectedIndices[0]); // TODO: select all
             }
         }
 
 
         async instructionInsert(newCommand = null, promptUser = false, instrumentID = null, groupName = null) {
             //: TODO: check for recursive group
-            const tracker = this.trackerElm;
-            groupName = groupName || tracker.groupName;
+            const tracker = this.tracker;
+            groupName = groupName || tracker.getGroupName();
             const song = this.song;
-            // let selectedIndicies = this.getSelectedIndicies();
+            // let selectedIndices = this.getSelectedIndices();
 
-            // if(selectedIndicies.length === 0)
+            // if(selectedIndices.length === 0)
             //     throw new Error("No selection");
             if (newCommand === null)
                 newCommand = this.fieldInstructionCommand.value || null;
@@ -349,16 +349,16 @@
             this.playCursorInstruction();
         }
 
-        async instructionChangeCommand(newCommand = null, promptUser = false, instrumentID = null, groupName = null, selectedIndicies = null) {
+        async instructionChangeCommand(newCommand = null, promptUser = false, instrumentID = null, groupName = null, selectedIndices = null) {
             //: TODO: check for recursive group
             const song = this.song;
-            const tracker = this.trackerElm;
-            groupName = groupName || tracker.groupName;
-            selectedIndicies = selectedIndicies || this.getSelectedIndicies();
+            const tracker = this.tracker;
+            groupName = groupName || tracker.getGroupName();
+            selectedIndices = selectedIndices || this.state.tracker.selectedIndices;
 
-            if (selectedIndicies.length === 0)
+            if (selectedIndices.length === 0)
                 throw new Error("No selection");
-            const firstInstruction = this.song.instructionFind(groupName, selectedIndicies[0]);
+            const firstInstruction = this.song.instructionFind(groupName, selectedIndices[0]);
             if (newCommand === null)
                 newCommand = firstInstruction.command || this.fieldInstructionCommand.value || null;
             if (promptUser)
@@ -366,39 +366,39 @@
             if (!newCommand)
                 throw new Error("Invalid Instruction command");
 
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                song.instructionReplaceCommand(groupName, selectedIndicies[i], newCommand);
+            for (let i = 0; i < selectedIndices.length; i++) {
+                song.instructionReplaceCommand(groupName, selectedIndices[i], newCommand);
                 if (instrumentID !== null) {
-                    song.instructionReplaceInstrument(groupName, selectedIndicies[i], instrumentID);
+                    song.instructionReplaceInstrument(groupName, selectedIndices[i], instrumentID);
                 }
-                await this.renderInstruction(groupName, selectedIndicies[i]);
+                await this.renderInstruction(groupName, selectedIndices[i]);
             }
             this.playCursorInstruction();
         }
 
-        // TODO: assuming the use of tracker.groupName?
-        async instructionChangeInstrument(instrumentID = null, groupName = null, selectedIndicies = null) {
-            const tracker = this.trackerElm;
+        // TODO: assuming the use of tracker.getGroupName()?
+        async instructionChangeInstrument(instrumentID = null, groupName = null, selectedIndices = null) {
+            const tracker = this.tracker;
             const song = this.song;
-            groupName = groupName || tracker.groupName;
-            selectedIndicies = selectedIndicies || this.getSelectedIndicies();
+            groupName = groupName || tracker.getGroupName();
+            selectedIndices = selectedIndices || this.state.tracker.selectedIndices;
 
             instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
             if (!Number.isInteger(instrumentID))
                 throw new Error("Invalid Instruction ID");
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                song.instructionReplaceInstrument(tracker.groupName, selectedIndicies[i], instrumentID);
-                await this.renderInstruction(groupName, selectedIndicies[i]);
+            for (let i = 0; i < selectedIndices.length; i++) {
+                song.instructionReplaceInstrument(tracker.getGroupName(), selectedIndices[i], instrumentID);
+                await this.renderInstruction(groupName, selectedIndices[i]);
             }
             await this.fieldInstructionInstrument.setValue(instrumentID);
             this.playCursorInstruction();
         }
 
-        async instructionChangeDuration(duration = null, promptUser = false, groupName = null, selectedIndicies = null) {
-            const tracker = this.trackerElm;
+        async instructionChangeDuration(duration = null, promptUser = false, groupName = null, selectedIndices = null) {
+            const tracker = this.tracker;
             const song = this.song;
-            groupName = groupName || tracker.groupName;
-            selectedIndicies = selectedIndicies || this.getSelectedIndicies();
+            groupName = groupName || tracker.getGroupName();
+            selectedIndices = selectedIndices || this.state.tracker.selectedIndices;
 
             if (!duration)
                 duration = parseFloat(this.fieldInstructionDuration.value);
@@ -406,19 +406,19 @@
                 duration = parseInt(prompt("Set custom duration in ticks:", duration));
             if (isNaN(duration))
                 throw new Error("Invalid duration: " + typeof duration);
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                song.instructionReplaceDuration(tracker.groupName, selectedIndicies[i], duration);
-                await this.renderInstruction(groupName, selectedIndicies[i]);
+            for (let i = 0; i < selectedIndices.length; i++) {
+                song.instructionReplaceDuration(tracker.getGroupName(), selectedIndices[i], duration);
+                await this.renderInstruction(groupName, selectedIndices[i]);
             }
             this.playCursorInstruction();
 
         }
 
-        async instructionChangeVelocity(velocity = null, promptUser = false, groupName = null, selectedIndicies = null) {
-            const tracker = this.trackerElm;
+        async instructionChangeVelocity(velocity = null, promptUser = false, groupName = null, selectedIndices = null) {
+            const tracker = this.tracker;
             const song = this.song;
-            groupName = groupName || tracker.groupName;
-            selectedIndicies = selectedIndicies || this.getSelectedIndicies();
+            groupName = groupName || tracker.getGroupName();
+            selectedIndices = selectedIndices || this.state.tracker.selectedIndices;
 
             if (velocity === null)
                 velocity = this.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
@@ -427,21 +427,21 @@
                 velocity = parseInt(prompt("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
             if (velocity === null || isNaN(velocity))
                 throw new Error("Invalid velocity: " + typeof velocity);
-            for (let i = 0; i < selectedIndicies.length; i++) {
-                song.instructionReplaceVelocity(tracker.groupName, selectedIndicies[i], velocity);
-                await this.renderInstruction(groupName, selectedIndicies[i]);
+            for (let i = 0; i < selectedIndices.length; i++) {
+                song.instructionReplaceVelocity(tracker.getGroupName(), selectedIndices[i], velocity);
+                await this.renderInstruction(groupName, selectedIndices[i]);
             }
             this.playCursorInstruction();
         }
 
-        async instructionDelete(groupName = null, selectedIndicies = null) {
-            const tracker = this.trackerElm;
+        async instructionDelete(groupName = null, selectedIndices = null) {
+            const tracker = this.tracker;
             const song = this.song;
-            groupName = groupName || tracker.groupName;
-            selectedIndicies = selectedIndicies || this.getSelectedIndicies();
+            groupName = groupName || tracker.getGroupName();
+            selectedIndices = selectedIndices || this.state.tracker.selectedIndices;
 
-            for (let i = 0; i < selectedIndicies.length; i++)
-                song.instructionDeleteAtIndex(tracker.groupName, selectedIndicies[i]);
+            for (let i = 0; i < selectedIndices.length; i++)
+                song.instructionDeleteAtIndex(tracker.getGroupName(), selectedIndices[i]);
             await tracker.forceUpdate();
 
         }
@@ -449,7 +449,7 @@
         /** Tracker Cells **/
 
         async setCursor(newCursor, clearSelection = null, toggleValue = null) {
-            await this.trackerElm.setCursorElement(newCursor);
+            await this.tracker.setCursorElement(newCursor);
 
             if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
                 await this.selectIndex(newCursor.index, clearSelection, toggleValue);
@@ -461,7 +461,7 @@
             } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
                 await this.setSongPosition(newCursor.positionInSeconds);
                 if (clearSelection)
-                    this.clearSelectedIndicies();
+                    this.clearselectedIndices();
 
             }
 
@@ -469,42 +469,42 @@
         }
 
         async setNextCursor(clearSelection = null, toggleValue = null) {
-            const nextCursor = this.trackerElm.getNextCursor();
+            const nextCursor = this.tracker.getNextCursor();
             if (!nextCursor) {
-                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID + 1);
-                return this.setCursor(this.trackerElm.getFirstCursor(), clearSelection, toggleValue);
+                await this.trackerChangeSegment(this.tracker.state.currentRowSegmentID + 1);
+                return this.setCursor(this.tracker.getFirstCursor(), clearSelection, toggleValue);
             }
 
             await this.setCursor(nextCursor, clearSelection, toggleValue);
         }
 
         async setPreviousCursor(clearSelection = null, toggleValue = null) {
-            const previousCursor = this.trackerElm.getPreviousCursor();
+            const previousCursor = this.tracker.getPreviousCursor();
             if (!previousCursor) {
-                if (this.trackerElm.state.currentRowSegmentID <= 0)
+                if (this.tracker.state.currentRowSegmentID <= 0)
                     throw new Error("Beginning of song");
-                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID - 1);
-                return this.setCursor(this.trackerElm.getLastCursor(), clearSelection, toggleValue);
+                await this.trackerChangeSegment(this.tracker.state.currentRowSegmentID - 1);
+                return this.setCursor(this.tracker.getLastCursor(), clearSelection, toggleValue);
             }
             await this.setCursor(previousCursor, clearSelection, toggleValue);
         }
 
         async setNextRowCursor(clearSelection = null, toggleValue = null) {
-            const nextRowCursor = this.trackerElm.getNextRowCursor();
+            const nextRowCursor = this.tracker.getNextRowCursor();
             if (!nextRowCursor) {
-                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID + 1);
-                return this.setCursor(this.trackerElm.getFirstCursor(), clearSelection, toggleValue);
+                await this.trackerChangeSegment(this.tracker.state.currentRowSegmentID + 1);
+                return this.setCursor(this.tracker.getFirstCursor(), clearSelection, toggleValue);
             }
             await this.setCursor(nextRowCursor, clearSelection, toggleValue);
         }
 
         async setPreviousRowCursor(clearSelection = null, toggleValue = null) {
-            const previousRowCursor = this.trackerElm.getPreviousRowCursor();
+            const previousRowCursor = this.tracker.getPreviousRowCursor();
             if (!previousRowCursor) {
-                if (this.trackerElm.state.currentRowSegmentID <= 0)
+                if (this.tracker.state.currentRowSegmentID <= 0)
                     throw new Error("Beginning of song");
-                await this.trackerChangeSegment(this.trackerElm.state.currentRowSegmentID - 1);
-                return this.setCursor(this.trackerElm.getLastCursor(), clearSelection, toggleValue);
+                await this.trackerChangeSegment(this.tracker.state.currentRowSegmentID - 1);
+                return this.setCursor(this.tracker.getLastCursor(), clearSelection, toggleValue);
             }
             await this.setCursor(previousRowCursor, clearSelection, toggleValue);
         }
@@ -513,79 +513,80 @@
         /** Selection **/
 
         async selectIndex(index, clearSelection = null, toggleValue = null) {
-            let selectedIndicies = clearSelection ? [] : this.getSelectedIndicies();
+            let selectedIndices = clearSelection ? [] : this.state.tracker.selectedIndices;
             if (toggleValue) {
-                selectedIndicies.unshift(index); // Cursor goes first
+                selectedIndices.unshift(index); // Cursor goes first
             } else {
-                const pos = selectedIndicies.indexOf(index);
-                selectedIndicies.splice(pos, 1);
+                const pos = selectedIndices.indexOf(index);
+                selectedIndices.splice(pos, 1);
             }
-            return await this.selectIndicies(selectedIndicies);
+            return await this.selectIndicies(selectedIndices);
         }
 
-        async selectIndicies(selectedIndicies) {
-            if (typeof selectedIndicies === "string") {
+        async selectIndicies(selectedIndices) {
+            if (typeof selectedIndices === "string") {
 
-                switch (selectedIndicies) {
+                switch (selectedIndices) {
                     case 'all':
-                        selectedIndicies = [];
+                        selectedIndices = [];
                         const maxLength = this.song.instructionFindGroupLength(this.groupName);
                         for (let i = 0; i < maxLength; i++)
-                            selectedIndicies.push(i);
+                            selectedIndices.push(i);
                         break;
                     case 'segment':
-                        selectedIndicies = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                        selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
                         break;
                     case 'row':
                         throw new Error('TODO');
                     case 'none':
-                        selectedIndicies = [];
+                        selectedIndices = [];
                         break;
                     default:
-                        throw new Error("Invalid selection: " + selectedIndicies);
+                        throw new Error("Invalid selection: " + selectedIndices);
                 }
             }
-            if (typeof selectedIndicies === 'number')
-                selectedIndicies = [selectedIndicies];
-            if (!Array.isArray(selectedIndicies))
+            if (typeof selectedIndices === 'number')
+                selectedIndices = [selectedIndices];
+            if (!Array.isArray(selectedIndices))
                 throw new Error("Invalid selection");
 
-            selectedIndicies = selectedIndicies.filter((v, i, a) => a.indexOf(v) === i);
+            selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
 
-            this.fieldTrackerSelection.value = selectedIndicies.join(',');
+            this.state.tracker.selectedIndices = selectedIndices;
+            this.fieldTrackerSelection.value = selectedIndices.join(',');
 
-            await this.trackerElm.selectIndicies(selectedIndicies);
-            this.trackerElm.focus();
+            // await this.tracker.selectIndicies(selectedIndices);
+            this.tracker.forceUpdate();
         }
 
-        getSelectedIndicies() {
-            const value = this.fieldTrackerSelection ? this.fieldTrackerSelection.value : '';
-            if (value === '')
-                return [];
-            return value
-                .split(/\D+/)
-                .map(index => parseInt(index));
-            // return this.selectedIndicies;
-            // const selectedIndicies = [].map.call(this.selectedCells, (elm => elm.index));
-        }
+        /** @deprecated **/
+        getSelectedIndices() { return this.state.tracker.selectedIndices; }
+            // const value = this.fieldTrackerSelection ? this.fieldTrackerSelection.value : '';
+            // if (value === '')
+            //     return [];
+            // return value
+            //     .split(/\D+/)
+            //     .map(index => parseInt(index));
+            // return this.selectedIndices;
+            // const selectedIndices = [].map.call(this.selectedCells, (elm => elm.index));
 
-        clearSelectedIndicies() {
+        clearselectedIndices() {
             this.fieldTrackerSelection.value = '';
-            this.trackerElm.selectIndicies([]);
+            this.selectIndicies([]);
         }
 
         toggleSelectionAtIndex(index, toggleValue = null) {
-            const selectedIndicies = this.getSelectedIndicies();
-            const pos = selectedIndicies.indexOf(index);
+            const selectedIndices = this.state.tracker.selectedIndices;
+            const pos = selectedIndices.indexOf(index);
             if (toggleValue === null)
                 toggleValue = pos === -1;
             if (toggleValue) {
-                selectedIndicies.splice(pos, 1);
+                selectedIndices.splice(pos, 1);
             } else {
-                selectedIndicies.push(index);
+                selectedIndices.push(index);
             }
-            this.fieldTrackerSelection.value = selectedIndicies.join(',');
-            return selectedIndicies;
+            this.fieldTrackerSelection.value = selectedIndices.join(',');
+            return selectedIndices;
         }
 
         // selectIndex(index) { return this.toggleSelectionAtIndex(index, true); }
@@ -600,7 +601,7 @@
         /** Groups **/
 
         groupAdd() {
-            const tracker = this.trackerElm;
+            const tracker = this.tracker;
             const song = this.song;
 
             let newGroupName = song.generateInstructionGroupName();
@@ -708,10 +709,10 @@
         async trackerChangeSegment(newRowSegmentID) {
             if (!Number.isInteger(newRowSegmentID))
                 throw new Error("Invalid segment ID");
-            const oldSegmentID = this.trackerElm.state.currentRowSegmentID;
-            await this.trackerElm.setState({currentRowSegmentID: newRowSegmentID});
-            this.panelTrackerRowSegmentButtons[oldSegmentID].setProps({selected: false});
-            this.panelTrackerRowSegmentButtons[newRowSegmentID].setProps({selected: true});
+            const oldSegmentID = this.tracker.state.currentRowSegmentID;
+            await this.tracker.setState({currentRowSegmentID: newRowSegmentID});
+            this.panelTrackerRowSegmentButtons[oldSegmentID].setState({selected: false});
+            this.panelTrackerRowSegmentButtons[newRowSegmentID].setState({selected: true});
             // this.currentRowSegmentID = newRowSegmentID;
             // this.renderRows();
         }
@@ -719,7 +720,7 @@
         /** Tracker **/
 
         async trackerChangeGroup(groupName = null) {
-            const tracker = this.trackerElm;
+            const tracker = this.tracker;
 
             groupName = groupName || e.target.form.getAttribute('data-group');
             await tracker.setGroupName(groupName);
@@ -735,19 +736,19 @@
         }
 
         trackerChangeRowLength(trackerRowLength = null) {
-            const tracker = this.trackerElm;
+            const tracker = this.tracker;
             tracker.setState({trackerRowLength});
 
         }
 
         async trackerChangeSegmentLength(segmentLengthInTicks = null) {
-            const tracker = this.trackerElm;
+            const tracker = this.tracker;
             await tracker.setState({segmentLengthInTicks});
             await this.panelTrackerRowSegments.forceUpdate();
         }
 
         // setTrackerRowSegment(e) {
-        //     const tracker = this.trackerElm;
+        //     const tracker = this.tracker;
         //
         //     this.currentRowSegmentID = parseInt(form.elements.id.value);
         //     tracker.renderRows();
@@ -759,22 +760,22 @@
         // }
 
         trackerChangeInstrumentFilter(filterByInstrumentID) {
-            const tracker = this.trackerElm;
+            const tracker = this.tracker;
             tracker.setState({filterByInstrumentID})
-            // let selectedIndicies = this.getSelectedIndicies();
+            // let selectedIndices = this.getSelectedIndices();
 
             // tracker.renderRows();
-            // this.selectIndicies(e, selectedIndicies);
+            // this.selectIndicies(e, selectedIndices);
         }
 
-        trackerChangeSelection(selectedIndicies = null) {
-            const tracker = this.trackerElm;
+        trackerChangeSelection(selectedIndices = null) {
+            const tracker = this.tracker;
 
-            if (!selectedIndicies)
-                selectedIndicies = this.fieldTrackerSelection.value
+            if (!selectedIndices)
+                selectedIndices = this.fieldTrackerSelection.value
                     .split(/\D+/)
                     .map(index => parseInt(index));
-            this.selectIndicies(selectedIndicies);
+            this.selectIndicies(selectedIndices);
             this.fieldTrackerSelection.focus();
         }
 
@@ -812,9 +813,9 @@
             storage.addBatchRecentSearches(searchCallbackString);
 
 
-            const tracker = this.trackerElm;
-            this.clearSelectedIndicies();
-            const groupName = tracker.groupName, g = groupName;
+            const tracker = this.tracker;
+            this.clearselectedIndices();
+            const groupName = tracker.getGroupName(), g = groupName;
             try {
                 const stats = {count: 0};
                 const iterator = this.song.instructionGetIterator(groupName);
@@ -852,8 +853,8 @@
             storage.addBatchRecentCommands(commandCallbackString);
 
             const instructionList = [];
-            const tracker = this.trackerElm;
-            const groupName = tracker.groupName, g = groupName;
+            const tracker = this.tracker;
+            const groupName = tracker.getGroupName(), g = groupName;
             try {
                 const stats = {count: 0, modified: 0};
                 const iterator = this.song.instructionGetIterator(groupName);

@@ -156,16 +156,17 @@
             if (state) {
                 await this.loadDefaultSong(state.songUUID);
                 if (typeof state.volume !== "undefined") this.setVolume(state.volume);
-                if (typeof state.trackerSegmentLength !== "undefined") await this.fieldTrackerSegmentLength.setValue(state.trackerSegmentLength);
-                if (typeof state.trackerRowLength !== "undefined") await this.fieldTrackerRowLength.setValue(state.trackerRowLength);
-                if (typeof state.trackerInstrument !== "undefined") await this.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
-                if (typeof state.trackerOctave !== "undefined") await this.fieldTrackerOctave.setValue(state.trackerOctave);
+                // if (typeof state.trackerSegmentLength !== "undefined") await this.fieldTrackerSegmentLength.setValue(state.trackerSegmentLength);
+                // if (typeof state.trackerRowLength !== "undefined") await this.fieldTrackerRowLength.setValue(state.trackerRowLength);
+                // if (typeof state.trackerInstrument !== "undefined") await this.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
+                // if (typeof state.trackerOctave !== "undefined") await this.fieldTrackerOctave.setValue(state.trackerOctave);
 
-                if (typeof state.groupName !== "undefined") await this.trackerChangeGroup(state.groupName);
-                if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);
+                // if (typeof state.groupName !== "undefined") await this.trackerChangeGroup(state.groupName);
+                // if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);
 
-                if (typeof state.selectedIndicies !== "undefined") this.selectIndicies(state.selectedIndicies);
+                // if (typeof state.selectedIndices !== "undefined") this.selectIndicies(state.selectedIndices);
                 // this.trackerElm.render(); // TODO: too many renders
+                console.log('todo load state');
 
             } else {
                 await this.loadDefaultSong();
@@ -177,14 +178,14 @@
             // await this.saveSongToMemory(e);
             const state = {// TODO: auto-state form fields
                 songUUID: this.song.getUUID(),
-                groupName: this.state.tracker.currentGroup,
-                currentRowSegmentID: this.trackerElm.currentRowSegmentID,
+                // groupName: this.state.tracker.currentGroup,
+                // currentRowSegmentID: this.trackerElm.currentRowSegmentID,
                 volume: this.state.volume,
-                trackerSegmentLength: this.fieldTrackerSegmentLength.value,
-                trackerRowLength: this.fieldTrackerRowLength.value,
-                trackerInstrument: this.fieldTrackerFilterInstrument.value,
-                trackerOctave: this.fieldTrackerOctave.value,
-                selectedIndicies: this.getSelectedIndicies()
+                // trackerSegmentLength: this.fieldTrackerSegmentLength.value,
+                // trackerRowLength: this.fieldTrackerRowLength.value,
+                // trackerInstrument: this.fieldTrackerFilterInstrument.value,
+                // trackerOctave: this.fieldTrackerOctave.value,
+                tracker: this.state.tracker
             };
             const storage = new AudioSourceStorage();
             storage.saveState(state, 'audio-source-composer-state');

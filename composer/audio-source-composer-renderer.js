@@ -10,8 +10,6 @@
     const {
         ASUIComponent,
         ASUIDiv,
-        ASUIGrid,
-        ASUIGridRow,
         ASUIIcon,
     } = require('../common/ui/asui-component.js');
 
@@ -42,6 +40,8 @@
             this.state.tracker = {
                 currentGroup: 'root',
                 currentRowSegmentID: 0,
+                selectedIndices: [],
+                cursorIndex: 0,
                 cursorListOffset: 0,
                 rowSegmentCount: 10,
                 quantizationInTicks: null,
@@ -96,7 +96,7 @@
         }
 
         renderMenu(menuKey=null, menuParam=null) {
-            let recentBatchCommand, instrumentID, selectedIndicies;
+            let recentBatchCommand, instrumentID, selectedIndices;
             // const library = await this.getLibrary();
             /** File Menu **/
             let content = [];
@@ -161,8 +161,6 @@
 
                 case 'edit':
                 case 'context':
-                    selectedIndicies = this.getSelectedIndicies();
-
                     // const populateGroupCommands = (subMenuGroup, action) => {
                     //     subMenuGroup.populate = (e) => {
                     //         const MENU = e.menuElement;
@@ -177,10 +175,10 @@
                     // };
                     return [
                         ASUIMenu.cSME({key: 'edit-insert', hasBreak: true}, 'Insert Command', (e) => this.renderMenu('edit-insert')),
-                        // menuEditInsertCommand.disabled = selectedIndicies.length > 0; // !this.cursorCell;
+                        // menuEditInsertCommand.disabled = selectedIndices.length > 0; // !this.cursorCell;
                         // menuEditInsertCommand.action = handleAction('song:new');
 
-                        (selectedIndicies.length === 0 ? null :
+                        (this.state.tracker.selectedIndices.length === 0 ? null :
                             ASUIMenu.cSME({key: 'edit-insert', hasBreak: true}, 'Insert Command', (e) => this.renderMenu('edit-set'))),
 
                         /** Select Instructions **/
@@ -236,13 +234,12 @@
 
 
                 case 'edit-set':
-                    selectedIndicies = this.getSelectedIndicies();
                     return [
                         ASUIMenu.cSME({key: 'edit-set-command', hasBreak: true}, 'Set Command', (e) => this.renderMenu('edit-insert-command')),
                         ASUIMenu.cSME({key: 'edit-set-instrument', hasBreak: true}, 'Set Instrument', (e) => this.renderMenu('edit-set-instrument')),
                         ASUIMenu.cSME({key: 'edit-set-duration', hasBreak: true}, 'Set Duration', (e) => this.renderMenu('edit-set-duration')),
                         ASUIMenu.cSME({key: 'edit-set-velocity', hasBreak: true}, 'Set Velocity', (e) => this.renderMenu('edit-set-velocity')),
-                        ASUIMenu.cME({disabled: selectedIndicies.length === 0}, `Delete Instruction(s)`, (e) => this.instructionDelete(e)),
+                        ASUIMenu.cME({disabled: this.state.tracker.selectedIndices.length === 0}, `Delete Instruction(s)`, (e) => this.instructionDelete(e)),
                     ];
 
                 case 'edit-set-command':
@@ -719,7 +716,7 @@
                             ]),
 
 
-                            // this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndicies.length > 1 ? '(s)' : ''));
+                            // this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndices.length > 1 ? '(s)' : ''));
 
                             // Status Fields
 
@@ -787,7 +784,8 @@
                         ASCUITracker.createElement({
                             key: 'asc-tracker',
                             tabindex: 0,
-                            composer: this
+                            composer: this,
+                            ref: ref => this.tracker = ref
                         }, )
                     ]),
 
@@ -824,9 +822,8 @@
 
             this.fieldSongVolume.value = this.song.getVolumeValue();
 
-            let selectedIndicies = this.getSelectedIndicies();
             // let timeDivision = this.rowLengthInTicks || this.song.getSongTimeDivision();
-            const cursorInstruction = this.song.instructionFind(this.state.tracker.currentGroup, selectedIndicies[0]);
+            const cursorInstruction = this.song.instructionFind(this.state.tracker.currentGroup, this.state.tracker.selectedIndices[0]);
 
 
             if (cursorInstruction) {
@@ -836,7 +833,7 @@
                 this.fieldInstructionDuration.value = cursorInstruction.duration;
             }
 
-            this.fieldInstructionDelete.disabled = selectedIndicies.length === 0;
+            this.fieldInstructionDelete.disabled = this.state.tracker.selectedIndices.length === 0;
             if (!this.fieldTrackerRowLength.value)
                 this.fieldTrackerRowLength.setValue(this.song.getTimeDivision());
             // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();
@@ -894,6 +891,23 @@
             this.song = song;
         }
 
+        getComponentClassList() {
+            return {
+                Component: ASUIComponent,
+                Div: ASUIDiv,
+                // Grid: ASUIGrid,
+                // GridRow: ASUIGridRow,
+                Icon: ASUIIcon,
+                Menu: ASUIMenu,
+                InputCheckbox: ASUIInputCheckBox,
+                InputButton: ASUIInputButton,
+                InputSelect: ASUIInputSelect,
+                InputFile: ASUIInputFile,
+                InputRange: ASUIInputRange,
+                InputText: ASUIInputText,
+            }
+        };
+
         render() {
             const instrumentID = this.props.id;
             const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
@@ -911,7 +925,9 @@
                     } else if (instrument instanceof HTMLElement) {
                         content.push(instrument);
                     } else if (typeof instrument.render === "function") {
-                        content.push(instrument.render());
+                        content.push(instrument.render(
+                            this.getComponentClassList()
+                        ));
                     } else {
                         content.push(ASUIDiv.createElement('error', "No Instrument Renderer"));
                     }
