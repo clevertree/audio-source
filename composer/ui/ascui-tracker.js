@@ -22,18 +22,12 @@
 
     class ASCUITracker extends ASUIComponent {
         constructor(props) {
-            super(props, {
-                group: 'root',
-                currentRowSegmentID: 0,
-                cursorListOffset: 0,
-                rowSegmentCount: 10,
-                quantizationInTicks: null,
-                segmentLengthInTicks: null,
-                filterByInstrumentID: null
-            });
+            super(props);
 
             if(!props.composer)
                 throw new Error("Invalid composer");
+            this.state = this.props.composer.state.tracker;
+
             /** @deprecated **/
             this.mousePosition = {};
         }
@@ -44,7 +38,7 @@
         }
 
         get groupName() {
-            return this.state.group;
+            return this.state.currentGroup;
         }
 
         get segmentLengthInTicks() {
@@ -52,7 +46,7 @@
         }
 
         async setGroupName(groupName) {
-            if (this.state.group === groupName)
+            if (this.state.currentGroup === groupName)
                 return null;
             if (!this.song.hasGroup(groupName))
                 throw new Error("Group not found in song: " + groupName);
@@ -211,7 +205,7 @@
             console.timeEnd('tracker.renderRows()');
 
             return [
-                this.rowContainer = ASUIDiv.createElement('title', () => [
+                this.rowContainer = ASUIDiv.createElement('tracker-header', () => [
                     ASUIDiv.createElement('delta', "Delta"),
                     ASUIDiv.createElement('instructions', "Instructions"),
                 ], {class: 'asc-panel-title'}),
@@ -1128,7 +1122,7 @@
 
         play() {
             const composer = this.props.composer;
-            composer.song.playInstructionAtIndex(destination, this.trackerElm.groupName, this.index, composer.song.getAudioContext().currentTime);
+            composer.song.playInstructionAtIndex(destination, this.state.tracker.currentGroup, this.index, composer.song.getAudioContext().currentTime);
             return this;
         }
 

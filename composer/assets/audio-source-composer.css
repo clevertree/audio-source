@@ -56,6 +56,13 @@ asui-div[key=asc-status-container] {
     padding: 0px;
 }
 
+asui-div[key=asc-title-text]{
+    text-align: center;
+    align-items: center;
+    padding-top: 3px;
+    font-weight: bold;
+    color: #333;
+}
 
 asui-div[key=asc-status-text] {
     padding-left: 4px;
@@ -109,8 +116,8 @@ asc-panel {
     margin: 1px 3px 0px 1px;
 }
 
-asc-tracker > asui-div.title,
-asc-panel > asui-div.title {
+asc-tracker > asui-div[key=title],
+asc-panel > asui-div[key=title] {
     /* display: inline-block; */
     background-color: #333;
     color: #FFF;
@@ -253,8 +260,21 @@ asc-tracker {
 
 /** Tracker Header **/
 
-asc-tracker .tracker-header {
+/** Tracker Header **/
+asc-tracker > asui-div[key=tracker-header] > asui-div[key=delta] {
+    float: left;
+     padding: 2px;
+}
+asc-tracker > asui-div[key=tracker-header] > asui-div[key=instructions] {
+    /*display: block;*/
+     padding: 2px;
+    /*text-align: center;*/
+}
+
+asc-tracker > asui-div[key=tracker-header] {
     min-width: 126px;
+    /*background-color: #333;*/
+    /*color: #FFF;*/
 }
 asc-tracker .tracker-header-pause {
     text-align: center;
@@ -263,39 +283,25 @@ asc-tracker .tracker-header-pause {
 
 /** Tracker Row Segments/Groups **/
 
-asc-panel.tracker-groups > asui-input-button,
-asc-panel.tracker-row-segments > asui-input-button {
+asc-panel[key=tracker-groups] > asui-input-button,
+asc-panel[key=tracker-row-segments] > asui-input-button {
     border: 1px outset #FFF;
     padding: 4px 12px;
     margin: 0px 0px;
     background-color: #DDD;
 }
 
-asc-panel.tracker-groups > asui-input-button[selected],
-asc-panel.tracker-row-segments > asui-input-button[selected] {
+asc-panel[key=tracker-groups] > asui-input-button[selected],
+asc-panel[key=tracker-row-segments] > asui-input-button[selected] {
     font-weight: bold;
     background-color: #BBB;
     border-style: inset;
 }
 
-/** Tracker Header **/
-asc-tracker asui-div.tracker-header {
-    /*background-color: #333;*/
-    /*color: #FFF;*/
-}
-asc-tracker asui-div.title > asui-div.delta {
-    float: left;
-    /* padding: 2px; */
-}
-asc-tracker asui-div.title > asui-div.instructions {
-    /*display: block;*/
-    /* padding: 2px; */
-    /*text-align: center;*/
-}
 
 /** Tracker Row **/
 
-asc-tracker asui-div.tracker-row-container {
+asc-tracker asui-div[key=tracker-row-container] {
     overflow-y: auto;
     max-height: 800px;
 }

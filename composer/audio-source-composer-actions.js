@@ -261,7 +261,7 @@
                 this.song.stopPlayback();
             const selectedIndicies = this.editorElm.getSelectedIndicies();
             for (let i = 0; i < selectedIndicies.length; i++) {
-                this.song.playInstructionAtIndex(this.getVolumeGain(), this.trackerElm.groupName, selectedIndicies[i]);
+                this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, selectedIndicies[i]);
             }
         }
 
@@ -270,7 +270,7 @@
                 this.song.stopPlayback();
             const cursorItem = this.trackerElm.refs.cursorList[this.trackerElm.state.cursorListOffset];
             if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
-                this.song.playInstructionAtIndex(this.getVolumeGain(), this.trackerElm.groupName, cursorItem.index);
+                this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, cursorItem.index);
             }
         }
 
@@ -444,7 +444,7 @@
 
             if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
                 await this.selectIndex(newCursor.index, clearSelection, toggleValue);
-                const instruction = newCursor.instructionFind(this.song, this.trackerElm.groupName);
+                const instruction = newCursor.instructionFind(this.song, this.state.tracker.currentGroup);
                 this.fieldInstructionCommand.value = instruction.command;
                 this.fieldInstructionInstrument.value = instruction.instrument;
                 this.fieldInstructionVelocity.value = instruction.velocity;

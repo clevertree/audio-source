@@ -19,11 +19,6 @@
     class AudioSourceComposerElement extends AudioSourceComposerActions {
         constructor(props={}) {
             super(props);
-            this.state.volume = AudioSourceSong.DEFAULT_VOLUME;
-            this.state.version = -1;
-            this.state.songLength = 0;
-            this.state.playing = false;
-            this.state.paused = false;
 
             // this.versionString = '-1';
             // this.eventHandlers = [];
@@ -182,7 +177,7 @@
             // await this.saveSongToMemory(e);
             const state = {// TODO: auto-state form fields
                 songUUID: this.song.uuid,
-                groupName: this.trackerElm.groupName,
+                groupName: this.state.tracker.currentGroup,
                 currentRowSegmentID: this.trackerElm.currentRowSegmentID,
                 volume: this.state.volume,
                 trackerSegmentLength: this.fieldTrackerSegmentLength.value,

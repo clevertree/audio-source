@@ -88,11 +88,13 @@
                     props.style = styleList;
             }
 
-            static processProps(props, additionalProps=[]) {
+            static processProps(props, additionalProps) {
                 if(typeof props === "string")
                     props = {key: props};
                 if(typeof props !== "object")
                     throw new Error("Invalid props: " + typeof props);
+                if(!Array.isArray(additionalProps))
+                    additionalProps = [additionalProps];
                 for(let i=0; i<additionalProps.length; i++)
                     Object.assign(props, additionalProps[i]);
                 this.getStyleKeys().forEach(key => this.addStyleList(props, key));
@@ -340,11 +342,13 @@
                 }
             }
 
-            static processProps(props, additionalProps=[]) {
+            static processProps(props, additionalProps={}) {
                 if(typeof props === "string")
                     props = {key: props};
                 if(typeof props !== "object")
                     throw new Error("Invalid props: " + typeof props);
+                if(!Array.isArray(additionalProps))
+                    additionalProps = [additionalProps];
                 for(let i=0; i<additionalProps.length; i++)
                     Object.assign(props, additionalProps[i]);
                 return props;
@@ -356,7 +360,7 @@
                 return [];
             }
 
-            static createElement(props, children=null, additionalProps) {
+            static createElement(props, children=null, additionalProps=null) {
                 props = ASUIComponent.processProps(props, additionalProps);
                 if(children !== null)
                     props.children = children;
@@ -449,7 +453,7 @@
             return React.createElement(View, this.props, super.renderReactNative());
         }
 
-        static createElement(props, children=null, additionalProps) {
+        static createElement(props, children=null, additionalProps=null) {
             children = this.convertStringChildrenToComponent(children);
             return super.createElement(props, children, additionalProps);
         }
