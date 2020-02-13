@@ -94,48 +94,9 @@
         get trackerRowLengthInTicks() {
             return this.state.trackerRowLength || this.song.timeDivision;
         }
-//
-//         renderMenu(menuKey = null) {
-// //             console.log('renderMenu', menuKey);
-//             switch(menuKey) {
-//
-//                 case 'file':
-//                     return [
-//                         ASUIMenu.cSME('memory', 'Load from Memory',     (e) => this.renderMenu('file-memory')),
-//
-//                         ASUIMenu.cME('file', 'Load from File', (e) => this.fieldSongFileLoad.click()),
-//                         ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
-//                         ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
-//                     ];
-//
-//                 case 'edit':
-//                     return [
-//                         ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
-//                         ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
-//                     ];
-//
-//                 case 'view':
-//                     return [
-//                         ASUIMenu.cME('fullscreen', `${this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-//                         ASUIMenu.cME('hide-panel-song', `${this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-//                         ASUIMenu.cME('hide-panel-playlist', `${this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-//                     ];
-//
-//                     // ASUIDiv.createElement('asc-menu-container', [
-//                     //     this.menuFile = ASUIMenu.cME({vertical: true}, 'File', () => this.populateMenu('file')),
-//                     //     this.menuEdit = ASUIMenu.cME({vertical: true}, 'Edit', () => this.populateMenu('edit')),
-//                     //     this.menuGroup = ASUIMenu.cME({vertical: true}, 'Group', () => this.populateMenu('group')),
-//                     //     this.menuInstrument = ASUIMenu.cME({vertical: true}, 'Instrument', () => this.populateMenu('instrument')),
-//                     //     this.menuView = ASUIMenu.cME({vertical: true}, 'View', () => this.populateMenu('view')),
-//                     //     this.menuContext = ASUIMenu.cME({
-//                     //         vertical: true,
-//                     //         context: true
-//                     //     }, null, () => this.populateMenu('context')),
-//                     // ]),
-//             }
-//         }
 
-        renderMenu(menuKey=null) {
+        renderMenu(menuKey=null, menuParam=null) {
+            let recentBatchCommand, instrumentID, selectedIndicies;
             // const library = await this.getLibrary();
             /** File Menu **/
             let content = [];
@@ -146,64 +107,61 @@
                         // ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
                         ASUIMenu.cSME({vertical, key:'file'},    'File',    () => this.renderMenu('file')),
                         ASUIMenu.cSME({vertical, key:'edit'},    'Edit',    () => this.renderMenu('edit')),
+                        ASUIMenu.cSME({vertical, key:'group'},    'Group',    () => this.renderMenu('group')),
+                        ASUIMenu.cSME({vertical, key:'instrument'},    'Instrument',    () => this.renderMenu('instrument')),
                         ASUIMenu.cSME({vertical, key:'view'},    'View',    () => this.renderMenu('view')),
                     ];
 
                 case 'file':
-
-                    content = [
-
-                        ASUIMenu.cME({}, 'New song', (e) => this.loadNewSongData(e)),
-
-                        ASUIMenu.cSME({}, 'Open song', [
-                            ASUIMenu.cME({}, 'from Memory', async () => {
-                                const songRecentUUIDs = await audioSourceStorage.getRecentSongList();
-                                return songRecentUUIDs.map(entry => ASUIMenu.cME({}, entry.name || entry.uuid, null,
-                                    () => this.loadSongFromMemory(entry.uuid)));
-                            }),
-
-                            ASUIMenu.cME({}, `from File`, null, (e) => this.fieldSongFileLoad.click()), // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                            // menuFileOpenSongFromFile.disabled = true;
-                            ASUIMenu.cME({}, 'from URL', null, (e) => this.loadSongFromURL()),
-                        ]),
-
-                        ASUIMenu.cSME({}, 'Save song', [
-                            ASUIMenu.cME({}, 'to Memory', null, (e) => this.saveSongToMemory(e)),
-                            ASUIMenu.cME({}, 'to File', null, (e) => this.saveSongToFile(e)),
-                        ]),
-
-                        ASUIMenu.cSME({}, 'Import song', [
-                            ASUIMenu.cME({}, 'from MIDI File', null, (e) => this.fieldSongFileLoad.inputElm.click()),
-                            // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                            // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
-                            // menuFileImportSongFromMIDI.disabled = true;
-                        ]),
-
-                        ASUIMenu.cSME({disabled: false}, 'Export song', [
-                            ASUIMenu.cME({}, 'to MIDI File', null, null, {disabled: true}),
-                        ]),
+                    return [
+                        ASUIMenu.cME('file-new', 'New song', (e) => this.loadNewSongData(e)),
+                        ASUIMenu.cSME('file-open', 'Open song', (e) => this.renderMenu('file-open')),
+                        ASUIMenu.cSME('file-save', 'Save song', (e) => this.renderMenu('file-save')),
+                        ASUIMenu.cSME('file-import', 'Import song', (e) => this.renderMenu('file-import')),
+                        ASUIMenu.cSME('file-export', 'Export song', (e) => this.renderMenu('file-export')),
                     ];
-                    break;
 
                 case 'file-open':
-                    break;
-                case 'file-save':
-                    break;
-                case 'file-import':
-                    break;
+                    return [
+                        ASUIMenu.cSME('file-open-memory', 'Import song', (e) => this.renderMenu('file-open-memory')),
 
-                case 'file-memory':
+                        ASUIMenu.cME('file-open-file', `from File`, (e) => this.fieldSongFileLoad.click()), // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
+                        // menuFileOpenSongFromFile.disabled = true;
+                        ASUIMenu.cME('file-open-url', 'from URL', (e) => this.loadSongFromURL()),
+                    ];
+
+
+                case 'file-save':
+                    return [
+                        ASUIMenu.cME('file-save-memory', 'to Memory', (e) => this.saveSongToMemory(e)),
+                        ASUIMenu.cME('file-save-file', 'to File', (e) => this.saveSongToFile(e)),
+                    ];
+
+                case 'file-import':
+                    return [
+                        ASUIMenu.cME('file-import-midi', 'from MIDI File', (e) => this.fieldSongFileLoad.inputElm.click()),
+                        // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
+                        // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+                        // menuFileImportSongFromMIDI.disabled = true;
+                    ];
+
+                case 'file-export':
+                    return [
+                        ASUIMenu.cME('file-export-midi', 'to MIDI File', null, {disabled: true}),
+                    ];
+
+                case 'file-open-memory':
                     const Storage = new AudioSourceStorage();
                     const songRecentUUIDs = Storage.getRecentSongList() ;
                     return songRecentUUIDs.length > 0
-                        ? songRecentUUIDs.map(entry => ASUIMenu.cME({},
+                        ? songRecentUUIDs.map((entry, i) => ASUIMenu.cME(i,
                             entry.name || entry.uuid,
                             () => this.loadSongFromMemory(entry.uuid)))
                         : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
 
                 case 'edit':
                 case 'context':
-                    const selectedIndicies = this.getSelectedIndicies();
+                    selectedIndicies = this.getSelectedIndicies();
 
                     // const populateGroupCommands = (subMenuGroup, action) => {
                     //     subMenuGroup.populate = (e) => {
@@ -217,234 +175,266 @@
                     //         menuCustom.hasBreak = true;
                     //     };
                     // };
-                    content = [
-                        ASUIMenu.cME({}, `Insert Command`, [
-                            ASUIMenu.cME({}, `Frequency`, () =>
-                                this.values.getNoteFrequencies((noteName, label) =>
-                                    ASUIMenu.cME({}, `${noteName}`, () =>
-                                        this.values.getNoteOctaves((octave) =>
-                                            ASUIMenu.cME({}, `${noteName}${octave}`, null, (e) => {
-                                                this.fieldInstructionCommand.value = `${noteName}${octave}`;
-                                                this.instructionInsert(`${noteName}${octave}`, false);
-                                            })
-                                        )
-                                    )
-                                )
-                            ),
-
-                            ASUIMenu.cME({}, `Named`, () =>
-                                this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
-                                    ASUIMenu.cME({}, noteName, null, (e) => {
-                                        this.fieldInstructionCommand.value = noteName;
-                                        this.instructionInsert(noteName, false, instrumentID);
-                                    }))
-                            ),
-
-                            ASUIMenu.cME({}, `Group`, [
-                                this.values.getAllSongGroups((groupName) =>
-                                    ASUIMenu.cME({disabled: groupName === this.state.tracker.currentGroup}, `${groupName}`, (e) => {
-                                        const fullNote = '@' + groupName;
-                                        this.fieldInstructionCommand.value = fullNote;
-                                        this.instructionInsert(fullNote, false);
-                                    })),
-                                ASUIMenu.cME({}, `Create New Group`, null, (e) => this.groupAdd(e), {hasBreak: true}),
-                            ]),
-
-                            ASUIMenu.cME({}, `Custom Command`, null, (e) => this.instructionInsert(null, true)),
-                            // menuCustom.hasBreak = true;
-                        ], null, {hasBreak: true}),
+                    return [
+                        ASUIMenu.cSME({key: 'edit-insert', hasBreak: true}, 'Insert Command', (e) => this.renderMenu('edit-insert')),
                         // menuEditInsertCommand.disabled = selectedIndicies.length > 0; // !this.cursorCell;
                         // menuEditInsertCommand.action = handleAction('song:new');
 
-                        (selectedIndicies.length === 0 ? null : [
-                            ASUIMenu.cME({}, `Set Command`, [
-                                ASUIMenu.cME({}, `Frequency`, () =>
-                                    this.values.getNoteFrequencies((noteName, label) =>
-                                        ASUIMenu.cME({}, `${noteName}`, () =>
-                                            this.values.getNoteOctaves((octave) =>
-                                                ASUIMenu.cME({}, `${noteName}${octave}`, null, (e) => {
-                                                    this.fieldInstructionCommand.value = `${noteName}${octave}`;
-                                                    this.instructionChangeCommand(`${noteName}${octave}`, false);
-                                                    // handleAction('instruction:command')(e);
-                                                })
-                                            )
-                                        )
-                                    )
-                                ),
-
-                                ASUIMenu.cME({}, `Named`, () =>
-                                    this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
-                                        ASUIMenu.cME({}, noteName, null, (e) => {
-                                            this.fieldInstructionCommand.value = noteName;
-                                            this.instructionChangeCommand(noteName, false, instrumentID);
-                                        }))
-                                ),
-
-                                ASUIMenu.cME({}, `Group`, [
-                                    this.values.getAllSongGroups((groupName) =>
-                                        groupName === this.groupName ? null :
-                                            ASUIMenu.cME({}, `${groupName}`, null, (e) => {
-                                                const fullNote = '@' + groupName;
-                                                this.fieldInstructionCommand.value = fullNote;
-                                                this.instructionChangeCommand(fullNote, false);
-                                            })),
-                                    ASUIMenu.cME({}, `Create New Group`, null, (e) => this.groupAdd(e), {hasBreak: true})
-                                ]),
-
-                                ASUIMenu.cME({}, `Custom Command`, null, (e) => this.instructionChangeCommand(null, true), {hasBreak: true}),
-                            ]),
-
-                            ASUIMenu.cME({disabled: selectedIndicies.length === 0}, `Set Instrument`, () =>
-                                this.values.getSongInstruments((instrumentID, label) =>
-                                    ASUIMenu.cME({}, `${label}`, null, (e) => {
-                                        this.fieldInstructionInstrument.value = instrumentID;
-                                        this.instructionChangeInstrument(instrumentID);
-                                        // handleAction('instruction:instrument')(e);
-                                    }))
-                            ),
-
-                            ASUIMenu.cME({disabled: selectedIndicies.length === 0}, `Set Duration`, [
-                                this.values.getNoteDurations((durationInTicks, durationName) =>
-                                    ASUIMenu.cME({}, `${durationName}`, null, (e) => {
-                                        this.fieldInstructionDuration.value = durationInTicks;
-                                        this.instructionChangeDuration(durationInTicks);
-                                        // handleAction('instruction:duration')(e);
-                                    })),
-                                ASUIMenu.cME({}, `Custom Duration`, (e) => this.instructionChangeDuration(null, true), {hasBreak: true}),
-                            ]),
-
-                            ASUIMenu.cME({disabled: selectedIndicies.length === 0}, `Set Velocity`, [
-                                this.values.getNoteVelocities((velocity) =>
-                                    ASUIMenu.cME({}, `${velocity}`, null, (e) => {
-                                        this.fieldInstructionVelocity.value = velocity;
-                                        this.instructionChangeVelocity(velocity);
-                                        // handleAction('instruction:velocity')(e);
-                                    })
-                                ),
-                                ASUIMenu.cME({}, `Custom Velocity`, null, (e) => this.instructionChangeVelocity(null, true), {hasBreak: true}),
-                            ]),
-
-                            ASUIMenu.cME({disabled: selectedIndicies.length === 0}, `Delete Instruction(s)`,
-                                null,
-                                (e) => this.instructionDelete(e)
-                            ),
-                        ]),
+                        (selectedIndicies.length === 0 ? null :
+                            ASUIMenu.cSME({key: 'edit-insert', hasBreak: true}, 'Insert Command', (e) => this.renderMenu('edit-set'))),
 
                         /** Select Instructions **/
-
-                        ASUIMenu.cME({}, 'Select', [
-                            ASUIMenu.cME({}, 'Select Segment Instructions', null, (e) => this.trackerChangeSelection('segment')),
-
-                            ASUIMenu.cME({}, 'Select All Song Instructions', null, (e) => this.trackerChangeSelection('all')),
-
-                            // const menuSelectRow = MENU.getOrCreateSubMenu('row', 'Select Row Instructions');
-                            // menuSelectRow.action = (e) => this.trackerChangeSelection(e, 'row');
-                            // menuSelectRow.disabled = true;
-                            ASUIMenu.cME({}, 'Select No Instructions', null, (e) => this.trackerChangeSelection('none')),
-
-                            ASUIMenu.cME({}, 'Batch Select', [
-                                ASUIMenu.cME({}, 'New Selection Command', null, (e) => this.batchSelect(e)),
-
-                                    audioSourceStorage.getBatchRecentSearches().map(recentBatchSearch =>
-                                        // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                                        ASUIMenu.cME({}, recentBatchSearch, null, (e) => {
-                                            this.batchSelect(e, recentBatchSearch, true);
-                                        })
-                                    )
-                                ]),
-
-                        ], null, {hasBreak: true}),
+                        ASUIMenu.cSME({key: 'edit-select', hasBreak: true}, 'Select', (e) => this.renderMenu('edit-select')),
 
                         /** Batch Instructions **/
-
-                        ASUIMenu.cME({}, 'Batch', [
-                            ASUIMenu.cME({}, 'New Batch Command', null, (e) => this.batchRunCommand(e)),
-                            audioSourceStorage.getBatchRecentCommands().map((recentBatchCommand, i) =>
-                                ASUIMenu.cME({}, recentBatchCommand, [
-                                    ASUIMenu.cME({}, "Execute on Group", null, (e) => {
-                                        this.batchRunCommand(e, recentBatchCommand, true);
-                                    }),
-
-                                    ASUIMenu.cME({}, "Execute using Search", (e) => [
-                                        ASUIMenu.cME({}, 'New Search', null, (e) => this.batchRunCommand(e, recentBatchCommand, null, true)),
-                                        audioSourceStorage.getBatchRecentSearches().map((recentBatchSearch, i) => {
-
-                                            // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
-                                            ASUIMenu.cME({}, recentBatchSearch, null, (e) => {
-                                                this.batchRunCommand(e, recentBatchCommand, recentBatchSearch);
-                                            });
-                                        })
-                                    ])
-                                ])
-                            ),
-
-                        ], null, {hasBreak: false}),
+                        ASUIMenu.cSME({key: 'edit-batch', hasBreak: true}, 'Batch', (e) => this.renderMenu('edit-batch')),
                     ];
-                    // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
-                    // menuEditGroup.hasBreak = true;
-                    // menuEditGroup.disabled = true;
+                // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
+                // menuEditGroup.hasBreak = true;
+                // menuEditGroup.disabled = true;
 
-                    break;
+                case 'edit-insert':
+                    return [
+                        ASUIMenu.cSME('edit-insert-frequency', 'Frequency', (e) => this.renderMenu('edit-insert-frequency')),
+                        ASUIMenu.cSME('edit-insert-named', 'Named', (e) => this.renderMenu('edit-insert-named')),
+                        ASUIMenu.cSME('edit-insert-group', 'Group', (e) => this.renderMenu('edit-insert-group')),
+                        ASUIMenu.cME('edit-insert-custom', `Custom Command`, (e) => this.instructionInsert(null, true)),
+                        // menuCustom.hasBreak = true;
+                    ];
+
+                case 'edit-insert-group':
+                    return [
+                        this.values.getAllSongGroups((groupName) =>
+                            ASUIMenu.cME({key: 'edit-insert-group-group', disabled: groupName === this.state.tracker.currentGroup}, `${groupName}`, (e) => {
+                                const fullNote = '@' + groupName;
+                                this.fieldInstructionCommand.value = fullNote;
+                                this.instructionInsert(fullNote, false);
+                            })),
+                        ASUIMenu.cME({key: 'edit-insert-group-new', hasBreak: true}, `Create New Group`, (e) => this.groupAdd(e), {hasBreak: true}),
+                    ];
+
+                case 'edit-insert-named':
+                    return this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
+                        ASUIMenu.cME('edit-insert-named-note', noteName, (e) => {
+                            this.fieldInstructionCommand.value = noteName;
+                            this.instructionInsert(noteName, false, instrumentID);
+                        }));
+
+                case 'edit-insert-frequency':
+                    return this.values.getNoteFrequencies((noteName, label) =>
+                        ASUIMenu.cSME('edit-insert-frequency-note', `${noteName}`, (e) => this.renderMenu('edit-insert-frequency', noteName)),
+                    );
+
+                case 'edit-insert-frequency-note':
+                    const insertNoteName = menuParam;
+                    return this.values.getNoteOctaves((octave) =>
+                        ASUIMenu.cME('edit-insert-frequency-note-octave', `${insertNoteName}${octave}`, (e) => {
+                            this.fieldInstructionCommand.value = `${insertNoteName}${octave}`;
+                            this.instructionInsert(`${insertNoteName}${octave}`, false);
+                        })
+                    );
+
+
+                case 'edit-set':
+                    selectedIndicies = this.getSelectedIndicies();
+                    return [
+                        ASUIMenu.cSME({key: 'edit-set-command', hasBreak: true}, 'Set Command', (e) => this.renderMenu('edit-insert-command')),
+                        ASUIMenu.cSME({key: 'edit-set-instrument', hasBreak: true}, 'Set Instrument', (e) => this.renderMenu('edit-set-instrument')),
+                        ASUIMenu.cSME({key: 'edit-set-duration', hasBreak: true}, 'Set Duration', (e) => this.renderMenu('edit-set-duration')),
+                        ASUIMenu.cSME({key: 'edit-set-velocity', hasBreak: true}, 'Set Velocity', (e) => this.renderMenu('edit-set-velocity')),
+                        ASUIMenu.cME({disabled: selectedIndicies.length === 0}, `Delete Instruction(s)`, (e) => this.instructionDelete(e)),
+                    ];
+
+                case 'edit-set-command':
+                    return [
+                        ASUIMenu.cSME('edit-set-command-frequency', 'Frequency', (e) => this.renderMenu('edit-set-command-frequency')),
+                        ASUIMenu.cSME('edit-set-command-named', 'Named', (e) => this.renderMenu('edit-set-command-named')),
+                        ASUIMenu.cSME('edit-set-command-group', 'Group', (e) => this.renderMenu('edit-set-command-group')),
+                        ASUIMenu.cME('edit-set-command-custom', `Custom Command`, (e) => this.instructionChangeCommand(null, true), {hasBreak: true}),
+                    ];
+
+                case 'edit-set-instrument':
+                    return this.values.getSongInstruments((instrumentID, label) =>
+                        ASUIMenu.cME('edit-set-instrument', `${label}`, (e) => {
+                            this.fieldInstructionInstrument.value = instrumentID;
+                            this.instructionChangeInstrument(instrumentID);
+                            // handleAction('instruction:instrument')(e);
+                        }));
+
+
+                case 'edit-set-duration':
+                    return [
+                        this.values.getNoteDurations((durationInTicks, durationName) =>
+                            ASUIMenu.cME({}, `${durationName}`, (e) => {
+                                this.fieldInstructionDuration.value = durationInTicks;
+                                this.instructionChangeDuration(durationInTicks);
+                                // handleAction('instruction:duration')(e);
+                            })),
+                        ASUIMenu.cME({}, `Custom Duration`, (e) => this.instructionChangeDuration(null, true), {hasBreak: true}),
+                    ];
+
+                case 'edit-set-velocity':
+                    return [
+                        this.values.getNoteVelocities((velocity) =>
+                            ASUIMenu.cME({}, `${velocity}`, (e) => {
+                                this.fieldInstructionVelocity.value = velocity;
+                                this.instructionChangeVelocity(velocity);
+                                // handleAction('instruction:velocity')(e);
+                            })
+                        ),
+                        ASUIMenu.cME({}, `Custom Velocity`, (e) => this.instructionChangeVelocity(null, true), {hasBreak: true}),
+                    ];
+
+                case 'edit-set-command-frequency':
+                    return this.values.getNoteFrequencies((noteName, label) =>
+                        ASUIMenu.cSME('edit-set-command-frequency-note', 'Frequency', (e) => this.renderMenu('edit-set-command-frequency-note', noteName)),
+                    );
+
+                case 'edit-set-command-frequency-note':
+                    const setNoteName = menuParam;
+                    return this.values.getNoteOctaves((octave) =>
+                        ASUIMenu.cME('edit-set-command-frequency-note-octave', `${setNoteName}${octave}`, (e) => {
+                            this.fieldInstructionCommand.value = `${setNoteName}${octave}`;
+                            this.instructionChangeCommand(`${setNoteName}${octave}`, false);
+                            // handleAction('instruction:command')(e);
+                        })
+                    );
+
+                case 'edit-set-command-named':
+                    return this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
+                        ASUIMenu.cME('edit-set-command-named', noteName, (e) => {
+                            this.fieldInstructionCommand.value = noteName;
+                            this.instructionChangeCommand(noteName, false, instrumentID);
+                        }));
+
+                case 'edit-set-command-group':
+                    return [
+                        this.values.getAllSongGroups((groupName) =>
+                            groupName === this.groupName ? null :
+                                ASUIMenu.cME('edit-set-command-group', `${groupName}`, (e) => {
+                                    const fullNote = '@' + groupName;
+                                    this.fieldInstructionCommand.value = fullNote;
+                                    this.instructionChangeCommand(fullNote, false);
+                                })),
+                        ASUIMenu.cME('edit-set-command-new-group', `Create New Group`, (e) => this.groupAdd(e), {hasBreak: true})
+                    ];
+
+                case 'edit-select':
+                    return [
+                        ASUIMenu.cME('edit-select-segment', 'Select Segment Instructions', (e) => this.trackerChangeSelection('segment')),
+
+                        ASUIMenu.cME('edit-select-all', 'Select All Song Instructions', (e) => this.trackerChangeSelection('all')),
+
+                        // const menuSelectRow = MENU.getOrCreateSubMenu('row', 'Select Row Instructions');
+                        // menuSelectRow.action = (e) => this.trackerChangeSelection(e, 'row');
+                        // menuSelectRow.disabled = true;
+                        ASUIMenu.cME('edit-select-none', 'Select No Instructions', (e) => this.trackerChangeSelection('none')),
+
+                        ASUIMenu.cSME('edit-select-batch', 'Batch Select', (e) => this.renderMenu('edit-select-batch')),
+                    ];
+
+                case 'edit-select-batch':
+                    return [
+                        ASUIMenu.cME('edit-select-batch', 'New Selection Command', (e) => this.batchSelect(e)),
+
+                        audioSourceStorage.getBatchRecentSearches().map((recentBatchSearch, i) =>
+                            // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                            ASUIMenu.cME('edit-select-batch-' + i, recentBatchSearch, (e) => {
+                                this.batchSelect(e, recentBatchSearch, true);
+                            })
+                        )
+                    ];
+
+                case 'edit-batch':
+                    return [
+                        ASUIMenu.cME('edit-batch-new', 'New Batch Command', (e) => this.batchRunCommand(e)),
+                        audioSourceStorage.getBatchRecentCommands().map((recentBatchCommand, i) =>
+                            ASUIMenu.cSME('edit-batch-recent-' + i, recentBatchCommand, (e) => this.renderMenu('edit-batch-recent', recentBatchCommand))
+                        ),
+
+                    ];
+
+                case 'edit-batch-recent':
+                    recentBatchCommand = menuParam;
+                    return [
+                        ASUIMenu.cME('edit-batch-recent-execute-group', "Execute on Group", (e) =>
+                            this.batchRunCommand(e, recentBatchCommand, true)
+                        ),
+
+                        ASUIMenu.cSME('edit-batch-recent-execute-search', "Execute using Search", (e) => this.renderMenu('edit-batch-recent-execute-search', recentBatchCommand))
+                    ];
+
+                case 'edit-batch-recent-execute-search':
+                    recentBatchCommand = menuParam;
+                    return [
+                        ASUIMenu.cME('edit-batch-recent-execute-search-new', 'New Search', (e) => this.batchRunCommand(e, recentBatchCommand, null, true)),
+                        audioSourceStorage.getBatchRecentSearches().map((recentBatchSearch, i) => {
+
+                            // let title = recentBatchCommand.match(/\/\*\*([^*/]+)/)[1].trim() || recentBatchCommand;
+                            ASUIMenu.cME('edit-batch-recent-execute-search-recent-execute', recentBatchSearch, (e) => {
+                                this.batchRunCommand(e, recentBatchCommand, recentBatchSearch);
+                            });
+                        })
+                    ];
 
                 case 'view':
-                    content = [
-                        ASUIMenu.cME({}, `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                        ASUIMenu.cME({}, `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                        ASUIMenu.cME({}, `${this.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`, null, (e) => this.togglePanelTracker(e)),
-                        ASUIMenu.cME({}, `${this.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`, null, (e) => this.togglePanelInstruments(e)),
+                    return [
+                        ASUIMenu.cME('view-toggle-fullscreen', `${this.classList.contains('fullscreen') ? 'Disable' : 'Enable'} Fullscreen`, (e) => this.toggleFullscreen(e)),
+                        ASUIMenu.cME('view-toggle-panel-song', `${this.classList.contains('hide-panel-song') ? 'Show' : 'Hide'} Song Forms`, (e) => this.togglePanelSong(e)),
+                        ASUIMenu.cME('view-toggle-panel-tracker', `${this.classList.contains('hide-panel-tracker') ? 'Show' : 'Hide'} Track Forms`, (e) => this.togglePanelTracker(e)),
+                        ASUIMenu.cME('view-toggle-panel-instruments', `${this.classList.contains('hide-panel-instruments') ? 'Show' : 'Hide'} Instrument Forms`, (e) => this.togglePanelInstruments(e)),
                     ];
-                    break;
 
                 case 'instrument':
-                    content = [
-                        ASUIMenu.cME({}, `Add instrument to song`,
-                            async () =>
-                                library.eachInstrument((instrumentConfig) =>
-                                    ASUIMenu.cME({}, `${instrumentConfig.name}`, null, (e) => {
-                                        this.instrumentAdd(instrumentConfig);
-                                    })
-                                ),
-                            null, {hasBreak: true}),
+                    return [
+                        ASUIMenu.cSME({key: 'instrument-add', hasBreak: true}, `Add instrument to song`, (e) => this.renderMenu('instrument-add')),
 
                         this.values.getSongInstruments((instrumentID, label) =>
-                            ASUIMenu.cME({}, `${label}`, [
-                                ASUIMenu.cME({}, `Replace`, async (e) =>
-                                    library.eachInstrument((instrumentConfig) =>
-                                        ASUIMenu.cME({}, `${instrumentConfig.name}`, null, (e) =>
-                                            this.instrumentReplace(instrumentID, instrumentConfig)
-                                        )
-                                    )
-                                ),
-
-                                ASUIMenu.cME({}, `Remove from song`, null, (e) => {
-                                    this.instrumentRemove(instrumentID);
-                                }, {disabled: !this.song.isInstrumentLoaded(instrumentID)})
-                            ])),
+                            ASUIMenu.cME('instrument-edit', `${label}`, (e) => this.renderMenu('instrument-edit', instrumentID))),
 
                     ];
-                    break;
+
+                case 'instrument-add':
+                    return library.eachInstrument((instrumentConfig) =>
+                            ASUIMenu.cME('instrument-add', `${instrumentConfig.name}`, (e) => {
+                                this.instrumentAdd(instrumentConfig);
+                            })
+                        );
+
+                case 'instrument-edit':
+                    instrumentID = menuParam;
+                    return [
+                        ASUIMenu.cSME('instrument-edit-replace', "Replace", (e) => this.renderMenu('instrument-edit-replace')),
+                        ASUIMenu.cME({key: 'instrument-edit-remove', disabled: !this.song.isInstrumentLoaded(instrumentID)}, `Remove from song`, (e) => {
+                            this.instrumentRemove(instrumentID);
+                        }, )
+                    ];
+
+                case 'instrument-edit-replace':
+                    return library.eachInstrument((instrumentConfig, i) =>
+                        ASUIMenu.cME('instrument-edit-replace-' + i, `${instrumentConfig.name}`, (e) =>
+                            this.instrumentReplace(instrumentID, instrumentConfig)
+                        )
+                    );
 
                 /** Group Menu **/
                 case 'group':
                     let groupCount = 0;
-                    content = [
-                        ASUIMenu.cME({}, `Add new group to song`, null, (e) => {
+                    return [
+                        ASUIMenu.cME('group-add', `Add new group to song`, (e) => {
                             this.groupAdd(e);
                         }, {hasBreak: true}),
 
                         this.values.getAllSongGroups((groupName) =>
-                            ASUIMenu.cME({}, `${groupName}`, [
-                                ASUIMenu.cME({}, `Rename group '${groupName}'`, null, (e) => {
-                                    this.groupRename(groupName);
-                                }),
-
-                                ASUIMenu.cME({}, `Delete group '${groupName}' from song`, null, (e) => {
-                                    this.groupRemove(groupName);
-                                }),
-                            ], {hasBreak: groupCount++ === 0}))
+                            ASUIMenu.cSME({key: 'group-edit', hasBreak: groupCount++ === 0}, `${groupName}`, (e) => this.renderMenu('group-edit', groupName)))
                     ];
-                    break;
 
+                case 'group-edit':
+                    const groupName = menuParam;
+                    return [
+                        ASUIMenu.cME('group-edit-rename', `Rename group '${groupName}'`, (e) => this.groupRename(groupName)),
+                        ASUIMenu.cME('group-edit-delete', `Delete group '${groupName}'`, (e) => this.groupRemove(groupName)),
+                    ]
             }
 
             return content;
