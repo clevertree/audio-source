@@ -920,14 +920,17 @@
                     const instrument = this.song.getLoadedInstrument(instrumentID);
                     const instrumentConfig = this.song.getInstrumentConfig(instrumentID);
 
-                    if (instrument === null) {
+                    if (!instrument) {
                         content.push(ASUIDiv.createElement('loading', "Instrument Loading..."));
-                    } else if (instrument instanceof HTMLElement) {
-                        content.push(instrument);
-                    } else if (typeof instrument.render === "function") {
-                        content.push(instrument.render(
+                    } else if (instrument.constructor && typeof instrument.constructor.render === "function") {
+                        content.push(instrument.constructor.render(
+                            instrumentConfig,
+                            this.song,
+                            instrumentID,
                             this.getComponentClassList()
                         ));
+                    } else if (instrument instanceof HTMLElement) {
+                        content.push(instrument);
                     } else {
                         content.push(ASUIDiv.createElement('error', "No Instrument Renderer"));
                     }

@@ -160,206 +160,6 @@
                 this.setProps({active});
         }
 
-
-        render(components) {
-            const {
-                Component,
-                Div,
-                // Grid,
-                // GridRow,
-                Icon,
-                Menu,
-                InputCheckbox,
-                InputButton,
-                InputSelect,
-                InputFile,
-                InputRange,
-                InputText,
-            } = components;
-
-
-            // const instrument = this;
-            const instrumentID = typeof this.id !== "undefined" ? this.id : -1;
-            const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-
-            let presetURL = this.config.presetURL || '';
-            let presetTitle = presetURL.split('#').pop() || presetURL.split('/').pop() || 'Set Preset';
-            // if(this.config.presetURL && this.config.preset)
-            //     presetURL = new URL(this.config.libraryURL + '#' + this.config.preset, document.location) + '';
-
-            const samples = this.config.samples;
-            const sampleLibrary = this.sampleLibrary; // TODO: re-render on load
-            let titleHTML = `${instrumentIDHTML}: ${this.config.name || "Unnamed"}`;
-
-            return [
-
-                Div.createElement('header', () => [
-                    InputButton.createElement('title', titleHTML, e => this.toggleContainer(e)),
-                    this.selectChangePreset = new InputSelect('instrument-preset',
-                        (selectElm) => [
-                            selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
-                                sampleLibrary.eachPreset(config => selectElm.getOption(config.url, config.name)),
-                            ),
-                            selectElm.getOptGroup('Libraries', () =>
-                                sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-                                {disabled: sampleLibrary.libraryCount === 0}
-                            ),
-                            selectElm.getOptGroup('Other Libraries', () =>
-                                AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
-                                {disabled: AudioSourceLibrary.historicLibraryCount === 0}
-                            ),
-                        ],
-                        (e, presetURL) => this.setPreset(presetURL),
-                        presetURL,
-                        presetTitle,
-                    ),
-
-                    this.menu = Menu.createElement(
-                        {vertical: true},
-                        Icon.createIcon('config'),
-                        () => [
-                            Menu.createElement({}, 'Change Instrument to',
-                                async () => {
-                                    const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
-                                    return instrumentLibrary.eachInstrument((instrumentConfig) =>
-                                        Menu.createElement({}, instrumentConfig.name, null, () => {
-                                            this.song.instrumentReplace(instrumentID, instrumentConfig);
-                                        })
-                                    );
-                                }
-                            ),
-                            Menu.createElement({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
-                            Menu.createElement({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
-                        ]
-                    ),
-
-                    // new InputSelect('url',
-                    //     (e, changeInstrumentURL) => thisReplace(e, instrumentID, changeInstrumentURL),
-                    //     async (selectElm) =>
-                    //         instrumentLibrary.eachInstrument((instrumentConfig) =>
-                    //             selectElm.getOption(instrumentConfig.url, instrumentConfig.name)),
-                    //     'Set Instrument'
-                    // )
-                ]),
-
-                // this.buttonToggle = InputButton.createElement('instrument-id',
-                //     e => this.form.classList.toggle('selected'),
-                //     instrumentIDHTML + ':'
-                // ),
-                // this.textName = InputText.createElement('instrument-name',
-                //     (e, newInstrumentName) => this.stateRename(newInstrumentName),
-                //     'Instrument Name',
-                //     this.config.name || '',
-                //     'Unnamed'
-                // ),
-                // InputButton.createElement('instrument-remove',
-                //     (e) => this.remove(e, instrumentID),
-                //     Icon.createIcon('delete'),
-                //     'Remove Instrument'),
-
-                (!this.state.open ? null : (
-
-                        /** Sample Forms **/
-                    this.grid = new Grid('samples', () => [
-                        new GridRow('header', () => [
-                            Div.createElement('id', 'ID'),
-                            Div.createElement('url', 'URL'),
-                            Div.createElement('mixer', 'Mixer'),
-                            Div.createElement('detune', 'Detune'),
-                            Div.createElement('root', 'Root'),
-                            Div.createElement('alias', 'Alias'),
-                            Div.createElement('loop', 'Loop'),
-                            Div.createElement('adsr', 'ADSR'),
-                            Div.createElement('remove', 'Rem'),
-                        ]),
-
-                        samples.map((sampleData, sampleID) => new GridRow(sampleID, () => [
-                            // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
-                            // const sampleRow = this.form.addGrid(i);
-                            // Div.createElement('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-                            // InputButton.createElement('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
-                            Div.createElement('id', sampleID),
-
-                            new InputSelect('url',
-                                selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
-                                async (e, sampleURL, sampleName) => {
-                                    await this.setSampleName(sampleID, sampleName);
-                                    await this.setSampleURL(sampleID, sampleURL);
-                                },
-                                sampleData.url,
-                                sampleData.name),
-
-                            InputRange.createElement('mixer',
-                                (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer),
-
-                            InputRange.createElement('detune',
-                                (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune),
-
-                            new InputSelect('root',
-                                selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
-                                (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
-                                sampleData.keyRoot || ''),
-                            // Menu.createElement({}, 'root',
-                            //     selectElm => this.values.getNoteFrequencies(freq => {
-                            //         new SelectMenu
-                            //     }),
-                            //     null,
-                            //     'Root', sampleData.keyRoot || ''),
-
-                            new InputSelect('alias',
-                                selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
-                                (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias),
-                                sampleData.keyAlias),
-
-                            new InputCheckBox('loop',
-                                (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop),
-
-                            InputText.createElement('adsr',
-                                (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
-
-                            InputButton.createElement('remove',
-                                '&nbsp;X&nbsp;',
-                                (e) => this.removeSample(sampleID),
-                                'Remove sample'),
-                        ])),
-
-                        new GridRow('footer', () => [
-                            /** Add New Sample **/
-                            Div.createElement('id', '*'),
-                            this.fieldAddSample = new InputSelect('url',
-                                (selectElm) => [
-                                    selectElm.getOption('', '[New Sample]'),
-                                    selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
-                                        sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
-                                    ),
-                                    selectElm.getOptGroup('Libraries', () =>
-                                        sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-                                        {disabled: sampleLibrary.libraryCount === 0}
-                                    ),
-                                    selectElm.getOptGroup('Other Libraries', async () =>
-                                        await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
-                                        {disabled: AudioSourceLibrary.historicLibraryCount === 0}
-                                    ),
-                                ],
-                                (e, sampleURL, sampleName) => this.addSample(sampleURL, sampleName),
-                                'Add Sample',
-                                ''),
-                            Div.createElement('id', '-'),
-                            Div.createElement('id', '-'),
-                            Div.createElement('id', '-'),
-                            Div.createElement('id', '-'),
-                            Div.createElement('id', '-'),
-                            Div.createElement('id', '-'),
-                            Div.createElement('id', '-'),
-
-                        ]),
-                    ])
-                ))
-
-            ];
-
-        }
-
         /** Sample Library **/
 
         async loadSampleLibrary() {
@@ -814,18 +614,219 @@
             AudioSourceLoader.appendCSS(PATH, this.getRootNode());
         }
 
+
+        static render(config, song, instrumentID, components) {
+            const {
+                Component,
+                Div,
+                // Grid,
+                // GridRow,
+                Icon,
+                Menu,
+                InputCheckbox,
+                InputButton,
+                InputSelect,
+                InputFile,
+                InputRange,
+                InputText,
+            } = components;
+
+
+
+            class AudioSourceSynthesizerRenderer extends Component {
+                render() {
+
+                    // const instrument = this;
+                    // const instrumentID = typeof this.id !== "undefined" ? this.id : -1;
+                    const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+                    // const config = song.getInstrumentConfig(instrumentID);
+
+                    let presetURL = config.presetURL || '';
+                    let presetTitle = presetURL.split('#').pop() || presetURL.split('/').pop() || 'Set Preset';
+                    // if(config.presetURL && config.preset)
+                    //     presetURL = new URL(config.libraryURL + '#' + config.preset, document.location) + '';
+
+                    const samples = config.samples;
+                    const sampleLibrary = this.sampleLibrary; // TODO: re-render on load
+                    let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
+
+                    return [
+
+                        Div.createElement('header', () => [
+                            InputButton.createElement('title', titleHTML, e => this.toggleContainer(e)),
+                            this.selectChangePreset = new InputSelect('instrument-preset',
+                                (selectElm) => [
+                                    selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
+                                        sampleLibrary.eachPreset(config => selectElm.getOption(config.url, config.name)),
+                                    ),
+                                    selectElm.getOptGroup('Libraries', () =>
+                                            sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                                        {disabled: sampleLibrary.libraryCount === 0}
+                                    ),
+                                    selectElm.getOptGroup('Other Libraries', () =>
+                                            AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                                        {disabled: AudioSourceLibrary.historicLibraryCount === 0}
+                                    ),
+                                ],
+                                (e, presetURL) => this.setPreset(presetURL),
+                                presetURL,
+                                presetTitle,
+                            ),
+
+                            this.menu = Menu.createElement(
+                                {vertical: true},
+                                Icon.createIcon('config'),
+                                () => [
+                                    Menu.createElement({}, 'Change Instrument to',
+                                        async () => {
+                                            const instrumentLibrary = await AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
+                                            return instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                                Menu.createElement({}, instrumentConfig.name, null, () => {
+                                                    this.song.instrumentReplace(instrumentID, instrumentConfig);
+                                                })
+                                            );
+                                        }
+                                    ),
+                                    Menu.createElement({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
+                                    Menu.createElement({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
+                                ]
+                            ),
+
+                            // new InputSelect('url',
+                            //     (e, changeInstrumentURL) => thisReplace(e, instrumentID, changeInstrumentURL),
+                            //     async (selectElm) =>
+                            //         instrumentLibrary.eachInstrument((instrumentConfig) =>
+                            //             selectElm.getOption(instrumentConfig.url, instrumentConfig.name)),
+                            //     'Set Instrument'
+                            // )
+                        ]),
+
+                        // this.buttonToggle = InputButton.createElement('instrument-id',
+                        //     e => this.form.classList.toggle('selected'),
+                        //     instrumentIDHTML + ':'
+                        // ),
+                        // this.textName = InputText.createElement('instrument-name',
+                        //     (e, newInstrumentName) => this.stateRename(newInstrumentName),
+                        //     'Instrument Name',
+                        //     this.config.name || '',
+                        //     'Unnamed'
+                        // ),
+                        // InputButton.createElement('instrument-remove',
+                        //     (e) => this.remove(e, instrumentID),
+                        //     Icon.createIcon('delete'),
+                        //     'Remove Instrument'),
+
+                        (!this.state.open ? null : (
+
+                            /** Sample Forms **/
+                            this.grid = new Grid('samples', () => [
+                                new GridRow('header', () => [
+                                    Div.createElement('id', 'ID'),
+                                    Div.createElement('url', 'URL'),
+                                    Div.createElement('mixer', 'Mixer'),
+                                    Div.createElement('detune', 'Detune'),
+                                    Div.createElement('root', 'Root'),
+                                    Div.createElement('alias', 'Alias'),
+                                    Div.createElement('loop', 'Loop'),
+                                    Div.createElement('adsr', 'ADSR'),
+                                    Div.createElement('remove', 'Rem'),
+                                ]),
+
+                                samples.map((sampleData, sampleID) => new GridRow(sampleID, () => [
+                                    // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
+                                    // const sampleRow = this.form.addGrid(i);
+                                    // Div.createElement('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
+                                    // InputButton.createElement('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
+                                    Div.createElement('id', sampleID),
+
+                                    new InputSelect('url',
+                                        selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+                                        async (e, sampleURL, sampleName) => {
+                                            await this.setSampleName(sampleID, sampleName);
+                                            await this.setSampleURL(sampleID, sampleURL);
+                                        },
+                                        sampleData.url,
+                                        sampleData.name),
+
+                                    InputRange.createElement('mixer',
+                                        (e, mixerValue) => this.setSampleMixer(sampleID, mixerValue), 1, 100, 'Mixer', sampleData.mixer),
+
+                                    InputRange.createElement('detune',
+                                        (e, detuneValue) => this.setSampleDetune(sampleID, detuneValue), -100, 100, 'Detune', sampleData.detune),
+
+                                    new InputSelect('root',
+                                        selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
+                                        (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
+                                        sampleData.keyRoot || ''),
+                                    // Menu.createElement({}, 'root',
+                                    //     selectElm => this.values.getNoteFrequencies(freq => {
+                                    //         new SelectMenu
+                                    //     }),
+                                    //     null,
+                                    //     'Root', sampleData.keyRoot || ''),
+
+                                    new InputSelect('alias',
+                                        selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
+                                        (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias),
+                                        sampleData.keyAlias),
+
+                                    new InputCheckBox('loop',
+                                        (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop),
+
+                                    InputText.createElement('adsr',
+                                        (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
+
+                                    InputButton.createElement('remove',
+                                        '&nbsp;X&nbsp;',
+                                        (e) => this.removeSample(sampleID),
+                                        'Remove sample'),
+                                ])),
+
+                                new GridRow('footer', () => [
+                                    /** Add New Sample **/
+                                    Div.createElement('id', '*'),
+                                    this.fieldAddSample = new InputSelect('url',
+                                        (selectElm) => [
+                                            selectElm.getOption('', '[New Sample]'),
+                                            selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
+                                                sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+                                            ),
+                                            selectElm.getOptGroup('Libraries', () =>
+                                                    sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                                                {disabled: sampleLibrary.libraryCount === 0}
+                                            ),
+                                            selectElm.getOptGroup('Other Libraries', async () =>
+                                                    await AudioSourceLibrary.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+                                                {disabled: AudioSourceLibrary.historicLibraryCount === 0}
+                                            ),
+                                        ],
+                                        (e, sampleURL, sampleName) => this.addSample(sampleURL, sampleName),
+                                        'Add Sample',
+                                        ''),
+                                    Div.createElement('id', '-'),
+                                    Div.createElement('id', '-'),
+                                    Div.createElement('id', '-'),
+                                    Div.createElement('id', '-'),
+                                    Div.createElement('id', '-'),
+                                    Div.createElement('id', '-'),
+                                    Div.createElement('id', '-'),
+
+                                ]),
+                            ])
+                        ))
+
+                    ];
+                }
+            }
+
+            return AudioSourceSynthesizerRenderer.createElement({
+                key: instrumentID,
+                config
+            });
+        }
+
+
     }
-    try {
-        if(isBrowser)
-        customElements.define('audio-source-synthesizer', AudioSourceSynthesizer);
-    } catch (e) {
-        console.error(e);
-        if(isBrowser)
-        customElements.define('audio-source-synthesizer-duplicate', AudioSourceSynthesizer);
-    }
-
-
-
 
 
 
@@ -836,10 +837,6 @@
         const fileName = filePath.split('/').pop();
         const ext = fileName.indexOf('.') === -1 ? '' : fileName.split('.').pop();
         return ext;
-    }
-
-    function getScriptDirectory(appendPath = '') {
-        return AudioSourceLoader.resolveURL(appendPath);
     }
 
 

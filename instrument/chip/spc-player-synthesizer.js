@@ -132,13 +132,13 @@
         //     return this.getAttribute('data-id');
         // }
 
-        render(renderObject=null) {
-            if(renderObject instanceof HTMLElement && renderObject.matches('asui-div')) {
-                this.form = new SPCPlayerSynthesizerFormRenderer(renderObject, this);
-            } else {
-                throw new Error("Unknown renderer");
-            }
-        }
+        // render(renderObject=null) {
+        //     if(renderObject instanceof HTMLElement && renderObject.matches('asui-div')) {
+        //         this.form = new SPCPlayerSynthesizerFormRenderer(renderObject, this);
+        //     } else {
+        //         throw new Error("Unknown renderer");
+        //     }
+        // }
 
 
     }
@@ -150,7 +150,7 @@
     /**
      * Used for all Instrument UI. Instance not necessary for song playback
      */
-    class SPCPlayerSynthesizerFormRenderer {
+    class SPCPlayerSynthesizerRenderer {
 
         /**
          *
@@ -263,6 +263,7 @@
     /** Export this script **/
     thisModule.exports = {
         instrument: SPCPlayerSynthesizer,
+        instrumentRenderer: SPCPlayerSynthesizerRenderer,
         SPCPlayerSynthesizer
     };
 
