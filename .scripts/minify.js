@@ -28,13 +28,13 @@ const fs = require('fs');
         // + await convert('composer/audio-source-composer-menu.js')
         + await convert('composer/audio-source-composer-actions.js')
 
-        + await convert('common/asui-component.js')
+        + await convert('common/ASUIComponent.js')
         + await convert('common/audio-source-utilities.js')
-        + await convert('common/audio-source-values.js')
-        + await convert('common/audio-source-library.js')
-        + await convert('common/audio-source-song.js')
-        + await convert('common/audio-source-storage.js')
-        + await convert('common/support/midi-support.js')
+        + await convert('common/AudioSourceValues.js')
+        + await convert('common/AudioSourceLibrary.js')
+        + await convert('common/AudioSourceSong.js')
+        + await convert('common/AudioSourceStorage.js')
+        + await convert('common/support/MIDISupport.js')
 
         + '})();';
 

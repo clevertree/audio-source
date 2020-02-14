@@ -1,11 +1,11 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if(isBrowser) // Hack for browsers
+    // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
 
 
-    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
-    const {AudioSourceValues} = require('../common/audio-source-values.js');
+    const {AudioSourceLibrary} = require('../common/AudioSourceLibrary.js');
+    const {AudioSourceValues} = require('../common/AudioSourceValues.js');
     // const {
     //     ASUIComponent,
     //     ASUIDiv,
@@ -17,10 +17,10 @@
     //     ASUIInputFile,
     //     ASUIInputRange,
     //     ASUIInputSelect,
-    //     ASUIInputCheckBox,
+    //     ASUIInputCheckbox,
     //     ASUIInputText,
     //     ASUIIcon,
-    // } = require('../common/ui/asui-component.js');
+    // } = require('../common/ui/ASUIComponent.js');
 
     class AudioSourceSynthesizer {
         constructor(config, song=null, instrumentID=null) {

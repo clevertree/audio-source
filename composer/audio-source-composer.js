@@ -1,15 +1,15 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if(isBrowser) // Hack for browsers
+    // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
 
     /** Required Modules **/
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
-    const {ASUIDiv} = require('../common/ui/asui-component.js');
-    const {AudioSourceValues} = require('../common/audio-source-values.js');
-    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
-    const {AudioSourceSong} = require('../common/audio-source-song.js');
-    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
+    const {ASUIDiv} = require('../common/ui/ASUIComponent.js');
+    const {AudioSourceValues} = require('../common/AudioSourceValues.js');
+    const {AudioSourceLibrary} = require('../common/AudioSourceLibrary.js');
+    const {AudioSourceSong} = require('../common/AudioSourceSong.js');
+    const {AudioSourceStorage} = require('../common/AudioSourceStorage.js');
 
     const {AudioSourceComposerRenderer} = require('../composer/audio-source-composer-renderer.js');
     const {AudioSourceComposerActions} = require('../composer/audio-source-composer-actions.js');
@@ -381,8 +381,8 @@
 
     }
 
-    if(isBrowser)
-        customElements.define('audio-source-composer', AudioSourceComposerElement);
+    // if(isBrowser)
+        // // customElements.define('audio-source-composer', AudioSourceComposerElement);
 
 
     /** Export this script **/

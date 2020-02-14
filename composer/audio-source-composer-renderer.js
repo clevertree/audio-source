@@ -1,32 +1,32 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if(isBrowser) // Hack for browsers
+    // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
-    const {AudioSourceLibrary} = require('../common/audio-source-library.js');
+    const {AudioSourceLibrary} = require('../common/AudioSourceLibrary.js');
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
-    const {AudioSourceValues} = require('../common/audio-source-values.js');
-    const {AudioSourceSong} = require('../common/audio-source-song.js');
-    const {AudioSourceStorage} = require('../common/audio-source-storage.js');
+    const {AudioSourceValues} = require('../common/AudioSourceValues.js');
+    const {AudioSourceSong} = require('../common/AudioSourceSong.js');
+    const {AudioSourceStorage} = require('../common/AudioSourceStorage.js');
     const {
         ASUIComponent,
         ASUIDiv,
         ASUIIcon,
-    } = require('../common/ui/asui-component.js');
+    } = require('../common/ui/ASUIComponent.js');
 
-    const {ASUIMenu} = require('../common/ui/asui-menu.js');
-    const {ASUIInputCheckBox} = require('../common/ui/asui-input-checkbox.js');
-    const {ASUIInputButton} = require('../common/ui/asui-input-button.js');
-    const {ASUIInputSelect} = require('../common/ui/asui-input-select.js');
-    const {ASUIInputFile} = require('../common/ui/asui-input-file.js');
-    const {ASUIInputRange} = require('../common/ui/asui-input-range.js');
-    const {ASUIInputText} = require('../common/ui/asui-input-text.js');
+    const {ASUIMenu} = require('../common/ui/ASUIMenu.js');
+    const {ASUIInputCheckbox} = require('../common/ui/ASUIInputCheckbox.js');
+    const {ASUIInputButton} = require('../common/ui/ASUIInputButton.js');
+    const {ASUIInputSelect} = require('../common/ui/ASUIInputSelect.js');
+    const {ASUIInputFile} = require('../common/ui/ASUIInputFile.js');
+    const {ASUIInputRange} = require('../common/ui/ASUIInputRange.js');
+    const {ASUIInputText} = require('../common/ui/ASUIInputText.js');
 
     const {ASCUIHeader} = require('./ui/ascui-header.js');
     const {ASCUITracker} = require('./ui/ascui-tracker.js');
 
     const audioSourceStorage = new AudioSourceStorage();
 
-    class AudioSourceComposerRenderer extends ASUIComponent {
+    class AudioSourceComposerRenderer extends React.Component {
         constructor(state = {}, props = {}) {
             super(state, props);
             // this.state.trackerSegmentLength = null;
@@ -874,17 +874,17 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('asc-panel', ASCPanel);
+    // if(isBrowser)
+        // customElements.define('asc-panel', ASCPanel);
 
     class ASCForm extends ASCPanel {
     }
 
-    if(isBrowser)
-        customElements.define('asc-form', ASCForm);
+    // if(isBrowser)
+        // customElements.define('asc-form', ASCForm);
 
 
-    class ASCInstrumentRenderer extends ASUIComponent {
+    class ASCInstrumentRenderer extends React.Component {
         constructor(props = {}, song, instrumentID) {
             super(props, {});
             this.props.id = instrumentID;
@@ -968,8 +968,8 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('asc-instrument', ASCInstrumentRenderer);
+    // if(isBrowser)
+        // customElements.define('asc-instrument', ASCInstrumentRenderer);
 
 
     /** Export this script **/

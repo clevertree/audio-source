@@ -1,6 +1,6 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    // if(isBrowser) // Hack for browsers
+    // // if(isBrowser) // Hack for browsers
     //     window.require = thisRequire;
     class AudioSourceComposerKeyboard {
         constructor() {

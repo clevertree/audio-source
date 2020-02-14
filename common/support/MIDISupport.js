@@ -1,6 +1,6 @@
 {
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/support/midi-support.js'; }
+    function getThisScriptPath() { return 'common/support/MIDISupport.js'; }
     const exportThisScript = function(module) {
         module.exports = {MIDISupport};
     }

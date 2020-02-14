@@ -1,5 +1,3 @@
-(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
-
 
     const archiveBuffers = {};
     const torrentCache = {};
@@ -216,19 +214,4 @@
             || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
     }
 
-
-
-    /** Export this script **/
-    thisModule.exports = {
-        AudioSourceFileService,
-    };
-
-
-
-}).apply(null, (function() {
-    const thisScriptPath = 'common/audio-source-file-service.js';
-    const isBrowser = typeof document === 'object';
-    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [thisRequire, thisModule, thisScriptPath, isBrowser]
-})());
+export default AudioSourceFileService;

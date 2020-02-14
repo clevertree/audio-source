@@ -1,17 +1,17 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if(isBrowser) // Hack for browsers
+    // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
-    const {AudioSourceSong}                 = require('../common/audio-source-song.js');
+    const {AudioSourceSong}                 = require('../common/AudioSourceSong.js');
     const {AudioSourceComposerRenderer}     = require('../composer/audio-source-composer-renderer.js');
     const {
         AudioSourceTracker,
         AudioSourceComposerTrackerInstruction,
         AudioSourceComposerTrackerRow
     } = require('./ui/ascui-tracker.js');
-    const {AudioSourceStorage}              = require('../common/audio-source-storage.js');
+    const {AudioSourceStorage}              = require('../common/AudioSourceStorage.js');
     // const {AudioSourceUtilities}        = require('../common/audio-source-utilities.js');
-    // const {ASUIComponent}               = require('../common/asui-component.js');
+    // const {ASUIComponent}               = require('../common/ASUIComponent.js');
 
     class AudioSourceComposerActions extends AudioSourceComposerRenderer {
         constructor(state = {}, props = {}) {
@@ -81,7 +81,7 @@
             if(this.volumeGain) {
                 return this.volumeGain.gain.value;
             }
-            return AudioSourcePlayerElement.DEFAULT_VOLUME;
+            return AudioSourcePlayer.DEFAULT_VOLUME;
         }
         setVolume (volume) {
             console.info("Setting volume: ", volume);

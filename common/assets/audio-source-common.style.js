@@ -1,10 +1,10 @@
-import { StyleSheet } from 'react-native';
+// import { StyleSheet } from 'react-native';
 
-import { Dimensions } from 'react-native'
-var D = Dimensions.get('window');
+// import { Dimensions } from 'react-native'
+// var D = Dimensions.get('window');
 // console.log('Dimensions:', D);
 
-export default StyleSheet.create({
+export default {
     /** Divisor Elements **/
     'ASUIDiv': {
         // flex: 1,
@@ -67,5 +67,5 @@ export default StyleSheet.create({
         color: "#333",
     },
 
-});
+};
 

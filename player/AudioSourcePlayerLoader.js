@@ -63,7 +63,7 @@
     }
 
     if(!customElements.get('audio-source-loader'))
-        customElements.define('audio-source-loader', AudioSourceLoader);
+        // customElements.define('audio-source-loader', AudioSourceLoader);
 
     const thisScriptPath = 'audio-source-player-loader.js';
     const thisScript = AudioSourceLoader.findScript(thisScriptPath);
@@ -74,29 +74,29 @@
     await require('../assets/3rdparty/LZString/lz-string.min.js');
 
 
-    await require('../common/ui/asui-component.js');
-    // await require('../common/ui/asui-grid.js');
-    await require('../common/ui/asui-menu.js');
-    await require('../common/ui/asui-input-button.js');
-    await require('../common/ui/asui-input-checkbox.js');
-    await require('../common/ui/asui-input-file.js');
-    await require('../common/ui/asui-input-range.js');
-    await require('../common/ui/asui-input-select.js');
-    await require('../common/ui/asui-input-text.js');
+    await require('../common/ui/ASUIComponent.js');
+    // await require('../common/ui/ASUIGrid.js');
+    await require('../common/ui/ASUIMenu.js');
+    await require('../common/ui/ASUIInputButton.js');
+    await require('../common/ui/ASUIInputCheckbox.js');
+    await require('../common/ui/ASUIInputFile.js');
+    await require('../common/ui/ASUIInputRange.js');
+    await require('../common/ui/ASUIInputSelect.js');
+    await require('../common/ui/ASUIInputText.js');
 
-    await require('../common/audio-source-song.js');
-    await require('../common/audio-source-storage.js');
-    await require('../common/audio-source-library.js');
-    await require('../common/audio-source-values.js');
-    await require('../common/audio-source-file-service.js');
+    await require('../common/AudioSourceSong.js');
+    await require('../common/AudioSourceStorage.js');
+    await require('../common/AudioSourceLibrary.js');
+    await require('../common/AudioSourceValues.js');
+    await require('../common/AudioSourceFileService.js');
 
     await require('audio-source/player/ui/aspui-playlist-entry.js');
     await require('audio-source/player/ui/aspui-playlist.js');
     await require('audio-source/player/ui/aspui-header.js');
 
-    await require('audio-source-player-renderer.js');
-    await require('audio-source-player-actions.js');
-    await require('audio-source-player.js');
+    await require('src/audio-source/player/AudioSourcePlayerRenderer.js');
+    await require('src/audio-source/player/AudioSourcePlayerActions.js');
+    await require('src/audio-source/player/AudioSourcePlayer.js');
 
 
 })();

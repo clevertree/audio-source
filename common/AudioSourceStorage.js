@@ -1,10 +1,6 @@
-(function(thisRequire, thisModule, thisScriptPath, isBrowser) {
-    /** Required Modules **/
-    if(isBrowser) // Hack for browsers
-        window.require = thisRequire;
 
     /** Required Modules **/
-    const {LZString} = require('../assets/3rdparty/LZString/lz-string.min.js');
+    const {LZString} = require('lz-string');
 
     class AudioSourceStorage {
         constructor() {
@@ -231,17 +227,4 @@
     }
 
 
-
-    /** Export this script **/
-    thisModule.exports = {
-        AudioSourceStorage,
-    };
-
-
-}).apply(null, (function() {
-    const thisScriptPath = 'common/audio-source-storage.js';
-    const isBrowser = typeof document === 'object';
-    const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);
-    return [thisRequire, thisModule, thisScriptPath, isBrowser]
-})());
+export default AudioSourceStorage;

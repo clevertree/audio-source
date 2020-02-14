@@ -1,10 +1,10 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if(isBrowser) // Hack for browsers
+    // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
-    const {SongInstruction} = require('../../common/audio-source-song.js');
-    const {AudioSourceLibrary} = require('../../common/audio-source-library.js');
-    const {AudioSourceValues} = require('../../common/audio-source-values.js');
+    const {SongInstruction} = require('../../common/AudioSourceSong.js');
+    const {AudioSourceLibrary} = require('../../common/AudioSourceLibrary.js');
+    const {AudioSourceValues} = require('../../common/AudioSourceValues.js');
     const {
         ASUIComponent,
         ASUIDiv,
@@ -16,11 +16,11 @@
         // ASUIInputRange,
         // ASUIInputText,
         // ASUIIcon,
-    } = require('../../common/ui/asui-component.js');
+    } = require('../../common/ui/ASUIComponent.js');
 
     // const audioSourceValues = new AudioSourceValues;
 
-    class ASCUITracker extends ASUIComponent {
+    class ASCUITracker extends React.Component {
         constructor(props) {
             super(props);
 
@@ -954,13 +954,13 @@
 
     }
 
-    if(isBrowser)
-        customElements.define('asc-tracker', ASCUITracker);
+    // if(isBrowser)
+        // customElements.define('asc-tracker', ASCUITracker);
 
 
     // const VISIBLE_BUFFER = 100;
 
-    class ASCUITrackerRow  extends ASUIComponent {
+    class ASCUITrackerRow  extends React.Component {
         constructor(props) {
             super(props);
         }
@@ -1025,10 +1025,10 @@
 
 
 
-    if(isBrowser)
-        customElements.define('asct-row', ASCUITrackerRow);
+    // if(isBrowser)
+        // customElements.define('asct-row', ASCUITrackerRow);
 
-    class ASCUITrackerInstruction extends ASUIComponent {
+    class ASCUITrackerInstruction extends React.Component {
         constructor(props) {
             super(props);
         }
@@ -1074,14 +1074,14 @@
 
     }
 
-    if(isBrowser)
-        customElements.define('asct-instruction', ASCUITrackerInstruction);
+    // if(isBrowser)
+        // customElements.define('asct-instruction', ASCUITrackerInstruction);
 
 
 
 
 
-    class ASCUITrackerInstructionAdd extends ASUIComponent {
+    class ASCUITrackerInstructionAdd extends React.Component {
         // setCursor(isCursor = true) {
         //     this.setProps({cursor: isCursor});
         // }
@@ -1092,11 +1092,11 @@
 
     }
 
-    if(isBrowser)
-        customElements.define('asct-instruction-add', ASCUITrackerInstructionAdd);
+    // if(isBrowser)
+        // customElements.define('asct-instruction-add', ASCUITrackerInstructionAdd);
 
 
-    class AudioSourceComposerParamCommand extends ASUIComponent {
+    class AudioSourceComposerParamCommand extends React.Component {
         render() {
             return this.props.command;
         }
@@ -1108,11 +1108,11 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('ascti-command', AudioSourceComposerParamCommand);
+    // if(isBrowser)
+        // customElements.define('ascti-command', AudioSourceComposerParamCommand);
 
 
-    class AudioSourceComposerParamInstrument extends ASUIComponent {
+    class AudioSourceComposerParamInstrument extends React.Component {
         render() {
             return this.props.command;
         }
@@ -1124,10 +1124,10 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
+    // if(isBrowser)
+        // customElements.define('ascti-instrument', AudioSourceComposerParamInstrument);
 
-    class AudioSourceComposerParamVelocity extends ASUIComponent {
+    class AudioSourceComposerParamVelocity extends React.Component {
         render() {
             return this.props.velocity;
         }
@@ -1139,10 +1139,10 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
+    // if(isBrowser)
+        // customElements.define('ascti-velocity', AudioSourceComposerParamVelocity);
 
-    class AudioSourceComposerParamDuration extends ASUIComponent {
+    class AudioSourceComposerParamDuration extends React.Component {
         render() {
             return this.props.duration;
         }
@@ -1154,11 +1154,11 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('ascti-duration', AudioSourceComposerParamDuration);
+    // if(isBrowser)
+        // customElements.define('ascti-duration', AudioSourceComposerParamDuration);
 
 
-    class ASCUITrackerDelta extends ASUIComponent {
+    class ASCUITrackerDelta extends React.Component {
         render() {
             return this.props.duration;
         }
@@ -1170,8 +1170,8 @@
         }
     }
 
-    if(isBrowser)
-        customElements.define('asct-delta', ASCUITrackerDelta);
+    // if(isBrowser)
+        // customElements.define('asct-delta', ASCUITrackerDelta);
 
 
     /** Export this script **/

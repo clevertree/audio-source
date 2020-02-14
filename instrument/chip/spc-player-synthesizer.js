@@ -1,9 +1,9 @@
 (function(thisRequire, thisModule, thisScriptPath, isBrowser) {
     /** Required Modules **/
-    if(isBrowser) // Hack for browsers
+    // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
 
-    const {AudioSourceFileService} = require('../../common/audio-source-file-service.js');
+    const {AudioSourceFileService} = require('../../common/AudioSourceFileService.js');
 
     class SPCPlayerSynthesizer {
 
@@ -46,7 +46,7 @@
         async getLibGMESupport() {
             const AudioSourceLoader = customElements.get('audio-source-loader');
             const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
-            const {LibGMESupport} = await requireAsync('../../common/support/libgme-support.js');
+            const {LibGMESupport} = await requireAsync('../../common/support/LibGMESupport.js');
             return new LibGMESupport();
         }
 

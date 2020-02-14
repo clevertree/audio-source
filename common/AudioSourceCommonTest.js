@@ -2,9 +2,9 @@ const path = require('path');
 
 const DIR_ROOT = path.dirname(__dirname);
 
-const {AudioSourceSong} = require(DIR_ROOT + '/common/audio-source-song.js');
-const {AudioSourceStorage} = require(DIR_ROOT + '/common/audio-source-storage.js');
-const {AudioSourceValues} = require(DIR_ROOT + '/common/audio-source-values.js');
+const {AudioSourceSong} = require(DIR_ROOT + '/common/AudioSourceSong.js');
+const {AudioSourceStorage} = require(DIR_ROOT + '/common/AudioSourceStorage.js');
+const {AudioSourceValues} = require(DIR_ROOT + '/common/AudioSourceValues.js');
 
 
 class AudioSourceCommonTest {

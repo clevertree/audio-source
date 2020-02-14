@@ -1,7 +1,7 @@
 {
 
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/support/json-support.js'; }
+    function getThisScriptPath() { return 'common/support/JSONSupport.js'; }
     const exportThisScript = function(module) {
         module.exports = {JSONSupport};
     }
