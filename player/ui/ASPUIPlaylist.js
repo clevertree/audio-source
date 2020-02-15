@@ -6,7 +6,7 @@ const {ASPUIPlaylistEntry} = require('./ASPUIPlaylistEntry.js');
 class ASPUIPlaylist extends React.Component {
     constructor(props = {}) {
         super(props, {});
-        if(!this.player)
+        if(!this.props.player)
             throw new Error("Invalid player");
 
         this.state = this.props.player.state.playlist;
@@ -19,8 +19,50 @@ class ASPUIPlaylist extends React.Component {
     // get position() { return this.state.position; }
     // get entries() { return this.state.entries; }
 
-
     render() {
+        const player = this.props.player;
+        return (
+            <ASUIDiv className="asp-playlist">
+                <ASUIDiv className="asp-playlist-header">
+                    <ASUIDiv className="header">ID</ASUIDiv>
+                    <ASUIDiv className="name">Name</ASUIDiv>
+                    <ASUIDiv className="length">Length</ASUIDiv>
+                </ASUIDiv>
+                <ASUIDiv className="container">
+                    {this.state.entries.length > 0
+                    ? player.eachEntry((entryData, position, depth) => {
+                            // const props = {
+                            //     key: position,
+                            //     data:entryData,
+                            //     playlist: this,
+                            //     depth,
+                            //     onPress: (e) => player.toggleEntryAtPosition(position)
+                            // };
+                            // const classes = [];
+                            // if(this.state.position === position)
+                            //     classes.push('position');
+                            // if(this.state.selectedPositions.indexOf(position) !== -1)
+                            //     classes.push('selected');
+                            // if(entryData.loading)
+                            //     classes.push('loading');
+                            // if(classes.length > 0)
+                            //     props.class = classes.join(' ');
+                            return <ASPUIPlaylistEntry
+                                key={position}
+                                data={entryData}
+                                playlist={this}
+                                depth={depth}
+                                onPress={(e) => player.toggleEntryAtPosition(position)}
+                            />
+                        })
+                    :<ASUIDiv className="empty-playlist">Empty Playlist</ASUIDiv>
+                    }
+                </ASUIDiv>
+            </ASUIDiv>
+        )
+    }
+
+    render2() {
         // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
         // await this.updateEntries();
         const player = this.props.player;

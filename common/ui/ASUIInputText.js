@@ -3,7 +3,9 @@ import React from "react";
 class ASUIInputText extends React.Component {
     constructor(props = {}) {
         super(props);
-        this.state.value = props.initialValue;
+        this.state = {
+            value: props.initialValue
+        };
     }
 
     get value()         { return this.state.value; }
@@ -20,7 +22,10 @@ class ASUIInputText extends React.Component {
     // }
 
     render() {
-        return this.state.value;
+        return <div
+            className={this.props.className}
+            title={this.props.title}
+            >{this.state.value}</div>;
     }
 
 

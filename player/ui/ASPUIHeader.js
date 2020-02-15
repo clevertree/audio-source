@@ -14,9 +14,15 @@ class ASPUIHeader extends React.Component {
         if(typeof menuContent === "function")
             menuContent = menuContent(this);
         return [
-            ASUIDiv.cE({onclick: e => this.restart(), key: 'asp-title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
-            ASUIDiv.cE('asp-menu-container', menuContent),
+            <>
+                <div className="asp-title-textlist">Audio Source Player</div>
+                <div className="asp-menu-textlist">{menuContent}</div>
+            </>
         ]
+        // return [
+        //     ASUIDiv.cE({onclick: e => this.restart(), key: 'asp-title-text', ref:ref=>this.textTitle=ref}, 'Audio Source Player'),
+        //     ASUIDiv.cE('asp-menu-container', menuContent),
+        // ]
     }
 
     renderPortrait() {

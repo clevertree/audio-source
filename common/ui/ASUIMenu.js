@@ -1,16 +1,16 @@
 import React from "react";
-import ASUIDiv from "./ASUIDiv";
 
 class ASUIMenu extends React.Component {
 
     constructor(props = {}) {
-        super(props, {
+        super(props);
+        this.state = {
             offset: 0,
             maxLength: 20,
             optionCount: 0,
             open: props.open || false,
             stick: false,
-        });
+        };
     }
 
     connectedCallback() {
@@ -37,31 +37,39 @@ class ASUIMenu extends React.Component {
         if(this.props.subMenuChildren && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
             arrow = true;
 
-        return [
-            ASUIDiv.cE({
-                    onclick: e => this.doMenuAction(e),
-                    key: 'title',
-                    class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
-                },
-                this.getChildren(),
-            ),
-            arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+        return (
+            <div className="asui-menu">
+                <div className="title">{this.props.children}</div>
+                {arrow ? <div className="arrow">{this.props.vertical ? '▼' : '►'}</div> : null}
+                {this.state.open ? <div className="dropdown">{this.getSubMenuChildren()}</div> : null}
+            </div>
+        )
 
-            // ASUIDropDownMenu.cE({
-            //         ref: ref => this.dropdown = ref,
-            //         // open: this.state.open,
-            //         children: this.props.subMenuChildren,
-            //         key: 'dropdown',
-            //         class: (this.props.vertical ? 'vertical' : ''),
-            //     },
-            // ),
-            !this.state.open ? null : ASUIDiv.cE({
-                key: 'dropdown',
-                class: (this.props.vertical ? 'vertical' : ''),
-                onWheel: e => this.onInputEvent(e)
-            }, this.getSubMenuChildren()),
-            this.props.hasBreak ? ASUIDiv.createElement('break') : null,
-        ];
+        // return [
+        //     ASUIDiv.cE({
+        //             onclick: e => this.doMenuAction(e),
+        //             key: 'title',
+        //             class: [this.state.stick ? 'stick' : '', this.props.disabled ? ' disabled' : ''].join(' ').trim()
+        //         },
+        //         this.getChildren(),
+        //     ),
+        //     arrow ? ASUIDiv.createElement('arrow', this.props.vertical ? '▼' : '►') : null,
+        //
+        //     // ASUIDropDownMenu.cE({
+        //     //         ref: ref => this.dropdown = ref,
+        //     //         // open: this.state.open,
+        //     //         children: this.props.subMenuChildren,
+        //     //         key: 'dropdown',
+        //     //         class: (this.props.vertical ? 'vertical' : ''),
+        //     //     },
+        //     // ),
+        //     !this.state.open ? null : ASUIDiv.cE({
+        //         key: 'dropdown',
+        //         class: (this.props.vertical ? 'vertical' : ''),
+        //         onWheel: e => this.onInputEvent(e)
+        //     }, this.getSubMenuChildren()),
+        //     this.props.hasBreak ? ASUIDiv.createElement('break') : null,
+        // ];
     }
 
 
@@ -285,31 +293,31 @@ class ASUIMenu extends React.Component {
     }
 
 
-    static createMenuElement(props, children, action=null, subMenuChildren=null) {
+    // static createMenuElement(props, children, action=null, subMenuChildren=null) {
+    //
+    //     children = this.convertStringChildrenToComponent(children);
+    //     return this.createElement(props, children, {
+    //         action, subMenuChildren
+    //     });
+    // }
+    // static cME(props, children=null, action=null, subMenuChildren=null) {
+    //     return this.createMenuElement(props, children, action, subMenuChildren);
+    // }
+    //
+    //
+    // static createSubMenuElement(props, children, subMenuChildren) {
+    //     return this.createMenuElement(props, children, (e, menu) => {
+    //         e.preventDefault();
+    //         menu.toggleSubMenu();
+    //     }, subMenuChildren)
+    // }
+    // static cSME(props, children, subMenuChildren) {
+    //     return this.createSubMenuElement(props, children, subMenuChildren);
+    // }
 
-        children = this.convertStringChildrenToComponent(children);
-        return this.createElement(props, children, {
-            action, subMenuChildren
-        });
-    }
-    static cME(props, children=null, action=null, subMenuChildren=null) {
-        return this.createMenuElement(props, children, action, subMenuChildren);
-    }
 
 
-    static createSubMenuElement(props, children, subMenuChildren) {
-        return this.createMenuElement(props, children, (e, menu) => {
-            e.preventDefault();
-            menu.toggleSubMenu();
-        }, subMenuChildren)
-    }
-    static cSME(props, children, subMenuChildren) {
-        return this.createSubMenuElement(props, children, subMenuChildren);
-    }
-
-
-
-    static getStyleKeys() { return ['ASUIMenu.class']; }
+    // static getStyleKeys() { return ['ASUIMenu.class']; }
 
 }
 

@@ -4,8 +4,7 @@ import React from 'react';
 class ASUIDiv extends React.Component {
 
     render() {
-        return this.props.children;
-        // return 'wut';
+        return <div className={this.props.className}>{this.props.children}</div>;
     }
 }
 

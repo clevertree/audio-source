@@ -11,6 +11,8 @@ import AudioSourceStorage from "../common/AudioSourceStorage";
 
 import ASPUIHeader from "./ui/ASPUIHeader";
 import ASPUIPlaylist from "./ui/ASPUIPlaylist";
+import ASPUIPanel from "./ui/ASPUIPanel";
+import ASPUIForm from "./ui/ASPUIForm";
 
 
 const ASPForm = ASUIDiv;
@@ -71,51 +73,186 @@ class AudioSourcePlayerRenderer extends React.Component {
         switch(menuKey) {
             default:
                 const vertical = !this.state.portrait;
-                return [
-                    // ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
-                    ASUIMenu.cSME({vertical, key:'file'},        'File',     () => this.renderMenu('file')),
-                    ASUIMenu.cSME({vertical, key:'playlist'},    'Playlist', () => this.renderMenu('playlist')),
-                    ASUIMenu.cSME({vertical, key:'view'},        'View',     () => this.renderMenu('view')),
-                ];
+                return (<>
+                    <ASUIMenu vertical={vertical} key="file"        subMenu="file"      >File</ASUIMenu>
+                    <ASUIMenu vertical={vertical} key="playlist"    subMenu="playlist"  >Playlist</ASUIMenu>
+                    <ASUIMenu vertical={vertical} key="view"        subMenu="view"      >View</ASUIMenu>
+                </>);
+                // return [
+                //     // ASUIMenu.cME('refresh',     'Refresh',  (e) => this.restart()),
+                //     ASUIMenu.cSME({vertical, key:'file'},        'File',     () => this.renderMenu('file')),
+                //     ASUIMenu.cSME({vertical, key:'playlist'},    'Playlist', () => this.renderMenu('playlist')),
+                //     ASUIMenu.cSME({vertical, key:'view'},        'View',     () => this.renderMenu('view')),
+                // ];
 
             case 'file':
-                return [
-                    ASUIMenu.cSME('memory', 'Load from Memory',     (e) => this.renderMenu('file-memory')),
-
-                    ASUIMenu.cME('file', 'Load from File', (e) => this.fieldSongFileLoad.click()),
-                    ASUIMenu.cME('url', 'Load from URL', null, null, {disabled: true}),
-                    ASUIMenu.cME('library', 'Load from Library', null, null, {disabled: true}),
-                ];
+                return (<>
+                    <ASUIMenu key="memory"      subMenu="memory"      >Load from Memory</ASUIMenu>
+                    <ASUIMenu key="file"        action={(e) => this.fieldSongFileLoad.click()} >Load from File</ASUIMenu>
+                    <ASUIMenu key="url"         disabled>Load from URL</ASUIMenu>
+                    <ASUIMenu key="library"     disabled>Load from Library</ASUIMenu>
+                </>);
 
             case 'file-memory':
                 const Storage = new AudioSourceStorage();
                 const songRecentUUIDs = Storage.getRecentSongList() ;
                 return songRecentUUIDs.length > 0
-                    ? songRecentUUIDs.map(entry => ASUIMenu.cME({},
-                        entry.name || entry.uuid,
-                        () => this.loadSongFromMemory(entry.uuid)))
-                    : ASUIMenu.cME({disabled: true, hasBreak:true}, "No Songs Available");
+                    ? songRecentUUIDs.map((entry, i) =>
+                        <ASUIMenu
+                            key={i}
+                            action={() => this.loadSongFromMemory(entry.uuid)}
+                            >{entry.name || entry.uuid}</ASUIMenu>)
+                    :<ASUIMenu
+                        key="no-recent"
+                        disabled
+                        >No Songs Available</ASUIMenu>
 
             case 'playlist':
-                return [
-                    ASUIMenu.cME('next', 'Play Next Song', null, (e) => this.playlistNext()),
-                    ASUIMenu.cME('clear', 'Clear Playlist', null, (e) => this.clearPlaylist(), {hasBreak: true}),
-                ];
+                return (<>
+                    <ASUIMenu key="next"        action={(e) => this.playlistNext()}>Load from Memory</ASUIMenu>
+                    <ASUIMenu key="clear"       action={(e) => this.clearPlaylist()} >Load from File</ASUIMenu>
+                </>);
 
             case 'view':
-                return [
-                    ASUIMenu.cME('fullscreen', `${this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen`, null, (e) => this.toggleFullscreen(e)),
-                    ASUIMenu.cME('hide-panel-song', `${this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms`, null, (e) => this.togglePanelSong(e)),
-                    ASUIMenu.cME('hide-panel-playlist', `${this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist`, null, (e) => this.togglePanelPlaylist(e)),
-                ];
-
+                return (<>
+                    <ASUIMenu key="fullscreen"          action={(e) => this.toggleFullscreen(e)}>${this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenu>
+                    <ASUIMenu key="hide-panel-song"     action={(e) => this.togglePanelSong(e)} >${this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms</ASUIMenu>
+                    <ASUIMenu key="hide-panel-playlist" action={(e) => this.togglePanelPlaylist(e)} >${this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist</ASUIMenu>
+                </>);
         }
     }
 
     render() {
         return (
-            <ASUIDiv key={'asp-container'}>
-                <ASPUIHeader/>
+            <ASUIDiv className="asp-container">
+                <ASPUIHeader
+                    menuContent={() => this.renderMenu(this.state.menuKey)}
+                    />
+                <ASUIDiv className="asp-forms-container">
+                    <ASPUIPanel className="song" title="Song">
+                        <ASPUIForm className="playback" title="Playback">
+                            <ASUIInputButton
+                                className="song-play"
+                                action={e => this.playlistPlay(e)}
+                            >
+                                <ASUIIcon className="play"/>
+                            </ASUIInputButton>
+                            <ASUIInputButton
+                                className="song-pause"
+                                action={e => this.playlistPause(e)}
+                            >
+                                <ASUIIcon className="pause"/>
+                            </ASUIInputButton>
+                            <ASUIInputButton
+                                className="song-stop"
+                                action={e => this.playlistStop(e)}
+                            >
+                                <ASUIIcon className="stop"/>
+                            </ASUIInputButton>
+                            <ASUIInputButton
+                                className="song-next"
+                                action={e => this.playlistNext(e)}
+                            >
+                                <ASUIIcon className="next"/>
+                            </ASUIInputButton>
+                        </ASPUIForm>
+
+                        <ASPUIForm className="file" title="File">
+                            <ASUIInputFile
+                                className="file-load"
+                                action={e => this.loadSongFromFileInput(e)}
+                                accepts=".json,.mid,.midi"
+                                title="Load Song from File"
+                            >
+                                <ASUIIcon className="file-load"/>
+                            </ASUIInputFile>
+                            <ASUIInputButton
+                                className="file-save"
+                                action={e => this.saveSongToFile(e)}
+                                title="Save Song to File"
+                            >
+                                <ASUIIcon className="file-save"/>
+                            </ASUIInputButton>
+                        </ASPUIForm>
+
+                        <ASPUIForm className="volume" title="Volume">
+                            <ASUIInputRange
+                                className="volume"
+                                action={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                value={this.state.volume}
+                                min={1}
+                                max={100}
+                                title="Song Volume"
+                            />
+                        </ASPUIForm>
+
+                        <ASPUIForm className="position" title="Position">
+                            <ASUIInputRange
+                                className="position"
+                                action={(e, pos) => this.setSongPosition(pos)}
+                                value={0}
+                                min={0}
+                                max={Math.ceil(this.state.songLength)}
+                                ref={ref => this.fieldSongPosition = ref}
+                                title="Song Position"
+                            />
+                        </ASPUIForm>
+
+                        <ASPUIForm className="timing" title="Timing">
+                            <ASUIInputText
+                                className="timing"
+                                action={(e, timingString) => this.setSongPosition(timingString)}
+                                value="00:00:000"
+                                ref={ref => this.fieldSongTiming = ref}
+                                title="Song Timing"
+                            />
+                        </ASPUIForm>
+
+                        <ASPUIForm className="name" title="Name">
+                            <ASUIInputText
+                                className="name"
+                                action={(e, newSongName) => this.setSongName(e, newSongName)}
+                                value={this.song ? this.song.getName() : "no song loaded"}
+                                ref={ref => this.fieldSongVersion = ref}
+                                title="Song Name"
+                            />
+                        </ASPUIForm>
+
+                        <ASPUIForm className="version" title="Version">
+                            <ASUIInputText
+                                className="version"
+                                action={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
+                                value={this.song ? this.song.getVersion() : "0.0.0"}
+                                ref={ref => this.fieldSongVersion = ref}
+                                title="Song Version"
+                            />
+                        </ASPUIForm>
+
+                        <ASPUIForm className="source" title="Source">
+                            <ASUIInputButton
+                                className="source"
+                                action={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
+                                title="Song Source"
+                            >Source</ASUIInputButton>
+                        </ASPUIForm>
+                    </ASPUIPanel>
+                    <ASPUIPanel className="playlist" title="Playlist">
+                        <ASPUIPlaylist
+                            player={this}
+                            ref={ref => this.playlist = ref}
+                            />
+                    </ASPUIPanel>
+                </ASUIDiv>
+                <ASUIDiv className="asp-status-container">
+                    <ASUIDiv
+                        className="asp-status-text"
+                        ref={ref=>this.textStatus=ref}
+                        >{() => this.state.status}</ASUIDiv>
+                    <ASUIDiv
+                        className="asp-version-text"
+                        ref={ref=>this.textVersion=ref}
+                        >{() => this.state.version}</ASUIDiv>
+                </ASUIDiv>
             </ASUIDiv>
         )
     }

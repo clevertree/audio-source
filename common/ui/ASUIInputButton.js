@@ -2,7 +2,9 @@ import React from "react";
 
 class ASUIInputButton extends React.Component {
     render() {
-        return this.getChildren();
+        return <button onClick={this.props.action}>
+            {this.props.children}
+        </button>
     }
 
 }
