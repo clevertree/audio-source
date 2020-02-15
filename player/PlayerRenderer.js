@@ -4,8 +4,8 @@ import Div from "../common/components/div/Div";
 import Icon from "../common/components/icon/Icon";
 import Menu from "../common/components/menu/Menu";
 import InputButton from "../common/components/input-button/InputButton";
-import ASUIInputFile from "../common/components/input-file/InputFile";
-import ASUIInputRange from "../common/components/input-range/InputRange";
+import InputFile from "../common/components/input-file/InputFile";
+import InputRange from "../common/components/input-range/InputRange";
 import InputText from "../common/components/input-text/InputText";
 import Storage from "../common/Storage";
 
@@ -23,7 +23,7 @@ class PlayerRenderer extends React.Component {
         super(props);
         this.state = {
             status: "[No Song Loaded]",
-            version: -1,
+            version: require('../package.json').version,
             menuKey: null,
             fullscreen: false,
             portrait: false,
@@ -106,14 +106,14 @@ class PlayerRenderer extends React.Component {
                         </Form>
 
                         <Form className="file" title="File">
-                            <ASUIInputFile
+                            <InputFile
                                 className="file-load"
-                                action={e => this.loadSongFromFileInput(e)}
+                                onFile={(e, file) => this.addInputFileToPlaylist(file)}
                                 accepts=".json,.mid,.midi"
                                 title="Load Song from File"
                             >
                                 <Icon className="file-load"/>
-                            </ASUIInputFile>
+                            </InputFile>
                             <InputButton
                                 className="file-save"
                                 action={e => this.saveSongToFile(e)}
@@ -124,7 +124,7 @@ class PlayerRenderer extends React.Component {
                         </Form>
 
                         <Form className="volume" title="Volume">
-                            <ASUIInputRange
+                            <InputRange
                                 className="volume"
                                 action={(e, newVolume) => this.setVolume(newVolume / 100)}
                                 value={this.state.volume}
@@ -135,7 +135,7 @@ class PlayerRenderer extends React.Component {
                         </Form>
 
                         <Form className="position" title="Position">
-                            <ASUIInputRange
+                            <InputRange
                                 className="position"
                                 action={(e, pos) => this.setSongPosition(pos)}
                                 value={0}
@@ -292,7 +292,7 @@ class PlayerRenderer extends React.Component {
 
                         ASPForm.cE('file', [
                             Div.cE('title', 'File'),
-                            ASUIInputFile.createInputFile('file-load',
+                            InputFile.createInputFile('file-load',
                                 e => this.loadSongFromFileInput(),
                                 Icon.createIcon('file-load'),
                                 `.json,.mid,.midi`,
@@ -307,13 +307,13 @@ class PlayerRenderer extends React.Component {
 
                         ASPForm.cE('volume', [
                             Div.cE('title', 'Volume'),
-                            ASUIInputRange.createInputRange('volume',
+                            InputRange.createInputRange('volume',
                                 (e, newVolume) => this.setVolume(newVolume / 100), 1, 100, this.state.volume * 100, 'Song Volume')
                         ]),
 
                         ASPForm.cE('position', [
                             Div.cE('title', 'Position'),
-                            ASUIInputRange.createInputRange({
+                            InputRange.createInputRange({
                                     key: 'position',
                                     ref: ref => this.fieldSongPosition = ref,
                                 },

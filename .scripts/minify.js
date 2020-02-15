@@ -34,7 +34,7 @@ const fs = require('fs');
         + await convert('common/AudioSourceLibrary.js')
         + await convert('common/Song.js')
         + await convert('common/Storage.js')
-        + await convert('common/support/MIDISupport.js')
+        + await convert('support/MIDISupport.js')
 
         + '})();';
 

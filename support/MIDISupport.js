@@ -1,6 +1,6 @@
 {
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/support/MIDISupport.js'; }
+    function getThisScriptPath() { return 'support/MIDISupport.js'; }
     const exportThisScript = function(module) {
         module.exports = {MIDISupport};
     }

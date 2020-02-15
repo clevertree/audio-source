@@ -1,6 +1,6 @@
 {
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/support/SPCSupport.js'; }
+    function getThisScriptPath() { return 'support/SPCSupport.js'; }
     const exportThisScript = function(module) {
         module.exports = {SPCSupport};
     }

@@ -1309,19 +1309,19 @@ Song.getFileSupportModule = async function (filePath) {
     switch (fileExt) {
         // case 'mid':
         // case 'midi':
-        //     const {MIDISupport} = require('../common/support/MIDISupport.js');
+        //     const {MIDISupport} = require('../support/MIDISupport.js');
         //     return new MIDISupport;
         //
-        // case 'json':
-        //     const {JSONSupport} = require('../common/support/JSONSupport.js');
-        //     return new JSONSupport;
+        case 'json':
+            const JSONSupport = require('../support/JSONSupport.js').default;
+            return new JSONSupport;
         //
         // case 'spc':
-        //     const {LibGMESupport} = require('../common/support/LibGMESupport.js');
+        //     const {LibGMESupport} = require('../support/LibGMESupport.js');
         //     return new LibGMESupport;
         //
         // case 'mp3':
-        //     const {MP3Support} = require('../common/support/MP3Support.js');
+        //     const {MP3Support} = require('../support/MP3Support.js');
         //     return new MP3Support;
 
         default:

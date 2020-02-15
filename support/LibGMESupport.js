@@ -1,6 +1,6 @@
 {
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'common/support/LibGMESupport.js'; }
+    function getThisScriptPath() { return 'support/LibGMESupport.js'; }
     const exportThisScript = function(module) {
         module.exports = {LibGMESupport};
     }

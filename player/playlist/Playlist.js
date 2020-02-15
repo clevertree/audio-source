@@ -1,9 +1,9 @@
 import React from "react";
 import Div from "../../common/components/div/Div";
+import PlaylistEntry from "./PlaylistEntry";
 
 import "./assets/Playlist.css";
 
-const {PlaylistEntry} = require('./PlaylistEntry.js');
 
 class Playlist extends React.Component {
     constructor(props = {}) {
@@ -22,7 +22,6 @@ class Playlist extends React.Component {
     // get entries() { return this.state.entries; }
 
     render() {
-        const player = this.props.player;
         return (
             <Div className="asp-playlist">
                 <Div className="header">
@@ -32,7 +31,7 @@ class Playlist extends React.Component {
                 </Div>
                 <Div className="container">
                     {this.state.entries.length > 0
-                    ? player.eachEntry((entryData, position, depth) => {
+                    ? this.props.player.eachEntry((entryData, position, depth) => {
                             // const props = {
                             //     key: position,
                             //     data:entryData,
@@ -50,11 +49,12 @@ class Playlist extends React.Component {
                             // if(classes.length > 0)
                             //     props.class = classes.join(' ');
                             return <PlaylistEntry
+                                id={position}
                                 key={position}
                                 data={entryData}
                                 playlist={this}
                                 depth={depth}
-                                onPress={(e) => player.toggleEntryAtPosition(position)}
+                                onAction={(e) => this.props.player.toggleEntryAtPosition(position)}
                             />
                         })
                     :<Div className="empty-playlist">Empty Playlist</Div>
@@ -64,42 +64,50 @@ class Playlist extends React.Component {
         )
     }
 
-    render2() {
-        // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
-        // await this.updateEntries();
-        const player = this.props.player;
-        return [
-            Div.createElement('header', [
-                Div.createElement('id', 'ID'),
-                Div.createElement('name', 'Name'),
-                // Div.createElement('url', 'URL'),
-                Div.createElement('length', 'Length'),
-            ], {key: 'asp-playlist-header'}),
-            Div.createElement('asp-playlist-container', [
-                this.state.entries.length > 0
-                ? player.eachEntry((entryData, position, depth) => {
-                    const props = {
-                        key: position,
-                        data:entryData,
-                        playlist: this,
-                        depth,
-                        onPress: (e) => player.toggleEntryAtPosition(position)
-                    };
-                    const classes = [];
-                    if(this.state.position === position)
-                        classes.push('position');
-                        if(this.state.selectedPositions.indexOf(position) !== -1)
-                            classes.push('selected');
-                        if(entryData.loading)
-                            classes.push('loading');
-                    if(classes.length > 0)
-                        props.class = classes.join(' ');
-                    return PlaylistEntry.createElement(props)
-                })
-                : Div.createElement('empty-playlist', "Empty Playlist")
-            ], {'style': `max-height:${Math.round(window.innerHeight / 2)}px;`}),
-        ];
-    }
+    // onInput(e) {
+    //     switch(e.type) {
+    //         case 'click':
+    //
+    //     }
+    //     console.log(e);
+    // }
+
+    // render2() {
+    //     // TODO: move to entry - this.addEventHandler('click', e => this.onClick(e));
+    //     // await this.updateEntries();
+    //     const player = this.props.player;
+    //     return [
+    //         Div.createElement('header', [
+    //             Div.createElement('id', 'ID'),
+    //             Div.createElement('name', 'Name'),
+    //             // Div.createElement('url', 'URL'),
+    //             Div.createElement('length', 'Length'),
+    //         ], {key: 'asp-playlist-header'}),
+    //         Div.createElement('asp-playlist-container', [
+    //             this.state.entries.length > 0
+    //             ? player.eachEntry((entryData, position, depth) => {
+    //                 const props = {
+    //                     key: position,
+    //                     data:entryData,
+    //                     playlist: this,
+    //                     depth,
+    //                     onPress: (e) => player.toggleEntryAtPosition(position)
+    //                 };
+    //                 const classes = [];
+    //                 if(this.state.position === position)
+    //                     classes.push('position');
+    //                     if(this.state.selectedPositions.indexOf(position) !== -1)
+    //                         classes.push('selected');
+    //                     if(entryData.loading)
+    //                         classes.push('loading');
+    //                 if(classes.length > 0)
+    //                     props.class = classes.join(' ');
+    //                 return PlaylistEntry.createElement(props)
+    //             })
+    //             : Div.createElement('empty-playlist', "Empty Playlist")
+    //         ], {'style': `max-height:${Math.round(window.innerHeight / 2)}px;`}),
+    //     ];
+    // }
 
     async onClick(e) {
         const entryElm = e.target.closest('aspp-entry,div.asp-playlist-entry');

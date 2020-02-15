@@ -1,6 +1,8 @@
 import React from "react";
 import Div from "../div/Div";
 
+import "./assets/InputFile.css";
+
 // import Icon from "../../common/components/asui-icon";
 // import Menu from "../../common/components/asui-menu";
 
@@ -10,45 +12,39 @@ class InputFile extends React.Component {
         this.state = {
             value: props.value
         }
+        // setTimeout(() => this.openFileDialog(), 2000)
     }
 
-
-    async onChange(e) {
-        this.props.onChange(e, this.state.value);
+    openFileDialog(e) {
+        if(typeof this.props.onFile !== "function")
+            throw new Error("Invalid callback for property onFile")
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', this.props.accepts);
+        input.addEventListener('change', () => {
+            const file = input.files[0];
+            if(file)
+                this.props.onFile(e, file);
+        });
+        input.click();
     }
+
 
     render() {
         return (
-            <input
-                type="file"
-                value={this.state.value}
-                onChange={this.props.onChange}
-                name={this.props.name}
+            <button
+                className="asui-input-file"
                 title={this.props.title}
-            />
+                onClick={e => this.openFileDialog(e)}
+                >
+                {this.props.children}
+            </button>
         )
     }
-    
-    render2() {
-        const inputElm = document.createElement('input');
-        inputElm.addEventListener('change', e => this.onChange(e));
-        inputElm.classList.add('themed');
-        inputElm.setAttribute('type', 'file');
-        inputElm.setAttribute('style', 'display: none;');
-        this.inputElm = inputElm;
-        // if(this.state.name) inputElm.setAttribute('name', this.state.name);
-        if (this.state.title) inputElm.setAttribute('title', this.state.title);
 
-        const labelElm = ASUIDiv.createElement('button-style');
-        labelElm.classList.add('button-style');
-
-        this.appendContentTo(this.getChildren(), labelElm);
-        this.appendContentTo(inputElm, labelElm);
-
-        return [
-            labelElm
-        ]
-
+    // Set default props
+    static defaultProps = {
+        onFile: null,
     }
 }
 

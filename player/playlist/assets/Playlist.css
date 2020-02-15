@@ -54,9 +54,6 @@ div.asp-playlist-entry > div.length {
     margin-left: auto;
 }
 
-div.asp-playlist > div.container {
-    padding: 3px;
-}
 
 /*asp-playlist div.asp-playlist-entry asui-div.id       { color: #000; }*/
 /*asp-playlist div.asp-playlist-entry div.asp-playlist-entry asui-div.id       { color: #555; }*/
@@ -64,8 +61,13 @@ div.asp-playlist > div.container {
 
 div.asp-playlist-entry {
     background: #b9dabf;
+    padding: 4px 0px;
 }
 
+
+div.asp-playlist-entry:hover {
+    background: #998bda;
+}
 
 div.asp-playlist-entry.loaded {
     background: #d4c4da;

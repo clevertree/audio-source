@@ -236,13 +236,13 @@ class PlayerActions extends PlayerRenderer {
         if(entryData.open === true) {
             if(!entryData.playlist) {
                 entryData.loading = true;
-                this.playlist.forceUpdate();
+                this.playlist && this.playlist.forceUpdate(); // TODO: optimize
                 entryData.playlist = await this.loadPlaylistDataFromURL(entryData.url);
                 delete entryData.loading;
             }
 
         }
-        this.playlist.forceUpdate();
+        this.playlist && this.playlist.forceUpdate(); // TODO: optimize
     }
 
     playEntry(entryData) {
@@ -350,6 +350,16 @@ class PlayerActions extends PlayerRenderer {
         }
     }
 
+
+    addInputFileToPlaylist(file) {
+        const entryData = {
+            file,
+            name: 'file://' + file.name,
+            url: 'file://' + file.name
+        };
+        this.addEntryToPlaylist(entryData);
+        this.playlist.forceUpdate();
+    }
 
     // addSongURLToPlaylist(url, name=null, length=null) {
     //     this.addEntryToPlaylist({url, name, length});

@@ -62,7 +62,16 @@ class Player extends PlayerActions {
 
     get values() { return new Values(this.song); }
 
+    componentDidMount() {
+        const url = this.props.src || this.props.url;
+        if(url)
+            this.loadURLAsPlaylist(url);
+        else
+            this.loadState();
 
+        // this.loadPackageInfo()
+        //     .then(packageInfo => this.setVersion(packageInfo.version));
+    }
 
     connectedCallback() {
         if(!this.shadowDOM)
@@ -125,22 +134,22 @@ class Player extends PlayerActions {
 
     /** Package Info **/
 
-    async loadPackageInfo(force=false) {
-        const url = new URL('package.json'); // , thisModule.src);
-
-        let packageInfo = this.packageInfo;
-        if (!force && packageInfo)
-            return packageInfo;
-
-        const response = await fetch(url);
-        packageInfo = await response.json();
-        if(!packageInfo.version)
-            throw new Error("Invalid package version: " + url);
-
-        console.log("Package Version: ", packageInfo.version, packageInfo);
-        this.packageInfo = packageInfo;
-        return packageInfo;
-    }
+    // async loadPackageInfo(force=false) {
+    //     const url = new URL('files/package.json', document.location); // , thisModule.src);
+    //
+    //     let packageInfo = this.packageInfo;
+    //     if (!force && packageInfo)
+    //         return packageInfo;
+    //
+    //     const response = await fetch(url);
+    //     packageInfo = await response.json();
+    //     if(!packageInfo.version)
+    //         throw new Error("Invalid package version: " + url);
+    //
+    //     console.log("Package Version: ", packageInfo.version, packageInfo);
+    //     this.packageInfo = packageInfo;
+    //     return packageInfo;
+    // }
 
 
     // Rendering

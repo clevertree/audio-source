@@ -7,7 +7,7 @@ class Div extends React.Component {
         let children = this.props.children;
         if(typeof children === "function")
             children = children(this);
-        return <div className={this.props.className}>{children}</div>;
+        return <div {...this.props}>{children}</div>;
     }
 }
 
