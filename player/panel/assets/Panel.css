@@ -9,7 +9,7 @@ div.asp-panel {
     /*width: 100%;*/
 }
 
-div.asp-panel div.title {
+div.asp-panel > div.title {
     background-color: #333;
     color: #FFF;
     font-size: 11px;

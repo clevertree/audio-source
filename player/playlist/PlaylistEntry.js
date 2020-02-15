@@ -191,7 +191,7 @@ class PlaylistEntry extends React.Component {
 //     }
 // }
 // // if(isBrowser)
-//     // customElements.define('aspp-playlist-entry', PlaylistPlaylistEntry);
+//     // customElements.define('div.asp-playlist-entry', PlaylistPlaylistEntry);
 
 
 /** Export this script **/

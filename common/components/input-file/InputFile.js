@@ -28,6 +28,28 @@ class InputFile extends React.Component {
             />
         )
     }
+    
+    render2() {
+        const inputElm = document.createElement('input');
+        inputElm.addEventListener('change', e => this.onChange(e));
+        inputElm.classList.add('themed');
+        inputElm.setAttribute('type', 'file');
+        inputElm.setAttribute('style', 'display: none;');
+        this.inputElm = inputElm;
+        // if(this.state.name) inputElm.setAttribute('name', this.state.name);
+        if (this.state.title) inputElm.setAttribute('title', this.state.title);
+
+        const labelElm = ASUIDiv.createElement('button-style');
+        labelElm.classList.add('button-style');
+
+        this.appendContentTo(this.getChildren(), labelElm);
+        this.appendContentTo(inputElm, labelElm);
+
+        return [
+            labelElm
+        ]
+
+    }
 }
 
 

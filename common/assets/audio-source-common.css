@@ -281,7 +281,7 @@ asui-icon {
     height: 1em;
     padding: 0px;
     /* margin: 3px 3px; */
-    background: url("img/ui-icons.png");
+    background: url("common/components/icon/img/ui-icons.png");
     background-size: 10em 5em;
     /* transform: scale(1.7); */
 }

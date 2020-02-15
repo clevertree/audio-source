@@ -1,0 +1,28 @@
+
+
+/** Icons **/
+img.asui-icon {
+    width: 32px;
+    height: 32px;
+}
+
+
+img.asui-icon.play      { background-image: url('./img/play.icon.png'); }
+img.asui-icon.pause     { background-image: url('./img/pause.icon.png'); }
+img.asui-icon.stop      { background-image: url('./img/stop.icon.png'); }
+img.asui-icon.resume    { background-image: url('./img/play.icon.png'); }
+/*img.asui-icon.resume    { background-image: url('./img/resume.icon.png'); }*/
+img.asui-icon.next      { background-image: url('./img/next.icon.png'); }
+
+img.asui-icon.insert    { background-image: url('./img/insert.icon.png'); }
+img.asui-icon.remove    { background-image: url('./img/remove.icon.png'); }
+/*img.asui-icon.subtract  { background-image: url('./img/subtract.icon.png'); }*/
+img.asui-icon.close     { background-image: url('./img/close.icon.png'); }
+
+img.asui-icon.file-load    { background-image: url('./img/file-load.icon.png'); }
+img.asui-icon.file-save    { background-image: url('./img/file-save.icon.png'); }
+
+img.asui-icon.config    { background-image: url('./img/config.icon.png'); }
+img.asui-icon.menu    { background-image: url('./img/menu.icon.png'); }
+
+

@@ -102,7 +102,7 @@ class Playlist extends React.Component {
     }
 
     async onClick(e) {
-        const entryElm = e.target.closest('aspp-entry,aspp-playlist-entry');
+        const entryElm = e.target.closest('aspp-entry,div.asp-playlist-entry');
         if(entryElm) {
             // entryElm.toggleSelect();
             if(entryElm.isPlaylist) {
