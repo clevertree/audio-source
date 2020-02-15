@@ -23,7 +23,7 @@ export default StyleSheet.create({
         backgroundColor: "#322",
     },
 
-    'ASUIMenu.class': {
+    'Menu.class': {
         // minWidth: 160,
         // margin: 1,
         padding: 6,

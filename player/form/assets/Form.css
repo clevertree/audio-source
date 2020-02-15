@@ -1,0 +1,27 @@
+
+/** Song Forms **/
+
+div.asp-form {
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 0px 0px;
+    margin: 0px 0px 0px 0px;
+    display: inline-block;
+    vertical-align: top;
+}
+div.asp-form > div.title {
+    font-size: smaller;
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 1px;
+    cursor: pointer;
+    padding: 1px 3px;
+}
+
+
+div.asp-form[key=volume]       { max-width: 71px; }
+div.asp-form[key=version]      { max-width: 53px; }
+div.asp-form[key=name]         { max-width: 160px; }
+div.asp-form[key=timing]       { max-width: 77px; }
+div.asp-form[key=position]     { max-width: 77px; }
+div.asp-form[key=bpm]          { max-width: 43px; }
+

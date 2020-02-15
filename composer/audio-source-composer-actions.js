@@ -2,14 +2,14 @@
     /** Required Modules **/
     // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
-    const {AudioSourceSong}                 = require('../common/AudioSourceSong.js');
+    const {Song}                 = require('../common/Song.js');
     const {AudioSourceComposerRenderer}     = require('../composer/audio-source-composer-renderer.js');
     const {
         AudioSourceTracker,
         AudioSourceComposerTrackerInstruction,
         AudioSourceComposerTrackerRow
-    } = require('./ui/ascui-tracker.js');
-    const {AudioSourceStorage}              = require('../common/AudioSourceStorage.js');
+    } = require('./components/ascui-tracker.js');
+    const {Storage}              = require('../common/Storage.js');
     // const {AudioSourceUtilities}        = require('../common/audio-source-utilities.js');
     // const {ASUIComponent}               = require('../common/ASUIComponent.js');
 
@@ -70,7 +70,7 @@
             if (!this.volumeGain) {
                 const context = this.getAudioContext();
                 let gain = context.createGain();
-                gain.gain.value = this.state.volume; // AudioSourceSong.DEFAULT_VOLUME;
+                gain.gain.value = this.state.volume; // Song.DEFAULT_VOLUME;
                 gain.connect(context.destination);
                 this.volumeGain = gain;
             }
@@ -81,7 +81,7 @@
             if(this.volumeGain) {
                 return this.volumeGain.gain.value;
             }
-            return AudioSourcePlayer.DEFAULT_VOLUME;
+            return Player.DEFAULT_VOLUME;
         }
         setVolume (volume) {
             console.info("Setting volume: ", volume);
@@ -114,7 +114,7 @@
 
 
         async loadNewSongData() {
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             const defaultInstrumentURL = this.getDefaultInstrumentURL() + '';
             let songData = storage.generateDefaultSong(defaultInstrumentURL);
             await this.song.loadSongData(songData);
@@ -124,7 +124,7 @@
 
 
         async loadRecentSongData() {
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             let songRecentUUIDs = await storage.getRecentSongList();
             if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
                 this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
@@ -136,7 +136,7 @@
 
 
         async loadSongFromMemory(songUUID) {
-            const song = await AudioSourceSong.loadSongFromMemory(songUUID);
+            const song = await Song.loadSongFromMemory(songUUID);
             await this.setCurrentSong(song);
             this.setStatus("Song loaded from memory: " + songUUID, this.song);
 //         console.info(songData);
@@ -147,7 +147,7 @@
                 file = this.fieldSongFileLoad.inputElm.files[0];
             if (!file)
                 throw new Error("Invalid file input");
-            const song = await AudioSourceSong.loadSongFromFileInput(file);
+            const song = await Song.loadSongFromFileInput(file);
             await this.setCurrentSong(song);
             // await this.song.loadSongFromFileInput(file);
             // this.render();
@@ -155,7 +155,7 @@
 
 
         async loadSongFromURL(url) {
-            const song = await AudioSourceSong.loadSongFromURL(url);
+            const song = await Song.loadSongFromURL(url);
             await this.setCurrentSong(song);
             this.setStatus("Loaded from url: " + url);
         }
@@ -164,7 +164,7 @@
             const song = this.song;
             const songData = song.data;
             const songHistory = song.history;
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             this.setStatus("Saving song to memory...");
             await storage.saveSongToMemory(songData, songHistory);
             this.setStatus("Saved song to memory: " + songData.uuid);
@@ -173,7 +173,7 @@
         async saveSongToFile() {
             const songData = this.song.data;
             // const songHistory = this.song.history;
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             this.setStatus("Saving song to file");
             storage.saveSongToFile(songData);
         }
@@ -239,7 +239,7 @@
             //     this.song.stopPlayback();
             const song = this.song;
             if (playbackPosition === null) {
-                const values = new AudioSourceValues();
+                const values = new Values();
                 playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
             }
             song.setPlaybackPosition(playbackPosition);
@@ -809,7 +809,7 @@
             if (!searchCallbackString)
                 throw new Error("Batch command canceled: Invalid search");
 
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             storage.addBatchRecentSearches(searchCallbackString);
 
 
@@ -835,7 +835,7 @@
         }
 
         batchRunCommand(e, commandCallbackString = null, searchCallbackString = null, promptUser = false) {
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
 
             if (promptUser || !searchCallbackString)
                 searchCallbackString = prompt("Run custom search:", searchCallbackString ||

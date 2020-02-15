@@ -3,7 +3,7 @@
     // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
 
-    const {AudioSourceFileService} = require('../../common/AudioSourceFileService.js');
+    const {FileService} = require('../../common/AudioSourceFileService.js');
 
     class SPCPlayerSynthesizer {
 

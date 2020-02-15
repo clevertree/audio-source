@@ -6,7 +6,7 @@
 
 export default {
     /** Divisor Elements **/
-    'ASUIDiv': {
+    'Div': {
         // flex: 1,
         // flexDirection: 'column',
         // justifyContent: 'flex-start',
@@ -18,7 +18,7 @@ export default {
         // position: 'relative',
     },
 
-    'ASUIMenu': {
+    'Menu': {
         // minWidth: 160,
         // margin: 1,
         padding: 6,
@@ -29,15 +29,15 @@ export default {
     },
 
 
-    'ASUIMenu.default-text': {
+    'Menu.default-text': {
         color: '#EEE'
     },
 
-    'ASUIMenu.arrow': {
+    'Menu.arrow': {
         alignSelf: 'flex-end'  // display: 'flex'
     },
 
-    'ASUIMenu.dropdown': {
+    'Menu.dropdown': {
         // padding: 8,
         // backgroundColor: '#bdc3c7',
         // zIndex: 11,

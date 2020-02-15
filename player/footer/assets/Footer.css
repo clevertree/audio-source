@@ -1,0 +1,18 @@
+
+div.asp-status-text {
+    padding-left: 4px;
+}
+div.asp-version-text {
+    /* float: right; */
+    padding-right: 4px;
+    margin-left: auto;
+}
+
+
+/** Status Bar **/
+div.asp-footer-container {
+    display: flex;
+    background-color: #FFF;
+    color: #000;
+    padding: 0px;
+}

@@ -51,7 +51,7 @@ Coming Soon!
 * Plays MIDI files
 * How to put the player on your website
 ```
-<script src="https://audiosource.io/player/AudioSourcePlayerLoader.js"></script>
+<script src="https://audiosource.io/player/PlayerLoader.js"></script>
 <audio-source-player></audio-source-player>
 ```
 

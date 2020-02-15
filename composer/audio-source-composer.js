@@ -5,16 +5,16 @@
 
     /** Required Modules **/
     // const {AudioSourceUtilities} = require('../common/audio-source-utilities.js');
-    const {ASUIDiv} = require('../common/ui/ASUIComponent.js');
-    const {AudioSourceValues} = require('../common/AudioSourceValues.js');
-    const {AudioSourceLibrary} = require('../common/AudioSourceLibrary.js');
-    const {AudioSourceSong} = require('../common/AudioSourceSong.js');
-    const {AudioSourceStorage} = require('../common/AudioSourceStorage.js');
+    const {Div} = require('../common/components/ASUIComponent.js');
+    const {Values} = require('../common/Values.js');
+    const {Library} = require('../common/AudioSourceLibrary.js');
+    const {Song} = require('../common/Song.js');
+    const {Storage} = require('../common/Storage.js');
 
     const {AudioSourceComposerRenderer} = require('../composer/audio-source-composer-renderer.js');
     const {AudioSourceComposerActions} = require('../composer/audio-source-composer-actions.js');
     const {AudioSourceComposerKeyboard} = require('../composer/audio-source-composer-keyboard.js');
-    // const {AudioSourceComposerTracker} = require('./ui/ascui-tracker.js');
+    // const {AudioSourceComposerTracker} = require('./components/ascui-tracker.js');
 
     class AudioSourceComposerElement extends AudioSourceComposerActions {
         constructor(props={}) {
@@ -34,7 +34,7 @@
 
             this.keyboard = new AudioSourceComposerKeyboard();
 
-            // this.song = new AudioSourceSong({}, this);
+            // this.song = new Song({}, this);
             // this.player = null;
             // this.status = {
             //     groupHistory: [],
@@ -47,10 +47,10 @@
             this.library = AudioSourceLibrary.loadDefaultLibrary(); // TODO: get default library url from composer?
 
 
-            this.song = new AudioSourceSong();
+            this.song = new Song();
             this.song.loadSongData({});
             this.setCurrentSong(this.song);
-            // this.values = new AudioSourceValues(this.song);
+            // this.values = new Values(this.song);
             // Util.loadLibrary(defaultLibraryURL);
 
             // this.onSongEvent = (e) => this.onSongEvent(e);
@@ -66,7 +66,7 @@
         // get isPaused()              { return this.props.paused; }
         // set isPaused(value)         { this.setProps({paused: value}); }
 
-        get values() { return new AudioSourceValues(this.song); }
+        get values() { return new Values(this.song); }
 
         async connectedCallback() {
             this.shadowDOM = this.attachShadow({mode: 'closed'});
@@ -148,7 +148,7 @@
 
         async loadState(e = null) {
 
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             const state = storage.loadState('audio-source-composer-state');
             console.log('loadState', state);
 
@@ -187,7 +187,7 @@
                 // trackerOctave: this.fieldTrackerOctave.value,
                 tracker: this.state.tracker
             };
-            const storage = new AudioSourceStorage();
+            const storage = new Storage();
             storage.saveState(state, 'audio-source-composer-state');
             console.log('saveState', state);
         }

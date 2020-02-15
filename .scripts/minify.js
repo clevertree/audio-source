@@ -30,10 +30,10 @@ const fs = require('fs');
 
         + await convert('common/ASUIComponent.js')
         + await convert('common/audio-source-utilities.js')
-        + await convert('common/AudioSourceValues.js')
+        + await convert('common/Values.js')
         + await convert('common/AudioSourceLibrary.js')
-        + await convert('common/AudioSourceSong.js')
-        + await convert('common/AudioSourceStorage.js')
+        + await convert('common/Song.js')
+        + await convert('common/Storage.js')
         + await convert('common/support/MIDISupport.js')
 
         + '})();';

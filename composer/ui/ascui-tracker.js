@@ -2,23 +2,23 @@
     /** Required Modules **/
     // if(isBrowser) // Hack for browsers
         window.require = thisRequire;
-    const {SongInstruction} = require('../../common/AudioSourceSong.js');
-    const {AudioSourceLibrary} = require('../../common/AudioSourceLibrary.js');
-    const {AudioSourceValues} = require('../../common/AudioSourceValues.js');
+    const {SongInstruction} = require('../../common/Song.js');
+    const {Library} = require('../../common/AudioSourceLibrary.js');
+    const {Values} = require('../../common/Values.js');
     const {
         ASUIComponent,
-        ASUIDiv,
-        // ASUIMenu,
+        Div,
+        // Menu,
         // ASUIGrid,
         // ASUIGridRow,
-        // ASUIInputButton,
+        // InputButton,
         // ASUIInputFile,
         // ASUIInputRange,
-        // ASUIInputText,
-        // ASUIIcon,
-    } = require('../../common/ui/ASUIComponent.js');
+        // InputText,
+        // Icon,
+    } = require('../../common/components/ASUIComponent.js');
 
-    // const audioSourceValues = new AudioSourceValues;
+    // const Values = new Values;
 
     class ASCUITracker extends React.Component {
         constructor(props) {
@@ -112,11 +112,11 @@
             console.timeEnd('tracker.renderRows()');
 
             return [
-                ASUIDiv.createElement('tracker-header', () => [
-                    ASUIDiv.createElement('delta', "Delta"),
-                    ASUIDiv.createElement('instructions', "Instructions"),
+                Div.createElement('tracker-header', () => [
+                    Div.createElement('delta', "Delta"),
+                    Div.createElement('instructions', "Instructions"),
                 ], {class: 'asc-panel-title'}),
-                ASUIDiv.createElement('tracker-row-container', () => [
+                Div.createElement('tracker-row-container', () => [
                     rowContent
                 ])
             ];
@@ -1182,7 +1182,7 @@
     };
 
 }).apply(null, (function() {
-    const thisScriptPath = 'composer/ui/ascui-tracker.js';
+    const thisScriptPath = 'composer/components/ascui-tracker.js';
     const isBrowser = typeof document === 'object';
     const thisModule = !isBrowser ? module : customElements.get('audio-source-loader').findScript(thisScriptPath);
     const thisRequire = !isBrowser ? require : customElements.get('audio-source-loader').getRequire(thisModule);

@@ -11,21 +11,21 @@ class ASCUIHeader extends React.Component {
         if(typeof menuContent === "function")
             menuContent = menuContent(this);
         return [
-            ASUIDiv.cE({onclick: e => this.restart(), key: 'asc-title-text', ref: ref=>this.textTitle=ref}, 'Audio Source Player'),
-            ASUIDiv.cE('asc-menu-container', menuContent),
+            Div.cE({onclick: e => this.restart(), key: 'asc-title-text', ref: ref=>this.textTitle=ref}, 'Audio Source Player'),
+            Div.cE('asc-menu-container', menuContent),
         ]
     }
 
     renderPortrait() {
         return [
             /** Menu Button **/
-            ASUIMenu.cSME('asc-menu-button',
-                ASUIIcon.createIcon('menu'),
+            Menu.cSME('asc-menu-button',
+                Icon.createIcon('menu'),
                 this.props.menuContent
             ),
 
             /** Title Text **/
-            ASUIDiv.cE({onclick: e => this.restart(), key: 'asc-title-text', ref: ref=>this.textTitle=ref}, 'Audio Source Player'),
+            Div.cE({onclick: e => this.restart(), key: 'asc-title-text', ref: ref=>this.textTitle=ref}, 'Audio Source Player'),
         ]
     }
 

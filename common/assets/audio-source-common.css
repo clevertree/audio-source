@@ -161,8 +161,8 @@ asui-input-select > asui-menu {
 /** Menu **/
 
 
-asui-menu {
-    /* z-index: 3; */
+div.asui-menu {
+     z-index: 3;
     position: relative;
     color: black;
     padding: 0 0;

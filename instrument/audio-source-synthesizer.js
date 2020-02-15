@@ -4,23 +4,23 @@
         window.require = thisRequire;
 
 
-    const {AudioSourceLibrary} = require('../common/AudioSourceLibrary.js');
-    const {AudioSourceValues} = require('../common/AudioSourceValues.js');
+    const {Library} = require('../common/AudioSourceLibrary.js');
+    const {Values} = require('../common/Values.js');
     // const {
     //     ASUIComponent,
-    //     ASUIDiv,
-    //     ASUIMenu,
+    //     Div,
+    //     Menu,
     //     // ASUISelectMenu,
     //     ASUIGrid,
     //     ASUIGridRow,
-    //     ASUIInputButton,
+    //     InputButton,
     //     ASUIInputFile,
-    //     ASUIInputRange,
+    //     InputRange,
     //     ASUIInputSelect,
     //     ASUIInputCheckbox,
-    //     ASUIInputText,
-    //     ASUIIcon,
-    // } = require('../common/ui/ASUIComponent.js');
+    //     InputText,
+    //     Icon,
+    // } = require('../common/components/ASUIComponent.js');
 
     class AudioSourceSynthesizer {
         constructor(config, song=null, instrumentID=null) {
@@ -42,7 +42,7 @@
 
 
             this.song = song;
-            this.values = new AudioSourceValues(this.song);
+            this.values = new Values(this.song);
 
             this.sampleLibrary = null;
             this.loadSampleLibrary();

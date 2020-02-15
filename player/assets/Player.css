@@ -1,0 +1,51 @@
+/** Host Element **/
+
+:host {
+    display: inline-block;
+}
+
+/** Full Screen **/
+:host(.fullscreen) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+
+
+
+/** Font styles **/
+
+span.error {
+    font-color: red;
+    font-weight: bold;
+}
+
+
+
+/** Container **/
+/** Font Style **/
+div.asp-container {
+    font-family: monospace;
+    color: #000;
+    background-color: #EEE;
+    /* margin-top: -14px; */
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/** Visibility **/
+
+
+:host(:not(.playing)) .show-on-playing,
+:host(.playing) .hide-on-playing,
+:host(.hide-panel-song) asp-panel.song,
+:host(.hide-panel-playlist) asp-panel.playlist {
+    display: none;
+}

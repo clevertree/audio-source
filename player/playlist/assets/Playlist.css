@@ -1,0 +1,66 @@
+
+
+/** Playlist **/
+
+div.asp-playlist {
+    display: inline-block;
+    /* width: 100%; */
+    /* max-width: 815px; */
+}
+
+div.asp-playlist > div.container {
+    width: 100%;
+    max-height: 800px;
+    overflow-y: overlay;
+    overflow-x: hidden;
+}
+
+
+div.asp-playlist > div.header,
+div.asp-playlist-entry {
+    display: flex;
+    flex-direction: row;
+    min-width: 49em;
+    background: #DDD;
+    border: 1px outset #FFF;
+    /* margin: 9px; */
+    cursor: pointer;
+    margin: 0px;
+    /* border-collapse: initial; */
+}
+/*div.asp-playlist > div.header > asui-div,*/
+/*aspp-entry > asui-div {*/
+/*     padding: 3px 0px;*/
+/*}*/
+
+div.asp-playlist > div.header > div.id       {display: inline-block;width: 2.5em;text-align: center;margin-right: 1em;}
+div.asp-playlist asui-div[key=name]     { display: inline-block;}
+div.asp-playlist asui-div[key=length]   {/* display: inline-block; */width: 4em;/* align-items: flex-end; */margin-left: auto;}
+div.asp-playlist asui-div[key=container]   {
+    padding: 3px;
+}
+
+/*asp-playlist aspp-playlist-entry asui-div.id       { color: #000; }*/
+/*asp-playlist aspp-playlist-entry aspp-playlist-entry asui-div.id       { color: #555; }*/
+
+
+aspp-playlist-entry {
+    background: #b9dabf;
+}
+
+
+aspp-playlist-entry[status=loaded],
+aspp-entry[status=loaded] {
+    background: #d4c4da;
+}
+
+aspp-playlist-entry[status=loading],
+aspp-entry[status=loading] {
+    background: #bfb9da;
+}
+aspp-entry.position {
+    background: #9bbdff;
+}
+aspp-entry.selected {
+    background: #AAA;
+}

@@ -65,9 +65,9 @@
     if(!customElements.get('audio-source-loader'))
         // customElements.define('audio-source-loader', AudioSourceLoader);
 
-    const thisScriptPath = 'audio-source-composer-loader.js';
-    const thisScript = customElements.get('audio-source-loader').findScript(thisScriptPath);
-    const basePathURL = thisScript.src.replace(document.location.origin, '').replace(thisScriptPath, '');
+    const thisScriptPath = 'audio-source-player-loader.js';
+    const thisScript = AudioSourceLoader.findScript(thisScriptPath);
+    // const basePathURL = new URL('../', thisScript.src); //thisScript.src.replace(document.location.origin, '').replace(thisScriptPath, '');
 
     const require = AudioSourceLoader.getRequireAsync(thisScript);
 
@@ -90,10 +90,13 @@
     await require('../common/Values.js');
     await require('../common/AudioSourceFileService.js');
 
-    await require('./components/ascui-header.js');
-    await require('./components/ascui-tracker.js');
-    await require('../composer/audio-source-composer-renderer.js');
-    await require('../composer/audio-source-composer-actions.js');
-    await require('../composer/audio-source-composer-keyboard.js');
-    await require('../composer/audio-source-composer.js');
+    await require('audio-source/player/components/-playlist-entry.js');
+    await require('audio-source/player/components/-playlist.js');
+    await require('audio-source/player/components/-header.js');
+
+    await require('src/audio-source/player/PlayerRenderer.js');
+    await require('src/audio-source/player/PlayerActions.js');
+    await require('src/audio-source/player/Player.js');
+
+
 })();
