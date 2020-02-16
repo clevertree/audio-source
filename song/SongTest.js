@@ -7,7 +7,7 @@ const {Storage} = require(DIR_ROOT + '/common/Storage.js');
 const {Values} = require(DIR_ROOT + '/common/Values.js');
 
 
-class CommonTest {
+class SongTest {
     constructor() {
     }
 
@@ -192,5 +192,4 @@ class CommonTest {
     }
 }
 
-if(typeof module !== "undefined")
-    module.exports = {AudioSourceCommonTest: CommonTest};
+export default SongTest;

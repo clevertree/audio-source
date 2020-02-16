@@ -1,17 +1,14 @@
-const path = require('path');
-
-const ROOT_DIR = path.dirname(__dirname);
-
-const {AudioSourceCommonTest} = require(ROOT_DIR + '/common/AudioSourceCommonTest.js');
-const {AudioSourceComposerTest} = require(ROOT_DIR + '/composer/audio-source-composer-test.js');
-
-(async () => {
-    const tests = [
-        new AudioSourceCommonTest(),
-        new AudioSourceComposerTest(),
-    ];
-
-    for(let i=0; i<tests.length; i++) {
-        await tests[i].test();
-    }
-})();
+// import SongTest from "../song/SongTest";
+// import ComposerTest from "../composer/ComposerTest";
+//
+//
+// (async () => {
+//     const tests = [
+//         new SongTest(),
+//         new ComposerTest(),
+//     ];
+//
+//     for(let i=0; i<tests.length; i++) {
+//         await tests[i].test();
+//     }
+// })();

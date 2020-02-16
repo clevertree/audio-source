@@ -86,7 +86,7 @@
 
     await require('../song/Song.js');
     await require('../song/Storage.js');
-    await require('../common/AudioSourceLibrary.js');
+    await require('../common/Library.js');
     await require('../song/Values.js');
     await require('../common/AudioSourceFileService.js');
 

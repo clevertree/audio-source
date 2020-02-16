@@ -237,8 +237,8 @@ class SPCPlayerSynthesizer {
 //                 // setOptgroup('Libraries');
 //                 // this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
 //                 // setOptgroup('Other Libraries');
-//                 // const AudioSourceLibrary = customElements.get('audio-source-library');
-//                 // AudioSourceLibrary.eachHistoricLibrary(addOption);
+//                 // const Library = customElements.get('audio-source-library');
+//                 // Library.eachHistoricLibrary(addOption);
 //             },
 //             'Change Instrument',
 //             defaultPresetURL);
