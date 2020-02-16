@@ -20,7 +20,7 @@ class InputFile extends React.Component {
             throw new Error("Invalid callback for property onFile")
         const input = document.createElement('input');
         input.setAttribute('type', 'file');
-        input.setAttribute('accept', this.props.accepts);
+        input.setAttribute('accept', this.props.accept);
         input.addEventListener('change', () => {
             const file = input.files[0];
             if(file)

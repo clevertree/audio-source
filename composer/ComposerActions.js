@@ -1,4 +1,6 @@
 import ComposerRenderer from "./ComposerRenderer";
+import Song from "../song/Song";
+
 
 class ComposerActions extends ComposerRenderer {
     constructor(state = {}, props = {}) {
@@ -68,7 +70,7 @@ class ComposerActions extends ComposerRenderer {
         if(this.volumeGain) {
             return this.volumeGain.gain.value;
         }
-        return Player.DEFAULT_VOLUME;
+        return this.state.volume;
     }
     setVolume (volume) {
         console.info("Setting volume: ", volume);
@@ -226,7 +228,7 @@ class ComposerActions extends ComposerRenderer {
         //     this.song.stopPlayback();
         const song = this.song;
         if (playbackPosition === null) {
-            const values = new Values();
+            const values = this.values;
             playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
         }
         song.setPlaybackPosition(playbackPosition);
@@ -264,10 +266,11 @@ class ComposerActions extends ComposerRenderer {
     playCursorInstruction() {
         if (this.song.isPlaying)
             this.song.stopPlayback();
-        const cursorItem = this.tracker.refs.cursorList[this.tracker.state.cursorListOffset];
-        if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
-            this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, cursorItem.index);
-        }
+        throw new Error("Implement");
+        // const cursorItem = this.tracker.refs.cursorList[this.tracker.state.cursorListOffset];
+        // if (cursorItem instanceof AudioSourceComposerTrackerInstruction) {
+        //     this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.tracker.currentGroup, cursorItem.index);
+        // }
     }
 
 
@@ -437,20 +440,21 @@ class ComposerActions extends ComposerRenderer {
 
     async setCursor(newCursor, clearSelection = null, toggleValue = null) {
         await this.tracker.setCursorElement(newCursor);
+        throw new Error("Implement");
 
-        if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
-            await this.selectIndex(newCursor.index, clearSelection, toggleValue);
-            const instruction = newCursor.instructionFind(this.song, this.state.tracker.currentGroup);
-            this.fieldInstructionCommand.value = instruction.command;
-            this.fieldInstructionInstrument.value = instruction.instrument;
-            this.fieldInstructionVelocity.value = instruction.velocity;
-            this.fieldInstructionDuration.value = instruction.duration;
-        } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
-            await this.setSongPosition(newCursor.positionInSeconds);
-            if (clearSelection)
-                this.clearselectedIndices();
-
-        }
+        // if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
+        //     await this.selectIndex(newCursor.index, clearSelection, toggleValue);
+        //     const instruction = newCursor.instructionFind(this.song, this.state.tracker.currentGroup);
+        //     this.fieldInstructionCommand.value = instruction.command;
+        //     this.fieldInstructionInstrument.value = instruction.instrument;
+        //     this.fieldInstructionVelocity.value = instruction.velocity;
+        //     this.fieldInstructionDuration.value = instruction.duration;
+        // } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
+        //     await this.setSongPosition(newCursor.positionInSeconds);
+        //     if (clearSelection)
+        //         this.clearselectedIndices();
+        //
+        // }
 
         this.playCursorInstruction();
     }
@@ -592,7 +596,7 @@ class ComposerActions extends ComposerRenderer {
         const song = this.song;
 
         let newGroupName = song.generateInstructionGroupName();
-        newGroupName = prompt("Create new instruction group?", newGroupName);
+        newGroupName = window.prompt("Create new instruction group?", newGroupName);
         if (newGroupName) {
             song.groupAdd(newGroupName, []);
             this.panelTrackerGroups.forceUpdate();
@@ -604,7 +608,7 @@ class ComposerActions extends ComposerRenderer {
     groupRename(groupName, newGroupName = null) {
         const song = this.song;
 
-        newGroupName = prompt(`Rename instruction group (${groupName})?`, groupName);
+        newGroupName = window.prompt(`Rename instruction group (${groupName})?`, groupName);
         if (newGroupName !== groupName) {
             song.groupRename(groupName, newGroupName);
             this.render();
@@ -616,7 +620,7 @@ class ComposerActions extends ComposerRenderer {
     groupRemove(groupName) {
         const song = this.song;
 
-        const result = confirm(`Remove instruction group (${groupName})?`);
+        const result = window.confirm(`Remove instruction group (${groupName})?`);
         if (result) {
             song.groupRemove(groupName);
             this.render();
@@ -637,7 +641,7 @@ class ComposerActions extends ComposerRenderer {
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
+        if (window.confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
             this.setStatus("New instrument Added to song: " + instrumentURL);
             this.fieldInstructionInstrument.setValue(instrumentID);
@@ -656,7 +660,7 @@ class ComposerActions extends ComposerRenderer {
         instrumentConfig.url = instrumentURL;
         instrumentConfig.libraryURL = this.libraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
-        if (confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
+        if (window.confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
             await this.song.instrumentReplace(instrumentID, instrumentConfig);
             await this.song.loadInstrument(instrumentID, true);
             this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
@@ -679,9 +683,9 @@ class ComposerActions extends ComposerRenderer {
     }
 
     instrumentRemove(instrumentRemoveID = null) {
-        if (instrumentRemoveID === null)
-            instrumentRemoveID = parseInt(e.target.form.elements['instrumentID'].value);
-        if (confirm(`Remove Instrument ID: ${instrumentRemoveID}`)) {
+        // if (instrumentRemoveID === null)
+        //     instrumentRemoveID = parseInt(e.target.form.elements['instrumentID'].value);
+        if (window.confirm(`Remove Instrument ID: ${instrumentRemoveID}`)) {
             this.song.instrumentRemove(instrumentRemoveID);
             this.setStatus(`Instrument (${instrumentRemoveID}) removed`);
 
@@ -709,7 +713,7 @@ class ComposerActions extends ComposerRenderer {
     async trackerChangeGroup(groupName = null) {
         const tracker = this.tracker;
 
-        groupName = groupName || e.target.form.getAttribute('data-group');
+        // groupName = groupName || e.target.form.getAttribute('data-group');
         await tracker.setGroupName(groupName);
         await this.panelTrackerGroups.forceUpdate();
         await this.panelTrackerRowSegments.forceUpdate();

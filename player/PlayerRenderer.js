@@ -107,7 +107,7 @@ class PlayerRenderer extends React.Component {
                             <InputFile
                                 className="file-load"
                                 onFile={(e, file) => this.addInputFileToPlaylist(file)}
-                                accepts=".json,.mid,.midi"
+                                accept=".json,.mid,.midi"
                                 title="Load Song from File"
                             >
                                 <Icon className="file-load"/>

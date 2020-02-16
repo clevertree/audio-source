@@ -4,6 +4,7 @@ import {TrackerInstructionAdd} from "./TrackerInstructionAdd";
 import {TrackerInstruction} from "./TrackerInstruction";
 import {TrackerRow} from "./TrackerRow";
 import Div from "../../components/div/Div";
+import SongInstruction from "../../song/SongInstruction";
 
 class Tracker extends React.Component {
     constructor(props) {

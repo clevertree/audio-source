@@ -16,7 +16,7 @@
       "url": "sample/gm/fws/fws.library.json"
     }
   ],
-  "playlist": [
+  "playlists": [
     "assets/files/test.pl.json;Test Playlist"
   ]
 }

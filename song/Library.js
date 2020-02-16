@@ -4,10 +4,10 @@ class Library {
         this.url = null;
         this.urlPrefix = '';
         this.name = "Loading...";
-        this.samples = {};
-        this.libraries = {};
-        this.presets = {};
+        this.libraries = [];
         this.instruments = {};
+        this.presets = [];
+        this.samples = [];
         Object.assign(this, data);
     }
 
@@ -15,48 +15,66 @@ class Library {
     //     Object.assign(this, data);
     // }
 
+
+
     get libraryCount() { return Object.values(this.libraries).length; }
     eachLibrary(callback) {
-        return this.processItemList(this.libraries, (libraryConfig) => {
+        const results = [];
+        const libraries = this.libraries || [];
+        for(let i=0; i<libraries.length; i++) {
+            const libraryConfig = libraries[i];
             libraryConfig.url = new URL(this.urlPrefix + (libraryConfig.url || libraryConfig.name), this.url) + '';
             if(!libraryConfig.name) libraryConfig.name = libraryConfig.url.split('/').pop();
-            return callback(libraryConfig);
-        });
+            const result = callback(libraryConfig);
+            if(result !== null) results.push(result);
+            if(result === false) break;
+        }
+        return results;
     }
 
-    get sampleCount() { return Object.values(this.libraries).length; }
+    get sampleCount() { return Object.values(this.samples).length; }
     eachSample(callback) {
-        return this.processItemList(this.samples, (sampleConfig) => {
+        const results = [];
+        const samples = this.samples || [];
+        for(let i=0; i<samples.length; i++) {
+            const sampleConfig = samples[i];
             sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
             if(!sampleConfig.name) sampleConfig.name = sampleConfig.url.split('/').pop();
-            return callback(sampleConfig);
-        });
+            const result = callback(sampleConfig);
+            if(result !== null) results.push(result);
+            if(result === false) break;
+        }
+        return results;
     }
 
-    get presetCount() { return Object.values(this.libraries).length; }
+    get presetCount() { return Object.values(this.presets).length; }
     eachPreset(callback) {
-        return this.processItemList(this.presets, (presetConfig) => {
+        const results = [];
+        const presets = this.presets || [];
+        for(let i=0; i<presets.length; i++) {
+            const presetConfig = presets[i];
             if(!presetConfig.url)
                 presetConfig.url = this.url + '#' + presetConfig.name;
-            return callback(presetConfig);
-        });
+            const result = callback(presetConfig);
+            if(result !== null) results.push(result);
+            if(result === false) break;
+        }
+        return results;
     }
 
-    get instrumentCount() { return Object.values(this.libraries).length; }
+    get instrumentCount() { return Object.values(this.instruments).length; }
     eachInstrument(callback) {
-        return this.processItemList(this.instruments, (instrumentConfig) => {
+        const results = [];
+        const instruments = this.instruments || [];
+        for(let i=0; i<instruments.length; i++) {
+            const instrumentConfig = instruments[i];
             instrumentConfig.url = new URL(this.urlPrefix + (instrumentConfig.url || instrumentConfig.name), this.url) + '';
             if(!instrumentConfig.name) instrumentConfig.name = instrumentConfig.url.split('/').pop();
-            return callback(instrumentConfig);
-        });
-    }
-    findInstrument(callback) {
-        let foundItem;
-        this.eachInstrument((config) => {
-            if(foundItem || (foundItem = callback(config)))
-                return false;
-        })
-        return foundItem;
+            const result = callback(instrumentConfig);
+            if(result !== null) results.push(result);
+            if(result === false) break;
+        }
+        return results;
     }
 
     getPresetConfig(presetName) {
@@ -81,21 +99,22 @@ class Library {
         };
         // newConfig.presetURL = this.url + '#' + presetName;
         newConfig.samples = [];
+        throw new Error("TODO: Implement");
 
-        this.processItemList(presetData.samples, (sampleConfig) => {
-            if(typeof this.samples[sampleConfig.name] !== "undefined")
-                Object.assign(sampleConfig, this.samples[sampleConfig.name]);
-            sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
-            newConfig.samples.push(sampleConfig);
-            // if (typeof sampleConfig.keyRange !== "undefined") {
-            //     let pair = sampleConfig.keyRange;
-            //     if (typeof pair === 'string')
-            //         pair = pair.split(':');
-            //     sampleConfig.keyLow = pair[0];
-            //     sampleConfig.keyHigh = pair[1] || pair[0];
-            //     delete sampleConfig.keyRange;
-            // }
-        });
+        // this.processItemList(presetData.samples, (sampleConfig) => {
+        //     if(typeof this.samples[sampleConfig.name] !== "undefined")
+        //         Object.assign(sampleConfig, this.samples[sampleConfig.name]);
+        //     sampleConfig.url = new URL(this.urlPrefix + (sampleConfig.url || sampleConfig.name), this.url) + '';
+        //     newConfig.samples.push(sampleConfig);
+        //     // if (typeof sampleConfig.keyRange !== "undefined") {
+        //     //     let pair = sampleConfig.keyRange;
+        //     //     if (typeof pair === 'string')
+        //     //         pair = pair.split(':');
+        //     //     sampleConfig.keyLow = pair[0];
+        //     //     sampleConfig.keyHigh = pair[1] || pair[0];
+        //     //     delete sampleConfig.keyRange;
+        //     // }
+        // });
         // newConfig.libraryURL = this.url;
         // newConfig.preset = presetName;
         return newConfig;

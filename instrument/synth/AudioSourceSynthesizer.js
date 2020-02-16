@@ -1,4 +1,4 @@
-import Library from "../../library/Library";
+import Library from "../../song/Library";
 import AudioSourceSynthesizerRenderer from "./AudioSourceSynthesizerRenderer";
 import React from "react";
 // import Values from "../../song/Values";

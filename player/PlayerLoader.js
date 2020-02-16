@@ -81,7 +81,7 @@
     await require('../components/ASUIInputCheckbox.js');
     await require('../components/ASUIInputFile.js');
     await require('../components/ASUIInputRange.js');
-    await require('../components/ASUIInputSelect.js');
+    await require('../components/InputSelect.js');
     await require('../components/InputText.js');
 
     await require('../song/Song.js');

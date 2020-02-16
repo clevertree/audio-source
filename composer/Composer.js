@@ -4,7 +4,7 @@ import Storage       from "../song/Storage";
 
 import ComposerActions from "./ComposerActions";
 import Keyboard from "../song/Keyboard"
-import Library from "../library/Library"
+import Library from "../song/Library"
 
 class Composer extends ComposerActions {
     constructor(props={}) {
@@ -96,7 +96,7 @@ class Composer extends ComposerActions {
     // get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }
 
     get defaultLibraryURL() {
-        return this.getAttribute('defaultLibraryURL') || new URL('../default.library.json', thisModule.src);
+        return this.getAttribute('defaultLibraryURL') || new URL('../default.library.json', document.location);
     }
 
     set defaultLibraryURL(url) {
@@ -222,12 +222,13 @@ class Composer extends ComposerActions {
                     case 144:   // Note On
                         // TODO: refactor
                         e.preventDefault();
-                        const midiImport = new MIDIImport();
-                        let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
-                        let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
-                        console.log("MIDI ", newMIDICommand, newMIDIVelocity);
+                        throw new Error("TODO: Implement");
+                        // const midiImport = new MIDIImport();
+                        // let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
+                        // let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
+                        // console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
-                        this.instructionInsertOrUpdate(e, newMIDICommand);
+                        // this.instructionInsertOrUpdate(e, newMIDICommand);
                         this.playSelectedInstructions(e);
                         // this.focus();
                         break;

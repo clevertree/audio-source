@@ -1,5 +1,5 @@
-// import SongTest from "../song/SongTest";
-// import ComposerTest from "../composer/ComposerTest";
+// const SongTest = require("../song/SongTest").default;
+// const ComposerTest = require("../composer/ComposerTest").default;
 //
 //
 // (async () => {

@@ -14,13 +14,6 @@ class Menu extends React.Component {
         };
     }
 
-    getSubMenuChildren() {
-        let subMenuChildren = this.props.subMenu;
-        if(typeof subMenuChildren === "function")
-            subMenuChildren = subMenuChildren(this);
-        console.log('subMenuChildren', subMenuChildren)
-        return subMenuChildren;
-    }
 
     renderDropdownContent() {
         let subMenuChildren = this.props.subMenu;
