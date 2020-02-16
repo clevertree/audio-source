@@ -74,20 +74,20 @@
     await require('../assets/3rdparty/LZString/lz-string.min.js');
 
 
-    await require('../common/components/ASUIComponent.js');
-    // await require('../common/components/ASUIGrid.js');
-    await require('../common/components/menu/Menu.js');
-    await require('../common/components/InputButton.js');
-    await require('../common/components/ASUIInputCheckbox.js');
-    await require('../common/components/ASUIInputFile.js');
-    await require('../common/components/ASUIInputRange.js');
-    await require('../common/components/ASUIInputSelect.js');
-    await require('../common/components/InputText.js');
+    await require('../components/ASUIComponent.js');
+    // await require('../components/ASUIGrid.js');
+    await require('../components/menu/Menu.js');
+    await require('../components/InputButton.js');
+    await require('../components/ASUIInputCheckbox.js');
+    await require('../components/ASUIInputFile.js');
+    await require('../components/ASUIInputRange.js');
+    await require('../components/ASUIInputSelect.js');
+    await require('../components/InputText.js');
 
-    await require('../common/Song.js');
-    await require('../common/Storage.js');
+    await require('../song/Song.js');
+    await require('../song/Storage.js');
     await require('../common/AudioSourceLibrary.js');
-    await require('../common/Values.js');
+    await require('../song/Values.js');
     await require('../common/AudioSourceFileService.js');
 
     await require('audio-source/player/components/-playlist-entry.js');

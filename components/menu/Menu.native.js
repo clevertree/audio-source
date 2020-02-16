@@ -1,7 +1,7 @@
 import React from "react";
 import {Animated, Easing} from 'react-native';
 
-// import Div from "../div/Div";
+import Div from "../div/Div";
 
 class Menu extends React.Component {
 
@@ -171,32 +171,32 @@ class Menu extends React.Component {
         this.open();
     }
 
-    closeAllMenus(includeStickMenus=false) {
-        if(isBrowser) {
-            const root = this.getRootNode() || document;
-            root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
-                .forEach(menu => menu.close())
-        } else {
-            // console.warn("Unimplemented");
-        }
-    }
-    closeAllMenusButThis() {
-        if(isBrowser) {
-
-            const root = this.getRootNode() || document;
-            root.querySelectorAll('asui-menu[open]:not([stick])')
-                .forEach(menu => {
-                    if(menu !== this
-                        && !menu.contains(this)
-                        && !this.contains(menu))
-                        menu.close()
-                });
-
-        } else {
-            // console.warn("Unimplemented");
-
-        }
-    }
+    // closeAllMenus(includeStickMenus=false) {
+    //     if(isBrowser) {
+    //         const root = this.getRootNode() || document;
+    //         root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
+    //             .forEach(menu => menu.close())
+    //     } else {
+    //         // console.warn("Unimplemented");
+    //     }
+    // }
+    // closeAllMenusButThis() {
+    //     if(isBrowser) {
+    //
+    //         const root = this.getRootNode() || document;
+    //         root.querySelectorAll('asui-menu[open]:not([stick])')
+    //             .forEach(menu => {
+    //                 if(menu !== this
+    //                     && !menu.contains(this)
+    //                     && !this.contains(menu))
+    //                     menu.close()
+    //             });
+    //
+    //     } else {
+    //         // console.warn("Unimplemented");
+    //
+    //     }
+    // }
 
     onInputEvent(e, type=null) {
         type = type || e.type;

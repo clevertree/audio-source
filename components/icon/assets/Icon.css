@@ -1,0 +1,28 @@
+
+
+/** Icons **/
+div.asui-icon {
+    width: 32px;
+    height: 32px;
+}
+
+
+div.asui-icon.play      { background-image: url('img/play.icon.png'); }
+div.asui-icon.pause     { background-image: url('img/pause.icon.png'); }
+div.asui-icon.stop      { background-image: url('img/stop.icon.png'); }
+div.asui-icon.resume    { background-image: url('img/play.icon.png'); }
+/*div.asui-icon.resume    { background-image: url('./img/resume.icon.png'); }*/
+div.asui-icon.next      { background-image: url('img/next.icon.png'); }
+
+div.asui-icon.insert    { background-image: url('img/insert.icon.png'); }
+div.asui-icon.remove    { background-image: url('img/remove.icon.png'); }
+/*div.asui-icon.subtract  { background-image: url('./img/subtract.icon.png'); }*/
+div.asui-icon.close     { background-image: url('img/close.icon.png'); }
+
+div.asui-icon.file-load    { background-image: url('img/file-load.icon.png'); }
+div.asui-icon.file-save    { background-image: url('img/file-save.icon.png'); }
+
+div.asui-icon.config    { background-image: url('img/config.icon.png'); }
+div.asui-icon.menu    { background-image: url('img/menu.icon.png'); }
+
+

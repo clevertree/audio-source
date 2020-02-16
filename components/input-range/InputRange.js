@@ -1,5 +1,5 @@
 import React from "react";
-
+import "./assets/InputRange.scss";
 
 class InputRange extends React.Component {
     constructor(props = {}) {
@@ -21,9 +21,10 @@ class InputRange extends React.Component {
     render() {
         return (
             <input
+                className="asui-input-range"
                 type="range"
                 value={this.state.value}
-                onChange={this.props.onChange}
+                onChange={e => this.onChange(e)}
                 min={this.props.min}
                 max={this.props.max}
                 name={this.props.name}

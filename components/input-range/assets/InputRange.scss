@@ -1,0 +1,16 @@
+
+input.asui-input-range[type='range'] {
+  -webkit-appearance: none;
+  background-color: #AAA;
+  border-radius: 15px;
+  height: 11px;
+  margin: 13px;
+}
+input.asui-input-range[type='range']::-webkit-slider-thumb {
+  vertical-align: middle;
+  -webkit-appearance: none;
+  background-color: #444;
+  width: 6px;
+  height: 28px;
+  border-radius: 4px;
+}

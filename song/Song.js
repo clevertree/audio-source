@@ -1,3 +1,5 @@
+import InstrumentLoader from "../instrument/InstrumentLoader";
+import Values from "./Values";
 
 class Song {
     constructor() {
@@ -23,6 +25,7 @@ class Song {
         this.history = [];
         this.waitCancels = [];
         this.playbackEndCallbacks = [];
+        this.values = new Values(this);
 
         // Listen for instrument changes if in a browser
         // if (typeof document !== "undefined")
@@ -869,6 +872,7 @@ class Song {
         return this.data.instruments.slice();
     }
 
+    /** @deprecated **/
     async getInstrument(instrumentID, throwException = true) {
         if (this.instruments[instrumentID])
             return await this.instruments[instrumentID];
@@ -877,66 +881,39 @@ class Song {
         return null;
     }
 
-
-    async loadInstrumentClass(instrumentClassURL) {
-        let scriptElm = document.head.querySelectorAll(`script[src$="${instrumentClassURL}"]`)[0];
-        if (!scriptElm) {
-            scriptElm = document.createElement('script');
-            scriptElm.src = instrumentClassURL;
-            scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-                scriptElm.onload = resolve;
-                document.head.appendChild(scriptElm);
-            }));
-        }
-
-        for (let i = 0; i < scriptElm.promises.length; i++)
-            await scriptElm.promises[i];
-        const {instrument} = scriptElm.exports;
-
-        if (!instrument)
-            throw new Error("Script element does not have '.instrument' attribute: " + instrumentClassURL);
-        if (typeof instrument !== "function")
-            throw new Error("Script element '.instrument' attribute is not a function: " + instrumentClassURL);
-        return instrument;
-    }
-
     async loadInstrumentInstance(instrumentID) {
-        const instrumentPreset = this.getInstrumentConfig(instrumentID);
-        if (!instrumentPreset.url)
-            throw new Error("Invalid instrument URL");
-        let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
-
-        const instrumentClass = await this.loadInstrumentClass(instrumentClassURL);
-        const instrument =  new instrumentClass(instrumentPreset, this, instrumentID); //, this.getAudioContext());
+        const loader = new InstrumentLoader(this);
+        const instrument = loader.loadInstrumentInstance(instrumentID);
         if (typeof instrument.init !== "function")
             throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
         await instrument.init();
         return instrument;
-    }
+   }
 
-    async loadInstrument(instrumentID, forceReload = false) {
+    loadInstrument(instrumentID, forceReload = false) {
         instrumentID = parseInt(instrumentID);
         if (!forceReload && this.instruments[instrumentID])
-            return await this.instruments[instrumentID];
+            return this.instruments[instrumentID];
 
-        // Load instrument instance
-        this.instruments[instrumentID] = this.loadInstrumentInstance(instrumentID);
+        const loader = new InstrumentLoader(this);
+        const instrument = loader.loadInstrumentInstance(instrumentID);
+        if (typeof instrument.init !== "function")
+            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+        this.instruments[instrumentID] = instrument;
 
-        const instance = await this.instruments[instrumentID];
-        this.instruments[instrumentID] = instance;
         this.dispatchEvent(new CustomEvent('instrument:instance', {
             detail: {
-                instance,
+                instrument,
                 instrumentID
             },
             bubbles: true
         }));
 
-        // if (this.audioContext)
-        //     await this.initInstrument(instrumentID, this.audioContext);
+        if (this.audioContext)
+            instrument.init(instrumentID, this.audioContext);
 
 //             console.info("Instrument loaded: ", instance, instrumentID);
-        return instance;
+        return instrument;
     }
 
     async loadAllInstruments(forceReload = false) {

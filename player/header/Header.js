@@ -1,7 +1,7 @@
 import React from "react";
-// import Div from "../../../common/components/div/Div";
-import Icon from "../../common/components/icon/Icon";
-import Menu from "../../common/components/menu/Menu";
+// import Div from "../../../components/div/Div";
+import Icon from "../../components/icon/Icon";
+import Menu from "../../components/menu/Menu";
 
 import "./assets/Header.css";
 
@@ -16,7 +16,7 @@ class Header extends React.Component {
         if(typeof menuContent === "function")
             menuContent = menuContent(this);
         return [
-            <div className="asp-title-container">
+            <div key="header" className="asp-title-container">
                 <div className="asp-title-text">Audio Source Player</div>
                 <div className="asp-menu-container">{menuContent}</div>
             </div>

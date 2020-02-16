@@ -1,7 +1,7 @@
 import React from "react";
-import Div from "../../common/components/div/Div";
-// import Icon from "../../common/components/asui-icon";
-// import Menu from "../../common/components/asui-menu";
+import Div from "../../components/div/Div";
+// import Icon from "../../components/asui-icon";
+// import Menu from "../../components/asui-menu";
 
 import "./assets/Playlist.css";
 
@@ -34,7 +34,7 @@ class PlaylistEntry extends React.Component {
         return <Div className="asp-playlist-entry" onClick={e => this.onInput(e)}>
             <Div className="id">{id+":"}</Div>
             <Div className="name">{this.props.data.name}</Div>
-            <Div className="length">{formattedLength}</Div>
+            <Div className="length">{formattedLength}{fade ? `[${fade}]` : ''}</Div>
         </Div>
     }
 
@@ -43,6 +43,10 @@ class PlaylistEntry extends React.Component {
             case 'click':
                 console.log(e);
                 this.props.onAction && this.props.onAction(e);
+                break;
+
+            default:
+                console.log("Unknown input: ", e.type);
                 break;
         }
     }

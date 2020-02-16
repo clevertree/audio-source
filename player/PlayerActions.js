@@ -1,6 +1,6 @@
 import PlayerRenderer from "./PlayerRenderer";
-import Song from "../common/Song";
-import Storage from "../common/Storage";
+import Song from "../song/Song";
+import Storage from "../song/Storage";
 
 
 class PlayerActions extends PlayerRenderer {

@@ -6,7 +6,7 @@ class InputButton extends React.Component {
         const {View, TouchableHighlight} = require('react-native');
         return React.createElement(View, this.props,
             React.createElement(TouchableHighlight, {
-                onPress: this.props.onPress
+                onPress: this.props.onAction
             }, this.getChildren())
         );
     }

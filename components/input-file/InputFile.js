@@ -1,10 +1,10 @@
 import React from "react";
-import Div from "../div/Div";
+// import Div from "../div/Div";
 
 import "./assets/InputFile.css";
 
-// import Icon from "../../common/components/asui-icon";
-// import Menu from "../../common/components/asui-menu";
+// import Icon from "../../components/asui-icon";
+// import Menu from "../../components/asui-menu";
 
 class InputFile extends React.Component {
     constructor(props={}) {

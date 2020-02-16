@@ -10,9 +10,10 @@ class Icon extends React.Component {
 
     render() {
         let className = "asui-icon";
-        if(this.props.className)
+        if(this.props.className) {
             className += ' ' + this.props.className;
-        return <img className={className} />;
+        }
+        return <div className={className}/>;
     }
 
 }

@@ -1,8 +1,8 @@
 import PlayerActions from "./PlayerActions";
 
-import Values        from "../common/Values";
-import Song          from "../common/Song";
-import Storage       from "../common/Storage";
+import Values        from "../song/Values";
+import Song          from "../song/Song";
+import Storage       from "../song/Storage";
 
 import "./assets/Player.css";
 /**
@@ -209,6 +209,10 @@ class Player extends PlayerActions {
                 this.setState({playing: false, paused: false});
                 // this.containerElm.classList.remove('playing');
                 break;
+
+            default:
+                console.log("Unknown song event: ", e.type);
+                break;
         }
     }
 
@@ -232,6 +236,10 @@ class Player extends PlayerActions {
                 var files = e.dataTransfer.files; // Array of all files
                 this.loadSongFromFileInput(files[0]);
                 console.log(files);
+                break;
+
+            default:
+                console.log("Unknown input event: ", e.type);
                 break;
         }
     }

@@ -52,7 +52,7 @@ class Library {
     }
     findInstrument(callback) {
         let foundItem;
-        const result = this.eachInstrument((config) => {
+        this.eachInstrument((config) => {
             if(foundItem || (foundItem = callback(config)))
                 return false;
         })
@@ -204,7 +204,7 @@ Library.loadDefaultLibrary = async function() {
     return await Library.loadFromURL(Library.defaultLibraryURL);
 };
 Library.cache = {};
-Library.defaultLibraryURL = new URL('../default.library.json', thisModule.src);
+Library.defaultLibraryURL = new URL('../default.library.json', document.location);
 
 
 

@@ -76,30 +76,30 @@ class Menu extends React.Component {
 
 
 
-    renderOptions(offset=0, length=20) {
-        let i=0;
-        const contentList = [];
-        this.eachContent(this.props.dropDownContent, (content) => {
-            if(i < offset);
-            else if(contentList.length < length)
-                contentList.push(content);
-            i++;
-        });
-        if(offset > length) {
-            this.eachContent(this.props.dropDownContent, (content) => {
-                if (contentList.length < length)
-                    contentList.push(content);
-            });
-        }
-        if(offset + length < i) {
-            const left = i - (offset + length);
-            contentList.push(Menu.createElement({}, `${left} items left`))
-        }
-        // while(contentList.length < length && offset > contentList.length)
-        //     contentList.push(Menu.createElement({}, '-'));
-        this.state.optionCount = i;
-        return contentList;
-    }
+    // renderOptions(offset=0, length=20) {
+    //     let i=0;
+    //     const contentList = [];
+    //     this.eachContent(this.props.dropDownContent, (content) => {
+    //         if(i < offset);
+    //         else if(contentList.length < length)
+    //             contentList.push(content);
+    //         i++;
+    //     });
+    //     if(offset > length) {
+    //         this.eachContent(this.props.dropDownContent, (content) => {
+    //             if (contentList.length < length)
+    //                 contentList.push(content);
+    //         });
+    //     }
+    //     if(offset + length < i) {
+    //         const left = i - (offset + length);
+    //         contentList.push(Menu.createElement({}, `${left} items left`))
+    //     }
+    //     // while(contentList.length < length && offset > contentList.length)
+    //     //     contentList.push(Menu.createElement({}, '-'));
+    //     this.state.optionCount = i;
+    //     return contentList;
+    // }
 
     toggleSubMenu() {
 
@@ -266,6 +266,10 @@ class Menu extends React.Component {
                         this.selectPreviousSubMenuItem();
                         break;
 
+                    default:
+                        console.log("Unknown key input: ", keyEvent);
+                        break;
+
                 }
                 break;
 
@@ -283,6 +287,10 @@ class Menu extends React.Component {
                 }
                 this.setState({offset});
 //                     console.log(e);
+                break;
+
+            default:
+                console.log("Unknown input event: ", e.type);
                 break;
         }
 

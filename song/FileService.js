@@ -140,7 +140,7 @@ class FileService {
         const filedata = new Uint8Array(archiveBuffer);
         fda.push(new DataStorage(rootdata  + "/" + fileName,false,filedata));
 
-        const workerURL = findThisScript()[0].basePath + 'assets/3rdparty/7zip/js/worker.7z.wrapper.js';
+        const workerURL =  'assets/3rdparty/7zip/js/worker.7z.wrapper.js';
 
         let worker7z = new Worker(workerURL);
 
@@ -174,7 +174,7 @@ class FileService {
                 worker7z.terminate();
                 worker7z = undefined;
                 INTERRUPT = false;
-                clearDataWrapper();
+                // clearDataWrapper();
             }
         });
 
@@ -196,9 +196,9 @@ async function requireWebTorrent() {
     if(!scriptElm) {
         window.exports = {};
         window.module = {exports: window.exports};
-        const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
+        // const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
         scriptElm = document.createElement('script');
-        scriptElm.src = scriptURL;
+        // scriptElm.src = scriptURL;
         scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
             scriptElm.onload = e => {
                 scriptElm.exports = window.module.exports;

@@ -1,5 +1,5 @@
 import React from "react";
-import Div from "../../common/components/div/Div";
+import Div from "../../components/div/Div";
 import PlaylistEntry from "./PlaylistEntry";
 
 import "./assets/Playlist.css";
