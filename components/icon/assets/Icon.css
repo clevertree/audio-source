@@ -4,6 +4,7 @@
 div.asui-icon {
     width: 32px;
     height: 32px;
+    background: center no-repeat;
 }
 
 
@@ -19,10 +20,12 @@ div.asui-icon.remove    { background-image: url('img/remove.icon.png'); }
 /*div.asui-icon.subtract  { background-image: url('./img/subtract.icon.png'); }*/
 div.asui-icon.close     { background-image: url('img/close.icon.png'); }
 
-div.asui-icon.file-load    { background-image: url('img/file-load.icon.png'); }
-div.asui-icon.file-save    { background-image: url('img/file-save.icon.png'); }
+div.asui-icon.file-load { background-image: url('img/file-load.icon.png'); }
+div.asui-icon.file-save { background-image: url('img/file-save.icon.png'); }
 
 div.asui-icon.config    { background-image: url('img/config.icon.png'); }
-div.asui-icon.menu    { background-image: url('img/menu.icon.png'); }
+div.asui-icon.menu      { background-image: url('img/menu.icon.png'); }
+
+div.asui-icon.source    { background-image: url('img/source.icon.png'); }
 
 

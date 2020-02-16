@@ -1,4 +1,5 @@
-
+import AudioSourceSynthesizer from "./synth/AudioSourceSynthesizer";
+import SPCPlayerSynthesizer from "./chip/SPCPlayerSynthesizer";
 
 class InstrumentLoader {
     constructor(song) {
@@ -37,7 +38,7 @@ class InstrumentLoader {
 
 InstrumentLoader.registeredInstrumentClasses = {};
 
-InstrumentLoader.addInstrumentClass('AudioSourceSynthesizer', require('./synth/AudioSourceSynthesizer'));
-InstrumentLoader.addInstrumentClass('SPCPlayerSynthesizer', require('./chip/SPCPlayerSynthesizer'));
+InstrumentLoader.addInstrumentClass('AudioSourceSynthesizer', AudioSourceSynthesizer);
+InstrumentLoader.addInstrumentClass('SPCPlayerSynthesizer', SPCPlayerSynthesizer);
 
 export default InstrumentLoader;

@@ -7,7 +7,7 @@ import InputButton from "../components/input-button/InputButton";
 import InputFile from "../components/input-file/InputFile";
 import InputRange from "../components/input-range/InputRange";
 import InputText from "../components/input-text/InputText";
-// import Storage from "../song/Storage";
+import Storage from "../song/Storage";
 
 import Header from "./header/Header";
 import Playlist from "./playlist/Playlist";
@@ -22,7 +22,7 @@ class PlayerRenderer extends React.Component {
         this.state = {
             status: "[No Song Loaded]",
             version: require('../package.json').version,
-            menuKey: null,
+            menuKey: 'root',
             fullscreen: false,
             portrait: false,
             showPanelSong: true,
@@ -124,10 +124,11 @@ class PlayerRenderer extends React.Component {
                         <Form className="volume" title="Volume">
                             <InputRange
                                 className="volume"
-                                onAction={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
                                 value={this.state.volume}
                                 min={1}
                                 max={100}
+                                ref={ref => this.fieldSongVolume = ref}
                                 title="Song Volume"
                             />
                         </Form>
@@ -135,7 +136,7 @@ class PlayerRenderer extends React.Component {
                         <Form className="position" title="Position">
                             <InputRange
                                 className="position"
-                                onAction={(e, pos) => this.setSongPosition(pos)}
+                                onChange={(e, pos) => this.setSongPosition(pos)}
                                 value={0}
                                 min={0}
                                 max={Math.ceil(this.state.songLength)}
@@ -147,7 +148,7 @@ class PlayerRenderer extends React.Component {
                         <Form className="timing" title="Timing">
                             <InputText
                                 className="timing"
-                                onAction={(e, timingString) => this.setSongPosition(timingString)}
+                                onChange={(e, timingString) => this.setSongPosition(timingString)}
                                 value="00:00:000"
                                 ref={ref => this.fieldSongTiming = ref}
                                 title="Song Timing"
@@ -157,7 +158,7 @@ class PlayerRenderer extends React.Component {
                         <Form className="name" title="Name">
                             <InputText
                                 className="name"
-                                onAction={(e, newSongName) => this.setSongName(e, newSongName)}
+                                // onChange={(e, newSongName) => this.setSongName(e, newSongName)}
                                 value={this.song ? this.song.getName() : "no song loaded"}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Name"
@@ -167,7 +168,7 @@ class PlayerRenderer extends React.Component {
                         <Form className="version" title="Version">
                             <InputText
                                 className="version"
-                                onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
+                                // onChange={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
                                 value={this.song ? this.song.getVersion() : "0.0.0"}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Version"
@@ -179,7 +180,9 @@ class PlayerRenderer extends React.Component {
                                 className="source"
                                 onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
                                 title="Song Source"
-                            >Source</InputButton>
+                            >
+                                <Icon className="source"/>
+                            </InputButton>
                         </Form>
                     </Panel>
                     <Panel className="playlist" title="Playlist">
@@ -197,12 +200,12 @@ class PlayerRenderer extends React.Component {
     renderMenu(menuKey = null) {
 //             console.log('renderMenu', menuKey);
         switch(menuKey) {
-            default:
+            case 'root':
                 const vertical = !this.state.portrait;
                 return (<>
-                    <Menu vertical={vertical} key="file"        subMenu="file"      >File</Menu>
-                    <Menu vertical={vertical} key="playlist"    subMenu="playlist"  >Playlist</Menu>
-                    <Menu vertical={vertical} key="view"        subMenu="view"      >View</Menu>
+                    <Menu vertical={vertical} key="file"        subMenu={e => this.renderMenu('file')}      >File</Menu>
+                    <Menu vertical={vertical} key="playlist"    subMenu={e => this.renderMenu('playlist')}  >Playlist</Menu>
+                    <Menu vertical={vertical} key="view"        subMenu={e => this.renderMenu('view')}      >View</Menu>
                 </>);
             // return [
             //     // Menu.cME('refresh',     'Refresh',  (e) => this.restart()),
@@ -213,7 +216,7 @@ class PlayerRenderer extends React.Component {
 
             case 'file':
                 return (<>
-                    <Menu key="memory"      subMenu="memory"      >Load from Memory</Menu>
+                    <Menu key="memory"      subMenu={e => this.renderMenu('file-memory')}      >Load from Memory</Menu>
                     <Menu key="file"        onAction={(e) => this.fieldSongFileLoad.click()} >Load from File</Menu>
                     <Menu key="url"         disabled>Load from URL</Menu>
                     <Menu key="library"     disabled>Load from Library</Menu>
@@ -241,158 +244,15 @@ class PlayerRenderer extends React.Component {
 
             case 'view':
                 return (<>
-                    <Menu key="fullscreen"          onAction={(e) => this.toggleFullscreen(e)}>${this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
-                    <Menu key="hide-panel-song"     onAction={(e) => this.togglePanelSong(e)} >${this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms</Menu>
-                    <Menu key="hide-panel-playlist" onAction={(e) => this.togglePanelPlaylist(e)} >${this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist</Menu>
+                    <Menu key="fullscreen"          onAction={(e) => this.toggleFullscreen(e)}>{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
+                    <Menu key="hide-panel-song"     onAction={(e) => this.togglePanelSong(e)} >{this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms</Menu>
+                    <Menu key="hide-panel-playlist" onAction={(e) => this.togglePanelPlaylist(e)} >{this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist</Menu>
                 </>);
+
+            default:
+                throw new Error("Unknown menu key: " + menuKey);
         }
     }
-    //
-    // render2() {
-    //     return [
-    //         // require('react').createElement(require('react-native-webview').WebView, {
-    //         //     source: {uri: Platform.OS ==='android' ?'file:///android_asset/html/index.html' :'./external/html/index.html'}, key: 'browser', width: 200, height: 200
-    //         // }),
-    //         // isBrowser ? [
-    //         //     this.createStyleSheetLink('../player/assets/audio-source-player.css', thisModule),
-    //         //     this.createStyleSheetLink('../common/assets/audio-source-common.css', thisModule),
-    //         // ] : null,
-    //         this.containerElm = Div.cE('asp-container', [
-    //             Header.cE({
-    //                 // portrait: !!this.state.portrait,
-    //                 key: 'asp-title-container',
-    //                 menuContent: () => this.renderMenu(this.state.menuKey),
-    //                 // onMenuPress: (e) => this.toggleMenu()
-    //             }),
-    //
-    //             Div.cE('asp-forms-container', [
-    //                 ASPPanel.cE('song', [
-    //                     Div.cE('title', 'Song'),
-    //                     ASPForm.cE('playback', [
-    //                         Div.cE('title', 'Playback'),
-    //                         InputButton.cIB('song-play',
-    //                             Icon.createIcon('play'),
-    //                             e => this.playlistPlay(e),
-    //                             "Play Song"),
-    //                         InputButton.cIB('song-pause',
-    //                             Icon.createIcon('pause'),
-    //                             e => this.playlistPause(e),
-    //                             "Pause Song"),
-    //                         InputButton.cIB('song-stop',
-    //                             Icon.createIcon('stop'),
-    //                             e => this.playlistStop(e),
-    //                             "Stop Song"),
-    //                         InputButton.cIB('song-next',
-    //                             Icon.createIcon('next'),
-    //                             e => this.playlistNext(e),
-    //                             "Next Song")
-    //                     ]),
-    //
-    //                     ASPForm.cE('file', [
-    //                         Div.cE('title', 'File'),
-    //                         InputFile.createInputFile('file-load',
-    //                             e => this.loadSongFromFileInput(),
-    //                             Icon.createIcon('file-load'),
-    //                             `.json,.mid,.midi`,
-    //                             "Load Song from File"
-    //                         ),
-    //                         InputButton.cE('file-save',
-    //                             Icon.createIcon('file-save'),
-    //                             e => this.saveSongToFile(),
-    //                             "Save Song to File"
-    //                         ),
-    //                     ]),
-    //
-    //                     ASPForm.cE('volume', [
-    //                         Div.cE('title', 'Volume'),
-    //                         InputRange.createInputRange('volume',
-    //                             (e, newVolume) => this.setVolume(newVolume / 100), 1, 100, this.state.volume * 100, 'Song Volume')
-    //                     ]),
-    //
-    //                     ASPForm.cE('position', [
-    //                         Div.cE('title', 'Position'),
-    //                         InputRange.createInputRange({
-    //                                 key: 'position',
-    //                                 ref: ref => this.fieldSongPosition = ref,
-    //                             },
-    //                             (e, pos) => this.setSongPosition(pos),
-    //                             0,
-    //                             Math.ceil(this.state.songLength),
-    //                             0,
-    //                             'Song Position',
-    //                         )
-    //                     ]),
-    //
-    //                     ASPForm.cE('timing', [
-    //                         Div.cE('title', 'Timing'),
-    //                         InputText.createInputText({
-    //                                 key:'timing',
-    //                                 ref: ref => this.fieldSongTiming = ref,
-    //                             },
-    //                             (e, pos) => this.setSongPosition(pos),
-    //                             '00:00:000',
-    //                             'Song Timing',
-    //                         )
-    //                     ]),
-    //
-    //                     ASPForm.cE('name', [
-    //                         Div.cE('title', 'Name'),
-    //                         InputText.createInputText('name',
-    //                             (e, newSongName) => this.setSongName(e, newSongName),
-    //                             this.song ? this.song.getName() : "no song loaded",
-    //                             "Song Name"
-    //                         )
-    //                     ]),
-    //
-    //                     ASPForm.cE('version', [
-    //                         Div.cE('title', 'Version'),
-    //                         InputText.createInputText('version',
-    //                             (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
-    //                             this.song ? this.song.getVersion() : "0.0.0",
-    //                             "Song Version",
-    //                         )
-    //                     ]),
-    //
-    //                     ASPForm.cE('source', [
-    //                         Div.cE('title', 'Source'),
-    //                         InputButton.cIB('edit',
-    //                             "Edit",
-    //                             (e) => this.openSongSource(e),
-    //                             "Open Song Source",
-    //                             {disabled: true}
-    //                         )
-    //                     ])
-    //                 ]),
-    //
-    //                 ASPPanel.cE('playlist', [
-    //                     Div.cE('title', 'Playlist'),
-    //                     Playlist.cE({
-    //                         key: 'playlist',
-    //                         player: this,
-    //                         // playlist: this.state.playlist,
-    //                         ref:ref=>this.playlist=ref
-    //                     })
-    //                 ]),
-    //             ]),
-    //
-    //             Div.cE('asp-status-container', [
-    //                 Div.cE({key: 'asp-status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
-    //                 Div.cE({key: 'asp-version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
-    //             ]),
-    //
-    //         ])
-    //
-    //     ];
-    //
-    //     // this.containerElm.classList.toggle('fullscreen', this.classList.contains('fullscreen'));
-    //     //
-    //     // this.fieldSongName.value = this.song.getName();
-    //     // this.fieldSongVersion.value = this.song.getVersion();
-    //     //
-    //     // this.fieldSongVolume.value = this.song.getVolumeValue();
-    //
-    // }
-    //
 
 }
 

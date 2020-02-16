@@ -3,7 +3,9 @@ import React from "react";
 class InputText extends React.Component {
     constructor(props = {}) {
         super(props);
-        this.state.value = props.initialValue;
+        this.state = {
+            value: props.value
+        }
     }
 
     render() {

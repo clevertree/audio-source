@@ -6,7 +6,7 @@ import Storage from "../song/Storage";
 class PlayerActions extends PlayerRenderer {
     constructor(props={}) {
         super(props);
-        this.onSongEvent = (e) => this.onSongEvent(e);
+        this.onSongEventCallback = (e) => this.onSongEvent(e);
 
         // this.activeSong = null;
         // this.nextPlaylistSong = null;
@@ -17,6 +17,8 @@ class PlayerActions extends PlayerRenderer {
     //     return findThisScript()[0].basePath + 'instrument/audio-source-synthesizer.js';
     // }
 
+
+
     /** Song rendering **/
 
     async setCurrentSong(song) {
@@ -25,12 +27,12 @@ class PlayerActions extends PlayerRenderer {
             if(this.song.isPlaying) {
                 this.song.stopPlayback();
             }
-            this.song.removeEventListener('*', this.onSongEvent);
+            this.song.removeEventListener('*', this.onSongEventCallback);
             // this.song.removeDispatchElement(this);
             // TODO: unload song?
         }
         this.song = song;
-        this.song.addEventListener('*', this.onSongEvent);
+        this.song.addEventListener('*', this.onSongEventCallback);
         this.state.songLength = song.getSongLengthInSeconds();
         // this.song.setVolume(this.state.volume);
         // this.song.addDispatchElement(this);
@@ -118,7 +120,7 @@ class PlayerActions extends PlayerRenderer {
         if(gain.gain.value !== volume) {
             gain.gain.value = volume;
         }
-        this.state.volume = volume;
+        // this.state.volume = volume;
         this.fieldSongVolume.value = volume * 100;
     }
 
@@ -643,6 +645,8 @@ class PlayerActions extends PlayerRenderer {
         // const wasPlaying = !!this.song.playback;
         // if (wasPlaying)
         //     this.song.stopPlayback();
+        if(!this.song)
+            throw new Error("No song loaded");
         const song = this.song;
         if (playbackPosition === null) {
             playbackPosition = this.fieldSongPosition.value; // this.values.parsePlaybackPosition(this.fieldSongPosition.value);

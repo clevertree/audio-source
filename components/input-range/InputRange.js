@@ -14,14 +14,16 @@ class InputRange extends React.Component {
         this.setState({value: newValue});
     }
 
-    async onChange(e) {
-        this.props.onChange(e, this.state.value);
+    onChange(e) {
+        this.props.onChange(e, e.target.value);
     }
 
     render() {
+        let className = "asui-input-range" + (this.props.className ? ' ' + this.props.className : '');
+
         return (
             <input
-                className="asui-input-range"
+                className={className}
                 type="range"
                 value={this.state.value}
                 onChange={e => this.onChange(e)}
