@@ -1,0 +1,43 @@
+
+/** Tracker **/
+
+div.asc-tracker-container {
+    flex: 1 1 auto;
+}
+:host(.fullscreen) asui-div.asc-container {
+    height: 100%;
+}
+
+
+
+
+/** Tracker **/
+div.asc-tracker {
+    position: relative;
+    /* height: 100%; */
+    /*overflow: auto;*/
+    display: block;
+}
+
+
+:host(:not(.fullscreen)) div.asc-tracker {
+    /* max-height: 700px; */
+    /* margin-bottom: auto; */
+}
+:host(.fullscreen) div.asc-tracker {
+    /*height: 700px;*/
+}
+
+/** Tracker Header **/
+
+
+div.asc-tracker > div.header {
+    min-width: 126px;
+    /*background-color: #333;*/
+    /*color: #FFF;*/
+}
+div.asc-tracker .tracker-header-pause {
+    text-align: center;
+    min-width: 44px;
+}
+

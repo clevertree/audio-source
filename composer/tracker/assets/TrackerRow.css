@@ -1,0 +1,43 @@
+
+/** Tracker Row **/
+
+div.asc-tracker > div.container {
+    overflow-y: auto;
+    max-height: 800px;
+}
+
+div.asc-tracker-row {
+    display: flex;
+    cursor: pointer;
+    background-color: #C0C0C0;
+    height: 1.45em;
+    position: relative;
+    border: 1px outset #FFF;
+    padding: 0px;
+}
+
+div.asc-tracker-row.beat-end {
+    border-top: 1px solid #888;
+}
+div.asc-tracker-row.measure-end {
+    border-top: 1px solid #000;
+}
+div.asc-tracker-row:nth-child(odd) {
+    background-color: #D0D0D0;
+}
+
+div.asc-tracker-row.cursor,
+div.asc-tracker-row[selected] {
+    background-color: #ffeedd;
+    position: relative;
+    box-shadow: #ffeedd 0px 0px 9px;
+    z-index: 2;
+}
+div.asc-tracker-row[position],
+div.asc-tracker-row[playing] {
+    background-color: #609060;
+    position: relative;
+    box-shadow: #AFA 0px 0px 4px;
+    z-index: 1;
+}
+

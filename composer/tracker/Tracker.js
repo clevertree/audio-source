@@ -6,6 +6,8 @@ import {TrackerRow} from "./TrackerRow";
 import Div from "../../components/div/Div";
 import SongInstruction from "../../song/SongInstruction";
 
+import "./assets/Tracker.css";
+
 class Tracker extends React.Component {
     constructor(props) {
         super(props);

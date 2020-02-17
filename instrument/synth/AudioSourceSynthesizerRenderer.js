@@ -19,9 +19,9 @@ class AudioSourceSynthesizerRenderer extends React.Component {
             default:
                 const vertical = !this.state.portrait;
                 return (<>
-                    <Menu vertical={vertical} key="file"        subMenu={e => this.renderMenu('file')}      >File</Menu>
-                    <Menu vertical={vertical} key="playlist"    subMenu={e => this.renderMenu('playlist')}  >Playlist</Menu>
-                    <Menu vertical={vertical} key="view"        subMenu={e => this.renderMenu('view')}      >View</Menu>
+                    <Menu vertical={vertical} key="file"        options={e => this.renderMenu('file')}      >File</Menu>
+                    <Menu vertical={vertical} key="playlist"    options={e => this.renderMenu('playlist')}  >Playlist</Menu>
+                    <Menu vertical={vertical} key="view"        options={e => this.renderMenu('view')}      >View</Menu>
                 </>);
 
             case 'preset':
@@ -99,7 +99,7 @@ class AudioSourceSynthesizerRenderer extends React.Component {
                     onChange={(e, presetURL) => this.setPreset(presetURL)}
                 />
                 <Menu
-                    subMenu={e => this.renderMenu('view')}
+                    options={e => this.renderMenu('view')}
                 >
                     <Icon className="config"/>
                 </Menu>

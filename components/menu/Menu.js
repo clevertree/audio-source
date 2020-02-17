@@ -16,18 +16,19 @@ class Menu extends React.Component {
 
 
     renderDropdownContent() {
-        let subMenuChildren = this.props.subMenu;
+        let subMenuChildren = this.props.options;
         if(typeof subMenuChildren === "function")
             subMenuChildren = subMenuChildren(this);
         let className = 'dropdown';
         if(this.props.vertical)
             className += ' vertical';
-        return <div className={className}>{subMenuChildren}</div>;
+        console.log('subMenuChildren', subMenuChildren);
+        return <div className={className} children={subMenuChildren} />;
     }
 
     render() {
-        let arrow = false;
-        if(this.props.subMenu && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
+        let arrow = this.props.arrow;
+        if(this.props.options && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
             arrow = true;
 
         return (

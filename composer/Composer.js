@@ -34,8 +34,7 @@ class Composer extends ComposerActions {
         //     autoSaveTimeout: 4000,
         // };
         // this.trackerElm = new AudioSourceComposerTracker(this);
-        this.library = Library.loadDefaultLibrary(); // TODO: get default library url from composer?
-
+        this.library = new Library(require('../default.library')); // TODO: get default library url from composer?
 
         this.song = new Song();
         this.song.loadSongData({});

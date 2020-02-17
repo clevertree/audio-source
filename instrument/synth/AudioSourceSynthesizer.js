@@ -571,13 +571,8 @@ class AudioSourceSynthesizer {
     }
 
 
-    appendCSS() {
-        // const PATH = '../instrument/audio-source-synthesizer.css';
-        // AudioSourceLoader.appendCSS(PATH, this.getRootNode());
-    }
 
-
-    static render(song, instrumentID) {
+    static getRenderer(song, instrumentID) {
         return <AudioSourceSynthesizerRenderer
             song={song}
             instrumentID={instrumentID}

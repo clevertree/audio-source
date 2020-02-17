@@ -10,7 +10,7 @@ class Panel extends React.Component {
 
         return (
             <div className={className}>
-                <div className="title">{this.props.title}</div>
+                {this.props.title ? <div className="title">{this.props.title}</div> : null}
                 {this.props.children}
             </div>
         )

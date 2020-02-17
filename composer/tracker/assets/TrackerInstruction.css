@@ -1,0 +1,46 @@
+
+/** Tracker Instruction **/
+
+asct-instruction-add,
+asct-instruction {
+  display: flex;
+  overflow: hidden;
+  padding: 1px;
+  margin: 0;
+  color: #666;
+  border: solid 1px #666;
+  border-radius: 4px;
+  background-color: #CCC;
+  position: relative;
+}
+
+asct-instruction-add {
+  /*transition: opacity 0.25s;*/
+  padding: 1px 4px;
+}
+
+asct-instruction:last-child {
+  margin-right: 0;
+}
+
+
+asct-instruction-add, asct-instruction[selected] {
+  background-color: white;
+  font-weight: bold;
+  max-width: 1000px;
+  box-shadow: #6b6b6b 0 0px 3px;
+  z-index: 2;
+}
+
+asct-instruction-add,
+asct-instruction[cursor] {
+  border-color: red;
+  box-shadow: darkred 0 0 12px;
+}
+
+
+
+asct-instruction.playing {
+  font-weight: bold;
+  background-color: #80d55c;
+}

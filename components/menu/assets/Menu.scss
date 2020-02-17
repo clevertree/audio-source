@@ -12,7 +12,8 @@ div.asui-menu {
     cursor: pointer;
     display: inline-block;
     white-space: nowrap;
-
+    min-width: 1em;
+    min-height: 1em;
 }
 
 /** Hover **/
@@ -46,8 +47,9 @@ div.asui-menu > div.title.disabled {
 
 div.asui-menu > div.arrow {
     position: absolute;
-    right: 4px;
-    top: 2px;
+    right: -13px;
+    top: 0px;
+    font-size: small;
 }
 
 

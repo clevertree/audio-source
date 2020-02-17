@@ -21,24 +21,37 @@ class InstrumentLoader {
 
     static getInstrumentClass(className) {
         const classes = InstrumentLoader.registeredInstrumentClasses;
-        if(!classes[className])
-            throw new Error(`Class ${className} already registered`);
-        return classes[className];
+        for(let i=0; i<classes.length; i++) {
+            const classInfo = classes[i];
+            if(classInfo.name === className)
+                return classInfo
+        }
+        throw new Error(`Instrument class ${className} was not found`);
     }
 
 
-    static addInstrumentClass(className, classObject) {
+    static addInstrumentClass(classObject, className=null, classConfig={}) {
         const classes = InstrumentLoader.registeredInstrumentClasses;
-        if(classes[className])
-            throw new Error(`Class ${className} already registered`);
-        classes[className] = classObject;
+        className = className || classObject.name;
+        classes.push([classObject, className, classConfig])
     }
 
+    static eachInstrumentClass(callback) {
+        const classes = InstrumentLoader.registeredInstrumentClasses;
+        const results = [];
+        for(let i=0; i<classes.length; i++) {
+            const classInfo = classes[i];
+            const result = callback(classInfo[0], classInfo[1], classInfo[2]);
+            if(result !== null) results.push(result);
+            if(result === false) break;
+        }
+        return results;
+    }
 }
 
-InstrumentLoader.registeredInstrumentClasses = {};
+InstrumentLoader.registeredInstrumentClasses = [];
 
-InstrumentLoader.addInstrumentClass('AudioSourceSynthesizer', AudioSourceSynthesizer);
-InstrumentLoader.addInstrumentClass('SPCPlayerSynthesizer', SPCPlayerSynthesizer);
+InstrumentLoader.addInstrumentClass(AudioSourceSynthesizer, 'Audio Source Synthesizer');
+InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
 
 export default InstrumentLoader;

@@ -1,11 +1,15 @@
 import Div from "../div/Div";
 import Menu from "../menu/Menu";
+import React from "react";
 
-class InputSelect extends Div {
-    constructor(props) {
+import "./assets/InputSelect.scss";
+
+class InputSelect extends React.Component {
+    constructor(props = {}) {
         super(props);
-        // this.setValue(defaultValue, valueTitle);
-        // this.actionCallback = actionCallback;
+        this.state = {
+            value: props.value
+        }
     }
 
     get value() { return this.state.value; }
@@ -38,34 +42,22 @@ class InputSelect extends Div {
         await this.menu.open();
     }
 
-    getOption(value, title=null, props={}) {
-        if(value === this.state.value && title !== null && this.state.title === null)
-            this.state.title = title;
-        title = title || value;
-        return Menu.createElement(props, title, null, async e => {
-            this.setValue(value, title);
-            await this.onChange(e);
-        });
-    }
-
-    getOptGroup(title, content, props={}) {
-        return Menu.createElement(props, title, content);
-    }
-
 
     /** @override **/
     render() {
-        return this.menu = Menu.createElement({vertical: true}, this.state.title, this.getChildren());
+        return (
+            <Div className="asui-input-select">
+                <Menu
+                    arrow={true}
+                    vertical={true}
+                    options={this.props.options}
+                    title={this.props.title}
+                    ref={ref => this.menu = ref}
+                    >{this.state.value}</Menu>
+            </Div>
+        );
     }
 
-    static createInputSelect(props, optionContent, actionCallback, defaultValue = null, valueTitle=null) {
-        return this.createElement(props, null, {
-            optionContent: () => optionContent(this),            // TODO: , () => optionContent(this)
-            actionCallback,
-            defaultValue,
-            valueTitle,
-        });
-    }
 }
 
 

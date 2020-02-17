@@ -28,7 +28,7 @@ class Menu extends React.Component {
     }
 
     getSubMenuChildren() {
-        let subMenuChildren = this.props.subMenuChildren;
+        let subMenuChildren = this.props.options;
         if(typeof subMenuChildren === "function")
             subMenuChildren = subMenuChildren(this);
         return subMenuChildren;
@@ -151,8 +151,8 @@ class Menu extends React.Component {
 
     doMenuAction(e) {
         console.log("Doing menu action: ", this);
-        if (this.props.action) {
-            this.props.action(e, this);
+        if (this.props.onAction) {
+            this.props.onAction(e, this);
             this.closeAllMenus();
         // } else if(this.props.dropDownContent) {
         //     this.toggleSubMenu(e);
