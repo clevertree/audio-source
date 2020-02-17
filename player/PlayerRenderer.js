@@ -217,7 +217,7 @@ class PlayerRenderer extends React.Component {
             case 'file':
                 return (<>
                     <Menu key="memory"      options={e => this.renderMenu('file-memory')}      >Load from Memory</Menu>
-                    <Menu key="file"        onAction={(e) => this.fieldSongFileLoad.click()} >Load from File</Menu>
+                    <Menu key="file"        onAction={(e) => this.openSongFromFileDialog(e)} >Load from File</Menu>
                     <Menu key="url"         disabled>Load from URL</Menu>
                     <Menu key="library"     disabled>Load from Library</Menu>
                 </>);

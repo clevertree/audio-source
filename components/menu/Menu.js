@@ -55,6 +55,8 @@ class Menu extends React.Component {
         let className = 'asui-menu';
         if(this.state.stick)
             className += ' stick';
+        if(this.props.className)
+            className += ' ' + this.props.className;
 
         return (
             <div

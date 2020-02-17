@@ -123,7 +123,7 @@ class Composer extends ComposerActions {
             // if (typeof state.trackerOctave !== "undefined") await this.fieldTrackerOctave.setValue(state.trackerOctave);
 
             // if (typeof state.groupName !== "undefined") await this.trackerChangeGroup(state.groupName);
-            // if (typeof state.currentRowSegmentID !== "undefined") await this.trackerChangeSegment(state.currentRowSegmentID);
+            // if (typeof state.trackerRowSegmentID !== "undefined") await this.trackerChangeSegment(state.trackerRowSegmentID);
 
             // if (typeof state.selectedIndices !== "undefined") this.selectIndicies(state.selectedIndices);
             // this.trackerElm.render(); // TODO: too many renders

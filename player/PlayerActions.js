@@ -1,6 +1,7 @@
 import PlayerRenderer from "./PlayerRenderer";
 import Song from "../song/Song";
 import Storage from "../song/Storage";
+import InputFile from "../components/input-file/InputFile";
 
 
 class PlayerActions extends PlayerRenderer {
@@ -352,6 +353,10 @@ class PlayerActions extends PlayerRenderer {
         }
     }
 
+    async openSongFromFileDialog(e, accept=null) {
+        const file = await InputFile.openFileDialog(accept);
+        this.addInputFileToPlaylist(file);
+    }
 
     addInputFileToPlaylist(file) {
         const entryData = {

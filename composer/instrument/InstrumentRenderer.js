@@ -1,24 +1,39 @@
 import React from "react";
 import Div from "../../components/div/Div";
-// import Icon from "../../components/icon/Icon";
+import Icon from "../../components/icon/Icon";
 import Menu from "../../components/menu/Menu";
+import InputButton from "../../components/input-button/InputButton";
+import InputFile from "../../components/input-file/InputFile";
+import InputRange from "../../components/input-range/InputRange";
+import InputText from "../../components/input-text/InputText";
+import InputSelect from "../../components/input-select/InputSelect";
 // import Library from "../../song/Library";
-// import InputButton from "../../components/input-button/InputButton";
-// import InputText from "../../components/input-text/InputText";
 
 class InstrumentRenderer extends React.Component {
 
+    getComponents() {
+        return {
+            Div,
+            Menu,
+            Icon,
+            InputButton,
+            InputFile,
+            InputRange,
+            InputText,
+            InputSelect
+        }
+    }
 
     render() {
         const song = this.props.song;
-        const instrumentID = this.props.id;
+        const instrumentID = this.props.instrumentID;
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
 
         if (song.hasInstrument(instrumentID)) {
 
             try {
-                const instrument = song.getLoadedInstrument(instrumentID);
+                const instrument = song.loadInstrument(instrumentID);
                 // const instrumentConfig = song.getInstrumentConfig(instrumentID);
 
                 if (!instrument) {
@@ -27,6 +42,7 @@ class InstrumentRenderer extends React.Component {
                     const renderer = instrument.constructor.getRenderer(
                         song,
                         instrumentID,
+                        this.getComponents()
                     );
                     return renderer;
 

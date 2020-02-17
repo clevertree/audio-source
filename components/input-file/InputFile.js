@@ -15,18 +15,12 @@ class InputFile extends React.Component {
         // setTimeout(() => this.openFileDialog(), 2000)
     }
 
-    openFileDialog(e) {
+    async openFileDialog(e, accept=null) {
         if(typeof this.props.onFile !== "function")
-            throw new Error("Invalid callback for property onFile")
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', this.props.accept);
-        input.addEventListener('change', () => {
-            const file = input.files[0];
-            if(file)
-                this.props.onFile(e, file);
-        });
-        input.click();
+            throw new Error("Invalid callback for property onFile");
+        const file = await InputFile.openFileDialog(this.props.accept);
+        if(file)
+            this.props.onFile(e, file);
     }
 
 
@@ -41,6 +35,24 @@ class InputFile extends React.Component {
             </button>
         )
     }
+
+
+    static async openFileDialog(accept) {
+        return await new Promise((resolve, reject) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', accept);
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if(file)
+                    resolve(file);
+                else
+                    reject();
+            });
+            input.click();
+        })
+    }
+
 
     // Set default props
     static defaultProps = {

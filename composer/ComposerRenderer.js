@@ -31,23 +31,22 @@ class ComposerRenderer extends React.Component {
             menuKey: 'root',
             fullscreen: false,
             portrait: false,
+
+            songLength: 0,
+            songLengthInTicks: 0,
+            playing: false,
+            paused: false,
+
             showPanelSong: true,
             showPanelPlaylist: true,
-        };
-        // this.state.volume = Song.DEFAULT_VOLUME;
-        this.state.songLength = 0;
-        this.state.playing = false;
-        this.state.paused = false;
-        this.state.tracker = {
-            currentGroup: 'root',
-            currentRowSegmentID: 0,
-            selectedIndices: [],
-            cursorIndex: 0,
-            cursorListOffset: 0,
-            rowSegmentCount: 10,
-            quantizationInTicks: 96*4,
-            segmentLengthInTicks: 96*4*16,
-            filterByInstrumentID: null
+            trackerGroup: 'root',
+            trackerRowSegmentID: 0,
+            trackerSelectedIndices: [],
+            trackerCursorIndex: 0,
+            trackerSegmentCount: 10,
+            trackerQuantizationInTicks: 96*4,
+            trackerSegmentLengthInTicks: 96*4*16,
+            trackerFilterByInstrumentID: null
         };
 
         this.shadowDOM = null;
@@ -88,13 +87,6 @@ class ComposerRenderer extends React.Component {
         }
     }
 
-    get trackerSegmentLengthInTicks() {
-        return this.state.trackerSegmentLength || this.song.getTimeDivision() * 16;
-    }
-
-    get trackerRowLengthInTicks() {
-        return this.state.trackerRowLength || this.song.getTimeDivision();
-    }
 
     renderMenu(menuKey=null, menuParam=null) {
         let recentBatchCommand, instrumentID, selectedIndices;
@@ -124,7 +116,7 @@ class ComposerRenderer extends React.Component {
             case 'file-open':
                 return <>
                     <Menu options={e => this.renderMenu('file-open-memory')}    >Import song</Menu>
-                    <Menu onAction={e => this.openSongFromFile(e)}                        >from File</Menu>
+                    <Menu onAction={e => this.openSongFromFileDialog(e)}                        >from File</Menu>
                     <Menu onAction={e => this.loadSongFromURL(e)}                         >from URL</Menu>
                 </>;
 
@@ -137,7 +129,7 @@ class ComposerRenderer extends React.Component {
 
             case 'file-import':
                     return <>
-                    <Menu onAction={e => this.openSongFromFile(e, '.mid,.midi')}          >from MIDI File</Menu>
+                    <Menu onAction={e => this.openSongFromFileDialog(e, '.mid,.midi')}          >from MIDI File</Menu>
                     </>;
                     // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                     // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
@@ -182,7 +174,7 @@ class ComposerRenderer extends React.Component {
                 return <>
                     <Menu options={e => this.renderMenu('edit-insert')}    >Insert Command</Menu>
 
-                    {this.state.tracker.selectedIndices.length === 0 ? null :
+                    {this.state.trackerSelectedIndices.length === 0 ? null :
                         <Menu options={e => this.renderMenu('edit-set')} hasBreak   >Set Command</Menu>}
 
                     {/** Select Instructions **/}
@@ -208,7 +200,7 @@ class ComposerRenderer extends React.Component {
                     {this.values.getAllSongGroups((groupName) =>
                         <Menu
                             options={e => this.renderMenu('edit-insert-frequency')}
-                            disabled={groupName === this.state.tracker.currentGroup}
+                            disabled={groupName === this.state.trackerGroup}
                             onAction={e => this.instructionInsert('@' + groupName, false)}
                             >{groupName}</Menu>)}
                     <Menu
@@ -429,8 +421,9 @@ class ComposerRenderer extends React.Component {
                         <Form className="file" title="File">
                             <InputFile
                                 className="file-load"
-                                onFile={(e, file) => this.addInputFileToPlaylist(file)}
+                                onFile={(e, file) => this.loadSongFromFileInput(file)}
                                 accept=".json,.mid,.midi"
+                                ref={ref => this.fieldSongFileLoad = ref}
                                 title="Load Song from File"
                             >
                                 <Icon className="file-load"/>
@@ -527,8 +520,8 @@ class ComposerRenderer extends React.Component {
                     >
                         <Form className="instruction-command" title="Command">
                             <InputSelect
-                                className="command"
-                                value="-"
+                                // className="command"
+                                value="C4"
 
                                 // selectElm.value ?
                                 //     selectElm.getOptGroup('Current Octave', () => {
@@ -562,25 +555,29 @@ class ComposerRenderer extends React.Component {
 
                             >
                             </InputSelect>
+                        </Form>
+                        <Form className="instruction-insert" title="Add">
                             <InputButton
-                                className="instruction-insert"
+                                // className="instruction-insert"
                                 onAction={e => this.instructionInsert()}
                                 title="Insert Instruction"
                             >
                                 <Icon className="insert"/>
                             </InputButton>
+                        </Form>
+                        <Form className="instruction-delete" title="Rem">
                             <InputButton
-                                className="instruction-delete"
+                                // className="instruction-delete"
                                 onAction={e => this.instructionDelete(e)}
                                 title="Delete Instruction"
                             >
-                                <Icon className="delete"/>
+                                <Icon className="remove"/>
                             </InputButton>
                         </Form>
 
                         <Form className="instruction-instrument" title="Instrument">
                             <InputSelect
-                                className="instrument-instrument"
+                                // className="instrument-instrument"
                                 value="Select"
                                 options={() =>
                                     this.values.getSongInstruments((id, name) =>
@@ -606,6 +603,7 @@ class ComposerRenderer extends React.Component {
 
                         <Form className="instruction-duration" title="Duration">
                             <InputSelect
+                                value="1B"
                                 // className="instruction-duration"
                                 options={() =>
                                     this.values.getNoteDurations((duration, title) =>
@@ -620,6 +618,7 @@ class ComposerRenderer extends React.Component {
                     <Panel className="tracker" title="Tracker">
                         <Form className="tracker-row-length" title="Row &#120491;">
                             <InputSelect
+                                value="1B"
                                 // className="tracker-row-length"
                                 options={() =>
                                     this.values.getNoteDurations((duration, title) =>
@@ -632,6 +631,7 @@ class ComposerRenderer extends React.Component {
 
                         <Form className="tracker-segment-length" title="Seg &#120491;">
                             <InputSelect
+                                value="16B"
                                 // className="tracker-segment-length"
                                 options={() =>
                                     this.values.getSegmentLengths((length, title) =>
@@ -644,6 +644,7 @@ class ComposerRenderer extends React.Component {
 
                         <Form className="tracker-instrument" title="Instrument">
                             <InputSelect
+                                value="Any"
                                 // className="tracker-instrument"
                                 options={() =>
                                     this.values.getSongInstruments((instrumentID, name) =>
@@ -665,6 +666,7 @@ class ComposerRenderer extends React.Component {
 
                         <Form className="tracker-octave" title="Octave">
                             <InputSelect
+                                value="4"
                                 // className="tracker-selection"
                                 options={() =>
                                     this.values.getNoteOctaves(octave =>
@@ -679,7 +681,7 @@ class ComposerRenderer extends React.Component {
                     <Panel className="tracker-groups" title="Groups">
                         {Object.keys(this.song.data.instructions).map((groupName, i) =>
                             <InputButton
-                                selected={this.state.tracker.currentGroup === groupName}
+                                selected={this.state.trackerGroup === groupName}
                                 onAction={e => this.trackerChangeGroup(groupName)}
                             >Group {groupName}</InputButton>)
                         }
@@ -690,10 +692,8 @@ class ComposerRenderer extends React.Component {
 
                     <Panel className="tracker-row-segments" title="Tracker Segments">
                         {(() => {
-
-
-                            const segmentLengthInTicks = this.state.tracker.segmentLengthInTicks || (this.song.getTimeDivision() * 16);
-                            let songLengthInTicks = this.song.getSongLengthInTicks();
+                            const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (this.state.trackerQuantizationInTicks * 16);
+                            let songLengthInTicks = this.state.songLengthInTicks;
                             let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
                             if (rowSegmentCount > 256)
                             rowSegmentCount = 256;
@@ -701,7 +701,7 @@ class ComposerRenderer extends React.Component {
                             const buttons = [];
 
                             // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-                            const currentRowSegmentID = this.state.tracker.currentRowSegmentID;
+                            const currentRowSegmentID = this.state.trackerRowSegmentID;
                             if (rowSegmentCount < currentRowSegmentID + 1)
                             rowSegmentCount = currentRowSegmentID + 1;
                             for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)
@@ -752,7 +752,7 @@ class ComposerRenderer extends React.Component {
         this.fieldSongVolume.value = this.song.getVolumeValue();
 
         // let timeDivision = this.rowLengthInTicks || this.song.getSongTimeDivision();
-        const cursorInstruction = this.song.instructionFind(this.state.tracker.currentGroup, this.state.tracker.selectedIndices[0]);
+        const cursorInstruction = this.song.instructionFind(this.state.trackerGroup, this.state.trackerSelectedIndices[0]);
 
 
         if (cursorInstruction) {
@@ -762,7 +762,7 @@ class ComposerRenderer extends React.Component {
             this.fieldInstructionDuration.value = cursorInstruction.duration;
         }
 
-        this.fieldInstructionDelete.disabled = this.state.tracker.selectedIndices.length === 0;
+        this.fieldInstructionDelete.disabled = this.state.trackerSelectedIndices.length === 0;
         if (!this.fieldTrackerRowLength.value)
             this.fieldTrackerRowLength.setValue(this.song.getTimeDivision());
         // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();

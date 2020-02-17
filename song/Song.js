@@ -931,6 +931,7 @@ class Song {
         }
     }
 
+    /** @deprecated **/
     getLoadedInstrument(instrumentID) {
         if(typeof this.instruments[instrumentID] === "undefined" || this.instruments[instrumentID] instanceof Promise)
             return null;

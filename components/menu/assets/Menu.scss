@@ -9,8 +9,8 @@ div.asui-menu {
     cursor: pointer;
     display: flex;
     white-space: nowrap;
-    min-width: 1em;
-    min-height: 1em;
+    //min-width: 1em;
+    //min-height: 1em;
     transition: background-color 0.3s;
 }
 
@@ -25,10 +25,6 @@ div.asui-menu > div.title {
     padding: 0 6px 0 4px;
 }
 
-/** Menu Stick **/
-div.asui-menu.stick {
-    background-color: #999;
-}
 
 /** Disabled Menu **/
 div.asui-menu > div.title.disabled {
@@ -45,6 +41,11 @@ div.asui-menu > div.arrow {
     margin: 2px 2px 0 auto;
 }
 
+
+/** Menu Stick **/
+div.asui-menu.stick {
+    background-color: #999;
+}
 
 
 /** Drop Down Menu **/

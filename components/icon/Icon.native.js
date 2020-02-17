@@ -22,6 +22,9 @@ class Icon extends React.Component {
             case 'pause':       props.source = require('./img/icon/ui-icon-pause.png'); break;
             case 'stop':        props.source = require('./img/icon/ui-icon-stop.png'); break;
             case 'next':        props.source = require('./img/icon/ui-icon-next.png'); break;
+
+            case 'next':        props.source = require('./img/icon/ui-icon-'); break;
+
             case 'file-save':   props.source = require('./img/icon/ui-icon-file-save.png'); break;
             case 'file-load':   props.source = require('./img/icon/ui-icon-file-load.png'); break;
             default: console.error("Unknown icon: " + iconName); break;

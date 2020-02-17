@@ -1,4 +1,5 @@
 button.asui-input-button {
     cursor: pointer;
-    padding: 0px;
+    padding: 0px 4px;
+    font-size: x-large;
 }

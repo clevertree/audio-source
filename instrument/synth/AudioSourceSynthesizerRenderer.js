@@ -1,27 +1,136 @@
 import React from 'react';
+// import Div from "../../components/div/Div.native";
+// import Menu from "../../components/menu/Menu";
+// import Icon from "../../components/icon/Icon";
+// import InputButton from "../../components/input-button/InputButton.native";
+// import InputFile from "../../components/input-file/InputFile";
+// import InputRange from "../../components/input-range/InputRange";
+// import InputText from "../../components/input-text/InputText.native";
+// import InputSelect from "../../components/input-select/InputSelect";
 // import Library from "../../library/Library";
 
-import Div from "../../components/div/Div";
-import InputButton from "../../components/input-button/InputButton";
-import InputSelect from "../../components/input-select/InputSelect";
-import Icon from "../../components/icon/Icon";
-import Menu from "../../components/menu/Menu";
+// import Div from "../../components/div/Div";
+// import InputButton from "../../components/input-button/InputButton";
+// import InputSelect from "../../components/input-select/InputSelect";
+// import Icon from "../../components/icon/Icon";
+// import Menu from "../../components/menu/Menu";
 // import Grid from "../../components/grid/Grid";
 // import GridColumn from "../../components/grid/GridColumn";
 
+import "./assets/AudioSourceSynthesizerRenderer.css";
+
 /** AudioSourceSynthesizerRenderer **/
 class AudioSourceSynthesizerRenderer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            open: false
+        }
+    }
 
+
+    render() {
+        const {
+            Div,
+            Menu,
+            Icon,
+            InputButton,
+            InputFile,
+            InputRange,
+            InputText,
+            InputSelect
+        } = this.props.components;
+
+
+        const song = this.props.song;
+        const instrumentID = this.props.instrumentID;
+        const config = song.getInstrumentConfig(instrumentID);
+
+        // const instrument = this;
+        // const instrumentID = typeof this.id !== "undefined" ? this.id : -1;
+        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+        // const config = song.getInstrumentConfig(instrumentID);
+
+        let presetURL = config.presetURL || '';
+        // let presetTitle = presetURL.split('#').pop() || presetURL.split('/').pop() || 'Set Preset';
+        // if(config.presetURL && config.preset)
+        //     presetURL = new URL(config.libraryURL + '#' + config.preset, document.location) + '';
+
+        const samples = config.samples || [];
+        // const sampleLibrary = this.sampleLibrary; // TODO: re-render on load
+        let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
+
+        return <Div className="audio-source-synthesizer-container">
+            <Div className="header">
+                <InputButton
+                    className="title"
+                    onAction={e => this.toggleContainer(e)}
+                >{titleHTML}</InputButton>
+                <InputSelect
+                    className="instrument-preset"
+                    value={config.preset || "No Preset"}
+                    options={e => this.renderMenu('preset')}
+                    onChange={(e, presetURL) => this.setPreset(presetURL)}
+                />
+                <Menu
+                    arrow={false}
+                    className="instrument-config"
+                    options={e => this.renderMenu('config')}
+                >
+                    <Icon className="config"/>
+                </Menu>
+            </Div>
+            {this.state.open && <Div
+                className="samples"
+            >
+                <Div
+                    className="header"
+                >
+                    <Div className="id">ID</Div>
+                    <Div className="url">URL</Div>
+                    <Div className="mixer">Mixer</Div>
+                    <Div className="detune">Detune</Div>
+                    <Div className="root">Root</Div>
+                    <Div className="alias">Alias</Div>
+                    <Div className="loop">Loop</Div>
+                    <Div className="adsr">ADSR</Div>
+                    <Div className="remove">Remove</Div>
+                </Div>
+                <Div
+                    className="sample-list"
+                >
+                    {samples.map((sampleData, sampleID) =>
+                        <Div
+                            className="row"
+                        >
+                            <Div className="id">{sampleID}</Div>
+                            <Div className="url">URL</Div>
+                            <Div className="mixer">Mixer</Div>
+                            <Div className="detune">Detune</Div>
+                            <Div className="root">Root</Div>
+                            <Div className="alias">Alias</Div>
+                            <Div className="loop">Loop</Div>
+                            <Div className="adsr">ADSR</Div>
+                            <Div className="remove">Remove</Div>
+                        </Div>
+                    )}
+                </Div>
+            </Div>
+            }
+        </Div>;
+
+    }
 
     renderMenu(menuKey = null) {
+        const {Menu} = this.props.components;
 //             console.log('renderMenu', menuKey);
         switch(menuKey) {
             default:
                 const vertical = !this.state.portrait;
                 return (<>
-                    <Menu vertical={vertical} key="file"        options={e => this.renderMenu('file')}      >File</Menu>
-                    <Menu vertical={vertical} key="playlist"    options={e => this.renderMenu('playlist')}  >Playlist</Menu>
-                    <Menu vertical={vertical} key="view"        options={e => this.renderMenu('view')}      >View</Menu>
+                    <Menu vertical={vertical} options={e => this.renderMenu('file')}      >File</Menu>
+                    <Menu vertical={vertical} options={e => this.renderMenu('playlist')}  >Playlist</Menu>
+                    <Menu vertical={vertical} options={e => this.renderMenu('view')}      >View</Menu>
                 </>);
 
             case 'preset':
@@ -68,81 +177,8 @@ class AudioSourceSynthesizerRenderer extends React.Component {
 
     }
 
-    render() {
-        const song = this.props.song;
-        const instrumentID = this.props.instrumentID;
-        const config = song.getInstrumentConfig(instrumentID);
-
-        // const instrument = this;
-        // const instrumentID = typeof this.id !== "undefined" ? this.id : -1;
-        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
-        // const config = song.getInstrumentConfig(instrumentID);
-
-        let presetURL = config.presetURL || '';
-        // let presetTitle = presetURL.split('#').pop() || presetURL.split('/').pop() || 'Set Preset';
-        // if(config.presetURL && config.preset)
-        //     presetURL = new URL(config.libraryURL + '#' + config.preset, document.location) + '';
-
-        const samples = config.samples;
-        // const sampleLibrary = this.sampleLibrary; // TODO: re-render on load
-        let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
-
-        return <Div className="audio-source-synthesizer-container">
-            <Div className="header">
-                <InputButton
-                    className="title"
-                    onAction={e => this.toggleContainer(e)}
-                >{titleHTML}</InputButton>
-                <InputSelect
-                    className="instrument-preset"
-                    options={e => this.renderMenu('view')}
-                    onChange={(e, presetURL) => this.setPreset(presetURL)}
-                />
-                <Menu
-                    options={e => this.renderMenu('view')}
-                >
-                    <Icon className="config"/>
-                </Menu>
-            </Div>
-            {this.state.open && <Div
-                className="samples"
-            >
-                <Div
-                    className="header"
-                >
-                    <Div className="id">ID</Div>
-                    <Div className="url">URL</Div>
-                    <Div className="mixer">Mixer</Div>
-                    <Div className="detune">Detune</Div>
-                    <Div className="root">Root</Div>
-                    <Div className="alias">Alias</Div>
-                    <Div className="loop">Loop</Div>
-                    <Div className="adsr">ADSR</Div>
-                    <Div className="remove">Remove</Div>
-                </Div>
-                <Div
-                    className="sample-list"
-                >
-                    {samples.map((sampleData, sampleID) =>
-                        <Div
-                            className="row"
-                        >
-                            <Div className="id">{sampleID}</Div>
-                            <Div className="url">URL</Div>
-                            <Div className="mixer">Mixer</Div>
-                            <Div className="detune">Detune</Div>
-                            <Div className="root">Root</Div>
-                            <Div className="alias">Alias</Div>
-                            <Div className="loop">Loop</Div>
-                            <Div className="adsr">ADSR</Div>
-                            <Div className="remove">Remove</Div>
-                        </Div>
-                    )}
-                </Div>
-            </Div>
-            }
-        </Div>;
-
+    toggleContainer() {
+        this.setState({open: !this.state.open});
     }
 
     render2() {

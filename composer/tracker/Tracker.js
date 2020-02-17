@@ -14,7 +14,7 @@ class Tracker extends React.Component {
 
         if(!props.composer)
             throw new Error("Invalid composer");
-        this.state = this.props.composer.state.tracker;
+        this.state = this.props.composer.state;
 
         /** @deprecated **/
         this.mousePosition = {};
@@ -41,20 +41,20 @@ class Tracker extends React.Component {
 
         const composer = this.props.composer;
 
-        const quantizationInTicks = this.getQuantizationInTicks();
-        const segmentLengthInTicks = this.getSegmentLengthInTicks();
+        const quantizationInTicks = this.state.trackerQuantizationInTicks;
+        const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks; // this.getSegmentLengthInTicks();
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
-        let instructionIterator = composer.song.instructionGetIterator(this.state.currentGroup);
+        let instructionIterator = composer.song.instructionGetIterator(this.state.trackerGroup);
 
 
         const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
             return conditionalInstruction.instrument === this.state.filterByInstrumentID
         };
 
-        const selectedIndices = this.state.selectedIndices;
-        const cursorIndex = this.state.cursorIndex;
+        const selectedIndices = this.state.trackerSelectedIndices;
+        const cursorIndex = this.state.trackerCursorIndex;
 
 
 
@@ -74,7 +74,7 @@ class Tracker extends React.Component {
             lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
 
             const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
-            if (this.state.currentRowSegmentID === lastRowSegmentID) {
+            if (this.state.trackerRowSegmentID === lastRowSegmentID) {
 
                 // Render instructions
                 const rowInstructionElms = rowInstructionList.map(instruction => {
@@ -109,24 +109,24 @@ class Tracker extends React.Component {
 
 
     getTimeDivision()           { return this.props.composer.song.getTimeDivision(); }
-    getQuantizationInTicks()    { return this.state.quantizationInTicks; }
-    getSegmentLengthInTicks()   { return this.state.segmentLengthInTicks; }
-    getMaxLengthInTicks()       { return (this.state.currentRowSegmentID + 1) * this.getSegmentLengthInTicks(); }
+    // getQuantizationInTicks()    { return this.state.quantizationInTicks; }
+    // getSegmentLengthInTicks()   { return this.state.trackerSegmentLengthInTicks; }
+    getMaxLengthInTicks()       { return (this.state.trackerRowSegmentID + 1) * this.state.trackerSegmentLengthInTicks; }
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
-    getGroupName()              { return this.state.currentGroup; }
+    getGroupName()              { return this.state.trackerGroup; }
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
-        const composer = this.props.composer;
-        const timeDivision = composer.song.getTimeDivision();
-        const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
+        // const composer = this.props.composer;
+        const timeDivision = this.state.trackerQuantizationInTicks;
+        const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (timeDivision * 16);
         const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
         return segmentID;
     }
 
 
     setGroupName(currentGroup) {
-        if (this.state.currentGroup === currentGroup)
+        if (this.state.trackerGroup === currentGroup)
             return null;
         if (!this.getSong().hasGroup(currentGroup))
             throw new Error("Group not found in song: " + currentGroup);
@@ -137,7 +137,7 @@ class Tracker extends React.Component {
 
 
     instructionFind(index) {
-        return this.getSong().instructionFind(this.state.currentGroup, index);
+        return this.getSong().instructionFind(this.state.trackerGroup, index);
     }
 
     instructionGetFormValues(command = null) {
@@ -167,7 +167,7 @@ class Tracker extends React.Component {
         if (rowElm)
             return rowElm;
         const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
-        if (newRowSegmentID !== this.state.currentRowSegmentID) {
+        if (newRowSegmentID !== this.state.trackerRowSegmentID) {
             composer.trackerChangeSegment(newRowSegmentID);
             let rowElm = this.findRowElement(groupPositionInTicks);
             if (rowElm)
@@ -195,7 +195,7 @@ class Tracker extends React.Component {
         // console.log(e.type);
 
         const composer = this.props.composer;
-        let selectedIndices = this.state.selectedIndices;
+        let selectedIndices = this.state.trackerSelectedIndices;
         // const instructionList = this.instructionEach();
 
         switch (e.type) {
@@ -220,7 +220,7 @@ class Tracker extends React.Component {
                         // this.clearSelection();
                         const selectedIndicesDesc = selectedIndices.sort((a, b) => b - a);
                         for (let i = 0; i < selectedIndicesDesc.length; i++)
-                            composer.song.instructionDeleteAtIndex(this.state.currentGroup, selectedIndices[i]);
+                            composer.song.instructionDeleteAtIndex(this.state.trackerGroup, selectedIndices[i]);
                         this.renderRows();
                         // this.selectIndicies(selectedIndices[0]);
                         // song.render(true);
@@ -602,7 +602,7 @@ class Tracker extends React.Component {
 
             case 'group:seek':
 //                 console.log(e.type, e.detail);
-                if (e.detail.groupName === this.state.currentGroup)
+                if (e.detail.groupName === this.state.trackerGroup)
                     this.setPlaybackPositionInTicks(e.detail.positionInTicks);
 
                 break;
@@ -611,7 +611,7 @@ class Tracker extends React.Component {
                 break;
 
             case 'note:start':
-                if (e.detail.groupName === this.state.currentGroup) {
+                if (e.detail.groupName === this.state.trackerGroup) {
                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                     if (instructionElm) {
                         instructionElm.classList.add('playing');
@@ -619,7 +619,7 @@ class Tracker extends React.Component {
                 }
                 break;
             case 'note:end':
-                if (e.detail.groupName === this.state.currentGroup) {
+                if (e.detail.groupName === this.state.trackerGroup) {
                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                     if (instructionElm) {
                         instructionElm.classList.remove('playing');
@@ -789,7 +789,7 @@ class Tracker extends React.Component {
     //         cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
     //
     //     if (!cursorRow.nextElementSibling) {
-    //         await this.setState({currentRowSegmentID: this.state.currentRowSegmentID+1});
+    //         await this.setState({currentRowSegmentID: this.state.trackerRowSegmentID+1});
     //         this.focus();
     //         return await this.selectNextCell(e);
     //     }
@@ -817,7 +817,7 @@ class Tracker extends React.Component {
     //     if (!cursorRow.previousElementSibling) {
     //         if (this.currentRowSegmentID === 0)
     //             throw new Error("TODO: reached beginning of song");
-    //         await this.setState({currentRowSegmentID: this.state.currentRowSegmentID + 1})
+    //         await this.setState({currentRowSegmentID: this.state.trackerRowSegmentID + 1})
     //         this.focus();
     //         return await this.selectPreviousCell(e);
     //     }
@@ -901,7 +901,7 @@ class Tracker extends React.Component {
 
 
     // instructionReplaceParams(replaceIndex, replaceParams) {
-    //     return this.editor.song.instructionReplaceParams(this.state.currentGroup, replaceIndex, replaceParams);
+    //     return this.editor.song.instructionReplaceParams(this.state.trackerGroup, replaceIndex, replaceParams);
     // }
 
     replaceFrequencyAlias(noteFrequency, instrumentID) {

@@ -25,7 +25,7 @@ class Storage {
         });
     }
 
-    generateDefaultSong(defaultInstrumentURL = null) {
+    generateDefaultSong(defaultInstrumentClass = null) {
         const songData = {
             name: this.generateName(),
             uuid: this.generateUUID(),
@@ -40,8 +40,8 @@ class Storage {
                 'root': []
             }
         };
-        if (defaultInstrumentURL)
-            songData.instruments.push({url: defaultInstrumentURL});
+        if (defaultInstrumentClass)
+            songData.instruments.push({class: defaultInstrumentClass});
         return songData;
     }
 

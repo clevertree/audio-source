@@ -572,10 +572,11 @@ class AudioSourceSynthesizer {
 
 
 
-    static getRenderer(song, instrumentID) {
+    static getRenderer(song, instrumentID, components) {
         return <AudioSourceSynthesizerRenderer
             song={song}
             instrumentID={instrumentID}
+            components={components}
         />;
     }
 
