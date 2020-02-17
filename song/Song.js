@@ -4,6 +4,7 @@ import SongInstruction from "./SongInstruction";
 import SongInstructionIterator from "./SongInstructionIterator";
 import SongPlayback from "./SongPlayback";
 
+import Storage from "./Storage";
 
 class Song {
     constructor() {
@@ -938,9 +939,9 @@ class Song {
 
     instrumentAdd(config) {
         if (typeof config !== 'object')
-            config = {url: config};
-        if (!config.url)
-            throw new Error("Invalid Instrument URL");
+            throw new Error("Invalid instrument config object");
+        if (!config.class)
+            throw new Error("Invalid Instrument Class");
         // config.url = config.url;
 
         const instrumentList = this.data.instruments;
@@ -1241,7 +1242,6 @@ class Song {
 
 
 Song.loadSongFromMemory = async function (songUUID) {
-    const {Storage} = require('./Storage.js');
     const storage = new Storage();
     const songData = await storage.loadSongFromMemory(songUUID);
     const songHistory = await storage.loadSongHistoryFromMemory(songUUID);

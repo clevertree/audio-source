@@ -4,12 +4,13 @@ import "./assets/Footer.css";
 
 class Footer extends React.Component {
     render() {
-        return [
+        return (
             <div key="footer" className="asp-footer-container">
-                <div className="asp-status-text">{this.props.player.state.status}</div>
-                <div className="asp-version-text">{this.props.player.state.version}</div>
+                <div className="asp-status-text">{this.props.player.status}</div>
+                <div className="asp-version-text">{this.props.player.version}</div>
             </div>
-        ]
+        );
+
     }
 }
 

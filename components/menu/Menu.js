@@ -1,6 +1,7 @@
 import React from "react";
 import './assets/Menu.scss';
 
+const activeMenus = [];
 class Menu extends React.Component {
 
     constructor(props = {}) {
@@ -14,6 +15,26 @@ class Menu extends React.Component {
         };
     }
 
+    componentDidMount() {
+        activeMenus.push(this);
+    }
+    componentWillUnmount() {
+        for(let i=activeMenus.length-1; i>=0; i--) {
+            if(activeMenus[i] === this)
+                activeMenus.splice(i, 1);
+        }
+    }
+
+    closeAllMenus() {
+        // const root = (this.getRootNode ? this.getRootNode() : null) || document;
+        // root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
+        //     .forEach(menu => menu.close())
+        // console.log('activeMenus', activeMenus);
+        for(let i=0; i<activeMenus.length; i++) {
+            if(activeMenus[i].state.open === true)
+                activeMenus[i].close();
+        }
+    }
 
     renderDropdownContent() {
         let subMenuChildren = this.props.options;
@@ -22,7 +43,7 @@ class Menu extends React.Component {
         let className = 'dropdown';
         if(this.props.vertical)
             className += ' vertical';
-        console.log('subMenuChildren', subMenuChildren);
+        // console.log('subMenuChildren', subMenuChildren);
         return <div className={className} children={subMenuChildren} />;
     }
 
@@ -31,9 +52,13 @@ class Menu extends React.Component {
         if(this.props.options && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
             arrow = true;
 
+        let className = 'asui-menu';
+        if(this.state.stick)
+            className += ' stick';
+
         return (
             <div
-                className="asui-menu"
+                className={className}
                 onClick={e => this.onInputEvent(e)}
                 onKeyDown={e => this.onInputEvent(e)}
                 onMouseOver={e => this.onInputEvent(e)}
@@ -55,7 +80,7 @@ class Menu extends React.Component {
             case 'mouseover':
                 clearTimeout(this.mouseTimeout);
                 this.mouseTimeout = setTimeout(e => {
-                    this.openSubmenu();
+                    this.open();
                 }, 100);
                 break;
 
@@ -63,7 +88,7 @@ class Menu extends React.Component {
                 clearTimeout(this.mouseTimeout);
                 this.mouseTimeout = setTimeout(e => {
                     if(!this.state.stick) {
-                        this.closeSubmenu();
+                        this.close();
                     }
                 }, 400);
                 break;
@@ -190,33 +215,22 @@ class Menu extends React.Component {
     // }
 
     toggleSubMenu() {
-
-        // let parentMenu = this;
-        // while(parentMenu) {
-        //     parentMenu.setState({stick:open});
-        //     parentMenu = parentMenu.parentNode.closest('asui-menu');
-        // }
         const stick = !this.state.stick;
         this.setState({stick});
 
         let parentMenu = this;
         while((parentMenu.parentNode) && (parentMenu = parentMenu.parentNode.closest('asui-menu'))) {
             parentMenu.state.stick = stick;
-            // parentMenu.setState({stick}); // Don't re-render parent
         }
-
-        // this.state.stick = !this.state.stick;
-        // if(!this.state.open || !isBrowser)
-        //     this.state.open = this.state.stick;
-        // this.state.open ? this.openSubmenu() : this.closeSubmenu();
     }
 
-    closeSubmenu() {
+    close() {
         if(this.state.open !== false)
             this.setState({open: false});
     }
 
-    openSubmenu() {
+
+    open() {
         if(this.state.open !== true)
             this.setState({open: true});
             // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
@@ -225,9 +239,11 @@ class Menu extends React.Component {
 
     doMenuAction(e) {
         console.log("Doing menu action: ", this);
-        if (this.props.action) {
-            this.props.action(e, this);
-            this.closeAllMenus();
+        if (this.props.onAction) {
+            this.props.onAction(e, this);
+            if(!e.isDefaultPrevented) {
+                this.closeAllMenus(e.target);
+            }
         // } else if(this.props.dropDownContent) {
         //     this.toggleSubMenu(e);
         } else {
@@ -246,15 +262,6 @@ class Menu extends React.Component {
         this.open();
     }
 
-    // closeAllMenus(includeStickMenus=false) {
-    //     if(isBrowser) {
-    //         const root = this.getRootNode() || document;
-    //         root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
-    //             .forEach(menu => menu.close())
-    //     } else {
-    //         // console.warn("Unimplemented");
-    //     }
-    // }
     // closeAllMenusButThis() {
     //     if(isBrowser) {
     //

@@ -1,4 +1,12 @@
 
+/** Menu Container **/
+
+div.asp-menu-container {
+    display: flex;
+    flex-direction: row;
+}
+
+
 div.asp-title-container {
     /* display: flex; */
     /* width: 100%; */

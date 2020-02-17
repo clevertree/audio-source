@@ -1,39 +1,33 @@
 
-
 /** Menu **/
 
-
 div.asui-menu {
-     //z-index: 3;
     position: relative;
     color: black;
     padding: 0 0;
     margin: 0 0;
     cursor: pointer;
-    display: inline-block;
+    display: flex;
     white-space: nowrap;
     min-width: 1em;
     min-height: 1em;
+    transition: background-color 0.3s;
 }
 
 /** Hover **/
-
 div.asui-menu:hover {
     background-color: #AAA;
 }
 
 /** Menu Title **/
 div.asui-menu > div.title {
-    /* overflow: hidden; */
-    /*min-width: 24px;*/
-    display: block;
+    display: inline-block;
     padding: 0 6px 0 4px;
 }
 
 /** Menu Stick **/
-div.asui-menu > div.title.stick {
-    transition: background-color 0.3s;
-    background-color: #888;
+div.asui-menu.stick {
+    background-color: #999;
 }
 
 /** Disabled Menu **/
@@ -46,10 +40,9 @@ div.asui-menu > div.title.disabled {
 /** Menu Arrow **/
 
 div.asui-menu > div.arrow {
-    position: absolute;
-    right: -13px;
-    top: 0px;
+    display: inline-block;
     font-size: small;
+    margin: 2px 2px 0 auto;
 }
 
 
@@ -57,13 +50,9 @@ div.asui-menu > div.arrow {
 /** Drop Down Menu **/
 
 div.asui-menu > div.dropdown > div.asui-menu {
-    display: block;
-    /* padding: 3px 0px; */
+    padding: 4px 0px;
 }
 
-div.asui-menu > div.dropdown > div.asui-menu > div.title {
-    padding: 3px 19px 3px 6px;
-}
 div.asui-menu > div.dropdown {
     background-color: #bdc3c7;
     /* display: inline-block; */
@@ -80,15 +69,12 @@ div.asui-menu > div.dropdown:hover {
     z-index: 4;
 }
 
-div.asui-menu[open] > div.dropdown {
-    opacity: 1;
-}
+//div.asui-menu[open] > div.dropdown {
+//    opacity: 1;
+//}
 div.asui-menu > div.dropdown.vertical {
     left: 0;
-    top: inherit;
-    /*bottom: 0;*/
-    /*display: block;*/
-    /* float: right; */
+    top: 100%;
 }
 
 

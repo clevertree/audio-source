@@ -7,29 +7,25 @@ import Menu from "../../components/menu/Menu";
 // import InputText from "../../components/input-text/InputText";
 
 class InstrumentRenderer extends React.Component {
-    constructor(props = {}, song, instrumentID) {
-        super(props, {});
-        this.props.id = instrumentID;
-        this.song = song;
-    }
 
 
     render() {
+        const song = this.props.song;
         const instrumentID = this.props.id;
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
 
-        if (this.song.hasInstrument(instrumentID)) {
+        if (song.hasInstrument(instrumentID)) {
 
             try {
-                const instrument = this.song.getLoadedInstrument(instrumentID);
-                // const instrumentConfig = this.song.getInstrumentConfig(instrumentID);
+                const instrument = song.getLoadedInstrument(instrumentID);
+                // const instrumentConfig = song.getInstrumentConfig(instrumentID);
 
                 if (!instrument) {
                     return <Div className="loading">Loading</Div>;
                 } else if (instrument.constructor && typeof instrument.constructor.getRenderer === "function") {
                     const renderer = instrument.constructor.getRenderer(
-                        this.song,
+                        song,
                         instrumentID,
                     );
                     return renderer;
@@ -65,13 +61,13 @@ class InstrumentRenderer extends React.Component {
             //                         const instrumentLibrary = await Library.loadDefaultLibrary(); // TODO: get default library url from composer?
             //                         return instrumentLibrary.eachInstrument((instrumentConfig) =>
             //                             Menu.cME({}, instrumentConfig.name, null, () => {
-            //                                 this.song.instrumentReplace(instrumentID, instrumentConfig);
+            //                                 song.instrumentReplace(instrumentID, instrumentConfig);
             //                             })
             //                         );
             //                     }
             //                 ),
-            //                 Menu.cME({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
-            //                 Menu.cME({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
+            //                 Menu.cME({}, 'Rename Instrument', null, () => song.instrumentRename(instrumentID)),
+            //                 Menu.cME({}, 'Remove Instrument', null, () => song.instrumentRemove(instrumentID)),
             //             ]
             //         ),
             //     ]),

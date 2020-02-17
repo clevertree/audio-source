@@ -13,8 +13,8 @@ class InstrumentLoader {
         let instrumentClassName = instrumentPreset.class;
         // let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
-        const instrumentClass = InstrumentLoader.getInstrumentClass(instrumentClassName);
-        return new instrumentClass(instrumentPreset, this, instrumentID);
+        const {classObject} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        return new classObject(instrumentPreset, this, instrumentID);
     }
 
 
@@ -23,8 +23,8 @@ class InstrumentLoader {
         const classes = InstrumentLoader.registeredInstrumentClasses;
         for(let i=0; i<classes.length; i++) {
             const classInfo = classes[i];
-            if(classInfo.name === className)
-                return classInfo
+            if(classInfo.classObject.name === className)
+                return classInfo;
         }
         throw new Error(`Instrument class ${className} was not found`);
     }
@@ -33,7 +33,7 @@ class InstrumentLoader {
     static addInstrumentClass(classObject, className=null, classConfig={}) {
         const classes = InstrumentLoader.registeredInstrumentClasses;
         className = className || classObject.name;
-        classes.push([classObject, className, classConfig])
+        classes.push({classObject, className, classConfig})
     }
 
     static eachInstrumentClass(callback) {
@@ -41,7 +41,8 @@ class InstrumentLoader {
         const results = [];
         for(let i=0; i<classes.length; i++) {
             const classInfo = classes[i];
-            const result = callback(classInfo[0], classInfo[1], classInfo[2]);
+            const {classObject, className, classConfig} = classInfo;
+            const result = callback(classObject, className, classConfig);
             if(result !== null) results.push(result);
             if(result === false) break;
         }

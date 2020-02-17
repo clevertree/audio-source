@@ -22,7 +22,7 @@ class AudioSourceSynthesizer {
         this.values = this.song.values;
 
         this.sampleLibrary = null;
-        this.loadSampleLibrary();
+        // this.loadSampleLibrary();
 
         // this.loadDefaultSampleLibrary()
         //     .then(e => this.render());

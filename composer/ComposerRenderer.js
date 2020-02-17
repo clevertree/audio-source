@@ -45,8 +45,8 @@ class ComposerRenderer extends React.Component {
             cursorIndex: 0,
             cursorListOffset: 0,
             rowSegmentCount: 10,
-            quantizationInTicks: null,
-            segmentLengthInTicks: null,
+            quantizationInTicks: 96*4,
+            segmentLengthInTicks: 96*4*16,
             filterByInstrumentID: null
         };
 
@@ -138,17 +138,17 @@ class ComposerRenderer extends React.Component {
             case 'file-import':
                     return <>
                     <Menu onAction={e => this.openSongFromFile(e, '.mid,.midi')}          >from MIDI File</Menu>
+                    </>;
                     // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
                     // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
                     // menuFileImportSongFromMIDI.disabled = true;
-                </>;
 
             case 'file-export':
                     return <>
                     <Menu disabled>to MIDI File</Menu>
                 </>;
 
-            case 'file-memory':
+            case 'file-open-memory':
                 const storage = new Storage();
                 const songRecentUUIDs = storage.getRecentSongList() ;
                 return songRecentUUIDs.length > 0
@@ -176,18 +176,19 @@ class ComposerRenderer extends React.Component {
                 //         menuCustom.hasBreak = true;
                 //     };
                 // };
+
+                // menuEditInsertCommand.disabled = selectedIndices.length > 0; // !this.cursorCell;
+                // menuEditInsertCommand.action = handleAction('song:new');
                 return <>
                     <Menu options={e => this.renderMenu('edit-insert')}    >Insert Command</Menu>
-                    // menuEditInsertCommand.disabled = selectedIndices.length > 0; // !this.cursorCell;
-                    // menuEditInsertCommand.action = handleAction('song:new');
 
-                    (this.state.tracker.selectedIndices.length === 0 ? null :
-                        <Menu options={e => this.renderMenu('edit-set')} hasBreak   >Set Command</Menu>)
+                    {this.state.tracker.selectedIndices.length === 0 ? null :
+                        <Menu options={e => this.renderMenu('edit-set')} hasBreak   >Set Command</Menu>}
 
-                    /** Select Instructions **/
+                    {/** Select Instructions **/}
                     <Menu options={e => this.renderMenu('edit-select')} hasBreak   >Select</Menu>
 
-                    /** Batch Instructions **/
+                    {/** Batch Instructions **/}
                     <Menu options={e => this.renderMenu('edit-batch')} hasBreak   >Batch</Menu>
                 </>;
             // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
@@ -195,26 +196,26 @@ class ComposerRenderer extends React.Component {
             // menuEditGroup.disabled = true;
 
             case 'edit-insert':
-                return [
-                    <Menu options={e => this.renderMenu('edit-insert-frequency')} hasBreak          >Frequency</Menu>,
-                    <Menu options={e => this.renderMenu('edit-insert-named')} hasBreak              >Named</Menu>,
-                    <Menu options={e => this.renderMenu('edit-insert-group')} hasBreak              >Group</Menu>,
-                    <Menu onAction={e => this.instructionInsert(null, true)} hasBreak   >Custom Command</Menu>,
-                ];
+                return <>
+                    <Menu options={e => this.renderMenu('edit-insert-frequency')} hasBreak          >Frequency</Menu>
+                    <Menu options={e => this.renderMenu('edit-insert-named')} hasBreak              >Named</Menu>
+                    <Menu options={e => this.renderMenu('edit-insert-group')} hasBreak              >Group</Menu>
+                    <Menu onAction={e => this.instructionInsert(null, true)} hasBreak   >Custom Command</Menu>
+                </>;
 
             case 'edit-insert-group':
-                return [
-                    this.values.getAllSongGroups((groupName) =>
+                return <>
+                    {this.values.getAllSongGroups((groupName) =>
                         <Menu
                             options={e => this.renderMenu('edit-insert-frequency')}
                             disabled={groupName === this.state.tracker.currentGroup}
                             onAction={e => this.instructionInsert('@' + groupName, false)}
-                            >{groupName}</Menu>),
+                            >{groupName}</Menu>)}
                     <Menu
                         hasBreak
                         onAction={e => this.groupAdd(e)}
                         >Create New Group</Menu>
-                ];
+                </>;
 
             case 'edit-insert-named':
                 return this.values.getAllNamedFrequencies(
@@ -238,21 +239,21 @@ class ComposerRenderer extends React.Component {
 
 
             case 'edit-set':
-                return [
-                    <Menu options={e => this.renderMenu('edit-set-command')} hasBreak          >Set Command</Menu>,
-                    <Menu options={e => this.renderMenu('edit-set-instrument')} hasBreak          >Set Instrument</Menu>,
-                    <Menu options={e => this.renderMenu('edit-set-duration')} hasBreak          >Set Duration</Menu>,
-                    <Menu options={e => this.renderMenu('edit-set-velocity')} hasBreak          >Set Velocity</Menu>,
-                    <Menu onAction={e => this.instructionDelete(e)} hasBreak   >Delete Instruction(s)</Menu>,
-                ];
+                return <>
+                    <Menu options={e => this.renderMenu('edit-set-command')} hasBreak           >Set Command</Menu>
+                    <Menu options={e => this.renderMenu('edit-set-instrument')} hasBreak        >Set Instrument</Menu>
+                    <Menu options={e => this.renderMenu('edit-set-duration')} hasBreak          >Set Duration</Menu>
+                    <Menu options={e => this.renderMenu('edit-set-velocity')} hasBreak          >Set Velocity</Menu>
+                    <Menu onAction={e => this.instructionDelete(e)} hasBreak   >Delete Instruction(s)</Menu>
+                </>;
 
             case 'edit-set-command':
-                return [
-                    <Menu options={e => this.renderMenu('edit-set-command-frequency')}                      >Frequency</Menu>,
-                    <Menu options={e => this.renderMenu('edit-set-command-named')}                          >Named</Menu>,
-                    <Menu options={e => this.renderMenu('edit-set-command-group')}                          >Group</Menu>,
-                    <Menu onAction={e => this.instructionChangeCommand(null, true)} hasBreak      >Custom Command</Menu>,
-                ];
+                return <>
+                    <Menu options={e => this.renderMenu('edit-set-command-frequency')}                      >Frequency</Menu>
+                    <Menu options={e => this.renderMenu('edit-set-command-named')}                          >Named</Menu>
+                    <Menu options={e => this.renderMenu('edit-set-command-group')}                          >Group</Menu>
+                    <Menu onAction={e => this.instructionChangeCommand(null, true)} hasBreak      >Custom Command</Menu>
+                </>;
 
             case 'edit-set-instrument':
                 return this.values.getSongInstruments((instrumentID, label) =>
@@ -260,28 +261,28 @@ class ComposerRenderer extends React.Component {
                 )
 
             case 'edit-set-duration':
-                return [
-                    this.values.getNoteDurations((durationInTicks, durationName) =>
-                        <Menu onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</Menu>),
+                return <>
+                    {this.values.getNoteDurations((durationInTicks, durationName) =>
+                        <Menu onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</Menu>)}
                     <Menu onAction={e => this.instructionChangeDuration(null, true)} hasBreak >Custom Duration</Menu>
-                ];
+                </>;
 
             case 'edit-set-velocity':
-                return [
-                    this.values.getNoteVelocities((velocity) =>
-                        <Menu onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</Menu>),
+                return <>
+                    {this.values.getNoteVelocities((velocity) =>
+                        <Menu onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</Menu>)}
                     <Menu onAction={e => this.instructionChangeVelocity(null, true)} hasBreak >Custom Velocity</Menu>
-                ];
+                </>;
 
             case 'edit-set-command-frequency':
                 return this.values.getNoteFrequencies((noteName, label) =>
-                    <Menu options={e => this.renderMenu('edit-set-command-frequency-note', noteName)}                   >Frequency</Menu>,
+                    <Menu options={e => this.renderMenu('edit-set-command-frequency-note', noteName)}                   >Frequency</Menu>
                 );
 
             case 'edit-set-command-frequency-note':
                 const setNoteName = menuParam;
                 return this.values.getNoteOctaves((octave) =>
-                    <Menu onAction={e => this.instructionChangeCommand(`${setNoteName}${octave}`, false)}     >{setNoteName}{octave}</Menu>,
+                    <Menu onAction={e => this.instructionChangeCommand(`${setNoteName}${octave}`, false)}     >{setNoteName}{octave}</Menu>
                 );
 
             case 'edit-set-command-named':
@@ -290,70 +291,68 @@ class ComposerRenderer extends React.Component {
                 );
 
             case 'edit-set-command-group':
-                return [
-                    this.values.getAllSongGroups((groupName) =>
+                return <>
+                    {this.values.getAllSongGroups((groupName) =>
                         groupName === this.groupName ? null :
                             <Menu onAction={e => this.instructionChangeCommand('@' + groupName, false)}                    >{groupName}</Menu>
-                    ),
+                    )}
                     <Menu onAction={e => this.groupAdd()} hasBreak  >Create New Group</Menu>
-                ];
+                </>;
 
             case 'edit-select':
-                return [
-                    <Menu onAction={e => this.trackerChangeSelection('segment')}      >Select Segment Instructions</Menu>,
-                    <Menu onAction={e => this.trackerChangeSelection('all')}       >Select All Song Instructions</Menu>,
-                    <Menu onAction={e => this.trackerChangeSelection('none')}       >Select No Instructions</Menu>,
-                    <Menu options={e => this.renderMenu('edit-select-batch')}  hasBreak                        >Batch Select</Menu>,
-                ];
+                return <>
+                    <Menu onAction={e => this.trackerChangeSelection('segment')}      >Select Segment Instructions</Menu>
+                    <Menu onAction={e => this.trackerChangeSelection('all')}       >Select All Song Instructions</Menu>
+                    <Menu onAction={e => this.trackerChangeSelection('none')}       >Select No Instructions</Menu>
+                    <Menu options={e => this.renderMenu('edit-select-batch')}  hasBreak                        >Batch Select</Menu>
+                </>;
 
             case 'edit-select-batch':
-                return [
-
-                    Storage.getBatchRecentSearches().map((recentBatchSearch, i) =>
-                        <Menu onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</Menu>,
-                    ),
-                    <Menu onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</Menu>,
-                ];
+                return <>
+                    {Storage.getBatchRecentSearches().map((recentBatchSearch, i) =>
+                        <Menu onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</Menu>
+                    )}
+                    <Menu onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</Menu>
+                </>;
 
             case 'edit-batch':
-                return [
+                return <>
                     Storage.getBatchRecentCommands().map((recentBatchCommand, i) =>
-                        <Menu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</Menu>,
+                        <Menu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</Menu>
                     ),
-                    <Menu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</Menu>,
-                ];
+                    <Menu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</Menu>
+                </>;
 
             case 'edit-batch-recent':
                 recentBatchCommand = menuParam;
-                return [
-                    <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, true)}                   >Execute on Group</Menu>,
-                    <Menu options={e => this.renderMenu('edit-batch-recent-execute-search', recentBatchCommand)}    >Execute using Search</Menu>,
-                ];
+                return <>
+                    <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, true)}                   >Execute on Group</Menu>
+                    <Menu options={e => this.renderMenu('edit-batch-recent-execute-search', recentBatchCommand)}    >Execute using Search</Menu>
+                </>;
 
             case 'edit-batch-recent-execute-search':
                 recentBatchCommand = menuParam;
-                return [
-                    <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</Menu>,
-                    Storage.getBatchRecentSearches().map((recentBatchSearch, i) =>
-                        <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</Menu>,
-                    )
-                ];
+                return <>
+                    <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</Menu>
+                    {Storage.getBatchRecentSearches().map((recentBatchSearch, i) =>
+                        <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</Menu>
+                    )}
+                </>;
 
             case 'view':
-                return [
+                return <>
                     <Menu onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>,
                     <Menu onAction={e => this.togglePanelSong(e)}       >{this.props.hidePanelSongs ? 'Disable' : 'Enable'} Song Forms</Menu>,
                     <Menu onAction={e => this.togglePanelTracker(e)}       >{this.props.hidePanelTracker ? 'Disable' : 'Enable'} Tracker Forms</Menu>,
                     <Menu onAction={e => this.togglePanelInstruments(e)}       >{this.props.hidePanelInstrument ? 'Disable' : 'Enable'} Instrument Forms</Menu>,
-                ];
+                </>;
 
             case 'instrument':
-                return [
+                return <>
                     <Menu options={e => this.renderMenu('instrument-add')}    >Add instrument to song</Menu>,
-
-                    this.values.getSongInstruments((instrumentID, label) =>
-                        <Menu onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</Menu>),
-                ];
+                    {this.values.getSongInstruments((instrumentID, label) =>
+                        <Menu onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</Menu>)},
+                </>;
 
             case 'instrument-add':
                 return this.library.eachInstrument((instrumentConfig) =>
@@ -361,13 +360,13 @@ class ComposerRenderer extends React.Component {
 
             case 'instrument-edit':
                 instrumentID = menuParam;
-                return [
+                return <>
                     <Menu options={e => this.renderMenu('instrument-edit-replace')}    >Replace</Menu>,
                     <Menu
                         onAction={e => this.instrumentRemove(instrumentID)}
                         disabled={!this.song.isInstrumentLoaded(instrumentID)}
                     >Remove from song</Menu>,
-                ];
+                </>;
 
             case 'instrument-edit-replace':
                 return this.library.eachInstrument((instrumentConfig, i) =>
@@ -377,18 +376,18 @@ class ComposerRenderer extends React.Component {
             /** Group Menu **/
             case 'group':
                 let groupCount = 0;
-                return [
-                    <Menu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group to song</Menu>,
-                    this.values.getAllSongGroups((groupName) =>
-                        <Menu options={e => this.renderMenu('group-edit', groupName)} hasBreak={groupCount++ === 0}    >{groupName}</Menu>)
-                ];
+                return <>
+                    <Menu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group to song</Menu>
+                    {this.values.getAllSongGroups((groupName) =>
+                        <Menu options={e => this.renderMenu('group-edit', groupName)} hasBreak={groupCount++ === 0}    >{groupName}</Menu>)}
+                </>;
 
             case 'group-edit':
-                const groupName = menuParam;
-                return [
-                    <Menu onAction={e => this.groupRename(groupName)}  hasBreak     >Rename group {groupName}</Menu>,
-                    <Menu onAction={e => this.groupRemove(groupName)}  hasBreak     >Delete group {groupName}</Menu>,
-                ]
+                // const groupName = menuParam;
+                return <>
+                    <Menu onAction={e => this.groupRename(menuParam)}  hasBreak     >Rename group {menuParam}</Menu>,
+                    <Menu onAction={e => this.groupRemove(menuParam)}  hasBreak     >Delete group {menuParam}</Menu>,
+                </>;
 
             default:
                 throw new Error("Unknown menu key: " + menuKey);
@@ -500,7 +499,9 @@ class ComposerRenderer extends React.Component {
                         </Form>
                     </Panel>
 
-                    <Panel className="instruments" title="Instruments">
+                    <Panel className="instruments" title="Instruments"
+                        ref={ref=>this.panelInstruments = ref}
+                        >
                         {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
                             <InstrumentRenderer
                                 song={this.song}
@@ -521,7 +522,9 @@ class ComposerRenderer extends React.Component {
                         </Form>
                     </Panel>
 
-                    <Panel className="instructions" title="Instructions">
+                    <Panel className="instructions" title="Instructions"
+                           ref={ref=>this.panelInstructions = ref}
+                    >
                         <Form className="instruction-command" title="Command">
                             <InputSelect
                                 className="command"
@@ -717,381 +720,25 @@ class ComposerRenderer extends React.Component {
                         composer={this}
                         />
                 </Div>
-                <Footer player={this} />
+                <Footer player={this} ref={ref => this.footer = ref} />
             </Div>
         )
     }
 
 
-    // render2() {
-    //     return [
-    //         this.containerElm = Div.createElement('asc-container', [
-    //             Header.cE({
-    //                 // portrait: !!this.state.portrait,
-    //                 key: 'asc-title-container',
-    //                 menuContent: () => this.renderMenu(this.state.menuKey),
-    //                 // onMenuPress: (e) => this.toggleMenu()
-    //             }),
-    //
-    //             Div.createElement('asc-panel-container', [
-    //                 ASCPanel.createElement('song', [
-    //                     Div.cE('title', 'Song'),
-    //
-    //                     ASCForm.createElement('playback',  [
-    //                         Div.cE('title', 'Playback'),
-    //                         InputButton.createInputButton('play',
-    //                             Icon.createIcon('play'),
-    //                             e => this.songPlay(e),
-    //                             "Play Song"),
-    //                         InputButton.createInputButton('pause',
-    //                             Icon.createIcon('pause'),
-    //                             e => this.songPause(e),
-    //                             "Pause Song"),
-    //                         // this.fieldSongPlaybackPause.disabled = true;
-    //                         InputButton.createInputButton('stop',
-    //                             Icon.createIcon('stop'),
-    //                             e => this.songStop(e),
-    //                             "Stop Song")
-    //                     ]),
-    //
-    //                     ASCForm.createElement('timing', [
-    //                         Div.cE('title', 'Timing'),
-    //                         InputText.createInputText('timing',
-    //                             (e, pos) => this.setSongPosition(pos),
-    //                             '00:00:000',
-    //                             'Song Timing',
-    //                             ref => this.fieldSongTiming = ref
-    //                         )
-    //                     ]),
-    //
-    //                     ASCForm.createElement('position', [
-    //                         Div.cE('title', 'Position'),
-    //                         ASUIInputRange.createInputRange('position',
-    //                             (e, pos) => this.setSongPosition(pos),
-    //                             0,
-    //                             Math.ceil(this.song.getSongLengthInSeconds()),
-    //                             0,
-    //                             'Song Position',
-    //                             ref => this.fieldSongPosition = ref
-    //                         )
-    //                     ]),
-    //
-    //                     ASCForm.createElement('volume', [
-    //                         Div.cE('title', 'Volume'),
-    //                         ASUIInputRange.createInputRange('volume',
-    //                             (e, newVolume) => this.setVolume(newVolume/100),
-    //                             1,
-    //                             100,
-    //                             this.state.volume*100,
-    //                             'Song Volume',
-    //                             ref => this.fieldSongVolume = ref
-    //                         )
-    //                     ]),
-    //
-    //                     ASCForm.createElement('file', [
-    //                         Div.cE('title', 'File'),
-    //                         this.fieldSongFileLoad = new ASUIInputFile('file-load',
-    //                             e => this.loadSongFromFileInput(),
-    //                             Icon.createIcon('file-load'),
-    //                             `.json,.mid,.midi`,
-    //                             "Load Song from File"
-    //                         ),
-    //                         this.fieldSongFileSave = InputButton.createInputButton('file-save',
-    //                             Icon.createIcon('file-save'),
-    //                             e => this.saveSongToFile(),
-    //                             "Save Song to File"
-    //                         ),
-    //                     ]),
-    //
-    //
-    //                     ASCForm.createElement('name', [
-    //                         Div.cE('title', 'Name'),
-    //                         InputText.createInputText('name',
-    //                             (e, newSongName) => this.setSongName(e, newSongName),
-    //                             this.song.getName(),
-    //                             "Song Name",
-    //                             ref => this.fieldSongName = ref
-    //                         )
-    //                     ]),
-    //
-    //                     ASCForm.createElement('version', [
-    //                         Div.cE('title', 'Version'),
-    //                         InputText.createInputText('version',
-    //                             (e, newSongVersion) => this.setSongVersion(e, newSongVersion),
-    //                             this.song.getVersion(),
-    //                             "Song Version",
-    //                             ref => this.fieldSongVersion = ref)
-    //                     ]),
-    //
-    //                     ASCForm.createElement('bpm', [
-    //                         Div.cE('title', 'BPM'),
-    //                         InputText.createInputText('bpm',
-    //                             (e, newBPM) => this.songChangeStartingBPM(e, parseInt(newBPM)),
-    //                             this.song.getStartingBeatsPerMinute(),
-    //                             "Song BPM",
-    //                             ref => this.fieldSongBPM = ref
-    //                         )
-    //                         // this.fieldSongBPM.inputElm.setAttribute('type', 'number')
-    //                     ]),
-    //                 ]),
-    //
-    //                 this.panelInstruments = ASCPanel.createElement('instruments', [
-    //                     Div.cE('title', 'Instruments'),
-    //                     () => {
-    //                         // const instrumentPanel = this.panelInstruments;
-    //                         this.instruments = [];
-    //                         const instrumentList = this.song.getInstrumentList();
-    //                         const content = instrumentList.map((instrumentConfig, instrumentID) =>
-    //                             this.instruments[instrumentID] = new InstrumentRenderer({}, this.song, instrumentID));
-    //
-    //                         content.push(ASCForm.createElement('new', null, [
-    //                             new ASUIInputSelect('add-url',
-    //                                 (s) => [
-    //                                     // const instrumentLibrary = await Library.loadFromURL(this.defaultLibraryURL);
-    //                                     // s.getOption('', 'Add instrument'),
-    //                                     instrumentLibrary.eachInstrument((instrumentConfig) =>
-    //                                         s.getOption(instrumentConfig.url, instrumentConfig.name)),
-    //                                 ],
-    //                                 (e, changeInstrumentURL) => this.instrumentAdd(changeInstrumentURL),
-    //                                 '',
-    //                                 'Add instrument')
-    //                         ]));
-    //                         return content;
-    //                     }
-    //                 ]),
-    //
-    //                 Div.createElement('break'),
-    //
-    //                 this.panelInstructions = ASCPanel.createElement('instructions', [
-    //                     Div.cE('title', 'Selected Instruction(s)'),
-    //                     ASCForm.createElement('instruction-command', [
-    //                         Div.cE('title', 'Command'),
-    //                         this.fieldInstructionCommand = new ASUIInputSelect(
-    //                             'command',
-    //                             (selectElm) => [
-    //                                 // const selectedInstrumentID = this.fieldInstructionInstrument ? parseInt(this.fieldInstructionInstrument.value) : 0;
-    //                                 selectElm.getOption(null, 'Select'),
-    //                                 selectElm.value ?
-    //                                     selectElm.getOptGroup('Current Octave', () => {
-    //                                         const currentOctave = this.fieldInstructionCommand.value.substr(-1, 1);
-    //                                         return this.values.getNoteFrequencies(freq => selectElm.getOption(freq + currentOctave, freq + currentOctave));
-    //                                     }) : null,
-    //                                 selectElm.getOptGroup('Frequencies', () =>
-    //                                     this.values.getOctaveNoteFrequencies(freq => selectElm.getOption(freq, freq)),
-    //                                 ),
-    //
-    //                                 selectElm.getOptGroup('Custom Frequencies', () =>
-    //                                     this.values.getAllNamedFrequencies(namedFreq => selectElm.getOption(namedFreq, namedFreq)),
-    //                                 ),
-    //                                 // TODO: filter by selected instrument
-    //
-    //                                 selectElm.getOptGroup('Groups', () =>
-    //                                     this.values.getAllSongGroups(group => selectElm.getOption('@' + group, '@' + group)),
-    //                                 ),
-    //                             ],
-    //                             (e, commandString) => this.instructionChangeCommand(commandString),
-    //                         ),
-    //
-    //                         this.fieldInstructionInsert = InputButton.createInputButton(
-    //                             'insert',
-    //                             Icon.createIcon('insert'),
-    //                             e => this.instructionInsert(),
-    //                             "Insert Instruction"),
-    //
-    //                         this.fieldInstructionDelete = InputButton.createInputButton('delete',
-    //                             Icon.createIcon('delete'),
-    //                             e => this.instructionDelete(e),
-    //                             "Delete Instruction"),
-    //
-    //                     ]),
-    //
-    //                     ASCForm.createElement('instruction-instrument', [
-    //                         Div.cE('title', 'Instrument'),
-    //                         this.fieldInstructionInstrument = new ASUIInputSelect('instrument',
-    //                             (selectElm) => [
-    //                                 selectElm.getOption(null, 'Select'),
-    //                                 selectElm.getOptGroup('Song Instruments',
-    //                                     () => this.values.getSongInstruments((id, name) => selectElm.getOption(id, name))
-    //                                 ),
-    //                             ],
-    //                             e => this.instructionChangeInstrument(),
-    //                         )
-    //                     ]),
-    //
-    //                     ASCForm.createElement('instruction-velocity', [
-    //                         Div.cE('title', 'Velocity'),
-    //                         this.fieldInstructionVelocity = ASUIInputRange.createInputRange('velocity',
-    //                             (e, newVelocity) => this.instructionChangeVelocity(newVelocity),
-    //                             1,
-    //                             127,
-    //                             this.state.volume,
-    //                             "Velocity",
-    //                             ref => this.fieldSongVolume = ref
-    //                         )
-    //                     ]),
-    //
-    //                     ASCForm.createElement('instruction-duration', [
-    //                         Div.cE('title', 'Duration'),
-    //                         this.fieldInstructionDuration = new ASUIInputSelect('duration',
-    //                             (selectElm) => [
-    //                                 selectElm.getOption(null, 'No Duration'),
-    //                                 this.values.getNoteDurations((duration, title) => selectElm.getOption(duration, title))
-    //                             ],
-    //                             e => this.instructionChangeDuration(),
-    //                         ),
-    //                     ]),
-    //
-    //                 ]),
-    //
-    //                 this.panelTracker = ASCPanel.createElement('tracker', [
-    //                     Div.cE('title', 'Tracker'),
-    //                     ASCForm.createElement('tracker-row-length', [
-    //                         Div.cE('title', 'Row &#120491;'),
-    //                         this.fieldTrackerRowLength = new ASUIInputSelect('row-length',
-    //                             (selectElm) => [
-    //                                 selectElm.getOption(null, 'Default'),
-    //                                 this.values.getNoteDurations((duration, title) => selectElm.getOption(duration, title)),
-    //                             ],
-    //                             e => this.trackerChangeRowLength(),
-    //                             this.state.trackerRowLength),
-    //                     ]),
-    //                     ASCForm.createElement('tracker-segment-length', [
-    //                         Div.cE('title', 'Seg &#120491;'),
-    //                         this.fieldTrackerSegmentLength = new ASUIInputSelect('segment-length',
-    //                             (selectElm) => [
-    //                                 selectElm.getOption(null, 'Default'),
-    //                                 this.values.getSegmentLengths((length, title) => selectElm.getOption(length, title)),
-    //                             ],
-    //                             (e, segmentLengthInTicks) => this.trackerChangeSegmentLength(segmentLengthInTicks),
-    //                             this.state.trackerSegmentLength),
-    //                     ]),
-    //                     ASCForm.createElement('tracker-instrument', [
-    //                         Div.cE('title', 'Instrument'),
-    //                         this.fieldTrackerFilterInstrument = new ASUIInputSelect('filter-instrument',
-    //                             (selectElm) => [
-    //                                 selectElm.getOption(null, 'No Filter'),
-    //                                 this.values.getSongInstruments((id, name) => selectElm.getOption(id, name))
-    //                             ],
-    //                             (e, instrumentID) => this.trackerChangeInstrumentFilter(instrumentID),
-    //                             null),
-    //                     ]),
-    //                     ASCForm.createElement('tracker-selection', [
-    //                         Div.cE('title', 'Selection'),
-    //                         InputText.createInputText('selection',
-    //                             e => this.trackerChangeSelection(),
-    //                             '',
-    //                             'Selection',
-    //                             ref => this.fieldTrackerSelection = ref,
-    //                             // 'No selection'
-    //                         ),
-    //                     ]),
-    //                     ASCForm.createElement('tracker-octave', [
-    //                         Div.cE('title', 'Octave'),
-    //                         this.fieldTrackerOctave = new ASUIInputSelect('octave',
-    //                             (selectElm) => [
-    //                                 selectElm.getOption(null, 'Default'),
-    //                                 this.values.getNoteOctaves(opt => selectElm.getOption(opt, opt)),
-    //                             ],
-    //                             e => this.trackerChangeOctave(),
-    //                             // addOption('', 'No Octave Selected');
-    //                             3),
-    //                     ]),
-    //
-    //
-    //                     // this.querySelectorAll('.multiple-count-text').forEach((elm) => elm.innerHTML = (selectedIndices.length > 1 ? '(s)' : ''));
-    //
-    //                     // Status Fields
-    //
-    //                     // const trackerOctave = this.fieldTrackerOctave.value;
-    //                     // this.fieldTrackerOctave.value = trackerOctave !== null ? trackerOctave : 3;
-    //                     // if(this.fieldTrackerOctave.value === null)
-    //                     //     this.fieldTrackerOctave.value = 3; // this.status.currentOctave;
-    //                 ]),
-    //
-    //                 this.panelTrackerGroups = ASCPanel.createElement('tracker-groups', [
-    //                     Div.cE('title', 'Groups'),
-    //                     () => {
-    //                         const currentGroupName = this.state.tracker.currentGroup;
-    //                         const content = Object.keys(this.song.data.instructions).map((groupName, i) => [
-    //                             // const buttonForm = panelTrackerGroups.addForm(groupName);
-    //                             InputButton.createInputButton(
-    //                                 {selected: currentGroupName === groupName},
-    //                                 groupName,
-    //                                 e => this.trackerChangeGroup(groupName),
-    //                                 "Group " + groupName,
-    //                             )
-    //                             // panelTrackerGroups.classList.toggle('selected', groupName === this.groupName);
-    //                             // TODO button.classList.toggle('selected', groupName === currentGroupName);
-    //                         ]);
-    //
-    //                         content.push(InputButton.createInputButton(
-    //                             'add-group',
-    //                             '+',
-    //                             e => this.groupAdd(e)
-    //                         ));
-    //                         return content;
-    //                     }
-    //                 ]),
-    //
-    //                 this.panelTrackerRowSegments = ASCPanel.createElement('tracker-row-segments', [
-    //                     Div.cE('title', 'Tracker Segments'),
-    //                     () => {
-    //                         const segmentLengthInTicks = this.state.tracker.segmentLengthInTicks || (this.song.getTimeDivision() * 16);
-    //                         let songLengthInTicks = this.song.getSongLengthInTicks();
-    //                         let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
-    //                         if (rowSegmentCount > 256)
-    //                             rowSegmentCount = 256;
-    //
-    //                         this.panelTrackerRowSegmentButtons = [];
-    //
-    //                         // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-    //                         const currentRowSegmentID = this.state.tracker.currentRowSegmentID;
-    //                         if (rowSegmentCount < currentRowSegmentID + 1)
-    //                             rowSegmentCount = currentRowSegmentID + 1;
-    //                         for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++) {
-    //                             this.panelTrackerRowSegmentButtons[segmentID] = InputButton.createInputButton(
-    //                                 {selected: segmentID === currentRowSegmentID},
-    //                                 segmentID,
-    //                                 e => this.trackerChangeSegment(segmentID),
-    //                                 "Segment " + segmentID);
-    //                             // panelElm.classList.toggle('selected', segmentID === currentRowSegmentID);
-    //                             // button.classList.toggle('selected', segmentID === currentRowSegmentID);
-    //                         }
-    //                         return this.panelTrackerRowSegmentButtons;
-    //                     }
-    //                 ]),
-    //             ]),
-    //
-    //             Div.createElement('asc-tracker-container', [
-    //                 Tracker.createElement({
-    //                     key: 'asc-tracker',
-    //                     tabindex: 0,
-    //                     composer: this,
-    //                     ref: ref => this.tracker = ref
-    //                 }, )
-    //             ]),
-    //
-    //             Div.cE('asc-status-container', [
-    //                 Div.cE({key: 'asc-status-text', ref:ref=>this.textStatus=ref}, () => this.state.status),
-    //                 Div.cE({key: 'asc-version-text', ref:ref=>this.textVersion=ref}, () => this.state.version),
-    //             ]),
-    //         ])
-    //     ];
-    // }
-
-
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
-        this.state.status = newStatus;
-        if(this.textStatus)
-            this.textStatus.forceUpdate();
+        this.status = newStatus;
+        // this.setState({status: newStatus})
+        if(this.footer)
+            this.footer.forceUpdate();
     }
 
-    setVersion(versionString) {
-        this.state.version = versionString;
-        if(this.textVersion)
-            this.textVersion.forceUpdate();
-    }
+    // setVersion(versionString) {
+    //     this.state.version = versionString;
+    //     if(this.textVersion)
+    //         this.textVersion.forceUpdate();
+    // }
 
 
     // get fieldinstrumentAdd()

@@ -38,7 +38,7 @@ class Composer extends ComposerActions {
 
         this.song = new Song();
         this.song.loadSongData({});
-        this.setCurrentSong(this.song);
+        // this.setCurrentSong(this.song);
         // this.values = new Values(this.song);
         // Util.loadLibrary(defaultLibraryURL);
 
@@ -88,6 +88,10 @@ class Composer extends ComposerActions {
 
         this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
 
+    }
+
+    componentDidMount() {
+        this.loadState();
     }
 
 
@@ -152,7 +156,7 @@ class Composer extends ComposerActions {
 
     async loadDefaultSong(recentSongUUID = null) {
 
-        const src = this.getAttribute('src');
+        const src = this.props.src || this.props.url;
         if (src) {
             await this.loadSongFromURL(src);
             return true;
@@ -161,7 +165,12 @@ class Composer extends ComposerActions {
         await this.loadNewSongData();
 
         if (recentSongUUID) {
-            await this.loadSongFromMemory(recentSongUUID);
+            try {
+                await this.loadSongFromMemory(recentSongUUID);
+            } catch (e) {
+                console.error(e);
+                this.setStatus("Error: " + e.message)
+            }
             return;
         }
 

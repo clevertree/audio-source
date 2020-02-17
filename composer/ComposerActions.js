@@ -1,6 +1,8 @@
 import ComposerRenderer from "./ComposerRenderer";
 import Song from "../song/Song";
+import InstrumentLoader from "../instrument/InstrumentLoader";
 
+import Storage from "../song/Storage";
 
 class ComposerActions extends ComposerRenderer {
     constructor(state = {}, props = {}) {
@@ -633,22 +635,25 @@ class ComposerActions extends ComposerRenderer {
     /** Instruments **/
 
 
-    async instrumentAdd(instrumentURL, instrumentConfig = {}) {
-        if (!instrumentURL)
-            throw new Error(`Empty URL`);
-        instrumentConfig.url = instrumentURL;
-        instrumentConfig.libraryURL = this.defaultLibraryURL;
+    async instrumentAdd(instrumentClassName, instrumentConfig = {}) {
+        if (!instrumentClassName)
+            throw new Error(`Invalid instrument class`);
+        const {classObject, className} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+
+        instrumentConfig.class = classObject.name;
+        // instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (window.confirm(`Add instrument to Song?\nURL: ${instrumentURL}`)) {
+        if (window.confirm(`Add '${className}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
-            this.setStatus("New instrument Added to song: " + instrumentURL);
-            this.fieldInstructionInstrument.setValue(instrumentID);
-            await this.panelInstruments.forceUpdate();
+            this.setStatus("New instrument Added to song: " + instrumentClassName);
+            // this.forceUpdate();
+            // this.fieldInstructionInstrument.setValue(instrumentID);
+            // await this.panelInstruments.forceUpdate();
 
         } else {
-            throw new Error(`New instrument canceled: ${instrumentURL}`);
+            throw new Error(`New instrument canceled: ${instrumentClassName}`);
         }
     }
 
