@@ -8,15 +8,18 @@ class SongInstructionIterator {
         this.song = song;
         this.groupName = groupName;
         // this.nextIndex = 0;
-        this.groupIndex = -1;
+        this.currentIndex = -1;
+        this.positionTicks = 0;
+        this.endPositionTicks = 0;
+        this.positionSeconds = 0;
+        this.endPositionSeconds = 0;
+        this.lastInstructionPositionInTicks = 0;
+        this.lastInstructionPositionInSeconds = 0;
+
         this.instructionList = song.data.instructions[groupName];
         this.stats = Object.assign({
             bpm: song.getStartingBeatsPerMinute(),
             timeDivision: song.getStartingBeatsPerMinute(),
-            positionTicks: 0,
-            positionSeconds: 0,
-            lastInstructionPositionInTicks: 0,
-            lastInstructionPositionInSeconds: 0,
         }, stats);
         this.nextQuantizationBreakInTicks = 0;
         // this.lastInstructionGroupPositionInTicks = 0;
@@ -24,41 +27,49 @@ class SongInstructionIterator {
     }
 
     hasReachedEnd() {
-        return this.groupIndex >= this.instructionList.length-1;
+        return this.currentIndex >= this.instructionList.length-1;
     }
 
     incrementPositionByInstruction(instruction) {
         const deltaDuration = instruction.deltaDuration;
-        this.stats.positionTicks = this.stats.lastInstructionPositionInTicks + deltaDuration;
-        this.stats.lastInstructionPositionInTicks = this.stats.positionTicks;
+        this.positionTicks = this.lastInstructionPositionInTicks + deltaDuration;
+        this.lastInstructionPositionInTicks = this.positionTicks;
 
         const elapsedTime = (deltaDuration / this.stats.timeDivision) / (this.stats.bpm / 60);
-        this.stats.positionSeconds = this.stats.lastInstructionPositionInSeconds + elapsedTime;
-        this.stats.lastInstructionPositionInSeconds = this.stats.positionSeconds;
+        this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
+        this.lastInstructionPositionInSeconds = this.positionSeconds;
+
+        const groupEndPositionInTicks = this.positionTicks + instruction.duration;
+        if (groupEndPositionInTicks > this.endPositionTicks)
+            this.endPositionTicks = groupEndPositionInTicks;
+        const groupPlaybackEndTime = this.positionSeconds + (instruction.duration / this.stats.timeDivision) / (this.stats.bpm / 60);
+        if (groupPlaybackEndTime > this.endPositionSeconds)
+            this.endPositionSeconds = groupPlaybackEndTime;
     }
 
     incrementPositionTo(positionInTicks) {
-        const elapsedTimeInTicks = positionInTicks - this.stats.positionTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
-        this.stats.positionTicks = positionInTicks;
+        const elapsedTimeInTicks = positionInTicks - this.positionTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
+        this.positionTicks = positionInTicks;
         const elapsedTimeInSeconds = (elapsedTimeInTicks / this.stats.timeDivision) / (this.stats.bpm / 60);
-        this.stats.positionSeconds += elapsedTimeInSeconds;
+        this.positionSeconds += elapsedTimeInSeconds;
     }
+
 
     getInstruction(index) {
         return index >= this.instructionList.length ? null : new SongInstruction(this.instructionList[index]);
     }
 
     currentInstruction() {
-        if(this.groupIndex === -1)
+        if(this.currentIndex === -1)
             throw new Error("Iterator has not been started");
-        return this.getInstruction(this.groupIndex);
+        return this.getInstruction(this.currentIndex);
     }
 
     nextInstruction() {
         if (this.hasReachedEnd())
             return null;
 
-        this.groupIndex++;
+        this.currentIndex++;
         let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.groupIndex]);
         this.incrementPositionByInstruction(currentInstruction); // , currentInstruction.duration);
         return currentInstruction;
@@ -68,11 +79,17 @@ class SongInstructionIterator {
         if(!Number.isInteger(index))
             throw new Error("Invalid seek index");
         while(true) {
-            if(index === this.groupIndex)
+            if(index === this.currentIndex)
                 break;
             if(!this.nextInstruction())
                 break;
         }
+        return this;
+    }
+
+    seekToEnd() {
+        while (!this.hasReachedEnd() && this.nextInstruction()) {}
+        return this;
     }
 
     // nextQuantizedInstruction(quantizationInTicks, maxLengthInTicks) {
@@ -87,7 +104,7 @@ class SongInstructionIterator {
     //             throw new Error("Shouldn't be a next instruction");
     //
     //         // If we found end of the group, we're done, but first, check if we need to render more quantized rows
-    //         if ((this.stats.positionTicks < maxLengthInTicks)) { //
+    //         if ((this.positionTicks < maxLengthInTicks)) { //
     //             this.incrementPositionTo(this.nextQuantizationBreakInTicks);
     //             this.nextQuantizationBreakInTicks += quantizationInTicks;
     //             return [];
@@ -97,7 +114,7 @@ class SongInstructionIterator {
     //     }
     //
     //     // Calculate the next instruction position
-    //     let nextInstructionPositionInTicks = this.stats.positionTicks + scanAheadInstruction.deltaDuration; // this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
+    //     let nextInstructionPositionInTicks = this.positionTicks + scanAheadInstruction.deltaDuration; // this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
     //     if (nextInstructionPositionInTicks > maxLengthInTicks)
     //         maxLengthInTicks = nextInstructionPositionInTicks;
     //
@@ -134,7 +151,7 @@ class SongInstructionIterator {
             if(!conditionalCallback || conditionalCallback(nextInstruction) === true)
                 currentRowInstructionList.push(nextInstruction);
 
-            const scanAheadInstruction = this.getInstruction(this.groupIndex+1);
+            const scanAheadInstruction = this.getInstruction(this.currentIndex+1);
             if (!scanAheadInstruction || scanAheadInstruction.deltaDuration) {
                 // If there's no next instruction, or the next instruction has a delta duration, then this row ends.
                 break;
@@ -150,7 +167,7 @@ class SongInstructionIterator {
         if (!quantizationInTicks)
             throw new Error("Invalid Quantization value: " + typeof quantizationInTicks);
 
-        const scanAheadInstruction = this.getInstruction(this.groupIndex+1);
+        const scanAheadInstruction = this.getInstruction(this.currentIndex+1);
         // const nextInstruction = new SongInstruction(this.instructionList[this.groupIndex + 1]);
 
 
@@ -159,7 +176,7 @@ class SongInstructionIterator {
                 throw new Error("Shouldn't be a next instruction");
 
             // If we found end of the group, we're done, but first, check if we need to render more quantized rows
-            if ((this.stats.positionTicks < maxLengthInTicks)) { //
+            if ((this.positionTicks < maxLengthInTicks)) { //
                 this.incrementPositionTo(this.nextQuantizationBreakInTicks);
                 this.nextQuantizationBreakInTicks += quantizationInTicks;
                 return [];
@@ -169,7 +186,7 @@ class SongInstructionIterator {
         }
 
         // Calculate the next instruction position
-        let nextInstructionPositionInTicks = this.stats.positionTicks + scanAheadInstruction.deltaDuration; // this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
+        let nextInstructionPositionInTicks = this.lastInstructionPositionInTicks + scanAheadInstruction.deltaDuration; // this.lastInstructionGroupPositionInTicks + nextInstruction.deltaDuration;
         if (nextInstructionPositionInTicks > maxLengthInTicks)
             maxLengthInTicks = nextInstructionPositionInTicks;
 
@@ -222,7 +239,7 @@ class SongInstructionIterator {
 //
 //         // this.lastRowPositionInTicks = 0;
 //         // this.lastRowPlaybackTime = 0;
-//         this.stats.positionTicks = groupPositionInTicks;
+//         this.positionTicks = groupPositionInTicks;
 //         this.lastDeltaDuration = 0;
 //         this.groupEndPositionInTicks = groupPositionInTicks;
 //         this.lastInstructionGroupPositionInTicks = groupPositionInTicks;
@@ -252,7 +269,7 @@ class SongInstructionIterator {
 //             return null;
 //         const instruction = new SongInstruction(data);
 //         instruction.index = this.groupIndex;
-//         instruction.positionInTicks = this.stats.positionTicks;
+//         instruction.positionInTicks = this.positionTicks;
 //         return instruction;
 //     }
 //
@@ -343,7 +360,7 @@ class SongInstructionIterator {
 //
 //         if (!nextInstruction) {
 //             // If we found end of the group, we're done, but first, check if we need to render more quantized rows
-//             if ((this.stats.positionTicks < maxLengthInTicks)) { //
+//             if ((this.positionTicks < maxLengthInTicks)) { //
 //                 this._incrementTo(this.nextQuantizationBreakInTicks);
 //                 this.nextQuantizationBreakInTicks += quantizationInTicks;
 //                 return [];
@@ -378,9 +395,9 @@ class SongInstructionIterator {
 //
 //     _incrementPositionBy(deltaDuration, instructionDuration) {
 //
-//         // this.lastRowPositionInTicks = this.stats.positionTicks;
-//         this.stats.positionTicks = this.lastInstructionGroupPositionInTicks + deltaDuration;
-//         this.lastInstructionGroupPositionInTicks = this.stats.positionTicks;
+//         // this.lastRowPositionInTicks = this.positionTicks;
+//         this.positionTicks = this.lastInstructionGroupPositionInTicks + deltaDuration;
+//         this.lastInstructionGroupPositionInTicks = this.positionTicks;
 //
 //         const elapsedTime = (deltaDuration / this.stats.timeDivision) / (this.stats.bpm / 60);
 //         // this.lastRowPlaybackTime = this.groupPlaybackTime;
@@ -388,7 +405,7 @@ class SongInstructionIterator {
 //         this.lastInstructionGroupPlaybacktime = this.groupPlaybackTime;
 //
 //         instructionDuration = instructionDuration || 0;
-//         const groupEndPositionInTicks = this.stats.positionTicks + instructionDuration;
+//         const groupEndPositionInTicks = this.positionTicks + instructionDuration;
 //         if (groupEndPositionInTicks > this.groupEndPositionInTicks)
 //             this.groupEndPositionInTicks = groupEndPositionInTicks;
 //         const groupPlaybackEndTime = this.groupPlaybackTime + (instructionDuration / this.song.getTimeDivision()) / (this.stats.bpm / 60);
@@ -398,9 +415,9 @@ class SongInstructionIterator {
 //
 //     _incrementTo(positionInTicks) {
 //
-//         const elapsedTimeInTicks = positionInTicks - this.stats.positionTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
+//         const elapsedTimeInTicks = positionInTicks - this.positionTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
 //         // Set the last rendered position as the next break position
-//         this.stats.positionTicks = positionInTicks;
+//         this.positionTicks = positionInTicks;
 //         const elapsedTimeInSeconds = (elapsedTimeInTicks / this.stats.timeDivision) / (this.stats.bpm / 60);
 //         this.groupPlaybackTime += elapsedTimeInSeconds;
 //     }

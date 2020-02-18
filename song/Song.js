@@ -292,10 +292,14 @@ class Song {
         return index >= instructionList.length ? null : new SongInstruction(instructionList[index]);
     }
 
-    getInstructionStats(groupName, index) {
+    getInstructionIterator(groupName, index=null, parentStats=null) {
         const iterator = this.instructionGetIterator(groupName);
-        iterator.seekToIndex(index);
-        return iterator.stats;
+        return new SongInstructionIterator(
+            this,
+            groupName,
+            parentStats
+        );
+        return iterator;
     }
 
 
@@ -311,7 +315,7 @@ class Song {
             {
                 bpm: parentStats ? parentStats.bpm : this.getStartingBeatsPerMinute(),
             });
-            // parentStats ? parentStats.stats.positionTicks : 0);
+            // parentStats ? parentstats.positionTicks : 0);
     }
 
 
@@ -335,7 +339,7 @@ class Song {
         while (instruction) {
             // const instruction = new SongInstruction(instructionList[i]);
             // if(instruction.deltaDuration > 0) {
-            const currentPositionInTicks = iterator.stats.positionTicks;
+            const currentPositionInTicks = iterator.positionTicks;
             if (currentPositionInTicks > insertPositionInTicks) {
                 // Delta note appears after note to be inserted
                 const splitDuration = [
@@ -343,7 +347,7 @@ class Song {
                     currentPositionInTicks - insertPositionInTicks
                 ];
 
-                const modifyIndex = iterator.groupIndex;
+                const modifyIndex = iterator.currentIndex;
                 // Make following delta note smaller
                 this.instructionReplaceDeltaDuration(groupName, modifyIndex, splitDuration[1]);
 
@@ -358,7 +362,7 @@ class Song {
 
                 let lastInsertIndex;
                 // Search for last insert position
-                for (lastInsertIndex = iterator.groupIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
+                for (lastInsertIndex = iterator.currentIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
                     if (new SongInstruction(instructionList[lastInsertIndex]).deltaDuration > 0)
                         break;
 
@@ -374,7 +378,7 @@ class Song {
             instruction = iterator.nextInstruction();
         }
 
-        if (iterator.stats.positionTicks >= insertPositionInTicks)
+        if (iterator.positionTicks >= insertPositionInTicks)
             throw new Error("Something went wrong");
         // Insert a new pause at the end of the song, lasting until the new note?
         let lastPauseIndex = instructionList.length;
@@ -383,7 +387,7 @@ class Song {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDuration = insertPositionInTicks - iterator.stats.positionTicks;
+        insertInstruction.deltaDuration = insertPositionInTicks - iterator.positionTicks;
         this.instructionInsertAtIndex(groupName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -477,26 +481,30 @@ class Song {
     /** Song Timing **/
 
     getSongLengthInSeconds() {
-        return this.getSongLength().inSeconds;
+        return this.instructionGetIterator(this.getRootGroup())
+            .seekToEnd()
+            .endPositionSeconds;
     }
 
     getSongLengthInTicks() {
-        return this.getSongLength().inTicks;
+        return this.instructionGetIterator(this.getRootGroup())
+            .seekToEnd()
+            .endPositionTicks;
     }
 
-    getSongLength() {
-        return this.getGroupLength(this.getRootGroup());
-    }
-
-    getGroupLength(groupName) {
-        const instructionIterator = this.instructionGetIterator(groupName);
-        while (instructionIterator.nextInstruction()) {
-        }
-        return {
-            inSeconds: instructionIterator.groupPlaybackEndTime,
-            inTicks: instructionIterator.stats.positionTicks
-        }
-    }
+    // getSongLength() {
+    //     return this.getGroupLength(this.getRootGroup());
+    // }
+    //
+    // getGroupLength(groupName) {
+    //     const instructionIterator = this.instructionGetIterator(groupName);
+    //     while (instructionIterator.nextInstruction()) {}
+    //     return instructionIterator;
+    //     // return {
+    //     //     inSeconds: instructionIterator.endPositionSeconds,
+    //     //     inTicks: instructionIterator.endPositionTicks
+    //     // }
+    // }
 
 
     getSongPositionFromTicks(songPositionInTicks) {
@@ -505,24 +513,22 @@ class Song {
 
     // Refactor
     getGroupPositionFromTicks(groupName, groupPositionInTicks) {
-        let lastStats = null;
-        this.instructionEach(groupName, (instruction, iterator) => {
-            lastStats = iterator;
-            if (iterator.stats.positionTicks >= groupPositionInTicks)
-                return false;
-        });
+        const iterator = this.instructionGetIterator(groupName);
+        while (true) {
+            if (iterator.positionTicks >= groupPositionInTicks || !iterator.nextInstruction())
+                break;
+        }
 
-        if (!lastStats)
-            return 0;
-        let currentPosition = lastStats.groupPlaybackTime;
 
-        if (groupPositionInTicks > lastStats.stats.positionTicks) {
-            const elapsedTicks = groupPositionInTicks - lastStats.stats.positionTicks;
-            currentPosition += this.ticksToSeconds(elapsedTicks, lastStats.currentBPM);
+        let currentPosition = iterator.positionSeconds;
 
-        } else if (groupPositionInTicks < lastStats.stats.positionTicks) {
-            const elapsedTicks = lastStats.stats.positionTicks - groupPositionInTicks;
-            currentPosition -= this.ticksToSeconds(elapsedTicks, lastStats.currentBPM);
+        if (groupPositionInTicks > iterator.positionTicks) {
+            const elapsedTicks = groupPositionInTicks - iterator.positionTicks;
+            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.stats.bpm, iterator.stats.timeDivision);
+
+        } else if (groupPositionInTicks < iterator.positionTicks) {
+            const elapsedTicks = iterator.positionTicks - groupPositionInTicks;
+            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.stats.bpm, iterator.stats.timeDivision);
         }
 
         // console.info("getGroupPositionFromTicks", groupPositionInTicks, currentPosition);
@@ -538,38 +544,32 @@ class Song {
 
 
     getGroupPositionInTicks(groupName, positionInSeconds) {
-        let lastStats = null;
-        this.instructionEach(groupName, (instruction, stats) => {
-            lastStats = stats;
-            if (stats.groupPlaybackTime >= positionInSeconds)
-                return false;
-        });
+        const iterator = this.instructionGetIterator(groupName);
+        while (true) {
+            if (iterator.positionSeconds >= positionInSeconds || !iterator.nextInstruction())
+                break;
+        }
 
-        if (!lastStats)
-            return 0;
+        let currentPositionInTicks = iterator.positionTicks;
+        if (positionInSeconds > iterator.positionSeconds) {
+            const elapsedTime = positionInSeconds - iterator.positionSeconds;
+            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.stats.bpm);
 
-        let currentPositionInTicks = lastStats.stats.positionTicks;
-        if (positionInSeconds > lastStats.groupPlaybackTime) {
-            const elapsedTime = positionInSeconds - lastStats.groupPlaybackTime;
-            currentPositionInTicks += this.secondsToTicks(elapsedTime, lastStats.currentBPM);
-
-        } else if (positionInSeconds < lastStats.groupPlaybackTime) {
-            const elapsedTime = lastStats.groupPlaybackTime - positionInSeconds;
-            currentPositionInTicks -= this.secondsToTicks(elapsedTime, lastStats.currentBPM);
+        } else if (positionInSeconds < iterator.positionSeconds) {
+            const elapsedTime = iterator.positionSeconds - positionInSeconds;
+            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.stats.bpm);
         }
 
         // console.info("getSongPositionInTicks", positionInSeconds, currentPositionInTicks);
         return currentPositionInTicks;
     }
 
-    ticksToSeconds(elapsedTicks, currentBPM) {
-        const elapsedTime = (elapsedTicks / this.timeDivision) * (60 / currentBPM);
-        return elapsedTime;
+    static ticksToSeconds(elapsedTicks, bpm, timeDivision) {
+        return (elapsedTicks / timeDivision) * (60 / bpm);
     }
 
-    secondsToTicks(elapsedTime, currentBPM) {
-        const elapsedTicks = Math.round((elapsedTime * this.timeDivision) / (60 / currentBPM));
-        return elapsedTicks;
+    static secondsToTicks(elapsedTime, bpm, timeDivision) {
+        return Math.round((elapsedTime * timeDivision) / (60 / bpm));
     }
 
 

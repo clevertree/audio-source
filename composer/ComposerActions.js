@@ -830,7 +830,7 @@ class ComposerActions extends ComposerRenderer {
                 return eval(searchCallbackString);
             })) {
                 stats.count++;
-                tracker.selectIndicies(e, iterator.groupIndex);
+                tracker.selectIndicies(e, iterator.currentIndex);
             }
             this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
         } catch (err) {
@@ -875,7 +875,7 @@ class ComposerActions extends ComposerRenderer {
                     stats.modified++;
 
                 stats.count++;
-                tracker.selectIndex(e, iterator.groupIndex);
+                tracker.selectIndex(e, iterator.currentIndex);
             }
             this.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
             return instructionList;

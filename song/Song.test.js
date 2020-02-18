@@ -18,11 +18,11 @@ class SongTest {
   }
 
   async test() {
-    console.info("Test Started: ", this.constructor.name, __filename);
+    // console.info("Test Started: ", this.constructor.name, __filename);
     await this.testStorage();
     await this.testSongClass();
     // await this.testValues();
-    console.info("Test Complete: ", this.constructor.name);
+    // console.info("Test Complete: ", this.constructor.name);
   }
 
 
@@ -79,13 +79,13 @@ class SongTest {
     for(let i=0; i<textNotes.insert.length; i++) {
       const [pos, insertNote] = textNotes.insert[i];
       const index = song.instructionInsertAtIndex(testGroup, root.length, insertNote);
-      const stats = song.getInstructionStats(testGroup, index);
+      const stats = song.getInstructionIterator(testGroup).seekToIndex(index);
       expect(stats.positionTicks).toBe(pos);
     }
     for(let i=0; i<textNotes.position.length; i++) {
       const [pos, insertNote] = textNotes.position[i];
       const index = song.instructionInsertAtPosition(testGroup, pos, insertNote);
-      const stats = song.getInstructionStats(testGroup, index);
+      const stats = song.getInstructionIterator(testGroup).seekToIndex(index);
       expect(stats.positionTicks).toBe(pos);
     }
 
@@ -103,7 +103,7 @@ class SongTest {
     let instruction, instructionList, positionInTicks=0, playbackTime=0;
     while(instruction = iterator.nextInstruction()) {
       positionInTicks += instruction.deltaDuration;
-      expect(iterator.stats.positionTicks).toBe(positionInTicks);
+      expect(iterator.positionTicks).toBe(positionInTicks);
     }
 
     // Test Row Iterator
@@ -112,7 +112,7 @@ class SongTest {
     positionInTicks = 0;
     while(true) {
       instructionList = iterator.nextInstructionRow();
-      // positionInTicks = iterator.stats.positionTicks;
+      // positionInTicks = iterator.positionTicks;
       if(instructionList === null) {
         if(!iterator.hasReachedEnd)
           throw new Error("Iterator failed to reach the end");
@@ -124,52 +124,58 @@ class SongTest {
         positionInTicks += firstInstruction.deltaDuration;
         for(let i=0; i<instructionList.length; i++) {
           const instruction = instructionList[i];
-          expect(iterator.stats.positionTicks).toBe(positionInTicks);
+          expect(iterator.positionTicks).toBe(positionInTicks);
           currentIndex++
         }
-        expect(iterator.groupIndex).toBe(currentIndex-1);
+        expect(iterator.currentIndex).toBe(currentIndex-1);
       }
     }
 
     // Test Quantized Row Iterator
-    // iterator = song.instructionGetIterator(testGroup);
-    // positionInTicks = 0;
-    // playbackTime = 0;
-    // while(true) {
-    //   instructionList = iterator.nextInstructionQuantizedRow(5);
-    //   if(instructionList === null) {
-    //     if(!iterator.hasReachedEnd)
-    //       throw new Error("Iterator failed to reach the end");
-    //     break;
-    //   }
-    //   if(iterator.stats.positionTicks - positionInTicks > 5)
-    //     throw new Error("Iterator quantization failed");
-    //   positionInTicks = iterator.stats.positionTicks;
-    //
-    //   // if(iterator.stats.positionTicks - positionInTicks > song.getTimeDivision())
-    //   //     throw new Error('quantization failed for groupPositionInTicks');
-    //   if(iterator.stats.positionSeconds - playbackTime > 0.5)
-    //     throw new Error('quantization failed for groupPlaybackTime');
-    //   // console.log('iterator', iterator.stats.positionTicks, iterator.stats.positionSeconds);
-    //   // console.assert(iterator.stats.positionTicks === positionInTicks, `iterator.stats.positionTicks ${iterator.stats.positionTicks} !== ${positionInTicks}\n`, instruction);
-    //   // if(positionInTicks > 0)
-    //   //     console.assert(positionInTicks < iterator.stats.positionTicks, "Invalid position order");
-    //   // positionInTicks = iterator.stats.positionTicks;
-    //   // playbackTime = iterator.stats.positionSeconds;
-    //   // console.log(iterator.stats.positionTicks, instructionList, iterator.groupIndex);
-    //   // for(let i=0; i<instructionList.length; i++) {
-    //   //   const instruction = instructionList[i];
-    //   //   // if(iterator.stats.positionTicks !== iterator.stats.positionTicks)
-    //   //   //   throw new Error(`instruction[${i}].positionInTicks ${instruction.positionInTicks} !== ${iterator.stats.positionTicks}\n`);
-    //   // }
-    // }
+    iterator = song.instructionGetIterator(testGroup);
+    positionInTicks = 0;
+    playbackTime = 0;
+    let quantizationMaxDuration = 450;
+    while(true) {
+      instructionList = iterator.nextInstructionQuantizedRow(5, quantizationMaxDuration);
+      if(instructionList === null) {
+        expect(iterator.hasReachedEnd);
+        break;
+      }
+      expect(iterator.positionTicks).toBe(positionInTicks);
+      positionInTicks+= 5;
+      // TODO: test positionInSeconds
+      // if(iterator.positionTicks - positionInTicks > 5)
+      //   throw new Error("Iterator quantization failed");
+      // positionInTicks = iterator.positionTicks;
+
+      // if(iterator.positionTicks - positionInTicks > song.getTimeDivision())
+      //     throw new Error('quantization failed for groupPositionInTicks');
+      // if(iterator.positionSeconds - playbackTime > 0.5)
+      //   throw new Error('quantization failed for groupPlaybackTime');
+      // console.log('iterator', iterator.positionTicks, iterator.positionSeconds);
+      // console.assert(iterator.positionTicks === positionInTicks, `iterator.positionTicks ${iterator.positionTicks} !== ${positionInTicks}\n`, instruction);
+      // if(positionInTicks > 0)
+      //     console.assert(positionInTicks < iterator.positionTicks, "Invalid position order");
+      // positionInTicks = iterator.positionTicks;
+      // playbackTime = iterator.positionSeconds;
+      // console.log(iterator.positionTicks, instructionList, iterator.currentIndex);
+      // for(let i=0; i<instructionList.length; i++) {
+      //   const instruction = instructionList[i];
+      //   // if(iterator.positionTicks !== iterator.positionTicks)
+      //   //   throw new Error(`instruction[${i}].positionInTicks ${instruction.positionInTicks} !== ${iterator.positionTicks}\n`);
+      // }
+    }
+    expect(iterator.positionTicks).toBe(quantizationMaxDuration);
 
     // Groups
     const newRootGroup = song.generateInstructionGroupName('root');
     song.groupAdd(newRootGroup, ['A', 'B', 'C', 10, 'D']);
     song.groupRemove(newRootGroup);
 
-    console.info("Test song: ", Math.round(song.getSongLengthInSeconds() * 10000) / 10000 + 's', songData);
+    const songLength = song.getSongLengthInSeconds();
+    expect(songLength).toBeGreaterThan(0);
+    // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
 
     // TODO: set position
 
