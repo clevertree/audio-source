@@ -2,14 +2,14 @@
 
 /** Editor Panels **/
 
-div.asp-panel {
+div.asc-panel {
     vertical-align: top;
     display: inline-block;
     margin: 1px 3px 0px 1px;
     /*width: 100%;*/
 }
 
-div.asp-panel > div.title {
+div.asc-panel > div.title {
     background-color: #333;
     color: #FFF;
     font-size: 11px;

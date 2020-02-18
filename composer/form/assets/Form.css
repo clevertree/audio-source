@@ -1,7 +1,7 @@
 
 /** Song Forms **/
 
-div.asp-form {
+div.asc-form {
     background: #DDD;
     border: 1px outset #FFF;
     padding: 0px 0px;
@@ -9,18 +9,19 @@ div.asp-form {
     display: inline-block;
     vertical-align: top;
 }
-div.asp-form > div.title {
+div.asc-form > div.title {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;
-    padding: 1px 3px;
+    padding: 0 3px 1px 3px;
+    height: 1em;
 }
 
 
-div.asp-form[key=volume]       { max-width: 71px; }
-div.asp-form[key=version]      { max-width: 53px; }
-div.asp-form[key=name]         { max-width: 160px; }
-div.asp-form[key=timing]       { max-width: 77px; }
-div.asp-form[key=position]     { max-width: 77px; }
-div.asp-form[key=bpm]          { max-width: 43px; }
+div.asc-form[key=volume]       { max-width: 71px; }
+div.asc-form[key=version]      { max-width: 53px; }
+div.asc-form[key=name]         { max-width: 160px; }
+div.asc-form[key=timing]       { max-width: 77px; }
+div.asc-form[key=position]     { max-width: 77px; }
+div.asc-form[key=bpm]          { max-width: 43px; }
 

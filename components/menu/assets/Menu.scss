@@ -22,7 +22,8 @@ div.asui-menu:hover {
 /** Menu Title **/
 div.asui-menu > div.title {
     display: inline-block;
-    padding: 0 6px 0 4px;
+    //padding: 0 6px 0 4px;
+    padding: 0;
 }
 
 
@@ -39,6 +40,7 @@ div.asui-menu > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;
+    padding-left: 0.5em;
 }
 
 
@@ -51,7 +53,7 @@ div.asui-menu.stick {
 /** Drop Down Menu **/
 
 div.asui-menu > div.dropdown > div.asui-menu {
-    padding: 4px 0px;
+    padding: 4px;
 }
 
 div.asui-menu > div.dropdown {

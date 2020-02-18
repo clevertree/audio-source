@@ -32,10 +32,15 @@ div.asc-tracker {
 
 
 div.asc-tracker > div.header {
+    display: flex;
     min-width: 126px;
     /*background-color: #333;*/
     /*color: #FFF;*/
 }
+div.asc-tracker > div.header > div.instructions {
+    margin-left: auto;
+}
+
 div.asc-tracker .tracker-header-pause {
     text-align: center;
     min-width: 44px;

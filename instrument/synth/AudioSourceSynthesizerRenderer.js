@@ -1,22 +1,4 @@
 import React from 'react';
-// import Div from "../../components/div/Div.native";
-// import Menu from "../../components/menu/Menu";
-// import Icon from "../../components/icon/Icon";
-// import InputButton from "../../components/input-button/InputButton.native";
-// import InputFile from "../../components/input-file/InputFile";
-// import InputRange from "../../components/input-range/InputRange";
-// import InputText from "../../components/input-text/InputText.native";
-// import InputSelect from "../../components/input-select/InputSelect";
-// import Library from "../../library/Library";
-
-// import Div from "../../components/div/Div";
-// import InputButton from "../../components/input-button/InputButton";
-// import InputSelect from "../../components/input-select/InputSelect";
-// import Icon from "../../components/icon/Icon";
-// import Menu from "../../components/menu/Menu";
-// import Grid from "../../components/grid/Grid";
-// import GridColumn from "../../components/grid/GridColumn";
-
 import "./assets/AudioSourceSynthesizerRenderer.css";
 
 /** AudioSourceSynthesizerRenderer **/
@@ -63,9 +45,12 @@ class AudioSourceSynthesizerRenderer extends React.Component {
         return <Div className="audio-source-synthesizer-container">
             <Div className="header">
                 <InputButton
-                    className="title"
+                    className="toggle-container"
                     onAction={e => this.toggleContainer(e)}
-                >{titleHTML}</InputButton>
+                >{instrumentIDHTML}:</InputButton>
+                <Div
+                    className="title"
+                >{config.name || "Unnamed"}</Div>
                 <InputSelect
                     className="instrument-preset"
                     value={config.preset || "No Preset"}

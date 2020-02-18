@@ -1,8 +1,0 @@
-button.asui-input-file {
-    cursor: pointer;
-    padding: 0px;
-}
-
-button.asui-input-file > input[type=file] {
-    display: none;
-}

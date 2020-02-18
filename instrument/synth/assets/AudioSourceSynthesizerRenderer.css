@@ -1,7 +1,13 @@
 
+div.audio-source-synthesizer-container div.header > div.title {
+    margin-left: 4px;
+}
 div.audio-source-synthesizer-container div.instrument-config {
-    display: inline-block;
-    float: right;
+    margin: 2px;
+}
+
+div.audio-source-synthesizer-container div.instrument-preset {
+    margin-left: auto;
 }
 
 
@@ -42,12 +48,12 @@ div.audio-source-synthesizer-container > div.header {
     /* background-color: #CCC; */
 }
 
-div.audio-source-synthesizer-container > div.header > div.title {
-    cursor: pointer;
-}
-div.audio-source-synthesizer-container > div.header > div.title:hover {
-    background-color: #AAA;
-}
+/*div.audio-source-synthesizer-container > div.header > div.title {*/
+/*    cursor: pointer;*/
+/*}*/
+/*div.audio-source-synthesizer-container > div.header > div.title:hover {*/
+/*    background-color: #AAA;*/
+/*}*/
 
 
 div.audio-source-synthesizer-container > div.samples > div.header {

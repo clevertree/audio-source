@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export class TrackerParamVelocity extends React.Component {
+class TrackerParamVelocity extends React.Component {
     render() {
         return this.props.velocity;
     }
@@ -11,3 +11,5 @@ export class TrackerParamVelocity extends React.Component {
         })
     }
 }
+
+export default TrackerParamVelocity;

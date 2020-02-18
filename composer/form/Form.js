@@ -4,7 +4,7 @@ import "./assets/Form.css"
 class Form extends React.Component {
 
     render() {
-        let className = "asp-form";
+        let className = "asc-form";
         if(this.props.className)
             className += ' ' + this.props.className;
 

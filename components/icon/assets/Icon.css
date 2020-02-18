@@ -2,9 +2,10 @@
 
 /** Icons **/
 div.asui-icon {
-    width: 32px;
-    height: 32px;
-    background: center no-repeat;
+    /*font-size: large;*/
+    width: 1em;
+    height: 1em;
+    background-size: cover;
 }
 
 

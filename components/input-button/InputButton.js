@@ -3,7 +3,11 @@ import React from "react";
 import "./assets/InputButton.css";
 class InputButton extends React.Component {
     render() {
-        return <button className="asui-input-button" onClick={this.props.onAction}>
+        let className = 'asui-input-button';
+        if(this.props.className)
+            className += ' ' + this.props.className;
+
+        return <button className={className} onClick={this.props.onAction}>
             {this.props.children}
         </button>
     }

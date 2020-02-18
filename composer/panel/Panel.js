@@ -4,7 +4,7 @@ import "./assets/Panel.css";
 class Panel extends React.Component {
 
     render() {
-        let className = "asp-panel";
+        let className = "asc-panel";
         if(this.props.className)
             className += ' ' + this.props.className;
 

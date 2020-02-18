@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export class TrackerParamCommand extends React.Component {
+class TrackerParamCommand extends React.Component {
     render() {
         return this.props.command;
     }
@@ -11,3 +11,5 @@ export class TrackerParamCommand extends React.Component {
         })
     }
 }
+
+export default TrackerParamCommand;

@@ -45,8 +45,12 @@ class InputSelect extends React.Component {
 
     /** @override **/
     render() {
+        let className = 'asui-input-select';
+        if(this.props.className)
+            className += ' ' + this.props.className;
+
         return (
-            <Div className="asui-input-select">
+            <Div className={className}>
                 <Menu
                     arrow={true}
                     vertical={true}

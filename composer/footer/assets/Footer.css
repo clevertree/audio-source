@@ -1,16 +1,19 @@
 
-div.asp-status-text {
+div.asc-status-text {
     padding-left: 4px;
 }
-div.asp-version-text {
+div.asc-version-text {
     /* float: right; */
     padding-right: 4px;
     margin-left: auto;
 }
 
+div.asc-status-text > div.error {
+    color: red;
+}
 
 /** Status Bar **/
-div.asp-footer-container {
+div.asc-footer-container {
     display: flex;
     background-color: #FFF;
     color: #000;

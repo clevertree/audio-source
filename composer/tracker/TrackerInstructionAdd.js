@@ -1,6 +1,7 @@
 import * as React from "react";
+// import TrackerDelta from "./TrackerDelta";
 
-export class TrackerInstructionAdd extends React.Component {
+class TrackerInstructionAdd extends React.Component {
     // setCursor(isCursor = true) {
     //     this.setProps({cursor: isCursor});
     // }
@@ -10,3 +11,5 @@ export class TrackerInstructionAdd extends React.Component {
     }
 
 }
+
+export default TrackerInstructionAdd;

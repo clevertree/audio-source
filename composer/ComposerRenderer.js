@@ -18,6 +18,9 @@ import InputSelect from "../components/input-select/InputSelect";
 import Tracker from "./tracker/Tracker";
 import InstrumentLoader from "../instrument/InstrumentLoader";
 
+import "./assets/Composer.css";
+import TrackerGroupsPanel from "./tracker/panel/TrackerGroupsPanel";
+import TrackerRowSegmentsPanel from "./tracker/panel/TrackerRowSegmentsPanel";
 
 class ComposerRenderer extends React.Component {
     constructor(state = {}, props = {}) {
@@ -678,49 +681,16 @@ class ComposerRenderer extends React.Component {
                         </Form>
                     </Panel>
 
-                    <Panel className="tracker-groups" title="Groups">
-                        {Object.keys(this.song.data.instructions).map((groupName, i) =>
-                            <InputButton
-                                selected={this.state.trackerGroup === groupName}
-                                onAction={e => this.trackerChangeGroup(groupName)}
-                            >Group {groupName}</InputButton>)
-                        }
-                        <InputButton
-                            onAction={e => this.groupAdd(e)}
-                        >+</InputButton>)
-                    </Panel>
+                    <TrackerGroupsPanel composer={this} />
+                    <TrackerRowSegmentsPanel composer={this} />
 
-                    <Panel className="tracker-row-segments" title="Tracker Segments">
-                        {(() => {
-                            const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (this.state.trackerQuantizationInTicks * 16);
-                            let songLengthInTicks = this.state.songLengthInTicks;
-                            let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
-                            if (rowSegmentCount > 256)
-                            rowSegmentCount = 256;
-
-                            const buttons = [];
-
-                            // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-                            const currentRowSegmentID = this.state.trackerRowSegmentID;
-                            if (rowSegmentCount < currentRowSegmentID + 1)
-                            rowSegmentCount = currentRowSegmentID + 1;
-                            for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)
-                                buttons[segmentID] = <InputButton
-                                    onAction={e => this.trackerChangeSegment(segmentID)}
-                                    >+</InputButton>;
-                            return buttons;
-                        })()}
-                        <InputButton
-                            onAction={e => this.groupAdd(e)}
-                        >+</InputButton>)
-                    </Panel>
                 </Div>
                 <Div className="asc-tracker-container">
                     <Tracker
                         composer={this}
                         />
                 </Div>
-                <Footer player={this} ref={ref => this.footer = ref} />
+                <Footer composer={this} ref={ref => this.footer = ref} />
             </Div>
         )
     }
@@ -728,10 +698,11 @@ class ComposerRenderer extends React.Component {
 
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
-        this.status = newStatus;
-        // this.setState({status: newStatus})
-        if(this.footer)
-            this.footer.forceUpdate();
+        this.footer && this.footer.setStatus(newStatus);
+    }
+    setError(newStatus) {
+        console.error.apply(null, arguments); // (newStatus);
+        this.footer && this.footer.setError(newStatus);
     }
 
     // setVersion(versionString) {

@@ -169,7 +169,7 @@ class Composer extends ComposerActions {
                 await this.loadSongFromMemory(recentSongUUID);
             } catch (e) {
                 console.error(e);
-                this.setStatus("Error: " + e.message)
+                this.setError("Error: " + e.message)
             }
             return;
         }

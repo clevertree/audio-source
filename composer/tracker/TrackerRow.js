@@ -1,11 +1,11 @@
 import * as React from "react";
-import {TrackerDelta} from "./TrackerDelta";
-import {TrackerInstructionAdd} from "./TrackerInstructionAdd";
+import TrackerDelta from "./TrackerDelta";
+import TrackerInstructionAdd from "./TrackerInstructionAdd";
 import Div from "../../components/div/Div";
 
 import "./assets/TrackerRow.css";
 
-export class TrackerRow extends React.Component {
+class TrackerRow extends React.Component {
 
     render() {
         return (
@@ -17,3 +17,5 @@ export class TrackerRow extends React.Component {
         )
     }
 }
+
+export default TrackerRow;

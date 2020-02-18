@@ -1,7 +1,8 @@
 import React from "react";
 // import Div from "../div/Div";
 
-import "./assets/InputFile.css";
+// import "./assets/InputFile.css";
+import "../input-button/assets/InputButton.css";
 
 // import Icon from "../../components/asui-icon";
 // import Menu from "../../components/asui-menu";

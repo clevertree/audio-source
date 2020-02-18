@@ -1,11 +1,12 @@
 import * as React from "react";
-import {TrackerParamCommand} from "./TrackerParamCommand";
-import {TrackerParamInstrument} from "./TrackerParamInstrument";
-import {TrackerParamVelocity} from "./TrackerParamVelocity";
-import {TrackerParamDuration} from "./TrackerParamDuration";
+import TrackerParamCommand from "./TrackerParamCommand";
+import TrackerParamInstrument from "./TrackerParamInstrument";
+import TrackerParamVelocity from "./TrackerParamVelocity";
+import TrackerParamDuration from "./TrackerParamDuration";
 import Div from "../../components/div/Div";
+// import TrackerDelta from "./TrackerDelta";
 
-export class TrackerInstruction extends React.Component {
+class TrackerInstruction extends React.Component {
     // play() {
     //     const composer = this.props.composer;
     //     composer.song.playInstructionAtIndex(destination, this.state.tracker.currentGroup, this.index, composer.song.getAudioContext().currentTime);
@@ -28,29 +29,5 @@ export class TrackerInstruction extends React.Component {
         </Div>
     }
 
-    render2() {
-        const instruction = this.props.instruction;
-        return [
-            TrackerParamCommand.createParameter(instruction),
-            (this.props.cursor || this.props.selected) ? [
-                TrackerParamInstrument.createParameter(instruction),
-                TrackerParamVelocity.createParameter(instruction),
-                TrackerParamDuration.createParameter(instruction),
-            ] : null
-        ]
-    }
-
-    getAttributeMap() {
-        return Object.assign(super.getAttributeMap(), {
-            selected: 'selected',
-            cursor: 'cursor',
-        });
-    }
-
-    static createInstruction(props, instruction) {
-        return this.createElement(props, null, {
-            instruction
-        });
-    }
-
 }
+export default TrackerInstruction;

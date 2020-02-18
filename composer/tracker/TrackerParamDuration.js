@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export class TrackerParamDuration extends React.Component {
+class TrackerParamDuration extends React.Component {
     render() {
         return this.props.duration;
     }
@@ -11,3 +11,5 @@ export class TrackerParamDuration extends React.Component {
         })
     }
 }
+
+export default TrackerParamDuration;

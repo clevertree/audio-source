@@ -1,8 +1,8 @@
 import * as React from "react";
-import {TrackerDelta} from "./TrackerDelta";
-import {TrackerInstructionAdd} from "./TrackerInstructionAdd";
-import {TrackerInstruction} from "./TrackerInstruction";
-import {TrackerRow} from "./TrackerRow";
+// import TrackerDelta from "./TrackerDelta";
+import TrackerInstructionAdd from "./TrackerInstructionAdd";
+import TrackerInstruction from "./TrackerInstruction";
+import TrackerRow from "./TrackerRow";
 import Div from "../../components/div/Div";
 import SongInstruction from "../../song/SongInstruction";
 
@@ -15,9 +15,6 @@ class Tracker extends React.Component {
         if(!props.composer)
             throw new Error("Invalid composer");
         this.state = this.props.composer.state;
-
-        /** @deprecated **/
-        this.mousePosition = {};
     }
 
 
@@ -86,7 +83,7 @@ class Tracker extends React.Component {
 
                 // Render Row
                 const newRowElm = <TrackerRow
-                    deltaDuration={deltaDuration}
+                    deltaDuration={composer.values.formatDuration(deltaDuration)}
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
             }
@@ -338,8 +335,8 @@ class Tracker extends React.Component {
                 if (e.target instanceof TrackerInstructionAdd)
                     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
-                if (e.target instanceof TrackerDelta) // TODO: special command for clicking delta
-                    return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+                // if (e.target instanceof TrackerDelta) // TODO: special command for clicking delta
+                //     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 
 
                 if (e.target instanceof TrackerRow)  // classList.contains('tracker-row')) {
