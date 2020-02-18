@@ -263,15 +263,15 @@ class ComposerActions extends ComposerRenderer {
 
     /** Tracker Commands **/
 
-    playSelectedInstructions() {
-        const audioContext = this.getVolumeGain()
-        if (this.song.isPlaying)
-            this.song.stopPlayback();
-        const selectedIndices = this.state.trackerSelectedIndices;
-        for (let i = 0; i < selectedIndices.length; i++) {
-            this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.trackerGroup, selectedIndices[i]);
-        }
-    }
+    // playSelectedInstructions() {
+    //     const audioContext = this.getVolumeGain()
+    //     if (this.song.isPlaying)
+    //         this.song.stopPlayback();
+    //     const selectedIndices = this.state.trackerSelectedIndices;
+    //     for (let i = 0; i < selectedIndices.length; i++) {
+    //         this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.trackerGroup, selectedIndices[i]);
+    //     }
+    // }
 
     playCursorInstruction() {
         if (this.song.isPlaying)
@@ -466,7 +466,7 @@ class ComposerActions extends ComposerRenderer {
         //
         // }
 
-        this.playCursorInstruction();
+        // this.playCursorInstruction();
     }
 
     async setNextCursor(clearSelection = null, toggleValue = null) {
@@ -513,7 +513,7 @@ class ComposerActions extends ComposerRenderer {
 
     /** Selection **/
 
-    async selectIndex(index, clearSelection = null, toggleValue = null) {
+    selectIndex(index, clearSelection = null, toggleValue = null) {
         let selectedIndices = clearSelection ? [] : this.state.trackerSelectedIndices;
         if (toggleValue) {
             selectedIndices.unshift(index); // Cursor goes first
@@ -521,10 +521,10 @@ class ComposerActions extends ComposerRenderer {
             const pos = selectedIndices.indexOf(index);
             selectedIndices.splice(pos, 1);
         }
-        return await this.selectIndicies(selectedIndices);
+        return this.selectIndicies(selectedIndices);
     }
 
-    async selectIndicies(selectedIndices) {
+    selectIndicies(selectedIndices) {
         if (typeof selectedIndices === "string") {
 
             switch (selectedIndices) {
@@ -602,7 +602,6 @@ class ComposerActions extends ComposerRenderer {
     /** Groups **/
 
     groupAdd() {
-        const tracker = this.tracker;
         const song = this.song;
 
         let newGroupName = song.generateInstructionGroupName();
@@ -655,7 +654,7 @@ class ComposerActions extends ComposerRenderer {
 //         e.target.form.elements['instrumentURL'].value = '';
         if (window.confirm(`Add '${className}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
-            this.setStatus("New instrument Added to song: " + instrumentClassName);
+            this.setStatus(`New instrument (${instrumentID} Added to song: ` + instrumentClassName);
             // this.forceUpdate();
             // this.fieldInstructionInstrument.setValue(instrumentID);
             // await this.panelInstruments.forceUpdate();
@@ -773,8 +772,6 @@ class ComposerActions extends ComposerRenderer {
     }
 
     trackerChangeSelection(selectedIndices = null) {
-        const tracker = this.tracker;
-
         if (!selectedIndices)
             selectedIndices = this.fieldTrackerSelection.value
                 .split(/\D+/)
@@ -816,26 +813,26 @@ class ComposerActions extends ComposerRenderer {
         const storage = new Storage();
         storage.addBatchRecentSearches(searchCallbackString);
 
-
-        const tracker = this.tracker;
-        this.clearselectedIndices();
-        const groupName = tracker.getGroupName(), g = groupName;
-        try {
-            const stats = {count: 0};
-            const iterator = this.song.instructionGetIterator(groupName);
-            let instruction;
-            while (instruction = iterator.nextConditionalInstruction((instruction) => {
-                const i = instruction;
-                const window = null, document = null;
-                return eval(searchCallbackString);
-            })) {
-                stats.count++;
-                tracker.selectIndicies(e, iterator.currentIndex);
-            }
-            this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
-        } catch (err) {
-            this.setStatus("Batch Search Failed: " + err.message, err);
-        }
+        throw new Error("TODO Implement");
+        // const tracker = this.tracker;
+        // this.clearselectedIndices();
+        // const groupName = tracker.getGroupName();
+        // try {
+        //     const stats = {count: 0};
+        //     const iterator = this.song.instructionGetIterator(groupName);
+        //     let instruction;
+        //     while (instruction = iterator.nextConditionalInstruction((instruction) => {
+        //         const i = instruction;
+        //         const window = null, document = null;
+        //         return eval(searchCallbackString);
+        //     })) {
+        //         stats.count++;
+        //         tracker.selectIndicies(e, iterator.currentIndex);
+        //     }
+        //     this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
+        // } catch (err) {
+        //     this.setStatus("Batch Search Failed: " + err.message, err);
+        // }
     }
 
     batchRunCommand(e, commandCallbackString = null, searchCallbackString = null, promptUser = false) {
@@ -856,33 +853,34 @@ class ComposerActions extends ComposerRenderer {
             throw new Error("Batch command canceled: Invalid command");
         storage.addBatchRecentCommands(commandCallbackString);
 
-        const instructionList = [];
-        const tracker = this.tracker;
-        const groupName = tracker.getGroupName(), g = groupName;
-        try {
-            const stats = {count: 0, modified: 0};
-            const iterator = this.song.instructionGetIterator(groupName);
-            let instruction;
-            const window = null, document = null;
-            while (instruction = iterator.nextConditionalInstruction((instruction) => {
-                const i = instruction;
-                return eval(searchCallbackString);
-            })) {
-                const instructionString = JSON.stringify(instruction.data);
-                const i = instruction;
-                eval(commandCallbackString);
-                if (instructionString !== JSON.stringify(instruction.data))
-                    stats.modified++;
-
-                stats.count++;
-                tracker.selectIndex(e, iterator.currentIndex);
-            }
-            this.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
-            return instructionList;
-        } catch (err) {
-            this.setStatus("Batch Command Failed: " + err.message, err);
-            return [];
-        }
+        throw new Error("TODO Implement");
+        // const instructionList = [];
+        // const tracker = this.tracker;
+        // const groupName = tracker.getGroupName(), g = groupName;
+        // try {
+        //     const stats = {count: 0, modified: 0};
+        //     const iterator = this.song.instructionGetIterator(groupName);
+        //     let instruction;
+        //     const window = null, document = null;
+        //     while (instruction = iterator.nextConditionalInstruction((instruction) => {
+        //         const i = instruction;
+        //         return eval(searchCallbackString);
+        //     })) {
+        //         const instructionString = JSON.stringify(instruction.data);
+        //         const i = instruction;
+        //         eval(commandCallbackString);
+        //         if (instructionString !== JSON.stringify(instruction.data))
+        //             stats.modified++;
+        //
+        //         stats.count++;
+        //         tracker.selectIndex(e, iterator.currentIndex);
+        //     }
+        //     this.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
+        //     return instructionList;
+        // } catch (err) {
+        //     this.setStatus("Batch Command Failed: " + err.message, err);
+        //     return [];
+        // }
     }
 }
 

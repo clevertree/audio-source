@@ -17,9 +17,9 @@ class AudioSourceSynthesizerRenderer extends React.Component {
             Menu,
             Icon,
             InputButton,
-            InputFile,
-            InputRange,
-            InputText,
+            // InputFile,
+            // InputRange,
+            // InputText,
             InputSelect
         } = this.props.components;
 
@@ -33,14 +33,14 @@ class AudioSourceSynthesizerRenderer extends React.Component {
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
         // const config = song.getInstrumentConfig(instrumentID);
 
-        let presetURL = config.presetURL || '';
+        // let presetURL = config.presetURL || '';
         // let presetTitle = presetURL.split('#').pop() || presetURL.split('/').pop() || 'Set Preset';
         // if(config.presetURL && config.preset)
         //     presetURL = new URL(config.libraryURL + '#' + config.preset, document.location) + '';
 
         const samples = config.samples || [];
         // const sampleLibrary = this.sampleLibrary; // TODO: re-render on load
-        let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
+        // let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
 
         return <Div className="audio-source-synthesizer-container">
             <Div className="header">

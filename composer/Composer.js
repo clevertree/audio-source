@@ -237,11 +237,13 @@ class Composer extends ComposerActions {
                         // console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
                         // this.instructionInsertOrUpdate(e, newMIDICommand);
-                        this.playSelectedInstructions(e);
+                        // this.playSelectedInstructions(e);
                         // this.focus();
-                        break;
                     case 128:   // Note Off
                         // TODO: turn off playing note, optionally set duration of note
+                        break;
+
+                    default:
                         break;
                 }
                 break;
@@ -254,8 +256,6 @@ class Composer extends ComposerActions {
 
     async onSongEvent(e) {
 //         console.log("Song Event: ", e.type);
-        if (this.trackerElm)
-            this.trackerElm.onSongEvent(e);
         switch (e.type) {
             case 'log':
                 this.setStatus(e.detail);
@@ -293,24 +293,18 @@ class Composer extends ComposerActions {
                 break;
 
             case 'instrument:instance':
-            // this.renderInstrument(e.detail.instrumentID);
-            // break;
             case 'instrument:added':
             case 'instrument:removed':
                 await this.renderInstruments();
                 break;
 
             case 'instrument:modified':
+                this.renderInstrument(e.detail.instrumentID);
+                this.panelInstructions.render();
+                clearTimeout(this.timeouts.saveSongToMemory);
+                this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
+                break;
             case 'song:modified':
-                switch(e.type) {
-                    case 'instrument:modified':
-                        this.renderInstrument(e.detail.instrumentID);
-                        this.panelInstructions.render();
-                        break;
-                }
-                // this.trackerElm.render();
-                // this.forms.render();
-
                 // TODO: auto save toggle
                 clearTimeout(this.timeouts.saveSongToMemory);
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
@@ -321,6 +315,9 @@ class Composer extends ComposerActions {
                 // this.renderInstruments();
                 this.updateForms();
                 break;
+
+            default:
+                console.warn("Unknown song event: ", e.type);
         }
     }
 

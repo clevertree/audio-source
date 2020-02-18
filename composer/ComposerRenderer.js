@@ -92,10 +92,9 @@ class ComposerRenderer extends React.Component {
 
 
     renderMenu(menuKey=null, menuParam=null) {
-        let recentBatchCommand, instrumentID, selectedIndices;
+        let recentBatchCommand, instrumentID;
         // const library = await this.getLibrary();
         /** File Menu **/
-        let content = [];
         switch (menuKey) {
             case 'root':
                 const vertical = !this.state.portrait;

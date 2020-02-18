@@ -46,7 +46,7 @@ class SongPlayback {
     async playGroup() {
         const audioContext = this.audioContext;
         this.isActive = true;
-        const iterator = this.song.instructionGetIterator(this.groupName);
+        const iterator = this.song.getInstructionIterator(this.groupName);
         this.iterator = iterator;
         this.song.dispatchEvent(new CustomEvent('group:play', {
             detail: {

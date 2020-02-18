@@ -130,7 +130,7 @@ class Library {
         // });
         // newConfig.libraryURL = this.data.url;
         // newConfig.preset = presetName;
-        return newConfig;
+        // return newConfig;
     }
 
     // processItemList(arrayOrObject, eachCallback, defaultParam='url') {

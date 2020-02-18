@@ -50,7 +50,7 @@ class FileService {
     }
 
     async getFileBufferFromTorrent(torrentURL) {
-        var match = torrentURL.match(/^(torrent?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
+        var match = torrentURL.match(/^(torrent?:)\/\/(([^:/?#]*)(?::([0-9]+))?)([/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/);
         const parsedURL = match && {
             hostname: match[3],
             pathname: match[5],
@@ -97,7 +97,6 @@ class FileService {
             const file = files[i];
             if(file.path === filePath) {
                 return file.data;
-                break;
             }
         }
         throw new Error("Archive file not found: " + filePath);
@@ -153,9 +152,9 @@ class FileService {
                 }
                 if (event.data.type === 1){
                     // console.info(event.data.text);
-                } else if (event.data.type == 2){
+                } else if (event.data.type === 2){
                     // console.info(event.data.text);
-                } else if (event.data.type == 3){
+                } else if (event.data.type === 3){
                     resolve(event.data.results);
                     worker7z.terminate();//this is very important!!! You have to release memory!
                 }

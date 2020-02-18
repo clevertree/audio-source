@@ -43,7 +43,7 @@ class Tracker extends React.Component {
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
-        let instructionIterator = composer.song.instructionGetIterator(this.state.trackerGroup);
+        let instructionIterator = composer.song.getInstructionIterator(this.state.trackerGroup);
 
 
         const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
@@ -179,13 +179,13 @@ class Tracker extends React.Component {
         if (e.defaultPrevented)
             return;
 
-        switch (e.type) {
-            case 'mouseup':
-                if (this.isSelectionRectActive()) {
-                    this.commitSelectionRect();
-                }
-                break;
-        }
+        // switch (e.type) {
+        //     case 'mouseup':
+        //         if (this.isSelectionRectActive()) {
+        //             this.commitSelectionRect();
+        //         }
+        //         break;
+        // }
 
         // if (e.target instanceof Node && !this.contains(e.target))
         //     return;
@@ -227,11 +227,11 @@ class Tracker extends React.Component {
                     case 'Escape':
                     case 'Backspace':
                         throw new Error("TODO: navigate pop")
-                        e.preventDefault();
-                        this.navigatePop();
+                        // e.preventDefault();
+                        // this.navigatePop();
                         // this.selectIndicies(0);
                         // this.focus();
-                        break;
+                        // break;
 
                     case 'Enter':
                         if (this.contains(e.target)) {
@@ -309,6 +309,9 @@ class Tracker extends React.Component {
 
                         // song.gridSelectInstructions([selectedInstruction]);
                         // e.preventDefault();
+                        break;
+
+                    default:
                         break;
 
                 }
@@ -624,6 +627,9 @@ class Tracker extends React.Component {
                     }
                 }
                 break;
+
+            default:
+                console.warn("Unknown song event: ", e.type);
         }
     }
 

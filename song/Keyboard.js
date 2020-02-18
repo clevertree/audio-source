@@ -1,7 +1,4 @@
-class AudioSourceComposerKeyboard {
-    constructor() {
-    }
-
+class Keyboard {
 
     getKeyboardLayout(layoutName=null) {
         switch(layoutName) {
@@ -50,4 +47,4 @@ class AudioSourceComposerKeyboard {
 }
 
 
-export default AudioSourceComposerKeyboard;
+export default Keyboard;

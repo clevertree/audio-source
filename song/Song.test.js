@@ -99,7 +99,7 @@ class SongTest {
 
     // Test Iterator
     let currentIndex = 0;
-    let iterator = song.instructionGetIterator(testGroup);
+    let iterator = song.getInstructionIterator(testGroup);
     let instruction, instructionList, positionInTicks=0, playbackTime=0;
     while(instruction = iterator.nextInstruction()) {
       positionInTicks += instruction.deltaDuration;
@@ -108,7 +108,7 @@ class SongTest {
 
     // Test Row Iterator
     currentIndex = 0;
-    iterator = song.instructionGetIterator(testGroup);
+    iterator = song.getInstructionIterator(testGroup);
     positionInTicks = 0;
     while(true) {
       instructionList = iterator.nextInstructionRow();
@@ -132,7 +132,7 @@ class SongTest {
     }
 
     // Test Quantized Row Iterator
-    iterator = song.instructionGetIterator(testGroup);
+    iterator = song.getInstructionIterator(testGroup);
     positionInTicks = 0;
     playbackTime = 0;
     let quantizationMaxDuration = 450;

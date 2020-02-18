@@ -85,7 +85,7 @@ class Song {
     removeEventListener(eventName, listenerCallback) {
         for (let i = 0; i < this.eventListeners.length; i++) {
             const [eventName2, listenerCallback2] = this.eventListeners[i];
-            if(eventName === eventName && listenerCallback === listenerCallback2) {
+            if(eventName === eventName2 && listenerCallback === listenerCallback2) {
                 this.eventListeners.splice(i, 1);
                 break;
             }
@@ -201,11 +201,12 @@ class Song {
 
 
     loadSongData(songData) {
+
         if (this.playback)
             this.stopPlayback();
         songData = Object.assign({}, {
             name: this.generateName(),
-            uuid: this.generateUUID(),
+            uuid: new Storage().generateUUID(),
             version: '0.0.1',
             root: 'root',
             created: new Date().getTime(),
@@ -256,7 +257,7 @@ class Song {
     instructionEach(groupName, callback, parentStats = null) {
         if (!this.getInstructionList(groupName))
             throw new Error("Invalid group: " + groupName);
-        const iterator = this.instructionGetIterator(groupName, parentStats);
+        const iterator = this.getInstructionIterator(groupName, parentStats);
 
         let instruction = iterator.nextInstruction();
         const results = [];
@@ -292,14 +293,12 @@ class Song {
         return index >= instructionList.length ? null : new SongInstruction(instructionList[index]);
     }
 
-    getInstructionIterator(groupName, index=null, parentStats=null) {
-        const iterator = this.instructionGetIterator(groupName);
+    getInstructionIterator(groupName, parentStats=null) {
         return new SongInstructionIterator(
             this,
             groupName,
             parentStats
         );
-        return iterator;
     }
 
 
@@ -308,15 +307,15 @@ class Song {
     //     return instructionList.length;
     // }
 
-    instructionGetIterator(groupName, parentStats = null) {
-        return new SongInstructionIterator(
-            this,
-            groupName,
-            {
-                bpm: parentStats ? parentStats.bpm : this.getStartingBeatsPerMinute(),
-            });
-            // parentStats ? parentstats.positionTicks : 0);
-    }
+    // instructionGetIterator(groupName, parentStats = null) {
+    //     return new SongInstructionIterator(
+    //         this,
+    //         groupName,
+    //         {
+    //             bpm: parentStats ? parentStats.bpm : this.getStartingBeatsPerMinute(),
+    //         });
+    //         // parentStats ? parentstats.positionTicks : 0);
+    // }
 
 
     instructionInsertAtPosition(groupName, insertPositionInTicks, insertInstructionData) {
@@ -332,7 +331,7 @@ class Song {
 
         // let groupPosition = 0, lastDeltaInstructionIndex;
 
-        const iterator = this.instructionGetIterator(groupName);
+        const iterator = this.getInstructionIterator(groupName);
 
         let instruction = iterator.nextInstruction();
         // noinspection JSAssignmentUsedAsCondition
@@ -481,13 +480,13 @@ class Song {
     /** Song Timing **/
 
     getSongLengthInSeconds() {
-        return this.instructionGetIterator(this.getRootGroup())
+        return this.getInstructionIterator(this.getRootGroup())
             .seekToEnd()
             .endPositionSeconds;
     }
 
     getSongLengthInTicks() {
-        return this.instructionGetIterator(this.getRootGroup())
+        return this.getInstructionIterator(this.getRootGroup())
             .seekToEnd()
             .endPositionTicks;
     }
@@ -497,7 +496,7 @@ class Song {
     // }
     //
     // getGroupLength(groupName) {
-    //     const instructionIterator = this.instructionGetIterator(groupName);
+    //     const instructionIterator = this.getInstructionIterator(groupName);
     //     while (instructionIterator.nextInstruction()) {}
     //     return instructionIterator;
     //     // return {
@@ -513,7 +512,7 @@ class Song {
 
     // Refactor
     getGroupPositionFromTicks(groupName, groupPositionInTicks) {
-        const iterator = this.instructionGetIterator(groupName);
+        const iterator = this.getInstructionIterator(groupName);
         while (true) {
             if (iterator.positionTicks >= groupPositionInTicks || !iterator.nextInstruction())
                 break;
@@ -544,7 +543,7 @@ class Song {
 
 
     getGroupPositionInTicks(groupName, positionInSeconds) {
-        const iterator = this.instructionGetIterator(groupName);
+        const iterator = this.getInstructionIterator(groupName);
         while (true) {
             if (iterator.positionSeconds >= positionInSeconds || !iterator.nextInstruction())
                 break;
@@ -809,18 +808,6 @@ class Song {
 
     generateName() {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
-    }
-
-    generateUUID() {
-        var d = new Date().getTime();
-        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-            d += performance.now(); //use high-precision timer if available
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
     }
 
     generateInstructionGroupName(groupName = 'group') {
@@ -1178,6 +1165,8 @@ class Song {
                 case 'replace':
                     this.replaceDataPath(historyAction.path, historyAction.data);
                     break;
+                default:
+                    throw new Error("Unknown history action: " + historyAction.action);
             }
         }
         this.history = [];
@@ -1228,14 +1217,14 @@ class Song {
 
     // Input
 
-    onInput(e) {
-        if (e.defaultPrevented)
-            return;
-        switch (e.type) {
-            case 'click':
-                break;
-        }
-    }
+    // onInput(e) {
+    //     if (e.defaultPrevented)
+    //         return;
+    //     switch (e.type) {
+    //         case 'click':
+    //             break;
+    //     }
+    // }
 
 
 }
@@ -1284,7 +1273,7 @@ Song.loadSongFromURL = async function (src) {
 
 
 Song.getFileSupportModule = async function (filePath) {
-    const AudioSourceLoader = customElements.get('audio-source-loader');
+    // const AudioSourceLoader = customElements.get('audio-source-loader');
     // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
     const fileExt = filePath.split('.').pop().toLowerCase();
     switch (fileExt) {
@@ -1295,7 +1284,7 @@ Song.getFileSupportModule = async function (filePath) {
         //
         case 'json':
             const JSONSupport = require('../support/JSONSupport.js').default;
-            return new JSONSupport;
+            return new JSONSupport();
         //
         // case 'spc':
         //     const {LibGMESupport} = require('../support/LibGMESupport.js');
@@ -1306,7 +1295,7 @@ Song.getFileSupportModule = async function (filePath) {
         //     return new MP3Support;
 
         default:
-            throw new Error("Unknown file type: " + fileExt);
+            throw new Error("Unknown support module for file type: " + fileExt);
     }
 };
 
