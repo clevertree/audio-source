@@ -37,6 +37,7 @@ class TrackerRowSegmentsPanel extends React.Component {
                         rowSegmentCount = currentRowSegmentID + 1;
                     for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)
                         buttons[segmentID] = <InputButton
+                            key={segmentID}
                             onAction={e => this.trackerChangeSegment(segmentID)}
                         >{segmentID}</InputButton>;
                     return buttons;

@@ -22,11 +22,13 @@ class TrackerGroupsPanel extends React.Component {
             <Panel className={className} title="Groups">
                 {Object.keys(composer.song.data.instructions).map((groupName, i) =>
                     <InputButton
+                        key={i}
                         selected={this.state.trackerGroup === groupName}
                         onAction={e => this.trackerChangeGroup(groupName)}
                     >{groupName}</InputButton>)
                 }
                 <InputButton
+                    key="add"
                     onAction={e => this.groupAdd(e)}
                 >+</InputButton>
             </Panel>

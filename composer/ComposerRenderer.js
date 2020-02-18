@@ -500,6 +500,7 @@ class ComposerRenderer extends React.Component {
                         >
                         {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
                             <InstrumentRenderer
+                                key={instrumentID}
                                 song={this.song}
                                 props={instrumentConfig}
                                 instrumentID={instrumentID}
