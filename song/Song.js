@@ -227,9 +227,12 @@ class Song {
 
         // let loadingInstruments = 0;
 
-        console.log("Song data loaded: ", songData);
+        // console.log("Song data loaded: ", songData);
 
-        this.dispatchEvent(new CustomEvent('song:loaded', {detail: this}));
+        this.dispatchEvent({
+            type: 'song:loaded',
+            song: this
+        });
     }
 
 
@@ -240,7 +243,7 @@ class Song {
     /** Song Data Processing **/
 
     instructionProcessGroupData(groupName) {
-        const instructionList = this.data.instructions[groupName];
+        const instructionList = this.getInstructionList(groupName);
         for (let i = 0; i < instructionList.length; i++) {
             const instruction = SongInstruction.parse(instructionList[i]);
             instructionList[i] = instruction.data;
@@ -251,7 +254,7 @@ class Song {
     /** Instructions **/
 
     instructionEach(groupName, callback, parentStats = null) {
-        if (!this.data.instructions[groupName])
+        if (!this.getInstructionList(groupName))
             throw new Error("Invalid group: " + groupName);
         const iterator = this.instructionGetIterator(groupName, parentStats);
 
@@ -268,47 +271,36 @@ class Song {
         return results;
     }
 
-    instructionFindIndex(groupName, instruction) {
+    findInstructionIndex(groupName, instruction) {
         if (instruction instanceof SongInstruction)
             instruction = instruction.data;
-        const instructionList = this.data.instructions[groupName];
+        const instructionList = this.getInstructionList(groupName);
         const p = instructionList.indexOf(instruction);
         if (p === -1)
             throw new Error("Instruction not found in instruction list");
         return p;
     }
 
-    instructionFind(groupName, index, throwException = true) {
-        let instructionList = this.data.instructions[groupName];
-        if (!Number.isInteger(index)) {
-            if (throwException)
-                throw new Error("Invalid Index: " + typeof index);
-            return null;
-        }
+    getInstructionList(groupName) {
+        if(!this.data.instructions[groupName])
+            throw new Error("Invalid instruction group: " + groupName);
+        return this.data.instructions[groupName];
+    }
 
-        if (index >= instructionList.length) {
-            if (throwException)
-                throw new Error(`Instruction index is greater than group length: ${index} >= ${instructionList.length} for groupName: ${groupName}`);
-            return null;
-        }
-        let foundInstruction = null;
-        this.instructionEach(groupName, function (instruction) {
-            if (instruction.index === index)
-                foundInstruction = instruction;
-            if (foundInstruction)
-                return false;
-        });
-        if (!foundInstruction) {
-            if (throwException)
-                throw new Error(`Instruction not found at index: ${index} for groupName: ${groupName}`);
-            return null;
-        }
-        return foundInstruction;
+    getInstruction(groupName, index) {
+        let instructionList = this.getInstructionList(groupName);
+        return index >= instructionList.length ? null : new SongInstruction(instructionList[index]);
+    }
+
+    getInstructionStats(groupName, index) {
+        const iterator = this.instructionGetIterator(groupName);
+        iterator.seekToIndex(index);
+        return iterator.stats;
     }
 
 
     // getInstructionGroupLength(groupName) {
-    //     let instructionList = this.data.instructions[groupName];
+    //     let instructionList = this.getInstructionList(groupName);
     //     return instructionList.length;
     // }
 
@@ -316,8 +308,10 @@ class Song {
         return new SongInstructionIterator(
             this,
             groupName,
-            parentStats ? parentStats.currentBPM : this.getStartingBeatsPerMinute(),
-            parentStats ? parentStats.groupPositionInTicks : 0);
+            {
+                bpm: parentStats ? parentStats.bpm : this.getStartingBeatsPerMinute(),
+            });
+            // parentStats ? parentStats.stats.positionTicks : 0);
     }
 
 
@@ -330,26 +324,26 @@ class Song {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
         const insertInstruction = SongInstruction.parse(insertInstructionData);
-        let instructionList = this.data.instructions[groupName];
+        let instructionList = this.getInstructionList(groupName);
 
         // let groupPosition = 0, lastDeltaInstructionIndex;
 
-        const instructionIterator = this.instructionGetIterator(groupName);
+        const iterator = this.instructionGetIterator(groupName);
 
-        let instruction = instructionIterator.nextInstruction();
+        let instruction = iterator.nextInstruction();
         // noinspection JSAssignmentUsedAsCondition
         while (instruction) {
             // const instruction = new SongInstruction(instructionList[i]);
             // if(instruction.deltaDuration > 0) {
-
-            if (instruction.positionInTicks > insertPositionInTicks) {
+            const currentPositionInTicks = iterator.stats.positionTicks;
+            if (currentPositionInTicks > insertPositionInTicks) {
                 // Delta note appears after note to be inserted
                 const splitDuration = [
-                    insertPositionInTicks - (instruction.positionInTicks - instruction.deltaDuration),
-                    instruction.positionInTicks - insertPositionInTicks
+                    insertPositionInTicks - (currentPositionInTicks - instruction.deltaDuration),
+                    currentPositionInTicks - insertPositionInTicks
                 ];
 
-                const modifyIndex = instructionIterator.groupIndex;
+                const modifyIndex = iterator.groupIndex;
                 // Make following delta note smaller
                 this.instructionReplaceDeltaDuration(groupName, modifyIndex, splitDuration[1]);
 
@@ -359,12 +353,12 @@ class Song {
 
                 return modifyIndex; // this.splitPauseInstruction(groupName, i,insertPosition - groupPosition , insertInstruction);
 
-            } else if (instruction.positionInTicks === insertPositionInTicks) {
+            } else if (currentPositionInTicks === insertPositionInTicks) {
                 // Delta note plays at the same time as new note, append after
 
                 let lastInsertIndex;
                 // Search for last insert position
-                for (lastInsertIndex = instruction.index + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
+                for (lastInsertIndex = iterator.groupIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
                     if (new SongInstruction(instructionList[lastInsertIndex]).deltaDuration > 0)
                         break;
 
@@ -377,10 +371,10 @@ class Song {
             // }
             // if (!instruction)
             //     break;
-            instruction = instructionIterator.nextInstruction();
+            instruction = iterator.nextInstruction();
         }
 
-        if (instructionIterator.groupPositionInTicks >= insertPositionInTicks)
+        if (iterator.stats.positionTicks >= insertPositionInTicks)
             throw new Error("Something went wrong");
         // Insert a new pause at the end of the song, lasting until the new note?
         let lastPauseIndex = instructionList.length;
@@ -389,7 +383,7 @@ class Song {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDuration = insertPositionInTicks - instructionIterator.groupPositionInTicks;
+        insertInstruction.deltaDuration = insertPositionInTicks - iterator.stats.positionTicks;
         this.instructionInsertAtIndex(groupName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -406,9 +400,9 @@ class Song {
 
 
     instructionDeleteAtIndex(groupName, deleteIndex) {
-        const deleteInstruction = this.instructionFind(groupName, deleteIndex);
+        const deleteInstruction = this.getInstruction(groupName, deleteIndex);
         if (deleteInstruction.deltaDuration > 0) {
-            const nextInstruction = this.instructionFind(groupName, deleteIndex + 1, false);
+            const nextInstruction = this.getInstruction(groupName, deleteIndex + 1, false);
             if (nextInstruction) {
                 this.instructionReplaceDeltaDuration(groupName, deleteIndex + 1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
             }
@@ -500,7 +494,7 @@ class Song {
         }
         return {
             inSeconds: instructionIterator.groupPlaybackEndTime,
-            inTicks: instructionIterator.groupPositionInTicks
+            inTicks: instructionIterator.stats.positionTicks
         }
     }
 
@@ -509,11 +503,12 @@ class Song {
         return this.getGroupPositionFromTicks(this.getRootGroup(), songPositionInTicks);
     }
 
+    // Refactor
     getGroupPositionFromTicks(groupName, groupPositionInTicks) {
         let lastStats = null;
         this.instructionEach(groupName, (instruction, iterator) => {
             lastStats = iterator;
-            if (iterator.groupPositionInTicks >= groupPositionInTicks)
+            if (iterator.stats.positionTicks >= groupPositionInTicks)
                 return false;
         });
 
@@ -521,12 +516,12 @@ class Song {
             return 0;
         let currentPosition = lastStats.groupPlaybackTime;
 
-        if (groupPositionInTicks > lastStats.groupPositionInTicks) {
-            const elapsedTicks = groupPositionInTicks - lastStats.groupPositionInTicks;
+        if (groupPositionInTicks > lastStats.stats.positionTicks) {
+            const elapsedTicks = groupPositionInTicks - lastStats.stats.positionTicks;
             currentPosition += this.ticksToSeconds(elapsedTicks, lastStats.currentBPM);
 
-        } else if (groupPositionInTicks < lastStats.groupPositionInTicks) {
-            const elapsedTicks = lastStats.groupPositionInTicks - groupPositionInTicks;
+        } else if (groupPositionInTicks < lastStats.stats.positionTicks) {
+            const elapsedTicks = lastStats.stats.positionTicks - groupPositionInTicks;
             currentPosition -= this.ticksToSeconds(elapsedTicks, lastStats.currentBPM);
         }
 
@@ -553,7 +548,7 @@ class Song {
         if (!lastStats)
             return 0;
 
-        let currentPositionInTicks = lastStats.groupPositionInTicks;
+        let currentPositionInTicks = lastStats.stats.positionTicks;
         if (positionInSeconds > lastStats.groupPlaybackTime) {
             const elapsedTime = positionInSeconds - lastStats.groupPlaybackTime;
             currentPositionInTicks += this.secondsToTicks(elapsedTime, lastStats.currentBPM);
@@ -602,12 +597,12 @@ class Song {
         if (Number.isNaN(songPosition))
             throw new Error("Invalid start position");
 
-        this.dispatchEvent(new CustomEvent('song:seek', {
-            detail: {
-                position: this.playbackPosition,
-                positionInTicks: this.getSongPositionInTicks(this.playbackPosition),
-            }
-        }));
+        this.dispatchEvent({
+            type: 'song:seek',
+            position: this.playbackPosition,
+            // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
+            song: this
+        });
 
         // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
         let isPlaying = !!this.playback;
@@ -662,11 +657,12 @@ class Song {
         this.playback = playback;
         console.log("Start playback:", this.playbackPosition);
 
-        this.dispatchEvent(new CustomEvent('song:play', {
-            detail: {
-                playback: this.playback,
-            }
-        }));
+        this.dispatchEvent({
+            type: 'song:play',
+            playback: this.playback,
+            // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
+            song: this
+        });
 
         this.playback.playGroup(destination)
             .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
@@ -700,11 +696,12 @@ class Song {
         console.log("End playback:", this.playbackPosition);
 
 
-        this.dispatchEvent(new CustomEvent('song:end', {
-            detail: {
-                playback
-            }
-        }));
+        this.dispatchEvent({
+            type: 'song:end',
+            playback: this.playback,
+            // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
+            song: this
+        });
     }
 
     pause() {
@@ -725,7 +722,7 @@ class Song {
 
 
     async playInstructionAtIndex(destination, groupName, instructionIndex, noteStartTime = null) {
-        const instruction = this.instructionFind(groupName, instructionIndex, false);
+        const instruction = this.getInstruction(groupName, instructionIndex, false);
         if (instruction)
             await this.playInstruction(destination, instruction, noteStartTime);
         else
@@ -767,12 +764,12 @@ class Song {
         }
 
         // Dispatch note start event
-        this.dispatchEvent(new CustomEvent('note:start', {
-            detail: {
-                groupName,
-                instruction,
-            }
-        }));
+        this.dispatchEvent({
+            type: 'note:start',
+            groupName,
+            instruction,
+            song: this
+        });
 
         currentTime = audioContext.currentTime;
         if (noteStartTime + noteDuration > currentTime) {
@@ -781,19 +778,19 @@ class Song {
         }
         // TODO: check for song stop
         // Dispatch note end event
-        this.dispatchEvent(new CustomEvent('note:end', {
-            detail: {
-                groupName,
-                instruction,
-            }
-        }));
+        this.dispatchEvent({
+            type: 'note:end',
+            groupName,
+            instruction,
+            song: this
+        });
     }
 
 
     /** Modify Song Data **/
 
     hasGroup(groupName) {
-        return typeof this.data.instructions[groupName] !== "undefined";
+        return typeof this.getInstructionList(groupName) !== "undefined";
     }
 
     songChangeName(newSongTitle) {
@@ -906,13 +903,12 @@ class Song {
             throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
         this.instruments[instrumentID] = instrument;
 
-        this.dispatchEvent(new CustomEvent('instrument:instance', {
-            detail: {
-                instrument,
-                instrumentID
-            },
-            bubbles: true
-        }));
+        this.dispatchEvent({
+            type: 'instrument:instance',
+            instrument,
+            instrumentID,
+            song: this
+        });
 
         if (this.audioContext)
             instrument.init(instrumentID, this.audioContext);
@@ -950,13 +946,12 @@ class Song {
 
         this.replaceDataPath(['instruments', instrumentID], config);
         this.loadInstrument(instrumentID);
-        this.dispatchEvent(new CustomEvent('instrument:added', {
-            bubbles: true, detail: {
-                instrumentID,
-                config,
-                oldConfig: null
-            }
-        }), 1);
+        this.dispatchEvent({
+            type: 'instrument:added',
+            instrumentID,
+            config,
+            song: this
+        });
         return instrumentID;
     }
 
@@ -971,13 +966,14 @@ class Song {
             config.name = oldConfig.name;
         // Preserve old instrument name
         oldConfig = this.replaceDataPath(['instruments', instrumentID], config);
-        this.dispatchEvent(new CustomEvent('instrument:modified', {
-            bubbles: true, detail: {
-                instrumentID,
-                config,
-                oldConfig
-            }
-        }), 1);
+
+        this.dispatchEvent({
+            type: 'instrument:modified',
+            instrumentID,
+            config,
+            oldConfig,
+            song: this
+        });
         return oldConfig;
     }
 
@@ -993,13 +989,12 @@ class Song {
         const oldConfig = isLastInstrument
             ? this.deleteDataPath(['instruments', instrumentID])
             : this.replaceDataPath(['instruments', instrumentID], null);
-        this.dispatchEvent(new CustomEvent('instrument:removed', {
-            bubbles: true, detail: {
-                instrumentID,
-                config: null,
-                oldConfig: oldConfig
-            }
-        }), 1);
+
+        this.dispatchEvent({
+            type: 'instrument:removed',
+            instrumentID,
+            song: this
+        });
         return oldConfig;
     }
 
@@ -1155,8 +1150,12 @@ class Song {
         this.history.push(historyAction);
 
         // setTimeout(() => {
-        this.dispatchEvent(new CustomEvent('song:modified', {detail: historyAction}), 1);
-        // }, 1);
+
+        this.dispatchEvent({
+            type: 'song:modified',
+            historyAction,
+            song: this
+        });
 
         return historyAction;
     }

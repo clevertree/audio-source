@@ -24,7 +24,7 @@ class SongPlayback {
     }
 
     get groupPositionInTicks() {
-        return this.iterator.groupPositionInTicks;
+        return this.iterator.stats.positionTicks;
     }
 
     getGroupPositionInSeconds() {
@@ -132,7 +132,7 @@ class SongPlayback {
         // const audioContext = audioContext;
         const noteStartTime = this.startTime + this.iterator.groupPlaybackTime;
         // const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
-//         console.log(this.iterator.groupPositionInTicks, instructionList, this.iterator.groupIndex);
+//         console.log(this.iterator.stats.positionTicks, instructionList, this.iterator.groupIndex);
 
         // Wait ahead of notes if necessary (by seek time)
         // if (waitTime > 0) {
@@ -164,7 +164,7 @@ class SongPlayback {
         // const detail = {
         //     groupName: this.groupName,
         //     position: this.iterator.groupPlaybackTime,
-        //     positionInTicks: this.iterator.groupPositionInTicks
+        //     positionInTicks: this.iterator.stats.positionTicks
         // };
         // this.song.dispatchEvent(new CustomEvent('group:seek', this));
         // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);

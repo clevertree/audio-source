@@ -1,8 +1,8 @@
 class SongInstruction {
-    constructor(instructionData, index = null, positionInTicks = null) {
-        this.data = instructionData || [0, '', 0];
-        this.index = index;
-        this.positionInTicks = positionInTicks;
+    constructor(instructionData = [0]) {
+        this.data = instructionData;
+        // this.index = index;
+        // this.positionInTicks = positionInTicks;
         // this.playbackTime = null;
     }
 
@@ -107,8 +107,9 @@ class SongInstruction {
                 return parseInt(durationString.substr(0, durationString.length - 1));
             case 'b':
                 return timeDivision * parseFloat(durationString.substr(0, durationString.length - 1));
+            default:
+                throw new Error("Invalid Duration: " + durationString);
         }
-        throw new Error("Invalid Duration: " + durationString);
     }
 }
 

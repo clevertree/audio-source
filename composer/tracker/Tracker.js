@@ -64,13 +64,13 @@ class Tracker extends React.Component {
             rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback);
             if(!rowInstructionList)
                 break;
-            // if (rowInstructionList.length === 0 && instructionIterator.groupPositionInTicks % quantizationInTicks !== 0) {
+            // if (rowInstructionList.length === 0 && instructionIterator.stats.positionTicks % quantizationInTicks !== 0) {
             //     continue;
             // }
 
-            lastRowSegmentID = Math.floor(instructionIterator.groupPositionInTicks / segmentLengthInTicks);
+            lastRowSegmentID = Math.floor(instructionIterator.stats.positionTicks / segmentLengthInTicks);
 
-            const deltaDuration = instructionIterator.groupPositionInTicks - lastRowPositionInTicks;
+            const deltaDuration = instructionIterator.stats.positionTicks - lastRowPositionInTicks;
             if (this.state.trackerRowSegmentID === lastRowSegmentID) {
 
                 // Render instructions
@@ -88,7 +88,7 @@ class Tracker extends React.Component {
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
             }
-            lastRowPositionInTicks = instructionIterator.groupPositionInTicks;
+            lastRowPositionInTicks = instructionIterator.stats.positionTicks;
         }
 
         console.timeEnd('tracker.renderRows()');
