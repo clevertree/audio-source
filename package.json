@@ -24,8 +24,8 @@
     "customURL": "https://github.com/clevertree/audio-source-composer/issues"
   },
   "homepage": "https://github.com/clevertree/audio-source-composer#readme",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "node-fetch": "^2.6.0"
   }
 }

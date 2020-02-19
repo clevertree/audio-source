@@ -9,12 +9,11 @@ class InputCheckbox extends React.Component {
 
     get value() { return this.state.value; }
     set value(newValue) {
-        if(this.inputElm)  this.state.value = this.inputElm.value = newValue;
-        else this.setState({value: newValue});
+        this.setState({value: newValue});
     }
 
     async onChange(e) {
-        this.state.value = this.inputElm.value;
+        this.setState({value: this.inputElm.value});
         this.state.callback(e, this.state.value);
     }
 

@@ -6,7 +6,7 @@ class Library {
             .forEach(key => {
                 if(!this.data[key])
                     this.data[key] = []
-            })
+            });
         if(!this.data.url)
             this.data.url = document.location;
         // this.data.url = null;
@@ -24,8 +24,10 @@ class Library {
     // }
 
 
+    getName() { return this.data.name || "Unnamed Library"; }
 
-    get libraryCount() { return this.data.libraries.length; }
+
+    getLibraryCount() { return this.data.libraries.length; }
     eachLibrary(callback) {
         const results = [];
         const libraries = this.data.libraries || [];
@@ -42,7 +44,7 @@ class Library {
         return results;
     }
 
-    get sampleCount() { return this.data.samples.length; }
+    getSampleCount() { return this.data.samples.length; }
     eachSample(callback) {
         const results = [];
         const samples = this.data.samples || [];
@@ -59,7 +61,7 @@ class Library {
         return results;
     }
 
-    get presetCount() { return this.data.presets.length; }
+    getPresetCount() { return this.data.presets.length; }
     eachPreset(callback) {
         const results = [];
         const presets = this.data.presets || [];
@@ -73,7 +75,7 @@ class Library {
         return results;
     }
 
-    get instrumentCount() { return this.data.instruments.length; }
+    getInstrumentCount() { return this.data.instruments.length; }
     eachInstrument(callback) {
         const results = [];
         const instruments = this.data.instruments || [];
@@ -172,7 +174,7 @@ class Library {
 }
 
 
-Library.historicLibraryCount = function() { return Object.values(Library.cache).length; }
+Library.historicLibraryCount = function() { return Object.values(Library.cache).length; };
 Library.eachHistoricLibrary = (callback) => {
     const results = [];
     for (let cacheURL in Library.cache) {
@@ -192,45 +194,62 @@ Library.eachHistoricLibrary = (callback) => {
     return results;
 };
 
+Library.loadDefault = function() {
+    return new Library(require("../default.library"));
+};
+
 /**
  * @param url
  * @returns {Promise<Library>}
  */
-// Library.loadFromURL = async function(url) {
-//     if (!url)
-//         throw new Error("Invalid url");
-//     url = new URL((url + '').split('#')[0], document.location) + '';
-//
-//     let libraryData;
-//     if (!Library.cache[url]) {
-//         Library.cache[url] = new Promise((resolve, reject) => {
-//             const xhr = new XMLHttpRequest();
-//             xhr.open('GET', url + '', true);
-//             xhr.responseType = 'json';
-//             xhr.onload = () => {
-//                 if (xhr.status !== 200)
-//                     return reject("Sample library not found: " + url);
-//
-//                 const libraryData = xhr.response;
-//                 libraryData.url = url + '';
-//
-//                 Object.keys(Library.cache).forEach(cacheURL => {
-//                     if (Object.values(Library.cache) > 5)
-//                         delete Library.cache[cacheURL];
-//                 });
-//                 Library.cache[url] = libraryData;
-//
-//                 console.info("Sample Library Loaded: ", url, Library.cache);
-//                 resolve(libraryData);
-//             };
-//             xhr.send();
-//         });
-//     }
-//     libraryData = Library.cache[url];
-//     if(libraryData instanceof Promise)
-//         libraryData = await libraryData;
-//     return new Library(libraryData);
-// };
+Library.loadFromURL = async function(url) {
+    if (!url)
+        throw new Error("Invalid url");
+    const response = await fetch(url);
+    const libraryData = await response.json();
+    if(typeof libraryData.url === "undefined")
+        libraryData.url = url + '';
+    console.log('library',libraryData);
+    return new Library(libraryData);
+};
+
+Library.loadFromURL2 = async function(url) {
+    if (!url)
+        throw new Error("Invalid url");
+    url = new URL((url + '').split('#')[0], document.location) + '';
+
+    let libraryData;
+    if (!Library.cache[url]) {
+        Library.cache[url] = new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url + '', true);
+            xhr.responseType = 'json';
+            xhr.onload = () => {
+                if (xhr.status !== 200)
+                    return reject("Sample library not found: " + url);
+
+                const libraryData = xhr.response;
+                libraryData.url = url + '';
+
+                Object.keys(Library.cache).forEach(cacheURL => {
+                    if (Object.values(Library.cache) > 5)
+                        delete Library.cache[cacheURL];
+                });
+                Library.cache[url] = libraryData;
+
+                console.info("Sample Library Loaded: ", url, Library.cache);
+                resolve(libraryData);
+            };
+            xhr.send();
+        });
+    }
+    libraryData = Library.cache[url];
+    if(libraryData instanceof Promise)
+        libraryData = await libraryData;
+    return new Library(libraryData);
+};
+
+
 // /** @returns {Promise<Library>} */
 // Library.loadDefaultLibrary = async function() {
 //     return await Library.loadFromURL(Library.defaultLibraryURL);

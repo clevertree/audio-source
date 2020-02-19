@@ -20,7 +20,7 @@ div.audio-source-synthesizer-container {
     margin: 0px 0px 0px 0px;
     display: inline-block;
     vertical-align: top;
-    min-width: 24em;
+    /*min-width: 24em;*/
     /*max-height: 24px;*/
     /*overflow: hidden;*/
     /*transition-property: all;*/
@@ -48,6 +48,10 @@ div.audio-source-synthesizer-container > div.header {
     /* background-color: #CCC; */
 }
 
+div.audio-source-synthesizer-container > div.header > button.toggle-container {
+    border: none;
+    padding: 2px 12px 2px 2px;
+}
 /*div.audio-source-synthesizer-container > div.header > div.title {*/
 /*    cursor: pointer;*/
 /*}*/

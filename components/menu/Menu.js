@@ -55,11 +55,16 @@ class Menu extends React.Component {
         let className = 'asui-menu';
         if(this.state.stick)
             className += ' stick';
+        if(this.props.hasBreak)
+            className += ' break';
+        if(this.props.disabled)
+            className += ' disabled';
         if(this.props.className)
             className += ' ' + this.props.className;
 
         return (
             <div
+                key={this.props.key}
                 className={className}
                 onClick={e => this.onInputEvent(e)}
                 onKeyDown={e => this.onInputEvent(e)}

@@ -28,7 +28,7 @@ div.asui-menu > div.title {
 
 
 /** Disabled Menu **/
-div.asui-menu > div.title.disabled {
+div.asui-menu.disabled {
     /*opacity: 0.5;*/
     color: #777;
     cursor: not-allowed;
@@ -86,9 +86,9 @@ div.asui-menu > div.dropdown.vertical {
 
 /** Menu Break **/
 
-div.asui-menu > div.break {
-    margin-bottom: 2px;
-    border-bottom: 2px #666 solid;
+div.asui-menu.break {
+    margin-top: 2px;
+    border-top: 2px #666 solid;
 }
 
 /** Context Menu **/

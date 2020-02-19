@@ -14,7 +14,7 @@ class AudioSourceSynthesizer {
 
         this.audioContext = null;
         if(typeof config.name === "undefined")
-            config.name = 'Synthesizer' + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
+            config.name = 'Synthesizer'; // + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
         this.config = config || {};
 
 
@@ -344,8 +344,8 @@ class AudioSourceSynthesizer {
             let frequencyValue = 440;
 
             // Filter sample playback
-            if (sampleConfig.keyAlias) {
-                if(sampleConfig.keyAlias !== commandFrequency)
+            if (sampleConfig.alias) {
+                if(sampleConfig.alias !== commandFrequency)
                 // if(sampleConfig.name !== namedFrequency)
                     continue;
             } else {
@@ -497,8 +497,8 @@ class AudioSourceSynthesizer {
     getFrequencyFromAlias(aliasName) {
         for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
             const sampleConfig = this.config.samples[sampleID];
-            if (sampleConfig && sampleConfig.keyAlias && aliasName === sampleConfig.name) {
-                return sampleConfig.keyAlias;
+            if (sampleConfig && sampleConfig.alias && aliasName === sampleConfig.name) {
+                return sampleConfig.alias;
             }
         }
         return null;
@@ -509,8 +509,8 @@ class AudioSourceSynthesizer {
         const aliases = {};
         for (let sampleID = 0; sampleID < this.config.samples.length; sampleID++) {
             const sampleConfig = this.config.samples[sampleID];
-            if (sampleConfig && sampleConfig.keyAlias)
-                aliases[sampleConfig.name] = sampleConfig.keyAlias;
+            if (sampleConfig && sampleConfig.alias)
+                aliases[sampleConfig.name] = sampleConfig.alias;
         }
         return aliases;
     }

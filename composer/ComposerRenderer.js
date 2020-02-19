@@ -335,17 +335,17 @@ class ComposerRenderer extends React.Component {
 
             case 'view':
                 return <>
-                    <Menu onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>,
-                    <Menu onAction={e => this.togglePanelSong(e)}       >{this.props.hidePanelSongs ? 'Disable' : 'Enable'} Song Forms</Menu>,
-                    <Menu onAction={e => this.togglePanelTracker(e)}       >{this.props.hidePanelTracker ? 'Disable' : 'Enable'} Tracker Forms</Menu>,
-                    <Menu onAction={e => this.togglePanelInstruments(e)}       >{this.props.hidePanelInstrument ? 'Disable' : 'Enable'} Instrument Forms</Menu>,
+                    <Menu onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
+                    <Menu onAction={e => this.togglePanelSong(e)}       >{this.props.hidePanelSongs ? 'Disable' : 'Enable'} Song Forms</Menu>
+                    <Menu onAction={e => this.togglePanelTracker(e)}       >{this.props.hidePanelTracker ? 'Disable' : 'Enable'} Tracker Forms</Menu>
+                    <Menu onAction={e => this.togglePanelInstruments(e)}       >{this.props.hidePanelInstrument ? 'Disable' : 'Enable'} Instrument Forms</Menu>
                 </>;
 
             case 'instrument':
                 return <>
-                    <Menu options={e => this.renderMenu('instrument-add')}    >Add instrument to song</Menu>,
+                    <Menu options={e => this.renderMenu('instrument-add')}    >Add instrument to song</Menu>
                     {this.values.getSongInstruments((instrumentID, label) =>
-                        <Menu onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</Menu>)},
+                        <Menu onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</Menu>)}
                 </>;
 
             case 'instrument-add':
@@ -355,11 +355,11 @@ class ComposerRenderer extends React.Component {
             case 'instrument-edit':
                 instrumentID = menuParam;
                 return <>
-                    <Menu options={e => this.renderMenu('instrument-edit-replace')}    >Replace</Menu>,
+                    <Menu options={e => this.renderMenu('instrument-edit-replace')}    >Replace</Menu>
                     <Menu
                         onAction={e => this.instrumentRemove(instrumentID)}
                         disabled={!this.song.isInstrumentLoaded(instrumentID)}
-                    >Remove from song</Menu>,
+                    >Remove from song</Menu>
                 </>;
 
             case 'instrument-edit-replace':
@@ -379,8 +379,8 @@ class ComposerRenderer extends React.Component {
             case 'group-edit':
                 // const groupName = menuParam;
                 return <>
-                    <Menu onAction={e => this.groupRename(menuParam)}  hasBreak     >Rename group {menuParam}</Menu>,
-                    <Menu onAction={e => this.groupRemove(menuParam)}  hasBreak     >Delete group {menuParam}</Menu>,
+                    <Menu onAction={e => this.groupRename(menuParam)}  hasBreak     >Rename group {menuParam}</Menu>
+                    <Menu onAction={e => this.groupRemove(menuParam)}  hasBreak     >Delete group {menuParam}</Menu>
                 </>;
 
             default:

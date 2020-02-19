@@ -1,4 +1,15 @@
 import React from 'react';
+
+import {
+    InputButton,
+    InputSelect,
+    Div,
+    Menu,
+    Icon,
+} from "../../../components";
+
+import {Library} from "../../../song";
+
 import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 import "./assets/SynthesizerRenderer.css";
 
@@ -7,31 +18,28 @@ class SynthesizerRenderer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: true
+            open: true,
+            library: Library.loadDefault()
         }
+        const config = this.getConfig();
+        if(config.libraryURL)
+            this.changeLibrary(config.libraryURL);
     }
 
+    getSong() { return this.props.song; }
+    getConfig() { return this.getSong().getInstrumentConfig(this.props.instrumentID); }
+    // getLibrary() { return this.state.library; }
 
     render() {
-        const {
-            Div,
-            Menu,
-            Icon,
-            InputButton,
-            // InputFile,
-            // InputRange,
-            // InputText,
-            InputSelect
-        } = this.props.components;
-
-
-        const song = this.props.song;
         const instrumentID = this.props.instrumentID;
-        const config = song.getInstrumentConfig(instrumentID);
+        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+
+        const config = this.getConfig();
+
+
 
         // const instrument = this;
         // const instrumentID = typeof this.id !== "undefined" ? this.id : -1;
-        const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
         // const config = song.getInstrumentConfig(instrumentID);
 
         // let presetURL = config.presetURL || '';
@@ -39,93 +47,88 @@ class SynthesizerRenderer extends React.Component {
         // if(config.presetURL && config.preset)
         //     presetURL = new URL(config.libraryURL + '#' + config.preset, document.location) + '';
 
-        const samples = config.samples || [];
-        // const sampleLibrary = this.sampleLibrary; // TODO: re-render on load
         // let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
 
-        return <Div className="audio-source-synthesizer-container">
-            <Div className="header">
-                <InputButton
-                    className="toggle-container"
-                    onAction={e => this.toggleContainer(e)}
-                >{instrumentIDHTML}:</InputButton>
-                <Div
-                    className="title"
-                >{config.name || "Unnamed"}</Div>
-                <InputSelect
-                    className="instrument-preset"
-                    value={config.preset || "No Preset"}
-                    options={e => this.renderMenu('preset')}
-                    onChange={(e, presetURL) => this.setPreset(presetURL)}
-                />
-                <Menu
-                    arrow={false}
-                    className="instrument-config"
-                    options={e => this.renderMenu('config')}
-                >
-                    <Icon className="config"/>
-                </Menu>
-            </Div>
-            {this.state.open && <Div
-                className="samples"
-            >
-
-                {samples.map((sampleData, sampleID) =>
-                    <SynthesizerSampleRenderer
-                        components={this.props.components}
-                        sampleData={sampleData}
-                        sampleID={sampleID}
-                    />
-                )}
-                {samples.map((sampleData, sampleID) =>
-                    <SynthesizerSampleRenderer
-                        components={this.props.components}
-                        sampleData={sampleData}
-                        sampleID={sampleID}
-                    />
-                )}
-                {samples.map((sampleData, sampleID) =>
-                    <SynthesizerSampleRenderer
-                        components={this.props.components}
-                        sampleData={sampleData}
-                        sampleID={sampleID}
-                    />
+        return (
+            <Div className="audio-source-synthesizer-container">
+                <Div className="header">
+                    <InputButton
+                        className="toggle-container"
+                        onAction={e => this.toggleContainer(e)}
+                        >{instrumentIDHTML}: {config.name || "Unnamed"}</InputButton>
+                    <InputSelect
+                        className="instrument-preset"
+                        value={config.preset || "No Preset"}
+                        options={e => this.renderMenu('preset')}
+                        onChange={(e, presetURL) => this.setPreset(presetURL)}
+                        />
+                    <Menu
+                        arrow={false}
+                        className="instrument-config"
+                        options={e => this.renderMenu('config')}
+                        >
+                        <Icon className="config"/>
+                    </Menu>
+                </Div>
+                {this.state.open && (
+                    <Div className="samples">
+                        {config.samples && config.samples.map((sampleData, sampleID) =>
+                            <SynthesizerSampleRenderer
+                                sampleData={sampleData}
+                                sampleID={sampleID}
+                            />
+                        )}
+                    </Div>
                 )}
             </Div>
-            }
-        </Div>;
+        );
 
     }
 
     renderMenu(menuKey = null) {
-        const {Menu} = this.props.components;
+        let library;
 //             console.log('renderMenu', menuKey);
         switch(menuKey) {
-            default:
-                const vertical = !this.state.portrait;
+            case null:
                 return (<>
-                    <Menu vertical={vertical} options={e => this.renderMenu('file')}      >File</Menu>
-                    <Menu vertical={vertical} options={e => this.renderMenu('playlist')}  >Playlist</Menu>
-                    <Menu vertical={vertical} options={e => this.renderMenu('view')}      >View</Menu>
+                    <Menu options={e => this.renderMenu('file')}      >File</Menu>
+                    <Menu options={e => this.renderMenu('playlist')}  >Playlist</Menu>
+                    <Menu options={e => this.renderMenu('view')}      >View</Menu>
                 </>);
 
             case 'preset':
+                library = this.state.library;
+                return (<>
+                    {library.getPresetCount() > 0 ? library.eachPreset(config => (
+                        <Menu>{config.name}</Menu>
+                    )) : <Menu disabled> - Select a Library - </Menu>}
+                    <Menu hasBreak options={e => this.renderMenu('library-list')}    >Libraries</Menu>
+                </>);
 
-                // selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
-                //     sampleLibrary.eachPreset(config => selectElm.getOption(config.url, config.name)),
+                // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
+                //     library.eachPreset(config => selectElm.getOption(config.url, config.name)),
                 // ),
                 //     selectElm.getOptGroup('Libraries', () =>
-                //             sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-                //         {disabled: sampleLibrary.libraryCount === 0}
+                //             library.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                //         {disabled: library.libraryCount === 0}
                 //     ),
                 //     selectElm.getOptGroup('Other Libraries', () =>
                 //             Library.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
                 //         {disabled: Library.historicLibraryCount === 0}
                 //     ),
+            case 'preset-list':
+                library = this.state.library;
+                if(library.getPresetCount() === 0)
+                    return <Menu disabled>No presets</Menu>;
+                return library.eachPreset(config => (
+                    <Menu>{config.name}</Menu>
+                ));
 
-
-                break;
-
+            case 'library-list':
+                library = this.state.library;
+                return library.eachLibrary(config => (
+                    <Menu onAction={e=>this.changeLibrary(config.url)}>{config.name}</Menu>
+                ));
 
             case 'config':
                 /**
@@ -149,8 +152,16 @@ class SynthesizerRenderer extends React.Component {
 
                  */
                 break;
+
+            default:
+                throw new Error("Unknown menu key: " + menuKey);
         }
 
+    }
+
+    async changeLibrary(libraryURL) {
+        const library = await Library.loadFromURL(libraryURL);
+        this.setState({library});
     }
 
     toggleContainer() {
@@ -225,7 +236,7 @@ class SynthesizerRenderer extends React.Component {
         //                 Div.createElement('id', sampleID),
         //
         //                 new InputSelect('url',
-        //                     selectElm => sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+        //                     selectElm => library.eachSample(config => selectElm.getOption(config.url, config.name)),
         //                     async (e, sampleURL, sampleName) => {
         //                         await this.setSampleName(sampleID, sampleName);
         //                         await this.setSampleURL(sampleID, sampleURL);
@@ -253,7 +264,7 @@ class SynthesizerRenderer extends React.Component {
         //                 new InputSelect('alias',
         //                     selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
         //                     (e, keyAlias) => this.setSampleKeyAlias(sampleID, keyAlias),
-        //                     sampleData.keyAlias),
+        //                     sampleData.alias),
         //
         //                 new InputCheckBox('loop',
         //                     (e, isLoop) => this.setSampleLoop(sampleID, isLoop), 'Loop', sampleData.loop),
@@ -273,12 +284,12 @@ class SynthesizerRenderer extends React.Component {
         //                 this.fieldAddSample = new InputSelect('url',
         //                     (selectElm) => [
         //                         selectElm.getOption('', '[New Sample]'),
-        //                         selectElm.getOptGroup((sampleLibrary.name || 'Unnamed Library') + '', () =>
-        //                             sampleLibrary.eachSample(config => selectElm.getOption(config.url, config.name)),
+        //                         selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
+        //                             library.eachSample(config => selectElm.getOption(config.url, config.name)),
         //                         ),
         //                         selectElm.getOptGroup('Libraries', () =>
-        //                                 sampleLibrary.eachLibrary(config => selectElm.getOption(config.url, config.name)),
-        //                             {disabled: sampleLibrary.libraryCount === 0}
+        //                                 library.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+        //                             {disabled: library.libraryCount === 0}
         //                         ),
         //                         selectElm.getOptGroup('Other Libraries', async () =>
         //                                 await Library.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),

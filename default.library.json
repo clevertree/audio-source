@@ -13,7 +13,11 @@
   "libraries": [
     {
       "name": "General Midi Default Library",
-      "url": "sample/gm/fws/fws.library.json"
+      "url": "files/fws.library.json"
+    },
+    {
+      "name": "General Midi Default Library 2",
+      "url": "https://audiosource.io/sample/gm/fws/fws.library.json"
     }
   ],
   "playlists": [
