@@ -1,14 +1,9 @@
 import * as React from "react";
 
+import "./assets/TrackerParam.css";
 class TrackerParamDuration extends React.Component {
     render() {
-        return this.props.duration;
-    }
-
-    static createParameter(instruction) {
-        return this.createElement({
-            duration: instruction.duration
-        })
+        return <div className="asctp-duration">{this.props.duration}</div>;
     }
 }
 

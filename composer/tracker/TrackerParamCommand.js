@@ -1,14 +1,9 @@
 import * as React from "react";
 
+import "./assets/TrackerParam.css";
 class TrackerParamCommand extends React.Component {
     render() {
-        return this.props.command;
-    }
-
-    static createParameter(instruction) {
-        return this.createElement({
-            command: instruction.command
-        })
+        return <div className="asctp-command">{this.props.command}</div>;
     }
 }
 

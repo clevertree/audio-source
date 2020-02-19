@@ -1,5 +1,5 @@
 import Library from "../../song/Library";
-import AudioSourceSynthesizerRenderer from "./AudioSourceSynthesizerRenderer";
+import SynthesizerRenderer from "./render/SynthesizerRenderer";
 import React from "react";
 // import Values from "../../song/Values";
 
@@ -300,7 +300,7 @@ class AudioSourceSynthesizer {
         const sampleConfig = this.config.samples[sampleID];
 
         // if (!frequencyValue)
-        //     frequencyValue = (this.getCommandFrequency(sampleConfig.keyRoot) || 440);
+        //     frequencyValue = (this.getCommandFrequency(sampleConfig.root) || 440);
 
         if (sampleData.periodicWave) {
             this.playPeriodicWave(
@@ -316,7 +316,7 @@ class AudioSourceSynthesizer {
         }
 
         if (sampleData.buffer) {
-            const playbackRate = frequencyValue / (sampleConfig.keyRoot ? this.getCommandFrequency(sampleConfig.keyRoot) : 440);
+            const playbackRate = frequencyValue / (sampleConfig.root ? this.getCommandFrequency(sampleConfig.root) : 440);
             this.playBuffer(
                 destination,
                 sampleData.buffer,
@@ -470,9 +470,9 @@ class AudioSourceSynthesizer {
 
     setSampleKeyRoot(sampleID, newKeyRootValue) {
         if(!newKeyRootValue)
-            this.song.deleteInstrumentParam(this.id, ['samples', sampleID, 'keyRoot']);
+            this.song.deleteInstrumentParam(this.id, ['samples', sampleID, 'root']);
         else
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyRoot'], newKeyRootValue);
+            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'root'], newKeyRootValue);
     }
 
     setSampleKeyAlias(sampleID, newKeyAliasValue) {
@@ -573,7 +573,7 @@ class AudioSourceSynthesizer {
 
 
     static getRenderer(song, instrumentID, components) {
-        return <AudioSourceSynthesizerRenderer
+        return <SynthesizerRenderer
             song={song}
             instrumentID={instrumentID}
             components={components}

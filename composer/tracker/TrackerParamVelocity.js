@@ -1,14 +1,9 @@
 import * as React from "react";
 
+import "./assets/TrackerParam.css";
 class TrackerParamVelocity extends React.Component {
     render() {
-        return this.props.velocity;
-    }
-
-    static createParameter(instruction) {
-        return this.createElement({
-            velocity: instruction.velocity
-        })
+        return <div className="asctp-velocity">{this.props.velocity}</div>;
     }
 }
 

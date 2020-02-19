@@ -9,7 +9,7 @@ class TrackerRow extends React.Component {
 
     render() {
         return (
-            <Div className="asc-tracker-row">
+            <Div className="asct-row">
                 <TrackerDelta duration={this.props.deltaDuration} />
                 {this.props.children}
                 {this.props.cursor ? <TrackerInstructionAdd/> : null}

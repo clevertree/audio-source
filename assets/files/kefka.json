@@ -15,7 +15,7 @@
 				{
 					"name": "acoustic_bass",
 					"url": "/sample/snes/ffvi/acoustic_bass.wav",
-					"keyRoot": "C5",
+					"root": "C5",
 					"loop": true
 				}
 			],
@@ -29,7 +29,7 @@
 				{
 					"name": "guitar_harp",
 					"url": "/sample/snes/ffvi/guitar_harp.wav",
-					"keyRoot": "C5",
+					"root": "C5",
 					"loop": true
 				}
 			],
@@ -48,7 +48,7 @@
 				{
 					"name": "french_horn",
 					"url": "/sample/snes/ffvi/french_horn.wav",
-					"keyRoot": "C5",
+					"root": "C5",
 					"loop": true
 				}
 			],
@@ -67,7 +67,7 @@
 				{
 					"name": "guitar_harp",
 					"url": "/sample/snes/ffvi/guitar_harp.wav",
-					"keyRoot": "C5",
+					"root": "C5",
 					"loop": true
 				}
 			],

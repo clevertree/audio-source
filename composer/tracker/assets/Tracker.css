@@ -1,12 +1,12 @@
 
 /** Tracker **/
 
-div.asc-tracker-container {
-    flex: 1 1 auto;
-}
-:host(.fullscreen) asui-div.asc-container {
-    height: 100%;
-}
+/*div.asc-tracker-container {*/
+/*    flex: 1 1 auto;*/
+/*}*/
+/*:host(.fullscreen) asui-div.asc-container {*/
+/*    height: 100%;*/
+/*}*/
 
 
 
@@ -17,6 +17,13 @@ div.asc-tracker {
     /* height: 100%; */
     /*overflow: auto;*/
     display: block;
+}
+
+/** Tracker Container **/
+
+div.asc-tracker div.asc-tracker-container {
+    overflow-y: auto;
+    max-height: 800px;
 }
 
 
@@ -31,14 +38,18 @@ div.asc-tracker {
 /** Tracker Header **/
 
 
-div.asc-tracker > div.header {
-    display: flex;
+div.asc-tracker > div.asc-panel {
+    display: block;
     min-width: 126px;
+
     /*background-color: #333;*/
     /*color: #FFF;*/
 }
-div.asc-tracker > div.header > div.instructions {
-    margin-left: auto;
+div.asc-tracker > div.asc-panel > div.title {
+    text-align: center;
+}
+div.asc-tracker > div.asc-panel > div.title > div.delta {
+    float: left;
 }
 
 div.asc-tracker .tracker-header-pause {

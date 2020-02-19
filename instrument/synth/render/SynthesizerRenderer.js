@@ -1,12 +1,13 @@
 import React from 'react';
-import "./assets/AudioSourceSynthesizerRenderer.css";
+import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
+import "./assets/SynthesizerRenderer.css";
 
 /** AudioSourceSynthesizerRenderer **/
-class AudioSourceSynthesizerRenderer extends React.Component {
+class SynthesizerRenderer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false
+            open: true
         }
     }
 
@@ -68,38 +69,28 @@ class AudioSourceSynthesizerRenderer extends React.Component {
             {this.state.open && <Div
                 className="samples"
             >
-                <Div
-                    className="header"
-                >
-                    <Div className="id">ID</Div>
-                    <Div className="url">URL</Div>
-                    <Div className="mixer">Mixer</Div>
-                    <Div className="detune">Detune</Div>
-                    <Div className="root">Root</Div>
-                    <Div className="alias">Alias</Div>
-                    <Div className="loop">Loop</Div>
-                    <Div className="adsr">ADSR</Div>
-                    <Div className="remove">Remove</Div>
-                </Div>
-                <Div
-                    className="sample-list"
-                >
-                    {samples.map((sampleData, sampleID) =>
-                        <Div
-                            className="row"
-                        >
-                            <Div className="id">{sampleID}</Div>
-                            <Div className="url">URL</Div>
-                            <Div className="mixer">Mixer</Div>
-                            <Div className="detune">Detune</Div>
-                            <Div className="root">Root</Div>
-                            <Div className="alias">Alias</Div>
-                            <Div className="loop">Loop</Div>
-                            <Div className="adsr">ADSR</Div>
-                            <Div className="remove">Remove</Div>
-                        </Div>
-                    )}
-                </Div>
+
+                {samples.map((sampleData, sampleID) =>
+                    <SynthesizerSampleRenderer
+                        components={this.props.components}
+                        sampleData={sampleData}
+                        sampleID={sampleID}
+                    />
+                )}
+                {samples.map((sampleData, sampleID) =>
+                    <SynthesizerSampleRenderer
+                        components={this.props.components}
+                        sampleData={sampleData}
+                        sampleID={sampleID}
+                    />
+                )}
+                {samples.map((sampleData, sampleID) =>
+                    <SynthesizerSampleRenderer
+                        components={this.props.components}
+                        sampleData={sampleData}
+                        sampleID={sampleID}
+                    />
+                )}
             </Div>
             }
         </Div>;
@@ -250,14 +241,14 @@ class AudioSourceSynthesizerRenderer extends React.Component {
         //
         //                 new InputSelect('root',
         //                     selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
-        //                     (e, keyRoot) => this.setSampleKeyRoot(sampleID, keyRoot),
-        //                     sampleData.keyRoot || ''),
+        //                     (e, root) => this.setSampleKeyRoot(sampleID, root),
+        //                     sampleData.root || ''),
         //                 // Menu.createElement({}, 'root',
         //                 //     selectElm => this.values.getNoteFrequencies(freq => {
         //                 //         new SelectMenu
         //                 //     }),
         //                 //     null,
-        //                 //     'Root', sampleData.keyRoot || ''),
+        //                 //     'Root', sampleData.root || ''),
         //
         //                 new InputSelect('alias',
         //                     selectElm => this.values.getNoteFrequencies(freq => selectElm.getOption(freq)),
@@ -313,4 +304,4 @@ class AudioSourceSynthesizerRenderer extends React.Component {
     }
 }
 
-export default AudioSourceSynthesizerRenderer;
+export default SynthesizerRenderer;

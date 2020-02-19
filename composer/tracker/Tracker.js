@@ -7,6 +7,7 @@ import Div from "../../components/div/Div";
 import SongInstruction from "../../song/SongInstruction";
 
 import "./assets/Tracker.css";
+import Panel from "../panel/Panel";
 
 class Tracker extends React.Component {
     constructor(props) {
@@ -46,8 +47,8 @@ class Tracker extends React.Component {
         let instructionIterator = composer.song.getInstructionIterator(this.state.trackerGroup);
 
 
-        const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
-            return conditionalInstruction.instrument === this.state.filterByInstrumentID
+        const conditionalCallback = this.state.trackerFilterByInstrumentID === null ? null : (conditionalInstruction) => {
+            return conditionalInstruction.instrument === this.state.trackerFilterByInstrumentID
         };
 
         const selectedIndices = this.state.trackerSelectedIndices;
@@ -94,13 +95,17 @@ class Tracker extends React.Component {
         console.timeEnd('tracker.renderRows()');
 
         return <Div className="asc-tracker">
-            <Div className="header">
-                <Div className="delta">Delta</Div>
-                <Div className="instructions">Instructions</Div>
-            </Div>
-            <Div className="container">
-                {rowContent}
-            </Div>
+            <Panel
+                className="header"
+                title={<>
+                    <Div className="delta">Delta</Div>,
+                    <Div className="instructions">Instruction Tracker</Div>
+                </>}
+            >
+                <Div className="asc-tracker-container">
+                    {rowContent}
+                </Div>
+            </Panel>
         </Div>;
     }
 

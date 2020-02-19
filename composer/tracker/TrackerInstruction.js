@@ -6,6 +6,8 @@ import TrackerParamDuration from "./TrackerParamDuration";
 import Div from "../../components/div/Div";
 // import TrackerDelta from "./TrackerDelta";
 
+import "./assets/TrackerInstruction.css";
+
 class TrackerInstruction extends React.Component {
     // play() {
     //     const composer = this.props.composer;
@@ -18,10 +20,10 @@ class TrackerInstruction extends React.Component {
         const instruction = this.props.instruction;
         const open = this.props.cursor || this.props.selected;
         if(!open)
-            return <Div className="asc-tracker-instruction">
+            return <Div className="asct-instruction">
                 <TrackerParamCommand command={instruction.command}/>
             </Div>;
-        return <Div className="asc-tracker-instruction">
+        return <Div className="asct-instruction">
             <TrackerParamCommand command={instruction.command}/>
             <TrackerParamInstrument instruction={instruction.instruction}/>
             <TrackerParamVelocity instruction={instruction.velocity}/>

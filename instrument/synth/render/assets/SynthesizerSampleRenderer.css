@@ -1,60 +1,4 @@
 
-div.audio-source-synthesizer-container div.header > div.title {
-    margin-left: 4px;
-}
-div.audio-source-synthesizer-container div.instrument-config {
-    margin: 2px;
-}
-
-div.audio-source-synthesizer-container div.instrument-preset {
-    margin-left: auto;
-}
-
-
-
-
-div.audio-source-synthesizer-container {
-    background: #DDD;
-    border: 1px outset #FFF;
-    padding: 0px 0px;
-    margin: 0px 0px 0px 0px;
-    display: inline-block;
-    vertical-align: top;
-    min-width: 24em;
-    /*max-height: 24px;*/
-    /*overflow: hidden;*/
-    /*transition-property: all;*/
-    /*transition-duration: 1s;*/
-    /*transition-timing-function: ease-in-out;*/
-}
-
-
-div.audio-source-synthesizer-container.active {
-    background: #AAD;
-}
-/*div.audio-source-synthesizer-container.selected  {*/
-/*    max-height: 80em;*/
-/*    overflow: auto;*/
-/*    border: 1px inset;*/
-/*}*/
-
-
-div.audio-source-synthesizer-container > div.header {
-    /* font-size: smaller; */
-    border-bottom: 1px solid #AAA;
-    margin-bottom: 1px;
-    padding: 2px 3px;
-    display: flex;
-    /* background-color: #CCC; */
-}
-
-/*div.audio-source-synthesizer-container > div.header > div.title {*/
-/*    cursor: pointer;*/
-/*}*/
-/*div.audio-source-synthesizer-container > div.header > div.title:hover {*/
-/*    background-color: #AAA;*/
-/*}*/
-
 
 div.audio-source-synthesizer-container > div.samples > div.header {
     display: flex;
@@ -86,6 +30,7 @@ div.audio-source-synthesizer-container  asui-input-button.instrument-remove     
     margin: 0px 0px 0px 0px;
 }
 
+
 div.audio-source-synthesizer-container  asui-input-text.name        input       {width: 90px;}
 div.audio-source-synthesizer-container  asui-input-select.url       select      {width: 107px;}
 div.audio-source-synthesizer-container  asui-input-range.mixer      input      {width: 40px;}
@@ -98,13 +43,47 @@ div.audio-source-synthesizer-container  asui-input-select.instrument-preset     
 
 
 /** Sample Grid **/
-div.audio-source-synthesizer-container asui-grid.samples {
+div.audio-source-synthesizer-container > div.samples {
+    display: flex;
     min-width: 480px;
     text-align: center;
     margin: 5px;
-    border: 1px solid #AAA;
+    /*border: 1px solid #AAA;*/
     /* border-radius: 4px; */
     /* border-right: 1px #777 solid; */
     background: #CCCA;
     /* box-shadow: 1px 1px 0px #999; */
+}
+
+div.audio-source-synthesizer-container > div.samples > div.sample {
+    display: flex;
+    padding: 1px;
+    margin: 0;
+    color: #666;
+    border: solid 1px #666;
+    border-radius: 4px;
+    background-color: #CCC;
+    position: relative;
+}
+
+div.audio-source-synthesizer-container > div.samples > div.sample > div.name {
+    padding-right: 2px;
+
+}
+
+
+div.audio-source-synthesizer-container > div.samples > div.sample > div.root,
+div.audio-source-synthesizer-container > div.samples > div.sample > div.loop,
+div.audio-source-synthesizer-container > div.samples > div.sample > div.config {
+    border-left: 1px solid #888;
+    padding-right: 2px;
+    padding-left: 2px;
+}
+
+
+div.audio-source-synthesizer-container > div.samples > div.sample > div:hover {
+    background: #AAA;
+    color: #000;
+    cursor: pointer;
+    border-radius: 4px;
 }

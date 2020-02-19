@@ -3,9 +3,9 @@
 
 /** Tracker Instruction Parameters **/
 
-ascti-instrument,
-ascti-velocity,
-ascti-duration {
+div.asctp-instrument,
+div.asctp-velocity,
+div.asctp-duration {
     overflow: hidden;
     border-left: 1px solid #888;
     animation: slide-open 1s;
@@ -16,23 +16,23 @@ ascti-duration {
     100% { max-width: 99px; }
 }
 
-ascti-command {
+div.asctp-command {
     color: darkred;
 }
-ascti-instrument {
+div.asctp-instrument {
     color: darkblue;
 }
-ascti-duration {
+div.asctp-duration {
     color: purple;
 }
-ascti-velocity {
+div.asctp-velocity {
     color: green;
 }
 
-ascti-command,
-ascti-instrument,
-ascti-velocity,
-ascti-duration {
+div.asctp-command,
+div.asctp-instrument,
+div.asctp-velocity,
+div.asctp-duration {
     overflow: hidden;
     padding: 0px 2px;
 }

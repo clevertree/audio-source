@@ -6,7 +6,7 @@
         {
           "name": "Piano",
           "url": "/sample/snes/ffvi/piano.wav",
-          "keyRoot": "C5",
+          "root": "C5",
           "loop": true
         }
       ],

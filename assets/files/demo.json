@@ -6,7 +6,7 @@
         {
           "name": "Piano",
           "url": "sample/gm/fws/s/Alesis-Fusion-Honky-Tonk-Piano-C5",
-          "keyRoot": "C5",
+          "root": "C5",
           "loop": true
         }
       ],

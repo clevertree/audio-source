@@ -762,9 +762,9 @@ class ComposerActions extends ComposerRenderer {
     //     // this.focusOnContainer();
     // }
 
-    trackerChangeInstrumentFilter(filterByInstrumentID) {
+    trackerChangeInstrumentFilter(trackerFilterByInstrumentID) {
         const tracker = this.tracker;
-        tracker.setState({filterByInstrumentID})
+        tracker.setState({trackerFilterByInstrumentID})
         // let selectedIndices = this.getSelectedIndices();
 
         // tracker.renderRows();
