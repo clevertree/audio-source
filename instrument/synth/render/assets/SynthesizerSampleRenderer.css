@@ -67,7 +67,14 @@ div.audio-source-synthesizer-container > div.samples > div.sample {
 }
 
 div.audio-source-synthesizer-container > div.samples > div.sample > div.name {
+    max-width: 30vw;
+    overflow: hidden;
+    transition: max-width 0.5s;
     padding-right: 2px;
+}
+
+div.audio-source-synthesizer-container > div.samples > div.sample:not(.open) > div.name {
+    max-width: 10vw;
 }
 
 

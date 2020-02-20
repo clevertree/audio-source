@@ -15,11 +15,18 @@ class InputRange extends React.Component {
     }
 
     onChange(e) {
-        this.props.onChange(e, e.target.value);
+        const newValue = parseFloat(e.target.value);
+        this.setState({value: newValue});
+        this.props.onChange
+        ? this.props.onChange(e, newValue)
+        : console.warn("Input range has no onChange prop", this);
     }
 
     render() {
-        let className = "asui-input-range" + (this.props.className ? ' ' + this.props.className : '');
+        console.log('InputRange');
+        let className = "asui-input-range";
+        if(this.props.className)
+            className += ' ' + this.props.className;
 
         return (
             <input

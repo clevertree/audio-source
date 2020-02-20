@@ -2,11 +2,11 @@ import React from "react";
 import Div from "../../components/div/Div";
 import Icon from "../../components/icon/Icon";
 import Menu from "../../components/menu/Menu";
-import InputButton from "../../components/input-button/InputButton";
-import InputFile from "../../components/input-file/InputFile";
-import InputRange from "../../components/input-range/InputRange";
-import InputText from "../../components/input-text/InputText";
-import InputSelect from "../../components/input-select/InputSelect";
+// import InputButton from "../../components/input-button/InputButton";
+// import InputFile from "../../components/input-file/InputFile";
+// import InputRange from "../../components/input-range/InputRange";
+// import InputText from "../../components/input-text/InputText";
+// import InputSelect from "../../components/input-select/InputSelect";
 import InstrumentLoader from "../../instrument/InstrumentLoader";
 
 // import Library from "../../song/Library";

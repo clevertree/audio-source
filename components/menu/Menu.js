@@ -66,12 +66,15 @@ class Menu extends React.Component {
             <div
                 key={this.props.key}
                 className={className}
-                onClick={e => this.onInputEvent(e)}
-                onKeyDown={e => this.onInputEvent(e)}
                 onMouseOver={e => this.onInputEvent(e)}
                 onMouseOut={e => this.onInputEvent(e)}
                 >
-                <div className="title">{this.props.children}</div>
+                <div
+                    className="title"
+                    children={this.props.children}
+                    onClick={e => this.onInputEvent(e)}
+                    onKeyDown={e => this.onInputEvent(e)}
+                    />
                 {arrow ? <div className="arrow">{this.props.vertical ? '▼' : '►'}</div> : null}
                 {this.state.open ? this.renderDropdownContent() : null}
             </div>
