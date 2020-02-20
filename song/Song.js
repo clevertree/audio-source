@@ -858,7 +858,7 @@ class Song {
 
 
     getInstrumentList() {
-        return this.data.instruments.slice();
+        return this.data.instruments;
     }
 
     /** @deprecated **/
@@ -924,7 +924,7 @@ class Song {
     instrumentAdd(config) {
         if (typeof config !== 'object')
             throw new Error("Invalid instrument config object");
-        if (!config.class)
+        if (!config.className)
             throw new Error("Invalid Instrument Class");
         // config.url = config.url;
 
@@ -942,22 +942,19 @@ class Song {
         return instrumentID;
     }
 
-    async instrumentReplace(instrumentID, config) {
-        const instrumentList = this.data.instruments;
+    instrumentReplace(instrumentID, config) {
+        // const instrumentList = this.data.instruments;
         // if(instrumentList.length < instrumentID)
         //     throw new Error("Invalid instrument ID: " + instrumentID);
-        let oldConfig = instrumentList[instrumentID] || {};
-        if (typeof config !== 'object')
-            config = {url: config};
-        if (oldConfig && oldConfig.name && !config.name)
-            config.name = oldConfig.name;
+        let oldConfig = this.data.instruments[instrumentID] || {};
+        if (oldConfig && oldConfig.title && !config.title)
+            config.title = oldConfig.title;
         // Preserve old instrument name
         oldConfig = this.replaceDataPath(['instruments', instrumentID], config);
 
         this.dispatchEvent({
             type: 'instrument:modified',
             instrumentID,
-            config,
             oldConfig,
             song: this
         });
@@ -972,10 +969,10 @@ class Song {
         // if(instrumentList.length === instrumentID) {
         //
         // }
-        delete this.instruments[instrumentID];
         const oldConfig = isLastInstrument
             ? this.deleteDataPath(['instruments', instrumentID])
             : this.replaceDataPath(['instruments', instrumentID], null);
+        delete this.instruments[instrumentID];
 
         this.dispatchEvent({
             type: 'instrument:removed',
@@ -996,7 +993,14 @@ class Song {
             pathList = [pathList];
         pathList.unshift(instrumentID);
         pathList.unshift('instruments');
-        return this.replaceDataPath(pathList, paramValue);
+        const oldConfig = this.replaceDataPath(pathList, paramValue);
+        this.dispatchEvent({
+            type: 'instrument:modified',
+            instrumentID,
+            oldConfig,
+            song: this
+        });
+        return oldConfig;
     }
 
     deleteInstrumentParam(instrumentID, pathList) {
@@ -1009,11 +1013,18 @@ class Song {
             pathList = [pathList];
         pathList.unshift(instrumentID);
         pathList.unshift('instruments');
-        return this.deleteDataPath(pathList);
+        const oldConfig = this.deleteDataPath(pathList);
+        this.dispatchEvent({
+            type: 'instrument:modified',
+            instrumentID,
+            oldConfig,
+            song: this
+        });
+        return oldConfig;
     }
 
     instrumentRename(instrumentID, newInstrumentName) {
-        return this.instrumentReplaceParam(instrumentID, 'name', newInstrumentName);
+        return this.instrumentReplaceParam(instrumentID, 'title', newInstrumentName);
     }
 
 

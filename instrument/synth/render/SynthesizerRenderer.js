@@ -14,16 +14,17 @@ import {Library} from "../../../song";
 import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 
 import "./assets/SynthesizerRenderer.css";
+import InstrumentLoader from "../../InstrumentLoader";
 
 /** AudioSourceSynthesizerRenderer **/
 class SynthesizerRenderer extends React.Component {
     constructor(props) {
         super(props);
+        const config = this.getConfig();
         this.state = {
-            open: true,
+            open: config.samples && config.samples.length > 0,
             library: Library.loadDefault()
         }
-        const config = this.getConfig();
         if(config.libraryURL)
             this.changeLibrary(config.libraryURL);
     }
@@ -36,7 +37,7 @@ class SynthesizerRenderer extends React.Component {
         const instrumentID = this.props.instrumentID;
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
-        const config = this.getConfig();
+        const instrumentConfig = this.getConfig();
 
 
 
@@ -57,24 +58,24 @@ class SynthesizerRenderer extends React.Component {
                     <InputButton
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
-                        >{instrumentIDHTML}: {config.name || "Unnamed"}</InputButton>
+                        >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</InputButton>
                     <InputSelect
                         className="instrument-preset"
-                        value={config.preset || "No Preset"}
+                        value={instrumentConfig.presetName || "No Preset"}
                         options={e => this.renderMenu('preset')}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         />
                     <Menu
                         arrow={false}
                         className="instrument-config"
-                        options={e => this.renderMenu('config')}
+                        options={e => this.renderMenu()}
                         >
                         <Icon className="config"/>
                     </Menu>
                 </Div>
                 {this.state.open && (
                     <Div className="samples">
-                        {config.samples && config.samples.map((sampleData, sampleID) =>
+                        {instrumentConfig.samples && instrumentConfig.samples.map((sampleData, sampleID) =>
                             <SynthesizerSampleRenderer
                                 sampleData={sampleData}
                                 sampleID={sampleID}
@@ -88,18 +89,25 @@ class SynthesizerRenderer extends React.Component {
     }
 
     renderMenu(menuKey = null) {
-        let library;
+        let library = this.state.library;
 //             console.log('renderMenu', menuKey);
-        switch(menuKey) {
+        switch (menuKey) {
             case null:
                 return (<>
-                    <Menu options={e => this.renderMenu('file')}      >File</Menu>
-                    <Menu options={e => this.renderMenu('playlist')}  >Playlist</Menu>
-                    <Menu options={e => this.renderMenu('view')}      >View</Menu>
+                    <Menu options={e => this.renderMenu('change')}>Change Instrument</Menu>
+                    <Menu onAction={e => this.instrumentRename(e)}>Rename Instrument</Menu>
+                    <Menu onAction={e => this.instrumentRemove(e)}>Remove Instrument</Menu>
                 </>);
 
+            case 'change':
+                return (<>
+                    {InstrumentLoader.getInstruments().map(config =>
+                        <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
+                    )}
+                </>);
+
+
             case 'preset':
-                library = this.state.library;
                 return (<>
                     <Menu options={e => this.renderMenu('library-list')}    >Libraries</Menu>
                     <Menu.Break />
@@ -126,7 +134,6 @@ class SynthesizerRenderer extends React.Component {
                 //         {disabled: Library.historicLibraryCount === 0}
                 //     ),
             case 'preset-list':
-                library = this.state.library;
                 if(library.getPresets().length === 0)
                     return <Menu disabled>No presets</Menu>;
                 return library.getPresets().map(config => (
@@ -134,9 +141,8 @@ class SynthesizerRenderer extends React.Component {
                 ));
 
             case 'library-list':
-                library = this.state.library;
                 return library.getLibraries().map(config => (
-                    <Menu onAction={e=>this.changeLibrary(config.url)}>{config.name}</Menu>
+                    <Menu onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</Menu>
                 ));
 
             case 'config':
@@ -168,12 +174,31 @@ class SynthesizerRenderer extends React.Component {
 
     }
 
-    async loadPreset(presetName) {
-        const presetConfig = this.state.library.getPresetConfig(presetName);
-        console.log('presetConfig', presetConfig);
-
+    instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
         const instrumentID = this.props.instrumentID;
-        await this.getSong().instrumentReplace(instrumentID, presetConfig);
+        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
+        this.getSong().instrumentReplace(instrumentID, instrumentConfig);
+    }
+    instrumentRename(e) {
+        const instrumentID = this.props.instrumentID;
+        const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
+        const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.title);
+        this.getSong().instrumentRename(instrumentID, newName);
+        // this.forceUpdate();
+    }
+    instrumentRemove(e) {
+        const instrumentID = this.props.instrumentID;
+        this.getSong().instrumentRemove(instrumentID);
+    }
+
+    async loadPreset(presetName) {
+        const instrumentID = this.props.instrumentID;
+        const presetConfig = this.state.library.getPresetConfig(presetName);
+        const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
+        Object.assign(instrumentConfig, presetConfig);
+        console.log('instrumentConfig', instrumentConfig);
+
+        await this.getSong().instrumentReplace(instrumentID, instrumentConfig);
     }
 
     async changeLibrary(libraryURL) {

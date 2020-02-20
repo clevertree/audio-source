@@ -496,27 +496,27 @@ class ComposerRenderer extends React.Component {
 
                     <Panel className="instruments" title="Instruments"
                         ref={ref=>this.panelInstruments = ref}
-                        >
-                        {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
-                            <InstrumentRenderer
-                                key={instrumentID}
-                                song={this.song}
-                                props={instrumentConfig}
-                                instrumentID={instrumentID}
-                                />
-                        )}
-                        <Form className="instrument-add" title1="Add Instrument">
-                            <InputSelect
-                                className="instrument-add"
-                                // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
-                                value="Add Instrument"
-                                options={() => InstrumentLoader.getInstruments().map(config =>
-                                    <Menu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</Menu>
-                                )}
-                                title="Add Instrument"
-                                />
-                        </Form>
-                    </Panel>
+                        children={() => (<>
+                            {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
+                                <InstrumentRenderer
+                                    key={instrumentID}
+                                    song={this.song}
+                                    props={instrumentConfig}
+                                    instrumentID={instrumentID}
+                                    />
+                            )}
+                            <Form className="instrument-add" title1="Add Instrument">
+                                <InputSelect
+                                    className="instrument-add"
+                                    // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                    value="Add Instrument"
+                                    options={() => InstrumentLoader.getInstruments().map(config =>
+                                        <Menu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</Menu>
+                                    )}
+                                    title="Add Instrument"
+                                    />
+                            </Form>
+                        </>)} />
 
                     <Panel className="instructions" title="Instructions"
                            ref={ref=>this.panelInstructions = ref}

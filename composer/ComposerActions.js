@@ -642,17 +642,16 @@ class ComposerActions extends ComposerRenderer {
     /** Instruments **/
 
 
-    async instrumentAdd(instrumentClassName, instrumentConfig = {}) {
+    async instrumentAdd(instrumentClassName, instrumentConfig = {}, promptUser=false) {
         if (!instrumentClassName)
             throw new Error(`Invalid instrument class`);
-        const {classObject, title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
-
-        instrumentConfig.class = classObject.name;
+        const {title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (window.confirm(`Add '${title}' to Song?`)) {
+        if (promptUser === false || window.confirm(`Add '${title}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
             this.setStatus(`New instrument (${instrumentID} Added to song: ` + instrumentClassName);
             // this.forceUpdate();
@@ -660,26 +659,26 @@ class ComposerActions extends ComposerRenderer {
             // await this.panelInstruments.forceUpdate();
 
         } else {
-            throw new Error(`New instrument canceled: ${instrumentClassName}`);
+            this.setError(`New instrument canceled: ${instrumentClassName}`);
         }
     }
 
-    async instrumentReplace(instrumentID, instrumentURL, instrumentConfig = {}) {
+    async instrumentReplace(instrumentID, instrumentClassName, instrumentConfig = {}) {
         if (!Number.isInteger(instrumentID))
             throw new Error(`Invalid Instrument ID: Not an integer`);
-        if (!instrumentURL)
-            throw new Error(`Empty URL`);
-        instrumentConfig.url = instrumentURL;
-        instrumentConfig.libraryURL = this.libraryURL;
+        if (!instrumentClassName)
+            throw new Error(`Invalid Instrument class`);
+        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
+        // instrumentConfig.libraryURL = this.libraryURL; // TODO: set library url
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
-        if (window.confirm(`Change Instrument (${instrumentID}) to ${instrumentURL}`)) {
+        if (window.confirm(`Change Instrument (${instrumentID}) to ${instrumentClassName}`)) {
             await this.song.instrumentReplace(instrumentID, instrumentConfig);
             await this.song.loadInstrument(instrumentID, true);
-            this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentURL}`);
-            this.fieldInstructionInstrument.setValue(instrumentID);
+            this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentClassName}`);
+            // this.fieldInstructionInstrument.setValue(instrumentID);
 
         } else {
-            throw new Error(`Change instrument canceled: ${instrumentURL}`);
+            this.setError(`Change instrument canceled: ${instrumentClassName}`);
         }
     }
 
@@ -702,7 +701,7 @@ class ComposerActions extends ComposerRenderer {
             this.setStatus(`Instrument (${instrumentRemoveID}) removed`);
 
         } else {
-            throw new Error(`Remove instrument canceled`);
+            this.setError(`Remove instrument canceled`);
         }
     }
 

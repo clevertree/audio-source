@@ -8,9 +8,9 @@ class InstrumentLoader {
 
     loadInstrumentInstance(instrumentID) {
         const instrumentPreset = this.song.getInstrumentConfig(instrumentID);
-        if (!instrumentPreset.class)
+        if (!instrumentPreset.className)
             throw new Error("Invalid instrument class");
-        let instrumentClassName = instrumentPreset.class;
+        let instrumentClassName = instrumentPreset.className;
         // let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
         const {classObject} = InstrumentLoader.getInstrumentClass(instrumentClassName);
@@ -27,6 +27,14 @@ class InstrumentLoader {
                 return classInfo;
         }
         throw new Error(`Instrument class ${className} was not found`);
+    }
+
+
+
+    static createInstrumentConfig(className, instrumentConfig={}) {
+        this.getInstrumentClass(className);
+        instrumentConfig.className = className;
+        return instrumentConfig;
     }
 
 

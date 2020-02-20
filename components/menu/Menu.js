@@ -245,12 +245,15 @@ class Menu extends React.Component {
     }
 
     doMenuAction(e) {
+        if(this.props.disabled) {
+            console.warn("Menu is disabled.", this);
+            return;
+        }
         console.log("Doing menu action: ", this);
         if (this.props.onAction) {
-            this.props.onAction(e, this);
-            if(!e.isDefaultPrevented) {
+            const result = this.props.onAction(e, this);
+            if(result !== false)
                 this.closeAllMenus(e.target);
-            }
         // } else if(this.props.dropDownContent) {
         //     this.toggleSubMenu(e);
         } else {

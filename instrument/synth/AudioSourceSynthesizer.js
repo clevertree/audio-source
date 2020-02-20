@@ -13,8 +13,8 @@ class AudioSourceSynthesizer {
         this.activeSources = [];
 
         this.audioContext = null;
-        if(typeof config.name === "undefined")
-            config.name = 'Synthesizer'; // + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
+        if(typeof config.title === "undefined")
+            config.title = 'Synthesizer'; // + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
         this.config = config || {};
 
 

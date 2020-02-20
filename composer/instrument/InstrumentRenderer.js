@@ -7,31 +7,22 @@ import InputFile from "../../components/input-file/InputFile";
 import InputRange from "../../components/input-range/InputRange";
 import InputText from "../../components/input-text/InputText";
 import InputSelect from "../../components/input-select/InputSelect";
-import {Scrollable} from "../../components";
+import InstrumentLoader from "../../instrument/InstrumentLoader";
+
 // import Library from "../../song/Library";
+import "./assets/InstrumentRenderer.css";
 
 class InstrumentRenderer extends React.Component {
 
-    getComponents() {
-        return {
-            Div,
-            Menu,
-            Icon,
-            InputButton,
-            InputFile,
-            InputRange,
-            InputText,
-            InputSelect
-        }
-    }
+
+    getSong() { return this.props.song; }
 
     renderInstrumentConfig() {
         return (
             <Menu
-                arrow
                 vertical
                 className="instrument-config"
-                options={e => this.renderMenu('config')}
+                options={e => this.renderMenu()}
             >
                 <Icon className="config"/>
             </Menu>
@@ -39,44 +30,14 @@ class InstrumentRenderer extends React.Component {
     }
 
 
-    renderMenu(menuKey = null) {
-        // let library;
-//             console.log('renderMenu', menuKey);
-        switch (menuKey) {
-            case 'config':
-                return (<>
-                    <Menu options={e => this.renderMenu('file')}>File</Menu>
-                    <Menu options={e => this.renderMenu('playlist')}>Playlist</Menu>
-                    <Menu options={e => this.renderMenu('view')}>View</Menu>
-                </>);
-
-
-            // case 'config':
-            //     library = this.state.library;
-            //     return (<>
-            //         <Menu options={e => this.renderMenu('library-list')}>Libraries</Menu>
-            //         <Menu.Break/>
-            //         <Menu disabled>Search</Menu>
-            //         <Menu.Break/>
-            //         {library.getPresets().length > 0 ? (
-            //             <Scrollable>
-            //                 {library.getPresets().map(config => (
-            //                     <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
-            //                 ))}
-            //             </Scrollable>
-            //         ) : <Menu disabled> - Select a Library - </Menu>}
-            //     </>);
-
-        }
-    }
-
     render() {
-        const song = this.props.song;
+        const song = this.getSong();
         const instrumentID = this.props.instrumentID;
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
 
-
+        let contentClass = 'error';
+        let contentHTML = '';
         if (song.hasInstrument(instrumentID)) {
 
             try {
@@ -84,37 +45,24 @@ class InstrumentRenderer extends React.Component {
                 // const instrumentConfig = song.getInstrumentConfig(instrumentID);
 
                 if (!instrument) {
-                    return <Div className="loading">Loading</Div>;
-                } else if (instrument.constructor && typeof instrument.constructor.getRenderer === "function") {
-                    const renderer = instrument.constructor.getRenderer(
-                        song,
-                        instrumentID,
-                        this.getComponents()
-                    );
-                    return renderer;
+                    contentHTML += `Loading`;
 
-                // } else if (instrument instanceof HTMLElement) {
-                //     content.push(instrument);
+                } else if (instrument.constructor && typeof instrument.constructor.getRenderer === "function") {
+                    return instrument.constructor.getRenderer(
+                        song,
+                        instrumentID
+                    );
+
                 } else {
-                    return <Div>
-                        <Div className="error">No Instrument Renderer</Div>
-                        {this.renderInstrumentConfig()}
-                    </Div>;
+                    contentHTML += `No Instrument Renderer`;
                 }
 
             } catch (e) {
-                return <Div>
-                    <Div className="error">{e.message}</Div>
-                    {this.renderInstrumentConfig()}
-                </Div>;
+                contentHTML += e.message;
             }
 
         } else {
-            let titleHTML = `${instrumentIDHTML}: No Instrument`;
-            return <Div className="header">
-                <Div className="error">{titleHTML}</Div>
-                {this.renderInstrumentConfig()}
-            </Div>
+            contentHTML = `No Instrument`;
             // content = [
             //     Div.createElement('header', [
             //         this.menu = Menu.cME(
@@ -138,8 +86,74 @@ class InstrumentRenderer extends React.Component {
             //     ]),
             // ]
         }
+        return (
+            <Div className="asc-instrument-renderer-empty">
+                <Div className="header">
+                    <Div className={contentClass}>{instrumentIDHTML}: {contentHTML}</Div>
+                    {this.renderInstrumentConfig()}
+                </Div>
+            </Div>
+        );
 
         // return content;
+    }
+
+    renderMenu(menuKey = null) {
+        // let library;
+//             console.log('renderMenu', menuKey);
+        switch (menuKey) {
+            case null:
+                const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
+                return (<>
+                    <Menu options={e => this.renderMenu('change')}>Change Instrument</Menu>
+                    <Menu onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</Menu>
+                    <Menu onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</Menu>
+                </>);
+
+            case 'change':
+                return (<>
+                    {InstrumentLoader.getInstruments().map(config =>
+                        <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
+                    )}
+                </>);
+
+
+            default:
+                throw new Error("Unknown menu key: " + menuKey);
+
+            // case 'config':
+            //     library = this.state.library;
+            //     return (<>
+            //         <Menu options={e => this.renderMenu('library-list')}>Libraries</Menu>
+            //         <Menu.Break/>
+            //         <Menu disabled>Search</Menu>
+            //         <Menu.Break/>
+            //         {library.getPresets().length > 0 ? (
+            //             <Scrollable>
+            //                 {library.getPresets().map(config => (
+            //                     <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
+            //                 ))}
+            //             </Scrollable>
+            //         ) : <Menu disabled> - Select a Library - </Menu>}
+            //     </>);
+
+        }
+    }
+
+    instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
+        const instrumentID = this.props.instrumentID;
+        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
+        this.getSong().instrumentReplace(instrumentID, instrumentConfig);
+    }
+    instrumentRename(e) {
+        const instrumentID = this.props.instrumentID;
+        const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
+        const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.name);
+        this.getSong().instrumentRename(instrumentID, newName);
+    }
+    instrumentRemove(e) {
+        const instrumentID = this.props.instrumentID;
+        this.getSong().instrumentRemove(instrumentID);
     }
 }
 

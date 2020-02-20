@@ -255,7 +255,7 @@ class Composer extends ComposerActions {
     }
 
     async onSongEvent(e) {
-//         console.log("Song Event: ", e.type);
+        console.log("Song Event: ", e.type);
         switch (e.type) {
             case 'log':
                 this.setStatus(e.detail);

@@ -1,0 +1,19 @@
+div.asc-instrument-renderer-empty {
+    display: inline-block;
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 4px;
+    margin: 0px 0px 0px 0px;
+    vertical-align: top;
+}
+
+div.asc-instrument-renderer-empty > div.header {
+    display: flex;
+}
+
+div.asc-instrument-renderer-empty > div.header > div.instrument-config {
+    padding-left: 4px;
+}
+div.asc-instrument-renderer-empty > div.header > div.error {
+    color: #620100;
+}

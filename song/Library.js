@@ -42,14 +42,16 @@ class Library {
             || (()=>{ throw new Error("Could not find sample config for: " + sampleURL);})();
     }
 
-    getPresetConfig(presetName) {
-        let presetConfig = this.getPresets().find(p => p.name = presetName)
+    getPresetConfig(presetName, presetConfig={}) {
+        let presetData = this.getPresets().find(p => p.name = presetName)
             || (()=>{ throw new Error("Could not find preset config for: " + presetName);})();
 
-        const samples = presetConfig.samples || [];
+        const samples = presetData.samples || [];
         for(let i=0; i<samples.length; i++) {
             samples[i] = this.getSampleConfig(samples[i]);
         }
+        presetConfig.presetName = presetName;
+        presetConfig.samples = samples;
 
         return presetConfig;
     }

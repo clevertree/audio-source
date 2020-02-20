@@ -33,6 +33,7 @@ class Values {
     }
 
 
+    /** @deprecated **/
     getSongInstruments(callback = (id, name) => [id, name]) {
         const song = this.song;
         const results = [];
@@ -42,7 +43,7 @@ class Values {
                 const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
                 // const instrument = this.renderer.getInstrument(instrumentID);
                 const result = callback(instrumentID, this.formatInstrumentID(instrumentID)
-                    + ': ' + (instrumentInfo.name ? instrumentInfo.name : instrumentInfo.url.split('/').pop()));
+                    + ': ' + (instrumentInfo.title ? instrumentInfo.title : instrumentInfo.className));
                 if(!addResult(results, result)) return results;
             }
         }
