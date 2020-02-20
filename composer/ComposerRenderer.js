@@ -349,8 +349,8 @@ class ComposerRenderer extends React.Component {
                 </>;
 
             case 'instrument-add':
-                return this.library.eachInstrument((instrumentConfig) =>
-                    <Menu onAction={e => this.instrumentAdd(instrumentConfig)}       >{instrumentConfig.name}</Menu>);
+                return InstrumentLoader.getInstruments().map((config) =>
+                    <Menu onAction={e => this.instrumentAdd(config.className)}       >{config.name}</Menu>);
 
             case 'instrument-edit':
                 instrumentID = menuParam;
@@ -363,8 +363,8 @@ class ComposerRenderer extends React.Component {
                 </>;
 
             case 'instrument-edit-replace':
-                return this.library.eachInstrument((instrumentConfig, i) =>
-                    <Menu onAction={e => this.instrumentReplace(instrumentID, instrumentConfig)}       >{instrumentConfig.name}</Menu>
+                return InstrumentLoader.getInstruments().map((config, i) =>
+                    <Menu onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</Menu>
                 );
 
             /** Group Menu **/
@@ -480,7 +480,7 @@ class ComposerRenderer extends React.Component {
                                 value={this.song ? this.song.getName() : "no song loaded"}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Name"
-                            />
+                                />
                         </Form>
 
                         <Form className="version" title="Version">
@@ -489,8 +489,8 @@ class ComposerRenderer extends React.Component {
                                 onChange={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
                                 value={this.song ? this.song.getVersion() : "0.0.0"}
                                 ref={ref => this.fieldSongVersion = ref}
-                                title="Song Version"
-                            />
+                                    title="Song Version"
+                                />
                         </Form>
                     </Panel>
 
@@ -503,24 +503,24 @@ class ComposerRenderer extends React.Component {
                                 song={this.song}
                                 props={instrumentConfig}
                                 instrumentID={instrumentID}
-                            />
+                                />
                         )}
                         <Form className="instrument-add" title1="Add Instrument">
                             <InputSelect
                                 className="instrument-add"
                                 // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
                                 value="Add Instrument"
-                                options={() => InstrumentLoader.eachInstrumentClass((instrumentClass, instrumentName) =>
-                                    <Menu onAction={e => this.instrumentAdd(instrumentClass.name)} >Add instrument '{instrumentName}'</Menu>
+                                options={() => InstrumentLoader.getInstruments().map(config =>
+                                    <Menu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</Menu>
                                 )}
                                 title="Add Instrument"
-                            />
+                                />
                         </Form>
                     </Panel>
 
                     <Panel className="instructions" title="Instructions"
                            ref={ref=>this.panelInstructions = ref}
-                    >
+                        >
                         <Form className="instruction-command" title="Command">
                             <InputSelect
                                 // className="command"
@@ -564,7 +564,7 @@ class ComposerRenderer extends React.Component {
                                 // className="instruction-insert"
                                 onAction={e => this.instructionInsert()}
                                 title="Insert Instruction"
-                            >
+                                >
                                 <Icon className="insert"/>
                             </InputButton>
                         </Form>
@@ -573,7 +573,7 @@ class ComposerRenderer extends React.Component {
                                 // className="instruction-delete"
                                 onAction={e => this.instructionDelete(e)}
                                 title="Delete Instruction"
-                            >
+                                >
                                 <Icon className="remove"/>
                             </InputButton>
                         </Form>
@@ -741,21 +741,6 @@ class ComposerRenderer extends React.Component {
             this.fieldInstructionDuration.setValue(parseInt(this.fieldTrackerRowLength.value));
 
 
-    }
-
-    /** @deprecated shouldn't be used **/
-    renderInstrument(instrumentID) {
-        if (this.instruments[instrumentID])
-            this.instruments[instrumentID].forceUpdate();
-    }
-
-    async renderInstruments() {
-        // console.log("rendering instruments");
-        clearTimeout(this.timeouts.renderInstruments);
-        this.timeouts.renderInstruments = setTimeout(async () => {
-            await this.panelInstruments.forceUpdate();
-            await this.panelInstructions.forceUpdate();
-        }, 200);
     }
 
 }

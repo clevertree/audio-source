@@ -23,31 +23,32 @@ class InstrumentLoader {
         const classes = InstrumentLoader.registeredInstrumentClasses;
         for(let i=0; i<classes.length; i++) {
             const classInfo = classes[i];
-            if(classInfo.classObject.name === className)
+            if(classInfo.className === className)
                 return classInfo;
         }
         throw new Error(`Instrument class ${className} was not found`);
     }
 
 
-    static addInstrumentClass(classObject, className=null, classConfig={}) {
+    static addInstrumentClass(classObject, title=null) {
+        const className = classObject.name;
         const classes = InstrumentLoader.registeredInstrumentClasses;
-        className = className || classObject.name;
-        classes.push({classObject, className, classConfig})
+        title = title || classObject.name;
+        classes.push({classObject, className, title})
     }
 
-    static eachInstrumentClass(callback) {
-        const classes = InstrumentLoader.registeredInstrumentClasses;
-        const results = [];
-        for(let i=0; i<classes.length; i++) {
-            const classInfo = classes[i];
-            const {classObject, className, classConfig} = classInfo;
-            const result = callback(classObject, className, classConfig);
-            if(result !== null) results.push(result);
-            if(result === false) break;
-        }
-        return results;
-    }
+    static getInstruments() { return InstrumentLoader.registeredInstrumentClasses; }
+        // const classes = InstrumentLoader.registeredInstrumentClasses;
+        // const results = [];
+        // for(let i=0; i<classes.length; i++) {
+        //     const classInfo = classes[i];
+        //     const {classObject, name, config} = classInfo;
+        //     const result = callback(classObject, name, config);
+        //     if(result !== null) results.push(result);
+        //     if(result === false) break;
+        // }
+        // return results;
+    // }
 }
 
 InstrumentLoader.registeredInstrumentClasses = [];

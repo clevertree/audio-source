@@ -233,9 +233,9 @@ class SPCPlayerSynthesizer {
 //             (addOption, setOptgroup) => {
 //                 addOption('', 'Change Preset');
 //                 // setOptgroup(this.sampleLibrary.name || 'Unnamed Library');
-//                 // this.sampleLibrary.eachPreset(presetConfig => addOption(presetConfig.url, presetConfig.name));
+//                 // this.sampleLibrary.getPresets().map(presetConfig => addOption(presetConfig.url, presetConfig.name));
 //                 // setOptgroup('Libraries');
-//                 // this.sampleLibrary.eachLibrary(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
+//                 // this.sampleLibrary.getLibraries().map(libraryConfig => addOption(libraryConfig.url, libraryConfig.name));
 //                 // setOptgroup('Other Libraries');
 //                 // const Library = customElements.get('audio-source-library');
 //                 // Library.eachHistoricLibrary(addOption);

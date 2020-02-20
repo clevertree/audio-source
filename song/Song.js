@@ -1077,7 +1077,6 @@ class Song {
     insertDataPath(pathList, newData) {
         const pathInfo = this.findDataPath(pathList);
 
-        newData = Song.sanitizeInput(newData);
 
         if (typeof pathInfo.key !== 'number')
             throw new Error("Insert action requires numeric key");
@@ -1114,7 +1113,6 @@ class Song {
             return this.deleteDataPath(pathList);
 
         let oldData = null;
-        newData = Song.sanitizeInput(newData);
         // if(typeof pathInfo.key === 'number' && pathInfo.parent.length < pathInfo.key)
         //     throw new Error(`Replace position out of index: ${pathInfo.parent.length} < ${pathInfo.key} for path: ${pathList}`);
         if (typeof pathInfo.parent[pathInfo.key] !== "undefined")
@@ -1175,27 +1173,8 @@ class Song {
 
     // TODO: remove path
     static sanitizeInput(value) {
-        if (Array.isArray(value)) {
-            for (let i = 0; i < value.length; i++)
-                value[i] = Song.sanitizeInput(value[i]);
-            return value;
-        }
-        if (typeof value === 'object') {
-            for (const key in value)
-                if (value.hasOwnProperty(key))
-                    value[key] = Song.sanitizeInput(value[key]);
-            return value;
-        }
         if (typeof value !== 'string')
-            return value;
-
-        // if (typeof require !== 'undefined') {
-        //     var Filter = require('bad-words'),
-        //         filter = new Filter();
-        //     if (filter.isProfane(value))
-        //         throw new Error("Swear words are forbidden");
-        //     value = filter.clean(value);
-        // }
+            throw new Error("Invalid string input: " + typeof value);
 
         var ESC_MAP = {
             '&': '&amp;',
@@ -1205,9 +1184,6 @@ class Song {
             "'": '&#39;'
         };
         let regex = /[&<>'"]/g;
-        // if(false) {
-        //     regex = /[&<>]/g;
-        // }
 
         return value.replace(regex, function (c) {
             return ESC_MAP[c];

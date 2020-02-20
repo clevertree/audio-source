@@ -315,6 +315,15 @@ class Menu extends React.Component {
 
 }
 
+class MenuBreak extends React.Component {
+    render() {
+        return (
+            <hr className="asui-menu-break"/>
+        );
+    }
+}
+
+Menu.Break = MenuBreak;
 
 // class MenuContainer extends React.Component {
 //     constructor(props={}) {

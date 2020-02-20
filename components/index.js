@@ -8,11 +8,13 @@ import InputRange from "./input-range/InputRange";
 import InputText from "./input-text/InputText";
 import InputCheckbox from "./input-checkbox/InputCheckbox";
 import InputSelect from "./input-select/InputSelect";
+import Scrollable from "./scrollable/Scrollable";
 
 export {
     Div,
     Icon,
     Menu,
+    Scrollable,
     InputFile,
     InputText,
     InputRange,

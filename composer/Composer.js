@@ -295,12 +295,13 @@ class Composer extends ComposerActions {
             case 'instrument:instance':
             case 'instrument:added':
             case 'instrument:removed':
-                await this.renderInstruments();
+                this.panelInstruments.forceUpdate();
                 break;
 
             case 'instrument:modified':
-                this.renderInstrument(e.detail.instrumentID);
-                this.panelInstructions.render();
+                this.panelInstruments.forceUpdate();
+                // this.renderInstrument(e.detail.instrumentID);
+
                 clearTimeout(this.timeouts.saveSongToMemory);
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                 break;

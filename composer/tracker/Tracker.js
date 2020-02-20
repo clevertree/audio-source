@@ -98,7 +98,7 @@ class Tracker extends React.Component {
             <Panel
                 className="header"
                 title={<>
-                    <Div className="delta">Delta</Div>,
+                    <Div className="delta">Delta</Div>
                     <Div className="instructions">Instruction Tracker</Div>
                 </>}
             >

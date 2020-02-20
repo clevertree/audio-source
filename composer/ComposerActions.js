@@ -645,14 +645,14 @@ class ComposerActions extends ComposerRenderer {
     async instrumentAdd(instrumentClassName, instrumentConfig = {}) {
         if (!instrumentClassName)
             throw new Error(`Invalid instrument class`);
-        const {classObject, className} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        const {classObject, title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
 
         instrumentConfig.class = classObject.name;
         // instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (window.confirm(`Add '${className}' to Song?`)) {
+        if (window.confirm(`Add '${title}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
             this.setStatus(`New instrument (${instrumentID} Added to song: ` + instrumentClassName);
             // this.forceUpdate();

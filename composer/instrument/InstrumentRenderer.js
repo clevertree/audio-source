@@ -7,6 +7,7 @@ import InputFile from "../../components/input-file/InputFile";
 import InputRange from "../../components/input-range/InputRange";
 import InputText from "../../components/input-text/InputText";
 import InputSelect from "../../components/input-select/InputSelect";
+import {Scrollable} from "../../components";
 // import Library from "../../song/Library";
 
 class InstrumentRenderer extends React.Component {
@@ -24,10 +25,56 @@ class InstrumentRenderer extends React.Component {
         }
     }
 
+    renderInstrumentConfig() {
+        return (
+            <Menu
+                arrow
+                vertical
+                className="instrument-config"
+                options={e => this.renderMenu('config')}
+            >
+                <Icon className="config"/>
+            </Menu>
+        )
+    }
+
+
+    renderMenu(menuKey = null) {
+        // let library;
+//             console.log('renderMenu', menuKey);
+        switch (menuKey) {
+            case 'config':
+                return (<>
+                    <Menu options={e => this.renderMenu('file')}>File</Menu>
+                    <Menu options={e => this.renderMenu('playlist')}>Playlist</Menu>
+                    <Menu options={e => this.renderMenu('view')}>View</Menu>
+                </>);
+
+
+            // case 'config':
+            //     library = this.state.library;
+            //     return (<>
+            //         <Menu options={e => this.renderMenu('library-list')}>Libraries</Menu>
+            //         <Menu.Break/>
+            //         <Menu disabled>Search</Menu>
+            //         <Menu.Break/>
+            //         {library.getPresets().length > 0 ? (
+            //             <Scrollable>
+            //                 {library.getPresets().map(config => (
+            //                     <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
+            //                 ))}
+            //             </Scrollable>
+            //         ) : <Menu disabled> - Select a Library - </Menu>}
+            //     </>);
+
+        }
+    }
+
     render() {
         const song = this.props.song;
         const instrumentID = this.props.instrumentID;
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
+
 
 
         if (song.hasInstrument(instrumentID)) {
@@ -49,22 +96,24 @@ class InstrumentRenderer extends React.Component {
                 // } else if (instrument instanceof HTMLElement) {
                 //     content.push(instrument);
                 } else {
-                    return <Div className="error">No Instrument Renderer</Div>;
+                    return <Div>
+                        <Div className="error">No Instrument Renderer</Div>
+                        {this.renderInstrumentConfig()}
+                    </Div>;
                 }
 
             } catch (e) {
-                return <Div className="error">{e.message}</Div>;
+                return <Div>
+                    <Div className="error">{e.message}</Div>
+                    {this.renderInstrumentConfig()}
+                </Div>;
             }
 
         } else {
             let titleHTML = `${instrumentIDHTML}: No Instrument`;
             return <Div className="header">
-                <Menu
-                    options={() => <>
-                        <Menu />
-                    </>}
-                    vertical>{titleHTML}</Menu>
-
+                <Div className="error">{titleHTML}</Div>
+                {this.renderInstrumentConfig()}
             </Div>
             // content = [
             //     Div.createElement('header', [
@@ -75,7 +124,7 @@ class InstrumentRenderer extends React.Component {
             //                 Menu.cME({}, 'Change Instrument to',
             //                     async () => {
             //                         const instrumentLibrary = await Library.loadDefaultLibrary(); // TODO: get default library url from composer?
-            //                         return instrumentLibrary.eachInstrument((instrumentConfig) =>
+            //                         return instrumentLibrary.getInstruments().map((instrumentConfig) =>
             //                             Menu.cME({}, instrumentConfig.name, null, () => {
             //                                 song.instrumentReplace(instrumentID, instrumentConfig);
             //                             })

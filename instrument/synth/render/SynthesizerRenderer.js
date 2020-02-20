@@ -3,6 +3,7 @@ import React from 'react';
 import {
     InputButton,
     InputSelect,
+    Scrollable,
     Div,
     Menu,
     Icon,
@@ -11,6 +12,7 @@ import {
 import {Library} from "../../../song";
 
 import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
+
 import "./assets/SynthesizerRenderer.css";
 
 /** AudioSourceSynthesizerRenderer **/
@@ -99,17 +101,24 @@ class SynthesizerRenderer extends React.Component {
             case 'preset':
                 library = this.state.library;
                 return (<>
-                    {library.getPresetCount() > 0 ? library.eachPreset(config => (
-                        <Menu>{config.name}</Menu>
-                    )) : <Menu disabled> - Select a Library - </Menu>}
-                    <Menu hasBreak options={e => this.renderMenu('library-list')}    >Libraries</Menu>
+                    <Menu options={e => this.renderMenu('library-list')}    >Libraries</Menu>
+                    <Menu.Break />
+                    <Menu disabled>Search</Menu>
+                    <Menu.Break />
+                    {library.getPresets().length > 0 ? (
+                        <Scrollable>
+                            {library.getPresets().map(config => (
+                                <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
+                            ))}
+                        </Scrollable>
+                    ) : <Menu disabled> - Select a Library - </Menu>}
                 </>);
 
                 // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
-                //     library.eachPreset(config => selectElm.getOption(config.url, config.name)),
+                //     library.getPresets().map(config => selectElm.getOption(config.url, config.name)),
                 // ),
                 //     selectElm.getOptGroup('Libraries', () =>
-                //             library.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+                //             library.getLibraries().map(config => selectElm.getOption(config.url, config.name)),
                 //         {disabled: library.libraryCount === 0}
                 //     ),
                 //     selectElm.getOptGroup('Other Libraries', () =>
@@ -118,15 +127,15 @@ class SynthesizerRenderer extends React.Component {
                 //     ),
             case 'preset-list':
                 library = this.state.library;
-                if(library.getPresetCount() === 0)
+                if(library.getPresets().length === 0)
                     return <Menu disabled>No presets</Menu>;
-                return library.eachPreset(config => (
+                return library.getPresets().map(config => (
                     <Menu>{config.name}</Menu>
                 ));
 
             case 'library-list':
                 library = this.state.library;
-                return library.eachLibrary(config => (
+                return library.getLibraries().map(config => (
                     <Menu onAction={e=>this.changeLibrary(config.url)}>{config.name}</Menu>
                 ));
 
@@ -140,7 +149,7 @@ class SynthesizerRenderer extends React.Component {
                  Menu.createElement({}, 'Change Instrument to',
                  async () => {
                                 const instrumentLibrary = await Library.loadDefaultLibrary(); // TODO: get default library url from composer?
-                                return instrumentLibrary.eachInstrument((instrumentConfig) =>
+                                return instrumentLibrary.getInstruments().map((instrumentConfig) =>
                                     Menu.createElement({}, instrumentConfig.name, null, () => {
                                         this.song.instrumentReplace(instrumentID, instrumentConfig);
                                     })
@@ -157,6 +166,14 @@ class SynthesizerRenderer extends React.Component {
                 throw new Error("Unknown menu key: " + menuKey);
         }
 
+    }
+
+    async loadPreset(presetName) {
+        const presetConfig = this.state.library.getPresetConfig(presetName);
+        console.log('presetConfig', presetConfig);
+
+        const instrumentID = this.props.instrumentID;
+        await this.getSong().instrumentReplace(instrumentID, presetConfig);
     }
 
     async changeLibrary(libraryURL) {
@@ -191,7 +208,7 @@ class SynthesizerRenderer extends React.Component {
         //         // new InputSelect('url',
         //         //     (e, changeInstrumentURL) => thisReplace(e, instrumentID, changeInstrumentURL),
         //         //     async (selectElm) =>
-        //         //         instrumentLibrary.eachInstrument((instrumentConfig) =>
+        //         //         instrumentLibrary.getInstruments().map((instrumentConfig) =>
         //         //             selectElm.getOption(instrumentConfig.url, instrumentConfig.name)),
         //         //     'Set Instrument'
         //         // )
@@ -288,7 +305,7 @@ class SynthesizerRenderer extends React.Component {
         //                             library.eachSample(config => selectElm.getOption(config.url, config.name)),
         //                         ),
         //                         selectElm.getOptGroup('Libraries', () =>
-        //                                 library.eachLibrary(config => selectElm.getOption(config.url, config.name)),
+        //                                 library.getLibraries().map(config => selectElm.getOption(config.url, config.name)),
         //                             {disabled: library.libraryCount === 0}
         //                         ),
         //                         selectElm.getOptGroup('Other Libraries', async () =>
