@@ -59,11 +59,11 @@ class SynthesizerRenderer extends React.Component {
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
                         >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</InputButton>
-                    <InputSelect
+                    <Menu
                         className="instrument-preset"
-                        value={instrumentConfig.presetName || "No Preset"}
                         options={e => this.renderMenu('preset')}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
+                        children={instrumentConfig.presetName || "No Preset"}
                         />
                     <Menu
                         arrow={false}

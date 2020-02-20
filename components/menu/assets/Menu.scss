@@ -7,11 +7,14 @@ div.asui-menu {
     padding: 0 0;
     margin: 0 0;
     cursor: pointer;
-    display: flex;
     white-space: nowrap;
     //min-width: 1em;
     //min-height: 1em;
     transition: background-color 0.3s;
+}
+
+div.asui-menu > div.container {
+    display: flex;
 }
 
 /** Hover **/
@@ -36,7 +39,7 @@ div.asui-menu.disabled {
 
 /** Menu Arrow **/
 
-div.asui-menu > div.arrow {
+div.asui-menu > div.container > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;

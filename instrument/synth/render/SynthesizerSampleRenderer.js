@@ -15,7 +15,7 @@ class SynthesizerSampleRenderer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false
+            open: true
         }
     }
 
@@ -26,7 +26,7 @@ class SynthesizerSampleRenderer extends React.Component {
 
     render() {
         const sample = this.getSampleData();
-        console.log('sample', sample);
+        // console.log('sample', sample);
         const sampleName = sample.url.replace(/\.(wav|mp3)$/, '');
 
         let className = 'sample';
@@ -46,42 +46,42 @@ class SynthesizerSampleRenderer extends React.Component {
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <Menu arrow={false} options={e => this.renderMenu('sample-mixer')} >
-                                    {sample.mixer}
+                                <Menu options={e => this.renderMenu('sample-mixer')} arrow={false} openOnHover={false}>
+                                    {sample.mixer+'%'}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
-                            <Div title="Edit Detune" className="detune">
-                                <Menu arrow={false} options={e => this.renderMenu('sample-detune')} >
-                                    {sample.detune}
+                            <Div title={`Detune by ${sample.detune} cents`} className="detune">
+                                <Menu options={e => this.renderMenu('sample-detune')} arrow={false} vertical openOnHover={false}>
+                                    {sample.detune+'c'}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
-                            <Div title="Edit Key Root" className="root">
-                                <Menu arrow={false} options={e => this.renderMenu('sample-root')} >
+                            <Div title={`Key Root is ${sample.root}`} className="root">
+                                <Menu options={e => this.renderMenu('sample-root')} arrow={false} openOnHover={false}>
                                     {sample.root}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
-                            <Div title="Edit Key Alias" className="alias">
-                                <Menu arrow={false} options={e => this.renderMenu('sample-alias')} >
+                            <Div title={`Key Alias is ${sample.alias}`} className="alias">
+                                <Menu options={e => this.renderMenu('sample-alias')} arrow={false} openOnHover={false}>
                                     {sample.alias}
                                 </Menu>
                             </Div>
                         )}
-                        {/*{typeof sample.range === 'undefined' ? null : (*/}
-                        {/*    <Div title="Edit Key Range" className="range">*/}
-                        {/*        <Menu arrow={false} options={e => this.renderMenu('sample-range')} >*/}
-                        {/*            {sample.range}*/}
-                        {/*        </Menu>*/}
-                        {/*    </Div>*/}
-                        {/*)}*/}
+                        {typeof sample.range === 'undefined' ? null : (
+                            <Div title={`Key Range is ${sample.range}`} className="range">
+                                <Menu options={e => this.renderMenu('sample-range')} arrow={false} openOnHover={false}>
+                                    {sample.range}
+                                </Menu>
+                            </Div>
+                        )}
                         {typeof sample.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <Menu arrow={false} options={e => this.renderMenu('sample-loop')} >
+                                <Menu options={e => this.renderMenu('sample-loop')} arrow={false} openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
                                 </Menu>
                             </Div>
@@ -89,7 +89,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <Menu arrow={false} options={e => this.renderMenu()} >
+                    <Menu options={e => this.renderMenu()} arrow={false} openOnHover={false}>
                         <Icon className="config"/>
                     </Menu>
                 </Div>
@@ -117,8 +117,8 @@ class SynthesizerSampleRenderer extends React.Component {
             case 'sample-detune':
                 return (
                     <InputRange
-                        min={0}
-                        max={100}
+                        min={-1000}
+                        max={1000}
                         value={typeof sample.detune !== "undefined" ? sample.detune : 100}
                         onChange={(e, detuneValue) => this.changeDetune(detuneValue)}
                     />

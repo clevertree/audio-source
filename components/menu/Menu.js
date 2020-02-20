@@ -43,13 +43,16 @@ class Menu extends React.Component {
         let className = 'dropdown';
         if(this.props.vertical)
             className += ' vertical';
-        // console.log('subMenuChildren', subMenuChildren);
+        console.log('subMenuChildren', subMenuChildren);
         return <div className={className} children={subMenuChildren} />;
     }
 
     render() {
         let arrow = this.props.arrow;
-        if(this.props.options && typeof this.props.vertical === "undefined" && typeof this.props.arrow === "undefined")
+        if(this.props.options
+            && typeof this.props.vertical === "undefined"
+            && typeof this.props.openOnHover === "undefined"
+            && typeof this.props.arrow === "undefined")
             arrow = true;
 
         let className = 'asui-menu';
@@ -62,20 +65,32 @@ class Menu extends React.Component {
         if(this.props.className)
             className += ' ' + this.props.className;
 
+        let mouseProps = {};
+        if(this.props.openOnHover !== false)
+            mouseProps = {
+                onMouseOver: e => this.onInputEvent(e),
+            };
+
+// console.log('Menu.render', this.props);
+
         return (
             <div
                 key={this.props.key}
                 className={className}
-                onMouseOver={e => this.onInputEvent(e)}
                 onMouseOut={e => this.onInputEvent(e)}
+                {...mouseProps}
                 >
                 <div
-                    className="title"
-                    children={this.props.children}
+                    className="container"
                     onClick={e => this.onInputEvent(e)}
                     onKeyDown={e => this.onInputEvent(e)}
-                    />
-                {arrow ? <div className="arrow">{this.props.vertical ? '▼' : '►'}</div> : null}
+                    >
+                    <div
+                        className="title"
+                        children={this.props.children}
+                        />
+                    {arrow ? <div className="arrow">{this.props.vertical ? '▼' : '►'}</div> : null}
+                </div>
                 {this.state.open ? this.renderDropdownContent() : null}
             </div>
         )
@@ -88,10 +103,12 @@ class Menu extends React.Component {
 
         switch (type) {
             case 'mouseover':
-                clearTimeout(this.mouseTimeout);
-                this.mouseTimeout = setTimeout(e => {
-                    this.open();
-                }, 100);
+                if(this.props.openOnHover !== false) {
+                    clearTimeout(this.mouseTimeout);
+                    this.mouseTimeout = setTimeout(e => {
+                        this.open();
+                    }, 100);
+                }
                 break;
 
             case 'mouseout':
@@ -106,7 +123,7 @@ class Menu extends React.Component {
             case 'click':
                 if (e.defaultPrevented)
                     return;
-                console.log(e.type, this);
+                // console.log(e.type, this);
                 e.preventDefault();
                 this.doMenuAction(e);
                 break;
@@ -226,7 +243,7 @@ class Menu extends React.Component {
 
     toggleSubMenu() {
         const stick = !this.state.stick;
-        this.setState({stick});
+        this.setState({stick, open:stick}); // TODO: refactor stick
 
         let parentMenu = this;
         while((parentMenu.parentNode) && (parentMenu = parentMenu.parentNode.closest('asui-menu'))) {

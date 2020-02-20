@@ -23,7 +23,6 @@ class InputRange extends React.Component {
     }
 
     render() {
-        console.log('InputRange');
         let className = "asui-input-range";
         if(this.props.className)
             className += ' ' + this.props.className;
