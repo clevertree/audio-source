@@ -1,7 +1,7 @@
 import React from "react";
 import Div from "../../components/div/Div";
 import Icon from "../../components/icon/Icon";
-import Menu from "../../components/menu/Menu";
+import {SubMenu, ActionMenu} from "../../components/menu";
 // import InputButton from "../../components/input-button/InputButton";
 // import InputFile from "../../components/input-file/InputFile";
 // import InputRange from "../../components/input-range/InputRange";
@@ -19,13 +19,13 @@ class InstrumentRenderer extends React.Component {
 
     renderInstrumentConfig() {
         return (
-            <Menu
+            <SubMenu
                 vertical
                 className="instrument-config"
                 options={e => this.renderMenu()}
             >
                 <Icon className="config"/>
-            </Menu>
+            </SubMenu>
         )
     }
 
@@ -105,15 +105,15 @@ class InstrumentRenderer extends React.Component {
             case null:
                 const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
                 return (<>
-                    <Menu options={e => this.renderMenu('change')}>Change Instrument</Menu>
-                    <Menu onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</Menu>
-                    <Menu onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</Menu>
+                    <SubMenu options={e => this.renderMenu('change')}>Change Instrument</SubMenu>
+                    <ActionMenu onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</ActionMenu>
+                    <ActionMenu onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</ActionMenu>
                 </>);
 
             case 'change':
                 return (<>
                     {InstrumentLoader.getInstruments().map(config =>
-                        <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
+                        <ActionMenu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</ActionMenu>
                     )}
                 </>);
 
@@ -124,17 +124,17 @@ class InstrumentRenderer extends React.Component {
             // case 'config':
             //     library = this.state.library;
             //     return (<>
-            //         <Menu options={e => this.renderMenu('library-list')}>Libraries</Menu>
-            //         <Menu.Break/>
-            //         <Menu disabled>Search</Menu>
-            //         <Menu.Break/>
+            //         <SubMenu options={e => this.renderMenu('library-list')}>Libraries</ActionMenu>
+            //         <MenuBreak/>
+            //         <Menu disabled>Search</ActionMenu>
+            //         <MenuBreak/>
             //         {library.getPresets().length > 0 ? (
             //             <Scrollable>
             //                 {library.getPresets().map(config => (
-            //                     <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
+            //                     <ActionMenu onAction={e => this.loadPreset(config.name)}>{config.name}</ActionMenu>
             //                 ))}
             //             </Scrollable>
-            //         ) : <Menu disabled> - Select a Library - </Menu>}
+            //         ) : <Menu disabled> - Select a Library - </ActionMenu>}
             //     </>);
 
         }
