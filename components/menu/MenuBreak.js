@@ -1,6 +1,6 @@
 import React from "react";
 
-import './assets/Menu.scss';
+import './assets/Menu.css';
 
 class MenuBreak extends React.Component {
     render() {

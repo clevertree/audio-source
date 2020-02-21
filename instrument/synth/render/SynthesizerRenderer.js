@@ -7,7 +7,7 @@ import {
     SubMenu,
     ActionMenu,
     MenuBreak,
-    Icon,
+    Icon, SubMenuButton,
 } from "../../../components";
 
 import {Library} from "../../../song";
@@ -60,19 +60,19 @@ class SynthesizerRenderer extends React.Component {
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
                         >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</InputButton>
-                    <SubMenu
+                    <SubMenuButton
                         className="instrument-preset"
                         options={e => this.renderMenu('preset')}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         children={instrumentConfig.presetName || "No Preset"}
                         />
-                    <SubMenu
+                    <SubMenuButton
                         arrow={false}
                         className="instrument-config"
                         options={e => this.renderMenu()}
                         >
                         <Icon className="config"/>
-                    </SubMenu>
+                    </SubMenuButton>
                 </Div>
                 {this.state.open && (
                     <Div className="samples">

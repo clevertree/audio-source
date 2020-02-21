@@ -204,9 +204,9 @@ class PlayerRenderer extends React.Component {
             case 'root':
                 const vertical = !this.state.portrait;
                 return (<>
-                    <SubMenu vertical={vertical} key="file"        options={e => this.renderMenu('file')}      >File</SubMenu>
-                    <SubMenu vertical={vertical} key="playlist"    options={e => this.renderMenu('playlist')}  >Playlist</SubMenu>
-                    <SubMenu vertical={vertical} key="view"        options={e => this.renderMenu('view')}      >View</SubMenu>
+                    <SubMenu vertical={vertical} key="file"        children={e => this.renderMenu('file')}      >File</SubMenu>
+                    <SubMenu vertical={vertical} key="playlist"    children={e => this.renderMenu('playlist')}  >Playlist</SubMenu>
+                    <SubMenu vertical={vertical} key="view"        children={e => this.renderMenu('view')}      >View</SubMenu>
                 </>);
             // return [
             //     // Menu.cME('refresh',     'Refresh',  (e) => this.restart()),
@@ -217,7 +217,7 @@ class PlayerRenderer extends React.Component {
 
             case 'file':
                 return (<>
-                    <SubMenu key="memory"      options={e => this.renderMenu('file-memory')}      >Load from Memory</SubMenu>
+                    <SubMenu key="memory"      children={e => this.renderMenu('file-memory')}      >Load from Memory</SubMenu>
                     <ActionMenu key="file"        onAction={(e) => this.openSongFromFileDialog(e)} >Load from File</ActionMenu>
                     <ActionMenu key="url"         disabled>Load from URL</ActionMenu>
                     <SubMenu key="library"     disabled>Load from Library</SubMenu>

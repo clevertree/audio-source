@@ -8,12 +8,12 @@ div.asui-menu {
     margin: 0 0;
     cursor: pointer;
     white-space: nowrap;
-    //min-width: 1em;
-    //min-height: 1em;
+    /*min-width: 1em;*/
+    /*min-height: 1em;*/
     transition: background-color 0.3s;
 }
 
-div.asui-menu > div.container {
+div.asui-menu-container {
     display: flex;
 }
 
@@ -22,14 +22,6 @@ div.asui-menu:hover {
     background-color: #AAA;
 }
 
-/** Menu Title **/
-div.asui-menu > div.title {
-    display: inline-block;
-    //padding: 0 6px 0 4px;
-    padding: 0;
-}
-
-
 /** Disabled Menu **/
 div.asui-menu.disabled {
     /*opacity: 0.5;*/
@@ -37,9 +29,18 @@ div.asui-menu.disabled {
     cursor: not-allowed;
 }
 
+/** Menu Title **/
+div.asui-menu-container > div.title {
+    /*display: inline-block;*/
+    /*padding: 0 6px 0 4px;*/
+    /*padding: 0;*/
+}
+
+
+
 /** Menu Arrow **/
 
-div.asui-menu > div.container > div.arrow {
+div.asui-menu-container > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;
@@ -75,9 +76,6 @@ div.asui-menu > div.dropdown:hover {
     z-index: 4;
 }
 
-//div.asui-menu[open] > div.dropdown {
-//    opacity: 1;
-//}
 div.asui-menu > div.dropdown.vertical {
     left: 0;
     top: 100%;

@@ -48,42 +48,42 @@ class SynthesizerSampleRenderer extends React.Component {
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <SubMenu options={e => this.renderMenu('sample-mixer')} arrow={false} openOnHover={false}>
+                                <SubMenu title="" options={() => this.renderMenu('sample-mixer')} arrow={false} openOnHover={false}>
                                     {sample.mixer+'%'}
                                 </SubMenu>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
                             <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <SubMenu options={e => this.renderMenu('sample-detune')} arrow={false} vertical openOnHover={false}>
+                                <SubMenu title="" options={() => this.renderMenu('sample-detune')} arrow={false} vertical openOnHover={false}>
                                     {sample.detune+'c'}
                                 </SubMenu>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
                             <Div title={`Key Root is ${sample.root}`} className="root">
-                                <SubMenu options={e => this.renderMenu('sample-root')} arrow={false} openOnHover={false}>
+                                <SubMenu title="" options={() => this.renderMenu('sample-root')} arrow={false} openOnHover={false}>
                                     {sample.root}
                                 </SubMenu>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
                             <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <SubMenu options={e => this.renderMenu('sample-alias')} arrow={false} openOnHover={false}>
+                                <SubMenu title="" options={() => this.renderMenu('sample-alias')} arrow={false} openOnHover={false}>
                                     {sample.alias}
                                 </SubMenu>
                             </Div>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
                             <Div title={`Key Range is ${sample.range}`} className="range">
-                                <SubMenu options={e => this.renderMenu('sample-range')} arrow={false} openOnHover={false}>
+                                <SubMenu title="" options={() => this.renderMenu('sample-range')} arrow={false} openOnHover={false}>
                                     {sample.range}
                                 </SubMenu>
                             </Div>
                         )}
                         {typeof sample.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <SubMenu options={e => this.renderMenu('sample-loop')} arrow={false} openOnHover={false}>
+                                <SubMenu title="" options={() => this.renderMenu('sample-loop')} arrow={false} openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
                                 </SubMenu>
                             </Div>
@@ -91,7 +91,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <SubMenu options={e => this.renderMenu()} arrow={false} openOnHover={false}>
+                    <SubMenu title="" options={() => this.renderMenu()} arrow={false} openOnHover={false}>
                         <Icon className="config"/>
                     </SubMenu>
                 </Div>
@@ -130,14 +130,14 @@ class SynthesizerSampleRenderer extends React.Component {
             case 'sample-loop':
             case null:
                 return <>
-                    <SubMenu key="mixer" options={e => this.renderMenu('sample-mixer')}>Edit Mixer</SubMenu>
-                    <SubMenu key="detune" options={e => this.renderMenu('sample-detune')}>Edit Detune</SubMenu>
-                    <SubMenu key="root" options={e => this.renderMenu('sample-root')}>Edit Key Root</SubMenu>
-                    <SubMenu key="alias" options={e => this.renderMenu('sample-alias')}>Edit Alias</SubMenu>
-                    <SubMenu key="loop" options={e => this.renderMenu('sample-loop')}>Toggle Loop</SubMenu>
+                    <SubMenu key="mixer" options={() => this.renderMenu('sample-mixer')}>Edit Mixer</SubMenu>
+                    <SubMenu key="detune" options={() => this.renderMenu('sample-detune')}>Edit Detune</SubMenu>
+                    <SubMenu key="root" options={() => this.renderMenu('sample-root')}>Edit Key Root</SubMenu>
+                    <SubMenu key="alias" options={() => this.renderMenu('sample-alias')}>Edit Alias</SubMenu>
+                    <SubMenu key="loop" options={() => this.renderMenu('sample-loop')}>Toggle Loop</SubMenu>
                     <MenuBreak />
-                    <SubMenu key="change" options={e => this.renderMenu('sample-change')}>Change Sample</SubMenu>
-                    <SubMenu key="remove" options={e => this.renderMenu('sample-remove')}>Remove Sample</SubMenu>
+                    <SubMenu key="change" options={() => this.renderMenu('sample-change')}>Change Sample</SubMenu>
+                    <SubMenu key="remove" options={() => this.renderMenu('sample-remove')}>Remove Sample</SubMenu>
                 </>;
 
 

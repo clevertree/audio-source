@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 
-import './assets/Menu.scss';
+import './assets/Menu.css';
 import MenuBreak from "./MenuBreak";
 import AbstractMenu from "./AbstractMenu";
 
@@ -52,7 +52,7 @@ class SubMenu extends AbstractMenu {
                 {...mouseProps}
                 >
                 <div
-                    className="container"
+                    className="asui-menu-container"
                     onClick={e => this.onInputEvent(e)}
                     onKeyDown={e => this.onInputEvent(e)}
                     tabIndex={0}
@@ -82,7 +82,7 @@ class SubMenu extends AbstractMenu {
     }
 
 
-    closeAllMenus() {
+    closeAllMenus() { // TODO: move to abstract?
         activeSubMenus.forEach(activeMenu => activeMenu.closeMenu());
     }
 

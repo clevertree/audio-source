@@ -1,12 +1,12 @@
 import React from "react";
 import PropTypes from 'prop-types';
 
-import './assets/Menu.scss';
+import './assets/Menu.css';
 import AbstractMenu from "./AbstractMenu";
 
 class ActionMenu extends AbstractMenu {
     render() {
-        let className = 'asui-menu action';
+        let className = 'asui-menu asui-menu-container action';
         if(this.props.disabled)
             className += ' disabled';
         if(this.props.className)

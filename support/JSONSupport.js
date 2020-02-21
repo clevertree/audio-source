@@ -14,7 +14,7 @@ class JSONSupport {
     }
 
 
-    async loadSongDataFromURL(url, options={}) {
+    async loadSongDataFromURL(url, children={}) {
         const response = await fetch(url);
         const songData = await response.json();
         return songData;

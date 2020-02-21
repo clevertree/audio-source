@@ -95,7 +95,7 @@
             return songData;
         }
 
-        async loadSongDataFromURL(spcURL, options={}) {
+        async loadSongDataFromURL(spcURL, children={}) {
             const buffer = await this.loadBufferFromURL(spcURL);
             const player = this.loadSPCPlayerFromBuffer(buffer, spcURL);
             const songData = this.loadSongDataFromPlayer(player, spcURL);
@@ -103,7 +103,7 @@
         }
 
 
-        loadSPCPlayerFromBuffer(buffer, spcURL, options={}) {
+        loadSPCPlayerFromBuffer(buffer, spcURL, children={}) {
             const doOnTrackReadyToPlay = function(e) { console.info(e, 'ready')}
 
             var basePath= '';		// not needed here

@@ -2,7 +2,7 @@ import React from "react";
 
 import Div from "../components/div/Div";
 import Icon from "../components/icon/Icon";
-import {SubMenu, ActionMenu} from "../components/menu";
+import {SubMenu, ActionMenu, SubMenuButton} from "../components/menu";
 import InputButton from "../components/input-button/InputButton";
 import InputFile from "../components/input-file/InputFile";
 import InputRange from "../components/input-range/InputRange";
@@ -97,13 +97,16 @@ class ComposerRenderer extends React.Component {
         /** File Menu **/
         switch (menuKey) {
             case 'root':
-                const vertical = !this.state.portrait;
+                const titleMenuProps = this.state.portrait ? {} : {
+                    vertical: true,
+                    arrow: false
+                };
                 return <>
-                    <SubMenu vertical={vertical} key="file"        options={e => this.renderMenu('file')}          >File</SubMenu>
-                    <SubMenu vertical={vertical} key="edit"        options={e => this.renderMenu('edit')}          >Edit</SubMenu>
-                    <SubMenu vertical={vertical} key="group"       options={e => this.renderMenu('group')}         >Group</SubMenu>
-                    <SubMenu vertical={vertical} key="instrument"  options={e => this.renderMenu('instrument')}    >Instrument</SubMenu>
-                    <SubMenu vertical={vertical} key="view"        options={e => this.renderMenu('view')}          >View</SubMenu>
+                    <SubMenu {...titleMenuProps} key="file"        options={e => this.renderMenu('file')}          >File</SubMenu>
+                    <SubMenu {...titleMenuProps} key="edit"        options={e => this.renderMenu('edit')}          >Edit</SubMenu>
+                    <SubMenu {...titleMenuProps} key="group"       options={e => this.renderMenu('group')}         >Group</SubMenu>
+                    <SubMenu {...titleMenuProps} key="instrument"  options={e => this.renderMenu('instrument')}    >Instrument</SubMenu>
+                    <SubMenu {...titleMenuProps} key="view"        options={e => this.renderMenu('view')}          >View</SubMenu>
                 </>;
 
             case 'file':
@@ -130,15 +133,15 @@ class ComposerRenderer extends React.Component {
                 </>;
 
             case 'file-import':
-                    return <>
+                return <>
                     <ActionMenu onAction={e => this.openSongFromFileDialog(e, '.mid,.midi')}          >from MIDI File</ActionMenu>
-                    </>;
-                    // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-                    // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
-                    // menuFileImportSongFromMIDI.disabled = true;
+                </>;
+            // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
+            // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+            // menuFileImportSongFromMIDI.disabled = true;
 
             case 'file-export':
-                    return <>
+                return <>
                     <ActionMenu disabled>to MIDI File</ActionMenu>
                 </>;
 
@@ -201,26 +204,26 @@ class ComposerRenderer extends React.Component {
                 return <>
                     {this.values.getAllSongGroups((groupName) =>
                         <SubMenu
-                            options={e => this.renderMenu('edit-insert-frequency')}
+                            children={e => this.renderMenu('edit-insert-frequency')}
                             disabled={groupName === this.state.trackerGroup}
                             onAction={e => this.instructionInsert('@' + groupName, false)}
-                            >{groupName}</SubMenu>)}
+                        >{groupName}</SubMenu>)}
                     <ActionMenu
                         hasBreak
                         onAction={e => this.groupAdd(e)}
-                        >Create New Group</ActionMenu>
+                    >Create New Group</ActionMenu>
                 </>;
 
             case 'edit-insert-named':
                 return this.values.getAllNamedFrequencies(
                     (noteName, frequency, instrumentID) => <ActionMenu
                         onAction={e => this.instructionInsert(noteName, false, instrumentID)}
-                        >{noteName}</ActionMenu>
+                    >{noteName}</ActionMenu>
                 );
 
             case 'edit-insert-frequency':
                 return this.values.getNoteFrequencies((noteName, label) => <SubMenu
-                        options={e => this.renderMenu('edit-insert-frequency', noteName)}
+                        children={e => this.renderMenu('edit-insert-frequency', noteName)}
                     >{noteName}</SubMenu>
                 );
 
@@ -312,7 +315,7 @@ class ComposerRenderer extends React.Component {
             case 'edit-batch':
                 return <>
                     Storage.getBatchRecentCommands().map((recentBatchCommand, i) =>
-                        <SubMenu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
+                    <SubMenu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
                     ),
                     <ActionMenu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</ActionMenu>
                 </>;
@@ -480,7 +483,7 @@ class ComposerRenderer extends React.Component {
                                 value={this.song ? this.song.getName() : "no song loaded"}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Name"
-                                />
+                            />
                         </Form>
 
                         <Form className="version" title="Version">
@@ -489,41 +492,40 @@ class ComposerRenderer extends React.Component {
                                 onChange={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
                                 value={this.song ? this.song.getVersion() : "0.0.0"}
                                 ref={ref => this.fieldSongVersion = ref}
-                                    title="Song Version"
-                                />
+                                title="Song Version"
+                            />
                         </Form>
                     </Panel>
 
                     <Panel className="instruments" title="Instruments"
-                        ref={ref=>this.panelInstruments = ref}
-                        children={() => (<>
-                            {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
-                                <InstrumentRenderer
-                                    key={instrumentID}
-                                    song={this.song}
-                                    props={instrumentConfig}
-                                    instrumentID={instrumentID}
-                                    />
-                            )}
-                            <Form className="instrument-add" title1="Add Instrument">
-                                <SubMenu
-                                    openOnHover={false}
-                                    className="instrument-add"
-                                    // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
-                                    options={() => InstrumentLoader.getInstruments().map(config =>
-                                        <ActionMenu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</ActionMenu>
-                                    )}
-                                    title="Add Instrument"
-                                    >Add Instrument</SubMenu>
-                            </Form>
-                        </>)} />
+                           ref={ref=>this.panelInstruments = ref}
+                           children={() => (<>
+                               {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
+                                   <InstrumentRenderer
+                                       key={instrumentID}
+                                       song={this.song}
+                                       props={instrumentConfig}
+                                       instrumentID={instrumentID}
+                                   />
+                               )}
+                               <Form className="instrument-add" title1="Add Instrument">
+                                   <SubMenu
+                                       openOnHover={false}
+                                       className="instrument-add"
+                                       // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                       options={() => InstrumentLoader.getInstruments().map(config =>
+                                           <ActionMenu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</ActionMenu>
+                                       )}
+                                       title="Add Instrument"
+                                   >Add Instrument</SubMenu>
+                               </Form>
+                           </>)} />
 
                     <Panel className="instructions" title="Instructions"
                            ref={ref=>this.panelInstructions = ref}
-                        >
+                    >
                         <Form className="instruction-command" title="Command">
-                            <SubMenu
-                                openOnHover={false}
+                            <SubMenuButton
                                 // className="command"
 
                                 // selectElm.value ?
@@ -534,36 +536,36 @@ class ComposerRenderer extends React.Component {
                                 // // TODO: filter by selected instrument
                                 options={() =>
                                     <>
-                                         <SubMenu
+                                        <SubMenu
                                             options={() => this.values.getOctaveNoteFrequencies(freq =>
                                                 <ActionMenu
                                                     onAction={() => this.instructionChangeCommand(freq)}
-                                                    >{freq}</ActionMenu>
+                                                >{freq}</ActionMenu>
                                             )}>Frequencies</SubMenu>
                                         <SubMenu
                                             options={() => this.values.getAllNamedFrequencies(namedFreq =>
                                                 <ActionMenu
                                                     onAction={() => this.instructionChangeCommand(namedFreq)}
-                                                    >{namedFreq}</ActionMenu>
+                                                >{namedFreq}</ActionMenu>
                                             )}>Custom Frequencies</SubMenu>
                                         <SubMenu
                                             options={() => this.values.getAllSongGroups(group =>
                                                 <ActionMenu
                                                     onAction={() => this.instructionChangeCommand('@' + group)}
-                                                    >@{group}</ActionMenu>
+                                                >@{group}</ActionMenu>
                                             )}>Groups</SubMenu>
                                     </>
                                 }
 
 
-                            >C4</SubMenu>
+                            >C4</SubMenuButton>
                         </Form>
                         <Form className="instruction-insert" title="Add">
                             <ActionMenu
                                 // className="instruction-insert"
                                 onAction={e => this.instructionInsert()}
                                 title="Insert Instruction"
-                                >
+                            >
                                 <Icon className="insert"/>
                             </ActionMenu>
                         </Form>
@@ -572,14 +574,13 @@ class ComposerRenderer extends React.Component {
                                 // className="instruction-delete"
                                 onAction={e => this.instructionDelete(e)}
                                 title="Delete Instruction"
-                                >
+                            >
                                 <Icon className="remove"/>
                             </InputButton>
                         </Form>
 
                         <Form className="instruction-instrument" title="Instrument">
-                            <SubMenu
-                                openOnHover={false}
+                            <SubMenuButton
                                 // className="instrument-instrument"
                                 options={() =>
                                     this.values.getSongInstruments((id, name) =>
@@ -587,7 +588,7 @@ class ComposerRenderer extends React.Component {
                                     )
                                 }
                                 title="Song Instruments"
-                            >Select</SubMenu>
+                            >Select</SubMenuButton>
                         </Form>
 
                         <Form className="velocity" title="Velocity">
@@ -604,8 +605,7 @@ class ComposerRenderer extends React.Component {
 
 
                         <Form className="instruction-duration" title="Duration">
-                            <SubMenu
-                                openOnHover={false}
+                            <SubMenuButton
                                 // className="instruction-duration"
                                 options={() =>
                                     this.values.getNoteDurations((duration, title) =>
@@ -613,14 +613,13 @@ class ComposerRenderer extends React.Component {
                                     )
                                 }
                                 title="Load Song from File"
-                            >1B</SubMenu>
+                            >1B</SubMenuButton>
                         </Form>
                     </Panel>
 
                     <Panel className="tracker" title="Tracker">
                         <Form className="tracker-row-length" title="Row &#120491;">
-                            <SubMenu
-                                openOnHover={false}
+                            <SubMenuButton
                                 value="1B"
                                 // className="tracker-row-length"
                                 options={() =>
@@ -628,12 +627,11 @@ class ComposerRenderer extends React.Component {
                                         <ActionMenu onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
                                     )
                                 }
-                            >1B</SubMenu>
+                            >1B</SubMenuButton>
                         </Form>
 
                         <Form className="tracker-segment-length" title="Seg &#120491;">
-                            <SubMenu
-                                openOnHover={false}
+                            <SubMenuButton
                                 // className="tracker-segment-length"
                                 options={() =>
                                     this.values.getSegmentLengths((length, title) =>
@@ -641,12 +639,11 @@ class ComposerRenderer extends React.Component {
                                     )
                                 }
                                 title="Select Tracker Segment Length"
-                            >16B</SubMenu>
+                            >16B</SubMenuButton>
                         </Form>
 
                         <Form className="tracker-instrument" title="Instrument">
-                            <SubMenu
-                                openOnHover={false}
+                            <SubMenuButton
                                 // className="tracker-instrument"
                                 options={() =>
                                     this.values.getSongInstruments((instrumentID, name) =>
@@ -654,7 +651,7 @@ class ComposerRenderer extends React.Component {
                                     )
                                 }
                                 title="Filter by Tracker Instrument"
-                            >Any</SubMenu>
+                            >Any</SubMenuButton>
                         </Form>
 
                         <Form className="tracker-selection" title="Selection">
@@ -667,16 +664,15 @@ class ComposerRenderer extends React.Component {
                         </Form>
 
                         <Form className="tracker-octave" title="Octave">
-                            <SubMenu
-                                openOnHover={false}
-                                // className="tracker-selection"
+                            <SubMenuButton
+                                className="tracker-selection"
                                 options={() =>
                                     this.values.getNoteOctaves(octave =>
                                         <ActionMenu onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</ActionMenu>
                                     )
                                 }
                                 title="Tracker Change Octave"
-                            >4</SubMenu>
+                            >4</SubMenuButton>
                         </Form>
                     </Panel>
 
@@ -687,7 +683,7 @@ class ComposerRenderer extends React.Component {
                 <Div className="asc-tracker-container">
                     <Tracker
                         composer={this}
-                        />
+                    />
                 </Div>
                 <Footer composer={this} ref={ref => this.footer = ref} />
             </Div>

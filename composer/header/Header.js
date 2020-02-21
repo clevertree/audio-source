@@ -34,7 +34,7 @@ class Header extends React.Component {
         return (
             <SubMenu
                 class="asc-menu-button"
-                options={menuContent}
+                children={menuContent}
                 >
                 <Icon className="menu" />
             </SubMenu>
