@@ -37,7 +37,7 @@ class ActionMenu extends AbstractMenu {
         }
         const result = this.props.onAction(e, this);
         if(result !== false)
-            this.closeAllMenus(e.target);
+            this.closeAllSubMenus(e.target);
     }
 
 

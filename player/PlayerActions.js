@@ -67,8 +67,8 @@ class PlayerActions extends PlayerRenderer {
     }
 
 
-    closeAllMenus() {
-        this.menuFile.closeAllMenus();
+    closeAllSubMenus() {
+        this.menuFile.closeAllSubMenus();
     }
 
 

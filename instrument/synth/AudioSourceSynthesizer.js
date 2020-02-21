@@ -14,7 +14,7 @@ class AudioSourceSynthesizer {
 
         this.audioContext = null;
         if(typeof config.title === "undefined")
-            config.title = 'Synthesizer'; // + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
+            config.title = 'Synthesizer' + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
         this.config = config || {};
 
 

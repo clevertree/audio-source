@@ -146,14 +146,14 @@ class Menu extends React.Component {
         if(this.state.open !== true)
             this.setState({open: true});
             // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
-        // this.closeAllMenusButThis();
+        // this.closeAllSubMenusButThis();
     }
 
     doMenuAction(e) {
         console.log("Doing menu action: ", this);
         if (this.props.onAction) {
             this.props.onAction(e, this);
-            this.closeAllMenus();
+            this.closeAllSubMenus();
         // } else if(this.props.dropDownContent) {
         //     this.toggleSubMenu(e);
         } else {
@@ -171,7 +171,7 @@ class Menu extends React.Component {
         this.open();
     }
 
-    // closeAllMenus(includeStickMenus=false) {
+    // closeAllSubMenus(includeStickMenus=false) {
     //     if(isBrowser) {
     //         const root = this.getRootNode() || document;
     //         root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
@@ -180,7 +180,7 @@ class Menu extends React.Component {
     //         // console.warn("Unimplemented");
     //     }
     // }
-    // closeAllMenusButThis() {
+    // closeAllSubMenusButThis() {
     //     if(isBrowser) {
     //
     //         const root = this.getRootNode() || document;

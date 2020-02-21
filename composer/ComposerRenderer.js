@@ -157,7 +157,7 @@ class ComposerRenderer extends React.Component {
                     :<ActionMenu
                         key="no-recent"
                         disabled
-                    >No Songs Available</ActionMenu>
+                    >No Songs Available</ActionMenu>;
 
             case 'edit':
             case 'context':
@@ -255,7 +255,7 @@ class ComposerRenderer extends React.Component {
             case 'edit-set-instrument':
                 return this.values.getSongInstruments((instrumentID, label) =>
                     <ActionMenu onAction={e => this.instructionChangeInstrument(instrumentID)}  >{label}</ActionMenu>
-                )
+                );
 
             case 'edit-set-duration':
                 return <>
@@ -306,7 +306,7 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-select-batch':
                 return <>
-                    {Storage.getBatchRecentSearches().map((recentBatchSearch, i) =>
+                    {(new Storage).getBatchRecentSearches().map((recentBatchSearch, i) =>
                         <ActionMenu onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</ActionMenu>
                     )}
                     <ActionMenu onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</ActionMenu>
@@ -314,9 +314,9 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-batch':
                 return <>
-                    Storage.getBatchRecentCommands().map((recentBatchCommand, i) =>
-                    <SubMenu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
-                    ),
+                    {(new Storage).getBatchRecentCommands().map((recentBatchCommand, i) =>
+                        <SubMenu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
+                    )}
                     <ActionMenu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</ActionMenu>
                 </>;
 
@@ -331,7 +331,7 @@ class ComposerRenderer extends React.Component {
                 recentBatchCommand = menuParam;
                 return <>
                     <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</ActionMenu>
-                    {Storage.getBatchRecentSearches().map((recentBatchSearch, i) =>
+                    {(new Storage).getBatchRecentSearches().map((recentBatchSearch, i) =>
                         <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</ActionMenu>
                     )}
                 </>;
@@ -348,12 +348,12 @@ class ComposerRenderer extends React.Component {
                 return <>
                     <SubMenu options={e => this.renderMenu('instrument-add')}    >Add instrument to song</SubMenu>
                     {this.values.getSongInstruments((instrumentID, label) =>
-                        <ActionMenu onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</ActionMenu>)}
+                        <ActionMenu key={instrumentID} onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</ActionMenu>)}
                 </>;
 
             case 'instrument-add':
                 return InstrumentLoader.getInstruments().map((config) =>
-                    <ActionMenu onAction={e => this.instrumentAdd(config.className)}       >{config.name}</ActionMenu>);
+                    <ActionMenu onAction={e => this.instrumentAdd(config.className)}       >{config.title}</ActionMenu>);
 
             case 'instrument-edit':
                 instrumentID = menuParam;
@@ -376,7 +376,7 @@ class ComposerRenderer extends React.Component {
                 return <>
                     <ActionMenu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group to song</ActionMenu>
                     {this.values.getAllSongGroups((groupName) =>
-                        <SubMenu options={e => this.renderMenu('group-edit', groupName)} hasBreak={groupCount++ === 0}    >{groupName}</SubMenu>)}
+                        <SubMenu key={groupName} options={e => this.renderMenu('group-edit', groupName)} hasBreak={groupCount++ === 0}    >{groupName}</SubMenu>)}
                 </>;
 
             case 'group-edit':

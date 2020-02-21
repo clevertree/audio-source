@@ -5,7 +5,6 @@ import './assets/Menu.css';
 import MenuBreak from "./MenuBreak";
 import AbstractMenu from "./AbstractMenu";
 
-const activeSubMenus = [];
 class SubMenu extends AbstractMenu {
 
     constructor(props = {}) {
@@ -17,13 +16,10 @@ class SubMenu extends AbstractMenu {
     }
 
     componentDidMount() {
-        activeSubMenus.push(this);
+        this.addActiveSubMenu();
     }
     componentWillUnmount() {
-        for(let i=activeSubMenus.length-1; i>=0; i--) {
-            if(activeSubMenus[i] === this)
-                activeSubMenus.splice(i, 1);
-        }
+        this.removeActiveSubMenu();
     }
 
 
@@ -82,9 +78,6 @@ class SubMenu extends AbstractMenu {
     }
 
 
-    closeAllMenus() { // TODO: move to abstract?
-        activeSubMenus.forEach(activeMenu => activeMenu.closeMenu());
-    }
 
 
 
@@ -107,7 +100,7 @@ class SubMenu extends AbstractMenu {
         if(this.state.open !== true)
             this.setState({open: true});
             // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
-        // this.closeAllMenusButThis();
+        // this.closeAllSubMenusButThis();
     }
 
 

@@ -201,7 +201,7 @@ class Composer extends ComposerActions {
                 break;
 
             case 'click':
-                this.closeAllMenus(true);
+                this.closeAllSubMenus(true);
                 break;
             //     const divElmFormElm = e.path[0].closest('asui-div');
             //     if(divElmFormElm) {
@@ -322,9 +322,9 @@ class Composer extends ComposerActions {
         }
     }
 
-    closeAllMenus() {
+    closeAllSubMenus() {
         this.shadowDOM.querySelector(`asui-menu`)
-            .closeAllMenus();
+            .closeAllSubMenus();
     }
 
 

@@ -204,7 +204,7 @@ class Tracker extends React.Component {
         switch (e.type) {
             case 'keydown':
                 // All key actions close all menus
-                composer.closeAllMenus();
+                composer.closeAllSubMenus();
 
                 let keyEvent = e.key;
                 if (!e.ctrlKey && composer.keyboard.getKeyboardCommand(
@@ -325,7 +325,7 @@ class Tracker extends React.Component {
             case 'touchstart':
             case 'mousedown':
                 // All mouse actions close all menus
-                composer.closeAllMenus();
+                composer.closeAllSubMenus();
 
                 this.mousePosition.isDown = true;
                 this.mousePosition.isDragging = false;
@@ -846,7 +846,7 @@ class Tracker extends React.Component {
 
     //
     // selectCell(e, cursorCell, toggle=null) {
-    //     this.editor.closeAllMenus();
+    //     this.editor.closeAllSubMenus();
     //     if(!e.shiftKey)
     //         this.clearSelection();
     //     cursorCell.select(toggle ? cursorCell.selected : true);

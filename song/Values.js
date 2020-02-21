@@ -33,14 +33,13 @@ class Values {
     }
 
 
-    /** @deprecated **/
     getSongInstruments(callback = (id, name) => [id, name]) {
         const song = this.song;
         const results = [];
         if (song && song.data.instruments) {
             const instrumentList = song.data.instruments;
             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-                const instrumentInfo = instrumentList[instrumentID] || {name: "No Instrument Loaded"};
+                const instrumentInfo = instrumentList[instrumentID] || {title: "No Instrument Loaded"};
                 // const instrument = this.renderer.getInstrument(instrumentID);
                 const result = callback(instrumentID, this.formatInstrumentID(instrumentID)
                     + ': ' + (instrumentInfo.title ? instrumentInfo.title : instrumentInfo.className));
