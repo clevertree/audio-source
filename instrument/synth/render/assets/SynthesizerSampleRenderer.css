@@ -16,30 +16,6 @@ div.audio-source-synthesizer-container > div.samples > div.header > div{
     flex: 1;
 }
 
-/** Inputs **/
-div.audio-source-synthesizer-container  asui-button.instrument-id   button {
-    border: 1px outset;
-    padding: 0px 2px;
-}
-
-div.audio-source-synthesizer-container  asui-input-select.instrument-preset               {
-    margin-left: auto;
-}
-div.audio-source-synthesizer-container  asui-button.instrument-remove               {
-    float:  right;
-    margin: 0px 0px 0px 0px;
-}
-
-
-div.audio-source-synthesizer-container  asui-input-text.name        input       {width: 90px;}
-div.audio-source-synthesizer-container  asui-input-select.url       select      {width: 107px;}
-div.audio-source-synthesizer-container  asui-input-range.mixer      input      {width: 40px;}
-div.audio-source-synthesizer-container  asui-input-range.detune     input      {width: 40px;}
-div.audio-source-synthesizer-container  asui-input-select.root      select      {width: 48px;}
-div.audio-source-synthesizer-container  asui-input-select.alias     select      {width: 48px;}
-div.audio-source-synthesizer-container  asui-input-text.adsr        input      {width: 60px;}
-
-div.audio-source-synthesizer-container  asui-input-select.instrument-preset       select      { width: 120px; }
 
 
 /** Sample Grid **/
@@ -48,11 +24,8 @@ div.audio-source-synthesizer-container > div.samples {
     /*min-width: 480px;*/
     text-align: center;
     margin: 5px;
-    /*border: 1px solid #AAA;*/
-    /* border-radius: 4px; */
-    /* border-right: 1px #777 solid; */
-    background: #CCCA;
-    /* box-shadow: 1px 1px 0px #999; */
+     border-radius: 4px;
+    background: #D4D4D4;
 }
 
 div.audio-source-synthesizer-container > div.samples > div.sample {

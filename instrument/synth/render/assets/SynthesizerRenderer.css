@@ -20,23 +20,12 @@ div.audio-source-synthesizer-container {
     margin: 0px 0px 0px 0px;
     display: inline-block;
     vertical-align: top;
-    /*min-width: 24em;*/
-    /*max-height: 24px;*/
-    /*overflow: hidden;*/
-    /*transition-property: all;*/
-    /*transition-duration: 1s;*/
-    /*transition-timing-function: ease-in-out;*/
 }
 
 
 div.audio-source-synthesizer-container.active {
     background: #AAD;
 }
-/*div.audio-source-synthesizer-container.selected  {*/
-/*    max-height: 80em;*/
-/*    overflow: auto;*/
-/*    border: 1px inset;*/
-/*}*/
 
 
 div.audio-source-synthesizer-container > div.header {
@@ -49,12 +38,5 @@ div.audio-source-synthesizer-container > div.header {
 }
 
 div.audio-source-synthesizer-container > div.header > button.toggle-container {
-    /*padding: 2px 12px 2px 2px;*/
 }
-/*div.audio-source-synthesizer-container > div.header > div.title {*/
-/*    cursor: pointer;*/
-/*}*/
-/*div.audio-source-synthesizer-container > div.header > div.title:hover {*/
-/*    background-color: #AAA;*/
-/*}*/
 

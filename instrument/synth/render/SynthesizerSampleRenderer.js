@@ -83,9 +83,9 @@ class SynthesizerSampleRenderer extends React.Component {
                         )}
                         {typeof sample.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <SubMenu title="" options={() => this.renderMenu('sample-loop')} arrow={false} openOnHover={false}>
+                                <ActionMenu title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
-                                </SubMenu>
+                                </ActionMenu>
                             </Div>
                         )}
                     </>)
@@ -155,7 +155,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     <SubMenu key="detune" options={() => this.renderMenu('sample-detune')}>Edit Detune</SubMenu>
                     <SubMenu key="root" options={() => this.renderMenu('sample-root')}>Edit Key Root</SubMenu>
                     <SubMenu key="alias" options={() => this.renderMenu('sample-alias')}>Edit Alias</SubMenu>
-                    <SubMenu key="loop" options={() => this.renderMenu('sample-loop')}>Toggle Loop</SubMenu>
+                    <ActionMenu key="loop" onAction={e => this.changeLoop()}>Toggle Loop</ActionMenu>
                     <MenuBreak />
                     <SubMenu key="change" options={() => this.renderMenu('sample-change')}>Change Sample</SubMenu>
                     <SubMenu key="remove" options={() => this.renderMenu('sample-remove')}>Remove Sample</SubMenu>
@@ -208,7 +208,9 @@ class SynthesizerSampleRenderer extends React.Component {
         );
     }
 
-    changeLoop(newLoopValue) {
+    changeLoop(newLoopValue=null) {
+        if(newLoopValue === null)
+            newLoopValue = !this.getSampleData().loop;
         this.getSong().instrumentReplaceParam(
             this.getInstrumentID(),
             ['samples', this.getSampleID(), 'loop'],
