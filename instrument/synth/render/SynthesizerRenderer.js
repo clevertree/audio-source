@@ -79,6 +79,7 @@ class SynthesizerRenderer extends React.Component {
                     <Div className="samples">
                         {instrumentConfig.samples && instrumentConfig.samples.map((sampleData, sampleID) =>
                             <SynthesizerSampleRenderer
+                                key={sampleID}
                                 song={this.props.song}
                                 instrumentID={this.props.instrumentID}
                                 sampleID={sampleID}

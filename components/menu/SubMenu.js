@@ -39,7 +39,7 @@ class SubMenu extends AbstractMenu {
         let mouseProps = {
             onMouseLeave: this.onInputEventCallback
         };
-        if(this.props.openOnHover !== false)
+        // if(this.props.openOnHover !== false)
             mouseProps.onMouseEnter = this.onInputEventCallback;
 
 // console.log('SubMenu.render', this.props);
@@ -47,7 +47,7 @@ class SubMenu extends AbstractMenu {
 
         return (
             <div
-                key={this.props.key}
+                // key={this.props.key}
                 className={className}
                 title={this.props.title}
                 {...mouseProps}

@@ -310,7 +310,10 @@ class ComposerRenderer extends React.Component {
                 return <>
                     {this.values.getAllSongGroups((groupName) =>
                         groupName === this.groupName ? null :
-                            <ActionMenu onAction={e => this.instructionChangeCommand('@' + groupName, false)}                    >{groupName}</ActionMenu>
+                            <ActionMenu
+                                disabled={groupName === this.state.trackerGroup}
+                                onAction={e => this.instructionChangeCommand('@' + groupName, false)}
+                                >{groupName}</ActionMenu>
                     )}
                     <ActionMenu onAction={e => this.groupAdd()} hasBreak  >Create New Group</ActionMenu>
                 </>;
@@ -366,6 +369,7 @@ class ComposerRenderer extends React.Component {
             case 'instrument':
                 return <>
                     <SubMenu options={e => this.renderMenu('instrument-add')}    >Add instrument to song</SubMenu>
+                    <MenuBreak />
                     {this.values.getSongInstruments((instrumentID, label) =>
                         <ActionMenu key={instrumentID} onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</ActionMenu>)}
                 </>;
@@ -391,11 +395,15 @@ class ComposerRenderer extends React.Component {
 
             /** Group Menu **/
             case 'group':
-                let groupCount = 0;
                 return <>
-                    <ActionMenu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group to song</ActionMenu>
+                    <ActionMenu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group</ActionMenu>
+                    <MenuBreak />
                     {this.values.getAllSongGroups((groupName) =>
-                        <SubMenu key={groupName} options={e => this.renderMenu('group-edit', groupName)} hasBreak={groupCount++ === 0}    >{groupName}</SubMenu>)}
+                        <SubMenu
+                            key={groupName}
+                            disabled={groupName === this.state.trackerGroup}
+                            options={e => this.renderMenu('group-edit', groupName)}
+                            >{groupName}</SubMenu>)}
                 </>;
 
             case 'group-edit':

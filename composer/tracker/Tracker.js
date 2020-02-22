@@ -75,8 +75,8 @@ class Tracker extends React.Component {
             if (this.state.trackerRowSegmentID === lastRowSegmentID) {
 
                 // Render instructions
-                const rowInstructionElms = rowInstructionList.map(instruction => {
-                    const props = {instruction};
+                const rowInstructionElms = rowInstructionList.map((instruction, i) => {
+                    const props = {instruction, key:i};
                     if (selectedIndices.indexOf(instruction.index) !== -1) props.selected = true;
                     if (instruction.index === cursorIndex) props.cursor = true;
                     return <TrackerInstruction {...props}/>;
