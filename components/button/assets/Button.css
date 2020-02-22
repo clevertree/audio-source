@@ -1,5 +1,4 @@
 
-div.asui-menu.submenu-button,
 button.asui-button {
     display: inline-block;
     cursor: pointer;
@@ -10,12 +9,10 @@ button.asui-button {
     /*background: buttonface;*/
 }
 
-div.asui-menu.submenu-button:hover,
 button.asui-button:hover {
     background: linear-gradient(#ddd, #bbb);
 }
 
-div.asui-menu.submenu-button.stick,
-button.asui-button.stick {
-    background: linear-gradient(#ccc, #aaa);
-}
+/*button.asui-button.stick {*/
+/*    background: linear-gradient(#ccc, #aaa);*/
+/*}*/

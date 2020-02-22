@@ -127,7 +127,7 @@ class SubMenu extends AbstractMenu {
         this.openMenu();
     }
     onInputEvent(e) {
-        console.log(e.type, this);
+        // console.log(e.type, this);
 
         switch (e.type) {
             case 'mouseenter':
@@ -247,23 +247,6 @@ SubMenuHorizontal.propTypes = SubMenu.propTypes;
 
 
 
-class SubMenuButton extends SubMenu {
-    getClassName() { return 'asui-menu submenu-button'; }
-}
-
-
-/** Default props **/
-SubMenuButton.defaultProps = {
-    arrow:          '▼',
-    vertical:       true,
-    openOnHover:    false,
-    disabled:       false,
-};
-
-
-
-
-
 SubMenu.Break = MenuBreak;
 
 
@@ -272,5 +255,5 @@ export {
     SubMenu as default,
     SubMenu,
     SubMenuHorizontal,
-    SubMenuButton
+    // SubMenuButton
 };

@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './assets/Menu.css';
 import AbstractMenu from "./AbstractMenu";
 
+// TODO: combine with Action abstract
 class ActionMenu extends AbstractMenu {
     render() {
         let className = 'asui-menu asui-menu-container action';
@@ -15,7 +16,7 @@ class ActionMenu extends AbstractMenu {
 
         return (
             <div
-                key={this.props.key}
+                // key={this.props.key}
                 className={className}
                     onClick={e => this.onInputEvent(e)}
                     onKeyDown={e => this.onInputEvent(e)}

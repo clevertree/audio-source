@@ -4,13 +4,14 @@ import Icon from "./icon/Icon";
 import {
     SubMenu,
     SubMenuHorizontal,
-    SubMenuButton,
     ActionMenu,
     MenuBreak} from "./menu/";
 
-import Button from "./button/Button";
+import {
+    Button,
+    SubMenuButton
+} from "./button";
 import InputRange from "./input-range/InputRange";
-import InputCheckbox from "./input-checkbox/InputCheckbox";
 import Scrollable from "./scrollable/Scrollable";
 
 export {
@@ -26,5 +27,4 @@ export {
     Scrollable,
     Button,
     InputRange,
-    InputCheckbox,
 }

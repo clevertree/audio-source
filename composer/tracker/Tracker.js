@@ -1,8 +1,10 @@
 import * as React from "react";
 // import TrackerDelta from "./TrackerDelta";
-import TrackerInstructionAdd from "./TrackerInstructionAdd";
-import TrackerInstruction from "./TrackerInstruction";
-import TrackerRow from "./TrackerRow";
+import {
+    TrackerInstructionAdd,
+    TrackerInstruction,
+    TrackerRow
+} from "./";
 import Div from "../../components/div/Div";
 import SongInstruction from "../../song/SongInstruction";
 

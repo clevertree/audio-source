@@ -221,7 +221,7 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-insert-frequency':
                 return this.values.getNoteFrequencies((noteName, label) => <SubMenu
-                        children={e => this.renderMenu('edit-insert-frequency', noteName)}
+                        children={e => this.renderMenu('note', noteName)}
                     >{noteName}</SubMenu>
                 );
 
@@ -256,54 +256,54 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-set-instrument':
                 return this.values.getSongInstruments((instrumentID, label) =>
-                    <ActionMenu onAction={e => this.instructionChangeInstrument(instrumentID)}  >{label}</ActionMenu>
+                    <ActionMenu key={instrumentID} onAction={e => this.instructionChangeInstrument(instrumentID)}  >{label}</ActionMenu>
                 );
 
             case 'edit-set-duration':
                 return <>
                     {this.values.getNoteDurations((durationInTicks, durationName) =>
-                        <ActionMenu onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</ActionMenu>)}
+                        <ActionMenu key={durationInTicks} onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</ActionMenu>)}
                     <ActionMenu onAction={e => this.instructionChangeDuration(null, true)} hasBreak >Custom Duration</ActionMenu>
                 </>;
 
             case 'edit-set-velocity':
                 return <>
                     {this.values.getNoteVelocities((velocity) =>
-                        <ActionMenu onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</ActionMenu>)}
+                        <ActionMenu key={velocity} onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</ActionMenu>)}
                     <ActionMenu onAction={e => this.instructionChangeVelocity(null, true)} hasBreak >Custom Velocity</ActionMenu>
                 </>;
 
             case 'edit-set-command-frequency':
                 return this.values.getNoteFrequencies((noteName) =>
-                    <SubMenu options={e => this.renderMenu('edit-set-command-frequency-note', noteName)}                   >{noteName}</SubMenu>
+                    <SubMenu key={noteName} options={e => this.renderMenu('edit-set-command-frequency-note', noteName)}                   >{noteName}</SubMenu>
                 );
 
             case 'edit-set-command-frequency-note':
                 const setNoteName = menuParam;
                 return this.values.getNoteOctaves((octave) =>
-                    <ActionMenu onAction={e => this.instructionChangeCommand(`${setNoteName}${octave}`, false)}     >{setNoteName}{octave}</ActionMenu>
+                    <ActionMenu key={octave} onAction={e => this.instructionChangeCommand(`${setNoteName}${octave}`, false)}     >{setNoteName}{octave}</ActionMenu>
                 );
 
             case 'edit-set-command-current-octave':
                 octave = menuParam !== null ? menuParam : this.state.trackerCurrentOctave;
                 return this.values.getNoteFrequencies((noteName) =>
-                    <ActionMenu onAction={e => this.instructionChangeCommand(`${noteName}${octave}`, false)}     >{noteName}{octave}</ActionMenu>
+                    <ActionMenu key={noteName} onAction={e => this.instructionChangeCommand(`${noteName}${octave}`, false)}     >{noteName}{octave}</ActionMenu>
                 );
 
             case 'edit-set-command-octave':
                 return this.values.getNoteOctaves((octave) =>
-                    <SubMenu options={e => this.renderMenu('edit-set-command-octave-frequency', octave)}                   >{octave}</SubMenu>
+                    <SubMenu key={octave} options={e => this.renderMenu('edit-set-command-octave-frequency', octave)}                   >{octave}</SubMenu>
                 );
 
             case 'edit-set-command-octave-frequency':
                 octave = menuParam;
                 return this.values.getNoteFrequencies((noteName) =>
-                    <ActionMenu onAction={e => this.instructionChangeCommand(`${noteName}${octave}`, false)}     >{noteName}{octave}</ActionMenu>
+                    <ActionMenu key={noteName} onAction={e => this.instructionChangeCommand(`${noteName}${octave}`, false)}     >{noteName}{octave}</ActionMenu>
                 );
 
             case 'edit-set-command-named':
                 return this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
-                    <ActionMenu onAction={e => this.instructionChangeCommand(noteName, false, instrumentID)}                    >{noteName}</ActionMenu>
+                    <ActionMenu key={noteName} onAction={e => this.instructionChangeCommand(noteName, false, instrumentID)}                    >{noteName}</ActionMenu>
                 );
 
             case 'edit-set-command-group':
@@ -311,6 +311,7 @@ class ComposerRenderer extends React.Component {
                     {this.values.getAllSongGroups((groupName) =>
                         groupName === this.groupName ? null :
                             <ActionMenu
+                                key={groupName}
                                 disabled={groupName === this.state.trackerGroup}
                                 onAction={e => this.instructionChangeCommand('@' + groupName, false)}
                                 >{groupName}</ActionMenu>
@@ -368,21 +369,22 @@ class ComposerRenderer extends React.Component {
 
             case 'instrument':
                 return <>
-                    <SubMenu options={e => this.renderMenu('instrument-add')}    >Add instrument to song</SubMenu>
+                    <SubMenu key="add" options={e => this.renderMenu('instrument-add')}    >Add instrument to song</SubMenu>
                     <MenuBreak />
                     {this.values.getSongInstruments((instrumentID, label) =>
                         <ActionMenu key={instrumentID} onAction={e => this.renderMenu('instrument-edit', instrumentID)}       >{label}</ActionMenu>)}
                 </>;
 
             case 'instrument-add':
-                return InstrumentLoader.getInstruments().map((config) =>
-                    <ActionMenu onAction={e => this.instrumentAdd(config.className)}       >{config.title}</ActionMenu>);
+                return InstrumentLoader.getInstruments().map((config, i) =>
+                    <ActionMenu key={i} onAction={e => this.instrumentAdd(config.className)}       >{config.title}</ActionMenu>);
 
             case 'instrument-edit':
                 instrumentID = menuParam;
                 return <>
-                    <SubMenu options={e => this.renderMenu('instrument-edit-replace')}    >Replace</SubMenu>
+                    <SubMenu key="replace" options={e => this.renderMenu('instrument-edit-replace')}    >Replace</SubMenu>
                     <ActionMenu
+                        key="remove"
                         onAction={e => this.instrumentRemove(instrumentID)}
                         disabled={!this.song.isInstrumentLoaded(instrumentID)}
                     >Remove from song</ActionMenu>
@@ -539,8 +541,8 @@ class ComposerRenderer extends React.Component {
                                    <SubMenuButton
                                        className="instrument-add"
                                        // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
-                                       options={() => InstrumentLoader.getInstruments().map(config =>
-                                           <ActionMenu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</ActionMenu>
+                                       options={() => InstrumentLoader.getInstruments().map((config, i) =>
+                                           <ActionMenu key={i} onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</ActionMenu>
                                        )}
                                        title="Add Instrument"
                                    >Select...</SubMenuButton>
@@ -582,7 +584,7 @@ class ComposerRenderer extends React.Component {
                                 // className="instrument-instrument"
                                 options={() =>
                                     this.values.getSongInstruments((id, name) =>
-                                        <ActionMenu onAction={(e) => this.instructionChangeInstrument(id)}>{name}</ActionMenu>
+                                        <ActionMenu key={id} onAction={(e) => this.instructionChangeInstrument(id)}>{name}</ActionMenu>
                                     )
                                 }
                                 title="Song Instruments"
@@ -607,7 +609,7 @@ class ComposerRenderer extends React.Component {
                                 // className="instruction-duration"
                                 options={() =>
                                     this.values.getNoteDurations((duration, title) =>
-                                        <ActionMenu key={title} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
+                                        <ActionMenu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
                                     )
                                 }
                                 title="Load Song from File"
@@ -622,7 +624,7 @@ class ComposerRenderer extends React.Component {
                                 // className="tracker-row-length"
                                 options={() =>
                                     this.values.getNoteDurations((duration, title) =>
-                                        <ActionMenu onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
+                                        <ActionMenu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
                                     )
                                 }
                             >1B</SubMenuButton>
@@ -633,7 +635,7 @@ class ComposerRenderer extends React.Component {
                                 // className="tracker-segment-length"
                                 options={() =>
                                     this.values.getSegmentLengths((length, title) =>
-                                        <ActionMenu onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</ActionMenu>
+                                        <ActionMenu key={length} onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</ActionMenu>
                                     )
                                 }
                                 title="Select Tracker Segment Length"
@@ -645,7 +647,7 @@ class ComposerRenderer extends React.Component {
                                 // className="tracker-instrument"
                                 options={() =>
                                     this.values.getSongInstruments((instrumentID, name) =>
-                                        <ActionMenu onAction={(e) => this.trackerChangeInstrumentFilter(instrumentID)}>{name}</ActionMenu>
+                                        <ActionMenu key={instrumentID} onAction={(e) => this.trackerChangeInstrumentFilter(instrumentID)}>{name}</ActionMenu>
                                     )
                                 }
                                 title="Filter by Tracker Instrument"
@@ -666,7 +668,7 @@ class ComposerRenderer extends React.Component {
                                 className="tracker-selection"
                                 options={() =>
                                     this.values.getNoteOctaves(octave =>
-                                        <ActionMenu onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</ActionMenu>
+                                        <ActionMenu key={octave} onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</ActionMenu>
                                     )
                                 }
                                 title="Tracker Change Octave"

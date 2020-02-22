@@ -1,12 +1,12 @@
 import React from "react";
-import Div from "../../components/div/Div";
-import Icon from "../../components/icon/Icon";
-import {SubMenu, ActionMenu} from "../../components/menu";
-// import Button from "../../components/button/Button";
-// import InputFile from "../../components/input-file/InputFile";
-// import InputRange from "../../components/input-range/InputRange";
-// import InputText from "../../components/input-text/InputText";
-// import InputSelect from "../../components/input-select/InputSelect";
+import {
+    Div,
+    Icon,
+    SubMenu,
+    SubMenuButton,
+    ActionMenu
+} from "../../components";
+
 import InstrumentLoader from "../../instrument/InstrumentLoader";
 
 // import Library from "../../song/Library";
@@ -19,13 +19,13 @@ class InstrumentRenderer extends React.Component {
 
     renderInstrumentConfig() {
         return (
-            <SubMenu
-                vertical
+            <SubMenuButton
+                arrow={false}
                 className="instrument-config"
                 options={e => this.renderMenu()}
             >
                 <Icon className="config"/>
-            </SubMenu>
+            </SubMenuButton>
         )
     }
 
@@ -62,29 +62,7 @@ class InstrumentRenderer extends React.Component {
             }
 
         } else {
-            contentHTML = `No Instrument`;
-            // content = [
-            //     Div.createElement('header', [
-            //         this.menu = Menu.cME(
-            //             {vertical: true},
-            //             titleHTML,
-            //             [
-            //                 Menu.cME({}, 'Change Instrument to',
-            //                     async () => {
-            //                         const instrumentLibrary = await Library.loadDefaultLibrary(); // TODO: get default library url from composer?
-            //                         return instrumentLibrary.getInstruments().map((instrumentConfig) =>
-            //                             Menu.cME({}, instrumentConfig.name, null, () => {
-            //                                 song.instrumentReplace(instrumentID, instrumentConfig);
-            //                             })
-            //                         );
-            //                     }
-            //                 ),
-            //                 Menu.cME({}, 'Rename Instrument', null, () => song.instrumentRename(instrumentID)),
-            //                 Menu.cME({}, 'Remove Instrument', null, () => song.instrumentRemove(instrumentID)),
-            //             ]
-            //         ),
-            //     ]),
-            // ]
+            contentHTML = `Empty`;
         }
         return (
             <Div className="asc-instrument-renderer-empty">

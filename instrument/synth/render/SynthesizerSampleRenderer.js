@@ -38,7 +38,7 @@ class SynthesizerSampleRenderer extends React.Component {
         return (
             <Div
                 className={className}
-            >
+                >
                 <Div title="Change Sample" className="name">
                     <ActionMenu arrow={false} onAction={e => this.toggleOpen(e)} >
                         {sampleName || "Unnamed"}

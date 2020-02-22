@@ -3,6 +3,7 @@ import React from "react";
 import './assets/Menu.css';
 
 const activeSubMenus = [];
+// TODO: might be unnecessary
 class AbstractMenu extends React.Component {
 
     doMenuAction() { throw new Error("Implement") }

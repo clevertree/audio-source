@@ -13,7 +13,7 @@ class Form extends React.Component {
             children = children(this);
 
         return (
-            <div key={this.props.key} className={className}>
+            <div className={className}>
                 {this.props.title ? <div className="title">{this.props.title}</div> : null}
                 <div className="container">
                     {children}

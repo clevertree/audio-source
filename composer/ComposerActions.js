@@ -551,8 +551,10 @@ class ComposerActions extends ComposerRenderer {
         }
         if (typeof selectedIndices === 'number')
             selectedIndices = [selectedIndices];
-        if (!Array.isArray(selectedIndices))
-            throw new Error("Invalid selection");
+        if (!Array.isArray(selectedIndices)) {
+            console.warn("Invalid selection");
+            return;
+        }
 
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
 

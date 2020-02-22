@@ -1,8 +1,7 @@
 import * as React from "react";
-import TrackerParamCommand from "./TrackerParamCommand";
-import TrackerParamInstrument from "./TrackerParamInstrument";
-import TrackerParamVelocity from "./TrackerParamVelocity";
-import TrackerParamDuration from "./TrackerParamDuration";
+import {
+    TrackerInstructionParameter
+} from "./";
 import Div from "../../components/div/Div";
 // import TrackerDelta from "./TrackerDelta";
 
@@ -21,13 +20,24 @@ class TrackerInstruction extends React.Component {
         const open = this.props.cursor || this.props.selected;
         if(!open)
             return <Div className="asct-instruction">
-                <TrackerParamCommand command={instruction.command}/>
+                <TrackerInstructionParameter
+
+                    className="command"
+                    >{instruction.command}</TrackerInstructionParameter>
             </Div>;
         return <Div className="asct-instruction">
-            <TrackerParamCommand command={instruction.command}/>
-            <TrackerParamInstrument instruction={instruction.instruction}/>
-            <TrackerParamVelocity instruction={instruction.velocity}/>
-            <TrackerParamDuration instruction={instruction.duration}/>
+            <TrackerInstructionParameter
+                className="command"
+                >{instruction.command}</TrackerInstructionParameter>
+            <TrackerInstructionParameter
+                className="instruction"
+                >{instruction.instruction}</TrackerInstructionParameter>
+            <TrackerInstructionParameter
+                className="velocity"
+                >{instruction.velocity}</TrackerInstructionParameter>
+            <TrackerInstructionParameter
+                className="duration"
+                >{instruction.duration}</TrackerInstructionParameter>
         </Div>
     }
 
