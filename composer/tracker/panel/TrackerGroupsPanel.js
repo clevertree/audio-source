@@ -2,7 +2,7 @@ import React from "react";
 
 import "./assets/TrackerGroupsPanel.css";
 import Panel from "../../panel/Panel";
-import InputButton from "../../../components/input-button/InputButton";
+import Button from "../../../components/button/Button";
 // import Div from "../../../components/div/Div.native";
 class TrackerGroupsPanel extends React.Component {
     constructor(props) {
@@ -21,16 +21,16 @@ class TrackerGroupsPanel extends React.Component {
         return (
             <Panel className={className} title="Groups">
                 {Object.keys(composer.song.data.instructions).map((groupName, i) =>
-                    <InputButton
+                    <Button
                         key={i}
                         selected={this.state.trackerGroup === groupName}
                         onAction={e => this.trackerChangeGroup(groupName)}
-                    >{groupName}</InputButton>)
+                    >{groupName}</Button>)
                 }
-                <InputButton
+                <Button
                     key="add"
                     onAction={e => this.groupAdd(e)}
-                >+</InputButton>
+                >+</Button>
             </Panel>
         )
     }

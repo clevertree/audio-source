@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-    InputButton,
+    Button,
     Scrollable,
     Div,
     SubMenu,
@@ -56,16 +56,17 @@ class SynthesizerRenderer extends React.Component {
         return (
             <Div className="audio-source-synthesizer-container">
                 <Div className="header">
-                    <InputButton
+                    <Button
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
-                        >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</InputButton>
-                    <SubMenuButton
+                        >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</Button>
+                    {this.state.open ? <SubMenuButton
+                        title="Change Preset"
                         className="instrument-preset"
-                        options={e => this.renderMenu('preset')}
+                        options={e => this.renderMenu('change-preset')}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         children={instrumentConfig.presetName || "No Preset"}
-                        />
+                        /> : null}
                     <SubMenuButton
                         arrow={false}
                         className="instrument-config"
@@ -97,6 +98,8 @@ class SynthesizerRenderer extends React.Component {
         switch (menuKey) {
             case null:
                 return (<>
+                    <SubMenu options={e => this.renderMenu('change-preset')}>Change Preset</SubMenu>
+                    <MenuBreak />
                     <SubMenu options={e => this.renderMenu('change')}>Change Instrument</SubMenu>
                     <ActionMenu onAction={e => this.instrumentRename(e)}>Rename Instrument</ActionMenu>
                     <ActionMenu onAction={e => this.instrumentRemove(e)}>Remove Instrument</ActionMenu>
@@ -110,7 +113,7 @@ class SynthesizerRenderer extends React.Component {
                 </>);
 
 
-            case 'preset':
+            case 'change-preset':
                 return (<>
                     <SubMenu options={e => this.renderMenu('library-list')}    >Libraries</SubMenu>
                     <MenuBreak />
@@ -217,7 +220,7 @@ class SynthesizerRenderer extends React.Component {
         // return [
         //
         //     Div.createElement('header', () => [
-        //         InputButton.createElement('title', titleHTML, e => this.toggleContainer(e)),
+        //         Button.createElement('title', titleHTML, e => this.toggleContainer(e)),
         //         this.selectChangePreset = new InputSelect('instrument-preset',
         //             (selectElm) => [
         //             ],
@@ -242,7 +245,7 @@ class SynthesizerRenderer extends React.Component {
         //         // )
         //     ]),
         //
-        //     // this.buttonToggle = InputButton.createElement('instrument-id',
+        //     // this.buttonToggle = Button.createElement('instrument-id',
         //     //     e => this.form.classList.toggle('selected'),
         //     //     instrumentIDHTML + ':'
         //     // ),
@@ -252,7 +255,7 @@ class SynthesizerRenderer extends React.Component {
         //     //     this.config.name || '',
         //     //     'Unnamed'
         //     // ),
-        //     // InputButton.createElement('instrument-remove',
+        //     // Button.createElement('instrument-remove',
         //     //     (e) => this.remove(e, instrumentID),
         //     //     Icon.createIcon('delete'),
         //     //     'Remove Instrument'),
@@ -277,7 +280,7 @@ class SynthesizerRenderer extends React.Component {
         //                 // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
         //                 // const sampleRow = this.form.addGrid(i);
         //                 // Div.createElement('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
-        //                 // InputButton.createElement('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
+        //                 // Button.createElement('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
         //                 Div.createElement('id', sampleID),
         //
         //                 new InputSelect('url',
@@ -317,7 +320,7 @@ class SynthesizerRenderer extends React.Component {
         //                 InputText.createElement('adsr',
         //                     (e, asdr) => this.setSampleASDR(sampleID, asdr), 'ADSR', sampleData.adsr, '0,0,0,0'),
         //
-        //                 InputButton.createElement('remove',
+        //                 Button.createElement('remove',
         //                     '&nbsp;X&nbsp;',
         //                     (e) => this.removeSample(sampleID),
         //                     'Remove sample'),

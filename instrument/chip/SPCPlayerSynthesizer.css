@@ -31,18 +31,18 @@
 
 
 /** Inputs **/
-.spc-player-synthesizer-container  asui-input-button[key=instrument-id]   button {
+.spc-player-synthesizer-container  asui-button[key=instrument-id]   button {
     border: 1px outset;
     padding: 0px 2px;
 }
-.spc-player-synthesizer-container.selected  asui-input-button[key=instrument-id]   button {
+.spc-player-synthesizer-container.selected  asui-button[key=instrument-id]   button {
     border: 1px inset;
 }
 
 .spc-player-synthesizer-container  asui-input-select[key=instrument-preset]               {
     float:  right;
 }
-.spc-player-synthesizer-container  asui-input-button[key=instrument-remove]               {
+.spc-player-synthesizer-container  asui-button[key=instrument-remove]               {
     float:  right;
     margin: 0px 0px 0px 0px;
 }

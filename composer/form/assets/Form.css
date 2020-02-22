@@ -17,6 +17,10 @@ div.asc-form > div.title {
     height: 1em;
 }
 
+div.asc-form > div.container {
+    display: flex;
+    min-height: 1.4em;
+}
 
 div.asc-form[key=volume]       { max-width: 71px; }
 div.asc-form[key=version]      { max-width: 53px; }

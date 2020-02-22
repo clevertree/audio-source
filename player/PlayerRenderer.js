@@ -1,12 +1,7 @@
 import React from "react";
 
-import Div from "../components/div/Div";
-import Icon from "../components/icon/Icon";
-import Menu from "../components/menu/Menu";
-import InputButton from "../components/input-button/InputButton";
-import InputFile from "../components/input-file/InputFile";
-import InputRange from "../components/input-range/InputRange";
-import InputText from "../components/input-text/InputText";
+import {Div, SubMenu, ActionMenu, Button, InputRange} from "../components";
+
 import Storage from "../song/Storage";
 
 import Header from "./header/Header";
@@ -14,7 +9,6 @@ import Playlist from "./playlist/Playlist";
 import Panel from "./panel/Panel";
 import Form from "./form/Form";
 import Footer from "./footer/Footer";
-import {ActionMenu} from "../components";
 
 
 class PlayerRenderer extends React.Component {
@@ -78,30 +72,30 @@ class PlayerRenderer extends React.Component {
                 <Div className="asp-forms-container">
                     <Panel className="song" title="Song">
                         <Form className="playback" title="Playback">
-                            <InputButton
+                            <Button
                                 className="song-play"
                                 onAction={e => this.playlistPlay(e)}
                             >
                                 <Icon className="play"/>
-                            </InputButton>
-                            <InputButton
+                            </Button>
+                            <Button
                                 className="song-pause"
                                 onAction={e => this.playlistPause(e)}
                             >
                                 <Icon className="pause"/>
-                            </InputButton>
-                            <InputButton
+                            </Button>
+                            <Button
                                 className="song-stop"
                                 onAction={e => this.playlistStop(e)}
                             >
                                 <Icon className="stop"/>
-                            </InputButton>
-                            <InputButton
+                            </Button>
+                            <Button
                                 className="song-next"
                                 onAction={e => this.playlistNext(e)}
                             >
                                 <Icon className="next"/>
-                            </InputButton>
+                            </Button>
                         </Form>
 
                         <Form className="file" title="File">
@@ -113,13 +107,13 @@ class PlayerRenderer extends React.Component {
                             >
                                 <Icon className="file-load"/>
                             </InputFile>
-                            <InputButton
+                            <Button
                                 className="file-save"
                                 onAction={e => this.saveSongToFile(e)}
                                 title="Save Song to File"
                             >
                                 <Icon className="file-save"/>
-                            </InputButton>
+                            </Button>
                         </Form>
 
                         <Form className="volume" title="Volume">
@@ -147,43 +141,42 @@ class PlayerRenderer extends React.Component {
                         </Form>
 
                         <Form className="timing" title="Timing">
-                            <InputText
+                            <Button
                                 className="timing"
-                                onChange={(e, timingString) => this.setSongPosition(timingString)}
-                                value="00:00:000"
+                                onAction={(e) => this.setSongPosition(e)}
                                 ref={ref => this.fieldSongTiming = ref}
                                 title="Song Timing"
+                                children="00:00:000"
                             />
                         </Form>
 
                         <Form className="name" title="Name">
-                            <InputText
+                            <Button
                                 className="name"
                                 // onChange={(e, newSongName) => this.setSongName(e, newSongName)}
-                                value={this.song ? this.song.getName() : "no song loaded"}
-                                ref={ref => this.fieldSongVersion = ref}
                                 title="Song Name"
+                                children={this.song ? this.song.getTitle() : "no song loaded"}
                             />
                         </Form>
 
                         <Form className="version" title="Version">
-                            <InputText
+                            <Button
                                 className="version"
                                 // onChange={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
-                                value={this.song ? this.song.getVersion() : "0.0.0"}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Version"
+                                children={this.song ? this.song.getVersion() : "0.0.0"}
                             />
                         </Form>
 
                         <Form className="source" title="Source">
-                            <InputButton
+                            <Button
                                 className="source"
                                 onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
                                 title="Song Source"
                             >
                                 <Icon className="source"/>
-                            </InputButton>
+                            </Button>
                         </Form>
                     </Panel>
                     <Panel className="playlist" title="Playlist">

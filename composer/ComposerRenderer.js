@@ -2,11 +2,8 @@ import React from "react";
 
 import Div from "../components/div/Div";
 import Icon from "../components/icon/Icon";
-import {SubMenu, ActionMenu, SubMenuButton} from "../components/menu";
-import InputButton from "../components/input-button/InputButton";
-import InputFile from "../components/input-file/InputFile";
-import InputRange from "../components/input-range/InputRange";
-import InputText from "../components/input-text/InputText";
+import {SubMenu, ActionMenu, SubMenuButton, Button, InputRange, MenuBreak} from "../components";
+
 import Storage from "../song/Storage";
 
 import Header from "./header/Header";
@@ -49,6 +46,7 @@ class ComposerRenderer extends React.Component {
             trackerSegmentCount: 10,
             trackerQuantizationInTicks: 96*4,
             trackerSegmentLengthInTicks: 96*4*16,
+            trackerCurrentOctave: 3,
             trackerFilterByInstrumentID: null
         };
 
@@ -92,7 +90,7 @@ class ComposerRenderer extends React.Component {
 
 
     renderMenu(menuKey=null, menuParam=null) {
-        let recentBatchCommand, instrumentID;
+        let recentBatchCommand, instrumentID, octave;
         // const library = await this.getLibrary();
         /** File Menu **/
         switch (menuKey) {
@@ -246,10 +244,14 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-set-command':
                 return <>
-                    <SubMenu options={e => this.renderMenu('edit-set-command-frequency')}                      >Frequency</SubMenu>
-                    <SubMenu options={e => this.renderMenu('edit-set-command-named')}                          >Named</SubMenu>
-                    <SubMenu options={e => this.renderMenu('edit-set-command-group')}                          >Group</SubMenu>
-                    <ActionMenu onAction={e => this.instructionChangeCommand(null, true)} hasBreak      >Custom Command</ActionMenu>
+                    <SubMenu options={e => this.renderMenu('edit-set-command-current-octave')}      >Current Octave</SubMenu>
+                    <MenuBreak />
+                    <SubMenu options={e => this.renderMenu('edit-set-command-frequency')}           >By Frequency</SubMenu>
+                    <SubMenu options={e => this.renderMenu('edit-set-command-octave')}              >By Octave</SubMenu>
+                    <MenuBreak />
+                    <SubMenu options={e => this.renderMenu('edit-set-command-named')}               >By Alias</SubMenu>
+                    <SubMenu options={e => this.renderMenu('edit-set-command-group')}               >By Group</SubMenu>
+                    <ActionMenu onAction={e => this.instructionChangeCommand(null, true)} hasBreak      >Custom</ActionMenu>
                 </>;
 
             case 'edit-set-instrument':
@@ -272,14 +274,31 @@ class ComposerRenderer extends React.Component {
                 </>;
 
             case 'edit-set-command-frequency':
-                return this.values.getNoteFrequencies((noteName, label) =>
-                    <SubMenu options={e => this.renderMenu('edit-set-command-frequency-note', noteName)}                   >Frequency</SubMenu>
+                return this.values.getNoteFrequencies((noteName) =>
+                    <SubMenu options={e => this.renderMenu('edit-set-command-frequency-note', noteName)}                   >{noteName}</SubMenu>
                 );
 
             case 'edit-set-command-frequency-note':
                 const setNoteName = menuParam;
                 return this.values.getNoteOctaves((octave) =>
                     <ActionMenu onAction={e => this.instructionChangeCommand(`${setNoteName}${octave}`, false)}     >{setNoteName}{octave}</ActionMenu>
+                );
+
+            case 'edit-set-command-current-octave':
+                octave = menuParam !== null ? menuParam : this.state.trackerCurrentOctave;
+                return this.values.getNoteFrequencies((noteName) =>
+                    <ActionMenu onAction={e => this.instructionChangeCommand(`${noteName}${octave}`, false)}     >{noteName}{octave}</ActionMenu>
+                );
+
+            case 'edit-set-command-octave':
+                return this.values.getNoteOctaves((octave) =>
+                    <SubMenu options={e => this.renderMenu('edit-set-command-octave-frequency', octave)}                   >{octave}</SubMenu>
+                );
+
+            case 'edit-set-command-octave-frequency':
+                octave = menuParam;
+                return this.values.getNoteFrequencies((noteName) =>
+                    <ActionMenu onAction={e => this.instructionChangeCommand(`${noteName}${octave}`, false)}     >{noteName}{octave}</ActionMenu>
                 );
 
             case 'edit-set-command-named':
@@ -306,7 +325,7 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-select-batch':
                 return <>
-                    {(new Storage).getBatchRecentSearches().map((recentBatchSearch, i) =>
+                    {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
                         <ActionMenu onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</ActionMenu>
                     )}
                     <ActionMenu onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</ActionMenu>
@@ -314,7 +333,7 @@ class ComposerRenderer extends React.Component {
 
             case 'edit-batch':
                 return <>
-                    {(new Storage).getBatchRecentCommands().map((recentBatchCommand, i) =>
+                    {(new Storage()).getBatchRecentCommands().map((recentBatchCommand, i) =>
                         <SubMenu options={e => this.renderMenu('edit-batch-recent', recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
                     )}
                     <ActionMenu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</ActionMenu>
@@ -331,7 +350,7 @@ class ComposerRenderer extends React.Component {
                 recentBatchCommand = menuParam;
                 return <>
                     <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</ActionMenu>
-                    {(new Storage).getBatchRecentSearches().map((recentBatchSearch, i) =>
+                    {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
                         <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</ActionMenu>
                     )}
                 </>;
@@ -403,43 +422,43 @@ class ComposerRenderer extends React.Component {
                 <Div className="asc-panel-container">
                     <Panel className="song" title="Song">
                         <Form className="playback" title="Playback">
-                            <InputButton
+                            <Button
                                 className="song-play"
                                 onAction={e => this.playlistPlay(e)}
                             >
                                 <Icon className="play"/>
-                            </InputButton>
-                            <InputButton
+                            </Button>
+                            <Button
                                 className="song-pause"
                                 onAction={e => this.playlistPause(e)}
                             >
                                 <Icon className="pause"/>
-                            </InputButton>
-                            <InputButton
+                            </Button>
+                            <Button
                                 className="song-stop"
                                 onAction={e => this.playlistStop(e)}
                             >
                                 <Icon className="stop"/>
-                            </InputButton>
+                            </Button>
                         </Form>
 
                         <Form className="file" title="File">
-                            <InputFile
+                            <Button
                                 className="file-load"
-                                onFile={(e, file) => this.loadSongFromFileInput(file)}
+                                onAction={(e) => this.loadSongFromFileInput(e)}
                                 accept=".json,.mid,.midi"
                                 ref={ref => this.fieldSongFileLoad = ref}
                                 title="Load Song from File"
                             >
                                 <Icon className="file-load"/>
-                            </InputFile>
-                            <InputButton
+                            </Button>
+                            <Button
                                 className="file-save"
                                 onAction={e => this.saveSongToFile(e)}
                                 title="Save Song to File"
                             >
                                 <Icon className="file-save"/>
-                            </InputButton>
+                            </Button>
                         </Form>
 
                         <Form className="volume" title="Volume">
@@ -467,32 +486,32 @@ class ComposerRenderer extends React.Component {
                         </Form>
 
                         <Form className="timing" title="Timing">
-                            <InputText
+                            <Button
                                 className="timing"
-                                onChange={(e, timingString) => this.setSongPosition(timingString)}
-                                value="00:00:000"
+                                onAction={(e, timingString) => this.setSongPosition(timingString)}
                                 ref={ref => this.fieldSongTiming = ref}
                                 title="Song Timing"
+                                children="00:00:000"
                             />
                         </Form>
 
                         <Form className="name" title="Name">
-                            <InputText
+                            <Button
                                 className="name"
-                                onChange={(e, newSongName) => this.setSongName(e, newSongName)}
-                                value={this.song ? this.song.getName() : "no song loaded"}
+                                onAction={(e) => this.setSongName(e)}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Name"
+                                children={this.song ? this.song.getTitle() : "no song loaded"}
                             />
                         </Form>
 
                         <Form className="version" title="Version">
-                            <InputText
+                            <Button
                                 className="version"
-                                onChange={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
-                                value={this.song ? this.song.getVersion() : "0.0.0"}
+                                onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Version"
+                                children={this.song ? this.song.getVersion() : "0.0.0"}
                             />
                         </Form>
                     </Panel>
@@ -508,16 +527,15 @@ class ComposerRenderer extends React.Component {
                                        instrumentID={instrumentID}
                                    />
                                )}
-                               <Form className="instrument-add" title1="Add Instrument">
-                                   <SubMenu
-                                       openOnHover={false}
+                               <Form className="instrument-add" title="Add Instrument">
+                                   <SubMenuButton
                                        className="instrument-add"
                                        // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
                                        options={() => InstrumentLoader.getInstruments().map(config =>
                                            <ActionMenu onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</ActionMenu>
                                        )}
                                        title="Add Instrument"
-                                   >Add Instrument</SubMenu>
+                                   >Select...</SubMenuButton>
                                </Form>
                            </>)} />
 
@@ -528,55 +546,27 @@ class ComposerRenderer extends React.Component {
                             <SubMenuButton
                                 // className="command"
 
-                                // selectElm.value ?
-                                //     selectElm.getOptGroup('Current Octave', () => {
-                                //         const currentOctave = this.fieldInstructionCommand.value.substr(-1, 1);
-                                //         return this.values.getNoteFrequencies(freq => selectElm.getOption(freq + currentOctave, freq + currentOctave));
-                                //     }) : null,
                                 // // TODO: filter by selected instrument
-                                options={() =>
-                                    <>
-                                        <SubMenu
-                                            options={() => this.values.getOctaveNoteFrequencies(freq =>
-                                                <ActionMenu
-                                                    onAction={() => this.instructionChangeCommand(freq)}
-                                                >{freq}</ActionMenu>
-                                            )}>Frequencies</SubMenu>
-                                        <SubMenu
-                                            options={() => this.values.getAllNamedFrequencies(namedFreq =>
-                                                <ActionMenu
-                                                    onAction={() => this.instructionChangeCommand(namedFreq)}
-                                                >{namedFreq}</ActionMenu>
-                                            )}>Custom Frequencies</SubMenu>
-                                        <SubMenu
-                                            options={() => this.values.getAllSongGroups(group =>
-                                                <ActionMenu
-                                                    onAction={() => this.instructionChangeCommand('@' + group)}
-                                                >@{group}</ActionMenu>
-                                            )}>Groups</SubMenu>
-                                    </>
-                                }
-
-
+                                options={e => this.renderMenu('edit-set-command')}
                             >C4</SubMenuButton>
                         </Form>
                         <Form className="instruction-insert" title="Add">
-                            <ActionMenu
+                            <Button
                                 // className="instruction-insert"
                                 onAction={e => this.instructionInsert()}
                                 title="Insert Instruction"
                             >
                                 <Icon className="insert"/>
-                            </ActionMenu>
+                            </Button>
                         </Form>
                         <Form className="instruction-delete" title="Rem">
-                            <InputButton
+                            <Button
                                 // className="instruction-delete"
                                 onAction={e => this.instructionDelete(e)}
                                 title="Delete Instruction"
                             >
                                 <Icon className="remove"/>
-                            </InputButton>
+                            </Button>
                         </Form>
 
                         <Form className="instruction-instrument" title="Instrument">
@@ -591,8 +581,8 @@ class ComposerRenderer extends React.Component {
                             >Select</SubMenuButton>
                         </Form>
 
-                        <Form className="velocity" title="Velocity">
-                            <ActionMenu
+                        <Form className="instruction-velocity" title="Velocity">
+                            <InputRange
                                 // className="velocity"
                                 onAction={(e, newVelocity) => this.instructionChangeVelocity(newVelocity)}
                                 // value={this.state.volume}
@@ -600,7 +590,7 @@ class ComposerRenderer extends React.Component {
                                 max={127}
                                 ref={ref => this.fieldInstrumentVelocity = ref}
                                 title="Instrument Velocity"
-                            >Max</ActionMenu>
+                            >Max</InputRange>
                         </Form>
 
 
@@ -609,7 +599,7 @@ class ComposerRenderer extends React.Component {
                                 // className="instruction-duration"
                                 options={() =>
                                     this.values.getNoteDurations((duration, title) =>
-                                        <ActionMenu onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
+                                        <ActionMenu key={title} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
                                     )
                                 }
                                 title="Load Song from File"
@@ -655,11 +645,11 @@ class ComposerRenderer extends React.Component {
                         </Form>
 
                         <Form className="tracker-selection" title="Selection">
-                            <InputText
-                                value="No selection"
+                            <Button
                                 // className="tracker-selection"
-                                onChange={(e, instrumentID) => this.trackerChangeSelection()}
+                                onAction={(e) => this.trackerChangeSelection(e)}
                                 title="Tracker Note Selection"
+                                children="No selection"
                             />
                         </Form>
 
@@ -711,7 +701,7 @@ class ComposerRenderer extends React.Component {
     // TODO: AudioSourceComposerSongFormRenderer()
     /** @deprecated **/
     updateForms() {
-        this.fieldSongName.value = this.song.getName();
+        this.fieldSongName.value = this.song.getTitle();
         this.fieldSongVersion.value = this.song.getVersion();
         this.fieldSongBPM.value = this.song.getStartingBeatsPerMinute();
 

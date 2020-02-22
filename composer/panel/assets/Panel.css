@@ -20,3 +20,7 @@ div.asc-panel > div.title {
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid #BBB;
 }
+
+div.asc-panel > div.container {
+    /*display: flex;*/
+}

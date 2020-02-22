@@ -1,0 +1,21 @@
+
+div.asui-menu.submenu-button,
+button.asui-button {
+    display: inline-block;
+    cursor: pointer;
+    padding: 0 0.4em;
+
+    background: linear-gradient(#f6f6f6, #dddddd);
+    border: 1px outset;
+    /*background: buttonface;*/
+}
+
+div.asui-menu.submenu-button:hover,
+button.asui-button:hover {
+    background: linear-gradient(#ddd, #bbb);
+}
+
+div.asui-menu.submenu-button.stick,
+button.asui-button.stick {
+    background: linear-gradient(#ccc, #aaa);
+}

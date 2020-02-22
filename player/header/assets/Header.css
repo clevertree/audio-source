@@ -16,7 +16,7 @@ div.asp-menu-container > asui-menu {
     /* padding: 0px 8px 0px 0px; */
 }
 
-asui-input-button[key=asp-menu-button] {
+asui-button[key=asp-menu-button] {
     float: left;
     /* float: right; */
     /* align-items: flex-start; */

@@ -7,10 +7,9 @@ import {
     SubMenuButton,
     ActionMenu,
     MenuBreak} from "./menu/";
-import InputButton from "./input-button/InputButton";
-import InputFile from "./input-file/InputFile";
+
+import Button from "./button/Button";
 import InputRange from "./input-range/InputRange";
-import InputText from "./input-text/InputText";
 import InputCheckbox from "./input-checkbox/InputCheckbox";
 import Scrollable from "./scrollable/Scrollable";
 
@@ -25,9 +24,7 @@ export {
     MenuBreak,
 
     Scrollable,
-    InputFile,
-    InputText,
+    Button,
     InputRange,
-    InputButton,
     InputCheckbox,
 }

@@ -1,7 +1,6 @@
 import PlayerRenderer from "./PlayerRenderer";
 import Song from "../song/Song";
 import Storage from "../song/Storage";
-import InputFile from "../components/input-file/InputFile";
 
 
 class PlayerActions extends PlayerRenderer {
@@ -24,7 +23,7 @@ class PlayerActions extends PlayerRenderer {
 
     async setCurrentSong(song) {
         if(this.song) {
-            this.setStatus("Unloading song: " + this.song.getName());
+            this.setStatus("Unloading song: " + this.song.getTitle());
             if(this.song.isPlaying) {
                 this.song.stopPlayback();
             }
@@ -39,12 +38,12 @@ class PlayerActions extends PlayerRenderer {
         // this.song.addDispatchElement(this);
         song.playlistPosition = this.getCurrentEntryPosition();
         const currentEntry = await this.getCurrentEntry();
-        currentEntry.name = song.getName();
+        currentEntry.name = song.getTitle();
         currentEntry.length = song.getSongLengthInSeconds();
         this.forceUpdate();
-        this.setStatus("Initializing song: " + song.getName());
+        this.setStatus("Initializing song: " + song.getTitle());
         await this.song.init(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.getName());
+        this.setStatus("Loaded song: " + song.getTitle());
     }
 
     // handleError(err) {
@@ -151,7 +150,7 @@ class PlayerActions extends PlayerRenderer {
 //             if (!file)
 //                 throw new Error("Invalid file input");
 //             await this.song.loadSongFromFileInput(file);
-//             this.addSongFileToPlaylist(file, this.song.getName(), this.song.getSongLengthInSeconds());
+//             this.addSongFileToPlaylist(file, this.song.getTitle(), this.song.getSongLengthInSeconds());
 //             // this.render();
 //         }
 
@@ -268,7 +267,7 @@ class PlayerActions extends PlayerRenderer {
 //         } else {
 //             await song.loadSongFromURL(url);
 //             this.setStatus("Loaded from url: " + url);
-// //                 this.addSongURLToPlaylist(url, song.getName(), song.getSongLengthInSeconds());
+// //                 this.addSongURLToPlaylist(url, song.getTitle(), song.getSongLengthInSeconds());
 //         }
 //         // this.render();
 //     }
@@ -401,7 +400,7 @@ class PlayerActions extends PlayerRenderer {
             if(this.song.isPlaying)
                 throw new Error("Song is already playing");
             await this.setCurrentSong(this.song);
-            this.setStatus("Playing: " + this.song.getName());
+            this.setStatus("Playing: " + this.song.getTitle());
             return await this.song.play(this.getVolumeGain());
         }
         // let entry = await this.playlist.getCurrentEntry();
@@ -416,7 +415,7 @@ class PlayerActions extends PlayerRenderer {
             this.scrollToEntry(this.getCurrentEntryPosition());
             const currentSong = await this.loadSongFromPlaylistEntry();
             await this.setCurrentSong(currentSong);
-            this.setStatus("Playing: " + currentSong.getName());
+            this.setStatus("Playing: " + currentsong.getTitle());
             await currentSong.play(this.getVolumeGain());
             if(!this.state.playing)
                 break;
@@ -429,10 +428,10 @@ class PlayerActions extends PlayerRenderer {
     async playlistStop() {
         this.isPlaylistActive = false;
         if(this.song && this.song.isPlaying) {
-            this.setStatus("Stopping: " + this.song.getName());
+            this.setStatus("Stopping: " + this.song.getTitle());
             this.song.stopPlayback();
             this.song.setPlaybackPositionInTicks(0);
-            this.setStatus("Stopped: " + this.song.getName());
+            this.setStatus("Stopped: " + this.song.getTitle());
         }
     }
 

@@ -17,7 +17,7 @@ div.audio-source-synthesizer-container > div.samples > div.header > div{
 }
 
 /** Inputs **/
-div.audio-source-synthesizer-container  asui-input-button.instrument-id   button {
+div.audio-source-synthesizer-container  asui-button.instrument-id   button {
     border: 1px outset;
     padding: 0px 2px;
 }
@@ -25,7 +25,7 @@ div.audio-source-synthesizer-container  asui-input-button.instrument-id   button
 div.audio-source-synthesizer-container  asui-input-select.instrument-preset               {
     margin-left: auto;
 }
-div.audio-source-synthesizer-container  asui-input-button.instrument-remove               {
+div.audio-source-synthesizer-container  asui-button.instrument-remove               {
     float:  right;
     margin: 0px 0px 0px 0px;
 }
@@ -83,6 +83,7 @@ div.audio-source-synthesizer-container > div.samples > div.sample > div.loop,
 div.audio-source-synthesizer-container > div.samples > div.sample > div.range,
 div.audio-source-synthesizer-container > div.samples > div.sample > div.mixer,
 div.audio-source-synthesizer-container > div.samples > div.sample > div.detune,
+div.audio-source-synthesizer-container > div.samples > div.sample > div.alias,
 div.audio-source-synthesizer-container > div.samples > div.sample > div.config {
     border-left: 1px solid #888;
     padding-right: 2px;

@@ -29,8 +29,8 @@
 /*    font-weight: bold;*/
 /*}*/
 
-input,
-button,
+div.asc-container input,
+div.asc-container button,
 div.asc-container {
     font-size: large;
 }

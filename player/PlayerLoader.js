@@ -77,7 +77,7 @@
     await require('../components/ASUIComponent.js');
     // await require('../components/ASUIGrid.js');
     await require('../components/menu/Menu.js');
-    await require('../components/InputButton.js');
+    await require('../components/Button.js');
     await require('../components/ASUIInputCheckbox.js');
     await require('../components/ASUIInputFile.js');
     await require('../components/ASUIInputRange.js');

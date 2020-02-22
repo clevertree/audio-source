@@ -2,7 +2,7 @@ import React from "react";
 
 import "./assets/TrackerGroupsPanel.css";
 import Panel from "../../panel/Panel";
-import InputButton from "../../../components/input-button/InputButton";
+import Button from "../../../components/button/Button";
 
 import "./assets/TrackerRowSegmentsPanel.css";
 
@@ -36,15 +36,15 @@ class TrackerRowSegmentsPanel extends React.Component {
                     if (rowSegmentCount < currentRowSegmentID + 1)
                         rowSegmentCount = currentRowSegmentID + 1;
                     for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)
-                        buttons[segmentID] = <InputButton
+                        buttons[segmentID] = <Button
                             key={segmentID}
                             onAction={e => this.trackerChangeSegment(segmentID)}
-                        >{segmentID}</InputButton>;
+                        >{segmentID}</Button>;
                     return buttons;
                 })()}
-                <InputButton
+                <Button
                     onAction={e => this.groupAdd(e)}
-                >+</InputButton>
+                >+</Button>
             </Panel>
         )
     }

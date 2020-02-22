@@ -98,8 +98,8 @@ class Song {
         return this.data.uuid;
     }
 
-    getName() {
-        return this.data.name;
+    getTitle() {
+        return this.data.title;
     }
 
     getVersion() {
@@ -205,7 +205,7 @@ class Song {
         if (this.playback)
             this.stopPlayback();
         songData = Object.assign({}, {
-            name: this.generateName(),
+            title: this.generateTitle(),
             uuid: new Storage().generateUUID(),
             version: '0.0.1',
             root: 'root',
@@ -792,8 +792,8 @@ class Song {
         return typeof this.getInstructionList(groupName) !== "undefined";
     }
 
-    songChangeName(newSongTitle) {
-        return this.replaceDataPath(['name'], newSongTitle);
+    songChangeTitle(newSongTitle) {
+        return this.replaceDataPath(['title'], newSongTitle);
     }
 
     songChangeVersion(newSongTitle) {
@@ -806,7 +806,7 @@ class Song {
         return this.replaceDataPath(['beatsPerMinute'], newBPM);
     }
 
-    generateName() {
+    generateTitle() {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
     }
 

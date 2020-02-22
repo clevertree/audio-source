@@ -3,7 +3,7 @@ div.audio-source-synthesizer-container div.header > div.title {
     margin-left: 4px;
 }
 div.audio-source-synthesizer-container div.instrument-config {
-    margin: 2px;
+    /*margin: 2px;*/
 }
 
 div.audio-source-synthesizer-container div.instrument-preset {
@@ -49,8 +49,7 @@ div.audio-source-synthesizer-container > div.header {
 }
 
 div.audio-source-synthesizer-container > div.header > button.toggle-container {
-    border: none;
-    padding: 2px 12px 2px 2px;
+    /*padding: 2px 12px 2px 2px;*/
 }
 /*div.audio-source-synthesizer-container > div.header > div.title {*/
 /*    cursor: pointer;*/

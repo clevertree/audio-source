@@ -9,7 +9,7 @@ class Storage {
 
     /** Generate Song Data **/
 
-    generateName() {
+    generateTitle() {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
     }
 
@@ -28,7 +28,7 @@ class Storage {
 
     generateDefaultSong(defaultInstrumentClass = null) {
         const songData = {
-            name: this.generateName(),
+            title: this.generateTitle(),
             uuid: this.generateUUID(),
             version: '0.0.1',
             root: 'root',
@@ -86,7 +86,7 @@ class Storage {
             console.error(e);
         }
         songRecentUUIDs = songRecentUUIDs.filter((entry) => entry.uuid !== songData.uuid);
-        songRecentUUIDs.unshift({uuid: songData.uuid, name: songData.name});
+        songRecentUUIDs.unshift({uuid: songData.uuid, title: songData.title});
         localStorage.setItem('song-recent-list', this.encodeForStorage(songRecentUUIDs));
 
 
@@ -108,7 +108,7 @@ class Storage {
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
 
-        let fileName = (songData.name || "untitled")
+        let fileName = (songData.title || "untitled")
                 .replace(/\s+/g, '_')
             + '.json';
         if (prompt)

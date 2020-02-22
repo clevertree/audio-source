@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    // InputButton,
+    // Button,
     // InputSelect,
     Div,
     SubMenu,
@@ -101,6 +101,7 @@ class SynthesizerSampleRenderer extends React.Component {
 
     renderMenu(menuKey=null) {
         const sample = this.getSampleData();
+        const values = this.getSong().values;
         switch(menuKey) {
             case 'sample-change':
                 return <>
@@ -116,6 +117,7 @@ class SynthesizerSampleRenderer extends React.Component {
                         onChange={(e, mixerValue) => this.changeMixer(mixerValue)}
                         />
                     );
+
             case 'sample-detune':
                 return (
                     <InputRange
@@ -123,11 +125,30 @@ class SynthesizerSampleRenderer extends React.Component {
                         max={1000}
                         value={typeof sample.detune !== "undefined" ? sample.detune : 100}
                         onChange={(e, detuneValue) => this.changeDetune(detuneValue)}
-                    />
+                        />
                 );
+
             case 'sample-root':
+                return values.getNoteOctaves((octave) =>
+                    <SubMenu options={
+                        () => values.getNoteFrequencies((noteName) =>
+                            <ActionMenu onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</ActionMenu>
+                        )
+                    }>{octave}</SubMenu>
+                );
+
             case 'sample-alias':
+                return values.getNoteOctaves((octave) =>
+                    <SubMenu options={
+                        () => values.getNoteFrequencies((noteName) =>
+                            <ActionMenu onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</ActionMenu>
+                        )
+                    }>{octave}</SubMenu>
+                );
+
+
             case 'sample-loop':
+            case 'sample-remove':
             case null:
                 return <>
                     <SubMenu key="mixer" options={() => this.renderMenu('sample-mixer')}>Edit Mixer</SubMenu>
@@ -139,7 +160,6 @@ class SynthesizerSampleRenderer extends React.Component {
                     <SubMenu key="change" options={() => this.renderMenu('sample-change')}>Change Sample</SubMenu>
                     <SubMenu key="remove" options={() => this.renderMenu('sample-remove')}>Remove Sample</SubMenu>
                 </>;
-
 
             default:
                 throw new Error("Unknown menu key: " + menuKey);

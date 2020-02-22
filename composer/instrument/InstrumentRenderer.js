@@ -2,7 +2,7 @@ import React from "react";
 import Div from "../../components/div/Div";
 import Icon from "../../components/icon/Icon";
 import {SubMenu, ActionMenu} from "../../components/menu";
-// import InputButton from "../../components/input-button/InputButton";
+// import Button from "../../components/button/Button";
 // import InputFile from "../../components/input-file/InputFile";
 // import InputRange from "../../components/input-range/InputRange";
 // import InputText from "../../components/input-text/InputText";

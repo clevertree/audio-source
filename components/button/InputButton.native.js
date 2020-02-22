@@ -1,6 +1,6 @@
 import React from "react";
 
-class InputButton extends React.Component {
+class Button extends React.Component {
     render() {
         const React = require('react');
         const {View, TouchableHighlight} = require('react-native');
@@ -13,4 +13,4 @@ class InputButton extends React.Component {
 }
 
 /** Export this script **/
-export default InputButton;
+export default Button;

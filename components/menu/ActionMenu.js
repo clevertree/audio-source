@@ -19,6 +19,7 @@ class ActionMenu extends AbstractMenu {
                 className={className}
                     onClick={e => this.onInputEvent(e)}
                     onKeyDown={e => this.onInputEvent(e)}
+                    title={this.props.title}
                     tabIndex={0}
                     >
                     <div

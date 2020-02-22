@@ -3,7 +3,6 @@ import Song from "../song/Song";
 import InstrumentLoader from "../instrument/InstrumentLoader";
 
 import Storage from "../song/Storage";
-import InputFile from "../components/input-file/InputFile";
 
 class ComposerActions extends ComposerRenderer {
     constructor(state = {}, props = {}) {
@@ -21,7 +20,7 @@ class ComposerActions extends ComposerRenderer {
 
     async setCurrentSong(song) {
         if(this.song) {
-            this.setStatus("Unloading song: " + this.song.getName());
+            this.setStatus("Unloading song: " + this.song.getTitle());
             if(this.song.isPlaying) {
                 this.song.stopPlayback();
             }
@@ -44,9 +43,9 @@ class ComposerActions extends ComposerRenderer {
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
-        this.setStatus("Initializing song: " + song.getName());
+        this.setStatus("Initializing song: " + song.getTitle());
         await this.song.init(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.getName());
+        this.setStatus("Loaded song: " + song.getTitle());
         this.forceUpdate();
     }
 
@@ -93,7 +92,9 @@ class ComposerActions extends ComposerRenderer {
     /** Song commands **/
 
 
-    setSongName(e, newSongName) {
+    async setSongName(e, newSongName=null) {
+        if(newSongName === null)
+            newSongName = await this.openPromptDialog("Enter a new song name", this.song.getTitle());
         this.song.songChangeName(newSongName);
         this.setStatus(`Song name updated: ${newSongName}`);
     }
@@ -139,11 +140,13 @@ class ComposerActions extends ComposerRenderer {
     }
 
     async openSongFromFileDialog(e, accept=null) {
-        const file = await InputFile.openFileDialog(accept);
+        const file = await this.openFileDialog(accept);
         this.loadSongFromFileInput(file);
     }
 
-    async loadSongFromFileInput(file) {
+    async loadSongFromFileInput(e, file=null, accept=null) {
+        if(file === null)
+            file = await this.openFileDialog(accept);
         if (!file)
             throw new Error("Invalid file input");
         const song = await Song.loadSongFromFileInput(file);
@@ -770,13 +773,10 @@ class ComposerActions extends ComposerRenderer {
         // this.selectIndicies(e, selectedIndices);
     }
 
-    trackerChangeSelection(selectedIndices = null) {
-        if (!selectedIndices)
-            selectedIndices = this.fieldTrackerSelection.value
-                .split(/\D+/)
-                .map(index => parseInt(index));
+    async trackerChangeSelection(e, selectedIndices = null) {
+        if (selectedIndices === null)
+            selectedIndices = await this.openPromptDialog("Enter selection: ", this.state.trackerSelectedIndices.join(', '));
         this.selectIndicies(selectedIndices);
-        this.fieldTrackerSelection.focus();
     }
 
     /** Toggle Panels **/
@@ -881,6 +881,31 @@ class ComposerActions extends ComposerRenderer {
         //     return [];
         // }
     }
+
+
+    /** Prompt **/
+
+    openPromptDialog(message, defaultValue='') {
+        return window.prompt(message, defaultValue);
+    }
+
+    async openFileDialog(accept=null) {
+        return await new Promise((resolve, reject) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            if(accept)
+                input.setAttribute('accept', accept);
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if(file)
+                    resolve(file);
+                else
+                    reject();
+            });
+            input.click();
+        })
+    }
+
 }
 
 

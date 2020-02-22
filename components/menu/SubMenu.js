@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import './assets/Menu.css';
+import '../button/assets/Button.css';
 import MenuBreak from "./MenuBreak";
 import AbstractMenu from "./AbstractMenu";
 
@@ -13,7 +14,10 @@ class SubMenu extends AbstractMenu {
             open: props.open || false,
             stick: false,
         };
+        this.onInputEventCallback = e => this.onInputEvent(e);
     }
+
+    getClassName() { return 'asui-menu submenu'; }
 
     componentDidMount() {
         this.addActiveSubMenu();
@@ -24,7 +28,7 @@ class SubMenu extends AbstractMenu {
 
 
     render() {
-        let className = 'asui-menu submenu';
+        let className = this.getClassName();
         if(this.state.stick)
             className += ' stick';
         if(this.props.disabled)
@@ -32,25 +36,26 @@ class SubMenu extends AbstractMenu {
         if(this.props.className)
             className += ' ' + this.props.className;
 
-        let mouseProps = {};
+        let mouseProps = {
+            onMouseLeave: this.onInputEventCallback
+        };
         if(this.props.openOnHover !== false)
-            mouseProps = {
-                onMouseOver: e => this.onInputEvent(e),
-            };
+            mouseProps.onMouseEnter = this.onInputEventCallback;
 
 // console.log('SubMenu.render', this.props);
+
 
         return (
             <div
                 key={this.props.key}
                 className={className}
-                onMouseOut={e => this.onInputEvent(e)}
+                title={this.props.title}
                 {...mouseProps}
                 >
                 <div
                     className="asui-menu-container"
-                    onClick={e => this.onInputEvent(e)}
-                    onKeyDown={e => this.onInputEvent(e)}
+                    onClick={this.onInputEventCallback}
+                    onKeyDown={this.onInputEventCallback}
                     tabIndex={0}
                     >
                     <div
@@ -122,17 +127,20 @@ class SubMenu extends AbstractMenu {
         this.openMenu();
     }
     onInputEvent(e) {
+        console.log(e.type, this);
 
         switch (e.type) {
+            case 'mouseenter':
             case 'mouseover':
+                clearTimeout(this.mouseTimeout); // TODO: prevent closing on re-entry
                 if(this.props.openOnHover !== false) {
-                    clearTimeout(this.mouseTimeout);
                     this.mouseTimeout = setTimeout(e => {
                         this.openMenu();
                     }, 100);
                 }
                 break;
 
+            case 'mouseleave':
             case 'mouseout':
                 clearTimeout(this.mouseTimeout);
                 this.mouseTimeout = setTimeout(e => {
@@ -196,7 +204,7 @@ class SubMenu extends AbstractMenu {
                 break;
 
             default:
-                console.log("Unknown input event: ", e.type);
+                console.warn("Unknown input event: ", e.type);
                 break;
         }
     }
@@ -234,15 +242,19 @@ SubMenuHorizontal.defaultProps = {
     disabled:       false,
 };
 
+SubMenuHorizontal.propTypes = SubMenu.propTypes;
 
 
 
 
-class SubMenuButton extends SubMenu {}
+class SubMenuButton extends SubMenu {
+    getClassName() { return 'asui-menu submenu-button'; }
+}
 
 
 /** Default props **/
 SubMenuButton.defaultProps = {
+    arrow:          '▼',
     vertical:       true,
     openOnHover:    false,
     disabled:       false,
