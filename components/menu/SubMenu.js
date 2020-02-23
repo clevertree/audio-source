@@ -75,7 +75,7 @@ class SubMenu extends AbstractMenu {
         if(typeof children === "function")
             children = children(this);
 
-        let className = 'dropdown';
+        let className = 'asui-menu-dropdown';
         if(this.props.vertical)
             className += ' vertical';
         // console.log('subMenuChildren', subMenuChildren);

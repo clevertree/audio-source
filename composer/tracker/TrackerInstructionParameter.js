@@ -2,26 +2,44 @@ import * as React from "react";
 import PropTypes from 'prop-types';
 
 import "./assets/TrackerParam.css";
-import {SubMenuButton} from "../../components";
+import {SubMenuDropDown} from "../../components";
 
 class TrackerInstructionParameter extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            open: false
+        };
+    }
     render() {
         let className = "asct-parameter";
         if(this.props.className)
             className += ' ' + this.props.className;
 
-        return <SubMenuButton
-            arrow={false}
-            className={className}
-            options={this.props.options}
-            tabIndex={0}
-            >{this.props.children}</SubMenuButton>
 
-        // return <div
-        //     className={className}
-        //     tabIndex={0}
-        //     onClick={this.props.onAction}
-        // >{this.props.children}</div>;
+        return <div
+            className={className}
+            tabIndex={0}
+            onClick={e => this.openDropDownMenu(e)}
+        >
+            {this.props.children}
+            {this.state.open ? this.renderDropDownMenu() : null}
+        </div>;
+    }
+
+    toggleDropDownMenu(e) {
+        this.setState({open: !this.state.open})
+    }
+    openDropDownMenu(e) {
+        this.setState({open: true})
+    }
+
+    renderDropDownMenu() {
+        return <SubMenuDropDown // use native
+            open={true}
+            vertical={true}
+            options={this.props.options}
+        >{this.props.children}</SubMenuDropDown>
     }
 }
 

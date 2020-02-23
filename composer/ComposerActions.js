@@ -1,10 +1,10 @@
-import ComposerRenderer from "./ComposerRenderer";
 import Song from "../song/Song";
 import InstrumentLoader from "../instrument/InstrumentLoader";
 
 import Storage from "../song/Storage";
+import ComposerMenu from "./ComposerMenu";
 
-class ComposerActions extends ComposerRenderer {
+class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
         super(state, props);
         this.onSongEventCallback = (e) => this.onSongEvent(e);

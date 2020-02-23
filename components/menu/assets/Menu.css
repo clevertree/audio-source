@@ -56,11 +56,11 @@ div.asui-menu.stick {
 
 /** Drop Down Menu **/
 
-div.asui-menu > div.dropdown > div.asui-menu {
+div.asui-menu-dropdown > div.asui-menu {
     padding: 4px;
 }
 
-div.asui-menu > div.dropdown {
+div.asui-menu-dropdown {
     background-color: #bdc3c7;
     /* display: inline-block; */
     z-index: 3;
@@ -72,11 +72,11 @@ div.asui-menu > div.dropdown {
     transition: opacity 0.2s;
 }
 
-div.asui-menu > div.dropdown:hover {
+div.asui-menu-dropdown:hover {
     z-index: 4;
 }
 
-div.asui-menu > div.dropdown.vertical {
+div.asui-menu-dropdown.vertical {
     left: 0;
     top: 100%;
 }

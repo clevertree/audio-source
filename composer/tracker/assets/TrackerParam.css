@@ -6,7 +6,7 @@
 div.asct-parameter.instrument,
 div.asct-parameter.velocity,
 div.asct-parameter.duration {
-    overflow: hidden;
+    /*overflow: hidden;*/
     border-left: 1px solid #888;
     animation: slide-open 1s;
 }
@@ -33,7 +33,7 @@ div.asct-parameter.command,
 div.asct-parameter.instrument,
 div.asct-parameter.velocity,
 div.asct-parameter.duration {
-    overflow: hidden;
+    /*overflow: hidden;*/
     padding: 0px 2px;
 }
 

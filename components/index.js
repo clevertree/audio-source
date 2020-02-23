@@ -4,6 +4,7 @@ import Icon from "./icon/Icon";
 import {
     SubMenu,
     SubMenuHorizontal,
+    SubMenuDropDown,
     ActionMenu,
     MenuBreak} from "./menu/";
 
@@ -23,6 +24,7 @@ export {
     SubMenuButton,
     ActionMenu,
     MenuBreak,
+    SubMenuDropDown,
 
     Scrollable,
     Button,
