@@ -2,6 +2,7 @@ import * as React from "react";
 import PropTypes from 'prop-types';
 
 import "./assets/TrackerParam.css";
+import {SubMenuButton} from "../../components";
 
 class TrackerInstructionParameter extends React.Component {
     render() {
@@ -9,11 +10,18 @@ class TrackerInstructionParameter extends React.Component {
         if(this.props.className)
             className += ' ' + this.props.className;
 
-        return <div
+        return <SubMenuButton
+            arrow={false}
             className={className}
+            options={this.props.options}
             tabIndex={0}
-            onClick={this.props.onAction}
-        >{this.props.children}</div>;
+            >{this.props.children}</SubMenuButton>
+
+        // return <div
+        //     className={className}
+        //     tabIndex={0}
+        //     onClick={this.props.onAction}
+        // >{this.props.children}</div>;
     }
 }
 
@@ -27,5 +35,6 @@ TrackerInstructionParameter.defaultProps = {
 /** Validate props **/
 TrackerInstructionParameter.propTypes = {
     children: PropTypes.any.isRequired,
-    onAction: PropTypes.func.isRequired,
+    options: PropTypes.any.isRequired,
+    // onAction: PropTypes.func.isRequired,
 };

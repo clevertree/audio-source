@@ -45,17 +45,13 @@ class Tracker extends React.Component {
 
         const composer = this.props.composer;
 
-        const quantizationInTicks = composer.state.quantizationInTicks; // Totally broken
-        // const segmentLengthInTicks = composer.state.segmentLengthInTicks; // this.getSegmentLengthInTicks();
+        const quantizationInTicks = composer.state.quantizationInTicks;
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
         let instructionIterator = composer.song.getInstructionIterator(composer.state.selectedGroup);
 
         const filterByInstrumentID = composer.state.filterByInstrumentID;
-        // const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
-        //     return conditionalInstruction.instrument === filterByInstrumentID
-        // };
 
         const selectedIndices = composer.state.selectedIndices;
         const cursorIndex = composer.state.cursorIndex;
@@ -68,7 +64,6 @@ class Tracker extends React.Component {
                 rowContent = [];
 
         let lastRowPositionInTicks = 0;
-        // let lastRowSegmentID = 0;
 
         let nextQuantizationBreakInTicks = 0;
         let rowInstructionElms = [];
@@ -77,32 +72,24 @@ class Tracker extends React.Component {
             if(!nextInstruction)
                 break;
 
-
             // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / segmentLengthInTicks);
 
 
             if(nextInstruction.deltaDuration > 0) {
-                // Render extra quantized rows
-                // renderQuantizedRows(lastRowPositionInTicks + nextInstruction.deltaDuration);
                 // Finish rendering last row
-                let startPositionTicks = lastRowPositionInTicks;
                 let endPositionTicks = instructionIterator.positionTicks;
 
-                while(nextQuantizationBreakInTicks <= startPositionTicks)
+                // Move next quantized row up to current position
+                while(nextQuantizationBreakInTicks <= lastRowPositionInTicks)
                     nextQuantizationBreakInTicks += quantizationInTicks;
 
-                let rowDeltaDuration = endPositionTicks - startPositionTicks;
-                // if(nextQuantizationBreakInTicks < endPositionTicks) {
-                //     rowDeltaDuration = nextQuantizationBreakInTicks - startPositionTicks;
-                //     startPositionTicks = nextQuantizationBreakInTicks;
-                // }
-                addRow(rowDeltaDuration, rowInstructionElms);
-                rowInstructionElms=[];
+                // Render extra quantized rows if necessary
+                while(nextQuantizationBreakInTicks < endPositionTicks) {
+                    addRow(nextQuantizationBreakInTicks);
+                    nextQuantizationBreakInTicks += quantizationInTicks;
+                }
 
-                // addQuantizedRows(startPositionTicks, endPositionTicks);
-
-                lastRowPositionInTicks = instructionIterator.positionTicks;
-
+                addRow(endPositionTicks);
             }
 
             if(filterByInstrumentID !== null && filterByInstrumentID !== nextInstruction.instrument)
@@ -125,7 +112,14 @@ class Tracker extends React.Component {
         }
         // renderQuantizedRows(maxLengthInTicks);
 
-        function addRow(rowDeltaDuration, rowInstructionElms=[]) {
+        while(nextQuantizationBreakInTicks < maxLengthInTicks) {
+            addRow(nextQuantizationBreakInTicks);
+            nextQuantizationBreakInTicks += quantizationInTicks;
+        }
+
+        function addRow(toPositionTicks) {
+            let rowDeltaDuration = toPositionTicks - lastRowPositionInTicks;
+            lastRowPositionInTicks = toPositionTicks;
             if (rowCount >= rowStart
                 && rowContent.length < rowTotal
             ) {
@@ -135,18 +129,10 @@ class Tracker extends React.Component {
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
             }
+            rowInstructionElms = [];
             rowCount++;
         }
 
-        function addQuantizedRows(startPositionTicks, endPositionTicks) {
-            while(nextQuantizationBreakInTicks < endPositionTicks) {
-                const rowDeltaDuration = nextQuantizationBreakInTicks - startPositionTicks;
-                if(rowDeltaDuration > 0)
-                    addRow(rowDeltaDuration);
-                nextQuantizationBreakInTicks += quantizationInTicks;
-                startPositionTicks = nextQuantizationBreakInTicks;
-            }
-        }
 
         console.timeEnd('tracker.renderRows()');
 
