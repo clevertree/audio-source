@@ -1,6 +1,6 @@
 import Button from "./Button";
-import SubMenuButton from "./SubMenuButton";
+import MenuButton from "./MenuButton";
 export {
     Button,
-    SubMenuButton
+    MenuButton
 }

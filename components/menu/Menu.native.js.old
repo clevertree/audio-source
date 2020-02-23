@@ -27,7 +27,7 @@ class Menu extends React.Component {
             .forEach(eventName => this.removeEventListener(eventName, this.onInputEvent));
     }
 
-    getSubMenuChildren() {
+    getMenuChildren() {
         let subMenuChildren = this.props.options;
         if(typeof subMenuChildren === "function")
             subMenuChildren = subMenuChildren(this);
@@ -115,7 +115,7 @@ class Menu extends React.Component {
         return contentList;
     }
 
-    toggleSubMenu() {
+    toggleMenu() {
 
         // let parentMenu = this;
         // while(parentMenu) {
@@ -146,16 +146,16 @@ class Menu extends React.Component {
         if(this.state.open !== true)
             this.setState({open: true});
             // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
-        // this.closeAllSubMenusButThis();
+        // this.closeAllMenusButThis();
     }
 
     doMenuAction(e) {
         console.log("Doing menu action: ", this);
         if (this.props.onAction) {
             this.props.onAction(e, this);
-            this.closeAllSubMenus();
+            this.closeAllMenus();
         // } else if(this.props.dropDownContent) {
-        //     this.toggleSubMenu(e);
+        //     this.toggleMenu(e);
         } else {
             throw new Error("Menu has no action content: ", this);
         }
@@ -171,7 +171,7 @@ class Menu extends React.Component {
         this.open();
     }
 
-    // closeAllSubMenus(includeStickMenus=false) {
+    // closeAllMenus(includeStickMenus=false) {
     //     if(isBrowser) {
     //         const root = this.getRootNode() || document;
     //         root.querySelectorAll(includeStickMenus ? 'asui-menu[open]:not([stick])' : 'asui-menu[open]')
@@ -180,7 +180,7 @@ class Menu extends React.Component {
     //         // console.warn("Unimplemented");
     //     }
     // }
-    // closeAllSubMenusButThis() {
+    // closeAllMenusButThis() {
     //     if(isBrowser) {
     //
     //         const root = this.getRootNode() || document;
@@ -251,8 +251,8 @@ class Menu extends React.Component {
                     case 'Enter':
                         if (selectedMenuElm.hasAction) {
                             selectedMenuElm.doAction(e);
-                        } else if (selectedMenuElm.hasSubMenu) {
-                            selectedMenuElm.toggleSubMenu(e);
+                        } else if (selectedMenuElm.hasMenu) {
+                            selectedMenuElm.toggleMenu(e);
                         } else {
                             return console.warn("Menu has no submenu or action: ", selectedMenuElm);
                         }
@@ -261,8 +261,8 @@ class Menu extends React.Component {
 
                     // ctrlKey && metaKey skips a measure. shiftKey selects a range
                     case 'ArrowRight':
-                        if (selectedMenuElm.hasSubMenu) {
-                            selectedMenuElm.toggleSubMenu(e);
+                        if (selectedMenuElm.hasMenu) {
+                            selectedMenuElm.toggleMenu(e);
                         } else {
                             return console.warn("Menu has no submenu: ", selectedMenuElm);
                         }
@@ -273,11 +273,11 @@ class Menu extends React.Component {
                         break;
 
                     case 'ArrowDown':
-                        this.selectNextSubMenuItem();
+                        this.selectNextMenuItem();
                         break;
 
                     case 'ArrowUp':
-                        this.selectPreviousSubMenuItem();
+                        this.selectPreviousMenuItem();
                         break;
 
                 }
@@ -303,7 +303,7 @@ class Menu extends React.Component {
         // if(target.classList.contains('open')) {
         //     target.dispatchEvent(new CustomEvent('open'));
         // } else {
-        //     this.clearSubMenu();
+        //     this.clearMenu();
         // }
     }
 
@@ -320,14 +320,14 @@ class Menu extends React.Component {
     }
 
 
-    static createSubMenuElement(props, children, subMenuChildren) {
+    static createMenuElement(props, children, subMenuChildren) {
         return this.createMenuElement(props, children, (e, menu) => {
             e.preventDefault();
-            menu.toggleSubMenu();
+            menu.toggleMenu();
         }, subMenuChildren)
     }
     static cSME(props, children, subMenuChildren) {
-        return this.createSubMenuElement(props, children, subMenuChildren);
+        return this.createMenuElement(props, children, subMenuChildren);
     }
 
 

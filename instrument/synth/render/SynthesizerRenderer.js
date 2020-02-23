@@ -4,10 +4,10 @@ import {
     Button,
     Scrollable,
     Div,
-    SubMenu,
-    ActionMenu,
+    Menu,
     MenuBreak,
-    Icon, SubMenuButton,
+    Icon,
+    MenuButton,
 } from "../../../components";
 
 import {Library} from "../../../song";
@@ -60,20 +60,20 @@ class SynthesizerRenderer extends React.Component {
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
                         >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</Button>
-                    {this.state.open ? <SubMenuButton
+                    {this.state.open ? <MenuButton
                         title="Change Preset"
                         className="instrument-preset"
                         options={e => this.renderMenu('change-preset')}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         children={instrumentConfig.presetName || "No Preset"}
                         /> : null}
-                    <SubMenuButton
+                    <MenuButton
                         arrow={false}
                         className="instrument-config"
                         options={e => this.renderMenu()}
                         >
                         <Icon className="config"/>
-                    </SubMenuButton>
+                    </MenuButton>
                 </Div>
                 {this.state.open && (
                     <Div className="samples">
@@ -99,34 +99,34 @@ class SynthesizerRenderer extends React.Component {
         switch (menuKey) {
             case null:
                 return (<>
-                    <SubMenu options={e => this.renderMenu('change-preset')}>Change Preset</SubMenu>
+                    <Menu options={e => this.renderMenu('change-preset')}>Change Preset</Menu>
                     <MenuBreak />
-                    <SubMenu options={e => this.renderMenu('change')}>Change Instrument</SubMenu>
-                    <ActionMenu onAction={e => this.instrumentRename(e)}>Rename Instrument</ActionMenu>
-                    <ActionMenu onAction={e => this.instrumentRemove(e)}>Remove Instrument</ActionMenu>
+                    <Menu options={e => this.renderMenu('change')}>Change Instrument</Menu>
+                    <Menu onAction={e => this.instrumentRename(e)}>Rename Instrument</Menu>
+                    <Menu onAction={e => this.instrumentRemove(e)}>Remove Instrument</Menu>
                 </>);
 
             case 'change':
                 return (<>
                     {InstrumentLoader.getInstruments().map(config =>
-                        <ActionMenu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</ActionMenu>
+                        <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
                     )}
                 </>);
 
 
             case 'change-preset':
                 return (<>
-                    <SubMenu options={e => this.renderMenu('library-list')}    >Libraries</SubMenu>
+                    <Menu options={e => this.renderMenu('library-list')}    >Libraries</Menu>
                     <MenuBreak />
-                    <ActionMenu disabled>Search</ActionMenu>
+                    <Menu disabled>Search</Menu>
                     <MenuBreak />
                     {library.getPresets().length > 0 ? (
                         <Scrollable>
                             {library.getPresets().map(config => (
-                                <ActionMenu onAction={e => this.loadPreset(config.name)}>{config.name}</ActionMenu>
+                                <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
                             ))}
                         </Scrollable>
-                    ) : <ActionMenu disabled> - Select a Library - </ActionMenu>}
+                    ) : <Menu disabled> - Select a Library - </Menu>}
                 </>);
 
                 // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
@@ -142,14 +142,14 @@ class SynthesizerRenderer extends React.Component {
                 //     ),
             case 'preset-list':
                 if(library.getPresets().length === 0)
-                    return <ActionMenu disabled>No presets</ActionMenu>;
+                    return <Menu disabled>No presets</Menu>;
                 return library.getPresets().map(config => (
-                    <ActionMenu>{config.name}</ActionMenu>
+                    <Menu>{config.name}</Menu>
                 ));
 
             case 'library-list':
                 return library.getLibraries().map(config => (
-                    <ActionMenu onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</ActionMenu>
+                    <Menu onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</Menu>
                 ));
 
             case 'config':

@@ -1,12 +1,10 @@
-import {SubMenu, SubMenuHorizontal} from "./SubMenu";
-import ActionMenu from "./ActionMenu";
+import {Menu, MenuHorizontal} from "./Menu";
+import SubMenu from "./SubMenu";
 import MenuBreak from "./MenuBreak";
-import SubMenuDropDown from "./SubMenuDropDown";
 
 export {
-    SubMenu,
-    SubMenuHorizontal,
-    SubMenuDropDown,
-    ActionMenu,
-    MenuBreak
+    Menu,
+    MenuHorizontal,
+    MenuBreak,
+    SubMenu
 }

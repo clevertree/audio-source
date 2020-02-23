@@ -2,9 +2,9 @@ import React from "react";
 
 import Div from "../components/div/Div";
 import Icon from "../components/icon/Icon";
-import {SubMenu, ActionMenu, SubMenuButton, Button, InputRange, MenuBreak} from "../components";
+import {Menu, MenuButton, Button, InputRange} from "../components";
 
-import Storage from "../song/Storage";
+// import Storage from "../song/Storage";
 
 import Header from "./header/Header";
 import Panel from "./panel/Panel";
@@ -18,6 +18,7 @@ import InstrumentLoader from "../instrument/InstrumentLoader";
 import "./assets/Composer.css";
 import TrackerGroupsPanel from "./tracker/panel/TrackerGroupsPanel";
 import TrackerRowSegmentsPanel from "./tracker/panel/TrackerRowSegmentsPanel";
+import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
 
 class ComposerRenderer extends React.Component {
     constructor(state = {}, props = {}) {
@@ -60,6 +61,7 @@ class ComposerRenderer extends React.Component {
 
 
     /** Song rendering **/
+    getSong() { return this.song; }
 
     async setCurrentSong(song) {
         if(this.song) {
@@ -125,270 +127,274 @@ class ComposerRenderer extends React.Component {
 
     render() {
         return (
-            <Div className="asc-container">
-                <Header
-                    key="header"
-                    menuContent={() => this.renderMenu(this.state.menuKey)}
-                />
-                <Div className="asc-panel-container">
-                    <Panel className="song" title="Song">
-                        <Form className="playback" title="Playback">
-                            <Button
-                                className="song-play"
-                                onAction={e => this.playlistPlay(e)}
-                            >
-                                <Icon className="play"/>
-                            </Button>
-                            <Button
-                                className="song-pause"
-                                onAction={e => this.playlistPause(e)}
-                            >
-                                <Icon className="pause"/>
-                            </Button>
-                            <Button
-                                className="song-stop"
-                                onAction={e => this.playlistStop(e)}
-                            >
-                                <Icon className="stop"/>
-                            </Button>
-                        </Form>
-
-                        <Form className="file" title="File">
-                            <Button
-                                className="file-load"
-                                onAction={(e) => this.loadSongFromFileInput(e)}
-                                accept=".json,.mid,.midi"
-                                ref={ref => this.fieldSongFileLoad = ref}
-                                title="Load Song from File"
-                            >
-                                <Icon className="file-load"/>
-                            </Button>
-                            <Button
-                                className="file-save"
-                                onAction={e => this.saveSongToFile(e)}
-                                title="Save Song to File"
-                            >
-                                <Icon className="file-save"/>
-                            </Button>
-                        </Form>
-
-                        <Form className="volume" title="Volume">
-                            <InputRange
-                                className="volume"
-                                onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
-                                value={this.state.volume}
-                                min={1}
-                                max={100}
-                                ref={ref => this.fieldSongVolume = ref}
-                                title="Song Volume"
-                            />
-                        </Form>
-
-                        <Form className="position" title="Position">
-                            <InputRange
-                                className="position"
-                                onChange={(e, pos) => this.setSongPosition(pos)}
-                                value={0}
-                                min={0}
-                                max={Math.ceil(this.state.songLength)}
-                                ref={ref => this.fieldSongPosition = ref}
-                                title="Song Position"
-                            />
-                        </Form>
-
-                        <Form className="timing" title="Timing">
-                            <Button
-                                className="timing"
-                                onAction={(e, timingString) => this.setSongPosition(timingString)}
-                                ref={ref => this.fieldSongTiming = ref}
-                                title="Song Timing"
-                                children="00:00:000"
-                            />
-                        </Form>
-
-                        <Form className="name" title="Name">
-                            <Button
-                                className="name"
-                                onAction={(e) => this.setSongName(e)}
-                                ref={ref => this.fieldSongVersion = ref}
-                                title="Song Name"
-                                children={this.song ? this.song.getTitle() : "no song loaded"}
-                            />
-                        </Form>
-
-                        <Form className="version" title="Version">
-                            <Button
-                                className="version"
-                                onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
-                                ref={ref => this.fieldSongVersion = ref}
-                                title="Song Version"
-                                children={this.song ? this.song.getVersion() : "0.0.0"}
-                            />
-                        </Form>
-                    </Panel>
-
-                    <Panel className="instruments" title="Instruments"
-                           ref={ref=>this.panelInstruments = ref}
-                           children={() => (<>
-                               {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
-                                   <InstrumentRenderer
-                                       key={instrumentID}
-                                       song={this.song}
-                                       props={instrumentConfig}
-                                       instrumentID={instrumentID}
-                                   />
-                               )}
-                               <Form className="instrument-add" title="Add Instrument">
-                                   <SubMenuButton
-                                       className="instrument-add"
-                                       // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
-                                       options={() => InstrumentLoader.getInstruments().map((config, i) =>
-                                           <ActionMenu key={i} onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</ActionMenu>
-                                       )}
-                                       title="Add Instrument"
-                                   >Select...</SubMenuButton>
-                               </Form>
-                           </>)} />
-
-                    <Panel className="instructions" title="Instructions"
-                           ref={ref=>this.panelInstructions = ref}
-                    >
-                        <Form className="instruction-command" title="Command">
-                            <SubMenuButton
-                                // className="command"
-
-                                // // TODO: filter by selected instrument
-                                options={e => this.renderMenu('edit-set-command')}
-                            >C4</SubMenuButton>
-                        </Form>
-                        <Form className="instruction-insert" title="Add">
-                            <Button
-                                // className="instruction-insert"
-                                onAction={e => this.instructionInsert()}
-                                title="Insert Instruction"
-                            >
-                                <Icon className="insert"/>
-                            </Button>
-                        </Form>
-                        <Form className="instruction-delete" title="Rem">
-                            <Button
-                                // className="instruction-delete"
-                                onAction={e => this.instructionDelete(e)}
-                                title="Delete Instruction"
-                            >
-                                <Icon className="remove"/>
-                            </Button>
-                        </Form>
-
-                        <Form className="instruction-instrument" title="Instrument">
-                            <SubMenuButton
-                                // className="instrument-instrument"
-                                options={() =>
-                                    this.values.getSongInstruments((id, name) =>
-                                        <ActionMenu key={id} onAction={(e) => this.instructionChangeInstrument(id)}>{name}</ActionMenu>
-                                    )
-                                }
-                                title="Song Instruments"
-                            >Select</SubMenuButton>
-                        </Form>
-
-                        <Form className="instruction-velocity" title="Velocity">
-                            <InputRange
-                                // className="velocity"
-                                onAction={(e, newVelocity) => this.instructionChangeVelocity(newVelocity)}
-                                // value={this.state.volume}
-                                min={1}
-                                max={127}
-                                ref={ref => this.fieldInstrumentVelocity = ref}
-                                title="Instrument Velocity"
-                            >Max</InputRange>
-                        </Form>
-
-
-                        <Form className="instruction-duration" title="Duration">
-                            <SubMenuButton
-                                // className="instruction-duration"
-                                options={() =>
-                                    this.values.getNoteDurations((duration, title) =>
-                                        <ActionMenu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
-                                    )
-                                }
-                                title="Load Song from File"
-                            >1B</SubMenuButton>
-                        </Form>
-                    </Panel>
-
-                    <Panel className="tracker" title="Tracker">
-                        <Form className="tracker-row-length" title="Row &#120491;">
-                            <SubMenuButton
-                                value="1B"
-                                // className="tracker-row-length"
-                                options={() =>
-                                    this.values.getNoteDurations((duration, title) =>
-                                        <ActionMenu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</ActionMenu>
-                                    )
-                                }
-                            >1B</SubMenuButton>
-                        </Form>
-
-                        <Form className="tracker-segment-length" title="Seg &#120491;">
-                            <SubMenuButton
-                                // className="tracker-segment-length"
-                                options={() =>
-                                    this.values.getSegmentLengths((length, title) =>
-                                        <ActionMenu key={length} onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</ActionMenu>
-                                    )
-                                }
-                                title="Select Tracker Segment Length"
-                            >16B</SubMenuButton>
-                        </Form>
-
-                        <Form className="tracker-instrument" title="Instrument">
-                            <SubMenuButton
-                                // className="tracker-instrument"
-                                options={() =>
-                                    this.values.getSongInstruments((instrumentID, name) =>
-                                        <ActionMenu key={instrumentID} onAction={(e) => this.trackerChangeInstrumentFilter(instrumentID)}>{name}</ActionMenu>
-                                    )
-                                }
-                                title="Filter by Tracker Instrument"
-                            >Any</SubMenuButton>
-                        </Form>
-
-                        <Form className="tracker-selection" title="Selection">
-                            <Button
-                                // className="tracker-selection"
-                                onAction={(e) => this.trackerChangeSelection(e)}
-                                title="Tracker Note Selection"
-                                children="No selection"
-                            />
-                        </Form>
-
-                        <Form className="tracker-octave" title="Octave">
-                            <SubMenuButton
-                                className="tracker-selection"
-                                options={() =>
-                                    this.values.getNoteOctaves(octave =>
-                                        <ActionMenu key={octave} onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</ActionMenu>
-                                    )
-                                }
-                                title="Tracker Change Octave"
-                            >4</SubMenuButton>
-                        </Form>
-                    </Panel>
-
-                    <TrackerGroupsPanel composer={this} />
-                    <TrackerRowSegmentsPanel composer={this} />
-
-                </Div>
-                <Div className="asc-tracker-container">
-                    <Tracker
-                        ref={ref => this.tracker = ref}
-                        composer={this}
+            <MenuOverlayContainer
+                ref = {ref => this.menu = ref}
+                >
+                <Div className="asc-container">
+                    <Header
+                        key="header"
+                        menuContent={() => this.getMenuRoot()}
                     />
+                    <Div className="asc-panel-container">
+                        <Panel className="song" title="Song">
+                            <Form className="playback" title="Playback">
+                                <Button
+                                    className="song-play"
+                                    onAction={e => this.playlistPlay(e)}
+                                >
+                                    <Icon className="play"/>
+                                </Button>
+                                <Button
+                                    className="song-pause"
+                                    onAction={e => this.playlistPause(e)}
+                                >
+                                    <Icon className="pause"/>
+                                </Button>
+                                <Button
+                                    className="song-stop"
+                                    onAction={e => this.playlistStop(e)}
+                                >
+                                    <Icon className="stop"/>
+                                </Button>
+                            </Form>
+
+                            <Form className="file" title="File">
+                                <Button
+                                    className="file-load"
+                                    onAction={(e) => this.loadSongFromFileInput(e)}
+                                    accept=".json,.mid,.midi"
+                                    ref={ref => this.fieldSongFileLoad = ref}
+                                    title="Load Song from File"
+                                >
+                                    <Icon className="file-load"/>
+                                </Button>
+                                <Button
+                                    className="file-save"
+                                    onAction={e => this.saveSongToFile(e)}
+                                    title="Save Song to File"
+                                >
+                                    <Icon className="file-save"/>
+                                </Button>
+                            </Form>
+
+                            <Form className="volume" title="Volume">
+                                <InputRange
+                                    className="volume"
+                                    onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                    value={this.state.volume}
+                                    min={1}
+                                    max={100}
+                                    ref={ref => this.fieldSongVolume = ref}
+                                    title="Song Volume"
+                                />
+                            </Form>
+
+                            <Form className="position" title="Position">
+                                <InputRange
+                                    className="position"
+                                    onChange={(e, pos) => this.setSongPosition(pos)}
+                                    value={0}
+                                    min={0}
+                                    max={Math.ceil(this.state.songLength)}
+                                    ref={ref => this.fieldSongPosition = ref}
+                                    title="Song Position"
+                                />
+                            </Form>
+
+                            <Form className="timing" title="Timing">
+                                <Button
+                                    className="timing"
+                                    onAction={(e, timingString) => this.setSongPosition(timingString)}
+                                    ref={ref => this.fieldSongTiming = ref}
+                                    title="Song Timing"
+                                    children="00:00:000"
+                                />
+                            </Form>
+
+                            <Form className="name" title="Name">
+                                <Button
+                                    className="name"
+                                    onAction={(e) => this.setSongName(e)}
+                                    ref={ref => this.fieldSongVersion = ref}
+                                    title="Song Name"
+                                    children={this.song ? this.song.getTitle() : "no song loaded"}
+                                />
+                            </Form>
+
+                            <Form className="version" title="Version">
+                                <Button
+                                    className="version"
+                                    onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
+                                    ref={ref => this.fieldSongVersion = ref}
+                                    title="Song Version"
+                                    children={this.song ? this.song.getVersion() : "0.0.0"}
+                                />
+                            </Form>
+                        </Panel>
+
+                        <Panel className="instruments" title="Instruments"
+                               ref={ref=>this.panelInstruments = ref}
+                               children={() => (<>
+                                   {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
+                                       <InstrumentRenderer
+                                           key={instrumentID}
+                                           song={this.song}
+                                           props={instrumentConfig}
+                                           instrumentID={instrumentID}
+                                       />
+                                   )}
+                                   <Form className="instrument-add" title="Add Instrument">
+                                       <MenuButton
+                                           className="instrument-add"
+                                           // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                           options={() => InstrumentLoader.getInstruments().map((config, i) =>
+                                               <Menu key={i} onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</Menu>
+                                           )}
+                                           title="Add Instrument"
+                                       >Select...</MenuButton>
+                                   </Form>
+                               </>)} />
+
+                        <Panel className="instructions" title="Instructions"
+                               ref={ref=>this.panelInstructions = ref}
+                        >
+                            <Form className="instruction-command" title="Command">
+                                <MenuButton
+                                    // className="command"
+
+                                    // // TODO: filter by selected instrument
+                                    options={e => this.renderMenu('edit-set-command')}
+                                >C4</MenuButton>
+                            </Form>
+                            <Form className="instruction-insert" title="Add">
+                                <Button
+                                    // className="instruction-insert"
+                                    onAction={e => this.instructionInsert()}
+                                    title="Insert Instruction"
+                                >
+                                    <Icon className="insert"/>
+                                </Button>
+                            </Form>
+                            <Form className="instruction-delete" title="Rem">
+                                <Button
+                                    // className="instruction-delete"
+                                    onAction={e => this.instructionDelete(e)}
+                                    title="Delete Instruction"
+                                >
+                                    <Icon className="remove"/>
+                                </Button>
+                            </Form>
+
+                            <Form className="instruction-instrument" title="Instrument">
+                                <MenuButton
+                                    // className="instrument-instrument"
+                                    options={() =>
+                                        this.values.getSongInstruments((id, name) =>
+                                            <Menu key={id} onAction={(e) => this.instructionChangeInstrument(id)}>{name}</Menu>
+                                        )
+                                    }
+                                    title="Song Instruments"
+                                >Select</MenuButton>
+                            </Form>
+
+                            <Form className="instruction-velocity" title="Velocity">
+                                <InputRange
+                                    // className="velocity"
+                                    onAction={(e, newVelocity) => this.instructionChangeVelocity(newVelocity)}
+                                    // value={this.state.volume}
+                                    min={1}
+                                    max={127}
+                                    ref={ref => this.fieldInstrumentVelocity = ref}
+                                    title="Instrument Velocity"
+                                >Max</InputRange>
+                            </Form>
+
+
+                            <Form className="instruction-duration" title="Duration">
+                                <MenuButton
+                                    // className="instruction-duration"
+                                    options={() =>
+                                        this.values.getNoteDurations((duration, title) =>
+                                            <Menu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</Menu>
+                                        )
+                                    }
+                                    title="Load Song from File"
+                                >1B</MenuButton>
+                            </Form>
+                        </Panel>
+
+                        <Panel className="tracker" title="Tracker">
+                            <Form className="tracker-row-length" title="Row &#120491;">
+                                <MenuButton
+                                    value="1B"
+                                    // className="tracker-row-length"
+                                    options={() =>
+                                        this.values.getNoteDurations((duration, title) =>
+                                            <Menu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</Menu>
+                                        )
+                                    }
+                                >1B</MenuButton>
+                            </Form>
+
+                            <Form className="tracker-segment-length" title="Seg &#120491;">
+                                <MenuButton
+                                    // className="tracker-segment-length"
+                                    options={() =>
+                                        this.values.getSegmentLengths((length, title) =>
+                                            <Menu key={length} onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</Menu>
+                                        )
+                                    }
+                                    title="Select Tracker Segment Length"
+                                >16B</MenuButton>
+                            </Form>
+
+                            <Form className="tracker-instrument" title="Instrument">
+                                <MenuButton
+                                    // className="tracker-instrument"
+                                    options={() =>
+                                        this.values.getSongInstruments((instrumentID, name) =>
+                                            <Menu key={instrumentID} onAction={(e) => this.trackerChangeInstrumentFilter(instrumentID)}>{name}</Menu>
+                                        )
+                                    }
+                                    title="Filter by Tracker Instrument"
+                                >Any</MenuButton>
+                            </Form>
+
+                            <Form className="tracker-selection" title="Selection">
+                                <Button
+                                    // className="tracker-selection"
+                                    onAction={(e) => this.trackerChangeSelection(e)}
+                                    title="Tracker Note Selection"
+                                    children="No selection"
+                                />
+                            </Form>
+
+                            <Form className="tracker-octave" title="Octave">
+                                <MenuButton
+                                    className="tracker-selection"
+                                    options={() =>
+                                        this.values.getNoteOctaves(octave =>
+                                            <Menu key={octave} onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</Menu>
+                                        )
+                                    }
+                                    title="Tracker Change Octave"
+                                >4</MenuButton>
+                            </Form>
+                        </Panel>
+
+                        <TrackerGroupsPanel composer={this} />
+                        <TrackerRowSegmentsPanel composer={this} />
+
+                    </Div>
+                    <Div className="asc-tracker-container">
+                        <Tracker
+                            ref={ref => this.tracker = ref}
+                            composer={this}
+                        />
+                    </Div>
+                    <Footer composer={this} ref={ref => this.footer = ref} />
                 </Div>
-                <Footer composer={this} ref={ref => this.footer = ref} />
-            </Div>
+            </MenuOverlayContainer>
         )
     }
 

@@ -201,7 +201,7 @@ class Composer extends ComposerActions {
                 break;
 
             case 'click':
-                this.closeAllSubMenus(true);
+                this.closeAllMenus(true);
                 break;
             //     const divElmFormElm = e.path[0].closest('asui-div');
             //     if(divElmFormElm) {
@@ -295,11 +295,11 @@ class Composer extends ComposerActions {
             case 'instrument:instance':
             case 'instrument:added':
             case 'instrument:removed':
-                this.panelInstruments.forceUpdate();
+                this.panelInstruments && this.panelInstruments.forceUpdate();
                 break;
 
             case 'instrument:modified':
-                this.panelInstruments.forceUpdate();
+                this.panelInstruments && this.panelInstruments.forceUpdate();
                 // this.renderInstrument(e.detail.instrumentID);
 
                 clearTimeout(this.timeouts.saveSongToMemory);
@@ -322,9 +322,9 @@ class Composer extends ComposerActions {
         }
     }
 
-    closeAllSubMenus() {
+    closeAllMenus() {
         this.shadowDOM.querySelector(`asui-menu`)
-            .closeAllSubMenus();
+            .closeAllMenus();
     }
 
 

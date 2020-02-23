@@ -2,10 +2,15 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import './assets/Menu.css';
-import AbstractMenu from "./AbstractMenu";
+import MenuManager from "./MenuManager";
 
-// TODO: combine with Action abstract
-class ActionMenu extends AbstractMenu {
+class Menu extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onInputEventCallback = e => this.onInputEvent(e);
+        this.state = {};
+    }
+
     render() {
         let className = 'asui-menu asui-menu-container action';
         if(this.props.disabled)
@@ -13,24 +18,32 @@ class ActionMenu extends AbstractMenu {
         if(this.props.className)
             className += ' ' + this.props.className;
 
+        const eventProps = this.getEventProps();
 
         return (
             <div
                 // key={this.props.key}
                 className={className}
-                    onClick={e => this.onInputEvent(e)}
-                    onKeyDown={e => this.onInputEvent(e)}
-                    title={this.props.title}
-                    tabIndex={0}
-                    >
-                    <div
-                        className="title"
-                        children={this.props.children}
-                        />
-                    {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
+                title={this.props.title}
+                tabIndex={0}
+                {...eventProps}
+                >
+                <div
+                    className="title"
+                    children={this.props.children}
+                    />
+                {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
             </div>
         )
     }
+
+    getEventProps() {
+        return {
+            onClick: this.onInputEventCallback,
+            onKeyDown: this.onInputEventCallback,
+        };
+    }
+
 
     doMenuAction(e) {
         if(this.props.disabled) {
@@ -39,14 +52,14 @@ class ActionMenu extends AbstractMenu {
         }
         const result = this.props.onAction(e, this);
         if(result !== false)
-            this.closeAllSubMenus(e.target);
+            MenuManager.closeAllMenus(e);
     }
-
 
     onInputEvent(e) {
         // console.log(e.type, e);
 
         switch (e.type) {
+
 
             case 'click':
                 this.doMenuAction(e);
@@ -97,7 +110,7 @@ class ActionMenu extends AbstractMenu {
 }
 
 // creating default props
-ActionMenu.defaultProps = {
+Menu.defaultProps = {
     arrow:          null, // '►',
     vertical:       false,
     openOnHover:    false,
@@ -105,7 +118,7 @@ ActionMenu.defaultProps = {
 };
 
 // validating prop types
-ActionMenu.propTypes = {
+Menu.propTypes = {
     onAction: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
     vertical: PropTypes.bool,
@@ -114,7 +127,23 @@ ActionMenu.propTypes = {
 
 
 
+class MenuHorizontal extends Menu {}
+Menu.Horizontal = MenuHorizontal;
+
+/** Default props **/
+MenuHorizontal.defaultProps = {
+    arrow:          '▼',
+    vertical:       true,
+    openOnHover:    true,
+    disabled:       false,
+};
+
+MenuHorizontal.propTypes = Menu.propTypes;
+
+
+
 export {
-    ActionMenu as default,
-    ActionMenu
+    Menu as default,
+    Menu,
+    MenuHorizontal
 };

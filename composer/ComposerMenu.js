@@ -1,6 +1,6 @@
 import React from "react";
 
-import {SubMenu, ActionMenu, SubMenuButton, Button, InputRange, MenuBreak} from "../components";
+import {Menu, SubMenu, MenuBreak} from "../components";
 
 import Storage from "../song/Storage";
 // import InputSelect from "../components/input-select/InputSelect";
@@ -8,529 +8,461 @@ import InstrumentLoader from "../instrument/InstrumentLoader";
 import ComposerRenderer from "./ComposerRenderer";
 
 import "./assets/Composer.css";
-import Menu from "../components/menu/Menu.native";
 
 class ComposerMenu extends ComposerRenderer {
 
-    renderMenuRoot() {
+    openMenu(e, options) {
+        this.menu.openMenu(e, options);
+    }
+
+    getMenuRoot() {
         const titleMenuProps = this.state.portrait ? {} : {
             vertical: true,
             arrow: false
         };
-        return <>
-            <SubMenu {...titleMenuProps} key="file"        options={() => this.renderMenuFile()}          >File</SubMenu>
-            <SubMenu {...titleMenuProps} key="edit"        options={() => this.renderMenuEdit()}          >Edit</SubMenu>
-            <SubMenu {...titleMenuProps} key="group"       options={() => this.renderMenuGroup()}         >Group</SubMenu>
-            <SubMenu {...titleMenuProps} key="instrument"  options={() => this.renderMenuInstrument()}    >Instrument</SubMenu>
-            <SubMenu {...titleMenuProps} key="view"        options={() => this.renderMenuView()}          >View</SubMenu>
-        </>;
+        return (<>
+            <SubMenu {...titleMenuProps} key="file"        onAction={e => this.openMenuFile(e)}          >File</SubMenu>
+            <SubMenu {...titleMenuProps} key="edit"        onAction={e => this.openMenuEdit()}          >Edit</SubMenu>
+            <SubMenu {...titleMenuProps} key="group"       onAction={e => this.openMenuGroup()}         >Group</SubMenu>
+            <SubMenu {...titleMenuProps} key="instrument"  onAction={e => this.openMenuInstrument()}    >Instrument</SubMenu>
+            <SubMenu {...titleMenuProps} key="view"        onAction={e => this.openMenuView()}          >View</SubMenu>
+        </>);
+    }
+    openMenuRoot(e) {
+        this.openMenu(e, this.getMenuRoot());
     }
 
-    renderMenuFile() {
-        return <>
-            <ActionMenu onAction={e => this.loadNewSongData(e)}                         >New song</ActionMenu>
-            <SubMenu options={() => this.renderMenuFileOpen()}           >Open song</SubMenu>
-            <SubMenu options={() => this.renderMenuFileSave()}           >Save song</SubMenu>
-            <SubMenu options={() => this.renderMenuFileImport()}         >Import song</SubMenu>
-            <SubMenu options={() => this.renderMenuFileExport()}         >Export song</SubMenu>
-        </>;
+    openMenuFile(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.loadNewSongData(e)}           >New song</Menu>
+            <SubMenu onAction={e => this.openMenuFileOpen()}           >Open song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileSave()}           >Save song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileImport()}         >Import song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileExport()}         >Export song</SubMenu>
+        </>);
     }
 
 
-    renderMenuFileOpen() {
-        return <>
-            <SubMenu options={() => this.renderMenuFileOpenMemory()}    >Import song</SubMenu>
-            <ActionMenu onAction={e => this.openSongFromFileDialog(e)}                        >from File</ActionMenu>
-            <ActionMenu onAction={e => this.loadSongFromURL(e)}                         >from URL</ActionMenu>
-        </>;
+    openMenuFileOpen(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.openMenuFileOpenMemory(e)}    >Import song</Menu>
+            <Menu onAction={e => this.openSongFromFileDialog(e)}    >from File</Menu>
+            <Menu onAction={e => this.loadSongFromURL(e)}           >from URL</Menu>
+        </>);
     }
 
-    renderMenuFileSave() {
-        return <>
-            <ActionMenu onAction={e => this.saveSongToMemory(e)}                        >to Memory</ActionMenu>
-            <ActionMenu onAction={e => this.saveSongToFile(e)}                          >to File</ActionMenu>
-        </>;
+    openMenuFileSave(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.saveSongToMemory(e)}                        >to Memory</Menu>
+            <Menu onAction={e => this.saveSongToFile(e)}                          >to File</Menu>
+        </>);
 
     }
 
-    renderMenuFileImport() {
-        return <>
-            <ActionMenu onAction={e => this.openSongFromFileDialog(e, '.mid,.midi')}          >from MIDI File</ActionMenu>
-        </>;
+    openMenuFileImport(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.openSongFromFileDialog(e, '.mid,.midi')}          >from MIDI File</Menu>
+        </>);
         // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-        // menuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
-        // menuFileImportSongFromMIDI.disabled = true;
+        // openMenuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+        // openMenuFileImportSongFromMIDI.disabled = true;
 
     }
 
-    renderMenuFileExport() {
-        return <>
-            <ActionMenu disabled>to MIDI File</ActionMenu>
-        </>;
+    openMenuFileExport(e) {
+        this.openMenu(e, <>
+            <Menu disabled>to MIDI File</Menu>
+        </>);
 
     }
 
-    renderMenuFileOpenMemory() {
+    openMenuFileOpenMemory(e) {
         const storage = new Storage();
         const songRecentUUIDs = storage.getRecentSongList() ;
-        return songRecentUUIDs.length > 0
+        this.openMenu(e, songRecentUUIDs.length > 0
             ? songRecentUUIDs.map((entry, i) =>
-                <ActionMenu
+                <Menu
                     key={i}
                     onAction={() => this.loadSongFromMemory(entry.uuid)}
-                >{entry.name || entry.uuid}</ActionMenu>)
-            :<ActionMenu
+                >{entry.name || entry.uuid}</Menu>)
+            :<Menu
                 key="no-recent"
                 disabled
-            >No Songs Available</ActionMenu>;
+            >No Songs Available</Menu>
+        );
     }
 
 
     /** Deep selection menus **/
 
-    renderMenuSelectCommandByCurrentOctave(onAction, octave=null) {
+
+    openMenuSelectCommand(e, onSelectValue) {
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuSelectCommandByCurrentOctave(e, onSelectValue)}      >Current Octave</SubMenu>
+            <MenuBreak />
+            <SubMenu onAction={e => this.openMenuSelectCommandByFrequency(e, onSelectValue)}           >By Frequency</SubMenu>
+            <SubMenu onAction={e => this.openMenuSelectCommandByOctave(e, onSelectValue)}              >By Octave</SubMenu>
+            <MenuBreak />
+            <SubMenu onAction={e => this.openMenuSelectCommandByNamed(e, onSelectValue)}               >By Alias</SubMenu>
+            <SubMenu onAction={e => this.openMenuSelectCommandByGroup(e, onSelectValue)}               >By Group</SubMenu>
+            <Menu onAction={async e => onSelectValue(await this.openPromptDialog("Insert custom command"))}      >Custom Command</Menu>
+        </>);
+
+    }
+
+
+    openMenuSelectCommandByCurrentOctave(e, onSelectValue, octave=null) {
         octave = octave !== null ? octave : this.state.trackerCurrentOctave;
-        return this.values.getNoteFrequencies((noteName) =>
-            <ActionMenu key={noteName} onAction={e => onAction(`${noteName}${octave}`)}     >{noteName}{octave}</ActionMenu>
-        );
+        this.openMenu(e, this.values.getNoteFrequencies((noteName) =>
+            <Menu key={noteName} onAction={e => onSelectValue(`${noteName}${octave}`)}     >{noteName}{octave}</Menu>
+        ));
     }
 
 
-    renderMenuSelectCommandByFrequency(onAction) {
-        return this.values.getNoteFrequencies((noteName) =>
-            <SubMenu key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onAction, noteName)}                   >{noteName}</SubMenu>
-        );
+    openMenuSelectCommandByFrequency(e, onSelectValue) {
+        this.openMenu(e, this.values.getNoteFrequencies((noteName) =>
+            <Menu key={noteName} onAction={e => this.openMenuSelectCommandByFrequencyOctave(e, onSelectValue, noteName)}                   >{noteName}</Menu>
+        ));
     }
 
-    renderMenuSelectCommandByFrequencyOctave(onAction, noteName) {
-        return this.values.getNoteOctaves((octave) =>
-            <ActionMenu key={octave} onAction={onAction}     >{noteName}{octave}</ActionMenu>
-        );
+    openMenuSelectCommandByFrequencyOctave(e, onSelectValue, noteName) {
+        this.openMenu(e, this.values.getNoteOctaves((octave) =>
+            <Menu key={octave} onAction={() => onSelectValue(octave)}     >{noteName}{octave}</Menu>
+        ));
     }
 
-    renderMenuSelectCommandByOctave(onAction) {
-        return this.values.getNoteOctaves((octave) =>
-            <SubMenu key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onAction, octave)}                   >{octave}</SubMenu>
-        );
+    openMenuSelectCommandByOctave(e, onSelectValue) {
+        this.openMenu(e, this.values.getNoteOctaves((octave) =>
+            <Menu key={octave} onAction={e => this.openMenuSelectCommandByOctaveFrequency(e, onSelectValue, octave)}                   >{octave}</Menu>
+        ));
     }
 
-    renderMenuSelectCommandByOctaveFrequency(onAction, octave) {
-        return this.values.getNoteFrequencies((noteName) =>
-            <ActionMenu key={noteName} onAction={onAction}     >{noteName}{octave}</ActionMenu>
-        );
+    openMenuSelectCommandByOctaveFrequency(e, onSelectValue, octave) {
+        this.openMenu(e, this.values.getNoteFrequencies((noteName) =>
+            <Menu key={noteName} onAction={() => onSelectValue(noteName)}     >{noteName}{octave}</Menu>
+        ));
     }
 
-    renderMenuEdit() {
 
-        // const populateGroupCommands = (subMenuGroup, action) => {
-        //     subMenuGroup.populate = (e) => {
+
+
+    openMenuSelectInstrument(e, onSelectValue) {
+        this.openMenu(e, this.values.getSongInstruments((instrumentID, label) =>
+            <Menu key={instrumentID} onAction={() => onSelectValue(instrumentID)}  >{label}</Menu>
+        ));
+    }
+
+    openMenuSelectDuration(e, onSelectValue) {
+        const customAction = async () => {
+            const durationInTicks = await this.openPromptDialog("Enter custom duration in ticks", this.state.quantizationInTicks);
+            onSelectValue(durationInTicks);
+        };
+        this.openMenu(e, <>
+            {this.values.getNoteDurations((durationInTicks, durationName) =>
+                <Menu key={durationInTicks} onAction={() => onSelectValue(durationInTicks)}  >{durationName}</Menu>)}
+            <Menu onAction={customAction} hasBreak >Custom Duration</Menu>
+        </>);
+    }
+
+    openMenuSelectVelocity(e, onSelectValue) {
+        const customAction = async () => {
+            const velocity = await this.openPromptDialog("Enter custom velocity in ticks", 100);
+            onSelectValue(velocity);
+        };
+        this.openMenu(e, <>
+            {this.values.getNoteVelocities((velocity) =>
+                <Menu key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</Menu>)}
+            <Menu onAction={customAction} hasBreak >Custom Velocity</Menu>
+        </>);
+    }
+
+
+
+
+
+
+    openMenuEdit(e) {
+
+        // const populateGroupCommands = (openMenuGroup, action) => {
+        //     openMenuGroup.populate = (e) => {
         //         const MENU = e.menuElement;
         //         this.values.getValues('song-groups', (groupName, groupTitle) => {
-        //             const menuEditSetCommandGroup = MENU.getOrCreateSubMenu(groupName, `${groupTitle}`);
-        //             menuEditSetCommandGroup.action = action;
+        //             const openMenuEditSetCommandGroup = MENU.getOrCreateMenu(groupName, `${groupTitle}`);
+        //             openMenuEditSetCommandGroup.action = action;
         //         });
-        //         const menuCustom = MENU.getOrCreateSubMenu('new', `Create New Group`);
+        //         const menuCustom = MENU.getOrCreateMenu('new', `Create New Group`);
         //         menuCustom.action = e => this.groupAdd(e);
         //         menuCustom.hasBreak = true;
         //     };
         // };
 
-        // menuEditInsertCommand.disabled = selectedIndices.length > 0; // !this.cursorCell;
-        // menuEditInsertCommand.action = handleAction('song:new');
-        return <>
-            <SubMenu options={() => this.renderMenuEditInsert()}    >Insert Command</SubMenu>
+        // openMenuEditInsertCommand.disabled = selectedIndices.length > 0; // !this.cursorCell;
+        // openMenuEditInsertCommand.action = handleAction('song:new');
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuEditInsert()}    >Insert Command</SubMenu>
 
             {this.state.selectedIndices.length === 0 ? null :
-                <SubMenu options={() => this.renderMenuEditSet()} hasBreak   >Set Command</SubMenu>}
+                <SubMenu onAction={e => this.openMenuEditSet()} hasBreak   >Set Command</SubMenu>}
 
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSelect()} hasBreak   >Select</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSelect()} hasBreak   >Select</SubMenu>
 
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditBatch()} hasBreak   >Batch</SubMenu>
-        </>;
-        // const menuEditGroup = MENU.getOrCreateSubMenu('group', 'Group ►');
-        // menuEditGroup.hasBreak = true;
-        // menuEditGroup.disabled = true;
+            <SubMenu onAction={e => this.openMenuEditBatch()} hasBreak   >Batch</SubMenu>
+        </>);
+        // const openMenuEditGroup = MENU.getOrCreateMenu('group', 'Group ►');
+        // openMenuEditGroup.hasBreak = true;
+        // openMenuEditGroup.disabled = true;
     }
 
     // TODO: combine insert and set
-    renderMenuEditInsert() {
-        return <>
-            <SubMenu options={() => this.renderMenuEditInsertCommandCurrentOctave()}      >Current Octave</SubMenu>
+    openMenuEditInsert(e) {
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandCurrentOctave()}      >Current Octave</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditInsertCommandFrequency()}           >By Frequency</SubMenu>
-            <SubMenu options={() => this.renderMenuEditInsertCommandOctave()}              >By Octave</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandFrequency()}           >By Frequency</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandOctave()}              >By Octave</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditInsertCommandNamed()}               >By Alias</SubMenu>
-            <SubMenu options={() => this.renderMenuEditInsertCommandGroup()}               >By Group</SubMenu>
-            <ActionMenu onAction={e => this.instructionInsert(null, true)}   >Custom Command</ActionMenu>
-        </>;
+            <SubMenu onAction={e => this.openMenuEditInsertCommandNamed()}               >By Alias</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandGroup()}               >By Group</SubMenu>
+            <Menu onAction={e => this.instructionInsert(null, true)}   >Custom Command</Menu>
+        </>);
 
     }
 
-    renderMenuEditInsertCommandGroup() {
-        return <>
+    openMenuEditInsertCommandGroup(e) {
+        this.openMenu(e, <>
             {this.values.getAllSongGroups((groupName) =>
-                <SubMenu
-                    options={e => this.renderMenuEditInsertCommandFrequency()}
+                <Menu
+                    options={e => this.openMenuEditInsertCommandFrequency()}
                     disabled={groupName === this.state.selectedGroup}
                     onAction={e => this.instructionInsert('@' + groupName, false)}
-                >{groupName}</SubMenu>)}
-            <ActionMenu
+                >{groupName}</Menu>)}
+            <Menu
                 hasBreak
                 onAction={e => this.groupAdd(e)}
-            >Create New Group</ActionMenu>
-        </>;
+            >Create New Group</Menu>
+        </>);
     }
 
-    renderMenuEditInsertCommandNamed() {
-        return this.values.getAllNamedFrequencies(
-            (noteName, frequency, instrumentID) => <ActionMenu
+    openMenuEditInsertCommandNamed(e) {
+        this.openMenu(e, this.values.getAllNamedFrequencies(
+            (noteName, frequency, instrumentID) => <Menu
                 onAction={e => this.instructionInsert(noteName, false, instrumentID)}
-            >{noteName}</ActionMenu>
-        );
+            >{noteName}</Menu>
+        ));
 
     }
 
-    renderMenuEditInsertCommandFrequency() {
-        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsert(noteNameOctave, false));
+    openMenuEditInsertCommandFrequency(e) {
+        return this.openMenuSelectCommandByFrequency(e, noteNameOctave => this.instructionInsert(noteNameOctave, false));
     }
 
 
-    renderMenuEditInsertCommandOctave() {
-        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsert(noteNameOctave, false));
+    openMenuEditInsertCommandOctave(e) {
+        return this.openMenuSelectCommandByOctave(e, noteNameOctave => this.instructionInsert(noteNameOctave, false));
     }
 
-    renderMenuEditInsertCommandCurrentOctave(octave=null) {
-        return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
+    openMenuEditInsertCommandCurrentOctave(e, octave=null) {
+        return this.openMenuSelectCommandByCurrentOctave(e, (noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
     }
 
 
 
-    renderMenuEditSet() {
-
-        return <>
-            <SubMenu options={() => this.renderMenuEditSetCommand()}            >Set Command</SubMenu>
+    openMenuEditSet(e) {
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuEditSetCommand()}            >Set Command</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSetInstruction()}         >Set Instrument</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetInstrument()}         >Set Instrument</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSetDuration()}           >Set Duration</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetDuration()}           >Set Duration</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSetVelocity()}           >Set Velocity</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetVelocity()}           >Set Velocity</SubMenu>
             <MenuBreak />
-            <ActionMenu onAction={e => this.instructionDelete(e)}   >Delete Instruction(s)</ActionMenu>
-        </>;
+            <Menu onAction={e => this.instructionDelete(e)}   >Delete Instruction(s)</Menu>
+        </>);
     }
 
-    renderMenuEditSetCommand() {
-
-        return <>
-            <SubMenu options={() => this.renderMenuEditSetCommandCurrentOctave()}      >Current Octave</SubMenu>
+    openMenuEditSetCommand(e) {
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuEditSetCommandCurrentOctave()}      >Current Octave</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSetCommandFrequency()}           >By Frequency</SubMenu>
-            <SubMenu options={() => this.renderMenuEditSetCommandOctave()}              >By Octave</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandFrequency()}           >By Frequency</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandOctave()}              >By Octave</SubMenu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSetCommandNamed()}               >By Alias</SubMenu>
-            <SubMenu options={() => this.renderMenuEditSetCommandGroup()}               >By Group</SubMenu>
-            <ActionMenu onAction={e => this.instructionChangeCommand(null, true)}      >Custom</ActionMenu>
-        </>;
+            <SubMenu onAction={e => this.openMenuEditSetCommandNamed()}               >By Alias</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandGroup()}               >By Group</SubMenu>
+            <Menu onAction={e => this.instructionReplaceCommand(null, true)}      >Custom</Menu>
+        </>);
 
     }
 
-    renderMenuEditSetInstruction() {
-        return this.values.getSongInstruments((instrumentID, label) =>
-            <ActionMenu key={instrumentID} onAction={e => this.instructionChangeInstrument(instrumentID)}  >{label}</ActionMenu>
-        );
+    openMenuEditSetInstrument(e) {
+        this.openMenu(e, this.values.getSongInstruments((instrumentID, label) =>
+            <Menu key={instrumentID} onAction={e => this.instructionChangeInstrument(instrumentID)}  >{label}</Menu>
+        ));
     }
 
-    renderMenuEditSetDuration() {
+    openMenuEditSetDuration(e) {
 
-        return <>
+        this.openMenu(e, <>
             {this.values.getNoteDurations((durationInTicks, durationName) =>
-                <ActionMenu key={durationInTicks} onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</ActionMenu>)}
-            <ActionMenu onAction={e => this.instructionChangeDuration(null, true)} hasBreak >Custom Duration</ActionMenu>
-        </>;
+                <Menu key={durationInTicks} onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</Menu>)}
+            <Menu onAction={e => this.instructionChangeDuration(null, true)} hasBreak >Custom Duration</Menu>
+        </>);
     }
 
-    renderMenuEditSetVelocity() {
-        return <>
+    openMenuEditSetVelocity(e) {
+        this.openMenu(e, <>
             {this.values.getNoteVelocities((velocity) =>
-                <ActionMenu key={velocity} onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</ActionMenu>)}
-            <ActionMenu onAction={e => this.instructionChangeVelocity(null, true)} hasBreak >Custom Velocity</ActionMenu>
-        </>;
+                <Menu key={velocity} onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</Menu>)}
+            <Menu onAction={e => this.instructionChangeVelocity(null, true)} hasBreak >Custom Velocity</Menu>
+        </>);
     }
 
-    renderMenuEditSetCommandFrequency() {
-        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionChangeCommand(noteNameOctave, false));
+    openMenuEditSetCommandFrequency(e) {
+        return this.openMenuSelectCommandByFrequency(e, noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
     }
 
-    renderMenuEditSetCommandCurrentOctave(octave=null) {
-        return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionChangeCommand(noteNameOctave, false), octave);
+    openMenuEditSetCommandCurrentOctave(e, octave=null) {
+        return this.openMenuSelectCommandByCurrentOctave(e, (noteNameOctave) => this.instructionReplaceCommand(noteNameOctave, false), octave);
     }
 
-    renderMenuEditSetCommandOctave() {
-        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionChangeCommand(noteNameOctave, false));
+    openMenuEditSetCommandOctave(e) {
+        return this.openMenuSelectCommandByOctave(e, noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
     }
 
 
-    renderMenuEditSetCommandNamed() {
-        return this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
-            <ActionMenu key={noteName} onAction={e => this.instructionChangeCommand(noteName, false, instrumentID)}                    >{noteName}</ActionMenu>
-        );
+    openMenuEditSetCommandNamed(e) {
+        this.openMenu(e, this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
+            <Menu key={noteName} onAction={e => this.instructionReplaceCommand(noteName, false, instrumentID)}                    >{noteName}</Menu>
+        ));
     }
 
-    renderMenuEditSetCommandGroup() {
-        return <>
+    openMenuEditSetCommandGroup(e) {
+        this.openMenu(e, <>
             {this.values.getAllSongGroups((groupName) =>
                 groupName === this.groupName ? null :
-                    <ActionMenu
+                    <Menu
                         key={groupName}
                         disabled={groupName === this.state.selectedGroup}
-                        onAction={e => this.instructionChangeCommand('@' + groupName, false)}
-                    >{groupName}</ActionMenu>
+                        onAction={e => this.instructionReplaceCommand('@' + groupName, false)}
+                    >{groupName}</Menu>
             )}
-            <ActionMenu onAction={e => this.groupAdd()} hasBreak  >Create New Group</ActionMenu>
-        </>;
+            <Menu onAction={e => this.groupAdd()} hasBreak  >Create New Group</Menu>
+        </>);
     }
 
-    renderMenuEditSelect() {
-        return <>
-            <ActionMenu onAction={e => this.trackerChangeSelection('segment')}      >Select Segment Instructions</ActionMenu>
-            <ActionMenu onAction={e => this.trackerChangeSelection('all')}       >Select All Song Instructions</ActionMenu>
-            <ActionMenu onAction={e => this.trackerChangeSelection('none')}       >Select No Instructions</ActionMenu>
+    openMenuEditSelect(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.trackerChangeSelection('segment')}      >Select Segment Instructions</Menu>
+            <Menu onAction={e => this.trackerChangeSelection('all')}       >Select All Song Instructions</Menu>
+            <Menu onAction={e => this.trackerChangeSelection('none')}       >Select No Instructions</Menu>
             <MenuBreak />
-            <SubMenu options={() => this.renderMenuEditSelectBatch()}  hasBreak                        >Batch Select</SubMenu>
-        </>;
+            <SubMenu onAction={e => this.openMenuEditSelectBatch()}  hasBreak                        >Batch Select</SubMenu>
+        </>);
 
     }
 
-    renderMenuEditSelectBatch() {
-        return <>
+    openMenuEditSelectBatch(e) {
+        this.openMenu(e, <>
             {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
-                <ActionMenu onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</ActionMenu>
+                <Menu onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</Menu>
             )}
-            <ActionMenu onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</ActionMenu>
-        </>;
+            <Menu onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</Menu>
+        </>);
     }
 
-    renderMenuEditBatch() {
-        return <>
+    openMenuEditBatch(e) {
+        this.openMenu(e, <>
             {(new Storage()).getBatchRecentCommands().map((recentBatchCommand, i) =>
-                <SubMenu options={() => this.renderMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
+                <SubMenu onAction={e => this.openMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
             )}
-            <ActionMenu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</ActionMenu>
-        </>;
+            <Menu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</Menu>
+        </>);
     }
 
-    renderMenuEditBatchRecent(recentBatchCommand) {
-        return <>
-            <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, true)}                   >Execute on Group</ActionMenu>
-            <SubMenu options={() => this.renderMenuEditBatchRecentExecuteSearch(recentBatchCommand)}    >Execute using Search</SubMenu>
-        </>;
+    openMenuEditBatchRecent(e, recentBatchCommand) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, true)}                   >Execute on Group</Menu>
+            <SubMenu onAction={e => this.openMenuEditBatchRecentExecuteSearch(e, recentBatchCommand)}    >Execute using Search</SubMenu>
+        </>);
     }
 
-    renderMenuEditBatchRecentExecuteSearch(recentBatchCommand) {
-        return <>
-            <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</ActionMenu>
+    openMenuEditBatchRecentExecuteSearch(e, recentBatchCommand) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</Menu>
             {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
-                <ActionMenu onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</ActionMenu>
+                <Menu onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</Menu>
             )}
-        </>;
+        </>);
 
     }
 
-    renderMenuView() {
-        return <>
-            <ActionMenu onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ActionMenu>
-            <ActionMenu onAction={e => this.togglePanelSong(e)}       >{this.props.hidePanelSongs ? 'Disable' : 'Enable'} Song Forms</ActionMenu>
-            <ActionMenu onAction={e => this.togglePanelTracker(e)}       >{this.props.hidePanelTracker ? 'Disable' : 'Enable'} Tracker Forms</ActionMenu>
-            <ActionMenu onAction={e => this.togglePanelInstruments(e)}       >{this.props.hidePanelInstrument ? 'Disable' : 'Enable'} Instrument Forms</ActionMenu>
-        </>;
+    openMenuView(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
+            <Menu onAction={e => this.togglePanelSong(e)}       >{this.props.hidePanelSongs ? 'Disable' : 'Enable'} Song Forms</Menu>
+            <Menu onAction={e => this.togglePanelTracker(e)}       >{this.props.hidePanelTracker ? 'Disable' : 'Enable'} Tracker Forms</Menu>
+            <Menu onAction={e => this.togglePanelInstruments(e)}       >{this.props.hidePanelInstrument ? 'Disable' : 'Enable'} Instrument Forms</Menu>
+        </>);
 
     }
 
-    renderMenuInstrument() {
-        return <>
-            <SubMenu key="add" options={() => this.renderMenuInstrumentAdd()}    >Add instrument to song</SubMenu>
+    openMenuInstrument(e) {
+        this.openMenu(e, <>
+            <Menu key="add" onAction={e => this.openMenuInstrumentAdd()}    >Add instrument to song</Menu>
             <MenuBreak />
             {this.values.getSongInstruments((instrumentID, label) =>
-                <ActionMenu key={instrumentID} onAction={e => this.renderMenuInstrumentEdit(instrumentID)}       >{label}</ActionMenu>)}
-        </>;
+                <Menu key={instrumentID} onAction={e => this.openMenuInstrumentEdit(instrumentID)}       >{label}</Menu>)}
+        </>);
     }
 
-    renderMenuInstrumentAdd() {
-        return InstrumentLoader.getInstruments().map((config, i) =>
-            <ActionMenu key={i} onAction={e => this.instrumentAdd(config.className)}       >{config.title}</ActionMenu>);
+    openMenuInstrumentAdd(e) {
+        this.openMenu(e, InstrumentLoader.getInstruments().map((config, i) =>
+            <Menu key={i} onAction={e => this.instrumentAdd(config.className)}       >{config.title}</Menu>
+        ));
     }
 
-    renderMenuInstrumentEdit(instrumentID) {
-        return <>
-            <SubMenu key="replace" options={() => this.renderMenuInstrumentEditReplace(instrumentID)}    >Replace</SubMenu>
-            <ActionMenu
+    openMenuInstrumentEdit(e, instrumentID) {
+        this.openMenu(e, <>
+            <Menu key="replace" onAction={e => this.openMenuInstrumentEditReplace(instrumentID)}    >Replace</Menu>
+            <Menu
                 key="remove"
                 onAction={e => this.instrumentRemove(instrumentID)}
                 disabled={!this.song.isInstrumentLoaded(instrumentID)}
-            >Remove from song</ActionMenu>
-        </>;
+            >Remove from song</Menu>
+        </>);
     }
 
-    renderMenuInstrumentEditReplace(instrumentID) {
-        return InstrumentLoader.getInstruments().map((config, i) =>
-            <ActionMenu onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</ActionMenu>
-        );
+    openMenuInstrumentEditReplace(e, instrumentID) {
+        this.openMenu(e, InstrumentLoader.getInstruments().map((config, i) =>
+            <Menu onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</Menu>
+        ));
     }
 
-    renderMenuGroup() {
-
-        return <>
-            <ActionMenu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group</ActionMenu>
+    openMenuGroup(e) {
+        this.openMenu(e, <>
+            <Menu onAction={e => this.groupAdd(e)}  hasBreak     >Add new group</Menu>
             <MenuBreak />
             {this.values.getAllSongGroups((groupName) =>
-                <SubMenu
+                <Menu
                     key={groupName}
                     disabled={groupName === this.state.selectedGroup}
-                    options={() => this.renderMenuGroupEdit(groupName)}
-                >{groupName}</SubMenu>)}
-        </>;
+                    onAction={e => this.openMenuGroupEdit(groupName)}
+                >{groupName}</Menu>)}
+        </>);
     }
 
-    renderMenuGroupEdit(groupName) {
+    openMenuGroupEdit(e, groupName) {
 
         // const groupName = menuParam;
-        return <>
-            <ActionMenu onAction={e => this.groupRename(groupName)}  hasBreak     >Rename group {groupName}</ActionMenu>
-            <ActionMenu onAction={e => this.groupRemove(groupName)}  hasBreak     >Delete group {groupName}</ActionMenu>
-        </>;
+        this.openMenu(e, <>
+            <Menu onAction={e => this.groupRename(groupName)}  hasBreak     >Rename group {groupName}</Menu>
+            <Menu onAction={e => this.groupRemove(groupName)}  hasBreak     >Delete group {groupName}</Menu>
+        </>);
     }
 
-    /** @deprecated **/
-    renderMenu(menuKey=null, menuParam=null) {
-        let recentBatchCommand, instrumentID, octave;
-        // const library = await this.getLibrary();
-        /** File Menu **/
-        switch (menuKey) {
-            case 'root':
-                return this.renderMenuRoot();
-
-            case 'file':
-                return this.renderMenuFile();
-
-            case 'file-open':
-                return this.renderMenuFileOpen();
-
-
-
-            case 'file-save':
-                return this.renderMenuFileSave();
-
-            case 'file-import':
-                return this.renderMenuFileImport();
-
-            case 'file-export':
-                return this.renderMenuFileExport();
-
-            case 'file-open-memory':
-                return this.renderMenuFileOpenMemory();
-
-            case 'edit':
-            case 'context':
-                return this.renderMenuEdit();
-
-            case 'edit-insert':
-                return this.renderMenuEditInsert();
-
-            case 'edit-insert-group':
-                return this.renderMenuEditInsertCommandGroup();
-
-            case 'edit-insert-named':
-                return this.renderMenuEditInsertCommandNamed();
-
-            case 'edit-insert-frequency':
-                return this.renderMenuEditInsertCommandFrequency();
-            //
-            // case 'edit-insert-frequency-note':
-            //     return this.renderMenuEditInsertFrequencyNote();
-
-
-            case 'edit-set':
-                return this.renderMenuEditSet();
-
-            case 'edit-set-command':
-                return this.renderMenuEditSetCommand();
-
-            case 'edit-set-instrument':
-                return this.renderMenuEditSetInstruction();
-
-            case 'edit-set-duration':
-                return this.renderMenuEditSetDuration();
-
-            case 'edit-set-velocity':
-                return this.renderMenuEditSetVelocity();
-
-            case 'edit-set-command-frequency':
-                return this.renderMenuEditSetCommandFrequency();
-
-            // case 'edit-set-command-frequency-note':
-            //     return this.renderMenuEditSetCommandFrequencyNote(menuParam);
-
-            case 'edit-set-command-current-octave':
-                return this.renderMenuEditSetCommandCurrentOctave(menuParam);
-
-            case 'edit-set-command-octave':
-                return this.renderMenuEditSetCommandOctave();
-
-            // case 'edit-set-command-octave-frequency':
-            //     return this.renderMenuEditSetCommandOctaveFrequency(menuParam);
-
-            case 'edit-set-command-named':
-                return this.renderMenuEditSetCommandNamed();
-
-            case 'edit-set-command-group':
-                return this.renderMenuEditSetCommandGroup();
-
-            case 'edit-select':
-                return this.renderMenuEditSelect();
-
-            case 'edit-select-batch':
-                return this.renderMenuEditSelectBatch();
-
-            case 'edit-batch':
-                return this.renderMenuEditBatch();
-
-            case 'edit-batch-recent':
-                return this.renderMenuEditBatchRecent(menuParam);
-
-            case 'edit-batch-recent-execute-search':
-                return this.renderMenuEditBatchRecentExecuteSearch(menuParam);
-
-            case 'view':
-                return this.renderMenuView();
-
-            case 'instrument':
-                return this.renderMenuInstrument();
-
-            case 'instrument-add':
-                return this.renderMenuInstrumentAdd();
-
-            case 'instrument-edit':
-                return this.renderMenuInstrumentEdit(menuParam);
-
-            case 'instrument-edit-replace':
-                return this.renderMenuInstrumentEditReplace(menuParam);
-
-            /** Group Menu **/
-            case 'group':
-                return this.renderMenuGroup();
-
-            case 'group-edit':
-                return this.renderMenuGroupEdit(menuParam);
-
-            default:
-                throw new Error("Unknown menu key: " + menuKey);
-        }
-
-    }
 }
 
 

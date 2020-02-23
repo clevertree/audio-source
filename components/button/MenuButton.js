@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from 'prop-types';
 import Button from "./Button";
-import {SubMenu} from "../menu";
+import {Menu} from "../menu";
 
-class SubMenuButton extends React.Component {
+class MenuButton extends React.Component {
     constructor(props) {
         super(props);
         this.refMenu = React.createRef();
@@ -11,7 +11,7 @@ class SubMenuButton extends React.Component {
     render() {
         return (
             <Button onAction={e => this.refMenu.current.toggleMenu(e)}>
-                <SubMenu
+                <Menu
                     arrow={this.props.arrow}
                     vertical={true}
                     openOnHover={false}
@@ -25,7 +25,7 @@ class SubMenuButton extends React.Component {
 }
 
 /** Default props **/
-SubMenuButton.defaultProps = {
+MenuButton.defaultProps = {
     arrow: '▼',
     // vertical: true,
     // openOnHover: false,
@@ -33,10 +33,10 @@ SubMenuButton.defaultProps = {
 };
 
 /** Validate props **/
-SubMenuButton.propTypes = {
+MenuButton.propTypes = {
     options: PropTypes.any.isRequired,
     // onAction: PropTypes.func.isRequired,
 };
 
 
-export default SubMenuButton;
+export default MenuButton;

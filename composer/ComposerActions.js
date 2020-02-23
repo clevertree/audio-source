@@ -319,7 +319,7 @@ class ComposerActions extends ComposerMenu {
         this.playCursorInstruction();
     }
 
-    async instructionChangeCommand(newCommand = null, promptUser = false, instrumentID = null, groupName = null, selectedIndices = null) {
+    async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null, groupName = null, selectedIndices = null) {
         //: TODO: check for recursive group
         const song = this.song;
         const tracker = this.tracker;

@@ -2,15 +2,15 @@
 import Div from "./div/Div";
 import Icon from "./icon/Icon";
 import {
+    Menu,
+    MenuHorizontal,
     SubMenu,
-    SubMenuHorizontal,
-    SubMenuDropDown,
-    ActionMenu,
-    MenuBreak} from "./menu/";
+    MenuBreak
+} from "./menu/";
 
 import {
     Button,
-    SubMenuButton
+    MenuButton
 } from "./button";
 import InputRange from "./input-range/InputRange";
 import Scrollable from "./scrollable/Scrollable";
@@ -19,12 +19,11 @@ export {
     Div,
     Icon,
 
-    SubMenu,
-    SubMenuHorizontal,
-    SubMenuButton,
-    ActionMenu,
+    Menu,
+    MenuHorizontal,
+    MenuButton,
     MenuBreak,
-    SubMenuDropDown,
+    SubMenu,
 
     Scrollable,
     Button,

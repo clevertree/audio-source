@@ -1,89 +1,11 @@
-import React from "react";
-import PropTypes from 'prop-types';
+import {Menu} from "./Menu";
 
-import './assets/Menu.css';
-import '../button/assets/Button.css';
-import MenuBreak from "./MenuBreak";
-import AbstractMenu from "./AbstractMenu";
 
-class SubMenu extends AbstractMenu {
-
-    constructor(props = {}) {
+class SubMenu extends Menu {
+    constructor(props) {
         super(props);
-        this.state = {
-            open: props.open || false,
-            stick: false,
-        };
-        this.onInputEventCallback = e => this.onInputEvent(e);
+        this.state.open = false;
     }
-
-    getClassName() { return 'asui-menu submenu'; }
-
-    componentDidMount() {
-        this.addActiveSubMenu();
-    }
-    componentWillUnmount() {
-        this.removeActiveSubMenu();
-    }
-
-
-    render() {
-        let className = this.getClassName();
-        if(this.state.stick)
-            className += ' stick';
-        if(this.props.disabled)
-            className += ' disabled';
-        if(this.props.className)
-            className += ' ' + this.props.className;
-
-        let mouseProps = {
-            onMouseLeave: this.onInputEventCallback
-        };
-        // if(this.props.openOnHover !== false)
-            mouseProps.onMouseEnter = this.onInputEventCallback;
-
-// console.log('SubMenu.render', this.props);
-
-
-        return (
-            <div
-                // key={this.props.key}
-                className={className}
-                title={this.props.title}
-                {...mouseProps}
-                >
-                <div
-                    className="asui-menu-container"
-                    onClick={this.onInputEventCallback}
-                    onKeyDown={this.onInputEventCallback}
-                    tabIndex={0}
-                    >
-                    <div
-                        className="title"
-                        children={this.props.children}
-                    />
-                    {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
-                </div>
-                {this.state.open ? this.renderDropdownContent() : null}
-            </div>
-
-        )
-    }
-
-    renderDropdownContent() {
-        let children = this.props.options;
-        if(typeof children === "function")
-            children = children(this);
-
-        let className = 'asui-menu-dropdown';
-        if(this.props.vertical)
-            className += ' vertical';
-        // console.log('subMenuChildren', subMenuChildren);
-        return <div className={className} children={children} />;
-    }
-
-
-
 
 
     toggleMenu() {
@@ -96,164 +18,57 @@ class SubMenu extends AbstractMenu {
         }
     }
 
-    closeMenu() {
-        if(this.state.open !== false)
+    closeMenu(e) {
+        if(this.state.open !== false) {
             this.setState({open: false});
-    }
-
-    openMenu() {
-        if(this.state.open !== true)
-            this.setState({open: true});
-            // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
-        // this.closeAllSubMenusButThis();
-    }
-
-
-    doMenuAction(e) {
-        if(this.props.disabled) {
-            console.warn("SubMenu is disabled.", this);
-            return;
         }
-        this.toggleMenu();
     }
 
-    openContextMenu(e) {
-        this.setProps({
-            style: {
-                left: e.clientX,
-                top: e.clientY
-            }
-        });
-        this.openMenu();
+    openMenu(e) {
+        if(this.state.open !== true) {
+            this.setState({open: true});
+            this.doMenuAction(e)
+        }
+        // await this.dropdown.setContent(this.renderOptions(this.state.offset, this.state.maxLength));
+        // this.closeAllMenusButThis();
     }
+
+    getEventProps() {
+        return Object.assign({
+            onMouseLeave: this.onInputEventCallback,
+            onMouseEnter: this.onInputEventCallback,
+        }, super.getEventProps());
+    }
+
     onInputEvent(e) {
-        // console.log(e.type, this);
+        // console.log(e.type, e);
 
         switch (e.type) {
+
             case 'mouseenter':
             case 'mouseover':
-                clearTimeout(this.mouseTimeout); // TODO: prevent closing on re-entry
-                if(this.props.openOnHover !== false) {
-                    this.mouseTimeout = setTimeout(e => {
-                        this.openMenu();
-                    }, 100);
-                }
+                clearTimeout(this.mouseTimeout);
+                this.mouseTimeout = setTimeout(e => {
+                    this.openMenu();
+                }, 100);
                 break;
 
             case 'mouseleave':
             case 'mouseout':
                 clearTimeout(this.mouseTimeout);
                 this.mouseTimeout = setTimeout(e => {
-                    if(!this.state.stick) {
+                    if (!this.state.stick) {
                         this.closeMenu();
                     }
                 }, 400);
                 break;
 
-            case 'click':
-                if (e.defaultPrevented)
-                    return;
-                // console.log(e.type, this);
-                e.preventDefault();
-                this.doMenuAction(e);
-                break;
-
-            case 'keydown':
-
-                let keyEvent = e.key;
-                switch (keyEvent) {
-                    case 'Escape':
-                    case 'Backspace':
-                        this.closeMenu(e);
-                        break;
-
-                    case 'Enter':
-                        this.doMenuAction(e);
-                        break;
-
-                    // ctrlKey && metaKey skips a measure. shiftKey selects a range
-                    case 'ArrowRight':
-                        if(!this.props.vertical)
-                            this.openMenu();
-                        this.selectNextTabItem(e);
-                        break;
-
-                    case 'ArrowLeft':
-                        if(!this.props.vertical)
-                            this.closeMenu(e);
-                        this.selectPreviousTabItem(e);
-                        break;
-
-                    case 'ArrowDown':
-                        if(this.props.vertical)
-                            this.openMenu();
-                        this.selectNextTabItem(e);
-                        break;
-
-                    case 'ArrowUp':
-                        if(this.props.vertical)
-                            this.closeMenu(e);
-                        this.selectPreviousTabItem(e);
-                        break;
-
-                    default:
-                        console.log("Unknown key input: ", keyEvent);
-                        break;
-
-                }
-                break;
-
             default:
-                console.warn("Unknown input event: ", e.type);
-                break;
+                super.onInputEvent(e);
+
         }
     }
+
 }
 
-
-/** Default props **/
-SubMenu.defaultProps = {
-    arrow:          '►',
-    vertical:       false,
-    openOnHover:    true,
-    disabled:       false,
-};
-
-/** Validate props **/
-SubMenu.propTypes = {
-    options: PropTypes.any.isRequired,
-    disabled: PropTypes.bool,
-    vertical: PropTypes.bool,
-    openOnHover: PropTypes.bool,
-};
-
-
-
-
-
-class SubMenuHorizontal extends SubMenu {}
-SubMenu.Horizontal = SubMenuHorizontal;
-
-/** Default props **/
-SubMenuHorizontal.defaultProps = {
-    arrow:          '▼',
-    vertical:       true,
-    openOnHover:    true,
-    disabled:       false,
-};
-
-SubMenuHorizontal.propTypes = SubMenu.propTypes;
-
-
-
-
-SubMenu.Break = MenuBreak;
-
-
-/** Export this script **/
-export {
-    SubMenu as default,
-    SubMenu,
-    SubMenuHorizontal,
-    // SubMenuButton
-};
+export default SubMenu;
