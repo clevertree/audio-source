@@ -23,7 +23,7 @@ class TrackerRowSegmentsPanel extends React.Component {
         return (
             <Panel className={className} title="Tracker Segments">
                 {(() => {
-                    const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (this.state.trackerQuantizationInTicks * 16);
+                    const segmentLengthInTicks = this.state.segmentLengthInTicks || (this.state.quantizationInTicks * 16);
                     let songLengthInTicks = this.state.songLengthInTicks;
                     let rowSegmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
                     if (rowSegmentCount > 256)
@@ -32,7 +32,7 @@ class TrackerRowSegmentsPanel extends React.Component {
                     const buttons = [];
 
                     // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / segmentLengthInTicks) + 1;
-                    const currentRowSegmentID = this.state.trackerRowSegmentID;
+                    const currentRowSegmentID = this.state.trackerRowOffset;
                     if (rowSegmentCount < currentRowSegmentID + 1)
                         rowSegmentCount = currentRowSegmentID + 1;
                     for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)

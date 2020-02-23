@@ -16,39 +16,6 @@ class ComposerActions extends ComposerRenderer {
     }
 
 
-    /** Song rendering **/
-
-    async setCurrentSong(song) {
-        if(this.song) {
-            this.setStatus("Unloading song: " + this.song.getTitle());
-            if(this.song.isPlaying) {
-                this.song.stopPlayback();
-            }
-            this.song.removeEventListener('*', this.onSongEventCallback);
-            // TODO: unload song?
-        }
-        this.song = song;
-        const timeDivision = song.getTimeDivision();
-        this.setState({
-            songLengthInTicks: song.getSongLengthInTicks(),
-            songLength: song.getSongLengthInSeconds(),
-            trackerGroup: song.getRootGroup() || 'root',
-            trackerRowSegmentID: 0,
-            trackerQuantizationInTicks: timeDivision,
-            trackerSegmentLengthInTicks: timeDivision * 16,
-            trackerFilterByInstrumentID: null,
-        });
-        // this.state.tracker.segmentLengthInTicks = null;
-
-
-        // this.song.setVolume(this.state.volume);
-        this.song.addEventListener('*', this.onSongEventCallback);
-        this.setStatus("Initializing song: " + song.getTitle());
-        await this.song.init(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.getTitle());
-        this.forceUpdate();
-    }
-
     /** Playback **/
 
 
@@ -135,7 +102,7 @@ class ComposerActions extends ComposerRenderer {
     async loadSongFromMemory(songUUID) {
         const song = await Song.loadSongFromMemory(songUUID);
         await this.setCurrentSong(song);
-        this.setStatus("Song loaded from memory: " + songUUID, this.song);
+        this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
 //         console.info(songData);
     }
 
@@ -270,9 +237,9 @@ class ComposerActions extends ComposerRenderer {
     //     const audioContext = this.getVolumeGain()
     //     if (this.song.isPlaying)
     //         this.song.stopPlayback();
-    //     const selectedIndices = this.state.trackerSelectedIndices;
+    //     const selectedIndices = this.state.selectedIndices;
     //     for (let i = 0; i < selectedIndices.length; i++) {
-    //         this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.trackerGroup, selectedIndices[i]);
+    //         this.song.playInstructionAtIndex(this.getVolumeGain(), this.state.selectedGroup, selectedIndices[i]);
     //     }
     // }
 
@@ -295,7 +262,7 @@ class ComposerActions extends ComposerRenderer {
 
 
     instructionInsertOrUpdate(e, commandString = null) {
-        let selectedIndices = this.state.trackerSelectedIndices;
+        let selectedIndices = this.state.selectedIndices;
         if (this.cursorCell.matches('asct-instruction-add')) {
             let newInstruction = this.instructionGetFormValues(commandString);
             if (!newInstruction) {
@@ -319,7 +286,7 @@ class ComposerActions extends ComposerRenderer {
             }
             this.renderRows();
             this.selectSegmentIndicies(selectedIndices);
-            // this.selectIndicies(this.state.trackerSelectedIndices[0]); // TODO: select all
+            // this.selectIndicies(this.state.selectedIndices[0]); // TODO: select all
         }
     }
 
@@ -357,7 +324,7 @@ class ComposerActions extends ComposerRenderer {
         const song = this.song;
         const tracker = this.tracker;
         groupName = groupName || tracker.getGroupName();
-        selectedIndices = selectedIndices || this.state.trackerSelectedIndices;
+        selectedIndices = selectedIndices || this.state.selectedIndices;
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
@@ -384,7 +351,7 @@ class ComposerActions extends ComposerRenderer {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
-        selectedIndices = selectedIndices || this.state.trackerSelectedIndices;
+        selectedIndices = selectedIndices || this.state.selectedIndices;
 
         instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
         if (!Number.isInteger(instrumentID))
@@ -401,7 +368,7 @@ class ComposerActions extends ComposerRenderer {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
-        selectedIndices = selectedIndices || this.state.trackerSelectedIndices;
+        selectedIndices = selectedIndices || this.state.selectedIndices;
 
         if (!duration)
             duration = parseFloat(this.fieldInstructionDuration.value);
@@ -421,7 +388,7 @@ class ComposerActions extends ComposerRenderer {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
-        selectedIndices = selectedIndices || this.state.trackerSelectedIndices;
+        selectedIndices = selectedIndices || this.state.selectedIndices;
 
         if (velocity === null)
             velocity = this.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
@@ -441,7 +408,7 @@ class ComposerActions extends ComposerRenderer {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
-        selectedIndices = selectedIndices || this.state.trackerSelectedIndices;
+        selectedIndices = selectedIndices || this.state.selectedIndices;
 
         for (let i = 0; i < selectedIndices.length; i++)
             song.instructionDeleteAtIndex(tracker.getGroupName(), selectedIndices[i]);
@@ -475,7 +442,7 @@ class ComposerActions extends ComposerRenderer {
     async setNextCursor(clearSelection = null, toggleValue = null) {
         const nextCursor = this.tracker.getNextCursor();
         if (!nextCursor) {
-            await this.trackerChangeSegment(this.tracker.state.trackerRowSegmentID + 1);
+            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset + 1);
             return this.setCursor(this.tracker.getFirstCursor(), clearSelection, toggleValue);
         }
 
@@ -485,9 +452,9 @@ class ComposerActions extends ComposerRenderer {
     async setPreviousCursor(clearSelection = null, toggleValue = null) {
         const previousCursor = this.tracker.getPreviousCursor();
         if (!previousCursor) {
-            if (this.tracker.state.trackerRowSegmentID <= 0)
+            if (this.tracker.state.trackerRowOffset <= 0)
                 throw new Error("Beginning of song");
-            await this.trackerChangeSegment(this.tracker.state.trackerRowSegmentID - 1);
+            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset - 1);
             return this.setCursor(this.tracker.getLastCursor(), clearSelection, toggleValue);
         }
         await this.setCursor(previousCursor, clearSelection, toggleValue);
@@ -496,7 +463,7 @@ class ComposerActions extends ComposerRenderer {
     async setNextRowCursor(clearSelection = null, toggleValue = null) {
         const nextRowCursor = this.tracker.getNextRowCursor();
         if (!nextRowCursor) {
-            await this.trackerChangeSegment(this.tracker.state.trackerRowSegmentID + 1);
+            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset + 1);
             return this.setCursor(this.tracker.getFirstCursor(), clearSelection, toggleValue);
         }
         await this.setCursor(nextRowCursor, clearSelection, toggleValue);
@@ -505,9 +472,9 @@ class ComposerActions extends ComposerRenderer {
     async setPreviousRowCursor(clearSelection = null, toggleValue = null) {
         const previousRowCursor = this.tracker.getPreviousRowCursor();
         if (!previousRowCursor) {
-            if (this.tracker.state.trackerRowSegmentID <= 0)
+            if (this.tracker.state.trackerRowOffset <= 0)
                 throw new Error("Beginning of song");
-            await this.trackerChangeSegment(this.tracker.state.trackerRowSegmentID - 1);
+            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset - 1);
             return this.setCursor(this.tracker.getLastCursor(), clearSelection, toggleValue);
         }
         await this.setCursor(previousRowCursor, clearSelection, toggleValue);
@@ -517,7 +484,7 @@ class ComposerActions extends ComposerRenderer {
     /** Selection **/
 
     selectIndex(index, clearSelection = null, toggleValue = null) {
-        let selectedIndices = clearSelection ? [] : this.state.trackerSelectedIndices;
+        let selectedIndices = clearSelection ? [] : this.state.selectedIndices;
         if (toggleValue) {
             selectedIndices.unshift(index); // Cursor goes first
         } else {
@@ -558,7 +525,7 @@ class ComposerActions extends ComposerRenderer {
 
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
 
-        this.state.trackerSelectedIndices = selectedIndices;
+        this.state.selectedIndices = selectedIndices;
         this.fieldTrackerSelection.value = selectedIndices.join(',');
 
         // await this.tracker.selectIndicies(selectedIndices);
@@ -566,7 +533,7 @@ class ComposerActions extends ComposerRenderer {
     }
 
     /** @deprecated **/
-    getSelectedIndices() { return this.state.trackerSelectedIndices; }
+    getSelectedIndices() { return this.state.selectedIndices; }
         // const value = this.fieldTrackerSelection ? this.fieldTrackerSelection.value : '';
         // if (value === '')
         //     return [];
@@ -582,7 +549,7 @@ class ComposerActions extends ComposerRenderer {
     }
 
     toggleSelectionAtIndex(index, toggleValue = null) {
-        const selectedIndices = this.state.trackerSelectedIndices;
+        const selectedIndices = this.state.selectedIndices;
         const pos = selectedIndices.indexOf(index);
         if (toggleValue === null)
             toggleValue = pos === -1;
@@ -716,7 +683,7 @@ class ComposerActions extends ComposerRenderer {
     async trackerChangeSegment(newRowSegmentID) {
         if (!Number.isInteger(newRowSegmentID))
             throw new Error("Invalid segment ID");
-        const oldSegmentID = this.tracker.state.trackerRowSegmentID;
+        const oldSegmentID = this.tracker.state.trackerRowOffset;
         await this.tracker.setState({currentRowSegmentID: newRowSegmentID});
         this.panelTrackerRowSegmentButtons[oldSegmentID].setState({selected: false});
         this.panelTrackerRowSegmentButtons[newRowSegmentID].setState({selected: true});
@@ -766,9 +733,9 @@ class ComposerActions extends ComposerRenderer {
     //     // this.focusOnContainer();
     // }
 
-    trackerChangeInstrumentFilter(trackerFilterByInstrumentID) {
+    trackerChangeInstrumentFilter(filterByInstrumentID) {
         const tracker = this.tracker;
-        tracker.setState({trackerFilterByInstrumentID})
+        tracker.setState({filterByInstrumentID})
         // let selectedIndices = this.getSelectedIndices();
 
         // tracker.renderRows();
@@ -777,7 +744,7 @@ class ComposerActions extends ComposerRenderer {
 
     async trackerChangeSelection(e, selectedIndices = null) {
         if (selectedIndices === null)
-            selectedIndices = await this.openPromptDialog("Enter selection: ", this.state.trackerSelectedIndices.join(', '));
+            selectedIndices = await this.openPromptDialog("Enter selection: ", this.state.selectedIndices.join(', '));
         this.selectIndicies(selectedIndices);
     }
 

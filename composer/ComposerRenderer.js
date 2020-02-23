@@ -29,32 +29,66 @@ class ComposerRenderer extends React.Component {
             status: "[No Song Loaded]",
             version: require('../package.json').version,
             menuKey: 'root',
-            fullscreen: false,
-            portrait: false,
 
             songLength: 0,
             songLengthInTicks: 0,
             playing: false,
             paused: false,
 
+            portrait: false,
+            fullscreen: false,
             showPanelSong: true,
             showPanelPlaylist: true,
-            trackerGroup: 'root',
-            trackerRowSegmentID: 0,
-            trackerSelectedIndices: [],
-            trackerCursorIndex: 0,
-            trackerSegmentCount: 10,
-            trackerQuantizationInTicks: 96*4,
-            trackerSegmentLengthInTicks: 96*4*16,
+
+            selectedGroup: 'root',
+            selectedIndices: [],
+            cursorIndex: 0,
+
+            quantizationInTicks: 96*4,
+            segmentLengthInTicks: 96*4*16,
             trackerCurrentOctave: 3,
-            trackerFilterByInstrumentID: null
+            filterByInstrumentID: null,
+
+            // trackerSegmentCount: 10,
+            trackerRowOffset: 0,
+            trackerRowCount: 32,
         };
 
         this.shadowDOM = null;
+
     }
 
-    get targetElm() {
-        return this.shadowDOM;
+
+    /** Song rendering **/
+
+    async setCurrentSong(song) {
+        if(this.song) {
+            this.setStatus("Unloading song: " + this.song.getTitle());
+            if(this.song.isPlaying) {
+                this.song.stopPlayback();
+            }
+            this.song.removeEventListener('*', this.onSongEventCallback);
+            // TODO: unload song?
+        }
+        this.song = song;
+        const timeDivision = song.getTimeDivision();
+        // this.state.tracker.segmentLengthInTicks = null;
+
+
+        // this.song.setVolume(this.state.volume);
+        this.song.addEventListener('*', this.onSongEventCallback);
+        this.setStatus("Initializing song: " + song.getTitle());
+        await this.song.init(this.getAudioContext());
+        this.setStatus("Loaded song: " + song.getTitle());
+        this.setState({
+            songLengthInTicks: song.getSongLengthInTicks(),
+            songLength: song.getSongLengthInSeconds(),
+            selectedGroup: song.getRootGroup() || 'root',
+            trackerRowOffset: 0,
+            quantizationInTicks: timeDivision,
+            segmentLengthInTicks: timeDivision * 16,
+            filterByInstrumentID: null,
+        });
     }
 
     // createStyleSheetLink(stylePath, scriptElm=null) {
@@ -177,7 +211,7 @@ class ComposerRenderer extends React.Component {
                 return <>
                     <SubMenu options={e => this.renderMenu('edit-insert')}    >Insert Command</SubMenu>
 
-                    {this.state.trackerSelectedIndices.length === 0 ? null :
+                    {this.state.selectedIndices.length === 0 ? null :
                         <SubMenu options={e => this.renderMenu('edit-set')} hasBreak   >Set Command</SubMenu>}
 
                     {/** Select Instructions **/}
@@ -203,7 +237,7 @@ class ComposerRenderer extends React.Component {
                     {this.values.getAllSongGroups((groupName) =>
                         <SubMenu
                             children={e => this.renderMenu('edit-insert-frequency')}
-                            disabled={groupName === this.state.trackerGroup}
+                            disabled={groupName === this.state.selectedGroup}
                             onAction={e => this.instructionInsert('@' + groupName, false)}
                         >{groupName}</SubMenu>)}
                     <ActionMenu
@@ -312,7 +346,7 @@ class ComposerRenderer extends React.Component {
                         groupName === this.groupName ? null :
                             <ActionMenu
                                 key={groupName}
-                                disabled={groupName === this.state.trackerGroup}
+                                disabled={groupName === this.state.selectedGroup}
                                 onAction={e => this.instructionChangeCommand('@' + groupName, false)}
                                 >{groupName}</ActionMenu>
                     )}
@@ -403,7 +437,7 @@ class ComposerRenderer extends React.Component {
                     {this.values.getAllSongGroups((groupName) =>
                         <SubMenu
                             key={groupName}
-                            disabled={groupName === this.state.trackerGroup}
+                            disabled={groupName === this.state.selectedGroup}
                             options={e => this.renderMenu('group-edit', groupName)}
                             >{groupName}</SubMenu>)}
                 </>;
@@ -682,6 +716,7 @@ class ComposerRenderer extends React.Component {
                 </Div>
                 <Div className="asc-tracker-container">
                     <Tracker
+                        ref={ref => this.tracker = ref}
                         composer={this}
                     />
                 </Div>
@@ -718,7 +753,7 @@ class ComposerRenderer extends React.Component {
         this.fieldSongVolume.value = this.song.getVolumeValue();
 
         // let timeDivision = this.rowLengthInTicks || this.song.getSongTimeDivision();
-        const cursorInstruction = this.song.instructionFind(this.state.trackerGroup, this.state.trackerSelectedIndices[0]);
+        const cursorInstruction = this.song.instructionFind(this.state.selectedGroup, this.state.selectedIndices[0]);
 
 
         if (cursorInstruction) {
@@ -728,7 +763,7 @@ class ComposerRenderer extends React.Component {
             this.fieldInstructionDuration.value = cursorInstruction.duration;
         }
 
-        this.fieldInstructionDelete.disabled = this.state.trackerSelectedIndices.length === 0;
+        this.fieldInstructionDelete.disabled = this.state.selectedIndices.length === 0;
         if (!this.fieldTrackerRowLength.value)
             this.fieldTrackerRowLength.setValue(this.song.getTimeDivision());
         // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();

@@ -23,7 +23,7 @@ class TrackerGroupsPanel extends React.Component {
                 {Object.keys(composer.song.data.instructions).map((groupName, i) =>
                     <Button
                         key={i}
-                        selected={this.state.trackerGroup === groupName}
+                        selected={this.state.selectedGroup === groupName}
                         onAction={e => this.trackerChangeGroup(groupName)}
                     >{groupName}</Button>)
                 }

@@ -2,7 +2,7 @@ import * as React from "react";
 import PropTypes from 'prop-types';
 
 import "./assets/TrackerParam.css";
-import Button from "../../components/button/Button";
+
 class TrackerInstructionParameter extends React.Component {
     render() {
         let className = "asct-parameter";

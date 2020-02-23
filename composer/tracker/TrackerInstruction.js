@@ -16,6 +16,7 @@ class TrackerInstruction extends React.Component {
 
 
     render() {
+        // console.log('instruction', this.props);
         const instruction = this.props.instruction;
         const open = this.props.cursor || this.props.selected;
         if(!open)

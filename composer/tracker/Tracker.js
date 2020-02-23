@@ -17,8 +17,12 @@ class Tracker extends React.Component {
 
         if(!props.composer)
             throw new Error("Invalid composer");
-        this.state = this.props.composer.state;
+        // this.state = this.props.composer.state;
+        this.state = {
+            trackerRowOffset: 0,
+        }
     }
+    // get state() { return this.props.composer.state; }
 
 
     connectedCallback() {
@@ -41,20 +45,146 @@ class Tracker extends React.Component {
 
         const composer = this.props.composer;
 
-        const quantizationInTicks = this.state.trackerQuantizationInTicks;
-        const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks; // this.getSegmentLengthInTicks();
+        const quantizationInTicks = composer.state.quantizationInTicks; // Totally broken
+        // const segmentLengthInTicks = composer.state.segmentLengthInTicks; // this.getSegmentLengthInTicks();
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
-        let instructionIterator = composer.song.getInstructionIterator(this.state.trackerGroup);
+        let instructionIterator = composer.song.getInstructionIterator(composer.state.selectedGroup);
+
+        const filterByInstrumentID = composer.state.filterByInstrumentID;
+        // const conditionalCallback = filterByInstrumentID === null ? null : (conditionalInstruction) => {
+        //     return conditionalInstruction.instrument === filterByInstrumentID
+        // };
+
+        const selectedIndices = composer.state.selectedIndices;
+        const cursorIndex = composer.state.cursorIndex;
 
 
-        const conditionalCallback = this.state.trackerFilterByInstrumentID === null ? null : (conditionalInstruction) => {
-            return conditionalInstruction.instrument === this.state.trackerFilterByInstrumentID
+
+        let rowCount = 0;
+        const   rowStart = composer.state.trackerRowOffset, // by row or ticks?
+                rowTotal = composer.state.trackerRowCount,
+                rowContent = [];
+
+        let lastRowPositionInTicks = 0;
+        // let lastRowSegmentID = 0;
+
+        let nextQuantizationBreakInTicks = 0;
+        let rowInstructionElms = [];
+        while (true) {
+            const nextInstruction = instructionIterator.nextInstruction();
+            if(!nextInstruction)
+                break;
+
+
+            // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / segmentLengthInTicks);
+
+
+            if(nextInstruction.deltaDuration > 0) {
+                // Render extra quantized rows
+                // renderQuantizedRows(lastRowPositionInTicks + nextInstruction.deltaDuration);
+                // Finish rendering last row
+                let startPositionTicks = lastRowPositionInTicks;
+                let endPositionTicks = instructionIterator.positionTicks;
+
+                while(nextQuantizationBreakInTicks <= startPositionTicks)
+                    nextQuantizationBreakInTicks += quantizationInTicks;
+
+                let rowDeltaDuration = endPositionTicks - startPositionTicks;
+                // if(nextQuantizationBreakInTicks < endPositionTicks) {
+                //     rowDeltaDuration = nextQuantizationBreakInTicks - startPositionTicks;
+                //     startPositionTicks = nextQuantizationBreakInTicks;
+                // }
+                addRow(rowDeltaDuration, rowInstructionElms);
+                rowInstructionElms=[];
+
+                // addQuantizedRows(startPositionTicks, endPositionTicks);
+
+                lastRowPositionInTicks = instructionIterator.positionTicks;
+
+            }
+
+            if(filterByInstrumentID !== null && filterByInstrumentID !== nextInstruction.instrument)
+                continue;
+
+            // Render instruction
+            const index = instructionIterator.currentIndex;
+            const props = {
+                instruction:nextInstruction,
+                composer,
+                index
+            };
+            if (selectedIndices.indexOf(index) !== -1) props.selected = true;
+            if (index === cursorIndex) props.cursor = true;
+            rowInstructionElms.push(<TrackerInstruction
+                key={index}
+                {...props}
+                />);
+
+        }
+        // renderQuantizedRows(maxLengthInTicks);
+
+        function addRow(rowDeltaDuration, rowInstructionElms=[]) {
+            if (rowCount >= rowStart
+                && rowContent.length < rowTotal
+            ) {
+                const newRowElm = <TrackerRow
+                    key={rowContent.length}
+                    deltaDuration={composer.values.formatDuration(rowDeltaDuration)}
+                >{rowInstructionElms}</TrackerRow>;
+                rowContent.push(newRowElm);
+            }
+            rowCount++;
+        }
+
+        function addQuantizedRows(startPositionTicks, endPositionTicks) {
+            while(nextQuantizationBreakInTicks < endPositionTicks) {
+                const rowDeltaDuration = nextQuantizationBreakInTicks - startPositionTicks;
+                if(rowDeltaDuration > 0)
+                    addRow(rowDeltaDuration);
+                nextQuantizationBreakInTicks += quantizationInTicks;
+                startPositionTicks = nextQuantizationBreakInTicks;
+            }
+        }
+
+        console.timeEnd('tracker.renderRows()');
+
+        return <Div className="asc-tracker">
+            <Panel
+                className="header"
+                title={<>
+                    <Div className="delta">Delta</Div>
+                    <Div className="instructions">Instruction Tracker</Div>
+                </>}
+            >
+                <Div className="asc-tracker-container">
+                    {rowContent}
+                </Div>
+            </Panel>
+        </Div>;
+    }
+
+
+    render2() {
+        console.time('tracker.renderRows()');
+
+        const composer = this.props.composer;
+
+        const quantizationInTicks = this.state.quantizationInTicks;
+        const segmentLengthInTicks = this.state.segmentLengthInTicks; // this.getSegmentLengthInTicks();
+        const maxLengthInTicks = this.getMaxLengthInTicks();
+
+        // Instruction Iterator
+        let instructionIterator = composer.song.getInstructionIterator(this.state.selectedGroup);
+
+
+        const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
+            return conditionalInstruction.instrument === this.state.filterByInstrumentID
         };
 
-        const selectedIndices = this.state.trackerSelectedIndices;
-        const cursorIndex = this.state.trackerCursorIndex;
+        const selectedIndices = this.state.selectedIndices;
+        const cursorIndex = this.state.cursorIndex;
 
 
 
@@ -74,14 +204,15 @@ class Tracker extends React.Component {
             lastRowSegmentID = Math.floor(instructionIterator.positionTicks / segmentLengthInTicks);
 
             const deltaDuration = instructionIterator.positionTicks - lastRowPositionInTicks;
-            if (this.state.trackerRowSegmentID === lastRowSegmentID) {
+            if (this.state.trackerRowOffset === lastRowSegmentID) {
 
                 // Render instructions
                 const rowInstructionElms = rowInstructionList.map((instruction, i) => {
-                    const props = {instruction, key:i};
+                    const index = i + instructionIterator.currentIndex - rowInstructionList.length+1;
+                    const props = {instruction, composer, index};
                     if (selectedIndices.indexOf(instruction.index) !== -1) props.selected = true;
-                    if (instruction.index === cursorIndex) props.cursor = true;
-                    return <TrackerInstruction {...props}/>;
+                    if (index === cursorIndex) props.cursor = true;
+                    return <TrackerInstruction key={i} {...props}/>;
                 });
 
                 // Render Row
@@ -115,23 +246,23 @@ class Tracker extends React.Component {
 
     getTimeDivision()           { return this.props.composer.song.getTimeDivision(); }
     // getQuantizationInTicks()    { return this.state.quantizationInTicks; }
-    // getSegmentLengthInTicks()   { return this.state.trackerSegmentLengthInTicks; }
-    getMaxLengthInTicks()       { return (this.state.trackerRowSegmentID + 1) * this.state.trackerSegmentLengthInTicks; }
+    // getSegmentLengthInTicks()   { return this.state.segmentLengthInTicks; }
+    getMaxLengthInTicks()       { return (this.state.trackerRowOffset + 1) * this.state.segmentLengthInTicks; }
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
-    getGroupName()              { return this.state.trackerGroup; }
+    getGroupName()              { return this.state.selectedGroup; }
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
         // const composer = this.props.composer;
-        const timeDivision = this.state.trackerQuantizationInTicks;
-        const segmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (timeDivision * 16);
+        const timeDivision = this.state.quantizationInTicks;
+        const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
         const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
         return segmentID;
     }
 
 
     setGroupName(currentGroup) {
-        if (this.state.trackerGroup === currentGroup)
+        if (this.state.selectedGroup === currentGroup)
             return null;
         if (!this.getSong().hasGroup(currentGroup))
             throw new Error("Group not found in song: " + currentGroup);
@@ -142,7 +273,7 @@ class Tracker extends React.Component {
 
 
     instructionFind(index) {
-        return this.getSong().instructionFind(this.state.trackerGroup, index);
+        return this.getSong().instructionFind(this.state.selectedGroup, index);
     }
 
     instructionGetFormValues(command = null) {
@@ -172,7 +303,7 @@ class Tracker extends React.Component {
         if (rowElm)
             return rowElm;
         const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
-        if (newRowSegmentID !== this.state.trackerRowSegmentID) {
+        if (newRowSegmentID !== this.state.trackerRowOffset) {
             composer.trackerChangeSegment(newRowSegmentID);
             let rowElm = this.findRowElement(groupPositionInTicks);
             if (rowElm)
@@ -200,7 +331,7 @@ class Tracker extends React.Component {
         // console.log(e.type);
 
         const composer = this.props.composer;
-        let selectedIndices = this.state.trackerSelectedIndices;
+        let selectedIndices = this.state.selectedIndices;
         // const instructionList = this.instructionEach();
 
         switch (e.type) {
@@ -225,7 +356,7 @@ class Tracker extends React.Component {
                         // this.clearSelection();
                         const selectedIndicesDesc = selectedIndices.sort((a, b) => b - a);
                         for (let i = 0; i < selectedIndicesDesc.length; i++)
-                            composer.song.instructionDeleteAtIndex(this.state.trackerGroup, selectedIndices[i]);
+                            composer.song.instructionDeleteAtIndex(this.state.selectedGroup, selectedIndices[i]);
                         this.renderRows();
                         // this.selectIndicies(selectedIndices[0]);
                         // song.render(true);
@@ -610,7 +741,7 @@ class Tracker extends React.Component {
 
             case 'group:seek':
 //                 console.log(e.type, e.detail);
-                if (e.detail.groupName === this.state.trackerGroup)
+                if (e.detail.groupName === this.state.selectedGroup)
                     this.setPlaybackPositionInTicks(e.detail.positionInTicks);
 
                 break;
@@ -619,7 +750,7 @@ class Tracker extends React.Component {
                 break;
 
             case 'note:start':
-                if (e.detail.groupName === this.state.trackerGroup) {
+                if (e.detail.groupName === this.state.selectedGroup) {
                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                     if (instructionElm) {
                         instructionElm.classList.add('playing');
@@ -627,7 +758,7 @@ class Tracker extends React.Component {
                 }
                 break;
             case 'note:end':
-                if (e.detail.groupName === this.state.trackerGroup) {
+                if (e.detail.groupName === this.state.selectedGroup) {
                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                     if (instructionElm) {
                         instructionElm.classList.remove('playing');
@@ -800,7 +931,7 @@ class Tracker extends React.Component {
     //         cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
     //
     //     if (!cursorRow.nextElementSibling) {
-    //         await this.setState({currentRowSegmentID: this.state.trackerRowSegmentID+1});
+    //         await this.setState({currentRowSegmentID: this.state.trackerRowOffset+1});
     //         this.focus();
     //         return await this.selectNextCell(e);
     //     }
@@ -828,7 +959,7 @@ class Tracker extends React.Component {
     //     if (!cursorRow.previousElementSibling) {
     //         if (this.currentRowSegmentID === 0)
     //             throw new Error("TODO: reached beginning of song");
-    //         await this.setState({currentRowSegmentID: this.state.trackerRowSegmentID + 1})
+    //         await this.setState({currentRowSegmentID: this.state.trackerRowOffset + 1})
     //         this.focus();
     //         return await this.selectPreviousCell(e);
     //     }
@@ -912,7 +1043,7 @@ class Tracker extends React.Component {
 
 
     // instructionReplaceParams(replaceIndex, replaceParams) {
-    //     return this.editor.song.instructionReplaceParams(this.state.trackerGroup, replaceIndex, replaceParams);
+    //     return this.editor.song.instructionReplaceParams(this.state.selectedGroup, replaceIndex, replaceParams);
     // }
 
     replaceFrequencyAlias(noteFrequency, instrumentID) {
