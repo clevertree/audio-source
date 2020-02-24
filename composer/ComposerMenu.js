@@ -157,7 +157,7 @@ class ComposerMenu extends ComposerRenderer {
 
     openMenuSelectDuration(e, onSelectValue) {
         const customAction = async () => {
-            const durationInTicks = await this.openPromptDialog("Enter custom duration in ticks", this.state.quantizationInTicks);
+            const durationInTicks = await this.openPromptDialog("Enter custom duration in ticks", this.state.trackerQuantizationInTicks);
             onSelectValue(durationInTicks);
         };
         this.openMenu(e, <>

@@ -709,15 +709,15 @@ class ComposerActions extends ComposerMenu {
             this.fieldTrackerOctave.value = newOctave;
     }
 
-    trackerChangeQuantization(quantizationInTicks = null) {
+    trackerChangeQuantization(trackerQuantizationInTicks = null) {
         const tracker = this.tracker;
-        tracker.setState({quantizationInTicks});
+        tracker.setState({trackerQuantizationInTicks});
 
     }
 
-    async trackerChangeSegmentLength(segmentLengthInTicks = null) {
+    async trackerChangeSegmentLength(trackerSegmentLengthInTicks = null) {
         const tracker = this.tracker;
-        await tracker.setState({segmentLengthInTicks});
+        await tracker.setState({trackerSegmentLengthInTicks});
         await this.panelTrackerRowSegments.forceUpdate();
     }
 
@@ -733,9 +733,9 @@ class ComposerActions extends ComposerMenu {
     //     // this.focusOnContainer();
     // }
 
-    trackerChangeInstrumentFilter(filterByInstrumentID) {
+    trackerChangeInstrumentFilter(trackerFilterByInstrumentID) {
         const tracker = this.tracker;
-        tracker.setState({filterByInstrumentID})
+        tracker.setState({trackerFilterByInstrumentID})
         // let selectedIndices = this.getSelectedIndices();
 
         // tracker.renderRows();

@@ -20,6 +20,7 @@ class Tracker extends React.Component {
         // this.state = this.props.composer.state;
         this.state = {
             trackerRowOffset: 0,
+            trackerStartPositionTicks: 0
         }
     }
     // get state() { return this.props.composer.state; }
@@ -45,13 +46,13 @@ class Tracker extends React.Component {
 
         const composer = this.props.composer;
 
-        const quantizationInTicks = composer.state.quantizationInTicks;
+        const trackerQuantizationInTicks = composer.state.trackerQuantizationInTicks;
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
         let instructionIterator = composer.song.getInstructionIterator(composer.state.selectedGroup);
 
-        const filterByInstrumentID = composer.state.filterByInstrumentID;
+        const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
 
         const selectedIndices = composer.state.selectedIndices;
         const cursorIndex = composer.state.cursorIndex;
@@ -59,7 +60,7 @@ class Tracker extends React.Component {
 
 
         let rowCount = 0;
-        const   rowStart = composer.state.trackerRowOffset, // by row or ticks?
+        const   startPositionTicks = this.state.trackerStartPositionTicks, // by row or ticks?
                 rowTotal = composer.state.trackerRowCount,
                 rowContent = [];
 
@@ -72,7 +73,7 @@ class Tracker extends React.Component {
             if(!nextInstruction)
                 break;
 
-            // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / segmentLengthInTicks);
+            // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
 
 
             if(nextInstruction.deltaDuration > 0) {
@@ -81,18 +82,18 @@ class Tracker extends React.Component {
 
                 // Move next quantized row up to current position
                 while(nextQuantizationBreakInTicks <= lastRowPositionInTicks)
-                    nextQuantizationBreakInTicks += quantizationInTicks;
+                    nextQuantizationBreakInTicks += trackerQuantizationInTicks;
 
                 // Render extra quantized rows if necessary
                 while(nextQuantizationBreakInTicks < endPositionTicks) {
                     addRow(nextQuantizationBreakInTicks);
-                    nextQuantizationBreakInTicks += quantizationInTicks;
+                    nextQuantizationBreakInTicks += trackerQuantizationInTicks;
                 }
 
                 addRow(endPositionTicks);
             }
 
-            if(filterByInstrumentID !== null && filterByInstrumentID !== nextInstruction.instrument)
+            if(trackerFilterByInstrumentID !== null && trackerFilterByInstrumentID !== nextInstruction.instrument)
                 continue;
 
             // Render instruction
@@ -114,13 +115,13 @@ class Tracker extends React.Component {
 
         while(nextQuantizationBreakInTicks < maxLengthInTicks) {
             addRow(nextQuantizationBreakInTicks);
-            nextQuantizationBreakInTicks += quantizationInTicks;
+            nextQuantizationBreakInTicks += trackerQuantizationInTicks;
         }
 
         function addRow(toPositionTicks) {
             let rowDeltaDuration = toPositionTicks - lastRowPositionInTicks;
             lastRowPositionInTicks = toPositionTicks;
-            if (rowCount >= rowStart
+            if (toPositionTicks >= startPositionTicks
                 && rowContent.length < rowTotal
             ) {
                 const newRowElm = <TrackerRow
@@ -152,97 +153,27 @@ class Tracker extends React.Component {
     }
 
 
-    render2() {
-        console.time('tracker.renderRows()');
 
-        const composer = this.props.composer;
-
-        const quantizationInTicks = this.state.quantizationInTicks;
-        const segmentLengthInTicks = this.state.segmentLengthInTicks; // this.getSegmentLengthInTicks();
-        const maxLengthInTicks = this.getMaxLengthInTicks();
-
-        // Instruction Iterator
-        let instructionIterator = composer.song.getInstructionIterator(this.state.selectedGroup);
-
-
-        const conditionalCallback = this.state.filterByInstrumentID === null ? null : (conditionalInstruction) => {
-            return conditionalInstruction.instrument === this.state.filterByInstrumentID
-        };
-
-        const selectedIndices = this.state.selectedIndices;
-        const cursorIndex = this.state.cursorIndex;
-
-
-
-        const rowContent = [];
-
-        let lastRowSegmentID = 0;
-        let rowInstructionList = null, lastRowPositionInTicks = 0;
-
-        while (true) {
-            rowInstructionList = instructionIterator.nextInstructionQuantizedRow(quantizationInTicks, maxLengthInTicks, conditionalCallback);
-            if(!rowInstructionList)
-                break;
-            // if (rowInstructionList.length === 0 && instructionIterator.positionTicks % quantizationInTicks !== 0) {
-            //     continue;
-            // }
-
-            lastRowSegmentID = Math.floor(instructionIterator.positionTicks / segmentLengthInTicks);
-
-            const deltaDuration = instructionIterator.positionTicks - lastRowPositionInTicks;
-            if (this.state.trackerRowOffset === lastRowSegmentID) {
-
-                // Render instructions
-                const rowInstructionElms = rowInstructionList.map((instruction, i) => {
-                    const index = i + instructionIterator.currentIndex - rowInstructionList.length+1;
-                    const props = {instruction, composer, index};
-                    if (selectedIndices.indexOf(instruction.index) !== -1) props.selected = true;
-                    if (index === cursorIndex) props.cursor = true;
-                    return <TrackerInstruction key={i} {...props}/>;
-                });
-
-                // Render Row
-                const newRowElm = <TrackerRow
-                    key={rowContent.length}
-                    deltaDuration={composer.values.formatDuration(deltaDuration)}
-                >{rowInstructionElms}</TrackerRow>;
-                rowContent.push(newRowElm);
-            }
-            lastRowPositionInTicks = instructionIterator.positionTicks;
-        }
-
-        console.timeEnd('tracker.renderRows()');
-
-        return <Div className="asc-tracker">
-            <Panel
-                className="header"
-                title={<>
-                    <Div className="delta">Delta</Div>
-                    <Div className="instructions">Instruction Tracker</Div>
-                </>}
-            >
-                <Div className="asc-tracker-container">
-                    {rowContent}
-                </Div>
-            </Panel>
-        </Div>;
-    }
-
-
-
-    getTimeDivision()           { return this.props.composer.song.getTimeDivision(); }
-    // getQuantizationInTicks()    { return this.state.quantizationInTicks; }
-    // getSegmentLengthInTicks()   { return this.state.segmentLengthInTicks; }
-    getMaxLengthInTicks()       { return (this.state.trackerRowOffset + 1) * this.state.segmentLengthInTicks; }
     getComposer()               { return this.props.composer; }
+    getTimeDivision()           { return this.getComposer().song.getTimeDivision(); }
+    // getQuantizationInTicks()    { return this.state.trackerQuantizationInTicks; }
+    getSegmentLengthInTicks()   { return this.getComposer().state.trackerSegmentLengthInTicks; }
+    getMaxLengthInTicks()       {
+        let songLength = this.getComposer().state.songLengthInTicks;
+        let trackerSegmentLengthInTicks = this.getComposer().state.trackerSegmentLengthInTicks;
+
+        if(songLength < trackerSegmentLengthInTicks)
+            return trackerSegmentLengthInTicks;
+        return Math.ceil(songLength / trackerSegmentLengthInTicks) * trackerSegmentLengthInTicks
+    }
     getSong()                   { return this.props.composer.song; }
     getGroupName()              { return this.state.selectedGroup; }
 
     getSegmentIDFromPositionInTicks(positionInTicks) {
         // const composer = this.props.composer;
-        const timeDivision = this.state.quantizationInTicks;
-        const segmentLengthInTicks = this.state.segmentLengthInTicks || (timeDivision * 16);
-        const segmentID = Math.floor(positionInTicks / segmentLengthInTicks);
+        const timeDivision = this.state.trackerQuantizationInTicks;
+        const trackerSegmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (timeDivision * 16);
+        const segmentID = Math.floor(positionInTicks / trackerSegmentLengthInTicks);
         return segmentID;
     }
 

@@ -31,24 +31,28 @@ class ComposerRenderer extends React.Component {
             version: require('../package.json').version,
             menuKey: 'root',
 
-            songLength: 0,
-            songLengthInTicks: 0,
-            playing: false,
-            paused: false,
 
             portrait: false,
             fullscreen: false,
             showPanelSong: true,
             showPanelPlaylist: true,
 
+            // Playback
+            playing: false,
+            paused: false,
+
+            // Global selected note(s)
+            songLengthInTicks: 0,
+            songLength: 0,
             selectedGroup: 'root',
             selectedIndices: [],
             cursorIndex: 0,
 
-            quantizationInTicks: 96*4,
-            segmentLengthInTicks: 96*4*16,
+            // Tracker specific
+            trackerQuantizationInTicks: 96*4,
+            trackerSegmentLengthInTicks: 96*4*16,
             trackerCurrentOctave: 3,
-            filterByInstrumentID: null,
+            trackerFilterByInstrumentID: null,
 
             // trackerSegmentCount: 10,
             trackerRowOffset: 0,
@@ -74,7 +78,7 @@ class ComposerRenderer extends React.Component {
         }
         this.song = song;
         const timeDivision = song.getTimeDivision();
-        // this.state.tracker.segmentLengthInTicks = null;
+        // this.state.tracker.trackerSegmentLengthInTicks = null;
 
 
         // this.song.setVolume(this.state.volume);
@@ -87,9 +91,9 @@ class ComposerRenderer extends React.Component {
             songLength: song.getSongLengthInSeconds(),
             selectedGroup: song.getRootGroup() || 'root',
             trackerRowOffset: 0,
-            quantizationInTicks: timeDivision,
-            segmentLengthInTicks: timeDivision * 16,
-            filterByInstrumentID: null,
+            trackerQuantizationInTicks: timeDivision,
+            trackerSegmentLengthInTicks: timeDivision * 16,
+            trackerFilterByInstrumentID: null,
         });
     }
 

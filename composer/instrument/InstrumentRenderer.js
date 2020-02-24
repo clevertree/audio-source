@@ -3,7 +3,7 @@ import {
     Div,
     Icon,
     Menu,
-    MenuButton,
+    Button,
 } from "../../components";
 
 import InstrumentLoader from "../../instrument/InstrumentLoader";
@@ -18,13 +18,13 @@ class InstrumentRenderer extends React.Component {
 
     renderInstrumentConfig() {
         return (
-            <MenuButton
+            <Button
                 arrow={false}
                 className="instrument-config"
-                options={e => this.renderMenu()}
+                onAction={e => this.renderMenu()}
             >
                 <Icon className="config"/>
-            </MenuButton>
+            </Button>
         )
     }
 
