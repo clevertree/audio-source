@@ -1,6 +1,7 @@
 import React from "react";
 // import PropTypes from 'prop-types';
 
+import "./assets/Menu.css";
 
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
@@ -11,6 +12,7 @@ class MenuOverlayContainer extends React.Component {
         }
     }
 
+    // Open menu in portrait mode
     openMenu(e, options) {
         console.log('openMenu', e, options);
         this.setState({
@@ -25,7 +27,7 @@ class MenuOverlayContainer extends React.Component {
         if(!this.state.open)
             return this.props.children;
         return [
-            <div className="asui-menu-overlay-container">
+            <div className="asui-menu-dropdown">
                 {this.state.options}
             </div>,
             this.props.children,

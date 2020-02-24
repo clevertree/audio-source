@@ -12,7 +12,10 @@ import "./assets/Composer.css";
 class ComposerMenu extends ComposerRenderer {
 
     openMenu(e, options) {
-        this.menu.openMenu(e, options);
+        console.log('openMenu', e ? e.menu : null, e);
+        this.state.portrait
+        ? this.menu.openMenu(e, options)
+        : e.menu.openMenu(e, options);
     }
 
     getMenuRoot() {
@@ -22,10 +25,10 @@ class ComposerMenu extends ComposerRenderer {
         };
         return (<>
             <SubMenu {...titleMenuProps} key="file"        onAction={e => this.openMenuFile(e)}          >File</SubMenu>
-            <SubMenu {...titleMenuProps} key="edit"        onAction={e => this.openMenuEdit()}          >Edit</SubMenu>
-            <SubMenu {...titleMenuProps} key="group"       onAction={e => this.openMenuGroup()}         >Group</SubMenu>
-            <SubMenu {...titleMenuProps} key="instrument"  onAction={e => this.openMenuInstrument()}    >Instrument</SubMenu>
-            <SubMenu {...titleMenuProps} key="view"        onAction={e => this.openMenuView()}          >View</SubMenu>
+            <SubMenu {...titleMenuProps} key="edit"        onAction={e => this.openMenuEdit(e)}          >Edit</SubMenu>
+            <SubMenu {...titleMenuProps} key="group"       onAction={e => this.openMenuGroup(e)}         >Group</SubMenu>
+            <SubMenu {...titleMenuProps} key="instrument"  onAction={e => this.openMenuInstrument(e)}    >Instrument</SubMenu>
+            <SubMenu {...titleMenuProps} key="view"        onAction={e => this.openMenuView(e)}          >View</SubMenu>
         </>);
     }
     openMenuRoot(e) {
@@ -35,10 +38,10 @@ class ComposerMenu extends ComposerRenderer {
     openMenuFile(e) {
         this.openMenu(e, <>
             <Menu onAction={e => this.loadNewSongData(e)}           >New song</Menu>
-            <SubMenu onAction={e => this.openMenuFileOpen()}           >Open song</SubMenu>
-            <SubMenu onAction={e => this.openMenuFileSave()}           >Save song</SubMenu>
-            <SubMenu onAction={e => this.openMenuFileImport()}         >Import song</SubMenu>
-            <SubMenu onAction={e => this.openMenuFileExport()}         >Export song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileOpen(e)}           >Open song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileSave(e)}           >Save song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileImport(e)}         >Import song</SubMenu>
+            <SubMenu onAction={e => this.openMenuFileExport(e)}         >Export song</SubMenu>
         </>);
     }
 
@@ -199,16 +202,16 @@ class ComposerMenu extends ComposerRenderer {
         // openMenuEditInsertCommand.disabled = selectedIndices.length > 0; // !this.cursorCell;
         // openMenuEditInsertCommand.action = handleAction('song:new');
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuEditInsert()}    >Insert Command</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsert(e)}    >Insert Command</SubMenu>
 
             {this.state.selectedIndices.length === 0 ? null :
-                <SubMenu onAction={e => this.openMenuEditSet()} hasBreak   >Set Command</SubMenu>}
+                <SubMenu onAction={e => this.openMenuEditSet(e)} hasBreak   >Set Command</SubMenu>}
 
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSelect()} hasBreak   >Select</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSelect(e)} hasBreak   >Select</SubMenu>
 
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditBatch()} hasBreak   >Batch</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditBatch(e)} hasBreak   >Batch</SubMenu>
         </>);
         // const openMenuEditGroup = MENU.getOrCreateMenu('group', 'Group ►');
         // openMenuEditGroup.hasBreak = true;
@@ -218,13 +221,13 @@ class ComposerMenu extends ComposerRenderer {
     // TODO: combine insert and set
     openMenuEditInsert(e) {
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuEditInsertCommandCurrentOctave()}      >Current Octave</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandCurrentOctave(e)}      >Current Octave</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditInsertCommandFrequency()}           >By Frequency</SubMenu>
-            <SubMenu onAction={e => this.openMenuEditInsertCommandOctave()}              >By Octave</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandFrequency(e)}           >By Frequency</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandOctave(e)}              >By Octave</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditInsertCommandNamed()}               >By Alias</SubMenu>
-            <SubMenu onAction={e => this.openMenuEditInsertCommandGroup()}               >By Group</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandNamed(e)}               >By Alias</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditInsertCommandGroup(e)}               >By Group</SubMenu>
             <Menu onAction={e => this.instructionInsert(null, true)}   >Custom Command</Menu>
         </>);
 
@@ -271,13 +274,13 @@ class ComposerMenu extends ComposerRenderer {
 
     openMenuEditSet(e) {
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuEditSetCommand()}            >Set Command</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommand(e)}            >Set Command</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSetInstrument()}         >Set Instrument</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetInstrument(e)}         >Set Instrument</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSetDuration()}           >Set Duration</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetDuration(e)}           >Set Duration</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSetVelocity()}           >Set Velocity</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetVelocity(e)}           >Set Velocity</SubMenu>
             <MenuBreak />
             <Menu onAction={e => this.instructionDelete(e)}   >Delete Instruction(s)</Menu>
         </>);
@@ -285,13 +288,13 @@ class ComposerMenu extends ComposerRenderer {
 
     openMenuEditSetCommand(e) {
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuEditSetCommandCurrentOctave()}      >Current Octave</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandCurrentOctave(e)}      >Current Octave</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSetCommandFrequency()}           >By Frequency</SubMenu>
-            <SubMenu onAction={e => this.openMenuEditSetCommandOctave()}              >By Octave</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandFrequency(e)}           >By Frequency</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandOctave(e)}              >By Octave</SubMenu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSetCommandNamed()}               >By Alias</SubMenu>
-            <SubMenu onAction={e => this.openMenuEditSetCommandGroup()}               >By Group</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandNamed(e)}               >By Alias</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSetCommandGroup(e)}               >By Group</SubMenu>
             <Menu onAction={e => this.instructionReplaceCommand(null, true)}      >Custom</Menu>
         </>);
 
@@ -359,7 +362,7 @@ class ComposerMenu extends ComposerRenderer {
             <Menu onAction={e => this.trackerChangeSelection('all')}       >Select All Song Instructions</Menu>
             <Menu onAction={e => this.trackerChangeSelection('none')}       >Select No Instructions</Menu>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuEditSelectBatch()}  hasBreak                        >Batch Select</SubMenu>
+            <SubMenu onAction={e => this.openMenuEditSelectBatch(e)}  hasBreak                        >Batch Select</SubMenu>
         </>);
 
     }
@@ -376,7 +379,7 @@ class ComposerMenu extends ComposerRenderer {
     openMenuEditBatch(e) {
         this.openMenu(e, <>
             {(new Storage()).getBatchRecentCommands().map((recentBatchCommand, i) =>
-                <SubMenu onAction={e => this.openMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
+                <SubMenu onAction={e => this.openMenuEditBatchRecent(e, recentBatchCommand)}                          >{recentBatchCommand}</SubMenu>
             )}
             <Menu onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</Menu>
         </>);

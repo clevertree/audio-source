@@ -8,13 +8,19 @@ class Menu extends React.Component {
     constructor(props) {
         super(props);
         this.onInputEventCallback = e => this.onInputEvent(e);
-        this.state = {};
+        this.state = {
+            open: false,
+            stick: false,
+            options: null
+        };
     }
 
     render() {
         let className = 'asui-menu asui-menu-container action';
         if(this.props.disabled)
             className += ' disabled';
+        if(this.state.stick)
+            className += ' stick';
         if(this.props.className)
             className += ' ' + this.props.className;
 
@@ -33,8 +39,11 @@ class Menu extends React.Component {
                     children={this.props.children}
                     />
                 {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
+                {this.state.open ? <div
+                    className="asui-menu-dropdown"
+                >{this.state.options}</div> : null}
             </div>
-        )
+            );
     }
 
     getEventProps() {
@@ -50,19 +59,21 @@ class Menu extends React.Component {
             console.warn("Menu is disabled.", this);
             return;
         }
+        e.menu = this;
         const result = this.props.onAction(e, this);
         if(result !== false)
             MenuManager.closeAllMenus(e);
     }
 
     onInputEvent(e) {
-        // console.log(e.type, e);
-
         switch (e.type) {
 
 
             case 'click':
-                this.doMenuAction(e);
+                if(!e.isDefaultPrevented()) {
+                    e.preventDefault();
+                    this.doMenuAction(e);
+                }
                 break;
 
             case 'keydown':
