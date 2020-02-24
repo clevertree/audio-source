@@ -239,19 +239,19 @@ class ComposerRenderer extends React.Component {
                                        <InstrumentRenderer
                                            key={instrumentID}
                                            song={this.song}
+                                           openMenu={e => this.openMenu(e)}
                                            props={instrumentConfig}
                                            instrumentID={instrumentID}
                                        />
                                    )}
                                    <Form className="instrument-add" title="Add Instrument">
-                                       <MenuButton
+                                       <Button
                                            className="instrument-add"
-                                           // onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
-                                           options={() => InstrumentLoader.getInstruments().map((config, i) =>
-                                               <Menu key={i} onAction={e => this.instrumentAdd(config.className)} >Add instrument '{config.title}'</Menu>
-                                           )}
+                                           onAction={e => this.openMenuSelectAvailableInstrument(e, instrumentClass => {
+                                               this.instrumentAdd(instrumentClass)
+                                           }, 'Add instrument ')}
                                            title="Add Instrument"
-                                       >Select...</MenuButton>
+                                       >Select...</Button>
                                    </Form>
                                </>)} />
 
@@ -259,12 +259,11 @@ class ComposerRenderer extends React.Component {
                                ref={ref=>this.panelInstructions = ref}
                         >
                             <Form className="instruction-command" title="Command">
-                                <MenuButton
+                                <Button
                                     // className="command"
-
+                                    onAction={e => this.openMenuEditInsert(e)}
                                     // // TODO: filter by selected instrument
-                                    options={e => this.renderMenu('edit-set-command')}
-                                >C4</MenuButton>
+                                >C4</Button>
                             </Form>
                             <Form className="instruction-insert" title="Add">
                                 <Button
@@ -286,21 +285,17 @@ class ComposerRenderer extends React.Component {
                             </Form>
 
                             <Form className="instruction-instrument" title="Instrument">
-                                <MenuButton
+                                <Button
                                     // className="instrument-instrument"
-                                    options={() =>
-                                        this.values.getSongInstruments((id, name) =>
-                                            <Menu key={id} onAction={(e) => this.instructionChangeInstrument(id)}>{name}</Menu>
-                                        )
-                                    }
+                                    onAction={e => this.openMenuEditSetInstrument(e)}
                                     title="Song Instruments"
-                                >Select</MenuButton>
+                                >Select</Button>
                             </Form>
 
                             <Form className="instruction-velocity" title="Velocity">
                                 <InputRange
                                     // className="velocity"
-                                    onAction={(e, newVelocity) => this.instructionChangeVelocity(newVelocity)}
+                                    onAction={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
                                     // value={this.state.volume}
                                     min={1}
                                     max={127}
@@ -311,53 +306,36 @@ class ComposerRenderer extends React.Component {
 
 
                             <Form className="instruction-duration" title="Duration">
-                                <MenuButton
+                                <Button
                                     // className="instruction-duration"
-                                    options={() =>
-                                        this.values.getNoteDurations((duration, title) =>
-                                            <Menu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</Menu>
-                                        )
-                                    }
+                                    onAction={e => this.openMenuEditSetDuration(e)}
                                     title="Load Song from File"
-                                >1B</MenuButton>
+                                >1B</Button>
                             </Form>
                         </Panel>
 
                         <Panel className="tracker" title="Tracker">
                             <Form className="tracker-row-length" title="Row &#120491;">
-                                <MenuButton
-                                    value="1B"
+                                <Button
                                     // className="tracker-row-length"
-                                    options={() =>
-                                        this.values.getNoteDurations((duration, title) =>
-                                            <Menu key={duration} onAction={(e) => this.instructionChangeDuration(duration)}>{title}</Menu>
-                                        )
-                                    }
-                                >1B</MenuButton>
+                                    onAction={e => this.openMenuTrackerSetQuantization(e)}
+                                >1B</Button>
                             </Form>
 
                             <Form className="tracker-segment-length" title="Seg &#120491;">
-                                <MenuButton
+                                <Button
                                     // className="tracker-segment-length"
-                                    options={() =>
-                                        this.values.getSegmentLengths((length, title) =>
-                                            <Menu key={length} onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</Menu>
-                                        )
-                                    }
+                                    onAction={e => this.openMenuTrackerSetSegmentLength(e)}
                                     title="Select Tracker Segment Length"
-                                >16B</MenuButton>
+                                >16B</Button>
                             </Form>
 
                             <Form className="tracker-instrument" title="Instrument">
-                                <MenuButton
+                                <Button
                                     // className="tracker-instrument"
-                                    options={() =>
-                                        this.values.getSongInstruments((instrumentID, name) =>
-                                            <Menu key={instrumentID} onAction={(e) => this.trackerChangeInstrumentFilter(instrumentID)}>{name}</Menu>
-                                        )
-                                    }
+                                    onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}
                                     title="Filter by Tracker Instrument"
-                                >Any</MenuButton>
+                                >Any</Button>
                             </Form>
 
                             <Form className="tracker-selection" title="Selection">
@@ -370,15 +348,11 @@ class ComposerRenderer extends React.Component {
                             </Form>
 
                             <Form className="tracker-octave" title="Octave">
-                                <MenuButton
+                                <Button
                                     className="tracker-selection"
-                                    options={() =>
-                                        this.values.getNoteOctaves(octave =>
-                                            <Menu key={octave} onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</Menu>
-                                        )
-                                    }
+                                    onAction={e => this.openMenuTrackerSetOctave(e)}
                                     title="Tracker Change Octave"
-                                >4</MenuButton>
+                                >4</Button>
                             </Form>
                         </Panel>
 

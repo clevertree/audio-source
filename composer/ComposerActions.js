@@ -347,7 +347,7 @@ class ComposerActions extends ComposerMenu {
     }
 
     // TODO: assuming the use of tracker.getGroupName()?
-    async instructionChangeInstrument(instrumentID = null, groupName = null, selectedIndices = null) {
+    async instructionReplaceInstrument(instrumentID = null, groupName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
@@ -364,7 +364,7 @@ class ComposerActions extends ComposerMenu {
         this.playCursorInstruction();
     }
 
-    async instructionChangeDuration(duration = null, promptUser = false, groupName = null, selectedIndices = null) {
+    async instructionReplaceDuration(duration = null, promptUser = false, groupName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
@@ -384,7 +384,7 @@ class ComposerActions extends ComposerMenu {
 
     }
 
-    async instructionChangeVelocity(velocity = null, promptUser = false, groupName = null, selectedIndices = null) {
+    async instructionReplaceVelocity(velocity = null, promptUser = false, groupName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
         groupName = groupName || tracker.getGroupName();
@@ -709,9 +709,9 @@ class ComposerActions extends ComposerMenu {
             this.fieldTrackerOctave.value = newOctave;
     }
 
-    trackerChangeRowLength(trackerRowLength = null) {
+    trackerChangeQuantization(quantizationInTicks = null) {
         const tracker = this.tracker;
-        tracker.setState({trackerRowLength});
+        tracker.setState({quantizationInTicks});
 
     }
 

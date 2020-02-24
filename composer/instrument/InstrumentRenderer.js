@@ -47,10 +47,11 @@ class InstrumentRenderer extends React.Component {
                     contentHTML += `Loading`;
 
                 } else if (instrument.constructor && typeof instrument.constructor.getRenderer === "function") {
-                    return instrument.constructor.getRenderer(
+                    return instrument.constructor.getRenderer({
                         song,
-                        instrumentID
-                    );
+                        instrumentID,
+                        openMenu: this.props.openMenu
+                    });
 
                 } else {
                     contentHTML += `No Instrument Renderer`;

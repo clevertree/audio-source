@@ -8,6 +8,11 @@ class MenuButton extends React.Component {
         super(props);
         this.refMenu = React.createRef();
     }
+
+    openMenu() {
+
+    }
+
     render() {
         return (
             <Button onAction={e => this.refMenu.current.toggleMenu(e)}>

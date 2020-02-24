@@ -149,7 +149,7 @@ class ComposerMenu extends ComposerRenderer {
 
 
 
-    openMenuSelectInstrument(e, onSelectValue) {
+    openMenuSelectSongInstrument(e, onSelectValue) {
         this.openMenu(e, this.values.getSongInstruments((instrumentID, label) =>
             <Menu key={instrumentID} onAction={() => onSelectValue(instrumentID)}  >{label}</Menu>
         ));
@@ -179,6 +179,12 @@ class ComposerMenu extends ComposerRenderer {
         </>);
     }
 
+
+    openMenuSelectAvailableInstrument(e, onSelectValue, prependString='') {
+        this.openMenu(e, InstrumentLoader.getInstruments().map((config, instrumentID) =>
+            <Menu key={instrumentID} onAction={() => onSelectValue(instrumentID)}       >{prependString}{config.title}</Menu>
+        ));
+    }
 
 
 
@@ -218,7 +224,7 @@ class ComposerMenu extends ComposerRenderer {
         // openMenuEditGroup.disabled = true;
     }
 
-    // TODO: combine insert and set
+
     openMenuEditInsert(e) {
         this.openMenu(e, <>
             <SubMenu onAction={e => this.openMenuEditInsertCommandCurrentOctave(e)}      >Current Octave</SubMenu>
@@ -302,24 +308,21 @@ class ComposerMenu extends ComposerRenderer {
 
     openMenuEditSetInstrument(e) {
         this.openMenu(e, this.values.getSongInstruments((instrumentID, label) =>
-            <Menu key={instrumentID} onAction={e => this.instructionChangeInstrument(instrumentID)}  >{label}</Menu>
+            <Menu key={instrumentID} onAction={e => this.instructionReplaceInstrument(instrumentID)}  >{label}</Menu>
         ));
     }
 
     openMenuEditSetDuration(e) {
-
-        this.openMenu(e, <>
-            {this.values.getNoteDurations((durationInTicks, durationName) =>
-                <Menu key={durationInTicks} onAction={e => this.instructionChangeDuration(durationInTicks)}  >{durationName}</Menu>)}
-            <Menu onAction={e => this.instructionChangeDuration(null, true)} hasBreak >Custom Duration</Menu>
-        </>);
+        this.openMenuSelectDuration(e, durationInTicks => {
+            this.instructionReplaceDuration(durationInTicks)
+        })
     }
 
     openMenuEditSetVelocity(e) {
         this.openMenu(e, <>
             {this.values.getNoteVelocities((velocity) =>
-                <Menu key={velocity} onAction={e => this.instructionChangeVelocity(velocity)}  >{velocity}</Menu>)}
-            <Menu onAction={e => this.instructionChangeVelocity(null, true)} hasBreak >Custom Velocity</Menu>
+                <Menu key={velocity} onAction={e => this.instructionReplaceVelocity(velocity)}  >{velocity}</Menu>)}
+            <Menu onAction={e => this.instructionReplaceVelocity(null, true)} hasBreak >Custom Velocity</Menu>
         </>);
     }
 
@@ -402,6 +405,36 @@ class ComposerMenu extends ComposerRenderer {
 
     }
 
+
+    /** Tracker Menu **/
+
+    openMenuTrackerSetQuantization(e) {
+        this.openMenuSelectDuration(e, duration => {
+            this.trackerChangeQuantization(duration);
+        })
+    }
+
+
+
+    openMenuTrackerSetSegmentLength(e) {
+        return this.openMenu(e, this.values.getSegmentLengths((length, title) =>
+            <Menu key={length} onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</Menu>
+        ))
+    }
+
+    openMenuTrackerSetInstrumentFilter(e) {
+        this.openMenuSelectSongInstrument(e, instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
+    }
+
+    openMenuTrackerSetOctave(e) {
+        return this.openMenu(e,
+            this.values.getNoteOctaves(octave =>
+                <Menu key={octave} onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</Menu>
+            )
+        );
+    }
+
+    /** View Menu **/
     openMenuView(e) {
         this.openMenu(e, <>
             <Menu onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>

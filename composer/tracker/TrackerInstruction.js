@@ -54,7 +54,7 @@ class TrackerInstruction extends React.Component {
     }
 
     renderMenuSelectInstrument(e) {
-        this.getComposer().openMenuSelectInstrument(e, instrumentID => {
+        this.getComposer().openMenuSelectSongInstrument(e, instrumentID => {
             this.instructionReplaceInstrument(instrumentID);
         });
     }

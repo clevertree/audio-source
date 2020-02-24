@@ -6,16 +6,17 @@ import {
     Div,
     Menu,
     MenuBreak,
+    SubMenu,
     Icon,
     MenuButton,
 } from "../../../components";
 
 import {Library} from "../../../song";
+import InstrumentLoader from "../../InstrumentLoader";
 
 import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 
 import "./assets/SynthesizerRenderer.css";
-import InstrumentLoader from "../../InstrumentLoader";
 
 /** AudioSourceSynthesizerRenderer **/
 class SynthesizerRenderer extends React.Component {
@@ -25,7 +26,7 @@ class SynthesizerRenderer extends React.Component {
         this.state = {
             open: config.samples && config.samples.length > 0,
             library: Library.loadDefault()
-        }
+        };
         if(config.libraryURL)
             this.changeLibrary(config.libraryURL);
     }
@@ -63,14 +64,14 @@ class SynthesizerRenderer extends React.Component {
                     {this.state.open ? <MenuButton
                         title="Change Preset"
                         className="instrument-preset"
-                        options={e => this.renderMenu('change-preset')}
+                        options={e => this.openMenuChangePreset()}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         children={instrumentConfig.presetName || "No Preset"}
                         /> : null}
                     <MenuButton
                         arrow={false}
                         className="instrument-config"
-                        options={e => this.renderMenu()}
+                        options={e => this.openMenuRoot()}
                         >
                         <Icon className="config"/>
                     </MenuButton>
@@ -93,93 +94,73 @@ class SynthesizerRenderer extends React.Component {
 
     }
 
-    renderMenu(menuKey = null) {
-        let library = this.state.library;
-//             console.log('renderMenu', menuKey);
-        switch (menuKey) {
-            case null:
-                return (<>
-                    <Menu options={e => this.renderMenu('change-preset')}>Change Preset</Menu>
-                    <MenuBreak />
-                    <Menu options={e => this.renderMenu('change')}>Change Instrument</Menu>
-                    <Menu onAction={e => this.instrumentRename(e)}>Rename Instrument</Menu>
-                    <Menu onAction={e => this.instrumentRemove(e)}>Remove Instrument</Menu>
-                </>);
-
-            case 'change':
-                return (<>
-                    {InstrumentLoader.getInstruments().map(config =>
-                        <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
-                    )}
-                </>);
-
-
-            case 'change-preset':
-                return (<>
-                    <Menu options={e => this.renderMenu('library-list')}    >Libraries</Menu>
-                    <MenuBreak />
-                    <Menu disabled>Search</Menu>
-                    <MenuBreak />
-                    {library.getPresets().length > 0 ? (
-                        <Scrollable>
-                            {library.getPresets().map(config => (
-                                <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
-                            ))}
-                        </Scrollable>
-                    ) : <Menu disabled> - Select a Library - </Menu>}
-                </>);
-
-                // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
-                //     library.getPresets().map(config => selectElm.getOption(config.url, config.name)),
-                // ),
-                //     selectElm.getOptGroup('Libraries', () =>
-                //             library.getLibraries().map(config => selectElm.getOption(config.url, config.name)),
-                //         {disabled: library.libraryCount === 0}
-                //     ),
-                //     selectElm.getOptGroup('Other Libraries', () =>
-                //             Library.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
-                //         {disabled: Library.historicLibraryCount === 0}
-                //     ),
-            case 'preset-list':
-                if(library.getPresets().length === 0)
-                    return <Menu disabled>No presets</Menu>;
-                return library.getPresets().map(config => (
-                    <Menu>{config.name}</Menu>
-                ));
-
-            case 'library-list':
-                return library.getLibraries().map(config => (
-                    <Menu onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</Menu>
-                ));
-
-            case 'config':
-                /**
-                 *
-                 *
-
-
-
-                 Menu.createElement({}, 'Change Instrument to',
-                 async () => {
-                                const instrumentLibrary = await Library.loadDefaultLibrary(); // TODO: get default library url from composer?
-                                return instrumentLibrary.getInstruments().map((instrumentConfig) =>
-                                    Menu.createElement({}, instrumentConfig.name, null, () => {
-                                        this.song.instrumentReplace(instrumentID, instrumentConfig);
-                                    })
-                                );
-                            }
-                 ),
-                 Menu.createElement({}, 'Rename Instrument', null, () => this.song.instrumentRename(instrumentID)),
-                 Menu.createElement({}, 'Remove Instrument', null, () => this.song.instrumentRemove(instrumentID)),
-
-                 */
-                break;
-
-            default:
-                throw new Error("Unknown menu key: " + menuKey);
-        }
-
+    openMenu(e, options) {
+        this.props.openMenu(e, options);
     }
+
+    openMenuRoot(e) {
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuChangePreset()}>Change Preset</SubMenu>
+            <MenuBreak />
+            <SubMenu onAction={e => this.openMenuChange(e)}>Change Instrument</SubMenu>
+            <Menu onAction={e => this.instrumentRename(e)}>Rename Instrument</Menu>
+            <Menu onAction={e => this.instrumentRemove(e)}>Remove Instrument</Menu>
+        </>);
+    }
+
+    openMenuChange(e) {
+        this.openMenu(e, <>
+            {InstrumentLoader.getInstruments().map(config =>
+                <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
+            )}
+        </>);
+    }
+
+    openMenuChangePreset(e) {
+        let library = this.state.library;
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuLibraryList(e)}    >Libraries</SubMenu>
+            <MenuBreak />
+            <Menu disabled>Search</Menu>
+            <MenuBreak />
+            {library.getPresets().length > 0 ? (
+                <Scrollable>
+                    {library.getPresets().map(config => (
+                        <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
+                    ))}
+                </Scrollable>
+            ) : <Menu disabled> - Select a Library - </Menu>}
+        </>);
+
+        // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
+        //     library.getPresets().map(config => selectElm.getOption(config.url, config.name)),
+        // ),
+        //     selectElm.getOptGroup('Libraries', () =>
+        //             library.getLibraries().map(config => selectElm.getOption(config.url, config.name)),
+        //         {disabled: library.libraryCount === 0}
+        //     ),
+        //     selectElm.getOptGroup('Other Libraries', () =>
+        //             Library.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+        //         {disabled: Library.historicLibraryCount === 0}
+        //     ),
+    }
+
+    openMenuPresetList(e) {
+        let library = this.state.library;
+        // if(library.getPresets().length === 0)
+        //     return <Menu disabled>No presets</Menu>;
+        this.openMenu(e, library.getPresets().map(config => (
+            <Menu>{config.name}</Menu>
+        )));
+    }
+
+    openMenuLibraryList(e) {
+        let library = this.state.library;
+        return library.getLibraries().map(config => (
+            <Menu onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</Menu>
+        ));
+    }
+
 
     instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
         const instrumentID = this.props.instrumentID;

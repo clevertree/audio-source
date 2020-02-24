@@ -59,6 +59,8 @@ class Menu extends React.Component {
             console.warn("Menu is disabled.", this);
             return;
         }
+        if(!this.props.onAction)
+            throw new Error("prop onAction is missing");
         e.menu = this;
         const result = this.props.onAction(e, this);
         if(result !== false)
