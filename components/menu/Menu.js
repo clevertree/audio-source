@@ -23,15 +23,27 @@ class Menu extends React.Component {
         let className = this.getClassName();
         if(this.props.className)
             className += ' ' + this.props.className;
+        if(this.props.disabled)
+            className += ' disabled';
         if(this.state.stick)
             className += ' stick';
 
-        const eventProps = this.getEventProps();
-
         return (
-            <div className={className} {...eventProps}>
-                <div className="title">{this.props.children}</div>
-                {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
+            <div
+                className={className}
+                onMouseLeave={this.onInputEventCallback}
+                onMouseEnter={this.onInputEventCallback}
+                >
+                <div
+                    className="title"
+                    onClick={this.onInputEventCallback}
+                    onKeyDown={this.onInputEventCallback}
+                    tabIndex={0}
+                    >
+                    {this.props.children}
+                    {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
+                </div>
+
                 {this.state.open ? this.renderOptions() : null}
             </div>
         );
@@ -49,13 +61,6 @@ class Menu extends React.Component {
         );
     }
 
-    getEventProps() {
-        return {
-            onClick: this.onInputEventCallback,
-            onKeyDown: this.onInputEventCallback,
-            onMouseLeave: this.onInputEventCallback,
-        };
-    }
 
     onInputEvent(e) {
         switch (e.type) {
@@ -69,7 +74,7 @@ class Menu extends React.Component {
             case 'mouseenter':
             case 'mouseover':
                 clearTimeout(this.mouseTimeout);
-                if(this.state.open !== true) {
+                if(this.state.open !== true && this.props.openOnHover) {
                     this.mouseTimeout = setTimeout(te => {
                         this.setState({open: true});
                         this.doAction('mouseenter');

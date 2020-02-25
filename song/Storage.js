@@ -42,7 +42,7 @@ class Storage {
             }
         };
         if (defaultInstrumentClass)
-            songData.instruments.push({class: defaultInstrumentClass});
+            songData.instruments.push({className: defaultInstrumentClass});
         return songData;
     }
 

@@ -32,7 +32,7 @@ class InstrumentLoader {
 
 
     static createInstrumentConfig(className, instrumentConfig={}) {
-        this.getInstrumentClass(className);
+        this.getInstrumentClass(className); // TODO: default config?
         instrumentConfig.className = className;
         return instrumentConfig;
     }

@@ -4,11 +4,11 @@ import {Menu} from "./Menu";
 
 class SubMenu extends Menu {
 
-    getEventProps() {
-        return Object.assign({
-            onMouseEnter: this.onInputEventCallback,
-        }, super.getEventProps());
-    }
+    // getEventProps() {
+    //     return Object.assign({
+    //         onMouseEnter: this.onInputEventCallback,
+    //     }, super.getEventProps());
+    // }
 
 
 }
@@ -19,6 +19,7 @@ export default SubMenu;
 SubMenu.defaultProps = {
     arrow:          '►',
     vertical:       false,
+    openOnHover:    true,
 };
 
 // validating prop types

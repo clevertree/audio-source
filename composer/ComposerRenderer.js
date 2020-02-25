@@ -240,14 +240,15 @@ class ComposerRenderer extends React.Component {
                                    {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
                                        <InstrumentRenderer
                                            key={instrumentID}
-                                           song={this.song}
-                                           openMenu={e => this.openMenu(e)}
+                                           composer={this}
+                                           openMenu={(e, options) => this.openMenu(e, options)}
                                            props={instrumentConfig}
                                            instrumentID={instrumentID}
                                        />
                                    )}
                                    <Form className="instrument-add" title="Add Instrument">
                                        <Button
+                                           arrow={'▼'}
                                            className="instrument-add"
                                            onAction={e => this.openMenuSelectAvailableInstrument(e, instrumentClass => {
                                                this.instrumentAdd(instrumentClass)

@@ -12,10 +12,17 @@ import "./assets/Composer.css";
 class ComposerMenu extends ComposerRenderer {
 
     openMenu(e, options) {
-        console.log('openMenu', e);
-        this.state.portrait || !e.openMenu // If portrait mode, or the event doesn't have an 'openMenu' callback
-        ? this.menu.openMenu(e, options)
-        : e.openMenu(e, options);
+        // console.log('openMenu', e);
+        if(!this.state.portrait) {
+            if(typeof e.openMenu !== "function") {
+                console.warn("Menu.openMenu was triggered from a non-Menu element class");
+            } else {
+                e.openMenu(e, options);
+                return;
+            }
+        }
+
+        this.menu.openMenu(e, options);
     }
 
     getMenuRoot() {
@@ -181,8 +188,8 @@ class ComposerMenu extends ComposerRenderer {
 
 
     openMenuSelectAvailableInstrument(e, onSelectValue, prependString='') {
-        this.openMenu(e, InstrumentLoader.getInstruments().map((config, instrumentID) =>
-            <Menu key={instrumentID} onAction={() => onSelectValue(instrumentID)}       >{prependString}{config.title}</Menu>
+        this.openMenu(e, InstrumentLoader.getInstruments().map((config, i) =>
+            <Menu key={i} onAction={() => onSelectValue(config.className)}       >{prependString}{config.title}</Menu>
         ));
     }
 

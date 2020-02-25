@@ -3,6 +3,7 @@ import {
     Div,
     Icon,
     Menu,
+    SubMenu,
     Button,
 } from "../../components";
 
@@ -13,21 +14,8 @@ import "./assets/InstrumentRenderer.css";
 
 class InstrumentRenderer extends React.Component {
 
-
-    getSong() { return this.props.song; }
-
-    renderInstrumentConfig() {
-        return (
-            <Button
-                arrow={false}
-                className="instrument-config"
-                onAction={e => this.renderMenu()}
-            >
-                <Icon className="config"/>
-            </Button>
-        )
-    }
-
+    getComposer() { return this.props.composer; }
+    getSong() { return this.getComposer().getSong(); }
 
     render() {
         const song = this.getSong();
@@ -76,47 +64,38 @@ class InstrumentRenderer extends React.Component {
         // return content;
     }
 
-    renderMenu(menuKey = null) {
-        // let library;
-//             console.log('renderMenu', menuKey);
-        switch (menuKey) {
-            case null:
-                const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
-                return (<>
-                    <Menu options={e => this.renderMenu('change')}>Change Instrument</Menu>
-                    <Menu onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</Menu>
-                    <Menu onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</Menu>
-                </>);
 
-            case 'change':
-                return (<>
-                    {InstrumentLoader.getInstruments().map(config =>
-                        <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
-                    )}
-                </>);
-
-
-            default:
-                throw new Error("Unknown menu key: " + menuKey);
-
-            // case 'config':
-            //     library = this.state.library;
-            //     return (<>
-            //         <Menu options={e => this.renderMenu('library-list')}>Libraries</Menu>
-            //         <MenuBreak/>
-            //         <Menu disabled>Search</Menu>
-            //         <MenuBreak/>
-            //         {library.getPresets().length > 0 ? (
-            //             <Scrollable>
-            //                 {library.getPresets().map(config => (
-            //                     <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
-            //                 ))}
-            //             </Scrollable>
-            //         ) : <Menu disabled> - Select a Library - </Menu>}
-            //     </>);
-
-        }
+    renderInstrumentConfig() {
+        return (
+            <Button
+                arrow={false}
+                className="instrument-config"
+                onAction={e => this.openMenuRoot(e)}
+            >
+                <Icon className="config"/>
+            </Button>
+        )
     }
+
+    openMenu(e, options) {
+        this.getComposer().openMenu(e, options);
+    }
+
+    openMenuRoot(e) {
+        const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
+        this.openMenu(e, <>
+            <SubMenu onAction={e => this.openMenuReplaceInstrument(e)}>Change Instrument</SubMenu>
+            <Menu onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</Menu>
+            <Menu onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</Menu>
+        </>)
+    }
+
+    openMenuReplaceInstrument(e) {
+        this.openMenu(e, InstrumentLoader.getInstruments().map((config, i) =>
+            <Menu key={i} onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
+        ));
+    }
+
 
     instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
         const instrumentID = this.props.instrumentID;

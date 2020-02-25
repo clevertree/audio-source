@@ -2,7 +2,6 @@
 /** Menu **/
 
 div.asui-menu {
-    display: flex;
     position: relative;
     /*color: black;*/
     padding: 0 0;
@@ -14,9 +13,6 @@ div.asui-menu {
     transition: background-color 0.3s;
 }
 
-div.asui-menu {
-    display: flex;
-}
 
 /** Hover **/
 div.asui-menu:hover {
@@ -30,8 +26,16 @@ div.asui-menu.disabled {
     cursor: not-allowed;
 }
 
+/** Menu Stick **/
+div.asui-menu.stick {
+    background-color: #999;
+}
+
+
 /** Menu Title **/
 div.asui-menu > div.title {
+    display: flex;
+
     /*display: inline-block;*/
     /*padding: 0 6px 0 4px;*/
     /*padding: 0;*/
@@ -40,18 +44,11 @@ div.asui-menu > div.title {
 
 
 /** Menu Arrow **/
-
-div.asui-menu > div.arrow {
+div.asui-menu > div.title > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;
     padding-left: 0.5em;
-}
-
-
-/** Menu Stick **/
-div.asui-menu.stick {
-    background-color: #999;
 }
 
 

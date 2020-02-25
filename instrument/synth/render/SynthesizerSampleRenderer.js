@@ -5,7 +5,8 @@ import {
     Div,
     Menu,
     MenuBreak,
-    Icon, InputRange,
+    Button,
+    Icon, InputRange, SubMenu,
 } from "../../../components";
 
 import "./assets/SynthesizerSampleRenderer.css";
@@ -38,44 +39,45 @@ class SynthesizerSampleRenderer extends React.Component {
             <Div
                 className={className}
                 >
-                <Div title="Change Sample" className="name">
-                    <Menu arrow={false} onAction={e => this.toggleOpen(e)} >
-                        {sampleName || "Unnamed"}
-                    </Menu>
-                </Div>
+                <Button
+                    title="Change Sample"
+                    className="name"
+                    onAction={e => this.toggleOpen(e)}>
+                    {sampleName || "Unnamed"}
+                </Button>
                 {!this.state.open ? null : (
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <Menu onAction={e => this.renderMenu('sample-mixer')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
                                     {sample.mixer+'%'}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
                             <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <Menu onAction={e => this.renderMenu('sample-detune')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
                                     {sample.detune+'c'}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
                             <Div title={`Key Root is ${sample.root}`} className="root">
-                                <Menu onAction={e => this.renderMenu('sample-root')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
                                     {sample.root}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
                             <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <Menu onAction={e => this.renderMenu('sample-alias')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
                                     {sample.alias}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
                             <Div title={`Key Range is ${sample.range}`} className="range">
-                                <Menu onAction={e => this.renderMenu('sample-range')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
                                     {sample.range}
                                 </Menu>
                             </Div>
@@ -90,13 +92,101 @@ class SynthesizerSampleRenderer extends React.Component {
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <Menu onAction={e => this.renderMenu()} arrow={false} vertical openOnHover={false}>
+                    <Menu onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
                         <Icon className="config"/>
                     </Menu>
                 </Div>
             </Div>
         );
     }
+
+
+    openMenu(e, options) {
+        if(typeof this.props.openMenu === "function")
+            this.props.openMenu(e, options);
+        else
+            throw new Error("Invalid 'openMenu' props");
+    }
+
+    openMenuRoot(e) {
+        this.openMenu(e, <>
+            <Menu onAction={()=>{}} disabled>Sample {this.props.sampleID}</Menu>
+            <MenuBreak />
+            <SubMenu key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</SubMenu>
+            <SubMenu key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</SubMenu>
+            <SubMenu key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</SubMenu>
+            <SubMenu key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</SubMenu>
+            <SubMenu key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</SubMenu>
+            <SubMenu key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</SubMenu>
+            <MenuBreak />
+            <SubMenu key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</SubMenu>
+            <Menu key="remove" onAction={e => this.renderMenu('sample-remove')}>Remove Sample</Menu>
+        </>);
+    }
+
+    openMenuChangeSample(e) {
+        const sample = this.getSampleData();
+        this.openMenu(e, <InputRange min={0} max={100} value={sample.mixer} />);
+    }
+
+    openMenuChangeMixer(e) {
+        const sample = this.getSampleData();
+        this.openMenu(e, <InputRange
+            min={0}
+            max={100}
+            value={typeof sample.mixer !== "undefined" ? sample.mixer : 100}
+            onChange={(e, mixerValue) => this.changeMixer(mixerValue)}
+        />);
+    }
+
+    openMenuChangeDetune(e) {
+        const sample = this.getSampleData();
+        this.openMenu(e, <InputRange
+            min={-1000}
+            max={1000}
+            value={typeof sample.detune !== "undefined" ? sample.detune : 100}
+            onChange={(e, detuneValue) => this.changeDetune(detuneValue)}
+        />);
+    }
+
+    // TODO: use generic menu/value library
+    openMenuChangeKeyRoot(e) {
+        const values = this.getSong().values;
+        this.openMenu(e, <>
+            <Menu onAction={null} disabled>Edit Key Root</Menu>
+            <MenuBreak />
+            {values.getNoteOctaves((octave) =>
+                <SubMenu onAction={e => this.openMenu(e,
+                    values.getNoteFrequencies((noteName) =>
+                        <Menu onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</Menu>
+                    )
+                )}>{octave}</SubMenu>)}
+        </>);
+    }
+
+    openMenuChangeKeyAlias(e) {
+        const values = this.getSong().values;
+        this.openMenu(e, <>
+            <Menu onAction={null} disabled>Edit Key Root</Menu>
+            <MenuBreak />
+            {values.getNoteOctaves((octave) =>
+                <SubMenu onAction={e => this.openMenu(e,
+                    values.getNoteFrequencies((noteName) =>
+                        <Menu onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</Menu>
+                    )
+                )}>{octave}</SubMenu>)}
+        </>);
+    }
+
+    openMenuChangeKeyRange(e) {
+        this.openMenu(e, );
+    }
+
+    openMenuChangeLoop(e) {
+        this.openMenu(e, );
+    }
+
+
 
     renderMenu(menuKey=null) {
         const sample = this.getSampleData();
@@ -105,45 +195,23 @@ class SynthesizerSampleRenderer extends React.Component {
             case 'sample-loop':
             case 'sample-remove':
             case null:
-                return <>
-                    <Menu onAction={()=>{}} disabled>Sample {this.props.sampleID}</Menu>
-                    <MenuBreak />
-                    <Menu key="mixer" options={() => this.renderMenu('sample-mixer')}>Edit Mixer</Menu>
-                    <Menu key="detune" options={() => this.renderMenu('sample-detune')}>Edit Detune</Menu>
-                    <Menu key="root" options={() => this.renderMenu('sample-root')}>Edit Key Root</Menu>
-                    <Menu key="alias" options={() => this.renderMenu('sample-alias')}>Edit Key Alias</Menu>
-                    <Menu key="range" options={() => this.renderMenu('sample-range')}>Edit Key Range</Menu>
-                    <Menu key="loop" onAction={e => this.changeLoop()}>Toggle Loop</Menu>
-                    <MenuBreak />
-                    <Menu key="change" options={() => this.renderMenu('sample-change')}>Change Sample</Menu>
-                    <Menu key="remove" options={() => this.renderMenu('sample-remove')}>Remove Sample</Menu>
-                </>;
+                return ;
 
             case 'sample-change':
                 return <>
-                    <InputRange min={0} max={100} value={sample.mixer} />
+
                 </>;
 
             case 'sample-mixer':
                 return <>
-                    <InputRange
-                        min={0}
-                        max={100}
-                        value={typeof sample.mixer !== "undefined" ? sample.mixer : 100}
-                        onChange={(e, mixerValue) => this.changeMixer(mixerValue)}
-                        />
+
                     <MenuBreak />
                     <Menu onAction={null} disabled>Edit Mixer</Menu>
                 </>;
 
             case 'sample-detune':
                 return <>
-                    <InputRange
-                        min={-1000}
-                        max={1000}
-                        value={typeof sample.detune !== "undefined" ? sample.detune : 100}
-                        onChange={(e, detuneValue) => this.changeDetune(detuneValue)}
-                        />
+
                     <MenuBreak />
                     <Menu onAction={null} disabled>Edit Detune</Menu>
                 </>;
@@ -153,7 +221,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     <Menu onAction={null} disabled>Edit Key Root</Menu>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <Menu options={
+                    <Menu onAction={
                         () => values.getNoteFrequencies((noteName) =>
                             <Menu onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</Menu>
                         )
@@ -165,7 +233,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     <Menu onAction={null} disabled>Edit Key Alias</Menu>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <Menu options={
+                    <Menu onAction={
                         () => values.getNoteFrequencies((noteName) =>
                             <Menu onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</Menu>
                         )
@@ -185,7 +253,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     <Menu onAction={null} disabled>Range Start</Menu>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <Menu options={
+                        <Menu onAction={
                             () => values.getNoteFrequencies((noteName) =>
                                 <Menu onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</Menu>
                             )
@@ -197,7 +265,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     <Menu onAction={null} disabled>Range End</Menu>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <Menu options={
+                        <Menu onAction={
                             () => values.getNoteFrequencies((noteName) =>
                                 <Menu onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</Menu>
                             )
@@ -262,6 +330,7 @@ class SynthesizerSampleRenderer extends React.Component {
             newLoopValue?1:0
         );
     }
+
 }
 
 export default SynthesizerSampleRenderer;

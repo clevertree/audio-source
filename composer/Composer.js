@@ -162,17 +162,18 @@ class Composer extends ComposerActions {
             return true;
         }
 
-        await this.loadNewSongData();
 
         if (recentSongUUID) {
             try {
                 await this.loadSongFromMemory(recentSongUUID);
+                return;
             } catch (e) {
                 console.error(e);
                 this.setError("Error: " + e.message)
             }
-            return;
         }
+
+        await this.loadNewSongData();
 
 
         // if(await this.loadRecentSongData())
@@ -255,7 +256,7 @@ class Composer extends ComposerActions {
     }
 
     async onSongEvent(e) {
-        // console.log("Song Event: ", e.type);
+        console.log("Song Event: ", e.type);
         switch (e.type) {
             case 'log':
                 this.setStatus(e.detail);

@@ -34,6 +34,13 @@ class SynthesizerRenderer extends React.Component {
     getConfig() { return this.getSong().getInstrumentConfig(this.props.instrumentID); }
     // getLibrary() { return this.state.library; }
 
+    openMenu(e, options) {
+        if(typeof this.props.openMenu === "function")
+            this.props.openMenu(e, options);
+        else
+            throw new Error("Invalid 'openMenu' props");
+    }
+
     render() {
         const instrumentID = this.props.instrumentID;
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
@@ -84,6 +91,7 @@ class SynthesizerRenderer extends React.Component {
                                 instrumentID={this.props.instrumentID}
                                 sampleID={sampleID}
                                 sampleData={sampleData}
+                                openMenu={(e, options) => this.openMenu(e, options)}
                             />
                         )}
                     </Div>
@@ -93,13 +101,10 @@ class SynthesizerRenderer extends React.Component {
 
     }
 
-    openMenu(e, options) {
-        this.props.openMenu(e, options);
-    }
 
     openMenuRoot(e) {
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuChangePreset()}>Change Preset</SubMenu>
+            <SubMenu onAction={e => this.openMenuChangePreset(e)}>Change Preset</SubMenu>
             <MenuBreak />
             <SubMenu onAction={e => this.openMenuChange(e)}>Change Instrument</SubMenu>
             <Menu onAction={e => this.instrumentRename(e)}>Rename Instrument</Menu>

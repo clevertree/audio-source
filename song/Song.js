@@ -844,6 +844,7 @@ class Song {
 
     hasInstrument(instrumentID) {
         const instrumentList = this.getInstrumentList();
+        // console.log('hasInstrument', instrumentList[instrumentID], !!instrumentList[instrumentID])
         return !!instrumentList[instrumentID];
     }
 
@@ -1217,13 +1218,20 @@ class Song {
 }
 
 
+
+Song.loadSongFromData = function (songData) {
+    const song = new Song();
+    song.loadSongData(songData);
+    return song;
+};
+
 Song.loadSongFromMemory = async function (songUUID) {
     const storage = new Storage();
     const songData = await storage.loadSongFromMemory(songUUID);
     const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
     const song = new Song(songData);
-    await song.loadSongData(songData);
-    await song.loadSongHistory(songHistory);
+    song.loadSongData(songData);
+    song.loadSongHistory(songHistory);
     return song;
 };
 
@@ -1234,7 +1242,7 @@ Song.loadSongFromFileInput = async function (file) {
         throw new Error("Invalid library.loadSongDataFromFileInput method");
     const songData = await library.loadSongDataFromFileInput(file);
     const song = new Song();
-    await song.loadSongData(songData);
+    song.loadSongData(songData);
     return song;
 };
 
@@ -1244,7 +1252,7 @@ Song.loadSongFromURL = async function (src) {
         throw new Error("Invalid library.loadSongDataFromURL method: " + src);
     const songData = await library.loadSongDataFromURL(src);
     const song = new Song();
-    await song.loadSongData(songData);
+    song.loadSongData(songData);
     return song;
 };
 

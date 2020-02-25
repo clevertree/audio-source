@@ -5,7 +5,7 @@
 div.tracker-row-segments-panel {
 }
 
-div.tracker-row-segments-panel > div.container > button.asui-button {
+div.tracker-row-segments-panel > div.container > .asui-button {
     border: 1px outset #FFF;
     padding: 4px 12px;
     margin: 0px 0px;

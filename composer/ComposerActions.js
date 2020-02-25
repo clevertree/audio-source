@@ -56,7 +56,7 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    /** Song commands **/
+    /** Song actions **/
 
 
     async setSongName(e, newSongName=null) {
@@ -77,12 +77,34 @@ class ComposerActions extends ComposerMenu {
     }
 
 
+
+    async openSongFromFileDialog(e, accept=null) {
+        const file = await this.openFileDialog(accept);
+        this.loadSongFromFileInput(e, file);
+    }
+
+    async loadSongFromFileInput(e, file=null, accept=null) {
+        if(file === null)
+            file = await this.openFileDialog(accept);
+        if (!file)
+            throw new Error("Invalid file input");
+        const song = await Song.loadSongFromFileInput(file);
+        await this.setCurrentSong(song);
+        // await this.song.loadSongFromFileInput(file);
+        // this.render();
+    }
+
+
+    /** Song utilities **/
+
+
     async loadNewSongData() {
         const storage = new Storage();
         const defaultInstrumentURL = this.getDefaultInstrumentClass() + '';
         let songData = storage.generateDefaultSong(defaultInstrumentURL);
-        await this.song.loadSongData(songData);
-        this.forceUpdate();
+        const song = Song.loadSongFromData(songData);
+        this.setCurrentSong(song);
+        // this.forceUpdate();
         this.setStatus("Loaded new song", songData);
     }
 
@@ -105,23 +127,6 @@ class ComposerActions extends ComposerMenu {
         this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
 //         console.info(songData);
     }
-
-    async openSongFromFileDialog(e, accept=null) {
-        const file = await this.openFileDialog(accept);
-        this.loadSongFromFileInput(file);
-    }
-
-    async loadSongFromFileInput(e, file=null, accept=null) {
-        if(file === null)
-            file = await this.openFileDialog(accept);
-        if (!file)
-            throw new Error("Invalid file input");
-        const song = await Song.loadSongFromFileInput(file);
-        await this.setCurrentSong(song);
-        // await this.song.loadSongFromFileInput(file);
-        // this.render();
-    }
-
 
     async loadSongFromURL(url) {
         const song = await Song.loadSongFromURL(url);
@@ -625,7 +630,7 @@ class ComposerActions extends ComposerMenu {
 //         e.target.form.elements['instrumentURL'].value = '';
         if (promptUser === false || window.confirm(`Add '${title}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
-            this.setStatus(`New instrument (${instrumentID} Added to song: ` + instrumentClassName);
+            this.setStatus(`New instrument class '${instrumentClassName}' added to song at position ${instrumentID}`);
             // this.forceUpdate();
             // this.fieldInstructionInstrument.setValue(instrumentID);
             // await this.panelInstruments.forceUpdate();
