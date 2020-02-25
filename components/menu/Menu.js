@@ -17,10 +17,14 @@ class Menu extends React.Component {
         };
     }
 
+    getClassName() { return 'asui-menu'; }
+
     render() {
-        let className = 'asui-menu';
+        let className = this.getClassName();
         if(this.props.className)
             className += ' ' + this.props.className;
+        if(this.state.stick)
+            className += ' stick';
 
         const eventProps = this.getEventProps();
 
@@ -145,7 +149,6 @@ Menu.propTypes = {
     vertical: PropTypes.bool,
     openOnHover: PropTypes.bool,
 };
-
 
 
 class MenuHorizontal extends Menu {}

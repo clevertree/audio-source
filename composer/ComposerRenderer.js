@@ -262,6 +262,7 @@ class ComposerRenderer extends React.Component {
                         >
                             <Form className="instruction-command" title="Command">
                                 <Button
+                                    arrow={'▼'}
                                     // className="command"
                                     onAction={e => this.openMenuEditInsert(e)}
                                     // // TODO: filter by selected instrument
@@ -288,6 +289,7 @@ class ComposerRenderer extends React.Component {
 
                             <Form className="instruction-instrument" title="Instrument">
                                 <Button
+                                    arrow={'▼'}
                                     // className="instrument-instrument"
                                     onAction={e => this.openMenuEditSetInstrument(e)}
                                     title="Song Instruments"
@@ -309,6 +311,7 @@ class ComposerRenderer extends React.Component {
 
                             <Form className="instruction-duration" title="Duration">
                                 <Button
+                                    arrow={'▼'}
                                     // className="instruction-duration"
                                     onAction={e => this.openMenuEditSetDuration(e)}
                                     title="Load Song from File"
@@ -319,6 +322,7 @@ class ComposerRenderer extends React.Component {
                         <Panel className="tracker" title="Tracker">
                             <Form className="tracker-row-length" title="Row &#120491;">
                                 <Button
+                                    arrow={'▼'}
                                     // className="tracker-row-length"
                                     onAction={e => this.openMenuTrackerSetQuantization(e)}
                                 >1B</Button>
@@ -326,6 +330,7 @@ class ComposerRenderer extends React.Component {
 
                             <Form className="tracker-segment-length" title="Seg &#120491;">
                                 <Button
+                                    arrow={'▼'}
                                     // className="tracker-segment-length"
                                     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
                                     title="Select Tracker Segment Length"
@@ -334,6 +339,7 @@ class ComposerRenderer extends React.Component {
 
                             <Form className="tracker-instrument" title="Instrument">
                                 <Button
+                                    arrow={'▼'}
                                     // className="tracker-instrument"
                                     onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}
                                     title="Filter by Tracker Instrument"
@@ -351,6 +357,7 @@ class ComposerRenderer extends React.Component {
 
                             <Form className="tracker-octave" title="Octave">
                                 <Button
+                                    arrow={'▼'}
                                     className="tracker-selection"
                                     onAction={e => this.openMenuTrackerSetOctave(e)}
                                     title="Tracker Change Octave"

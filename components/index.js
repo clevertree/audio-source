@@ -5,7 +5,8 @@ import {
     Menu,
     MenuHorizontal,
     SubMenu,
-    MenuBreak
+    MenuBreak,
+    Button
 } from "./menu/";
 
 import InputRange from "./input-range/InputRange";
@@ -14,7 +15,7 @@ import Scrollable from "./scrollable/Scrollable";
 export {
     Div,
     Icon,
-    Menu as Button,
+    Button,
 
     Menu,
     MenuHorizontal,

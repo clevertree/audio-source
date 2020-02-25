@@ -1,18 +1,17 @@
 
-button.asui-button {
-    display: inline-block;
-    cursor: pointer;
-    padding: 0 0.4em;
+div.asui-button {
+    display: inline-flex;
+    /*cursor: pointer;*/
 
+    padding: 0 0.4em;
     background: linear-gradient(#f6f6f6, #dddddd);
     border: 1px outset;
-    /*background: buttonface;*/
 }
 
-button.asui-button:hover {
+div.asui-button:hover {
     background: linear-gradient(#ddd, #bbb);
 }
 
-/*button.asui-button.stick {*/
-/*    background: linear-gradient(#ccc, #aaa);*/
-/*}*/
+div.asui-button.stick {
+    background: linear-gradient(#ccc, #aaa);
+}

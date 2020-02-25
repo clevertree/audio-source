@@ -47,35 +47,35 @@ class SynthesizerSampleRenderer extends React.Component {
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <Menu options={() => this.renderMenu('sample-mixer')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.renderMenu('sample-mixer')} arrow={false} vertical openOnHover={false}>
                                     {sample.mixer+'%'}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
                             <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <Menu options={() => this.renderMenu('sample-detune')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.renderMenu('sample-detune')} arrow={false} vertical openOnHover={false}>
                                     {sample.detune+'c'}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
                             <Div title={`Key Root is ${sample.root}`} className="root">
-                                <Menu options={() => this.renderMenu('sample-root')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.renderMenu('sample-root')} arrow={false} vertical openOnHover={false}>
                                     {sample.root}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
                             <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <Menu options={() => this.renderMenu('sample-alias')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.renderMenu('sample-alias')} arrow={false} vertical openOnHover={false}>
                                     {sample.alias}
                                 </Menu>
                             </Div>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
                             <Div title={`Key Range is ${sample.range}`} className="range">
-                                <Menu options={() => this.renderMenu('sample-range')} arrow={false} vertical openOnHover={false}>
+                                <Menu onAction={e => this.renderMenu('sample-range')} arrow={false} vertical openOnHover={false}>
                                     {sample.range}
                                 </Menu>
                             </Div>
@@ -90,7 +90,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <Menu options={() => this.renderMenu()} arrow={false} vertical openOnHover={false}>
+                    <Menu onAction={e => this.renderMenu()} arrow={false} vertical openOnHover={false}>
                         <Icon className="config"/>
                     </Menu>
                 </Div>
@@ -176,8 +176,8 @@ class SynthesizerSampleRenderer extends React.Component {
                 return <>
                     <Menu onAction={null} disabled>Edit Key Range</Menu>
                     <MenuBreak />
-                    <Menu options={() => this.renderMenu('sample-range-start')} >Set Range Start</Menu>
-                    <Menu options={() => this.renderMenu('sample-range-end')} >Set Range End</Menu>
+                    <Menu onAction={e => this.renderMenu('sample-range-start')} >Set Range Start</Menu>
+                    <Menu onAction={e => this.renderMenu('sample-range-end')} >Set Range End</Menu>
                 </>;
 
             case 'sample-range-start':
