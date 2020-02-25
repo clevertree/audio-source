@@ -2,7 +2,7 @@ import React from "react";
 
 import "./assets/TrackerGroupsPanel.css";
 import Panel from "../../panel/Panel";
-import Button from "../../../components/button/Button";
+import {Button} from "../../../components";
 
 import "./assets/TrackerRowSegmentsPanel.css";
 

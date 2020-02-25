@@ -59,7 +59,6 @@ class Tracker extends React.Component {
 
 
 
-        let rowCount = 0;
         const   startPositionTicks = this.state.trackerStartPositionTicks, // by row or ticks?
                 rowTotal = composer.state.trackerRowCount,
                 rowContent = [];
@@ -131,7 +130,6 @@ class Tracker extends React.Component {
                 rowContent.push(newRowElm);
             }
             rowInstructionElms = [];
-            rowCount++;
         }
 
 

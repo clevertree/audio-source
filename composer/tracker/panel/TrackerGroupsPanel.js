@@ -1,9 +1,10 @@
 import React from "react";
 
-import "./assets/TrackerGroupsPanel.css";
 import Panel from "../../panel/Panel";
-import Button from "../../../components/button/Button";
-// import Div from "../../../components/div/Div.native";
+import {Button} from "../../../components/";
+
+import "./assets/TrackerGroupsPanel.css";
+
 class TrackerGroupsPanel extends React.Component {
     constructor(props) {
         super(props);

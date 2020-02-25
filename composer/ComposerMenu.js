@@ -12,10 +12,10 @@ import "./assets/Composer.css";
 class ComposerMenu extends ComposerRenderer {
 
     openMenu(e, options) {
-        console.log('openMenu', e ? e.menu : null, e);
-        this.state.portrait
+        console.log('openMenu', e);
+        this.state.portrait || !e.openMenu // If portrait mode, or the event doesn't have an 'openMenu' callback
         ? this.menu.openMenu(e, options)
-        : e.menu.openMenu(e, options);
+        : e.openMenu(e, options);
     }
 
     getMenuRoot() {
@@ -124,7 +124,7 @@ class ComposerMenu extends ComposerRenderer {
 
     openMenuSelectCommandByFrequency(e, onSelectValue) {
         this.openMenu(e, this.values.getNoteFrequencies((noteName) =>
-            <Menu key={noteName} onAction={e => this.openMenuSelectCommandByFrequencyOctave(e, onSelectValue, noteName)}                   >{noteName}</Menu>
+            <SubMenu key={noteName} onAction={e => this.openMenuSelectCommandByFrequencyOctave(e, onSelectValue, noteName)}                   >{noteName}</SubMenu>
         ));
     }
 
@@ -136,7 +136,7 @@ class ComposerMenu extends ComposerRenderer {
 
     openMenuSelectCommandByOctave(e, onSelectValue) {
         this.openMenu(e, this.values.getNoteOctaves((octave) =>
-            <Menu key={octave} onAction={e => this.openMenuSelectCommandByOctaveFrequency(e, onSelectValue, octave)}                   >{octave}</Menu>
+            <SubMenu key={octave} onAction={e => this.openMenuSelectCommandByOctaveFrequency(e, onSelectValue, octave)}                   >{octave}</SubMenu>
         ));
     }
 

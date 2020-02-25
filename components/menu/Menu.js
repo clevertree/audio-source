@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './assets/Menu.css';
 import MenuManager from "./MenuManager";
 
+
 class Menu extends React.Component {
     constructor(props) {
         super(props);
@@ -11,108 +12,75 @@ class Menu extends React.Component {
         this.state = {
             open: false,
             stick: false,
-            options: null
+            options: null,
+            menuPath: [this]
         };
     }
 
     render() {
-        let className = 'asui-menu asui-menu-container action';
-        if(this.props.disabled)
-            className += ' disabled';
-        if(this.state.stick)
-            className += ' stick';
+        let className = 'asui-menu';
         if(this.props.className)
             className += ' ' + this.props.className;
 
         const eventProps = this.getEventProps();
 
         return (
-            <div
-                // key={this.props.key}
-                className={className}
-                title={this.props.title}
-                tabIndex={0}
-                {...eventProps}
-                >
-                <div
-                    className="title"
-                    children={this.props.children}
-                    />
+            <div className={className} {...eventProps}>
+                <div className="title">{this.props.children}</div>
                 {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
-                {this.state.open ? <div
-                    className="asui-menu-dropdown"
-                >{this.state.options}</div> : null}
+                {this.state.open ? this.renderOptions() : null}
             </div>
-            );
+        );
+    }
+
+    renderOptions() {
+        let className = 'asui-menu-dropdown';
+        if(this.props.vertical)
+            className += ' vertical';
+        return (
+            <div
+                className={className}
+                children={this.state.options}
+            />
+        );
     }
 
     getEventProps() {
         return {
             onClick: this.onInputEventCallback,
             onKeyDown: this.onInputEventCallback,
+            onMouseLeave: this.onInputEventCallback,
         };
-    }
-
-
-    doMenuAction(e) {
-        if(this.props.disabled) {
-            console.warn("Menu is disabled.", this);
-            return;
-        }
-        if(!this.props.onAction)
-            throw new Error("prop onAction is missing");
-        e.menu = this;
-        const result = this.props.onAction(e, this);
-        if(result !== false)
-            MenuManager.closeAllMenus(e);
     }
 
     onInputEvent(e) {
         switch (e.type) {
-
-
             case 'click':
                 if(!e.isDefaultPrevented()) {
                     e.preventDefault();
-                    this.doMenuAction(e);
+                    this.doAction(e.type);
                 }
                 break;
 
-            case 'keydown':
-
-                let keyEvent = e.key;
-                switch (keyEvent) {
-                    case 'Escape':
-                    case 'Backspace':
-                        this.closeMenu(e);
-                        break;
-
-                    case 'Enter':
-                        this.doMenuAction(e);
-                        break;
-
-                    // ctrlKey && metaKey skips a measure. shiftKey selects a range
-                    case 'ArrowRight':
-                        this.selectNextTabItem(e);
-                        break;
-
-                    case 'ArrowLeft':
-                        this.selectPreviousTabItem(e);
-                        break;
-
-                    case 'ArrowDown':
-                        this.selectNextTabItem(e);
-                        break;
-
-                    case 'ArrowUp':
-                        this.selectPreviousTabItem(e);
-                        break;
-
-                    default:
-                        console.log("Unknown key input: ", keyEvent);
-                        break;
-
+            case 'mouseenter':
+            case 'mouseover':
+                clearTimeout(this.mouseTimeout);
+                if(this.state.open !== true) {
+                    this.mouseTimeout = setTimeout(te => {
+                        this.setState({open: true});
+                        this.doAction('mouseenter');
+                    }, 100);
                 }
+                break;
+
+            case 'mouseleave':
+            case 'mouseout':
+                clearTimeout(this.mouseTimeout);
+                this.mouseTimeout = setTimeout(te => {
+                    if (!this.state.stick && this.state.open) {
+                        this.closeDropDownMenu();
+                    }
+                }, 400);
                 break;
 
             default:
@@ -120,7 +88,47 @@ class Menu extends React.Component {
                 break;
         }
     }
+
+    openDropDownMenu(e, options) {
+        console.log(e.type);
+        this.setState({
+            open: true,
+            menuPath: e.menuPath.concat([this]),
+            stick: e && e.type === 'click' && this.state.open ? !this.state.stick : this.state.stick,
+            options
+        })
+    }
+
+    closeDropDownMenu(e) {
+        this.setState({
+            open: false,
+            stick: false,
+            options: null
+        })
+    }
+
+    doAction(type='click') {
+        if(this.props.disabled) {
+            console.warn(this.constructor.name + " is disabled.", this);
+            return;
+        }
+        if(!this.props.onAction)
+            throw new Error("prop onAction is missing");
+        // e.menu = this;
+        const buttonAction = {
+            // type: e.type,
+            type: type,
+            menuPath:   this.state.menuPath,                 // Add button to the menu path
+            openMenu:   (e, options) => this.openDropDownMenu(e, options),   // Set next menu callback
+            closeMenu:  (e) => this.closeDropDownMenu(e)
+        };
+        const result = this.props.onAction(buttonAction, this);
+        if(result !== false)
+            MenuManager.closeAllMenus(buttonAction);
+    }
+
 }
+
 
 // creating default props
 Menu.defaultProps = {

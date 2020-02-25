@@ -1,8 +1,6 @@
 import React from "react";
 
-import Div from "../components/div/Div";
-import Icon from "../components/icon/Icon";
-import {Menu, MenuButton, Button, InputRange} from "../components";
+import {Div, Icon, Button, InputRange} from "../components";
 
 // import Storage from "../song/Storage";
 
@@ -13,7 +11,7 @@ import Footer from "./footer/Footer";
 import InstrumentRenderer from "./instrument/InstrumentRenderer";
 // import InputSelect from "../components/input-select/InputSelect";
 import Tracker from "./tracker/Tracker";
-import InstrumentLoader from "../instrument/InstrumentLoader";
+// import InstrumentLoader from "../instrument/InstrumentLoader";
 
 import "./assets/Composer.css";
 import TrackerGroupsPanel from "./tracker/panel/TrackerGroupsPanel";

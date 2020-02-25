@@ -2,6 +2,7 @@
 /** Menu **/
 
 div.asui-menu {
+    display: flex;
     position: relative;
     /*color: black;*/
     padding: 0 0;
@@ -13,7 +14,7 @@ div.asui-menu {
     transition: background-color 0.3s;
 }
 
-div.asui-menu-container {
+div.asui-menu {
     display: flex;
 }
 
@@ -30,7 +31,7 @@ div.asui-menu.disabled {
 }
 
 /** Menu Title **/
-div.asui-menu-container > div.title {
+div.asui-menu > div.title {
     /*display: inline-block;*/
     /*padding: 0 6px 0 4px;*/
     /*padding: 0;*/
@@ -40,7 +41,7 @@ div.asui-menu-container > div.title {
 
 /** Menu Arrow **/
 
-div.asui-menu-container > div.arrow {
+div.asui-menu > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;
