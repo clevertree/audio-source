@@ -1,0 +1,23 @@
+
+/** Song Forms **/
+
+div.asui-form {
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 0px 0px;
+    margin: 0px 0px 0px 0px;
+    display: inline-block;
+    vertical-align: top;
+}
+div.asui-form > div.title {
+    font-size: smaller;
+    border-bottom: 1px solid #BBB;
+    margin-bottom: 1px;
+    padding: 0 3px 1px 3px;
+    height: 1em;
+}
+
+div.asui-form > div.container {
+    display: flex;
+    min-height: 1.4em;
+}

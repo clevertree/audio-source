@@ -33,53 +33,13 @@ div.asc-container input,
 div.asc-container button,
 div.asc-container {
     font-size: large;
-}
-
-
-
-
-/** Context Menu **/
-asui-menu.context.open-context-menu {
-    display: block;
-    position: fixed;
-    z-index: 99;
-    transition: all 0s;
-}
-asui-menu.context.open-context-menu:not(.open) {
-    display: none;
+    font-family: monospace;
 }
 
 
 
 
 
-
-
-
-
-
-/** Editor Panels **/
-
-asc-tracker,
-asc-panel {
-    vertical-align: top;
-    display: inline-block;
-    margin: 1px 3px 0px 1px;
-}
-
-asc-tracker > asui-div[key=title],
-asc-panel > asui-div[key=title] {
-    /* display: inline-block; */
-    background-color: #333;
-    color: #FFF;
-    font-size: 11px;
-    font-weight: bold;
-    text-align: center;
-    padding: 2px 6px 0px 6px;
-    margin: 0;
-    border-radius: 8px 8px 0 0;
-    border-bottom: 1px solid #BBB;
-}
 
 
 /** Song Forms **/

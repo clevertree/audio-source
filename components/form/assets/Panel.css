@@ -2,14 +2,14 @@
 
 /** Editor Panels **/
 
-div.asp-panel {
+div.asui-panel {
     vertical-align: top;
     display: inline-block;
     margin: 1px 3px 0px 1px;
     /*width: 100%;*/
 }
 
-div.asp-panel > div.title {
+div.asui-panel > div.title {
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -19,4 +19,8 @@ div.asp-panel > div.title {
     margin: 0;
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid #BBB;
+}
+
+div.asui-panel > div.container {
+    /*display: flex;*/
 }

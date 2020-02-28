@@ -1,4 +1,4 @@
-import {Menu, MenuHorizontal} from "./Menu";
+import {Menu} from "./Menu";
 
 import "./assets/Button.css"
 

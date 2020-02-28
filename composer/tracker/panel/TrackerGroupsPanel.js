@@ -1,7 +1,6 @@
 import React from "react";
 
-import Panel from "../../panel/Panel";
-import {Button} from "../../../components/";
+import {Button, Panel} from "../../../components/";
 
 import "./assets/TrackerGroupsPanel.css";
 

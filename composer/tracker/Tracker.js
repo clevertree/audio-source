@@ -5,11 +5,10 @@ import {
     TrackerInstruction,
     TrackerRow
 } from "./";
-import Div from "../../components/div/Div";
+import {Div, Panel} from "../../components/";
 import SongInstruction from "../../song/SongInstruction";
 
 import "./assets/Tracker.css";
-import Panel from "../panel/Panel";
 
 class Tracker extends React.Component {
     constructor(props) {

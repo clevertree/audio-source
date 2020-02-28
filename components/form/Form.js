@@ -1,10 +1,9 @@
 import React from "react";
-
 import "./assets/Form.css"
-class Form extends React.Component {
 
+class Form extends React.Component {
     render() {
-        let className = "asc-form";
+        let className = 'asui-form';
         if(this.props.className)
             className += ' ' + this.props.className;
 
@@ -22,5 +21,6 @@ class Form extends React.Component {
         )
     }
 }
+
 /** Export this script **/
 export default Form;

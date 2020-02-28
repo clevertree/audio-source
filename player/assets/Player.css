@@ -20,6 +20,12 @@
 
 /** Font styles **/
 
+div.asp-container input,
+div.asp-container button,
+div.asp-container {
+    font-size: large;
+}
+
 span.error {
     font-color: red;
     font-weight: bold;
@@ -35,8 +41,8 @@ div.asp-container {
     background-color: #EEE;
     /* margin-top: -14px; */
     user-select: none;
-    display: flex;
-    flex-direction: column;
+    /*display: flex;*/
+    /*flex-direction: column;*/
 }
 
 

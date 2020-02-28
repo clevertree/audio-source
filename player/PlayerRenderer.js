@@ -1,13 +1,10 @@
 import React from "react";
 
-import {Div, Menu, Menu, Button, InputRange} from "../components";
+import {Div, Icon, Button, InputRange, Form, Panel} from "../components";
 
-import Storage from "../song/Storage";
 
 import Header from "./header/Header";
 import Playlist from "./playlist/Playlist";
-import Panel from "./panel/Panel";
-import Form from "./form/Form";
 import Footer from "./footer/Footer";
 
 
@@ -27,47 +24,13 @@ class PlayerRenderer extends React.Component {
         this.playlist = null; // playlist ref;
 
     }
-    // get targetElm() { return this.shadowDOM; }
-
-    getAttributeMap() {
-        return Object.assign(super.getAttributeMap(), {
-            src: 'src',
-        });
-    }
-    // get playlist() { return this.state.playlist; }
-
-    // createStyleSheetLink(stylePath, scriptElm=null) {
-    //     // const AudioSourceLoader = customElements.get('audio-source-loader');
-    //     const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);
-    //     const link = document.createElement('link');
-    //     link.setAttribute('rel', 'stylesheet');
-    //     link.href = linkHRef;
-    //     return link;
-    // }
-
-    // restart() {
-    //     const RNRestart = require('react-native-restart').default;
-    //     RNRestart.Restart();
-    // }
-
-    // openMenu(menuKey) {
-    //     this.state.menuKey = menuKey;
-    //     // if(this.props.onUpdateMenu)
-    //         this.props.onUpdateMenu();
-    //     // setTimeout(e => this.toggleMenu(), 10);
-    // }
-    //
-    // toggleMenu(menuKey=null) {
-    //     if(this.props.onToggleMenu)
-    //         this.props.onToggleMenu();
-    // }
 
     render() {
         return (
             <Div className="asp-container">
                 <Header
                     key="header"
-                    menuContent={() => this.renderMenu(this.state.menuKey)}
+                    menuContent={() => this.renderRootMenu()}
                     />
                 <Div className="asp-forms-container">
                     <Panel className="song" title="Song">
@@ -99,14 +62,15 @@ class PlayerRenderer extends React.Component {
                         </Form>
 
                         <Form className="file" title="File">
-                            <InputFile
+                            <Button
                                 className="file-load"
-                                onFile={(e, file) => this.addInputFileToPlaylist(file)}
+                                onAction={(e) => this.loadSongFromFileInput(e)}
                                 accept=".json,.mid,.midi"
+                                ref={ref => this.fieldSongFileLoad = ref}
                                 title="Load Song from File"
                             >
                                 <Icon className="file-load"/>
-                            </InputFile>
+                            </Button>
                             <Button
                                 className="file-save"
                                 onAction={e => this.saveSongToFile(e)}
@@ -189,63 +153,6 @@ class PlayerRenderer extends React.Component {
                 <Footer player={this} />
             </Div>
         )
-    }
-
-    renderMenu(menuKey = null) {
-//             console.log('renderMenu', menuKey);
-        switch(menuKey) {
-            case 'root':
-                const vertical = !this.state.portrait;
-                return (<>
-                    <Menu vertical={vertical} key="file"        children={e => this.renderMenu('file')}      >File</Menu>
-                    <Menu vertical={vertical} key="playlist"    children={e => this.renderMenu('playlist')}  >Playlist</Menu>
-                    <Menu vertical={vertical} key="view"        children={e => this.renderMenu('view')}      >View</Menu>
-                </>);
-            // return [
-            //     // Menu.cME('refresh',     'Refresh',  (e) => this.restart()),
-            //     Menu.cSME({vertical, key:'file'},        'File',     () => this.renderMenu('file')),
-            //     Menu.cSME({vertical, key:'playlist'},    'Playlist', () => this.renderMenu('playlist')),
-            //     Menu.cSME({vertical, key:'view'},        'View',     () => this.renderMenu('view')),
-            // ];
-
-            case 'file':
-                return (<>
-                    <Menu key="memory"      children={e => this.renderMenu('file-memory')}      >Load from Memory</Menu>
-                    <Menu key="file"        onAction={(e) => this.openSongFromFileDialog(e)} >Load from File</Menu>
-                    <Menu key="url"         disabled>Load from URL</Menu>
-                    <Menu key="library"     disabled>Load from Library</Menu>
-                </>);
-
-            case 'file-memory':
-                const storage = new Storage();
-                const songRecentUUIDs = storage.getRecentSongList() ;
-                return songRecentUUIDs.length > 0
-                    ? songRecentUUIDs.map((entry, i) =>
-                        <Menu
-                            key={i}
-                            onAction={() => this.loadSongFromMemory(entry.uuid)}
-                        >{entry.name || entry.uuid}</Menu>)
-                    :<Menu
-                        key="no-recent"
-                        disabled
-                    >No Songs Available</Menu>
-
-            case 'playlist':
-                return (<>
-                    <Menu key="next"        onAction={(e) => this.playlistNext()}>Load from Memory</Menu>
-                    <Menu key="clear"       onAction={(e) => this.clearPlaylist()} >Load from File</Menu>
-                </>);
-
-            case 'view':
-                return (<>
-                    <Menu key="fullscreen"          onAction={(e) => this.toggleFullscreen(e)}>{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
-                    <Menu key="hide-panel-song"     onAction={(e) => this.togglePanelSong(e)} >{this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms</Menu>
-                    <Menu key="hide-panel-playlist" onAction={(e) => this.togglePanelPlaylist(e)} >{this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist</Menu>
-                </>);
-
-            default:
-                throw new Error("Unknown menu key: " + menuKey);
-        }
     }
 
 }

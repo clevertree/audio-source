@@ -1,12 +1,10 @@
 import React from "react";
 
-import {Div, Icon, Button, InputRange} from "../components";
+import {Div, Icon, Form, Panel, Button, InputRange} from "../components";
 
 // import Storage from "../song/Storage";
 
 import Header from "./header/Header";
-import Panel from "./panel/Panel";
-import Form from "./form/Form";
 import Footer from "./footer/Footer";
 import InstrumentRenderer from "./instrument/InstrumentRenderer";
 // import InputSelect from "../components/input-select/InputSelect";
@@ -135,7 +133,7 @@ class ComposerRenderer extends React.Component {
                 <Div className="asc-container">
                     <Header
                         key="header"
-                        menuContent={() => this.getMenuRoot()}
+                        menuContent={() => this.renderRootMenu()}
                     />
                     <Div className="asc-panel-container">
                         <Panel className="song" title="Song">

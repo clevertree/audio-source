@@ -189,7 +189,7 @@ class SynthesizerSampleRenderer extends React.Component {
 
 
     renderMenu(menuKey=null) {
-        const sample = this.getSampleData();
+        // const sample = this.getSampleData();
         const values = this.getSong().values;
         switch(menuKey) {
             case 'sample-loop':

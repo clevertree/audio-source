@@ -25,7 +25,7 @@ class ComposerMenu extends ComposerRenderer {
         this.menu.openMenu(e, options);
     }
 
-    getMenuRoot() {
+    renderRootMenu() {
         const titleMenuProps = this.state.portrait ? {} : {
             vertical: true,
             arrow: false
@@ -39,7 +39,7 @@ class ComposerMenu extends ComposerRenderer {
         </>);
     }
     openMenuRoot(e) {
-        this.openMenu(e, this.getMenuRoot());
+        this.openMenu(e, this.renderRootMenu());
     }
 
     openMenuFile(e) {

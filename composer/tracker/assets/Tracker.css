@@ -38,17 +38,17 @@ div.asc-tracker div.asc-tracker-container {
 /** Tracker Header **/
 
 
-div.asc-tracker > div.asc-panel {
+div.asc-tracker > div.asui-panel {
     display: block;
     min-width: 126px;
 
     /*background-color: #333;*/
     /*color: #FFF;*/
 }
-div.asc-tracker > div.asc-panel > div.title {
+div.asc-tracker > div.asui-panel > div.title {
     text-align: center;
 }
-div.asc-tracker > div.asc-panel > div.title > div.delta {
+div.asc-tracker > div.asui-panel > div.title > div.delta {
     float: left;
 }
 

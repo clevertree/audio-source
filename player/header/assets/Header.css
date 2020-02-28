@@ -1,31 +1,26 @@
 
+
+/** Menu Container **/
+
+div.asp-menu-container {
+    display: flex;
+    flex-direction: row;
+}
+
+
 div.asp-title-container {
-    /* display: flex; */
-    /* width: 100%; */
-    /* flex-direction: row; */
     background-color: #888;
-    /* padding: 2px; */
 }
 
 div.asp-menu-container {
     background-color: #bdc3c7;
 }
 
-div.asp-menu-container > asui-menu {
-    /* min-width: 120px; */
-    /* padding: 0px 8px 0px 0px; */
+div.asp-menu-container > div.asui-menu {
+    padding: 0px 8px 0px 4px;
 }
 
-asui-button[key=asp-menu-button] {
-    float: left;
-    /* float: right; */
-    /* align-items: flex-start; */
-}
 div.asp-title-text {
-    /* position: absolute; */
-    /* display: block; */
-    /* width: 100%; */
-    /* margin: auto; */
     text-align: center;
     align-items: center;
     padding-top: 3px;

@@ -1,9 +1,9 @@
-import PlayerRenderer from "./PlayerRenderer";
 import Song from "../song/Song";
 import Storage from "../song/Storage";
+import PlayerMenu from "./PlayerMenu";
 
 
-class PlayerActions extends PlayerRenderer {
+class PlayerActions extends PlayerMenu {
     constructor(props={}) {
         super(props);
         this.onSongEventCallback = (e) => this.onSongEvent(e);
@@ -353,7 +353,7 @@ class PlayerActions extends PlayerRenderer {
     }
 
     async openSongFromFileDialog(e, accept=null) {
-        const file = await InputFile.openFileDialog(accept);
+        const file = await this.openFileDialog(accept);
         this.addInputFileToPlaylist(file);
     }
 
@@ -415,7 +415,7 @@ class PlayerActions extends PlayerRenderer {
             this.scrollToEntry(this.getCurrentEntryPosition());
             const currentSong = await this.loadSongFromPlaylistEntry();
             await this.setCurrentSong(currentSong);
-            this.setStatus("Playing: " + currentsong.getTitle());
+            this.setStatus("Playing: " + currentSong.getTitle());
             await currentSong.play(this.getVolumeGain());
             if(!this.state.playing)
                 break;
@@ -695,6 +695,57 @@ class PlayerActions extends PlayerRenderer {
         }
     }
 
+
+    /** Prompt **/
+
+    openPromptDialog(message, defaultValue='') {
+        return window.prompt(message, defaultValue);
+    }
+
+    async openFileDialog(accept=null) {
+        return await new Promise((resolve, reject) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            if(accept)
+                input.setAttribute('accept', accept);
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if(file)
+                    resolve(file);
+                else
+                    reject();
+            });
+            input.click();
+        })
+    }
+
+    // get playlist() { return this.state.playlist; }
+
+    // createStyleSheetLink(stylePath, scriptElm=null) {
+    //     // const AudioSourceLoader = customElements.get('audio-source-loader');
+    //     const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);
+    //     const link = document.createElement('link');
+    //     link.setAttribute('rel', 'stylesheet');
+    //     link.href = linkHRef;
+    //     return link;
+    // }
+
+    // restart() {
+    //     const RNRestart = require('react-native-restart').default;
+    //     RNRestart.Restart();
+    // }
+
+    // openMenu(menuKey) {
+    //     this.state.menuKey = menuKey;
+    //     // if(this.props.onUpdateMenu)
+    //         this.props.onUpdateMenu();
+    //     // setTimeout(e => this.toggleMenu(), 10);
+    // }
+    //
+    // toggleMenu(menuKey=null) {
+    //     if(this.props.onToggleMenu)
+    //         this.props.onToggleMenu();
+    // }
 
 }
 
