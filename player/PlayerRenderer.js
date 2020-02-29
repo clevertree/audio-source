@@ -16,21 +16,23 @@ class PlayerRenderer extends React.Component {
             version: require('../package.json').version,
             menuKey: 'root',
             fullscreen: false,
-            portrait: false,
+            portrait: true,
             showPanelSong: true,
             showPanelPlaylist: true,
         };
         this.shadowDOM = null;
         this.playlist = null; // playlist ref;
-
+        this.header = React.createRef();
     }
 
     render() {
         return (
             <Div className="asp-container">
                 <Header
+                    player={this}
                     key="header"
                     menuContent={() => this.renderRootMenu()}
+                    ref={this.header}
                     />
                 <Div className="asp-forms-container">
                     <Panel className="song" title="Song">

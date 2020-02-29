@@ -16,7 +16,7 @@ class Header extends React.Component {
             menuContent = menuContent(this);
         return (
             <div key="header" className="asc-title-container">
-                <div className="asc-title-text">Audio Source Player</div>
+                <div className="asc-title-text">Audio Source Composer</div>
                 <div className="asc-menu-container">{menuContent}</div>
             </div>
         )

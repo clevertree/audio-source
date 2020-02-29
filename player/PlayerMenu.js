@@ -20,7 +20,8 @@ class PlayerMenu extends PlayerRenderer {
             }
         }
 
-        this.menu.openMenu(e, options);
+        console.log(this.header);
+        this.header.current.openMenu(e, options);
     }
 
     renderRootMenu() {
