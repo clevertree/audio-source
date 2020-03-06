@@ -24,59 +24,55 @@ class PlayerMenu extends PlayerRenderer {
         this.header.current.openMenu(e, options);
     }
 
-    renderRootMenu() {
-        const titleMenuProps = this.state.portrait ? {} : {
-            vertical: true,
-            arrow: false
-        };
+    renderRootMenu(props={}) {
+        props.vertical = !this.state.portrait;
+        props.arrow = this.state.portrait;
         return (<>
-            <SubMenu {...titleMenuProps} key="file"        onAction={e => this.openFileMenu(e)}      >File</SubMenu>
-            <SubMenu {...titleMenuProps} key="playlist"    onAction={e => this.openPlaylistMenu(e)}  >Playlist</SubMenu>
-            <SubMenu {...titleMenuProps} key="view"        onAction={e => this.openViewMenu(e)}      >View</SubMenu>
-        </>);
-    }
-    openRootMenu(e) {
-        this.openMenu(e, this.renderRootMenu());
-    }
-
-
-    openFileMenu(e) {
-        this.openMenu(e, <>
-            <Menu key="memory"      onAction={e => this.openFileMemoryMenu(e)}      >Load from Memory</Menu>
-            <Menu key="file"        onAction={e => this.openSongFromFileDialog(e)} >Load from File</Menu>
-            <Menu key="url"         disabled>Load from URL</Menu>
-            <Menu key="library"     disabled>Load from Library</Menu>
+            <Menu {...props} key="file"        options={p => this.renderFileMenu(p)}      >File</Menu>
+            <Menu {...props} key="playlist"    options={p => this.renderPlaylistMenu(p)}  >Playlist</Menu>
+            <Menu {...props} key="view"        options={p => this.renderViewMenu(p)}      >View</Menu>
         </>);
     }
 
-    openFileMemoryMenu(e) {
+    renderFileMenu(props={}) {
+        return (<>
+            <SubMenu    {...props} key="memory"      options={p => this.renderFileMemoryMenu(p)}      >Load from Memory</SubMenu>
+            <SubMenu    {...props} key="file"        options={p => this.renderSongFromFileDialog(p)} >Load from File</SubMenu>
+            <Menu    {...props} key="url"         disabled>Load from URL</Menu>
+            <Menu    {...props} key="library"     disabled>Load from Library</Menu>
+        </>);
+    }
+
+    renderFileMemoryMenu(props={}) {
         const storage = new Storage();
         const songRecentUUIDs = storage.getRecentSongList() ;
-        this.openMenu(e, songRecentUUIDs.length > 0
+        return songRecentUUIDs.length > 0
             ? songRecentUUIDs.map((entry, i) =>
                 <Menu
+                    {...props}
                     key={i}
-                    onAction={e => this.loadSongFromMemory(entry.uuid)}
+                    options={p => this.loadSongFromMemory(entry.uuid)}
                 >{entry.name || entry.uuid}</Menu>)
             :<Menu
+                {...props}
                 key="no-recent"
                 disabled
             >No Songs Available</Menu>
-        );
+        ;
     }
 
-    openPlaylistMenu(e) {
-        this.openMenu(e, <>
-            <Menu key="next"        onAction={e => this.playlistNext(e)}>Load from Memory</Menu>
-            <Menu key="clear"       onAction={e => this.clearPlaylist(e)} >Load from File</Menu>
+    renderPlaylistMenu(props={}) {
+        return (<>
+            <Menu {...props} key="next"        options={p => this.playlistNext(p)}>Load from Memory</Menu>
+            <Menu {...props} key="clear"       options={p => this.clearPlaylist(p)} >Load from File</Menu>
         </>);
     }
 
-    openViewMenu(e) {
-        this.openMenu(e, <>
-            <Menu key="fullscreen"          onAction={e => this.toggleFullscreen(e)}>{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
-            <Menu key="hide-panel-song"     onAction={e => this.togglePanelSong(e)} >{this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms</Menu>
-            <Menu key="hide-panel-playlist" onAction={e => this.togglePanelPlaylist(e)} >{this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist</Menu>
+    renderViewMenu(props={}) {
+        return (<>
+            <Menu {...props} key="fullscreen"          options={p => this.toggleFullscreen(p)}>{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</Menu>
+            <Menu {...props} key="hide-panel-song"     options={p => this.togglePanelSong(p)} >{this.state.showPanelSong ? 'Show' : 'Hide'} Song Forms</Menu>
+            <Menu {...props} key="hide-panel-playlist" options={p => this.togglePanelPlaylist(p)} >{this.state.showPanelPlaylist ? 'Show' : 'Hide'} Playlist</Menu>
         </>);
     }
 

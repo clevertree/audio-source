@@ -121,20 +121,33 @@ class Menu extends React.Component {
             console.warn(this.constructor.name + " is disabled.", this);
             return;
         }
-        if(!this.props.onAction)
-            throw new Error("prop onAction is missing");
         // e.menu = this;
         const buttonAction = {
             // type: e.type,
             type: type,
             menuPath:   this.state.menuPath,                 // Add button to the menu path
             openMenu:   (e, options) => this.openDropDownMenu(e, options),   // Set next menu callback
-            closeMenu:  (e) => this.closeDropDownMenu(e)
+            // closeMenu:  (e) => this.closeDropDownMenu(e)
         };
-        const result = this.props.onAction(buttonAction, this);
-        if(result !== false)
-            MenuManager.closeAllMenus(buttonAction);
+        if(this.props.onAction) {
+            const result = this.props.onAction(buttonAction, this);
+            if (result !== false)
+                MenuManager.closeAllMenus(buttonAction);
+
+        } else if(this.props.options) {
+            const options = this.props.options({
+                openMenu: this.props.openMenu
+            }); // TODO: props
+            if(this.props.openMenu)
+                this.props.openMenu(buttonAction, options);
+            else
+                this.openDropDownMenu(buttonAction, options);
+
+        } else {
+            throw new Error("Menu does not contain props 'onAction' or 'options'");
+        }
     }
+
 
 }
 
@@ -143,16 +156,15 @@ class Menu extends React.Component {
 Menu.defaultProps = {
     arrow:          null, // '►',
     vertical:       false,
-    openOnHover:    false,
+    openOnHover:    null,
     disabled:       false,
 };
 
 // validating prop types
 Menu.propTypes = {
-    onAction: PropTypes.func.isRequired,
+    onAction: PropTypes.func,
     disabled: PropTypes.bool,
     vertical: PropTypes.bool,
-    openOnHover: PropTypes.bool,
 };
 
 

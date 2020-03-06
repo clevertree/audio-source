@@ -31,11 +31,11 @@ class ComposerMenu extends ComposerRenderer {
             arrow: false
         };
         return (<>
-            <SubMenu {...titleMenuProps} key="file"        onAction={e => this.openMenuFile(e)}          >File</SubMenu>
-            <SubMenu {...titleMenuProps} key="edit"        onAction={e => this.openMenuEdit(e)}          >Edit</SubMenu>
-            <SubMenu {...titleMenuProps} key="group"       onAction={e => this.openMenuGroup(e)}         >Group</SubMenu>
-            <SubMenu {...titleMenuProps} key="instrument"  onAction={e => this.openMenuInstrument(e)}    >Instrument</SubMenu>
-            <SubMenu {...titleMenuProps} key="view"        onAction={e => this.openMenuView(e)}          >View</SubMenu>
+            <Menu {...titleMenuProps} key="file"        onAction={e => this.openMenuFile(e)}          >File</Menu>
+            <Menu {...titleMenuProps} key="edit"        onAction={e => this.openMenuEdit(e)}          >Edit</Menu>
+            <Menu {...titleMenuProps} key="group"       onAction={e => this.openMenuGroup(e)}         >Group</Menu>
+            <Menu {...titleMenuProps} key="instrument"  onAction={e => this.openMenuInstrument(e)}    >Instrument</Menu>
+            <Menu {...titleMenuProps} key="view"        onAction={e => this.openMenuView(e)}          >View</Menu>
         </>);
     }
     openMenuRoot(e) {

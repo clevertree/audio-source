@@ -27,3 +27,16 @@ div.asp-title-text {
     font-weight: bold;
     color: #333;
 }
+
+
+/** Portrait **/
+div.asp-menu-button-toggle {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+div.asp-menu-button-toggle > div.asui-menu-dropdown {
+    position: absolute;
+    left: 0;
+}

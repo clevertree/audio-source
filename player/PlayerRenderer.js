@@ -31,7 +31,7 @@ class PlayerRenderer extends React.Component {
                 <Header
                     player={this}
                     key="header"
-                    menuContent={() => this.renderRootMenu()}
+                    menuContent={(p) => this.renderRootMenu(p)}
                     ref={this.header}
                     />
                 <Div className="asp-forms-container">

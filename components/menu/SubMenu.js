@@ -1,7 +1,6 @@
 import {Menu} from "./Menu";
 // import PropTypes from 'prop-types';
 
-
 class SubMenu extends Menu {
 
     // getEventProps() {

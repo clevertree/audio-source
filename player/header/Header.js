@@ -35,21 +35,19 @@ class Header extends React.Component {
     }
 
     renderPortrait() {
-        let menuContent = this.props.menuContent;
-        if(typeof menuContent === "function")
-            menuContent = menuContent(this);
-        return [
+        return (
             <div key="header" className="asp-title-container portrait">
                 <div className="asp-title-text">Audio Source Player</div>
                 <Button
                     className="asp-menu-button-toggle"
-                    onAction={e => this.openMenu(e, menuContent)}
+                    openMenu={(e, options) => this.openMenu(e, options)}
+                    options={this.props.menuContent}
                     ref={this.menu}
                     >
                     <Icon className="menu" />
                 </Button>
             </div>
-        ]
+        )
     }
 
     openMenu(e, options) {
