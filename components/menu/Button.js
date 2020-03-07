@@ -1,8 +1,8 @@
-import {Menu} from "./Menu";
+import {MenuItem} from "./MenuItem";
 
 import "./assets/Button.css"
 
-class Button extends Menu {
+class Button extends MenuItem {
 
     getClassName() { return 'asui-menu asui-button'; }
 }
@@ -16,6 +16,6 @@ Button.defaultProps = {
     vertical:       true,
 };
 
-Button.propTypes = Menu.propTypes;
+Button.propTypes = MenuItem.propTypes;
 
 

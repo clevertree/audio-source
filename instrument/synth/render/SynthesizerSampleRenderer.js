@@ -3,10 +3,10 @@ import {
     // Button,
     // InputSelect,
     Div,
-    Menu,
+    MenuItem,
     MenuBreak,
     Button,
-    Icon, InputRange, SubMenu,
+    Icon, InputRange, SubMenuItem,
 } from "../../../components";
 
 import "./assets/SynthesizerSampleRenderer.css";
@@ -49,52 +49,52 @@ class SynthesizerSampleRenderer extends React.Component {
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <Menu onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
+                                <MenuItem onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
                                     {sample.mixer+'%'}
-                                </Menu>
+                                </MenuItem>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
                             <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <Menu onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
+                                <MenuItem onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
                                     {sample.detune+'c'}
-                                </Menu>
+                                </MenuItem>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
                             <Div title={`Key Root is ${sample.root}`} className="root">
-                                <Menu onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
+                                <MenuItem onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
                                     {sample.root}
-                                </Menu>
+                                </MenuItem>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
                             <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <Menu onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
+                                <MenuItem onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
                                     {sample.alias}
-                                </Menu>
+                                </MenuItem>
                             </Div>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
                             <Div title={`Key Range is ${sample.range}`} className="range">
-                                <Menu onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
+                                <MenuItem onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
                                     {sample.range}
-                                </Menu>
+                                </MenuItem>
                             </Div>
                         )}
                         {typeof sample.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <Menu title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
+                                <MenuItem title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
-                                </Menu>
+                                </MenuItem>
                             </Div>
                         )}
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <Menu onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
+                    <MenuItem onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
                         <Icon className="config"/>
-                    </Menu>
+                    </MenuItem>
                 </Div>
             </Div>
         );
@@ -110,17 +110,17 @@ class SynthesizerSampleRenderer extends React.Component {
 
     openMenuRoot(e) {
         this.openMenu(e, <>
-            <Menu onAction={()=>{}} disabled>Sample {this.props.sampleID}</Menu>
+            <MenuItem onAction={()=>{}} disabled>Sample {this.props.sampleID}</MenuItem>
             <MenuBreak />
-            <SubMenu key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</SubMenu>
-            <SubMenu key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</SubMenu>
-            <SubMenu key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</SubMenu>
-            <SubMenu key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</SubMenu>
-            <SubMenu key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</SubMenu>
-            <SubMenu key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</SubMenu>
+            <SubMenuItem key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</SubMenuItem>
+            <SubMenuItem key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</SubMenuItem>
+            <SubMenuItem key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</SubMenuItem>
+            <SubMenuItem key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</SubMenuItem>
+            <SubMenuItem key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</SubMenuItem>
+            <SubMenuItem key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</SubMenuItem>
             <MenuBreak />
-            <SubMenu key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</SubMenu>
-            <Menu key="remove" onAction={e => this.renderMenu('sample-remove')}>Remove Sample</Menu>
+            <SubMenuItem key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</SubMenuItem>
+            <MenuItem key="remove" onAction={e => this.renderMenu('sample-remove')}>Remove Sample</MenuItem>
         </>);
     }
 
@@ -153,28 +153,28 @@ class SynthesizerSampleRenderer extends React.Component {
     openMenuChangeKeyRoot(e) {
         const values = this.getSong().values;
         this.openMenu(e, <>
-            <Menu onAction={null} disabled>Edit Key Root</Menu>
+            <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
             <MenuBreak />
             {values.getNoteOctaves((octave) =>
-                <SubMenu onAction={e => this.openMenu(e,
+                <SubMenuItem onAction={e => this.openMenu(e,
                     values.getNoteFrequencies((noteName) =>
-                        <Menu onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</Menu>
+                        <MenuItem onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuItem>
                     )
-                )}>{octave}</SubMenu>)}
+                )}>{octave}</SubMenuItem>)}
         </>);
     }
 
     openMenuChangeKeyAlias(e) {
         const values = this.getSong().values;
         this.openMenu(e, <>
-            <Menu onAction={null} disabled>Edit Key Root</Menu>
+            <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
             <MenuBreak />
             {values.getNoteOctaves((octave) =>
-                <SubMenu onAction={e => this.openMenu(e,
+                <SubMenuItem onAction={e => this.openMenu(e,
                     values.getNoteFrequencies((noteName) =>
-                        <Menu onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</Menu>
+                        <MenuItem onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuItem>
                     )
-                )}>{octave}</SubMenu>)}
+                )}>{octave}</SubMenuItem>)}
         </>);
     }
 
@@ -206,70 +206,70 @@ class SynthesizerSampleRenderer extends React.Component {
                 return <>
 
                     <MenuBreak />
-                    <Menu onAction={null} disabled>Edit Mixer</Menu>
+                    <MenuItem onAction={null} disabled>Edit Mixer</MenuItem>
                 </>;
 
             case 'sample-detune':
                 return <>
 
                     <MenuBreak />
-                    <Menu onAction={null} disabled>Edit Detune</Menu>
+                    <MenuItem onAction={null} disabled>Edit Detune</MenuItem>
                 </>;
 
             case 'sample-root':
                 return <>
-                    <Menu onAction={null} disabled>Edit Key Root</Menu>
+                    <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <Menu onAction={
+                    <MenuItem onAction={
                         () => values.getNoteFrequencies((noteName) =>
-                            <Menu onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</Menu>
+                            <MenuItem onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuItem>
                         )
-                    }>{octave}</Menu>)}
+                    }>{octave}</MenuItem>)}
                 </>;
 
             case 'sample-alias':
                 return <>
-                    <Menu onAction={null} disabled>Edit Key Alias</Menu>
+                    <MenuItem onAction={null} disabled>Edit Key Alias</MenuItem>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <Menu onAction={
+                    <MenuItem onAction={
                         () => values.getNoteFrequencies((noteName) =>
-                            <Menu onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</Menu>
+                            <MenuItem onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuItem>
                         )
-                    }>{octave}</Menu>)}
+                    }>{octave}</MenuItem>)}
                 </>;
 
             case 'sample-range':
                 return <>
-                    <Menu onAction={null} disabled>Edit Key Range</Menu>
+                    <MenuItem onAction={null} disabled>Edit Key Range</MenuItem>
                     <MenuBreak />
-                    <Menu onAction={e => this.renderMenu('sample-range-start')} >Set Range Start</Menu>
-                    <Menu onAction={e => this.renderMenu('sample-range-end')} >Set Range End</Menu>
+                    <MenuItem onAction={e => this.renderMenu('sample-range-start')} >Set Range Start</MenuItem>
+                    <MenuItem onAction={e => this.renderMenu('sample-range-end')} >Set Range End</MenuItem>
                 </>;
 
             case 'sample-range-start':
                 return (<>
-                    <Menu onAction={null} disabled>Range Start</Menu>
+                    <MenuItem onAction={null} disabled>Range Start</MenuItem>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <Menu onAction={
+                        <MenuItem onAction={
                             () => values.getNoteFrequencies((noteName) =>
-                                <Menu onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</Menu>
+                                <MenuItem onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</MenuItem>
                             )
-                        }>{octave}</Menu>)}
+                        }>{octave}</MenuItem>)}
                 </>);
 
             case 'sample-range-end':
                 return (<>
-                    <Menu onAction={null} disabled>Range End</Menu>
+                    <MenuItem onAction={null} disabled>Range End</MenuItem>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <Menu onAction={
+                        <MenuItem onAction={
                             () => values.getNoteFrequencies((noteName) =>
-                                <Menu onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</Menu>
+                                <MenuItem onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</MenuItem>
                             )
-                        }>{octave}</Menu>)}
+                        }>{octave}</MenuItem>)}
                 </>);
 
 

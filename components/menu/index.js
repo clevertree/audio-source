@@ -1,12 +1,12 @@
-import {Menu, MenuHorizontal} from "./Menu";
-import SubMenu from "./SubMenu";
+import {MenuItem, MenuItemHorizontal} from "./MenuItem";
+import SubMenuItem from "./SubMenuItem";
 import MenuBreak from "./MenuBreak";
 import Button from "./Button";
 
 export {
-    Menu,
-    MenuHorizontal,
+    MenuItem,
+    MenuItemHorizontal,
     MenuBreak,
     Button,
-    SubMenu
+    SubMenuItem
 }

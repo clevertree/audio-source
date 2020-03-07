@@ -119,7 +119,7 @@ class PlayerRenderer extends React.Component {
                         <Form className="name" title="Name">
                             <Button
                                 className="name"
-                                // onChange={(e, newSongName) => this.setSongName(e, newSongName)}
+                                onAction={(e) => this.setSongName(e)}
                                 title="Song Name"
                                 children={this.song ? this.song.getTitle() : "no song loaded"}
                             />
@@ -128,7 +128,7 @@ class PlayerRenderer extends React.Component {
                         <Form className="version" title="Version">
                             <Button
                                 className="version"
-                                // onChange={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
+                                onAction={(e) => this.setSongVersion(e)}
                                 ref={ref => this.fieldSongVersion = ref}
                                 title="Song Version"
                                 children={this.song ? this.song.getVersion() : "0.0.0"}

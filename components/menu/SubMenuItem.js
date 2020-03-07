@@ -1,7 +1,8 @@
-import {Menu} from "./Menu";
+import PropTypes from 'prop-types';
+import {MenuItem} from "./MenuItem";
 // import PropTypes from 'prop-types';
 
-class SubMenu extends Menu {
+class SubMenuItem extends MenuItem {
 
     // getEventProps() {
     //     return Object.assign({
@@ -12,14 +13,18 @@ class SubMenu extends Menu {
 
 }
 
-export default SubMenu;
+export default SubMenuItem;
 
 // creating default props
-SubMenu.defaultProps = {
+SubMenuItem.defaultProps = {
     arrow:          '►',
     vertical:       false,
     openOnHover:    true,
 };
 
 // validating prop types
-SubMenu.propTypes = Menu.propTypes;
+SubMenuItem.propTypes = {
+    options: PropTypes.any.isRequired,
+    disabled: PropTypes.bool,
+    vertical: PropTypes.bool,
+};

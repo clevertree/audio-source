@@ -1,6 +1,6 @@
 import React from "react";
 // import Div from "../../../components/div/Div";
-import {Icon, Menu} from "../../components";
+import {Icon, MenuItem} from "../../components";
 
 import "./assets/Header.css";
 
@@ -32,12 +32,12 @@ class Header extends React.Component {
             menuContent = menuContent(this);
         /** Menu Button **/
         return (
-            <Menu
+            <MenuItem
                 class="asc-menu-button"
                 children={menuContent}
                 >
                 <Icon className="menu" />
-            </Menu>
+            </MenuItem>
         );
 
             /** Title Text **/

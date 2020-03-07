@@ -5,7 +5,7 @@ import './assets/Menu.css';
 import MenuManager from "./MenuManager";
 
 
-class Menu extends React.Component {
+class MenuItem extends React.Component {
     constructor(props) {
         super(props);
         this.onInputEventCallback = e => this.onInputEvent(e);
@@ -13,7 +13,7 @@ class Menu extends React.Component {
             open: false,
             stick: false,
             options: null,
-            menuPath: [this]
+            // menuPath: [this]
         };
     }
 
@@ -50,13 +50,16 @@ class Menu extends React.Component {
     }
 
     renderOptions() {
+        let options = this.state.options;
+        if(typeof options === "function")
+            options = options(this);
         let className = 'asui-menu-dropdown';
         if(this.props.vertical)
             className += ' vertical';
         return (
             <div
                 className={className}
-                children={this.state.options}
+                children={options}
             />
         );
     }
@@ -102,7 +105,7 @@ class Menu extends React.Component {
         console.log(e.type);
         this.setState({
             open: true,
-            menuPath: e.menuPath.concat([this]),
+            // menuPath: e.menuPath.concat([this]),
             stick: e && e.type === 'click' && this.state.open ? !this.state.stick : this.state.stick,
             options
         })
@@ -122,26 +125,26 @@ class Menu extends React.Component {
             return;
         }
         // e.menu = this;
-        const buttonAction = {
+        const menuEvent = {
             // type: e.type,
             type: type,
-            menuPath:   this.state.menuPath,                 // Add button to the menu path
-            openMenu:   (e, options) => this.openDropDownMenu(e, options),   // Set next menu callback
+            // menuPath:   this.state.menuPath,                 // Add button to the menu path
+            // openMenu:   (e, options) => this.openDropDownMenu(e, options),   // Set next menu callback
             // closeMenu:  (e) => this.closeDropDownMenu(e)
         };
         if(this.props.onAction) {
-            const result = this.props.onAction(buttonAction, this);
+            const result = this.props.onAction(menuEvent, this);
             if (result !== false)
-                MenuManager.closeAllMenus(buttonAction);
+                MenuManager.closeAllMenus(menuEvent);
 
         } else if(this.props.options) {
-            const options = this.props.options({
-                openMenu: this.props.openMenu
-            }); // TODO: props
-            if(this.props.openMenu)
-                this.props.openMenu(buttonAction, options);
-            else
-                this.openDropDownMenu(buttonAction, options);
+            if(MenuItem.subMenuHandlers.length > 0) {
+                console.info("Sending sub-menu options to menu handler: ", MenuItem.subMenuHandlers.length);
+                MenuItem.subMenuHandlers.forEach(menuHandler => menuHandler(menuEvent, this.props.options))
+
+            } else {
+                this.openDropDownMenu(menuEvent, this.props.options);
+            }
 
         } else {
             throw new Error("Menu does not contain props 'onAction' or 'options'");
@@ -149,11 +152,26 @@ class Menu extends React.Component {
     }
 
 
+    static subMenuHandlers = [];
+    static addGlobalSubMenuHandler(menuHandlerCallback) {
+        MenuItem.subMenuHandlers.push(menuHandlerCallback);
+        if(MenuItem.subMenuHandlers.length > 1)
+            console.warn(MenuItem.subMenuHandlers.length + " menu handlers are registered");
+    }
+
+    static removeGlobalSubMenuHandler(menuHandlerCallback) {
+        let i = MenuItem.subMenuHandlers.indexOf(menuHandlerCallback);
+        if(i !== -1)
+            MenuItem.subMenuHandlers.splice(i, 1);
+        if(MenuItem.subMenuHandlers.length > 1)
+            console.warn(MenuItem.subMenuHandlers.length + " menu handlers are registered");
+    }
+
 }
 
 
 // creating default props
-Menu.defaultProps = {
+MenuItem.defaultProps = {
     arrow:          null, // '►',
     vertical:       false,
     openOnHover:    null,
@@ -161,30 +179,30 @@ Menu.defaultProps = {
 };
 
 // validating prop types
-Menu.propTypes = {
-    onAction: PropTypes.func,
+MenuItem.propTypes = {
+    onAction: PropTypes.func.isRequired,
     disabled: PropTypes.bool,
     vertical: PropTypes.bool,
 };
 
 
-class MenuHorizontal extends Menu {}
-Menu.Horizontal = MenuHorizontal;
+class MenuItemHorizontal extends MenuItem {}
+MenuItem.Horizontal = MenuItemHorizontal;
 
 /** Default props **/
-MenuHorizontal.defaultProps = {
+MenuItemHorizontal.defaultProps = {
     arrow:          '▼',
     vertical:       true,
     openOnHover:    true,
     disabled:       false,
 };
 
-MenuHorizontal.propTypes = Menu.propTypes;
+MenuItemHorizontal.propTypes = MenuItem.propTypes;
 
 
 
 export {
-    Menu as default,
-    Menu,
-    MenuHorizontal
+    MenuItem as default,
+    MenuItem,
+    MenuItemHorizontal
 };

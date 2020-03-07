@@ -4,9 +4,9 @@ import {
     Button,
     Scrollable,
     Div,
-    Menu,
+    MenuItem,
     MenuBreak,
-    SubMenu,
+    SubMenuItem,
     Icon,
 } from "../../../components";
 
@@ -104,18 +104,18 @@ class SynthesizerRenderer extends React.Component {
 
     openMenuRoot(e) {
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuChangePreset(e)}>Change Preset</SubMenu>
+            <SubMenuItem onAction={e => this.openMenuChangePreset(e)}>Change Preset</SubMenuItem>
             <MenuBreak />
-            <SubMenu onAction={e => this.openMenuChange(e)}>Change Instrument</SubMenu>
-            <Menu onAction={e => this.instrumentRename(e)}>Rename Instrument</Menu>
-            <Menu onAction={e => this.instrumentRemove(e)}>Remove Instrument</Menu>
+            <SubMenuItem onAction={e => this.openMenuChange(e)}>Change Instrument</SubMenuItem>
+            <MenuItem onAction={e => this.instrumentRename(e)}>Rename Instrument</MenuItem>
+            <MenuItem onAction={e => this.instrumentRemove(e)}>Remove Instrument</MenuItem>
         </>);
     }
 
     openMenuChange(e) {
         this.openMenu(e, <>
             {InstrumentLoader.getInstruments().map(config =>
-                <Menu onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</Menu>
+                <MenuItem onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuItem>
             )}
         </>);
     }
@@ -123,17 +123,17 @@ class SynthesizerRenderer extends React.Component {
     openMenuChangePreset(e) {
         let library = this.state.library;
         this.openMenu(e, <>
-            <SubMenu onAction={e => this.openMenuLibraryList(e)}    >Libraries</SubMenu>
+            <SubMenuItem onAction={e => this.openMenuLibraryList(e)}    >Libraries</SubMenuItem>
             <MenuBreak />
-            <Menu disabled>Search</Menu>
+            <MenuItem disabled>Search</MenuItem>
             <MenuBreak />
             {library.getPresets().length > 0 ? (
                 <Scrollable>
                     {library.getPresets().map(config => (
-                        <Menu onAction={e => this.loadPreset(config.name)}>{config.name}</Menu>
+                        <MenuItem onAction={e => this.loadPreset(config.name)}>{config.name}</MenuItem>
                     ))}
                 </Scrollable>
-            ) : <Menu disabled> - Select a Library - </Menu>}
+            ) : <MenuItem disabled> - Select a Library - </MenuItem>}
         </>);
 
         // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
@@ -154,14 +154,14 @@ class SynthesizerRenderer extends React.Component {
         // if(library.getPresets().length === 0)
         //     return <Menu disabled>No presets</Menu>;
         this.openMenu(e, library.getPresets().map(config => (
-            <Menu>{config.name}</Menu>
+            <MenuItem>{config.name}</MenuItem>
         )));
     }
 
     openMenuLibraryList(e) {
         let library = this.state.library;
         return library.getLibraries().map(config => (
-            <Menu onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</Menu>
+            <MenuItem onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuItem>
         ));
     }
 

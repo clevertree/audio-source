@@ -696,6 +696,12 @@ class PlayerActions extends PlayerMenu {
     }
 
 
+    /** Portrait Mode **/
+
+    setPortraitMode(portrait=true) {
+        this.setState({portrait});
+    }
+
     /** Prompt **/
 
     openPromptDialog(message, defaultValue='') {
@@ -718,6 +724,8 @@ class PlayerActions extends PlayerMenu {
             input.click();
         })
     }
+
+
 
     // get playlist() { return this.state.playlist; }
 

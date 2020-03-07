@@ -2,9 +2,9 @@
 import Div from "./div/Div";
 import Icon from "./icon/Icon";
 import {
-    Menu,
-    MenuHorizontal,
-    SubMenu,
+    MenuItem,
+    MenuItemHorizontal,
+    SubMenuItem,
     MenuBreak,
     Button
 } from "./menu/";
@@ -22,10 +22,10 @@ export {
     Form,
     Panel,
 
-    Menu,
-    MenuHorizontal,
+    MenuItem,
+    MenuItemHorizontal,
     MenuBreak,
-    SubMenu,
+    SubMenuItem,
 
     Scrollable,
     InputRange,
