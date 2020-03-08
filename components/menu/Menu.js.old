@@ -50,7 +50,7 @@ class Menu2 extends React.Component {
     }
 
     renderDropDown() {
-        let className = 'asui-menu-dropdown';
+        let className = 'asui-menuitem-dropdown';
         if(this.props.vertical)
             className += ' vertical';
         return (

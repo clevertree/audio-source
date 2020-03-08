@@ -17,7 +17,7 @@ class MenuItem extends React.Component {
         };
     }
 
-    getClassName() { return 'asui-menu'; }
+    getClassName() { return 'asui-menuitem'; }
 
     render() {
         let className = this.getClassName();
@@ -53,7 +53,7 @@ class MenuItem extends React.Component {
         let options = this.state.options;
         if(typeof options === "function")
             options = options(this);
-        let className = 'asui-menu-dropdown';
+        let className = 'asui-menuitem-dropdown';
         if(this.props.vertical)
             className += ' vertical';
         return (

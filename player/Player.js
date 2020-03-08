@@ -43,6 +43,10 @@ class Player extends PlayerActions {
         // this.props.playing = false;
         // this.props.paused = false;
 
+        this.onResizeCallback = e => this.onResize(e);
+        window.addEventListener('resize', function(event){
+            // do stuff here
+        });
     }
 
     // static getDefaultProps() {
@@ -62,44 +66,35 @@ class Player extends PlayerActions {
 
     get values() { return new Values(this.song); }
 
-    componentDidMount() {
+    componentDidMount(e) {
         const url = this.props.src || this.props.url;
         if(url)
             this.loadURLAsPlaylist(url);
         else
             this.loadState();
 
+        if(window)
+            window.addEventListener('resize', this.onResizeCallback);
+        this.onResize(e);
         // this.loadPackageInfo()
         //     .then(packageInfo => this.setVersion(packageInfo.version));
     }
 
-    connectedCallback() {
-        if(!this.shadowDOM)
-            this.shadowDOM = this.attachShadow({mode: 'closed'});
+    componentWillUnmount() {
 
+        if(window)
+            window.removeEventListener('resize', this.onResizeCallback);
+    }
 
-        // this.addEventHandler([ // TODO: listen directly to song emitter
-        //     'song:loaded','song:play','song:end','song:stop','song:modified', 'song:seek',
-        //     'group:play', 'group:seek',
-        //     'note:start', 'note:end',
-        //     'log'
-        // ], this.onSongEvent);
-        // document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
+    /** Portrait Mode **/
 
-        // this.addEventHandler(['keyup', 'keydown', 'click', 'dragover', 'drop'], e => this.onInput(e), this.shadowDOM, true);
-
-        // this.loadCSS();
-        // Render (with promise)
-        super.connectedCallback();
-
-        const url = this.getAttribute('src') || this.getAttribute('url');
-        if(url)
-            this.loadURLAsPlaylist(url);
-        else
-            this.loadState();
-
-        this.loadPackageInfo()
-            .then(packageInfo => this.setVersion(packageInfo.version));
+    onResize() {
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        const portrait = aspectRatio < 1;
+        if(!this.state.portrait === portrait) {
+            console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
+            this.setState({portrait});
+        }
     }
 
     disconnectedCallback() {

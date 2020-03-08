@@ -9,34 +9,57 @@ div.asp-menu-container {
 
 
 div.asp-title-container {
+    display: flex;
     background-color: #888;
+
+}
+
+div.asp-title-text {
+    margin: auto;
+    font-weight: bold;
+    color: #333;
 }
 
 div.asp-menu-container {
     background-color: #bdc3c7;
 }
 
-div.asp-menu-container > div.asui-menu {
+div.asp-menu-container > div.asui-menuitem {
     padding: 0px 8px 0px 4px;
 }
 
-div.asp-title-text {
-    text-align: center;
-    align-items: center;
-    padding-top: 3px;
-    font-weight: bold;
-    color: #333;
+
+
+/** Portrait Menu Button **/
+
+div.asp-menu-button-toggle > div.title > div.asui-icon {
+    height: 2em;
+    width: 2em;
+    transition: transform 0.3s ease-out;
+}
+
+div.asp-menu-button-toggle.stick > div.title > div.asui-icon {
+    transform: rotate(90deg);
 }
 
 
-/** Portrait **/
-div.asp-menu-button-toggle {
+
+div.asp-menu-button-toggle > div.asui-menuitem-dropdown {
     position: absolute;
     left: 0;
-    top: 0;
+    top: 100%;
+    transition: transform 0.3s ease-out;
+    transform: translate(-100%);
 }
 
-div.asp-menu-button-toggle > div.asui-menu-dropdown {
-    position: absolute;
-    left: 0;
+
+div.asp-menu-button-toggle.stick > div.asui-menuitem-dropdown {
+    transform: translate(0%);
+
 }
+
+
+div.asp-menu-button-toggle > div.asui-menuitem-dropdown > div.asui-menuitem {
+    padding: 0.5em;
+}
+

@@ -15,7 +15,7 @@ div.asc-menu-container {
     background-color: #bdc3c7;
 }
 
-div.asc-menu-container > div.asui-menu {
+div.asc-menu-container > div.asui-menuitem {
      padding: 0px 8px 0px 4px;
 }
 

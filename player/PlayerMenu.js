@@ -28,8 +28,9 @@ class PlayerMenu extends PlayerRenderer {
         const props = {
             vertical: !this.state.portrait,
             openOnHover: !this.state.portrait,
-            arrow: this.state.portrait,
         };
+        if(!this.state.portrait)
+            props.arrow = false;
         return (<>
             <SubMenuItem {...props} options={p => this.renderFileMenu(p)}      >File</SubMenuItem>
             <SubMenuItem {...props} options={p => this.renderPlaylistMenu(p)}  >Playlist</SubMenuItem>

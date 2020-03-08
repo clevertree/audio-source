@@ -1,7 +1,7 @@
 
 /** Menu **/
 
-div.asui-menu {
+div.asui-menuitem {
     position: relative;
     /*color: black;*/
     padding: 0 0;
@@ -11,29 +11,30 @@ div.asui-menu {
     /*min-width: 1em;*/
     /*min-height: 1em;*/
     transition: background-color 0.3s;
+
 }
 
 
 /** Hover **/
-div.asui-menu:hover {
+div.asui-menuitem:hover {
     background-color: #AAA;
 }
 
 /** Disabled Menu **/
-div.asui-menu.disabled {
+div.asui-menuitem.disabled {
     /*opacity: 0.5;*/
     color: #777;
     cursor: not-allowed;
 }
 
 /** Menu Stick **/
-div.asui-menu.stick {
+div.asui-menuitem.stick {
     background-color: #999;
 }
 
 
 /** Menu Title **/
-div.asui-menu > div.title {
+div.asui-menuitem > div.title {
     display: flex;
 
     /*display: inline-block;*/
@@ -44,7 +45,7 @@ div.asui-menu > div.title {
 
 
 /** Menu Arrow **/
-div.asui-menu > div.title > div.arrow {
+div.asui-menuitem > div.title > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;
@@ -54,11 +55,12 @@ div.asui-menu > div.title > div.arrow {
 
 /** Drop Down Menu **/
 
-div.asui-menu-dropdown > div.asui-menu {
+div.asui-menuitem-dropdown > div.asui-menuitem {
     padding: 4px;
+    border: 1px outset #FFF;
 }
 
-div.asui-menu-dropdown {
+div.asui-menuitem-dropdown {
     background-color: #bdc3c7;
     /* display: inline-block; */
     z-index: 3;
@@ -70,11 +72,11 @@ div.asui-menu-dropdown {
     transition: opacity 0.2s;
 }
 
-div.asui-menu-dropdown:hover {
+div.asui-menuitem-dropdown:hover {
     z-index: 4;
 }
 
-div.asui-menu-dropdown.vertical {
+div.asui-menuitem-dropdown.vertical {
     left: 0;
     top: 100%;
 }
@@ -97,10 +99,10 @@ hr.asui-menu-break {
 /** Context Menu **/
 
 
-div.asui-menu[context]:not([open]) {
+div.asui-menuitem[context]:not([open]) {
     display: none;
 }
-div.asui-menu[context] {
+div.asui-menuitem[context] {
     position: absolute;
     z-index: 4;
     background-color: #bdc3c7;

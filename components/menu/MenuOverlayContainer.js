@@ -27,7 +27,7 @@ class MenuOverlayContainer extends React.Component {
         if(!this.state.open)
             return this.props.children;
         return [
-            <div className="asui-menu-dropdown">
+            <div className="asui-menuitem-dropdown">
                 {this.state.options}
             </div>,
             this.props.children,

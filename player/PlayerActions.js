@@ -696,11 +696,7 @@ class PlayerActions extends PlayerMenu {
     }
 
 
-    /** Portrait Mode **/
 
-    setPortraitMode(portrait=true) {
-        this.setState({portrait});
-    }
 
     /** Prompt **/
 

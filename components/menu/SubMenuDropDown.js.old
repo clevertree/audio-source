@@ -26,7 +26,7 @@ class MenuDropDown extends React.Component {
     }
 
     render() {
-        let className = 'asui-menu-dropdown';
+        let className = 'asui-menuitem-dropdown';
         if(this.props.className)
             className += ' ' + this.props.className;
         if(this.props.vertical)

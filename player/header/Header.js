@@ -49,14 +49,15 @@ class Header extends React.Component {
     renderPortrait() {
         return (
             <div key="header" className="asp-title-container portrait">
-                <div className="asp-title-text">Audio Source Player</div>
                 <SubMenuItem
                     className="asp-menu-button-toggle"
                     options={this.props.menuContent}
                     ref={this.menu}
+                    arrow={false}
                     >
                     <Icon className="menu" />
                 </SubMenuItem>
+                <div className="asp-title-text">Audio Source Player</div>
             </div>
         )
     }
