@@ -1,4 +1,5 @@
 
+
 /** Menu Container **/
 
 div.asc-menu-container {
@@ -8,7 +9,19 @@ div.asc-menu-container {
 
 
 div.asc-title-container {
+    display: flex;
     background-color: #888;
+}
+
+div.asc-title-container.landscape {
+    flex-direction: column;
+}
+
+
+div.asc-title-text {
+    margin: auto;
+    font-weight: bold;
+    color: #333;
 }
 
 div.asc-menu-container {
@@ -16,13 +29,44 @@ div.asc-menu-container {
 }
 
 div.asc-menu-container > div.asui-menuitem {
-     padding: 0px 8px 0px 4px;
+    padding: 0px 8px 0px 4px;
 }
 
-div.asc-title-text {
-    text-align: center;
-    align-items: center;
-    padding-top: 3px;
-    font-weight: bold;
-    color: #333;
+
+
+/** Portrait Menu Button **/
+
+div.asc-menu-button-toggle > div.title > div.asui-icon {
+    height: 2em;
+    width: 2em;
+    transition: transform 0.3s ease-out;
 }
+
+div.asc-menu-button-toggle.stick > div.title > div.asui-icon {
+    transform: rotate(90deg);
+}
+
+
+
+div.asc-menu-button-toggle > div.asui-menuitem-dropdown {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    transition: transform 0.3s ease-out;
+    transform: translate(-100%);
+
+    min-width: 40vw;
+    min-height: 100vw;
+}
+
+
+div.asc-menu-button-toggle.stick > div.asui-menuitem-dropdown {
+    transform: translate(0%);
+
+}
+
+
+div.asc-menu-button-toggle > div.asui-menuitem-dropdown > div.asui-menuitem > div.title {
+    padding: 0.5em;
+}
+

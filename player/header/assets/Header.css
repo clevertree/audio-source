@@ -11,8 +11,12 @@ div.asp-menu-container {
 div.asp-title-container {
     display: flex;
     background-color: #888;
-
 }
+
+div.asp-title-container.landscape {
+    flex-direction: column;
+}
+
 
 div.asp-title-text {
     margin: auto;
@@ -50,6 +54,9 @@ div.asp-menu-button-toggle > div.asui-menuitem-dropdown {
     top: 100%;
     transition: transform 0.3s ease-out;
     transform: translate(-100%);
+
+    min-width: 40vw;
+    min-height: 100vw;
 }
 
 
@@ -59,7 +66,7 @@ div.asp-menu-button-toggle.stick > div.asui-menuitem-dropdown {
 }
 
 
-div.asp-menu-button-toggle > div.asui-menuitem-dropdown > div.asui-menuitem {
+div.asp-menu-button-toggle > div.asui-menuitem-dropdown > div.asui-menuitem > div.title {
     padding: 0.5em;
 }
 

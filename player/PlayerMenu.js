@@ -27,7 +27,8 @@ class PlayerMenu extends PlayerRenderer {
     renderRootMenu() {
         const props = {
             vertical: !this.state.portrait,
-            openOnHover: !this.state.portrait,
+            openOnHover: false,
+            // openOnHover: !this.state.portrait,
         };
         if(!this.state.portrait)
             props.arrow = false;
@@ -52,10 +53,10 @@ class PlayerMenu extends PlayerRenderer {
         const songRecentUUIDs = storage.getRecentSongList() ;
         return songRecentUUIDs.length > 0
             ? songRecentUUIDs.map((entry, i) =>
-                <SubMenuItem
+                <MenuItem
                     key={i}
-                    options={p => this.loadSongFromMemory(entry.uuid)}
-                >{entry.name || entry.uuid}</SubMenuItem>)
+                    options={e => this.loadSongFromMemory(entry.uuid)}
+                >{entry.name || entry.uuid}</MenuItem>)
             :<MenuItem
                 key="no-recent"
                 disabled

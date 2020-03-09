@@ -12,15 +12,11 @@ class Header extends React.Component {
     }
 
     componentDidMount() {
-        if(this.isPortrait()) {
-            SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
-        }
+        SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
     }
 
     componentWillUnmount() {
-        if(this.isPortrait()) {
-            SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
-        }
+        SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
     }
 
     getPlayer() { return this.props.player; }
@@ -63,6 +59,9 @@ class Header extends React.Component {
     }
 
     openMenu(e, options) {
+        if(!this.isPortrait())
+            return false;
+
         switch(e.type) {
             case 'click':
                 break;
@@ -73,6 +72,7 @@ class Header extends React.Component {
                 throw new Error("Unknown menu event: " + e.type);
         }
         this.menu.current.openDropDownMenu(e, options);
+        return true;
     }
 
 }

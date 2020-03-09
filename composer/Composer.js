@@ -44,7 +44,8 @@ class Composer extends ComposerActions {
 
         // this.onSongEvent = (e) => this.onSongEvent(e);
         window.addEventListener('unload', e => this.saveState(e));
-        this.ui = {};
+
+        this.onResizeCallback = e => this.onResize(e);
     }
 
 
@@ -89,11 +90,36 @@ class Composer extends ComposerActions {
         this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
 
     }
+    componentDidMount(e) {
+        // const url = this.props.src || this.props.url;
+        // if(url)
+        //     this.loadURLAsPlaylist(url);
+        // else
+            this.loadState();
 
-    componentDidMount() {
-        this.loadState();
+        if(window)
+            window.addEventListener('resize', this.onResizeCallback);
+        this.onResize(e);
+        // this.loadPackageInfo()
+        //     .then(packageInfo => this.setVersion(packageInfo.version));
     }
 
+    componentWillUnmount() {
+
+        if(window)
+            window.removeEventListener('resize', this.onResizeCallback);
+    }
+
+    /** Portrait Mode **/
+
+    onResize() {
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        const portrait = aspectRatio < 1;
+        if(!this.state.portrait === portrait) {
+            console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
+            this.setState({portrait});
+        }
+    }
 
     // get trackerElm() { return this.shadowDOM.querySelector('asc-tracker'); }
     // get containerElm() { return this.shadowDOM.querySelector('.asc-container'); }

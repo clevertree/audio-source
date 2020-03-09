@@ -44,9 +44,6 @@ class Player extends PlayerActions {
         // this.props.paused = false;
 
         this.onResizeCallback = e => this.onResize(e);
-        window.addEventListener('resize', function(event){
-            // do stuff here
-        });
     }
 
     // static getDefaultProps() {

@@ -55,7 +55,8 @@ class ComposerRenderer extends React.Component {
             trackerRowCount: 32,
         };
 
-        this.shadowDOM = null;
+        // this.shadowDOM = null;
+        this.header = React.createRef();
 
     }
 
@@ -132,8 +133,10 @@ class ComposerRenderer extends React.Component {
                 >
                 <Div className="asc-container">
                     <Header
+                        composer={this}
                         key="header"
-                        menuContent={() => this.renderRootMenu()}
+                        menuContent={(p) => this.renderRootMenu(p)}
+                        ref={this.header}
                     />
                     <Div className="asc-panel-container">
                         <Panel className="song" title="Song">
