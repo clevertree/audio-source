@@ -1,10 +1,12 @@
 import {MenuItem} from "./MenuItem";
 
 import "./assets/Button.css"
+import PropTypes from "prop-types";
+import SubMenuItem from "./SubMenuItem";
 
 class Button extends MenuItem {
 
-    getClassName() { return 'asui-menu asui-button'; }
+    getClassName() { return 'asui-button'; }
 }
 
 
@@ -16,6 +18,10 @@ Button.defaultProps = {
     vertical:       true,
 };
 
-Button.propTypes = MenuItem.propTypes;
 
-
+// validating prop types
+Button.propTypes = {
+    options: PropTypes.any,
+    disabled: PropTypes.bool,
+    vertical: PropTypes.bool,
+};

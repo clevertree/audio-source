@@ -27,9 +27,6 @@ div.asui-menu-overlay-dropdown.open {
 }
 
 
-div.asui-menu-overlay-dropdown > div.asui-menuitem > div.title {
-    padding: 0.5em;
-}
 
 @keyframes menuSlideIn {
     from {

@@ -384,15 +384,6 @@ class ComposerRenderer extends React.Component {
     }
 
 
-    setStatus(newStatus) {
-        console.info.apply(null, arguments); // (newStatus);
-        this.footer && this.footer.setStatus(newStatus);
-    }
-    setError(newStatus) {
-        console.error.apply(null, arguments); // (newStatus);
-        this.footer && this.footer.setError(newStatus);
-    }
-
     // setVersion(versionString) {
     //     this.state.version = versionString;
     //     if(this.textVersion)

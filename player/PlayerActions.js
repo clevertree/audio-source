@@ -54,15 +54,11 @@ class PlayerActions extends PlayerMenu {
 
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
-        this.state.status = newStatus;
-        if(this.textStatus)
-            this.textStatus.forceUpdate();
+        this.setStatus({status: newStatus});
     }
 
     setVersion(versionString) {
-        this.state.version = versionString;
-        if(this.textVersion)
-            this.textVersion.forceUpdate();
+        this.setStatus({version: versionString});
     }
 
 

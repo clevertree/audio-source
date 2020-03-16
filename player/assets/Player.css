@@ -103,9 +103,11 @@ div.asp-menu-container > div.asui-menuitem {
 
 /** Portrait Menu Button **/
 div.asp-menu-button-toggle {
-
+    background: none;
+    border: none;
 }
-div.asp-menu-button-toggle > div.title > div.asp-icon {
+
+div.asp-menu-button-toggle > div.title > div.asui-icon {
     height: 2em;
     width: 2em;
     transition: transform 0.3s ease-out;
@@ -113,6 +115,11 @@ div.asp-menu-button-toggle > div.title > div.asp-icon {
 
 div.asp-menu-button-toggle.stick > div.title > div.asp-icon {
     transform: rotate(90deg);
+}
+
+
+div.asui-menu-overlay-dropdown > div.asui-menuitem > div.title {
+    padding: 0.5em;
 }
 
 

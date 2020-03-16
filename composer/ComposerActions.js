@@ -15,6 +15,14 @@ class ComposerActions extends ComposerMenu {
         // return new URL('../instrument/audio-source-synthesizer.js', thisModule.src);
     }
 
+    setStatus(newStatus) {
+        console.info.apply(null, arguments); // (newStatus);
+        this.setStatus({status: newStatus});
+    }
+
+    setVersion(versionString) {
+        this.setStatus({version: versionString});
+    }
 
     /** Playback **/
 

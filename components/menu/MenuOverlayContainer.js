@@ -1,9 +1,9 @@
 import React from "react";
-import {SubMenuItem} from "./index";
-import {Icon} from "../index";
 import Div from "../div/Div";
 
 import "./assets/MenuOverlayContainer.css";
+import MenuContext from "./MenuContext";
+
 
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
@@ -11,41 +11,50 @@ class MenuOverlayContainer extends React.Component {
         this.state = {
             open: false
         };
-        this.openMenuHandler = (e, options) => this.openMenu(e, options);
-        this.onInputEventCallback = e => this.onInputEvent(e);
+        this.openMenuHandler = (e, options) => this.openDropDownMenu(e, options);
+        this.closeMenuHandler = (e) => this.closeDropDownMenu(e);
     }
-
-    componentDidMount() {
-        SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
-    }
-
-    componentWillUnmount() {
-        SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
-    }
+    // componentDidMount() {
+    //     SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
+    // }
+    //
+    // componentWillUnmount() {
+    //     SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
+    // }
 
     render() {
-        if(!this.state.open)
-            return this.props.children;
-        return <>
-            <Div className="asui-menu-overlay-container"
-                 onClick={e => this.close()}
+        let content = <>{this.props.children}</>;
+
+        if(this.state.open)
+            content = <>
+                <Div className="asui-menu-overlay-container"
+                     onClick={e => this.closeDropDownMenu(e)}
                 >
-            </Div>
-            <Div className="asui-menu-overlay-dropdown">
-                {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
-            </Div>
-            {this.props.children}
-        </>;
+                </Div>
+                <Div className="asui-menu-overlay-dropdown">
+                    {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
+                </Div>
+                {content}
+            </>;
+
+        return <MenuContext.Provider
+            value={{
+                // parent: this,
+                openMenuHandler: this.openMenuHandler,
+                closeMenuHandler: this.closeMenuHandler
+            }}>
+            {content}
+        </MenuContext.Provider>;
     }
 
-    close(e) {
+    closeDropDownMenu(e) {
         this.setState({
             open: false,
             options: null
         })
     }
 
-    openMenu(e, options) {
+    openDropDownMenu(e, options) {
         if(!this.props.isActive)
             return false;
 
@@ -62,6 +71,10 @@ class MenuOverlayContainer extends React.Component {
             open: true,
             options
         });
+
+
+        // MenuItem.addCloseMenuCallback(e => this.close(e));
+
         // setTimeout(() => this.setState({open: true}), 1000);
         // this.menu.current.openDropDownMenu(e, options);
         return true;

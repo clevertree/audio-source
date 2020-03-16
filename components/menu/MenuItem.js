@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import './assets/Menu.css';
+import MenuContext from "./MenuContext";
+import Div from "../div/Div";
 
 
 class MenuItem extends React.Component {
@@ -10,10 +12,12 @@ class MenuItem extends React.Component {
         this.onInputEventCallback = e => this.onInputEvent(e);
         this.state = {
             open: false,
-            // stick: false,
+            stick: false,
             options: null,
             // menuPath: [this]
         };
+        // this.openMenuHandler = (e, options) => this.openDropDownMenu(e, options);
+        this.closeMenuHandler = (e) => this.closeDropDownMenu(e, true);
     }
 
     getClassName() { return 'asui-menuitem'; }
@@ -24,18 +28,18 @@ class MenuItem extends React.Component {
             className += ' ' + this.props.className;
         if(this.props.disabled)
             className += ' disabled';
-        // if(this.state.stick)
-        //     className += ' stick';
+        if(this.state.stick)
+            className += ' stick';
 
         // console.log('parent', this.props.parent);
 
         return (
-            <div
+            <Div
                 className={className}
-                // onMouseLeave={this.onInputEventCallback}
+                onMouseLeave={this.onInputEventCallback}
                 onMouseEnter={this.onInputEventCallback}
                 >
-                <div
+                <Div
                     className="title"
                     onClick={this.onInputEventCallback}
                     onKeyDown={this.onInputEventCallback}
@@ -43,10 +47,10 @@ class MenuItem extends React.Component {
                     >
                     {this.props.children}
                     {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
-                </div>
+                </Div>
 
                 {this.state.open ? this.renderOptions() : null}
-            </div>
+            </Div>
         );
     }
 
@@ -55,11 +59,17 @@ class MenuItem extends React.Component {
         if(this.props.vertical)
             className += ' vertical';
         return (
-            <div
-                className={className}
-                children={this.state.options}
-            />
-        );
+            <MenuContext.Provider value={{
+                // parent: this,
+                closeMenuHandler: this.closeMenuHandler
+
+            }}>
+                <Div
+                    className={className}
+                    children={this.state.options}
+                    />
+            </MenuContext.Provider>)
+            ;
     }
 
 
@@ -86,11 +96,13 @@ class MenuItem extends React.Component {
             case 'mouseleave':
             case 'mouseout':
                 clearTimeout(this.mouseTimeout);
-                this.mouseTimeout = setTimeout(te => {
-                    if (this.state.open) {
-                        this.closeDropDownMenu();
-                    }
-                }, 400);
+                if(this.state.stick !== true && this.props.openOnHover) {
+                    this.mouseTimeout = setTimeout(te => {
+                        if (this.state.stick !== true) {
+                            this.closeDropDownMenu();
+                        }
+                    }, 400);
+                }
                 break;
 
             default:
@@ -103,32 +115,23 @@ class MenuItem extends React.Component {
         if(typeof options === "function")
             options = options(this);
 
-        options = reactMapRecursive(options, child => {
-            return React.cloneElement(child, { parent: this })
-        });
-        // console.log('options', options);
-        // console.log(e.type);
-        if(MenuItem.openSubMenus.indexOf(this) === -1) {
-            MenuItem.openSubMenus.push(this);
-            console.info('MenuItem.openSubMenus', MenuItem.openSubMenus);
-        }
-
         this.setState({
             open: true,
-            // menuPath: e.menuPath.concat([this]),
-            // stick: (e && e.type === 'click') || this.props.openOnHover ? true : this.state.stick,
+            stick: false,
             options
         });
     }
 
 
 
-    closeDropDownMenu(e) {
+    closeDropDownMenu(e, closeParent=false) {
         this.setState({
+            stick: false,
             open: false,
-            // stick: false,
             options: null
-        })
+        });
+        if(closeParent && this.context.closeMenuHandler)
+            this.context.closeMenuHandler(e);
     }
 
     doAction(e) {
@@ -138,78 +141,43 @@ class MenuItem extends React.Component {
         }
 
         if(this.props.onAction) {
+            if(e.type !== 'click') {
+                console.warn("Skipping onAction for type " + e.type);
+                return;
+            }
             const result = this.props.onAction(e, this);
             if (result !== false)
-                MenuItem.closeAllOpenSubMenus(e);
+                this.closeDropDownMenu(e, true);
 
         } else if(this.props.options) {
             if(this.state.open) {
-                this.closeDropDownMenu(e);
+                if(!this.state.stick && e.type === 'click') {
+                    this.setState({stick: true});
+                    return;
+                }
+                this.closeDropDownMenu(e, false);
                 return;
             }
-
-            if(MenuItem.subMenuHandlers.length > 0) {
-                for(let i=0; i<MenuItem.subMenuHandlers.length; i++) {
-                    const subMenuHandler = MenuItem.subMenuHandlers[i];
-                    const res = subMenuHandler(e, this.props.options);
-                    if(res !== false) {
-                        console.info("Sub-menu options were sent to menu handler: ", i, subMenuHandler);
-                        return;
-                    }
-                    // console.info("Sub-menu options were skipped by menu handler(s): ", i);
+            let openMenuHandler=this.context.openMenuHandler;
+            if(openMenuHandler) {
+                const res = openMenuHandler(e, this.props.options);
+                if(res !== false) {
+                    console.info("Sub-menu options were sent to menu handler: ", openMenuHandler);
+                    return;
                 }
             }
+
+            // TODO: close other menus?
             this.openDropDownMenu(e, this.props.options);
-            this.closeOtherDropDownMenus(e);
 
         } else {
             throw new Error("Menu does not contain props 'onAction' or 'options'");
         }
     }
 
-    closeOtherDropDownMenus(e) {
-        const parents = [this];
-        let target = this;
-        while(target.props.parent) {
-            parents.push(target.props.parent);
-            target = target.props.parent;
-        }
-
-        MenuItem.closeAllOpenSubMenus(e, parents);
-    }
-
-
-    static openSubMenus = [];
-    static closeAllOpenSubMenus(e, butThese=[]) {
-        console.info('closeAllOpenSubMenus', butThese, MenuItem.openSubMenus);
-        for(let i=MenuItem.openSubMenus.length-1; i>=0; i--) {
-            const openSubMenu = MenuItem.openSubMenus[i];
-            if(butThese.indexOf(openSubMenu) === -1) {
-                console.info('closing ', openSubMenu.props.children);
-                MenuItem.openSubMenus.splice(i, 1);
-                openSubMenu.closeDropDownMenu();
-            }
-        }
-    }
-
-    static subMenuHandlers = [];
-    static addGlobalSubMenuHandler(menuHandlerCallback) {
-        MenuItem.subMenuHandlers.push(menuHandlerCallback);
-        if(MenuItem.subMenuHandlers.length > 1)
-            console.warn(MenuItem.subMenuHandlers.length + " menu handlers are registered");
-        console.info(MenuItem.subMenuHandlers.length + " menu handlers are registered");
-    }
-
-    static removeGlobalSubMenuHandler(menuHandlerCallback) {
-        let i = MenuItem.subMenuHandlers.indexOf(menuHandlerCallback);
-        if(i !== -1)
-            MenuItem.subMenuHandlers.splice(i, 1);
-        // if(MenuItem.subMenuHandlers.length > 1)
-        //     console.warn(MenuItem.subMenuHandlers.length + " menu handlers are registered");
-        console.info(MenuItem.subMenuHandlers.length + " menu handlers are registered");
-    }
 
 }
+MenuItem.contextType = MenuContext;
 
 
 // creating default props

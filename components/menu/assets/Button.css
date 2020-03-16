@@ -1,7 +1,7 @@
 
 div.asui-button {
     display: inline-flex;
-    /*cursor: pointer;*/
+    cursor: pointer;
 
     padding: 0 0.4em;
     background: linear-gradient(#f6f6f6, #dddddd);

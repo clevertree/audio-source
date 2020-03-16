@@ -20,7 +20,6 @@ class PlayerRenderer extends React.Component {
             showPanelPlaylist: true,
         };
         this.playlist = null; // playlist ref;
-        this.menu = React.createRef();
         this.footerVersionText = React.createRef();
     }
 
@@ -34,14 +33,12 @@ class PlayerRenderer extends React.Component {
                     <Div key="header" className="asp-title-container">
                         <Div className="asp-title-text">{this.state.title}</Div>
                         {this.state.portrait
-                            ?   <MenuItem
-                                    className="asp-menu-button-toggle"
-                                    options={(p) => this.renderRootMenu(p)}
-                                    ref={this.menu}
-                                    arrow={false}
-                                    >
-                                    <Icon className="menu" />
-                                </MenuItem>
+                            ? <Button
+                                className="asp-menu-button-toggle"
+                                options={(p) => this.renderRootMenu(p)}
+                                >
+                                <Icon className="menu" />
+                              </Button>
                             : <Div className="asp-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
                     </Div>
                     <Div className="asp-forms-container">

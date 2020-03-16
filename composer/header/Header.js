@@ -11,13 +11,13 @@ class Header extends React.Component {
         this.openMenuHandler = (e, options) => this.openMenu(e, options);
     }
 
-    componentDidMount() {
-        SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
-    }
-
-    componentWillUnmount() {
-        SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
-    }
+    // componentDidMount() {
+    //     SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
+    // }
+    //
+    // componentWillUnmount() {
+    //     SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
+    // }
 
     getComposer() { return this.props.composer; }
     isPortrait() { return this.getComposer().state.portrait; }
