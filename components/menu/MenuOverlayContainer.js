@@ -1,40 +1,71 @@
 import React from "react";
-// import PropTypes from 'prop-types';
+import {SubMenuItem} from "./index";
+import {Icon} from "../index";
+import Div from "../div/Div";
 
-import "./assets/Menu.css";
+import "./assets/MenuOverlayContainer.css";
 
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: this.props.open,
-            options: null
-        }
+            open: false
+        };
+        this.openMenuHandler = (e, options) => this.openMenu(e, options);
+        this.onInputEventCallback = e => this.onInputEvent(e);
     }
 
-    // Open menu in portrait mode
-    openMenu(e, options) {
-        console.log('openMenu', e, options);
-        this.setState({
-            open: true,
-            options
-        })
+    componentDidMount() {
+        SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
+    }
 
-        // TODO: return close callback
+    componentWillUnmount() {
+        SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
     }
 
     render() {
         if(!this.state.open)
             return this.props.children;
-        return [
-            <div className="asui-menuitem-dropdown">
-                {this.state.options}
-            </div>,
-            this.props.children,
-        ]
+        return <>
+            <Div className="asui-menu-overlay-container"
+                 onClick={e => this.close()}
+                >
+            </Div>
+            <Div className="asui-menu-overlay-dropdown">
+                {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
+            </Div>
+            {this.props.children}
+        </>;
+    }
+
+    close(e) {
+        this.setState({
+            open: false,
+            options: null
+        })
+    }
+
+    openMenu(e, options) {
+        if(!this.props.isActive)
+            return false;
+
+        switch(e.type) {
+            case 'click':
+                break;
+            case 'mouseenter':
+                // Prevent mouse-over opening the menu here
+                return;
+            default:
+                throw new Error("Unknown menu event: " + e.type);
+        }
+        this.setState({
+            open: true,
+            options
+        });
+        // setTimeout(() => this.setState({open: true}), 1000);
+        // this.menu.current.openDropDownMenu(e, options);
+        return true;
     }
 }
 
-
-/** Export this script **/
 export default MenuOverlayContainer;

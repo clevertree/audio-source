@@ -6,7 +6,8 @@ import {
     MenuItemHorizontal,
     SubMenuItem,
     MenuBreak,
-    Button
+    Button,
+    MenuOverlayContainer
 } from "./menu/";
 
 import Form from "./form/Form";
@@ -26,6 +27,7 @@ export {
     MenuItemHorizontal,
     MenuBreak,
     SubMenuItem,
+    MenuOverlayContainer,
 
     Scrollable,
     InputRange,

@@ -55,3 +55,83 @@ div.asp-container {
 :host(.hide-panel-playlist) asp-panel.playlist {
     display: none;
 }
+
+/** Header **/
+
+
+/** Title **/
+
+
+div.asp-title-container {
+    display: flex;
+    background-color: #888;
+}
+
+div.landscape > div.asp-title-container {
+    flex-direction: column;
+}
+div.portrait > div.asp-title-container {
+    flex-direction: row-reverse;
+}
+
+
+div.asp-title-text {
+    margin: auto;
+    font-weight: bold;
+    color: #333;
+}
+
+
+/** Menu Container **/
+
+div.asp-menu-container {
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+div.asp-menu-container {
+    background-color: #bdc3c7;
+}
+
+div.asp-menu-container > div.asui-menuitem {
+    padding: 0px 8px 0px 4px;
+}
+
+
+
+/** Portrait Menu Button **/
+div.asp-menu-button-toggle {
+
+}
+div.asp-menu-button-toggle > div.title > div.asp-icon {
+    height: 2em;
+    width: 2em;
+    transition: transform 0.3s ease-out;
+}
+
+div.asp-menu-button-toggle.stick > div.title > div.asp-icon {
+    transform: rotate(90deg);
+}
+
+
+/** Footer **/
+
+div.asp-status-text {
+    padding-left: 4px;
+}
+div.asp-version-text {
+    /* float: right; */
+    padding-right: 4px;
+    margin-left: auto;
+}
+
+
+/** Status Bar **/
+div.asp-footer-container {
+    display: flex;
+    background-color: #FFF;
+    color: #000;
+    padding: 0px;
+}
