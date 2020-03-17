@@ -2,17 +2,25 @@ import React from "react";
 import Div from "../div/Div";
 
 import "./assets/MenuOverlayContainer.css";
-import MenuContext from "./MenuContext";
+import MenuOverlayContext from "./MenuOverlayContext";
 
 
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false
+            open: false,
+            openOverlay: false
         };
-        this.openMenuHandler = (e, options) => this.openDropDownMenu(e, options);
-        this.closeMenuHandler = (e) => this.closeDropDownMenu(e);
+        this.overlayContext = {
+            openMenu: (options) => this.openMenu(options),
+            closeAllMenus: (butThese=[]) => this.closeAllMenus(butThese),
+            openOverlay: () => this.openOverlay(),
+            closeOverlay: () => this.closeOverlay(),
+            removeOpenMenu: (openMenuItem) => this.removeOpenMenu(openMenuItem),
+            addOpenMenu: (openMenuItem) => this.addOpenMenu(openMenuItem),
+            openMenuItems: []
+        };
     }
     // componentDidMount() {
     //     SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
@@ -23,60 +31,72 @@ class MenuOverlayContainer extends React.Component {
     // }
 
     render() {
-        let content = <>{this.props.children}</>;
+        return <MenuOverlayContext.Provider
+            value={this.overlayContext}>
+            <>
+                {this.state.openOverlay ? <Div className="asui-menu-overlay-container"
+                    onClick={this.overlayContext.closeAllMenus}
+                    /> : null}
 
-        if(this.state.open)
-            content = <>
-                <Div className="asui-menu-overlay-container"
-                     onClick={e => this.closeDropDownMenu(e)}
-                >
-                </Div>
-                <Div className="asui-menu-overlay-dropdown">
+                {this.state.open ? <Div className="asui-menu-overlay-dropdown">
                     {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
-                </Div>
-                {content}
-            </>;
-
-        return <MenuContext.Provider
-            value={{
-                // parent: this,
-                openMenuHandler: this.openMenuHandler,
-                closeMenuHandler: this.closeMenuHandler
-            }}>
-            {content}
-        </MenuContext.Provider>;
+                </Div> : null}
+                {this.props.children}
+            </>
+        </MenuOverlayContext.Provider>;
     }
 
-    closeDropDownMenu(e) {
+    addOpenMenu(openMenuItem) {
+        const i = this.overlayContext.openMenuItems.indexOf(openMenuItem);
+        if(i === -1)
+            this.overlayContext.openMenuItems.push(openMenuItem);
+        console.log('this.overlayContext.openMenuItems', this.overlayContext.openMenuItems);
+    }
+
+    removeOpenMenu(openMenuItem) {
+        const i = this.overlayContext.openMenuItems.indexOf(openMenuItem);
+        if(i !== -1)
+            this.overlayContext.openMenuItems.splice(i, 1);
+    }
+
+    closeAllMenus(butThese=[]) {
         this.setState({
             open: false,
+            openOverlay: false,
             options: null
-        })
+        });
+
+        this.overlayContext.openMenuItems.forEach(openMenuItem => {
+            if(butThese.indexOf(openMenuItem) !== -1)
+                return;
+            openMenuItem.closeDropDownMenu()
+        });
+        console.log("closeAllMenus", this.overlayContext.openMenuItems, butThese);
     }
 
-    openDropDownMenu(e, options) {
+    openMenu(options) {
         if(!this.props.isActive)
             return false;
 
-        switch(e.type) {
-            case 'click':
-                break;
-            case 'mouseenter':
-                // Prevent mouse-over opening the menu here
-                return;
-            default:
-                throw new Error("Unknown menu event: " + e.type);
-        }
         this.setState({
             open: true,
+            openOverlay: true,
             options
         });
+        return true;
+    }
 
+    openOverlay() {
+        this.setState({
+            openOverlay: true,
+        });
+        return true;
+    }
 
-        // MenuItem.addCloseMenuCallback(e => this.close(e));
-
-        // setTimeout(() => this.setState({open: true}), 1000);
-        // this.menu.current.openDropDownMenu(e, options);
+    closeOverlay() {
+        this.setState({
+            openOverlay: false,
+        });
         return true;
     }
 }

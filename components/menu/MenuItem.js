@@ -2,22 +2,27 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import './assets/Menu.css';
-import MenuContext from "./MenuContext";
+// import MenuContext from "./MenuContext";
 import Div from "../div/Div";
+import MenuOverlayContext from "./MenuOverlayContext";
+// import MenuOverlayContainer from "./MenuOverlayContainer";
 
 
 class MenuItem extends React.Component {
     constructor(props) {
         super(props);
-        this.onInputEventCallback = e => this.onInputEvent(e);
         this.state = {
             open: false,
             stick: false,
             options: null,
             // menuPath: [this]
         };
-        // this.openMenuHandler = (e, options) => this.openDropDownMenu(e, options);
-        this.closeMenuHandler = (e) => this.closeDropDownMenu(e, true);
+        this.cb = {
+            onClick: e => this.onClick(e),
+            onMouseEnter: e => this.onMouseEnter(e),
+            onMouseOut: e => this.onMouseOut(e),
+            onKeyDown: e => this.onKeyDown(e),
+        };
     }
 
     getClassName() { return 'asui-menuitem'; }
@@ -36,15 +41,15 @@ class MenuItem extends React.Component {
         return (
             <Div
                 className={className}
-                onMouseLeave={this.onInputEventCallback}
-                onMouseEnter={this.onInputEventCallback}
-                >
+                onMouseLeave={this.cb.onMouseOut}
+                onMouseEnter={this.cb.onMouseEnter}
+            >
                 <Div
                     className="title"
-                    onClick={this.onInputEventCallback}
-                    onKeyDown={this.onInputEventCallback}
+                    onClick={this.cb.onClick}
+                    onKeyDown={this.cb.onKeyDown}
                     tabIndex={0}
-                    >
+                >
                     {this.props.children}
                     {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
                 </Div>
@@ -59,81 +64,93 @@ class MenuItem extends React.Component {
         if(this.props.vertical)
             className += ' vertical';
         return (
-            <MenuContext.Provider value={{
-                // parent: this,
-                closeMenuHandler: this.closeMenuHandler
+            // <MenuContext.Provider value={{
+            //     parent: this,
+                // closeMenuHandler: this.closeMenuHandler
 
-            }}>
+            // }}>
                 <Div
                     className={className}
                     children={this.state.options}
                     />
-            </MenuContext.Provider>)
-            ;
+            // </MenuContext.Provider>)
+            );
     }
 
-
-    onInputEvent(e) {
-        switch (e.type) {
-            case 'click':
-                if(!e.isDefaultPrevented()) {
-                    e.preventDefault();
-                    this.doAction(e);
-                }
-                break;
-
-            case 'mouseenter':
-            case 'mouseover':
-                clearTimeout(this.mouseTimeout);
-                if(this.state.open !== true && this.props.openOnHover) {
-                    this.mouseTimeout = setTimeout(te => {
-                        // this.setState({open: true});
-                        this.doAction({type: 'mouseenter'});
-                    }, 100);
-                }
-                break;
-
-            case 'mouseleave':
-            case 'mouseout':
-                clearTimeout(this.mouseTimeout);
-                if(this.state.stick !== true && this.props.openOnHover) {
-                    this.mouseTimeout = setTimeout(te => {
-                        if (this.state.stick !== true) {
-                            this.closeDropDownMenu();
-                        }
-                    }, 400);
-                }
-                break;
-
-            default:
-                console.log("Unknown input event: ", e.type);
-                break;
+    onClick(e) {
+        if(!e.isDefaultPrevented()) {
+            e.preventDefault();
+            this.doAction(e);
         }
     }
 
-    openDropDownMenu(e, options) {
+    onMouseEnter(e) {
+        clearTimeout(this.mouseTimeout);
+        if(this.state.open !== true && this.props.openOnHover) {
+            this.mouseTimeout = setTimeout(te => {
+                // this.setState({open: true});
+                this.doAction({type: 'mouseenter'});
+            }, 100);
+        }
+    }
+
+    onMouseOut(e) {
+        clearTimeout(this.mouseTimeout);
+        if(this.state.stick !== true && this.props.openOnHover) {
+            this.mouseTimeout = setTimeout(te => {
+                if (this.state.stick !== true) {
+                    this.closeDropDownMenu();
+                }
+            }, 400);
+        }
+    }
+
+    openDropDownMenu(options) {
+        this.context && this.context.addOpenMenu(this);
+
         if(typeof options === "function")
             options = options(this);
+
+        options = reactMapRecursive(options, child => {
+            return React.cloneElement(child, { parentMenu: this })
+        });
 
         this.setState({
             open: true,
             stick: false,
             options
         });
+
+        this.closeAllDropDownMenus(this.getAncestorMenus());
     }
 
+    getAncestorMenus() {
+        let menus = [this];
+        let parent = this;
+        while(parent = parent.props.parentMenu) {
+            menus.push(parent);
+        }
+        return menus;
+    }
 
+    closeDropDownMenu() {
+        this.context && this.context.removeOpenMenu(this);
 
-    closeDropDownMenu(e, closeParent=false) {
         this.setState({
             stick: false,
             open: false,
             options: null
         });
-        if(closeParent && this.context.closeMenuHandler)
-            this.context.closeMenuHandler(e);
     }
 
+    closeAllDropDownMenus(butThese=[]) {
+        if(this.context.closeAllMenus)
+            this.context.closeAllMenus(butThese);
+    }
+
+    openMenuOverlay() {
+        this.context && this.context.openOverlay();
+    }
     doAction(e) {
         if(this.props.disabled) {
             console.warn(this.constructor.name + " is disabled.", this);
@@ -147,7 +164,7 @@ class MenuItem extends React.Component {
             }
             const result = this.props.onAction(e, this);
             if (result !== false)
-                this.closeDropDownMenu(e, true);
+                this.closeAllDropDownMenus();
 
         } else if(this.props.options) {
             if(this.state.open) {
@@ -158,17 +175,21 @@ class MenuItem extends React.Component {
                 this.closeDropDownMenu(e, false);
                 return;
             }
-            let openMenuHandler=this.context.openMenuHandler;
-            if(openMenuHandler) {
-                const res = openMenuHandler(e, this.props.options);
+
+            // Try open menu handler
+            if(this.context && this.context.openMenu) {
+                const res = this.context.openMenu(this.props.options);
                 if(res !== false) {
-                    console.info("Sub-menu options were sent to menu handler: ", openMenuHandler);
+                    console.info("Sub-menu options were sent to menu handler: ", this.context.openMenu);
                     return;
                 }
             }
 
-            // TODO: close other menus?
-            this.openDropDownMenu(e, this.props.options);
+            // Open menu overlay
+            this.openMenuOverlay();
+
+            // TODO: close all but this? or auto close? no need for auto-close
+            this.openDropDownMenu(this.props.options);
 
         } else {
             throw new Error("Menu does not contain props 'onAction' or 'options'");
@@ -177,7 +198,7 @@ class MenuItem extends React.Component {
 
 
 }
-MenuItem.contextType = MenuContext;
+MenuItem.contextType = MenuOverlayContext;
 
 
 // creating default props

@@ -28,7 +28,6 @@ class PlayerRenderer extends React.Component {
             <Div className={["asp-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
                     isActive={this.state.portrait}
-                    ref={this.menu}
                 >
                     <Div key="header" className="asp-title-container">
                         <Div className="asp-title-text">{this.state.title}</Div>

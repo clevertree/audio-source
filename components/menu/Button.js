@@ -2,7 +2,6 @@ import {MenuItem} from "./MenuItem";
 
 import "./assets/Button.css"
 import PropTypes from "prop-types";
-import SubMenuItem from "./SubMenuItem";
 
 class Button extends MenuItem {
 

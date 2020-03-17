@@ -24,7 +24,13 @@
     "customURL": "https://github.com/clevertree/audio-source-composer/issues"
   },
   "homepage": "https://github.com/clevertree/audio-source-composer#readme",
-  "dependencies": {},
+  "dependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/node": "^13.9.1",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "typescript": "^3.8.3"
+  },
   "devDependencies": {
     "node-fetch": "^2.6.0"
   }
