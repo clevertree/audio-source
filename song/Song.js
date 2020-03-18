@@ -5,9 +5,11 @@ import SongInstructionIterator from "./SongInstructionIterator";
 import SongPlayback from "./SongPlayback";
 
 import Storage from "./Storage";
+import LibGMESupport from "../support/LibGMESupport";
+import JSONSupport from "../support/JSONSupport";
 
 class Song {
-    constructor() {
+    constructor(songData=null) {
         // this.dispatchElements = [];
         this.eventListeners = [];
 
@@ -36,6 +38,8 @@ class Song {
         // if (typeof document !== "undefined")
         //     document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
+        if(songData)
+            this.loadSongData(songData);
     }
 
     async wait(waitTimeInSeconds) {
@@ -1240,7 +1244,9 @@ Song.loadSongFromFileInput = async function (file) {
     const library = await Song.getFileSupportModule(file.name);
     if (typeof library.loadSongDataFromFileInput !== "function")
         throw new Error("Invalid library.loadSongDataFromFileInput method");
-    const songData = await library.loadSongDataFromFileInput(file);
+
+    const buffer = Song.loadBufferFromFileInput(file);
+    const songData = await library.loadSongDataFromBuffer(buffer, file.name);
     const song = new Song();
     song.loadSongData(songData);
     return song;
@@ -1248,12 +1254,25 @@ Song.loadSongFromFileInput = async function (file) {
 
 Song.loadSongFromURL = async function (src) {
     const library = await Song.getFileSupportModule(src);
-    if (typeof library.loadSongDataFromURL !== "function")
+    if (typeof library.loadSongDataFromBuffer !== "function")
         throw new Error("Invalid library.loadSongDataFromURL method: " + src);
-    const songData = await library.loadSongDataFromURL(src);
+
+    const response = await fetch(src);
+    const buffer = await response.arrayBuffer();
+    const songData = await library.loadSongDataFromBuffer(buffer, src);
     const song = new Song();
     song.loadSongData(songData);
     return song;
+};
+
+Song.loadBufferFromFileInput = async function(file) {
+    return await new Promise((resolve, reject) => {
+        let reader = new FileReader();                                      // prepare the file Reader
+        reader.readAsArrayBuffer(file);                 // read the binary data
+        reader.onload =  (e) => {
+            resolve(e.target.result);
+        };
+    });
 };
 
 
@@ -1266,7 +1285,6 @@ Song.loadSongFromURL = async function (src) {
 //     return song;
 // };
 
-
 Song.getFileSupportModule = async function (filePath) {
     // const AudioSourceLoader = customElements.get('audio-source-loader');
     // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
@@ -1278,12 +1296,18 @@ Song.getFileSupportModule = async function (filePath) {
         //     return new MIDISupport;
         //
         case 'json':
-            const JSONSupport = require('../support/JSONSupport.js').default;
             return new JSONSupport();
         //
-        // case 'spc':
-        //     const {LibGMESupport} = require('../support/LibGMESupport.js');
-        //     return new LibGMESupport;
+        case 'nsf':
+        case 'nsfe':
+        case 'spc':
+        case 'gym':
+        case 'vgm':
+        case 'vgz':
+        case 'ay':
+        case 'sgc':
+        case 'kss':
+            return new LibGMESupport();
         //
         // case 'mp3':
         //     const {MP3Support} = require('../support/MP3Support.js');

@@ -3,7 +3,6 @@ import Div from "./div/Div";
 import Icon from "./icon/Icon";
 import {
     MenuItem,
-    MenuItemHorizontal,
     SubMenuItem,
     MenuBreak,
     Button,
@@ -24,7 +23,6 @@ export {
     Panel,
 
     MenuItem,
-    MenuItemHorizontal,
     MenuBreak,
     SubMenuItem,
     MenuOverlayContainer,

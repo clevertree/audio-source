@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {MenuItem} from "./MenuItem";
+import MenuItem from "./MenuItem";
 // import PropTypes from 'prop-types';
 
 class SubMenuItem extends MenuItem {

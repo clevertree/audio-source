@@ -54,17 +54,17 @@ class PlayerActions extends PlayerMenu {
 
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
-        this.setStatus({status: newStatus});
+        this.setState({status: newStatus});
     }
 
     setVersion(versionString) {
-        this.setStatus({version: versionString});
+        this.setState({version: versionString});
     }
 
 
-    closeAllMenus() {
-        this.menuFile.closeAllMenus();
-    }
+    // closeAllMenus() {
+    //     this.menuFile.closeAllMenus();
+    // }
 
 
     /** Song loading **/

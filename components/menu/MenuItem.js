@@ -165,13 +165,13 @@ class MenuItem extends React.Component {
             console.warn("Ignoring close due to stick", this);
             return;
         }
-        this.context && this.context.removeOpenMenu(this);
 
         this.setState({
             stick: false,
             open: false,
             options: null
         });
+        this.context && this.context.removeOpenMenu(this);
     }
 
 
@@ -222,26 +222,8 @@ MenuItem.propTypes = {
 };
 
 
-class MenuItemHorizontal extends MenuItem {}
-MenuItem.Horizontal = MenuItemHorizontal;
 
-/** Default props **/
-MenuItemHorizontal.defaultProps = {
-    arrow:          '▼',
-    vertical:       true,
-    openOnHover:    true,
-    disabled:       false,
-};
-
-MenuItemHorizontal.propTypes = MenuItem.propTypes;
-
-
-
-export {
-    MenuItem as default,
-    MenuItem,
-    MenuItemHorizontal
-};
+export default MenuItem;
 
 
 function reactMapRecursive(children, fn) {

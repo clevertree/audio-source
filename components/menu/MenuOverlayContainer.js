@@ -49,7 +49,7 @@ class MenuOverlayContainer extends React.Component {
     }
 
     updateOverlay() {
-        const openOverlay = this.overlayContext.openMenuItems.length > 0;
+        const openOverlay = this.state.open || this.overlayContext.openMenuItems.length > 0;
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay})
     }
@@ -74,19 +74,23 @@ class MenuOverlayContainer extends React.Component {
     }
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
-        this.overlayContext.openMenuItems.forEach(openMenuItem => {
+        const openMenuItems = this.overlayContext.openMenuItems.slice();
+        // this.overlayContext.openMenuItems = [];
+        openMenuItems.forEach(openMenuItem => {
             if(butThese.indexOf(openMenuItem) !== -1)
                 return;
             openMenuItem.closeDropDownMenu(stayOpenOnStick);
         });
-        console.log("closeMenus", this.overlayContext.openMenuItems, butThese);
+        console.log("closeMenus", openMenuItems, butThese);
     }
 
 
     closeAllMenus() {
         this.closeMenus([], false);
         this.setState({
+            open: false,
             openOverlay: false,
+            options: null
         });
     }
 

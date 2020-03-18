@@ -1,4 +1,5 @@
 div.asui-menu-overlay-container {
+    cursor: pointer;
     position: absolute;
     background-color: #bdc3c744;
     width: 100%;
