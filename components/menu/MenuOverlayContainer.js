@@ -14,9 +14,11 @@ class MenuOverlayContainer extends React.Component {
         };
         this.overlayContext = {
             openMenu: (options) => this.openMenu(options),
-            closeAllMenus: (butThese=[]) => this.closeAllMenus(butThese),
-            openOverlay: () => this.openOverlay(),
-            closeOverlay: () => this.closeOverlay(),
+            closeMenus: (butThese=[]) => this.closeMenus(butThese),
+            closeAllMenus: () => this.closeAllMenus(),
+            isHoverEnabled: () => this.isHoverEnabled(),
+            // openOverlay: () => this.openOverlay(),
+            // closeOverlay: () => this.closeOverlay(),
             removeOpenMenu: (openMenuItem) => this.removeOpenMenu(openMenuItem),
             addOpenMenu: (openMenuItem) => this.addOpenMenu(openMenuItem),
             openMenuItems: []
@@ -46,32 +48,46 @@ class MenuOverlayContainer extends React.Component {
         </MenuOverlayContext.Provider>;
     }
 
+    updateOverlay() {
+        const openOverlay = this.overlayContext.openMenuItems.length > 0;
+        if(this.state.openOverlay !== openOverlay)
+            this.setState({openOverlay})
+    }
+
+    isHoverEnabled() {
+        return this.overlayContext.openMenuItems.length > 0;
+    }
+
     addOpenMenu(openMenuItem) {
         const i = this.overlayContext.openMenuItems.indexOf(openMenuItem);
         if(i === -1)
             this.overlayContext.openMenuItems.push(openMenuItem);
         console.log('this.overlayContext.openMenuItems', this.overlayContext.openMenuItems);
+        this.updateOverlay();
     }
 
     removeOpenMenu(openMenuItem) {
         const i = this.overlayContext.openMenuItems.indexOf(openMenuItem);
         if(i !== -1)
             this.overlayContext.openMenuItems.splice(i, 1);
+        this.updateOverlay();
     }
 
-    closeAllMenus(butThese=[]) {
-        this.setState({
-            open: false,
-            openOverlay: false,
-            options: null
-        });
-
+    closeMenus(butThese=[], stayOpenOnStick=true) {
         this.overlayContext.openMenuItems.forEach(openMenuItem => {
             if(butThese.indexOf(openMenuItem) !== -1)
                 return;
-            openMenuItem.closeDropDownMenu()
+            openMenuItem.closeDropDownMenu(stayOpenOnStick);
         });
-        console.log("closeAllMenus", this.overlayContext.openMenuItems, butThese);
+        console.log("closeMenus", this.overlayContext.openMenuItems, butThese);
+    }
+
+
+    closeAllMenus() {
+        this.closeMenus([], false);
+        this.setState({
+            openOverlay: false,
+        });
     }
 
     openMenu(options) {
@@ -86,19 +102,19 @@ class MenuOverlayContainer extends React.Component {
         return true;
     }
 
-    openOverlay() {
-        this.setState({
-            openOverlay: true,
-        });
-        return true;
-    }
-
-    closeOverlay() {
-        this.setState({
-            openOverlay: false,
-        });
-        return true;
-    }
+    // openOverlay() {
+    //     this.setState({
+    //         openOverlay: true,
+    //     });
+    //     return true;
+    // }
+    //
+    // closeOverlay() {
+    //     this.setState({
+    //         openOverlay: false,
+    //     });
+    //     return true;
+    // }
 }
 
 export default MenuOverlayContainer;

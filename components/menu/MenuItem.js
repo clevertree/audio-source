@@ -20,9 +20,13 @@ class MenuItem extends React.Component {
         this.cb = {
             onClick: e => this.onClick(e),
             onMouseEnter: e => this.onMouseEnter(e),
-            onMouseOut: e => this.onMouseOut(e),
+            // onMouseOut: e => this.onMouseOut(e),
             onKeyDown: e => this.onKeyDown(e),
         };
+    }
+
+    componentWillUnmount() {
+        this.context && this.context.removeOpenMenu(this);
     }
 
     getClassName() { return 'asui-menuitem'; }
@@ -41,15 +45,15 @@ class MenuItem extends React.Component {
         return (
             <Div
                 className={className}
-                onMouseLeave={this.cb.onMouseOut}
+                // onMouseLeave={this.cb.onMouseOut}
                 onMouseEnter={this.cb.onMouseEnter}
-            >
+                >
                 <Div
                     className="title"
                     onClick={this.cb.onClick}
                     onKeyDown={this.cb.onKeyDown}
                     tabIndex={0}
-                >
+                    >
                     {this.props.children}
                     {this.props.arrow ? <div className="arrow">{this.props.arrow}</div> : null}
                 </Div>
@@ -64,50 +68,72 @@ class MenuItem extends React.Component {
         if(this.props.vertical)
             className += ' vertical';
         return (
-            // <MenuContext.Provider value={{
-            //     parent: this,
-                // closeMenuHandler: this.closeMenuHandler
-
-            // }}>
                 <Div
                     className={className}
                     children={this.state.options}
                     />
-            // </MenuContext.Provider>)
             );
     }
 
     onClick(e) {
-        if(!e.isDefaultPrevented()) {
-            e.preventDefault();
-            this.doAction(e);
-        }
+        this.doAction(e);
     }
 
     onMouseEnter(e) {
-        clearTimeout(this.mouseTimeout);
-        if(this.state.open !== true && this.props.openOnHover) {
-            this.mouseTimeout = setTimeout(te => {
-                // this.setState({open: true});
-                this.doAction({type: 'mouseenter'});
-            }, 100);
+        if(!this.context || !this.context.isHoverEnabled())
+            return;
+
+        if(this.props.options && this.state.open !== true) {
+            this.toggleDropDownMenu(e)
         }
     }
 
-    onMouseOut(e) {
-        clearTimeout(this.mouseTimeout);
-        if(this.state.stick !== true && this.props.openOnHover) {
-            this.mouseTimeout = setTimeout(te => {
-                if (this.state.stick !== true) {
-                    this.closeDropDownMenu();
-                }
-            }, 400);
-        }
+    setStick() {
+        this.getAncestorMenus().forEach(menu => {
+            menu.setState({stick: true});
+        })
     }
 
-    openDropDownMenu(options) {
+    // onMouseOut(e) {
+    //     clearTimeout(this.mouseTimeout);
+    //     if(this.state.stick !== true && this.props.openOnHover) {
+    //         this.mouseTimeout = setTimeout(te => {
+    //             if (this.state.stick !== true) {
+    //                 this.closeDropDownMenu();
+    //             }
+    //         }, 400);
+    //     }
+    // }
+
+    toggleDropDownMenu(e) {
+
+        if(e.type === 'click') {
+            if(this.state.stick) {
+                this.closeDropDownMenu();
+                return;
+            }
+            if(this.state.open) {
+                this.setStick();
+                return;
+            }
+        }
+
+        // Try open menu handler
+        if(this.context && this.context.openMenu) {
+            const res = this.context.openMenu(this.props.options);
+            if(res !== false) {
+                console.info("Sub-menu options were sent to menu handler: ", this.context.openMenu);
+                return;
+            }
+        }
+
+        this.openDropDownMenu();
+    }
+
+    openDropDownMenu() {
         this.context && this.context.addOpenMenu(this);
 
+        let options = this.props.options;
         if(typeof options === "function")
             options = options(this);
 
@@ -121,7 +147,8 @@ class MenuItem extends React.Component {
             options
         });
 
-        this.closeAllDropDownMenus(this.getAncestorMenus());
+        if(this.context.closeMenus)
+            this.context.closeMenus(this.getAncestorMenus());
     }
 
     getAncestorMenus() {
@@ -133,7 +160,11 @@ class MenuItem extends React.Component {
         return menus;
     }
 
-    closeDropDownMenu() {
+    closeDropDownMenu(stayOpenOnStick=false) {
+        if(this.state.stick && stayOpenOnStick === true) {
+            console.warn("Ignoring close due to stick", this);
+            return;
+        }
         this.context && this.context.removeOpenMenu(this);
 
         this.setState({
@@ -143,14 +174,12 @@ class MenuItem extends React.Component {
         });
     }
 
-    closeAllDropDownMenus(butThese=[]) {
+
+    closeAllDropDownMenus() {
         if(this.context.closeAllMenus)
-            this.context.closeAllMenus(butThese);
+            this.context.closeAllMenus();
     }
 
-    openMenuOverlay() {
-        this.context && this.context.openOverlay();
-    }
     doAction(e) {
         if(this.props.disabled) {
             console.warn(this.constructor.name + " is disabled.", this);
@@ -158,38 +187,14 @@ class MenuItem extends React.Component {
         }
 
         if(this.props.onAction) {
-            if(e.type !== 'click') {
-                console.warn("Skipping onAction for type " + e.type);
-                return;
-            }
+            if(e.type !== 'click')
+                throw new Error("Skipping onAction for type " + e.type);
             const result = this.props.onAction(e, this);
             if (result !== false)
                 this.closeAllDropDownMenus();
 
         } else if(this.props.options) {
-            if(this.state.open) {
-                if(!this.state.stick && e.type === 'click') {
-                    this.setState({stick: true});
-                    return;
-                }
-                this.closeDropDownMenu(e, false);
-                return;
-            }
-
-            // Try open menu handler
-            if(this.context && this.context.openMenu) {
-                const res = this.context.openMenu(this.props.options);
-                if(res !== false) {
-                    console.info("Sub-menu options were sent to menu handler: ", this.context.openMenu);
-                    return;
-                }
-            }
-
-            // Open menu overlay
-            this.openMenuOverlay();
-
-            // TODO: close all but this? or auto close? no need for auto-close
-            this.openDropDownMenu(this.props.options);
+            this.toggleDropDownMenu(e)
 
         } else {
             throw new Error("Menu does not contain props 'onAction' or 'options'");
