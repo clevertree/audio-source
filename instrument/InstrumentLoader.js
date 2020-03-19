@@ -1,5 +1,7 @@
 import AudioSourceSynthesizer from "./synth/AudioSourceSynthesizer";
 import SPCPlayerSynthesizer from "./chip/SPCPlayerSynthesizer";
+import GMEPlayerSynthesizer from "chip-player-js-lib/src/players/GMEPlayer";
+import { getDiff, applyDiff } from 'recursive-diff';
 
 class InstrumentLoader {
     constructor(song) {
@@ -7,14 +9,20 @@ class InstrumentLoader {
     }
 
     loadInstrumentInstance(instrumentID) {
-        const instrumentPreset = this.song.getInstrumentConfig(instrumentID);
-        if (!instrumentPreset.className)
+        const config = this.song.getInstrumentConfig(instrumentID);
+        if (!config.className)
             throw new Error("Invalid instrument class");
-        let instrumentClassName = instrumentPreset.className;
+        let instrumentClassName = config.className;
         // let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
+        const configProxy = new Proxy(config, new InstrumentConfigListener(this.song, instrumentID));
+
         const {classObject} = InstrumentLoader.getInstrumentClass(instrumentClassName);
-        return new classObject(instrumentPreset, this, instrumentID);
+        const props = {
+            config: configProxy,
+            instrumentID
+        };
+        return new classObject(props);
     }
 
 
@@ -59,9 +67,43 @@ class InstrumentLoader {
     // }
 }
 
+class InstrumentConfigListener {
+    constructor(song, instrumentID) {
+        this.song = song;
+        this.instrumentID = instrumentID;
+        // TODO: allow fast changes. trigger update slowly
+    }
+
+    update() {
+
+    }
+
+    get(obj, prop) {
+        switch(prop) {
+            case 'id':
+            case 'instrumentID':
+                return this.instrumentID;
+            case 'update':
+                return this.update;
+        }
+        console.log(prop, '.get', obj);
+        // The default behavior to return the value
+        return obj[prop];
+    }
+
+    set(obj, prop, value) {
+        console.log(prop, '.set', value, obj);
+        // The default behavior to store the value
+        obj[prop] = value;
+        // Indicate success
+        return true;
+    }
+}
+
 InstrumentLoader.registeredInstrumentClasses = [];
 
 InstrumentLoader.addInstrumentClass(AudioSourceSynthesizer, 'Audio Source Synthesizer');
 InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
+InstrumentLoader.addInstrumentClass(GMEPlayerSynthesizer, 'Game Music Player');
 
 export default InstrumentLoader;

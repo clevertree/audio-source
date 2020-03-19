@@ -7,6 +7,7 @@ import SongPlayback from "./SongPlayback";
 import Storage from "./Storage";
 import LibGMESupport from "../support/LibGMESupport";
 import JSONSupport from "../support/JSONSupport";
+import FileService from "./FileService";
 
 class Song {
     constructor(songData=null) {
@@ -1257,8 +1258,9 @@ Song.loadSongFromURL = async function (src) {
     if (typeof library.loadSongDataFromBuffer !== "function")
         throw new Error("Invalid library.loadSongDataFromURL method: " + src);
 
-    const response = await fetch(src);
-    const buffer = await response.arrayBuffer();
+    const fileService = new FileService();
+    const buffer = await fileService.loadBufferFromURL(src);
+    // const buffer = await response.arrayBuffer();
     const songData = await library.loadSongDataFromBuffer(buffer, src);
     const song = new Song();
     song.loadSongData(songData);

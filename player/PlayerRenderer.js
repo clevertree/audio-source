@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Div, Icon, Button, InputRange, Form, Panel, MenuItem, MenuOverlayContainer} from "../components";
+import {Div, Icon, Button, InputRange, Form, Panel, MenuOverlayContainer} from "../components";
 
 
 import Playlist from "./playlist/Playlist";

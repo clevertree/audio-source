@@ -1,20 +1,12 @@
 import FileService from "../../song/FileService";
+import React from "react";
 
-class SPCPlayerSynthesizer {
-
-
-    constructor(config, song=null, instrumentID=null) {
-        this.song = song;
-        this.id = instrumentID;
-        this.form = null;
-
-        this.audioContext = null;
-        if(typeof config.name === "undefined")
-            config.name = 'SPC Player ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
-        this.config = config || {};
-        this.spcPlayers = [];
-        this.spcBuffer = null;
+class GMEPlayerSynthesizer extends React.Component {
+    constructor(props={}) {
+        console.log(props);
+        super(props);
     }
+
 
     async loadBuffer() {
         if(!this.spcBuffer) {
@@ -129,7 +121,7 @@ class SPCPlayerSynthesizer {
 
     // render(renderObject=null) {
     //     if(renderObject instanceof HTMLElement && renderObject.matches('asui-div')) {
-    //         this.form = new SPCPlayerSynthesizerFormRenderer(renderObject, this);
+    //         this.form = new GMEPlayerFormRenderer(renderObject, this);
     //     } else {
     //         throw new Error("Unknown renderer");
     //     }
@@ -145,7 +137,7 @@ class SPCPlayerSynthesizer {
 /**
  * Used for all Instrument UI. Instance not necessary for song playback
  */
-// class SPCPlayerSynthesizerRenderer {
+// class GMEPlayerRenderer {
 //
 //     /**
 //      *
@@ -248,4 +240,4 @@ class SPCPlayerSynthesizer {
 //     }
 // }
 
-export default SPCPlayerSynthesizer;
+export default GMEPlayerSynthesizer;

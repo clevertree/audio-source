@@ -1,22 +1,16 @@
 import ChipCore from "chip-player-js-lib/src/chip-core";
 
 import GMEPlayer from "chip-player-js-lib/src/players/GMEPlayer";
-import queryString from "querystring";
-
-console.log('ChipCore', ChipCore);
-
-
+// import queryString from "querystring";
 
 
 class LibGMESupport {
-    constructor() {
-    }
     async init() {
 
         await new Promise((resolve, reject) => {
             // Load the chip-core Emscripten runtime
             try {
-                const chipCore = this.chipCore = new ChipCore({
+                this.chipCore = new ChipCore({
                     // Look for .wasm file in web root, not the same location as the app bundle (static/js).
                     locateFile: (path, prefix) => {
                         if (path.endsWith('.wasm') || path.endsWith('.wast'))
@@ -89,6 +83,7 @@ class LibGMESupport {
         const numVoices = player.getNumVoices();
         player.setTempo(1.0); // this.tempo);
         player.setVoices([...Array(numVoices)].fill(true));
+        player.stop();
         return player;
 
         // console.debug('Sequencer.playSong(...) song request completed');

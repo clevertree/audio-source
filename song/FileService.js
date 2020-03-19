@@ -14,14 +14,15 @@ const trackerURLS = [
 ];
 
 class FileService {
-    constructor(song) {
-        this.song = song;
-    }
+    // constructor(song) {
+    //     this.song = song;
+    // }
 
     log(message) {
-        if(this.song) {
-            this.song.dispatchEvent(new CustomEvent('log', {detail: message}))
-        }
+        console.info(message);
+        // if(this.song) {
+        //     this.song.dispatchEvent(new CustomEvent('log', {detail: message}))
+        // }
     }
 
     async loadBufferFromURL(url) {
@@ -32,15 +33,9 @@ class FileService {
             console.timeEnd('getFileBufferFromTorrent');
             return buffer;
         }
-        var request = new XMLHttpRequest();
-        await new Promise((resolve, reject) => {
-            request.open("GET", url, true);
-            request.responseType = "arraybuffer";
-            request.send();
-            request.onload = resolve;
-        });
 
-        return request.response;
+        const response = await fetch(url);
+        return await response.arrayBuffer();
     }
 
     getMagnetURL(torrentID) {

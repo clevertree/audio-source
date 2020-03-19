@@ -152,10 +152,11 @@ class MenuItem extends React.Component {
     }
 
     getAncestorMenus() {
-        let menus = [this];
+        let menus = [];
         let parent = this;
-        while(parent = parent.props.parentMenu) {
+        while(parent) {
             menus.push(parent);
+            parent = parent.props.parentMenu;
         }
         return menus;
     }
