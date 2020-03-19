@@ -1289,6 +1289,7 @@ Song.getFileSupportModule = async function (filePath) {
     // const AudioSourceLoader = customElements.get('audio-source-loader');
     // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
     const fileExt = filePath.split('.').pop().toLowerCase();
+    let library;
     switch (fileExt) {
         // case 'mid':
         // case 'midi':
@@ -1296,7 +1297,9 @@ Song.getFileSupportModule = async function (filePath) {
         //     return new MIDISupport;
         //
         case 'json':
-            return new JSONSupport();
+            library = new JSONSupport();
+            // await library.init();
+            return library;
         //
         case 'nsf':
         case 'nsfe':
@@ -1307,7 +1310,9 @@ Song.getFileSupportModule = async function (filePath) {
         case 'ay':
         case 'sgc':
         case 'kss':
-            return new LibGMESupport();
+            library = new LibGMESupport();
+            await library.init();
+            return library;
         //
         // case 'mp3':
         //     const {MP3Support} = require('../support/MP3Support.js');
