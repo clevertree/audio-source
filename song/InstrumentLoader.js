@@ -1,7 +1,7 @@
 import AudioSourceSynthesizer from "../instrument/synth/AudioSourceSynthesizer";
 import SPCPlayerSynthesizer from "../instrument/chip/SPCPlayerSynthesizer";
 import GMEPlayerSynthesizer from "chip-player-js-lib/src/players/GMEPlayer";
-import {InstrumentConfigListener} from "./InstrumentConfigListener";
+import {ConfigListener} from "./ConfigListener";
 
 class InstrumentLoader {
     constructor(song) {
@@ -17,11 +17,16 @@ class InstrumentLoader {
 
         // const configProxy = new Proxy(config, new InstrumentConfigListener(config, this.song, instrumentID));
 
+        // const instrumentPath = ['instruments', instrumentID];
+        // const concatPath = (path) => ['instruments', instrumentID].concat(path);
+
+
         const {classObject} = InstrumentLoader.getInstrumentClass(instrumentClassName);
         const props = {
             config,
             instrumentID,
-            updateConfig: (config, path=[]) => this.song.updateInstrument(instrumentID, config, path)
+            // updateConfig: (path=[], newValue) => this.song.updateDataByPath(concatPath(path), newValue),
+            // spliceConfig: (path=[], deleteCount, ...newValues) => this.song.spliceDataByPath(concatPath(path), deleteCount, ...newValues),
         };
         return new classObject(props);
     }

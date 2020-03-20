@@ -8,6 +8,7 @@ import Storage from "./Storage";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./FileService";
+import {ConfigListener} from "./ConfigListener";
 
 class Song {
     constructor(songData={}) {
@@ -27,7 +28,10 @@ class Song {
 
         this.activeGroups = {};
 
-        this.data = {};
+        // this.getData = function() { return data; }
+        const data = {};
+        this.getDataObject = function() { return data; };
+        this.data = new Proxy(data, new ConfigListener(this));
         // this.loadSongData(songData);
         // this.eventListeners = [];
         this.history = [];
@@ -103,7 +107,7 @@ class Song {
     }
 
     getTitle() { return this.data.title; }
-    setTitle(newTitle) { return this.setDataByPath('title', newTitle); }
+    setTitle(newTitle) { return this.data.title = newTitle; }
 
     getVersion() {
         return this.data.version;
@@ -204,10 +208,11 @@ class Song {
 
 
     loadSongData(songData) {
+        const data = this.getDataObject();
 
         if (this.playback)
             this.stopPlayback();
-        songData = Object.assign({}, {
+        Object.assign(data, {
             title: this.generateTitle(),
             uuid: new Storage().generateUUID(),
             version: '0.0.1',
@@ -222,11 +227,11 @@ class Song {
             }
         }, songData);
 
-        this.data = songData;
+        // this.data = songData;
         this.playbackPosition = 0;
 
         // Process all instructions
-        Object.keys(songData.instructions).map((groupName, i) =>
+        Object.keys(data.instructions).map((groupName, i) =>
             this.instructionProcessGroupData(groupName));
 
         // let loadingInstruments = 0;
@@ -257,23 +262,23 @@ class Song {
 
     /** Instructions **/
 
-    instructionEach(groupName, callback, parentStats = null) {
-        if (!this.getInstructionList(groupName))
-            throw new Error("Invalid group: " + groupName);
-        const iterator = this.getInstructionIterator(groupName, parentStats);
-
-        let instruction = iterator.nextInstruction();
-        const results = [];
-        while (instruction) {
-            const result = callback(instruction, iterator);
-            if (result === false)
-                break;
-            if (result !== null)
-                results.push(result);
-            instruction = iterator.nextInstruction();
-        }
-        return results;
-    }
+    // instructionEach(groupName, callback, parentStats = null) {
+    //     if (!this.getInstructionList(groupName))
+    //         throw new Error("Invalid group: " + groupName);
+    //     const iterator = this.getInstructionIterator(groupName, parentStats);
+    //
+    //     let instruction = iterator.nextInstruction();
+    //     const results = [];
+    //     while (instruction) {
+    //         const result = callback(instruction, iterator);
+    //         if (result === false)
+    //             break;
+    //         if (result !== null)
+    //             results.push(result);
+    //         instruction = iterator.nextInstruction();
+    //     }
+    //     return results;
+    // }
 
     findInstructionIndex(groupName, instruction) {
         if (instruction instanceof SongInstruction)
@@ -400,7 +405,8 @@ class Song {
             throw new Error("Invalid insert instruction");
         let insertInstruction = SongInstruction.parse(insertInstructionData);
         insertInstructionData = insertInstruction.data;
-        this.insertDataByPath(['instructions', groupName, insertIndex], insertInstructionData);
+        this.data.instructions[groupName].splice(insertIndex, 0, insertInstructionData);
+        // this.spliceDataByPath(['instructions', groupName, insertIndex], 0, insertInstructionData);
         return insertIndex;
     }
 
@@ -410,41 +416,42 @@ class Song {
         if (deleteInstruction.deltaDuration > 0) {
             const nextInstruction = this.getInstruction(groupName, deleteIndex + 1, false);
             if (nextInstruction) {
+                // this.getInstruction(groupName, deleteIndex+1).deltaDuration =
+                //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
                 this.instructionReplaceDeltaDuration(groupName, deleteIndex + 1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
             }
         }
-        return this.deleteDataByPath(['instructions', groupName, deleteIndex]);
+        this.data.instructions[groupName].splice(deleteIndex, 1);
+        // return this.spliceDataByPath(['instructions', groupName, deleteIndex], 1);
     }
-
 
     instructionReplaceDeltaDuration(groupName, replaceIndex, newDelta) {
-        return this.instructionReplaceParam(groupName, replaceIndex, 0, newDelta);
+        this.getInstruction(groupName, replaceIndex).deltaDuration = newDelta;
+        // return this.instructionReplaceParam(groupName, replaceIndex, 0, newDelta);
     }
 
+    /** @deprecated **/
     instructionReplaceCommand(groupName, replaceIndex, newCommand) {
-        return this.instructionReplaceParam(groupName, replaceIndex, 1, newCommand);
+        this.getInstruction(groupName, replaceIndex).command = newCommand;
     }
 
+    /** @deprecated **/
     instructionReplaceInstrument(groupName, replaceIndex, instrumentID) {
-        return this.instructionReplaceParam(groupName, replaceIndex, 2, instrumentID);
+        this.getInstruction(groupName, replaceIndex).instrument = instrumentID;
     }
 
+    /** @deprecated **/
     instructionReplaceDuration(groupName, replaceIndex, newDuration) {
-        return this.instructionReplaceParam(groupName, replaceIndex, 3, newDuration);
+        this.getInstruction(groupName, replaceIndex).duration = newDuration;
     }
 
+    /** @deprecated **/
     instructionReplaceVelocity(groupName, replaceIndex, newVelocity) {
         if (!Number.isInteger(newVelocity))
             throw new Error("Velocity must be an integer: " + newVelocity);
         if (newVelocity < 0)
             throw new Error("Velocity must be a positive integer: " + newVelocity);
-        return this.instructionReplaceParam(groupName, replaceIndex, 4, newVelocity);
-    }
-
-    instructionReplaceParam(groupName, replaceIndex, paramName, paramValue) {
-        if (paramValue === null)
-            return this.deleteDataByPath(['instructions', groupName, replaceIndex, paramName]);
-        return this.setDataByPath(['instructions', groupName, replaceIndex, paramName], paramValue);
+        this.getInstruction(groupName, replaceIndex).velocity = newVelocity;
     }
 
 
@@ -453,7 +460,8 @@ class Song {
     groupAdd(newGroupName, instructionList) {
         if (this.data.instructions.hasOwnProperty(newGroupName))
             throw new Error("New group already exists: " + newGroupName);
-        this.setDataByPath(['instructions', newGroupName], instructionList || []);
+        this.data.instructions[newGroupName] = instructionList || [];
+        // this.updateDataByPath(['instructions', newGroupName], instructionList || []);
     }
 
 
@@ -463,7 +471,8 @@ class Song {
         if (!this.data.instructions.hasOwnProperty(removeGroupName))
             throw new Error("Existing group not found: " + removeGroupName);
 
-        return this.setDataByPath(['instructions', removeGroupName]);
+        delete this.data.instructions[removeGroupName];
+        // return this.updateDataByPath(['instructions', removeGroupName]);
     }
 
 
@@ -475,8 +484,9 @@ class Song {
         if (this.data.instructions.hasOwnProperty(newGroupName))
             throw new Error("New group already exists: " + newGroupName);
 
-        const removedGroupData = this.setDataByPath(['instructions', oldGroupName]);
-        this.setDataByPath(['instructions', newGroupName], removedGroupData);
+        const removedGroupData = this.data.instructions[oldGroupName];
+        delete this.data.instructions[oldGroupName];
+        this.data.instructions[newGroupName] = removedGroupData;
     }
 
 
@@ -796,17 +806,17 @@ class Song {
     }
 
     songChangeTitle(newSongTitle) {
-        return this.setDataByPath(['title'], newSongTitle);
+        return this.updateDataByPath(['title'], newSongTitle);
     }
 
     songChangeVersion(newSongTitle) {
-        return this.setDataByPath(['version'], newSongTitle);
+        return this.updateDataByPath(['version'], newSongTitle);
     }
 
     songChangeStartingBPM(newBPM) {
         if (!Number.isInteger(newBPM))
             throw new Error("Invalid BPM");
-        return this.setDataByPath(['beatsPerMinute'], newBPM);
+        return this.updateDataByPath(['beatsPerMinute'], newBPM);
     }
 
     generateTitle() {
@@ -853,11 +863,12 @@ class Song {
 
     getInstrumentConfig(instrumentID, throwException = true) {
         const instrumentList = this.getInstrumentList();
-        if (instrumentList[instrumentID])
-            return Object.assign({}, instrumentList[instrumentID]);
-        if (throwException)
-            throw new Error("Instrument ID not found: " + instrumentID);
-        return null;
+        if (!instrumentList[instrumentID]) {
+            if (throwException)
+                throw new Error("Instrument ID not found: " + instrumentID);
+            return null;
+        }
+        return instrumentList[instrumentID];
     }
 
 
@@ -919,8 +930,9 @@ class Song {
     }
 
 
+    /** @deprecated **/
     updateInstrument(instrumentID, config, subPath=[]) {
-        return this.setDataByPath(['instruments', instrumentID].concat(subPath), config);
+        return this.updateDataByPath(['instruments', instrumentID].concat(subPath), config);
     }
 
     /** @deprecated **/
@@ -940,7 +952,7 @@ class Song {
         const instrumentList = this.data.instruments;
         const instrumentID = instrumentList.length;
 
-        this.setDataByPath(['instruments', instrumentID], config);
+        this.updateDataByPath(['instruments', instrumentID], config);
         this.loadInstrument(instrumentID);
         this.dispatchEvent({
             type: 'instrument:added',
@@ -952,6 +964,7 @@ class Song {
     }
 
 
+    /** @deprecated **/
     instrumentReplace(instrumentID, config) {
         // const instrumentList = this.data.instruments;
         // if(instrumentList.length < instrumentID)
@@ -960,7 +973,7 @@ class Song {
         if (oldConfig && oldConfig.title && !config.title)
             config.title = oldConfig.title;
         // Preserve old instrument name
-        oldConfig = this.setDataByPath(['instruments', instrumentID], config);
+        oldConfig = this.updateDataByPath(['instruments', instrumentID], config);
 
         this.dispatchEvent({
             type: 'instrument:modified',
@@ -971,6 +984,7 @@ class Song {
         return oldConfig;
     }
 
+    /** @deprecated **/
     instrumentRemove(instrumentID) {
         const instrumentList = this.data.instruments;
         if (!instrumentList[instrumentID])
@@ -981,7 +995,7 @@ class Song {
         // }
         const oldConfig = isLastInstrument
             ? this.deleteDataByPath(['instruments', instrumentID])
-            : this.setDataByPath(['instruments', instrumentID], null); // TODO: remove entry and diff
+            : this.updateDataByPath(['instruments', instrumentID], null); // TODO: remove entry and diff
         delete this.instruments[instrumentID];
 
         this.dispatchEvent({
@@ -993,6 +1007,7 @@ class Song {
     }
 
     // Note: instruments handle own rendering
+    /** @deprecated **/
     instrumentReplaceParam(instrumentID, pathList, paramValue) {
         instrumentID = parseInt(instrumentID);
         const instrumentList = this.data.instruments;
@@ -1003,7 +1018,7 @@ class Song {
             pathList = [pathList];
         pathList.unshift(instrumentID);
         pathList.unshift('instruments');
-        const oldConfig = this.setDataByPath(pathList, paramValue);
+        const oldConfig = this.updateDataByPath(pathList, paramValue);
         this.dispatchEvent({
             type: 'instrument:modified',
             instrumentID,
@@ -1013,6 +1028,7 @@ class Song {
         return oldConfig;
     }
 
+    /** @deprecated **/
     deleteInstrumentParam(instrumentID, pathList) {
         instrumentID = parseInt(instrumentID);
         const instrumentList = this.data.instruments;
@@ -1033,6 +1049,7 @@ class Song {
         return oldConfig;
     }
 
+    /** @deprecated **/
     instrumentRename(instrumentID, newInstrumentName) {
         return this.instrumentReplaceParam(instrumentID, 'title', newInstrumentName);
     }
@@ -1059,41 +1076,45 @@ class Song {
     /** Song Data Modification **/
 
 
-    findDataPathOld(pathList) {
-        if (!Array.isArray(pathList))
-            throw new Error("Path list must be an array");
-        if (pathList[0] === "*") {
-            return {
-                value: this.data,
-                parent: {key: this.data},
-                key: 'key'
-            };
-        }
-        // const pathList = path.split('.');
-        let value = this.data, parent, key = null;
-        for (let i = 0; i < pathList.length; i++) {
-            key = pathList[i];
-            // if(/^\d+$/.test(key)) {
-            //     key = parseInt(key);
-            //     // if(typeof target.length < targetPathPart)
-            //     //     throw new Error(`Path is out of index: ${target.length} < ${targetPathPart} (Path: -${path}) `);
-            // } else {
-            //     // if(typeof target[targetPathPart] === 'undefined')
-            //     //     throw new Error("Path not found: " + path);
-            // }
-            parent = value;
-            if (typeof value === "undefined")
-                throw new Error("Invalid path key: " + key);
-            value = value[key];
-        }
-        if (!parent)
-            throw new Error("Invalid path: " + pathList.join('.'));
+    // findDataPathOld(pathList) {
+    //     if (!Array.isArray(pathList))
+    //         throw new Error("Path list must be an array");
+    //     if (pathList[0] === "*") {
+    //         return {
+    //             value: this.data,
+    //             parent: {key: this.data},
+    //             key: 'key'
+    //         };
+    //     }
+    //     // const pathList = path.split('.');
+    //     let value = this.data, parent, key = null;
+    //     for (let i = 0; i < pathList.length; i++) {
+    //         key = pathList[i];
+    //         // if(/^\d+$/.test(key)) {
+    //         //     key = parseInt(key);
+    //         //     // if(typeof target.length < targetPathPart)
+    //         //     //     throw new Error(`Path is out of index: ${target.length} < ${targetPathPart} (Path: -${path}) `);
+    //         // } else {
+    //         //     // if(typeof target[targetPathPart] === 'undefined')
+    //         //     //     throw new Error("Path not found: " + path);
+    //         // }
+    //         parent = value;
+    //         if (typeof value === "undefined")
+    //             throw new Error("Invalid path key: " + key);
+    //         value = value[key];
+    //     }
+    //     if (!parent)
+    //         throw new Error("Invalid path: " + pathList.join('.'));
+    //
+    //     return {
+    //         value: value,
+    //         parent: parent,
+    //         key: key
+    //     };
+    // }
 
-        return {
-            value: value,
-            parent: parent,
-            key: key
-        };
+    getData(path=[]) {
+        return
     }
 
     findDataPath(path=[]) {
@@ -1126,44 +1147,38 @@ class Song {
         };
     }
 
-    setDataByPath(path=[], newValue) {
+    /** @deprecated Shouldn't be necessary **/
+    updateDataByPath(path=[], newValue) {
         const {oldValue, parent, parentPath, key} = this.findDataPath(path);
-        if(newValue === null) {
-            delete parent[key];
-        } else {
-            parent[key] = newValue;
-        }
-        this.queueHistoryAction('set', path, newValue);
+        if(Array.isArray(parent))
+            throw new Error(`Delete may only be used in non-array objects for path: ${parentPath.join('.')}`);
+        parent[key] = newValue;
 
+        // Repeat updates to the same path are ignored - only the last one is stored
+        this.queueHistoryAction('update', path, newValue);
         return oldValue;                    // Return the old value
     }
 
-    insertDataByPath(path, newValue) {
+    /** @deprecated Shouldn't be necessary **/
+    deleteDataByPath(path=[]) {
+        const {oldValue, parent, parentPath, key} = this.findDataPath(path);
+        if(Array.isArray(parent))
+            throw new Error(`Delete may only be used in non-array objects for path: ${parentPath.join('.')}`);
+        if(typeof parent[key] === "undefined")
+            throw new Error(`Data could not be unset for path: ${parentPath.join('.')}`)
+        delete parent[key];
+
+        this.queueHistoryAction('delete', path);
+        return oldValue;                    // Return the old value
+    }
+
+    spliceDataByPath(path, deleteCount, ...newValues) {
         const {oldValue, parent, parentPath, key} = this.findDataPath(path);
         if(!Array.isArray(parent))
-            throw new Error(`Insert may only be used in array objects for path: ${parentPath.join('.')}`);
+            throw new Error(`Splice may only be used in array objects for path: ${parentPath.join('.')}`);
 
-        parent.splice(key, 0, newValue);
-        this.queueHistoryAction('insert', path, newValue);
-        return oldValue;                    // Return the old value
-    }
-
-
-    deleteDataByPath(path) {
-        const {oldValue, parent, parentPath, key} = this.findDataPath(path);
-
-        if(typeof key === 'number') {
-            if(!Array.isArray(parent))
-                throw new Error(`Numeric keys may only be used in array objects for path: ${parentPath.join('.')}`);
-            if(parent.length < key)
-                throw new Error(`Delete position out of index: ${parent.length} < ${key} for path: ${parentPath.join('.')}`);
-            parent.splice(key, 1);
-        } else {
-            delete parent[key];
-        }
-        this.queueHistoryAction('delete', path);
-
-        return oldValue;                    // Return the old value
+        parent.splice(key, deleteCount, ...newValues);
+        this.queueHistoryAction('splice', path, deleteCount, ...newValues);
     }
 
     queueHistoryAction(action, pathList, data = null, oldData = null) {
