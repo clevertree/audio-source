@@ -1,10 +1,8 @@
-import ChipCore from "chip-player-js-lib/src/chip-core";
-
-import GMEPlayer from "chip-player-js-lib/src/players/GMEPlayer";
+import {ChipCore, GMEPlayer} from "../../3rdparty/chip-player-js-lib";
 // import queryString from "querystring";
 
 
-class LibGMESupport {
+class GMESongFile {
     async init() {
 
         await new Promise((resolve, reject) => {
@@ -57,7 +55,7 @@ class LibGMESupport {
                     },
                 });
             } catch (e) {
-                // Browser doesn't support WASM (Safari in iOS Simulator)
+                // Browser doesn't file WASM (Safari in iOS Simulator)
                 throw e;
             }
         });
@@ -151,4 +149,4 @@ class LibGMESupport {
 }
 
 
-export default LibGMESupport;
+export default GMESongFile;

@@ -1,4 +1,4 @@
-class JSONSupport {
+class JSONSongFile {
 
     async loadSongDataFromFileInput(file) {
         const fileResult = await new Promise((resolve, reject) => {
@@ -23,4 +23,4 @@ class JSONSupport {
 }
 
 
-export default JSONSupport;
+export default JSONSongFile;

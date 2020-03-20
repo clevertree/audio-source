@@ -46,8 +46,8 @@ class SongTest {
 
   async testSongClass() {
     const song = new Song();
-    await song.loadSongData({});
-    const songData = song.data;
+    song.setTitle('test');
+    // await song.loadSongData({});
 
 
     const testGroup = song.getRootGroup();

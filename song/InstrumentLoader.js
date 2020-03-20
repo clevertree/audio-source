@@ -1,7 +1,7 @@
-import AudioSourceSynthesizer from "./synth/AudioSourceSynthesizer";
-import SPCPlayerSynthesizer from "./chip/SPCPlayerSynthesizer";
+import AudioSourceSynthesizer from "../instrument/synth/AudioSourceSynthesizer";
+import SPCPlayerSynthesizer from "../instrument/chip/SPCPlayerSynthesizer";
 import GMEPlayerSynthesizer from "chip-player-js-lib/src/players/GMEPlayer";
-import { getDiff, applyDiff } from 'recursive-diff';
+import {InstrumentConfigListener} from "./InstrumentConfigListener";
 
 class InstrumentLoader {
     constructor(song) {
@@ -15,12 +15,13 @@ class InstrumentLoader {
         let instrumentClassName = config.className;
         // let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 
-        const configProxy = new Proxy(config, new InstrumentConfigListener(this.song, instrumentID));
+        // const configProxy = new Proxy(config, new InstrumentConfigListener(config, this.song, instrumentID));
 
         const {classObject} = InstrumentLoader.getInstrumentClass(instrumentClassName);
         const props = {
-            config: configProxy,
-            instrumentID
+            config,
+            instrumentID,
+            updateConfig: (config, path=[]) => this.song.updateInstrument(instrumentID, config, path)
         };
         return new classObject(props);
     }
@@ -65,39 +66,6 @@ class InstrumentLoader {
         // }
         // return results;
     // }
-}
-
-class InstrumentConfigListener {
-    constructor(song, instrumentID) {
-        this.song = song;
-        this.instrumentID = instrumentID;
-        // TODO: allow fast changes. trigger update slowly
-    }
-
-    update() {
-
-    }
-
-    get(obj, prop) {
-        switch(prop) {
-            case 'id':
-            case 'instrumentID':
-                return this.instrumentID;
-            case 'update':
-                return this.update;
-        }
-        console.log(prop, '.get', obj);
-        // The default behavior to return the value
-        return obj[prop];
-    }
-
-    set(obj, prop, value) {
-        console.log(prop, '.set', value, obj);
-        // The default behavior to store the value
-        obj[prop] = value;
-        // Indicate success
-        return true;
-    }
 }
 
 InstrumentLoader.registeredInstrumentClasses = [];

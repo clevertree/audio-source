@@ -1,6 +1,6 @@
-[submodule "assets/3rdparty"]
-	path = assets/3rdparty
-	url = https://github.com/clevertree/audio-source-3rdparty.git
 [submodule "sample"]
 	path = sample
 	url = https://github.com/clevertree/audio-source-samples.git
+[submodule "3rdparty/chip-player-js-lib"]
+	path = 3rdparty/chip-player-js-lib
+	url = https://github.com/clevertree/chip-player-js-lib.git

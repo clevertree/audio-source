@@ -85,7 +85,7 @@ class AudioSourceSynthesizer {
             case 'wav':
                 // sampleCache.buffer = await audioContext.decodeAudioData(audioData);
                 audioBuffer = await new Promise((resolve, reject) => {
-                    audioContext.decodeAudioData(sampleData, // Safari does not support await for decodeAudioData
+                    audioContext.decodeAudioData(sampleData, // Safari does not file await for decodeAudioData
                         (buffer) => {
                             resolve(buffer);
                         },

@@ -11,7 +11,7 @@ import {
 } from "../../../components";
 
 import {Library} from "../../../song";
-import InstrumentLoader from "../../InstrumentLoader";
+import InstrumentLoader from "../../../song/InstrumentLoader";
 
 import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 

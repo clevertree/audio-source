@@ -1,13 +1,13 @@
 {
     /** Register Script Exports **/
-    function getThisScriptPath() { return 'support/MIDISupport.js'; }
+    function getThisScriptPath() { return 'file/MIDIFile.js'; }
     const exportThisScript = function(module) {
-        module.exports = {MIDISupport};
+        module.exports = {MIDISupport: MIDIFile};
     }
 
 
 
-    class MIDISupport {
+    class MIDIFile {
         constructor() {
         }
 

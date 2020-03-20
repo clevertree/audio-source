@@ -7,7 +7,7 @@ import {
     Button,
 } from "../../components";
 
-import InstrumentLoader from "../../instrument/InstrumentLoader";
+import InstrumentLoader from "../../song/InstrumentLoader";
 
 // import Library from "../../song/Library";
 import "./assets/InstrumentRenderer.css";

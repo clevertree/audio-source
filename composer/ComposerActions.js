@@ -1,5 +1,5 @@
 import Song from "../song/Song";
-import InstrumentLoader from "../instrument/InstrumentLoader";
+import InstrumentLoader from "../song/InstrumentLoader";
 
 import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";

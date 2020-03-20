@@ -41,7 +41,7 @@ class SPCPlayerSynthesizer {
     async getLibGMESupport() {
         // const AudioSourceLoader = customElements.get('audio-source-loader');
         // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
-        // const {LibGMESupport} = await requireAsync('../../support/LibGMESupport.js');
+        // const {LibGMESupport} = await requireAsync('../../file/LibGMESupport.js');
         // return new LibGMESupport();
     }
 

@@ -5,6 +5,7 @@ class GMEPlayerSynthesizer extends React.Component {
     constructor(props={}) {
         console.log(props);
         super(props);
+        this.state = props.config || {};
     }
 
 
@@ -33,7 +34,7 @@ class GMEPlayerSynthesizer extends React.Component {
     async getLibGMESupport() {
         // const AudioSourceLoader = customElements.get('audio-source-loader');
         // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
-        // const {LibGMESupport} = await requireAsync('../../support/LibGMESupport.js');
+        // const {LibGMESupport} = await requireAsync('../../file/LibGMESupport.js');
         // return new LibGMESupport();
     }
 
