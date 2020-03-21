@@ -283,7 +283,9 @@ class Song {
     findInstructionIndex(groupName, instruction) {
         if (instruction instanceof SongInstruction)
             instruction = instruction.data;
-        const instructionList = this.getInstructionList(groupName);
+        instruction = ConfigListener.getTargetObject(instruction);
+        let instructionList = this.getInstructionList(groupName);
+        // instructionList = ConfigListener.getTargetObject(instructionList);
         const p = instructionList.indexOf(instruction);
         if (p === -1)
             throw new Error("Instruction not found in instruction list");
@@ -405,7 +407,7 @@ class Song {
             throw new Error("Invalid insert instruction");
         let insertInstruction = SongInstruction.parse(insertInstructionData);
         insertInstructionData = insertInstruction.data;
-        this.data.instructions[groupName].splice(insertIndex, 0, insertInstructionData);
+        this.getInstructionList(groupName).splice(insertIndex, 0, insertInstructionData);
         // this.spliceDataByPath(['instructions', groupName, insertIndex], 0, insertInstructionData);
         return insertIndex;
     }
@@ -421,7 +423,7 @@ class Song {
                 this.instructionReplaceDeltaDuration(groupName, deleteIndex + 1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
             }
         }
-        this.data.instructions[groupName].splice(deleteIndex, 1);
+        this.getInstructionList(groupName).splice(deleteIndex, 1);
         // return this.spliceDataByPath(['instructions', groupName, deleteIndex], 1);
     }
 
@@ -430,22 +432,18 @@ class Song {
         // return this.instructionReplaceParam(groupName, replaceIndex, 0, newDelta);
     }
 
-    /** @deprecated **/
     instructionReplaceCommand(groupName, replaceIndex, newCommand) {
         this.getInstruction(groupName, replaceIndex).command = newCommand;
     }
 
-    /** @deprecated **/
     instructionReplaceInstrument(groupName, replaceIndex, instrumentID) {
         this.getInstruction(groupName, replaceIndex).instrument = instrumentID;
     }
 
-    /** @deprecated **/
     instructionReplaceDuration(groupName, replaceIndex, newDuration) {
         this.getInstruction(groupName, replaceIndex).duration = newDuration;
     }
 
-    /** @deprecated **/
     instructionReplaceVelocity(groupName, replaceIndex, newVelocity) {
         if (!Number.isInteger(newVelocity))
             throw new Error("Velocity must be an integer: " + newVelocity);

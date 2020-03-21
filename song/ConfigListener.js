@@ -1,3 +1,5 @@
+const TARGET = Symbol('proxy_target');
+
 export class ConfigListener {
     constructor(song, path=[]) {
         this.path = path;
@@ -9,6 +11,8 @@ export class ConfigListener {
 
     get(obj, prop) {
         switch(prop) {
+            case TARGET: return obj;
+            case 'indexOf': return (v,b,e) => obj.indexOf(v,b,e);
             case 'splice': return (number, deleteCount, ...newValues) => this.splice(obj, this.path.concat(number), number, deleteCount, ...newValues);
         }
         const path = this.path.concat(prop);
@@ -30,7 +34,9 @@ export class ConfigListener {
             const path = this.path.concat(prop);
             delete obj[prop];
             this.song.queueHistoryAction('delete', path);
+            return true;
         }
+        return false;
     }
 
 
@@ -41,5 +47,9 @@ export class ConfigListener {
 
         obj.splice(number, deleteCount, ...newValues);
         this.song.queueHistoryAction('splice', path, number, deleteCount, ...newValues);
+    }
+
+    static getTargetObject(proxyObject) {
+        return proxyObject[TARGET]
     }
 }
