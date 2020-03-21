@@ -12,7 +12,6 @@ import {ConfigListener} from "./ConfigListener";
 
 class Song {
     constructor(songData={}) {
-        // this.dispatchElements = [];
         this.eventListeners = [];
 
         // this.audioContext = null;
@@ -29,23 +28,34 @@ class Song {
         this.activeGroups = {};
 
         // this.getData = function() { return data; }
-        const data = {};
+        const data = {
+            uuid: new Storage().generateUUID(),
+            title: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
+            version: '0.0.1',
+            created: new Date().getTime(),
+            timeDivision: 96 * 4,
+            bpm: 120,
+            // beatsPerMeasure: 4,
+            rootGroup: 'root',
+            instruments: [],
+            instructions: {
+                'root': []
+            }
+        };
         this.getDataObject = function() { return data; };
         this.data = new Proxy(data, new ConfigListener(this));
         // this.loadSongData(songData);
         // this.eventListeners = [];
         this.history = [];
         this.waitCancels = [];
+        // TODO: move to playback class
         this.playbackEndCallbacks = [];
         this.values = new Values(this);
-
-        // Listen for instrument changes if in a browser
-        // if (typeof document !== "undefined")
-        //     document.addEventListener('instrument:loaded', e => this.onSongEvent(e));
 
         this.loadSongData(songData);
     }
 
+    /** @deprecated **/
     async wait(waitTimeInSeconds) {
         await new Promise((resolve, reject) => {
             const timeout = setTimeout(resolve, waitTimeInSeconds * 1000);
@@ -56,26 +66,8 @@ class Song {
         });
     }
 
-    // addSongEventListener(callback) { this.eventListeners.push(callback); }
-    // Check for initiated, await if not
 
-    // addDispatchElement(dispatchElement) {
-    //     if (this.dispatchElements.indexOf(dispatchElement) !== -1) {
-    //         console.warn("Dispatch element already added");
-    //     } else {
-    //         this.dispatchElements.push(dispatchElement);
-    //     }
-    //     return this;
-    // }
-    //
-    // removeDispatchElement(dispatchElement) {
-    //     const i = this.dispatchElements.indexOf(dispatchElement);
-    //     if (i !== -1) {
-    //         this.dispatchElements.splice(i, 1);
-    //     } else {
-    //         console.warn("Dispatch element was not found");
-    //     }
-    // }
+    /** Events and Listeners **/
 
     dispatchEvent(e) {
         for (let i = 0; i < this.eventListeners.length; i++) {
@@ -100,31 +92,100 @@ class Song {
         }
     }
 
-    /** Data shortcuts **/
+    /** Initialization **/
 
-    getUUID() {
-        return this.data.uuid;
+    async init(audioContext = null) {
+        // if (audioContext !== null)
+        //     await this.setAudioContext(audioContext);
+        await this.loadAllInstruments(true);
+        if(audioContext !== null)
+            await this.initAllInstruments(audioContext);
     }
 
-    getTitle() { return this.data.title; }
-    setTitle(newTitle) { return this.data.title = newTitle; }
-
-    getVersion() {
-        return this.data.version;
+    async initInstrument(instrumentID, audioContext, throwException = true) {
+        const instrument = await this.getInstrument(instrumentID, throwException);
+        if(!instrument) return;
+        await instrument.init(audioContext);
     }
 
-    getTimeDivision() {
-        return this.data.timeDivision;
+    /** @todo combine with loadAllInstruments **/
+    async initAllInstruments(audioContext) {
+        console.time('initAllInstruments');
+        const instrumentList = this.getInstrumentList();
+        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
+            await this.initInstrument(instrumentID, audioContext, false);
+        }
+        console.timeEnd('initAllInstruments');
     }
 
-    getStartingBeatsPerMinute() {
-        return this.data.beatsPerMinute;
+    /** Song Data **/
+
+
+    loadSongData(songData) {
+        const data = this.getDataObject();
+
+        if (this.playback)
+            this.stopPlayback();
+        Object.assign(data, songData);
+
+        // this.data = songData;
+        this.playbackPosition = 0;
+
+        // Process all instructions
+        Object.keys(data.instructions).map((groupName, i) =>
+            this.instructionProcessGroupData(groupName));
+
+        // let loadingInstruments = 0;
+
+        // console.log("Song data loaded: ", songData);
+
+        this.dispatchEvent({
+            type: 'song:loaded',
+            song: this
+        });
     }
+
+
+    loadSongHistory(songHistory) {
+        this.history = songHistory;
+    }
+
+    /** Song Data Processing **/
+
+    instructionProcessGroupData(groupName) {
+        const instructionList = this.instructionGetList(groupName);
+        for (let i = 0; i < instructionList.length; i++) {
+            const instruction = SongInstruction.parse(instructionList[i]);
+            instructionList[i] = instruction.data;
+        }
+    }
+
+
+    /** Instrument Groups **/
 
     getRootGroup() {
-        return this.data.root;
+        return typeof this.data.rootGroup === "undefined"
+            ? this.data.rootGroup
+            : Object.keys(this.data.instructions)[0];
     }
 
+    hasGroup(groupName) {
+        return typeof this.data.instructions[groupName] !== "undefined";
+    }
+
+
+    generateInstructionGroupName(groupName = 'group') {
+        const songData = this.data;
+        for (let i = 0; i <= 999; i++) {
+            const currentGroupName = groupName + i;
+            if (!songData.instructions.hasOwnProperty(currentGroupName))
+                return currentGroupName;
+        }
+        throw new Error("Failed to generate group name");
+    }
+
+
+    /** Context **/
     // get history() { return this.data.history; }
     // getGroupTimeDivision(groupName) { // Bad idea
     //     return this.timeDivision;
@@ -161,130 +222,195 @@ class Song {
     //     this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
     // }
 
-    /** Context **/
 
-    // setAudioContext(audioContext) {
-    //     if (audioContext.state === 'suspended')
-    //         audioContext.resume();
-    //     this.audioContext = audioContext;
-    // }
-    //
-    // getAudioContext() {
-    //     if (this.audioContext)
-    //         return this.audioContext;
-    //
-    //     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    //     this.setAudioContext(audioContext);
-    //     return audioContext;
-    // }
+    /** Instruments **/
 
-    /** Initialization **/
 
-    async init(audioContext = null) {
-        // if (audioContext !== null)
-        //     await this.setAudioContext(audioContext);
-        await this.loadAllInstruments(true);
-        if(audioContext !== null)
-            await this.initAllInstruments(audioContext);
+    isInstrumentLoaded(instrumentID) {
+        return !!this.instruments[instrumentID];
     }
 
-    async initInstrument(instrumentID, audioContext, throwException = true) {
-        const instrument = await this.getInstrument(instrumentID, throwException);
-        if(!instrument) return;
-        await instrument.init(audioContext);
-    }
-
-    /** @todo combine with loadAllInstruments **/
-    async initAllInstruments(audioContext) {
-        console.time('initAllInstruments');
-        const instrumentList = this.getInstrumentList();
-        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            await this.initInstrument(instrumentID, audioContext, false);
+    async playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
+        if (!instrumentID && instrumentID !== 0) {
+            console.warn("No instrument set for instruction. Using instrument 0");
+            instrumentID = 0;
+            // return;
         }
-        console.timeEnd('initAllInstruments');
+        if (!this.data.instruments[instrumentID]) {
+            console.error(`Instrument ${instrumentID} is not loaded. Playback skipped. `);
+            return;
+        }
+        let instrument = await this.loadInstrument(instrumentID);
+        return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
     }
-    /** Song Data **/
+
+    hasInstrument(instrumentID) {
+        const instrumentList = this.getInstrumentList();
+        // console.log('hasInstrument', instrumentList[instrumentID], !!instrumentList[instrumentID])
+        return !!instrumentList[instrumentID];
+    }
+
+    getInstrumentConfig(instrumentID, throwException = true) {
+        const instrumentList = this.getInstrumentList();
+        if (!instrumentList[instrumentID]) {
+            if (throwException)
+                throw new Error("Instrument ID not found: " + instrumentID);
+            return null;
+        }
+        return instrumentList[instrumentID];
+    }
 
 
+    getInstrumentList() {
+        return this.data.instruments;
+    }
 
-    loadSongData(songData) {
-        const data = this.getDataObject();
+    /** @deprecated **/
+    async getInstrument(instrumentID, throwException = true) {
+        if (this.instruments[instrumentID])
+            return await this.instruments[instrumentID];
+        if (throwException)
+            throw new Error("Instrument not yet loading: " + instrumentID);
+        return null;
+    }
 
-        if (this.playback)
-            this.stopPlayback();
-        Object.assign(data, {
-            title: this.generateTitle(),
-            uuid: new Storage().generateUUID(),
-            version: '0.0.1',
-            root: 'root',
-            created: new Date().getTime(),
-            timeDivision: 96 * 4,
-            beatsPerMinute: 120,
-            beatsPerMeasure: 4,
-            instruments: [],
-            instructions: {
-                'root': []
-            }
-        }, songData);
+    async loadInstrumentInstance(instrumentID) {
+        const loader = new InstrumentLoader(this);
+        const instrument = loader.loadInstrumentInstance(instrumentID);
+        if (typeof instrument.init !== "function")
+            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+        await instrument.init();
+        return instrument;
+    }
 
-        // this.data = songData;
-        this.playbackPosition = 0;
+    unloadInstrument(instrumentID) {
+        // TODO:
+    }
 
-        // Process all instructions
-        Object.keys(data.instructions).map((groupName, i) =>
-            this.instructionProcessGroupData(groupName));
+    loadInstrument(instrumentID, forceReload = false) {
+        instrumentID = parseInt(instrumentID);
+        if (!forceReload && this.instruments[instrumentID])
+            return this.instruments[instrumentID];
 
-        // let loadingInstruments = 0;
-
-        // console.log("Song data loaded: ", songData);
+        const loader = new InstrumentLoader(this);
+        const instrument = loader.loadInstrumentInstance(instrumentID);
+        if (typeof instrument.init !== "function")
+            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+        this.instruments[instrumentID] = instrument;
 
         this.dispatchEvent({
-            type: 'song:loaded',
+            type: 'instrument:instance',
+            instrument,
+            instrumentID,
             song: this
         });
+
+        if (this.audioContext)
+            instrument.init(instrumentID, this.audioContext);
+
+//             console.info("Instrument loaded: ", instance, instrumentID);
+        return instrument;
     }
 
-
-    loadSongHistory(songHistory) {
-        this.history = songHistory;
-    }
-
-    /** Song Data Processing **/
-
-    instructionProcessGroupData(groupName) {
-        const instructionList = this.getInstructionList(groupName);
-        for (let i = 0; i < instructionList.length; i++) {
-            const instruction = SongInstruction.parse(instructionList[i]);
-            instructionList[i] = instruction.data;
+    async loadAllInstruments(forceReload = false) {
+        const instrumentList = this.getInstrumentList();
+        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
+            if (instrumentList[instrumentID]) {
+//                 console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
+                await this.loadInstrument(instrumentID, forceReload);
+            }
         }
     }
+
+
+    // updateInstrument(instrumentID, config, subPath=[]) {
+    //     return this.updateDataByPath(['instruments', instrumentID].concat(subPath), config);
+    // }
+
+    // getLoadedInstrument(instrumentID) {
+    //     if(typeof this.instruments[instrumentID] === "undefined" || this.instruments[instrumentID] instanceof Promise)
+    //         return null;
+    //     return this.instruments[instrumentID];
+    // }
+
+    instrumentAdd(config) {
+        if (typeof config !== 'object')
+            throw new Error("Invalid instrument config object");
+        if (!config.className)
+            throw new Error("Invalid Instrument Class");
+        // config.url = config.url;
+
+        const instrumentList = this.data.instruments;
+        const instrumentID = instrumentList.length;
+
+        this.data.instruments[instrumentID] = config;
+        // this.updateDataByPath(['instruments', instrumentID], config);
+        this.loadInstrument(instrumentID);
+        this.dispatchEvent({
+            type: 'instrument:added',
+            instrumentID,
+            config,
+            song: this
+        });
+        return instrumentID;
+    }
+
+    instrumentReplace(instrumentID, config) {
+        // const instrumentList = this.data.instruments;
+        // if(instrumentList.length < instrumentID)
+        //     throw new Error("Invalid instrument ID: " + instrumentID);
+        let oldConfig = this.data.instruments[instrumentID] || {};
+        if (oldConfig && oldConfig.title && !config.title)
+            config.title = oldConfig.title;
+        // Preserve old instrument name
+        oldConfig = this.data.instruments[instrumentID];
+        this.data.instruments[instrumentID] = config;
+        // oldConfig = this.updateDataByPath(['instruments', instrumentID], config);
+        this.loadInstrument(instrumentID);
+
+        this.dispatchEvent({
+            type: 'instrument:modified',
+            instrumentID,
+            oldConfig,
+            song: this
+        });
+        return oldConfig;
+    }
+
+    instrumentRemove(instrumentID) {
+        const instrumentList = this.data.instruments;
+        if (!instrumentList[instrumentID])
+            throw new Error("Invalid instrument ID: " + instrumentID);
+        const isLastInstrument = instrumentID === instrumentList.length - 1;
+        // if(instrumentList.length === instrumentID) {
+        //
+        // }
+        const oldConfig = this.instruments[instrumentID];
+        if(isLastInstrument) {
+            delete this.instruments[instrumentID];
+        } else {
+            this.instruments[instrumentID] = null;
+        }
+        this.unloadInstrument(instrumentID);
+
+        this.dispatchEvent({
+            type: 'instrument:removed',
+            instrumentID,
+            song: this
+        });
+        return oldConfig;
+    }
+
+
 
 
     /** Instructions **/
 
-    // instructionEach(groupName, callback, parentStats = null) {
-    //     if (!this.getInstructionList(groupName))
-    //         throw new Error("Invalid group: " + groupName);
-    //     const iterator = this.getInstructionIterator(groupName, parentStats);
-    //
-    //     let instruction = iterator.nextInstruction();
-    //     const results = [];
-    //     while (instruction) {
-    //         const result = callback(instruction, iterator);
-    //         if (result === false)
-    //             break;
-    //         if (result !== null)
-    //             results.push(result);
-    //         instruction = iterator.nextInstruction();
-    //     }
-    //     return results;
-    // }
-
-    findInstructionIndex(groupName, instruction) {
+    instructionIndexOf(groupName, instruction) {
         if (instruction instanceof SongInstruction)
             instruction = instruction.data;
         instruction = ConfigListener.getTargetObject(instruction);
-        let instructionList = this.getInstructionList(groupName);
+        let instructionList = this.instructionGetList(groupName);
         // instructionList = ConfigListener.getTargetObject(instructionList);
         const p = instructionList.indexOf(instruction);
         if (p === -1)
@@ -292,18 +418,18 @@ class Song {
         return p;
     }
 
-    getInstructionList(groupName) {
+    instructionGetList(groupName) {
         if(!this.data.instructions[groupName])
             throw new Error("Invalid instruction group: " + groupName);
         return this.data.instructions[groupName];
     }
 
-    getInstruction(groupName, index) {
-        let instructionList = this.getInstructionList(groupName);
+    instructionGetByIndex(groupName, index) {
+        let instructionList = this.instructionGetList(groupName);
         return index >= instructionList.length ? null : new SongInstruction(instructionList[index]);
     }
 
-    getInstructionIterator(groupName, parentStats=null) {
+    instructionGetIterator(groupName, parentStats=null) {
         return new SongInstructionIterator(
             this,
             groupName,
@@ -312,36 +438,22 @@ class Song {
     }
 
 
-    // getInstructionGroupLength(groupName) {
-    //     let instructionList = this.getInstructionList(groupName);
-    //     return instructionList.length;
-    // }
-
-    // instructionGetIterator(groupName, parentStats = null) {
-    //     return new SongInstructionIterator(
-    //         this,
-    //         groupName,
-    //         {
-    //             bpm: parentStats ? parentStats.bpm : this.getStartingBeatsPerMinute(),
-    //         });
-    //         // parentStats ? parentstats.positionTicks : 0);
-    // }
-
+    /** Modify Instructions **/
 
     instructionInsertAtPosition(groupName, insertPositionInTicks, insertInstructionData) {
         if (typeof insertPositionInTicks === 'string')
-            insertPositionInTicks = SongInstruction.parseDurationAsTicks(insertPositionInTicks, this.getTimeDivision());
+            insertPositionInTicks = SongInstruction.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
 
         if (!Number.isInteger(insertPositionInTicks))
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
         const insertInstruction = SongInstruction.parse(insertInstructionData);
-        let instructionList = this.getInstructionList(groupName);
+        let instructionList = this.instructionGetList(groupName);
 
         // let groupPosition = 0, lastDeltaInstructionIndex;
 
-        const iterator = this.getInstructionIterator(groupName);
+        const iterator = this.instructionGetIterator(groupName);
 
         let instruction = iterator.nextInstruction();
         // noinspection JSAssignmentUsedAsCondition
@@ -407,41 +519,41 @@ class Song {
             throw new Error("Invalid insert instruction");
         let insertInstruction = SongInstruction.parse(insertInstructionData);
         insertInstructionData = insertInstruction.data;
-        this.getInstructionList(groupName).splice(insertIndex, 0, insertInstructionData);
+        this.instructionGetList(groupName).splice(insertIndex, 0, insertInstructionData);
         // this.spliceDataByPath(['instructions', groupName, insertIndex], 0, insertInstructionData);
         return insertIndex;
     }
 
 
     instructionDeleteAtIndex(groupName, deleteIndex) {
-        const deleteInstruction = this.getInstruction(groupName, deleteIndex);
+        const deleteInstruction = this.instructionGetByIndex(groupName, deleteIndex);
         if (deleteInstruction.deltaDuration > 0) {
-            const nextInstruction = this.getInstruction(groupName, deleteIndex + 1, false);
+            const nextInstruction = this.instructionGetByIndex(groupName, deleteIndex + 1, false);
             if (nextInstruction) {
                 // this.getInstruction(groupName, deleteIndex+1).deltaDuration =
                 //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
                 this.instructionReplaceDeltaDuration(groupName, deleteIndex + 1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
             }
         }
-        this.getInstructionList(groupName).splice(deleteIndex, 1);
+        this.instructionGetList(groupName).splice(deleteIndex, 1);
         // return this.spliceDataByPath(['instructions', groupName, deleteIndex], 1);
     }
 
     instructionReplaceDeltaDuration(groupName, replaceIndex, newDelta) {
-        this.getInstruction(groupName, replaceIndex).deltaDuration = newDelta;
+        this.instructionGetByIndex(groupName, replaceIndex).deltaDuration = newDelta;
         // return this.instructionReplaceParam(groupName, replaceIndex, 0, newDelta);
     }
 
     instructionReplaceCommand(groupName, replaceIndex, newCommand) {
-        this.getInstruction(groupName, replaceIndex).command = newCommand;
+        this.instructionGetByIndex(groupName, replaceIndex).command = newCommand;
     }
 
     instructionReplaceInstrument(groupName, replaceIndex, instrumentID) {
-        this.getInstruction(groupName, replaceIndex).instrument = instrumentID;
+        this.instructionGetByIndex(groupName, replaceIndex).instrument = instrumentID;
     }
 
     instructionReplaceDuration(groupName, replaceIndex, newDuration) {
-        this.getInstruction(groupName, replaceIndex).duration = newDuration;
+        this.instructionGetByIndex(groupName, replaceIndex).duration = newDuration;
     }
 
     instructionReplaceVelocity(groupName, replaceIndex, newVelocity) {
@@ -449,7 +561,7 @@ class Song {
             throw new Error("Velocity must be an integer: " + newVelocity);
         if (newVelocity < 0)
             throw new Error("Velocity must be a positive integer: " + newVelocity);
-        this.getInstruction(groupName, replaceIndex).velocity = newVelocity;
+        this.instructionGetByIndex(groupName, replaceIndex).velocity = newVelocity;
     }
 
 
@@ -488,16 +600,16 @@ class Song {
     }
 
 
-    /** Song Timing **/
+    /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        return this.getInstructionIterator(this.getRootGroup())
+        return this.instructionGetIterator(this.getRootGroup())
             .seekToEnd()
             .endPositionSeconds;
     }
 
     getSongLengthInTicks() {
-        return this.getInstructionIterator(this.getRootGroup())
+        return this.instructionGetIterator(this.getRootGroup())
             .seekToEnd()
             .endPositionTicks;
     }
@@ -523,7 +635,7 @@ class Song {
 
     // Refactor
     getGroupPositionFromTicks(groupName, groupPositionInTicks) {
-        const iterator = this.getInstructionIterator(groupName);
+        const iterator = this.instructionGetIterator(groupName);
         while (true) {
             if (iterator.positionTicks >= groupPositionInTicks || !iterator.nextInstruction())
                 break;
@@ -554,7 +666,7 @@ class Song {
 
 
     getGroupPositionInTicks(groupName, positionInSeconds) {
-        const iterator = this.getInstructionIterator(groupName);
+        const iterator = this.instructionGetIterator(groupName);
         while (true) {
             if (iterator.positionSeconds >= positionInSeconds || !iterator.nextInstruction())
                 break;
@@ -632,6 +744,7 @@ class Song {
 
     }
 
+    // TODO: move to playback class
     async waitForPlaybackToEnd() {
         const ret = await new Promise((resolve, reject) => {
             this.playbackEndCallbacks.push(resolve);
@@ -695,6 +808,7 @@ class Song {
         this.playbackPosition = playback.getGroupPositionInSeconds();
         playback.stopPlayback();
 
+        // TODO: move to playback class
         for (let i = 0; i < this.playbackEndCallbacks.length; i++)
             this.playbackEndCallbacks[i]();
         this.playbackEndCallbacks = [];
@@ -732,7 +846,7 @@ class Song {
 
 
     async playInstructionAtIndex(destination, groupName, instructionIndex, noteStartTime = null) {
-        const instruction = this.getInstruction(groupName, instructionIndex, false);
+        const instruction = this.instructionGetByIndex(groupName, instructionIndex, false);
         if (instruction)
             await this.playInstruction(destination, instruction, noteStartTime);
         else
@@ -754,7 +868,7 @@ class Song {
         }
 
 
-        let bpm = this.getStartingBeatsPerMinute();
+        let bpm = this.data.bpm; // getStartingBeatsPerMinute();
         // const noteDuration = (instruction.duration || 1) * (60 / bpm);
         let timeDivision = this.timeDivision;
         const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
@@ -797,260 +911,14 @@ class Song {
     }
 
 
-    /** Modify Song Data **/
-
-    hasGroup(groupName) {
-        return typeof this.getInstructionList(groupName) !== "undefined";
-    }
-
-    songChangeTitle(newSongTitle) {
-        return this.updateDataByPath(['title'], newSongTitle);
-    }
-
-    songChangeVersion(newSongTitle) {
-        return this.updateDataByPath(['version'], newSongTitle);
-    }
-
-    songChangeStartingBPM(newBPM) {
-        if (!Number.isInteger(newBPM))
-            throw new Error("Invalid BPM");
-        return this.updateDataByPath(['beatsPerMinute'], newBPM);
-    }
-
-    generateTitle() {
-        return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
-    }
-
-    generateInstructionGroupName(groupName = 'group') {
-        const songData = this.data;
-        for (let i = 0; i <= 999; i++) {
-            const currentGroupName = groupName + i;
-            if (!songData.instructions.hasOwnProperty(currentGroupName))
-                return currentGroupName;
-        }
-        throw new Error("Failed to generate group name");
-    }
 
 
-    /** Instruments **/
-
-
-    isInstrumentLoaded(instrumentID) {
-        return !!this.instruments[instrumentID];
-    }
-
-    async playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
-        if (!instrumentID && instrumentID !== 0) {
-            console.warn("No instrument set for instruction. Using instrument 0");
-            instrumentID = 0;
-            // return;
-        }
-        if (!this.data.instruments[instrumentID]) {
-            console.error(`Instrument ${instrumentID} is not loaded. Playback skipped. `);
-            return;
-        }
-        let instrument = await this.loadInstrument(instrumentID);
-        return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
-    }
-
-    hasInstrument(instrumentID) {
-        const instrumentList = this.getInstrumentList();
-        // console.log('hasInstrument', instrumentList[instrumentID], !!instrumentList[instrumentID])
-        return !!instrumentList[instrumentID];
-    }
-
-    getInstrumentConfig(instrumentID, throwException = true) {
-        const instrumentList = this.getInstrumentList();
-        if (!instrumentList[instrumentID]) {
-            if (throwException)
-                throw new Error("Instrument ID not found: " + instrumentID);
-            return null;
-        }
-        return instrumentList[instrumentID];
-    }
-
-
-    getInstrumentList() {
-        return this.data.instruments;
-    }
-
-    /** @deprecated **/
-    async getInstrument(instrumentID, throwException = true) {
-        if (this.instruments[instrumentID])
-            return await this.instruments[instrumentID];
-        if (throwException)
-            throw new Error("Instrument not yet loading: " + instrumentID);
-        return null;
-    }
-
-    async loadInstrumentInstance(instrumentID) {
-        const loader = new InstrumentLoader(this);
-        const instrument = loader.loadInstrumentInstance(instrumentID);
-        if (typeof instrument.init !== "function")
-            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
-        await instrument.init();
-        return instrument;
-   }
-
-    loadInstrument(instrumentID, forceReload = false) {
-        instrumentID = parseInt(instrumentID);
-        if (!forceReload && this.instruments[instrumentID])
-            return this.instruments[instrumentID];
-
-        const loader = new InstrumentLoader(this);
-        const instrument = loader.loadInstrumentInstance(instrumentID);
-        if (typeof instrument.init !== "function")
-            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
-        this.instruments[instrumentID] = instrument;
-
-        this.dispatchEvent({
-            type: 'instrument:instance',
-            instrument,
-            instrumentID,
-            song: this
-        });
-
-        if (this.audioContext)
-            instrument.init(instrumentID, this.audioContext);
-
-//             console.info("Instrument loaded: ", instance, instrumentID);
-        return instrument;
-    }
-
-    async loadAllInstruments(forceReload = false) {
-        const instrumentList = this.getInstrumentList();
-        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            if (instrumentList[instrumentID]) {
-//                 console.info("Loading instrument: " + instrumentID, instrumentList[instrumentID]);
-                await this.loadInstrument(instrumentID, forceReload);
-            }
-        }
-    }
-
-
-    /** @deprecated **/
-    updateInstrument(instrumentID, config, subPath=[]) {
-        return this.updateDataByPath(['instruments', instrumentID].concat(subPath), config);
-    }
-
-    /** @deprecated **/
-    getLoadedInstrument(instrumentID) {
-        if(typeof this.instruments[instrumentID] === "undefined" || this.instruments[instrumentID] instanceof Promise)
-            return null;
-        return this.instruments[instrumentID];
-    }
-
-    instrumentAdd(config) {
-        if (typeof config !== 'object')
-            throw new Error("Invalid instrument config object");
-        if (!config.className)
-            throw new Error("Invalid Instrument Class");
-        // config.url = config.url;
-
-        const instrumentList = this.data.instruments;
-        const instrumentID = instrumentList.length;
-
-        this.updateDataByPath(['instruments', instrumentID], config);
-        this.loadInstrument(instrumentID);
-        this.dispatchEvent({
-            type: 'instrument:added',
-            instrumentID,
-            config,
-            song: this
-        });
-        return instrumentID;
-    }
-
-
-    /** @deprecated **/
-    instrumentReplace(instrumentID, config) {
-        // const instrumentList = this.data.instruments;
-        // if(instrumentList.length < instrumentID)
-        //     throw new Error("Invalid instrument ID: " + instrumentID);
-        let oldConfig = this.data.instruments[instrumentID] || {};
-        if (oldConfig && oldConfig.title && !config.title)
-            config.title = oldConfig.title;
-        // Preserve old instrument name
-        oldConfig = this.updateDataByPath(['instruments', instrumentID], config);
-
-        this.dispatchEvent({
-            type: 'instrument:modified',
-            instrumentID,
-            oldConfig,
-            song: this
-        });
-        return oldConfig;
-    }
-
-    /** @deprecated **/
-    instrumentRemove(instrumentID) {
-        const instrumentList = this.data.instruments;
-        if (!instrumentList[instrumentID])
-            throw new Error("Invalid instrument ID: " + instrumentID);
-        const isLastInstrument = instrumentID === instrumentList.length - 1;
-        // if(instrumentList.length === instrumentID) {
-        //
-        // }
-        const oldConfig = isLastInstrument
-            ? this.deleteDataByPath(['instruments', instrumentID])
-            : this.updateDataByPath(['instruments', instrumentID], null); // TODO: remove entry and diff
-        delete this.instruments[instrumentID];
-
-        this.dispatchEvent({
-            type: 'instrument:removed',
-            instrumentID,
-            song: this
-        });
-        return oldConfig;
-    }
-
-    // Note: instruments handle own rendering
-    /** @deprecated **/
-    instrumentReplaceParam(instrumentID, pathList, paramValue) {
-        instrumentID = parseInt(instrumentID);
-        const instrumentList = this.data.instruments;
-        if (!instrumentList[instrumentID])
-            throw new Error("Invalid instrument ID: " + instrumentID);
-
-        if (!Array.isArray(pathList))
-            pathList = [pathList];
-        pathList.unshift(instrumentID);
-        pathList.unshift('instruments');
-        const oldConfig = this.updateDataByPath(pathList, paramValue);
-        this.dispatchEvent({
-            type: 'instrument:modified',
-            instrumentID,
-            oldConfig,
-            song: this
-        });
-        return oldConfig;
-    }
-
-    /** @deprecated **/
-    deleteInstrumentParam(instrumentID, pathList) {
-        instrumentID = parseInt(instrumentID);
-        const instrumentList = this.data.instruments;
-        if (!instrumentList[instrumentID])
-            throw new Error("Invalid instrument ID: " + instrumentID);
-
-        if (!Array.isArray(pathList))
-            pathList = [pathList];
-        pathList.unshift(instrumentID);
-        pathList.unshift('instruments');
-        const oldConfig = this.deleteDataByPath(pathList);
-        this.dispatchEvent({
-            type: 'instrument:modified',
-            instrumentID,
-            oldConfig,
-            song: this
-        });
-        return oldConfig;
-    }
-
-    /** @deprecated **/
-    instrumentRename(instrumentID, newInstrumentName) {
-        return this.instrumentReplaceParam(instrumentID, 'title', newInstrumentName);
-    }
+    // /** @deprecated **/
+    // instrumentRename(instrumentID, newInstrumentName) {
+    //     const oldValue = this.data.instruments[instrumentID].title;
+    //     this.data.instruments[instrumentID].title = newInstrumentName;
+    //     return oldValue;
+    // }
 
 
     // instrumentReplaceParams(instrumentID, replaceParams) {
@@ -1111,73 +979,6 @@ class Song {
     //     };
     // }
 
-    getData(path=[]) {
-        return
-    }
-
-    findDataPath(path=[]) {
-        if(!Array.isArray(path))
-            path = path.split('.');
-        let oldValue = this.data;
-        let parent = this;
-        let key = 'data';
-        let parentPath = path;
-        if(path.length === 0 || !path[0]) {
-            parentPath = [];
-        } else {
-            parentPath = path.slice();
-            key = parentPath.pop();
-            for(let i=0; i<parentPath.length; i++) {
-                const subKey = parentPath[i];
-                if(typeof oldValue[subKey] === "undefined")
-                    throw new Error("Invalid path key: " + subKey);
-                oldValue = oldValue[subKey];
-            }
-            parent = oldValue;
-            oldValue = oldValue[key];
-        }
-
-        return {
-            oldValue,
-            parent,
-            parentPath,
-            key
-        };
-    }
-
-    /** @deprecated Shouldn't be necessary **/
-    updateDataByPath(path=[], newValue) {
-        const {oldValue, parent, parentPath, key} = this.findDataPath(path);
-        if(Array.isArray(parent))
-            throw new Error(`Delete may only be used in non-array objects for path: ${parentPath.join('.')}`);
-        parent[key] = newValue;
-
-        // Repeat updates to the same path are ignored - only the last one is stored
-        this.queueHistoryAction('update', path, newValue);
-        return oldValue;                    // Return the old value
-    }
-
-    /** @deprecated Shouldn't be necessary **/
-    deleteDataByPath(path=[]) {
-        const {oldValue, parent, parentPath, key} = this.findDataPath(path);
-        if(Array.isArray(parent))
-            throw new Error(`Delete may only be used in non-array objects for path: ${parentPath.join('.')}`);
-        if(typeof parent[key] === "undefined")
-            throw new Error(`Data could not be unset for path: ${parentPath.join('.')}`)
-        delete parent[key];
-
-        this.queueHistoryAction('delete', path);
-        return oldValue;                    // Return the old value
-    }
-
-    spliceDataByPath(path, deleteCount, ...newValues) {
-        const {oldValue, parent, parentPath, key} = this.findDataPath(path);
-        if(!Array.isArray(parent))
-            throw new Error(`Splice may only be used in array objects for path: ${parentPath.join('.')}`);
-
-        parent.splice(key, deleteCount, ...newValues);
-        this.queueHistoryAction('splice', path, deleteCount, ...newValues);
-    }
 
     queueHistoryAction(action, pathList, data = null, oldData = null) {
         if(Array.isArray(pathList))
@@ -1228,95 +1029,100 @@ class Song {
     //     this.history = [];
     //     this.instructionProcessGroupData();
     // }
+    static loadSongFromData(songData) {
+        const song = new Song();
+        song.loadSongData(songData);
+        return song;
+    }
 
-    // TODO: remove path
-    static sanitizeInput(value) {
-        if (typeof value !== 'string')
-            throw new Error("Invalid string input: " + typeof value);
+    static async loadSongFromMemory(songUUID) {
+        const storage = new Storage();
+        const songData = await storage.loadSongFromMemory(songUUID);
+        const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
+        const song = new Song(songData);
+        song.loadSongData(songData);
+        song.loadSongHistory(songHistory);
+        return song;
+    }
 
-        var ESC_MAP = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        };
-        let regex = /[&<>'"]/g;
+    static async loadSongFromFileInput(file) {
+        const library = await Song.getFileSupportModule(file.name);
+        if (typeof library.loadSongDataFromFileInput !== "function")
+            throw new Error("Invalid library.loadSongDataFromFileInput method");
 
-        return value.replace(regex, function (c) {
-            return ESC_MAP[c];
+        const buffer = Song.loadBufferFromFileInput(file);
+        const songData = await library.loadSongDataFromBuffer(buffer, file.name);
+        const song = new Song();
+        song.loadSongData(songData);
+        return song;
+    }
+
+    static async loadSongFromURL(src) {
+        const library = await Song.getFileSupportModule(src);
+        if (typeof library.loadSongDataFromBuffer !== "function")
+            throw new Error("Invalid library.loadSongDataFromURL method: " + src);
+
+        const fileService = new FileService();
+        const buffer = await fileService.loadBufferFromURL(src);
+        // const buffer = await response.arrayBuffer();
+        const songData = await library.loadSongDataFromBuffer(buffer, src);
+        const song = new Song();
+        song.loadSongData(songData);
+        return song;
+    }
+
+    static async loadBufferFromFileInput(file) {
+        return await new Promise((resolve, reject) => {
+            let reader = new FileReader();                                      // prepare the file Reader
+            reader.readAsArrayBuffer(file);                 // read the binary data
+            reader.onload =  (e) => {
+                resolve(e.target.result);
+            };
         });
     }
 
 
-    // Input
+    static async getFileSupportModule(filePath) {
+        // const AudioSourceLoader = customElements.get('audio-source-loader');
+        // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
+        const fileExt = filePath.split('.').pop().toLowerCase();
+        let library;
+        switch (fileExt) {
+            // case 'mid':
+            // case 'midi':
+            //     const {MIDISupport} = require('../file/MIDIFile.js');
+            //     return new MIDISupport;
+            //
+            case 'json':
+                library = new JSONSongFile();
+                // await library.init();
+                return library;
+            //
+            case 'nsf':
+            case 'nsfe':
+            case 'spc':
+            case 'gym':
+            case 'vgm':
+            case 'vgz':
+            case 'ay':
+            case 'sgc':
+            case 'kss':
+                library = new GMESongFile();
+                await library.init();
+                return library;
+            //
+            // case 'mp3':
+            //     const {MP3Support} = require('../file/MP3File.js');
+            //     return new MP3Support;
 
-    // onInput(e) {
-    //     if (e.defaultPrevented)
-    //         return;
-    //     switch (e.type) {
-    //         case 'click':
-    //             break;
-    //     }
-    // }
-
+            default:
+                throw new Error("Unknown file module for file type: " + fileExt);
+        }
+    };
 
 }
 
-
-
-Song.loadSongFromData = function (songData) {
-    const song = new Song();
-    song.loadSongData(songData);
-    return song;
-};
-
-Song.loadSongFromMemory = async function (songUUID) {
-    const storage = new Storage();
-    const songData = await storage.loadSongFromMemory(songUUID);
-    const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
-    const song = new Song(songData);
-    song.loadSongData(songData);
-    song.loadSongHistory(songHistory);
-    return song;
-};
-
-
-Song.loadSongFromFileInput = async function (file) {
-    const library = await Song.getFileSupportModule(file.name);
-    if (typeof library.loadSongDataFromFileInput !== "function")
-        throw new Error("Invalid library.loadSongDataFromFileInput method");
-
-    const buffer = Song.loadBufferFromFileInput(file);
-    const songData = await library.loadSongDataFromBuffer(buffer, file.name);
-    const song = new Song();
-    song.loadSongData(songData);
-    return song;
-};
-
-Song.loadSongFromURL = async function (src) {
-    const library = await Song.getFileSupportModule(src);
-    if (typeof library.loadSongDataFromBuffer !== "function")
-        throw new Error("Invalid library.loadSongDataFromURL method: " + src);
-
-    const fileService = new FileService();
-    const buffer = await fileService.loadBufferFromURL(src);
-    // const buffer = await response.arrayBuffer();
-    const songData = await library.loadSongDataFromBuffer(buffer, src);
-    const song = new Song();
-    song.loadSongData(songData);
-    return song;
-};
-
-Song.loadBufferFromFileInput = async function(file) {
-    return await new Promise((resolve, reject) => {
-        let reader = new FileReader();                                      // prepare the file Reader
-        reader.readAsArrayBuffer(file);                 // read the binary data
-        reader.onload =  (e) => {
-            resolve(e.target.result);
-        };
-    });
-};
+Song.DEFAULT_VOLUME = 0.7;
 
 
 // Song.loadSongFromMIDIFile = async function (file, defaultInstrumentURL = null) {
@@ -1328,78 +1134,7 @@ Song.loadBufferFromFileInput = async function(file) {
 //     return song;
 // };
 
-Song.getFileSupportModule = async function (filePath) {
-    // const AudioSourceLoader = customElements.get('audio-source-loader');
-    // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
-    const fileExt = filePath.split('.').pop().toLowerCase();
-    let library;
-    switch (fileExt) {
-        // case 'mid':
-        // case 'midi':
-        //     const {MIDISupport} = require('../file/MIDIFile.js');
-        //     return new MIDISupport;
-        //
-        case 'json':
-            library = new JSONSongFile();
-            // await library.init();
-            return library;
-        //
-        case 'nsf':
-        case 'nsfe':
-        case 'spc':
-        case 'gym':
-        case 'vgm':
-        case 'vgz':
-        case 'ay':
-        case 'sgc':
-        case 'kss':
-            library = new GMESongFile();
-            await library.init();
-            return library;
-        //
-        // case 'mp3':
-        //     const {MP3Support} = require('../file/MP3File.js');
-        //     return new MP3Support;
 
-        default:
-            throw new Error("Unknown file module for file type: " + fileExt);
-    }
-};
-
-
-Song.DEFAULT_VOLUME = 0.7;
-
-
-// class AudioSourceConditionalInstructionIterator extends SongInstructionIterator {
-//     constructor(song, groupName, conditionalCallback = null, currentBPM = null, groupPositionInTicks = 0) {
-//         super(song, groupName, currentBPM, groupPositionInTicks);
-//         if (typeof conditionalCallback !== "function")
-//             throw new Error("Invalid conditional callback");
-//         this.conditionalCallback = conditionalCallback;
-//     }
-//
-//     nextInstruction() {
-//         let nextInstruction;
-//         let deltaDurationInTicks = 0;
-//         while (nextInstruction = super.nextInstruction()) {
-//             deltaDurationInTicks += nextInstruction.deltaDuration;
-//             const ret = this.conditionalCallback(nextInstruction);
-//             if (ret !== true)
-//                 continue;
-//             nextInstruction.deltaDuration = deltaDurationInTicks;
-//             return nextInstruction;
-//         }
-//         return null;
-//     }
-// }
 
 
 export default Song;
-// /** Export this script **/
-// thisModule.exports = {
-//     Song,
-//     SongInstructionIterator,
-//     SongPlayback,
-//     SongInstruction,
-// };
-

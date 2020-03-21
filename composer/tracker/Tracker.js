@@ -152,7 +152,7 @@ class Tracker extends React.Component {
 
 
     getComposer()               { return this.props.composer; }
-    getTimeDivision()           { return this.getComposer().song.getTimeDivision(); }
+    getTimeDivision()           { return this.getComposer().song.data.timeDivision; }
     // getQuantizationInTicks()    { return this.state.trackerQuantizationInTicks; }
     getSegmentLengthInTicks()   { return this.getComposer().state.trackerSegmentLengthInTicks; }
     getMaxLengthInTicks()       {

@@ -1,51 +1,42 @@
 import FileService from "../../song/FileService";
 import React from "react";
+import GMESongFile from "../../song/file/GMESongFile";
+
+const libGMESupport = new GMESongFile();
+libGMESupport.init();
 
 class GMEPlayerSynthesizer extends React.Component {
     constructor(props={}) {
         console.log(props);
         super(props);
-        this.state = props.config || {};
+        this.config = props.config || {};
+        this.state = {};
     }
-
 
     async loadBuffer() {
-        if(!this.spcBuffer) {
-            const spcURL = this.config.spcURL;
+        if(!this.fileBuffer) {
+            const src = this.config.fileURL;
             const service = new FileService();
-            this.spcBuffer = service.loadBufferFromURL(spcURL);
+            this.fileBuffer = service.loadBufferFromURL(src);
             console.info("SPC Player loaded");
         }
-        if(this.spcBuffer instanceof Promise)
+        if(this.fileBuffer instanceof Promise)
             this.spcBuffer = await this.spcBuffer;
-        return this.spcBuffer;
+        return this.fileBuffer;
     }
 
-    async loadSPCPlayer(destination) {
-        const libGMESupport = await this.getLibGMESupport();
+    async loadGMEPlayer(destination) {
         const buffer = await this.loadBuffer();
-        return libGMESupport.loadSPCPlayerFromBuffer(buffer, 'file', {
+        return libGMESupport.loadPlayerFromBuffer(destination.context, destination, buffer, 'file', {
             destination
         });
     }
 
     /** Initializing Audio **/
 
-    async getLibGMESupport() {
-        // const AudioSourceLoader = customElements.get('audio-source-loader');
-        // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
-        // const {LibGMESupport} = await requireAsync('../../file/LibGMESupport.js');
-        // return new LibGMESupport();
-    }
-
-    async init(audioContext=null) {
-
-        if(audioContext) {
-            this.audioContext = audioContext;
-            const libGMESupport = await this.getLibGMESupport();
-            await libGMESupport.init(audioContext);
-        }
-        if (this.config.spcURL)
+    async init(audioContext) {
+        this.audioContext = audioContext;
+        if (this.config.fileURL)
             await this.loadBuffer();
         console.info("SPC Player initialized");
     }
@@ -55,7 +46,7 @@ class GMEPlayerSynthesizer extends React.Component {
 
     // Instruments return promises
     async play(destination, namedFrequency, startTime, duration, velocity) {
-        const spcPlayer = await this.loadSPCPlayer(destination);
+        const spcPlayer = await this.loadGMEPlayer(destination);
         this.spcPlayers.push(spcPlayer);
 
         let currentTime = destination.context.currentTime;

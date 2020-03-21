@@ -288,47 +288,27 @@ class SynthesizerSampleRenderer extends React.Component {
     changeMixer(newMixerValue) {
         if(!Number.isInteger(newMixerValue))
             throw new Error("Invalid mixer value type: " + typeof newMixerValue);
-        this.getSong().instrumentReplaceParam(
-            this.getInstrumentID(),
-            ['samples', this.getSampleID(), 'mixer'],
-            newMixerValue
-        );
+        this.config.samples[this.getSampleID()].mixer = newMixerValue;
     }
 
     changeDetune(newDetuneValue) {
         if(!Number.isInteger(newDetuneValue))
             throw new Error("Invalid detune value type: " + typeof newDetuneValue);
-        this.getSong().instrumentReplaceParam(
-            this.getInstrumentID(),
-            ['samples', this.getSampleID(), 'detune'],
-            newDetuneValue
-        );
+        this.config.samples[this.getSampleID()].detune = newDetuneValue;
     }
 
     changeRoot(newRootValue) {
-        this.getSong().instrumentReplaceParam(
-            this.getInstrumentID(),
-            ['samples', this.getSampleID(), 'root'],
-            newRootValue
-        );
+        this.config.samples[this.getSampleID()].root = newRootValue;
     }
 
     changeAlias(newAliasValue) {
-        this.getSong().instrumentReplaceParam(
-            this.getInstrumentID(),
-            ['samples', this.getSampleID(), 'alias'],
-            newAliasValue
-        );
+        this.config.samples[this.getSampleID()].alias = newAliasValue;
     }
 
     changeLoop(newLoopValue=null) {
         if(newLoopValue === null)
             newLoopValue = !this.getSampleData().loop;
-        this.getSong().instrumentReplaceParam(
-            this.getInstrumentID(),
-            ['samples', this.getSampleID(), 'loop'],
-            newLoopValue?1:0
-        );
+        this.config.samples[this.getSampleID()].loop = newLoopValue?1:0;
     }
 
 }

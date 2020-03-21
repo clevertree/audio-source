@@ -23,7 +23,7 @@ class PlayerActions extends PlayerMenu {
 
     async setCurrentSong(song) {
         if(this.song) {
-            this.setStatus("Unloading song: " + this.song.getTitle());
+            this.setStatus("Unloading song: " + this.song.data.title);
             if(this.song.isPlaying) {
                 this.song.stopPlayback();
             }
@@ -38,12 +38,12 @@ class PlayerActions extends PlayerMenu {
         // this.song.addDispatchElement(this);
         song.playlistPosition = this.getCurrentEntryPosition();
         const currentEntry = await this.getCurrentEntry();
-        currentEntry.name = song.getTitle();
+        currentEntry.name = song.data.title;
         currentEntry.length = song.getSongLengthInSeconds();
         this.forceUpdate();
-        this.setStatus("Initializing song: " + song.getTitle());
+        this.setStatus("Initializing song: " + song.data.title);
         await this.song.init(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.getTitle());
+        this.setStatus("Loaded song: " + song.data.title);
     }
 
     // handleError(err) {
@@ -146,7 +146,7 @@ class PlayerActions extends PlayerMenu {
 //             if (!file)
 //                 throw new Error("Invalid file input");
 //             await this.song.loadSongFromFileInput(file);
-//             this.addSongFileToPlaylist(file, this.song.getTitle(), this.song.getSongLengthInSeconds());
+//             this.addSongFileToPlaylist(file, this.song.data.title, this.song.getSongLengthInSeconds());
 //             // this.render();
 //         }
 
@@ -263,7 +263,7 @@ class PlayerActions extends PlayerMenu {
 //         } else {
 //             await song.loadSongFromURL(url);
 //             this.setStatus("Loaded from url: " + url);
-// //                 this.addSongURLToPlaylist(url, song.getTitle(), song.getSongLengthInSeconds());
+// //                 this.addSongURLToPlaylist(url, song.data.title, song.getSongLengthInSeconds());
 //         }
 //         // this.render();
 //     }
@@ -396,7 +396,7 @@ class PlayerActions extends PlayerMenu {
             if(this.song.isPlaying)
                 throw new Error("Song is already playing");
             await this.setCurrentSong(this.song);
-            this.setStatus("Playing: " + this.song.getTitle());
+            this.setStatus("Playing: " + this.song.data.title);
             return await this.song.play(this.getVolumeGain());
         }
         // let entry = await this.playlist.getCurrentEntry();
@@ -411,7 +411,7 @@ class PlayerActions extends PlayerMenu {
             this.scrollToEntry(this.getCurrentEntryPosition());
             const currentSong = await this.loadSongFromPlaylistEntry();
             await this.setCurrentSong(currentSong);
-            this.setStatus("Playing: " + currentSong.getTitle());
+            this.setStatus("Playing: " + currentSong.data.title);
             await currentSong.play(this.getVolumeGain());
             if(!this.state.playing)
                 break;
@@ -424,10 +424,10 @@ class PlayerActions extends PlayerMenu {
     async playlistStop() {
         this.isPlaylistActive = false;
         if(this.song && this.song.isPlaying) {
-            this.setStatus("Stopping: " + this.song.getTitle());
+            this.setStatus("Stopping: " + this.song.data.title);
             this.song.stopPlayback();
             this.song.setPlaybackPositionInTicks(0);
-            this.setStatus("Stopped: " + this.song.getTitle());
+            this.setStatus("Stopped: " + this.song.data.title);
         }
     }
 

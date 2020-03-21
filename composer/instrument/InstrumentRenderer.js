@@ -85,7 +85,7 @@ class InstrumentRenderer extends React.Component {
         const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
         this.openMenu(e, <>
             <SubMenuItem onAction={e => this.openMenuReplaceInstrument(e)}>Change Instrument</SubMenuItem>
-            <MenuItem onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</MenuItem>
+            {/*<MenuItem onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</MenuItem>*/}
             <MenuItem onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</MenuItem>
         </>)
     }
@@ -102,12 +102,12 @@ class InstrumentRenderer extends React.Component {
         instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         this.getSong().instrumentReplace(instrumentID, instrumentConfig);
     }
-    instrumentRename(e) {
-        const instrumentID = this.props.instrumentID;
-        const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
-        const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.name);
-        this.getSong().instrumentRename(instrumentID, newName);
-    }
+    // instrumentRename(e) {
+    //     const instrumentID = this.props.instrumentID;
+    //     const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
+    //     const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.name);
+    //     this.getSong().instrumentRename(instrumentID, newName);
+    // }
     instrumentRemove(e) {
         const instrumentID = this.props.instrumentID;
         this.getSong().instrumentRemove(instrumentID);

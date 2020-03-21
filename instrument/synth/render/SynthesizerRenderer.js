@@ -107,7 +107,7 @@ class SynthesizerRenderer extends React.Component {
             <SubMenuItem onAction={e => this.openMenuChangePreset(e)}>Change Preset</SubMenuItem>
             <MenuBreak />
             <SubMenuItem onAction={e => this.openMenuChange(e)}>Change Instrument</SubMenuItem>
-            <MenuItem onAction={e => this.instrumentRename(e)}>Rename Instrument</MenuItem>
+            {/*<MenuItem onAction={e => this.instrumentRename(e)}>Rename Instrument</MenuItem>*/}
             <MenuItem onAction={e => this.instrumentRemove(e)}>Remove Instrument</MenuItem>
         </>);
     }
@@ -171,13 +171,13 @@ class SynthesizerRenderer extends React.Component {
         instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         this.getSong().instrumentReplace(instrumentID, instrumentConfig);
     }
-    instrumentRename(e) {
-        const instrumentID = this.props.instrumentID;
-        const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
-        const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.title);
-        this.getSong().instrumentRename(instrumentID, newName);
-        // this.forceUpdate();
-    }
+    // instrumentRename(e) {
+    //     const instrumentID = this.props.instrumentID;
+    //     const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
+    //     const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.title);
+    //     this.getSong().instrumentRename(instrumentID, newName);
+    //     // this.forceUpdate();
+    // }
     instrumentRemove(e) {
         const instrumentID = this.props.instrumentID;
         this.getSong().instrumentRemove(instrumentID);

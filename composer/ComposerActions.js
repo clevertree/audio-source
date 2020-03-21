@@ -69,7 +69,7 @@ class ComposerActions extends ComposerMenu {
 
     async setSongName(e, newSongName=null) {
         if(newSongName === null)
-            newSongName = await this.openPromptDialog("Enter a new song name", this.song.getTitle());
+            newSongName = await this.openPromptDialog("Enter a new song name", this.song.data.title);
         this.song.songChangeName(newSongName);
         this.setStatus(`Song name updated: ${newSongName}`);
     }
@@ -80,7 +80,7 @@ class ComposerActions extends ComposerMenu {
     }
 
     songChangeStartingBPM(e, newSongBPM) {
-        this.song.songChangeStartingBPM(newSongBPM);
+        this.song.data.bpm = newSongBPM; // songChangeStartingBPM(newSongBPM);
         this.setStatus(`Song beats per minute updated: ${newSongBPM}`);
     }
 
@@ -667,16 +667,17 @@ class ComposerActions extends ComposerMenu {
         }
     }
 
-    instrumentRename(instrumentID, newInstrumentName = null) {
-        const config = this.song.getInstrumentConfig(instrumentID);
-        let oldInstrumentName = config.name;
-        if (!newInstrumentName)
-            newInstrumentName = prompt(`Change name for instrument ${instrumentID}: `, oldInstrumentName);
-        if (!newInstrumentName)
-            throw new Error("Instrument name change canceled");
-        this.song.instrumentRename(instrumentID, newInstrumentName);
-        this.setStatus(`Instrument name updated: ${newInstrumentName}`);
-    }
+    /** @deprecated **/
+    // instrumentRename(instrumentID, newInstrumentName = null) {
+    //     const config = this.song.getInstrumentConfig(instrumentID);
+    //     let oldInstrumentName = config.name;
+    //     if (!newInstrumentName)
+    //         newInstrumentName = prompt(`Change name for instrument ${instrumentID}: `, oldInstrumentName);
+    //     if (!newInstrumentName)
+    //         throw new Error("Instrument name change canceled");
+    //     this.song.instrumentRename(instrumentID, newInstrumentName);
+    //     this.setStatus(`Instrument name updated: ${newInstrumentName}`);
+    // }
 
     instrumentRemove(instrumentRemoveID = null) {
         // if (instrumentRemoveID === null)

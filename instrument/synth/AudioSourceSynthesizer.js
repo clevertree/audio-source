@@ -418,11 +418,11 @@ class AudioSourceSynthesizer {
         if(!sampleName && promptUser)
             sampleName = prompt(`Set Sample Name:`, sampleName);
         const addSampleID = this.config.samples.length;
-        this.song.instrumentReplaceParam(this.id, ['samples', addSampleID], {
+        this.config.samples[addSampleID] = {
             url: sampleURL,
             name: sampleName,
             // name: addSampleName
-        });
+        };
         await this.loadAudioSample(addSampleID);
 
         if(this.grid) await this.grid.forceUpdate();
@@ -443,54 +443,57 @@ class AudioSourceSynthesizer {
     setSamplePolyphony(sampleID, polyphonyLimit) {
         if(!Number.isInteger(polyphonyLimit))
             throw new Error("Invalid polyphony value");
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
+        this.config.samples[sampleID].polyphony = polyphonyLimit;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'polyphony'], polyphonyLimit);
     }
 
     async setSampleURL(sampleID, newSampleURL) {
         newSampleURL = new URL(newSampleURL) + '';
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
+        this.config.samples[sampleID].url = newSampleURL;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'url'], newSampleURL);
         await this.loadAudioSample(sampleID);
     }
 
     async setSampleName(sampleID, sampleName) {
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'name'], sampleName);
+        this.config.samples[sampleID].name = sampleName;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'name'], sampleName);
     }
 
     setSampleMixer(sampleID, newMixerValue) {
         if(!Number.isInteger(newMixerValue))
             throw new Error("Invalid mixer value");
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
+        this.config.samples[sampleID].mixer = newMixerValue;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'mixer'], newMixerValue);
     }
 
     setSampleDetune(sampleID, newDetuneValue) {
         if(!Number.isInteger(newDetuneValue))
             throw new Error("Invalid detune value");
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
+        this.config.samples[sampleID].detune = newDetuneValue;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'detune'], newDetuneValue);
     }
 
     setSampleKeyRoot(sampleID, newKeyRootValue) {
-        if(!newKeyRootValue)
-            this.song.deleteInstrumentParam(this.id, ['samples', sampleID, 'root']);
-        else
-            this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'root'], newKeyRootValue);
+        if(!newKeyRootValue)    delete this.config.samples[sampleID].root;
+        else                    this.config.samples[sampleID].root = newKeyRootValue;
     }
 
     setSampleKeyAlias(sampleID, newKeyAliasValue) {
         if(!newKeyAliasValue)
             throw new Error("Invalid keyAlias value");
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
+        this.config.samples[sampleID].keyAlias = newKeyAliasValue;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'keyAlias'], newKeyAliasValue);
     }
 
     setSampleLoop(sampleID, newLoopValue) {
         if(typeof newLoopValue !== 'boolean')
             throw new Error("Invalid loop value");
-        this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
+        this.config.samples[sampleID].loop = newLoopValue;
+        // this.song.instrumentReplaceParam(this.id, ['samples', sampleID, 'loop'], newLoopValue);
     }
 
     async removeSample(sampleID) {
-        this.song.deleteInstrumentParam(this.id, ['samples', sampleID]);
-        if(this.grid) await this.grid.forceUpdate();
-        else this.forceUpdate();
+        this.config.samples.splice(sampleID, 1);
     }
 
 
@@ -547,7 +550,7 @@ class AudioSourceSynthesizer {
     }
 
     instrumentRename(newInstrumentName) {
-        return this.song.instrumentRename(this.id, newInstrumentName);
+        return this.config.title = newInstrumentName; // song.instrumentRename(this.id, newInstrumentName);
     }
 
     async setPreset(presetURL) {

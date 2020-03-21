@@ -10,16 +10,17 @@ export class ConfigListener {
 
 
     get(obj, prop) {
-        switch(prop) {
+        switch(prop) { // TODO: support all common methods
             case TARGET: return obj;
             case 'indexOf': return (v,b,e) => obj.indexOf(v,b,e);
             case 'splice': return (number, deleteCount, ...newValues) => this.splice(obj, this.path.concat(number), number, deleteCount, ...newValues);
+            default:
+                const path = this.path.concat(prop);
+                if(typeof obj[prop] === 'object') {
+                    return new Proxy(obj[prop], new ConfigListener(this.song, path));
+                }
+                return obj[prop];
         }
-        const path = this.path.concat(prop);
-        if(typeof obj[prop] === 'object') {
-            return new Proxy(obj[prop], new ConfigListener(this.song, path));
-        }
-        return obj[prop];
     }
 
     set(obj, prop, value) {

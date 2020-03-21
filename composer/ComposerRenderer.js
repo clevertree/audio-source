@@ -66,7 +66,7 @@ class ComposerRenderer extends React.Component {
 
     async setCurrentSong(song) {
         if(this.song) {
-            this.setStatus("Unloading song: " + this.song.getTitle());
+            this.setStatus("Unloading song: " + this.song.data.title);
             if(this.song.isPlaying) {
                 this.song.stopPlayback();
             }
@@ -74,15 +74,15 @@ class ComposerRenderer extends React.Component {
             // TODO: unload song?
         }
         this.song = song;
-        const timeDivision = song.getTimeDivision();
+        const timeDivision = song.data.timeDivision;
         // this.state.tracker.trackerSegmentLengthInTicks = null;
 
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
-        this.setStatus("Initializing song: " + song.getTitle());
+        this.setStatus("Initializing song: " + song.data.title);
         await this.song.init(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.getTitle());
+        this.setStatus("Loaded song: " + song.data.title);
         this.setState({
             songLengthInTicks: song.getSongLengthInTicks(),
             songLength: song.getSongLengthInSeconds(),
@@ -220,7 +220,7 @@ class ComposerRenderer extends React.Component {
                                     onAction={(e) => this.setSongName(e)}
                                     ref={ref => this.fieldSongVersion = ref}
                                     title="Song Name"
-                                    children={this.song ? this.song.getTitle() : "no song loaded"}
+                                    children={this.song ? this.song.data.title : "no song loaded"}
                                 />
                             </Form>
 
@@ -230,7 +230,7 @@ class ComposerRenderer extends React.Component {
                                     onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
                                     ref={ref => this.fieldSongVersion = ref}
                                     title="Song Version"
-                                    children={this.song ? this.song.getVersion() : "0.0.0"}
+                                    children={this.song ? this.song.data.version : "0.0.0"}
                                 />
                             </Form>
                         </Panel>
@@ -395,9 +395,9 @@ class ComposerRenderer extends React.Component {
     // TODO: AudioSourceComposerSongFormRenderer()
     /** @deprecated **/
     updateForms() {
-        this.fieldSongName.value = this.song.getTitle();
-        this.fieldSongVersion.value = this.song.getVersion();
-        this.fieldSongBPM.value = this.song.getStartingBeatsPerMinute();
+        this.fieldSongName.value = this.song.data.title;
+        this.fieldSongVersion.value = this.song.data.version;
+        this.fieldSongBPM.value = this.song.data.bpm;
 
         this.fieldSongVolume.value = this.song.getVolumeValue();
 
@@ -414,7 +414,7 @@ class ComposerRenderer extends React.Component {
 
         this.fieldInstructionDelete.disabled = this.state.selectedIndices.length === 0;
         if (!this.fieldTrackerRowLength.value)
-            this.fieldTrackerRowLength.setValue(this.song.getTimeDivision());
+            this.fieldTrackerRowLength.setValue(this.song.data.timeDivision);
         // this.fieldTrackerRowLength.value = this.fieldTrackerRowLength.value; // this.song.getSongTimeDivision();
         if (!this.fieldInstructionDuration.value && this.fieldTrackerRowLength.value)
             this.fieldInstructionDuration.setValue(parseInt(this.fieldTrackerRowLength.value));

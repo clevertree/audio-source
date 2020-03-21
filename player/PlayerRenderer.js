@@ -127,7 +127,7 @@ class PlayerRenderer extends React.Component {
                                     className="name"
                                     onAction={(e) => this.setSongName(e)}
                                     title="Song Name"
-                                    children={this.song ? this.song.getTitle() : "no song loaded"}
+                                    children={this.song ? this.song.data.title : "no song loaded"}
                                 />
                             </Form>
 
@@ -137,7 +137,7 @@ class PlayerRenderer extends React.Component {
                                     onAction={(e) => this.setSongVersion(e)}
                                     ref={ref => this.fieldSongVersion = ref}
                                     title="Song Version"
-                                    children={this.song ? this.song.getVersion() : "0.0.0"}
+                                    children={this.song ? this.song.data.version : "0.0.0"}
                                 />
                             </Form>
 

@@ -173,8 +173,8 @@ class Player extends PlayerActions {
 
             case 'song:play':
                 this.containerElm.classList.add('playing');
-                if(e.detail.promise) {
-                    await e.detail.promise;
+                if(e.playback) {
+                    await e.playback.waitForPlaybackToEnd();
                     this.containerElm.classList.remove('playing');
                 }
 

@@ -13,7 +13,7 @@ class SongPlayback {
         this.subGroups = [];
         this.startTime = startTime;
         // this.lastRowPlaybackTime = 0;
-        this.trackerQuantizationInTicks = song.getTimeDivision();
+        this.trackerQuantizationInTicks = song.data.timeDivision;
         this.isActive = false;
         this.isPaused = false;
         // this.activeGroups =

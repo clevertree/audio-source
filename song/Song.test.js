@@ -17,16 +17,16 @@ class SongTest {
   constructor() {
   }
 
-  async test() {
-    // console.info("Test Started: ", this.constructor.name, __filename);
-    await this.testStorage();
-    await this.testSongClass();
+  test() {
+    console.info("Test Started: ", this.constructor.name, __filename);
+    this.testStorage();
+    const song = this.testSongClass();
     // await this.testValues();
-    // console.info("Test Complete: ", this.constructor.name);
+    console.info("Test Complete: ", this.constructor.name, song.data);
   }
 
 
-  async testStorage() {
+  testStorage() {
     const s = new Storage();
     const songData = s.generateDefaultSong();
 
@@ -44,9 +44,9 @@ class SongTest {
   //
   // }
 
-  async testSongClass() {
+  testSongClass() {
     const song = new Song();
-    song.setTitle('test');
+    song.data.title = 'test';
     // await song.loadSongData({});
 
 
@@ -79,13 +79,13 @@ class SongTest {
     for(let i=0; i<textNotes.insert.length; i++) {
       const [pos, insertNote] = textNotes.insert[i];
       const index = song.instructionInsertAtIndex(testGroup, root.length, insertNote);
-      const stats = song.getInstructionIterator(testGroup).seekToIndex(index);
+      const stats = song.instructionGetIterator(testGroup).seekToIndex(index);
       expect(stats.positionTicks).toBe(pos);
     }
     for(let i=0; i<textNotes.position.length; i++) {
       const [pos, insertNote] = textNotes.position[i];
       const index = song.instructionInsertAtPosition(testGroup, pos, insertNote);
-      const stats = song.getInstructionIterator(testGroup).seekToIndex(index);
+      const stats = song.instructionGetIterator(testGroup).seekToIndex(index);
       expect(stats.positionTicks).toBe(pos);
     }
 
@@ -93,13 +93,13 @@ class SongTest {
     // Test Get Instructions
 
     [1,2].forEach(i => {
-      const testInstruction = song.getInstruction(testGroup, i);
-      console.assert(song.findInstructionIndex(testGroup, testInstruction) === i, 'instructionFindIndex');
+      const testInstruction = song.instructionGetByIndex(testGroup, i);
+      console.assert(song.instructionIndexOf(testGroup, testInstruction) === i, 'instructionFindIndex');
     });
 
     // Test Iterator
     let currentIndex = 0;
-    let iterator = song.getInstructionIterator(testGroup);
+    let iterator = song.instructionGetIterator(testGroup);
     let instruction, instructionList, positionInTicks=0, playbackTime=0;
     while(instruction = iterator.nextInstruction()) {
       positionInTicks += instruction.deltaDuration;
@@ -131,11 +131,12 @@ class SongTest {
 
 
     // Delete Instructions
-    while(root.length > 0)
+    while(root.length > 5)
       song.instructionDeleteAtIndex(testGroup, 0);
 
 
     // console.assert(r.getSongPositionFromTicks() === 0, "getSongPositionInSeconds");
     // console.assert(r.getSongPositionInTicks() === 0, "getSongPositionInTicks");
+    return song;
   }
 }

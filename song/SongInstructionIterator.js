@@ -18,8 +18,8 @@ class SongInstructionIterator {
 
         this.instructionList = song.data.instructions[groupName];
         this.stats = Object.assign({
-            bpm: song.getStartingBeatsPerMinute(),
-            timeDivision: song.getStartingBeatsPerMinute(),
+            bpm: song.data.bpm,
+            timeDivision: song.data.bpm,
         }, stats);
         this.nextQuantizationBreakInTicks = 0;
         // this.lastInstructionGroupPositionInTicks = 0;

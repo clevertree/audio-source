@@ -117,13 +117,13 @@ class GMESongFile {
             version: 'auto',
             created: new Date().getTime(),
             timeDivision: timeDivision,
-            beatsPerMinute: beatsPerMinute,
-            beatsPerMeasure: 4,
-            root: 'root',
+            bpm: beatsPerMinute,
+            // beatsPerMeasure: 4,
+            rootGroup: 'root',
             instruments: [
                 {
-                    "className": "GMEPlayer",
-                    spcURL: filepath
+                    "className": "GMEPlayerSynthesizer",
+                    fileURL: filepath
                 }
             ],
             instructions: {

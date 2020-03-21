@@ -164,7 +164,7 @@ class Composer extends ComposerActions {
     async saveState(e) {
         // await this.saveSongToMemory(e);
         const state = {// TODO: auto-state form fields
-            songUUID: this.song.getUUID(),
+            songUUID: this.song.data.uuid,
             // groupName: this.state.tracker.currentGroup,
             // currentRowSegmentID: this.trackerElm.currentRowSegmentID,
             volume: this.state.volume,
@@ -297,7 +297,7 @@ class Composer extends ComposerActions {
                 break;
 
             case 'song:loaded':
-                // this.trackerElm.renderDuration = this.song.getTimeDivision();
+                // this.trackerElm.renderDuration = this.song.data.timeDivision;
                 break;
             case 'song:play':
                 this.setProps({playing: true});

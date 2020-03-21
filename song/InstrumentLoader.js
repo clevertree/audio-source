@@ -1,7 +1,7 @@
 import AudioSourceSynthesizer from "../instrument/synth/AudioSourceSynthesizer";
-import SPCPlayerSynthesizer from "../instrument/chip/SPCPlayerSynthesizer";
-import GMEPlayerSynthesizer from "chip-player-js-lib/src/players/GMEPlayer";
-import {ConfigListener} from "./ConfigListener";
+// import SPCPlayerSynthesizer from "../instrument/chip/SPCPlayerSynthesizer";
+import GMEPlayerSynthesizer from "../instrument/chip/GMEPlayerSynthesizer";
+// import {ConfigListener} from "./ConfigListener";
 
 class InstrumentLoader {
     constructor(song) {
@@ -76,7 +76,7 @@ class InstrumentLoader {
 InstrumentLoader.registeredInstrumentClasses = [];
 
 InstrumentLoader.addInstrumentClass(AudioSourceSynthesizer, 'Audio Source Synthesizer');
-InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
+// InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
 InstrumentLoader.addInstrumentClass(GMEPlayerSynthesizer, 'Game Music Player');
 
 export default InstrumentLoader;
