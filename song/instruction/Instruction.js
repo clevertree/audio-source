@@ -1,4 +1,4 @@
-class SongInstruction {
+class Instruction {
     constructor(instructionData = [0]) {
         this.data = instructionData;
         // this.index = index;
@@ -11,7 +11,7 @@ class SongInstruction {
     }
 
     set deltaDuration(newDeltaDuration) {
-        this.data[0] = SongInstruction.parseDurationAsTicks(newDeltaDuration);
+        this.data[0] = Instruction.parseDurationAsTicks(newDeltaDuration);
     }
 
     get command() {
@@ -45,7 +45,7 @@ class SongInstruction {
     }
 
     getDurationAsTicks(timeDivision) {
-        return SongInstruction.parseDurationAsTicks(this.duration, timeDivision);
+        return Instruction.parseDurationAsTicks(this.duration, timeDivision);
     }
 
     get velocity() {
@@ -79,7 +79,7 @@ class SongInstruction {
     }
 
     static parse(instruction) {
-        if (instruction instanceof SongInstruction)
+        if (instruction instanceof Instruction)
             return instruction;
 
         if (typeof instruction === 'number')
@@ -96,7 +96,7 @@ class SongInstruction {
         if (typeof instruction[0] === 'string')
             instruction.unshift(0);
 
-        return new SongInstruction(instruction);
+        return new Instruction(instruction);
     }
 
     static parseDurationAsTicks(durationString, timeDivision) {
@@ -114,4 +114,4 @@ class SongInstruction {
 }
 
 
-export default SongInstruction;
+export default Instruction;

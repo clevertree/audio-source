@@ -1,6 +1,6 @@
-import AudioSourceSynthesizer from "../instrument/synth/AudioSourceSynthesizer";
-// import SPCPlayerSynthesizer from "../instrument/chip/SPCPlayerSynthesizer";
-import GMEPlayerSynthesizer from "../instrument/chip/GMEPlayerSynthesizer";
+import AudioSourceSynthesizer from "../../instruments/synth/AudioSourceSynthesizer";
+// import SPCPlayerSynthesizer from "../instruments/chip/SPCPlayerSynthesizer";
+import GMEPlayerSynthesizer from "../../instruments/chip/GMEPlayerSynthesizer";
 // import {ConfigListener} from "./ConfigListener";
 
 class InstrumentLoader {
@@ -11,7 +11,7 @@ class InstrumentLoader {
     loadInstrumentInstance(instrumentID) {
         const config = this.song.getInstrumentConfig(instrumentID);
         if (!config.className)
-            throw new Error("Invalid instrument class");
+            throw new Error("Invalid instruments class");
         let instrumentClassName = config.className;
         // let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
 

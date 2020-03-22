@@ -1,5 +1,5 @@
 import Song from "../song/Song";
-import InstrumentLoader from "../song/InstrumentLoader";
+import InstrumentLoader from "../song/instrument/InstrumentLoader";
 
 import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";
@@ -12,7 +12,7 @@ class ComposerActions extends ComposerMenu {
 
     getDefaultInstrumentClass() {
         return 'AudioSourceSynthesizer';
-        // return new URL('../instrument/audio-source-synthesizer.js', thisModule.src);
+        // return new URL('../instruments/audio-source-synthesizer.js', thisModule.src);
     }
 
     setStatus(newStatus) {
@@ -386,7 +386,7 @@ class ComposerActions extends ComposerMenu {
         if (!duration)
             duration = parseFloat(this.fieldInstructionDuration.value);
         if (promptUser)
-            duration = parseInt(prompt("Set custom duration in ticks:", duration));
+            duration = parseInt(prompt("Set custom duration in ticks:", duration), 10);
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
         for (let i = 0; i < selectedIndices.length; i++) {
@@ -439,7 +439,7 @@ class ComposerActions extends ComposerMenu {
         //     await this.selectIndex(newCursor.index, clearSelection, toggleValue);
         //     const instruction = newCursor.instructionFind(this.song, this.state.tracker.currentGroup);
         //     this.fieldInstructionCommand.value = instruction.command;
-        //     this.fieldInstructionInstrument.value = instruction.instrument;
+        //     this.fieldInstructionInstrument.value = instruction.instruments;
         //     this.fieldInstructionVelocity.value = instruction.velocity;
         //     this.fieldInstructionDuration.value = instruction.duration;
         // } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
@@ -672,7 +672,7 @@ class ComposerActions extends ComposerMenu {
     //     const config = this.song.getInstrumentConfig(instrumentID);
     //     let oldInstrumentName = config.name;
     //     if (!newInstrumentName)
-    //         newInstrumentName = prompt(`Change name for instrument ${instrumentID}: `, oldInstrumentName);
+    //         newInstrumentName = prompt(`Change name for instruments ${instrumentID}: `, oldInstrumentName);
     //     if (!newInstrumentName)
     //         throw new Error("Instrument name change canceled");
     //     this.song.instrumentRename(instrumentID, newInstrumentName);

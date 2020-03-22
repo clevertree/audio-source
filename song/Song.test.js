@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import SongInstruction from "./SongInstruction";
+import Instruction from "./instruction/Instruction";
 import Storage from "./Storage";
 import Song from "./Song";
 
@@ -17,10 +17,10 @@ class SongTest {
   constructor() {
   }
 
-  test() {
+  async test() {
     console.info("Test Started: ", this.constructor.name, __filename);
     this.testStorage();
-    const song = this.testSongClass();
+    const song = await this.testSongClass();
     // await this.testValues();
     console.info("Test Complete: ", this.constructor.name, song.data);
   }
@@ -44,7 +44,7 @@ class SongTest {
   //
   // }
 
-  testSongClass() {
+  async testSongClass() {
     const song = new Song();
     song.data.title = 'test';
     // await song.loadSongData({});
@@ -129,6 +129,7 @@ class SongTest {
     if(song.getSongLengthInSeconds() === 0) throw new Error("getSongLengthInSeconds()");
     // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
+    await song.play({context: {}});
 
     // Delete Instructions
     while(root.length > 5)

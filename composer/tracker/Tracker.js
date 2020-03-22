@@ -6,7 +6,7 @@ import {
     TrackerRow
 } from "./";
 import {Div, Panel} from "../../components/";
-import SongInstruction from "../../song/SongInstruction";
+import Instruction from "../../song/instruction/Instruction";
 
 import "./assets/Tracker.css";
 
@@ -194,7 +194,7 @@ class Tracker extends React.Component {
         const composer = this.props.composer;
         if (!command)
             command = composer.refs.fieldInstructionCommand.value;
-        let newInstruction = new SongInstruction();
+        let newInstruction = new Instruction();
 
         if (composer.refs.fieldInstructionInstrument.value || composer.refs.fieldInstructionInstrument.value === 0)
             newInstruction.instrument = parseInt(composer.refs.fieldInstructionInstrument.value);

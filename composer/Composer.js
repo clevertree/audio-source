@@ -75,11 +75,11 @@ class Composer extends ComposerActions {
         //     'log'
         // ], this.onSongEvent);
         // this.addEventHandler([
-        //         'instrument:instance',
-        //         'instrument:library',
-        //         'instrument:modified',
-        //         'instrument:added',
-        //         'instrument:removed'],
+        //         'instruments:instance',
+        //         'instruments:library',
+        //         'instruments:modified',
+        //         'instruments:added',
+        //         'instruments:removed'],
         //     e => this.onSongEvent(e), document);
 
         this.focus();
@@ -319,13 +319,13 @@ class Composer extends ComposerActions {
                 this.setProps({playing: false, paused: false});
                 break;
 
-            case 'instrument:instance':
-            case 'instrument:added':
-            case 'instrument:removed':
+            case 'instruments:instance':
+            case 'instruments:added':
+            case 'instruments:removed':
                 this.panelInstruments && this.panelInstruments.forceUpdate();
                 break;
 
-            case 'instrument:modified':
+            case 'instruments:modified':
                 this.panelInstruments && this.panelInstruments.forceUpdate();
                 // this.renderInstrument(e.detail.instrumentID);
 
@@ -337,7 +337,7 @@ class Composer extends ComposerActions {
                 clearTimeout(this.timeouts.saveSongToMemory);
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                 break;
-            case 'instrument:library':
+            case 'instruments:library':
 //                 console.log(e.type);
                 // TODO: this.instruments.render();
                 // this.renderInstruments();

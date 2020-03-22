@@ -40,7 +40,7 @@ class Values {
             const instrumentList = song.data.instruments;
             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                 const instrumentInfo = instrumentList[instrumentID] || {title: "No Instrument Loaded"};
-                // const instrument = this.renderer.getInstrument(instrumentID);
+                // const instruments = this.renderer.getInstrument(instrumentID);
                 const result = callback(instrumentID, this.formatInstrumentID(instrumentID)
                     + ': ' + (instrumentInfo.title ? instrumentInfo.title : instrumentInfo.className));
                 if(!addResult(results, result)) return results;
@@ -233,9 +233,9 @@ class Values {
 
     parsePlaybackPosition(formattedSeconds) {
         const parts = formattedSeconds.toString().split(':');
-        return (parseInt(parts[0]) * 60)
-            + (parseInt(parts[1]))
-            + (parseInt(parts[2]) / 1000);
+        return (parseInt(parts[0], 10) * 60)
+            + (parseInt(parts[1], 10))
+            + (parseInt(parts[2], 10) / 1000);
     }
 }
 

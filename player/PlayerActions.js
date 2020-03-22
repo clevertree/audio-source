@@ -14,7 +14,7 @@ class PlayerActions extends PlayerMenu {
 
 
     // getDefaultInstrumentURL() {
-    //     return findThisScript()[0].basePath + 'instrument/audio-source-synthesizer.js';
+    //     return findThisScript()[0].basePath + 'instruments/audio-source-synthesizer.js';
     // }
 
 

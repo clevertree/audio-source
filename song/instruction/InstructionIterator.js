@@ -1,6 +1,6 @@
-import SongInstruction from "./SongInstruction";
+import Instruction from "./Instruction";
 
-class SongInstructionIterator {
+class InstructionIterator {
     constructor(song, groupName, stats = {}) {
         if (!song.data.instructions[groupName])
             throw new Error("Song group not found: " + groupName);
@@ -56,7 +56,7 @@ class SongInstructionIterator {
 
 
     getInstruction(index) {
-        return index >= this.instructionList.length ? null : new SongInstruction(this.instructionList[index]);
+        return index >= this.instructionList.length ? null : new Instruction(this.instructionList[index]);
     }
 
     currentInstruction() {
@@ -94,4 +94,4 @@ class SongInstructionIterator {
     }
 }
 
-export default SongInstructionIterator;
+export default InstructionIterator;

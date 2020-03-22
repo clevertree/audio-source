@@ -4,7 +4,7 @@ import {MenuItem, SubMenuItem, MenuBreak} from "../components";
 
 import Storage from "../song/Storage";
 // import InputSelect from "../components/input-select/InputSelect";
-import InstrumentLoader from "../song/InstrumentLoader";
+import InstrumentLoader from "../song/instrument/InstrumentLoader";
 import ComposerRenderer from "./ComposerRenderer";
 
 import "./assets/Composer.css";

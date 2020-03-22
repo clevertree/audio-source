@@ -11,7 +11,7 @@ import {
 } from "../../../components";
 
 import {Library} from "../../../song";
-import InstrumentLoader from "../../../song/InstrumentLoader";
+import InstrumentLoader from "../../../song/instrument/InstrumentLoader";
 
 import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 
@@ -49,7 +49,7 @@ class SynthesizerRenderer extends React.Component {
 
 
 
-        // const instrument = this;
+        // const instruments = this;
         // const instrumentID = typeof this.id !== "undefined" ? this.id : -1;
         // const config = song.getInstrumentConfig(instrumentID);
 
@@ -174,7 +174,7 @@ class SynthesizerRenderer extends React.Component {
     // instrumentRename(e) {
     //     const instrumentID = this.props.instrumentID;
     //     const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
-    //     const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.title);
+    //     const newName = window.prompt(`Rename instruments (${instrumentID}): `, instrumentConfig.title);
     //     this.getSong().instrumentRename(instrumentID, newName);
     //     // this.forceUpdate();
     // }
@@ -207,7 +207,7 @@ class SynthesizerRenderer extends React.Component {
         //
         //     Div.createElement('header', () => [
         //         Button.createElement('title', titleHTML, e => this.toggleContainer(e)),
-        //         this.selectChangePreset = new InputSelect('instrument-preset',
+        //         this.selectChangePreset = new InputSelect('instruments-preset',
         //             (selectElm) => [
         //             ],
         //             (e, presetURL) => this.setPreset(presetURL),
@@ -231,17 +231,17 @@ class SynthesizerRenderer extends React.Component {
         //         // )
         //     ]),
         //
-        //     // this.buttonToggle = Button.createElement('instrument-id',
+        //     // this.buttonToggle = Button.createElement('instruments-id',
         //     //     e => this.form.classList.toggle('selected'),
         //     //     instrumentIDHTML + ':'
         //     // ),
-        //     // this.textName = InputText.createElement('instrument-name',
+        //     // this.textName = InputText.createElement('instruments-name',
         //     //     (e, newInstrumentName) => this.stateRename(newInstrumentName),
         //     //     'Instrument Name',
         //     //     this.config.name || '',
         //     //     'Unnamed'
         //     // ),
-        //     // Button.createElement('instrument-remove',
+        //     // Button.createElement('instruments-remove',
         //     //     (e) => this.remove(e, instrumentID),
         //     //     Icon.createIcon('delete'),
         //     //     'Remove Instrument'),

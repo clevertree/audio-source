@@ -7,7 +7,7 @@ import {
     Button,
 } from "../../components";
 
-import InstrumentLoader from "../../song/InstrumentLoader";
+import InstrumentLoader from "../../song/instrument/InstrumentLoader";
 
 // import Library from "../../song/Library";
 import "./assets/InstrumentRenderer.css";
@@ -105,7 +105,7 @@ class InstrumentRenderer extends React.Component {
     // instrumentRename(e) {
     //     const instrumentID = this.props.instrumentID;
     //     const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
-    //     const newName = window.prompt(`Rename instrument (${instrumentID}): `, instrumentConfig.name);
+    //     const newName = window.prompt(`Rename instruments (${instrumentID}): `, instrumentConfig.name);
     //     this.getSong().instrumentRename(instrumentID, newName);
     // }
     instrumentRemove(e) {

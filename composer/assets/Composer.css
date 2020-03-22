@@ -97,10 +97,10 @@ asc-form[key=tracker-octave]           asui-input-select.octave            selec
 asui-div[key=instruments]  asui-input-select.instrument-add-url       select      { width: 120px; }
 asui-div[key=instruments]  asui-input-select.instrument-preset       select      { width: 120px; }
 
-/** Add instrument Form **/
+/** Add instruments Form **/
 
-/*asui-div.asc-container  form.asc-form-song-add-instrument                                    {!* height: 54px; *!}*/
-/*asui-div.asc-container  form.asc-form-song-add-instrument select.instrumentURL            {min-width: 129px;!* padding: 1em; *!}*/
+/*asui-div.asc-container  form.asc-form-song-add-instruments                                    {!* height: 54px; *!}*/
+/*asui-div.asc-container  form.asc-form-song-add-instruments select.instrumentURL            {min-width: 129px;!* padding: 1em; *!}*/
 
 
 /*@media only screen and (min-width: 1000px) {*/

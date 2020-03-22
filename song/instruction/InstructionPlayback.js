@@ -1,4 +1,84 @@
-class SongPlayback {
+class InstructionPlayback {
+    constructor(destination, song, groupName, startTime = null, seekLength = 1000) {
+        if (!destination || !destination.context)
+            throw new Error("Invalid destination");
+        startTime = startTime || destination.context.currentTime;
+
+        this.audioContext = destination.context;
+        this.song = song;
+        // this.groupName = groupName;
+        // this.seekLength = seekLength;
+        this.subGroups = [];
+        this.startGroupPlayback(destination, groupName, startTime);
+        setInterval(() => this.renderPlayback(), seekLength);
+        this.renderPlayback();
+    }
+
+    startGroupPlayback(destination, groupName, startTime) {
+        const iterator = this.song.instructionGetIterator(groupName);
+        this.subGroups.push([
+            startTime,
+            destination,
+            iterator
+        ]);
+        this.song.dispatchEvent(new CustomEvent('group:play', {
+            detail: {
+                playback: this,
+                iterator
+            }
+        }));
+    }
+
+    async awaitPlaybackReachedEnd() {
+        // await this.wait(5);
+    }
+
+//     async wait(waitTimeInSeconds) {
+// //             console.info("Waiting... ", waitTimeInSeconds);
+//         return await new Promise((resolve, reject) => {
+//             this.stopPlaybackCallback = () => {
+//                 console.info("Group aborted: ", this.groupName);
+//                 this.isActive = false;
+//                 resolve(false);
+//             };
+//             setTimeout(() => resolve(true), waitTimeInSeconds * 1000);
+//         });
+//     }
+
+    renderPlayback() {
+        const audioContext = this.audioContext;
+        for(let i=0; i<this.subGroups.length; i++) {
+            const [startTime, destination, iterator] = this.subGroups[i];
+            const currentGroupPosition = audioContext.currentTime - startTime;
+
+            while(true) {
+                if(iterator.hasReachedEnd()
+                    || iterator.positionSeconds > currentGroupPosition)
+                    break;
+
+                const instruction = iterator.nextInstruction();
+                const noteStartTime = startTime + iterator.playbackTime; // Group start time equals current group's start + playback times
+                if (instruction.isGroupCommand()) {
+                    let subGroupName = instruction.getGroupFromCommand();
+                    if (subGroupName === iterator.groupName) { // TODO group stack
+                        console.error("Recursive group call. Skipping group '" + subGroupName + "'");
+                        continue;
+                    }
+
+
+                    this.startGroupPlayback(destination, subGroupName, noteStartTime);
+
+                } else {
+                    this.song.playInstruction(destination, instruction, noteStartTime, iterator.groupName);
+                }
+            }
+        }
+    }
+}
+
+
+
+class InstructionPlayback2 {
     constructor(destination, song, groupName, startTime = null, seekLength = 1) {
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
@@ -43,6 +123,7 @@ class SongPlayback {
         });
     }
 
+    /** @deprecated **/
     async playGroup() {
         const audioContext = this.audioContext;
         this.isActive = true;
@@ -106,7 +187,7 @@ class SongPlayback {
 
         if (stopInstruments) {
 
-            // Stop all instrument playback (if supported)
+            // Stop all instruments playback (if supported)
             const instrumentList = this.song.getInstrumentList();
             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
                 const instrument = await this.song.getInstrument(instrumentID, false);
@@ -152,9 +233,9 @@ class SongPlayback {
                     continue;
                 }
 
-                const groupPlayback = new SongPlayback(destination, this.song, subGroupName, audioContext.startTime - noteStartTime);
+                const groupPlayback = new InstructionPlayback(destination, this.song, subGroupName, audioContext.startTime - noteStartTime);
                 this.subGroups.push(groupPlayback);
-                groupPlayback.playGroup();
+                groupPlayback.playGroup(); // TODO: ugly
 
             } else {
                 this.song.playInstruction(destination, instruction, noteStartTime, this.groupName);
@@ -174,4 +255,4 @@ class SongPlayback {
     }
 }
 
-export default SongPlayback;
+export default InstructionPlayback;

@@ -9,7 +9,7 @@ import Footer from "./footer/Footer";
 import InstrumentRenderer from "./instrument/InstrumentRenderer";
 // import InputSelect from "../components/input-select/InputSelect";
 import Tracker from "./tracker/Tracker";
-// import InstrumentLoader from "../instrument/InstrumentLoader";
+// import InstrumentLoader from "../instruments/InstrumentLoader";
 
 import "./assets/Composer.css";
 import TrackerGroupsPanel from "./tracker/panel/TrackerGroupsPanel";
@@ -253,7 +253,7 @@ class ComposerRenderer extends React.Component {
                                            className="instrument-add"
                                            onAction={e => this.openMenuSelectAvailableInstrument(e, instrumentClass => {
                                                this.instrumentAdd(instrumentClass)
-                                           }, 'Add instrument ')}
+                                           }, 'Add instruments ')}
                                            title="Add Instrument"
                                        >Select...</Button>
                                    </Form>
@@ -267,7 +267,7 @@ class ComposerRenderer extends React.Component {
                                     arrow={'▼'}
                                     // className="command"
                                     onAction={e => this.openMenuEditInsert(e)}
-                                    // // TODO: filter by selected instrument
+                                    // // TODO: filter by selected instruments
                                 >C4</Button>
                             </Form>
                             <Form className="instruction-insert" title="Add">
@@ -292,7 +292,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="instruction-instrument" title="Instrument">
                                 <Button
                                     arrow={'▼'}
-                                    // className="instrument-instrument"
+                                    // className="instruments-instruments"
                                     onAction={e => this.openMenuEditSetInstrument(e)}
                                     title="Song Instruments"
                                 >Select</Button>
@@ -342,7 +342,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="tracker-instrument" title="Instrument">
                                 <Button
                                     arrow={'▼'}
-                                    // className="tracker-instrument"
+                                    // className="tracker-instruments"
                                     onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}
                                     title="Filter by Tracker Instrument"
                                 >Any</Button>

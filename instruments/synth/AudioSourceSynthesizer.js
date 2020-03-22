@@ -546,7 +546,7 @@ class AudioSourceSynthesizer {
 
     instrumentRemove() {
         this.song.instrumentRemove(this.id);
-        // document.dispatchEvent(new CustomEvent('instrument:remove', this));
+        // document.dispatchEvent(new CustomEvent('instruments:remove', this));
     }
 
     instrumentRename(newInstrumentName) {
