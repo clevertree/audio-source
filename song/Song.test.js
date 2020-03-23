@@ -19,18 +19,18 @@ class SongTest {
 
   async test() {
     console.info("Test Started: ", this.constructor.name, __filename);
-    this.testStorage();
+    // this.testStorage();
     const song = await this.testSongClass();
     // await this.testValues();
     console.info("Test Complete: ", this.constructor.name, song.data);
   }
 
 
-  testStorage() {
-    const s = new Storage();
-    const songData = s.generateDefaultSong();
-
-  }
+  // testStorage() {
+  //   const s = new Storage();
+  //   const songData = s.generateDefaultSong();
+  //
+  // }
 
   // async testValues() {
   //     const s = new Song();
@@ -50,7 +50,7 @@ class SongTest {
     // await song.loadSongData({});
 
 
-    const testGroup = song.getRootGroup();
+    const testGroup = song.getStartGroup();
     const root = song.data.instructions.root;
 
     // Insert Instructions

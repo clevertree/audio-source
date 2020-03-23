@@ -1,6 +1,8 @@
 import AudioSourceSynthesizer from "../../instruments/synth/AudioSourceSynthesizer";
 // import SPCPlayerSynthesizer from "../instruments/chip/SPCPlayerSynthesizer";
-import GMEPlayerSynthesizer from "../../instruments/chip/GMEPlayerSynthesizer";
+import GMEPlayerSynthesizer from "../../instruments/gme/GMEPlayerSynthesizer";
+import GMEPlayerSynthesizerRenderer from "../../instruments/gme/GMEPlayerSynthesizerRenderer";
+import AudioSourceSynthesizerRenderer from "../../instruments/synth/render/AudioSourceSynthesizerRenderer";
 // import {ConfigListener} from "./ConfigListener";
 
 class InstrumentLoader {
@@ -21,14 +23,14 @@ class InstrumentLoader {
         // const concatPath = (path) => ['instruments', instrumentID].concat(path);
 
 
-        const {classObject} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        const {classInstrument} = InstrumentLoader.getInstrumentClass(instrumentClassName);
         const props = {
             config,
             instrumentID,
             // updateConfig: (path=[], newValue) => this.song.updateDataByPath(concatPath(path), newValue),
             // spliceConfig: (path=[], deleteCount, ...newValues) => this.song.spliceDataByPath(concatPath(path), deleteCount, ...newValues),
         };
-        return new classObject(props);
+        return new classInstrument(props);
     }
 
 
@@ -52,11 +54,11 @@ class InstrumentLoader {
     }
 
 
-    static addInstrumentClass(classObject, title=null) {
-        const className = classObject.name;
+    static addInstrumentClass(classInstrument, classRenderer=null, title=null) {
+        const className = classInstrument.name;
         const classes = InstrumentLoader.registeredInstrumentClasses;
-        title = title || classObject.name;
-        classes.push({classObject, className, title})
+        title = title || classInstrument.name;
+        classes.push({classInstrument, classRenderer, className, title})
     }
 
     static getInstruments() { return InstrumentLoader.registeredInstrumentClasses; }
@@ -75,8 +77,8 @@ class InstrumentLoader {
 
 InstrumentLoader.registeredInstrumentClasses = [];
 
-InstrumentLoader.addInstrumentClass(AudioSourceSynthesizer, 'Audio Source Synthesizer');
+InstrumentLoader.addInstrumentClass(AudioSourceSynthesizer, AudioSourceSynthesizerRenderer, 'Audio Source Synthesizer');
 // InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
-InstrumentLoader.addInstrumentClass(GMEPlayerSynthesizer, 'Game Music Player');
+InstrumentLoader.addInstrumentClass(GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music Player Synthesizer');
 
 export default InstrumentLoader;

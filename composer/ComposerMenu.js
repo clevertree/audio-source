@@ -57,10 +57,10 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuFileImport(e) {
         return (<>
-            <MenuItem onAction={e => this.openSongFromFileDialog(e, '.mid,.midi')}          >from MIDI File</MenuItem>
+            <MenuItem onAction={e => this.openSongFromFileDialog('.mid,.midi')}          >from MIDI File</MenuItem>
         </>);
         // this.loadSongFromFileInput(this.fieldSongFileLoad.inputElm);
-        // renderMenuFileImportSongFromMIDI.action = (e) => this.onAction(e, 'song:load-from-midi-file');
+        // renderMenuFileImportSongFromMIDI.action = (e) => this.onAction('song:load-from-midi-file');
         // renderMenuFileImportSongFromMIDI.disabled = true;
 
     }
@@ -92,7 +92,7 @@ class ComposerMenu extends ComposerRenderer {
     /** Deep selection menus **/
 
 
-    renderMenuSelectCommand(e, onSelectValue) {
+    renderMenuSelectCommand(onSelectValue) {
         return (<>
             <SubMenuItem options={p => this.renderMenuSelectCommandByCurrentOctave(p, onSelectValue)}      >Current Octave</SubMenuItem>
             <MenuBreak />
@@ -107,7 +107,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
 
-    renderMenuSelectCommandByCurrentOctave(e, onSelectValue, octave=null) {
+    renderMenuSelectCommandByCurrentOctave(onSelectValue, octave=null) {
         octave = octave !== null ? octave : this.state.trackerCurrentOctave;
         return this.values.getNoteFrequencies((noteName) =>
             <MenuItem key={noteName} onAction={e => onSelectValue(`${noteName}${octave}`)}     >{noteName}{octave}</MenuItem>
@@ -115,25 +115,25 @@ class ComposerMenu extends ComposerRenderer {
     }
 
 
-    renderMenuSelectCommandByFrequency(e, onSelectValue) {
+    renderMenuSelectCommandByFrequency(onSelectValue) {
         return this.values.getNoteFrequencies((noteName) =>
-            <SubMenuItem key={noteName} options={p => this.renderMenuSelectCommandByFrequencyOctave(e, onSelectValue, noteName)}                   >{noteName}</SubMenuItem>
+            <SubMenuItem key={noteName} options={p => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName)}                   >{noteName}</SubMenuItem>
         );
     }
 
-    renderMenuSelectCommandByFrequencyOctave(e, onSelectValue, noteName) {
+    renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName) {
         return this.values.getNoteOctaves((octave) =>
             <MenuItem key={octave} onAction={() => onSelectValue(octave)}     >{noteName}{octave}</MenuItem>
         );
     }
 
-    renderMenuSelectCommandByOctave(e, onSelectValue) {
+    renderMenuSelectCommandByOctave(onSelectValue) {
         return this.values.getNoteOctaves((octave) =>
-            <SubMenuItem key={octave} options={p => this.renderMenuSelectCommandByOctaveFrequency(e, onSelectValue, octave)}                   >{octave}</SubMenuItem>
+            <SubMenuItem key={octave} options={p => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}                   >{octave}</SubMenuItem>
         );
     }
 
-    renderMenuSelectCommandByOctaveFrequency(e, onSelectValue, octave) {
+    renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
         return this.values.getNoteFrequencies((noteName) =>
             <MenuItem key={noteName} onAction={() => onSelectValue(noteName)}     >{noteName}{octave}</MenuItem>
         );
@@ -142,13 +142,13 @@ class ComposerMenu extends ComposerRenderer {
 
 
 
-    renderMenuSelectSongInstrument(e, onSelectValue) {
+    renderMenuSelectSongInstrument(onSelectValue) {
         return this.values.getSongInstruments((instrumentID, label) =>
             <MenuItem key={instrumentID} onAction={() => onSelectValue(instrumentID)}  >{label}</MenuItem>
         );
     }
 
-    renderMenuSelectDuration(e, onSelectValue) {
+    renderMenuSelectDuration(onSelectValue) {
         const customAction = async () => {
             const durationInTicks = await this.openPromptDialog("Enter custom duration in ticks", this.state.trackerQuantizationInTicks);
             onSelectValue(durationInTicks);
@@ -160,7 +160,7 @@ class ComposerMenu extends ComposerRenderer {
         </>);
     }
 
-    renderMenuSelectVelocity(e, onSelectValue) {
+    renderMenuSelectVelocity(onSelectValue) {
         const customAction = async () => {
             const velocity = await this.openPromptDialog("Enter custom velocity in ticks", 100);
             onSelectValue(velocity);
@@ -173,10 +173,13 @@ class ComposerMenu extends ComposerRenderer {
     }
 
 
-    renderMenuSelectAvailableInstrument(e, onSelectValue, prependString='') {
-        return InstrumentLoader.getInstruments().map((config, i) =>
-            <MenuItem key={i} onAction={() => onSelectValue(config.className)}       >{prependString}{config.title}</MenuItem>
-        );
+    renderMenuSelectAvailableInstrument(onSelectValue, menuTitle=null) {
+        return (<>
+            {menuTitle ? <><MenuItem disabled onAction={() => {}}>{menuTitle}</MenuItem><MenuBreak/></> : null}
+            {InstrumentLoader.getInstruments().map((config, i) =>
+            <MenuItem key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuItem>
+            )}
+        </>);
     }
 
 
@@ -257,16 +260,16 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuEditInsertCommandFrequency(e) {
-        return this.renderMenuSelectCommandByFrequency(e, noteNameOctave => this.instructionInsert(noteNameOctave, false));
+        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsert(noteNameOctave, false));
     }
 
 
     renderMenuEditInsertCommandOctave(e) {
-        return this.renderMenuSelectCommandByOctave(e, noteNameOctave => this.instructionInsert(noteNameOctave, false));
+        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsert(noteNameOctave, false));
     }
 
-    renderMenuEditInsertCommandCurrentOctave(e, octave=null) {
-        return this.renderMenuSelectCommandByCurrentOctave(e, (noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
+    renderMenuEditInsertCommandCurrentOctave(octave=null) {
+        return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
     }
 
 
@@ -306,7 +309,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuEditSetDuration(e) {
-        this.renderMenuSelectDuration(e, durationInTicks => {
+        this.renderMenuSelectDuration(durationInTicks => {
             this.instructionReplaceDuration(durationInTicks)
         });
     }
@@ -320,15 +323,15 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuEditSetCommandFrequency(e) {
-        return this.renderMenuSelectCommandByFrequency(e, noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
+        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
     }
 
-    renderMenuEditSetCommandCurrentOctave(e, octave=null) {
-        return this.renderMenuSelectCommandByCurrentOctave(e, (noteNameOctave) => this.instructionReplaceCommand(noteNameOctave, false), octave);
+    renderMenuEditSetCommandCurrentOctave(octave=null) {
+        return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionReplaceCommand(noteNameOctave, false), octave);
     }
 
     renderMenuEditSetCommandOctave(e) {
-        return this.renderMenuSelectCommandByOctave(e, noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
+        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
     }
 
 
@@ -366,7 +369,7 @@ class ComposerMenu extends ComposerRenderer {
     renderMenuEditSelectBatch(e) {
         return (<>
             {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
-                <MenuItem onAction={e => this.batchSelect(e, recentBatchSearch, true)}      >New Selection Command</MenuItem>
+                <MenuItem onAction={e => this.batchSelect(recentBatchSearch, true)}      >New Selection Command</MenuItem>
             )}
             <MenuItem onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</MenuItem>
         </>);
@@ -375,24 +378,24 @@ class ComposerMenu extends ComposerRenderer {
     renderMenuEditBatch(e) {
         return (<>
             {(new Storage()).getBatchRecentCommands().map((recentBatchCommand, i) =>
-                <SubMenuItem options={p => this.renderMenuEditBatchRecent(e, recentBatchCommand)}                          >{recentBatchCommand}</SubMenuItem>
+                <SubMenuItem options={p => this.renderMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</SubMenuItem>
             )}
             <MenuItem onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</MenuItem>
         </>);
     }
 
-    renderMenuEditBatchRecent(e, recentBatchCommand) {
+    renderMenuEditBatchRecent(recentBatchCommand) {
         return (<>
-            <MenuItem onAction={e => this.batchRunCommand(e, recentBatchCommand, true)}                   >Execute on Group</MenuItem>
-            <SubMenuItem options={p => this.renderMenuEditBatchRecentExecuteSearch(e, recentBatchCommand)}    >Execute using Search</SubMenuItem>
+            <MenuItem onAction={e => this.batchRunCommand(recentBatchCommand, true)}                   >Execute on Group</MenuItem>
+            <SubMenuItem options={p => this.renderMenuEditBatchRecentExecuteSearch(recentBatchCommand)}    >Execute using Search</SubMenuItem>
         </>);
     }
 
-    renderMenuEditBatchRecentExecuteSearch(e, recentBatchCommand) {
+    renderMenuEditBatchRecentExecuteSearch(recentBatchCommand) {
         return (<>
-            <MenuItem onAction={e => this.batchRunCommand(e, recentBatchCommand, null, true)}                   >New Search</MenuItem>
+            <MenuItem onAction={e => this.batchRunCommand(recentBatchCommand, null, true)}                   >New Search</MenuItem>
             {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
-                <MenuItem onAction={e => this.batchRunCommand(e, recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</MenuItem>
+                <MenuItem onAction={e => this.batchRunCommand(recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</MenuItem>
             )}
         </>);
 
@@ -402,7 +405,7 @@ class ComposerMenu extends ComposerRenderer {
     /** Tracker Menu **/
 
     renderMenuTrackerSetQuantization(e) {
-        this.renderMenuSelectDuration(e, duration => {
+        this.renderMenuSelectDuration(duration => {
             this.trackerChangeQuantization(duration);
         });
     }
@@ -416,7 +419,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuTrackerSetInstrumentFilter(e) {
-        this.renderMenuSelectSongInstrument(e, instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
+        this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
     }
 
     renderMenuTrackerSetOctave(e) {
@@ -453,7 +456,7 @@ class ComposerMenu extends ComposerRenderer {
         );
     }
 
-    renderMenuInstrumentEdit(e, instrumentID) {
+    renderMenuInstrumentEdit(instrumentID) {
         return (<>
             <MenuItem key="replace" options={p => this.renderMenuInstrumentEditReplace(instrumentID)}    >Replace</MenuItem>
             <MenuItem
@@ -464,7 +467,7 @@ class ComposerMenu extends ComposerRenderer {
         </>);
     }
 
-    renderMenuInstrumentEditReplace(e, instrumentID) {
+    renderMenuInstrumentEditReplace(instrumentID) {
         return InstrumentLoader.getInstruments().map((config, i) =>
             <MenuItem onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</MenuItem>
         );
@@ -483,7 +486,7 @@ class ComposerMenu extends ComposerRenderer {
         </>);
     }
 
-    renderMenuGroupEdit(e, groupName) {
+    renderMenuGroupEdit(groupName) {
 
         // const groupName = menuParam;
         return (<>

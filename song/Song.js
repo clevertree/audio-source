@@ -10,6 +10,8 @@ import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
 
+const DEFAULT_INSTRUMENT_CLASS = 'GMEPlayerSynthesizer';
+
 class Song {
     constructor(songData={}) {
         this.eventListeners = [];
@@ -29,20 +31,28 @@ class Song {
 
         // this.getData = function() { return data; }
         const data = {
-            uuid: new Storage().generateUUID(),
-            title: `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`,
+            title: Song.generateTitle(),
+            uuid: Song.generateUUID(),
             version: '0.0.1',
             created: new Date().getTime(),
             timeDivision: 96 * 4,
             bpm: 120,
             // beatsPerMeasure: 4,
-            rootGroup: 'root',
+            startGroup: 'root',
             instruments: [],
             instructions: {
-                'root': []
+                'root': [
+                    [0, 'C4'],
+                    [96, 'D4'],
+                    [96, 'E4'],
+                    [96, 'F4'],
+                ]
             }
         };
-        this.getDataObject = function() { return data; };
+        if (DEFAULT_INSTRUMENT_CLASS)
+            data.instruments.push({className: DEFAULT_INSTRUMENT_CLASS});
+
+        this.getProxiedData = function() { return data; };
         this.data = new Proxy(data, new ConfigListener(this));
         // this.loadSongData(songData);
         // this.eventListeners = [];
@@ -122,7 +132,7 @@ class Song {
 
 
     loadSongData(songData) {
-        const data = this.getDataObject();
+        const data = this.getProxiedData();
 
         if (this.playback)
             this.stopPlayback();
@@ -163,9 +173,9 @@ class Song {
 
     /** Instrument Groups **/
 
-    getRootGroup() {
-        return typeof this.data.rootGroup === "undefined"
-            ? this.data.rootGroup
+    getStartGroup() {
+        return typeof this.data.startGroup === "undefined"
+            ? this.data.startGroup
             : Object.keys(this.data.instructions)[0];
     }
 
@@ -603,19 +613,19 @@ class Song {
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        return this.instructionGetIterator(this.getRootGroup())
+        return this.instructionGetIterator(this.getStartGroup())
             .seekToEnd()
             .endPositionSeconds;
     }
 
     getSongLengthInTicks() {
-        return this.instructionGetIterator(this.getRootGroup())
+        return this.instructionGetIterator(this.getStartGroup())
             .seekToEnd()
             .endPositionTicks;
     }
 
     // getSongLength() {
-    //     return this.getGroupLength(this.getRootGroup());
+    //     return this.getGroupLength(this.getStartGroup());
     // }
     //
     // getGroupLength(groupName) {
@@ -630,7 +640,7 @@ class Song {
 
 
     getSongPositionFromTicks(songPositionInTicks) {
-        return this.getGroupPositionFromTicks(this.getRootGroup(), songPositionInTicks);
+        return this.getGroupPositionFromTicks(this.getStartGroup(), songPositionInTicks);
     }
 
     // Refactor
@@ -661,7 +671,7 @@ class Song {
     getSongPositionInTicks(positionInSeconds = null) {
         if (positionInSeconds === null)
             positionInSeconds = this.songPlaybackPosition;
-        return this.getGroupPositionInTicks(this.getRootGroup(), positionInSeconds);
+        return this.getGroupPositionInTicks(this.getStartGroup(), positionInSeconds);
     }
 
 
@@ -735,7 +745,7 @@ class Song {
 
         if (isPlaying) {
             const oldDestination = this.playback.destination;
-            this.playback = new InstructionPlayback(oldDestination, this, this.getRootGroup(), oldDestination.context.currentTime - this.playbackPosition);
+            this.playback = new InstructionPlayback(oldDestination, this, this.getStartGroup(), oldDestination.context.currentTime - this.playbackPosition);
             this.playback.awaitPlaybackReachedEnd()
                 .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
         }
@@ -776,7 +786,7 @@ class Song {
 
         await this.init(audioContext);
 
-        const playback = new InstructionPlayback(destination, this, this.getRootGroup(), this.playbackPosition);
+        const playback = new InstructionPlayback(destination, this, this.getStartGroup(), this.playbackPosition);
         this.playback = playback;
         console.log("Start playback:", this.playbackPosition);
 
@@ -853,6 +863,7 @@ class Song {
             console.warn("No instruction at index");
     }
 
+    /** @deprecated **/
     async playInstruction(destination, instruction, noteStartTime = null, groupName = null) {
         const audioContext = destination.context;
         if (!instruction instanceof Instruction)
@@ -1120,6 +1131,27 @@ class Song {
         }
     };
 
+
+
+
+    /** Generate Song Data **/
+
+    static generateTitle() {
+        return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
+    }
+
+    static generateUUID() {
+        var d = new Date().getTime();
+        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+            d += performance.now(); //use high-precision timer if available
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            // eslint-disable-next-line no-mixed-operators
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
 }
 
 Song.DEFAULT_VOLUME = 0.7;

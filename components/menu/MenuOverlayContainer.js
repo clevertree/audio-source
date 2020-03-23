@@ -3,7 +3,8 @@ import Div from "../div/Div";
 
 import "./assets/MenuOverlayContainer.css";
 import MenuOverlayContext from "./MenuOverlayContext";
-
+import MenuBreak from "./MenuBreak";
+import MenuItem from "./MenuItem";
 
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
@@ -36,12 +37,14 @@ class MenuOverlayContainer extends React.Component {
         return <MenuOverlayContext.Provider
             value={this.overlayContext}>
             <>
-                {this.state.openOverlay ? <Div className="asui-menu-overlay-container"
+                {this.state.openOverlay && false ? <Div className="asui-menu-overlay-container" // TODO: fix overlay z-index
                     onClick={this.overlayContext.closeAllMenus}
                     /> : null}
 
                 {this.state.open ? <Div className="asui-menu-overlay-dropdown">
                     {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
+                    <MenuBreak/>
+                    <MenuItem onAction={() => this.closeAllMenus()}>- Close Menu -</MenuItem>
                 </Div> : null}
                 {this.props.children}
             </>

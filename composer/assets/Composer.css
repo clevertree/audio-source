@@ -1,116 +1,144 @@
-/*!** Host Element **!*/
+/** Host Element **/
 
-/*:host {*/
-/*    display: inline-block;*/
-/*}*/
+:host {
+    display: inline-block;
+}
 
-/*!** Full Screen **!*/
-/*:host(.fullscreen) {*/
-/*    position: fixed;*/
-/*    left: 0;*/
-/*    top: 0;*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*}*/
-
-
+/** Full Screen **/
+:host(.fullscreen) {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
 
 
-/*!** Font styles **!*/
 
-/*:host input, select, button,*/
-/*:host {*/
-/*    font-size: 12px;*/
-/*    font-family: 'Advent Pro', monospace;*/
-/*}*/
 
-/*span.error {*/
-/*    font-color: red;*/
-/*    font-weight: bold;*/
-/*}*/
+
+
+/** Font styles **/
 
 div.asc-container input,
 div.asc-container button,
 div.asc-container {
     font-size: large;
+}
+
+span.error {
+    font-color: red;
+    font-weight: bold;
+}
+
+
+
+/** Container **/
+/** Font Style **/
+div.asc-container {
     font-family: monospace;
+    color: #000;
+    background-color: #EEE;
+    /* margin-top: -14px; */
+    user-select: none;
+    /*display: flex;*/
+    /*flex-direction: column;*/
+}
+
+
+/** Visibility **/
+
+
+:host(:not(.playing)) .show-on-playing,
+:host(.playing) .hide-on-playing,
+:host(.hide-panel-song) asc-panel.song,
+:host(.hide-panel-playlist) asc-panel.playlist {
+    display: none;
+}
+
+/** Header **/
+
+
+/** Title **/
+
+
+div.asc-title-container {
+    display: flex;
+    background-color: #888;
+}
+
+div.landscape > div.asc-title-container {
+    flex-direction: column;
+}
+div.portrait > div.asc-title-container {
+    flex-direction: row-reverse;
+}
+
+
+div.asc-title-text {
+    margin: auto;
+    font-weight: bold;
+    color: #333;
+}
+
+
+/** Menu Container **/
+
+div.asc-menu-container {
+    display: flex;
+    flex-direction: row;
 }
 
 
 
-
-
-
-
-/** Song Forms **/
-
-asc-instrument,
-asc-form {
-    background: #DDD;
-    border: 1px outset #FFF;
-    padding: 0px 0px;
-    margin: 0px 0px 0px 0px;
-    display: inline-block;
-    vertical-align: top;
-    /*min-height: 33px;*/
-}
-asc-instrument > asui-div.title,
-asc-form > asui-div.title {
-    font-size: smaller;
-    height: 9px;
-    color: #666;
-    border-bottom: 1px solid #BBB;
-    margin-bottom: 1px;
-    cursor: pointer;
-    padding: 1px 3px;
+div.asc-menu-container {
+    background-color: #bdc3c7;
 }
 
-asc-form[key=volume]       asui-input-range.volume    input       { max-width: 71px; }
-asc-form[key=version]      asui-input-text.version    input       {max-width: 53px;}
-asc-form[key=name]         asui-input-text.name       input       { max-width: 160px; }
-asc-form[key=timing]       asui-input-text.timing     input       { max-width: 77px; }
-asc-form[key=position]     asui-input-range.position   input       { max-width: 77px; }
-asc-form[key=bpm]          asui-input-text.bpm        input       {max-width: 43px;}
+div.asc-menu-container > div.asui-menuitem {
+    padding: 0px 8px 0px 4px;
+}
 
 
 
-/** Instruction Form **/
+/** Portrait Menu Button **/
+div.asc-menu-button-toggle {
+    background: none;
+    border: none;
+}
 
-asc-form[key=instruction-command]      asui-input-select.command       select      {width: 72px;}
-asc-form[key=instruction-velocity]     asui-input-range.velocity       input       { width: 64px; }
-asc-form[key=instruction-duration]     asui-input-select.duration      select      {width: 42px;}
+div.asc-menu-button-toggle > div.title > div.asui-icon {
+    height: 2em;
+    width: 2em;
+    transition: transform 0.3s ease-out;
+}
 
-asc-form[key=instruction-instrument]   asui-input-select.instrument    select      {width: 83px;}
-
-/** Tracker Render Forms **/
-
-asc-form[key=tracker-row-length]       asui-input-select.row-length        select      {width: 42px;}
-asc-form[key=tracker-segment-length]  asui-input-select.segment-length    select      {width: 44px;}
-asc-form[key=tracker-instrument]       asui-input-select.filter-instrument select      {width: 72px;}
-asc-form[key=tracker-selection]        asui-input-text.selection           input       {width: 99px;}
-asc-form[key=tracker-octave]           asui-input-select.octave            select      {width: 36px;}
-asc-form[key=tracker-octave]           asui-input-select.octave            select      {width: 36px;}
-
-
-/** Instrument Form **/
-
-asui-div[key=instruments]  asui-input-select.instrument-add-url       select      { width: 120px; }
-asui-div[key=instruments]  asui-input-select.instrument-preset       select      { width: 120px; }
-
-/** Add instruments Form **/
-
-/*asui-div.asc-container  form.asc-form-song-add-instruments                                    {!* height: 54px; *!}*/
-/*asui-div.asc-container  form.asc-form-song-add-instruments select.instrumentURL            {min-width: 129px;!* padding: 1em; *!}*/
+div.asc-menu-button-toggle.stick > div.title > div.asc-icon {
+    transform: rotate(90deg);
+}
 
 
-/*@media only screen and (min-width: 1000px) {*/
-/*    asui-div.asc-container .asc-form-section-divide {*/
-/*        width: 12px;*/
-/*        writing-mode: vertical-rl;*/
-/*        padding: 10px 2px 6px 2px;*/
-/*    }*/
-/*    asui-div {*/
-/*        min-height: 55px;*/
-/*    }*/
-/*}*/
+div.asui-menu-overlay-dropdown > div.asui-menuitem > div.title {
+    padding: 0.5em;
+}
 
+
+/** Footer **/
+
+div.asc-status-text {
+    padding-left: 4px;
+}
+div.asc-version-text {
+    /* float: right; */
+    padding-right: 4px;
+    margin-left: auto;
+}
+
+
+/** Status Bar **/
+div.asc-footer-container {
+    display: flex;
+    background-color: #FFF;
+    color: #000;
+    padding: 0px;
+}

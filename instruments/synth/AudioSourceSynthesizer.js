@@ -1,25 +1,24 @@
 import Library from "../../song/Library";
-import SynthesizerRenderer from "./render/SynthesizerRenderer";
+import AudioSourceSynthesizerRenderer from "./render/AudioSourceSynthesizerRenderer";
 import React from "react";
 // import Values from "../../song/Values";
 
 class AudioSourceSynthesizer {
-    constructor(config, song=null, instrumentID=null) {
-        this.config = config || {};
-        this.id = instrumentID;
+    constructor(config={}) {
+        this.config = config;
+        this.state = {};
+
 
         this.samples = [];
         this.sampleDataByURL = {};
         this.activeSources = [];
 
         this.audioContext = null;
-        if(typeof config.title === "undefined")
-            config.title = 'Synthesizer' + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
-        this.config = config || {};
+        // if(typeof config.title === "undefined")
+        //     config.title = 'Synthesizer' + (instrumentID === null ? '' : ' ' + (instrumentID < 10 ? "0" : "") + (instrumentID));
 
-
-        this.song = song;
-        this.values = this.song.values;
+        // this.song = song;
+        // this.values = this.song.values;
 
         this.sampleLibrary = null;
         // this.loadSampleLibrary();
@@ -576,7 +575,7 @@ class AudioSourceSynthesizer {
 
 
     static getRenderer(props) {
-        return <SynthesizerRenderer
+        return <AudioSourceSynthesizerRenderer
             {...props}
         />;
     }

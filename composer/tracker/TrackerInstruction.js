@@ -31,18 +31,18 @@ class TrackerInstruction extends React.Component {
                 className="command"
                 onAction={e => this.renderMenuSelectCommand(e)}
             >{instruction.command}</TrackerInstructionParameter>
-            <TrackerInstructionParameter
+            {typeof instruction.instrument !== "undefined" ? <TrackerInstructionParameter
                 className="instrument"
                 onAction={e => this.renderMenuSelectInstrument(e)}
-            >{instruction.instrument}</TrackerInstructionParameter>
-            <TrackerInstructionParameter
+            >{instruction.instrument}</TrackerInstructionParameter> : null}
+            {typeof instruction.velocity !== "undefined" ? <TrackerInstructionParameter
                 className="velocity"
                 onAction={e => this.renderMenuSelectVelocity(e)}
-            >{instruction.velocity}</TrackerInstructionParameter>
-            <TrackerInstructionParameter
+            >{instruction.duration}</TrackerInstructionParameter> : null}
+                {typeof instruction.instrument !== "undefined" ? <TrackerInstructionParameter
                 className="duration"
                 onAction={e => this.renderMenuSelectDuration(e)}
-            >{instruction.duration}</TrackerInstructionParameter>
+            >{instruction.duration}</TrackerInstructionParameter> : null}
         </Div>
     }
 

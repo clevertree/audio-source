@@ -1,6 +1,8 @@
 import Song from "../song/Song";
 import Storage from "../song/Storage";
 import PlayerMenu from "./PlayerMenu";
+import Div from "../components/div/Div";
+import React from "react";
 
 
 class PlayerActions extends PlayerMenu {
@@ -55,6 +57,10 @@ class PlayerActions extends PlayerMenu {
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
         this.setState({status: newStatus});
+    }
+
+    setError(newStatus) {
+        this.setStatus(<Div className="error">{newStatus}</Div>);
     }
 
     setVersion(versionString) {

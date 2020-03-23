@@ -1,8 +1,10 @@
+import React from "react";
+
 import Song from "../song/Song";
 import InstrumentLoader from "../song/instrument/InstrumentLoader";
-
 import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";
+import {Div} from "../components";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -10,18 +12,17 @@ class ComposerActions extends ComposerMenu {
         this.onSongEventCallback = (e) => this.onSongEvent(e);
     }
 
-    getDefaultInstrumentClass() {
-        return 'AudioSourceSynthesizer';
-        // return new URL('../instruments/audio-source-synthesizer.js', thisModule.src);
-    }
-
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);
-        this.setStatus({status: newStatus});
+        this.setState({status: newStatus});
+    }
+
+    setError(newStatus) {
+        this.setStatus(<Div className="error">{newStatus}</Div>);
     }
 
     setVersion(versionString) {
-        this.setStatus({version: versionString});
+        this.setState({version: versionString});
     }
 
     /** Playback **/
@@ -107,13 +108,14 @@ class ComposerActions extends ComposerMenu {
 
 
     async loadNewSongData() {
-        const storage = new Storage();
-        const defaultInstrumentURL = this.getDefaultInstrumentClass() + '';
-        let songData = storage.generateDefaultSong(defaultInstrumentURL);
-        const song = Song.loadSongFromData(songData);
+        // const storage = new Storage();
+        // const defaultInstrumentURL = this.getDefaultInstrumentClass() + '';
+        // let songData = storage.generateDefaultSong(defaultInstrumentURL);
+        // const song = Song.loadSongFromData(songData);
+        const song = new Song();
         this.setCurrentSong(song);
         // this.forceUpdate();
-        this.setStatus("Loaded new song", songData);
+        this.setStatus("Loaded new song", song.getProxiedData());
     }
 
 

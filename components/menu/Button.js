@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 class Button extends MenuItem {
 
-    getClassName() { return 'asui-button'; }
+    getClassName() { return 'asui-menuitem asui-button'; }
 }
 
 

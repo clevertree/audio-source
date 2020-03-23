@@ -23,7 +23,7 @@ class Instruction {
     }
 
     get instrument() {
-        return typeof this.data[2] === "undefined" ? null : this.data[2];
+        return this.data[2];
     }
 
     set instrument(newInstrumentID) {
@@ -34,7 +34,7 @@ class Instruction {
     }
 
     get duration() {
-        return typeof this.data[3] === "undefined" ? null : this.data[3];
+        return this.data[3];
     }
 
     set duration(newDuration) {
@@ -49,7 +49,7 @@ class Instruction {
     }
 
     get velocity() {
-        return typeof this.data[4] === "undefined" ? null : this.data[4];
+        return this.data[4];
     }
 
     set velocity(newVelocity) {
@@ -60,7 +60,7 @@ class Instruction {
     }
 
     get panning() {
-        return typeof this.data[5] === "undefined" ? null : this.data[5];
+        return this.data[5];
     }
 
     set panning(newPanning) {

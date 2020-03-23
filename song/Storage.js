@@ -7,44 +7,6 @@ class Storage {
         return this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
     }
 
-    /** Generate Song Data **/
-
-    generateTitle() {
-        return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
-    }
-
-    generateUUID() {
-        var d = new Date().getTime();
-        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-            d += performance.now(); //use high-precision timer if available
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            // eslint-disable-next-line no-mixed-operators
-            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-    }
-
-    generateDefaultSong(defaultInstrumentClass = null) {
-        const songData = {
-            title: this.generateTitle(),
-            uuid: this.generateUUID(),
-            version: '0.0.1',
-            root: 'root',
-            created: new Date().getTime(),
-            timeDivision: 96 * 4,
-            beatsPerMinute: 120,
-            beatsPerMeasure: 4,
-            instruments: [],
-            instructions: {
-                'root': []
-            }
-        };
-        if (defaultInstrumentClass)
-            songData.instruments.push({className: defaultInstrumentClass});
-        return songData;
-    }
 
     /** Encoding / Decoding **/
 

@@ -18,7 +18,7 @@ import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 import "./assets/SynthesizerRenderer.css";
 
 /** AudioSourceSynthesizerRenderer **/
-class SynthesizerRenderer extends React.Component {
+class AudioSourceSynthesizerRenderer extends React.Component {
     constructor(props) {
         super(props);
         const config = this.getConfig();
@@ -349,4 +349,4 @@ class SynthesizerRenderer extends React.Component {
     }
 }
 
-export default SynthesizerRenderer;
+export default AudioSourceSynthesizerRenderer;

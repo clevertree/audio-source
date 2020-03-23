@@ -4,8 +4,6 @@ import {Div, Icon, Form, Panel, Button, InputRange} from "../components";
 
 // import Storage from "../song/Storage";
 
-import Header from "./header/Header";
-import Footer from "./footer/Footer";
 import InstrumentRenderer from "./instrument/InstrumentRenderer";
 // import InputSelect from "../components/input-select/InputSelect";
 import Tracker from "./tracker/Tracker";
@@ -86,7 +84,7 @@ class ComposerRenderer extends React.Component {
         this.setState({
             songLengthInTicks: song.getSongLengthInTicks(),
             songLength: song.getSongLengthInSeconds(),
-            selectedGroup: song.getRootGroup() || 'root',
+            selectedGroup: song.getStartGroup() || 'root',
             trackerRowOffset: 0,
             trackerQuantizationInTicks: timeDivision,
             trackerSegmentLengthInTicks: timeDivision * 16,
@@ -128,34 +126,39 @@ class ComposerRenderer extends React.Component {
 
     render() {
         return (
-            <MenuOverlayContainer
-                ref = {ref => this.menu = ref}
+            <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
+                <MenuOverlayContainer
+                    isActive={this.state.portrait}
                 >
-                <Div className="asc-container">
-                    <Header
-                        composer={this}
-                        key="header"
-                        menuContent={(p) => this.renderRootMenu(p)}
-                        ref={this.header}
-                    />
+                    <Div key="header" className="asc-title-container">
+                        <Div className="asc-title-text">{this.state.title}</Div>
+                        {this.state.portrait
+                            ? <Button
+                                className="asc-menu-button-toggle"
+                                options={(p) => this.renderRootMenu(p)}
+                            >
+                                <Icon className="menu" />
+                            </Button>
+                            : <Div className="asc-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
+                    </Div>
                     <Div className="asc-panel-container">
                         <Panel className="song" title="Song">
                             <Form className="playback" title="Playback">
                                 <Button
                                     className="song-play"
-                                    onAction={e => this.playlistPlay(e)}
+                                    onAction={e => this.songPlay(e)}
                                 >
                                     <Icon className="play"/>
                                 </Button>
                                 <Button
                                     className="song-pause"
-                                    onAction={e => this.playlistPause(e)}
+                                    onAction={e => this.songPause(e)}
                                 >
                                     <Icon className="pause"/>
                                 </Button>
                                 <Button
                                     className="song-stop"
-                                    onAction={e => this.playlistStop(e)}
+                                    onAction={e => this.songStop(e)}
                                 >
                                     <Icon className="stop"/>
                                 </Button>
@@ -251,9 +254,9 @@ class ComposerRenderer extends React.Component {
                                        <Button
                                            arrow={'▼'}
                                            className="instrument-add"
-                                           onAction={e => this.openMenuSelectAvailableInstrument(e, instrumentClass => {
+                                           options={() => this.renderMenuSelectAvailableInstrument(instrumentClass =>
                                                this.instrumentAdd(instrumentClass)
-                                           }, 'Add instruments ')}
+                                           , 'Add New Instrument')}
                                            title="Add Instrument"
                                        >Select...</Button>
                                    </Form>
@@ -377,9 +380,14 @@ class ComposerRenderer extends React.Component {
                             composer={this}
                         />
                     </Div>
-                    <Footer composer={this} ref={ref => this.footer = ref} />
-                </Div>
-            </MenuOverlayContainer>
+                    <Div key="footer" className="asp-footer-container">
+                        <Div className="asp-status-text">{this.state.status}</Div>
+                        <Div className="asp-version-text"
+                             ref={this.footerVersionText}
+                        >{this.state.version}</Div>
+                    </Div>
+                </MenuOverlayContainer>
+            </Div>
         )
     }
 

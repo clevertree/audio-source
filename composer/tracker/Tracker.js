@@ -49,7 +49,7 @@ class Tracker extends React.Component {
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
-        let instructionIterator = composer.song.getInstructionIterator(composer.state.selectedGroup);
+        let instructionIterator = composer.song.instructionGetIterator(composer.state.selectedGroup);
 
         const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
 
