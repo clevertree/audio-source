@@ -1,29 +1,24 @@
 import Instruction from "./Instruction";
 
-class NoteInstruction {
-    constructor(instructionData = [0]) {
-        this.data = instructionData;
-    }
-
-
+class NoteInstruction extends Instruction {
     get command() {
-        return this.data[0] || null;
+        return this.data[1];
     }
 
     set command(newCommand) {
-        this.data[0] = newCommand;
+        this.data[1] = newCommand;
     }
 
 
     get duration() {
-        return this.data[1];
+        return this.data[2];
     }
 
     set duration(newDuration) {
         newDuration = parseFloat(newDuration);
         if (Number.isNaN(newDuration))
             throw new Error("Invalid Duration");
-        this.data[1] = newDuration;
+        this.data[2] = newDuration;
     }
 
     getDurationAsTicks(timeDivision) {
@@ -31,14 +26,14 @@ class NoteInstruction {
     }
 
     get velocity() {
-        return this.data[2];
+        return this.data[3];
     }
 
     set velocity(newVelocity) {
         newVelocity = parseInt(newVelocity);
         if (Number.isNaN(newVelocity))
             throw new Error("Invalid Velocity");
-        this.data[2] = newVelocity;
+        this.data[3] = newVelocity;
     }
 
 }

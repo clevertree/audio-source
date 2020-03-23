@@ -2,14 +2,8 @@ import Instruction from "./Instruction";
 import {InstructionList} from "./InstructionList";
 
 class InstructionIterator extends InstructionList {
-    constructor(instructionList, stats = {}) {
+    constructor(instructionList, stats = null) {
         super(instructionList);
-        // if (!song.data.instructions[groupName])
-        //     throw new Error("Song group not found: " + groupName);
-
-        // this.song = song;
-        // this.groupName = groupName;
-        // this.nextIndex = 0;
         this.currentIndex = -1;
         this.positionTicks = 0;
         this.endPositionTicks = 0;
@@ -18,10 +12,7 @@ class InstructionIterator extends InstructionList {
         this.lastInstructionPositionInTicks = 0;
         this.lastInstructionPositionInSeconds = 0;
 
-        // this.instructionList = instructionList;
-        this.stats = stats;
-        this.nextQuantizationBreakInTicks = 0;
-        // this.lastInstructionGroupPositionInTicks = 0;
+        this.stats = stats || {};
 
     }
 
@@ -46,17 +37,6 @@ class InstructionIterator extends InstructionList {
             this.endPositionSeconds = groupPlaybackEndTime;
     }
 
-    incrementPositionTo(positionInTicks) {
-        const elapsedTimeInTicks = positionInTicks - this.positionTicks; // nextInstructionPositionInTicks - nextBreakPositionInTicks;
-        this.positionTicks = positionInTicks;
-        const elapsedTimeInSeconds = (elapsedTimeInTicks / this.stats.timeDivision) / (this.stats.bpm / 60);
-        this.positionSeconds += elapsedTimeInSeconds;
-    }
-
-
-    getInstruction(index) {
-        return index >= this.instructionList.length ? null : new Instruction(this.instructionList[index]);
-    }
 
     currentInstruction() {
         if (this.currentIndex === -1)

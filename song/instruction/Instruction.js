@@ -1,35 +1,36 @@
-import DeltaInstruction from "./DeltaInstruction";
 
 class Instruction {
-    constructor(data) {
-        this.data = data;
+    constructor(instructionData = [0], index) {
+        this.index = index;
+        this.data = instructionData;
+    }
+
+    get deltaDuration() {
+        return this.data[0];
+    }
+
+    set deltaDuration(newDeltaDuration) {
+        this.data[0] = newDeltaDuration;
+    }
+
+    get command() {
+        return this.data[1];
+    }
+
+    set command(newCommand) {
+        this.data[1] = newCommand;
     }
 
 
-    static getInstructionFromData(instructionData) {
-        if(typeof instructionData === 'number')
-            return new DeltaInstruction(instructionData);
+    get duration() {
+        return this.data[2];
     }
 
-    static parse(instruction) {
-        if (instruction instanceof Instruction)
-            return instruction;
-
-        if (typeof instruction === 'number')
-            instruction = [instruction]; // Single entry array means pause
-
-        else if (typeof instruction === 'string') {
-            instruction = instruction.split(':');
-            // instruction[0] = parseFloat(instruction[0]);
-            if (instruction.length >= 2) {
-                instruction[1] = parseInt(instruction[1])
-            }
-        }
-
-        if (typeof instruction[0] === 'string')
-            instruction.unshift(0);
-
-        return new Instruction(instruction);
+    set duration(newDuration) {
+        newDuration = parseFloat(newDuration);
+        if (Number.isNaN(newDuration))
+            throw new Error("Invalid Duration");
+        this.data[2] = newDuration;
     }
 
     static parseDurationAsTicks(durationString, timeDivision) {

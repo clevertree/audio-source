@@ -44,19 +44,18 @@ class Song {
                     ['@track1', 1],
                 ],
                 'track0': [
-                    'C4',
-                    64, 'D4',
-                    64, 'E4',
-                    64, ['F4', 48, 50],
-                    64,
-                    [9, 34],
-                    [8, 34],
+                    [0, 'C4'],
+                    [64, 'D4'],
+                    [64, 'E4'],
+                    [64, 'F4', 48, 50],
+                    [64, 9, 34],
+                    [64, 8, 34],
                 ],
                 'track1': [
-                    'C4',
-                    96, 'D4',
-                    96, 'E4',
-                    96, 'F4',
+                    [0, 'C4'],
+                    [96, 'D4'],
+                    [96, 'E4'],
+                    [96, 'F4', 48, 50],
                 ]
             }
         };
@@ -176,7 +175,7 @@ class Song {
     instructionProcessGroupData(groupName) {
         const instructionList = this.instructionGetList(groupName);
         for (let i = 0; i < instructionList.length; i++) {
-            const instruction = Instruction.getInstructionFromData(instructionList[i]);
+            const instruction = InstructionList.parseInstruction(instructionList[i]);
             instructionList[i] = instruction.data;
         }
     }
@@ -430,9 +429,13 @@ class Song {
     instructionIndexOf(groupName, instruction) {
         if (instruction instanceof Instruction)
             instruction = instruction.data;
-        instruction = ConfigListener.getTargetObject(instruction);
-        let instructionList = this.instructionGetList(groupName);
-        // instructionList = ConfigListener.getTargetObject(instructionList);
+        if(!this.data.instructions[groupName])
+            throw new Error("Invalid instruction group: " + groupName);
+        let instructionList = this.data.instructions[groupName];
+
+        instruction = ConfigListener.resolveProxiedObject(instruction);
+        // instructionList = ConfigListener.resolveProxiedObject(instructionList);
+
         const p = instructionList.indexOf(instruction);
         if (p === -1)
             throw new Error("Instruction not found in instruction list");
@@ -442,18 +445,26 @@ class Song {
     instructionGetList(groupName) {
         if(!this.data.instructions[groupName])
             throw new Error("Invalid instruction group: " + groupName);
-        return this.data.instructions[groupName];
+        return new InstructionList(this.data.instructions[groupName]);
     }
 
     instructionGetByIndex(groupName, index) {
-        let instructionList = this.instructionGetList(groupName);
-        return index >= instructionList.length ? null : new Instruction(instructionList[index]);
+        if(!this.data.instructions[groupName])
+            throw new Error("Invalid instruction group: " + groupName);
+        let instructionList = this.data.instructions[groupName];
+        return index >= instructionList.length ? null : new Instruction(instructionList[index], index);
     }
 
     instructionGetIterator(groupName, parentStats=null) {
+        if(!this.data.instructions[groupName])
+            throw new Error("Invalid instruction group: " + groupName);
+        if(parentStats === null)
+            parentStats = {
+                bpm: this.data.bpm,
+                timeDivision: this.data.bpm,
+            }
         return new InstructionIterator(
-            this,
-            groupName,
+            this.data.instructions[groupName],
             parentStats
         );
     }
@@ -469,7 +480,7 @@ class Song {
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        const insertInstruction = Instruction.getInstructionFromData(insertInstructionData);
+        const insertInstruction = InstructionList.parseInstruction(insertInstructionData);
         let instructionList = this.instructionGetList(groupName);
 
         // let groupPosition = 0, lastDeltaInstructionIndex;
@@ -538,7 +549,7 @@ class Song {
     instructionInsertAtIndex(groupName, insertIndex, insertInstructionData) {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        let insertInstruction = Instruction.getInstructionFromData(insertInstructionData);
+        let insertInstruction = InstructionList.parseInstruction(insertInstructionData);
         insertInstructionData = insertInstruction.data;
         this.instructionGetList(groupName).splice(insertIndex, 0, insertInstructionData);
         // this.spliceDataByPath(['instructions', groupName, insertIndex], 0, insertInstructionData);

@@ -50,7 +50,7 @@ export class ConfigListener {
         this.song.queueHistoryAction('splice', path, number, deleteCount, ...newValues);
     }
 
-    static getTargetObject(proxyObject) {
-        return proxyObject[TARGET]
+    static resolveProxiedObject(proxyObject) {
+        return proxyObject[TARGET] || proxyObject;
     }
 }
