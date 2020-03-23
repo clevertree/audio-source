@@ -1,14 +1,12 @@
 import InstrumentLoader from "./instrument/InstrumentLoader";
 import Values from "./Values";
-import Instruction from "./instruction/Instruction";
-import InstructionIterator from "./instruction/InstructionIterator";
-import InstructionPlayback from "./instruction/InstructionPlayback";
 
 import Storage from "./Storage";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
+import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
 
 const DEFAULT_INSTRUMENT_CLASS = 'GMEPlayerSynthesizer';
 
@@ -42,10 +40,23 @@ class Song {
             instruments: [],
             instructions: {
                 'root': [
-                    [0, 'C4'],
-                    [96, 'D4'],
-                    [96, 'E4'],
-                    [96, 'F4'],
+                    ['@track0', 0],
+                    ['@track1', 1],
+                ],
+                'track0': [
+                    'C4',
+                    64, 'D4',
+                    64, 'E4',
+                    64, ['F4', 48, 50],
+                    64,
+                    [9, 34],
+                    [8, 34],
+                ],
+                'track1': [
+                    'C4',
+                    96, 'D4',
+                    96, 'E4',
+                    96, 'F4',
                 ]
             }
         };
@@ -142,8 +153,8 @@ class Song {
         this.playbackPosition = 0;
 
         // Process all instructions
-        Object.keys(data.instructions).map((groupName, i) =>
-            this.instructionProcessGroupData(groupName));
+        Object.keys(data.instructions).forEach((groupName, i) =>
+            new InstructionList(data.instructions[groupName]).processInstructions());
 
         // let loadingInstruments = 0;
 
@@ -165,7 +176,7 @@ class Song {
     instructionProcessGroupData(groupName) {
         const instructionList = this.instructionGetList(groupName);
         for (let i = 0; i < instructionList.length; i++) {
-            const instruction = Instruction.parse(instructionList[i]);
+            const instruction = Instruction.getInstructionFromData(instructionList[i]);
             instructionList[i] = instruction.data;
         }
     }
@@ -458,7 +469,7 @@ class Song {
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        const insertInstruction = Instruction.parse(insertInstructionData);
+        const insertInstruction = Instruction.getInstructionFromData(insertInstructionData);
         let instructionList = this.instructionGetList(groupName);
 
         // let groupPosition = 0, lastDeltaInstructionIndex;
@@ -527,7 +538,7 @@ class Song {
     instructionInsertAtIndex(groupName, insertIndex, insertInstructionData) {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        let insertInstruction = Instruction.parse(insertInstructionData);
+        let insertInstruction = Instruction.getInstructionFromData(insertInstructionData);
         insertInstructionData = insertInstruction.data;
         this.instructionGetList(groupName).splice(insertIndex, 0, insertInstructionData);
         // this.spliceDataByPath(['instructions', groupName, insertIndex], 0, insertInstructionData);
