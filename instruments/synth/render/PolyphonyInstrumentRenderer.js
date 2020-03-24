@@ -17,8 +17,8 @@ import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 
 import "./assets/SynthesizerRenderer.css";
 
-/** AudioSourceSynthesizerRenderer **/
-class AudioSourceSynthesizerRenderer extends React.Component {
+/** PolyphonyInstrumentRenderer **/
+class PolyphonyInstrumentRenderer extends React.Component {
     constructor(props) {
         super(props);
         const config = this.getConfig();
@@ -263,7 +263,7 @@ class AudioSourceSynthesizerRenderer extends React.Component {
         //             ]),
         //
         //             samples.map((sampleData, sampleID) => new GridRow(sampleID, () => [
-        //                 // const sampleRow = gridDiv.addGridRow('sample-' + sampleID);
+        //                 // const sampleRow = gridDiv.addGridRow('voice-' + sampleID);
         //                 // const sampleRow = this.form.addGrid(i);
         //                 // Div.createElement('name', (e, nameString) => this.setSampleName(sampleID, nameString), 'Name', sampleData.name);
         //                 // Button.createElement('id', (e) => this.moveSample(sampleID), sampleID, 'Sample ' + sampleID);
@@ -309,7 +309,7 @@ class AudioSourceSynthesizerRenderer extends React.Component {
         //                 Button.createElement('remove',
         //                     '&nbsp;X&nbsp;',
         //                     (e) => this.removeSample(sampleID),
-        //                     'Remove sample'),
+        //                     'Remove voice'),
         //             ])),
         //
         //             new GridRow('footer', () => [
@@ -349,4 +349,4 @@ class AudioSourceSynthesizerRenderer extends React.Component {
     }
 }
 
-export default AudioSourceSynthesizerRenderer;
+export default PolyphonyInstrumentRenderer;

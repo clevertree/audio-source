@@ -1,8 +1,8 @@
-import AudioSourceSynthesizer from "../../instruments/synth/AudioSourceSynthesizer";
+import PolyphonyInstrument from "../../instruments/synth/PolyphonyInstrument";
 // import SPCPlayerSynthesizer from "../instruments/chip/SPCPlayerSynthesizer";
 import GMEPlayerSynthesizer from "../../instruments/gme/GMEPlayerSynthesizer";
 import GMEPlayerSynthesizerRenderer from "../../instruments/gme/GMEPlayerSynthesizerRenderer";
-import AudioSourceSynthesizerRenderer from "../../instruments/synth/render/AudioSourceSynthesizerRenderer";
+import PolyphonyInstrumentRenderer from "../../instruments/synth/render/PolyphonyInstrumentRenderer";
 // import {ConfigListener} from "./ConfigListener";
 
 class InstrumentLoader {
@@ -77,7 +77,7 @@ class InstrumentLoader {
 
 InstrumentLoader.registeredInstrumentClasses = [];
 
-InstrumentLoader.addInstrumentClass(AudioSourceSynthesizer, AudioSourceSynthesizerRenderer, 'Audio Source Synthesizer');
+InstrumentLoader.addInstrumentClass(PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Audio Source Synthesizer');
 // InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
 InstrumentLoader.addInstrumentClass(GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music Player Synthesizer');
 

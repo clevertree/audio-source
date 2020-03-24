@@ -11,7 +11,7 @@ import {
 
 import "./assets/SynthesizerSampleRenderer.css";
 
-/** AudioSourceSynthesizerRenderer **/
+/** PolyphonyInstrumentRenderer **/
 class SynthesizerSampleRenderer extends React.Component {
 
     constructor(props) {
@@ -28,7 +28,7 @@ class SynthesizerSampleRenderer extends React.Component {
 
     render() {
         const sample = this.getSampleData();
-        // console.log('sample', sample);
+        // console.log('voice', voice);
         const sampleName = sample.url.replace(/\.(wav|mp3)$/, '');
 
         let className = 'sample';
@@ -120,7 +120,7 @@ class SynthesizerSampleRenderer extends React.Component {
             <SubMenuItem key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</SubMenuItem>
             <MenuBreak />
             <SubMenuItem key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</SubMenuItem>
-            <MenuItem key="remove" onAction={e => this.renderMenu('sample-remove')}>Remove Sample</MenuItem>
+            <MenuItem key="remove" onAction={e => this.renderMenu('voice-remove')}>Remove Sample</MenuItem>
         </>);
     }
 
@@ -189,34 +189,34 @@ class SynthesizerSampleRenderer extends React.Component {
 
 
     renderMenu(menuKey=null) {
-        // const sample = this.getSampleData();
+        // const voice = this.getSampleData();
         const values = this.getSong().values;
         switch(menuKey) {
-            case 'sample-loop':
-            case 'sample-remove':
+            case 'voice-loop':
+            case 'voice-remove':
             case null:
                 return ;
 
-            case 'sample-change':
+            case 'voice-change':
                 return <>
 
                 </>;
 
-            case 'sample-mixer':
+            case 'voice-mixer':
                 return <>
 
                     <MenuBreak />
                     <MenuItem onAction={null} disabled>Edit Mixer</MenuItem>
                 </>;
 
-            case 'sample-detune':
+            case 'voice-detune':
                 return <>
 
                     <MenuBreak />
                     <MenuItem onAction={null} disabled>Edit Detune</MenuItem>
                 </>;
 
-            case 'sample-root':
+            case 'voice-root':
                 return <>
                     <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
                     <MenuBreak />
@@ -228,7 +228,7 @@ class SynthesizerSampleRenderer extends React.Component {
                     }>{octave}</MenuItem>)}
                 </>;
 
-            case 'sample-alias':
+            case 'voice-alias':
                 return <>
                     <MenuItem onAction={null} disabled>Edit Key Alias</MenuItem>
                     <MenuBreak />
@@ -240,15 +240,15 @@ class SynthesizerSampleRenderer extends React.Component {
                     }>{octave}</MenuItem>)}
                 </>;
 
-            case 'sample-range':
+            case 'voice-range':
                 return <>
                     <MenuItem onAction={null} disabled>Edit Key Range</MenuItem>
                     <MenuBreak />
-                    <MenuItem onAction={e => this.renderMenu('sample-range-start')} >Set Range Start</MenuItem>
-                    <MenuItem onAction={e => this.renderMenu('sample-range-end')} >Set Range End</MenuItem>
+                    <MenuItem onAction={e => this.renderMenu('voice-range-start')} >Set Range Start</MenuItem>
+                    <MenuItem onAction={e => this.renderMenu('voice-range-end')} >Set Range End</MenuItem>
                 </>;
 
-            case 'sample-range-start':
+            case 'voice-range-start':
                 return (<>
                     <MenuItem onAction={null} disabled>Range Start</MenuItem>
                     <MenuBreak />
@@ -260,7 +260,7 @@ class SynthesizerSampleRenderer extends React.Component {
                         }>{octave}</MenuItem>)}
                 </>);
 
-            case 'sample-range-end':
+            case 'voice-range-end':
                 return (<>
                     <MenuItem onAction={null} disabled>Range End</MenuItem>
                     <MenuBreak />

@@ -39,7 +39,7 @@ class Library {
 
     getSampleConfig(sampleURL) {
         return this.getSamples().find(s => s.url = sampleURL)
-            || (()=>{ throw new Error("Could not find sample config for: " + sampleURL);})();
+            || (()=>{ throw new Error("Could not find voice config for: " + sampleURL);})();
     }
 
     getPresetConfig(presetName, presetConfig={}) {

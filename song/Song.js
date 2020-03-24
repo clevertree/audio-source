@@ -6,9 +6,9 @@ import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
-import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
+import {Instruction, NoteInstruction, GroupInstruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
 
-const DEFAULT_INSTRUMENT_CLASS = 'GMEPlayerSynthesizer';
+// const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
 
 class Song {
     constructor(songData={}) {
@@ -37,7 +37,22 @@ class Song {
             bpm: 120,
             // beatsPerMeasure: 4,
             startGroup: 'root',
-            instruments: [],
+            instruments: [
+                [
+                    'PolyphonyInstrument',
+                    {
+                        voices: [
+                            [
+                                'OscillatorNodeVoice',
+                                {
+                                    type: 'sawtooth'
+                                }
+                            ],
+                            ['OscillatorVoice',{type: 'sawtooth'}],
+                        ]
+                    }
+                ]
+            ],
             instructions: {
                 'root': [
                     ['@track0', 0],
@@ -59,8 +74,6 @@ class Song {
                 ]
             }
         };
-        if (DEFAULT_INSTRUMENT_CLASS)
-            data.instruments.push({className: DEFAULT_INSTRUMENT_CLASS});
 
         this.getProxiedData = function() { return data; };
         this.data = new Proxy(data, new ConfigListener(this));
@@ -894,8 +907,9 @@ class Song {
         // if(this.playback)
         //     this.stopPlayback();
 
-        if (instruction.isGroupCommand()) {
-            const groupPlayback = new InstructionPlayback(destination, this, instruction.getGroupFromCommand(), noteStartTime);
+        if (instruction instanceof GroupInstruction) {
+            throw new Error("Group instructions ")
+            const groupPlayback = new InstructionPlayback(destination, this, instruction.groupName, noteStartTime);
             // const groupPlayback = new InstructionPlayback(this.song, subGroupName, notePosition);
             return await groupPlayback.awaitPlaybackReachedEnd();
         }
