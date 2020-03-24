@@ -1,15 +1,15 @@
 import Library from "../../song/Library";
 import PolyphonyInstrumentRenderer from "./render/PolyphonyInstrumentRenderer";
 import React from "react";
-import AudioBufferVoice from "./voice/AudioBufferVoice";
-import OscillatorNodeVoice from "./voice/OscillatorNodeVoice";
+import AudioBufferInstrument from "./voice/AudioBufferInstrument";
+import OscillatorNodeInstrument from "./voice/OscillatorNodeInstrument";
 // import Values from "../../song/Values";
 
 class PolyphonyInstrument {
-    constructor(destination, config={}) {
+    constructor(audioContext, config={}) {
         this.config = {};
         this.voices = [];
-        this.destination = destination;
+        this.audioContext = audioContext;
         this.loadConfig(config);
     }
 
@@ -30,24 +30,19 @@ class PolyphonyInstrument {
     }
 
     loadAudioVoice(voiceID) {
-        const voiceConfig = this.config.voices[voiceID];
-        if (!voiceConfig)
+        if(!this.config.voices[voiceID])
             throw new Error("Voice config is missing: " + voiceID);
-        this.voices[voiceID] = this.getVoiceFromConfig(voiceConfig);
+        const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
+        let voiceClass = PolyphonyInstrument.voiceClasses.findIndex(voiceClass => voiceClass.name === voiceClassName);
+        if (!voiceClass)
+            throw new Error("Unrecognized voice class: " + voiceClassName);
+        this.voices[voiceID] = new voiceClass(voiceConfig, this.audioContext);
     }
 
     static voiceClasses = [
-        AudioBufferVoice,
-        OscillatorNodeVoice
+        AudioBufferInstrument,
+        OscillatorNodeInstrument
     ];
-    getVoiceFromConfig(voiceConfig) {
-        const classes = PolyphonyInstrument.voiceClasses;
-        for(let i=0; i<classes.length; i++) {
-            if(classes[i].isValidConfig(voiceConfig))
-                return new classes[i](voiceConfig);
-        }
-        throw new Error("Invalid Config");
-    }
 
 
     isVoiceLoaded(voiceID) {
@@ -59,164 +54,10 @@ class PolyphonyInstrument {
 
     playNote(destination, frequency, startTime, duration, velocity, onended=null) {
         for (let i = 0; i < this.voices.length; i++) {
-            const voice = this.config.voices[i];
-            voice.playVoice(destination, i, frequency, startTime, duration, velocity, onended);
+            const voice = this.voices[i];
+            voice.playVoice(destination, frequency, startTime, duration, velocity, onended);
 
         }
-    }
-
-    // Instruments return promises
-    async play(destination, namedFrequency, startTime, duration, velocity) {
-
-        const commandFrequency = this.getFrequencyFromAlias(namedFrequency) || namedFrequency; // TODO: get rid of
-
-        // Loop through voice
-        const voicePromises = [];
-        for (let i = 0; i < this.config.voices.length; i++) {
-            const voiceConfig = this.config.voices[i];
-            let frequencyValue = 440;
-
-            // Filter voice playback
-            if (voiceConfig.alias) {
-                if(voiceConfig.alias !== commandFrequency)
-                    // if(voiceConfig.name !== namedFrequency)
-                    continue;
-            } else {
-                frequencyValue = this.getCommandFrequency(commandFrequency);
-            }
-
-            if (voiceConfig.keyLow && this.getCommandFrequency(voiceConfig.keyLow) > frequencyValue)
-                continue;
-            if (voiceConfig.keyHigh && this.getCommandFrequency(voiceConfig.keyHigh) < frequencyValue)
-                continue;
-
-            // TODO: polyphony
-
-            const voicePromise = this.playVoice(destination, i, frequencyValue, startTime, duration, velocity, voiceConfig.adsr || null);
-            voicePromises.push(voicePromise);
-        }
-
-        if(voicePromises.length > 0) {
-            for (let i = 0; i < voicePromises.length; i++) {
-                await voicePromises[i];
-            }
-        } else {
-            console.warn("No voices were played: " + commandFrequency);
-        }
-    }
-
-
-    async playPeriodicWave(destination, periodicWave, frequency, startTime = null, duration = null, velocity = null, detune = null, adsr = null) {
-        const source = destination.context.createOscillator();   // instantiate an oscillator
-        source.frequency.value = frequency;    // set Frequency (hz)
-        if (detune !== null)
-            source.detune = detune;
-
-        source.setPeriodicWave(periodicWave);
-
-        await this.playSource(destination, source, startTime, duration, velocity, adsr);
-        // return source;
-    }
-
-    async playBuffer(destination, buffer, playbackRate, loop = false, startTime = null, duration = null, velocity = null, detune = null, adsr = null) {
-        const source = destination.context.createBufferSource();
-        source.buffer = buffer;
-        source.loop = loop;
-        source.playbackRate.value = playbackRate; //  Math.random()*2;
-        if (detune !== null)
-            source.detune.value = detune;
-        await this.playSource(destination, source, startTime, duration, velocity, adsr);
-        // return source;
-    }
-
-    async playSource(destination, source, startTime = null, duration = null, velocity = null, adsr = null) {
-        // songLength = buffer.duration;
-        // source.playbackRate.value = playbackControl.value;
-
-        // const adsr = voiceConfig.adsr || [0, 0, 0, 0.1];
-
-        adsr = adsr || [0, 0, 0, .1];
-        let currentTime = destination.context.currentTime;
-        startTime = startTime !== null ? startTime : currentTime;
-        duration = duration !== null ? duration : 0;
-
-        let velocityGain = destination.context.createGain();
-        velocityGain.gain.value = parseFloat(velocity || 127) / 127;
-        velocityGain.connect(destination);
-        destination = velocityGain;
-
-        velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
-        velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + adsr[3]);
-
-        // Add to active sources
-        this.activeSources.push(source);
-        this.updateActive();
-
-        await new Promise((resolve, reject) => {
-            setTimeout(reject, 10000);
-            // Set up 'ended' event listener
-            source.addEventListener('ended', e => {
-                resolve();
-            });
-
-            // Start Playback
-            source.connect(destination);
-
-            // Play note
-            source.start(startTime);
-            source.stop(startTime + duration + adsr[3]);
-        });
-
-        const activeSourceI = this.activeSources.indexOf(source);
-        if (activeSourceI !== -1)
-            this.activeSources.splice(activeSourceI, 1);
-        else
-            throw new Error("Active source not found: " + activeSourceI);
-        this.updateActive();
-    }
-    async playVoice(destination, voiceID, frequencyValue, startTime = null, duration = null, velocity = null, adsr = null) {
-        if (!this.isVoiceLoaded(voiceID))
-            await this.initVoice(destination.context, voiceID);
-
-        if (Number.isNaN(frequencyValue)) {
-            console.warn("Invalid command frequency: ", frequencyValue, this.config);
-            return null;
-        }
-        // throw new Error("Voice not loaded: " + voiceName);
-        const voiceData = this.voices[voiceID];
-        const voiceConfig = this.config.voices[voiceID];
-
-        // if (!frequencyValue)
-        //     frequencyValue = (this.getCommandFrequency(voiceConfig.root) || 440);
-
-        if (voiceData.periodicWave) {
-            this.playPeriodicWave(
-                destination,
-                voiceData.periodicWave,
-                frequencyValue,
-                startTime,
-                duration,
-                velocity,
-                voiceConfig.detune || null,
-                adsr
-            );
-        }
-
-        if (voiceData.buffer) {
-            const playbackRate = frequencyValue / (voiceConfig.root ? this.getCommandFrequency(voiceConfig.root) : 440);
-            this.playBuffer(
-                destination,
-                voiceData.buffer,
-                playbackRate,
-                voiceConfig.loop || false,
-                startTime,
-                duration,
-                velocity,
-                voiceConfig.detune || null,
-                adsr
-            );
-        }
-
     }
 
     stopPlayback() {

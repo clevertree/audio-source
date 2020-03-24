@@ -43,15 +43,16 @@ class Song {
                     {
                         voices: [
                             [
-                                'OscillatorNodeVoice',
+                                'OscillatorNodeInstrument',
                                 {
                                     type: 'sawtooth'
                                 }
                             ],
-                            ['OscillatorVoice',{type: 'sawtooth'}],
+                            ['OscillatorNodeInstrument',{type: 'sawtooth'}],
                         ]
                     }
-                ]
+                ],
+                ['OscillatorNodeInstrument',{type: 'square'}],
             ],
             instructions: {
                 'root': [
