@@ -1,8 +1,9 @@
 import React from 'react';
-import { render } from '@testing-library/react';
-import Instruction from "./instruction/Instruction";
-import Storage from "./Storage";
+// import { render } from '@testing-library/react';
+// import Instruction from "./instruction/Instruction";
+// import Storage from "./Storage";
 import Song from "./Song";
+
 
 test('song test', () => {
   new SongTest().test();
@@ -15,6 +16,7 @@ test('song test', () => {
 
 class SongTest {
   constructor() {
+    this.audioContext = {};
   }
 
   async test() {
@@ -45,7 +47,7 @@ class SongTest {
   // }
 
   async testSongClass() {
-    const song = new Song();
+    const song = new Song(this.audioContext);
     song.data.title = 'test';
     // await song.loadSongData({});
 

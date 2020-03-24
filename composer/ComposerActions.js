@@ -112,7 +112,7 @@ class ComposerActions extends ComposerMenu {
         // const defaultInstrumentURL = this.getDefaultInstrumentClass() + '';
         // let songData = storage.generateDefaultSong(defaultInstrumentURL);
         // const song = Song.loadSongFromData(songData);
-        const song = new Song();
+        const song = new Song(this.audioContext);
         this.setCurrentSong(song);
         // this.forceUpdate();
         this.setStatus("Loaded new song", song.getProxiedData());
@@ -132,14 +132,14 @@ class ComposerActions extends ComposerMenu {
 
 
     async loadSongFromMemory(songUUID) {
-        const song = await Song.loadSongFromMemory(songUUID);
+        const song = await Song.loadSongFromMemory(this.audioContext, songUUID);
         await this.setCurrentSong(song);
         this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
 //         console.info(songData);
     }
 
     async loadSongFromURL(url) {
-        const song = await Song.loadSongFromURL(url);
+        const song = await Song.loadSongFromURL(this.audioContext, url);
         await this.setCurrentSong(song);
         this.setStatus("Loaded from url: " + url);
     }

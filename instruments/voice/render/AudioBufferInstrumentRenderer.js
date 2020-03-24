@@ -12,7 +12,7 @@ import {
 import "./assets/SynthesizerSampleRenderer.css";
 
 /** PolyphonyInstrumentRenderer **/
-class SynthesizerSampleRenderer extends React.Component {
+class AudioBufferInstrumentRenderer extends React.Component {
 
     constructor(props) {
         super(props);
@@ -313,4 +313,4 @@ class SynthesizerSampleRenderer extends React.Component {
 
 }
 
-export default SynthesizerSampleRenderer;
+export default AudioBufferInstrumentRenderer;

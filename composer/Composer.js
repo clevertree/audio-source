@@ -36,7 +36,7 @@ class Composer extends ComposerActions {
         // this.trackerElm = new AudioSourceComposerTracker(this);
         this.library = new Library(require('../default.library')); // TODO: get default library url from composer?
 
-        this.song = new Song();
+        this.song = new Song(this.getAudioContext());
         this.song.loadSongData({});
         // this.setCurrentSong(this.song);
         // this.values = new Values(this.song);

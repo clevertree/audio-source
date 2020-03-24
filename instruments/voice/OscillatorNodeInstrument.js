@@ -1,8 +1,9 @@
 class OscillatorNodeInstrument {
-    constructor(config, audioContext) {
-        this.config = config;
-        this.periodicWave = null;
+    constructor(config={}, audioContext=null) {
+        this.config = {};
         this.audioContext = audioContext;
+
+        this.periodicWave = null;
         if(config.url || config.real || config.imag)
             config.type = 'custom';
         if(config.type === 'custom')
@@ -58,20 +59,20 @@ class OscillatorNodeInstrument {
         this.activeSources.push(source);
         this.updateActive();
 
-        await new Promise((resolve, reject) => {
-            setTimeout(reject, 10000);
-            // Set up 'ended' event listener
-            source.addEventListener('ended', e => {
-                resolve();
-            });
-
-            // Start Playback
-            source.connect(destination);
-
-            // Play note
-            source.start(startTime);
-            source.stop(startTime + duration + adsr[3]);
-        });
+        // await new Promise((resolve, reject) => {
+        //     setTimeout(reject, 10000);
+        //     // Set up 'ended' event listener
+        //     source.addEventListener('ended', e => {
+        //         resolve();
+        //     });
+        //
+        //     // Start Playback
+        //     source.connect(destination);
+        //
+        //     // Play note
+        //     source.start(startTime);
+        //     source.stop(startTime + duration + adsr[3]);
+        // });
 
         const activeSourceI = this.activeSources.indexOf(source);
         if (activeSourceI !== -1)

@@ -1,15 +1,16 @@
 import Library from "../../song/Library";
 import PolyphonyInstrumentRenderer from "./render/PolyphonyInstrumentRenderer";
 import React from "react";
-import AudioBufferInstrument from "./voice/AudioBufferInstrument";
-import OscillatorNodeInstrument from "./voice/OscillatorNodeInstrument";
+import AudioBufferInstrument from "../voice/AudioBufferInstrument";
+import OscillatorNodeInstrument from "../voice/OscillatorNodeInstrument";
 // import Values from "../../song/Values";
 
 class PolyphonyInstrument {
-    constructor(audioContext, config={}) {
+    constructor(config={}, audioContext=null) {
         this.config = {};
-        this.voices = [];
         this.audioContext = audioContext;
+
+        this.voices = [];
         this.loadConfig(config);
     }
 
@@ -26,14 +27,14 @@ class PolyphonyInstrument {
     loadVoices() {
         this.voices = [];
         for (let voiceID = 0; voiceID < this.config.voices.length; voiceID++)
-            this.loadAudioVoice(voiceID);
+            this.loadVoice(voiceID);
     }
 
-    loadAudioVoice(voiceID) {
+    loadVoice(voiceID) {
         if(!this.config.voices[voiceID])
             throw new Error("Voice config is missing: " + voiceID);
         const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
-        let voiceClass = PolyphonyInstrument.voiceClasses.findIndex(voiceClass => voiceClass.name === voiceClassName);
+        let voiceClass = PolyphonyInstrument.voiceClasses.find(voiceClass => voiceClass.name === voiceClassName);
         if (!voiceClass)
             throw new Error("Unrecognized voice class: " + voiceClassName);
         this.voices[voiceID] = new voiceClass(voiceConfig, this.audioContext);
@@ -213,7 +214,7 @@ class PolyphonyInstrument {
             name: voiceName,
             // name: addVoiceName
         };
-        await this.loadAudioVoice(addVoiceID);
+        await this.loadVoice(addVoiceID);
 
         if(this.grid) await this.grid.forceUpdate();
         else this.forceUpdate();
@@ -241,7 +242,7 @@ class PolyphonyInstrument {
         newVoiceURL = new URL(newVoiceURL) + '';
         this.config.voices[voiceID].url = newVoiceURL;
         // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'url'], newVoiceURL);
-        await this.loadAudioVoice(voiceID);
+        await this.loadVoice(voiceID);
     }
 
     async setVoiceName(voiceID, voiceName) {

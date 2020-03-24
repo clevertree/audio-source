@@ -13,7 +13,6 @@ import {
 import {Library} from "../../../song";
 import InstrumentLoader from "../../../song/instrument/InstrumentLoader";
 
-import SynthesizerSampleRenderer from "./SynthesizerSampleRenderer";
 
 import "./assets/SynthesizerRenderer.css";
 
@@ -82,20 +81,20 @@ class PolyphonyInstrumentRenderer extends React.Component {
                         <Icon className="config"/>
                     </Button>
                 </Div>
-                {this.state.open && (
-                    <Div className="samples">
-                        {instrumentConfig.samples && instrumentConfig.samples.map((sampleData, sampleID) =>
-                            <SynthesizerSampleRenderer
-                                key={sampleID}
-                                song={this.props.song}
-                                instrumentID={this.props.instrumentID}
-                                sampleID={sampleID}
-                                sampleData={sampleData}
-                                openMenu={(e, options) => this.openMenu(e, options)}
-                            />
-                        )}
-                    </Div>
-                )}
+                {/*{this.state.open && (*/}
+                {/*    <Div className="samples">*/}
+                {/*        {instrumentConfig.samples && instrumentConfig.samples.map((sampleData, sampleID) =>*/}
+                {/*            <SynthesizerSampleRenderer*/}
+                {/*                key={sampleID}*/}
+                {/*                song={this.props.song}*/}
+                {/*                instrumentID={this.props.instrumentID}*/}
+                {/*                sampleID={sampleID}*/}
+                {/*                sampleData={sampleData}*/}
+                {/*                openMenu={(e, options) => this.openMenu(e, options)}*/}
+                {/*            />*/}
+                {/*        )}*/}
+                {/*    </Div>*/}
+                {/*)}*/}
             </Div>
         );
 

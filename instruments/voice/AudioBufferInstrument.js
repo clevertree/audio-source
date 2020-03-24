@@ -1,6 +1,7 @@
 class AudioBufferInstrument {
-    constructor(config, audioContext) {
-        this.config = config;
+    constructor(config={}, audioContext=null) {
+        this.config = {};
+        this.audioContext = audioContext;
     }
 
 
@@ -32,20 +33,20 @@ class AudioBufferInstrument {
         this.activeSources.push(source);
         this.updateActive();
 
-        await new Promise((resolve, reject) => {
-            setTimeout(reject, 10000);
-            // Set up 'ended' event listener
-            source.addEventListener('ended', e => {
-                resolve();
-            });
-
-            // Start Playback
-            source.connect(destination);
-
-            // Play note
-            source.start(startTime);
-            source.stop(startTime + duration + adsr[3]);
-        });
+        // await new Promise((resolve, reject) => {
+        //     setTimeout(reject, 10000);
+        //     // Set up 'ended' event listener
+        //     source.addEventListener('ended', e => {
+        //         resolve();
+        //     });
+        //
+        //     // Start Playback
+        //     source.connect(destination);
+        //
+        //     // Play note
+        //     source.start(startTime);
+        //     source.stop(startTime + duration + adsr[3]);
+        // });
 
         const activeSourceI = this.activeSources.indexOf(source);
         if (activeSourceI !== -1)

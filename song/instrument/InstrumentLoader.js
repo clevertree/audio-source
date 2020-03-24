@@ -1,8 +1,12 @@
-import PolyphonyInstrument from "../../instruments/synth/PolyphonyInstrument";
 // import SPCPlayerSynthesizer from "../instruments/chip/SPCPlayerSynthesizer";
 import GMEPlayerSynthesizer from "../../instruments/gme/GMEPlayerSynthesizer";
 import GMEPlayerSynthesizerRenderer from "../../instruments/gme/GMEPlayerSynthesizerRenderer";
-import PolyphonyInstrumentRenderer from "../../instruments/synth/render/PolyphonyInstrumentRenderer";
+import PolyphonyInstrument from "../../instruments/poly/PolyphonyInstrument";
+import PolyphonyInstrumentRenderer from "../../instruments/poly/render/PolyphonyInstrumentRenderer";
+import AudioBufferInstrument from "../../instruments/voice/AudioBufferInstrument";
+import AudioBufferInstrumentRenderer from "../../instruments/voice/render/AudioBufferInstrumentRenderer";
+import OscillatorNodeInstrument from "../../instruments/voice/OscillatorNodeInstrument";
+import OscillatorNodeInstrumentRenderer from "../../instruments/voice/render/OscillatorNodeInstrumentRenderer";
 // import {ConfigListener} from "./ConfigListener";
 
 class InstrumentLoader {
@@ -77,8 +81,11 @@ class InstrumentLoader {
 
 InstrumentLoader.registeredInstrumentClasses = [];
 
+InstrumentLoader.addInstrumentClass(AudioBufferInstrument, AudioBufferInstrumentRenderer, 'AudioBuffer Instrument');
+InstrumentLoader.addInstrumentClass(OscillatorNodeInstrument, OscillatorNodeInstrumentRenderer, 'OscillatorNode Instrument');
+
 InstrumentLoader.addInstrumentClass(PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Audio Source Synthesizer');
-// InstrumentLoader.addInstrumentClass(SPCPlayerSynthesizer, 'SPC Player Synthesizer');
+
 InstrumentLoader.addInstrumentClass(GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music Player Synthesizer');
 
 export default InstrumentLoader;

@@ -11,21 +11,18 @@ import {Instruction, NoteInstruction, GroupInstruction, InstructionList, Instruc
 // const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
 
 class Song {
-    constructor(songData={}) {
-        this.eventListeners = [];
+    constructor(audioContext=null, songData={}) {
+        this.audioContext = audioContext; //  || new (window.AudioContext || window.webkitAudioContext)();
 
-        // this.audioContext = null;
+        this.eventListeners = [];
         this.instruments = [];
 
-        // this.seekLength = 0.5;
         this.playback = null;
-        this.playbackPosition = 0;
-        this.isPaused = false;
+        // this.playbackPosition = 0;
+        // this.isPaused = false;
+        // this.volume = Song.DEFAULT_VOLUME;
 
-        this.volumeGain = null;
-        this.volume = Song.DEFAULT_VOLUME;
-
-        this.activeGroups = {};
+        // this.activeGroups = {};
 
         // this.getData = function() { return data; }
         const data = {
@@ -78,27 +75,15 @@ class Song {
 
         this.getProxiedData = function() { return data; };
         this.data = new Proxy(data, new ConfigListener(this));
-        // this.loadSongData(songData);
-        // this.eventListeners = [];
         this.history = [];
-        this.waitCancels = [];
-        // TODO: move to playback class
-        this.playbackEndCallbacks = [];
+        // this.waitCancels = [];
+        // this.playbackEndCallbacks = [];
         this.values = new Values(this);
 
         this.loadSongData(songData);
+        this.loadAllInstruments();
     }
 
-    /** @deprecated **/
-    async wait(waitTimeInSeconds) {
-        await new Promise((resolve, reject) => {
-            const timeout = setTimeout(resolve, waitTimeInSeconds * 1000);
-            this.waitCancels.push(() => {
-                clearTimeout(timeout);
-                resolve();
-            });
-        });
-    }
 
 
     /** Events and Listeners **/
@@ -127,14 +112,6 @@ class Song {
     }
 
     /** Initialization **/
-
-    async init(audioContext = null) {
-        // if (audioContext !== null)
-        //     await this.setAudioContext(audioContext);
-        await this.loadAllInstruments(true);
-        if(audioContext !== null)
-            await this.initAllInstruments(audioContext);
-    }
 
     async initInstrument(instrumentID, audioContext, throwException = true) {
         const instrument = await this.getInstrument(instrumentID, throwException);
@@ -279,19 +256,17 @@ class Song {
     }
 
     hasInstrument(instrumentID) {
-        const instrumentList = this.getInstrumentList();
+        const instrumentList = this.data.instruments;
         // console.log('hasInstrument', instrumentList[instrumentID], !!instrumentList[instrumentID])
         return !!instrumentList[instrumentID];
     }
 
-    getInstrumentConfig(instrumentID, throwException = true) {
-        const instrumentList = this.getInstrumentList();
-        if (!instrumentList[instrumentID]) {
-            if (throwException)
-                throw new Error("Instrument ID not found: " + instrumentID);
-            return null;
-        }
-        return instrumentList[instrumentID];
+    /** @deprecated **/
+    getInstrumentConfig(instrumentID) {
+        const instrumentList = this.data.instruments;
+        if (!instrumentList[instrumentID])
+            throw new Error("Instrument ID not found: " + instrumentID);
+        return instrumentList[instrumentID][0];
     }
 
 
@@ -308,28 +283,30 @@ class Song {
         return null;
     }
 
-    async loadInstrumentInstance(instrumentID) {
-        const loader = new InstrumentLoader(this);
-        const instrument = loader.loadInstrumentInstance(instrumentID);
-        if (typeof instrument.init !== "function")
-            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
-        await instrument.init();
-        return instrument;
-    }
 
     unloadInstrument(instrumentID) {
         // TODO:
     }
 
+    loadAllInstruments(forceReload = false) {
+        const instrumentList = this.data.instruments;
+        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
+            if (instrumentList[instrumentID]) {
+//                 console.info("Loading instruments: " + instrumentID, instrumentList[instrumentID]);
+                this.loadInstrument(instrumentID, forceReload);
+            }
+        }
+    }
+
+
     loadInstrument(instrumentID, forceReload = false) {
-        instrumentID = parseInt(instrumentID);
+        // instrumentID = parseInt(instrumentID);
         if (!forceReload && this.instruments[instrumentID])
             return this.instruments[instrumentID];
 
-        const loader = new InstrumentLoader(this);
-        const instrument = loader.loadInstrumentInstance(instrumentID);
-        if (typeof instrument.init !== "function")
-            throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
+        const instrument = this.loadInstrumentInstance(instrumentID);
+        // if (typeof instrument.init !== "function")
+        //     throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
         this.instruments[instrumentID] = instrument;
 
         this.dispatchEvent({
@@ -339,21 +316,21 @@ class Song {
             song: this
         });
 
-        if (this.audioContext)
-            instrument.init(instrumentID, this.audioContext);
+        // if (this.audioContext)
+        //     instrument.init(instrumentID, this.audioContext);
 
 //             console.info("Instrument loaded: ", instance, instrumentID);
         return instrument;
     }
 
-    async loadAllInstruments(forceReload = false) {
-        const instrumentList = this.getInstrumentList();
-        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            if (instrumentList[instrumentID]) {
-//                 console.info("Loading instruments: " + instrumentID, instrumentList[instrumentID]);
-                await this.loadInstrument(instrumentID, forceReload);
-            }
-        }
+
+    loadInstrumentInstance(instrumentID) {
+        const [className, config] = this.data.instruments[instrumentID];
+        if (!className)
+            throw new Error("Invalid instruments class");
+
+        const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
+        return new classInstrument(config);
     }
 
 
@@ -790,15 +767,6 @@ class Song {
 
     }
 
-    // TODO: move to playback class
-    async waitForPlaybackToEnd() {
-        const ret = await new Promise((resolve, reject) => {
-            this.playbackEndCallbacks.push(resolve);
-        });
-        console.log("Playback finished: ", ret);
-        return ret;
-    }
-
 
     isActive() {
         for (const key in this.activeGroups) {
@@ -813,15 +781,14 @@ class Song {
     async play(destination) {
         if(!destination || !destination.context)
             throw new Error("Invalid destination");
-        const audioContext = destination.context;
+        // const audioContext = destination.context;
         if (this.playback) {
             this.stopPlayback();
             this.setPlaybackPosition(0);
             // throw new Error("Song is already playing");
         }
 
-        await this.init(audioContext);
-
+        // await this.init(audioContext);
         const playback = new InstructionPlayback(destination, this, this.getStartGroup(), this.playbackPosition);
         this.playback = playback;
         console.log("Start playback:", this.playbackPosition);
@@ -833,17 +800,9 @@ class Song {
             song: this
         });
 
-        this.playback.awaitPlaybackReachedEnd()
-            .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
-        return await this.waitForPlaybackToEnd();
-
-        // if (this.playback)
-        //     this.stopPlayback();
-
-        // if(this.playback)
-        //     this.stopPlayback();
-
-
+        const reachedEnding = await this.playback.awaitPlaybackReachedEnd();
+        if(reachedEnding)
+            this.stopPlayback(true);
     }
 
     stopPlayback() {
@@ -1077,35 +1036,35 @@ class Song {
     //     this.history = [];
     //     this.instructionProcessGroupData();
     // }
-    static loadSongFromData(songData) {
-        const song = new Song();
+    static loadSongFromData(audioContext, songData) {
+        const song = new Song(audioContext);
         song.loadSongData(songData);
         return song;
     }
 
-    static async loadSongFromMemory(songUUID) {
+    static async loadSongFromMemory(audioContext, songUUID) {
         const storage = new Storage();
         const songData = await storage.loadSongFromMemory(songUUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
-        const song = new Song(songData);
+        const song = new Song(audioContext, songData);
         song.loadSongData(songData);
         song.loadSongHistory(songHistory);
         return song;
     }
 
-    static async loadSongFromFileInput(file) {
+    static async loadSongFromFileInput(audioContext, file) {
         const library = await Song.getFileSupportModule(file.name);
         if (typeof library.loadSongDataFromFileInput !== "function")
             throw new Error("Invalid library.loadSongDataFromFileInput method");
 
         const buffer = Song.loadBufferFromFileInput(file);
         const songData = await library.loadSongDataFromBuffer(buffer, file.name);
-        const song = new Song();
+        const song = new Song(audioContext);
         song.loadSongData(songData);
         return song;
     }
 
-    static async loadSongFromURL(src) {
+    static async loadSongFromURL(audioContext, src) {
         const library = await Song.getFileSupportModule(src);
         if (typeof library.loadSongDataFromBuffer !== "function")
             throw new Error("Invalid library.loadSongDataFromURL method: " + src);
@@ -1114,7 +1073,7 @@ class Song {
         const buffer = await fileService.loadBufferFromURL(src);
         // const buffer = await response.arrayBuffer();
         const songData = await library.loadSongDataFromBuffer(buffer, src);
-        const song = new Song();
+        const song = new Song(audioContext);
         song.loadSongData(songData);
         return song;
     }
