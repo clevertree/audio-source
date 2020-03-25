@@ -1,6 +1,3 @@
-import InstrumentLoader from "../../song/instrument/InstrumentLoader";
-import PolyphonyInstrument from "../poly/PolyphonyInstrument";
-import PolyphonyInstrumentRenderer from "../poly/render/PolyphonyInstrumentRenderer";
 
 class TestInstrument {
     constructor(config={}, audioContext=null) {
@@ -12,7 +9,7 @@ class TestInstrument {
     /** Playback **/
 
     playNote(destination, frequency, startTime, duration, velocity, onended=null) {
-        console.log('playNote(', {destination, frequency, startTime, duration, velocity, onended}, ')')
+        console.log('playNote(', frequency, startTime, duration, velocity, ')')
     }
 
 

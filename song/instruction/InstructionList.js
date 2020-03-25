@@ -18,7 +18,7 @@ export class InstructionList {
             instructionData = InstructionList.parseInstruction(instructionData, i);
             this.instructionList[i] = instructionData.data;
         }
-        console.log('this.instructionList', this.instructionList);
+        // console.log('this.instructionList', this.instructionList);
     }
 
 

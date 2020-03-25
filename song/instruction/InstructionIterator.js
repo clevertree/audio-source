@@ -1,9 +1,13 @@
-import Instruction from "./Instruction";
 import {InstructionList} from "./InstructionList";
 
 class InstructionIterator extends InstructionList {
-    constructor(instructionList, stats = null) {
-        super(instructionList);
+    constructor(song, groupName, bpm, timeDivision) {
+        if(!song.data.instructions[groupName])
+            throw new Error("Invalid instruction group: " + groupName);
+        super(song.data.instructions[groupName]);
+        this.bpm = bpm;
+        this.timeDivision = timeDivision;
+
         this.currentIndex = -1;
         this.positionTicks = 0;
         this.endPositionTicks = 0;
@@ -12,7 +16,7 @@ class InstructionIterator extends InstructionList {
         this.lastInstructionPositionInTicks = 0;
         this.lastInstructionPositionInSeconds = 0;
 
-        this.stats = stats || {};
+        // this.stats = stats || {};
         this.instrumentID = 0;
 
     }
@@ -26,16 +30,18 @@ class InstructionIterator extends InstructionList {
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDuration;
         this.lastInstructionPositionInTicks = this.positionTicks;
 
-        const elapsedTime = (deltaDuration / this.stats.timeDivision) / (this.stats.bpm / 60);
+        const elapsedTime = (deltaDuration / this.timeDivision) / (this.bpm / 60);
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
         this.lastInstructionPositionInSeconds = this.positionSeconds;
 
         const groupEndPositionInTicks = this.positionTicks + instruction.durationInTicks;
         if (groupEndPositionInTicks > this.endPositionTicks)
             this.endPositionTicks = groupEndPositionInTicks;
-        const groupPlaybackEndTime = this.positionSeconds + (instruction.durationInTicks / this.stats.timeDivision) / (this.stats.bpm / 60);
+        const groupPlaybackEndTime = this.positionSeconds + (instruction.durationInTicks / this.timeDivision) / (this.bpm / 60);
         if (groupPlaybackEndTime > this.endPositionSeconds)
             this.endPositionSeconds = groupPlaybackEndTime;
+
+        // TODO: calculate bpm and timeDivision changes
     }
 
 

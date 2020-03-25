@@ -54,7 +54,7 @@ class Song {
             ],
             instructions: {
                 'root': [
-                    ['@track0', 0],
+                    ['@track0', 0, 128],
                     ['@track1', 1],
                 ],
                 'track0': [
@@ -446,17 +446,13 @@ class Song {
         return index >= instructionList.length ? null : new Instruction(instructionList[index], index);
     }
 
-    instructionGetIterator(groupName, parentStats=null) {
-        if(!this.data.instructions[groupName])
-            throw new Error("Invalid instruction group: " + groupName);
-        if(parentStats === null)
-            parentStats = {
-                bpm: this.data.bpm,
-                timeDivision: this.data.bpm,
-            }
+
+    instructionGetIterator(groupName, bpm=null, timeDivision=null) {
         return new InstructionIterator(
-            this.data.instructions[groupName],
-            parentStats
+            this,
+            groupName,
+            bpm || this.data.bpm,
+            timeDivision || this.data.timeDivision
         );
     }
 
@@ -669,11 +665,11 @@ class Song {
 
         if (groupPositionInTicks > iterator.positionTicks) {
             const elapsedTicks = groupPositionInTicks - iterator.positionTicks;
-            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.stats.bpm, iterator.stats.timeDivision);
+            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.bpm, iterator.timeDivision);
 
         } else if (groupPositionInTicks < iterator.positionTicks) {
             const elapsedTicks = iterator.positionTicks - groupPositionInTicks;
-            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.stats.bpm, iterator.stats.timeDivision);
+            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.bpm, iterator.timeDivision);
         }
 
         // console.info("getGroupPositionFromTicks", groupPositionInTicks, currentPosition);
@@ -698,11 +694,11 @@ class Song {
         let currentPositionInTicks = iterator.positionTicks;
         if (positionInSeconds > iterator.positionSeconds) {
             const elapsedTime = positionInSeconds - iterator.positionSeconds;
-            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.stats.bpm);
+            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.bpm);
 
         } else if (positionInSeconds < iterator.positionSeconds) {
             const elapsedTime = iterator.positionSeconds - positionInSeconds;
-            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.stats.bpm);
+            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.bpm);
         }
 
         // console.info("getSongPositionInTicks", positionInSeconds, currentPositionInTicks);
@@ -868,7 +864,7 @@ class Song {
         //     this.stopPlayback();
 
         if (instruction instanceof GroupInstruction) {
-            const groupPlayback = new InstructionPlayback(destination, this, instruction.groupName, noteStartTime);
+            const groupPlayback = new InstructionPlayback(destination, this, instruction.getGroupName(), noteStartTime);
             // const groupPlayback = new InstructionPlayback(this.song, subGroupName, notePosition);
             return groupPlayback;
         }

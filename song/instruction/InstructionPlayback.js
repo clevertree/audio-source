@@ -2,54 +2,75 @@ import {instanceOf} from "prop-types";
 import GroupInstruction from "./GroupInstruction";
 
 class InstructionPlayback {
-    constructor(destination, song, groupName, startTime = null, seekLength = 1000) {
+    constructor(destination, song, groupName, startTime = null, onended = null) {
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
-        startTime = startTime || destination.context.currentTime;
+        if(startTime === null)
+            startTime =  destination.context.currentTime;
 
         this.audioContext = destination.context;
         this.song = song;
+        this.onended = onended;
         // this.groupName = groupName;
         // this.seekLength = seekLength;
         this.subGroups = [];
-        this.startGroupPlayback(destination, groupName, startTime);
-        setInterval(() => this.renderPlayback(), seekLength);
-        this.renderPlayback();
-    }
-
-    startGroupPlayback(destination, groupName, startTime) {
-        const iterator = this.song.instructionGetIterator(groupName);
-        this.subGroups.push([
+        this.seekLength = 1000;
+        const startingStats = {
             startTime,
             destination,
+            groupName,
+            bpm: song.data.bpm,
+            timeDivision: song.data.timeDivision,
+        };
+        this.startGroupPlayback(startingStats);
+        setInterval(() => this.renderPlayback(), this.seekLength);
+        this.renderPlayback();
+
+    }
+
+    startGroupPlayback(stats) {
+        const iterator = this.song.instructionGetIterator(stats.groupName, stats.bpm, stats.timeDivision);
+        this.subGroups.push([
+            stats,
             iterator
         ]);
-        console.log('group:start', groupName);
+        console.log('group:start', stats.groupName);
         this.song.dispatchEvent(new CustomEvent('group:start', {
             detail: {
-                startTime,
-                groupName
+                playback: this,
+                stats,
+                iterator
             }
         }));
     }
 
     endGroupPlayback(groupID) {
-        const [startTime, destination, iterator] = this.subGroups[groupID];
+        const [stats, iterator] = this.subGroups[groupID];
         this.subGroups.splice(groupID, 1);
-        const groupEndDelaySeconds = (iterator.endPositionSeconds + startTime) - this.audioContext.currentTime;
+        const groupEndDelaySeconds = (iterator.endPositionSeconds + stats.startTime) - this.audioContext.currentTime;
         setTimeout(() => {
-            console.log('group:end', iterator.groupName, iterator.endPositionSeconds);
+            console.log('group:end', stats.groupName, iterator.endPositionSeconds);
             this.song.dispatchEvent(new CustomEvent('group:end', {
                 detail: {
                     playback: this,
+                    stats,
                     iterator
                 }
             }));
+            if(this.subGroups.length === 0) {
+                this.onended();
+            }
         }, groupEndDelaySeconds)
     }
 
     async awaitPlaybackReachedEnd() {
-        await this.wait(5);
+        await new Promise((resolve, reject) => {
+            const oldCallback = this.onended;
+            this.onended = () => {
+                resolve();
+                oldCallback && oldCallback();
+            };
+        })
     }
 
     async wait(waitTimeInSeconds) {
@@ -62,31 +83,37 @@ class InstructionPlayback {
     renderPlayback() {
         const audioContext = this.audioContext;
         for(let i=0; i<this.subGroups.length; i++) {
-            const [startTime, destination, iterator] = this.subGroups[i];
-            const currentPositionSeconds = audioContext.currentTime - startTime;
+            const [stats, iterator] = this.subGroups[i];
+            const currentPositionSeconds = audioContext.currentTime - stats.startTime;
 
-            if(iterator.positionSeconds > currentPositionSeconds)
-                continue;
+            while(true) {
+                if (iterator.positionSeconds > currentPositionSeconds)
+                    break;
 
 
-            if(iterator.hasReachedEnd()) {
-                this.endGroupPlayback(i);
-                i--;
-                continue;
-            }
-
-            const instruction = iterator.nextInstruction();
-            const noteStartTime = startTime + iterator.playbackTime; // Group start time equals current group's start + playback times
-            if (instruction instanceof GroupInstruction) {
-                if (instruction.groupName === iterator.groupName) { // TODO group stack
-                    console.error(`Recursive group call. Skipping group '${instruction.groupName}'`);
-                    continue;
+                if (iterator.hasReachedEnd()) {
+                    this.endGroupPlayback(i);
+                    i--;
+                    break;
                 }
 
-                this.startGroupPlayback(destination, instruction.groupName, noteStartTime);
+                const instruction = iterator.nextInstruction();
+                const noteStartTime = stats.startTime + iterator.positionSeconds; // Group start time equals current group's start + playback times
+                if (instruction instanceof GroupInstruction) {
+                    if (instruction.getGroupName() === iterator.groupName) { // TODO group stack
+                        console.error(`Recursive group call. Skipping group '${instruction.getGroupName()}'`);
+                        continue;
+                    }
 
-            } else {
-                this.song.playInstruction(destination, instruction, noteStartTime, iterator.groupName);
+                    const subStats = Object.assign({}, stats, {
+                        startTime: noteStartTime,
+                        groupName: instruction.getGroupName()
+                    });
+                    this.startGroupPlayback(subStats);
+
+                } else {
+                    this.song.playInstruction(stats.destination, instruction, noteStartTime, iterator.groupName);
+                }
             }
         }
     }
