@@ -5,8 +5,8 @@ import React from 'react';
 import Song from "./Song";
 
 
-test('song test', () => {
-  new SongTest().test();
+test('song test', async () => {
+  await new SongTest().test();
   // const { getByText } = render(<App />);
   // const linkElement = getByText(/learn react/i);
   // expect(linkElement).toBeInTheDocument();
@@ -16,7 +16,12 @@ test('song test', () => {
 
 class SongTest {
   constructor() {
-    this.audioContext = {};
+    this.audioContext = {
+      currentTime:0
+    };
+    this.destination = {
+      context: this.audioContext
+    }
   }
 
   async test() {
@@ -47,7 +52,11 @@ class SongTest {
   // }
 
   async testSongClass() {
-    const song = new Song(this.audioContext);
+    const song = new Song(this.audioContext, {
+      instruments: [
+          ['TestInstrument']
+      ]
+    });
     song.data.title = 'test';
     // await song.loadSongData({});
 
@@ -104,7 +113,7 @@ class SongTest {
     let iterator = song.instructionGetIterator(testGroup);
     let instruction, instructionList, positionInTicks=0, playbackTime=0;
     while(instruction = iterator.nextInstruction()) {
-      positionInTicks += instruction.deltaDuration;
+      positionInTicks += instruction.deltaDurationInTicks;
       expect(iterator.positionTicks).toBe(positionInTicks);
     }
 
@@ -131,7 +140,9 @@ class SongTest {
     if(song.getSongLengthInSeconds() === 0) throw new Error("getSongLengthInSeconds()");
     // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
-    await song.play({context: {}});
+    song.setPlaybackPosition(0);
+    const playback = song.play(this.destination);
+    await playback.awaitPlaybackReachedEnd();
 
     // Delete Instructions
     while(root.length > 5)

@@ -3,6 +3,7 @@ import PolyphonyInstrumentRenderer from "./render/PolyphonyInstrumentRenderer";
 import React from "react";
 import AudioBufferInstrument from "../voice/AudioBufferInstrument";
 import OscillatorNodeInstrument from "../voice/OscillatorNodeInstrument";
+import InstrumentLoader from "../../song/instrument/InstrumentLoader";
 // import Values from "../../song/Values";
 
 class PolyphonyInstrument {
@@ -377,3 +378,4 @@ class PolyphonyInstrument {
 
 
 export default PolyphonyInstrument;
+

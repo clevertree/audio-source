@@ -13,6 +13,7 @@ class InstructionIterator extends InstructionList {
         this.lastInstructionPositionInSeconds = 0;
 
         this.stats = stats || {};
+        this.instrumentID = 0;
 
     }
 
@@ -21,7 +22,7 @@ class InstructionIterator extends InstructionList {
     }
 
     incrementPositionByInstruction(instruction) {
-        const deltaDuration = instruction.deltaDuration;
+        const deltaDuration = instruction.deltaDurationInTicks;
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDuration;
         this.lastInstructionPositionInTicks = this.positionTicks;
 
@@ -29,10 +30,10 @@ class InstructionIterator extends InstructionList {
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
         this.lastInstructionPositionInSeconds = this.positionSeconds;
 
-        const groupEndPositionInTicks = this.positionTicks + instruction.duration;
+        const groupEndPositionInTicks = this.positionTicks + instruction.durationInTicks;
         if (groupEndPositionInTicks > this.endPositionTicks)
             this.endPositionTicks = groupEndPositionInTicks;
-        const groupPlaybackEndTime = this.positionSeconds + (instruction.duration / this.stats.timeDivision) / (this.stats.bpm / 60);
+        const groupPlaybackEndTime = this.positionSeconds + (instruction.durationInTicks / this.stats.timeDivision) / (this.stats.bpm / 60);
         if (groupPlaybackEndTime > this.endPositionSeconds)
             this.endPositionSeconds = groupPlaybackEndTime;
     }
@@ -41,7 +42,7 @@ class InstructionIterator extends InstructionList {
     currentInstruction() {
         if (this.currentIndex === -1)
             throw new Error("Iterator has not been started");
-        return this.getInstruction(this.currentIndex);
+        return this.getInstruction(this.currentIndex, this.instrumentID);
     }
 
     nextInstruction() {

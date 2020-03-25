@@ -74,7 +74,7 @@ class Tracker extends React.Component {
             // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
 
 
-            if(nextInstruction.deltaDuration > 0) {
+            if(nextInstruction.deltaDurationInTicks > 0) {
                 // Finish rendering last row
                 let endPositionTicks = instructionIterator.positionTicks;
 
@@ -199,7 +199,7 @@ class Tracker extends React.Component {
         if (composer.refs.fieldInstructionInstrument.value || composer.refs.fieldInstructionInstrument.value === 0)
             newInstruction.instrument = parseInt(composer.refs.fieldInstructionInstrument.value);
         if (composer.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
-            newInstruction.duration = parseFloat(composer.refs.fieldInstructionDuration.value);
+            newInstruction.durationInTicks = parseFloat(composer.refs.fieldInstructionDuration.value);
         const velocityValue = parseInt(composer.refs.fieldInstructionVelocity.value);
         if (velocityValue || velocityValue === 0)
             newInstruction.velocity = velocityValue;

@@ -1,15 +1,16 @@
 
 class Instruction {
-    constructor(instructionData = [0], index) {
+    constructor(instructionData = [0], index=null, instrumentID=null) {
         this.index = index;
         this.data = instructionData;
+        this.instrumentID = instrumentID;
     }
 
-    get deltaDuration() {
+    get deltaDurationInTicks() {
         return this.data[0];
     }
 
-    set deltaDuration(newDeltaDuration) {
+    set deltaDurationInTicks(newDeltaDuration) {
         this.data[0] = newDeltaDuration;
     }
 
@@ -22,19 +23,20 @@ class Instruction {
     }
 
 
-    get duration() {
+    get durationInTicks() {
         return this.data[2];
     }
 
-    set duration(newDuration) {
+    set durationInTicks(newDuration) {
         newDuration = parseFloat(newDuration);
         if (Number.isNaN(newDuration))
             throw new Error("Invalid Duration");
         this.data[2] = newDuration;
     }
 
+    /** @deprecated **/
     static parseDurationAsTicks(durationString, timeDivision) {
-        if (durationString === null || typeof durationString === 'number')
+        if (typeof durationString !== 'string')
             return durationString;
         switch (durationString[durationString.length - 1].toLowerCase()) {
             case 't':

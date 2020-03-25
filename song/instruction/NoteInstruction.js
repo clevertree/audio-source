@@ -10,19 +10,10 @@ class NoteInstruction extends Instruction {
     }
 
 
-    get duration() {
-        return this.data[2];
-    }
 
-    set duration(newDuration) {
-        newDuration = parseFloat(newDuration);
-        if (Number.isNaN(newDuration))
-            throw new Error("Invalid Duration");
-        this.data[2] = newDuration;
-    }
-
+    /** @deprecated **/
     getDurationAsTicks(timeDivision) {
-        return Instruction.parseDurationAsTicks(this.duration, timeDivision);
+        return Instruction.parseDurationAsTicks(this.durationInTicks, timeDivision);
     }
 
     get velocity() {

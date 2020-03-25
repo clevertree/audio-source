@@ -8,6 +8,9 @@ import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
 import {Instruction, NoteInstruction, GroupInstruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
 
+
+import InstrumentList from "../instruments";
+InstrumentList.addAllInstruments();
 // const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
 
 class Song {
@@ -36,12 +39,10 @@ class Song {
             startGroup: 'root',
             instruments: [
                 [
-                    'PolyphonyInstrument',
-                    {
+                    'PolyphonyInstrument', {
                         voices: [
                             [
-                                'OscillatorNodeInstrument',
-                                {
+                                'OscillatorNodeInstrument', {
                                     type: 'sawtooth'
                                 }
                             ],
@@ -241,18 +242,19 @@ class Song {
         return !!this.instruments[instrumentID];
     }
 
-    async playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity) {
+    playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
         if (!instrumentID && instrumentID !== 0) {
             console.warn("No instruments set for instruction. Using instruments 0");
             instrumentID = 0;
             // return;
         }
-        if (!this.data.instruments[instrumentID]) {
+        if (!this.instruments[instrumentID]) {
             console.error(`Instrument ${instrumentID} is not loaded. Playback skipped. `);
             return;
         }
-        let instrument = await this.loadInstrument(instrumentID);
-        return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
+        let instrument = this.instruments[instrumentID];
+        // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
+        return instrument.playNote(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
     }
 
     hasInstrument(instrumentID) {
@@ -275,12 +277,10 @@ class Song {
     }
 
     /** @deprecated **/
-    async getInstrument(instrumentID, throwException = true) {
+    getInstrument(instrumentID) {
         if (this.instruments[instrumentID])
-            return await this.instruments[instrumentID];
-        if (throwException)
-            throw new Error("Instrument not yet loading: " + instrumentID);
-        return null;
+            return this.instruments[instrumentID];
+        throw new Error("Instrument not yet loading: " + instrumentID);
     }
 
 
@@ -487,7 +487,7 @@ class Song {
             if (currentPositionInTicks > insertPositionInTicks) {
                 // Delta note appears after note to be inserted
                 const splitDuration = [
-                    insertPositionInTicks - (currentPositionInTicks - instruction.deltaDuration),
+                    insertPositionInTicks - (currentPositionInTicks - instruction.deltaDurationInTicks),
                     currentPositionInTicks - insertPositionInTicks
                 ];
 
@@ -496,7 +496,7 @@ class Song {
                 this.instructionReplaceDeltaDuration(groupName, modifyIndex, splitDuration[1]);
 
                 // Insert new note before delta note.
-                insertInstruction.deltaDuration = splitDuration[0];                     // Make new note equal the rest of the duration
+                insertInstruction.deltaDurationInTicks = splitDuration[0];                     // Make new note equal the rest of the duration
                 this.instructionInsertAtIndex(groupName, modifyIndex, insertInstruction);
 
                 return modifyIndex; // this.splitPauseInstruction(groupName, i,insertPosition - groupPosition , insertInstruction);
@@ -507,10 +507,10 @@ class Song {
                 let lastInsertIndex;
                 // Search for last insert position
                 for (lastInsertIndex = iterator.currentIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
-                    if (new Instruction(instructionList[lastInsertIndex]).deltaDuration > 0)
+                    if (new Instruction(instructionList[lastInsertIndex]).deltaDurationInTicks > 0)
                         break;
 
-                insertInstruction.deltaDuration = 0; // TODO: is this correct?
+                insertInstruction.deltaDurationInTicks = 0; // TODO: is this correct?
                 this.instructionInsertAtIndex(groupName, lastInsertIndex, insertInstruction);
                 return lastInsertIndex;
             }
@@ -531,7 +531,7 @@ class Song {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDuration = insertPositionInTicks - iterator.positionTicks;
+        insertInstruction.deltaDurationInTicks = insertPositionInTicks - iterator.positionTicks;
         this.instructionInsertAtIndex(groupName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -550,12 +550,12 @@ class Song {
 
     instructionDeleteAtIndex(groupName, deleteIndex) {
         const deleteInstruction = this.instructionGetByIndex(groupName, deleteIndex);
-        if (deleteInstruction.deltaDuration > 0) {
+        if (deleteInstruction.deltaDurationInTicks > 0) {
             const nextInstruction = this.instructionGetByIndex(groupName, deleteIndex + 1, false);
             if (nextInstruction) {
                 // this.getInstruction(groupName, deleteIndex+1).deltaDuration =
                 //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
-                this.instructionReplaceDeltaDuration(groupName, deleteIndex + 1, nextInstruction.deltaDuration + deleteInstruction.deltaDuration)
+                this.instructionReplaceDeltaDuration(groupName, deleteIndex + 1, nextInstruction.deltaDurationInTicks + deleteInstruction.deltaDurationInTicks)
             }
         }
         this.instructionGetList(groupName).splice(deleteIndex, 1);
@@ -563,7 +563,7 @@ class Song {
     }
 
     instructionReplaceDeltaDuration(groupName, replaceIndex, newDelta) {
-        this.instructionGetByIndex(groupName, replaceIndex).deltaDuration = newDelta;
+        this.instructionGetByIndex(groupName, replaceIndex).deltaDurationInTicks = newDelta;
         // return this.instructionReplaceParam(groupName, replaceIndex, 0, newDelta);
     }
 
@@ -576,7 +576,7 @@ class Song {
     }
 
     instructionReplaceDuration(groupName, replaceIndex, newDuration) {
-        this.instructionGetByIndex(groupName, replaceIndex).duration = newDuration;
+        this.instructionGetByIndex(groupName, replaceIndex).durationInTicks = newDuration;
     }
 
     instructionReplaceVelocity(groupName, replaceIndex, newVelocity) {
@@ -768,17 +768,17 @@ class Song {
     }
 
 
-    isActive() {
-        for (const key in this.activeGroups) {
-            if (this.activeGroups.hasOwnProperty(key)) {
-                if (this.activeGroups[key] === true)
-                    return true;
-            }
-        }
-        return false;
-    }
+    // isActive() {
+    //     for (const key in this.activeGroups) {
+    //         if (this.activeGroups.hasOwnProperty(key)) {
+    //             if (this.activeGroups[key] === true)
+    //                 return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
-    async play(destination) {
+    play(destination) {
         if(!destination || !destination.context)
             throw new Error("Invalid destination");
         // const audioContext = destination.context;
@@ -800,9 +800,10 @@ class Song {
             song: this
         });
 
-        const reachedEnding = await this.playback.awaitPlaybackReachedEnd();
-        if(reachedEnding)
-            this.stopPlayback(true);
+        return playback;
+        // const reachedEnding = await this.playback.awaitPlaybackReachedEnd();
+        // if(reachedEnding)
+        //     this.stopPlayback(true);
     }
 
     stopPlayback() {
@@ -858,8 +859,7 @@ class Song {
             console.warn("No instruction at index");
     }
 
-    /** @deprecated **/
-    async playInstruction(destination, instruction, noteStartTime = null, groupName = null) {
+    playInstruction(destination, instruction, noteStartTime = null, groupName = null) {
         const audioContext = destination.context;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
@@ -868,17 +868,17 @@ class Song {
         //     this.stopPlayback();
 
         if (instruction instanceof GroupInstruction) {
-            throw new Error("Group instructions ")
             const groupPlayback = new InstructionPlayback(destination, this, instruction.groupName, noteStartTime);
             // const groupPlayback = new InstructionPlayback(this.song, subGroupName, notePosition);
-            return await groupPlayback.awaitPlaybackReachedEnd();
+            return groupPlayback;
         }
 
 
         let bpm = this.data.bpm; // getStartingBeatsPerMinute();
         // const noteDuration = (instruction.duration || 1) * (60 / bpm);
         let timeDivision = this.data.timeDivision;
-        const noteDurationInTicks = instruction.getDurationAsTicks(timeDivision);
+
+        const noteDurationInTicks = instruction.durationInTicks || 0; // (timeDivision);
         const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
 
         let currentTime = audioContext.currentTime;
@@ -887,34 +887,34 @@ class Song {
             noteStartTime = currentTime;
 
 
-        this.playInstrument(destination, instruction.instrument, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+        this.playInstrument(destination, instruction.instrumentID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
         // Wait for note to start
-        if (noteStartTime > currentTime) {
-            await this.wait(noteStartTime - currentTime);
-            // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime - currentTime) * 1000));
-        }
+        // if (noteStartTime > currentTime) {
+        //     await this.wait(noteStartTime - currentTime);
+        //     // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime - currentTime) * 1000));
+        // }
 
         // Dispatch note start event
-        this.dispatchEvent({
-            type: 'note:start',
-            groupName,
-            instruction,
-            song: this
-        });
+        // this.dispatchEvent({
+        //     type: 'note:start',
+        //     groupName,
+        //     instruction,
+        //     song: this
+        // });
 
-        currentTime = audioContext.currentTime;
-        if (noteStartTime + noteDuration > currentTime) {
-            await this.wait(noteStartTime + noteDuration - currentTime);
-            // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime + noteDuration - currentTime) * 1000));
-        }
-        // TODO: check for song stop
-        // Dispatch note end event
-        this.dispatchEvent({
-            type: 'note:end',
-            groupName,
-            instruction,
-            song: this
-        });
+        // currentTime = audioContext.currentTime;
+        // if (noteStartTime + noteDuration > currentTime) {
+        //     await this.wait(noteStartTime + noteDuration - currentTime);
+        //     // await new Promise((resolve, reject) => setTimeout(resolve, (noteStartTime + noteDuration - currentTime) * 1000));
+        // }
+        // // TODO: check for song stop
+        // // Dispatch note end event
+        // this.dispatchEvent({
+        //     type: 'note:end',
+        //     groupName,
+        //     instruction,
+        //     song: this
+        // });
     }
 
 

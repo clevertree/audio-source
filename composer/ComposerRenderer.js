@@ -417,7 +417,7 @@ class ComposerRenderer extends React.Component {
             this.fieldInstructionCommand.value = cursorInstruction.command; // , "Unknown Instrument");
             this.fieldInstructionInstrument.addOrSetValue(cursorInstruction.instrument, cursorInstruction.instrument + ": Unknown Instrument");
             this.fieldInstructionVelocity.value = cursorInstruction.velocity;
-            this.fieldInstructionDuration.value = cursorInstruction.duration;
+            this.fieldInstructionDuration.value = cursorInstruction.durationInTicksn;
         }
 
         this.fieldInstructionDelete.disabled = this.state.selectedIndices.length === 0;

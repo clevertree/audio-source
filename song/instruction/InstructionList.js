@@ -22,11 +22,11 @@ export class InstructionList {
     }
 
 
-    getInstruction(index) {
+    getInstruction(index, instrumentID=null) {
         if(index >= this.instructionList.length)
             return null;
         const instructionData = this.instructionList[index];
-        return InstructionList.getInstruction(instructionData, index);
+        return InstructionList.getInstruction(instructionData, index, instrumentID);
     }
 
 
@@ -44,12 +44,12 @@ export class InstructionList {
         return this.getInstruction(instructionData, index);
     }
 
-    static getInstruction(instructionData, index=null) {
+    static getInstruction(instructionData, index=null, instrumentID=null) {
         if(!instructionData)
             throw new Error("Invalid Instruction data");
         if(typeof instructionData[1] === "string" && instructionData[1][0] === '@')
-            return new GroupInstruction(instructionData, index);
-        return new NoteInstruction(instructionData, index);
+            return new GroupInstruction(instructionData, index, instrumentID);
+        return new NoteInstruction(instructionData, index, instrumentID);
     }
 
 }
