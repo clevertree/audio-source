@@ -1,13 +1,15 @@
-import FileService from "../../song/file/FileService";
 import React from "react";
+import FileService from "../../song/file/FileService";
 import GMESongFile from "../../song/file/GMESongFile";
 
-const libGMESupport = new GMESongFile();
-libGMESupport.init();
-
+let libGMESupport = null;
 class GMEPlayerSynthesizer {
     constructor(config={}) {
         this.config = config;
+        if(libGMESupport === null) {
+            libGMESupport = new GMESongFile();
+            libGMESupport.init();
+        }
     }
 
     connect(destination) {

@@ -2,8 +2,6 @@ import FileService from "../../song/file/FileService";
 import React from "react";
 import GMESongFile from "../../song/file/GMESongFile";
 
-const libGMESupport = new GMESongFile();
-libGMESupport.init();
 
 class GMEPlayerSynthesizerRenderer extends React.Component {
     constructor(props={}) {

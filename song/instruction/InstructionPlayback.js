@@ -24,54 +24,69 @@ class InstructionPlayback {
             destination,
             iterator
         ]);
-        this.song.dispatchEvent(new CustomEvent('group:play', {
+        console.log('group:start', groupName);
+        this.song.dispatchEvent(new CustomEvent('group:start', {
             detail: {
-                playback: this,
-                iterator
+                startTime,
+                groupName
             }
         }));
     }
 
-    async awaitPlaybackReachedEnd() {
-        // await this.wait(5);
+    endGroupPlayback(groupID) {
+        const [startTime, destination, iterator] = this.subGroups[groupID];
+        this.subGroups.splice(groupID, 1);
+        const groupEndDelaySeconds = (iterator.endPositionSeconds + startTime) - this.audioContext.currentTime;
+        setTimeout(() => {
+            console.log('group:end', iterator.groupName, iterator.endPositionSeconds);
+            this.song.dispatchEvent(new CustomEvent('group:end', {
+                detail: {
+                    playback: this,
+                    iterator
+                }
+            }));
+        }, groupEndDelaySeconds)
     }
 
-//     async wait(waitTimeInSeconds) {
-// //             console.info("Waiting... ", waitTimeInSeconds);
-//         return await new Promise((resolve, reject) => {
-//             this.stopPlaybackCallback = () => {
-//                 console.info("Group aborted: ", this.groupName);
-//                 this.isActive = false;
-//                 resolve(false);
-//             };
-//             setTimeout(() => resolve(true), waitTimeInSeconds * 1000);
-//         });
-//     }
+    async awaitPlaybackReachedEnd() {
+        await this.wait(5);
+    }
+
+    async wait(waitTimeInSeconds) {
+//             console.info("Waiting... ", waitTimeInSeconds);
+        return await new Promise((resolve, reject) => {
+            setTimeout(() => resolve(true), waitTimeInSeconds * 1000);
+        });
+    }
 
     renderPlayback() {
         const audioContext = this.audioContext;
         for(let i=0; i<this.subGroups.length; i++) {
             const [startTime, destination, iterator] = this.subGroups[i];
-            const currentGroupPosition = audioContext.currentTime - startTime;
+            const currentPositionSeconds = audioContext.currentTime - startTime;
 
-            while(true) {
-                if(iterator.hasReachedEnd()
-                    || iterator.positionSeconds > currentGroupPosition)
-                    break;
+            if(iterator.positionSeconds > currentPositionSeconds)
+                continue;
 
-                const instruction = iterator.nextInstruction();
-                const noteStartTime = startTime + iterator.playbackTime; // Group start time equals current group's start + playback times
-                if (instruction instanceof GroupInstruction) {
-                    if (instruction.groupName === iterator.groupName) { // TODO group stack
-                        console.error(`Recursive group call. Skipping group '${instruction.groupName}'`);
-                        continue;
-                    }
 
-                    this.startGroupPlayback(destination, instruction.groupName, noteStartTime);
+            if(iterator.hasReachedEnd()) {
+                this.endGroupPlayback(i);
+                i--;
+                continue;
+            }
 
-                } else {
-                    this.song.playInstruction(destination, instruction, noteStartTime, iterator.groupName);
+            const instruction = iterator.nextInstruction();
+            const noteStartTime = startTime + iterator.playbackTime; // Group start time equals current group's start + playback times
+            if (instruction instanceof GroupInstruction) {
+                if (instruction.groupName === iterator.groupName) { // TODO group stack
+                    console.error(`Recursive group call. Skipping group '${instruction.groupName}'`);
+                    continue;
                 }
+
+                this.startGroupPlayback(destination, instruction.groupName, noteStartTime);
+
+            } else {
+                this.song.playInstruction(destination, instruction, noteStartTime, iterator.groupName);
             }
         }
     }
