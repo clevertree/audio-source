@@ -42,7 +42,7 @@ class ComposerRenderer extends React.Component {
             selectedIndices: [],
             cursorIndex: 0,
 
-            trackerGroups: {},
+            activeTracks: {},
 
             // Tracker specific
             trackerQuantizationInTicks: 96*4,
@@ -77,12 +77,12 @@ class ComposerRenderer extends React.Component {
         const timeDivision = song.data.timeDivision;
         // this.state.tracker.trackerSegmentLengthInTicks = null;
 
-        const trackerGroups = {
+        const activeTracks = {
             'root': {},
             'track0': {},
             'track1': {},
         };
-        trackerGroups[song.getStartGroup()] = {};
+        activeTracks[song.getStartGroup()] = {};
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
@@ -97,7 +97,7 @@ class ComposerRenderer extends React.Component {
             trackerQuantizationInTicks: timeDivision,
             trackerSegmentLengthInTicks: timeDivision * 16,
             trackerFilterByInstrumentID: null,
-            trackerGroups
+            activeTracks
         });
     }
 
@@ -352,44 +352,44 @@ class ComposerRenderer extends React.Component {
                         </Panel>
 
                         <TrackerGroupsPanel composer={this} />
-                        <TrackerRowSegmentsPanel composer={this} />
+                        {/*<TrackerRowSegmentsPanel composer={this} />*/}
 
-                        <Panel className="tracker" title="Tracker">
-                            <Form className="tracker-row-length" title="Row &#120491;">
-                                <Button
-                                    arrow={'▼'}
-                                    // className="tracker-row-length"
-                                    onAction={e => this.openMenuTrackerSetQuantization(e)}
-                                >1B</Button>
-                            </Form>
+                        {/*<Panel className="tracker" title="Tracker">*/}
+                        {/*    <Form className="tracker-row-length" title="Row &#120491;">*/}
+                        {/*        <Button*/}
+                        {/*            arrow={'▼'}*/}
+                        {/*            // className="tracker-row-length"*/}
+                        {/*            onAction={e => this.openMenuTrackerSetQuantization(e)}*/}
+                        {/*        >1B</Button>*/}
+                        {/*    </Form>*/}
 
-                            <Form className="tracker-segment-length" title="Seg &#120491;">
-                                <Button
-                                    arrow={'▼'}
-                                    // className="tracker-segment-length"
-                                    onAction={e => this.openMenuTrackerSetSegmentLength(e)}
-                                    title="Select Tracker Segment Length"
-                                >16B</Button>
-                            </Form>
+                        {/*    <Form className="tracker-segment-length" title="Seg &#120491;">*/}
+                        {/*        <Button*/}
+                        {/*            arrow={'▼'}*/}
+                        {/*            // className="tracker-segment-length"*/}
+                        {/*            onAction={e => this.openMenuTrackerSetSegmentLength(e)}*/}
+                        {/*            title="Select Tracker Segment Length"*/}
+                        {/*        >16B</Button>*/}
+                        {/*    </Form>*/}
 
-                            {/*<Form className="tracker-instrument" title="Instrument">*/}
-                            {/*    <Button*/}
-                            {/*        arrow={'▼'}*/}
-                            {/*        // className="tracker-instruments"*/}
-                            {/*        onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}*/}
-                            {/*        title="Filter by Tracker Instrument"*/}
-                            {/*    >Any</Button>*/}
-                            {/*</Form>*/}
-                        </Panel>
+                        {/*    /!*<Form className="tracker-instrument" title="Instrument">*!/*/}
+                        {/*    /!*    <Button*!/*/}
+                        {/*    /!*        arrow={'▼'}*!/*/}
+                        {/*    /!*        // className="tracker-instruments"*!/*/}
+                        {/*    /!*        onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}*!/*/}
+                        {/*    /!*        title="Filter by Tracker Instrument"*!/*/}
+                        {/*    /!*    >Any</Button>*!/*/}
+                        {/*    /!*</Form>*!/*/}
+                        {/*</Panel>*/}
 
 
                     </Div>
                     <Div className="asc-tracker-container">
-                        {Object.keys(this.state.trackerGroups).map(groupName => (
+                        {Object.keys(this.state.activeTracks).map(trackName => (
                             <Tracker
-                                key={groupName}
-                                groupName={groupName}
-                                {...this.state.trackerGroups[groupName]}
+                                key={trackName}
+                                {...this.state.activeTracks[trackName]}
+                                trackName={trackName}
                                 composer={this}
                             />
                         ))}

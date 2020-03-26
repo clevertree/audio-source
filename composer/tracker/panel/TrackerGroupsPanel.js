@@ -22,7 +22,7 @@ class TrackerGroupsPanel extends React.Component {
                 {Object.keys(composer.song.data.instructions).map((groupName, i) =>
                     <Button
                         key={i}
-                        selected={typeof this.props.composer.state.trackerGroups[groupName] !== "undefined"}
+                        selected={typeof composer.state.activeTracks[groupName] !== "undefined"}
                         onAction={e => composer.trackerGroupToggle(groupName)}
                     >{groupName}</Button>)
                 }

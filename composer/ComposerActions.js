@@ -696,14 +696,25 @@ class ComposerActions extends ComposerMenu {
 
     /** Tracker **/
 
+    trackerChangeSegment(trackName, newSegmentID) {
+        if (!Number.isInteger(newSegmentID))
+            throw new Error("Invalid segment ID");
+        const activeTracks = this.state.activeTracks;
+        if(typeof activeTracks[trackName] === "undefined")
+            throw new Error(`Track ${trackName} is not active`);
+        const currentTrack = activeTracks[trackName];
+        currentTrack.currentSegmentID = newSegmentID
+        this.setState({activeTracks});
+    }
+
     trackerGroupToggle(groupName = null, toggleValue=null) {
-        const trackerGroups = this.state.trackerGroups;
-        if(toggleValue === true || typeof trackerGroups[groupName] === "undefined") {
-            trackerGroups[groupName] = {};
+        const activeTracks = this.state.activeTracks;
+        if(toggleValue === true || typeof activeTracks[groupName] === "undefined") {
+            activeTracks[groupName] = {};
         } else {
-            delete trackerGroups[groupName];
+            delete activeTracks[groupName];
         }
-        this.setState({trackerGroups});
+        this.setState({activeTracks});
         console.log(this.state);
     }
 
