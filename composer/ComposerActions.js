@@ -693,31 +693,18 @@ class ComposerActions extends ComposerMenu {
         }
     }
 
-    /** Tracker Segments **/
-
-
-    async trackerChangeSegment(newRowSegmentID) {
-        if (!Number.isInteger(newRowSegmentID))
-            throw new Error("Invalid segment ID");
-        const oldSegmentID = this.tracker.state.trackerRowOffset;
-        await this.tracker.setState({currentRowSegmentID: newRowSegmentID});
-        this.panelTrackerRowSegmentButtons[oldSegmentID].setState({selected: false});
-        this.panelTrackerRowSegmentButtons[newRowSegmentID].setState({selected: true});
-        // this.currentRowSegmentID = newRowSegmentID;
-        // this.renderRows();
-    }
 
     /** Tracker **/
 
-    async trackerChangeGroup(groupName = null) {
-        const tracker = this.tracker;
-
-        // groupName = groupName || e.target.form.getAttribute('data-group');
-        await tracker.setGroupName(groupName);
-        await this.panelTrackerGroups.forceUpdate();
-        await this.panelTrackerRowSegments.forceUpdate();
-        //TODO: validate
-        // this.selectGroup(selectedGroupName);
+    trackerGroupToggle(groupName = null, toggleValue=null) {
+        const trackerGroups = this.state.trackerGroups;
+        if(toggleValue === true || typeof trackerGroups[groupName] === "undefined") {
+            trackerGroups[groupName] = {};
+        } else {
+            delete trackerGroups[groupName];
+        }
+        this.setState({trackerGroups});
+        console.log(this.state);
     }
 
     trackerChangeOctave(newOctave = null) {

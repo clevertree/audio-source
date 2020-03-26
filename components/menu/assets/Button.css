@@ -12,6 +12,8 @@ div.asui-button:hover {
     background: linear-gradient(#ddd, #bbb);
 }
 
+div.asui-button.selected,
 div.asui-button.stick {
     background: linear-gradient(#ccc, #aaa);
+    border: 1px inset;
 }

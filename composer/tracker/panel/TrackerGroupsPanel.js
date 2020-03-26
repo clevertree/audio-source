@@ -9,7 +9,6 @@ class TrackerGroupsPanel extends React.Component {
         super(props);
         if(!props.composer)
             throw new Error("Invalid composer");
-        this.state = this.props.composer.state;
     }
 
     render() {
@@ -23,8 +22,8 @@ class TrackerGroupsPanel extends React.Component {
                 {Object.keys(composer.song.data.instructions).map((groupName, i) =>
                     <Button
                         key={i}
-                        selected={this.state.selectedGroup === groupName}
-                        onAction={e => this.trackerChangeGroup(groupName)}
+                        selected={typeof this.props.composer.state.trackerGroups[groupName] !== "undefined"}
+                        onAction={e => composer.trackerGroupToggle(groupName)}
                     >{groupName}</Button>)
                 }
                 <Button

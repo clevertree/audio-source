@@ -42,6 +42,8 @@ class ComposerRenderer extends React.Component {
             selectedIndices: [],
             cursorIndex: 0,
 
+            trackerGroups: {},
+
             // Tracker specific
             trackerQuantizationInTicks: 96*4,
             trackerSegmentLengthInTicks: 96*4*16,
@@ -49,8 +51,8 @@ class ComposerRenderer extends React.Component {
             trackerFilterByInstrumentID: null,
 
             // trackerSegmentCount: 10,
-            trackerRowOffset: 0,
-            trackerRowCount: 32,
+            // trackerRowOffset: 0,
+            // trackerRowCount: 32,
         };
 
         // this.shadowDOM = null;
@@ -75,6 +77,12 @@ class ComposerRenderer extends React.Component {
         const timeDivision = song.data.timeDivision;
         // this.state.tracker.trackerSegmentLengthInTicks = null;
 
+        const trackerGroups = {
+            'root': {},
+            'track0': {},
+            'track1': {},
+        };
+        trackerGroups[song.getStartGroup()] = {};
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
@@ -89,6 +97,7 @@ class ComposerRenderer extends React.Component {
             trackerQuantizationInTicks: timeDivision,
             trackerSegmentLengthInTicks: timeDivision * 16,
             trackerFilterByInstrumentID: null,
+            trackerGroups
         });
     }
 
@@ -322,34 +331,6 @@ class ComposerRenderer extends React.Component {
                                     title="Load Song from File"
                                 >1B</Button>
                             </Form>
-                        </Panel>
-
-                        <Panel className="tracker" title="Tracker">
-                            <Form className="tracker-row-length" title="Row &#120491;">
-                                <Button
-                                    arrow={'▼'}
-                                    // className="tracker-row-length"
-                                    onAction={e => this.openMenuTrackerSetQuantization(e)}
-                                >1B</Button>
-                            </Form>
-
-                            <Form className="tracker-segment-length" title="Seg &#120491;">
-                                <Button
-                                    arrow={'▼'}
-                                    // className="tracker-segment-length"
-                                    onAction={e => this.openMenuTrackerSetSegmentLength(e)}
-                                    title="Select Tracker Segment Length"
-                                >16B</Button>
-                            </Form>
-
-                            <Form className="tracker-instrument" title="Instrument">
-                                <Button
-                                    arrow={'▼'}
-                                    // className="tracker-instruments"
-                                    onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}
-                                    title="Filter by Tracker Instrument"
-                                >Any</Button>
-                            </Form>
 
                             <Form className="tracker-selection" title="Selection">
                                 <Button
@@ -373,12 +354,45 @@ class ComposerRenderer extends React.Component {
                         <TrackerGroupsPanel composer={this} />
                         <TrackerRowSegmentsPanel composer={this} />
 
+                        <Panel className="tracker" title="Tracker">
+                            <Form className="tracker-row-length" title="Row &#120491;">
+                                <Button
+                                    arrow={'▼'}
+                                    // className="tracker-row-length"
+                                    onAction={e => this.openMenuTrackerSetQuantization(e)}
+                                >1B</Button>
+                            </Form>
+
+                            <Form className="tracker-segment-length" title="Seg &#120491;">
+                                <Button
+                                    arrow={'▼'}
+                                    // className="tracker-segment-length"
+                                    onAction={e => this.openMenuTrackerSetSegmentLength(e)}
+                                    title="Select Tracker Segment Length"
+                                >16B</Button>
+                            </Form>
+
+                            {/*<Form className="tracker-instrument" title="Instrument">*/}
+                            {/*    <Button*/}
+                            {/*        arrow={'▼'}*/}
+                            {/*        // className="tracker-instruments"*/}
+                            {/*        onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}*/}
+                            {/*        title="Filter by Tracker Instrument"*/}
+                            {/*    >Any</Button>*/}
+                            {/*</Form>*/}
+                        </Panel>
+
+
                     </Div>
                     <Div className="asc-tracker-container">
-                        <Tracker
-                            ref={ref => this.tracker = ref}
-                            composer={this}
-                        />
+                        {Object.keys(this.state.trackerGroups).map(groupName => (
+                            <Tracker
+                                key={groupName}
+                                groupName={groupName}
+                                {...this.state.trackerGroups[groupName]}
+                                composer={this}
+                            />
+                        ))}
                     </Div>
                     <Div key="footer" className="asp-footer-container">
                         <Div className="asp-status-text">{this.state.status}</Div>

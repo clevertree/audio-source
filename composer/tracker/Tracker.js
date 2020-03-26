@@ -5,7 +5,7 @@ import {
     TrackerInstruction,
     TrackerRow
 } from "./";
-import {Div, Panel} from "../../components/";
+import {Button, Div, Panel} from "../../components/";
 import Instruction from "../../song/instruction/Instruction";
 
 import "./assets/Tracker.css";
@@ -17,39 +17,69 @@ class Tracker extends React.Component {
         if(!props.composer)
             throw new Error("Invalid composer");
         // this.state = this.props.composer.state;
+        const timeDivision = props.composer.song.data.timeDivision;
         this.state = {
-            trackerRowOffset: 0,
-            trackerStartPositionTicks: 0
+            rowOffset: 0,
+            rowTotal: 32,
+            // trackerStartPositionTicks: 0,
+            quantizationInTicks: timeDivision,
         }
     }
-    // get state() { return this.props.composer.state; }
-
-
-    connectedCallback() {
-        // this.addEventHandler([ // TODO: input
-        //         'scroll',
-        //         'keydown',
-        //         'mousedown', 'mouseup', 'mousemove', 'mouseout',
-        //         'touchstart', 'touchend', 'touchmove',
-        //         'dragstart', 'drag', 'dragend',
-        //         'contextmenu'
-        //     ],
-        //     e => this.onInput(e));
-
-        super.connectedCallback();
-    }
-
 
     render() {
-        console.time('tracker.renderRows()');
+        const rowContent = this.renderRowContent();
+        const rowSegmentContent = this.renderRowSegments();
+        return <Panel
+                className="asc-tracker"
+                title={`Group: ${this.getGroupName()}`}
+                >
+                <Div className="asc-tracker-container">
+                    {rowContent}
+                    {rowSegmentContent}
+                </Div>
+            </Panel>;
+    }
+
+    renderRowSegments() {
+        const composer = this.props.composer;
+
+        const trackerSegmentLengthInTicks = this.getSegmentLengthInTicks();
+        let songLengthInTicks = composer.state.songLengthInTicks;
+        let rowSegmentCount = Math.ceil(songLengthInTicks / trackerSegmentLengthInTicks) || 1;
+        if (rowSegmentCount > 256)
+            rowSegmentCount = 256;
+
+        const buttons = [];
+
+        // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / trackerSegmentLengthInTicks) + 1;
+        const currentRowSegmentID = Math.floor(this.state.rowOffset / this.state.rowTotal);
+        if (rowSegmentCount < currentRowSegmentID + 1)
+            rowSegmentCount = currentRowSegmentID + 1;
+        for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)
+            buttons[segmentID] = <Button
+                key={segmentID}
+                selected={segmentID === currentRowSegmentID}
+                onAction={e => this.trackerChangeSegment(segmentID)}
+            >{segmentID}</Button>;
+
+        buttons.push(<Button
+            key="Add"
+            onAction={e => this.groupAdd(e)}
+        >+</Button>);
+
+        return buttons;
+    }
+
+    renderRowContent() {
+        console.time('tracker.renderRowContent()');
 
         const composer = this.props.composer;
 
-        const trackerQuantizationInTicks = composer.state.trackerQuantizationInTicks;
+        const quantizationInTicks = this.state.quantizationInTicks;
         const maxLengthInTicks = this.getMaxLengthInTicks();
 
         // Instruction Iterator
-        let instructionIterator = composer.song.instructionGetIterator(composer.state.selectedGroup);
+        let instructionIterator = composer.song.instructionGetIterator(this.props.groupName);
 
         const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
 
@@ -57,9 +87,9 @@ class Tracker extends React.Component {
         const cursorIndex = composer.state.cursorIndex;
 
 
-
-        const   startPositionTicks = this.state.trackerStartPositionTicks, // by row or ticks?
-                rowTotal = composer.state.trackerRowCount,
+        let     rowCount = 0;
+        const   rowTotal = this.state.rowTotal,
+                rowOffset = this.state.rowOffset, // by row or ticks? rows. (trying to be efficient)
                 rowContent = [];
 
         let lastRowPositionInTicks = 0;
@@ -80,12 +110,12 @@ class Tracker extends React.Component {
 
                 // Move next quantized row up to current position
                 while(nextQuantizationBreakInTicks <= lastRowPositionInTicks)
-                    nextQuantizationBreakInTicks += trackerQuantizationInTicks;
+                    nextQuantizationBreakInTicks += quantizationInTicks;
 
                 // Render extra quantized rows if necessary
                 while(nextQuantizationBreakInTicks < endPositionTicks) {
                     addRow(nextQuantizationBreakInTicks);
-                    nextQuantizationBreakInTicks += trackerQuantizationInTicks;
+                    nextQuantizationBreakInTicks += quantizationInTicks;
                 }
 
                 addRow(endPositionTicks);
@@ -113,13 +143,13 @@ class Tracker extends React.Component {
 
         while(nextQuantizationBreakInTicks < maxLengthInTicks) {
             addRow(nextQuantizationBreakInTicks);
-            nextQuantizationBreakInTicks += trackerQuantizationInTicks;
+            nextQuantizationBreakInTicks += quantizationInTicks;
         }
 
         function addRow(toPositionTicks) {
             let rowDeltaDuration = toPositionTicks - lastRowPositionInTicks;
             lastRowPositionInTicks = toPositionTicks;
-            if (toPositionTicks >= startPositionTicks
+            if (rowCount >= rowOffset
                 && rowContent.length < rowTotal
             ) {
                 const newRowElm = <TrackerRow
@@ -129,65 +159,55 @@ class Tracker extends React.Component {
                 rowContent.push(newRowElm);
             }
             rowInstructionElms = [];
+            rowCount++;
         }
 
 
-        console.timeEnd('tracker.renderRows()');
+        console.timeEnd('tracker.renderRowContent()');
+        return rowContent;
+    }
 
-        return <Div className="asc-tracker">
-            <Panel
-                className="header"
-                title={<>
-                    <Div className="delta">Delta</Div>
-                    <Div className="instructions">Instruction Tracker</Div>
-                </>}
-            >
-                <Div className="asc-tracker-container">
-                    {rowContent}
-                </Div>
-            </Panel>
-        </Div>;
+    getSegmentLengthInTicks() {
+        return this.state.quantizationInTicks * this.state.rowTotal;
     }
 
 
 
     getComposer()               { return this.props.composer; }
-    getTimeDivision()           { return this.getComposer().song.data.timeDivision; }
-    // getQuantizationInTicks()    { return this.state.trackerQuantizationInTicks; }
-    getSegmentLengthInTicks()   { return this.getComposer().state.trackerSegmentLengthInTicks; }
+    // getTimeDivision()           { return this.getComposer().song.data.timeDivision; }
+    // // getQuantizationInTicks()    { return this.state.quantizationInTicks; }
+    // getSegmentLengthInTicks()   { return this.getComposer().state.trackerSegmentLengthInTicks; }
     getMaxLengthInTicks()       {
         let songLength = this.getComposer().state.songLengthInTicks;
-        let trackerSegmentLengthInTicks = this.getComposer().state.trackerSegmentLengthInTicks;
+        let segmentLengthInTicks = this.getSegmentLengthInTicks();
 
-        if(songLength < trackerSegmentLengthInTicks)
-            return trackerSegmentLengthInTicks;
-        return Math.ceil(songLength / trackerSegmentLengthInTicks) * trackerSegmentLengthInTicks
+        if(songLength < segmentLengthInTicks)
+            return segmentLengthInTicks;
+        return Math.ceil(songLength / segmentLengthInTicks) * segmentLengthInTicks
     }
     getSong()                   { return this.props.composer.song; }
-    getGroupName()              { return this.state.selectedGroup; }
+    getGroupName()              { return this.props.groupName; }
 
-    getSegmentIDFromPositionInTicks(positionInTicks) {
-        // const composer = this.props.composer;
-        const timeDivision = this.state.trackerQuantizationInTicks;
-        const trackerSegmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (timeDivision * 16);
-        const segmentID = Math.floor(positionInTicks / trackerSegmentLengthInTicks);
-        return segmentID;
+    // getSegmentIDFromPositionInTicks(positionInTicks) {
+    //     // const composer = this.props.composer;
+    //     const timeDivision = this.state.quantizationInTicks;
+    //     const trackerSegmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (timeDivision * 16);
+    //     const segmentID = Math.floor(positionInTicks / trackerSegmentLengthInTicks);
+    //     return segmentID;
+    // }
+
+
+    async trackerChangeSegment(newRowSegmentID) {
+        if (!Number.isInteger(newRowSegmentID))
+            throw new Error("Invalid segment ID");
+        const rowOffset = newRowSegmentID * this.state.rowTotal;
+        console.log('rowOffset', rowOffset);
+        await this.setState({rowOffset});
     }
-
-
-    setGroupName(currentGroup) {
-        if (this.state.selectedGroup === currentGroup)
-            return null;
-        if (!this.getSong().hasGroup(currentGroup))
-            throw new Error("Group not found in song: " + currentGroup);
-        // this.setAttribute('group', groupName);
-        this.setState({currentGroup, currentRowSegmentID: 0});
-    }
-
 
 
     instructionFind(index) {
-        return this.getSong().instructionFind(this.state.selectedGroup, index);
+        return this.getSong().instructionFind(this.getGroupName(), index);
     }
 
     instructionGetFormValues(command = null) {
@@ -211,364 +231,6 @@ class Tracker extends React.Component {
     }
 
 
-    navigateGroup(groupPositionInTicks) {
-        const composer = this.props.composer;
-        let rowElm = this.findRowElement(groupPositionInTicks);
-        if (rowElm)
-            return rowElm;
-        const newRowSegmentID = this.getSegmentIDFromPositionInTicks(groupPositionInTicks);
-        if (newRowSegmentID !== this.state.trackerRowOffset) {
-            composer.trackerChangeSegment(newRowSegmentID);
-            let rowElm = this.findRowElement(groupPositionInTicks);
-            if (rowElm)
-                return rowElm;
-        }
-        throw new Error("Shouldn't happen: Row not found for position: " + groupPositionInTicks);
-    }
-
-
-    onInput(e) {
-        if (e.defaultPrevented)
-            return;
-
-        // switch (e.type) {
-        //     case 'mouseup':
-        //         if (this.isSelectionRectActive()) {
-        //             this.commitSelectionRect();
-        //         }
-        //         break;
-        // }
-
-        // if (e.target instanceof Node && !this.contains(e.target))
-        //     return;
-
-        // console.log(e.type);
-
-        const composer = this.props.composer;
-        let selectedIndices = this.state.selectedIndices;
-        // const instructionList = this.instructionEach();
-
-        switch (e.type) {
-            case 'keydown':
-                // All key actions close all menus
-                composer.closeAllMenus();
-
-                let keyEvent = e.key;
-                if (!e.ctrlKey && composer.keyboard.getKeyboardCommand(
-                    e.key,
-                    composer.refs.fieldTrackerOctave.value
-                ))
-                    keyEvent = 'PlayFrequency';
-                if (keyEvent === 'Enter' && e.altKey)
-                    keyEvent = 'ContextMenu';
-
-                // let keydownCellElm = this.cursorCell;
-
-                switch (keyEvent) {
-                    case 'Delete':
-                        e.preventDefault();
-                        // this.clearSelection();
-                        const selectedIndicesDesc = selectedIndices.sort((a, b) => b - a);
-                        for (let i = 0; i < selectedIndicesDesc.length; i++)
-                            composer.song.instructionDeleteAtIndex(this.state.selectedGroup, selectedIndices[i]);
-                        this.renderRows();
-                        // this.selectIndicies(selectedIndices[0]);
-                        // song.render(true);
-                        break;
-
-                    case 'Escape':
-                    case 'Backspace':
-                        throw new Error("TODO: navigate pop")
-                        // e.preventDefault();
-                        // this.navigatePop();
-                        // this.selectIndicies(0);
-                        // this.focus();
-                        // break;
-
-                    case 'Enter':
-                        if (this.contains(e.target)) {
-
-                            e.preventDefault();
-                            composer.instructionInsertOrUpdate(e);
-
-                            let cursorInstruction = this.cursorInstruction;
-                            if (cursorInstruction.isGroupCommand()) {
-                                const groupName = cursorInstruction.command.substr(1);
-                                composer.selectGroup(groupName);
-                            } else {
-                                composer.playCursorInstruction(e);
-                            }
-                        }
-                        break;
-
-                    case 'Play':
-                        e.preventDefault();
-                        composer.playCursorInstruction(e);
-                        // for(let i=0; i<selectedIndices.length; i++) {
-                        //     this.editor.song.playInstruction(instructionList[i]);
-                        // }
-                        break;
-
-                    // ctrlKey && metaKey skips a measure. shiftKey selects a range
-                    case 'ArrowRight':
-                        e.preventDefault();
-                        composer.setNextCursor(!e.shiftKey, e.ctrlKey ? null : true);
-                        // this.focus();
-                        break;
-
-                    case 'ArrowLeft':
-                        e.preventDefault();
-                        composer.setPreviousCursor(!e.shiftKey, e.ctrlKey ? null : true);
-                        // this.focus();
-                        break;
-
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        composer.setNextRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
-                        // this.focus();
-                        break;
-
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        composer.setPreviousRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
-                        // this.focus();
-                        break;
-
-                    case ' ':
-                        e.preventDefault();
-                        // this.selectCell(e, this.cursorCell);
-                        // if(e.ctrlKey) e.preventDefault();
-                        if (composer.song.isActive()) {
-                            composer.song.stopPlayback();
-                        } else {
-                            composer.song.play();
-                        }
-                        break;
-
-                    case 'PlayFrequency':
-                        let newCommand = composer.keyboard.getKeyboardCommand(e.key, composer.refs.fieldTrackerOctave.value);
-                        if (newCommand === null)
-                            break;
-
-                        e.preventDefault();
-
-                        composer.instructionInsertOrUpdate(e, newCommand);
-
-                        // this.render();
-                        // this.renderCursorRow();
-                        composer.playCursorInstruction(e);
-                        this.focus();
-
-                        // song.gridSelectInstructions([selectedInstruction]);
-                        // e.preventDefault();
-                        break;
-
-                    default:
-                        break;
-
-                }
-                break;
-
-            case 'touchstart':
-            case 'mousedown':
-                // All mouse actions close all menus
-                composer.closeAllMenus();
-
-                this.mousePosition.isDown = true;
-                this.mousePosition.isDragging = false;
-                this.mousePosition.lastDown = e;
-                // delete this.mousePosition.lastUp;
-                delete this.mousePosition.lastDrag;
-                // delete this.mousePosition.lastUp;
-                // delete this.mousePosition.lastDrag;
-
-                if (e.target instanceof TrackerInstruction)
-                    return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
-
-                if (e.target.parentNode instanceof TrackerInstruction)
-                    return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
-
-                if (e.target instanceof TrackerInstructionAdd)
-                    return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
-
-                // if (e.target instanceof TrackerDelta) // TODO: special command for clicking delta
-                //     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
-
-
-                if (e.target instanceof TrackerRow)  // classList.contains('tracker-row')) {
-                    return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
-                // e.preventDefault();
-
-
-                break;
-
-
-            case 'touchmove':
-            case 'mousemove':
-                if (e.which === 1) {
-                    if (this.mousePosition.isDown) {
-                        this.mousePosition.isDragging = true;
-                        this.mousePosition.lastDrag = e;
-                    }
-                }
-                if (this.mousePosition.isDown && this.mousePosition.lastDrag) {
-                    if (this.mousePosition.lastDown.path[0].matches('asct-row')) {
-                        // if(this.isSelectionRectActive()) {
-                        //     this.updateSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastDrag)
-                        // }
-                    }
-                }
-                break;
-
-            case 'touchend':
-            case 'mouseup':
-                this.mousePosition.isDown = false;
-                if (this.mousePosition.isDragging
-                    && this.mousePosition.lastDown.path[0].matches('asct-row')
-                ) {
-                    // if(this.isSelectionRectActive()) {
-                    //     this.commitSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastUp);
-                    //     break;
-                    // }
-                }
-                this.mousePosition.isDragging = false;
-
-                const lastMouseUp = this.mousePosition.lastUp;
-                e.t = new Date();
-                this.mousePosition.lastUp = e;
-                if (lastMouseUp && lastMouseUp.t.getTime() + composer.doubleClickTimeout > new Date().getTime()) {
-                    e.preventDefault();
-                    const currentTarget = e.path[0];
-                    const originalTarget = lastMouseUp.path[0];
-                    if (originalTarget === currentTarget
-                        || originalTarget.contains(currentTarget)
-                        || currentTarget.contains(originalTarget)) {
-                        const doubleClickEvent = new CustomEvent('doubleclick', {
-                            detail: {
-                                firstMouseEvent: lastMouseUp.e,
-                                secondMouseEvent: e,
-                                clientX: e.clientX,
-                                clientY: e.clientY,
-                            },
-                            cancelable: true,
-                            bubbles: true
-                        });
-                        currentTarget.dispatchEvent(doubleClickEvent);
-                    }
-                    // console.log(doubleClickEvent);
-                }
-                break;
-
-            case 'mouseout':
-                if (e.target.matches('asc-tracker')) {
-//                     console.log(e.target, e.path);
-                    if (this.isSelectionRectActive()) {
-                        this.commitSelectionRect();
-                    }
-                }
-                break;
-
-            case 'click':
-                // this.editor.closeMenu();
-                break;
-
-            case 'doubleclick':
-            case 'longpress':
-                // if (e.target.classList.contains('tracker-parameter')
-                //     || e.target.classList.contains('tracker-cell')
-                //     || e.target.classList.contains('tracker-data')
-                //     || e.target.classList.contains('tracker-row')) {
-                e.preventDefault();
-                // console.log("Longpress", e);
-                if (this.contains(e.target)) {
-                    composer.menuContext.openContextMenu(e);
-                }
-                // }
-                break;
-
-            case 'contextmenu':
-                // if (e.target.classList.contains('tracker-parameter')) {
-                //     console.info("TODO: add parameter song at top of context menu: ", e.target); // huh?
-                // }
-                if (!e.altKey) {
-                    e.preventDefault();
-                    composer.openContextMenu(e);
-                }
-                break;
-
-            case 'scroll':
-
-                // if(this.renderScrollLimit < this.scrollTop + this.offsetHeight*4) {
-                //     this.renderScrollLimit *= 2; // = this.scrollTop + this.offsetHeight*4;
-                //     console.info("New scroll limit: ", this.renderScrollLimit);
-                // }
-
-                // this.renderAllRows(40);
-                break;
-
-            case 'dragstart':
-            case 'drag':
-            case 'dragend':
-                console.info(e.type);
-                break;
-
-            default:
-                throw new Error("Unhandled type: " + e.type);
-
-        }
-    }
-
-    updateSelectionRect(eDown, eMove) {
-        if (!eMove) eMove = this.mousePosition.lastDrag || this.mousePosition.lastDrag;
-        var a = eDown.clientX - eMove.clientX;
-        var b = eDown.clientY - eMove.clientY;
-        var c = Math.sqrt(a * a + b * b);
-        if (c < 30)
-            return console.warn("Skipping selection rect");
-        // console.log("Dragging", c);// eDown.path[0], eMove.path[0]);
-
-        let rectElm = this.querySelector('div.selection-rect');
-        if (!rectElm) {
-            rectElm = document.createElement('div');
-            rectElm.classList.add('selection-rect');
-            this.appendChild(rectElm);
-        }
-
-        let x, y, w, h;
-        if (eDown.clientX < eMove.clientX) {
-            x = eDown.clientX;
-            w = eMove.clientX - eDown.clientX;
-        } else {
-            x = eMove.clientX;
-            w = eDown.clientX - eMove.clientX;
-        }
-        if (eDown.clientY < eMove.clientY) {
-            y = eDown.clientY;
-            h = eMove.clientY - eDown.clientY;
-        } else {
-            y = eMove.clientY;
-            h = eDown.clientY - eMove.clientY;
-        }
-
-        rectElm.style.left = x + 'px';
-        rectElm.style.width = w + 'px';
-        rectElm.style.top = y + 'px';
-        rectElm.style.height = h + 'px';
-
-
-        const cellList = this.querySelectorAll('asct-instruction');
-        cellList.forEach(cellElm => {
-            const rect = cellElm.getBoundingClientRect();
-            const selected =
-                rect.x + rect.width > x
-                && rect.x < x + w
-                && rect.y + rect.height > y
-                && rect.y < y + h;
-            cellElm.classList.toggle('selecting', selected);
-        });
-
-        return {x, y, w, h};
-    }
 
     isSelectionRectActive() {
         let rectElm = this.querySelector('div.selection-rect');
@@ -655,7 +317,7 @@ class Tracker extends React.Component {
 
             case 'group:seek':
 //                 console.log(e.type, e.detail);
-                if (e.detail.groupName === this.state.selectedGroup)
+                if (e.detail.groupName === this.getGroupName())
                     this.setPlaybackPositionInTicks(e.detail.positionInTicks);
 
                 break;
@@ -664,7 +326,7 @@ class Tracker extends React.Component {
                 break;
 
             case 'note:start':
-                if (e.detail.groupName === this.state.selectedGroup) {
+                if (e.detail.groupName === this.getGroupName()) {
                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                     if (instructionElm) {
                         instructionElm.classList.add('playing');
@@ -672,7 +334,7 @@ class Tracker extends React.Component {
                 }
                 break;
             case 'note:end':
-                if (e.detail.groupName === this.state.selectedGroup) {
+                if (e.detail.groupName === this.getGroupName()) {
                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
                     if (instructionElm) {
                         instructionElm.classList.remove('playing');
@@ -845,7 +507,7 @@ class Tracker extends React.Component {
     //         cellPosition = [].indexOf.call(cursorCell.parentNode.children, cursorCell);
     //
     //     if (!cursorRow.nextElementSibling) {
-    //         await this.setState({currentRowSegmentID: this.state.trackerRowOffset+1});
+    //         await this.setState({currentRowSegmentID: this.state.rowOffset+1});
     //         this.focus();
     //         return await this.selectNextCell(e);
     //     }
@@ -873,7 +535,7 @@ class Tracker extends React.Component {
     //     if (!cursorRow.previousElementSibling) {
     //         if (this.currentRowSegmentID === 0)
     //             throw new Error("TODO: reached beginning of song");
-    //         await this.setState({currentRowSegmentID: this.state.trackerRowOffset + 1})
+    //         await this.setState({currentRowSegmentID: this.state.rowOffset + 1})
     //         this.focus();
     //         return await this.selectPreviousCell(e);
     //     }
@@ -903,43 +565,402 @@ class Tracker extends React.Component {
     // }
 
 
-    selectSegmentIndicies(indicies, clearSelection = false) {
-        const composer = this.props.composer;
-        // const currentselectedIndices = composer.getSelectedIndices();
-        // if(indicies.length === currentselectedIndices.length && indicies.sort().every(function(value, index) { return value === currentselectedIndices.sort()[index]}))
-        //     return;
-        if (!Array.isArray(indicies))
-            indicies = [indicies];
-        if (clearSelection)
-            composer.clearselectedIndices();
-        for (let i = 0; i < indicies.length; i++) {
-            const index = indicies[i];
-            const cell = this.findInstructionElement(index);
-            if (cell) {
-                cell.select(true, false);
-                if (i === 0)
-                    this.setCursorElement(cell);
-            } else {
-//                 console.warn("Instruction not found: " + index);
-            }
-        }
-        //    this.focus(); // Prevents tab from working
-    }
+
+    // connectedCallback() {
+    //     // this.addEventHandler([ // TODO: input
+    //     //         'scroll',
+    //     //         'keydown',
+    //     //         'mousedown', 'mouseup', 'mousemove', 'mouseout',
+    //     //         'touchstart', 'touchend', 'touchmove',
+    //     //         'dragstart', 'drag', 'dragend',
+    //     //         'contextmenu'
+    //     //     ],
+    //     //     e => this.onInput(e));
+    //
+    //     super.connectedCallback();
+    // }
 
 
-    async clearAllCursors() {
-        for (let i = 0; i < this.cursorList.length; i++) {
-            const cursorElm = this.cursorList[i];
-            await cursorElm.removeCursor();
-        }
-    }
+//     onInput(e) {
+//         if (e.defaultPrevented)
+//             return;
+//
+//         // switch (e.type) {
+//         //     case 'mouseup':
+//         //         if (this.isSelectionRectActive()) {
+//         //             this.commitSelectionRect();
+//         //         }
+//         //         break;
+//         // }
+//
+//         // if (e.target instanceof Node && !this.contains(e.target))
+//         //     return;
+//
+//         // console.log(e.type);
+//
+//         const composer = this.props.composer;
+//         let selectedIndices = this.state.selectedIndices;
+//         // const instructionList = this.instructionEach();
+//
+//         switch (e.type) {
+//             case 'keydown':
+//                 // All key actions close all menus
+//                 composer.closeAllMenus();
+//
+//                 let keyEvent = e.key;
+//                 if (!e.ctrlKey && composer.keyboard.getKeyboardCommand(
+//                     e.key,
+//                     composer.refs.fieldTrackerOctave.value
+//                 ))
+//                     keyEvent = 'PlayFrequency';
+//                 if (keyEvent === 'Enter' && e.altKey)
+//                     keyEvent = 'ContextMenu';
+//
+//                 // let keydownCellElm = this.cursorCell;
+//
+//                 switch (keyEvent) {
+//                     case 'Delete':
+//                         e.preventDefault();
+//                         // this.clearSelection();
+//                         const selectedIndicesDesc = selectedIndices.sort((a, b) => b - a);
+//                         for (let i = 0; i < selectedIndicesDesc.length; i++)
+//                             composer.song.instructionDeleteAtIndex(this.getGroupName(), selectedIndices[i]);
+//                         this.renderRows();
+//                         // this.selectIndicies(selectedIndices[0]);
+//                         // song.render(true);
+//                         break;
+//
+//                     case 'Escape':
+//                     case 'Backspace':
+//                         throw new Error("TODO: navigate pop")
+//                     // e.preventDefault();
+//                     // this.navigatePop();
+//                     // this.selectIndicies(0);
+//                     // this.focus();
+//                     // break;
+//
+//                     case 'Enter':
+//                         if (this.contains(e.target)) {
+//
+//                             e.preventDefault();
+//                             composer.instructionInsertOrUpdate(e);
+//
+//                             let cursorInstruction = this.cursorInstruction;
+//                             if (cursorInstruction.isGroupCommand()) {
+//                                 const groupName = cursorInstruction.command.substr(1);
+//                                 composer.selectGroup(groupName);
+//                             } else {
+//                                 composer.playCursorInstruction(e);
+//                             }
+//                         }
+//                         break;
+//
+//                     case 'Play':
+//                         e.preventDefault();
+//                         composer.playCursorInstruction(e);
+//                         // for(let i=0; i<selectedIndices.length; i++) {
+//                         //     this.editor.song.playInstruction(instructionList[i]);
+//                         // }
+//                         break;
+//
+//                     // ctrlKey && metaKey skips a measure. shiftKey selects a range
+//                     case 'ArrowRight':
+//                         e.preventDefault();
+//                         composer.setNextCursor(!e.shiftKey, e.ctrlKey ? null : true);
+//                         // this.focus();
+//                         break;
+//
+//                     case 'ArrowLeft':
+//                         e.preventDefault();
+//                         composer.setPreviousCursor(!e.shiftKey, e.ctrlKey ? null : true);
+//                         // this.focus();
+//                         break;
+//
+//                     case 'ArrowDown':
+//                         e.preventDefault();
+//                         composer.setNextRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
+//                         // this.focus();
+//                         break;
+//
+//                     case 'ArrowUp':
+//                         e.preventDefault();
+//                         composer.setPreviousRowCursor(!e.shiftKey, e.ctrlKey ? null : true);
+//                         // this.focus();
+//                         break;
+//
+//                     case ' ':
+//                         e.preventDefault();
+//                         // this.selectCell(e, this.cursorCell);
+//                         // if(e.ctrlKey) e.preventDefault();
+//                         if (composer.song.isActive()) {
+//                             composer.song.stopPlayback();
+//                         } else {
+//                             composer.song.play();
+//                         }
+//                         break;
+//
+//                     case 'PlayFrequency':
+//                         let newCommand = composer.keyboard.getKeyboardCommand(e.key, composer.refs.fieldTrackerOctave.value);
+//                         if (newCommand === null)
+//                             break;
+//
+//                         e.preventDefault();
+//
+//                         composer.instructionInsertOrUpdate(e, newCommand);
+//
+//                         // this.render();
+//                         // this.renderCursorRow();
+//                         composer.playCursorInstruction(e);
+//                         this.focus();
+//
+//                         // song.gridSelectInstructions([selectedInstruction]);
+//                         // e.preventDefault();
+//                         break;
+//
+//                     default:
+//                         break;
+//
+//                 }
+//                 break;
+//
+//             case 'touchstart':
+//             case 'mousedown':
+//                 // All mouse actions close all menus
+//                 composer.closeAllMenus();
+//
+//                 this.mousePosition.isDown = true;
+//                 this.mousePosition.isDragging = false;
+//                 this.mousePosition.lastDown = e;
+//                 // delete this.mousePosition.lastUp;
+//                 delete this.mousePosition.lastDrag;
+//                 // delete this.mousePosition.lastUp;
+//                 // delete this.mousePosition.lastDrag;
+//
+//                 if (e.target instanceof TrackerInstruction)
+//                     return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
+//
+//                 if (e.target.parentNode instanceof TrackerInstruction)
+//                     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+//
+//                 if (e.target instanceof TrackerInstructionAdd)
+//                     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+//
+//                 // if (e.target instanceof TrackerDelta) // TODO: special command for clicking delta
+//                 //     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
+//
+//
+//                 if (e.target instanceof TrackerRow)  // classList.contains('tracker-row')) {
+//                     return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
+//                 // e.preventDefault();
+//
+//
+//                 break;
+//
+//
+//             case 'touchmove':
+//             case 'mousemove':
+//                 if (e.which === 1) {
+//                     if (this.mousePosition.isDown) {
+//                         this.mousePosition.isDragging = true;
+//                         this.mousePosition.lastDrag = e;
+//                     }
+//                 }
+//                 if (this.mousePosition.isDown && this.mousePosition.lastDrag) {
+//                     if (this.mousePosition.lastDown.path[0].matches('asct-row')) {
+//                         // if(this.isSelectionRectActive()) {
+//                         //     this.updateSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastDrag)
+//                         // }
+//                     }
+//                 }
+//                 break;
+//
+//             case 'touchend':
+//             case 'mouseup':
+//                 this.mousePosition.isDown = false;
+//                 if (this.mousePosition.isDragging
+//                     && this.mousePosition.lastDown.path[0].matches('asct-row')
+//                 ) {
+//                     // if(this.isSelectionRectActive()) {
+//                     //     this.commitSelectionRect(this.mousePosition.lastDown, this.mousePosition.lastUp);
+//                     //     break;
+//                     // }
+//                 }
+//                 this.mousePosition.isDragging = false;
+//
+//                 const lastMouseUp = this.mousePosition.lastUp;
+//                 e.t = new Date();
+//                 this.mousePosition.lastUp = e;
+//                 if (lastMouseUp && lastMouseUp.t.getTime() + composer.doubleClickTimeout > new Date().getTime()) {
+//                     e.preventDefault();
+//                     const currentTarget = e.path[0];
+//                     const originalTarget = lastMouseUp.path[0];
+//                     if (originalTarget === currentTarget
+//                         || originalTarget.contains(currentTarget)
+//                         || currentTarget.contains(originalTarget)) {
+//                         const doubleClickEvent = new CustomEvent('doubleclick', {
+//                             detail: {
+//                                 firstMouseEvent: lastMouseUp.e,
+//                                 secondMouseEvent: e,
+//                                 clientX: e.clientX,
+//                                 clientY: e.clientY,
+//                             },
+//                             cancelable: true,
+//                             bubbles: true
+//                         });
+//                         currentTarget.dispatchEvent(doubleClickEvent);
+//                     }
+//                     // console.log(doubleClickEvent);
+//                 }
+//                 break;
+//
+//             case 'mouseout':
+//                 if (e.target.matches('asc-tracker')) {
+// //                     console.log(e.target, e.path);
+//                     if (this.isSelectionRectActive()) {
+//                         this.commitSelectionRect();
+//                     }
+//                 }
+//                 break;
+//
+//             case 'click':
+//                 // this.editor.closeMenu();
+//                 break;
+//
+//             case 'doubleclick':
+//             case 'longpress':
+//                 // if (e.target.classList.contains('tracker-parameter')
+//                 //     || e.target.classList.contains('tracker-cell')
+//                 //     || e.target.classList.contains('tracker-data')
+//                 //     || e.target.classList.contains('tracker-row')) {
+//                 e.preventDefault();
+//                 // console.log("Longpress", e);
+//                 if (this.contains(e.target)) {
+//                     composer.menuContext.openContextMenu(e);
+//                 }
+//                 // }
+//                 break;
+//
+//             case 'contextmenu':
+//                 // if (e.target.classList.contains('tracker-parameter')) {
+//                 //     console.info("TODO: add parameter song at top of context menu: ", e.target); // huh?
+//                 // }
+//                 if (!e.altKey) {
+//                     e.preventDefault();
+//                     composer.openContextMenu(e);
+//                 }
+//                 break;
+//
+//             case 'scroll':
+//
+//                 // if(this.renderScrollLimit < this.scrollTop + this.offsetHeight*4) {
+//                 //     this.renderScrollLimit *= 2; // = this.scrollTop + this.offsetHeight*4;
+//                 //     console.info("New scroll limit: ", this.renderScrollLimit);
+//                 // }
+//
+//                 // this.renderAllRows(40);
+//                 break;
+//
+//             case 'dragstart':
+//             case 'drag':
+//             case 'dragend':
+//                 console.info(e.type);
+//                 break;
+//
+//             default:
+//                 throw new Error("Unhandled type: " + e.type);
+//
+//         }
+//     }
+//
+//     updateSelectionRect(eDown, eMove) {
+//         if (!eMove) eMove = this.mousePosition.lastDrag || this.mousePosition.lastDrag;
+//         var a = eDown.clientX - eMove.clientX;
+//         var b = eDown.clientY - eMove.clientY;
+//         var c = Math.sqrt(a * a + b * b);
+//         if (c < 30)
+//             return console.warn("Skipping selection rect");
+//         // console.log("Dragging", c);// eDown.path[0], eMove.path[0]);
+//
+//         let rectElm = this.querySelector('div.selection-rect');
+//         if (!rectElm) {
+//             rectElm = document.createElement('div');
+//             rectElm.classList.add('selection-rect');
+//             this.appendChild(rectElm);
+//         }
+//
+//         let x, y, w, h;
+//         if (eDown.clientX < eMove.clientX) {
+//             x = eDown.clientX;
+//             w = eMove.clientX - eDown.clientX;
+//         } else {
+//             x = eMove.clientX;
+//             w = eDown.clientX - eMove.clientX;
+//         }
+//         if (eDown.clientY < eMove.clientY) {
+//             y = eDown.clientY;
+//             h = eMove.clientY - eDown.clientY;
+//         } else {
+//             y = eMove.clientY;
+//             h = eDown.clientY - eMove.clientY;
+//         }
+//
+//         rectElm.style.left = x + 'px';
+//         rectElm.style.width = w + 'px';
+//         rectElm.style.top = y + 'px';
+//         rectElm.style.height = h + 'px';
+//
+//
+//         const cellList = this.querySelectorAll('asct-instruction');
+//         cellList.forEach(cellElm => {
+//             const rect = cellElm.getBoundingClientRect();
+//             const selected =
+//                 rect.x + rect.width > x
+//                 && rect.x < x + w
+//                 && rect.y + rect.height > y
+//                 && rect.y < y + h;
+//             cellElm.classList.toggle('selecting', selected);
+//         });
+//
+//         return {x, y, w, h};
+//     }
 
-    async clearAllPositions() {
-        for (let i = 0; i < this.cursorList.length; i++) {
-            const cursorElm = this.cursorList[i];
-            await cursorElm.removePosition();
-        }
-    }
+//     selectSegmentIndicies(indicies, clearSelection = false) {
+//         const composer = this.props.composer;
+//         // const currentselectedIndices = composer.getSelectedIndices();
+//         // if(indicies.length === currentselectedIndices.length && indicies.sort().every(function(value, index) { return value === currentselectedIndices.sort()[index]}))
+//         //     return;
+//         if (!Array.isArray(indicies))
+//             indicies = [indicies];
+//         if (clearSelection)
+//             composer.clearselectedIndices();
+//         for (let i = 0; i < indicies.length; i++) {
+//             const index = indicies[i];
+//             const cell = this.findInstructionElement(index);
+//             if (cell) {
+//                 cell.select(true, false);
+//                 if (i === 0)
+//                     this.setCursorElement(cell);
+//             } else {
+// //                 console.warn("Instruction not found: " + index);
+//             }
+//         }
+//         //    this.focus(); // Prevents tab from working
+//     }
+
+
+    // async clearAllCursors() {
+    //     for (let i = 0; i < this.cursorList.length; i++) {
+    //         const cursorElm = this.cursorList[i];
+    //         await cursorElm.removeCursor();
+    //     }
+    // }
+
+    // async clearAllPositions() {
+    //     for (let i = 0; i < this.cursorList.length; i++) {
+    //         const cursorElm = this.cursorList[i];
+    //         await cursorElm.removePosition();
+    //     }
+    // }
 
     // onRowInput(e, selectedRow = null) {
     //     e.preventDefault();
@@ -957,38 +978,38 @@ class Tracker extends React.Component {
 
 
     // instructionReplaceParams(replaceIndex, replaceParams) {
-    //     return this.editor.song.instructionReplaceParams(this.state.selectedGroup, replaceIndex, replaceParams);
+    //     return this.editor.song.instructionReplaceParams(this.getGroupName(), replaceIndex, replaceParams);
     // }
 
-    replaceFrequencyAlias(noteFrequency, instrumentID) {
-        const composer = this.props.composer;
-        const instrument = composer.song.getInstrument(instrumentID, false);
-        if (!instrument || !instrument.getFrequencyAliases)
-            return noteFrequency;
-        const aliases = instrument.getFrequencyAliases(noteFrequency);
-        if (typeof aliases[noteFrequency] === "undefined")
-            return noteFrequency;
-        return aliases[noteFrequency];
-    }
+    // replaceFrequencyAlias(noteFrequency, instrumentID) {
+    //     const composer = this.props.composer;
+    //     const instrument = composer.song.getInstrument(instrumentID, false);
+    //     if (!instrument || !instrument.getFrequencyAliases)
+    //         return noteFrequency;
+    //     const aliases = instrument.getFrequencyAliases(noteFrequency);
+    //     if (typeof aliases[noteFrequency] === "undefined")
+    //         return noteFrequency;
+    //     return aliases[noteFrequency];
+    // }
 
 
     // selectInstructions(selectedIndices) {
     //     return this.selectIndicies(selectedIndices);
     // }
 
-    clearRowPositions() {
-        this.querySelectorAll(`asct-row[position]`)
-            .forEach(row => row.setProps({position: false}));
-    }
+    // clearRowPositions() {
+    //     this.querySelectorAll(`asct-row[position]`)
+    //         .forEach(row => row.setProps({position: false}));
+    // }
 
-    findRowElement(positionInTicks) {
-        return this.querySelector(`asct-row[t='${positionInTicks}']`);
-    }
+    // findRowElement(positionInTicks) {
+    //     return this.querySelector(`asct-row[t='${positionInTicks}']`);
+    // }
 
 
-    findInstructionElement(instructionIndex) {
-        return this.querySelector(`asct-instruction[i='${instructionIndex}']`);
-    }
+    // findInstructionElement(instructionIndex) {
+    //     return this.querySelector(`asct-instruction[i='${instructionIndex}']`);
+    // }
 
 }
 

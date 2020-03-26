@@ -37,6 +37,8 @@ class MenuItem extends React.Component {
             className += ' ' + this.props.className;
         if(this.props.disabled)
             className += ' disabled';
+        if(this.props.selected)
+            className += ' selected';
         if(this.state.stick)
             className += ' stick';
 

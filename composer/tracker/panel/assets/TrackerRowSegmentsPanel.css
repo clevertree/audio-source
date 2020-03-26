@@ -6,8 +6,8 @@ div.tracker-row-segments-panel {
 }
 
 div.tracker-row-segments-panel > .asui-button {
-    border: 1px outset #FFF;
+    /*border: 1px outset #FFF;*/
     padding: 10px 12px;
-    margin: 0px 0px;
-    background-color: #DDD;
+    /*margin: 0px 0px;*/
+    /*background-color: #DDD;*/
 }
