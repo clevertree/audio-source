@@ -8,10 +8,6 @@ class OscillatorNodeInstrument {
             config.type = 'custom';
         if(config.type === 'custom')
             this.loadPeriodicWave()
-        //             periodicWave = audioContext.createPeriodicWave(
-        //                 new Float32Array(voiceData.real),
-        //                 new Float32Array(voiceData.imag)
-        //             );
     }
 
     async loadPeriodicWave() {
@@ -34,52 +30,35 @@ class OscillatorNodeInstrument {
     /** Playback **/
 
     playNote(destination, frequency, startTime, duration, velocity, onended=null) {
-        const source = destination.context.createOscillator();   // instantiate an oscillator
-        source.frequency.value = frequency;    // set Frequency (hz)
-        if (typeof this.config.detune !== "undefined")
-            source.detune = this.config.detune;
-
-        source.setPeriodicWave(periodicWave);
-
-
-        let adsr = this.config.adsr || [0, 0, 0, .1];
-        let currentTime = destination.context.currentTime;
-        startTime = startTime !== null ? startTime : currentTime;
-        duration = duration !== null ? duration : 0;
-
+        // Velocity
         let velocityGain = destination.context.createGain();
         velocityGain.gain.value = parseFloat(velocity || 127) / 127;
         velocityGain.connect(destination);
         destination = velocityGain;
 
-        velocityGain.gain.linearRampToValueAtTime(velocityGain.gain.value, startTime + duration);
-        velocityGain.gain.linearRampToValueAtTime(0, startTime + duration + adsr[3]);
 
-        // Add to active sources
-        this.activeSources.push(source);
-        this.updateActive();
+        const osc = destination.context.createOscillator();   // instantiate an oscillator
+        osc.frequency.value = frequency;    // set Frequency (hz)
+        if (typeof this.config.detune !== "undefined")
+            osc.detune = this.config.detune;
 
-        // await new Promise((resolve, reject) => {
-        //     setTimeout(reject, 10000);
-        //     // Set up 'ended' event listener
-        //     source.addEventListener('ended', e => {
-        //         resolve();
-        //     });
-        //
-        //     // Start Playback
-        //     source.connect(destination);
-        //
-        //     // Play note
-        //     source.start(startTime);
-        //     source.stop(startTime + duration + adsr[3]);
-        // });
+        osc.type = this.config.type;
+        switch(this.config.type) {
+            default:
+                break;
+            case 'custom':
+                osc.setPeriodicWave(this.periodicWave);
+                break;
+        }
 
-        const activeSourceI = this.activeSources.indexOf(source);
-        if (activeSourceI !== -1)
-            this.activeSources.splice(activeSourceI, 1);
-        else
-            throw new Error("Active source not found: " + activeSourceI);
-        this.updateActive();
+        osc.connect(destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+        if(onended)
+            osc.onended = onended;
+
+        // TODO: envelop is an effect
+        return osc;
     }
 
 

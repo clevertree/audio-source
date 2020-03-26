@@ -23,7 +23,7 @@ class PlayerActions extends PlayerMenu {
 
     /** Song rendering **/
 
-    async setCurrentSong(song) {
+    setCurrentSong(song) {
         if(this.song) {
             this.setStatus("Unloading song: " + this.song.data.title);
             if(this.song.isPlaying) {
@@ -39,12 +39,12 @@ class PlayerActions extends PlayerMenu {
         // this.song.setVolume(this.state.volume);
         // this.song.addDispatchElement(this);
         song.playlistPosition = this.getCurrentEntryPosition();
-        const currentEntry = await this.getCurrentEntry();
+        const currentEntry = this.getCurrentEntry();
         currentEntry.name = song.data.title;
         currentEntry.length = song.getSongLengthInSeconds();
         this.forceUpdate();
         this.setStatus("Initializing song: " + song.data.title);
-        await this.song.init(this.getAudioContext());
+        this.song.connect(this.getAudioContext());
         this.setStatus("Loaded song: " + song.data.title);
     }
 

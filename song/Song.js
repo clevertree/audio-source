@@ -6,7 +6,7 @@ import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
-import {Instruction, NoteInstruction, GroupInstruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
+import {Instruction, GroupInstruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
 
 
 import InstrumentList from "../instruments";
@@ -85,7 +85,9 @@ class Song {
         this.loadAllInstruments();
     }
 
-
+    connect(destination) {
+        this.destination = destination;
+    }
 
     /** Events and Listeners **/
 
@@ -242,7 +244,7 @@ class Song {
         return !!this.instruments[instrumentID];
     }
 
-    playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
+    playInstrument(instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
         if (!instrumentID && instrumentID !== 0) {
             console.warn("No instruments set for instruction. Using instruments 0");
             instrumentID = 0;
@@ -254,7 +256,7 @@ class Song {
         }
         let instrument = this.instruments[instrumentID];
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
-        return instrument.playNote(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
+        return instrument.playNote(this.destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
     }
 
     hasInstrument(instrumentID) {
@@ -847,16 +849,16 @@ class Song {
     }
 
 
-    async playInstructionAtIndex(destination, groupName, instructionIndex, noteStartTime = null) {
+    async playInstructionAtIndex(groupName, instructionIndex, noteStartTime = null) {
         const instruction = this.instructionGetByIndex(groupName, instructionIndex, false);
         if (instruction)
-            await this.playInstruction(destination, instruction, noteStartTime);
+            await this.playInstruction(instruction, noteStartTime);
         else
             console.warn("No instruction at index");
     }
 
-    playInstruction(destination, instruction, noteStartTime = null, groupName = null) {
-        const audioContext = destination.context;
+    playInstruction(instruction, noteStartTime = null, groupName = null) {
+        const audioContext = this.audioContext;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
 
@@ -864,7 +866,7 @@ class Song {
         //     this.stopPlayback();
 
         if (instruction instanceof GroupInstruction) {
-            const groupPlayback = new InstructionPlayback(destination, this, instruction.getGroupName(), noteStartTime);
+            const groupPlayback = new InstructionPlayback(this.destination, this, instruction.getGroupName(), noteStartTime);
             // const groupPlayback = new InstructionPlayback(this.song, subGroupName, notePosition);
             return groupPlayback;
         }
@@ -883,7 +885,7 @@ class Song {
             noteStartTime = currentTime;
 
 
-        this.playInstrument(destination, instruction.instrumentID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+        this.playInstrument(instruction.instrumentID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
         // Wait for note to start
         // if (noteStartTime > currentTime) {
         //     await this.wait(noteStartTime - currentTime);

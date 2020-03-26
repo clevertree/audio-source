@@ -1,4 +1,3 @@
-import {instanceOf} from "prop-types";
 import GroupInstruction from "./GroupInstruction";
 
 class InstructionPlayback {

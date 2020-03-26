@@ -62,7 +62,7 @@ class ComposerRenderer extends React.Component {
     /** Song rendering **/
     getSong() { return this.song; }
 
-    async setCurrentSong(song) {
+    setCurrentSong(song) {
         if(this.song) {
             this.setStatus("Unloading song: " + this.song.data.title);
             if(this.song.isPlaying) {
@@ -79,7 +79,7 @@ class ComposerRenderer extends React.Component {
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
         this.setStatus("Initializing song: " + song.data.title);
-        await this.song.init(this.getAudioContext());
+        this.song.connect(this.getAudioContext());
         this.setStatus("Loaded song: " + song.data.title);
         this.setState({
             songLengthInTicks: song.getSongLengthInTicks(),
