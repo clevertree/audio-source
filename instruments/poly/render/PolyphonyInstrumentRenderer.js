@@ -3,6 +3,7 @@ import React from 'react';
 import {
     Scrollable,
     Div,
+    Button,
     MenuAction,
     MenuBreak,
     MenuDropDown,
@@ -61,24 +62,24 @@ class PolyphonyInstrumentRenderer extends React.Component {
         return (
             <Div className="audio-source-synthesizer-container">
                 <Div className="header">
-                    <MenuAction
+                    <Button
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
-                        >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</MenuAction>
-                    {this.state.open ? <MenuAction
+                        >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</Button>
+                    {this.state.open ? <Button
                         title="Change Preset"
                         className="instrument-preset"
                         onAction={e => this.openMenuChangePreset(e)}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         children={instrumentConfig.presetName || "No Preset"}
                         /> : null}
-                    <MenuAction
+                    <Button
                         arrow={false}
                         className="instrument-config"
                         onAction={e => this.openMenuRoot(e)}
                         >
                         <Icon className="config"/>
-                    </MenuAction>
+                    </Button>
                 </Div>
                 {/*{this.state.open && (*/}
                 {/*    <Div className="samples">*/}

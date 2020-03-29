@@ -2,6 +2,7 @@ import React from "react";
 import {
     Div,
     Icon,
+    Button,
     MenuAction,
     MenuDropDown,
 } from "../../components";
@@ -66,13 +67,13 @@ class InstrumentRenderer extends React.Component {
 
     renderInstrumentConfig() {
         return (
-            <MenuAction
+            <Button
                 arrow={false}
                 className="instrument-config"
                 onAction={e => this.openMenuRoot(e)}
             >
                 <Icon className="config"/>
-            </MenuAction>
+            </Button>
         )
     }
 

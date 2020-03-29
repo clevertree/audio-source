@@ -3,6 +3,7 @@ import {
     // Button,
     // InputSelect,
     Div,
+    Button,
     MenuAction,
     MenuBreak,
     Icon, InputRange, MenuDropDown,
@@ -38,62 +39,62 @@ class AudioBufferInstrumentRenderer extends React.Component {
             <Div
                 className={className}
                 >
-                <MenuAction
+                <Button
                     title="Change Sample"
                     className="name"
                     onAction={e => this.toggleOpen(e)}>
                     {sampleName || "Unnamed"}
-                </MenuAction>
+                </Button>
                 {!this.state.open ? null : (
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <MenuAction onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
+                                <Button onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
                                     {sample.mixer+'%'}
-                                </MenuAction>
+                                </Button>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
                             <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <MenuAction onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
+                                <Button onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
                                     {sample.detune+'c'}
-                                </MenuAction>
+                                </Button>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
                             <Div title={`Key Root is ${sample.root}`} className="root">
-                                <MenuAction onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
+                                <Button onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
                                     {sample.root}
-                                </MenuAction>
+                                </Button>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
                             <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <MenuAction onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
+                                <Button onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
                                     {sample.alias}
-                                </MenuAction>
+                                </Button>
                             </Div>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
                             <Div title={`Key Range is ${sample.range}`} className="range">
-                                <MenuAction onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
+                                <Button onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
                                     {sample.range}
-                                </MenuAction>
+                                </Button>
                             </Div>
                         )}
                         {typeof sample.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <MenuAction title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
+                                <Button title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
-                                </MenuAction>
+                                </Button>
                             </Div>
                         )}
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <MenuAction onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
+                    <Button onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
                         <Icon className="config"/>
-                    </MenuAction>
+                    </Button>
                 </Div>
             </Div>
         );

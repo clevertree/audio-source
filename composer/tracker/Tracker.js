@@ -5,7 +5,7 @@ import {
     TrackerInstruction,
     TrackerRow
 } from "./";
-import {Div, Form, Panel, MenuAction} from "../../components/";
+import {Div, Form, Panel, Button} from "../../components/";
 import Instruction from "../../song/instruction/Instruction";
 
 import "./assets/Tracker.css";
@@ -47,20 +47,20 @@ class Tracker extends React.Component {
     renderOptions() {
         return <>
             <Form className="tracker-row-length" title="Row &#120491;">
-                <MenuAction
+                <Button
                     arrow={'▼'}
                     // className="tracker-row-length"
                     onAction={e => this.openMenuTrackerSetQuantization(e)}
-                >1B</MenuAction>
+                >1B</Button>
             </Form>
 
             <Form className="tracker-segment-length" title="Seg &#120491;">
-                <MenuAction
+                <Button
                     arrow={'▼'}
                     // className="tracker-segment-length"
                     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
                     title="Select Tracker Segment Length"
-                >16B</MenuAction>
+                >16B</Button>
             </Form>
         </>;
     }
@@ -76,34 +76,34 @@ class Tracker extends React.Component {
 
         const buttons = [];
 
-        buttons.push(<MenuAction
+        buttons.push(<Button
             arrow={'▼'}
             key="segment-quantization"
             onAction={e => this.openMenuTrackerSetQuantization(e)}
-        >1B</MenuAction>);
+        >1B</Button>);
 
         // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / trackerSegmentLengthInTicks) + 1;
         const currentRowSegmentID = Math.floor(this.getCursorPositionInTicks() / segmentLengthInTicks);
         if (segmentCount < currentRowSegmentID + 1)
             segmentCount = currentRowSegmentID + 1;
         for (let segmentID = 0; segmentID <= segmentCount; segmentID++)
-            buttons.push(<MenuAction
+            buttons.push(<Button
                 key={segmentID}
                 selected={segmentID === currentRowSegmentID}
                 onAction={e => composer.trackerChangeSegment(this.props.trackName, segmentID)}
-            >{segmentID}</MenuAction>);
+            >{segmentID}</Button>);
 
-        buttons.push(<MenuAction
+        buttons.push(<Button
             key="segment-add"
             onAction={e => this.groupAdd(e)}
-        >+</MenuAction>);
+        >+</Button>);
 
-        // buttons.push(<MenuAction
+        // buttons.push(<Button
         //     arrow={'▼'}
         //     key="segment-length"
         //     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
         //     title="Select Tracker Segment Length"
-        // >16B</MenuAction>);
+        // >16B</Button>);
 
         return buttons;
     }

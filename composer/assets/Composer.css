@@ -85,17 +85,14 @@ div.asc-title-text {
 /** Menu Container **/
 
 div.asc-menu-container {
+    background-color: #bdc3c7;
     display: flex;
     flex-direction: row;
+    z-index: 3;
 }
 
 
-
-div.asc-menu-container {
-    background-color: #bdc3c7;
-}
-
-div.asc-menu-container > div.asui-menuitem {
+div.asc-menu-container > div.asui-menu-item {
     padding: 0px 8px 0px 4px;
 }
 
@@ -118,7 +115,7 @@ div.asc-menu-button-toggle.stick > div.title > div.asc-icon {
 }
 
 
-div.asui-menu-overlay-dropdown > div.asui-menuitem > div.title {
+div.asui-menu-overlay-dropdown > div.asui-menu-item > div.title {
     padding: 0.5em;
 }
 

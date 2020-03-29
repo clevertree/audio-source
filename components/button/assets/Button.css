@@ -17,3 +17,12 @@ div.asui-button.stick {
     background: linear-gradient(#ccc, #aaa);
     border: 1px inset;
 }
+
+
+/** Menu Arrow **/
+div.asui-button > div.arrow {
+    display: inline-block;
+    font-size: small;
+    margin: 2px 2px 0 auto;
+    padding-left: 0.5em;
+}

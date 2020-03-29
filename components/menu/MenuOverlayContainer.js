@@ -6,11 +6,12 @@ import MenuOverlayContext from "./MenuOverlayContext";
 import MenuBreak from "./MenuBreak";
 import MenuAction from "./MenuAction";
 
+// TODO: use MenuDropDown class (necessary?)
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false, // TODO: use MenUDropDown
+            open: false,
             openOverlay: false
         };
         this.overlayContext = {
@@ -37,7 +38,7 @@ class MenuOverlayContainer extends React.Component {
         return <MenuOverlayContext.Provider
             value={this.overlayContext}>
             <>
-                {this.state.openOverlay && false ? <Div className="asui-menu-overlay-container" // TODO: fix overlay z-index
+                {this.state.openOverlay ? <Div className="asui-menu-overlay-container" // TODO: fix overlay z-index
                     onClick={this.overlayContext.closeAllMenus}
                     /> : null}
 
@@ -51,14 +52,24 @@ class MenuOverlayContainer extends React.Component {
         </MenuOverlayContext.Provider>;
     }
 
+    getActiveMenuCount() {
+        let count=0;
+        this.overlayContext.dropDownMenus.forEach(dropDownMenu => {
+            if(dropDownMenu.state.open === true)
+                count++;
+        });
+        console.log('getActiveMenuCount', count);
+        return count;
+    }
+
     updateOverlay() {
-        const openOverlay = this.state.open || this.overlayContext.dropDownMenus.length > 0;
+        const openOverlay = this.state.open || this.getActiveMenuCount() > 0;
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay})
     }
 
     isHoverEnabled() {
-        return this.overlayContext.dropDownMenus.length > 0;
+        return this.getActiveMenuCount() > 0;
     }
 
     addDropDownMenu(openMenuItem) {
@@ -85,6 +96,7 @@ class MenuOverlayContainer extends React.Component {
             openMenuItem.closeMenu(stayOpenOnStick);
         });
         console.log("closeMenus", openMenuItems, butThese);
+        this.updateOverlay();
     }
 
 

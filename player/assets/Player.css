@@ -95,7 +95,7 @@ div.asp-menu-container {
     background-color: #bdc3c7;
 }
 
-div.asp-menu-container > div.asui-menuitem {
+div.asp-menu-container > div.asui-menu-item {
     padding: 0px 8px 0px 4px;
 }
 
@@ -118,7 +118,7 @@ div.asp-menu-button-toggle.stick > div.title > div.asp-icon {
 }
 
 
-div.asui-menu-overlay-dropdown > div.asui-menuitem > div.title {
+div.asui-menu-overlay-dropdown > div.asui-menu-item > div.title {
     padding: 0.5em;
 }
 

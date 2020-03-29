@@ -12,7 +12,7 @@ export default class MenuDropDown extends React.Component {
         };
 
         this.cb = {
-            onClick: (e) => this.toggleMenu(),
+            onClick: (e) => this.onClick(e),
             onKeyDown: (e) => this.onKeyDown(e),
             onMouseEnter: e => this.onMouseEnter(e),
         }
@@ -25,8 +25,12 @@ export default class MenuDropDown extends React.Component {
         this.context && this.context.addDropDownMenu(this);
     }
 
-    renderTitle() {
-        let className = 'asui-menu-item';
+    getClassName() { return 'asui-menu-item'; }
+
+    render() {
+        let className = this.getClassName(); // 'asui-menu-item';
+        if(this.props.className)
+            className += ' ' + this.props.className;
         if(this.props.disabled)
             className += ' disabled';
         if(this.props.selected)
@@ -43,23 +47,20 @@ export default class MenuDropDown extends React.Component {
             >
                 {this.props.children}
                 {arrow ? <div className="arrow">{arrow}</div> : null}
+                {this.renderDropDown()}
             </div>
         )
     }
 
-    render() {
-        if(!this.props.open)
-            return this.renderTitle();
-
-        let options = null;
-        if(!this.props.open)
+    renderDropDown() {
+        if(!this.state.open)
             return null;
 
         let className = 'asui-menu-dropdown';
         if(this.props.vertical)
             className += ' vertical';
 
-        options = this.props.options;
+        let options = this.props.options;
         if(typeof options === "function")
             options = options(this);
 
@@ -67,46 +68,63 @@ export default class MenuDropDown extends React.Component {
             return React.cloneElement(child, { parentMenu: this })
         });
 
-        return (
-            <>
-                {this.renderTitle()}
-                <div
-                    className={className}
-                    children={options}
-                />
-            </>
-        );
+        return <div
+                className={className}
+                children={options}
+                />;
 
     }
 
-    onMouseEnter() {
+
+    closeAllDropDownMenus() {
+        if(this.context.closeAllMenus)
+            this.context.closeAllMenus();
+    }
+
+    onClick(e) {
+        this.toggleMenu(e);
+    }
+
+    onMouseEnter(e) {
         if(!this.context || !this.context.isHoverEnabled())
             return;
 
         if(this.props.options && this.state.open !== true) {
-            this.toggleMenu()
+            this.openMenu(e)
         }
     }
 
-    toggleMenu() {
+    toggleMenu(e) {
         if(!this.state.open)
-            this.openMenu();
+            this.openMenu(e);
         else if(!this.state.stick)
-            this.stickMenu();
+            this.stickMenu(e);
         else
-            this.closeMenu();
+            this.closeMenu(e);
     }
 
-    openMenu() {
+    openMenu(e) {
+        // Try open menu handler
+        if(e.type === 'click' && this.context && this.context.openMenu) {
+            const res = this.context.openMenu(this.props.options);
+            if(res !== false) {
+                console.info("Sub-menu options were sent to menu handler: ", this.context.openMenu);
+                return;
+            }
+        }
+
         this.setState({
             open: true,
         });
 
-        if(this.context.closeMenus)
-            this.context.closeMenus(this.getAncestorMenus());
+        if(this.context) {
+            setTimeout(() => {
+                this.context.closeMenus(this.getAncestorMenus());
+            }, 100);
+        }
     }
 
-    stickMenu() {
+    stickMenu(e) {
         if(!this.state.open)
             this.open();
         this.setState({

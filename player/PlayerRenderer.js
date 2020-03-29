@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Div, Icon, InputRange, Form, Panel, MenuDropDown, MenuAction, MenuOverlayContainer} from "../components";
+import {Div, Icon, InputRange, Form, Panel, MenuDropDown, Button, MenuOverlayContainer} from "../components";
 
 
 import Playlist from "./playlist/Playlist";
@@ -43,34 +43,34 @@ class PlayerRenderer extends React.Component {
                     <Div className="asp-forms-container">
                         <Panel className="song" title="Song">
                             <Form className="playback" title="Playback">
-                                <MenuAction
+                                <Button
                                     className="song-play"
                                     onAction={e => this.playlistPlay(e)}
                                 >
                                     <Icon className="play"/>
-                                </MenuAction>
-                                <MenuAction
+                                </Button>
+                                <Button
                                     className="song-pause"
                                     onAction={e => this.playlistPause(e)}
                                 >
                                     <Icon className="pause"/>
-                                </MenuAction>
-                                <MenuAction
+                                </Button>
+                                <Button
                                     className="song-stop"
                                     onAction={e => this.playlistStop(e)}
                                 >
                                     <Icon className="stop"/>
-                                </MenuAction>
-                                <MenuAction
+                                </Button>
+                                <Button
                                     className="song-next"
                                     onAction={e => this.playlistNext(e)}
                                 >
                                     <Icon className="next"/>
-                                </MenuAction>
+                                </Button>
                             </Form>
 
                             <Form className="file" title="File">
-                                <MenuAction
+                                <Button
                                     className="file-load"
                                     onAction={(e) => this.loadSongFromFileInput(e)}
                                     accept=".json,.mid,.midi"
@@ -78,14 +78,14 @@ class PlayerRenderer extends React.Component {
                                     title="Load Song from File"
                                 >
                                     <Icon className="file-load"/>
-                                </MenuAction>
-                                <MenuAction
+                                </Button>
+                                <Button
                                     className="file-save"
                                     onAction={e => this.saveSongToFile(e)}
                                     title="Save Song to File"
                                 >
                                     <Icon className="file-save"/>
-                                </MenuAction>
+                                </Button>
                             </Form>
 
                             <Form className="volume" title="Volume">
@@ -113,7 +113,7 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="timing" title="Timing">
-                                <MenuAction
+                                <Button
                                     className="timing"
                                     onAction={(e) => this.setSongPosition(e)}
                                     ref={ref => this.fieldSongTiming = ref}
@@ -123,7 +123,7 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="name" title="Name">
-                                <MenuAction
+                                <Button
                                     className="name"
                                     onAction={(e) => this.setSongName(e)}
                                     title="Song Name"
@@ -132,7 +132,7 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="version" title="Version">
-                                <MenuAction
+                                <Button
                                     className="version"
                                     onAction={(e) => this.setSongVersion(e)}
                                     ref={ref => this.fieldSongVersion = ref}
@@ -142,13 +142,13 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="source" title="Source">
-                                <MenuAction
+                                <Button
                                     className="source"
                                     onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
                                     title="Song Source"
                                 >
                                     <Icon className="source"/>
-                                </MenuAction>
+                                </Button>
                             </Form>
                         </Panel>
                         <Panel className="playlist" title="Playlist">
