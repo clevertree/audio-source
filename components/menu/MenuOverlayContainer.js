@@ -25,6 +25,7 @@ class MenuOverlayContainer extends React.Component {
             addDropDownMenu: (openMenuItem) => this.addDropDownMenu(openMenuItem),
             dropDownMenus: []
         };
+        this.updateOverlayTimeout = null;
     }
     // componentDidMount() {
     //     MenuDropDown.addGlobalSubMenuHandler(this.openMenuHandler)
@@ -63,9 +64,12 @@ class MenuOverlayContainer extends React.Component {
     }
 
     updateOverlay() {
-        const openOverlay = this.state.open || this.getActiveMenuCount() > 0;
-        if(this.state.openOverlay !== openOverlay)
-            this.setState({openOverlay})
+        clearTimeout(this.updateOverlayTimeout);
+        this.updateOverlayTimeout = setTimeout(() => {
+            const openOverlay = this.state.open || this.getActiveMenuCount() > 0;
+            if(this.state.openOverlay !== openOverlay)
+                this.setState({openOverlay})
+        }, 100);
     }
 
     isHoverEnabled() {

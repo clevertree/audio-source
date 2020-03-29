@@ -30,99 +30,16 @@ class ComposerRenderer extends React.Component {
             // Global selected note(s)
             songLengthTicks: 0,
             songLengthSeconds: 0,
-            // selectedGroup: 'root',
-            // selectedIndices: [],
-            // cursorIndex: 0,
 
+            // Trackers
             activeTracks: {},
             selectedTrack: 'root'
 
-            // Tracker specific
-            // trackerQuantizationInTicks: 96*4,
-            // trackerSegmentLengthInTicks: 96*4*16,
-            // trackerCurrentOctave: 3,
-            // trackerFilterByInstrumentID: null,
-
-            // trackerSegmentCount: 10,
-            // trackerRowOffset: 0,
-            // trackerRowCount: 32,
         };
 
         // this.shadowDOM = null;
         this.header = React.createRef();
 
-    }
-
-
-    /** Song rendering **/
-    getSong() { return this.song; }
-
-    setCurrentSong(song) {
-        if(this.song) {
-            this.setStatus("Unloading song: " + this.song.data.title);
-            if(this.song.isPlaying) {
-                this.song.stopPlayback();
-            }
-            this.song.removeEventListener('*', this.onSongEventCallback);
-            // TODO: unload song?
-        }
-        this.song = song;
-        // const timeDivision = song.data.timeDivision;
-        // this.state.tracker.trackerSegmentLengthInTicks = null;
-
-        const activeTracks = {
-            'root': {},
-            'track0': {},
-            'track1': {},
-        };
-        activeTracks[song.getStartGroup()] = {};
-
-        // this.song.setVolume(this.state.volume);
-        this.song.addEventListener('*', this.onSongEventCallback);
-        this.setStatus("Initializing song: " + song.data.title);
-        this.song.connect(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.data.title);
-        this.setState({
-            songLengthTicks: song.getsongLengthTicks(),
-            songLengthSeconds: song.getSongLengthInSeconds(),
-            selectedGroup: song.getStartGroup() || 'root',
-            // trackerRowOffset: 0,
-            // trackerQuantizationInTicks: timeDivision,
-            // trackerSegmentLengthInTicks: timeDivision * 16,
-            // trackerFilterByInstrumentID: null,
-            activeTracks
-        });
-    }
-
-    // createStyleSheetLink(stylePath, scriptElm=null) {
-    //     const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);
-    //     const link = document.createElement('link');
-    //     link.setAttribute('rel', 'stylesheet');
-    //     link.href = linkHRef;
-    //     return link;
-    // }
-
-
-    loadMIDIInterface(callback) {
-        // TODO: wait for user input
-        if (navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(
-                (MIDI) => {
-                    console.info("MIDI initialized", MIDI);
-                    const inputDevices = [];
-                    MIDI.inputs.forEach(
-                        (inputDevice) => {
-                            inputDevices.push(inputDevice);
-                            inputDevice.addEventListener('midimessage', callback);
-                        }
-                    );
-                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-                },
-                (err) => {
-                    throw new Error("error initializing MIDI: " + err);
-                }
-            );
-        }
     }
 
 
@@ -136,6 +53,7 @@ class ComposerRenderer extends React.Component {
                         <Div className="asc-title-text">{this.state.title}</Div>
                         {this.state.portrait
                             ? <MenuDropDown
+                                arrow={false}
                                 className="asc-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
                             >
@@ -257,8 +175,8 @@ class ComposerRenderer extends React.Component {
                                            arrow={'▼'}
                                            className="instrument-add"
                                            options={() => this.renderMenuSelectAvailableInstrument(instrumentClass =>
-                                               this.instrumentAdd(instrumentClass)
-                                           , 'Add New Instrument')}
+                                                   this.instrumentAdd(instrumentClass)
+                                               , 'Add New Instrument')}
                                            title="Add Instrument"
                                        >Select...</MenuDropDown>
                                    </Form>
@@ -397,6 +315,78 @@ class ComposerRenderer extends React.Component {
                 </MenuOverlayContainer>
             </Div>
         )
+    }
+
+    /** Song rendering **/
+    getSong() { return this.song; }
+
+    setCurrentSong(song) {
+        if(this.song) {
+            this.setStatus("Unloading song: " + this.song.data.title);
+            if(this.song.isPlaying) {
+                this.song.stopPlayback();
+            }
+            this.song.removeEventListener('*', this.onSongEventCallback);
+            // TODO: unload song?
+        }
+        this.song = song;
+        // const timeDivision = song.data.timeDivision;
+        // this.state.tracker.trackerSegmentLengthInTicks = null;
+
+        const activeTracks = {
+            'root': {},
+            'track0': {},
+            'track1': {},
+        };
+        activeTracks[song.getStartGroup()] = {};
+
+        // this.song.setVolume(this.state.volume);
+        this.song.addEventListener('*', this.onSongEventCallback);
+        this.setStatus("Initializing song: " + song.data.title);
+        this.song.connect(this.getAudioContext());
+        this.setStatus("Loaded song: " + song.data.title);
+        this.setState({
+            songLengthTicks: song.getsongLengthTicks(),
+            songLengthSeconds: song.getSongLengthInSeconds(),
+            selectedGroup: song.getStartGroup() || 'root',
+            // trackerRowOffset: 0,
+            // trackerQuantizationInTicks: timeDivision,
+            // trackerSegmentLengthInTicks: timeDivision * 16,
+            // trackerFilterByInstrumentID: null,
+            activeTracks
+        });
+    }
+
+
+    // createStyleSheetLink(stylePath, scriptElm=null) {
+    //     const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);
+    //     const link = document.createElement('link');
+    //     link.setAttribute('rel', 'stylesheet');
+    //     link.href = linkHRef;
+    //     return link;
+    // }
+
+
+    loadMIDIInterface(callback) {
+        // TODO: wait for user input
+        if (navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(
+                (MIDI) => {
+                    console.info("MIDI initialized", MIDI);
+                    const inputDevices = [];
+                    MIDI.inputs.forEach(
+                        (inputDevice) => {
+                            inputDevices.push(inputDevice);
+                            inputDevice.addEventListener('midimessage', callback);
+                        }
+                    );
+                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
+                },
+                (err) => {
+                    throw new Error("error initializing MIDI: " + err);
+                }
+            );
+        }
     }
 
 

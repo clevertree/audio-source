@@ -33,6 +33,7 @@ class PlayerRenderer extends React.Component {
                         <Div className="asp-title-text">{this.state.title}</Div>
                         {this.state.portrait
                             ? <MenuDropDown
+                                arrow={false}
                                 className="asp-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
                                 >

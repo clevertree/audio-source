@@ -114,7 +114,7 @@ class Composer extends ComposerActions {
 
     onResize() {
         const aspectRatio = window.innerWidth / window.innerHeight;
-        const portrait = aspectRatio < 1;
+        const portrait = aspectRatio < 2/3;
         if(!this.state.portrait === portrait) {
             console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
             this.setState({portrait});
