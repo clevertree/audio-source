@@ -1,9 +1,7 @@
-
 class Instruction {
-    constructor(instructionData = [0], index=null, instrumentID=null) {
+    constructor(instructionData = [0], index=null) {
         this.index = index;
         this.data = instructionData;
-        this.instrumentID = instrumentID;
     }
 
     get deltaDurationInTicks() {
@@ -22,6 +20,18 @@ class Instruction {
         this.data[1] = newCommand;
     }
 
+    isTrackInstruction() {
+        return typeof this.data[1] === "string" && this.data[1][0] === '@';
+    }
+
+    getTrackNameFromCommand() {
+        return typeof this.data[1] === "string" ? this.data[1].substr(1) : null;
+    }
+
+    setTrackNameAsCommand(newTrackName) {
+        this.data[1] = `@${newTrackName}`;
+    }
+
 
     get durationInTicks() {
         return this.data[2];
@@ -33,6 +43,14 @@ class Instruction {
             throw new Error("Invalid Duration");
         this.data[2] = newDuration;
     }
+
+    clone() {
+        return new Instruction(
+            Object.assign({}, this.data),
+            this.index,
+        )
+    }
+
 
     /** @deprecated **/
     static parseDurationAsTicks(durationString, timeDivision) {

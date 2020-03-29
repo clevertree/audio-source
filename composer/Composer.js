@@ -148,7 +148,7 @@ class Composer extends ComposerActions {
             // if (typeof state.trackerInstrument !== "undefined") await this.fieldTrackerFilterInstrument.setValue(state.trackerInstrument);
             // if (typeof state.trackerOctave !== "undefined") await this.fieldTrackerOctave.setValue(state.trackerOctave);
 
-            // if (typeof state.groupName !== "undefined") await this.trackerChangeGroup(state.groupName);
+            // if (typeof state.trackName !== "undefined") await this.trackerChangeGroup(state.trackName);
             // if (typeof state.trackerRowOffset !== "undefined") await this.trackerChangeSegment(state.trackerRowOffset);
 
             // if (typeof state.selectedIndices !== "undefined") this.selectIndicies(state.selectedIndices);
@@ -165,7 +165,7 @@ class Composer extends ComposerActions {
         // await this.saveSongToMemory(e);
         const state = {// TODO: auto-state form fields
             songUUID: this.song.data.uuid,
-            // groupName: this.state.tracker.currentGroup,
+            // trackName: this.state.tracker.currentGroup,
             // currentRowSegmentID: this.trackerElm.currentRowSegmentID,
             volume: this.state.volume,
             // trackerSegmentLength: this.fieldTrackerSegmentLength.value,

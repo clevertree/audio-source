@@ -1,10 +1,10 @@
 import {InstructionList} from "./InstructionList";
 
 class InstructionIterator extends InstructionList {
-    constructor(song, groupName, bpm, timeDivision) {
-        if(!song.data.instructions[groupName])
-            throw new Error("Invalid instruction group: " + groupName);
-        super(song.data.instructions[groupName]);
+    constructor(song, trackName, bpm, timeDivision) {
+        if(!song.data.instructions[trackName])
+            throw new Error("Invalid instruction group: " + trackName);
+        super(song.data.instructions[trackName]);
         this.bpm = bpm;
         this.timeDivision = timeDivision;
 

@@ -191,8 +191,8 @@ class ComposerMenu extends ComposerRenderer {
         // const populateGroupCommands = (renderMenuGroup, action) => {
         //     renderMenuGroup.populate = () => {
         //         const MENU = e.menuElement;
-        //         this.values.getValues('song-groups', (groupName, groupTitle) => {
-        //             const renderMenuEditSetCommandGroup = MENU.getOrCreateMenu(groupName, `${groupTitle}`);
+        //         this.values.getValues('song-groups', (trackName, groupTitle) => {
+        //             const renderMenuEditSetCommandGroup = MENU.getOrCreateMenu(trackName, `${groupTitle}`);
         //             renderMenuEditSetCommandGroup.action = action;
         //         });
         //         const menuCustom = MENU.getOrCreateMenu('new', `Create New Group`);
@@ -237,12 +237,12 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditInsertCommandGroup() {
         return (<>
-            {this.values.getAllSongGroups((groupName) =>
+            {this.values.getAllSongGroups((trackName) =>
                 <MenuAction
                     options={e => this.renderMenuEditInsertCommandFrequency()}
-                    disabled={groupName === this.state.selectedGroup}
-                    onAction={e => this.instructionInsert('@' + groupName, false)}
-                >{groupName}</MenuAction>)}
+                    disabled={trackName === this.state.selectedGroup}
+                    onAction={e => this.instructionInsert('@' + trackName, false)}
+                >{trackName}</MenuAction>)}
             <MenuAction
                 hasBreak
                 onAction={e => this.groupAdd(e)}
@@ -343,13 +343,13 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditSetCommandGroup() {
         return (<>
-            {this.values.getAllSongGroups((groupName) =>
-                groupName === this.groupName ? null :
+            {this.values.getAllSongGroups((trackName) =>
+                trackName === this.trackName ? null :
                     <MenuAction
-                        key={groupName}
-                        disabled={groupName === this.state.selectedGroup}
-                        onAction={e => this.instructionReplaceCommand('@' + groupName, false)}
-                    >{groupName}</MenuAction>
+                        key={trackName}
+                        disabled={trackName === this.state.selectedGroup}
+                        onAction={e => this.instructionReplaceCommand('@' + trackName, false)}
+                    >{trackName}</MenuAction>
             )}
             <MenuAction onAction={e => this.groupAdd()} hasBreak  >Create New Group</MenuAction>
         </>);
@@ -475,21 +475,21 @@ class ComposerMenu extends ComposerRenderer {
         return (<>
             <MenuAction onAction={e => this.groupAdd(e)} hasBreak     >Add new group</MenuAction>
             <MenuBreak />
-            {this.values.getAllSongGroups((groupName) =>
+            {this.values.getAllSongGroups((trackName) =>
                 <MenuAction
-                    key={groupName}
-                    disabled={groupName === this.state.selectedGroup}
-                    options={() => this.renderMenuGroupEdit(groupName)}
-                >{groupName}</MenuAction>)}
+                    key={trackName}
+                    disabled={trackName === this.state.selectedGroup}
+                    options={() => this.renderMenuGroupEdit(trackName)}
+                >{trackName}</MenuAction>)}
         </>);
     }
 
-    renderMenuGroupEdit(groupName) {
+    renderMenuGroupEdit(trackName) {
 
-        // const groupName = menuParam;
+        // const trackName = menuParam;
         return (<>
-            <MenuAction onAction={e => this.groupRename(groupName)} hasBreak     >Rename group {groupName}</MenuAction>
-            <MenuAction onAction={e => this.groupRemove(groupName)} hasBreak     >Delete group {groupName}</MenuAction>
+            <MenuAction onAction={e => this.groupRename(trackName)} hasBreak     >Rename group {trackName}</MenuAction>
+            <MenuAction onAction={e => this.groupRemove(trackName)} hasBreak     >Delete group {trackName}</MenuAction>
         </>);
     }
 

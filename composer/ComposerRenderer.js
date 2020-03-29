@@ -38,8 +38,6 @@ class ComposerRenderer extends React.Component {
         };
 
         // this.shadowDOM = null;
-        this.header = React.createRef();
-
     }
 
 
@@ -48,7 +46,7 @@ class ComposerRenderer extends React.Component {
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
                     isActive={this.state.portrait}
-                >
+                    >
                     <Div key="header" className="asc-title-container">
                         <Div className="asc-title-text">{this.state.title}</Div>
                         {this.state.portrait
@@ -56,7 +54,7 @@ class ComposerRenderer extends React.Component {
                                 arrow={false}
                                 className="asc-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
-                            >
+                                >
                                 <Icon className="menu" />
                             </MenuDropDown>
                             : <Div className="asc-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
@@ -239,7 +237,7 @@ class ComposerRenderer extends React.Component {
                                     arrow={'▼'}
                                     // className="instruction-duration"
                                     options={e => this.renderMenuEditSetDuration(e)}
-                                    title="Load Song from File"
+                                    title="Instrument Duration"
                                 >1B</ButtonDropDown>
                             </Form>
 

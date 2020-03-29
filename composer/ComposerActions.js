@@ -5,6 +5,7 @@ import InstrumentLoader from "../song/instrument/InstrumentLoader";
 import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
+import Instruction from "../song/instruction/Instruction";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -246,7 +247,6 @@ class ComposerActions extends ComposerMenu {
     //     song.setPlaybackPosition(length * (playbackPositionPercent));
     // }
 
-    /** Tracker Commands **/
 
     // playSelectedInstructions() {
     //     const audioContext = this.getVolumeGain()
@@ -269,81 +269,83 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    async renderInstruction(groupName, index) {
-        const instruction = this.song.instructionFind(groupName, index);
+    async renderInstruction(trackName, index) {
+        const instruction = this.song.instructionFind(trackName, index);
         this.tracker.findInstructionElement(index)
             .update(this.song, instruction);
     }
 
 
     instructionInsertOrUpdate(e, commandString = null) {
-        let selectedIndices = this.state.selectedIndices;
-        if (this.cursorCell.matches('asct-instruction-add')) {
-            let newInstruction = this.instructionGetFormValues(commandString);
-            if (!newInstruction) {
-                this.editorElm.refs.fieldInstructionCommand.focus();
-                return console.info("Insert canceled");
-            }
-
-            const insertPosition = this.cursorPosition;
-            const insertIndex = this.instructionInsertAtPosition(insertPosition, newInstruction);
-            // this.cursorRow.render(true);
-            this.renderRows();
-            this.selectSegmentIndicies(insertIndex, true);
-            // selectedIndices = [insertIndex];
-//                             console.timeEnd("new");
-            // cursorInstruction = instructionList[insertIndex];
-        } else {
-            for (let i = 0; i < selectedIndices.length; i++) {
-                const selectedInstruction = this.instructionFind(selectedIndices[i]);
-                const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
-                this.instructionReplaceCommand(selectedIndices[i], replaceCommand);
-            }
-            this.renderRows();
-            this.selectSegmentIndicies(selectedIndices);
-            // this.selectIndicies(this.state.selectedIndices[0]); // TODO: select all
-        }
+        const {trackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
+//         if (this.cursorCell.matches('asct-instruction-add')) {
+//             let newInstruction = this.instructionGetFormValues(commandString);
+//             if (!newInstruction) {
+//                 this.editorElm.refs.fieldInstructionCommand.focus();
+//                 return console.info("Insert canceled");
+//             }
+//
+//             const insertPosition = this.cursorPosition;
+//             const insertIndex = this.instructionInsertAtPosition(insertPosition, newInstruction);
+//             // this.cursorRow.render(true);
+//             this.renderRows();
+//             this.selectSegmentIndicies(insertIndex, true);
+//             // selectedIndices = [insertIndex];
+// //                             console.timeEnd("new");
+//             // cursorInstruction = instructionList[insertIndex];
+//         } else {
+//             for (let i = 0; i < selectedIndices.length; i++) {
+//                 const selectedInstruction = this.instructionFind(selectedIndices[i]);
+//                 const replaceCommand = this.replaceFrequencyAlias(commandString, selectedInstruction.instrument);
+//                 this.instructionReplaceCommand(selectedIndices[i], replaceCommand);
+//             }
+//             this.renderRows();
+//             this.selectSegmentIndicies(selectedIndices);
+//             // this.selectIndicies(this.state.selectedIndices[0]); // TODO: select all
+//         }
     }
 
 
-    async instructionInsert(newCommand = null, promptUser = false, instrumentID = null, groupName = null) {
+    instructionInsert(newCommand = null, promptUser = false) {
+        const {trackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
+        const newInstruction = cursorInstruction.clone();
+        // if (instrumentID !== null)
+        //     newInstruction.instrument = instrumentID;
+
         //: TODO: check for recursive group
-        const tracker = this.tracker;
-        groupName = groupName || tracker.getGroupName();
         const song = this.song;
         // let selectedIndices = this.getSelectedIndices();
 
         // if(selectedIndices.length === 0)
         //     throw new Error("No selection");
         if (newCommand === null)
-            newCommand = this.fieldInstructionCommand.value || null;
+            newCommand = cursorInstruction ? cursorInstruction.command : null;
         if (promptUser)
             newCommand = prompt("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        let newInstruction = tracker.instructionGetFormValues(newCommand);
-        if (instrumentID !== null)
-            newInstruction.instrument = instrumentID;
+        newInstruction.command = newCommand;
+
 
         const songPosition = song.getSongPositionInTicks();
         console.log(songPosition);
-        let insertIndex = song.instructionInsertAtPosition(groupName, songPosition, newInstruction);
-        await tracker.forceUpdate();
-        this.selectIndicies(insertIndex);
+        let insertIndex = song.instructionInsertAtPosition(trackName, songPosition, newInstruction);
+        // tracker.forceUpdate();
+        // this.selectIndicies(insertIndex);
         this.playCursorInstruction();
     }
 
-    async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null, groupName = null, selectedIndices = null) {
+    async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null, trackName = null, selectedIndices = null) {
         //: TODO: check for recursive group
         const song = this.song;
         const tracker = this.tracker;
-        groupName = groupName || tracker.getGroupName();
+        trackName = trackName || tracker.getTrackName();
         selectedIndices = selectedIndices || this.state.selectedIndices;
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
-        const firstInstruction = this.song.instructionFind(groupName, selectedIndices[0]);
+        const firstInstruction = this.song.instructionFind(trackName, selectedIndices[0]);
         if (newCommand === null)
             newCommand = firstInstruction.command || this.fieldInstructionCommand.value || null;
         if (promptUser)
@@ -352,37 +354,37 @@ class ComposerActions extends ComposerMenu {
             throw new Error("Invalid Instruction command");
 
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceCommand(groupName, selectedIndices[i], newCommand);
+            song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
             if (instrumentID !== null) {
-                song.instructionReplaceInstrument(groupName, selectedIndices[i], instrumentID);
+                song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
             }
-            await this.renderInstruction(groupName, selectedIndices[i]);
+            await this.renderInstruction(trackName, selectedIndices[i]);
         }
         this.playCursorInstruction();
     }
 
-    // TODO: assuming the use of tracker.getGroupName()?
-    async instructionReplaceInstrument(instrumentID = null, groupName = null, selectedIndices = null) {
+    // TODO: assuming the use of tracker.getTrackName()?
+    async instructionReplaceInstrument(instrumentID = null, trackName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
-        groupName = groupName || tracker.getGroupName();
+        trackName = trackName || tracker.getTrackName();
         selectedIndices = selectedIndices || this.state.selectedIndices;
 
         instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
         if (!Number.isInteger(instrumentID))
             throw new Error("Invalid Instruction ID");
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceInstrument(tracker.getGroupName(), selectedIndices[i], instrumentID);
-            await this.renderInstruction(groupName, selectedIndices[i]);
+            song.instructionReplaceInstrument(tracker.getTrackName(), selectedIndices[i], instrumentID);
+            await this.renderInstruction(trackName, selectedIndices[i]);
         }
         await this.fieldInstructionInstrument.setValue(instrumentID);
         this.playCursorInstruction();
     }
 
-    async instructionReplaceDuration(duration = null, promptUser = false, groupName = null, selectedIndices = null) {
+    async instructionReplaceDuration(duration = null, promptUser = false, trackName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
-        groupName = groupName || tracker.getGroupName();
+        trackName = trackName || tracker.getTrackName();
         selectedIndices = selectedIndices || this.state.selectedIndices;
 
         if (!duration)
@@ -392,17 +394,17 @@ class ComposerActions extends ComposerMenu {
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceDuration(tracker.getGroupName(), selectedIndices[i], duration);
-            await this.renderInstruction(groupName, selectedIndices[i]);
+            song.instructionReplaceDuration(tracker.getTrackName(), selectedIndices[i], duration);
+            await this.renderInstruction(trackName, selectedIndices[i]);
         }
         this.playCursorInstruction();
 
     }
 
-    async instructionReplaceVelocity(velocity = null, promptUser = false, groupName = null, selectedIndices = null) {
+    async instructionReplaceVelocity(velocity = null, promptUser = false, trackName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
-        groupName = groupName || tracker.getGroupName();
+        trackName = trackName || tracker.getTrackName();
         selectedIndices = selectedIndices || this.state.selectedIndices;
 
         if (velocity === null)
@@ -413,109 +415,202 @@ class ComposerActions extends ComposerMenu {
         if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceVelocity(tracker.getGroupName(), selectedIndices[i], velocity);
-            await this.renderInstruction(groupName, selectedIndices[i]);
+            song.instructionReplaceVelocity(tracker.getTrackName(), selectedIndices[i], velocity);
+            await this.renderInstruction(trackName, selectedIndices[i]);
         }
         this.playCursorInstruction();
     }
 
-    async instructionDelete(groupName = null, selectedIndices = null) {
+    async instructionDelete(trackName = null, selectedIndices = null) {
         const tracker = this.tracker;
         const song = this.song;
-        groupName = groupName || tracker.getGroupName();
+        trackName = trackName || tracker.getTrackName();
         selectedIndices = selectedIndices || this.state.selectedIndices;
 
         for (let i = 0; i < selectedIndices.length; i++)
-            song.instructionDeleteAtIndex(tracker.getGroupName(), selectedIndices[i]);
+            song.instructionDeleteAtIndex(tracker.getTrackName(), selectedIndices[i]);
         await tracker.forceUpdate();
 
     }
 
-    /** Tracker Cells **/
+    /** Tracker **/
 
-    async setCursor(newCursor, clearSelection = null, toggleValue = null) {
-        await this.tracker.setCursorElement(newCursor);
-        throw new Error("Implement");
+    trackerGetSelectedInfo() {
+        const trackName = this.state.selectedTrack;
+        if(typeof this.state.activeTracks[trackName] === "undefined")
+            throw new Error("Invalid active track: " + trackName);
+        const trackInfo = this.state.activeTracks[trackName];
+        let selectedIndices = trackInfo.selectedIndices || [];
+        let cursorIndex = trackInfo.cursorIndex || 0;
 
-        // if (newCursor instanceof AudioSourceComposerTrackerInstruction) {
-        //     await this.selectIndex(newCursor.index, clearSelection, toggleValue);
-        //     const instruction = newCursor.instructionFind(this.song, this.state.tracker.currentGroup);
-        //     this.fieldInstructionCommand.value = instruction.command;
-        //     this.fieldInstructionInstrument.value = instruction.instruments;
-        //     this.fieldInstructionVelocity.value = instruction.velocity;
-        //     this.fieldInstructionDuration.value = instruction.duration;
-        // } else if (newCursor instanceof AudioSourceComposerTrackerRow) {
-        //     await this.setSongPosition(newCursor.positionInSeconds);
-        //     if (clearSelection)
-        //         this.clearselectedIndices();
+        const cursorInstruction = this.getSong().instructionGetByIndex(trackName, cursorIndex);
+
+        return {
+            trackName,
+            selectedIndices,
+            cursorIndex,
+            cursorInstruction
+        }
+
+        //     const composer = this.props.composer;
+        //     if (!command)
+        //         command = composer.refs.fieldInstructionCommand.value;
+        //     let newInstruction = new Instruction();
         //
-        // }
-
-        // this.playCursorInstruction();
+        //     if (composer.refs.fieldInstructionInstrument.value || composer.refs.fieldInstructionInstrument.value === 0)
+        //         newInstruction.instrument = parseInt(composer.refs.fieldInstructionInstrument.value);
+        //     if (composer.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
+        //         newInstruction.durationInTicks = parseFloat(composer.refs.fieldInstructionDuration.value);
+        //     const velocityValue = parseInt(composer.refs.fieldInstructionVelocity.value);
+        //     if (velocityValue || velocityValue === 0)
+        //         newInstruction.velocity = velocityValue;
+        //
+        //     command = this.replaceFrequencyAlias(command, newInstruction.instrument);
+        //     newInstruction.command = command;
+        //
+        //     return newInstruction;
     }
 
-    async setNextCursor(clearSelection = null, toggleValue = null) {
-        const nextCursor = this.tracker.getNextCursor();
-        if (!nextCursor) {
-            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset + 1);
-            return this.setCursor(this.tracker.getFirstCursor(), clearSelection, toggleValue);
+    /** Tracker Commands **/
+
+    trackAdd() {
+        const song = this.song;
+
+        let newTrackName = song.generateInstructionTrackName();
+        newTrackName = window.prompt("Create new instruction group?", newTrackName);
+        if (newTrackName) {
+            song.groupAdd(newTrackName, []);
+            this.panelTrackerGroups.forceUpdate();
+        } else {
+            this.setStatus("<span class='error'>Create instruction group canceled</span>");
+        }
+    }
+
+    trackRename(trackName, newTrackName = null) {
+        const song = this.song;
+
+        newTrackName = window.prompt(`Rename instruction group (${trackName})?`, trackName);
+        if (newTrackName !== trackName) {
+            song.groupRename(trackName, newTrackName);
+            this.render();
+        } else {
+            this.setStatus("<span class='error'>Rename instruction group canceled</span>");
+        }
+    }
+
+    trackRemove(trackName) {
+        const song = this.song;
+
+        const result = window.confirm(`Remove instruction group (${trackName})?`);
+        if (result) {
+            song.groupRemove(trackName);
+            this.render();
+        } else {
+            this.setStatus("<span class='error'>Remove instruction group canceled</span>");
         }
 
-        await this.setCursor(nextCursor, clearSelection, toggleValue);
     }
 
-    async setPreviousCursor(clearSelection = null, toggleValue = null) {
-        const previousCursor = this.tracker.getPreviousCursor();
-        if (!previousCursor) {
-            if (this.tracker.state.trackerRowOffset <= 0)
-                throw new Error("Beginning of song");
-            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset - 1);
-            return this.setCursor(this.tracker.getLastCursor(), clearSelection, toggleValue);
+
+    trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
+        const activeTracks = this.state.activeTracks;
+        if(toggleValue === true || typeof activeTracks[trackName] === "undefined") {
+            activeTracks[trackName] = trackData;
+        } else {
+            delete activeTracks[trackName];
         }
-        await this.setCursor(previousCursor, clearSelection, toggleValue);
+        this.setState({activeTracks});
+        console.log(this.state);
     }
 
-    async setNextRowCursor(clearSelection = null, toggleValue = null) {
-        const nextRowCursor = this.tracker.getNextRowCursor();
-        if (!nextRowCursor) {
-            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset + 1);
-            return this.setCursor(this.tracker.getFirstCursor(), clearSelection, toggleValue);
-        }
-        await this.setCursor(nextRowCursor, clearSelection, toggleValue);
+    trackerChangeSegment(trackName, newSegmentID) {
+        if (!Number.isInteger(newSegmentID))
+            throw new Error("Invalid segment ID");
+        const activeTracks = this.state.activeTracks;
+        if(typeof activeTracks[trackName] === "undefined")
+            throw new Error(`Track ${trackName} is not active`);
+        const currentTrack = activeTracks[trackName];
+        currentTrack.currentSegmentID = newSegmentID
+        this.setState({activeTracks});
     }
 
-    async setPreviousRowCursor(clearSelection = null, toggleValue = null) {
-        const previousRowCursor = this.tracker.getPreviousRowCursor();
-        if (!previousRowCursor) {
-            if (this.tracker.state.trackerRowOffset <= 0)
-                throw new Error("Beginning of song");
-            await this.trackerChangeSegment(this.tracker.state.trackerRowOffset - 1);
-            return this.setCursor(this.tracker.getLastCursor(), clearSelection, toggleValue);
-        }
-        await this.setCursor(previousRowCursor, clearSelection, toggleValue);
+    trackerChangeOctave(newOctave = null) {
+        if (newOctave !== null)
+            this.fieldTrackerOctave.value = newOctave;
     }
 
+    trackerChangeQuantization(trackerQuantizationInTicks = null) {
+        const tracker = this.tracker;
+        tracker.setState({trackerQuantizationInTicks});
+
+    }
+
+    async trackerChangeSegmentLength(trackerSegmentLengthInTicks = null) {
+        const tracker = this.tracker;
+        await tracker.setState({trackerSegmentLengthInTicks});
+        await this.panelTrackerRowSegments.forceUpdate();
+    }
+
+    // setTrackerRowSegment(e) {
+    //     const tracker = this.tracker;
+    //
+    //     this.currentRowSegmentID = parseInt(form.elements.id.value);
+    //     tracker.renderRows();
+    //     tracker.selectNextCell();
+    //
+    //     let segmentContainer = tracker.querySelector(`asctr-segment[id="${this.currentRowSegmentID}"]`);
+    //     segmentContainer.focus();
+    //     // this.focusOnContainer();
+    // }
+
+    trackerChangeInstrumentFilter(trackerFilterByInstrumentID) {
+        const tracker = this.tracker;
+        tracker.setState({trackerFilterByInstrumentID})
+        // let selectedIndices = this.getSelectedIndices();
+
+        // tracker.renderRows();
+        // this.selectIndicies(e, selectedIndices);
+    }
+
+    async trackerChangeSelection(e, selectedIndices = null) {
+        if (selectedIndices === null)
+            selectedIndices = await this.openPromptDialog("Enter selection: ", this.state.selectedIndices.join(', '));
+        this.selectIndices(selectedIndices);
+    }
+
+
+    trackerSelectIndices(trackName, selectedIndices=[], cursorIndex=null) {
+        const activeTracks = this.state.activeTracks;
+        if(typeof activeTracks[trackName] === "undefined")
+            throw new Error(`Track ${trackName} is not active`);
+        const currentTrack = activeTracks[trackName];
+        if(cursorIndex === null)
+            cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
+        currentTrack.selectedIndices = selectedIndices;
+        currentTrack.cursorIndex = cursorIndex;
+    }
 
     /** Selection **/
 
-    selectIndex(index, clearSelection = null, toggleValue = null) {
-        let selectedIndices = clearSelection ? [] : this.state.selectedIndices;
-        if (toggleValue) {
-            selectedIndices.unshift(index); // Cursor goes first
-        } else {
-            const pos = selectedIndices.indexOf(index);
-            selectedIndices.splice(pos, 1);
-        }
-        return this.selectIndicies(selectedIndices);
-    }
+    // selectIndex(index, clearSelection = null, toggleValue = null) {
+    //     let selectedIndices = clearSelection ? [] : this.state.selectedIndices;
+    //     if (toggleValue) {
+    //         selectedIndices.unshift(index); // Cursor goes first
+    //     } else {
+    //         const pos = selectedIndices.indexOf(index);
+    //         selectedIndices.splice(pos, 1);
+    //     }
+    //     return this.selectIndicies(selectedIndices);
+    // }
 
-    selectIndicies(selectedIndices) {
+    selectIndices(selectedIndices) {
+        const {trackName, oldSelectedIndices} = this.trackerGetSelectedInfo();
         if (typeof selectedIndices === "string") {
 
             switch (selectedIndices) {
                 case 'all':
                     selectedIndices = [];
-                    const maxLength = this.song.instructionFindGroupLength(this.groupName);
+                    const maxLength = this.song.instructionFindGroupLength(this.trackName);
                     for (let i = 0; i < maxLength; i++)
                         selectedIndices.push(i);
                     break;
@@ -539,92 +634,20 @@ class ComposerActions extends ComposerMenu {
         }
 
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
+        this.trackerSelectIndices(trackName, selectedIndices);
 
-        this.state.selectedIndices = selectedIndices;
-        this.fieldTrackerSelection.value = selectedIndices.join(',');
+        // this.state.selectedIndices = selectedIndices;
+        // this.fieldTrackerSelection.value = selectedIndices.join(',');
 
         // await this.tracker.selectIndicies(selectedIndices);
-        this.tracker.forceUpdate();
+        // this.tracker.forceUpdate();
     }
-
-    /** @deprecated **/
-    getSelectedIndices() { return this.state.selectedIndices; }
-        // const value = this.fieldTrackerSelection ? this.fieldTrackerSelection.value : '';
-        // if (value === '')
-        //     return [];
-        // return value
-        //     .split(/\D+/)
-        //     .map(index => parseInt(index));
-        // return this.selectedIndices;
-        // const selectedIndices = [].map.call(this.selectedCells, (elm => elm.index));
-
-    clearselectedIndices() {
-        this.fieldTrackerSelection.value = '';
-        this.selectIndicies([]);
-    }
-
-    toggleSelectionAtIndex(index, toggleValue = null) {
-        const selectedIndices = this.state.selectedIndices;
-        const pos = selectedIndices.indexOf(index);
-        if (toggleValue === null)
-            toggleValue = pos === -1;
-        if (toggleValue) {
-            selectedIndices.splice(pos, 1);
-        } else {
-            selectedIndices.push(index);
-        }
-        this.fieldTrackerSelection.value = selectedIndices.join(',');
-        return selectedIndices;
-    }
-
-    // selectIndex(index) { return this.toggleSelectionAtIndex(index, true); }
-    // removeSelectedIndex(index) { return this.toggleSelectionAtIndex(index, false); }
 
     /** Context menu **/
-    async openContextMenu(e) {
-        const contextMenu = this.menuContext;
-        await contextMenu.openContextMenu(e);
-    }
-
-    /** Groups **/
-
-    groupAdd() {
-        const song = this.song;
-
-        let newGroupName = song.generateInstructionGroupName();
-        newGroupName = window.prompt("Create new instruction group?", newGroupName);
-        if (newGroupName) {
-            song.groupAdd(newGroupName, []);
-            this.panelTrackerGroups.forceUpdate();
-        } else {
-            this.setStatus("<span class='error'>Create instruction group canceled</span>");
-        }
-    }
-
-    groupRename(groupName, newGroupName = null) {
-        const song = this.song;
-
-        newGroupName = window.prompt(`Rename instruction group (${groupName})?`, groupName);
-        if (newGroupName !== groupName) {
-            song.groupRename(groupName, newGroupName);
-            this.render();
-        } else {
-            this.setStatus("<span class='error'>Rename instruction group canceled</span>");
-        }
-    }
-
-    groupRemove(groupName) {
-        const song = this.song;
-
-        const result = window.confirm(`Remove instruction group (${groupName})?`);
-        if (result) {
-            song.groupRemove(groupName);
-            this.render();
-        } else {
-            this.setStatus("<span class='error'>Remove instruction group canceled</span>");
-        }
-
-    }
+    // async openContextMenu(e) {
+    //     const contextMenu = this.menuContext;
+    //     await contextMenu.openContextMenu(e);
+    // }
 
     /** Instruments **/
 
@@ -694,74 +717,6 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    /** Tracker **/
-
-    trackerChangeSegment(trackName, newSegmentID) {
-        if (!Number.isInteger(newSegmentID))
-            throw new Error("Invalid segment ID");
-        const activeTracks = this.state.activeTracks;
-        if(typeof activeTracks[trackName] === "undefined")
-            throw new Error(`Track ${trackName} is not active`);
-        const currentTrack = activeTracks[trackName];
-        currentTrack.currentSegmentID = newSegmentID
-        this.setState({activeTracks});
-    }
-
-    trackerGroupToggle(groupName = null, toggleValue=null) {
-        const activeTracks = this.state.activeTracks;
-        if(toggleValue === true || typeof activeTracks[groupName] === "undefined") {
-            activeTracks[groupName] = {};
-        } else {
-            delete activeTracks[groupName];
-        }
-        this.setState({activeTracks});
-        console.log(this.state);
-    }
-
-    trackerChangeOctave(newOctave = null) {
-        if (newOctave !== null)
-            this.fieldTrackerOctave.value = newOctave;
-    }
-
-    trackerChangeQuantization(trackerQuantizationInTicks = null) {
-        const tracker = this.tracker;
-        tracker.setState({trackerQuantizationInTicks});
-
-    }
-
-    async trackerChangeSegmentLength(trackerSegmentLengthInTicks = null) {
-        const tracker = this.tracker;
-        await tracker.setState({trackerSegmentLengthInTicks});
-        await this.panelTrackerRowSegments.forceUpdate();
-    }
-
-    // setTrackerRowSegment(e) {
-    //     const tracker = this.tracker;
-    //
-    //     this.currentRowSegmentID = parseInt(form.elements.id.value);
-    //     tracker.renderRows();
-    //     tracker.selectNextCell();
-    //
-    //     let segmentContainer = tracker.querySelector(`asctr-segment[id="${this.currentRowSegmentID}"]`);
-    //     segmentContainer.focus();
-    //     // this.focusOnContainer();
-    // }
-
-    trackerChangeInstrumentFilter(trackerFilterByInstrumentID) {
-        const tracker = this.tracker;
-        tracker.setState({trackerFilterByInstrumentID})
-        // let selectedIndices = this.getSelectedIndices();
-
-        // tracker.renderRows();
-        // this.selectIndicies(e, selectedIndices);
-    }
-
-    async trackerChangeSelection(e, selectedIndices = null) {
-        if (selectedIndices === null)
-            selectedIndices = await this.openPromptDialog("Enter selection: ", this.state.selectedIndices.join(', '));
-        this.selectIndicies(selectedIndices);
-    }
-
     /** Toggle Panels **/
 
     togglePanelInstruments() {
@@ -798,10 +753,10 @@ class ComposerActions extends ComposerMenu {
         throw new Error("TODO Implement");
         // const tracker = this.tracker;
         // this.clearselectedIndices();
-        // const groupName = tracker.getGroupName();
+        // const trackName = tracker.getTrackName();
         // try {
         //     const stats = {count: 0};
-        //     const iterator = this.song.instructionGetIterator(groupName);
+        //     const iterator = this.song.instructionGetIterator(trackName);
         //     let instruction;
         //     while (instruction = iterator.nextConditionalInstruction((instruction) => {
         //         const i = instruction;
@@ -838,10 +793,10 @@ class ComposerActions extends ComposerMenu {
         throw new Error("TODO Implement");
         // const instructionList = [];
         // const tracker = this.tracker;
-        // const groupName = tracker.getGroupName(), g = groupName;
+        // const trackName = tracker.getTrackName(), g = trackName;
         // try {
         //     const stats = {count: 0, modified: 0};
-        //     const iterator = this.song.instructionGetIterator(groupName);
+        //     const iterator = this.song.instructionGetIterator(trackName);
         //     let instruction;
         //     const window = null, document = null;
         //     while (instruction = iterator.nextConditionalInstruction((instruction) => {

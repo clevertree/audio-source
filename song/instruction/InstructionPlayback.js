@@ -1,7 +1,5 @@
-import GroupInstruction from "./GroupInstruction";
-
 class InstructionPlayback {
-    constructor(destination, song, groupName, startTime = null, onended = null) {
+    constructor(destination, song, trackName, startTime = null, onended = null) {
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
         if(startTime === null)
@@ -10,14 +8,14 @@ class InstructionPlayback {
         this.audioContext = destination.context;
         this.song = song;
         this.onended = onended;
-        // this.groupName = groupName;
+        // this.trackName = trackName;
         // this.seekLength = seekLength;
         this.subGroups = [];
         this.seekLength = 1000;
         const startingStats = {
             startTime,
             destination,
-            groupName,
+            trackName,
             bpm: song.data.bpm,
             timeDivision: song.data.timeDivision,
         };
@@ -28,12 +26,12 @@ class InstructionPlayback {
     }
 
     startGroupPlayback(stats) {
-        const iterator = this.song.instructionGetIterator(stats.groupName, stats.bpm, stats.timeDivision);
+        const iterator = this.song.instructionGetIterator(stats.trackName, stats.bpm, stats.timeDivision);
         this.subGroups.push([
             stats,
             iterator
         ]);
-        console.log('group:start', stats.groupName);
+        console.log('group:start', stats.trackName);
         this.song.dispatchEvent(new CustomEvent('group:start', {
             detail: {
                 playback: this,
@@ -48,7 +46,7 @@ class InstructionPlayback {
         this.subGroups.splice(groupID, 1);
         const groupEndDelaySeconds = (iterator.endPositionSeconds + stats.startTime) - this.audioContext.currentTime;
         setTimeout(() => {
-            console.log('group:end', stats.groupName, iterator.endPositionSeconds);
+            console.log('group:end', stats.trackName, iterator.endPositionSeconds);
             this.song.dispatchEvent(new CustomEvent('group:end', {
                 detail: {
                     playback: this,
@@ -98,20 +96,20 @@ class InstructionPlayback {
 
                 const instruction = iterator.nextInstruction();
                 const noteStartTime = stats.startTime + iterator.positionSeconds; // Group start time equals current group's start + playback times
-                if (instruction instanceof GroupInstruction) {
-                    if (instruction.getGroupName() === iterator.groupName) { // TODO group stack
-                        console.error(`Recursive group call. Skipping group '${instruction.getGroupName()}'`);
+                if (instruction.isTrackInstruction()) {
+                    if (instruction.getTrackName() === iterator.trackName) { // TODO group stack
+                        console.error(`Recursive group call. Skipping group '${instruction.getTrackName()}'`);
                         continue;
                     }
 
                     const subStats = Object.assign({}, stats, {
                         startTime: noteStartTime,
-                        groupName: instruction.getGroupName()
+                        trackName: instruction.getTrackName()
                     });
                     this.startGroupPlayback(subStats);
 
                 } else {
-                    this.song.playInstruction(stats.destination, instruction, noteStartTime, iterator.groupName);
+                    this.song.playInstruction(stats.destination, instruction, noteStartTime, iterator.trackName);
                 }
             }
         }
@@ -121,14 +119,14 @@ class InstructionPlayback {
 //
 //
 // class InstructionPlayback2 {
-//     constructor(destination, song, groupName, startTime = null, seekLength = 1) {
+//     constructor(destination, song, trackName, startTime = null, seekLength = 1) {
 //         if (!destination || !destination.context)
 //             throw new Error("Invalid destination");
 //         startTime = startTime || destination.context.currentTime;
 //
 //         this.destination = destination;
 //         this.song = song;
-//         this.groupName = groupName;
+//         this.trackName = trackName;
 //         this.seekLength = seekLength;
 //         this.iterator = null;
 //         this.stopPlaybackCallback = null;
@@ -157,7 +155,7 @@ class InstructionPlayback {
 // //             console.info("Waiting... ", waitTimeInSeconds);
 //         return await new Promise((resolve, reject) => {
 //             this.stopPlaybackCallback = () => {
-//                 console.info("Group aborted: ", this.groupName);
+//                 console.info("Group aborted: ", this.trackName);
 //                 this.isActive = false;
 //                 resolve(false);
 //             };
@@ -169,7 +167,7 @@ class InstructionPlayback {
 //     async playGroup() {
 //         const audioContext = this.audioContext;
 //         this.isActive = true;
-//         const iterator = this.song.getInstructionIterator(this.groupName);
+//         const iterator = this.song.getInstructionIterator(this.trackName);
 //         this.iterator = iterator;
 //         this.song.dispatchEvent(new CustomEvent('group:play', {
 //             detail: {
@@ -205,7 +203,7 @@ class InstructionPlayback {
 //
 //
 //         let elapsedTime = audioContext.currentTime - this.startTime;
-//         console.info("Group finished: ", this.groupName, elapsedTime);
+//         console.info("Group finished: ", this.trackName, elapsedTime);
 //         const wasActive = this.isActive;
 //         this.isActive = true;
 //         return wasActive; // Determines if the playlist should play the next song
@@ -269,23 +267,23 @@ class InstructionPlayback {
 //         for (let i = 0; i < instructionList.length; i++) {
 //             const instruction = instructionList[i];
 //             if (instruction.isGroupCommand()) {
-//                 let subGroupName = instruction.getGroupFromCommand();
-//                 if (subGroupName === this.iterator.groupName) { // TODO group stack
-//                     console.error("Recursive group call. Skipping group '" + subGroupName + "'");
+//                 let subTrackName = instruction.getGroupFromCommand();
+//                 if (subTrackName === this.iterator.trackName) { // TODO group stack
+//                     console.error("Recursive group call. Skipping group '" + subTrackName + "'");
 //                     continue;
 //                 }
 //
-//                 const groupPlayback = new InstructionPlayback(destination, this.song, subGroupName, audioContext.startTime - noteStartTime);
+//                 const groupPlayback = new InstructionPlayback(destination, this.song, subTrackName, audioContext.startTime - noteStartTime);
 //                 this.subGroups.push(groupPlayback);
 //                 groupPlayback.playGroup(); // TODO: ugly
 //
 //             } else {
-//                 this.song.playInstruction(destination, instruction, noteStartTime, this.groupName);
+//                 this.song.playInstruction(destination, instruction, noteStartTime, this.trackName);
 //             }
 //         }
 //
 //         // const detail = {
-//         //     groupName: this.groupName,
+//         //     trackName: this.trackName,
 //         //     position: this.iterator.groupPlaybackTime,
 //         //     positionInTicks: this.iterator.positionTicks
 //         // };

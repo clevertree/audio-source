@@ -49,7 +49,7 @@ class Values {
         return results;
     }
 
-    getAllSongGroups(callback = (groupName) => groupName) {
+    getAllSongGroups(callback = (trackName) => trackName) {
         const song = this.song;
         const results = [];
         const instructionList = song.data.instructions;

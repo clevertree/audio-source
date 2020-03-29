@@ -1,5 +1,3 @@
-import NoteInstruction from "./NoteInstruction";
-import GroupInstruction from "./GroupInstruction";
 import Instruction from "./Instruction";
 
 export class InstructionList {
@@ -44,12 +42,10 @@ export class InstructionList {
         return this.getInstruction(instructionData, index);
     }
 
-    static getInstruction(instructionData, index=null, instrumentID=null) {
+    static getInstruction(instructionData, index=null) {
         if(!instructionData)
             throw new Error("Invalid Instruction data");
-        if(typeof instructionData[1] === "string" && instructionData[1][0] === '@')
-            return new GroupInstruction(instructionData, index, instrumentID);
-        return new NoteInstruction(instructionData, index, instrumentID);
+        return new Instruction(instructionData, index);
     }
 
 }
