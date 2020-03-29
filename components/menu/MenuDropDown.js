@@ -2,6 +2,9 @@ import React from "react";
 import MenuOverlayContext from "./MenuOverlayContext";
 import PropTypes from "prop-types";
 
+import "./assets/Menu.css";
+import "./assets/MenuDropDown.css";
+
 export default class MenuDropDown extends React.Component {
     constructor(props) {
         super(props);
@@ -22,7 +25,7 @@ export default class MenuDropDown extends React.Component {
         this.context && this.context.removeDropDownMenu(this);
     }
     componentDidMount() {
-        this.context && this.context.addDropDownMenu(this);
+        this.context && this.context.addDropDownMenu(this); // TODO: use setState callback or componentDidUpdate
     }
 
     getClassName() { return 'asui-menu-item'; }

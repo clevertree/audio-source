@@ -1,0 +1,32 @@
+
+/** Drop Down Menu **/
+
+
+div.asui-menu-dropdown > div.asui-menu-item {
+    padding: 4px;
+    border: 1px outset #FFF;
+}
+
+div.asui-menu-dropdown {
+    background-color: #bdc3c7;
+    /* display: inline-block; */
+    z-index: 4;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    border: 1px solid grey;
+    text-align: left;
+    transition: opacity 0.2s;
+}
+
+div.asui-menu-dropdown:hover {
+    z-index: 4;
+}
+
+div.asui-menu-dropdown.vertical {
+    left: 0;
+    top: 100%;
+}
+
+
+

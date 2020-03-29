@@ -7,7 +7,7 @@ import {
     MenuAction,
     MenuBreak,
     MenuDropDown,
-    Icon,
+    Icon, ButtonDropDown,
 } from "../../../components";
 
 import {Library} from "../../../song";
@@ -32,13 +32,6 @@ class PolyphonyInstrumentRenderer extends React.Component {
     getSong() { return this.props.song; }
     getConfig() { return this.getSong().getInstrumentConfig(this.props.instrumentID); }
     // getLibrary() { return this.state.library; }
-
-    openMenu(e, options) {
-        if(typeof this.props.openMenu === "function")
-            this.props.openMenu(e, options);
-        else
-            throw new Error("Invalid 'openMenu' props");
-    }
 
     render() {
         const instrumentID = this.props.instrumentID;
@@ -66,20 +59,20 @@ class PolyphonyInstrumentRenderer extends React.Component {
                         className="toggle-container"
                         onAction={e => this.toggleContainer(e)}
                         >{instrumentIDHTML}: {instrumentConfig.title || "Unnamed"}</Button>
-                    {this.state.open ? <Button
+                    {this.state.open ? <ButtonDropDown
                         title="Change Preset"
                         className="instrument-preset"
-                        onAction={e => this.openMenuChangePreset(e)}
+                        options={() => this.renderMenuChangePreset()}
                         onChange={(e, presetURL) => this.setPreset(presetURL)}
                         children={instrumentConfig.presetName || "No Preset"}
                         /> : null}
-                    <Button
+                    <ButtonDropDown
                         arrow={false}
                         className="instrument-config"
-                        onAction={e => this.openMenuRoot(e)}
+                        options={() => this.renderMenuRoot()}
                         >
                         <Icon className="config"/>
-                    </Button>
+                    </ButtonDropDown>
                 </Div>
                 {/*{this.state.open && (*/}
                 {/*    <Div className="samples">*/}
@@ -90,7 +83,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
                 {/*                instrumentID={this.props.instrumentID}*/}
                 {/*                sampleID={sampleID}*/}
                 {/*                sampleData={sampleData}*/}
-                {/*                openMenu={(e, options) => this.openMenu(e, options)}*/}
+                {/*                renderMenu={(e, options) => this.renderMenu(e, options)}*/}
                 {/*            />*/}
                 {/*        )}*/}
                 {/*    </Div>*/}
@@ -101,28 +94,28 @@ class PolyphonyInstrumentRenderer extends React.Component {
     }
 
 
-    openMenuRoot(e) {
-        this.openMenu(e, <>
-            <MenuDropDown onAction={e => this.openMenuChangePreset(e)}>Change Preset</MenuDropDown>
+    renderMenuRoot(e) {
+        return (<>
+            <MenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</MenuDropDown>
             <MenuBreak />
-            <MenuDropDown onAction={e => this.openMenuChange(e)}>Change Instrument</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuChange()}>Change Instrument</MenuDropDown>
             {/*<MenuItem onAction={e => this.instrumentRename(e)}>Rename Instrument</MenuItem>*/}
             <MenuAction onAction={e => this.instrumentRemove(e)}>Remove Instrument</MenuAction>
         </>);
     }
 
-    openMenuChange(e) {
-        this.openMenu(e, <>
+    renderMenuChange(e) {
+        return (<>
             {InstrumentLoader.getInstruments().map(config =>
                 <MenuAction onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
             )}
         </>);
     }
 
-    openMenuChangePreset(e) {
+    renderMenuChangePreset(e) {
         let library = this.state.library;
-        this.openMenu(e, <>
-            <MenuDropDown onAction={e => this.openMenuLibraryList(e)}    >Libraries</MenuDropDown>
+        return (<>
+            <MenuDropDown options={() => this.renderMenuLibraryList()}    >Libraries</MenuDropDown>
             <MenuBreak />
             <MenuAction disabled>Search</MenuAction>
             <MenuBreak />
@@ -148,16 +141,16 @@ class PolyphonyInstrumentRenderer extends React.Component {
         //     ),
     }
 
-    openMenuPresetList(e) {
+    renderMenuPresetList(e) {
         let library = this.state.library;
         // if(library.getPresets().length === 0)
         //     return <Menu disabled>No presets</Menu>;
-        this.openMenu(e, library.getPresets().map(config => (
+        return library.getPresets().map(config => (
             <MenuAction>{config.name}</MenuAction>
-        )));
+        ));
     }
 
-    openMenuLibraryList(e) {
+    renderMenuLibraryList(e) {
         let library = this.state.library;
         return library.getLibraries().map(config => (
             <MenuAction onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuAction>

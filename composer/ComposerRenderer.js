@@ -165,7 +165,7 @@ class ComposerRenderer extends React.Component {
                                        <InstrumentRenderer
                                            key={instrumentID}
                                            composer={this}
-                                           openMenu={(e, options) => this.renderMenu(e, options)}
+                                           // openMenu={(e, options) => this.renderMenu(e, options)}
                                            props={instrumentConfig}
                                            instrumentID={instrumentID}
                                        />

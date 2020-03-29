@@ -4,7 +4,7 @@ import {
     Icon,
     Button,
     MenuAction,
-    MenuDropDown,
+    MenuDropDown, ButtonDropDown,
 } from "../../components";
 
 import InstrumentLoader from "../../song/instrument/InstrumentLoader";
@@ -38,7 +38,7 @@ class InstrumentRenderer extends React.Component {
                     return instrument.constructor.getRenderer({
                         song,
                         instrumentID,
-                        openMenu: this.props.openMenu
+                        // renderMenu: this.props.renderMenu
                     });
 
                 } else {
@@ -67,33 +67,29 @@ class InstrumentRenderer extends React.Component {
 
     renderInstrumentConfig() {
         return (
-            <Button
+            <ButtonDropDown
                 arrow={false}
                 className="instrument-config"
-                onAction={e => this.openMenuRoot(e)}
+                options={() => this.renderMenuRoot()}
             >
                 <Icon className="config"/>
-            </Button>
+            </ButtonDropDown>
         )
     }
 
-    openMenu(e, options) {
-        this.getComposer().openMenu(e, options);
-    }
-
-    openMenuRoot(e) {
+    renderMenuRoot() {
         const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
-        this.openMenu(e, <>
-            <MenuDropDown onAction={e => this.openMenuReplaceInstrument(e)}>Change Instrument</MenuDropDown>
+        return (<>
+            <MenuDropDown options={() => this.renderMenuReplaceInstrument()}>Change Instrument</MenuDropDown>
             {/*<MenuItem onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</MenuItem>*/}
             <MenuAction onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</MenuAction>
         </>)
     }
 
-    openMenuReplaceInstrument(e) {
-        this.openMenu(e, InstrumentLoader.getInstruments().map((config, i) =>
+    renderMenuReplaceInstrument(e) {
+        return InstrumentLoader.getInstruments().map((config, i) =>
             <MenuAction key={i} onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
-        ));
+        );
     }
 
 

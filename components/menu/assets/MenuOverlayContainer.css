@@ -11,7 +11,7 @@ div.asui-menu-overlay-container {
 div.asui-menu-overlay-dropdown {
     background-color: #bdc3c7;
     position: absolute;
-    z-index: 3;
+    z-index: 4;
     left: 0;
     top: 0;
     /*transition: transform 0.3s ease-out;*/

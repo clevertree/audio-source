@@ -309,7 +309,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuEditSetDuration() {
-        this.renderMenuSelectDuration(durationInTicks => {
+        return this.renderMenuSelectDuration(durationInTicks => {
             this.instructionReplaceDuration(durationInTicks)
         });
     }
@@ -405,7 +405,7 @@ class ComposerMenu extends ComposerRenderer {
     /** Tracker Menu **/
 
     renderMenuTrackerSetQuantization() {
-        this.renderMenuSelectDuration(duration => {
+        return this.renderMenuSelectDuration(duration => {
             this.trackerChangeQuantization(duration);
         });
     }
@@ -419,7 +419,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuTrackerSetInstrumentFilter() {
-        this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
+        return this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
     }
 
     renderMenuTrackerSetOctave() {

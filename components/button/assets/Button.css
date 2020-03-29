@@ -1,5 +1,7 @@
 
 div.asui-button {
+    /*z-index: 3;*/
+    position: relative;
     display: inline-flex;
     cursor: pointer;
 
