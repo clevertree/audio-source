@@ -4,13 +4,13 @@ import Div from "../div/Div";
 import "./assets/MenuOverlayContainer.css";
 import MenuOverlayContext from "./MenuOverlayContext";
 import MenuBreak from "./MenuBreak";
-import MenuItem from "./MenuItem";
+import MenuAction from "./MenuAction";
 
 class MenuOverlayContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false,
+            open: false, // TODO: use MenUDropDown
             openOverlay: false
         };
         this.overlayContext = {
@@ -20,17 +20,17 @@ class MenuOverlayContainer extends React.Component {
             isHoverEnabled: () => this.isHoverEnabled(),
             // openOverlay: () => this.openOverlay(),
             // closeOverlay: () => this.closeOverlay(),
-            removeOpenMenu: (openMenuItem) => this.removeOpenMenu(openMenuItem),
-            addOpenMenu: (openMenuItem) => this.addOpenMenu(openMenuItem),
-            openMenuItems: []
+            removeDropDownMenu: (openMenuItem) => this.removeDropDownMenu(openMenuItem),
+            addDropDownMenu: (openMenuItem) => this.addDropDownMenu(openMenuItem),
+            dropDownMenus: []
         };
     }
     // componentDidMount() {
-    //     SubMenuItem.addGlobalSubMenuHandler(this.openMenuHandler)
+    //     MenuDropDown.addGlobalSubMenuHandler(this.openMenuHandler)
     // }
     //
     // componentWillUnmount() {
-    //     SubMenuItem.removeGlobalSubMenuHandler(this.openMenuHandler)
+    //     MenuDropDown.removeGlobalSubMenuHandler(this.openMenuHandler)
     // }
 
     render() {
@@ -44,7 +44,7 @@ class MenuOverlayContainer extends React.Component {
                 {this.state.open ? <Div className="asui-menu-overlay-dropdown">
                     {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
                     <MenuBreak/>
-                    <MenuItem onAction={() => this.closeAllMenus()}>- Close Menu -</MenuItem>
+                    <MenuAction onAction={() => this.closeAllMenus()}>- Close Menu -</MenuAction>
                 </Div> : null}
                 {this.props.children}
             </>
@@ -52,37 +52,37 @@ class MenuOverlayContainer extends React.Component {
     }
 
     updateOverlay() {
-        const openOverlay = this.state.open || this.overlayContext.openMenuItems.length > 0;
+        const openOverlay = this.state.open || this.overlayContext.dropDownMenus.length > 0;
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay})
     }
 
     isHoverEnabled() {
-        return this.overlayContext.openMenuItems.length > 0;
+        return this.overlayContext.dropDownMenus.length > 0;
     }
 
-    addOpenMenu(openMenuItem) {
-        const i = this.overlayContext.openMenuItems.indexOf(openMenuItem);
+    addDropDownMenu(openMenuItem) {
+        const i = this.overlayContext.dropDownMenus.indexOf(openMenuItem);
         if(i === -1)
-            this.overlayContext.openMenuItems.push(openMenuItem);
-        console.log('this.overlayContext.openMenuItems', this.overlayContext.openMenuItems);
+            this.overlayContext.dropDownMenus.push(openMenuItem);
+        console.log('this.overlayContext.openMenuItems', this.overlayContext.dropDownMenus);
         this.updateOverlay();
     }
 
-    removeOpenMenu(openMenuItem) {
-        const i = this.overlayContext.openMenuItems.indexOf(openMenuItem);
+    removeDropDownMenu(openMenuItem) {
+        const i = this.overlayContext.dropDownMenus.indexOf(openMenuItem);
         if(i !== -1)
-            this.overlayContext.openMenuItems.splice(i, 1);
+            this.overlayContext.dropDownMenus.splice(i, 1);
         this.updateOverlay();
     }
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
-        const openMenuItems = this.overlayContext.openMenuItems.slice();
+        const openMenuItems = this.overlayContext.dropDownMenus.slice();
         // this.overlayContext.openMenuItems = [];
         openMenuItems.forEach(openMenuItem => {
             if(butThese.indexOf(openMenuItem) !== -1)
                 return;
-            openMenuItem.closeDropDownMenu(stayOpenOnStick);
+            openMenuItem.closeMenu(stayOpenOnStick);
         });
         console.log("closeMenus", openMenuItems, butThese);
     }

@@ -5,7 +5,7 @@ import {
     TrackerInstruction,
     TrackerRow
 } from "./";
-import {Button, Div, Form, Panel} from "../../components/";
+import {Div, Form, Panel, MenuAction} from "../../components/";
 import Instruction from "../../song/instruction/Instruction";
 
 import "./assets/Tracker.css";
@@ -47,20 +47,20 @@ class Tracker extends React.Component {
     renderOptions() {
         return <>
             <Form className="tracker-row-length" title="Row &#120491;">
-                <Button
+                <MenuAction
                     arrow={'▼'}
                     // className="tracker-row-length"
                     onAction={e => this.openMenuTrackerSetQuantization(e)}
-                >1B</Button>
+                >1B</MenuAction>
             </Form>
 
             <Form className="tracker-segment-length" title="Seg &#120491;">
-                <Button
+                <MenuAction
                     arrow={'▼'}
                     // className="tracker-segment-length"
                     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
                     title="Select Tracker Segment Length"
-                >16B</Button>
+                >16B</MenuAction>
             </Form>
         </>;
     }
@@ -69,41 +69,41 @@ class Tracker extends React.Component {
         const composer = this.props.composer;
 
         const segmentLengthInTicks = this.getSegmentLengthInTicks();
-        let songLengthInTicks = composer.state.songLengthInTicks;
-        let segmentCount = Math.ceil(songLengthInTicks / segmentLengthInTicks) || 1;
+        let songLengthTicks = composer.state.songLengthTicks;
+        let segmentCount = Math.ceil(songLengthTicks / segmentLengthInTicks) || 1;
         if (segmentCount > 256)
             segmentCount = 256;
 
         const buttons = [];
 
-        buttons.push(<Button
+        buttons.push(<MenuAction
             arrow={'▼'}
             key="segment-quantization"
             onAction={e => this.openMenuTrackerSetQuantization(e)}
-        >1B</Button>);
+        >1B</MenuAction>);
 
         // let rowSegmentCount = Math.ceil(lastSegmentRowPositionInTicks / trackerSegmentLengthInTicks) + 1;
         const currentRowSegmentID = Math.floor(this.getCursorPositionInTicks() / segmentLengthInTicks);
         if (segmentCount < currentRowSegmentID + 1)
             segmentCount = currentRowSegmentID + 1;
         for (let segmentID = 0; segmentID <= segmentCount; segmentID++)
-            buttons.push(<Button
+            buttons.push(<MenuAction
                 key={segmentID}
                 selected={segmentID === currentRowSegmentID}
                 onAction={e => composer.trackerChangeSegment(this.props.trackName, segmentID)}
-            >{segmentID}</Button>);
+            >{segmentID}</MenuAction>);
 
-        buttons.push(<Button
+        buttons.push(<MenuAction
             key="segment-add"
             onAction={e => this.groupAdd(e)}
-        >+</Button>);
+        >+</MenuAction>);
 
-        // buttons.push(<Button
+        // buttons.push(<MenuAction
         //     arrow={'▼'}
         //     key="segment-length"
         //     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
         //     title="Select Tracker Segment Length"
-        // >16B</Button>);
+        // >16B</MenuAction>);
 
         return buttons;
     }
@@ -123,8 +123,8 @@ class Tracker extends React.Component {
 
         const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
 
-        const selectedIndices = composer.state.selectedIndices;
-        const cursorIndex = composer.state.cursorIndex;
+        const selectedIndices = this.props.selectedIndices || [];
+        const cursorIndex = this.props.cursorIndex || 0;
 
 
         // let     rowCount = 0;
@@ -214,7 +214,7 @@ class Tracker extends React.Component {
     // // getQuantizationInTicks()    { return this.state.quantizationInTicks; }
     // getSegmentLengthInTicks()   { return this.getComposer().state.trackerSegmentLengthInTicks; }
     getMaxLengthInTicks()       {
-        let songLength = this.getComposer().state.songLengthInTicks;
+        let songLength = this.getComposer().state.songLengthTicks;
         let segmentLengthInTicks = this.getSegmentLengthInTicks();
 
         if(songLength < segmentLengthInTicks)

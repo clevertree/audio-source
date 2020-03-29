@@ -2,9 +2,8 @@ import React from "react";
 import {
     Div,
     Icon,
-    MenuItem,
-    SubMenuItem,
-    Button,
+    MenuAction,
+    MenuDropDown,
 } from "../../components";
 
 import InstrumentLoader from "../../song/instrument/InstrumentLoader";
@@ -67,13 +66,13 @@ class InstrumentRenderer extends React.Component {
 
     renderInstrumentConfig() {
         return (
-            <Button
+            <MenuAction
                 arrow={false}
                 className="instrument-config"
                 onAction={e => this.openMenuRoot(e)}
             >
                 <Icon className="config"/>
-            </Button>
+            </MenuAction>
         )
     }
 
@@ -84,15 +83,15 @@ class InstrumentRenderer extends React.Component {
     openMenuRoot(e) {
         const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
         this.openMenu(e, <>
-            <SubMenuItem onAction={e => this.openMenuReplaceInstrument(e)}>Change Instrument</SubMenuItem>
+            <MenuDropDown onAction={e => this.openMenuReplaceInstrument(e)}>Change Instrument</MenuDropDown>
             {/*<MenuItem onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</MenuItem>*/}
-            <MenuItem onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</MenuItem>
+            <MenuAction onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</MenuAction>
         </>)
     }
 
     openMenuReplaceInstrument(e) {
         this.openMenu(e, InstrumentLoader.getInstruments().map((config, i) =>
-            <MenuItem key={i} onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuItem>
+            <MenuAction key={i} onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
         ));
     }
 

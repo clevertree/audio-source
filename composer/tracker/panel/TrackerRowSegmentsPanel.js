@@ -1,7 +1,7 @@
 import React from "react";
 
 import "./assets/TrackerGroupsPanel.css";
-import {Button, Panel} from "../../../components";
+import {Panel} from "../../../components";
 
 import "./assets/TrackerRowSegmentsPanel.css";
 
@@ -23,8 +23,8 @@ class TrackerRowSegmentsPanel extends React.Component {
             <Panel className={className} title="Tracker Segments">
                 {(() => {
                     const trackerSegmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (this.state.trackerQuantizationInTicks * 16);
-                    let songLengthInTicks = this.state.songLengthInTicks;
-                    let rowSegmentCount = Math.ceil(songLengthInTicks / trackerSegmentLengthInTicks) || 1;
+                    let songLengthTicks = this.state.songLengthTicks;
+                    let rowSegmentCount = Math.ceil(songLengthTicks / trackerSegmentLengthInTicks) || 1;
                     if (rowSegmentCount > 256)
                         rowSegmentCount = 256;
 
@@ -35,15 +35,15 @@ class TrackerRowSegmentsPanel extends React.Component {
                     if (rowSegmentCount < currentRowSegmentID + 1)
                         rowSegmentCount = currentRowSegmentID + 1;
                     for (let segmentID = 0; segmentID <= rowSegmentCount; segmentID++)
-                        buttons[segmentID] = <Button
+                        buttons[segmentID] = <MenuAction
                             key={segmentID}
                             onAction={e => this.trackerChangeSegment(segmentID)}
-                        >{segmentID}</Button>;
+                        >{segmentID}</MenuAction>;
                     return buttons;
                 })()}
-                <Button
+                <MenuAction
                     onAction={e => this.groupAdd(e)}
-                >+</Button>
+                >+</MenuAction>
             </Panel>
         )
     }

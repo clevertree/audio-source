@@ -3,10 +3,9 @@ import {
     // Button,
     // InputSelect,
     Div,
-    MenuItem,
+    MenuAction,
     MenuBreak,
-    Button,
-    Icon, InputRange, SubMenuItem,
+    Icon, InputRange, MenuDropDown,
 } from "../../../components";
 
 import "./assets/SynthesizerSampleRenderer.css";
@@ -39,62 +38,62 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
             <Div
                 className={className}
                 >
-                <Button
+                <MenuAction
                     title="Change Sample"
                     className="name"
                     onAction={e => this.toggleOpen(e)}>
                     {sampleName || "Unnamed"}
-                </Button>
+                </MenuAction>
                 {!this.state.open ? null : (
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
-                                <MenuItem onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
+                                <MenuAction onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
                                     {sample.mixer+'%'}
-                                </MenuItem>
+                                </MenuAction>
                             </Div>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
                             <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <MenuItem onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
+                                <MenuAction onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
                                     {sample.detune+'c'}
-                                </MenuItem>
+                                </MenuAction>
                             </Div>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
                             <Div title={`Key Root is ${sample.root}`} className="root">
-                                <MenuItem onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
+                                <MenuAction onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
                                     {sample.root}
-                                </MenuItem>
+                                </MenuAction>
                             </Div>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
                             <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <MenuItem onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
+                                <MenuAction onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
                                     {sample.alias}
-                                </MenuItem>
+                                </MenuAction>
                             </Div>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
                             <Div title={`Key Range is ${sample.range}`} className="range">
-                                <MenuItem onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
+                                <MenuAction onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
                                     {sample.range}
-                                </MenuItem>
+                                </MenuAction>
                             </Div>
                         )}
                         {typeof sample.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <MenuItem title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
+                                <MenuAction title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
-                                </MenuItem>
+                                </MenuAction>
                             </Div>
                         )}
                     </>)
                 }
                 <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <MenuItem onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
+                    <MenuAction onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
                         <Icon className="config"/>
-                    </MenuItem>
+                    </MenuAction>
                 </Div>
             </Div>
         );
@@ -110,17 +109,17 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     openMenuRoot(e) {
         this.openMenu(e, <>
-            <MenuItem onAction={()=>{}} disabled>Sample {this.props.sampleID}</MenuItem>
+            <MenuAction onAction={()=>{}} disabled>Sample {this.props.sampleID}</MenuAction>
             <MenuBreak />
-            <SubMenuItem key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</SubMenuItem>
-            <SubMenuItem key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</SubMenuItem>
-            <SubMenuItem key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</SubMenuItem>
-            <SubMenuItem key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</SubMenuItem>
-            <SubMenuItem key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</SubMenuItem>
-            <SubMenuItem key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</SubMenuItem>
+            <MenuDropDown key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</MenuDropDown>
+            <MenuDropDown key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</MenuDropDown>
+            <MenuDropDown key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</MenuDropDown>
+            <MenuDropDown key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</MenuDropDown>
+            <MenuDropDown key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</MenuDropDown>
+            <MenuDropDown key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</MenuDropDown>
             <MenuBreak />
-            <SubMenuItem key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</SubMenuItem>
-            <MenuItem key="remove" onAction={e => this.renderMenu('voice-remove')}>Remove Sample</MenuItem>
+            <MenuDropDown key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</MenuDropDown>
+            <MenuAction key="remove" onAction={e => this.renderMenu('voice-remove')}>Remove Sample</MenuAction>
         </>);
     }
 
@@ -153,28 +152,28 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     openMenuChangeKeyRoot(e) {
         const values = this.getSong().values;
         this.openMenu(e, <>
-            <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
+            <MenuAction onAction={null} disabled>Edit Key Root</MenuAction>
             <MenuBreak />
             {values.getNoteOctaves((octave) =>
-                <SubMenuItem onAction={e => this.openMenu(e,
+                <MenuDropDown onAction={e => this.openMenu(e,
                     values.getNoteFrequencies((noteName) =>
-                        <MenuItem onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuItem>
+                        <MenuAction onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuAction>
                     )
-                )}>{octave}</SubMenuItem>)}
+                )}>{octave}</MenuDropDown>)}
         </>);
     }
 
     openMenuChangeKeyAlias(e) {
         const values = this.getSong().values;
         this.openMenu(e, <>
-            <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
+            <MenuAction onAction={null} disabled>Edit Key Root</MenuAction>
             <MenuBreak />
             {values.getNoteOctaves((octave) =>
-                <SubMenuItem onAction={e => this.openMenu(e,
+                <MenuDropDown onAction={e => this.openMenu(e,
                     values.getNoteFrequencies((noteName) =>
-                        <MenuItem onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuItem>
+                        <MenuAction onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuAction>
                     )
-                )}>{octave}</SubMenuItem>)}
+                )}>{octave}</MenuDropDown>)}
         </>);
     }
 
@@ -206,70 +205,70 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                 return <>
 
                     <MenuBreak />
-                    <MenuItem onAction={null} disabled>Edit Mixer</MenuItem>
+                    <MenuAction onAction={null} disabled>Edit Mixer</MenuAction>
                 </>;
 
             case 'voice-detune':
                 return <>
 
                     <MenuBreak />
-                    <MenuItem onAction={null} disabled>Edit Detune</MenuItem>
+                    <MenuAction onAction={null} disabled>Edit Detune</MenuAction>
                 </>;
 
             case 'voice-root':
                 return <>
-                    <MenuItem onAction={null} disabled>Edit Key Root</MenuItem>
+                    <MenuAction onAction={null} disabled>Edit Key Root</MenuAction>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <MenuItem onAction={
+                    <MenuAction onAction={
                         () => values.getNoteFrequencies((noteName) =>
-                            <MenuItem onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuItem>
+                            <MenuAction onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuAction>
                         )
-                    }>{octave}</MenuItem>)}
+                    }>{octave}</MenuAction>)}
                 </>;
 
             case 'voice-alias':
                 return <>
-                    <MenuItem onAction={null} disabled>Edit Key Alias</MenuItem>
+                    <MenuAction onAction={null} disabled>Edit Key Alias</MenuAction>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <MenuItem onAction={
+                    <MenuAction onAction={
                         () => values.getNoteFrequencies((noteName) =>
-                            <MenuItem onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuItem>
+                            <MenuAction onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuAction>
                         )
-                    }>{octave}</MenuItem>)}
+                    }>{octave}</MenuAction>)}
                 </>;
 
             case 'voice-range':
                 return <>
-                    <MenuItem onAction={null} disabled>Edit Key Range</MenuItem>
+                    <MenuAction onAction={null} disabled>Edit Key Range</MenuAction>
                     <MenuBreak />
-                    <MenuItem onAction={e => this.renderMenu('voice-range-start')} >Set Range Start</MenuItem>
-                    <MenuItem onAction={e => this.renderMenu('voice-range-end')} >Set Range End</MenuItem>
+                    <MenuAction onAction={e => this.renderMenu('voice-range-start')} >Set Range Start</MenuAction>
+                    <MenuAction onAction={e => this.renderMenu('voice-range-end')} >Set Range End</MenuAction>
                 </>;
 
             case 'voice-range-start':
                 return (<>
-                    <MenuItem onAction={null} disabled>Range Start</MenuItem>
+                    <MenuAction onAction={null} disabled>Range Start</MenuAction>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <MenuItem onAction={
+                        <MenuAction onAction={
                             () => values.getNoteFrequencies((noteName) =>
-                                <MenuItem onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</MenuItem>
+                                <MenuAction onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</MenuAction>
                             )
-                        }>{octave}</MenuItem>)}
+                        }>{octave}</MenuAction>)}
                 </>);
 
             case 'voice-range-end':
                 return (<>
-                    <MenuItem onAction={null} disabled>Range End</MenuItem>
+                    <MenuAction onAction={null} disabled>Range End</MenuAction>
                     <MenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <MenuItem onAction={
+                        <MenuAction onAction={
                             () => values.getNoteFrequencies((noteName) =>
-                                <MenuItem onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</MenuItem>
+                                <MenuAction onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</MenuAction>
                             )
-                        }>{octave}</MenuItem>)}
+                        }>{octave}</MenuAction>)}
                 </>);
 
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Div, Icon, Button, InputRange, Form, Panel, MenuOverlayContainer} from "../components";
+import {Div, Icon, InputRange, Form, Panel, MenuDropDown, MenuAction, MenuOverlayContainer} from "../components";
 
 
 import Playlist from "./playlist/Playlist";
@@ -32,45 +32,45 @@ class PlayerRenderer extends React.Component {
                     <Div key="header" className="asp-title-container">
                         <Div className="asp-title-text">{this.state.title}</Div>
                         {this.state.portrait
-                            ? <Button
+                            ? <MenuDropDown
                                 className="asp-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
                                 >
                                 <Icon className="menu" />
-                              </Button>
+                              </MenuDropDown>
                             : <Div className="asp-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
                     </Div>
                     <Div className="asp-forms-container">
                         <Panel className="song" title="Song">
                             <Form className="playback" title="Playback">
-                                <Button
+                                <MenuAction
                                     className="song-play"
                                     onAction={e => this.playlistPlay(e)}
                                 >
                                     <Icon className="play"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="song-pause"
                                     onAction={e => this.playlistPause(e)}
                                 >
                                     <Icon className="pause"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="song-stop"
                                     onAction={e => this.playlistStop(e)}
                                 >
                                     <Icon className="stop"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="song-next"
                                     onAction={e => this.playlistNext(e)}
                                 >
                                     <Icon className="next"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
 
                             <Form className="file" title="File">
-                                <Button
+                                <MenuAction
                                     className="file-load"
                                     onAction={(e) => this.loadSongFromFileInput(e)}
                                     accept=".json,.mid,.midi"
@@ -78,14 +78,14 @@ class PlayerRenderer extends React.Component {
                                     title="Load Song from File"
                                 >
                                     <Icon className="file-load"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="file-save"
                                     onAction={e => this.saveSongToFile(e)}
                                     title="Save Song to File"
                                 >
                                     <Icon className="file-save"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
 
                             <Form className="volume" title="Volume">
@@ -113,7 +113,7 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="timing" title="Timing">
-                                <Button
+                                <MenuAction
                                     className="timing"
                                     onAction={(e) => this.setSongPosition(e)}
                                     ref={ref => this.fieldSongTiming = ref}
@@ -123,7 +123,7 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="name" title="Name">
-                                <Button
+                                <MenuAction
                                     className="name"
                                     onAction={(e) => this.setSongName(e)}
                                     title="Song Name"
@@ -132,7 +132,7 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="version" title="Version">
-                                <Button
+                                <MenuAction
                                     className="version"
                                     onAction={(e) => this.setSongVersion(e)}
                                     ref={ref => this.fieldSongVersion = ref}
@@ -142,13 +142,13 @@ class PlayerRenderer extends React.Component {
                             </Form>
 
                             <Form className="source" title="Source">
-                                <Button
+                                <MenuAction
                                     className="source"
                                     onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
                                     title="Song Source"
                                 >
                                     <Icon className="source"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
                         </Panel>
                         <Panel className="playlist" title="Playlist">

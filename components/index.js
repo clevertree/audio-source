@@ -2,10 +2,9 @@
 import Div from "./div/Div";
 import Icon from "./icon/Icon";
 import {
-    MenuItem,
-    SubMenuItem,
+    MenuAction,
+    MenuDropDown,
     MenuBreak,
-    Button,
     MenuOverlayContainer
 } from "./menu/";
 
@@ -18,13 +17,12 @@ import Scrollable from "./scrollable/Scrollable";
 export {
     Div,
     Icon,
-    Button,
     Form,
     Panel,
 
-    MenuItem,
+    MenuAction,
     MenuBreak,
-    SubMenuItem,
+    MenuDropDown,
     MenuOverlayContainer,
 
     Scrollable,

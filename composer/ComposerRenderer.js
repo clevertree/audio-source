@@ -1,18 +1,10 @@
 import React from "react";
-
-import {Div, Icon, Form, Panel, Button, InputRange} from "../components";
-
-// import Storage from "../song/Storage";
-
 import InstrumentRenderer from "./instrument/InstrumentRenderer";
-// import InputSelect from "../components/input-select/InputSelect";
 import Tracker from "./tracker/Tracker";
-// import InstrumentLoader from "../instruments/InstrumentLoader";
+import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
+import {Div, Icon, Form, Panel, InputRange, MenuDropDown, MenuAction} from "../components";
 
 import "./assets/Composer.css";
-import TrackerGroupsPanel from "./tracker/panel/TrackerGroupsPanel";
-import TrackerRowSegmentsPanel from "./tracker/panel/TrackerRowSegmentsPanel";
-import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
 
 class ComposerRenderer extends React.Component {
     constructor(state = {}, props = {}) {
@@ -36,19 +28,20 @@ class ComposerRenderer extends React.Component {
             paused: false,
 
             // Global selected note(s)
-            songLengthInTicks: 0,
-            songLength: 0,
-            selectedGroup: 'root',
-            selectedIndices: [],
-            cursorIndex: 0,
+            songLengthTicks: 0,
+            songLengthSeconds: 0,
+            // selectedGroup: 'root',
+            // selectedIndices: [],
+            // cursorIndex: 0,
 
             activeTracks: {},
+            selectedTrack: 'root'
 
             // Tracker specific
-            trackerQuantizationInTicks: 96*4,
-            trackerSegmentLengthInTicks: 96*4*16,
-            trackerCurrentOctave: 3,
-            trackerFilterByInstrumentID: null,
+            // trackerQuantizationInTicks: 96*4,
+            // trackerSegmentLengthInTicks: 96*4*16,
+            // trackerCurrentOctave: 3,
+            // trackerFilterByInstrumentID: null,
 
             // trackerSegmentCount: 10,
             // trackerRowOffset: 0,
@@ -74,7 +67,7 @@ class ComposerRenderer extends React.Component {
             // TODO: unload song?
         }
         this.song = song;
-        const timeDivision = song.data.timeDivision;
+        // const timeDivision = song.data.timeDivision;
         // this.state.tracker.trackerSegmentLengthInTicks = null;
 
         const activeTracks = {
@@ -90,13 +83,13 @@ class ComposerRenderer extends React.Component {
         this.song.connect(this.getAudioContext());
         this.setStatus("Loaded song: " + song.data.title);
         this.setState({
-            songLengthInTicks: song.getSongLengthInTicks(),
-            songLength: song.getSongLengthInSeconds(),
+            songLengthTicks: song.getsongLengthTicks(),
+            songLengthSeconds: song.getSongLengthInSeconds(),
             selectedGroup: song.getStartGroup() || 'root',
-            trackerRowOffset: 0,
-            trackerQuantizationInTicks: timeDivision,
-            trackerSegmentLengthInTicks: timeDivision * 16,
-            trackerFilterByInstrumentID: null,
+            // trackerRowOffset: 0,
+            // trackerQuantizationInTicks: timeDivision,
+            // trackerSegmentLengthInTicks: timeDivision * 16,
+            // trackerFilterByInstrumentID: null,
             activeTracks
         });
     }
@@ -142,39 +135,39 @@ class ComposerRenderer extends React.Component {
                     <Div key="header" className="asc-title-container">
                         <Div className="asc-title-text">{this.state.title}</Div>
                         {this.state.portrait
-                            ? <Button
+                            ? <MenuDropDown
                                 className="asc-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
                             >
                                 <Icon className="menu" />
-                            </Button>
+                            </MenuDropDown>
                             : <Div className="asc-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
                     </Div>
                     <Div className="asc-panel-container">
                         <Panel className="song" title="Song">
                             <Form className="playback" title="Playback">
-                                <Button
+                                <MenuAction
                                     className="song-play"
                                     onAction={e => this.songPlay(e)}
                                 >
                                     <Icon className="play"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="song-pause"
                                     onAction={e => this.songPause(e)}
                                 >
                                     <Icon className="pause"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="song-stop"
                                     onAction={e => this.songStop(e)}
                                 >
                                     <Icon className="stop"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
 
                             <Form className="file" title="File">
-                                <Button
+                                <MenuAction
                                     className="file-load"
                                     onAction={(e) => this.loadSongFromFileInput(e)}
                                     accept=".json,.mid,.midi"
@@ -182,14 +175,14 @@ class ComposerRenderer extends React.Component {
                                     title="Load Song from File"
                                 >
                                     <Icon className="file-load"/>
-                                </Button>
-                                <Button
+                                </MenuAction>
+                                <MenuAction
                                     className="file-save"
                                     onAction={e => this.saveSongToFile(e)}
                                     title="Save Song to File"
                                 >
                                     <Icon className="file-save"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
 
                             <Form className="volume" title="Volume">
@@ -210,14 +203,14 @@ class ComposerRenderer extends React.Component {
                                     onChange={(e, pos) => this.setSongPosition(pos)}
                                     value={0}
                                     min={0}
-                                    max={Math.ceil(this.state.songLength)}
+                                    max={Math.ceil(this.state.songLengthSeconds)}
                                     ref={ref => this.fieldSongPosition = ref}
                                     title="Song Position"
                                 />
                             </Form>
 
                             <Form className="timing" title="Timing">
-                                <Button
+                                <MenuAction
                                     className="timing"
                                     onAction={(e, timingString) => this.setSongPosition(timingString)}
                                     ref={ref => this.fieldSongTiming = ref}
@@ -227,7 +220,7 @@ class ComposerRenderer extends React.Component {
                             </Form>
 
                             <Form className="name" title="Name">
-                                <Button
+                                <MenuAction
                                     className="name"
                                     onAction={(e) => this.setSongName(e)}
                                     ref={ref => this.fieldSongVersion = ref}
@@ -237,7 +230,7 @@ class ComposerRenderer extends React.Component {
                             </Form>
 
                             <Form className="version" title="Version">
-                                <Button
+                                <MenuAction
                                     className="version"
                                     onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
                                     ref={ref => this.fieldSongVersion = ref}
@@ -260,14 +253,14 @@ class ComposerRenderer extends React.Component {
                                        />
                                    )}
                                    <Form className="instrument-add" title="Add Instrument">
-                                       <Button
+                                       <MenuDropDown
                                            arrow={'▼'}
                                            className="instrument-add"
                                            options={() => this.renderMenuSelectAvailableInstrument(instrumentClass =>
                                                this.instrumentAdd(instrumentClass)
                                            , 'Add New Instrument')}
                                            title="Add Instrument"
-                                       >Select...</Button>
+                                       >Select...</MenuDropDown>
                                    </Form>
                                </>)} />
 
@@ -275,39 +268,39 @@ class ComposerRenderer extends React.Component {
                                ref={ref=>this.panelInstructions = ref}
                         >
                             <Form className="instruction-command" title="Command">
-                                <Button
+                                <MenuAction
                                     arrow={'▼'}
                                     // className="command"
                                     onAction={e => this.openMenuEditInsert(e)}
                                     // // TODO: filter by selected instruments
-                                >C4</Button>
+                                >C4</MenuAction>
                             </Form>
                             <Form className="instruction-insert" title="Add">
-                                <Button
+                                <MenuAction
                                     // className="instruction-insert"
                                     onAction={e => this.instructionInsert()}
                                     title="Insert Instruction"
                                 >
                                     <Icon className="insert"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
                             <Form className="instruction-delete" title="Rem">
-                                <Button
+                                <MenuAction
                                     // className="instruction-delete"
                                     onAction={e => this.instructionDelete(e)}
                                     title="Delete Instruction"
                                 >
                                     <Icon className="remove"/>
-                                </Button>
+                                </MenuAction>
                             </Form>
 
                             <Form className="instruction-instrument" title="Instrument">
-                                <Button
+                                <MenuAction
                                     arrow={'▼'}
                                     // className="instruments-instruments"
                                     onAction={e => this.openMenuEditSetInstrument(e)}
                                     title="Song Instruments"
-                                >Select</Button>
+                                >Select</MenuAction>
                             </Form>
 
                             <Form className="instruction-velocity" title="Velocity">
@@ -324,61 +317,62 @@ class ComposerRenderer extends React.Component {
 
 
                             <Form className="instruction-duration" title="Duration">
-                                <Button
+                                <MenuAction
                                     arrow={'▼'}
                                     // className="instruction-duration"
                                     onAction={e => this.openMenuEditSetDuration(e)}
                                     title="Load Song from File"
-                                >1B</Button>
+                                >1B</MenuAction>
                             </Form>
 
-                            <Form className="tracker-selection" title="Selection">
-                                <Button
-                                    // className="tracker-selection"
-                                    onAction={(e) => this.trackerChangeSelection(e)}
-                                    title="Tracker Note Selection"
-                                    children="No selection"
-                                />
-                            </Form>
+                            {/*<Form className="tracker-selection" title="Selection">*/}
+                            {/*    <MenuAction*/}
+                            {/*        // className="tracker-selection"*/}
+                            {/*        onAction={(e) => this.trackerChangeSelection(e)}*/}
+                            {/*        title="Tracker Note Selection"*/}
+                            {/*        children="No selection"*/}
+                            {/*    />*/}
+                            {/*</Form>*/}
 
-                            <Form className="tracker-octave" title="Octave">
-                                <Button
-                                    arrow={'▼'}
-                                    className="tracker-selection"
-                                    onAction={e => this.openMenuTrackerSetOctave(e)}
-                                    title="Tracker Change Octave"
-                                >4</Button>
-                            </Form>
+                            {/*<Form className="tracker-octave" title="Octave">*/}
+                            {/*    <MenuAction*/}
+                            {/*        arrow={'▼'}*/}
+                            {/*        className="tracker-selection"*/}
+                            {/*        onAction={e => this.openMenuTrackerSetOctave(e)}*/}
+                            {/*        title="Tracker Change Octave"*/}
+                            {/*    >4</MenuAction>*/}
+                            {/*</Form>*/}
                         </Panel>
 
-                        <TrackerGroupsPanel composer={this} />
+                        {/*<TrackerGroupsPane -w
+                        l composer={this} />*/}
                         {/*<TrackerRowSegmentsPanel composer={this} />*/}
 
                         {/*<Panel className="tracker" title="Tracker">*/}
                         {/*    <Form className="tracker-row-length" title="Row &#120491;">*/}
-                        {/*        <Button*/}
+                        {/*        <MenuAction*/}
                         {/*            arrow={'▼'}*/}
                         {/*            // className="tracker-row-length"*/}
                         {/*            onAction={e => this.openMenuTrackerSetQuantization(e)}*/}
-                        {/*        >1B</Button>*/}
+                        {/*        >1B</MenuAction>*/}
                         {/*    </Form>*/}
 
                         {/*    <Form className="tracker-segment-length" title="Seg &#120491;">*/}
-                        {/*        <Button*/}
+                        {/*        <MenuAction*/}
                         {/*            arrow={'▼'}*/}
                         {/*            // className="tracker-segment-length"*/}
                         {/*            onAction={e => this.openMenuTrackerSetSegmentLength(e)}*/}
                         {/*            title="Select Tracker Segment Length"*/}
-                        {/*        >16B</Button>*/}
+                        {/*        >16B</MenuAction>*/}
                         {/*    </Form>*/}
 
                         {/*    /!*<Form className="tracker-instrument" title="Instrument">*!/*/}
-                        {/*    /!*    <Button*!/*/}
+                        {/*    /!*    <MenuAction*!/*/}
                         {/*    /!*        arrow={'▼'}*!/*/}
                         {/*    /!*        // className="tracker-instruments"*!/*/}
                         {/*    /!*        onAction={e => this.openMenuTrackerSetInstrumentFilter(e)}*!/*/}
                         {/*    /!*        title="Filter by Tracker Instrument"*!/*/}
-                        {/*    /!*    >Any</Button>*!/*/}
+                        {/*    /!*    >Any</MenuAction>*!/*/}
                         {/*    /!*</Form>*!/*/}
                         {/*</Panel>*/}
 

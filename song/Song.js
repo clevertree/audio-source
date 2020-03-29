@@ -37,7 +37,7 @@ class Song {
             bpm: 120,
             // beatsPerMeasure: 4,
             startGroup: 'root',
-            instruments: [
+            instruments: [ // Also called 'plugins'
                 [
                     'PolyphonyInstrument', {
                         voices: [
@@ -629,7 +629,7 @@ class Song {
             .endPositionSeconds;
     }
 
-    getSongLengthInTicks() {
+    getsongLengthTicks() {
         return this.instructionGetIterator(this.getStartGroup())
             .seekToEnd()
             .endPositionTicks;

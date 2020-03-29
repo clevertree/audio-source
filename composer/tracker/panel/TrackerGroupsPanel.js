@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Button, Panel} from "../../../components/";
+import {Panel} from "../../../components/";
 
 import "./assets/TrackerGroupsPanel.css";
 
@@ -20,16 +20,16 @@ class TrackerGroupsPanel extends React.Component {
         return (
             <Panel className={className} title="Groups">
                 {Object.keys(composer.song.data.instructions).map((groupName, i) =>
-                    <Button
+                    <MenuAction
                         key={i}
                         selected={typeof composer.state.activeTracks[groupName] !== "undefined"}
                         onAction={e => composer.trackerGroupToggle(groupName)}
-                    >{groupName}</Button>)
+                    >{groupName}</MenuAction>)
                 }
-                <Button
+                <MenuAction
                     key="add"
                     onAction={e => this.groupAdd(e)}
-                >+</Button>
+                >+</MenuAction>
             </Panel>
         )
     }
