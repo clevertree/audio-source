@@ -2,7 +2,7 @@ import React from "react";
 import Div from "../div/Div";
 
 import "./assets/MenuOverlayContainer.css";
-import MenuContext from "./MenuContext";
+import MenuOverlayContext from "./MenuOverlayContext";
 import MenuBreak from "./MenuBreak";
 import MenuAction from "./MenuAction";
 
@@ -28,8 +28,8 @@ class MenuOverlayContainer extends React.Component {
     // }
 
     render() {
-        return <MenuContext.Provider
-            value={this}>
+        return <MenuOverlayContext.Provider
+            value={{overlay:this, parentDropDown:null}}>
             <>
                 {this.state.openOverlay ? <Div className="asui-menu-overlay-container" // TODO: fix overlay z-index
                     onClick={this.cb.closeAllMenus}
@@ -42,7 +42,7 @@ class MenuOverlayContainer extends React.Component {
                 </Div> : null}
                 {this.props.children}
             </>
-        </MenuContext.Provider>;
+        </MenuOverlayContext.Provider>;
     }
 
     getActiveMenuCount() {
@@ -73,7 +73,7 @@ class MenuOverlayContainer extends React.Component {
         const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);
         if(i === -1)
             this.openMenus.push([menuItem, closeMenuCallback]);
-        console.log('this.openMenus', this.openMenus);
+        // console.log('this.openMenus', this.openMenus);
         this.updateOverlay();
     }
 
@@ -85,6 +85,7 @@ class MenuOverlayContainer extends React.Component {
     }
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
+        console.log("closeMenus", this.openMenus, butThese);
         // this.overlayContext.openMenuItems = [];
         this.openMenus.forEach(openMenu => {
             const [menuItem, closeMenuCallback] = openMenu;
@@ -92,7 +93,6 @@ class MenuOverlayContainer extends React.Component {
                 return;
             closeMenuCallback(stayOpenOnStick);
         });
-        // console.log("closeMenus", openMenuItems, butThese);
         this.updateOverlay();
     }
 

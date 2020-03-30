@@ -281,6 +281,46 @@ class Composer extends ComposerActions {
 
     }
 
+//     async onSongEvent(e) {
+// //         console.log("onSongEvent", e.type);
+//         switch (e.type) {
+//
+//             case 'song:seek':
+//                 this.setPlaybackPositionInTicks(e.detail.positionInTicks);
+//                 break;
+//
+//             case 'group:seek':
+// //                 console.log(e.type, e.detail);
+//                 if (e.detail.trackName === this.getTrackName())
+//                     this.setPlaybackPositionInTicks(e.detail.positionInTicks);
+//
+//                 break;
+//
+//             case 'group:play':
+//                 break;
+//
+//             case 'note:start':
+//                 if (e.detail.trackName === this.getTrackName()) {
+//                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
+//                     if (instructionElm) {
+//                         instructionElm.classList.add('playing');
+//                     }
+//                 }
+//                 break;
+//             case 'note:end':
+//                 if (e.detail.trackName === this.getTrackName()) {
+//                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
+//                     if (instructionElm) {
+//                         instructionElm.classList.remove('playing');
+//                     }
+//                 }
+//                 break;
+//
+//             default:
+//                 console.warn("Unknown song event: ", e.type);
+//         }
+//     }
+
     async onSongEvent(e) {
         console.log("Song Event: ", e.type);
         switch (e.type) {

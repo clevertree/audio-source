@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import './assets/Button.css';
-import MenuContext from "../menu/MenuContext";
+import MenuOverlayContext from "../menu/MenuOverlayContext";
 
 class Button extends React.Component {
     constructor(props) {
@@ -67,7 +67,7 @@ class Button extends React.Component {
     }
 }
 
-Button.contextType = MenuContext;
+Button.contextType = MenuOverlayContext;
 
 
 // creating default props

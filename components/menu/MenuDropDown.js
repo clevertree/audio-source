@@ -1,40 +1,22 @@
 import React from "react";
-import MenuContext from "./MenuContext";
+import MenuOverlayContext from "./MenuOverlayContext";
 import PropTypes from "prop-types";
 
 import "./assets/Menu.css";
-import "./assets/MenuDropDown.css";
+import DropDownContainer from "./DropDownContainer";
 
 export default class MenuDropDown extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            open: false,
-            stick: false,
-            options: null
-        };
 
         this.cb = {
             onClick: (e) => this.onClick(e),
             onKeyDown: (e) => this.onKeyDown(e),
             onMouseEnter: e => this.onMouseEnter(e),
-        }
+        };
+        this.dropdown = React.createRef();
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.context) {
-            if(this.state.open)
-                this.context.addCloseMenuCallback(this, this.closeMenu.bind(this));
-            else
-                this.context.removeCloseMenuCallback(this);
-        }
-    }
-
-    componentWillUnmount() {
-        if(this.context) {
-            this.context.removeCloseMenuCallback(this);
-        }
-    }
 
     getClassName() { return 'asui-menu-item'; }
 
@@ -58,39 +40,22 @@ export default class MenuDropDown extends React.Component {
                 >
                 {this.props.children}
                 {arrow ? <div className="arrow">{arrow}</div> : null}
-                {this.renderDropDown()}
+                <DropDownContainer
+                    ref={this.dropdown}
+                    options={this.props.options}
+                    vertical={this.props.vertical}
+                    />
             </div>
         )
     }
 
-    renderDropDown() {
-        if(!this.state.open)
-            return null;
-
-        let className = 'asui-menu-dropdown';
-        if(this.props.vertical)
-            className += ' vertical';
-
-        let options = this.props.options;
-        if(typeof options === "function")
-            options = options(this);
-
-        options = reactMapRecursive(options, child => {
-            return React.cloneElement(child, { parentMenu: this })
-        });
-
-        return <div
-                className={className}
-                children={options}
-                />;
-
+    toggleMenu(e) {
+        return this.dropdown.current.toggleMenu(e); }
+    openMenu(e) {
+        return this.dropdown.current.openMenu(e);
     }
-
-
-    closeAllDropDownMenus() {
-        if(this.context.closeAllMenus)
-            this.context.closeAllMenus();
-    }
+    closeMenu(e) { return this.dropdown.current.closeMenu(e); }
+    stickMenu(e) { return this.dropdown.current.stickMenu(e); }
 
     onClick(e) {
         this.toggleMenu(e);
@@ -101,77 +66,12 @@ export default class MenuDropDown extends React.Component {
     }
 
     onMouseEnter(e) {
-        if(!this.context || !this.context.isHoverEnabled())
-            return;
-
-        if(this.props.options && this.state.open !== true) {
-            this.openMenu(e)
-        }
-    }
-
-    toggleMenu(e) {
-        if(!this.state.open)
             this.openMenu(e);
-        else if(!this.state.stick)
-            this.stickMenu(e);
-        else
-            this.closeMenu(e);
     }
 
-    openMenu(e) {
-        // Try open menu handler
-        if(e.type === 'click' && this.context && this.context.openMenu) {
-            const res = this.context.openMenu(this.props.options);
-            if(res !== false) {
-                console.info("Sub-menu options were sent to menu handler: ", this.context.openMenu);
-                return;
-            }
-        }
-
-        this.setState({
-            open: true,
-        });
-
-        if(this.context) {
-            setTimeout(() => {
-                this.context.closeMenus(this.getAncestorMenus());
-            }, 100);
-        }
-    }
-
-    stickMenu(e) {
-        if(!this.state.open)
-            this.open();
-        this.setState({
-            stick: true,
-        });
-    }
-
-    closeMenu(stayOpenOnStick=false) {
-        if(this.state.stick && stayOpenOnStick === true) {
-            console.warn("Ignoring close due to stick", this);
-            return;
-        }
-        this.setState({
-            open: false,
-            stick: false,
-            options: null
-        })
-    }
-
-    getAncestorMenus() {
-        let menus = [];
-        let parent = this;
-        while(parent) {
-            menus.push(parent);
-            parent = parent.props.parentMenu;
-        }
-        return menus;
-    }
 }
 
 
-MenuDropDown.contextType = MenuContext;
 
 
 // creating default props
@@ -187,21 +87,3 @@ MenuDropDown.propTypes = {
     options: PropTypes.any.isRequired,
 };
 
-
-
-
-function reactMapRecursive(children, fn) {
-    return React.Children.map(children, child => {
-        if (!React.isValidElement(child)) {
-            return child;
-        }
-
-        if (child.props.children) {
-            child = React.cloneElement(child, {
-                children: reactMapRecursive(child.props.children, fn)
-            });
-        }
-
-        return fn(child);
-    });
-}

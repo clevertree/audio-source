@@ -16,17 +16,25 @@ class TrackerInstruction extends React.Component {
     getSong() { return this.getComposer().getSong(); }
 
     render() {
+        let className = "asct-instruction";
+        // if(this.props.className)
+        //     className += ' ' + this.props.className;
+        if(this.props.cursor)
+            className += ' cursor';
+        if(this.props.selected)
+            className += ' selected';
+
         // console.log('instruction', this.props);
         const instruction = this.props.instruction;
         const open = this.props.cursor || this.props.selected;
         if(!open)
-            return <Div className="asct-instruction">
+            return <Div className={className}>
                 <TrackerInstructionParameter
                     className="command"
                     onAction={e => this.renderMenuSelectCommand(e)}
                 >{instruction.command}</TrackerInstructionParameter>
             </Div>;
-        return <Div className="asct-instruction">
+        return <Div className={className}>
             <TrackerInstructionParameter
                 className="command"
                 onAction={e => this.renderMenuSelectCommand(e)}
