@@ -32,8 +32,16 @@ class ComposerRenderer extends React.Component {
             songLengthSeconds: 0,
 
             // Trackers
-            activeTracks: {},
-            selectedTrack: 'root'
+            selectedTrack: 'root',
+            activeTracks: {
+                root:{
+                    cursorIndex: 0,
+                    selectedIndices: [0]
+                }
+            },
+
+            // Keyboard
+            keyboardOctave: 4
 
         };
 
@@ -42,6 +50,7 @@ class ComposerRenderer extends React.Component {
 
 
     render() {
+        const {selectedTrackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
         return (
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
@@ -156,6 +165,18 @@ class ComposerRenderer extends React.Component {
                             </Form>
                         </Panel>
 
+                        <Panel className="keyboard" title={`Keyboard`}
+                            >
+                            <Form className="keyboard-octave" title="Octave">
+                                <ButtonDropDown
+                                    arrow={'▼'}
+                                    className="keyboard-octave"
+                                    options={() => this.renderMenuTrackerSetOctave()}
+                                    title="Change Keyboard Octave"
+                                >{this.state.keyboardOctave}</ButtonDropDown>
+                            </Form>
+                        </Panel>
+
                         <Panel className="instruments" title="Instruments"
                                ref={ref=>this.panelInstruments = ref}
                                children={() => (<>
@@ -180,7 +201,7 @@ class ComposerRenderer extends React.Component {
                                    </Form>
                                </>)} />
 
-                        <Panel className="instructions" title="Instructions"
+                        <Panel className="instructions" title={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}
                                ref={ref=>this.panelInstructions = ref}
                         >
                             <Form className="instruction-command" title="Command">
@@ -188,8 +209,7 @@ class ComposerRenderer extends React.Component {
                                     arrow={'▼'}
                                     // className="command"
                                     options={() => this.renderMenuEditInsert()}
-                                    // // TODO: filter by selected instruments
-                                >C4</ButtonDropDown>
+                                >{cursorInstruction ? cursorInstruction.command : 'C4'}</ButtonDropDown>
                             </Form>
                             <Form className="instruction-insert" title="Add">
                                 <Button
@@ -210,25 +230,25 @@ class ComposerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            <Form className="instruction-instrument" title="Instrument">
-                                <ButtonDropDown
-                                    arrow={'▼'}
-                                    // className="instruments-instruments"
-                                    options={() => this.renderMenuEditSetInstrument()}
-                                    title="Song Instruments"
-                                >Select</ButtonDropDown>
-                            </Form>
+                            {/*<Form className="instruction-instrument" title="Instrument">*/}
+                            {/*    <ButtonDropDown*/}
+                            {/*        arrow={'▼'}*/}
+                            {/*        // className="instruments-instruments"*/}
+                            {/*        options={() => this.renderMenuEditSetInstrument()}*/}
+                            {/*        title="Song Instruments"*/}
+                            {/*    >Select</ButtonDropDown>*/}
+                            {/*</Form>*/}
 
                             <Form className="instruction-velocity" title="Velocity">
                                 <InputRange
                                     // className="velocity"
                                     onAction={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
-                                    // value={this.state.volume}
+                                    value={cursorInstruction ? cursorInstruction.velocity : 127}
                                     min={1}
                                     max={127}
                                     ref={ref => this.fieldInstrumentVelocity = ref}
                                     title="Instrument Velocity"
-                                >Max</InputRange>
+                                >{cursorInstruction ? cursorInstruction.velocity : 'N/A'}</InputRange>
                             </Form>
 
 
@@ -241,14 +261,14 @@ class ComposerRenderer extends React.Component {
                                 >1B</ButtonDropDown>
                             </Form>
 
-                            {/*<Form className="tracker-selection" title="Selection">*/}
-                            {/*    <Button*/}
-                            {/*        // className="tracker-selection"*/}
-                            {/*        onAction={(e) => this.trackerChangeSelection(e)}*/}
-                            {/*        title="Tracker Note Selection"*/}
-                            {/*        children="No selection"*/}
-                            {/*    />*/}
-                            {/*</Form>*/}
+                            <Form className="tracker-selection" title="Selection">
+                                <Button
+                                    // className="tracker-selection"
+                                    onAction={(e) => this.trackerChangeSelection(e)}
+                                    title="Tracker Note Selection"
+                                    children={selectedIndices.length > 0 ? selectedIndices.join(',') : "No Selection"}
+                                />
+                            </Form>
 
                             {/*<Form className="tracker-octave" title="Octave">*/}
                             {/*    <Button*/}

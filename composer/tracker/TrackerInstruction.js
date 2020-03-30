@@ -48,25 +48,25 @@ class TrackerInstruction extends React.Component {
 
     // }
     renderMenuSelectCommand(e) {
-        this.getComposer().openMenuSelectCommand(e, (command) => {
+        return this.getComposer().renderMenuSelectCommand(e, (command) => {
             this.instructionReplaceCommand(command);
         });
     }
 
     renderMenuSelectInstrument(e) {
-        this.getComposer().openMenuSelectSongInstrument(e, instrumentID => {
+        return this.getComposer().renderMenuSelectSongInstrument(e, instrumentID => {
             this.instructionReplaceInstrument(instrumentID);
         });
     }
 
     renderMenuSelectVelocity(e) {
-        this.getComposer().openMenuSelectVelocity(e, velocity => {
+        return this.getComposer().renderMenuSelectVelocity(e, velocity => {
             this.instructionReplaceVelocity(velocity);
         });
     }
 
     renderMenuSelectDuration(e) {
-        this.getComposer().openMenuSelectDuration(e, duration => {
+        return this.getComposer().renderMenuSelectDuration(e, duration => {
             this.instructionReplaceDuration(duration);
         });
     }

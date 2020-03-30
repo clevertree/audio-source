@@ -5,7 +5,6 @@ import InstrumentLoader from "../song/instrument/InstrumentLoader";
 import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
-import Instruction from "../song/instruction/Instruction";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -187,7 +186,7 @@ class ComposerActions extends ComposerMenu {
 //
 //         async loadSongFromURL(url=null, promptUser=true) {
 //             if (promptUser)
-//                 url = prompt("Enter a Song URL:", url || 'https://mysite.com/songs/mysong.json');
+//                 url = await this.openPromptDialog("Enter a Song URL:", url || 'https://mysite.com/songs/mysong.json');
 //             await this.song.loadSongFromURL(url);
 //             this.setStatus("Song loaded from url: " + url);
 //             // console.info(this.song.data);
@@ -277,7 +276,7 @@ class ComposerActions extends ComposerMenu {
 
 
     instructionInsertOrUpdate(e, commandString = null) {
-        const {trackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
+        // const {trackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
 //         if (this.cursorCell.matches('asct-instruction-add')) {
 //             let newInstruction = this.instructionGetFormValues(commandString);
 //             if (!newInstruction) {
@@ -306,8 +305,8 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    instructionInsert(newCommand = null, promptUser = false) {
-        const {trackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
+    async instructionInsert(newCommand = null, promptUser = false) {
+        const {trackName, cursorInstruction} = this.trackerGetSelectedInfo();
         const newInstruction = cursorInstruction.clone();
         // if (instrumentID !== null)
         //     newInstruction.instrument = instrumentID;
@@ -321,7 +320,7 @@ class ComposerActions extends ComposerMenu {
         if (newCommand === null)
             newCommand = cursorInstruction ? cursorInstruction.command : null;
         if (promptUser)
-            newCommand = prompt("Set custom command:", newCommand || '');
+            newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
@@ -331,25 +330,23 @@ class ComposerActions extends ComposerMenu {
         const songPosition = song.getSongPositionInTicks();
         console.log(songPosition);
         let insertIndex = song.instructionInsertAtPosition(trackName, songPosition, newInstruction);
+        this.selectIndices([insertIndex]);
         // tracker.forceUpdate();
         // this.selectIndicies(insertIndex);
         this.playCursorInstruction();
     }
 
-    async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null, trackName = null, selectedIndices = null) {
+    async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null) {
         //: TODO: check for recursive group
         const song = this.song;
-        const tracker = this.tracker;
-        trackName = trackName || tracker.getTrackName();
-        selectedIndices = selectedIndices || this.state.selectedIndices;
+        const {trackName, selectedIndices, cursorInstruction} = this.trackerGetSelectedInfo();
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
-        const firstInstruction = this.song.instructionFind(trackName, selectedIndices[0]);
-        if (newCommand === null)
-            newCommand = firstInstruction.command || this.fieldInstructionCommand.value || null;
+        if (newCommand === null && cursorInstruction && cursorInstruction.command)
+            newCommand = cursorInstruction.command;
         if (promptUser)
-            newCommand = prompt("Set custom command:", newCommand || '');
+            newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
@@ -358,39 +355,35 @@ class ComposerActions extends ComposerMenu {
             if (instrumentID !== null) {
                 song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
             }
-            await this.renderInstruction(trackName, selectedIndices[i]);
+            // this.renderInstruction(trackName, selectedIndices[i]); // Use song modified event to rerender
         }
         this.playCursorInstruction();
     }
 
     // TODO: assuming the use of tracker.getTrackName()?
-    async instructionReplaceInstrument(instrumentID = null, trackName = null, selectedIndices = null) {
-        const tracker = this.tracker;
+    instructionReplaceInstrument(instrumentID = null) {
         const song = this.song;
-        trackName = trackName || tracker.getTrackName();
-        selectedIndices = selectedIndices || this.state.selectedIndices;
+        const {trackName, selectedIndices} = this.trackerGetSelectedInfo();
 
         instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
         if (!Number.isInteger(instrumentID))
             throw new Error("Invalid Instruction ID");
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceInstrument(tracker.getTrackName(), selectedIndices[i], instrumentID);
-            await this.renderInstruction(trackName, selectedIndices[i]);
+            song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
+            // await this.renderInstruction(trackName, selectedIndices[i]);// Use song modified event to rerender
         }
-        await this.fieldInstructionInstrument.setValue(instrumentID);
         this.playCursorInstruction();
     }
 
-    async instructionReplaceDuration(duration = null, promptUser = false, trackName = null, selectedIndices = null) {
+    async instructionReplaceDuration(duration = null, promptUser = false) {
         const tracker = this.tracker;
         const song = this.song;
-        trackName = trackName || tracker.getTrackName();
-        selectedIndices = selectedIndices || this.state.selectedIndices;
+        const {trackName, selectedIndices} = this.trackerGetSelectedInfo();
 
         if (!duration)
             duration = parseFloat(this.fieldInstructionDuration.value);
         if (promptUser)
-            duration = parseInt(prompt("Set custom duration in ticks:", duration), 10);
+            duration = parseInt(await this.openPromptDialog("Set custom duration in ticks:", duration), 10);
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
         for (let i = 0; i < selectedIndices.length; i++) {
@@ -401,17 +394,16 @@ class ComposerActions extends ComposerMenu {
 
     }
 
-    async instructionReplaceVelocity(velocity = null, promptUser = false, trackName = null, selectedIndices = null) {
+    async instructionReplaceVelocity(velocity = null, promptUser = false) {
         const tracker = this.tracker;
         const song = this.song;
-        trackName = trackName || tracker.getTrackName();
-        selectedIndices = selectedIndices || this.state.selectedIndices;
+        const {trackName, selectedIndices} = this.trackerGetSelectedInfo();
 
         if (velocity === null)
             velocity = this.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
         velocity = parseFloat(velocity);
         if (promptUser)
-            velocity = parseInt(prompt("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
+            velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
         if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
         for (let i = 0; i < selectedIndices.length; i++) {
@@ -421,15 +413,12 @@ class ComposerActions extends ComposerMenu {
         this.playCursorInstruction();
     }
 
-    async instructionDelete(trackName = null, selectedIndices = null) {
-        const tracker = this.tracker;
+    instructionDelete() {
         const song = this.song;
-        trackName = trackName || tracker.getTrackName();
-        selectedIndices = selectedIndices || this.state.selectedIndices;
+        const {trackName, selectedIndices} = this.trackerGetSelectedInfo();
 
         for (let i = 0; i < selectedIndices.length; i++)
-            song.instructionDeleteAtIndex(tracker.getTrackName(), selectedIndices[i]);
-        await tracker.forceUpdate();
+            song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
     }
 
@@ -473,38 +462,41 @@ class ComposerActions extends ComposerMenu {
 
     /** Tracker Commands **/
 
-    trackAdd() {
+    async trackAdd(newTrackName = null, promptUser = true) {
         const song = this.song;
 
-        let newTrackName = song.generateInstructionTrackName();
-        newTrackName = window.prompt("Create new instruction group?", newTrackName);
+        newTrackName = newTrackName || song.generateInstructionTrackName();
+        if(promptUser)
+            newTrackName = await this.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.groupAdd(newTrackName, []);
-            this.panelTrackerGroups.forceUpdate();
+            this.trackerToggleTrack(newTrackName, true);
         } else {
             this.setStatus("<span class='error'>Create instruction group canceled</span>");
         }
     }
 
-    trackRename(trackName, newTrackName = null) {
+    async trackRename(oldTrackName, newTrackName = null, promptUser = true) {
         const song = this.song;
 
-        newTrackName = window.prompt(`Rename instruction group (${trackName})?`, trackName);
-        if (newTrackName !== trackName) {
-            song.groupRename(trackName, newTrackName);
-            this.render();
+        if(promptUser)
+            newTrackName = await this.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
+        if (newTrackName !== oldTrackName) {
+            song.groupRename(oldTrackName, newTrackName);
+            this.trackerToggleTrack(newTrackName, true);
+            this.trackerToggleTrack(oldTrackName, false);
         } else {
             this.setStatus("<span class='error'>Rename instruction group canceled</span>");
         }
     }
 
-    trackRemove(trackName) {
+    trackRemove(trackName, promptUser = true) {
         const song = this.song;
 
-        const result = window.confirm(`Remove instruction group (${trackName})?`);
+        const result = promptUser ? window.confirm(`Remove instruction group (${trackName})?`) : true;
         if (result) {
             song.groupRemove(trackName);
-            this.render();
+            this.trackerToggleTrack(trackName, true);
         } else {
             this.setStatus("<span class='error'>Remove instruction group canceled</span>");
         }
@@ -513,30 +505,30 @@ class ComposerActions extends ComposerMenu {
 
 
     trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
-        const activeTracks = this.state.activeTracks;
+        const activeTracks = {...this.state.activeTracks};
         if(toggleValue === true || typeof activeTracks[trackName] === "undefined") {
             activeTracks[trackName] = trackData;
         } else {
             delete activeTracks[trackName];
         }
         this.setState({activeTracks});
-        console.log(this.state);
     }
 
     trackerChangeSegment(trackName, newSegmentID) {
         if (!Number.isInteger(newSegmentID))
             throw new Error("Invalid segment ID");
-        const activeTracks = this.state.activeTracks;
+        const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);
         const currentTrack = activeTracks[trackName];
-        currentTrack.currentSegmentID = newSegmentID
+        currentTrack.currentSegmentID = newSegmentID;
         this.setState({activeTracks});
     }
 
-    trackerChangeOctave(newOctave = null) {
-        if (newOctave !== null)
-            this.fieldTrackerOctave.value = newOctave;
+    keyboardChangeOctave(keyboardOctave = null) {
+        if (!Number.isInteger(keyboardOctave))
+            throw new Error("Invalid segment ID");
+        this.setState({keyboardOctave});
     }
 
     trackerChangeQuantization(trackerQuantizationInTicks = null) {
@@ -573,21 +565,31 @@ class ComposerActions extends ComposerMenu {
     }
 
     async trackerChangeSelection(e, selectedIndices = null) {
+        const {selectedIndices:oldSelectedIndices} = this.trackerGetSelectedInfo();
+
         if (selectedIndices === null)
-            selectedIndices = await this.openPromptDialog("Enter selection: ", this.state.selectedIndices.join(', '));
+            selectedIndices = await this.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+        selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
         this.selectIndices(selectedIndices);
     }
 
 
     trackerSelectIndices(trackName, selectedIndices=[], cursorIndex=null) {
-        const activeTracks = this.state.activeTracks;
+        const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);
         const currentTrack = activeTracks[trackName];
         if(cursorIndex === null)
             cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
+
+        // Filter unique indices
+        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
+        // Sort indices
+        selectedIndices.sort((a, b) => a - b);
+
         currentTrack.selectedIndices = selectedIndices;
         currentTrack.cursorIndex = cursorIndex;
+        this.setState({activeTracks});
     }
 
     /** Selection **/
@@ -604,7 +606,7 @@ class ComposerActions extends ComposerMenu {
     // }
 
     selectIndices(selectedIndices) {
-        const {trackName, oldSelectedIndices} = this.trackerGetSelectedInfo();
+        const {trackName} = this.trackerGetSelectedInfo();
         if (typeof selectedIndices === "string") {
 
             switch (selectedIndices) {
@@ -633,7 +635,6 @@ class ComposerActions extends ComposerMenu {
             return;
         }
 
-        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
         this.trackerSelectIndices(trackName, selectedIndices);
 
         // this.state.selectedIndices = selectedIndices;
@@ -697,7 +698,7 @@ class ComposerActions extends ComposerMenu {
     //     const config = this.song.getInstrumentConfig(instrumentID);
     //     let oldInstrumentName = config.name;
     //     if (!newInstrumentName)
-    //         newInstrumentName = prompt(`Change name for instruments ${instrumentID}: `, oldInstrumentName);
+    //         newInstrumentName = await this.openPromptDialog(`Change name for instruments ${instrumentID}: `, oldInstrumentName);
     //     if (!newInstrumentName)
     //         throw new Error("Instrument name change canceled");
     //     this.song.instrumentRename(instrumentID, newInstrumentName);
@@ -740,9 +741,9 @@ class ComposerActions extends ComposerMenu {
 
 
 
-    batchSelect(e, searchCallbackString = null, promptUser = false) {
+    async batchSelect(e, searchCallbackString = null, promptUser = false) {
         if (promptUser || !searchCallbackString)
-            searchCallbackString = prompt("Run custom search:", searchCallbackString ||
+            searchCallbackString = await this.openPromptDialog("Run custom search:", searchCallbackString ||
                 `/** Example Search **/ i.command === "C3"   &&   i.instrument === 0`);
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
@@ -772,11 +773,11 @@ class ComposerActions extends ComposerMenu {
         // }
     }
 
-    batchRunCommand(e, commandCallbackString = null, searchCallbackString = null, promptUser = false) {
+    async batchRunCommand(e, commandCallbackString = null, searchCallbackString = null, promptUser = false) {
         const storage = new Storage();
 
         if (promptUser || !searchCallbackString)
-            searchCallbackString = prompt("Run custom search:", searchCallbackString ||
+            searchCallbackString = await this.openPromptDialog("Run custom search:", searchCallbackString ||
                 `/** Example Search **/ i.command === "C3"   &&   i.instrument === 0`);
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
@@ -784,7 +785,7 @@ class ComposerActions extends ComposerMenu {
 
 
         if (promptUser || !commandCallbackString)
-            commandCallbackString = prompt(`Run custom command:`, commandCallbackString ||
+            commandCallbackString = await this.openPromptDialog(`Run custom command:`, commandCallbackString ||
                 `/** Example Command **/ i.command='C4';`);
         if (!commandCallbackString)
             throw new Error("Batch command canceled: Invalid command");

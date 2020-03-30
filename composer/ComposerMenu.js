@@ -418,13 +418,13 @@ class ComposerMenu extends ComposerRenderer {
         )
     }
 
-    renderMenuTrackerSetInstrumentFilter() {
-        return this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
-    }
+    // renderMenuTrackerSetInstrumentFilter() {
+    //     return this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
+    // }
 
     renderMenuTrackerSetOctave() {
         return this.values.getNoteOctaves(octave =>
-            <MenuAction key={octave} onAction={(e) => this.trackerChangeOctave(octave)}>{octave}</MenuAction>
+            <MenuAction key={octave} onAction={(e) => this.keyboardChangeOctave(octave)}>{octave}</MenuAction>
         );
     }
 
@@ -441,10 +441,10 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuInstrument() {
         return (<>
-            <MenuAction key="add" options={() => this.renderMenuInstrumentAdd()}    >Add instrument to song</MenuAction>
+            <MenuDropDown key="add" options={() => this.renderMenuInstrumentAdd()}    >Add instrument to song</MenuDropDown>
             <MenuBreak />
             {this.values.getSongInstruments((instrumentID, label) =>
-                <MenuAction key={instrumentID} options={() => this.renderMenuInstrumentEdit(instrumentID)}       >{label}</MenuAction>)}
+                <MenuDropDown key={instrumentID} options={() => this.renderMenuInstrumentEdit(instrumentID)}       >{label}</MenuDropDown>)}
         </>);
     }
 
@@ -456,7 +456,7 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuInstrumentEdit(instrumentID) {
         return (<>
-            <MenuAction key="replace" options={() => this.renderMenuInstrumentEditReplace(instrumentID)}    >Replace</MenuAction>
+            <MenuDropDown key="replace" options={() => this.renderMenuInstrumentEditReplace(instrumentID)}    >Replace</MenuDropDown>
             <MenuAction
                 key="remove"
                 onAction={e => this.instrumentRemove(instrumentID)}
@@ -476,11 +476,11 @@ class ComposerMenu extends ComposerRenderer {
             <MenuAction onAction={e => this.groupAdd(e)} hasBreak     >Add new group</MenuAction>
             <MenuBreak />
             {this.values.getAllSongGroups((trackName) =>
-                <MenuAction
+                <MenuDropDown
                     key={trackName}
                     disabled={trackName === this.state.selectedGroup}
                     options={() => this.renderMenuGroupEdit(trackName)}
-                >{trackName}</MenuAction>)}
+                >{trackName}</MenuDropDown>)}
         </>);
     }
 

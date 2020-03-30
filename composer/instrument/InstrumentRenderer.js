@@ -2,9 +2,10 @@ import React from "react";
 import {
     Div,
     Icon,
-    Button,
+    // Button,
+    ButtonDropDown,
     MenuAction,
-    MenuDropDown, ButtonDropDown,
+    MenuDropDown,
 } from "../../components";
 
 import InstrumentLoader from "../../song/instrument/InstrumentLoader";

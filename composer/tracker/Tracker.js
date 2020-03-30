@@ -1,7 +1,7 @@
 import * as React from "react";
 // import TrackerDelta from "./TrackerDelta";
 import {
-    TrackerInstructionAdd,
+    // TrackerInstructionAdd,
     TrackerInstruction,
     TrackerRow
 } from "./";
@@ -109,7 +109,7 @@ class Tracker extends React.Component {
     }
 
     renderRowContent() {
-        console.time('tracker.renderRowContent()');
+        // console.time('tracker.renderRowContent()');
 
         const composer = this.props.composer;
 
@@ -203,7 +203,7 @@ class Tracker extends React.Component {
         }
 
 
-        console.timeEnd('tracker.renderRowContent()');
+        // console.timeEnd('tracker.renderRowContent()');
         return rowContent;
     }
 

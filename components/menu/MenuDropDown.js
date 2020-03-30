@@ -1,5 +1,5 @@
 import React from "react";
-import MenuOverlayContext from "./MenuOverlayContext";
+import MenuContext from "./MenuContext";
 import PropTypes from "prop-types";
 
 import "./assets/Menu.css";
@@ -21,11 +21,19 @@ export default class MenuDropDown extends React.Component {
         }
     }
 
-    componentWillUnmount() {
-        this.context && this.context.removeDropDownMenu(this);
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(this.context) {
+            if(this.state.open)
+                this.context.addCloseMenuCallback(this, this.closeMenu.bind(this));
+            else
+                this.context.removeCloseMenuCallback(this);
+        }
     }
-    componentDidMount() {
-        this.context && this.context.addDropDownMenu(this); // TODO: use setState callback or componentDidUpdate
+
+    componentWillUnmount() {
+        if(this.context) {
+            this.context.removeCloseMenuCallback(this);
+        }
     }
 
     getClassName() { return 'asui-menu-item'; }
@@ -47,7 +55,7 @@ export default class MenuDropDown extends React.Component {
                 onKeyDown={this.cb.onKeyDown}
                 onMouseEnter={this.cb.onMouseEnter}
                 tabIndex={0}
-            >
+                >
                 {this.props.children}
                 {arrow ? <div className="arrow">{arrow}</div> : null}
                 {this.renderDropDown()}
@@ -85,6 +93,10 @@ export default class MenuDropDown extends React.Component {
     }
 
     onClick(e) {
+        this.toggleMenu(e);
+    }
+
+    onKeyDown(e) {
         this.toggleMenu(e);
     }
 
@@ -159,7 +171,7 @@ export default class MenuDropDown extends React.Component {
 }
 
 
-MenuDropDown.contextType = MenuOverlayContext;
+MenuDropDown.contextType = MenuContext;
 
 
 // creating default props
