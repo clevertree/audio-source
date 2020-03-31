@@ -48,6 +48,7 @@ class ComposerRenderer extends React.Component {
         // this.shadowDOM = null;
     }
 
+    // getSelectedTrack() { return this.state.selectedTrack; }
 
     render() {
         const {selectedTrackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();

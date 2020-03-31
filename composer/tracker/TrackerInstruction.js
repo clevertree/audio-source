@@ -6,14 +6,28 @@ import Div from "../../components/div/Div";
 // import TrackerDelta from "./TrackerDelta";
 
 import "./assets/TrackerInstruction.css";
+import PropTypes from "prop-types";
 
 class TrackerInstruction extends React.Component {
+    /** Default Properties **/
+    static defaultProps = {
+    };
+
+    /** Property validation **/
+    static propTypes = {
+        instruction: PropTypes.any.isRequired,
+        tracker: PropTypes.any.isRequired,
+    };
+
     // play() {
     //     const composer = this.props.composer;
     //     composer.song.playInstructionAtIndex(destination, this.state.tracker.currentGroup, this.index, composer.song.getAudioContext().currentTime);
     //     return this;
-    getComposer() { return this.props.composer; }
+    getTracker() { return this.props.tracker; }
+    getComposer() { return this.getTracker().props.composer; }
     getSong() { return this.getComposer().getSong(); }
+    /** @returns Instruction **/
+    getInstruction() { return this.props.instruction; }
 
     render() {
         let className = "asct-instruction";
@@ -30,29 +44,40 @@ class TrackerInstruction extends React.Component {
         if(!open)
             return <Div className={className}>
                 <TrackerInstructionParameter
+                    trackerInstruction={this}
                     className="command"
                     options={() => this.renderMenuSelectCommand()}
                 >{instruction.command}</TrackerInstructionParameter>
             </Div>;
         return <Div className={className}>
             <TrackerInstructionParameter
+                trackerInstruction={this}
                 className="command"
                 options={() => this.renderMenuSelectCommand()}
             >{instruction.command}</TrackerInstructionParameter>
-            {/*{typeof instruction.instrument !== "undefined" ? <TrackerInstructionParameter*/}
-            {/*    className="instrument"*/}
-            {/*    options={() => this.renderMenuSelectInstrument(e)}*/}
-            {/*>{instruction.instrument}</TrackerInstructionParameter> : null}*/}
             {typeof instruction.velocity !== "undefined" ? <TrackerInstructionParameter
+                trackerInstruction={this}
                 className="velocity"
                 options={() => this.renderMenuSelectVelocity()}
             >{instruction.duration}</TrackerInstructionParameter> : null}
-                {typeof instruction.duration !== "undefined" ? <TrackerInstructionParameter
+            {typeof instruction.duration !== "undefined" ? <TrackerInstructionParameter
+                trackerInstruction={this}
                 className="duration"
                 options={() => this.renderMenuSelectDuration()}
             >{instruction.duration}</TrackerInstructionParameter> : null}
         </Div>
     }
+
+    /** Actions **/
+    select(clearSelection=true) {
+        const trackName = this.getTracker().getTrackName();
+        const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
+        const instruction = this.getInstruction();
+        selectedIndices.push(instruction.index);
+        this.getComposer().trackerSelectIndices(trackName, selectedIndices, instruction.index)
+    }
+
+    /** Menus **/
 
     // }
     renderMenuSelectCommand(e) {
@@ -61,11 +86,6 @@ class TrackerInstruction extends React.Component {
         });
     }
 
-    renderMenuSelectInstrument(e) {
-        return this.getComposer().renderMenuSelectSongInstrument(instrumentID => {
-            this.instructionReplaceInstrument(instrumentID);
-        });
-    }
 
     renderMenuSelectVelocity(e) {
         return this.getComposer().renderMenuSelectVelocity(velocity => {

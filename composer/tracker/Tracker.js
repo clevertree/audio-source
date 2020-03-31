@@ -7,8 +7,19 @@ import {
 import {Div, Form, Panel, Button} from "../../components/";
 
 import "./assets/Tracker.css";
+import PropTypes from "prop-types";
 
 class Tracker extends React.Component {
+    /** Default Properties **/
+    static defaultProps = {
+        selectedIndices: []
+    };
+
+    /** Property validation **/
+    static propTypes = {
+        // tracker: PropTypes.any.isRequired,
+    };
+
     constructor(props) {
         super(props);
 
@@ -17,6 +28,7 @@ class Tracker extends React.Component {
         // this.state = this.props.composer.state;
     }
 
+    getSelectedIndices() { return this.props.selectedIndices}
     getQuantizationInTicks() {
         return this.props.quantizationInTicks || this.props.composer.song.data.timeDivision
     }
@@ -142,7 +154,7 @@ class Tracker extends React.Component {
 
         const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
 
-        const selectedIndices = this.props.selectedIndices || [];
+        const selectedIndices = this.getSelectedIndices();
         const cursorIndex = this.props.cursorIndex || 0;
 
 
@@ -186,8 +198,8 @@ class Tracker extends React.Component {
             // Render instruction
             const index = instructionIterator.currentIndex;
             const props = {
-                instruction:nextInstruction,
-                composer,
+                tracker: this,
+                instruction: nextInstruction,
                 index
             };
             if (selectedIndices.indexOf(index) !== -1) props.selected = true;

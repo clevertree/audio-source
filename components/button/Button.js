@@ -8,10 +8,12 @@ class Button extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
-            onClick: e => this.onClick(e),
+            onMouseInput: e => this.onMouseInput(e),
             onKeyDown: e => this.onKeyDown(e),
         };
     }
+
+    getOverlay() { return this.context.overlay; }
 
     getClassName() { return 'asui-button'; }
 
@@ -27,7 +29,7 @@ class Button extends React.Component {
         return (
             <div
                 className={className}
-                onClick={this.cb.onClick}
+                onClick={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 tabIndex={0}
                 >
@@ -37,7 +39,10 @@ class Button extends React.Component {
         );
     }
 
-    onClick(e) {
+    onMouseInput(e) {
+        if(e.defaultPrevented)
+            return;
+        e.preventDefault();
         this.doAction(e);
     }
 
@@ -62,8 +67,8 @@ class Button extends React.Component {
 
 
     closeAllDropDownMenus() {
-        if(this.context.closeAllMenus)
-            this.context.closeAllMenus();
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
     }
 }
 

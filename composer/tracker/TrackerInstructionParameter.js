@@ -14,6 +14,7 @@ class TrackerInstructionParameter extends React.Component {
     /** Property validation **/
     static propTypes = {
         options: PropTypes.any.isRequired,
+        trackerInstruction: PropTypes.any.isRequired,
     };
 
     constructor(props) {
@@ -61,7 +62,7 @@ class TrackerInstructionParameter extends React.Component {
         switch(e.type) {
             case 'click':
                 if(e.button === 0)
-                    this.select();
+                    this.selectInstruction();
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)
@@ -88,6 +89,10 @@ class TrackerInstructionParameter extends React.Component {
 
     onMouseEnter(e) {
         this.toggleMenu();
+    }
+
+    selectInstruction() {
+        this.props.trackerInstruction.select();
     }
 
 }
