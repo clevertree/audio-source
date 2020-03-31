@@ -67,7 +67,7 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuFileExport() {
         return (<>
-            <MenuAction disabled>to MIDI File</MenuAction>
+            <MenuAction onAction={()=>{}} disabled>to MIDI File</MenuAction>
         </>);
 
     }
@@ -99,8 +99,8 @@ class ComposerMenu extends ComposerRenderer {
             <MenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue)}           >By Frequency</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue)}              >By Octave</MenuDropDown>
             <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuSelectCommandByGroup(onSelectValue)}               >By Group</MenuDropDown>
+            <MenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</MenuDropDown>
+            <MenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</MenuDropDown>
             <MenuAction onAction={async e => onSelectValue(await this.openPromptDialog("Insert custom command"))}      >Custom Command</MenuAction>
         </>);
 
@@ -467,7 +467,7 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuInstrumentEditReplace(instrumentID) {
         return InstrumentLoader.getInstruments().map((config, i) =>
-            <MenuAction onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</MenuAction>
+            <MenuAction key={i} onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</MenuAction>
         );
     }
 

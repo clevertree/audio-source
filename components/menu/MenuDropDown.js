@@ -1,18 +1,28 @@
 import React from "react";
-import MenuOverlayContext from "./MenuOverlayContext";
 import PropTypes from "prop-types";
 
 import "./assets/Menu.css";
 import DropDownContainer from "./DropDownContainer";
 
 export default class MenuDropDown extends React.Component {
+    // Default Properties
+    static defaultProps = {
+        arrow:          true,
+        vertical:       false,
+    };
+
+    // Property validation
+    static propTypes = {
+        options: PropTypes.any.isRequired,
+    };
+
+
     constructor(props) {
         super(props);
 
         this.cb = {
-            onClick: (e) => this.onClick(e),
             onKeyDown: (e) => this.onKeyDown(e),
-            onMouseEnter: e => this.onMouseEnter(e),
+            onMouseInput: e => this.onMouseInput(e),
         };
         this.dropdown = React.createRef();
     }
@@ -33,15 +43,16 @@ export default class MenuDropDown extends React.Component {
         return (
             <div
                 className={className}
-                onClick={this.cb.onClick}
+                onClick={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
-                onMouseEnter={this.cb.onMouseEnter}
+                onMouseEnter={this.cb.onMouseInput}
                 tabIndex={0}
                 >
                 {this.props.children}
                 {arrow ? <div className="arrow">{arrow}</div> : null}
                 <DropDownContainer
                     ref={this.dropdown}
+                    disabled={this.props.disabled}
                     options={this.props.options}
                     vertical={this.props.vertical}
                     />
@@ -49,41 +60,34 @@ export default class MenuDropDown extends React.Component {
         )
     }
 
-    toggleMenu(e) {
-        return this.dropdown.current.toggleMenu(e); }
-    openMenu(e) {
-        return this.dropdown.current.openMenu(e);
-    }
-    closeMenu(e) { return this.dropdown.current.closeMenu(e); }
-    stickMenu(e) { return this.dropdown.current.stickMenu(e); }
+    toggleMenu()    { return this.dropdown.current.toggleMenu(); }
+    hoverMenu()     { return this.dropdown.current.hoverMenu(); }
 
-    onClick(e) {
-        this.toggleMenu(e);
+    onMouseInput(e) {
+        if(e.defaultPrevented)
+            return;
+        e.preventDefault();
+        switch(e.type) {
+            case 'click':
+                this.toggleMenu();
+                break;
+
+            case 'mouseenter':
+            case 'mouseover':
+                this.hoverMenu();
+                break;
+
+            default:
+                throw new Error("Unknown Mouse event: " + e.type);
+        }
     }
 
     onKeyDown(e) {
-        this.toggleMenu(e);
+        this.toggleMenu();
     }
 
     onMouseEnter(e) {
-            this.openMenu(e);
+        this.toggleMenu();
     }
 
 }
-
-
-
-
-// creating default props
-MenuDropDown.defaultProps = {
-    arrow:          true,
-    vertical:       false,
-    // openOnHover:    null,
-    // disabled:       false,
-};
-
-// validating prop types
-MenuDropDown.propTypes = {
-    options: PropTypes.any.isRequired,
-};
-

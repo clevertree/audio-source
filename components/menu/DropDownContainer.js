@@ -1,9 +1,28 @@
 import React from "react";
-import "./assets/DropDownContainer.css";
+import PropTypes from "prop-types";
+
 import MenuOverlayContext from "./MenuOverlayContext";
+
+import "./assets/DropDownContainer.css";
 
 class DropDownContainer extends React.Component {
     static contextType = MenuOverlayContext;
+
+    // creating default props
+    static defaultProps = {
+        // arrow:          true,
+        vertical:       false,
+        // openOnHover:    null,
+        // disabled:       false,
+    };
+
+    // validating prop types
+    static propTypes = {
+        // closeCallback: PropTypes.func.isRequired,
+        vertical: PropTypes.bool,
+        disabled: PropTypes.bool,
+    };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -16,6 +35,7 @@ class DropDownContainer extends React.Component {
     getOverlay() { return this.context.overlay; }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+//         console.log('componentDidUpdate', this.state);
         if(this.getOverlay()) {
             if (this.state.open)
                 this.getOverlay().addCloseMenuCallback(this, this.closeMenu.bind(this));
@@ -36,14 +56,17 @@ class DropDownContainer extends React.Component {
         let className = 'asui-menu-dropdown';
         if (this.props.vertical)
             className += ' vertical';
+        if (this.state.stick)
+            className += ' stick';
 
-        let options = this.props.options;
-        if (typeof options === "function")
-            options = options(this);
-
-        // options = reactMapRecursive(options, child => {
-        //     return React.cloneElement(child, {parentMenu: this})
-        // });
+        let options = null;
+        if(!this.props.disabled) {
+            options = this.props.options;
+            if (typeof options === "function")
+                options = options(this);
+            if (!options)
+                console.warn("Empty options returned by ", this);
+        }
 
         return <MenuOverlayContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
@@ -55,32 +78,32 @@ class DropDownContainer extends React.Component {
 
     }
 
-    toggleMenu(e) {
-        if (!this.state.open)
-            this.openMenu(e);
-        else if (!this.state.stick)
-            this.stickMenu(e);
-        else
-            this.closeMenu(e);
+    hoverMenu() {
+        if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
+            return;
+        this.openMenu();
     }
 
-    openMenu(e) {
+    toggleMenu() {
+
+        if (!this.state.open)
+            this.openMenu();
+        else if (!this.state.stick)
+            this.stickMenu();
+        else
+            this.closeMenu();
+    }
+
+    openMenu() {
+        if (this.state.open)
+            throw new Error("Menu was already open");
+
         // Try open menu handler
         if(this.getOverlay()) {
-            if (e.type === 'click') {
-                const res = this.getOverlay().openMenu(this.props.options);
-                if (res !== false) {
-                    console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
-                    return;
-                }
-            }
-
-            if (e.type !== 'click') {
-                if (!this.getOverlay().isHoverEnabled())
-                    return;     // Ignore mouse hover
-
-                if (this.state.open)
-                    return;     // Ignore already open
+            const res = this.getOverlay().openMenu(this.props.options);
+            if (res !== false) {
+                console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
+                return;
             }
         }
 
@@ -93,18 +116,20 @@ class DropDownContainer extends React.Component {
         }, 100);
     }
 
-    stickMenu(e) {
+    stickMenu() {
         if (!this.state.open)
-            this.open();
-        console.warn("TODO: stick is not styled");
-        this.setState({
-            stick: true,
-        });
+            throw new Error("Unable to stick. Menu was not yet open");
+
+        this.getAncestorMenus().forEach(menu => {
+            menu.setState({
+                stick: true,
+            });
+        })
     }
 
     closeMenu(stayOpenOnStick = false) {
         if (this.state.stick && stayOpenOnStick === true) {
-            console.warn("Ignoring close due to stick", this);
+            // console.warn("Ignoring close due to stick", this);
             return;
         }
         this.setState({

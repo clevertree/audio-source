@@ -23,7 +23,7 @@ div.asc-tracker {
 /** Tracker Container **/
 
 div.asc-tracker div.asc-tracker-container {
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     max-height: 800px;
 }
 

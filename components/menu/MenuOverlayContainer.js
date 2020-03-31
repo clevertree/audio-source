@@ -84,8 +84,8 @@ class MenuOverlayContainer extends React.Component {
         this.updateOverlay();
     }
 
+
     closeMenus(butThese=[], stayOpenOnStick=true) {
-        console.log("closeMenus", this.openMenus, butThese);
         // this.overlayContext.openMenuItems = [];
         this.openMenus.forEach(openMenu => {
             const [menuItem, closeMenuCallback] = openMenu;
@@ -97,8 +97,8 @@ class MenuOverlayContainer extends React.Component {
     }
 
 
-    closeAllMenus() {
-        this.closeMenus([], false);
+    closeAllMenus(e) {
+        this.closeMenus(e, []);
         this.setState({
             open: false,
             openOverlay: false,

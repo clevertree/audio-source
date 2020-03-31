@@ -31,50 +31,50 @@ class TrackerInstruction extends React.Component {
             return <Div className={className}>
                 <TrackerInstructionParameter
                     className="command"
-                    onAction={e => this.renderMenuSelectCommand(e)}
+                    options={() => this.renderMenuSelectCommand()}
                 >{instruction.command}</TrackerInstructionParameter>
             </Div>;
         return <Div className={className}>
             <TrackerInstructionParameter
                 className="command"
-                onAction={e => this.renderMenuSelectCommand(e)}
+                options={() => this.renderMenuSelectCommand()}
             >{instruction.command}</TrackerInstructionParameter>
             {/*{typeof instruction.instrument !== "undefined" ? <TrackerInstructionParameter*/}
             {/*    className="instrument"*/}
-            {/*    onAction={e => this.renderMenuSelectInstrument(e)}*/}
+            {/*    options={() => this.renderMenuSelectInstrument(e)}*/}
             {/*>{instruction.instrument}</TrackerInstructionParameter> : null}*/}
             {typeof instruction.velocity !== "undefined" ? <TrackerInstructionParameter
                 className="velocity"
-                onAction={e => this.renderMenuSelectVelocity(e)}
+                options={() => this.renderMenuSelectVelocity()}
             >{instruction.duration}</TrackerInstructionParameter> : null}
                 {typeof instruction.duration !== "undefined" ? <TrackerInstructionParameter
                 className="duration"
-                onAction={e => this.renderMenuSelectDuration(e)}
+                options={() => this.renderMenuSelectDuration()}
             >{instruction.duration}</TrackerInstructionParameter> : null}
         </Div>
     }
 
     // }
     renderMenuSelectCommand(e) {
-        return this.getComposer().renderMenuSelectCommand(e, (command) => {
+        return this.getComposer().renderMenuSelectCommand((command) => {
             this.instructionReplaceCommand(command);
         });
     }
 
     renderMenuSelectInstrument(e) {
-        return this.getComposer().renderMenuSelectSongInstrument(e, instrumentID => {
+        return this.getComposer().renderMenuSelectSongInstrument(instrumentID => {
             this.instructionReplaceInstrument(instrumentID);
         });
     }
 
     renderMenuSelectVelocity(e) {
-        return this.getComposer().renderMenuSelectVelocity(e, velocity => {
+        return this.getComposer().renderMenuSelectVelocity(velocity => {
             this.instructionReplaceVelocity(velocity);
         });
     }
 
     renderMenuSelectDuration(e) {
-        return this.getComposer().renderMenuSelectDuration(e, duration => {
+        return this.getComposer().renderMenuSelectDuration(duration => {
             this.instructionReplaceDuration(duration);
         });
     }
