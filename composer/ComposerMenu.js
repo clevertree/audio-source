@@ -94,8 +94,6 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuSelectCommand(onSelectValue) {
         return (<>
-            <MenuDropDown options={() => this.renderMenuSelectCommandByCurrentOctave(onSelectValue)}      >Current Octave</MenuDropDown>
-            <MenuBreak />
             <MenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue)}           >By Frequency</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue)}              >By Octave</MenuDropDown>
             <MenuBreak />
@@ -107,12 +105,12 @@ class ComposerMenu extends ComposerRenderer {
     }
 
 
-    renderMenuSelectCommandByCurrentOctave(onSelectValue, octave=null) {
-        octave = octave !== null ? octave : this.state.trackerCurrentOctave;
-        return this.values.getNoteFrequencies((noteName) =>
-            <MenuAction key={noteName} onAction={e => onSelectValue(`${noteName}${octave}`)}     >{noteName}{octave}</MenuAction>
-        );
-    }
+    // renderMenuSelectCommandByCurrentOctave(onSelectValue, octave=null) {
+    //     octave = octave !== null ? octave : this.state.keyboardOctave;
+    //     return this.values.getNoteFrequencies((noteName) =>
+    //         <MenuAction key={noteName} onAction={e => onSelectValue(`${noteName}${octave}`)}     >{noteName}{octave}</MenuAction>
+    //     );
+    // }
 
 
     renderMenuSelectCommandByFrequency(onSelectValue) {
@@ -122,9 +120,12 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName) {
-        return this.values.getNoteOctaves((octave) =>
-            <MenuAction key={octave} onAction={() => onSelectValue(octave)}     >{noteName}{octave}</MenuAction>
-        );
+        return (<>
+            <MenuAction onAction={() => onSelectValue(this.state.keyboardOctave)}>{noteName}{this.state.keyboardOctave} (Current)</MenuAction> // TODO: move into lower menu?
+            {this.values.getNoteOctaves((octave) =>
+                <MenuAction key={octave} onAction={() => onSelectValue(octave)}     >{noteName}{octave}</MenuAction>
+            )}
+        </>)
     }
 
     renderMenuSelectCommandByOctave(onSelectValue) {
@@ -223,8 +224,6 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditInsert() {
         return (<>
-            <MenuDropDown options={() => this.renderMenuEditInsertCommandCurrentOctave()}      >Current Octave</MenuDropDown>
-            <MenuBreak />
             <MenuDropDown options={() => this.renderMenuEditInsertCommandFrequency()}           >By Frequency</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuEditInsertCommandOctave()}              >By Octave</MenuDropDown>
             <MenuBreak />
@@ -268,9 +267,9 @@ class ComposerMenu extends ComposerRenderer {
         return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsert(noteNameOctave, false));
     }
 
-    renderMenuEditInsertCommandCurrentOctave(octave=null) {
-        return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
-    }
+    // renderMenuEditInsertCommandCurrentOctave(octave=null) {
+    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
+    // }
 
 
 
@@ -290,8 +289,6 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditSetCommand() {
         return (<>
-            <MenuDropDown options={() => this.renderMenuEditSetCommandCurrentOctave()}      >Current Octave</MenuDropDown>
-            <MenuBreak />
             <MenuDropDown options={() => this.renderMenuEditSetCommandFrequency()}           >By Frequency</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuEditSetCommandOctave()}              >By Octave</MenuDropDown>
             <MenuBreak />
@@ -326,9 +323,9 @@ class ComposerMenu extends ComposerRenderer {
         return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
     }
 
-    renderMenuEditSetCommandCurrentOctave(octave=null) {
-        return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionReplaceCommand(noteNameOctave, false), octave);
-    }
+    // renderMenuEditSetCommandCurrentOctave(octave=null) {
+    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionReplaceCommand(noteNameOctave, false), octave);
+    // }
 
     renderMenuEditSetCommandOctave() {
         return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));

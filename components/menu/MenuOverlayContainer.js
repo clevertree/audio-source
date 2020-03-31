@@ -2,7 +2,7 @@ import React from "react";
 import Div from "../div/Div";
 
 import "./assets/MenuOverlayContainer.css";
-import MenuOverlayContext from "./MenuOverlayContext";
+import MenuContext from "./MenuContext";
 import MenuBreak from "./MenuBreak";
 import MenuAction from "./MenuAction";
 
@@ -28,7 +28,7 @@ class MenuOverlayContainer extends React.Component {
     // }
 
     render() {
-        return <MenuOverlayContext.Provider
+        return <MenuContext.Provider
             value={{overlay:this, parentDropDown:null}}>
             <>
                 {this.state.openOverlay ? <Div className="asui-menu-overlay-container" // TODO: fix overlay z-index
@@ -42,7 +42,7 @@ class MenuOverlayContainer extends React.Component {
                 </Div> : null}
                 {this.props.children}
             </>
-        </MenuOverlayContext.Provider>;
+        </MenuContext.Provider>;
     }
 
     getActiveMenuCount() {

@@ -1,7 +1,7 @@
 import React from "react";
 
 const unimplemented = function() { throw new Error("MenuContext Object is unimplemented")};
-const MenuOverlayContext = React.createContext({
+const MenuContext = React.createContext({
     openMenu: (options) =>                      unimplemented,
     closeMenus: (butThese=[]) =>            unimplemented,
     closeAllMenus: () =>                        unimplemented,
@@ -10,13 +10,4 @@ const MenuOverlayContext = React.createContext({
     addDropDownMenu: (openMenuItem) =>          unimplemented,
 });
 
-
-
-// {
-//     openMenu: null,
-//         closeAllMenus: null,
-//     openOverlay: null,
-//     closeOverlay: null,
-//     openMenuItems: null,
-// }
-export default MenuOverlayContext;
+export default MenuContext;

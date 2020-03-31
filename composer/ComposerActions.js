@@ -546,14 +546,14 @@ class ComposerActions extends ComposerMenu {
         this.setState({activeTracks});
     }
 
-    trackerChangeSegment(trackName, newSegmentID) {
-        if (!Number.isInteger(newSegmentID))
+    trackerChangeRowOffset(trackName, newRowOffset) {
+        if (!Number.isInteger(newRowOffset))
             throw new Error("Invalid segment ID");
         const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);
         const currentTrack = activeTracks[trackName];
-        currentTrack.currentSegmentID = newSegmentID;
+        currentTrack.rowOffset = newRowOffset;
         this.setState({activeTracks});
     }
 

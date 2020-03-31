@@ -1,12 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import MenuOverlayContext from "./MenuOverlayContext";
+import MenuContext from "./MenuContext";
 
 import "./assets/DropDownContainer.css";
 
 class DropDownContainer extends React.Component {
-    static contextType = MenuOverlayContext;
+    static contextType = MenuContext;
 
     // creating default props
     static defaultProps = {
@@ -68,13 +68,13 @@ class DropDownContainer extends React.Component {
                 console.warn("Empty options returned by ", this);
         }
 
-        return <MenuOverlayContext.Provider
+        return <MenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             <div
                 className={className}
                 children={options}
                 />
-        </MenuOverlayContext.Provider>
+        </MenuContext.Provider>
 
     }
 
