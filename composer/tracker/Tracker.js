@@ -139,7 +139,7 @@ class Tracker extends React.Component {
         let     rowCount = 0;
         const rowContent = [];
 
-        let lastRowPositionInTicks = 0;
+        let currentRowPositionTicks = 0;
 
         let nextQuantizationBreakInTicks = 0;
         let rowInstructionElms = [];
@@ -156,7 +156,7 @@ class Tracker extends React.Component {
                 let endPositionTicks = instructionIterator.positionTicks;
 
                 // Move next quantized row up to current position
-                while(nextQuantizationBreakInTicks <= lastRowPositionInTicks)
+                while(nextQuantizationBreakInTicks <= currentRowPositionTicks)
                     nextQuantizationBreakInTicks += quantizationInTicks;
 
                 // Render extra quantized rows if necessary
@@ -194,13 +194,14 @@ class Tracker extends React.Component {
         }
 
         function addRow(toPositionTicks) {
-            let rowDeltaDuration = toPositionTicks - lastRowPositionInTicks;
-            lastRowPositionInTicks = toPositionTicks;
+            let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
+            currentRowPositionTicks = toPositionTicks;
             if (rowCount >= rowOffset
                 && rowContent.length < rowLength
             ) {
                 const newRowElm = <TrackerRow
-                    key={rowContent.length}
+                    positionTicks={currentRowPositionTicks}
+                    key={rowCount}
                     deltaDuration={composer.values.formatDuration(rowDeltaDuration)}
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);

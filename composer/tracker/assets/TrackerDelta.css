@@ -1,14 +1,9 @@
-asc-tracker > asui-div[key=tracker-header] > asui-div[key=delta] {
-    float: left;
-    padding: 2px;
-}
-
 /** Tracker Row Delta **/
 
 div.asct-delta {
     padding: 2px;
-    color: #500;
-    margin-right: 4px;
+    color: #666;
+    margin-left: auto;
     width: 36px;
     text-align: right;
 }
