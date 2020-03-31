@@ -357,7 +357,10 @@ class ComposerRenderer extends React.Component {
             'track0': {},
             'track1': {},
         };
-        activeTracks[song.getStartGroup()] = {};
+        activeTracks[song.getStartGroup()] = {
+            cursorIndex: 0,
+            selectedIndices: [0]
+        };
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);

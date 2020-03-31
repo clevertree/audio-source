@@ -20,6 +20,8 @@ class TrackerInstructionParameter extends React.Component {
         super(props);
         this.dropdown = React.createRef();
         this.cb = {
+
+            onContextMenu: (e) => this.onContextMenu(e),
             onKeyDown: (e) => this.onKeyDown(e),
             onMouseInput: e => this.onMouseInput(e),
         };
@@ -32,6 +34,7 @@ class TrackerInstructionParameter extends React.Component {
         return <div
             onClick={this.cb.onMouseInput}
             onKeyDown={this.cb.onKeyDown}
+            onContextMenu={this.cb.onContextMenu}
             className={className}
             tabIndex={0}
         >
@@ -46,17 +49,37 @@ class TrackerInstructionParameter extends React.Component {
 
     toggleMenu()    { return this.dropdown.current.toggleMenu(); }
 
+
+    /** User Input **/
+
     onMouseInput(e) {
+        console.log(e.type);
         if(e.defaultPrevented)
             return;
         e.preventDefault();
+
         switch(e.type) {
             case 'click':
-                this.toggleMenu();
+                if(e.button === 0)
+                    this.select();
+                else if(e.button === 1)
+                    throw new Error("Unimplemented middle button");
+                else if(e.button === 2)
+                    this.toggleMenu();
+                else
+                    throw new Error("Unknown mouse button");
+
                 break;
             default:
                 throw new Error("Unknown Mouse event: " + e.type);
         }
+    }
+
+    onContextMenu(e) {
+        if(e.defaultPrevented)
+            return;
+        e.preventDefault();
+        this.toggleMenu();
     }
 
     onKeyDown(e) {

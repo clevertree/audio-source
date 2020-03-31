@@ -24,7 +24,7 @@ div.asct-instruction:last-child {
 }
 
 
-div.asct-instruction-add, asct-instruction[selected] {
+div.asct-instruction-add, div.asct-instruction.selected {
   background-color: white;
   font-weight: bold;
   max-width: 1000px;
@@ -33,7 +33,7 @@ div.asct-instruction-add, asct-instruction[selected] {
 }
 
 div.asct-instruction-add,
-div.asct-instruction[cursor] {
+div.asct-instruction.cursor {
   border-color: red;
   box-shadow: darkred 0 0 12px;
 }
