@@ -639,7 +639,12 @@ class ComposerActions extends ComposerMenu {
         selectedIndices.sort((a, b) => a - b);
 
         currentTrack.selectedIndices = selectedIndices;
-        currentTrack.cursorOffset = cursorOffset;
+        if(cursorOffset !== null) {
+            if(cursorOffset < 0)
+                console.warn("Invalid cursor offset: " + cursorOffset);
+            else
+                currentTrack.cursorOffset = cursorOffset;
+        }
         this.setState({activeTracks, selectedTrack: trackName});
     }
 

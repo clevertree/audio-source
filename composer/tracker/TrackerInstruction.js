@@ -14,7 +14,7 @@ class TrackerInstruction extends React.Component {
 
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
-            // onKeyDown: (e) => this.onKeyDown(e),
+            onKeyDown: (e) => this.onKeyDown(e),
             onMouseInput: e => this.onMouseInput(e),
         };
     }
@@ -79,6 +79,7 @@ class TrackerInstruction extends React.Component {
         }
         return <Div
             className={className}
+            onKeyDown={this.cb.onKeyDown}
             onClick={this.cb.onMouseInput}
             >
             {parameters}
@@ -118,6 +119,49 @@ class TrackerInstruction extends React.Component {
         }
     }
 
+    onKeyDown(e) {
+        switch(e.key) {
+            // case 'Delete':
+            //     break;
+            //
+            // case 'Escape':
+            // case 'Backspace':
+            //     throw new Error("TODO: navigate pop");
+            //
+            // case 'Enter':
+            //     break;
+            //
+            // case 'Play':
+            //     break;
+            //
+            case 'ArrowRight':
+                console.log("TODO select also", e.key);
+                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() + 1);
+                break;
+            case 'ArrowLeft':
+                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() - 1);
+                break;
+            //
+            // case 'ArrowDown':
+            //     break;
+            //
+            // case 'ArrowUp':
+            //     break;
+            //
+            // case ' ':
+            //     break;
+            //
+            // case 'PlayFrequency':
+            //     break;
+
+            case 'ContextMenu':
+                this.toggleMenu();
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+        }
+    }
 
     /** Menus **/
 

@@ -66,8 +66,9 @@ class TrackerRow extends React.Component {
 
     selectRow(clearSelection=true) {
         const selectedIndices = clearSelection ? [] : null;
-        this.getComposer().trackerSelectIndices(this.getTracker().getTrackName(), selectedIndices, this.props.cursorPosition);
+        this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
     }
+
 
     /** User Input **/
 
@@ -119,11 +120,12 @@ class TrackerRow extends React.Component {
             // case 'Play':
             //     break;
             //
-            // case 'ArrowRight':
-            //     break;
-            //
-            // case 'ArrowLeft':
-            //     break;
+            case 'ArrowRight':
+                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() + 1);
+                break;
+            case 'ArrowLeft':
+                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() - 1);
+                break;
             //
             // case 'ArrowDown':
             //     break;

@@ -4,7 +4,7 @@ import {
     TrackerInstruction,
     TrackerRow
 } from "./";
-import {Div, Panel, Button, ButtonDropDown} from "../../components/";
+import {Panel, Button, ButtonDropDown} from "../../components/";
 
 import "./assets/Tracker.css";
 
@@ -64,13 +64,21 @@ class Tracker extends React.Component {
         return {segmentCount, currentSegmentID};
     }
 
+
+
+    selectIndices(selectedIndices, cursorOffset=null) {
+        return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset);
+    }
+
+    /** User Input **/
+
     onWheel(e) {
         // console.log('onWheel', e);
         e.preventDefault();
         let rowOffset = this.props.rowOffset;
         rowOffset += e.deltaY > 0 ? 1 : -1;
         if(rowOffset < 0)
-            return console.log("Unable to scroll past beginning");
+            rowOffset = 0; // return console.log("Unable to scroll past beginning");
         this.getComposer().trackerChangeRowOffset(this.getTrackName(), rowOffset);
         // console.log("TODO", e.deltaY);
     }

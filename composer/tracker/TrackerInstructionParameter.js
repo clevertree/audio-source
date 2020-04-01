@@ -23,7 +23,7 @@ class TrackerInstructionParameter extends React.Component {
         this.dropdown = React.createRef();
         this.cb = {
             onContextMenu: (e) => this.onContextMenu(e),
-            onKeyDown: (e) => this.onKeyDown(e),
+            // onKeyDown: (e) => this.onKeyDown(e),
             // onMouseInput: e => this.onMouseInput(e),
         };
     }
@@ -34,7 +34,7 @@ class TrackerInstructionParameter extends React.Component {
 
         return <div
             // onClick={this.cb.onMouseInput}
-            onKeyDown={this.cb.onKeyDown}
+            // onKeyDown={this.cb.onKeyDown}
             onContextMenu={this.cb.onContextMenu}
             className={className}
             tabIndex={0}
@@ -84,7 +84,7 @@ class TrackerInstructionParameter extends React.Component {
     }
 
     onKeyDown(e) {
-        console.log("TODO", e.key);
+//         console.log("TODO", e.key);
         switch(e.key) {
             // case 'Delete':
             //     break;

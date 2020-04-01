@@ -18,7 +18,7 @@ div.asc-tracker {
     /*overflow: auto;*/
     vertical-align: top;
     display: inline-block;
-    min-width: 16em;
+    min-width: 30vw;
 }
 div.asc-tracker:not(.selected) > div.title {
     background-color: #777;
