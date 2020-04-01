@@ -31,7 +31,16 @@ class Tracker extends React.Component {
         // this.state = this.props.composer.state;
         this.cb = {
             onWheel: e => this.onWheel(e)
-        }
+        };
+        this.container = React.createRef();
+    }
+
+    componentDidMount() {
+        this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
+    }
+
+    componentWillUnmount() {
+        this.container.current.removeEventListener('wheel', this.cb.onWheel);
     }
 
     getComposer()               { return this.props.composer; }
@@ -56,6 +65,8 @@ class Tracker extends React.Component {
     }
 
     onWheel(e) {
+        // console.log('onWheel', e);
+        e.preventDefault();
         let rowOffset = this.props.rowOffset;
         rowOffset += e.deltaY > 0 ? 1 : -1;
         if(rowOffset < 0)
@@ -77,17 +88,18 @@ class Tracker extends React.Component {
                 className={className}
                 title={this.getTrackName()}
                 >
-                <Div
+                <div
                     className="asc-tracker-segments"
                     children={this.renderRowSegments()}
                     />
-                <Div
+                <div
                     className="asc-tracker-container"
-                    onWheel={this.cb.onWheel}
+                    ref={this.container}
+                    // onWheel={this.cb.onWheel}
                     >
                     {this.renderRowContent()}
-                </Div>
-                <Div
+                </div>
+                <div
                     className="asc-tracker-options"
                     children={this.renderRowOptions()}
                 />
