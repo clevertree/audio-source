@@ -622,7 +622,7 @@ class ComposerActions extends ComposerMenu {
 
 
     trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null) {
-//         console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
+        console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
         const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);
@@ -630,6 +630,7 @@ class ComposerActions extends ComposerMenu {
         // if(cursorIndex === null)
         //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
 
+        // if selectedIndices is an array, clear selection, if integer, add to selection
         if(selectedIndices === null)
             selectedIndices = currentTrack.selectedIndices || [];
 

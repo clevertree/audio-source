@@ -105,46 +105,16 @@ class TrackerRow extends React.Component {
     }
 
     onKeyDown(e) {
-        console.log("TODO", e.key);
+        if(e.isDefaultPrevented())
+            return;
         switch(e.key) {
-            // case 'Delete':
-            //     break;
-            //
-            // case 'Escape':
-            // case 'Backspace':
-            //     throw new Error("TODO: navigate pop");
-            //
-            // case 'Enter':
-            //     break;
-            //
-            // case 'Play':
-            //     break;
-            //
-            case 'ArrowRight':
-                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() + 1);
-                break;
-            case 'ArrowLeft':
-                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() - 1);
-                break;
-            //
-            // case 'ArrowDown':
-            //     break;
-            //
-            // case 'ArrowUp':
-            //     break;
-            //
-            // case ' ':
-            //     break;
-            //
-            // case 'PlayFrequency':
-            //     break;
-
             case 'ContextMenu':
+                e.preventDefault();
                 this.toggleMenu();
                 break;
 
             default:
-                console.info("Unhandled key: ", e.key);
+                break;
         }
     }
 

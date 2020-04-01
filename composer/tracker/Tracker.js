@@ -30,9 +30,11 @@ class Tracker extends React.Component {
             throw new Error("Invalid composer");
         // this.state = this.props.composer.state;
         this.cb = {
+            onKeyDown: (e) => this.onKeyDown(e),
             onWheel: e => this.onWheel(e)
         };
         this.container = React.createRef();
+        this.cursorInstruction = React.createRef();
     }
 
     componentDidMount() {
@@ -83,6 +85,56 @@ class Tracker extends React.Component {
         // console.log("TODO", e.deltaY);
     }
 
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+        switch(e.key) {
+            // case 'Delete':
+            //     break;
+            //
+            // case 'Escape':
+            // case 'Backspace':
+            //     throw new Error("TODO: navigate pop");
+            //
+            // case 'Enter':
+            //     break;
+            //
+            // case 'Play':
+            //     break;
+            //
+            case 'ArrowRight':
+                e.preventDefault();
+                this.selectIndices(null, this.getCursorOffset() + 1);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                this.selectIndices(null, this.getCursorOffset() - 1);
+                break;
+
+            //
+            // case 'ArrowDown':
+            //     break;
+            //
+            // case 'ArrowUp':
+            //     break;
+            //
+            // case ' ':
+            //     break;
+            //
+            // case 'PlayFrequency':
+            //     break;
+
+            case 'ContextMenu':
+                e.preventDefault();
+                this.cursorInstruction.current.toggleMenu();
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+                break;
+        }
+    }
+
     /** Render **/
 
     render() {
@@ -103,6 +155,8 @@ class Tracker extends React.Component {
                 <div
                     className="asc-tracker-container"
                     ref={this.container}
+                    tabIndex={0}
+                    onKeyDown={this.cb.onKeyDown}
                     // onWheel={this.cb.onWheel}
                     >
                     {this.renderRowContent()}
@@ -128,18 +182,6 @@ class Tracker extends React.Component {
                 selected={segmentID === currentSegmentID}
                 onAction={e => composer.trackerChangeRowOffset(this.props.trackName, segmentID * rowLength)}
             >{segmentID}</Button>);
-
-        // buttons.push(<Button
-        //     key="segment-add"
-        //     onAction={e => this.groupAdd(e)}
-        // >+</Button>);
-
-        // buttons.push(<Button
-        //     arrow={'▼'}
-        //     key="segment-length"
-        //     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
-        //     title="Select Tracker Segment Length"
-        // >16B</Button>);
 
         return buttons;
     }
@@ -171,23 +213,161 @@ class Tracker extends React.Component {
         return buttons;
     }
 
+
     renderRowContent() {
         // console.time('tracker.renderRowContent()');
-        const tracker = this;
-        const composer = this.props.composer;
         const rowOffset = this.props.rowOffset;
         const rowLength = this.props.rowLength;
+        const cursorOffset = this.props.cursorOffset || 0;
+
+        const rowContent = [];
+
+        let currentRowPositionTicks = 0;
+
+
+        this.eachRow((rowCount, lastRowPositionTicks, toPositionTicks, cursorPositionCount, rowInstructionElms) => {
+            let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
+            if (rowCount >= rowOffset
+                && rowContent.length < rowLength
+            ) {
+                const newRowElm = <TrackerRow
+                    key={rowCount}
+                    cursor={cursorPositionCount === cursorOffset}
+                    tracker={this}
+                    positionTicks={lastRowPositionTicks}
+                    deltaDuration={rowDeltaDuration}
+                    cursorPosition={cursorPositionCount} // TODO: inefficient?
+                >{rowInstructionElms}</TrackerRow>;
+                rowContent.push(newRowElm);
+            }
+
+            // Continue rendering rows until we've reached rowLength
+            return rowContent.length < rowLength;
+        });
+
+
+        // console.timeEnd('tracker.renderRowContent()');
+        return rowContent;
+    }
+
+
+    // renderRowContent2() {
+    //     // console.time('tracker.renderRowContent()');
+    //     const tracker = this;
+    //     const composer = this.props.composer;
+    //     const rowOffset = this.props.rowOffset;
+    //     const rowLength = this.props.rowLength;
+    //     const cursorOffset = this.props.cursorOffset || 0;
+    //     const selectedIndices = this.props.selectedIndices;
+    //
+    //     const quantizationTicks = this.getQuantizationInTicks();
+    //
+    //     // Instruction Iterator
+    //     let instructionIterator = composer.song.instructionGetIterator(this.props.trackName);
+    //     // TODO: based on cell index, not instruction index
+    //
+    //     let     rowCount=0, cursorPositionCount=0;
+    //     const rowContent = [];
+    //
+    //     let currentRowPositionTicks = 0;
+    //
+    //     let nextQuantizationBreakInTicks = quantizationTicks;
+    //     let rowInstructionElms = [];
+    //     while (true) {
+    //         const nextInstruction = instructionIterator.nextInstruction();
+    //         if(!nextInstruction)
+    //             break;
+    //         // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
+    //
+    //
+    //         if(nextInstruction.deltaDurationInTicks > 0) {
+    //             // Finish rendering last row
+    //             let endPositionTicks = instructionIterator.positionTicks;
+    //
+    //             // Move next quantized row up to current position
+    //             while(nextQuantizationBreakInTicks <= currentRowPositionTicks)
+    //                 nextQuantizationBreakInTicks += quantizationTicks;
+    //
+    //             // Render extra quantized rows if necessary
+    //             while(nextQuantizationBreakInTicks < endPositionTicks) {
+    //                 addRow(nextQuantizationBreakInTicks);
+    //                 nextQuantizationBreakInTicks += quantizationTicks;
+    //             }
+    //
+    //             addRow(endPositionTicks);
+    //         }
+    //
+    //
+    //         // Render instruction
+    //         const index = instructionIterator.currentIndex;
+    //         const props = {
+    //             tracker,
+    //             instruction: nextInstruction,
+    //             index,
+    //             cursorPosition: cursorPositionCount // TODO: inefficient
+    //         };
+    //         if (selectedIndices.indexOf(index) !== -1)
+    //             props.selected = true;
+    //         if (cursorPositionCount === cursorOffset) {
+    //             props.cursor = true;
+    //             props.ref = this.cursorInstruction;
+    //         }
+    //         rowInstructionElms.push(<TrackerInstruction
+    //             key={index}
+    //             {...props}
+    //         />);
+    //         cursorPositionCount++;
+    //
+    //     }
+    //     // renderQuantizedRows(maxLengthInTicks);
+    //
+    //     while(rowContent.length < rowLength) {
+    //         addRow(nextQuantizationBreakInTicks);
+    //         nextQuantizationBreakInTicks += quantizationTicks;
+    //     }
+    //
+    //     function addRow(toPositionTicks) {
+    //         const lastRowPositionTicks = currentRowPositionTicks;
+    //         let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
+    //         currentRowPositionTicks = toPositionTicks;
+    //         if (rowCount >= rowOffset
+    //             && rowContent.length < rowLength
+    //         ) {
+    //             const newRowElm = <TrackerRow
+    //                 key={rowCount}
+    //                 cursor={cursorPositionCount === cursorOffset}
+    //                 tracker={tracker}
+    //                 positionTicks={lastRowPositionTicks}
+    //                 deltaDuration={rowDeltaDuration}
+    //                 cursorPosition={cursorPositionCount} // TODO: inefficient
+    //             >{rowInstructionElms}</TrackerRow>;
+    //             rowContent.push(newRowElm);
+    //             // console.log('addRow', lastRowPositionTicks, toPositionTicks);
+    //         }
+    //         rowInstructionElms = [];
+    //         rowCount++;
+    //         cursorPositionCount++;
+    //     }
+    //
+    //
+    //     return rowContent;
+    // }
+
+    /** Row Iterator **/
+
+    eachRow(callback) {
+
+        const tracker = this;
         const cursorOffset = this.props.cursorOffset || 0;
         const selectedIndices = this.props.selectedIndices;
 
         const quantizationTicks = this.getQuantizationInTicks();
 
         // Instruction Iterator
-        let instructionIterator = composer.song.instructionGetIterator(this.props.trackName);
+        let instructionIterator = this.getSong().instructionGetIterator(this.props.trackName);
         // TODO: based on cell index, not instruction index
 
         let     rowCount=0, cursorPositionCount=0;
-        const rowContent = [];
 
         let currentRowPositionTicks = 0;
 
@@ -197,7 +377,6 @@ class Tracker extends React.Component {
             const nextInstruction = instructionIterator.nextInstruction();
             if(!nextInstruction)
                 break;
-            // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
 
 
             if(nextInstruction.deltaDurationInTicks > 0) {
@@ -210,11 +389,11 @@ class Tracker extends React.Component {
 
                 // Render extra quantized rows if necessary
                 while(nextQuantizationBreakInTicks < endPositionTicks) {
-                    addRow(nextQuantizationBreakInTicks);
+                    doCallback(nextQuantizationBreakInTicks);
                     nextQuantizationBreakInTicks += quantizationTicks;
                 }
 
-                addRow(endPositionTicks);
+                doCallback(endPositionTicks);
             }
 
 
@@ -228,48 +407,38 @@ class Tracker extends React.Component {
             };
             if (selectedIndices.indexOf(index) !== -1)
                 props.selected = true;
-            if (cursorPositionCount === cursorOffset)
+            if (cursorPositionCount === cursorOffset) {
                 props.cursor = true;
+                props.ref = this.cursorInstruction;
+            }
             rowInstructionElms.push(<TrackerInstruction
                 key={index}
                 {...props}
-                />);
+            />);
             cursorPositionCount++;
 
         }
         // renderQuantizedRows(maxLengthInTicks);
 
-        while(rowContent.length < rowLength) {
-            addRow(nextQuantizationBreakInTicks);
+        for(let i=0; i<256; i++) {
+            if(!doCallback(nextQuantizationBreakInTicks))
+                break;
             nextQuantizationBreakInTicks += quantizationTicks;
         }
 
-        function addRow(toPositionTicks) {
+        function doCallback(toPositionTicks) {
             const lastRowPositionTicks = currentRowPositionTicks;
-            let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
+            // let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
             currentRowPositionTicks = toPositionTicks;
-            if (rowCount >= rowOffset
-                && rowContent.length < rowLength
-            ) {
-                const newRowElm = <TrackerRow
-                    key={rowCount}
-                    cursor={cursorPositionCount === cursorOffset}
-                    tracker={tracker}
-                    positionTicks={lastRowPositionTicks}
-                    deltaDuration={rowDeltaDuration}
-                    cursorPosition={cursorPositionCount} // TODO: inefficient
-                >{rowInstructionElms}</TrackerRow>;
-                rowContent.push(newRowElm);
-                // console.log('addRow', lastRowPositionTicks, toPositionTicks);
-            }
-            rowInstructionElms = [];
+
+            const result = callback(rowCount, lastRowPositionTicks, toPositionTicks, cursorPositionCount, rowInstructionElms);
+
+            rowInstructionElms=[];
             rowCount++;
             cursorPositionCount++;
+            return result;
         }
 
-
-        // console.timeEnd('tracker.renderRowContent()');
-        return rowContent;
     }
 
     // renderOptions() {

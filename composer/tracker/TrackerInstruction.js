@@ -14,9 +14,10 @@ class TrackerInstruction extends React.Component {
 
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
-            onKeyDown: (e) => this.onKeyDown(e),
+            // onKeyDown: (e) => this.onKeyDown(e),
             onMouseInput: e => this.onMouseInput(e),
         };
+        this.commandParam = React.createRef();
     }
     /** Default Properties **/
     static defaultProps = {
@@ -58,6 +59,7 @@ class TrackerInstruction extends React.Component {
             trackerInstruction={this}
             className="command"
             options={() => this.renderMenuSelectCommand()}
+            ref={this.commandParam}
         >{instruction.command}</TrackerInstructionParameter>);
 
         // console.log('instruction', this.props, className);
@@ -95,6 +97,11 @@ class TrackerInstruction extends React.Component {
         this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
     }
 
+    /** TODO: Inefficient **/
+    toggleMenu() {
+        this.commandParam.current.toggleMenu();
+    }
+
     /** User Input **/
 
     onMouseInput(e) {
@@ -116,50 +123,6 @@ class TrackerInstruction extends React.Component {
                 break;
             default:
                 throw new Error("Unknown Mouse event: " + e.type);
-        }
-    }
-
-    onKeyDown(e) {
-        switch(e.key) {
-            // case 'Delete':
-            //     break;
-            //
-            // case 'Escape':
-            // case 'Backspace':
-            //     throw new Error("TODO: navigate pop");
-            //
-            // case 'Enter':
-            //     break;
-            //
-            // case 'Play':
-            //     break;
-            //
-            case 'ArrowRight':
-                console.log("TODO select also", e.key);
-                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() + 1);
-                break;
-            case 'ArrowLeft':
-                this.getTracker().selectIndices(null, this.getTracker().getCursorOffset() - 1);
-                break;
-            //
-            // case 'ArrowDown':
-            //     break;
-            //
-            // case 'ArrowUp':
-            //     break;
-            //
-            // case ' ':
-            //     break;
-            //
-            // case 'PlayFrequency':
-            //     break;
-
-            case 'ContextMenu':
-                this.toggleMenu();
-                break;
-
-            default:
-                console.info("Unhandled key: ", e.key);
         }
     }
 

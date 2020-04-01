@@ -23,7 +23,7 @@ class TrackerInstructionParameter extends React.Component {
         this.dropdown = React.createRef();
         this.cb = {
             onContextMenu: (e) => this.onContextMenu(e),
-            // onKeyDown: (e) => this.onKeyDown(e),
+            onKeyDown: (e) => this.onKeyDown(e),
             // onMouseInput: e => this.onMouseInput(e),
         };
     }
@@ -34,10 +34,10 @@ class TrackerInstructionParameter extends React.Component {
 
         return <div
             // onClick={this.cb.onMouseInput}
-            // onKeyDown={this.cb.onKeyDown}
+            onKeyDown={this.cb.onKeyDown}
             onContextMenu={this.cb.onContextMenu}
             className={className}
-            tabIndex={0}
+            // tabIndex={0}
         >
             {this.props.children}
             <DropDownContainer
@@ -52,6 +52,22 @@ class TrackerInstructionParameter extends React.Component {
 
 
     /** User Input **/
+
+
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+        switch(e.key) {
+            case 'ContextMenu':
+                e.preventDefault();
+                this.toggleMenu();
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+                break;
+        }
+    }
 
     // onMouseInput(e) {
     //     console.log(e.type);
@@ -83,48 +99,6 @@ class TrackerInstructionParameter extends React.Component {
         this.toggleMenu();
     }
 
-    onKeyDown(e) {
-//         console.log("TODO", e.key);
-        switch(e.key) {
-            // case 'Delete':
-            //     break;
-            //
-            // case 'Escape':
-            // case 'Backspace':
-            //     throw new Error("TODO: navigate pop");
-            //
-            // case 'Enter':
-            //     break;
-            //
-            // case 'Play':
-            //     break;
-            //
-            // case 'ArrowRight':
-            //     break;
-            //
-            // case 'ArrowLeft':
-            //     break;
-            //
-            // case 'ArrowDown':
-            //     break;
-            //
-            // case 'ArrowUp':
-            //     break;
-            //
-            // case ' ':
-            //     break;
-            //
-            // case 'PlayFrequency':
-            //     break;
-
-            case 'ContextMenu':
-                this.toggleMenu();
-                break;
-
-            default:
-                console.info("Unhandled key: ", e.key);
-        }
-    }
 
     onMouseEnter(e) {
         this.toggleMenu();
