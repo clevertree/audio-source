@@ -402,9 +402,9 @@ class ComposerMenu extends ComposerRenderer {
 
     /** Tracker Menu **/
 
-    renderMenuTrackerSetQuantization() {
-        return this.renderMenuSelectDuration(duration => {
-            this.trackerChangeQuantization(duration);
+    renderMenuTrackerSetQuantization(trackName) {
+        return this.renderMenuSelectDuration(durationTicks => {
+            this.trackerChangeQuantization(trackName, durationTicks);
         });
     }
 

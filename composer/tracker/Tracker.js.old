@@ -20,7 +20,7 @@ class Tracker extends React.Component {
     }
 
     getQuantizationInTicks() {
-        return this.props.quantizationInTicks || this.props.composer.song.data.timeDivision
+        return this.props.quantizationTicks || this.props.composer.song.data.timeDivision
     }
     getSegmentLengthInTicks() {
         return this.props.segmentLengthInTicks || (this.getQuantizationInTicks() * 16);
@@ -113,7 +113,7 @@ class Tracker extends React.Component {
 
         const composer = this.props.composer;
 
-        const quantizationInTicks = this.getQuantizationInTicks();
+        const quantizationTicks = this.getQuantizationInTicks();
         const currentSegmentStartInTicks = this.getCurrentSegmentID() * this.getSegmentLengthInTicks();
         const currentSegmentEndInTicks = currentSegmentStartInTicks + this.getSegmentLengthInTicks();
         const maxLengthInTicks = this.getMaxLengthInTicks();
@@ -150,12 +150,12 @@ class Tracker extends React.Component {
 
                 // Move next quantized row up to current position
                 while(nextQuantizationBreakInTicks <= lastRowPositionInTicks)
-                    nextQuantizationBreakInTicks += quantizationInTicks;
+                    nextQuantizationBreakInTicks += quantizationTicks;
 
                 // Render extra quantized rows if necessary
                 while(nextQuantizationBreakInTicks < endPositionTicks) {
                     addRow(nextQuantizationBreakInTicks);
-                    nextQuantizationBreakInTicks += quantizationInTicks;
+                    nextQuantizationBreakInTicks += quantizationTicks;
                 }
 
                 addRow(endPositionTicks);
@@ -183,7 +183,7 @@ class Tracker extends React.Component {
 
         while(nextQuantizationBreakInTicks < maxLengthInTicks) {
             addRow(nextQuantizationBreakInTicks);
-            nextQuantizationBreakInTicks += quantizationInTicks;
+            nextQuantizationBreakInTicks += quantizationTicks;
         }
 
         function addRow(toPositionTicks) {
@@ -211,7 +211,7 @@ class Tracker extends React.Component {
 
     getComposer()               { return this.props.composer; }
     // getTimeDivision()           { return this.getComposer().song.data.timeDivision; }
-    // // getQuantizationInTicks()    { return this.state.quantizationInTicks; }
+    // // getQuantizationInTicks()    { return this.state.quantizationTicks; }
     // getSegmentLengthInTicks()   { return this.getComposer().state.trackerSegmentLengthInTicks; }
     getMaxLengthInTicks()       {
         let songLength = this.getComposer().state.songLengthTicks;
@@ -226,7 +226,7 @@ class Tracker extends React.Component {
 
     // getSegmentIDFromPositionInTicks(positionInTicks) {
     //     // const composer = this.props.composer;
-    //     const timeDivision = this.state.quantizationInTicks;
+    //     const timeDivision = this.state.quantizationTicks;
     //     const trackerSegmentLengthInTicks = this.state.trackerSegmentLengthInTicks || (timeDivision * 16);
     //     const segmentID = Math.floor(positionInTicks / trackerSegmentLengthInTicks);
     //     return segmentID;

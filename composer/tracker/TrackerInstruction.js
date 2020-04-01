@@ -9,6 +9,15 @@ import "./assets/TrackerInstruction.css";
 import PropTypes from "prop-types";
 
 class TrackerInstruction extends React.Component {
+    constructor() {
+        super();
+
+        this.cb = {
+            // onContextMenu: (e) => this.onContextMenu(e),
+            // onKeyDown: (e) => this.onKeyDown(e),
+            onMouseInput: e => this.onMouseInput(e),
+        };
+    }
     /** Default Properties **/
     static defaultProps = {
     };
@@ -17,6 +26,7 @@ class TrackerInstruction extends React.Component {
     static propTypes = {
         instruction: PropTypes.any.isRequired,
         tracker: PropTypes.any.isRequired,
+        cursorPosition: PropTypes.number.isRequired
     };
 
     // play() {
@@ -30,6 +40,9 @@ class TrackerInstruction extends React.Component {
     getInstruction() { return this.props.instruction; }
 
     render() {
+        const instruction = this.props.instruction;
+        const open = this.props.cursor || this.props.selected;
+
         let className = "asct-instruction";
         // if(this.props.className)
         //     className += ' ' + this.props.className;
@@ -38,44 +51,70 @@ class TrackerInstruction extends React.Component {
         if(this.props.selected)
             className += ' selected';
 
+        const parameters = [];
+
+        parameters.push(<TrackerInstructionParameter
+            trackerInstruction={this}
+            className="command"
+            options={() => this.renderMenuSelectCommand()}
+        >{instruction.command}</TrackerInstructionParameter>);
+
         // console.log('instruction', this.props, className);
-        const instruction = this.props.instruction;
-        const open = this.props.cursor || this.props.selected;
-        if(!open)
-            return <Div className={className}>
-                <TrackerInstructionParameter
+        if(open) {
+            if(typeof instruction.velocity !== "undefined")
+                parameters.push(<TrackerInstructionParameter
                     trackerInstruction={this}
-                    className="command"
-                    options={() => this.renderMenuSelectCommand()}
-                >{instruction.command}</TrackerInstructionParameter>
-            </Div>;
-        return <Div className={className}>
-            <TrackerInstructionParameter
-                trackerInstruction={this}
-                className="command"
-                options={() => this.renderMenuSelectCommand()}
-            >{instruction.command}</TrackerInstructionParameter>
-            {typeof instruction.velocity !== "undefined" ? <TrackerInstructionParameter
-                trackerInstruction={this}
-                className="velocity"
-                options={() => this.renderMenuSelectVelocity()}
-            >{instruction.duration}</TrackerInstructionParameter> : null}
-            {typeof instruction.duration !== "undefined" ? <TrackerInstructionParameter
-                trackerInstruction={this}
-                className="duration"
-                options={() => this.renderMenuSelectDuration()}
-            >{instruction.duration}</TrackerInstructionParameter> : null}
-        </Div>
+                    className="velocity"
+                    options={() => this.renderMenuSelectVelocity()}
+                >{instruction.duration}</TrackerInstructionParameter>);
+            if(typeof instruction.duration !== "undefined")
+                parameters.push(<TrackerInstructionParameter
+                    trackerInstruction={this}
+                    className="duration"
+                    options={() => this.renderMenuSelectDuration()}
+                >{instruction.duration}</TrackerInstructionParameter>);
+        }
+        return <Div
+            className={className}
+            onClick={this.cb.onMouseInput}
+            >
+            {parameters}
+        </Div>;
     }
 
     /** Actions **/
-    select(clearSelection=true) {
+    selectInstruction(clearSelection=true) {
         const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
         const instruction = this.getInstruction();
         selectedIndices.push(instruction.index);
-        this.getComposer().trackerSelectIndices(trackName, selectedIndices, instruction.index)
+        this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
     }
+
+    /** User Input **/
+
+    onMouseInput(e) {
+        if(e.defaultPrevented)
+            return;
+        e.preventDefault();
+
+        switch(e.type) {
+            case 'click':
+                if(e.button === 0)
+                    this.selectInstruction(!e.ctrlKey);
+                else if(e.button === 1)
+                    throw new Error("Unimplemented middle button");
+                else if(e.button === 2)
+                    throw new Error("Unimplemented right button");
+                else
+                    throw new Error("Unknown mouse button");
+
+                break;
+            default:
+                throw new Error("Unknown Mouse event: " + e.type);
+        }
+    }
+
 
     /** Menus **/
 

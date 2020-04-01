@@ -24,7 +24,7 @@ class TrackerInstructionParameter extends React.Component {
         this.cb = {
             onContextMenu: (e) => this.onContextMenu(e),
             onKeyDown: (e) => this.onKeyDown(e),
-            onMouseInput: e => this.onMouseInput(e),
+            // onMouseInput: e => this.onMouseInput(e),
         };
     }
     render() {
@@ -33,7 +33,7 @@ class TrackerInstructionParameter extends React.Component {
             className += ' ' + this.props.className;
 
         return <div
-            onClick={this.cb.onMouseInput}
+            // onClick={this.cb.onMouseInput}
             onKeyDown={this.cb.onKeyDown}
             onContextMenu={this.cb.onContextMenu}
             className={className}
@@ -53,31 +53,31 @@ class TrackerInstructionParameter extends React.Component {
 
     /** User Input **/
 
-    onMouseInput(e) {
-        console.log(e.type);
-        if(e.defaultPrevented)
-            return;
-        e.preventDefault();
-
-        switch(e.type) {
-            case 'click':
-                if(e.button === 0)
-                    this.selectInstruction();
-                else if(e.button === 1)
-                    throw new Error("Unimplemented middle button");
-                else if(e.button === 2)
-                    this.toggleMenu();
-                else
-                    throw new Error("Unknown mouse button");
-
-                break;
-            default:
-                throw new Error("Unknown Mouse event: " + e.type);
-        }
-    }
+    // onMouseInput(e) {
+    //     console.log(e.type);
+    //     if(e.defaultPrevented)
+    //         return;
+    //     e.preventDefault();
+    //
+    //     switch(e.type) {
+    //         case 'click':
+    //             if(e.button === 0)
+    //                 this.selectInstruction();
+    //             else if(e.button === 1)
+    //                 throw new Error("Unimplemented middle button");
+    //             else if(e.button === 2)
+    //                 this.toggleMenu();
+    //             else
+    //                 throw new Error("Unknown mouse button");
+    //
+    //             break;
+    //         default:
+    //             throw new Error("Unknown Mouse event: " + e.type);
+    //     }
+    // }
 
     onContextMenu(e) {
-        if(e.defaultPrevented)
+        if(e.defaultPrevented || e.shiftKey)
             return;
         e.preventDefault();
         this.toggleMenu();
@@ -131,7 +131,7 @@ class TrackerInstructionParameter extends React.Component {
     }
 
     selectInstruction() {
-        this.props.trackerInstruction.select();
+        this.props.trackerInstruction.selectInstruction();
     }
 
 }

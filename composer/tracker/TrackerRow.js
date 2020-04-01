@@ -30,8 +30,12 @@ class TrackerRow extends React.Component {
         positionTicks: PropTypes.number.isRequired,
         deltaDuration: PropTypes.number.isRequired,
         tracker: PropTypes.any.isRequired,
-        cursor: PropTypes.bool
+        cursor: PropTypes.bool.isRequired,
+        cursorPosition: PropTypes.number.isRequired // TODO: inefficient
     };
+
+    getTracker() { return this.props.tracker; }
+    getComposer() { return this.getTracker().getComposer(); }
 
     render() {
         const composer = this.props.tracker.getComposer();
@@ -40,11 +44,14 @@ class TrackerRow extends React.Component {
             <Div
                 className="asct-row"
                 onClick={this.cb.onMouseInput}
+                onMouseDown={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 >
                 <TrackerPosition positionTicks={this.props.positionTicks} />
                 {this.props.children}
-                {this.props.cursor ? <TrackerInstructionAdd/> : null}
+                {this.props.cursor ? <TrackerInstructionAdd
+                    cursorPosition={this.props.cursorPosition}
+                    /> : null}
                 <TrackerDelta duration={rowDeltaDuration} />
                 <DropDownContainer
                     ref={this.dropdown}
@@ -57,22 +64,25 @@ class TrackerRow extends React.Component {
 
     toggleMenu()    { return this.dropdown.current.toggleMenu(); }
 
-    selectRow() {
-        throw new Error("Implement")
+    selectRow(clearSelection=true) {
+        const selectedIndices = clearSelection ? [] : null;
+        this.getComposer().trackerSelectIndices(this.getTracker().getTrackName(), selectedIndices, this.props.cursorPosition);
     }
 
     /** User Input **/
 
     onMouseInput(e) {
-        console.log(e.type);
         if(e.defaultPrevented)
             return;
         e.preventDefault();
 
         switch(e.type) {
+            case 'mousedown':
+                console.log(e.type);
+                break;
             case 'click':
                 if(e.button === 0)
-                    this.selectRow();
+                    this.selectRow(e.shiftKey);
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)
@@ -87,7 +97,7 @@ class TrackerRow extends React.Component {
     }
 
     onContextMenu(e) {
-        if(e.defaultPrevented)
+        if(e.defaultPrevented || e.shiftKey)
             return;
         e.preventDefault();
         this.toggleMenu();

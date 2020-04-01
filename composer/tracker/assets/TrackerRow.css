@@ -36,3 +36,11 @@ div.asct-row[playing] {
     z-index: 1;
 }
 
+/** Hover **/
+
+div.asct-row:hover {
+    background-color: #EEE;
+}
+div.asct-row:active:hover {
+    background-color: #4EE;
+}

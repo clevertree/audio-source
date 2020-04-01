@@ -11,10 +11,11 @@ import "./assets/Tracker.css";
 class Tracker extends React.Component {
     /** Default Properties **/
     static defaultProps = {
+        cursorOffset: 4,
         selectedIndices: [],
         rowOffset: 0,
         rowLength: 16,
-        quantizationInTicks: null
+        quantizationTicks: null
     };
 
     /** Property validation **/
@@ -36,9 +37,11 @@ class Tracker extends React.Component {
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
     getTrackName()              { return this.props.trackName; }
+    getSelectedIndices()        { return this.props.selectedIndices; }
+    getCursorOffset()           { return this.props.cursorOffset; }
 
     getQuantizationInTicks() {
-        return this.props.quantizationInTicks || this.props.composer.song.data.timeDivision
+        return this.props.quantizationTicks || this.props.composer.song.data.timeDivision;
     }
 
     getSegmentInfo() {
@@ -87,14 +90,15 @@ class Tracker extends React.Component {
         const composer = this.props.composer;
         const {segmentCount, currentSegmentID} = this.getSegmentInfo();
         const rowLength = this.props.rowLength;
+        const rowDeltaDuration = composer.values.formatDuration(this.getQuantizationInTicks());
 
         const buttons = [];
 
         buttons.push(<ButtonDropDown
             arrow={'▼'}
             key="segment-quantization"
-            options={() => this.getComposer().renderMenuTrackerSetQuantization()}
-        >1B</ButtonDropDown>);
+            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
+        >{rowDeltaDuration}</ButtonDropDown>);
 
         for (let segmentID = 0; segmentID <= segmentCount; segmentID++)
             buttons.push(<Button
@@ -124,28 +128,26 @@ class Tracker extends React.Component {
         const composer = this.props.composer;
         const rowOffset = this.props.rowOffset;
         const rowLength = this.props.rowLength;
+        const cursorOffset = this.props.cursorOffset || 0;
         const selectedIndices = this.props.selectedIndices;
 
-        const quantizationInTicks = this.getQuantizationInTicks();
+        const quantizationTicks = this.getQuantizationInTicks();
 
         // Instruction Iterator
         let instructionIterator = composer.song.instructionGetIterator(this.props.trackName);
-
-        const cursorIndex = this.props.cursorIndex || 0;
         // TODO: based on cell index, not instruction index
 
-        let     rowCount = 0;
+        let     rowCount=0, cursorPositionCount=0;
         const rowContent = [];
 
         let currentRowPositionTicks = 0;
 
-        let nextQuantizationBreakInTicks = quantizationInTicks;
+        let nextQuantizationBreakInTicks = quantizationTicks;
         let rowInstructionElms = [];
         while (true) {
             const nextInstruction = instructionIterator.nextInstruction();
             if(!nextInstruction)
                 break;
-
             // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
 
 
@@ -155,12 +157,12 @@ class Tracker extends React.Component {
 
                 // Move next quantized row up to current position
                 while(nextQuantizationBreakInTicks <= currentRowPositionTicks)
-                    nextQuantizationBreakInTicks += quantizationInTicks;
+                    nextQuantizationBreakInTicks += quantizationTicks;
 
                 // Render extra quantized rows if necessary
                 while(nextQuantizationBreakInTicks < endPositionTicks) {
                     addRow(nextQuantizationBreakInTicks);
-                    nextQuantizationBreakInTicks += quantizationInTicks;
+                    nextQuantizationBreakInTicks += quantizationTicks;
                 }
 
                 addRow(endPositionTicks);
@@ -172,23 +174,25 @@ class Tracker extends React.Component {
             const props = {
                 tracker,
                 instruction: nextInstruction,
-                index
+                index,
+                cursorPosition: cursorPositionCount // TODO: inefficient
             };
             if (selectedIndices.indexOf(index) !== -1)
                 props.selected = true;
-            if (this.props.selected && index === cursorIndex)
+            if (cursorPositionCount === cursorOffset)
                 props.cursor = true;
             rowInstructionElms.push(<TrackerInstruction
                 key={index}
                 {...props}
                 />);
+            cursorPositionCount++;
 
         }
         // renderQuantizedRows(maxLengthInTicks);
 
         while(rowContent.length < rowLength) {
             addRow(nextQuantizationBreakInTicks);
-            nextQuantizationBreakInTicks += quantizationInTicks;
+            nextQuantizationBreakInTicks += quantizationTicks;
         }
 
         function addRow(toPositionTicks) {
@@ -199,16 +203,19 @@ class Tracker extends React.Component {
                 && rowContent.length < rowLength
             ) {
                 const newRowElm = <TrackerRow
+                    key={rowCount}
+                    cursor={cursorPositionCount === cursorOffset}
                     tracker={tracker}
                     positionTicks={lastRowPositionTicks}
-                    key={rowCount}
                     deltaDuration={rowDeltaDuration}
+                    cursorPosition={cursorPositionCount} // TODO: inefficient
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
                 // console.log('addRow', lastRowPositionTicks, toPositionTicks);
             }
             rowInstructionElms = [];
             rowCount++;
+            cursorPositionCount++;
         }
 
 

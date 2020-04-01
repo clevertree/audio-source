@@ -338,8 +338,8 @@ class ComposerActions extends ComposerMenu {
 
 
     async instructionInsert(newCommand = null, promptUser = false) {
-        const {selectedTrackName, cursorInstruction} = this.trackerGetSelectedInfo();
-        const newInstruction = cursorInstruction.clone();
+        const {selectedTrackName, firstSelectedInstruction} = this.trackerGetSelectedInfo();
+        const newInstruction = firstSelectedInstruction.clone();
         // if (instrumentID !== null)
         //     newInstruction.instrument = instrumentID;
 
@@ -350,7 +350,7 @@ class ComposerActions extends ComposerMenu {
         // if(selectedIndices.length === 0)
         //     throw new Error("No selection");
         if (newCommand === null)
-            newCommand = cursorInstruction ? cursorInstruction.command : null;
+            newCommand = firstSelectedInstruction ? firstSelectedInstruction.command : null;
         if (promptUser)
             newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
@@ -371,12 +371,12 @@ class ComposerActions extends ComposerMenu {
     async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null) {
         //: TODO: check for recursive group
         const song = this.song;
-        const {selectedTrackName, selectedIndices, cursorInstruction} = this.trackerGetSelectedInfo();
+        const {selectedTrackName, selectedIndices, firstSelectedInstruction} = this.trackerGetSelectedInfo();
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
-        if (newCommand === null && cursorInstruction && cursorInstruction.command)
-            newCommand = cursorInstruction.command;
+        if (newCommand === null && firstSelectedInstruction && firstSelectedInstruction.command)
+            newCommand = firstSelectedInstruction.command;
         if (promptUser)
             newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
@@ -462,15 +462,13 @@ class ComposerActions extends ComposerMenu {
             throw new Error("Invalid active track: " + selectedTrackName);
         const trackInfo = this.state.activeTracks[selectedTrackName];
         let selectedIndices = trackInfo.selectedIndices || [];
-        let cursorIndex = trackInfo.cursorIndex || 0;
 
-        const cursorInstruction = this.getSong().instructionGetByIndex(selectedTrackName, cursorIndex);
+        const firstSelectedInstruction = selectedIndices.length > 0 ? this.getSong().instructionGetByIndex(selectedTrackName, selectedIndices[0]) : null;
 
         return {
             selectedTrackName,
             selectedIndices,
-            cursorIndex,
-            cursorInstruction
+            firstSelectedInstruction
         }
 
         //     const composer = this.props.composer;
@@ -554,7 +552,7 @@ class ComposerActions extends ComposerMenu {
             throw new Error(`Track ${trackName} is not active`);
         const currentTrack = activeTracks[trackName];
         currentTrack.rowOffset = newRowOffset;
-        this.setState({activeTracks});
+        this.setState({activeTracks, selectedTrack: trackName});
     }
 
     keyboardChangeOctave(keyboardOctave = null) {
@@ -563,9 +561,15 @@ class ComposerActions extends ComposerMenu {
         this.setState({keyboardOctave});
     }
 
-    trackerChangeQuantization(trackerQuantizationInTicks = null) {
-        const tracker = this.tracker;
-        tracker.setState({trackerQuantizationInTicks});
+    trackerChangeQuantization(trackName, trackerQuantizationTicks = null) {
+        if (!Number.isInteger(trackerQuantizationTicks))
+            throw new Error("Invalid quantization value");
+        const activeTracks = {...this.state.activeTracks};
+        if(typeof activeTracks[trackName] === "undefined")
+            throw new Error(`Track ${trackName} is not active`);
+        const currentTrack = activeTracks[trackName];
+        currentTrack.quantizationTicks = trackerQuantizationTicks;
+        this.setState({activeTracks, selectedTrack: trackName});
 
     }
 
@@ -606,13 +610,17 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    trackerSelectIndices(trackName, selectedIndices=[], cursorIndex=null) {
+    trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null) {
+        console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
         const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);
         const currentTrack = activeTracks[trackName];
-        if(cursorIndex === null)
-            cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
+        // if(cursorIndex === null)
+        //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
+
+        if(selectedIndices === null)
+            selectedIndices = currentTrack.selectedIndices || [];
 
         // Filter unique indices
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
@@ -620,9 +628,8 @@ class ComposerActions extends ComposerMenu {
         selectedIndices.sort((a, b) => a - b);
 
         currentTrack.selectedIndices = selectedIndices;
-        currentTrack.cursorIndex = cursorIndex;
+        currentTrack.cursorOffset = cursorOffset;
         this.setState({activeTracks, selectedTrack: trackName});
-//         console.info('trackerSelectIndices', currentTrack);
     }
 
     /** Selection **/
@@ -638,7 +645,7 @@ class ComposerActions extends ComposerMenu {
     //     return this.selectIndicies(selectedIndices);
     // }
 
-    selectIndices(selectedIndices) {
+    selectIndices(selectedIndices, cursorOffset=null) {
         const {selectedTrackName} = this.trackerGetSelectedInfo();
         if (typeof selectedIndices === "string") {
 
@@ -668,7 +675,7 @@ class ComposerActions extends ComposerMenu {
             return;
         }
 
-        this.trackerSelectIndices(selectedTrackName, selectedIndices);
+        this.trackerSelectIndices(selectedTrackName, selectedIndices, cursorOffset);
 
         // this.state.selectedIndices = selectedIndices;
         // this.fieldTrackerSelection.value = selectedIndices.join(',');

@@ -36,7 +36,7 @@ class ComposerRenderer extends React.Component {
             selectedTrack: 'root',
             activeTracks: {
                 root:{
-                    cursorIndex: 0,
+                    cursorOffset: 0,
                     selectedIndices: [0]
                 }
             },
@@ -360,7 +360,7 @@ class ComposerRenderer extends React.Component {
             'track1': {},
         };
         activeTracks[song.getStartGroup()] = {
-            cursorIndex: 0,
+            cursorOffset: 4,
             selectedIndices: [0]
         };
 
