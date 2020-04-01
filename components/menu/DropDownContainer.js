@@ -102,7 +102,7 @@ class DropDownContainer extends React.Component {
         if(this.getOverlay()) {
             const res = this.getOverlay().openMenu(this.props.options);
             if (res !== false) {
-                console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
+//                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
                 return;
             }
         }

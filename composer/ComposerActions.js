@@ -622,7 +622,7 @@ class ComposerActions extends ComposerMenu {
         currentTrack.selectedIndices = selectedIndices;
         currentTrack.cursorIndex = cursorIndex;
         this.setState({activeTracks, selectedTrack: trackName});
-        console.info('trackerSelectIndices', currentTrack);
+//         console.info('trackerSelectIndices', currentTrack);
     }
 
     /** Selection **/

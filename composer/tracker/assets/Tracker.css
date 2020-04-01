@@ -19,13 +19,14 @@ div.asc-tracker {
     vertical-align: top;
     display: inline-block;
 }
-
-/** Tracker Container **/
-
-div.asc-tracker div.asc-tracker-container {
-    /*overflow-y: auto;*/
-    max-height: 800px;
+div.asc-tracker:not(.selected) > div.title {
+    background-color: #777;
 }
+div.asc-tracker:not(.selected) {
+    color: #777;
+}
+
+
 
 
 :host(:not(.fullscreen)) div.asc-tracker {

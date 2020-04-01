@@ -4,7 +4,7 @@ import {
     TrackerInstruction,
     TrackerRow
 } from "./";
-import {Div, Form, Panel, Button, ButtonDropDown} from "../../components/";
+import {Div, Panel, Button, ButtonDropDown} from "../../components/";
 
 import "./assets/Tracker.css";
 
@@ -58,7 +58,7 @@ class Tracker extends React.Component {
         if(rowOffset < 0)
             return console.log("Unable to scroll past beginning");
         this.getComposer().trackerChangeRowOffset(this.getTrackName(), rowOffset);
-        console.log("TODO", e.deltaY);
+        // console.log("TODO", e.deltaY);
     }
 
     /** Render **/
@@ -120,7 +120,7 @@ class Tracker extends React.Component {
 
     renderRowContent() {
         // console.time('tracker.renderRowContent()');
-
+        const tracker = this;
         const composer = this.props.composer;
         const rowOffset = this.props.rowOffset;
         const rowLength = this.props.rowLength;
@@ -131,17 +131,15 @@ class Tracker extends React.Component {
         // Instruction Iterator
         let instructionIterator = composer.song.instructionGetIterator(this.props.trackName);
 
-        const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
-
         const cursorIndex = this.props.cursorIndex || 0;
-
+        // TODO: based on cell index, not instruction index
 
         let     rowCount = 0;
         const rowContent = [];
 
         let currentRowPositionTicks = 0;
 
-        let nextQuantizationBreakInTicks = 0;
+        let nextQuantizationBreakInTicks = quantizationInTicks;
         let rowInstructionElms = [];
         while (true) {
             const nextInstruction = instructionIterator.nextInstruction();
@@ -168,18 +166,18 @@ class Tracker extends React.Component {
                 addRow(endPositionTicks);
             }
 
-            if(trackerFilterByInstrumentID !== null && trackerFilterByInstrumentID !== nextInstruction.instrument)
-                continue;
 
             // Render instruction
             const index = instructionIterator.currentIndex;
             const props = {
-                tracker: this,
+                tracker,
                 instruction: nextInstruction,
                 index
             };
-            if (selectedIndices.indexOf(index) !== -1) props.selected = true;
-            if (index === cursorIndex) props.cursor = true;
+            if (selectedIndices.indexOf(index) !== -1)
+                props.selected = true;
+            if (this.props.selected && index === cursorIndex)
+                props.cursor = true;
             rowInstructionElms.push(<TrackerInstruction
                 key={index}
                 {...props}
@@ -194,17 +192,20 @@ class Tracker extends React.Component {
         }
 
         function addRow(toPositionTicks) {
+            const lastRowPositionTicks = currentRowPositionTicks;
             let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
             currentRowPositionTicks = toPositionTicks;
             if (rowCount >= rowOffset
                 && rowContent.length < rowLength
             ) {
                 const newRowElm = <TrackerRow
-                    positionTicks={currentRowPositionTicks}
+                    tracker={tracker}
+                    positionTicks={lastRowPositionTicks}
                     key={rowCount}
-                    deltaDuration={composer.values.formatDuration(rowDeltaDuration)}
+                    deltaDuration={rowDeltaDuration}
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
+                // console.log('addRow', lastRowPositionTicks, toPositionTicks);
             }
             rowInstructionElms = [];
             rowCount++;

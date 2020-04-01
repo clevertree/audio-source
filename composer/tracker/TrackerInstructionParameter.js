@@ -9,6 +9,7 @@ import "./assets/TrackerParam.css";
 class TrackerInstructionParameter extends React.Component {
     /** Default Properties **/
     static defaultProps = {
+        vertical: true
     };
 
     /** Property validation **/
@@ -21,7 +22,6 @@ class TrackerInstructionParameter extends React.Component {
         super(props);
         this.dropdown = React.createRef();
         this.cb = {
-
             onContextMenu: (e) => this.onContextMenu(e),
             onKeyDown: (e) => this.onKeyDown(e),
             onMouseInput: e => this.onMouseInput(e),
@@ -84,7 +84,46 @@ class TrackerInstructionParameter extends React.Component {
     }
 
     onKeyDown(e) {
-        this.toggleMenu();
+        console.log("TODO", e.key);
+        switch(e.key) {
+            // case 'Delete':
+            //     break;
+            //
+            // case 'Escape':
+            // case 'Backspace':
+            //     throw new Error("TODO: navigate pop");
+            //
+            // case 'Enter':
+            //     break;
+            //
+            // case 'Play':
+            //     break;
+            //
+            // case 'ArrowRight':
+            //     break;
+            //
+            // case 'ArrowLeft':
+            //     break;
+            //
+            // case 'ArrowDown':
+            //     break;
+            //
+            // case 'ArrowUp':
+            //     break;
+            //
+            // case ' ':
+            //     break;
+            //
+            // case 'PlayFrequency':
+            //     break;
+
+            case 'ContextMenu':
+                this.toggleMenu();
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+        }
     }
 
     onMouseEnter(e) {

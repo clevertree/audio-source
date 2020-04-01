@@ -1,4 +1,5 @@
 import * as React from "react";
+import Div from "../../components/div/Div";
 // import TrackerDelta from "./TrackerDelta";
 
 class TrackerInstructionAdd extends React.Component {
@@ -7,7 +8,7 @@ class TrackerInstructionAdd extends React.Component {
     // }
 
     render() {
-        return ['+']
+        return <Div className="asct-instruction-add">+</Div>;
     }
 
 }

@@ -13,6 +13,7 @@ class ComposerRenderer extends React.Component {
         // this.state.trackerRowLength = null;
 
         this.state = {
+            title: "Audio Source Composer",
             status: "[No Song Loaded]",
             version: require('../package.json').version,
             menuKey: 'root',
@@ -51,7 +52,7 @@ class ComposerRenderer extends React.Component {
     // getSelectedTrack() { return this.state.selectedTrack; }
 
     render() {
-        const {selectedTrackName, selectedIndices, cursorIndex, cursorInstruction} = this.trackerGetSelectedInfo();
+        const {selectedTrackName, selectedIndices, cursorInstruction} = this.trackerGetSelectedInfo();
         return (
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
