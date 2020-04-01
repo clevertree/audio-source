@@ -72,33 +72,35 @@ class Tracker extends React.Component {
         //     className += ' ' + this.props.className;
         if(this.props.selected)
             className += ' selected';
-        return <Panel
+        return (
+            <Panel
                 className={className}
                 title={this.getTrackName()}
                 >
-            {this.renderRowSegments()}
+                <Div
+                    className="asc-tracker-segments"
+                    children={this.renderRowSegments()}
+                    />
                 <Div
                     className="asc-tracker-container"
                     onWheel={this.cb.onWheel}
-                >
+                    >
                     {this.renderRowContent()}
                 </Div>
-            </Panel>;
+                <Div
+                    className="asc-tracker-options"
+                    children={this.renderRowOptions()}
+                />
+            </Panel>
+        );
     }
 
     renderRowSegments() {
         const composer = this.props.composer;
         const {segmentCount, currentSegmentID} = this.getSegmentInfo();
         const rowLength = this.props.rowLength;
-        const rowDeltaDuration = composer.values.formatDuration(this.getQuantizationInTicks());
 
         const buttons = [];
-
-        buttons.push(<ButtonDropDown
-            arrow={'▼'}
-            key="segment-quantization"
-            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
-        >{rowDeltaDuration}</ButtonDropDown>);
 
         for (let segmentID = 0; segmentID <= segmentCount; segmentID++)
             buttons.push(<Button
@@ -118,6 +120,33 @@ class Tracker extends React.Component {
         //     onAction={e => this.openMenuTrackerSetSegmentLength(e)}
         //     title="Select Tracker Segment Length"
         // >16B</Button>);
+
+        return buttons;
+    }
+
+
+    renderRowOptions() {
+        const composer = this.props.composer;
+        const rowDeltaDuration = composer.values.formatDuration(this.getQuantizationInTicks());
+
+        const buttons = [];
+
+        buttons.push(<ButtonDropDown
+            className="row-length"
+            title="Tracker Row Length"
+            arrow="▼"
+            key="row-length"
+            options={() => this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())}
+        >{this.props.rowLength}</ButtonDropDown>);
+
+        buttons.push(<ButtonDropDown
+            className="row-quantization"
+            title="Tracker Quantization"
+            arrow="▼"
+            key="row-quantization"
+            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
+        >{rowDeltaDuration}</ButtonDropDown>);
+
 
         return buttons;
     }

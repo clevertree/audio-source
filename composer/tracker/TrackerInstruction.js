@@ -54,6 +54,7 @@ class TrackerInstruction extends React.Component {
         const parameters = [];
 
         parameters.push(<TrackerInstructionParameter
+            key="command"
             trackerInstruction={this}
             className="command"
             options={() => this.renderMenuSelectCommand()}
@@ -63,12 +64,14 @@ class TrackerInstruction extends React.Component {
         if(open) {
             if(typeof instruction.velocity !== "undefined")
                 parameters.push(<TrackerInstructionParameter
+                    key="velocity"
                     trackerInstruction={this}
                     className="velocity"
                     options={() => this.renderMenuSelectVelocity()}
                 >{instruction.duration}</TrackerInstructionParameter>);
             if(typeof instruction.duration !== "undefined")
                 parameters.push(<TrackerInstructionParameter
+                    key="duration"
                     trackerInstruction={this}
                     className="duration"
                     options={() => this.renderMenuSelectDuration()}

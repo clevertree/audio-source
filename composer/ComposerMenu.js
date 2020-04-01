@@ -151,15 +151,9 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuSelectDuration(onSelectValue) {
-        const customAction = async () => {
-            const durationInTicks = await this.openPromptDialog("Enter custom duration in ticks", this.state.trackerQuantizationInTicks);
-            onSelectValue(durationInTicks);
-        };
-        return (<>
-            {this.values.getNoteDurations((durationInTicks, durationName) =>
-                <MenuAction key={durationInTicks} onAction={() => onSelectValue(durationInTicks)}  >{durationName}</MenuAction>)}
-            <MenuAction onAction={customAction} hasBreak >Custom Duration</MenuAction>
-        </>);
+        return this.values.getNoteDurations((durationInTicks, durationName) =>
+            <MenuAction key={durationInTicks} onAction={() => onSelectValue(durationInTicks)}  >{durationName}</MenuAction>
+        );
     }
 
     renderMenuSelectVelocity(onSelectValue) {
@@ -403,24 +397,30 @@ class ComposerMenu extends ComposerRenderer {
     /** Tracker Menu **/
 
     renderMenuTrackerSetQuantization(trackName) {
-        return this.renderMenuSelectDuration(durationTicks => {
-            this.trackerChangeQuantization(trackName, durationTicks);
-        });
+        return (<>
+            {this.renderMenuSelectDuration(durationTicks => {
+                this.trackerChangeQuantization(trackName, durationTicks);
+            })}
+            <MenuAction onAction={(e) => this.trackerChangeQuantization(trackName)} hasBreak >Custom Quantization</MenuAction>
+        </>);
     }
 
 
 
-    renderMenuTrackerSetSegmentLength() {
-        return this.values.getSegmentLengths((length, title) =>
-            <MenuAction key={length} onAction={(e) => this.trackerChangeSegmentLength(length)}>{title}</MenuAction>
-        )
+    renderMenuTrackerSetSegmentLength(trackName) {
+        return (<>
+            {this.values.getTrackerSegmentLengthInRows((length, title) =>
+                <MenuAction key={length} onAction={(e) => this.trackerChangeSegmentLength(trackName, length)}>{title}</MenuAction>
+            )}
+            <MenuAction onAction={(e) => this.trackerChangeSegmentLength(trackName)} hasBreak >Custom Length</MenuAction>
+        </>);
     }
 
     // renderMenuTrackerSetInstrumentFilter() {
     //     return this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
     // }
 
-    renderMenuTrackerSetOctave() {
+    renderMenuKeyboardSetOctave() {
         return this.values.getNoteOctaves(octave =>
             <MenuAction key={octave} onAction={(e) => this.keyboardChangeOctave(octave)}>{octave}</MenuAction>
         );

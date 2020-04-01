@@ -28,6 +28,7 @@ class Button extends React.Component {
 
         return (
             <div
+                title={this.props.title}
                 className={className}
                 onClick={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}

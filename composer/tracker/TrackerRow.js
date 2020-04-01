@@ -44,7 +44,7 @@ class TrackerRow extends React.Component {
             <Div
                 className="asct-row"
                 onClick={this.cb.onMouseInput}
-                onMouseDown={this.cb.onMouseInput}
+                // onMouseDown={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 >
                 <TrackerPosition positionTicks={this.props.positionTicks} />

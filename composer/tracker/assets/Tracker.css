@@ -59,3 +59,14 @@ div.asc-tracker .tracker-header-pause {
     min-width: 44px;
 }
 
+
+
+/** Tracker Segments **/
+
+div.asc-tracker-options {
+    display: flex;
+}
+
+div.asc-tracker-options > div.row-quantization {
+    margin-left: auto;
+}

@@ -173,7 +173,7 @@ class ComposerRenderer extends React.Component {
                                 <ButtonDropDown
                                     arrow={'▼'}
                                     className="keyboard-octave"
-                                    options={() => this.renderMenuTrackerSetOctave()}
+                                    options={() => this.renderMenuKeyboardSetOctave()}
                                     title="Change Keyboard Octave"
                                 >{this.state.keyboardOctave}</ButtonDropDown>
                             </Form>
@@ -276,7 +276,7 @@ class ComposerRenderer extends React.Component {
                             {/*    <Button*/}
                             {/*        arrow={'▼'}*/}
                             {/*        className="tracker-selection"*/}
-                            {/*        onAction={e => this.renderMenuTrackerSetOctave(e)}*/}
+                            {/*        onAction={e => this.renderMenuKeyboardSetOctave(e)}*/}
                             {/*        title="Tracker Change Octave"*/}
                             {/*    >4</Button>*/}
                             {/*</Form>*/}

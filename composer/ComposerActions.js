@@ -561,22 +561,33 @@ class ComposerActions extends ComposerMenu {
         this.setState({keyboardOctave});
     }
 
-    trackerChangeQuantization(trackName, trackerQuantizationTicks = null) {
-        if (!Number.isInteger(trackerQuantizationTicks))
-            throw new Error("Invalid quantization value");
+    async trackerChangeQuantization(trackName, trackerQuantizationTicks = null, promptUser=true) {
         const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);
         const currentTrack = activeTracks[trackName];
+        if(trackerQuantizationTicks === null && promptUser)
+            trackerQuantizationTicks = parseInt(await this.openPromptDialog(`Enter custom tracker quantization in ticks:`, currentTrack.quantizationTicks));
+        if (!Number.isInteger(trackerQuantizationTicks))
+            throw new Error("Invalid quantization value");
+
         currentTrack.quantizationTicks = trackerQuantizationTicks;
         this.setState({activeTracks, selectedTrack: trackName});
 
     }
 
-    async trackerChangeSegmentLength(trackerSegmentLengthInTicks = null) {
-        const tracker = this.tracker;
-        await tracker.setState({trackerSegmentLengthInTicks});
-        await this.panelTrackerRowSegments.forceUpdate();
+    async trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows = null, promptUser=true) {
+        const activeTracks = {...this.state.activeTracks};
+        if(typeof activeTracks[trackName] === "undefined")
+            throw new Error(`Track ${trackName} is not active`);
+        const currentTrack = activeTracks[trackName];
+
+        if(trackerSegmentLengthInRows === null && promptUser)
+            trackerSegmentLengthInRows = parseInt(await this.openPromptDialog(`Enter custom tracker segment length in rows:`, currentTrack.rowLength));
+        if (!Number.isInteger(trackerSegmentLengthInRows))
+            throw new Error("Invalid tracker row length value");
+        currentTrack.rowLength = trackerSegmentLengthInRows;
+        this.setState({activeTracks, selectedTrack: trackName});
     }
 
     // setTrackerRowSegment(e) {
@@ -611,7 +622,7 @@ class ComposerActions extends ComposerMenu {
 
 
     trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null) {
-        console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
+//         console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
         const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
             throw new Error(`Track ${trackName} is not active`);

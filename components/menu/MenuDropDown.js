@@ -42,6 +42,7 @@ export default class MenuDropDown extends React.Component {
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
         return (
             <div
+                title={this.props.title}
                 className={className}
                 onClick={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
