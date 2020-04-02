@@ -81,13 +81,14 @@ class Player extends PlayerActions {
 
         if(window)
             window.removeEventListener('resize', this.onResizeCallback);
+        this.saveState();
     }
 
     /** Portrait Mode **/
 
     onResize() {
         const aspectRatio = window.innerWidth / window.innerHeight;
-        const portrait = aspectRatio < 2/3;
+        const portrait = aspectRatio < 14/16;
         if(!this.state.portrait === portrait) {
             console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
             this.setState({portrait});
@@ -97,7 +98,7 @@ class Player extends PlayerActions {
     disconnectedCallback() {
         super.disconnectedCallback();
         // if(isBrowser)
-            this.saveState(); // TODO: save state on state change, not page unload
+            this.saveState();
             // window.addEventListener('unload', e => this.saveState(e));
     }
 
@@ -114,7 +115,7 @@ class Player extends PlayerActions {
     }
 
 
-    async saveState() {
+    saveState() {
         // await this.saveSongToMemory(e);
         const state = this.state;
         const storage = new Storage();

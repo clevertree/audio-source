@@ -38,7 +38,7 @@ class Tracker extends React.Component {
                 title={this.getTrackName()}
                 >
             {this.renderRowSegments()}
-                <Div className="asc-tracker-container">
+                <Div className="asct-container">
                     {this.renderRowContent()}
                 </Div>
             </Panel>;

@@ -1,13 +1,17 @@
 
 /** Tracker **/
 
-/*div.asc-tracker-container {*/
+/*div.asct-container {*/
 /*    flex: 1 1 auto;*/
 /*}*/
 /*:host(.fullscreen) asui-div.asc-container {*/
 /*    height: 100%;*/
 /*}*/
 
+div.asct-container {
+    max-height: 80vh;
+    overflow-y: auto;
+}
 
 
 

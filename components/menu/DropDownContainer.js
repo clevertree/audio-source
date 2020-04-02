@@ -29,7 +29,7 @@ class DropDownContainer extends React.Component {
             open: false,
             stick: false,
         };
-
+        this.divRef = React.createRef();
     }
 
     getOverlay() { return this.context.overlay; }
@@ -42,6 +42,7 @@ class DropDownContainer extends React.Component {
             else
                 this.getOverlay().removeCloseMenuCallback(this);
         }
+        this.updateScreenPosition();
     }
 
     componentWillUnmount() {
@@ -73,6 +74,7 @@ class DropDownContainer extends React.Component {
             <div
                 className={className}
                 children={options}
+                ref={this.divRef}
                 />
         </MenuContext.Provider>
 
@@ -153,6 +155,27 @@ class DropDownContainer extends React.Component {
     closeAllDropDownMenus() {
         if(this.getOverlay())
             this.getOverlay().closeAllMenus();
+    }
+
+    updateScreenPosition() {
+        if(!this.state.open || !this.divRef.current)
+            return;
+        const div = this.divRef.current;
+        const rect = div.getBoundingClientRect();
+        if(rect.top < 0)
+            div.style.top = '0px';
+        if(rect.left < 0)
+            div.style.left = '0px';
+        // if(rect.top > window.innerHeight) {
+        //     div.style.top = "inherit";
+        //     div.style.bottom = window.innerHeight + 'px';
+        // }
+        // if(rect.right > window.innerWidth) {
+        //     div.style.left = "inherit";
+        //     div.style.right = window.innerWidth + 'px';
+        // }
+
+        console.log(div, rect);
     }
 }
 

@@ -1,10 +1,6 @@
 import * as React from "react";
-import {
-    // TrackerInstructionAdd,
-    TrackerInstruction,
-    TrackerRow
-} from "./";
-import {Panel, Button, ButtonDropDown} from "../../components/";
+import {TrackerInstruction, TrackerRow, TrackInfo} from "./";
+import {Button, ButtonDropDown, Panel} from "../../components/";
 
 import "./assets/Tracker.css";
 
@@ -45,6 +41,10 @@ class Tracker extends React.Component {
         this.container.current.removeEventListener('wheel', this.cb.onWheel);
     }
 
+    getTrackInfo() {
+        return new TrackInfo(this.props.trackName, this.props.composer);
+    }
+
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
     getTrackName()              { return this.props.trackName; }
@@ -66,43 +66,9 @@ class Tracker extends React.Component {
         return {segmentCount, currentSegmentID};
     }
 
-    findCursorRow(cursorOffset=null) {
-        if(cursorOffset === null)
-            cursorOffset = this.getCursorOffset();
-
-        let rowCount = 0;
-        this.eachRow((rowCount2, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
-            rowCount++;
-            return cursorPosition <= cursorOffset;
-        }, (instruction, cursorPosition) => {
-        });
-        return rowCount;
-    }
-
+    // TODO: move to TrackerActions
     findRowCursorOffset() {
-        let cursorOffset = this.getCursorOffset();
-
-        let rowOffsets=[0,0];
-        this.eachRow((rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
-            // const colOffset = cursorPosition - cursorOffset;
-            rowOffsets.push(cursorPosition);
-            if(rowOffsets.length > 3)
-                rowOffsets.shift();
-            return cursorPosition <= cursorOffset;
-        }, (instruction, cursorPosition) => {
-        });
-        // console.log('rowOffsets', cursorOffset, rowOffsets);
-        const nextRowStartOffset = rowOffsets.pop();
-        const currentRowOffset = rowOffsets.pop();
-        const previousRowStartOffset = rowOffsets.pop();
-        //
-        // const nextRowColOffset = nextRowStartOffset - cursorOffset;
-        const columnOffset = cursorOffset - currentRowOffset;
-        const nextRowOffset = nextRowStartOffset + (columnOffset);
-        const previousRowOffset = previousRowStartOffset + columnOffset; // + (nextRowStartOffset - cursorOffset);
-        // console.log('rowOffsets', {cursorOffset, nextRowOffset, previousRowOffset});
-        return {cursorOffset, nextRowOffset, previousRowOffset};
-        // TODO: fix first position bug
+        return this.getTrackInfo().findRowCursorOffset();
     }
 
     findInstructionIndexFromCursorOffset(cursorOffset) {
@@ -127,25 +93,8 @@ class Tracker extends React.Component {
         return this.selectIndices(selectedIndices, cursorOffset);
     }
 
-    selectIndices(selectedIndices=null, cursorOffset=null) {
-        const rowOffset = this.calculateRowOffset(cursorOffset);
-        console.log("TODO:", {cursorOffset, rowOffset});
-        return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset, rowOffset);
-    }
-
-    calculateRowOffset(cursorOffset=null) {
-        const rowLength = this.props.rowLength;
-        let rowOffset = this.props.rowOffset;
-        if(cursorOffset === null)
-            cursorOffset = this.getCursorOffset();
-
-        // Update rowOffset
-        const currentRow = this.findCursorRow(cursorOffset);
-        if(rowOffset < currentRow - rowLength)
-            rowOffset = currentRow - rowLength - 1;
-        if(rowOffset > currentRow - 2)
-            rowOffset = currentRow - 2;
-        return rowOffset;
+    selectIndices(selectedIndices=null, cursorOffset=null, rowOffset=null) {
+        return this.getTrackInfo().selectIndices(selectedIndices, cursorOffset, rowOffset);
     }
 
     /** Render **/
@@ -162,11 +111,11 @@ class Tracker extends React.Component {
                 title={this.getTrackName()}
                 >
                 <div
-                    className="asc-tracker-segments"
+                    className="asct-segments"
                     children={this.renderRowSegments()}
                     />
                 <div
-                    className="asc-tracker-container"
+                    className="asct-container"
                     ref={this.container}
                     tabIndex={0}
                     onKeyDown={this.cb.onKeyDown}
@@ -275,90 +224,10 @@ class Tracker extends React.Component {
         return rowContent;
     }
 
-
-
     /** Row Iterator **/
 
     eachRow(rowCallback, instructionCallback=null) {
-        const cursorOffset = this.props.cursorOffset || 0;
-        const selectedIndices = this.props.selectedIndices;
-
-        const quantizationTicks = this.getQuantizationInTicks();
-
-        // Instruction Iterator
-        let instructionIterator = this.getSong().instructionGetIterator(this.props.trackName);
-
-        let rowInstructionElms = [];
-        let rowCount=0, cursorPosition=0;
-        let currentRowPositionTicks = 0;
-
-        let nextQuantizationBreakInTicks = quantizationTicks;
-        while (true) {
-            const instruction = instructionIterator.nextInstruction();
-            if(!instruction)
-                break;
-
-
-            if(instruction.deltaDurationInTicks > 0) {
-                // Finish rendering last row
-                let endPositionTicks = instructionIterator.positionTicks;
-
-                // Move next quantized row up to current position
-                while(nextQuantizationBreakInTicks <= currentRowPositionTicks)
-                    nextQuantizationBreakInTicks += quantizationTicks;
-
-                // Render extra quantized rows if necessary
-                while(nextQuantizationBreakInTicks < endPositionTicks) {
-                    if(doCallback(nextQuantizationBreakInTicks) === false)
-                        return;
-                    nextQuantizationBreakInTicks += quantizationTicks;
-                }
-
-                if(doCallback(endPositionTicks) === false)
-                    return;
-            }
-
-            if(instructionCallback)
-                if(instructionCallback(instruction, cursorPosition) === false)
-                    return;
-
-            // Render instruction
-            const index = instructionIterator.currentIndex;
-            const props = {
-                instruction,
-                index,
-                cursorPosition // TODO: inefficient?
-            };
-            if (selectedIndices.indexOf(index) !== -1)
-                props.selected = true;
-            if (cursorPosition === cursorOffset) {
-                props.cursor = true;
-            }
-            rowInstructionElms.push(props);
-            cursorPosition++;
-
-        }
-        // renderQuantizedRows(maxLengthInTicks);
-
-        for(let i=0; i<256; i++) {
-            if(doCallback(nextQuantizationBreakInTicks) === false)
-                return;
-            nextQuantizationBreakInTicks += quantizationTicks;
-        }
-
-        function doCallback(toPositionTicks) {
-            const lastRowPositionTicks = currentRowPositionTicks;
-            // let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
-            currentRowPositionTicks = toPositionTicks;
-
-            const result = rowCallback(rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition, rowInstructionElms);
-
-            rowInstructionElms=[];
-            rowCount++;
-            cursorPosition++;
-            return result;
-        }
-
+        return this.getTrackInfo().eachRow(rowCallback, instructionCallback=null);
     }
 
 
@@ -370,7 +239,7 @@ class Tracker extends React.Component {
         rowOffset += e.deltaY > 0 ? 1 : -1;
         if(rowOffset < 0)
             rowOffset = 0; // return console.log("Unable to scroll past beginning");
-        this.getComposer().trackerChangeRowOffset(this.getTrackName(), rowOffset);
+        this.getTrackInfo().changeRowOffset(this.getTrackName(), rowOffset);
     }
 
     onKeyDown(e) {

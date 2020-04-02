@@ -316,7 +316,7 @@ class ComposerRenderer extends React.Component {
 
 
                     </Div>
-                    <Div className="asc-tracker-container">
+                    <Div className="asc-trackers-container">
                         {Object.keys(this.state.activeTracks).map(trackName => (
                             <Tracker
                                 key={trackName}
