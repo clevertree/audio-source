@@ -1,7 +1,18 @@
 import React from "react";
 import "./assets/Form.css"
+import PropTypes from "prop-types";
 
 class Form extends React.Component {
+    /** Default Properties **/
+    static defaultProps = {
+    };
+
+    /** Property validation **/
+    static propTypes = {
+        className: PropTypes.string,
+        header: PropTypes.any,
+    };
+
     render() {
         let className = 'asui-form';
         if(this.props.className)
@@ -13,7 +24,7 @@ class Form extends React.Component {
 
         return (
             <div className={className}>
-                {this.props.title ? <div className="title">{this.props.title}</div> : null}
+                {this.props.header ? <div className="header">{this.props.header}</div> : null}
                 <div className="container">
                     {children}
                 </div>

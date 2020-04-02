@@ -108,7 +108,8 @@ class Tracker extends React.Component {
         return (
             <Panel
                 className={className}
-                title={this.getTrackName()}
+                header={this.getTrackName()}
+                title={`Track: ${this.getTrackName()}`}
                 >
                 <div
                     className="asct-segments"
@@ -124,7 +125,7 @@ class Tracker extends React.Component {
                     {this.renderRowContent()}
                 </div>
                 <div
-                    className="asc-tracker-options"
+                    className="asct-options"
                     children={this.renderRowOptions()}
                 />
             </Panel>
@@ -145,6 +146,17 @@ class Tracker extends React.Component {
                 onAction={e => composer.trackerChangeRowOffset(this.props.trackName, segmentID * rowLength)}
             >{segmentID}</Button>);
 
+        buttons.push(<ButtonDropDown
+            className="row-length"
+            title={`Segment Length (${this.props.rowLength} Rows)`}
+            arrow="▼"
+            key="row-length"
+            options={() => {
+                this.getTrackInfo().setActive();
+                return this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())
+            }}
+        >{this.props.rowLength}</ButtonDropDown>);
+
         return buttons;
     }
 
@@ -156,19 +168,14 @@ class Tracker extends React.Component {
         const buttons = [];
 
         buttons.push(<ButtonDropDown
-            className="row-length"
-            title="Tracker Row Length"
-            arrow="▼"
-            key="row-length"
-            options={() => this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())}
-        >{this.props.rowLength}</ButtonDropDown>);
-
-        buttons.push(<ButtonDropDown
             className="row-quantization"
-            title="Tracker Quantization"
+            title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
             key="row-quantization"
-            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
+            options={() => {
+                this.getTrackInfo().setActive();
+                return this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())
+            }}
         >{rowDeltaDuration}</ButtonDropDown>);
 
 

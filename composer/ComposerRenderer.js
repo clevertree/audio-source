@@ -71,8 +71,8 @@ class ComposerRenderer extends React.Component {
                             : <Div className="asc-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
                     </Div>
                     <Div className="asc-panel-container">
-                        <Panel className="song" title="Song">
-                            <Form className="playback" title="Playback">
+                        <Panel className="song" header="Song">
+                            <Form className="playback" header="Playback">
                                 <Button
                                     className="song-play"
                                     onAction={e => this.songPlay(e)}
@@ -93,7 +93,7 @@ class ComposerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            <Form className="file" title="File">
+                            <Form className="file" header="File">
                                 <Button
                                     className="file-load"
                                     onAction={(e) => this.loadSongFromFileInput(e)}
@@ -112,7 +112,7 @@ class ComposerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            <Form className="volume" title="Volume">
+                            <Form className="volume" header="Volume">
                                 <InputRange
                                     className="volume"
                                     onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
@@ -124,7 +124,7 @@ class ComposerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="position" title="Position">
+                            <Form className="position" header="Position">
                                 <InputRange
                                     className="position"
                                     onChange={(e, pos) => this.setSongPosition(pos)}
@@ -136,7 +136,7 @@ class ComposerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="timing" title="Timing">
+                            <Form className="timing" header="Timing">
                                 <Button
                                     className="timing"
                                     onAction={(e, timingString) => this.setSongPosition(timingString)}
@@ -146,7 +146,7 @@ class ComposerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="name" title="Name">
+                            <Form className="name" header="Name">
                                 <Button
                                     className="name"
                                     onAction={(e) => this.setSongName(e)}
@@ -156,7 +156,7 @@ class ComposerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="version" title="Version">
+                            <Form className="version" header="Version">
                                 <Button
                                     className="version"
                                     onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
@@ -167,9 +167,9 @@ class ComposerRenderer extends React.Component {
                             </Form>
                         </Panel>
 
-                        <Panel className="keyboard" title={`Keyboard`}
+                        <Panel className="keyboard" header={`Keyboard`}
                             >
-                            <Form className="keyboard-octave" title="Octave">
+                            <Form className="keyboard-octave" header="Octave">
                                 <ButtonDropDown
                                     arrow={'▼'}
                                     className="keyboard-octave"
@@ -179,7 +179,7 @@ class ComposerRenderer extends React.Component {
                             </Form>
                         </Panel>
 
-                        <Panel className="instruments" title="Instruments"
+                        <Panel className="instruments" header="Instruments"
                                ref={ref=>this.panelInstruments = ref}
                                children={() => (<>
                                    {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
@@ -191,7 +191,7 @@ class ComposerRenderer extends React.Component {
                                            instrumentID={instrumentID}
                                        />
                                    )}
-                                   <Form className="instrument-add" title="Add Instrument">
+                                   <Form className="instrument-add" header="Add Instrument">
                                        <MenuDropDown
                                            arrow={'▼'}
                                            className="instrument-add"
@@ -203,17 +203,17 @@ class ComposerRenderer extends React.Component {
                                    </Form>
                                </>)} />
 
-                        <Panel className="instructions" title={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}
+                        <Panel className="instructions" header={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}
                                ref={ref=>this.panelInstructions = ref}
                         >
-                            <Form className="instruction-command" title="Command">
+                            <Form className="instruction-command" header="Command">
                                 <ButtonDropDown
                                     arrow={'▼'}
                                     // className="command"
                                     options={() => this.renderMenuEditInsert()}
                                 >{cursorInstruction ? cursorInstruction.command : 'C4'}</ButtonDropDown>
                             </Form>
-                            <Form className="instruction-insert" title="Add">
+                            <Form className="instruction-insert" header="Add">
                                 <Button
                                     // className="instruction-insert"
                                     onAction={e => this.instructionInsert()}
@@ -222,7 +222,7 @@ class ComposerRenderer extends React.Component {
                                     <Icon className="insert"/>
                                 </Button>
                             </Form>
-                            <Form className="instruction-delete" title="Rem">
+                            <Form className="instruction-delete" header="Rem">
                                 <Button
                                     // className="instruction-delete"
                                     onAction={e => this.instructionDelete(e)}
@@ -232,16 +232,16 @@ class ComposerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            {/*<Form className="instruction-instrument" title="Instrument">*/}
+                            {/*<Form className="instruction-instrument" header="Instrument">*/}
                             {/*    <ButtonDropDown*/}
                             {/*        arrow={'▼'}*/}
                             {/*        // className="instruments-instruments"*/}
                             {/*        options={() => this.renderMenuEditSetInstrument()}*/}
-                            {/*        title="Song Instruments"*/}
+                            {/*        header="Song Instruments"*/}
                             {/*    >Select</ButtonDropDown>*/}
                             {/*</Form>*/}
 
-                            <Form className="instruction-velocity" title="Velocity">
+                            <Form className="instruction-velocity" header="Velocity">
                                 <InputRange
                                     // className="velocity"
                                     onAction={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
@@ -254,7 +254,7 @@ class ComposerRenderer extends React.Component {
                             </Form>
 
 
-                            <Form className="instruction-duration" title="Duration">
+                            <Form className="instruction-duration" header="Duration">
                                 <ButtonDropDown
                                     arrow={'▼'}
                                     // className="instruction-duration"
@@ -263,7 +263,7 @@ class ComposerRenderer extends React.Component {
                                 >1B</ButtonDropDown>
                             </Form>
 
-                            <Form className="tracker-selection" title="Selection">
+                            <Form className="tracker-selection" header="Selection">
                                 <Button
                                     // className="tracker-selection"
                                     onAction={(e) => this.trackerChangeSelection(e)}
@@ -272,7 +272,7 @@ class ComposerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            {/*<Form className="tracker-octave" title="Octave">*/}
+                            {/*<Form className="tracker-octave" header="Octave">*/}
                             {/*    <Button*/}
                             {/*        arrow={'▼'}*/}
                             {/*        className="tracker-selection"*/}
@@ -286,7 +286,7 @@ class ComposerRenderer extends React.Component {
                         l composer={this} />*/}
                         {/*<TrackerRowSegmentsPanel composer={this} />*/}
 
-                        {/*<Panel className="tracker" title="Tracker">*/}
+                        {/*<Panel className="tracker" header="Tracker">*/}
                         {/*    <Form className="tracker-row-length" title="Row &#120491;">*/}
                         {/*        <Button*/}
                         {/*            arrow={'▼'}*/}
@@ -295,7 +295,7 @@ class ComposerRenderer extends React.Component {
                         {/*        >1B</Button>*/}
                         {/*    </Form>*/}
 
-                        {/*    <Form className="tracker-segment-length" title="Seg &#120491;">*/}
+                        {/*    <Form className="tracker-segment-length" header="Seg &#120491;">*/}
                         {/*        <Button*/}
                         {/*            arrow={'▼'}*/}
                         {/*            // className="tracker-segment-length"*/}
@@ -304,7 +304,7 @@ class ComposerRenderer extends React.Component {
                         {/*        >16B</Button>*/}
                         {/*    </Form>*/}
 
-                        {/*    /!*<Form className="tracker-instrument" title="Instrument">*!/*/}
+                        {/*    /!*<Form className="tracker-instrument" header="Instrument">*!/*/}
                         {/*    /!*    <Button*!/*/}
                         {/*    /!*        arrow={'▼'}*!/*/}
                         {/*    /!*        // className="tracker-instruments"*!/*/}

@@ -9,7 +9,7 @@ div.asui-panel {
     /*width: 100%;*/
 }
 
-div.asui-panel > div.title {
+div.asui-panel > div.header {
     background-color: #333;
     color: #FFF;
     font-size: 11px;

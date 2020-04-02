@@ -35,7 +35,7 @@ class Tracker extends React.Component {
     render() {
         return <Panel
                 className="asc-tracker"
-                title={this.getTrackName()}
+                header={this.getTrackName()}
                 >
             {this.renderRowSegments()}
                 <Div className="asct-container">
@@ -46,7 +46,7 @@ class Tracker extends React.Component {
 
     renderOptions() {
         return <>
-            <Form className="tracker-row-length" title="Row &#120491;">
+            <Form className="tracker-row-length" header="Row &#120491;">
                 <Button
                     arrow={'▼'}
                     // className="tracker-row-length"
@@ -54,7 +54,7 @@ class Tracker extends React.Component {
                 >1B</Button>
             </Form>
 
-            <Form className="tracker-segment-length" title="Seg &#120491;">
+            <Form className="tracker-segment-length" header="Seg &#120491;">
                 <Button
                     arrow={'▼'}
                     // className="tracker-segment-length"

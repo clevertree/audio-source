@@ -9,8 +9,8 @@
 /*}*/
 
 div.asct-container {
-    max-height: 80vh;
-    overflow-y: auto;
+    /*max-height: 80vh;*/
+    /*overflow-y: auto;*/
 }
 
 
@@ -68,10 +68,12 @@ div.asc-tracker .tracker-header-pause {
 
 /** Tracker Segments **/
 
-div.asc-tracker-options {
+div.asct-segments,
+div.asct-options {
     display: flex;
 }
 
-div.asc-tracker-options > div.row-quantization {
+div.asct-segments > div.row-length,
+div.asct-options > div.row-quantization {
     margin-left: auto;
 }

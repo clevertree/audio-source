@@ -42,8 +42,8 @@ class PlayerRenderer extends React.Component {
                             : <Div className="asp-menu-container">{(p) => this.renderRootMenu(p)}</Div>}
                     </Div>
                     <Div className="asp-forms-container">
-                        <Panel className="song" title="Song">
-                            <Form className="playback" title="Playback">
+                        <Panel className="song" header="Song">
+                            <Form className="playback" header="Playback">
                                 <Button
                                     className="song-play"
                                     onAction={e => this.playlistPlay(e)}
@@ -70,7 +70,7 @@ class PlayerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            <Form className="file" title="File">
+                            <Form className="file" header="File">
                                 <Button
                                     className="file-load"
                                     onAction={(e) => this.loadSongFromFileInput(e)}
@@ -89,7 +89,7 @@ class PlayerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            <Form className="volume" title="Volume">
+                            <Form className="volume" header="Volume">
                                 <InputRange
                                     className="volume"
                                     onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
@@ -101,7 +101,7 @@ class PlayerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="position" title="Position">
+                            <Form className="position" header="Position">
                                 <InputRange
                                     className="position"
                                     onChange={(e, pos) => this.setSongPosition(pos)}
@@ -113,7 +113,7 @@ class PlayerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="timing" title="Timing">
+                            <Form className="timing" header="Timing">
                                 <Button
                                     className="timing"
                                     onAction={(e) => this.setSongPosition(e)}
@@ -123,7 +123,7 @@ class PlayerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="name" title="Name">
+                            <Form className="name" header="Name">
                                 <Button
                                     className="name"
                                     onAction={(e) => this.setSongName(e)}
@@ -132,7 +132,7 @@ class PlayerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="version" title="Version">
+                            <Form className="version" header="Version">
                                 <Button
                                     className="version"
                                     onAction={(e) => this.setSongVersion(e)}
@@ -142,7 +142,7 @@ class PlayerRenderer extends React.Component {
                                 />
                             </Form>
 
-                            <Form className="source" title="Source">
+                            <Form className="source" header="Source">
                                 <Button
                                     className="source"
                                     onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
@@ -152,7 +152,7 @@ class PlayerRenderer extends React.Component {
                                 </Button>
                             </Form>
                         </Panel>
-                        <Panel className="playlist" title="Playlist">
+                        <Panel className="playlist" header="Playlist">
                             <Playlist
                                 player={this}
                                 ref={ref => this.playlist = ref}

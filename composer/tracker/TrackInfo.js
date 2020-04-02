@@ -24,6 +24,12 @@ export default class TrackInfo {
 
     }
 
+    setActive() {
+        if(this.composer.state.selectedTrack !== this.trackName) {
+            this.composer.setState({selectedTrack: this.trackName})
+        }
+    }
+
     changeRowOffset(trackName, newRowOffset) {
         if (!Number.isInteger(newRowOffset))
             throw new Error("Invalid row offset");
@@ -78,13 +84,16 @@ export default class TrackInfo {
         this.track.selectedIndices = selectedIndices;
         if(cursorOffset !== null) {
             if(cursorOffset < 0)
-                console.warn("Invalid cursor offset: " + cursorOffset);
-            else
-                this.track.cursorOffset = cursorOffset;
+                throw new Error("Invalid cursor offset: " + cursorOffset);
+            this.track.cursorOffset = cursorOffset;
+        } else {
+
         }
 
-        if(rowOffset === null)
+        if(rowOffset === null) {
             rowOffset = this.calculateRowOffset(cursorOffset);
+        }
+
         this.track.rowOffset = rowOffset;
 
         this.updateState();

@@ -9,7 +9,7 @@ div.asui-form {
     display: inline-block;
     vertical-align: top;
 }
-div.asui-form > div.title {
+div.asui-form > div.header {
     font-size: smaller;
     border-bottom: 1px solid #BBB;
     margin-bottom: 1px;

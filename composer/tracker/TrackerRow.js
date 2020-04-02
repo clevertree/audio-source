@@ -83,7 +83,7 @@ class TrackerRow extends React.Component {
                 break;
             case 'click':
                 if(e.button === 0)
-                    this.selectRow(e.shiftKey);
+                    this.selectRow(!e.ctrlKey);
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)

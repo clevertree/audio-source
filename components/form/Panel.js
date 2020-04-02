@@ -1,7 +1,18 @@
 import React from "react";
+import PropTypes from "prop-types";
 import "./assets/Panel.css"
 
 class Panel extends React.Component {
+    /** Default Properties **/
+    static defaultProps = {
+    };
+
+    /** Property validation **/
+    static propTypes = {
+        className: PropTypes.string,
+        header: PropTypes.any,
+    };
+
     render() {
         let className = 'asui-panel';
         if(this.props.className)
@@ -16,7 +27,7 @@ class Panel extends React.Component {
                 {...this.props}
                 className={className}
                 >
-                {this.props.title ? <div className="title">{this.props.title}</div> : null}
+                {this.props.header ? <div className="header">{this.props.header}</div> : null}
                 {children}
             </div>
         )
