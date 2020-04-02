@@ -66,18 +66,43 @@ class Tracker extends React.Component {
         return {segmentCount, currentSegmentID};
     }
 
-    findPreviousRowCursorOffset() { // TODO: fix
-        let cursorOffset = this.getCursorOffset();
+    findCursorRow(cursorOffset=null) {
+        if(cursorOffset === null)
+            cursorOffset = this.getCursorOffset();
 
-        let previousRowCursorOffset = null;
-        this.eachRow((rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
-            if(cursorPosition > cursorOffset)
-                previousRowCursorOffset = cursorPosition;
-            return previousRowCursorOffset === null;
+        let rowCount = 0;
+        this.eachRow((rowCount2, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
+            rowCount++;
+            return cursorPosition <= cursorOffset;
         }, (instruction, cursorPosition) => {
         });
-        console.log('previousRowCursorOffset', previousRowCursorOffset, cursorOffset);
-        return previousRowCursorOffset;
+        return rowCount;
+    }
+
+    findRowCursorOffset() {
+        let cursorOffset = this.getCursorOffset();
+
+        let rowOffsets=[0,0];
+        this.eachRow((rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
+            // const colOffset = cursorPosition - cursorOffset;
+            rowOffsets.push(cursorPosition);
+            if(rowOffsets.length > 3)
+                rowOffsets.shift();
+            return cursorPosition <= cursorOffset;
+        }, (instruction, cursorPosition) => {
+        });
+        // console.log('rowOffsets', cursorOffset, rowOffsets);
+        const nextRowStartOffset = rowOffsets.pop();
+        const currentRowOffset = rowOffsets.pop();
+        const previousRowStartOffset = rowOffsets.pop();
+        //
+        // const nextRowColOffset = nextRowStartOffset - cursorOffset;
+        const columnOffset = cursorOffset - currentRowOffset;
+        const nextRowOffset = nextRowStartOffset + (columnOffset);
+        const previousRowOffset = previousRowStartOffset + columnOffset; // + (nextRowStartOffset - cursorOffset);
+        // console.log('rowOffsets', {cursorOffset, nextRowOffset, previousRowOffset});
+        return {cursorOffset, nextRowOffset, previousRowOffset};
+        // TODO: fix first position bug
     }
 
     findInstructionIndexFromCursorOffset(cursorOffset) {
@@ -103,9 +128,24 @@ class Tracker extends React.Component {
     }
 
     selectIndices(selectedIndices=null, cursorOffset=null) {
-        // TODO: update rowOffset
-        console.log("TODO:", {selectedIndices, cursorOffset});
-        return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset);
+        const rowOffset = this.calculateRowOffset(cursorOffset);
+        console.log("TODO:", {cursorOffset, rowOffset});
+        return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset, rowOffset);
+    }
+
+    calculateRowOffset(cursorOffset=null) {
+        const rowLength = this.props.rowLength;
+        let rowOffset = this.props.rowOffset;
+        if(cursorOffset === null)
+            cursorOffset = this.getCursorOffset();
+
+        // Update rowOffset
+        const currentRow = this.findCursorRow(cursorOffset);
+        if(rowOffset < currentRow - rowLength)
+            rowOffset = currentRow - rowLength - 1;
+        if(rowOffset > currentRow - 2)
+            rowOffset = currentRow - 2;
+        return rowOffset;
     }
 
     /** Render **/
@@ -361,13 +401,15 @@ class Tracker extends React.Component {
 
 
             case 'ArrowUp':
-                const nextCursorOffset = this.findPreviousRowCursorOffset();
-                this.setCursorOffset(nextCursorOffset);
+                e.preventDefault();
+                const {previousRowOffset} = this.findRowCursorOffset();
+                this.setCursorOffset(previousRowOffset);
                 break;
 
             case 'ArrowDown':
-                const previousCursorOffset = this.findPreviousRowCursorOffset();
-                this.setCursorOffset(previousCursorOffset);
+                e.preventDefault();
+                const {nextRowOffset} = this.findRowCursorOffset();
+                this.setCursorOffset(nextRowOffset);
                 break;
             //
             // case ' ':

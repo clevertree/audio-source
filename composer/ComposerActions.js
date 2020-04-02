@@ -621,7 +621,8 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null) {
+    trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null, rowOffset=null) {
+
         console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
         const activeTracks = {...this.state.activeTracks};
         if(typeof activeTracks[trackName] === "undefined")
@@ -646,6 +647,10 @@ class ComposerActions extends ComposerMenu {
             else
                 currentTrack.cursorOffset = cursorOffset;
         }
+
+        if(rowOffset !== null)
+            currentTrack.rowOffset = rowOffset;
+
         this.setState({activeTracks, selectedTrack: trackName});
     }
 

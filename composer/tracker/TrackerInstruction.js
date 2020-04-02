@@ -90,11 +90,12 @@ class TrackerInstruction extends React.Component {
 
     /** Actions **/
     selectInstruction(clearSelection=true) {
-        const trackName = this.getTracker().getTrackName();
+        // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
         const instruction = this.getInstruction();
         selectedIndices.push(instruction.index);
-        this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
+        // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
+        this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
     }
 
     /** TODO: Inefficient **/
