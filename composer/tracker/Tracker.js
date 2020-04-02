@@ -66,73 +66,46 @@ class Tracker extends React.Component {
         return {segmentCount, currentSegmentID};
     }
 
+    findPreviousRowCursorOffset() { // TODO: fix
+        let cursorOffset = this.getCursorOffset();
 
+        let previousRowCursorOffset = null;
+        this.eachRow((rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
+            if(cursorPosition > cursorOffset)
+                previousRowCursorOffset = cursorPosition;
+            return previousRowCursorOffset === null;
+        }, (instruction, cursorPosition) => {
+        });
+        console.log('previousRowCursorOffset', previousRowCursorOffset, cursorOffset);
+        return previousRowCursorOffset;
+    }
 
-    selectIndices(selectedIndices, cursorOffset=null) {
+    findInstructionIndexFromCursorOffset(cursorOffset) {
+        let indexFound = null;
+        this.eachRow(() => {
+            return indexFound === null;
+
+        }, (instruction, cursorPosition) => {
+            if(cursorPosition > cursorOffset)
+                return false;
+            if(cursorPosition === cursorOffset)
+                indexFound = instruction.index;
+            return indexFound === null;
+        });
+        return indexFound;
+    }
+
+    /** Actions **/
+
+    setCursorOffset(cursorOffset) {
+        const selectedIndices = [this.findInstructionIndexFromCursorOffset(cursorOffset)];
+        return this.selectIndices(selectedIndices, cursorOffset);
+    }
+
+    selectIndices(selectedIndices=null, cursorOffset=null) {
+        // TODO: update rowOffset
+        console.log("TODO:", {selectedIndices, cursorOffset});
         return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset);
-    }
-
-    /** User Input **/
-
-    onWheel(e) {
-        // console.log('onWheel', e);
-        e.preventDefault();
-        let rowOffset = this.props.rowOffset;
-        rowOffset += e.deltaY > 0 ? 1 : -1;
-        if(rowOffset < 0)
-            rowOffset = 0; // return console.log("Unable to scroll past beginning");
-        this.getComposer().trackerChangeRowOffset(this.getTrackName(), rowOffset);
-        // console.log("TODO", e.deltaY);
-    }
-
-    onKeyDown(e) {
-        if(e.isDefaultPrevented())
-            return;
-        switch(e.key) {
-            // case 'Delete':
-            //     break;
-            //
-            // case 'Escape':
-            // case 'Backspace':
-            //     throw new Error("TODO: navigate pop");
-            //
-            // case 'Enter':
-            //     break;
-            //
-            // case 'Play':
-            //     break;
-            //
-            case 'ArrowRight':
-                e.preventDefault();
-                this.selectIndices(null, this.getCursorOffset() + 1);
-                break;
-            case 'ArrowLeft':
-                e.preventDefault();
-                this.selectIndices(null, this.getCursorOffset() - 1);
-                break;
-
-            //
-            // case 'ArrowDown':
-            //     break;
-            //
-            // case 'ArrowUp':
-            //     break;
-            //
-            // case ' ':
-            //     break;
-            //
-            // case 'PlayFrequency':
-            //     break;
-
-            case 'ContextMenu':
-                e.preventDefault();
-                this.cursorInstruction.current.toggleMenu();
-                break;
-
-            default:
-                console.info("Unhandled key: ", e.key);
-                break;
-        }
     }
 
     /** Render **/
@@ -222,10 +195,22 @@ class Tracker extends React.Component {
 
         const rowContent = [];
 
-        let currentRowPositionTicks = 0;
+
+        this.eachRow((rowCount, currentRowPositionTicks, toPositionTicks, cursorPositionCount, instructionList) => {
+            const rowInstructionElms = [];
+            for(let i=0; i<instructionList.length; i++) {
+                const props = instructionList[i];
+                if(props.cursor) {
+                    props.ref = this.cursorInstruction;
+                }
+                rowInstructionElms.push(<TrackerInstruction
+                    key={props.index}
+                    tracker={this}
+                    {...props}
+                />);
+            }
 
 
-        this.eachRow((rowCount, lastRowPositionTicks, toPositionTicks, cursorPositionCount, rowInstructionElms) => {
             let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
             if (rowCount >= rowOffset
                 && rowContent.length < rowLength
@@ -234,7 +219,7 @@ class Tracker extends React.Component {
                     key={rowCount}
                     cursor={cursorPositionCount === cursorOffset}
                     tracker={this}
-                    positionTicks={lastRowPositionTicks}
+                    positionTicks={currentRowPositionTicks}
                     deltaDuration={rowDeltaDuration}
                     cursorPosition={cursorPositionCount} // TODO: inefficient?
                 >{rowInstructionElms}</TrackerRow>;
@@ -251,113 +236,10 @@ class Tracker extends React.Component {
     }
 
 
-    // renderRowContent2() {
-    //     // console.time('tracker.renderRowContent()');
-    //     const tracker = this;
-    //     const composer = this.props.composer;
-    //     const rowOffset = this.props.rowOffset;
-    //     const rowLength = this.props.rowLength;
-    //     const cursorOffset = this.props.cursorOffset || 0;
-    //     const selectedIndices = this.props.selectedIndices;
-    //
-    //     const quantizationTicks = this.getQuantizationInTicks();
-    //
-    //     // Instruction Iterator
-    //     let instructionIterator = composer.song.instructionGetIterator(this.props.trackName);
-    //     // TODO: based on cell index, not instruction index
-    //
-    //     let     rowCount=0, cursorPositionCount=0;
-    //     const rowContent = [];
-    //
-    //     let currentRowPositionTicks = 0;
-    //
-    //     let nextQuantizationBreakInTicks = quantizationTicks;
-    //     let rowInstructionElms = [];
-    //     while (true) {
-    //         const nextInstruction = instructionIterator.nextInstruction();
-    //         if(!nextInstruction)
-    //             break;
-    //         // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
-    //
-    //
-    //         if(nextInstruction.deltaDurationInTicks > 0) {
-    //             // Finish rendering last row
-    //             let endPositionTicks = instructionIterator.positionTicks;
-    //
-    //             // Move next quantized row up to current position
-    //             while(nextQuantizationBreakInTicks <= currentRowPositionTicks)
-    //                 nextQuantizationBreakInTicks += quantizationTicks;
-    //
-    //             // Render extra quantized rows if necessary
-    //             while(nextQuantizationBreakInTicks < endPositionTicks) {
-    //                 addRow(nextQuantizationBreakInTicks);
-    //                 nextQuantizationBreakInTicks += quantizationTicks;
-    //             }
-    //
-    //             addRow(endPositionTicks);
-    //         }
-    //
-    //
-    //         // Render instruction
-    //         const index = instructionIterator.currentIndex;
-    //         const props = {
-    //             tracker,
-    //             instruction: nextInstruction,
-    //             index,
-    //             cursorPosition: cursorPositionCount // TODO: inefficient
-    //         };
-    //         if (selectedIndices.indexOf(index) !== -1)
-    //             props.selected = true;
-    //         if (cursorPositionCount === cursorOffset) {
-    //             props.cursor = true;
-    //             props.ref = this.cursorInstruction;
-    //         }
-    //         rowInstructionElms.push(<TrackerInstruction
-    //             key={index}
-    //             {...props}
-    //         />);
-    //         cursorPositionCount++;
-    //
-    //     }
-    //     // renderQuantizedRows(maxLengthInTicks);
-    //
-    //     while(rowContent.length < rowLength) {
-    //         addRow(nextQuantizationBreakInTicks);
-    //         nextQuantizationBreakInTicks += quantizationTicks;
-    //     }
-    //
-    //     function addRow(toPositionTicks) {
-    //         const lastRowPositionTicks = currentRowPositionTicks;
-    //         let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
-    //         currentRowPositionTicks = toPositionTicks;
-    //         if (rowCount >= rowOffset
-    //             && rowContent.length < rowLength
-    //         ) {
-    //             const newRowElm = <TrackerRow
-    //                 key={rowCount}
-    //                 cursor={cursorPositionCount === cursorOffset}
-    //                 tracker={tracker}
-    //                 positionTicks={lastRowPositionTicks}
-    //                 deltaDuration={rowDeltaDuration}
-    //                 cursorPosition={cursorPositionCount} // TODO: inefficient
-    //             >{rowInstructionElms}</TrackerRow>;
-    //             rowContent.push(newRowElm);
-    //             // console.log('addRow', lastRowPositionTicks, toPositionTicks);
-    //         }
-    //         rowInstructionElms = [];
-    //         rowCount++;
-    //         cursorPositionCount++;
-    //     }
-    //
-    //
-    //     return rowContent;
-    // }
 
     /** Row Iterator **/
 
-    eachRow(callback) {
-
-        const tracker = this;
+    eachRow(rowCallback, instructionCallback=null) {
         const cursorOffset = this.props.cursorOffset || 0;
         const selectedIndices = this.props.selectedIndices;
 
@@ -365,21 +247,19 @@ class Tracker extends React.Component {
 
         // Instruction Iterator
         let instructionIterator = this.getSong().instructionGetIterator(this.props.trackName);
-        // TODO: based on cell index, not instruction index
 
-        let     rowCount=0, cursorPositionCount=0;
-
+        let rowInstructionElms = [];
+        let rowCount=0, cursorPosition=0;
         let currentRowPositionTicks = 0;
 
         let nextQuantizationBreakInTicks = quantizationTicks;
-        let rowInstructionElms = [];
         while (true) {
-            const nextInstruction = instructionIterator.nextInstruction();
-            if(!nextInstruction)
+            const instruction = instructionIterator.nextInstruction();
+            if(!instruction)
                 break;
 
 
-            if(nextInstruction.deltaDurationInTicks > 0) {
+            if(instruction.deltaDurationInTicks > 0) {
                 // Finish rendering last row
                 let endPositionTicks = instructionIterator.positionTicks;
 
@@ -389,40 +269,40 @@ class Tracker extends React.Component {
 
                 // Render extra quantized rows if necessary
                 while(nextQuantizationBreakInTicks < endPositionTicks) {
-                    doCallback(nextQuantizationBreakInTicks);
+                    if(doCallback(nextQuantizationBreakInTicks) === false)
+                        return;
                     nextQuantizationBreakInTicks += quantizationTicks;
                 }
 
-                doCallback(endPositionTicks);
+                if(doCallback(endPositionTicks) === false)
+                    return;
             }
 
+            if(instructionCallback)
+                if(instructionCallback(instruction, cursorPosition) === false)
+                    return;
 
             // Render instruction
             const index = instructionIterator.currentIndex;
             const props = {
-                tracker,
-                instruction: nextInstruction,
+                instruction,
                 index,
-                cursorPosition: cursorPositionCount // TODO: inefficient
+                cursorPosition // TODO: inefficient?
             };
             if (selectedIndices.indexOf(index) !== -1)
                 props.selected = true;
-            if (cursorPositionCount === cursorOffset) {
+            if (cursorPosition === cursorOffset) {
                 props.cursor = true;
-                props.ref = this.cursorInstruction;
             }
-            rowInstructionElms.push(<TrackerInstruction
-                key={index}
-                {...props}
-            />);
-            cursorPositionCount++;
+            rowInstructionElms.push(props);
+            cursorPosition++;
 
         }
         // renderQuantizedRows(maxLengthInTicks);
 
         for(let i=0; i<256; i++) {
-            if(!doCallback(nextQuantizationBreakInTicks))
-                break;
+            if(doCallback(nextQuantizationBreakInTicks) === false)
+                return;
             nextQuantizationBreakInTicks += quantizationTicks;
         }
 
@@ -431,15 +311,82 @@ class Tracker extends React.Component {
             // let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
             currentRowPositionTicks = toPositionTicks;
 
-            const result = callback(rowCount, lastRowPositionTicks, toPositionTicks, cursorPositionCount, rowInstructionElms);
+            const result = rowCallback(rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition, rowInstructionElms);
 
             rowInstructionElms=[];
             rowCount++;
-            cursorPositionCount++;
+            cursorPosition++;
             return result;
         }
 
     }
+
+
+    /** User Input **/
+
+    onWheel(e) {
+        e.preventDefault();
+        let rowOffset = this.props.rowOffset;
+        rowOffset += e.deltaY > 0 ? 1 : -1;
+        if(rowOffset < 0)
+            rowOffset = 0; // return console.log("Unable to scroll past beginning");
+        this.getComposer().trackerChangeRowOffset(this.getTrackName(), rowOffset);
+    }
+
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+        switch(e.key) {
+            // case 'Delete':
+            //     break;
+            //
+            // case 'Escape':
+            // case 'Backspace':
+            //     break;
+            //
+            // case 'Enter':
+            //     break;
+            //
+            // case 'Play':
+            //     break;
+            //
+            case 'ArrowRight':
+                e.preventDefault();
+                this.setCursorOffset(this.getCursorOffset() + 1);
+                break;
+            case 'ArrowLeft':
+                e.preventDefault();
+                this.setCursorOffset(this.getCursorOffset() - 1);
+                break;
+
+
+            case 'ArrowUp':
+                const nextCursorOffset = this.findPreviousRowCursorOffset();
+                this.setCursorOffset(nextCursorOffset);
+                break;
+
+            case 'ArrowDown':
+                const previousCursorOffset = this.findPreviousRowCursorOffset();
+                this.setCursorOffset(previousCursorOffset);
+                break;
+            //
+            // case ' ':
+            //     break;
+            //
+            // case 'PlayFrequency':
+            //     break;
+
+            case 'ContextMenu':
+                e.preventDefault();
+                this.cursorInstruction.current.toggleMenu();
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+                break;
+        }
+    }
+
 
     // renderOptions() {
     //     return <>
