@@ -98,6 +98,11 @@ class TrackerInstruction extends React.Component {
         this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
     }
 
+    selectAndPlayInstruction(clearSelection=true) {
+        this.selectInstruction(clearSelection);
+        this.getTracker().playSelectedInstructions();
+    }
+
     /** TODO: Inefficient **/
     toggleMenu() {
         this.commandParam.current.toggleMenu();
@@ -113,7 +118,7 @@ class TrackerInstruction extends React.Component {
         switch(e.type) {
             case 'click':
                 if(e.button === 0)
-                    this.selectInstruction(!e.ctrlKey);
+                    this.selectAndPlayInstruction(!e.ctrlKey);
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)

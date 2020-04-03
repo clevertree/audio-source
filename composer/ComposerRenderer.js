@@ -28,7 +28,8 @@ class ComposerRenderer extends React.Component {
             playing: false,
             paused: false,
 
-            // Global selected note(s)
+            // Song Information
+            songUUID: null,
             songLengthTicks: 0,
             songLengthSeconds: 0,
 
@@ -36,8 +37,7 @@ class ComposerRenderer extends React.Component {
             selectedTrack: 'root',
             activeTracks: {
                 root:{
-                    cursorOffset: 0,
-                    selectedIndices: [0]
+                    destination: this.getAudioContext()
                 }
             },
 
@@ -322,6 +322,7 @@ class ComposerRenderer extends React.Component {
                                 key={trackName}
                                 selected={trackName === selectedTrackName}
                                 {...this.state.activeTracks[trackName]}
+                                // destination={this.getAudioContext()}
                                 trackName={trackName}
                                 composer={this}
                             />
@@ -355,14 +356,14 @@ class ComposerRenderer extends React.Component {
         // this.state.tracker.trackerSegmentLengthInTicks = null;
 
         const activeTracks = {
-            'root': {},
-            'track0': {},
-            'track1': {},
+            'root': {
+                // destination: this.getAudioContext()
+            },
         };
-        activeTracks[song.getStartGroup()] = {
-            cursorOffset: 4,
-            selectedIndices: [0]
-        };
+        // activeTracks[song.getStartGroup()] = {
+        //     cursorOffset: 4,
+        //     selectedIndices: [0]
+        // };
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
@@ -370,7 +371,8 @@ class ComposerRenderer extends React.Component {
         this.song.connect(this.getAudioContext());
         this.setStatus("Loaded song: " + song.data.title);
         this.setState({
-            songLengthTicks: song.getsongLengthTicks(),
+            songUUID: song.data.uuid,
+            songLengthTicks: song.getSongLengthTicks(),
             songLengthSeconds: song.getSongLengthInSeconds(),
             selectedGroup: song.getStartGroup() || 'root',
             // trackerRowOffset: 0,

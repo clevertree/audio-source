@@ -20,11 +20,11 @@ export class InstructionList {
     }
 
 
-    getInstruction(index, instrumentID=null) {
+    getInstruction(index) {
         if(index >= this.instructionList.length)
             return null;
         const instructionData = this.instructionList[index];
-        return InstructionList.getInstruction(instructionData, index, instrumentID);
+        return InstructionList.getInstruction(instructionData, index);
     }
 
 

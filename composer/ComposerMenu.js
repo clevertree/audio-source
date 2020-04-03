@@ -233,11 +233,13 @@ class ComposerMenu extends ComposerRenderer {
         return (<>
             {this.values.getAllSongGroups((trackName) =>
                 <MenuAction
+                    key={trackName}
                     options={e => this.renderMenuEditInsertCommandFrequency()}
                     disabled={trackName === this.state.selectedGroup}
                     onAction={e => this.instructionInsert('@' + trackName, false)}
                 >{trackName}</MenuAction>)}
             <MenuAction
+                key="new"
                 hasBreak
                 onAction={e => this.groupAdd(e)}
             >Create New Group</MenuAction>

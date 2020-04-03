@@ -1,4 +1,6 @@
 import * as React from "react";
+import PropTypes from 'prop-types';
+
 import {TrackerInstruction, TrackerRow, TrackInfo} from "./";
 import {Button, ButtonDropDown, Panel} from "../../components/";
 
@@ -16,6 +18,7 @@ class Tracker extends React.Component {
 
     /** Property validation **/
     static propTypes = {
+        // destination: PropTypes.object.isRequired
         // tracker: PropTypes.any.isRequired,
     };
 
@@ -24,12 +27,15 @@ class Tracker extends React.Component {
 
         if(!props.composer)
             throw new Error("Invalid composer");
+        // if(!props.destination)
+        //     throw new Error("Invalid track destination");
         // this.state = this.props.composer.state;
         this.cb = {
             onKeyDown: (e) => this.onKeyDown(e),
             onWheel: e => this.onWheel(e)
         };
         this.container = React.createRef();
+        this.destination = null;
         this.cursorInstruction = React.createRef();
     }
 
@@ -45,6 +51,13 @@ class Tracker extends React.Component {
         return new TrackInfo(this.props.trackName, this.props.composer);
     }
 
+    /** TODO: calculate correct destination **/
+    getDestination()            {
+        if(this.destination)
+            return this.destination;
+        console.warn('TODO: calculate correct destination');
+        return this.destination = this.getComposer().getAudioContext();
+    }
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
     getTrackName()              { return this.props.trackName; }
@@ -151,10 +164,8 @@ class Tracker extends React.Component {
             title={`Segment Length (${this.props.rowLength} Rows)`}
             arrow="▼"
             key="row-length"
-            options={() => {
-                this.getTrackInfo().setActive();
-                return this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())
-            }}
+            onClick={e => this.getTrackInfo().setActive()}
+            options={() => this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())}
         >{this.props.rowLength}</ButtonDropDown>);
 
         return buttons;
@@ -172,10 +183,8 @@ class Tracker extends React.Component {
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
             key="row-quantization"
-            options={() => {
-                this.getTrackInfo().setActive();
-                return this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())
-            }}
+            onClick={e => this.getTrackInfo().setActive()}
+            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
         >{rowDeltaDuration}</ButtonDropDown>);
 
 
@@ -229,6 +238,12 @@ class Tracker extends React.Component {
 
         // console.timeEnd('tracker.renderRowContent()');
         return rowContent;
+    }
+
+    /** Playback **/
+
+    playSelectedInstructions() {
+        return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
     }
 
     /** Row Iterator **/

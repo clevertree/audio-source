@@ -1,3 +1,4 @@
+import {Instruction, InstructionList} from "../../song/instruction/";
 
 
 export default class TrackInfo {
@@ -10,6 +11,9 @@ export default class TrackInfo {
         this.track = activeTracks[trackName];
     }
 
+    getComposer()               { return this.composer; }
+    getSong()                   { return this.composer.getSong(); }
+    getInstructionList()        { return new InstructionList(this.getSong().instructionGetList(this.trackName))}
     getTrackName()              { return this.trackName; }
     getSelectedIndices()        { return this.track.selectedIndices; }
     getCursorOffset()           { return this.track.cursorOffset; }
@@ -240,4 +244,21 @@ export default class TrackInfo {
         }
 
     }
+
+    /** Playback **/
+
+    playInstructions(destination, selectedIndices) {
+        const instrumentID = typeof this.track.instrumentID !== "undefined" ? this.track.instrumentID : 0;
+        const song = this.composer.getSong();
+        for(let i=0; i<selectedIndices.length; i++) {
+            const selectedIndex = selectedIndices[i];
+            const instruction = song.instructionGetByIndex(this.getTrackName(), selectedIndex);
+            song.playInstruction(destination, instruction, instrumentID);
+        }
+    }
 }
+
+
+
+
+

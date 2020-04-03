@@ -85,6 +85,7 @@ class Song {
         this.loadAllInstruments();
     }
 
+    /** @deprecated? **/
     connect(destination) {
         this.destination = destination;
     }
@@ -244,7 +245,7 @@ class Song {
         return !!this.instruments[instrumentID];
     }
 
-    playInstrument(instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
+    playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
         if (!instrumentID && instrumentID !== 0) {
             console.warn("No instruments set for instruction. Using instruments 0");
             instrumentID = 0;
@@ -256,7 +257,7 @@ class Song {
         }
         let instrument = this.instruments[instrumentID];
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
-        return instrument.playNote(this.destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
+        return instrument.playNote(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
     }
 
     hasInstrument(instrumentID) {
@@ -423,7 +424,7 @@ class Song {
         if (instruction instanceof Instruction)
             instruction = instruction.data;
         if(!this.data.instructions[trackName])
-            throw new Error("Invalid instruction group: " + trackName);
+            throw new Error("Invalid instruction track: " + trackName);
         let instructionList = this.data.instructions[trackName];
 
         instruction = ConfigListener.resolveProxiedObject(instruction);
@@ -437,18 +438,25 @@ class Song {
 
     instructionGetList(trackName) {
         if(!this.data.instructions[trackName])
-            throw new Error("Invalid instruction group: " + trackName);
+            throw new Error("Invalid instruction track: " + trackName);
         return new InstructionList(this.data.instructions[trackName]);
     }
 
     instructionGetByIndex(trackName, index) {
         if(!this.data.instructions[trackName])
-            throw new Error("Invalid instruction group: " + trackName);
+            throw new Error("Invalid instruction track: " + trackName);
         let instructionList = this.data.instructions[trackName];
         return index >= instructionList.length ? null : new Instruction(instructionList[index], index);
     }
 
 
+    instructionGetList(trackName) {
+        if(!this.data.instructions[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        return new InstructionList(
+            this.data.instructions[trackName]
+        );
+    }
     instructionGetIterator(trackName, bpm=null, timeDivision=null) {
         return new InstructionIterator(
             this,
@@ -598,7 +606,7 @@ class Song {
 
     groupRemove(removeTrackName) {
         if (removeTrackName === 'root')
-            throw new Error("Cannot remove root instruction group, n00b");
+            throw new Error("Cannot remove root instruction track, n00b");
         if (!this.data.instructions.hasOwnProperty(removeTrackName))
             throw new Error("Existing group not found: " + removeTrackName);
 
@@ -609,7 +617,7 @@ class Song {
 
     groupRename(oldTrackName, newTrackName) {
         if (oldTrackName === 'root')
-            throw new Error("Cannot rename root instruction group, n00b");
+            throw new Error("Cannot rename root instruction track, n00b");
         if (!this.data.instructions.hasOwnProperty(oldTrackName))
             throw new Error("Existing group not found: " + oldTrackName);
         if (this.data.instructions.hasOwnProperty(newTrackName))
@@ -629,7 +637,7 @@ class Song {
             .endPositionSeconds;
     }
 
-    getsongLengthTicks() {
+    getSongLengthTicks() {
         return this.instructionGetIterator(this.getStartGroup())
             .seekToEnd()
             .endPositionTicks;
@@ -857,7 +865,7 @@ class Song {
             console.warn("No instruction at index");
     }
 
-    playInstruction(instruction, noteStartTime = null, trackName = null) {
+    playInstruction(destination, instruction, instrumentID, noteStartTime = null, trackName = null) {
         const audioContext = this.audioContext;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
@@ -866,7 +874,7 @@ class Song {
         //     this.stopPlayback();
 
         if (instruction.isTrackInstruction()) {
-            const groupPlayback = new InstructionPlayback(this.destination, this, instruction.getTrackName(), noteStartTime);
+            const groupPlayback = new InstructionPlayback(destination, this, instruction.getTrackNameFromCommand(), noteStartTime);
             // const groupPlayback = new InstructionPlayback(this.song, subTrackName, notePosition);
             return groupPlayback;
         }
@@ -885,7 +893,7 @@ class Song {
             noteStartTime = currentTime;
 
 
-        this.playInstrument(instruction.instrumentID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+        this.playInstrument(destination, instrumentID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
         // Wait for note to start
         // if (noteStartTime > currentTime) {
         //     await this.wait(noteStartTime - currentTime);

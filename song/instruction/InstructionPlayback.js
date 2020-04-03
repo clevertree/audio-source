@@ -41,7 +41,7 @@ class InstructionPlayback {
         }));
     }
 
-    endGroupPlayback(groupID) {
+    endTrackPlayback(groupID) {
         const [stats, iterator] = this.subGroups[groupID];
         this.subGroups.splice(groupID, 1);
         const groupEndDelaySeconds = (iterator.endPositionSeconds + stats.startTime) - this.audioContext.currentTime;
@@ -89,7 +89,7 @@ class InstructionPlayback {
 
 
                 if (iterator.hasReachedEnd()) {
-                    this.endGroupPlayback(i);
+                    this.endTrackPlayback(i);
                     i--;
                     break;
                 }
@@ -97,14 +97,14 @@ class InstructionPlayback {
                 const instruction = iterator.nextInstruction();
                 const noteStartTime = stats.startTime + iterator.positionSeconds; // Group start time equals current group's start + playback times
                 if (instruction.isTrackInstruction()) {
-                    if (instruction.getTrackName() === iterator.trackName) { // TODO group stack
-                        console.error(`Recursive group call. Skipping group '${instruction.getTrackName()}'`);
+                    if (instruction.getTrackNameFromCommand() === iterator.trackName) { // TODO group stack
+                        console.error(`Recursive group call. Skipping group '${instruction.getTrackNameFromCommand()}'`);
                         continue;
                     }
 
                     const subStats = Object.assign({}, stats, {
                         startTime: noteStartTime,
-                        trackName: instruction.getTrackName()
+                        trackName: instruction.getTrackNameFromCommand()
                     });
                     this.startGroupPlayback(subStats);
 

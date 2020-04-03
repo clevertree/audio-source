@@ -99,7 +99,7 @@ class ComposerActions extends ComposerMenu {
         if (!file)
             throw new Error("Invalid file input");
         const song = await Song.loadSongFromFileInput(file);
-        await this.setCurrentSong(song);
+        this.setCurrentSong(song);
         // await this.song.loadSongFromFileInput(file);
         // this.render();
     }
@@ -108,7 +108,7 @@ class ComposerActions extends ComposerMenu {
     /** Song utilities **/
 
 
-    async loadNewSongData() {
+    loadNewSongData() {
         // const storage = new Storage();
         // const defaultInstrumentURL = this.getDefaultInstrumentClass() + '';
         // let songData = storage.generateDefaultSong(defaultInstrumentURL);

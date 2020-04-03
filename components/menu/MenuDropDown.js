@@ -70,6 +70,10 @@ export default class MenuDropDown extends React.Component {
         e.preventDefault();
         switch(e.type) {
             case 'click':
+                // Try onClick handler first to avoid causing a state change within a render
+                if(this.props.onClick)
+                    if(this.props.onClick(e) === false)
+                        return;
                 this.toggleMenu();
                 break;
 
