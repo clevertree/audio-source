@@ -26,7 +26,7 @@ class InstructionIterator extends InstructionList {
     }
 
     incrementPositionByInstruction(instruction) {
-        const deltaDuration = instruction.deltaDurationInTicks;
+        const deltaDuration = instruction.deltadurationTicks;
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDuration;
         this.lastInstructionPositionInTicks = this.positionTicks;
 
@@ -34,10 +34,10 @@ class InstructionIterator extends InstructionList {
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
         this.lastInstructionPositionInSeconds = this.positionSeconds;
 
-        const groupEndPositionInTicks = this.positionTicks + instruction.durationInTicks;
+        const groupEndPositionInTicks = this.positionTicks + instruction.durationTicks;
         if (groupEndPositionInTicks > this.endPositionTicks)
             this.endPositionTicks = groupEndPositionInTicks;
-        const groupPlaybackEndTime = this.positionSeconds + (instruction.durationInTicks / this.timeDivision) / (this.bpm / 60);
+        const groupPlaybackEndTime = this.positionSeconds + (instruction.durationTicks / this.timeDivision) / (this.bpm / 60);
         if (groupPlaybackEndTime > this.endPositionSeconds)
             this.endPositionSeconds = groupPlaybackEndTime;
 

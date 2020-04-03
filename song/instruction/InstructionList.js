@@ -1,4 +1,7 @@
-import Instruction from "./Instruction";
+import Instruction from "./CommandInstruction";
+import TrackInstruction from "./TrackInstruction";
+import CommandInstruction from "./CommandInstruction";
+import MIDIInstruction from "./MIDIInstruction";
 
 export class InstructionList {
     constructor(instructionList) {
@@ -45,8 +48,22 @@ export class InstructionList {
     static getInstruction(instructionData, index=null) {
         if(!instructionData)
             throw new Error("Invalid Instruction data");
-        return new Instruction(instructionData, index);
+        if(this.isTrackInstruction(instructionData))
+            return new TrackInstruction(instructionData, index);
+        if(this.isMIDIInstruction(instructionData))
+            return new MIDIInstruction(instructionData, index);
+        return new CommandInstruction(instructionData, index);
     }
+
+
+    static isTrackInstruction(instructionData) {
+        return typeof instructionData[1] === "string" && instructionData[1][0] === '@';
+    }
+
+    static isMIDIInstruction(instructionData) {
+        return typeof instructionData[1] === "number";
+    }
+
 
 }
 

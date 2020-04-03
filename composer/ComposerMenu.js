@@ -151,8 +151,8 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuSelectDuration(onSelectValue) {
-        return this.values.getNoteDurations((durationInTicks, durationName) =>
-            <MenuAction key={durationInTicks} onAction={() => onSelectValue(durationInTicks)}  >{durationName}</MenuAction>
+        return this.values.getNoteDurations((durationTicks, durationName) =>
+            <MenuAction key={durationTicks} onAction={() => onSelectValue(durationTicks)}  >{durationName}</MenuAction>
         );
     }
 
@@ -303,8 +303,8 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuEditSetDuration() {
-        return this.renderMenuSelectDuration(durationInTicks => {
-            this.instructionReplaceDuration(durationInTicks)
+        return this.renderMenuSelectDuration(durationTicks => {
+            this.instructionReplaceDuration(durationTicks)
         });
     }
 

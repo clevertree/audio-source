@@ -1,3 +1,6 @@
+import {instanceOf} from "prop-types";
+import TrackInstruction from "./TrackInstruction";
+
 class InstructionPlayback {
     constructor(destination, song, trackName, startTime = null, onended = null) {
         if (!destination || !destination.context)
@@ -96,15 +99,15 @@ class InstructionPlayback {
 
                 const instruction = iterator.nextInstruction();
                 const noteStartTime = stats.startTime + iterator.positionSeconds; // Group start time equals current group's start + playback times
-                if (instruction.isTrackInstruction()) {
-                    if (instruction.getTrackNameFromCommand() === iterator.trackName) { // TODO group stack
-                        console.error(`Recursive group call. Skipping group '${instruction.getTrackNameFromCommand()}'`);
+                if (instruction instanceof TrackInstruction) {
+                    if (instruction.getTrackName() === iterator.trackName) { // TODO group stack
+                        console.error(`Recursive group call. Skipping group '${instruction.getTrackName()}'`);
                         continue;
                     }
 
                     const subStats = Object.assign({}, stats, {
                         startTime: noteStartTime,
-                        trackName: instruction.getTrackNameFromCommand()
+                        trackName: instruction.getTrackName()
                     });
                     this.startGroupPlayback(subStats);
 

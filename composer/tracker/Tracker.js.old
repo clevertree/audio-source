@@ -144,7 +144,7 @@ class Tracker extends React.Component {
             // lastRowSegmentID = Math.floor(instructionIterator.positionTicks / trackerSegmentLengthInTicks);
 
 
-            if(nextInstruction.deltaDurationInTicks > 0) {
+            if(nextInstruction.deltadurationTicks > 0) {
                 // Finish rendering last row
                 let endPositionTicks = instructionIterator.positionTicks;
 

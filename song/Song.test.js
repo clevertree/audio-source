@@ -120,7 +120,7 @@ class SongTest {
     let iterator = song.instructionGetIterator(testTrackName);
     let instruction, instructionList, positionInTicks=0, playbackTime=0;
     while(instruction = iterator.nextInstruction()) {
-      positionInTicks += instruction.deltaDurationInTicks;
+      positionInTicks += instruction.deltadurationTicks;
       expect(iterator.positionTicks).toBe(positionInTicks);
     }
 

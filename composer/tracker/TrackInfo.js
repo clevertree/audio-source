@@ -183,7 +183,7 @@ export default class TrackInfo {
                 break;
 
 
-            if(instruction.deltaDurationInTicks > 0) {
+            if(instruction.deltadurationTicks > 0) {
                 // Finish rendering last row
                 let endPositionTicks = instructionIterator.positionTicks;
 

@@ -4,14 +4,6 @@ class Instruction {
         this.data = instructionData;
     }
 
-    get deltaDurationInTicks() {
-        return this.data[0];
-    }
-
-    set deltaDurationInTicks(newDeltaDuration) {
-        this.data[0] = newDeltaDuration;
-    }
-
     get command() {
         return this.data[1];
     }
@@ -20,30 +12,19 @@ class Instruction {
         this.data[1] = newCommand;
     }
 
-    isTrackInstruction() {
-        return typeof this.data[1] === "string" && this.data[1][0] === '@';
+
+    get deltadurationTicks() {
+        return this.data[0];
     }
 
-    getTrackNameFromCommand() {
-        return typeof this.data[1] === "string" ? this.data[1].substr(1) : null;
-    }
-
-    setTrackNameAsCommand(newTrackName) {
-        this.data[1] = `@${newTrackName}`;
+    set deltadurationTicks(newDeltaDuration) {
+        this.data[0] = newDeltaDuration;
     }
 
 
-    get durationInTicks() {
-        return this.data[2];
-    }
 
-    set durationInTicks(newDuration) {
-        newDuration = parseFloat(newDuration);
-        if (Number.isNaN(newDuration))
-            throw new Error("Invalid Duration");
-        this.data[2] = newDuration;
-    }
 
+    /** @deprecated **/
     clone() {
         return new Instruction(
             Object.assign({}, this.data),
@@ -69,3 +50,6 @@ class Instruction {
 
 
 export default Instruction;
+
+
+

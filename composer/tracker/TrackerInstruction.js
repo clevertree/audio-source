@@ -64,20 +64,23 @@ class TrackerInstruction extends React.Component {
 
         // console.log('instruction', this.props, className);
         if(open) {
+            const rowDuration = instruction.durationTicks === null ? 'N/A'
+                : this.getComposer().values.formatDuration(instruction.durationTicks);
+
             if(typeof instruction.velocity !== "undefined")
                 parameters.push(<TrackerInstructionParameter
                     key="velocity"
                     trackerInstruction={this}
                     className="velocity"
                     options={() => this.renderMenuSelectVelocity()}
-                >{instruction.duration}</TrackerInstructionParameter>);
-            if(typeof instruction.duration !== "undefined")
+                >{instruction.velocity}</TrackerInstructionParameter>);
+            if(instruction.durationTicks !== null)
                 parameters.push(<TrackerInstructionParameter
                     key="duration"
                     trackerInstruction={this}
                     className="duration"
                     options={() => this.renderMenuSelectDuration()}
-                >{instruction.duration}</TrackerInstructionParameter>);
+                >{rowDuration||'-'}</TrackerInstructionParameter>);
         }
         return <Div
             className={className}
@@ -101,9 +104,9 @@ class TrackerInstruction extends React.Component {
     selectInstructionWithAction(clearSelection=true) {
         this.selectInstruction(clearSelection);
         const instruction = this.getInstruction();
-        if(instruction.isTrackInstruction()) {
+        if(instruction instanceof TrackerInstruction) {
             this.getComposer().trackerToggleTrack(
-                instruction.getTrackNameFromCommand(),
+                instruction.getTrackName(),
                 null,
                 {
                     destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())

@@ -480,7 +480,7 @@ class ComposerActions extends ComposerMenu {
         //     if (composer.refs.fieldInstructionInstrument.value || composer.refs.fieldInstructionInstrument.value === 0)
         //         newInstruction.instrument = parseInt(composer.refs.fieldInstructionInstrument.value);
         //     if (composer.refs.fieldInstructionDuration.value) // TODO: refactor DURATIONS
-        //         newInstruction.durationInTicks = parseFloat(composer.refs.fieldInstructionDuration.value);
+        //         newInstruction.durationTicks = parseFloat(composer.refs.fieldInstructionDuration.value);
         //     const velocityValue = parseInt(composer.refs.fieldInstructionVelocity.value);
         //     if (velocityValue || velocityValue === 0)
         //         newInstruction.velocity = velocityValue;

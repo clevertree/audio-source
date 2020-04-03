@@ -10,6 +10,7 @@ import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} 
 
 
 import InstrumentList from "../instruments";
+import TrackInstruction from "./instruction/TrackInstruction";
 InstrumentList.addAllInstruments();
 // const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
 
@@ -54,21 +55,21 @@ class Song {
             ],
             instructions: {
                 'root': [
-                    ['@track0', 0, 128],
+                    ['@track0', 0, 256],
                     ['@track1', 1],
                 ],
                 'track0': [
-                    [0, 'C4'],
-                    [64, 'D4'],
-                    [64, 'E4'],
+                    [0, 'C4', 64],
+                    [64, 'D4', 64],
+                    [64, 'E4', 64],
                     [64, 'F4', 48, 50],
                     [64, 9, 34],
                     [64, 8, 34],
                 ],
                 'track1': [
-                    [0, 'C4'],
-                    [96, 'D4'],
-                    [96, 'E4'],
+                    [0, 'C4', 64],
+                    [96, 'D4', 64],
+                    [96, 'E4', 64],
                     [96, 'F4', 48, 50],
                 ]
             }
@@ -495,7 +496,7 @@ class Song {
             if (currentPositionInTicks > insertPositionInTicks) {
                 // Delta note appears after note to be inserted
                 const splitDuration = [
-                    insertPositionInTicks - (currentPositionInTicks - instruction.deltaDurationInTicks),
+                    insertPositionInTicks - (currentPositionInTicks - instruction.deltadurationTicks),
                     currentPositionInTicks - insertPositionInTicks
                 ];
 
@@ -504,7 +505,7 @@ class Song {
                 this.instructionReplaceDeltaDuration(trackName, modifyIndex, splitDuration[1]);
 
                 // Insert new note before delta note.
-                insertInstruction.deltaDurationInTicks = splitDuration[0];                     // Make new note equal the rest of the duration
+                insertInstruction.deltadurationTicks = splitDuration[0];                     // Make new note equal the rest of the duration
                 this.instructionInsertAtIndex(trackName, modifyIndex, insertInstruction);
 
                 return modifyIndex; // this.splitPauseInstruction(trackName, i,insertPosition - groupPosition , insertInstruction);
@@ -515,10 +516,10 @@ class Song {
                 let lastInsertIndex;
                 // Search for last insert position
                 for (lastInsertIndex = iterator.currentIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
-                    if (new Instruction(instructionList[lastInsertIndex]).deltaDurationInTicks > 0)
+                    if (new Instruction(instructionList[lastInsertIndex]).deltadurationTicks > 0)
                         break;
 
-                insertInstruction.deltaDurationInTicks = 0; // TODO: is this correct?
+                insertInstruction.deltadurationTicks = 0; // TODO: is this correct?
                 this.instructionInsertAtIndex(trackName, lastInsertIndex, insertInstruction);
                 return lastInsertIndex;
             }
@@ -539,7 +540,7 @@ class Song {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDurationInTicks = insertPositionInTicks - iterator.positionTicks;
+        insertInstruction.deltadurationTicks = insertPositionInTicks - iterator.positionTicks;
         this.instructionInsertAtIndex(trackName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -558,12 +559,12 @@ class Song {
 
     instructionDeleteAtIndex(trackName, deleteIndex) {
         const deleteInstruction = this.instructionGetByIndex(trackName, deleteIndex);
-        if (deleteInstruction.deltaDurationInTicks > 0) {
+        if (deleteInstruction.deltadurationTicks > 0) {
             const nextInstruction = this.instructionGetByIndex(trackName, deleteIndex + 1, false);
             if (nextInstruction) {
                 // this.getInstruction(trackName, deleteIndex+1).deltaDuration =
                 //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
-                this.instructionReplaceDeltaDuration(trackName, deleteIndex + 1, nextInstruction.deltaDurationInTicks + deleteInstruction.deltaDurationInTicks)
+                this.instructionReplaceDeltaDuration(trackName, deleteIndex + 1, nextInstruction.deltadurationTicks + deleteInstruction.deltadurationTicks)
             }
         }
         this.instructionGetList(trackName).splice(deleteIndex, 1);
@@ -571,7 +572,7 @@ class Song {
     }
 
     instructionReplaceDeltaDuration(trackName, replaceIndex, newDelta) {
-        this.instructionGetByIndex(trackName, replaceIndex).deltaDurationInTicks = newDelta;
+        this.instructionGetByIndex(trackName, replaceIndex).deltadurationTicks = newDelta;
         // return this.instructionReplaceParam(trackName, replaceIndex, 0, newDelta);
     }
 
@@ -584,7 +585,7 @@ class Song {
     }
 
     instructionReplaceDuration(trackName, replaceIndex, newDuration) {
-        this.instructionGetByIndex(trackName, replaceIndex).durationInTicks = newDuration;
+        this.instructionGetByIndex(trackName, replaceIndex).durationTicks = newDuration;
     }
 
     instructionReplaceVelocity(trackName, replaceIndex, newVelocity) {
@@ -875,8 +876,8 @@ class Song {
         // if(this.playback)
         //     this.stopPlayback();
 
-        if (instruction.isTrackInstruction()) {
-            const groupPlayback = new InstructionPlayback(destination, this, instruction.getTrackNameFromCommand(), noteStartTime);
+        if (instruction instanceof TrackInstruction) {
+            const groupPlayback = new InstructionPlayback(destination, this, instruction.getTrackName(), noteStartTime);
             // const groupPlayback = new InstructionPlayback(this.song, subTrackName, notePosition);
             return groupPlayback;
         }
@@ -886,8 +887,8 @@ class Song {
         // const noteDuration = (instruction.duration || 1) * (60 / bpm);
         let timeDivision = this.data.timeDivision;
 
-        const noteDurationInTicks = instruction.durationInTicks || 0; // (timeDivision);
-        const noteDuration = (noteDurationInTicks / timeDivision) / (bpm / 60);
+        const notedurationTicks = instruction.durationTicks || 0; // (timeDivision);
+        const noteDuration = (notedurationTicks / timeDivision) / (bpm / 60);
 
         let currentTime = audioContext.currentTime;
 
