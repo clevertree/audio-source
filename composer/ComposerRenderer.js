@@ -1,9 +1,10 @@
 import React from "react";
-import InstrumentRenderer from "./instrument/InstrumentRenderer";
-import Tracker from "./tracker/Tracker";
+
 import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
 import {Div, Icon, Form, Panel, InputRange, Button, ButtonDropDown, MenuDropDown} from "../components";
-
+import InstrumentRenderer from "./instrument/InstrumentRenderer";
+import Tracker from "./tracker/Tracker";
+import {Song} from "../song/";
 import "./assets/Composer.css";
 
 class ComposerRenderer extends React.Component {
@@ -25,6 +26,7 @@ class ComposerRenderer extends React.Component {
             showPanelPlaylist: true,
 
             // Playback
+            volume: Song.DEFAULT_VOLUME,
             playing: false,
             paused: false,
 

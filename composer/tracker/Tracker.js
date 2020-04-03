@@ -13,7 +13,8 @@ class Tracker extends React.Component {
         selectedIndices: [],
         rowOffset: 0,
         rowLength: 16,
-        quantizationTicks: null
+        quantizationTicks: null,
+        destinationList: []
     };
 
     /** Property validation **/
@@ -56,8 +57,9 @@ class Tracker extends React.Component {
         if(this.destination)
             return this.destination;
         console.warn('TODO: calculate correct destination');
-        return this.destination = this.getComposer().getAudioContext();
+        return this.destination = this.getComposer().getVolumeGain();
     }
+    getDestinationList()        { return this.props.destinationList; }
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
     getTrackName()              { return this.props.trackName; }

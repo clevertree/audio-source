@@ -1,6 +1,6 @@
 class AudioBufferInstrument {
     constructor(config={}, audioContext=null) {
-        this.config = {};
+        this.config = config;
         this.audioContext = audioContext;
         this.audioBuffer = null;
         this.loadAudioBuffer();

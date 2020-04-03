@@ -54,10 +54,10 @@ class PolyphonyInstrument {
 
     /** Playback **/
 
-    playNote(destination, frequency, startTime, duration, velocity, onended=null) {
+    playNote(destination, frequency, startTime, duration, velocity=null, onended=null) {
         for (let i = 0; i < this.voices.length; i++) {
             const voice = this.voices[i];
-            voice.playVoice(destination, frequency, startTime, duration, velocity, onended);
+            voice.playNote(destination, frequency, startTime, duration, velocity, onended);
 
         }
     }
@@ -74,6 +74,42 @@ class PolyphonyInstrument {
         }
         this.activeSources = [];
 
+    }
+
+    /** Modify Instrument **/
+
+
+    async addVoice(voiceURL, voiceName=null, promptUser=false) {
+        const defaultVoiceName = voiceURL.split('/').pop();
+        // voiceURL = new URL(voiceURL) + '';
+        if(promptUser) {
+            voiceURL = prompt(`Add Voice URL:`, voiceURL || 'https://mysite.com/myvoice.wav');
+            voiceName = prompt(`Set Voice Name:`, voiceName || defaultVoiceName);
+        }
+        if (!voiceURL)
+            throw new Error("Change voice URL canceled");
+        if(!voiceName)
+            voiceName = defaultVoiceName;
+
+
+        // if (voiceURL.endsWith('.library.json')) {
+        //     console.log("Loading library: " + voiceURL);
+        //     await this.voiceLibrary.loadFromURL(voiceURL);
+        //     this.fieldAddVoice.value = '';
+        // } else {
+
+        if(!voiceName && promptUser)
+            voiceName = prompt(`Set Voice Name:`, voiceName);
+        const addVoiceID = this.config.voices.length;
+        this.config.voices[addVoiceID] = {
+            url: voiceURL,
+            name: voiceName,
+            // name: addVoiceName
+        };
+        await this.loadVoice(addVoiceID);
+
+        if(this.grid) await this.grid.forceUpdate();
+        else this.forceUpdate();
     }
 
 
@@ -185,193 +221,157 @@ class PolyphonyInstrument {
     // }
 
 
-    /** Modify Instrument **/
-
-
-    async addVoice(voiceURL, voiceName=null, promptUser=false) {
-        const defaultVoiceName = voiceURL.split('/').pop();
-        // voiceURL = new URL(voiceURL) + '';
-        if(promptUser) {
-            voiceURL = prompt(`Add Voice URL:`, voiceURL || 'https://mysite.com/myvoice.wav');
-            voiceName = prompt(`Set Voice Name:`, voiceName || defaultVoiceName);
-        }
-        if (!voiceURL)
-            throw new Error("Change voice URL canceled");
-        if(!voiceName)
-            voiceName = defaultVoiceName;
-
-
-        // if (voiceURL.endsWith('.library.json')) {
-        //     console.log("Loading library: " + voiceURL);
-        //     await this.voiceLibrary.loadFromURL(voiceURL);
-        //     this.fieldAddVoice.value = '';
-        // } else {
-
-        if(!voiceName && promptUser)
-            voiceName = prompt(`Set Voice Name:`, voiceName);
-        const addVoiceID = this.config.voices.length;
-        this.config.voices[addVoiceID] = {
-            url: voiceURL,
-            name: voiceName,
-            // name: addVoiceName
-        };
-        await this.loadVoice(addVoiceID);
-
-        if(this.grid) await this.grid.forceUpdate();
-        else this.forceUpdate();
-    }
-
 
 
 
     /** Modify Voice **/
 
-    // setVoiceName(voiceID, newVoiceName) {
-    //     if(!newVoiceName)
-    //         throw new Error("Invalid voice name");
-    //     this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'name'], newVoiceName);
+    // // setVoiceName(voiceID, newVoiceName) {
+    // //     if(!newVoiceName)
+    // //         throw new Error("Invalid voice name");
+    // //     this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'name'], newVoiceName);
+    // // }
+    //
+    // setVoicePolyphony(voiceID, polyphonyLimit) {
+    //     if(!Number.isInteger(polyphonyLimit))
+    //         throw new Error("Invalid polyphony value");
+    //     this.config.voices[voiceID].polyphony = polyphonyLimit;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'polyphony'], polyphonyLimit);
+    // }
+    //
+    // async setVoiceURL(voiceID, newVoiceURL) {
+    //     newVoiceURL = new URL(newVoiceURL) + '';
+    //     this.config.voices[voiceID].url = newVoiceURL;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'url'], newVoiceURL);
+    //     await this.loadVoice(voiceID);
+    // }
+    //
+    // async setVoiceName(voiceID, voiceName) {
+    //     this.config.voices[voiceID].name = voiceName;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'name'], voiceName);
+    // }
+    //
+    // setVoiceMixer(voiceID, newMixerValue) {
+    //     if(!Number.isInteger(newMixerValue))
+    //         throw new Error("Invalid mixer value");
+    //     this.config.voices[voiceID].mixer = newMixerValue;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'mixer'], newMixerValue);
+    // }
+    //
+    // setVoiceDetune(voiceID, newDetuneValue) {
+    //     if(!Number.isInteger(newDetuneValue))
+    //         throw new Error("Invalid detune value");
+    //     this.config.voices[voiceID].detune = newDetuneValue;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'detune'], newDetuneValue);
+    // }
+    //
+    // setVoiceKeyRoot(voiceID, newKeyRootValue) {
+    //     if(!newKeyRootValue)    delete this.config.voices[voiceID].root;
+    //     else                    this.config.voices[voiceID].root = newKeyRootValue;
+    // }
+    //
+    // setVoiceKeyAlias(voiceID, newKeyAliasValue) {
+    //     if(!newKeyAliasValue)
+    //         throw new Error("Invalid keyAlias value");
+    //     this.config.voices[voiceID].keyAlias = newKeyAliasValue;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'keyAlias'], newKeyAliasValue);
+    // }
+    //
+    // setVoiceLoop(voiceID, newLoopValue) {
+    //     if(typeof newLoopValue !== 'boolean')
+    //         throw new Error("Invalid loop value");
+    //     this.config.voices[voiceID].loop = newLoopValue;
+    //     // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'loop'], newLoopValue);
+    // }
+    //
+    // async removeVoice(voiceID) {
+    //     this.config.voices.splice(voiceID, 1);
+    // }
+    //
+    //
+    // getFrequencyFromAlias(aliasName) {
+    //     for (let voiceID = 0; voiceID < this.config.voices.length; voiceID++) {
+    //         const voiceConfig = this.config.voices[voiceID];
+    //         if (voiceConfig && voiceConfig.alias && aliasName === voiceConfig.name) {
+    //             return voiceConfig.alias;
+    //         }
+    //     }
+    //     return null;
     // }
 
-    setVoicePolyphony(voiceID, polyphonyLimit) {
-        if(!Number.isInteger(polyphonyLimit))
-            throw new Error("Invalid polyphony value");
-        this.config.voices[voiceID].polyphony = polyphonyLimit;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'polyphony'], polyphonyLimit);
-    }
 
-    async setVoiceURL(voiceID, newVoiceURL) {
-        newVoiceURL = new URL(newVoiceURL) + '';
-        this.config.voices[voiceID].url = newVoiceURL;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'url'], newVoiceURL);
-        await this.loadVoice(voiceID);
-    }
-
-    async setVoiceName(voiceID, voiceName) {
-        this.config.voices[voiceID].name = voiceName;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'name'], voiceName);
-    }
-
-    setVoiceMixer(voiceID, newMixerValue) {
-        if(!Number.isInteger(newMixerValue))
-            throw new Error("Invalid mixer value");
-        this.config.voices[voiceID].mixer = newMixerValue;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'mixer'], newMixerValue);
-    }
-
-    setVoiceDetune(voiceID, newDetuneValue) {
-        if(!Number.isInteger(newDetuneValue))
-            throw new Error("Invalid detune value");
-        this.config.voices[voiceID].detune = newDetuneValue;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'detune'], newDetuneValue);
-    }
-
-    setVoiceKeyRoot(voiceID, newKeyRootValue) {
-        if(!newKeyRootValue)    delete this.config.voices[voiceID].root;
-        else                    this.config.voices[voiceID].root = newKeyRootValue;
-    }
-
-    setVoiceKeyAlias(voiceID, newKeyAliasValue) {
-        if(!newKeyAliasValue)
-            throw new Error("Invalid keyAlias value");
-        this.config.voices[voiceID].keyAlias = newKeyAliasValue;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'keyAlias'], newKeyAliasValue);
-    }
-
-    setVoiceLoop(voiceID, newLoopValue) {
-        if(typeof newLoopValue !== 'boolean')
-            throw new Error("Invalid loop value");
-        this.config.voices[voiceID].loop = newLoopValue;
-        // this.song.instrumentReplaceParam(this.id, ['voices', voiceID, 'loop'], newLoopValue);
-    }
-
-    async removeVoice(voiceID) {
-        this.config.voices.splice(voiceID, 1);
-    }
-
-
-    getFrequencyFromAlias(aliasName) {
-        for (let voiceID = 0; voiceID < this.config.voices.length; voiceID++) {
-            const voiceConfig = this.config.voices[voiceID];
-            if (voiceConfig && voiceConfig.alias && aliasName === voiceConfig.name) {
-                return voiceConfig.alias;
-            }
-        }
-        return null;
-    }
-
-
-    getFrequencyAliases() {
-        const aliases = {};
-        for (let voiceID = 0; voiceID < this.config.voices.length; voiceID++) {
-            const voiceConfig = this.config.voices[voiceID];
-            if (voiceConfig && voiceConfig.alias)
-                aliases[voiceConfig.name] = voiceConfig.alias;
-        }
-        return aliases;
-    }
-
-
-    getCommandKeyNumber(command) {
-        if (Number(command) === command && command % 1 !== 0)
-            return command;
-        if (!command)
-            return null;
-
-        const noteCommands = this.noteFrequencies; // ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-        let octave = command.length === 3 ? command.charAt(2) : command.charAt(1),
-            keyNumber = noteCommands.indexOf(command.slice(0, -1));
-        if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
-        else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
-        return keyNumber;
-    }
-
-    getCommandFrequency(command) {
-        const keyNumber = this.getCommandKeyNumber(command);
-        return 440 * Math.pow(2, (keyNumber - 49) / 12);
-    }
-
-    get noteFrequencies() {
-        return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-    }
-
-    /** Modify Instrument **/
-
-    instrumentRemove() {
-        this.song.instrumentRemove(this.id);
-        // document.dispatchEvent(new CustomEvent('instruments:remove', this));
-    }
-
-    instrumentRename(newInstrumentName) {
-        return this.config.title = newInstrumentName; // song.instrumentRename(this.id, newInstrumentName);
-    }
-
-    async setPreset(presetURL) {
-        presetURL = new URL(presetURL);
-        this.voiceLibrary = await Library.loadFromURL(presetURL + '');
-        if (presetURL.hash) {
-            const newPresetName = presetURL.hash.substr(1);
-            let newPresetConfig = this.voiceLibrary.getPresetConfig(newPresetName);
-            newPresetConfig = Object.assign({}, this.config, newPresetConfig);
-            await this.song.instrumentReplace(this.id, newPresetConfig);
-            await this.loadConfig(newPresetConfig);
-        }
-        this.forceUpdate();
-        if (!presetURL.hash) {
-            await this.selectChangePreset.open();
-        }
-//             await this.selectChangePreset.renderOptions();
-        // this.selectChangePreset.value = ''; // TODO: why was this?
-        this.selectChangePreset.focus();
-//             this.form.classList.add('focus');
-    }
-
-
-
-    static getRenderer(props) {
-        return <PolyphonyInstrumentRenderer
-            {...props}
-        />;
-    }
+//     getFrequencyAliases() {
+//         const aliases = {};
+//         for (let voiceID = 0; voiceID < this.config.voices.length; voiceID++) {
+//             const voiceConfig = this.config.voices[voiceID];
+//             if (voiceConfig && voiceConfig.alias)
+//                 aliases[voiceConfig.name] = voiceConfig.alias;
+//         }
+//         return aliases;
+//     }
+//
+//
+//     getCommandKeyNumber(command) {
+//         if (Number(command) === command && command % 1 !== 0)
+//             return command;
+//         if (!command)
+//             return null;
+//
+//         const noteCommands = this.noteFrequencies; // ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+//         let octave = command.length === 3 ? command.charAt(2) : command.charAt(1),
+//             keyNumber = noteCommands.indexOf(command.slice(0, -1));
+//         if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
+//         else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
+//         return keyNumber;
+//     }
+//
+//     getCommandFrequency(command) {
+//         const keyNumber = this.getCommandKeyNumber(command);
+//         return 440 * Math.pow(2, (keyNumber - 49) / 12);
+//     }
+//
+//     get noteFrequencies() {
+//         return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+//     }
+//
+//     /** Modify Instrument **/
+//
+//     instrumentRemove() {
+//         this.song.instrumentRemove(this.id);
+//         // document.dispatchEvent(new CustomEvent('instruments:remove', this));
+//     }
+//
+//     instrumentRename(newInstrumentName) {
+//         return this.config.title = newInstrumentName; // song.instrumentRename(this.id, newInstrumentName);
+//     }
+//
+//     async setPreset(presetURL) {
+//         presetURL = new URL(presetURL);
+//         this.voiceLibrary = await Library.loadFromURL(presetURL + '');
+//         if (presetURL.hash) {
+//             const newPresetName = presetURL.hash.substr(1);
+//             let newPresetConfig = this.voiceLibrary.getPresetConfig(newPresetName);
+//             newPresetConfig = Object.assign({}, this.config, newPresetConfig);
+//             await this.song.instrumentReplace(this.id, newPresetConfig);
+//             await this.loadConfig(newPresetConfig);
+//         }
+//         this.forceUpdate();
+//         if (!presetURL.hash) {
+//             await this.selectChangePreset.open();
+//         }
+// //             await this.selectChangePreset.renderOptions();
+//         // this.selectChangePreset.value = ''; // TODO: why was this?
+//         this.selectChangePreset.focus();
+// //             this.form.classList.add('focus');
+//     }
+//
+//
+//
+//     static getRenderer(props) {
+//         return <PolyphonyInstrumentRenderer
+//             {...props}
+//         />;
+//     }
 
 
 }

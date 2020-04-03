@@ -98,9 +98,20 @@ class TrackerInstruction extends React.Component {
         this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
     }
 
-    selectAndPlayInstruction(clearSelection=true) {
+    selectInstructionWithAction(clearSelection=true) {
         this.selectInstruction(clearSelection);
-        this.getTracker().playSelectedInstructions();
+        const instruction = this.getInstruction();
+        if(instruction.isTrackInstruction()) {
+            this.getComposer().trackerToggleTrack(
+                instruction.getTrackNameFromCommand(),
+                null,
+                {
+                    destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())
+                }
+            );
+        } else {
+            this.getTracker().playSelectedInstructions();
+        }
     }
 
     /** TODO: Inefficient **/
@@ -118,7 +129,7 @@ class TrackerInstruction extends React.Component {
         switch(e.type) {
             case 'click':
                 if(e.button === 0)
-                    this.selectAndPlayInstruction(!e.ctrlKey);
+                    this.selectInstructionWithAction(!e.ctrlKey);
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)

@@ -257,6 +257,8 @@ class Song {
         }
         let instrument = this.instruments[instrumentID];
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
+        if(typeof noteFrequency === "string")
+            noteFrequency = Song.parseFrequencyString(noteFrequency);
         return instrument.playNote(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
     }
 
@@ -1017,6 +1019,33 @@ class Song {
         return historyAction;
     }
 
+
+    /** Parsing **/
+
+
+    static parseFrequencyString(note) {
+        if (typeof note !== "string")
+            throw new Error("Frequency is not a string");
+        if (!note)
+            throw new Error("Frequency is null");
+
+        const noteCommands = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+        let octave = note.length === 3 ? note.charAt(2) : note.charAt(1),
+            keyNumber = noteCommands.indexOf(note.slice(0, -1));
+        if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
+        else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
+        return 440 * Math.pow(2, (keyNumber - 49) / 12);
+    }
+
+//     getCommandFrequency(command) {
+//         const keyNumber = this.getCommandKeyNumber(command);
+//         return 440 * Math.pow(2, (keyNumber - 49) / 12);
+//     }
+//
+//     get noteFrequencies() {
+//         return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+//     }
+//
     /** History **/
 
     // applyHistoryActions(songHistory) {
