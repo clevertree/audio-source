@@ -276,6 +276,10 @@ class Song {
         return this.data.instruments[instrumentID];
     }
 
+    instrumentGetConfig(instrumentID) {
+        return this.instrumentGetData(instrumentID)[1];
+    }
+
 
 
     instrumentGetList() {

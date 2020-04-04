@@ -20,7 +20,7 @@ class TrackInstruction extends Instruction {
     }
 
     get durationTicks() {
-        return this.data[3];
+        return this.data[3] || null;
     }
 
     set durationTicks(newDuration) {

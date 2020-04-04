@@ -54,7 +54,7 @@ class ComposerRenderer extends React.Component {
     // getSelectedTrack() { return this.state.selectedTrack; }
 
     render() {
-        const {selectedTrackName, selectedIndices, cursorInstruction} = this.trackerGetSelectedInfo();
+        const {trackName:selectedTrackName, selectedIndices, cursorInstruction} = this.trackerGetActiveSelectedTrackState();
         return (
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
@@ -189,7 +189,7 @@ class ComposerRenderer extends React.Component {
                                            key={instrumentID}
                                            composer={this}
                                            // openMenu={(e, options) => this.renderMenu(e, options)}
-                                           // props={instrumentConfig}
+                                           instrumentConfig={instrumentConfig}
                                            instrumentID={instrumentID}
                                        />
                                    )}

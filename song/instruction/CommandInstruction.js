@@ -4,7 +4,7 @@ class CommandInstruction extends Instruction {
 
 
     get durationTicks() {
-        return this.data[2];
+        return this.data[2] || null;
     }
 
     set durationTicks(newDuration) {

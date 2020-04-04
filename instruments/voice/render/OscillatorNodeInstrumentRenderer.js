@@ -13,89 +13,57 @@ import "./assets/OscillatorNodeInstrumentRenderer.css";
 
 class OscillatorNodeInstrumentRenderer extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            open: false
-        }
-    }
-
-    getSong() { return this.props.song; }
-    getInstrumentID() { return this.props.instrumentID; }
-    getConfig() { return this.props.config; }
-
     render() {
-        const config = this.getConfig();
-        // console.log('voice', voice);
-        // const sampleName = config.url.replace(/\.(wav|mp3)$/, '');
+        const config = this.props.config;
+        let title = config.title || config.type || "Unknown Osc";
 
-        let className = 'oscillatornode-instrument-renderer';
-        if(this.state.open)
-            className += ' open';
-
-        return (
-            <Div
-                className={className}
-                >
-                <Button
-                    title="Change Sample"
-                    className="name"
-                    onAction={e => this.toggleOpen(e)}>
-                    {"Unnamed"}
-                </Button>
-                {!this.state.open ? null : (
-                    <>
-                        {typeof config.mixer === 'undefined' ? null : (
-                            <Div title="Edit Mixer" className="mixer">
-                                <Button onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
-                                    {config.mixer+'%'}
-                                </Button>
-                            </Div>
-                        )}
-                        {typeof config.detune === 'undefined' ? null : (
-                            <Div title={`Detune by ${config.detune} cents`} className="detune">
-                                <Button onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
-                                    {config.detune+'c'}
-                                </Button>
-                            </Div>
-                        )}
-                        {typeof config.root === 'undefined' ? null : (
-                            <Div title={`Key Root is ${config.root}`} className="root">
-                                <Button onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
-                                    {config.root}
-                                </Button>
-                            </Div>
-                        )}
-                        {typeof config.alias === 'undefined' ? null : (
-                            <Div title={`Key Alias is ${config.alias}`} className="alias">
-                                <Button onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
-                                    {config.alias}
-                                </Button>
-                            </Div>
-                        )}
-                        {typeof config.range === 'undefined' ? null : (
-                            <Div title={`Key Range is ${config.range}`} className="range">
-                                <Button onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
-                                    {config.range}
-                                </Button>
-                            </Div>
-                        )}
-                        {typeof config.loop === 'undefined' ? null : (
-                            <Div title="Toggle Loop" className="loop">
-                                <Button title="" onAction={e => this.changeLoop(!config.loop)} arrow={false} vertical openOnHover={false}>
-                                    {config.loop?'∞':'⇥'}
-                                </Button>
-                            </Div>
-                        )}
-                    </>)
-                }
-                <Div title={`Edit Sample`} className="config">
-                    <Button onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
-                        <Icon className="config"/>
+        return <Div class="oscillatornode-instrument-renderer">
+            <Div>
+                {title}
+            </Div>
+            {typeof config.mixer === 'undefined' ? null : (
+                <Div title="Edit Mixer" className="mixer">
+                    <Button onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
+                        {config.mixer+'%'}
                     </Button>
                 </Div>
-            </Div>
-        );
+            )}
+            {typeof config.detune === 'undefined' ? null : (
+                <Div title={`Detune by ${config.detune} cents`} className="detune">
+                    <Button onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
+                        {config.detune+'c'}
+                    </Button>
+                </Div>
+            )}
+            {typeof config.root === 'undefined' ? null : (
+                <Div title={`Key Root is ${config.root}`} className="root">
+                    <Button onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
+                        {config.root}
+                    </Button>
+                </Div>
+            )}
+            {typeof config.alias === 'undefined' ? null : (
+                <Div title={`Key Alias is ${config.alias}`} className="alias">
+                    <Button onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
+                        {config.alias}
+                    </Button>
+                </Div>
+            )}
+            {typeof config.range === 'undefined' ? null : (
+                <Div title={`Key Range is ${config.range}`} className="range">
+                    <Button onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
+                        {config.range}
+                    </Button>
+                </Div>
+            )}
+            {typeof config.loop === 'undefined' ? null : (
+                <Div title="Toggle Loop" className="loop">
+                    <Button title="" onAction={e => this.changeLoop(!config.loop)} arrow={false} vertical openOnHover={false}>
+                        {config.loop?'∞':'⇥'}
+                    </Button>
+                </Div>
+            )}
+        </Div>;
     }
 
 

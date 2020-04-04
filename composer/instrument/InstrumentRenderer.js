@@ -5,7 +5,7 @@ import {
     // Button,
     ButtonDropDown,
     MenuAction,
-    MenuDropDown,
+    MenuDropDown, Button, MenuBreak, Scrollable,
 } from "../../components";
 
 import InstrumentLoader from "../../song/instrument/InstrumentLoader";
@@ -14,6 +14,12 @@ import InstrumentLoader from "../../song/instrument/InstrumentLoader";
 import "./assets/InstrumentRenderer.css";
 
 class InstrumentRenderer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            open: true
+        }
+    }
 
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
@@ -24,69 +30,122 @@ class InstrumentRenderer extends React.Component {
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
 
-        let contentClass = 'error';
-        let contentHTML = '';
+        // let contentClass = 'error';
+        let titleHTML = '';
         if (song.hasInstrument(instrumentID)) {
-
-            try {
-                const renderer = song.instrumentLoadRenderer(instrumentID);
-                // const instrumentConfig = song.getInstrumentConfig(instrumentID);
-
-                if (!renderer) {
-                    contentHTML += `No Instrument Renderer`;
-
-                } else {
-                    return renderer;
-                    // return React.createElement(renderer,{},  null)
-                }
-
-            } catch (e) {
-                contentHTML += e.message;
-            }
+            titleHTML = this.props.instrumentConfig.title || "No Title"
 
         } else {
-            contentHTML = `Empty`;
+            titleHTML = `Empty`;
         }
         return (
             <Div className="asc-instrument-renderer-empty">
                 <Div className="header">
-                    <Div className={contentClass}>{instrumentIDHTML}: {contentHTML}</Div>
-                    {this.renderInstrumentConfig()}
+                    <Button
+                        className="toggle-container"
+                        onAction={e => this.toggleContainer(e)}
+                    >{instrumentIDHTML}: {titleHTML}</Button>
+                    <ButtonDropDown
+                        arrow={false}
+                        className="instrument-config"
+                        options={() => this.renderMenuRoot()}
+                    >
+                        <Icon className="config"/>
+                    </ButtonDropDown>
                 </Div>
+                {this.state.open ? <Div className="content">
+                    {this.renderInstrumentContent()}
+                </Div> : null}
             </Div>
         );
 
         // return content;
     }
 
+    renderInstrumentContent() {
+        try {
+            return this.getSong().instrumentLoadRenderer(this.props.instrumentID);
 
-    renderInstrumentConfig() {
-        return (
-            <ButtonDropDown
-                arrow={false}
-                className="instrument-config"
-                options={() => this.renderMenuRoot()}
-            >
-                <Icon className="config"/>
-            </ButtonDropDown>
-        )
+        } catch (e) {
+            return e.message;
+        }
     }
 
-    renderMenuRoot() {
-        const editDisabled = !this.getSong().hasInstrument(this.props.instrumentID);
+    /** Actions **/
+
+
+    toggleContainer() {
+        this.setState({open: !this.state.open});
+    }
+
+
+    /** Menu **/
+
+
+
+
+    renderMenuRoot(e) {
         return (<>
-            <MenuDropDown options={() => this.renderMenuReplaceInstrument()}>Change Instrument</MenuDropDown>
-            {/*<MenuItem onAction={e => this.instrumentRename(e)} disabled={editDisabled}>Rename Instrument</MenuItem>*/}
-            <MenuAction onAction={e => this.instrumentRemove(e)} disabled={editDisabled}>Remove Instrument</MenuAction>
-        </>)
+            <MenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</MenuDropDown>
+            <MenuBreak />
+            <MenuDropDown options={() => this.renderMenuChange()}>Change Instrument</MenuDropDown>
+            <MenuAction onAction={e => this.instrumentRename(e)}>Rename Instrument</MenuAction>
+            <MenuAction onAction={e => this.instrumentRemove(e)}>Remove Instrument</MenuAction>
+        </>);
     }
 
-    renderMenuReplaceInstrument(e) {
-        return InstrumentLoader.getInstruments().map((config, i) =>
-            <MenuAction key={i} onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
-        );
+    renderMenuChange(e) {
+        return (<>
+            {InstrumentLoader.getInstruments().map(config =>
+                <MenuAction onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
+            )}
+        </>);
     }
 
+    renderMenuChangePreset(e) {
+        let library = this.state.library;
+        return (<>
+            <MenuDropDown options={() => this.renderMenuLibraryList()}    >Libraries</MenuDropDown>
+            <MenuBreak />
+            <MenuAction disabled>Search</MenuAction>
+            <MenuBreak />
+            {library.getPresets().length > 0 ? (
+                <Scrollable>
+                    {library.getPresets().map(config => (
+                        <MenuAction onAction={e => this.loadPreset(config.name)}>{config.name}</MenuAction>
+                    ))}
+                </Scrollable>
+            ) : <MenuAction disabled> - Select a Library - </MenuAction>}
+        </>);
+
+        // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
+        //     library.getPresets().map(config => selectElm.getOption(config.url, config.name)),
+        // ),
+        //     selectElm.getOptGroup('Libraries', () =>
+        //             library.getLibraries().map(config => selectElm.getOption(config.url, config.name)),
+        //         {disabled: library.libraryCount === 0}
+        //     ),
+        //     selectElm.getOptGroup('Other Libraries', () =>
+        //             Library.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
+        //         {disabled: Library.historicLibraryCount === 0}
+        //     ),
+    }
+
+    renderMenuPresetList(e) {
+        let library = this.state.library;
+        // if(library.getPresets().length === 0)
+        //     return <Menu disabled>No presets</Menu>;
+        return library.getPresets().map(config => (
+            <MenuAction>{config.name}</MenuAction>
+        ));
+    }
+
+    renderMenuLibraryList(e) {
+        let library = this.state.library;
+        return library.getLibraries().map(config => (
+            <MenuAction onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuAction>
+        ));
+    }
 
     instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
         const instrumentID = this.props.instrumentID;
