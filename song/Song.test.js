@@ -49,7 +49,7 @@ class SongTest {
   // async testValues() {
   //     const s = new Song();
   //
-  //     const v = new Values(s);
+  //     const v = new SongValues(s);
   //     v.valueTypes.forEach(valueType => {
   //         v.getValues(valueType, (value, title) => {
   //             // console.info(value, title);

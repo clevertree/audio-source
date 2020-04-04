@@ -34,6 +34,9 @@ class PolyphonyInstrumentRenderer extends React.Component {
 
     }
 
+    /** Actions **/
+
+    /** Menu **/
 
 }
 

@@ -1,5 +1,5 @@
 import InstrumentLoader from "./instrument/InstrumentLoader";
-import Values from "./Values";
+import {SongValues} from "./values/";
 
 import Storage from "./Storage";
 import GMESongFile from "./file/GMESongFile";
@@ -81,7 +81,7 @@ class Song {
         this.history = [];
         // this.waitCancels = [];
         // this.playbackEndCallbacks = [];
-        this.values = new Values(this);
+        this.values = new SongValues(this);
 
         this.loadSongData(songData);
         this.instrumentLoadAll();

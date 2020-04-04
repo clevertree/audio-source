@@ -1,7 +1,6 @@
 import PlayerActions from "./PlayerActions";
 
-import Values        from "../song/Values";
-import Song          from "../song/Song";
+import {Song, SongValues}          from "../song";
 import Storage       from "../song/Storage";
 
 import "./assets/Player.css";
@@ -61,7 +60,7 @@ class Player extends PlayerActions {
     // get isPaused()              { return this.state.paused; }
     // set isPaused(value)         { this.setStatus({paused: value}); }
 
-    get values() { return new Values(this.song); }
+    get values() { return new SongValues(this.song); }
 
     componentDidMount(e) {
         const url = this.props.src || this.props.url;

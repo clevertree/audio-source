@@ -20,7 +20,7 @@
             // midiNote -= 24;
             const octave = Math.floor(midiNote / 12);
             const pitch = midiNote % 12;
-            const sources = new Values();
+            const sources = new SongValues();
             return sources.noteFrequencies[pitch] + octave;
         }
 

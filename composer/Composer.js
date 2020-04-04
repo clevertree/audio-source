@@ -1,5 +1,4 @@
-import Values        from "../song/Values";
-import Song          from "../song/Song";
+import {Song, SongValues}          from "../song";
 import Storage       from "../song/Storage";
 
 import ComposerActions from "./ComposerActions";
@@ -39,7 +38,7 @@ class Composer extends ComposerActions {
         this.song = new Song(this.getAudioContext());
         this.song.loadSongData({});
         // this.setCurrentSong(this.song);
-        // this.values = new Values(this.song);
+        // this.values = new SongValues(this.song);
         // Util.loadLibrary(defaultLibraryURL);
 
         // this.onSongEvent = (e) => this.onSongEvent(e);
@@ -56,7 +55,7 @@ class Composer extends ComposerActions {
     // get isPaused()              { return this.props.paused; }
     // set isPaused(value)         { this.setProps({paused: value}); }
 
-    get values() { return new Values(this.song); }
+    get values() { return new SongValues(this.song); }
 
     async connectedCallback() {
         this.shadowDOM = this.attachShadow({mode: 'closed'});
