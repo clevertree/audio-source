@@ -6,13 +6,20 @@ import {
     Button,
     MenuAction,
     MenuBreak,
-    Icon, InputRange, MenuDropDown,
+    Icon, InputRange, MenuDropDown, ButtonDropDown,
 } from "../../../components";
 import {Values} from "../../../song";
 
 import "./assets/OscillatorNodeInstrumentRenderer.css";
 
 class OscillatorNodeInstrumentRenderer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            open: true
+        }
+    }
+
 
     getTitle() {
         return this.props.config.title
@@ -21,18 +28,21 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     render() {
+        let className = "oscillatornode-instrument-renderer";
+        if(this.state.open)
+            className += ' open';
         const config = this.props.config;
         let title = this.getTitle();
-
-        return <Div className="oscillatornode-instrument-renderer">
-            <MenuDropDown
-                    className="title"
-                    title={`Oscillator: ${title}`}
-                    options={() => this.renderMenuRoot()}
-                    vertical>
+        const open = this.props.open;
+        return <Div className={className}>
+            <Div
+                className="title"
+                title={`Oscillator: ${title}`}
+                onClick={(e) => this.toggleOpen()}
+                vertical>
                 {title}
-            </MenuDropDown>
-            {typeof config.mixer === 'undefined' ? null : (
+            </Div>
+            {typeof !open || config.mixer === 'undefined' ? null : (
                 <MenuDropDown title="Edit Mixer"
                               className="mixer"
                               options={() => this.renderMenuChangeMixer()}
@@ -40,7 +50,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                     {config.mixer+'%'}
                 </MenuDropDown>
             )}
-            {typeof config.detune === 'undefined' ? null : (
+            {typeof !open || config.detune === 'undefined' ? null : (
                 <MenuDropDown title={`Detune by ${config.detune} cents`}
                               className="detune"
                               options={() => this.renderMenuChangeDetune()}
@@ -48,7 +58,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                     {config.detune+'c'}
                 </MenuDropDown>
             )}
-            {typeof config.root === 'undefined' ? null : (
+            {typeof !open || config.root === 'undefined' ? null : (
                 <MenuDropDown title={`Key Root is ${config.root}`}
                               className="root"
                               options={() => this.renderMenuChangeKeyRoot()}
@@ -56,7 +66,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                     {config.root}
                 </MenuDropDown>
             )}
-            {typeof config.alias === 'undefined' ? null : (
+            {typeof !open || config.alias === 'undefined' ? null : (
                 <MenuDropDown title={`Key Alias is ${config.alias}`}
                               className="alias"
                               options={() => this.renderMenuChangeKeyAlias()}
@@ -64,7 +74,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                     {config.alias}
                 </MenuDropDown>
             )}
-            {typeof config.range === 'undefined' ? null : (
+            {typeof !open || config.range === 'undefined' ? null : (
                 <MenuDropDown title={`Key Range is ${config.range}`}
                               className="range"
                               options={() => this.renderMenuChangeKeyRange()}
@@ -79,7 +89,48 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                     </Button>
                 </Div>
             )}
+
+            <MenuDropDown
+                arrow={false}
+                className="config"
+                options={() => this.renderMenuRoot()}
+            >
+                <Icon className="config"/>
+            </MenuDropDown>
         </Div>;
+    }
+
+
+    /** Actions **/
+
+    toggleOpen() {
+        this.setState({open: !this.state.open});
+    }
+
+    changeMixer(newMixerValue) {
+        if(!Number.isInteger(newMixerValue))
+            throw new Error("Invalid mixer value type: " + typeof newMixerValue);
+        this.props.config.mixer = newMixerValue;
+    }
+
+    changeDetune(newDetuneValue) {
+        if(!Number.isInteger(newDetuneValue))
+            throw new Error("Invalid detune value type: " + typeof newDetuneValue);
+        this.props.config.detune = newDetuneValue;
+    }
+
+    changeRoot(newRootValue) {
+        this.props.config.root = newRootValue;
+    }
+
+    changeAlias(newAliasValue) {
+        this.props.config.alias = newAliasValue;
+    }
+
+    changeLoop(newLoopValue=null) {
+        if(newLoopValue === null)
+            newLoopValue = !this.props.config.loop;
+        this.props.config.loop = newLoopValue?1:0;
     }
 
     /** Menus **/
@@ -172,35 +223,6 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     renderMenuChangeLoop() {
         return (<></>);
-    }
-
-
-    /** Actions **/
-
-    changeMixer(newMixerValue) {
-        if(!Number.isInteger(newMixerValue))
-            throw new Error("Invalid mixer value type: " + typeof newMixerValue);
-        this.props.config.mixer = newMixerValue;
-    }
-
-    changeDetune(newDetuneValue) {
-        if(!Number.isInteger(newDetuneValue))
-            throw new Error("Invalid detune value type: " + typeof newDetuneValue);
-        this.props.config.detune = newDetuneValue;
-    }
-
-    changeRoot(newRootValue) {
-        this.props.config.root = newRootValue;
-    }
-
-    changeAlias(newAliasValue) {
-        this.props.config.alias = newAliasValue;
-    }
-
-    changeLoop(newLoopValue=null) {
-        if(newLoopValue === null)
-            newLoopValue = !this.props.config.loop;
-        this.props.config.loop = newLoopValue?1:0;
     }
 }
 

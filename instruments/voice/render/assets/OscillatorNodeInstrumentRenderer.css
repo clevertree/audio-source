@@ -1,42 +1,20 @@
 
 
-div.oscillatornode-instrument-renderer > div.header {
-    display: flex;
-    flex-direction: row;
-
-    /*justify-content: space-between;*/
-    /* font-weight: bold; */
-    text-align: center;
-    /* text-decoration: underline; */
-    border-bottom: 1px solid #BBB;
-}
-
-div.oscillatornode-instrument-renderer > div.header > div{
-    flex-direction: column;
-    flex: 1;
-}
-
-
-
-/** Sample Grid **/
 div.oscillatornode-instrument-renderer {
-    display: flex;
+    display: inline-flex;
     /*min-width: 480px;*/
     text-align: center;
-    margin: 5px;
-    border-radius: 4px;
-    background: #D4D4D4;
-}
+    margin: 2px;
 
-div.oscillatornode-instrument-renderer > div.sample {
-    display: flex;
     padding: 1px;
-    margin: 0;
     color: #666;
     border: solid 1px #666;
     border-radius: 4px;
     background-color: #CCC;
     position: relative;
+}
+div.oscillatornode-instrument-renderer.open {
+    background-color: #AAA;
 }
 
 div.oscillatornode-instrument-renderer > div.name {
