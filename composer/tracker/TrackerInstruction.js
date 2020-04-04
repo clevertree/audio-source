@@ -7,10 +7,11 @@ import Div from "../../components/div/Div";
 
 import "./assets/TrackerInstruction.css";
 import PropTypes from "prop-types";
+import {TrackInstruction} from "../../song/instruction";
 
 class TrackerInstruction extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
@@ -25,6 +26,7 @@ class TrackerInstruction extends React.Component {
 
     /** Property validation **/
     static propTypes = {
+        index: PropTypes.number.isRequired,
         instruction: PropTypes.any.isRequired,
         tracker: PropTypes.any.isRequired,
         cursorPosition: PropTypes.number.isRequired
@@ -95,16 +97,16 @@ class TrackerInstruction extends React.Component {
     selectInstruction(clearSelection=true) {
         // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
-        const instruction = this.getInstruction();
-        selectedIndices.push(instruction.index);
+        // const instruction = this.getInstruction();
+        selectedIndices.push(this.props.index);
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
-        this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
+        return this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
     }
 
     selectInstructionWithAction(clearSelection=true) {
-        this.selectInstruction(clearSelection);
+        const selectedIndices = this.selectInstruction(clearSelection);
         const instruction = this.getInstruction();
-        if(instruction instanceof TrackerInstruction) {
+        if(instruction instanceof TrackInstruction) {
             this.getComposer().trackerToggleTrack(
                 instruction.getTrackName(),
                 null,
@@ -113,7 +115,7 @@ class TrackerInstruction extends React.Component {
                 }
             );
         } else {
-            this.getTracker().playSelectedInstructions();
+            this.getTracker().playInstructions(selectedIndices);
         }
     }
 

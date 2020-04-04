@@ -33,7 +33,7 @@ class OscillatorNodeInstrument {
     /** Playback **/
 
     playNote(destination, frequency, startTime, duration, velocity, onended=null) {
-        console.log('playNote', destination, frequency, startTime, duration, velocity)
+//         console.log('playNote', destination, frequency, startTime, duration, velocity)
 
 
         //         // Filter voice playback

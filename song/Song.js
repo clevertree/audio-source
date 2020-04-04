@@ -11,6 +11,7 @@ import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} 
 
 import InstrumentList from "../instruments";
 import TrackInstruction from "./instruction/TrackInstruction";
+import React from "react";
 InstrumentList.addAllInstruments();
 // const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
 
@@ -55,7 +56,7 @@ class Song {
             ],
             instructions: {
                 'root': [
-                    ['@track0', 0, 256],
+                    ['@track0', 0, 288],
                     ['@track1', 1],
                 ],
                 'track0': [
@@ -83,7 +84,7 @@ class Song {
         this.values = new Values(this);
 
         this.loadSongData(songData);
-        this.loadAllInstruments();
+        this.instrumentLoadAll();
     }
 
     /** @deprecated? **/
@@ -119,7 +120,7 @@ class Song {
     /** Initialization **/
 
     async initInstrument(instrumentID, audioContext, throwException = true) {
-        const instrument = await this.getInstrument(instrumentID, throwException);
+        const instrument = await this.instrumentGetLoaded(instrumentID, throwException);
         if(!instrument) return;
         await instrument.init(audioContext);
     }
@@ -127,7 +128,7 @@ class Song {
     /** @todo combine with loadAllInstruments **/
     async initAllInstruments(audioContext) {
         console.time('initAllInstruments');
-        const instrumentList = this.getInstrumentList();
+        const instrumentList = this.instrumentGetList();
         for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
             await this.initInstrument(instrumentID, audioContext, false);
         }
@@ -269,48 +270,48 @@ class Song {
         return !!instrumentList[instrumentID];
     }
 
-    /** @deprecated **/
-    getInstrumentConfig(instrumentID) {
-        const instrumentList = this.data.instruments;
-        if (!instrumentList[instrumentID])
-            throw new Error("Instrument ID not found: " + instrumentID);
-        return instrumentList[instrumentID][0];
+    instrumentGetData(instrumentID) {
+        if (!this.data.instruments[instrumentID])
+            throw new Error("Invalid instrument ID: " + instrumentID);
+        return this.data.instruments[instrumentID];
     }
 
 
-    getInstrumentList() {
+
+    instrumentGetList() {
         return this.data.instruments;
     }
 
+
     /** @deprecated **/
-    getInstrument(instrumentID) {
+    instrumentGetLoaded(instrumentID) {
         if (this.instruments[instrumentID])
             return this.instruments[instrumentID];
         throw new Error("Instrument not yet loading: " + instrumentID);
     }
 
-
     unloadInstrument(instrumentID) {
         // TODO:
     }
 
-    loadAllInstruments(forceReload = false) {
+
+    instrumentLoadAll(forceReload = false) {
         const instrumentList = this.data.instruments;
         for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
             if (instrumentList[instrumentID]) {
 //                 console.info("Loading instruments: " + instrumentID, instrumentList[instrumentID]);
-                this.loadInstrument(instrumentID, forceReload);
+                this.instrumentLoad(instrumentID, forceReload);
             }
         }
     }
 
 
-    loadInstrument(instrumentID, forceReload = false) {
+    instrumentLoad(instrumentID, forceReload = false) {
         // instrumentID = parseInt(instrumentID);
         if (!forceReload && this.instruments[instrumentID])
             return this.instruments[instrumentID];
 
-        const instrument = this.loadInstrumentInstance(instrumentID);
+        const instrument = this.instrumentLoadInstance(instrumentID);
         // if (typeof instrument.init !== "function")
         //     throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
         this.instruments[instrumentID] = instrument;
@@ -322,22 +323,42 @@ class Song {
             song: this
         });
 
-        // if (this.audioContext)
-        //     instrument.init(instrumentID, this.audioContext);
 
 //             console.info("Instrument loaded: ", instance, instrumentID);
         return instrument;
     }
 
-
-    loadInstrumentInstance(instrumentID) {
-        const [className, config] = this.data.instruments[instrumentID];
+    instrumentLoadInstance(instrumentID) {
+        const [className, config] = this.instrumentGetData(instrumentID);
         if (!className)
             throw new Error("Invalid instruments class");
 
         const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
         return new classInstrument(config);
     }
+
+    instrumentLoadRenderer(instrumentID) {
+        const [className, config] = this.instrumentGetData(instrumentID);
+        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
+        return <Renderer
+            instrumentID={instrumentID}
+            config={config}
+        />;
+    }
+
+
+    // instrumentGetConfig(instrumentID) {
+    //     const instrumentEntry = this.instrumentGetEntry(instrumentID);
+    //     if (!instrumentEntry[1])
+    //         throw new Error("Invalid instrument Config: " + instrumentID);
+    //     return instrumentEntry[1];
+    // }
+    // instrumentGetClass(instrumentID) {
+    //     const instrumentEntry = this.instrumentGetEntry(instrumentID);
+    //     if (!instrumentEntry[0])
+    //         throw new Error("Invalid instrument Class: " + instrumentID);
+    //     return instrumentEntry[0];
+    // }
 
 
     // updateInstrument(instrumentID, config, subPath=[]) {
@@ -362,7 +383,7 @@ class Song {
 
         this.data.instruments[instrumentID] = config;
         // this.updateDataByPath(['instruments', instrumentID], config);
-        this.loadInstrument(instrumentID);
+        this.instrumentLoad(instrumentID);
         this.dispatchEvent({
             type: 'instruments:added',
             instrumentID,
@@ -383,7 +404,7 @@ class Song {
         oldConfig = this.data.instruments[instrumentID];
         this.data.instruments[instrumentID] = config;
         // oldConfig = this.updateDataByPath(['instruments', instrumentID], config);
-        this.loadInstrument(instrumentID);
+        this.instrumentLoad(instrumentID);
 
         this.dispatchEvent({
             type: 'instruments:modified',
@@ -453,13 +474,6 @@ class Song {
     }
 
 
-    instructionGetList(trackName) {
-        if(!this.data.instructions[trackName])
-            throw new Error("Invalid instruction track: " + trackName);
-        return new InstructionList(
-            this.data.instructions[trackName]
-        );
-    }
     instructionGetIterator(trackName, bpm=null, timeDivision=null) {
         return new InstructionIterator(
             this,

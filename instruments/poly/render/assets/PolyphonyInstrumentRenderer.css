@@ -1,19 +1,19 @@
 
-div.audio-source-synthesizer-container div.header > div.title {
+div.polyphony-instrument-renderer div.header > div.title {
     margin-left: 4px;
 }
-div.audio-source-synthesizer-container div.instrument-config {
+div.polyphony-instrument-renderer div.instrument-config {
     /*margin: 2px;*/
 }
 
-div.audio-source-synthesizer-container div.instrument-preset {
+div.polyphony-instrument-renderer div.instrument-preset {
     margin-left: auto;
 }
 
 
 
 
-div.audio-source-synthesizer-container {
+div.polyphony-instrument-renderer {
     background: #DDD;
     border: 1px outset #FFF;
     padding: 0px 0px;
@@ -23,12 +23,12 @@ div.audio-source-synthesizer-container {
 }
 
 
-div.audio-source-synthesizer-container.active {
+div.polyphony-instrument-renderer.active {
     background: #AAD;
 }
 
 
-div.audio-source-synthesizer-container > div.header {
+div.polyphony-instrument-renderer > div.header {
     /* font-size: smaller; */
     border-bottom: 1px solid #AAA;
     margin-bottom: 1px;
@@ -37,6 +37,6 @@ div.audio-source-synthesizer-container > div.header {
     /* background-color: #CCC; */
 }
 
-div.audio-source-synthesizer-container > div.header > button.toggle-container {
+div.polyphony-instrument-renderer > div.header > button.toggle-container {
 }
 

@@ -14,7 +14,7 @@ import {Library} from "../../../song";
 import InstrumentLoader from "../../../song/instrument/InstrumentLoader";
 
 
-import "./assets/SynthesizerRenderer.css";
+import "./assets/PolyphonyInstrumentRenderer.css";
 
 /** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRenderer extends React.Component {
@@ -30,8 +30,8 @@ class PolyphonyInstrumentRenderer extends React.Component {
     }
 
     getSong() { return this.props.song; }
-    getConfig() { return this.getSong().getInstrumentConfig(this.props.instrumentID); }
-    // getLibrary() { return this.state.library; }
+    getConfig() { return this.props.config; }
+    getInstrumentID() { return this.props.instrumentID; }
 
     render() {
         const instrumentID = this.props.instrumentID;
@@ -53,7 +53,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
         // let titleHTML = `${instrumentIDHTML}: ${config.name || "Unnamed"}`;
 
         return (
-            <Div className="audio-source-synthesizer-container">
+            <Div className="polyphony-instrument-renderer">
                 <Div className="header">
                     <Button
                         className="toggle-container"

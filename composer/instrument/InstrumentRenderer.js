@@ -29,21 +29,15 @@ class InstrumentRenderer extends React.Component {
         if (song.hasInstrument(instrumentID)) {
 
             try {
-                const instrument = song.loadInstrument(instrumentID);
+                const renderer = song.instrumentLoadRenderer(instrumentID);
                 // const instrumentConfig = song.getInstrumentConfig(instrumentID);
 
-                if (!instrument) {
-                    contentHTML += `Loading`;
-
-                } else if (instrument.constructor && typeof instrument.constructor.getRenderer === "function") {
-                    return instrument.constructor.getRenderer({
-                        song,
-                        instrumentID,
-                        // renderMenu: this.props.renderMenu
-                    });
+                if (!renderer) {
+                    contentHTML += `No Instrument Renderer`;
 
                 } else {
-                    contentHTML += `No Instrument Renderer`;
+                    return renderer;
+                    // return React.createElement(renderer,{},  null)
                 }
 
             } catch (e) {

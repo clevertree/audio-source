@@ -1,4 +1,3 @@
-import {instanceOf} from "prop-types";
 import TrackInstruction from "./TrackInstruction";
 
 class InstructionPlayback {
@@ -231,7 +230,7 @@ class InstructionPlayback {
 //         if (stopInstruments) {
 //
 //             // Stop all instruments playback (if supported)
-//             const instrumentList = this.song.getInstrumentList();
+//             const instrumentList = this.song.instrumentGetList();
 //             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
 //                 const instrument = await this.song.getInstrument(instrumentID, false);
 //                 if (instrument && instrument.stopPlayback)

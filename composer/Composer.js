@@ -90,7 +90,7 @@ class Composer extends ComposerActions {
         this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
 
     }
-    componentDidMount(e) {
+    componentDidMount() {
         // const url = this.props.src || this.props.url;
         // if(url)
         //     this.loadURLAsPlaylist(url);
@@ -99,7 +99,7 @@ class Composer extends ComposerActions {
 
         if(window)
             window.addEventListener('resize', this.onResizeCallback);
-        this.onResize(e);
+        this.onResize();
         // this.loadPackageInfo()
         //     .then(packageInfo => this.setVersion(packageInfo.version));
     }
@@ -136,7 +136,7 @@ class Composer extends ComposerActions {
     async loadState(e = null) {
         const storage = new Storage();
         const state = storage.loadState('audio-source-composer-state');
-        // console.log('Loading State: ', state);
+        console.log('Loading State: ', state);
 
 
         if (state) {
@@ -155,7 +155,7 @@ class Composer extends ComposerActions {
         // await this.saveSongToMemory(e);
         const storage = new Storage();
         storage.saveState(this.state, 'audio-source-composer-state');
-        // console.log('Saving State: ', this.state);
+        console.log('Saving State: ', this.state);
     }
 
 

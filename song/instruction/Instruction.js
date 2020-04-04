@@ -1,5 +1,6 @@
 class Instruction {
     constructor(instructionData = [0], index=null) {
+        /** @deprecated **/
         this.index = index;
         this.data = instructionData;
     }

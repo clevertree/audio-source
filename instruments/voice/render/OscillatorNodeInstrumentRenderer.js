@@ -9,9 +9,8 @@ import {
     Icon, InputRange, MenuDropDown,
 } from "../../../components";
 
-import "./assets/SynthesizerSampleRenderer.css";
+import "./assets/OscillatorNodeInstrumentRenderer.css";
 
-/** PolyphonyInstrumentRenderer **/
 class OscillatorNodeInstrumentRenderer extends React.Component {
 
     constructor(props) {
@@ -22,16 +21,15 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     getSong() { return this.props.song; }
-    getSampleID() { return this.props.sampleID; }
     getInstrumentID() { return this.props.instrumentID; }
-    getSampleData() { return this.props.sampleData; }
+    getConfig() { return this.props.config; }
 
     render() {
-        const sample = this.getSampleData();
+        const config = this.getConfig();
         // console.log('voice', voice);
-        const sampleName = sample.url.replace(/\.(wav|mp3)$/, '');
+        // const sampleName = config.url.replace(/\.(wav|mp3)$/, '');
 
-        let className = 'sample';
+        let className = 'oscillatornode-instrument-renderer';
         if(this.state.open)
             className += ' open';
 
@@ -43,55 +41,55 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                     title="Change Sample"
                     className="name"
                     onAction={e => this.toggleOpen(e)}>
-                    {sampleName || "Unnamed"}
+                    {"Unnamed"}
                 </Button>
                 {!this.state.open ? null : (
                     <>
-                        {typeof sample.mixer === 'undefined' ? null : (
+                        {typeof config.mixer === 'undefined' ? null : (
                             <Div title="Edit Mixer" className="mixer">
                                 <Button onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
-                                    {sample.mixer+'%'}
+                                    {config.mixer+'%'}
                                 </Button>
                             </Div>
                         )}
-                        {typeof sample.detune === 'undefined' ? null : (
-                            <Div title={`Detune by ${sample.detune} cents`} className="detune">
+                        {typeof config.detune === 'undefined' ? null : (
+                            <Div title={`Detune by ${config.detune} cents`} className="detune">
                                 <Button onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
-                                    {sample.detune+'c'}
+                                    {config.detune+'c'}
                                 </Button>
                             </Div>
                         )}
-                        {typeof sample.root === 'undefined' ? null : (
-                            <Div title={`Key Root is ${sample.root}`} className="root">
+                        {typeof config.root === 'undefined' ? null : (
+                            <Div title={`Key Root is ${config.root}`} className="root">
                                 <Button onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
-                                    {sample.root}
+                                    {config.root}
                                 </Button>
                             </Div>
                         )}
-                        {typeof sample.alias === 'undefined' ? null : (
-                            <Div title={`Key Alias is ${sample.alias}`} className="alias">
+                        {typeof config.alias === 'undefined' ? null : (
+                            <Div title={`Key Alias is ${config.alias}`} className="alias">
                                 <Button onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
-                                    {sample.alias}
+                                    {config.alias}
                                 </Button>
                             </Div>
                         )}
-                        {typeof sample.range === 'undefined' ? null : (
-                            <Div title={`Key Range is ${sample.range}`} className="range">
+                        {typeof config.range === 'undefined' ? null : (
+                            <Div title={`Key Range is ${config.range}`} className="range">
                                 <Button onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
-                                    {sample.range}
+                                    {config.range}
                                 </Button>
                             </Div>
                         )}
-                        {typeof sample.loop === 'undefined' ? null : (
+                        {typeof config.loop === 'undefined' ? null : (
                             <Div title="Toggle Loop" className="loop">
-                                <Button title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
-                                    {sample.loop?'∞':'⇥'}
+                                <Button title="" onAction={e => this.changeLoop(!config.loop)} arrow={false} vertical openOnHover={false}>
+                                    {config.loop?'∞':'⇥'}
                                 </Button>
                             </Div>
                         )}
                     </>)
                 }
-                <Div title={`Edit Sample '${sampleName}'`} className="config">
+                <Div title={`Edit Sample`} className="config">
                     <Button onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
                         <Icon className="config"/>
                     </Button>
@@ -125,12 +123,12 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     openMenuChangeSample(e) {
-        const sample = this.getSampleData();
+        const sample = this.getConfig();
         this.openMenu(e, <InputRange min={0} max={100} value={sample.mixer} />);
     }
 
     openMenuChangeMixer(e) {
-        const sample = this.getSampleData();
+        const sample = this.getConfig();
         this.openMenu(e, <InputRange
             min={0}
             max={100}
@@ -140,7 +138,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     openMenuChangeDetune(e) {
-        const sample = this.getSampleData();
+        const sample = this.getConfig();
         this.openMenu(e, <InputRange
             min={-1000}
             max={1000}
@@ -307,7 +305,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     changeLoop(newLoopValue=null) {
         if(newLoopValue === null)
-            newLoopValue = !this.getSampleData().loop;
+            newLoopValue = !this.getConfig().loop;
         this.config.samples[this.getSampleID()].loop = newLoopValue?1:0;
     }
 

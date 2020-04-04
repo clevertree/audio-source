@@ -1,4 +1,4 @@
-import {Instruction, InstructionList} from "../../song/instruction/";
+import {InstructionList} from "../../song/instruction/";
 
 
 export default class TrackInfo {
@@ -101,6 +101,7 @@ export default class TrackInfo {
         this.track.rowOffset = rowOffset;
 
         this.updateState();
+        return selectedIndices;
     }
 
 
@@ -248,6 +249,7 @@ export default class TrackInfo {
     /** Playback **/
 
     playInstructions(destination, selectedIndices) {
+        // console.log('playInstructions', selectedIndices);
         const instrumentID = typeof this.track.instrumentID !== "undefined" ? this.track.instrumentID : 0;
         const song = this.composer.getSong();
         for(let i=0; i<selectedIndices.length; i++) {

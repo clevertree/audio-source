@@ -9,7 +9,7 @@ import {
     Icon, InputRange, MenuDropDown,
 } from "../../../components";
 
-import "./assets/SynthesizerSampleRenderer.css";
+import "./assets/AudioBufferInstrumentRenderer.css";
 
 /** PolyphonyInstrumentRenderer **/
 class AudioBufferInstrumentRenderer extends React.Component {
@@ -31,7 +31,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
         // console.log('voice', voice);
         const sampleName = sample.url.replace(/\.(wav|mp3)$/, '');
 
-        let className = 'sample';
+        let className = 'audiobuffer-instrument-renderer';
         if(this.state.open)
             className += ' open';
 

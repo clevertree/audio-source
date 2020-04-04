@@ -4,7 +4,7 @@ class InstrumentLoader {
         this.song = song;
     }
 
-    loadInstrumentInstance(instrumentID) {
+    instrumentLoadInstance(instrumentID) {
         const config = this.song.getInstrumentConfig(instrumentID);
         if (!config.className)
             throw new Error("Invalid instruments class");

@@ -19,6 +19,7 @@ class Tracker extends React.Component {
 
     /** Property validation **/
     static propTypes = {
+        composer: PropTypes.object.isRequired
         // destination: PropTypes.object.isRequired
         // tracker: PropTypes.any.isRequired,
     };
@@ -95,7 +96,7 @@ class Tracker extends React.Component {
             if(cursorPosition > cursorOffset)
                 return false;
             if(cursorPosition === cursorOffset)
-                indexFound = instruction.index;
+                indexFound = instruction.index; // @Depreciated
             return indexFound === null;
         });
         return indexFound;
@@ -246,6 +247,9 @@ class Tracker extends React.Component {
 
     playSelectedInstructions() {
         return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
+    }
+    playInstructions(selectedInstructions) {
+        return this.getTrackInfo().playInstructions(this.getDestination(), selectedInstructions);
     }
 
     /** Row Iterator **/

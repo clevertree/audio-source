@@ -1,6 +1,3 @@
-import Library from "../../song/Library";
-import PolyphonyInstrumentRenderer from "./render/PolyphonyInstrumentRenderer";
-import React from "react";
 import AudioBufferInstrument from "../voice/AudioBufferInstrument";
 import OscillatorNodeInstrument from "../voice/OscillatorNodeInstrument";
 // import InstrumentLoader from "../../song/instrument/InstrumentLoader";
@@ -79,38 +76,38 @@ class PolyphonyInstrument {
     /** Modify Instrument **/
 
 
-    async addVoice(voiceURL, voiceName=null, promptUser=false) {
-        const defaultVoiceName = voiceURL.split('/').pop();
-        // voiceURL = new URL(voiceURL) + '';
-        if(promptUser) {
-            voiceURL = prompt(`Add Voice URL:`, voiceURL || 'https://mysite.com/myvoice.wav');
-            voiceName = prompt(`Set Voice Name:`, voiceName || defaultVoiceName);
-        }
-        if (!voiceURL)
-            throw new Error("Change voice URL canceled");
-        if(!voiceName)
-            voiceName = defaultVoiceName;
-
-
-        // if (voiceURL.endsWith('.library.json')) {
-        //     console.log("Loading library: " + voiceURL);
-        //     await this.voiceLibrary.loadFromURL(voiceURL);
-        //     this.fieldAddVoice.value = '';
-        // } else {
-
-        if(!voiceName && promptUser)
-            voiceName = prompt(`Set Voice Name:`, voiceName);
-        const addVoiceID = this.config.voices.length;
-        this.config.voices[addVoiceID] = {
-            url: voiceURL,
-            name: voiceName,
-            // name: addVoiceName
-        };
-        await this.loadVoice(addVoiceID);
-
-        if(this.grid) await this.grid.forceUpdate();
-        else this.forceUpdate();
-    }
+    // async addVoice(voiceURL, voiceName=null, promptUser=false) {
+    //     const defaultVoiceName = voiceURL.split('/').pop();
+    //     // voiceURL = new URL(voiceURL) + '';
+    //     if(promptUser) {
+    //         voiceURL = prompt(`Add Voice URL:`, voiceURL || 'https://mysite.com/myvoice.wav');
+    //         voiceName = prompt(`Set Voice Name:`, voiceName || defaultVoiceName);
+    //     }
+    //     if (!voiceURL)
+    //         throw new Error("Change voice URL canceled");
+    //     if(!voiceName)
+    //         voiceName = defaultVoiceName;
+    //
+    //
+    //     // if (voiceURL.endsWith('.library.json')) {
+    //     //     console.log("Loading library: " + voiceURL);
+    //     //     await this.voiceLibrary.loadFromURL(voiceURL);
+    //     //     this.fieldAddVoice.value = '';
+    //     // } else {
+    //
+    //     if(!voiceName && promptUser)
+    //         voiceName = prompt(`Set Voice Name:`, voiceName);
+    //     const addVoiceID = this.config.voices.length;
+    //     this.config.voices[addVoiceID] = {
+    //         url: voiceURL,
+    //         name: voiceName,
+    //         // name: addVoiceName
+    //     };
+    //     await this.loadVoice(addVoiceID);
+    //
+    //     if(this.grid) await this.grid.forceUpdate();
+    //     else this.forceUpdate();
+    // }
 
 
     /** Initializing Audio **/

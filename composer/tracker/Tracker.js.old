@@ -315,7 +315,7 @@ class Tracker extends React.Component {
     //         cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : null;
     //     for (let i = 0; i < this.cursorList.length; i++) {
     //         const cursorItem = this.cursorList[i];
-    //         if (cursorItem instanceof TrackerInstruction) {
+    //         if (cursorItem instanceof TrackInstruction) {
     //             await cursorItem.select(selectedIndices.indexOf(cursorItem.index) !== -1);
     //             if (cursorIndex !== null)
     //                 cursorItem.setCursor(cursorIndex === cursorItem.index);
@@ -361,10 +361,10 @@ class Tracker extends React.Component {
     //         throw new Error("Shouldn't happen");
     //     // Find the end of the row, and return the next entry
     //     let lastRowOffset = offset, rowPosition = 0;
-    //     while (cursorList[--lastRowOffset] instanceof TrackerInstruction) rowPosition++;
+    //     while (cursorList[--lastRowOffset] instanceof TrackInstruction) rowPosition++;
     //
-    //     while (cursorList[offset++] instanceof TrackerInstruction) ;
-    //     while (cursorList[offset] instanceof TrackerInstruction && rowPosition-- > 0) offset++;
+    //     while (cursorList[offset++] instanceof TrackInstruction) ;
+    //     while (cursorList[offset] instanceof TrackInstruction && rowPosition-- > 0) offset++;
     //     return cursorList[offset] || null;
     // }
     //
@@ -383,15 +383,15 @@ class Tracker extends React.Component {
     //     if (!cursorList[offset])
     //         throw new Error("Shouldn't happen");
     //     let lastRowOffset = offset, rowPosition = 0;
-    //     while (cursorList[--lastRowOffset] instanceof TrackerInstruction) rowPosition++;
+    //     while (cursorList[--lastRowOffset] instanceof TrackInstruction) rowPosition++;
     //     offset -= rowPosition + 1;
     //
     //     // Find the previous non-instruction entry
-    //     while (cursorList[offset] instanceof TrackerInstruction) offset--;
+    //     while (cursorList[offset] instanceof TrackInstruction) offset--;
     //     offset--;
-    //     while (cursorList[offset] instanceof TrackerInstruction) offset--;
+    //     while (cursorList[offset] instanceof TrackInstruction) offset--;
     //     // offset++;
-    //     while (cursorList[offset + 1] instanceof TrackerInstruction && rowPosition-- > -1) offset++;
+    //     while (cursorList[offset + 1] instanceof TrackInstruction && rowPosition-- > -1) offset++;
     //     return cursorList[offset] || null;
     // }
 
@@ -671,13 +671,13 @@ class Tracker extends React.Component {
 //                 // delete this.mousePosition.lastUp;
 //                 // delete this.mousePosition.lastDrag;
 //
-//                 if (e.target instanceof TrackerInstruction)
+//                 if (e.target instanceof TrackInstruction)
 //                     return composer.setCursor(e.target, !e.shiftKey, e.ctrlKey ? null : true);
 //
-//                 if (e.target.parentNode instanceof TrackerInstruction)
+//                 if (e.target.parentNode instanceof TrackInstruction)
 //                     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 //
-//                 if (e.target instanceof TrackerInstructionAdd)
+//                 if (e.target instanceof TrackInstructionAdd)
 //                     return composer.setCursor(e.target.parentNode, !e.shiftKey, e.ctrlKey ? null : true);
 //
 //                 // if (e.target instanceof TrackerDelta) // TODO: special command for clicking delta

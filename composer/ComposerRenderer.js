@@ -184,12 +184,12 @@ class ComposerRenderer extends React.Component {
                         <Panel className="instruments" header="Instruments"
                                ref={ref=>this.panelInstruments = ref}
                                children={() => (<>
-                                   {this.song.getInstrumentList().map((instrumentConfig, instrumentID) =>
+                                   {this.song.instrumentGetList().map((instrumentConfig, instrumentID) =>
                                        <InstrumentRenderer
                                            key={instrumentID}
                                            composer={this}
                                            // openMenu={(e, options) => this.renderMenu(e, options)}
-                                           props={instrumentConfig}
+                                           // props={instrumentConfig}
                                            instrumentID={instrumentID}
                                        />
                                    )}
@@ -376,7 +376,7 @@ class ComposerRenderer extends React.Component {
             songUUID: song.data.uuid,
             songLengthTicks: song.getSongLengthTicks(),
             songLengthSeconds: song.getSongLengthInSeconds(),
-            selectedGroup: song.getStartGroup() || 'root',
+            selectedTrack: song.getStartGroup() || 'root',
             // trackerRowOffset: 0,
             // trackerQuantizationInTicks: timeDivision,
             // trackerSegmentLengthInTicks: timeDivision * 16,
@@ -436,7 +436,7 @@ class ComposerRenderer extends React.Component {
         this.fieldSongVolume.value = this.song.getVolumeValue();
 
         // let timeDivision = this.rowLengthInTicks || this.song.getSongTimeDivision();
-        const cursorInstruction = this.song.instructionFind(this.state.selectedGroup, this.state.selectedIndices[0]);
+        const cursorInstruction = this.song.instructionFind(this.state.selectedTrack, this.state.selectedIndices[0]);
 
 
         if (cursorInstruction) {
