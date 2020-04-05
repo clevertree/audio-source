@@ -514,7 +514,7 @@ class Song {
             if (currentPositionInTicks > insertPositionInTicks) {
                 // Delta note appears after note to be inserted
                 const splitDuration = [
-                    insertPositionInTicks - (currentPositionInTicks - instruction.deltadurationTicks),
+                    insertPositionInTicks - (currentPositionInTicks - instruction.deltaDurationTicks),
                     currentPositionInTicks - insertPositionInTicks
                 ];
 
@@ -523,7 +523,7 @@ class Song {
                 this.instructionReplaceDeltaDuration(trackName, modifyIndex, splitDuration[1]);
 
                 // Insert new note before delta note.
-                insertInstruction.deltadurationTicks = splitDuration[0];                     // Make new note equal the rest of the duration
+                insertInstruction.deltaDurationTicks = splitDuration[0];                     // Make new note equal the rest of the duration
                 this.instructionInsertAtIndex(trackName, modifyIndex, insertInstruction);
 
                 return modifyIndex; // this.splitPauseInstruction(trackName, i,insertPosition - groupPosition , insertInstruction);
@@ -534,10 +534,10 @@ class Song {
                 let lastInsertIndex;
                 // Search for last insert position
                 for (lastInsertIndex = iterator.currentIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
-                    if (new Instruction(instructionList[lastInsertIndex]).deltadurationTicks > 0)
+                    if (new Instruction(instructionList[lastInsertIndex]).deltaDurationTicks > 0)
                         break;
 
-                insertInstruction.deltadurationTicks = 0; // TODO: is this correct?
+                insertInstruction.deltaDurationTicks = 0; // TODO: is this correct?
                 this.instructionInsertAtIndex(trackName, lastInsertIndex, insertInstruction);
                 return lastInsertIndex;
             }
@@ -558,7 +558,7 @@ class Song {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltadurationTicks = insertPositionInTicks - iterator.positionTicks;
+        insertInstruction.deltaDurationTicks = insertPositionInTicks - iterator.positionTicks;
         this.instructionInsertAtIndex(trackName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -577,12 +577,12 @@ class Song {
 
     instructionDeleteAtIndex(trackName, deleteIndex) {
         const deleteInstruction = this.instructionGetByIndex(trackName, deleteIndex);
-        if (deleteInstruction.deltadurationTicks > 0) {
+        if (deleteInstruction.deltaDurationTicks > 0) {
             const nextInstruction = this.instructionGetByIndex(trackName, deleteIndex + 1, false);
             if (nextInstruction) {
                 // this.getInstruction(trackName, deleteIndex+1).deltaDuration =
                 //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
-                this.instructionReplaceDeltaDuration(trackName, deleteIndex + 1, nextInstruction.deltadurationTicks + deleteInstruction.deltadurationTicks)
+                this.instructionReplaceDeltaDuration(trackName, deleteIndex + 1, nextInstruction.deltaDurationTicks + deleteInstruction.deltaDurationTicks)
             }
         }
         this.instructionGetList(trackName).splice(deleteIndex, 1);
@@ -590,7 +590,7 @@ class Song {
     }
 
     instructionReplaceDeltaDuration(trackName, replaceIndex, newDelta) {
-        this.instructionGetByIndex(trackName, replaceIndex).deltadurationTicks = newDelta;
+        this.instructionGetByIndex(trackName, replaceIndex).deltaDurationTicks = newDelta;
         // return this.instructionReplaceParam(trackName, replaceIndex, 0, newDelta);
     }
 
@@ -1018,7 +1018,7 @@ class Song {
         if(Array.isArray(pathList))
             pathList = pathList.join('.');
         const historyAction = [
-            action[0] + ':' + pathList,
+            action + ':' + pathList,
         ];
         if (data !== null || oldData !== null)
             historyAction.push(data);

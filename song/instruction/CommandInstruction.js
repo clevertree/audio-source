@@ -1,10 +1,17 @@
 import Instruction from "./Instruction";
+import {SongValues, Values} from "../values";
 
 class CommandInstruction extends Instruction {
 
+    getDurationString(timeDivision) {
+        const durationTicks = this.durationTicks;
+        if(durationTicks === null)
+            return 'N/A';
+        return SongValues.formatDuration(durationTicks, timeDivision);
+    }
 
     get durationTicks() {
-        return this.data[2] || null;
+        return typeof this.data[2] !== "undefined" ? this.data[2] : undefined;
     }
 
     set durationTicks(newDuration) {
@@ -12,6 +19,17 @@ class CommandInstruction extends Instruction {
         if (Number.isNaN(newDuration))
             throw new Error("Invalid Duration");
         this.data[2] = newDuration;
+    }
+
+    get velocity() {
+        return typeof this.data[3] !== "undefined" ? this.data[3] : undefined;
+    }
+
+    set velocity(newVelocity) {
+        newVelocity = parseFloat(newVelocity);
+        if (Number.isNaN(newVelocity))
+            throw new Error("Invalid Velocity");
+        this.data[3] = newVelocity;
     }
 
 }

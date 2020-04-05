@@ -4,7 +4,7 @@ class TrackInstruction extends Instruction {
 
 
     getTrackName() {
-        return typeof this.data[1] === "string" ? this.data[1].substr(1) : null;
+        return typeof this.data[1] === "string" ? this.data[1].substr(1) : undefined;
     }
 
     setTrackName(newTrackName) {
@@ -20,7 +20,7 @@ class TrackInstruction extends Instruction {
     }
 
     get durationTicks() {
-        return this.data[3] || null;
+        return this.data[3] || undefined;
     }
 
     set durationTicks(newDuration) {
@@ -30,6 +30,9 @@ class TrackInstruction extends Instruction {
         this.data[3] = newDuration;
     }
 
+    get velocity() {
+        return undefined;
+    }
 }
 
 export default TrackInstruction;

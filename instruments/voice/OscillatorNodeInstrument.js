@@ -51,6 +51,7 @@ class OscillatorNodeInstrument {
         //             continue;
 
         // Velocity
+        console.log('velocity', velocity);
         if(velocity !== null) {
             let velocityGain = destination.context.createGain();
             velocityGain.gain.value = parseFloat(velocity || 127) / 127;
@@ -61,7 +62,7 @@ class OscillatorNodeInstrument {
         const osc = destination.context.createOscillator();   // instantiate an oscillator
         osc.frequency.value = frequency;    // set Frequency (hz)
         if (typeof this.config.detune !== "undefined")
-            osc.detune = this.config.detune;
+            osc.detune.value = this.config.detune;
 
         osc.type = this.config.type;
         switch(this.config.type) {

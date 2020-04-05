@@ -116,6 +116,7 @@ class Tracker extends React.Component {
     /** Render **/
 
     render() {
+        console.log('Tracker.render');
         let className = "asc-tracker";
         // if(this.props.className)
         //     className += ' ' + this.props.className;
@@ -245,9 +246,9 @@ class Tracker extends React.Component {
 
     /** Playback **/
 
-    playSelectedInstructions() {
-        return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
-    }
+    // playSelectedInstructions() {
+    //     return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
+    // }
     playInstructions(selectedInstructions) {
         return this.getTrackInfo().playInstructions(this.getDestination(), selectedInstructions);
     }

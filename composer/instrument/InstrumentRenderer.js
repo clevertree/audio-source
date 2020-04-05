@@ -107,15 +107,15 @@ class InstrumentRenderer extends React.Component {
         return (<>
             <MenuDropDown options={() => this.renderMenuLibraryList()}    >Libraries</MenuDropDown>
             <MenuBreak />
-            <MenuAction disabled>Search</MenuAction>
+            <MenuAction onAction={()=>{}} disabled>Search</MenuAction>
             <MenuBreak />
-            {library.getPresets().length > 0 ? (
+            {false ? ( // library.getPresets().length > 0
                 <Scrollable>
                     {library.getPresets().map(config => (
                         <MenuAction onAction={e => this.loadPreset(config.name)}>{config.name}</MenuAction>
                     ))}
                 </Scrollable>
-            ) : <MenuAction disabled> - Select a Library - </MenuAction>}
+            ) : <MenuAction onAction={()=>{}} fdisabled> - Select a Library - </MenuAction>}
         </>);
 
         // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
@@ -141,6 +141,7 @@ class InstrumentRenderer extends React.Component {
     }
 
     renderMenuLibraryList(e) {
+        return 'TODO';
         let library = this.state.library;
         return library.getLibraries().map(config => (
             <MenuAction onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuAction>

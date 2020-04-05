@@ -14,15 +14,20 @@ class Instruction {
     }
 
 
-    get deltadurationTicks() {
+    get deltaDurationTicks() {
         return this.data[0];
     }
 
-    set deltadurationTicks(newDeltaDuration) {
+    set deltaDurationTicks(newDeltaDuration) {
         this.data[0] = newDeltaDuration;
     }
 
-
+    set velocity(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
+    get velocity()          { throw new Error("TODO: Implement for " + this.constructor.name);}
+    set durationTicks(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
+    get durationTicks()          { throw new Error("TODO: Implement for " + this.constructor.name);}
+    set duration(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
+    get duration()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 
 
     /** @deprecated **/

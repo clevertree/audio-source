@@ -26,7 +26,7 @@ class InstructionIterator extends InstructionList {
     }
 
     incrementPositionByInstruction(instruction) {
-        const deltaDuration = instruction.deltadurationTicks;
+        const deltaDuration = instruction.deltaDurationTicks;
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDuration;
         this.lastInstructionPositionInTicks = this.positionTicks;
 

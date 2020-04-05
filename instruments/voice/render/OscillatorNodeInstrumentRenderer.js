@@ -39,7 +39,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                 className="title"
                 title={`Oscillator: ${title}`}
                 onClick={(e) => this.toggleOpen()}
-                vertical>
+                >
                 {title}
             </Div>
             {typeof !open || config.mixer === 'undefined' ? null : (

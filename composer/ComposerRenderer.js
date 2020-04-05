@@ -54,7 +54,8 @@ class ComposerRenderer extends React.Component {
     // getSelectedTrack() { return this.state.selectedTrack; }
 
     render() {
-        const {trackName:selectedTrackName, selectedIndices, cursorInstruction} = this.trackerGetActiveSelectedTrackState();
+        const {trackName:selectedTrackName, selectedIndices, firstSelectedInstruction} = this.trackerGetActiveSelectedTrackState();
+        console.log('firstSelectedInstruction', firstSelectedInstruction);
         return (
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
@@ -213,7 +214,7 @@ class ComposerRenderer extends React.Component {
                                     arrow={'▼'}
                                     // className="command"
                                     options={() => this.renderMenuEditInsert()}
-                                >{cursorInstruction ? cursorInstruction.command : 'C4'}</ButtonDropDown>
+                                >{firstSelectedInstruction ? firstSelectedInstruction.command : 'C4'}</ButtonDropDown>
                             </Form>
                             <Form className="instruction-insert" header="Add">
                                 <Button
@@ -246,13 +247,13 @@ class ComposerRenderer extends React.Component {
                             <Form className="instruction-velocity" header="Velocity">
                                 <InputRange
                                     // className="velocity"
-                                    onAction={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
-                                    value={cursorInstruction ? cursorInstruction.velocity : 127}
+                                    onChange={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
+                                    value={firstSelectedInstruction ? firstSelectedInstruction.velocity : 127}
                                     min={1}
                                     max={127}
                                     ref={ref => this.fieldInstrumentVelocity = ref}
                                     title="Instrument Velocity"
-                                >{cursorInstruction ? cursorInstruction.velocity : 'N/A'}</InputRange>
+                                >{firstSelectedInstruction ? firstSelectedInstruction.velocity : 'N/A'}</InputRange>
                             </Form>
 
 
@@ -262,7 +263,7 @@ class ComposerRenderer extends React.Component {
                                     // className="instruction-duration"
                                     options={e => this.renderMenuEditSetDuration(e)}
                                     title="Instrument Duration"
-                                >1B</ButtonDropDown>
+                                >{firstSelectedInstruction ? firstSelectedInstruction.getDurationString(this.song.data.timeDivision) : '-'}</ButtonDropDown>
                             </Form>
 
                             <Form className="tracker-selection" header="Selection">

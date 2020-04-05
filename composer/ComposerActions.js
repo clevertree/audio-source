@@ -65,6 +65,16 @@ class ComposerActions extends ComposerMenu {
         this.fieldSongVolume.value = volume * 100;
     }
 
+    /** Playback **/
+
+    playSelectedInstructions() {
+        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
+        return this.trackerGetTrackInfo(trackName).playInstructions(this.getVolumeGain(), selectedIndices);
+    }
+    playInstructions(selectedIndices) {
+        const {trackName} = this.trackerGetActiveSelectedTrackState();
+        return this.trackerGetTrackInfo(trackName).playInstructions(this.getVolumeGain(), selectedIndices);
+    }
 
     /** Song actions **/
 
@@ -305,7 +315,7 @@ class ComposerActions extends ComposerMenu {
         this.playCursorInstruction();
     }
 
-    async instructionReplaceCommand(newCommand = null, promptUser = false, instrumentID = null) {
+    async instructionReplaceCommand(newCommand = null, promptUser = false) {
         //: TODO: check for recursive group
         const song = this.song;
         const {trackName, selectedIndices, firstSelectedInstruction} = this.trackerGetActiveSelectedTrackState();
@@ -321,65 +331,58 @@ class ComposerActions extends ComposerMenu {
 
         for (let i = 0; i < selectedIndices.length; i++) {
             song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
-            if (instrumentID !== null) {
-                song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
-            }
+            // if (instrumentID !== null) {
+            //     song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
+            // }
             // this.renderInstruction(trackName, selectedIndices[i]); // Use song modified event to rerender
         }
         this.playCursorInstruction();
     }
 
-    // TODO: assuming the use of tracker.getTrackName()?
-    instructionReplaceInstrument(instrumentID = null) {
-        const song = this.song;
-        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
-
-        instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
-        if (!Number.isInteger(instrumentID))
-            throw new Error("Invalid Instruction ID");
-        for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
-            // await this.renderInstruction(trackName, selectedIndices[i]);// Use song modified event to rerender
-        }
-        this.playCursorInstruction();
-    }
+    // instructionReplaceInstrument(instrumentID = null) {
+    //     const song = this.song;
+    //     const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
+    //
+    //     instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
+    //     if (!Number.isInteger(instrumentID))
+    //         throw new Error("Invalid Instruction ID");
+    //     for (let i = 0; i < selectedIndices.length; i++) {
+    //         song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
+    //         // await this.renderInstruction(trackName, selectedIndices[i]);// Use song modified event to rerender
+    //     }
+    //     this.playCursorInstruction();
+    // }
 
     async instructionReplaceDuration(duration = null, promptUser = false) {
-        const tracker = this.tracker;
         const song = this.song;
         const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
 
-        if (!duration)
-            duration = parseFloat(this.fieldInstructionDuration.value);
-        if (promptUser)
+        if (duration === null && promptUser)
             duration = parseInt(await this.openPromptDialog("Set custom duration in ticks:", duration), 10);
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceDuration(tracker.getTrackName(), selectedIndices[i], duration);
-            await this.renderInstruction(trackName, selectedIndices[i]);
+            const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
+            instruction.durationTicks = duration;
         }
-        this.playCursorInstruction();
+        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
 
     }
 
     async instructionReplaceVelocity(velocity = null, promptUser = false) {
-        const tracker = this.tracker;
         const song = this.song;
         const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
 
-        if (velocity === null)
-            velocity = this.fieldInstructionVelocity.value; //  === "0" ? 0 : parseInt(this.fieldInstructionVelocity.value) || null;
-        velocity = parseFloat(velocity);
-        if (promptUser)
+        if (velocity === null && promptUser)
             velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
+        velocity = parseFloat(velocity);
         if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceVelocity(tracker.getTrackName(), selectedIndices[i], velocity);
-            await this.renderInstruction(trackName, selectedIndices[i]);
+            const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
+            instruction.velocity = velocity;
         }
-        this.playCursorInstruction();
+        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
     }
 
     instructionDelete() {
@@ -504,6 +507,10 @@ class ComposerActions extends ComposerMenu {
     }
 
     trackerGetTrackInfo(trackName) {
+        return new TrackInfo(trackName, this);
+    }
+    trackerGetSelectedTrackInfo() {
+        const {trackName} = this.trackerGetActiveSelectedTrackState();
         return new TrackInfo(trackName, this);
     }
 

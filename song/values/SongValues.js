@@ -13,10 +13,9 @@ class SongValues extends Values{
         if (song && song.data.instruments) {
             const instrumentList = song.data.instruments;
             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-                const instrumentInfo = instrumentList[instrumentID] || {title: "No Instrument Loaded"};
+                const [instrumentClass, instrumentInfo] = instrumentList[instrumentID]; //  || {title: "No Instrument Loaded"};
                 // const instruments = this.renderer.getInstrument(instrumentID);
-                const result = callback(instrumentID, this.formatInstrumentID(instrumentID)
-                    + ': ' + (instrumentInfo.title ? instrumentInfo.title : instrumentInfo.className));
+                const result = callback(instrumentID, instrumentClass, instrumentInfo);
                 if(!addResult(results, result)) return results;
             }
         }
@@ -36,6 +35,7 @@ class SongValues extends Values{
 
 
     getAllNamedFrequencies(callback = (alias, aliasValue, instrumentID) => [alias, aliasValue, instrumentID]) {
+        return 'TODO';
         const song = this.song;
         const results = [];
         const instrumentList = song.data.instruments;
@@ -61,17 +61,25 @@ class SongValues extends Values{
 
 
     formatDuration(input) {
-        const song = this.song;
+        return SongValues.formatDuration(input, this.song.data.timeDivision);
+    }
+
+
+    getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
+        return SongValues.getNoteDurations(callback, this.song.data.timeDivision);
+    }
+
+
+    static formatDuration(input, timeDivision) {
         let stringValue;
         this.getNoteDurations((duration, durationString) => {
             if (input === duration || input === durationString) {
                 stringValue = durationString;
                 return false;
             }
-        });
+        }, timeDivision);
         if (stringValue)
             return stringValue;
-        const timeDivision = song.data.timeDivision || 96 * 4;
         const beatDivisor = input / timeDivision;
         if(beatDivisor === Math.round(beatDivisor))
             return beatDivisor + 'B';
@@ -81,9 +89,8 @@ class SongValues extends Values{
     }
 
 
-    getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
-        const song = this.song;
-        const timeDivision = song.data.timeDivision;
+
+    static getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
         const results = [];
         for (let i = 64; i > 1; i /= 2) {
             let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
@@ -103,6 +110,7 @@ class SongValues extends Values{
         }
         return results;
     }
+
 
 }
 

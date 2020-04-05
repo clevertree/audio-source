@@ -76,7 +76,7 @@ class TrackerInstruction extends React.Component {
                     className="velocity"
                     options={() => this.renderMenuSelectVelocity()}
                 >{instruction.velocity}</TrackerInstructionParameter>);
-            if(instruction.durationTicks !== null)
+            if(typeof instruction.durationTicks !== "undefined")
                 parameters.push(<TrackerInstructionParameter
                     key="duration"
                     trackerInstruction={this}
@@ -179,14 +179,14 @@ class TrackerInstruction extends React.Component {
         this.forceUpdate();
     }
 
-    instructionReplaceInstrument(instrumentID) {
-        this.getSong().instructionReplaceInstrument(
-            this.getComposer().state.selectedGroup,
-            this.props.index,
-            instrumentID);
-        this.forceUpdate();
-
-    }
+    // instructionReplaceInstrument(instrumentID) {
+    //     this.getSong().instructionReplaceInstrument(
+    //         this.getComposer().state.selectedGroup,
+    //         this.props.index,
+    //         instrumentID);
+    //     this.forceUpdate();
+    //
+    // }
 
     instructionReplaceVelocity(velocity) {
         this.getSong().instructionReplaceVelocity(

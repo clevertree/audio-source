@@ -351,6 +351,7 @@ class Composer extends ComposerActions {
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                 break;
             case 'song:modified':
+                this.forceUpdate();
                 // TODO: auto save toggle
                 clearTimeout(this.timeouts.saveSongToMemory);
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
