@@ -143,7 +143,7 @@ class SongTest {
     song.setPlaybackPositionInTicks(1000);
 
     // Get Song Info
-    if(song.songPlaybackPosition === 0) throw new Error("songPlaybackPosition");
+    if(song.getSongPlaybackPosition() === 0) throw new Error("songPlaybackPosition");
     if(song.getSongLengthInSeconds() === 0) throw new Error("getSongLengthInSeconds()");
     // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 

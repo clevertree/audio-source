@@ -17,8 +17,9 @@ export default class TrackInfo {
     getTrackName()              { return this.trackName; }
     getSelectedIndices()        { return this.track.selectedIndices; }
     getCursorOffset()           { return this.track.cursorOffset; }
+    getStartingTimeDivision()   { return this.composer.song.data.timeDivision; }
     getQuantizationInTicks() {
-        return this.track.quantizationTicks || this.composer.song.data.timeDivision;
+        return this.track.quantizationTicks || this.getStartingTimeDivision();
     }
 
     updateState() {
@@ -70,8 +71,12 @@ export default class TrackInfo {
         this.selectIndices(selectedIndices);
     }
 
+    calculateCursorOffsetPositionTicks() {
+        const {cursorPositionTicks} = this.findCursorRow();
+        return cursorPositionTicks;
+    }
 
-    selectIndices(selectedIndices=null, cursorOffset=null, rowOffset=null) {
+    selectIndices(selectedIndices=null, cursorOffset=null) {
 //         console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
         // if(cursorIndex === null)
         //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
@@ -94,12 +99,14 @@ export default class TrackInfo {
 
         }
 
-        if(rowOffset === null) {
-            rowOffset = this.calculateRowOffset(cursorOffset);
+        this.track.rowOffset = this.calculateRowOffset(cursorOffset);
+        if(selectedIndices.length > 0) {
+            const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
+            this.track.currentCommand = firstSelectedInstruction.command;
+            this.track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
+            this.track.currentVelocity = firstSelectedInstruction.velocity;
+//             console.log(this.track);
         }
-
-        this.track.rowOffset = rowOffset;
-
         this.updateState();
         return selectedIndices;
     }
@@ -113,7 +120,7 @@ export default class TrackInfo {
             cursorOffset = this.track.cursorOffset;
 
         // Update rowOffset
-        const currentRow = this.findCursorRow(cursorOffset);
+        const {currentRow} = this.findCursorRow(cursorOffset);
         if(rowOffset < currentRow - rowLength)
             rowOffset = currentRow - rowLength - 1;
         if(rowOffset > currentRow - 2)
@@ -125,13 +132,14 @@ export default class TrackInfo {
         if(cursorOffset === null)
             cursorOffset = this.getCursorOffset();
 
-        let rowCount = 0;
+        let currentRow = 0, cursorPositionTicks=null;
         this.eachRow((rowCount2, startPositionTicks, endPositionTicks, cursorPosition) => {
-            rowCount++;
-            return cursorPosition <= cursorOffset;
+            currentRow++;
+            cursorPositionTicks = startPositionTicks;
+            return cursorPosition < cursorOffset;
         }, (instruction, cursorPosition) => {
         });
-        return rowCount;
+        return {currentRow, cursorPositionTicks};
     }
 
     findRowCursorOffset() {

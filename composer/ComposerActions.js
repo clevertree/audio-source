@@ -133,42 +133,42 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    async loadRecentSongData() {
+    loadRecentSongData() {
         const storage = new Storage();
-        let songRecentUUIDs = await storage.getRecentSongList();
+        let songRecentUUIDs = storage.getRecentSongList();
         if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
             this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
-            await this.loadSongFromMemory(songRecentUUIDs[0].uuid);
+            this.loadSongFromMemory(songRecentUUIDs[0].uuid);
             return true;
         }
         return false;
     }
 
 
-    async loadSongFromMemory(songUUID) {
-        const song = await Song.loadSongFromMemory(this.audioContext, songUUID);
-        await this.setCurrentSong(song);
+    loadSongFromMemory(songUUID) {
+        const song = Song.loadSongFromMemory(this.audioContext, songUUID);
+        this.setCurrentSong(song);
         this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
 //         console.info(songData);
     }
 
-    async loadSongFromURL(url) {
-        const song = await Song.loadSongFromURL(this.audioContext, url);
-        await this.setCurrentSong(song);
+    loadSongFromURL(url) {
+        const song = Song.loadSongFromURL(this.audioContext, url);
+        this.setCurrentSong(song);
         this.setStatus("Loaded from url: " + url);
     }
 
-    async saveSongToMemory() {
+    saveSongToMemory() {
         const song = this.song;
         const songData = song.data;
         const songHistory = song.history;
         const storage = new Storage();
         this.setStatus("Saving song to memory...");
-        await storage.saveSongToMemory(songData, songHistory);
+        storage.saveSongToMemory(songData, songHistory);
         this.setStatus("Saved song to memory: " + songData.uuid);
     }
 
-    async saveSongToFile() {
+    saveSongToFile() {
         const songData = this.song.data;
         // const songHistory = this.song.history;
         const storage = new Storage();
@@ -288,7 +288,7 @@ class ComposerActions extends ComposerMenu {
 
 
     async instructionInsert(newCommand = null, promptUser = false) {
-        const {trackName} = this.trackerGetActiveSelectedTrackState();
+        const trackName = this.state.selectedTrack;
         // if (instrumentID !== null)
         //     newInstruction.instrument = instrumentID;
 
@@ -308,11 +308,11 @@ class ComposerActions extends ComposerMenu {
         const newInstruction = InstructionList.parseInstruction([0, newCommand]);
         this.setState({currentTrackerCommand: newInstruction.command});
 
-
-        const songPosition = song.getSongPositionInTicks();
+        const songPositionTicks = this.trackerGetTrackInfo(trackName).calculateCursorOffsetPositionTicks();
+        // const songPosition = song.getSongPositionInTicks();
         // TODO calculate song position from cursorPosition
-        console.log(songPosition);
-        let insertIndex = song.instructionInsertAtPosition(trackName, songPosition, newInstruction);
+        console.log(songPositionTicks);
+        let insertIndex = song.instructionInsertAtPosition(trackName, songPositionTicks, newInstruction);
         this.selectIndices([insertIndex]);
 
         this.playSelectedInstructions(); // TODO: play same note (no retrigger)
@@ -391,7 +391,7 @@ class ComposerActions extends ComposerMenu {
     }
 
 
-    /** Tracker Track Info **/
+    /** Track State **/
 
     trackerGetActiveSelectedTrackState() {
         return this.trackerGetActiveTrackState(this.state.selectedTrack);
@@ -400,16 +400,24 @@ class ComposerActions extends ComposerMenu {
     trackerGetActiveTrackState(trackName) {
         if(typeof this.state.activeTracks[trackName] === "undefined")
             throw new Error("Invalid active track: " + trackName);
-        const trackInfo = this.state.activeTracks[trackName];
-        let selectedIndices = trackInfo.selectedIndices || [];
-
-        const firstSelectedInstruction = selectedIndices.length > 0 ? this.getSong().instructionGetByIndex(trackName, selectedIndices[0]) : null;
+        const trackState = this.state.activeTracks[trackName];
+        let selectedIndices = trackState.selectedIndices || [];
 
         return {
+            trackState,
             trackName,
             selectedIndices,
-            firstSelectedInstruction
         }
+    }
+
+    /** Track Info **/
+
+    trackerGetTrackInfo(trackName) {
+        return new TrackInfo(trackName, this);
+    }
+    trackerGetSelectedTrackInfo() {
+        const trackName = this.state.selectedTrack;
+        return new TrackInfo(trackName, this);
     }
 
     /** Tracker Commands **/
@@ -494,13 +502,6 @@ class ComposerActions extends ComposerMenu {
         return this.trackerGetTrackInfo(trackName).selectIndices(selectedIndices, cursorOffset, rowOffset);
     }
 
-    trackerGetTrackInfo(trackName) {
-        return new TrackInfo(trackName, this);
-    }
-    trackerGetSelectedTrackInfo() {
-        const {trackName} = this.trackerGetActiveSelectedTrackState();
-        return new TrackInfo(trackName, this);
-    }
 
     trackerCalculateRowOffset(trackName, cursorOffset=null) {
         return this.trackerGetTrackInfo(trackName).calculateRowOffset(trackName, cursorOffset);
@@ -531,7 +532,7 @@ class ComposerActions extends ComposerMenu {
     // }
 
     selectIndices(selectedIndices, cursorOffset=null) {
-        const {trackName} = this.trackerGetActiveSelectedTrackState();
+        const trackName = this.state.selectedTrack;
         if (typeof selectedIndices === "string") {
 
             switch (selectedIndices) {

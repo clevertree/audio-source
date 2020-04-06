@@ -51,7 +51,7 @@ class OscillatorNodeInstrument {
         //             continue;
 
         // Velocity
-        console.log('velocity', velocity);
+//         console.log('velocity', velocity);
         if(velocity !== null) {
             let velocityGain = destination.context.createGain();
             velocityGain.gain.value = parseFloat(velocity || 127) / 127;

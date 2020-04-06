@@ -350,8 +350,8 @@ class Song {
     instructionGetByIndex(trackName, index) {
         if(!this.data.instructions[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        let instructionList = this.data.instructions[trackName];
-        return index >= instructionList.length ? null : new Instruction(instructionList[index], index);
+        let instructionList = this.instructionGetList(trackName);
+        return instructionList.getInstruction(index);
     }
 
 
@@ -587,7 +587,7 @@ class Song {
 
     getSongPositionInTicks(positionInSeconds = null) {
         if (positionInSeconds === null)
-            positionInSeconds = this.songPlaybackPosition;
+            positionInSeconds = this.getSongPlaybackPosition();
         return this.getGroupPositionInTicks(this.getStartTrackName(), positionInSeconds);
     }
 
@@ -625,7 +625,7 @@ class Song {
     /** Playback **/
 
 
-    get songPlaybackPosition() {
+    getSongPlaybackPosition() {
         if (this.playback)
             return this.playback.audioContext.currentTime - this.playback.startTime;
         return this.playbackPosition;
@@ -973,37 +973,37 @@ class Song {
         return song;
     }
 
-    static async loadSongFromMemory(audioContext, songUUID) {
+    static loadSongFromMemory(audioContext, songUUID) {
         const storage = new Storage();
-        const songData = await storage.loadSongFromMemory(songUUID);
-        const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
+        const songData = storage.loadSongFromMemory(songUUID);
+        const songHistory = storage.loadSongHistoryFromMemory(songUUID);
         const song = new Song(audioContext, songData);
         song.loadSongData(songData);
         song.loadSongHistory(songHistory);
         return song;
     }
 
-    static async loadSongFromFileInput(audioContext, file) {
-        const library = await Song.getFileSupportModule(file.name);
+    static loadSongFromFileInput(audioContext, file) {
+        const library = Song.getFileSupportModule(file.name);
         if (typeof library.loadSongDataFromFileInput !== "function")
             throw new Error("Invalid library.loadSongDataFromFileInput method");
 
         const buffer = Song.loadBufferFromFileInput(file);
-        const songData = await library.loadSongDataFromBuffer(buffer, file.name);
+        const songData = library.loadSongDataFromBuffer(buffer, file.name);
         const song = new Song(audioContext);
         song.loadSongData(songData);
         return song;
     }
 
     static async loadSongFromURL(audioContext, src) {
-        const library = await Song.getFileSupportModule(src);
+        const library = Song.getFileSupportModule(src);
         if (typeof library.loadSongDataFromBuffer !== "function")
             throw new Error("Invalid library.loadSongDataFromURL method: " + src);
 
         const fileService = new FileService();
         const buffer = await fileService.loadBufferFromURL(src);
         // const buffer = await response.arrayBuffer();
-        const songData = await library.loadSongDataFromBuffer(buffer, src);
+        const songData = library.loadSongDataFromBuffer(buffer, src);
         const song = new Song(audioContext);
         song.loadSongData(songData);
         return song;
@@ -1020,7 +1020,7 @@ class Song {
     }
 
 
-    static async getFileSupportModule(filePath) {
+    static getFileSupportModule(filePath) {
         // const AudioSourceLoader = customElements.get('audio-source-loader');
         // const requireAsync = AudioSourceLoader.getRequireAsync(thisModule);
         const fileExt = filePath.split('.').pop().toLowerCase();
@@ -1046,7 +1046,7 @@ class Song {
             case 'sgc':
             case 'kss':
                 library = new GMESongFile();
-                await library.init();
+                library.init();
                 return library;
             //
             // case 'mp3':

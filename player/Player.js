@@ -189,7 +189,7 @@ class Player extends PlayerActions {
                         // this.containerElm.classList.remove('playing');
                         // this.classList.remove('playing');
                     }
-                    this.updateSongPositionValue(this.song.songPlaybackPosition);
+                    this.updateSongPositionValue(this.song.getSongPlaybackPosition());
                 }, 10);
                 break;
 

@@ -3,7 +3,7 @@ import {ChipCore, GMEPlayer} from "../../3rdparty/chip-player-js-lib";
 
 
 class GMESongFile {
-    async init() {
+    async init() { // TODO: lazy load
 
         await new Promise((resolve, reject) => {
             // Load the chip-core Emscripten runtime
@@ -93,7 +93,7 @@ class GMESongFile {
 
 
 
-    async loadSongDataFromBuffer(buffer, filepath) {
+    loadSongDataFromBuffer(buffer, filepath) {
         var audioCtx = new AudioContext();
         const player = this.loadPlayerFromBuffer(audioCtx, audioCtx.destination, buffer, filepath);
         return this.loadSongDataFromPlayer(player, filepath);

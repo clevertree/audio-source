@@ -30,20 +30,20 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuFile() {
         return (<>
-            <MenuAction onAction={e => this.loadNewSongData(e)}             >New song</MenuAction>
-            <MenuDropDown    options={() => this.renderMenuFileOpen()}           >Open song</MenuDropDown>
-            <MenuDropDown    options={() => this.renderMenuFileSave()}           >Save song</MenuDropDown>
-            <MenuDropDown    options={() => this.renderMenuFileImport()}         >Import song</MenuDropDown>
-            <MenuDropDown    options={() => this.renderMenuFileExport()}         >Export song</MenuDropDown>
+            <MenuAction     onAction={e => this.loadNewSongData(e)}             >New song</MenuAction>
+            <MenuDropDown   options={() => this.renderMenuFileOpen()}           >Open song</MenuDropDown>
+            <MenuDropDown   options={() => this.renderMenuFileSave()}           >Save song</MenuDropDown>
+            <MenuDropDown   options={() => this.renderMenuFileImport()}         >Import song</MenuDropDown>
+            <MenuDropDown   options={() => this.renderMenuFileExport()}         >Export song</MenuDropDown>
         </>);
     }
 
 
     renderMenuFileOpen() {
         return (<>
-            <MenuDropDown    options={() => this.renderMenuFileOpenMemory()}     >Import song</MenuDropDown>
-            <MenuAction onAction={e => this.openSongFromFileDialog(e)}      >from File</MenuAction>
-            <MenuAction onAction={e => this.loadSongFromURL(e)}             >from URL</MenuAction>
+            <MenuDropDown   options={() => this.renderMenuFileOpenMemory()}     >from Memory</MenuDropDown>
+            <MenuAction     onAction={e => this.openSongFromFileDialog(e)}      >from File</MenuAction>
+            <MenuAction     onAction={e => this.loadSongFromURL(e)}             >from URL</MenuAction>
         </>);
     }
 
@@ -80,7 +80,7 @@ class ComposerMenu extends ComposerRenderer {
                 <MenuAction
                     key={i}
                     onAction={(e) => this.loadSongFromMemory(entry.uuid)}
-                >{entry.name || entry.uuid}</MenuAction>)
+                >{entry.title || entry.uuid}</MenuAction>)
             :<MenuAction
                 key="no-recent"
                 disabled

@@ -41,7 +41,8 @@ class ComposerRenderer extends React.Component {
                 root:{
                     destination: this.getAudioContext(),
                     currentCommand: 'C4',
-                    currentPositionTicks: 0
+                    currentVelocity: null,
+                    currentDuration: '1B',
                 }
             },
 
@@ -60,8 +61,8 @@ class ComposerRenderer extends React.Component {
     // getSelectedTrack() { return this.state.selectedTrack; }
 
     render() {
-        const {trackName:selectedTrackName, selectedIndices, firstSelectedInstruction} = this.trackerGetActiveSelectedTrackState();
-        console.log('firstSelectedInstruction', firstSelectedInstruction);
+        const {trackName:selectedTrackName, selectedIndices, trackState} = this.trackerGetActiveSelectedTrackState();
+        // console.log('trackState', trackState);
         return (
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <MenuOverlayContainer
@@ -137,7 +138,7 @@ class ComposerRenderer extends React.Component {
                                 <InputRange
                                     className="position"
                                     onChange={(e, pos) => this.setSongPosition(pos)}
-                                    value={this.song.songPlaybackPosition()}
+                                    value={this.song ? this.song.getSongPlaybackPosition() : 0}
                                     min={0}
                                     max={Math.ceil(this.state.songLengthSeconds)}
                                     ref={ref => this.fieldSongPosition = ref}
@@ -220,7 +221,7 @@ class ComposerRenderer extends React.Component {
                                     arrow={'▼'}
                                     // className="command"
                                     options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuEditInsert()}
-                                >{this.state.currentTrackerCommand}</ButtonDropDown>
+                                >{trackState.currentCommand}</ButtonDropDown>
                             </Form>
                             <Form className="instruction-insert" header="Add">
                                 <Button
@@ -256,13 +257,13 @@ class ComposerRenderer extends React.Component {
                                 <InputRange
                                     // className="velocity"
                                     onChange={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
-                                    value={firstSelectedInstruction ? firstSelectedInstruction.velocity : 127}
+                                    value={trackState.currentVelocity}
                                     min={1}
                                     max={127}
                                     ref={ref => this.fieldInstrumentVelocity = ref}
                                     title="Instrument Velocity"
                                     disabled={selectedIndices.length === 0}
-                                >{firstSelectedInstruction ? firstSelectedInstruction.velocity : 'N/A'}</InputRange>
+                                    />
                             </Form>
 
 
@@ -273,7 +274,7 @@ class ComposerRenderer extends React.Component {
                                     options={e => this.renderMenuEditSetDuration(e)}
                                     title="Instrument Duration"
                                     disabled={selectedIndices.length === 0}
-                                >{firstSelectedInstruction ? firstSelectedInstruction.getDurationString(this.song.data.timeDivision) : '-'}</ButtonDropDown>
+                                >{trackState.currentDuration}</ButtonDropDown>
                             </Form>
 
                             <Form className="tracker-selection" header="Selection">
@@ -356,6 +357,8 @@ class ComposerRenderer extends React.Component {
     getSong() { return this.song; }
 
     setCurrentSong(song) {
+        if(!song instanceof Song)
+            throw new Error("Invalid current song");
         if(this.song) {
             this.setStatus("Unloading song: " + this.song.data.title);
             if(this.song.isPlaying) {
@@ -384,6 +387,7 @@ class ComposerRenderer extends React.Component {
         this.song.connect(this.getAudioContext());
         this.setStatus("Loaded song: " + song.data.title);
         this.setState({
+            title: song.data.title,
             songUUID: song.data.uuid,
             songLengthTicks: song.getSongLengthTicks(),
             songLengthSeconds: song.getSongLengthInSeconds(),

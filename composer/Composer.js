@@ -139,13 +139,14 @@ class Composer extends ComposerActions {
 
 
         if (state) {
-            await this.loadDefaultSong(state.songUUID);
             if (typeof state.volume !== "undefined")
                 this.setVolume(state.volume);
+            if(state.songUUID)
+                this.loadDefaultSong(state.songUUID);
             this.setState(state);
 
         } else {
-            await this.loadDefaultSong();
+            this.loadDefaultSong();
         }
     }
 
@@ -158,18 +159,18 @@ class Composer extends ComposerActions {
     }
 
 
-    async loadDefaultSong(recentSongUUID = null) {
+    loadDefaultSong(recentSongUUID = null) {
 
         const src = this.props.src || this.props.url;
         if (src) {
-            await this.loadSongFromURL(src);
+            this.loadSongFromURL(src);
             return true;
         }
 
 
         if (recentSongUUID) {
             try {
-                await this.loadSongFromMemory(recentSongUUID);
+                this.loadSongFromMemory(recentSongUUID);
                 return;
             } catch (e) {
                 console.error(e);
@@ -326,7 +327,7 @@ class Composer extends ComposerActions {
                         this.fieldSongPlaybackPause.disabled = true;
                         this.setProps({playing: false, paused: false});
                     }
-                    this.updateSongPositionValue(this.song.songPlaybackPosition);
+                    this.updateSongPositionValue(this.song.getSongPlaybackPosition());
                 }, 10);
                 break;
 

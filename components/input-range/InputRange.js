@@ -6,6 +6,7 @@ class InputRange extends React.Component {
         super(props);
     }
 
+
     onChange(e) {
         const newValue = parseFloat(e.target.value);
         this.props.onChange
@@ -22,7 +23,7 @@ class InputRange extends React.Component {
             <input
                 className={className}
                 type="range"
-                value={this.props.value}
+                defaultValue={this.props.value}
                 onChange={e => this.onChange(e)}
                 min={this.props.min}
                 max={this.props.max}
