@@ -92,21 +92,24 @@ class Tracker extends React.Component {
         this.eachRow(() => {
             return indexFound === null;
 
-        }, (instruction, cursorPosition) => {
+        }, (index, instruction, cursorPosition) => {
+            console.log("WUT", index, instruction, cursorPosition);
             if(cursorPosition > cursorOffset)
                 return false;
             if(cursorPosition === cursorOffset)
-                indexFound = instruction.index; // @Depreciated
+                indexFound = index; // @Depreciated
             return indexFound === null;
         });
+        console.log('findInstructionIndexFromCursorOffset', cursorOffset, indexFound);
         return indexFound;
     }
 
     /** Actions **/
 
     setCursorOffset(cursorOffset) {
-        const selectedIndices = [this.findInstructionIndexFromCursorOffset(cursorOffset)];
-        return this.selectIndices(selectedIndices, cursorOffset);
+        const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
+        console.log('selectedIndex', selectedIndex);
+        return this.selectIndices(selectedIndex === null ? [] : [selectedIndex], cursorOffset);
     }
 
     selectIndices(selectedIndices=null, cursorOffset=null, rowOffset=null) {
@@ -116,7 +119,7 @@ class Tracker extends React.Component {
     /** Render **/
 
     render() {
-        console.log('Tracker.render');
+        // console.log('Tracker.render');
         let className = "asc-tracker";
         // if(this.props.className)
         //     className += ' ' + this.props.className;
@@ -256,7 +259,7 @@ class Tracker extends React.Component {
     /** Row Iterator **/
 
     eachRow(rowCallback, instructionCallback=null) {
-        return this.getTrackInfo().eachRow(rowCallback, instructionCallback=null);
+        return this.getTrackInfo().eachRow(rowCallback, instructionCallback);
     }
 
 

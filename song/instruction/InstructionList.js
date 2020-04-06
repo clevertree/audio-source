@@ -24,6 +24,8 @@ export class InstructionList {
 
 
     getInstruction(index) {
+        if(typeof index !== "number")
+            throw new Error("Invalid Index: " + typeof index);
         if(index >= this.instructionList.length)
             return null;
         const instructionData = this.instructionList[index];
@@ -47,7 +49,7 @@ export class InstructionList {
 
     static getInstruction(instructionData, index=null) {
         if(!instructionData)
-            throw new Error("Invalid Instruction data");
+            throw new Error("Invalid Instruction data at " + index);
         if(this.isTrackInstruction(instructionData))
             return new TrackInstruction(instructionData, index);
         if(this.isMIDIInstruction(instructionData))

@@ -77,7 +77,7 @@ export default class TrackInfo {
     }
 
     selectIndices(selectedIndices=null, cursorOffset=null) {
-//         console.info('trackerSelectIndices', trackName, selectedIndices, cursorOffset);
+        console.info('TrackInfo.selectIndices', selectedIndices, cursorOffset);
         // if(cursorIndex === null)
         //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
 
@@ -86,7 +86,7 @@ export default class TrackInfo {
             selectedIndices = this.track.selectedIndices || [];
 
         // Filter unique indices
-        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i);
+        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
         // Sort indices
         selectedIndices.sort((a, b) => a - b);
 
@@ -137,7 +137,7 @@ export default class TrackInfo {
             currentRow++;
             cursorPositionTicks = startPositionTicks;
             return cursorPosition < cursorOffset;
-        }, (instruction, cursorPosition) => {
+        }, (index, instruction, cursorPosition) => {
         });
         return {currentRow, cursorPositionTicks};
     }
@@ -152,7 +152,7 @@ export default class TrackInfo {
             if(rowOffsets.length > 3)
                 rowOffsets.shift();
             return cursorPosition <= cursorOffset;
-        }, (instruction, cursorPosition) => {
+        }, (index, instruction, cursorPosition) => {
         });
         // console.log('rowOffsets', cursorOffset, rowOffsets);
         const nextRowStartOffset = rowOffsets.pop();
@@ -212,7 +212,7 @@ export default class TrackInfo {
             }
 
             if(instructionCallback)
-                if(instructionCallback(instruction, cursorPosition) === false)
+                if(instructionCallback(instructionIterator.currentIndex, instruction, cursorPosition) === false)
                     return;
 
             // Render instruction
