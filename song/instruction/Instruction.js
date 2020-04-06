@@ -22,36 +22,14 @@ class Instruction {
         this.data[0] = newDeltaDuration;
     }
 
-    set velocity(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
-    get velocity()          { throw new Error("TODO: Implement for " + this.constructor.name);}
-    set durationTicks(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
-    get durationTicks()          { throw new Error("TODO: Implement for " + this.constructor.name);}
-    set duration(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
-    get duration()          { throw new Error("TODO: Implement for " + this.constructor.name);}
+    set velocity(velocity)  { console.error("TODO: Implement for " + this.constructor.name);}
+    get velocity()          { console.error("TODO: Implement for " + this.constructor.name);}
+    set durationTicks(velocity)  { console.error("TODO: Implement for " + this.constructor.name);}
+    get durationTicks()          { console.error("TODO: Implement for " + this.constructor.name);}
+    set duration(velocity)  { console.error("TODO: Implement for " + this.constructor.name);}
+    get duration()          { console.error("TODO: Implement for " + this.constructor.name);}
+    get clone()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 
-
-    /** @deprecated **/
-    clone() {
-        return new Instruction(
-            Object.assign({}, this.data),
-            this.index,
-        )
-    }
-
-
-    /** @deprecated **/
-    static parseDurationAsTicks(durationString, timeDivision) {
-        if (typeof durationString !== 'string')
-            return durationString;
-        switch (durationString[durationString.length - 1].toLowerCase()) {
-            case 't':
-                return parseInt(durationString.substr(0, durationString.length - 1));
-            case 'b':
-                return timeDivision * parseFloat(durationString.substr(0, durationString.length - 1));
-            default:
-                throw new Error("Invalid Duration: " + durationString);
-        }
-    }
 }
 
 

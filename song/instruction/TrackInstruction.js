@@ -33,6 +33,10 @@ class TrackInstruction extends Instruction {
     get velocity() {
         return undefined;
     }
+
+    clone() {
+        return new TrackInstruction(this.data.slice())
+    }
 }
 
 export default TrackInstruction;

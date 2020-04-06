@@ -19,6 +19,10 @@ div.asui-button.stick {
     background: linear-gradient(#ccc, #aaa);
     border: 1px inset;
 }
+div.asui-button.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
 
 /** Menu Arrow **/

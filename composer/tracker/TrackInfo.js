@@ -126,7 +126,7 @@ export default class TrackInfo {
             cursorOffset = this.getCursorOffset();
 
         let rowCount = 0;
-        this.eachRow((rowCount2, lastRowPositionTicks, toPositionTicks, cursorPosition) => {
+        this.eachRow((rowCount2, startPositionTicks, endPositionTicks, cursorPosition) => {
             rowCount++;
             return cursorPosition <= cursorOffset;
         }, (instruction, cursorPosition) => {

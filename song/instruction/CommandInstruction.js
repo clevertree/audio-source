@@ -1,5 +1,5 @@
 import Instruction from "./Instruction";
-import {SongValues, Values} from "../values";
+import {SongValues} from "../values";
 
 class CommandInstruction extends Instruction {
 
@@ -32,6 +32,10 @@ class CommandInstruction extends Instruction {
         this.data[3] = newVelocity;
     }
 
+
+    clone() {
+        return new CommandInstruction(this.data.slice());
+    }
 }
 
 export default CommandInstruction;

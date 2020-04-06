@@ -39,12 +39,18 @@ class ComposerRenderer extends React.Component {
             selectedTrack: 'root',
             activeTracks: {
                 root:{
-                    destination: this.getAudioContext()
+                    destination: this.getAudioContext(),
+                    currentCommand: 'C4',
+                    currentPositionTicks: 0
                 }
             },
 
+
+            /** UI **/
+
             // Keyboard
-            keyboardOctave: 4
+            keyboardOctave: 4,
+
 
         };
 
@@ -131,7 +137,7 @@ class ComposerRenderer extends React.Component {
                                 <InputRange
                                     className="position"
                                     onChange={(e, pos) => this.setSongPosition(pos)}
-                                    value={0}
+                                    value={this.song.songPlaybackPosition()}
                                     min={0}
                                     max={Math.ceil(this.state.songLengthSeconds)}
                                     ref={ref => this.fieldSongPosition = ref}
@@ -213,14 +219,15 @@ class ComposerRenderer extends React.Component {
                                 <ButtonDropDown
                                     arrow={'▼'}
                                     // className="command"
-                                    options={() => this.renderMenuEditInsert()}
-                                >{firstSelectedInstruction ? firstSelectedInstruction.command : 'C4'}</ButtonDropDown>
+                                    options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuEditInsert()}
+                                >{this.state.currentTrackerCommand}</ButtonDropDown>
                             </Form>
                             <Form className="instruction-insert" header="Add">
                                 <Button
                                     // className="instruction-insert"
                                     onAction={e => this.instructionInsert()}
                                     title="Insert Instruction"
+                                    disabled={selectedIndices.length > 0}
                                 >
                                     <Icon className="insert"/>
                                 </Button>
@@ -230,6 +237,7 @@ class ComposerRenderer extends React.Component {
                                     // className="instruction-delete"
                                     onAction={e => this.instructionDelete(e)}
                                     title="Delete Instruction"
+                                    disabled={selectedIndices.length === 0}
                                 >
                                     <Icon className="remove"/>
                                 </Button>
@@ -253,6 +261,7 @@ class ComposerRenderer extends React.Component {
                                     max={127}
                                     ref={ref => this.fieldInstrumentVelocity = ref}
                                     title="Instrument Velocity"
+                                    disabled={selectedIndices.length === 0}
                                 >{firstSelectedInstruction ? firstSelectedInstruction.velocity : 'N/A'}</InputRange>
                             </Form>
 
@@ -263,6 +272,7 @@ class ComposerRenderer extends React.Component {
                                     // className="instruction-duration"
                                     options={e => this.renderMenuEditSetDuration(e)}
                                     title="Instrument Duration"
+                                    disabled={selectedIndices.length === 0}
                                 >{firstSelectedInstruction ? firstSelectedInstruction.getDurationString(this.song.data.timeDivision) : '-'}</ButtonDropDown>
                             </Form>
 

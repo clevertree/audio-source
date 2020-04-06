@@ -6,6 +6,7 @@ import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 import {TrackInfo} from "./tracker/";
+import {InstructionList} from "../song/instruction";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -287,8 +288,7 @@ class ComposerActions extends ComposerMenu {
 
 
     async instructionInsert(newCommand = null, promptUser = false) {
-        const {trackName, firstSelectedInstruction} = this.trackerGetActiveSelectedTrackState();
-        const newInstruction = firstSelectedInstruction.clone();
+        const {trackName} = this.trackerGetActiveSelectedTrackState();
         // if (instrumentID !== null)
         //     newInstruction.instrument = instrumentID;
 
@@ -299,62 +299,46 @@ class ComposerActions extends ComposerMenu {
         // if(selectedIndices.length === 0)
         //     throw new Error("No selection");
         if (newCommand === null)
-            newCommand = firstSelectedInstruction ? firstSelectedInstruction.command : null;
+            newCommand = this.state.currentTrackerCommand;
         if (promptUser)
             newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        newInstruction.command = newCommand;
+        const newInstruction = InstructionList.parseInstruction([0, newCommand]);
+        this.setState({currentTrackerCommand: newInstruction.command});
 
 
         const songPosition = song.getSongPositionInTicks();
+        // TODO calculate song position from cursorPosition
         console.log(songPosition);
         let insertIndex = song.instructionInsertAtPosition(trackName, songPosition, newInstruction);
         this.selectIndices([insertIndex]);
-        // tracker.forceUpdate();
-        // this.selectIndicies(insertIndex);
-        this.playCursorInstruction();
+
+        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
     }
 
     async instructionReplaceCommand(newCommand = null, promptUser = false) {
         //: TODO: check for recursive group
         const song = this.song;
-        const {trackName, selectedIndices, firstSelectedInstruction} = this.trackerGetActiveSelectedTrackState();
+        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
-        if (newCommand === null && firstSelectedInstruction && firstSelectedInstruction.command)
-            newCommand = firstSelectedInstruction.command;
+        if (newCommand === null)
+            newCommand = this.state.currentTrackerCommand;
         if (promptUser)
             newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
+        this.setState({currentTrackerCommand: newCommand});
         for (let i = 0; i < selectedIndices.length; i++) {
             const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
             instruction.command = newCommand;
-            // song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
-            // if (instrumentID !== null) {
-            //     song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
-            // }
-            // this.renderInstruction(trackName, selectedIndices[i]); // Use song modified event to rerender
         }
         this.playSelectedInstructions(); // TODO: play same note (no retrigger)
     }
-
-    // instructionReplaceInstrument(instrumentID = null) {
-    //     const song = this.song;
-    //     const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
-    //
-    //     instrumentID = instrumentID !== null ? instrumentID : parseInt(this.fieldInstructionInstrument.value);
-    //     if (!Number.isInteger(instrumentID))
-    //         throw new Error("Invalid Instruction ID");
-    //     for (let i = 0; i < selectedIndices.length; i++) {
-    //         song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
-    //         // await this.renderInstruction(trackName, selectedIndices[i]);// Use song modified event to rerender
-    //     }
-    //     this.playCursorInstruction();
     // }
 
     async instructionReplaceDuration(duration = null, promptUser = false) {

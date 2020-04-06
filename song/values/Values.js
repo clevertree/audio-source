@@ -140,6 +140,62 @@ class Values {
     //         'velocities',
     //     ]
     // }
+
+
+    static parseDurationAsTicks(durationString, timeDivision) {
+        if (typeof durationString !== 'string')
+            return durationString;
+        switch (durationString[durationString.length - 1].toLowerCase()) {
+            case 't':
+                return parseInt(durationString.substr(0, durationString.length - 1));
+            case 'b':
+                return timeDivision * parseFloat(durationString.substr(0, durationString.length - 1));
+            default:
+                throw new Error("Invalid Duration: " + durationString);
+        }
+    }
+
+    static formatDuration(input, timeDivision) {
+        let stringValue;
+        this.getNoteDurations((duration, durationString) => {
+            if (input === duration || input === durationString) {
+                stringValue = durationString;
+                return false;
+            }
+        }, timeDivision);
+        if (stringValue)
+            return stringValue;
+        const beatDivisor = input / timeDivision;
+        if(beatDivisor === Math.round(beatDivisor))
+            return beatDivisor + 'B';
+
+        input = parseFloat(input).toFixed(2);
+        return input.replace('.00', 't');
+    }
+
+
+
+    static getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
+        const results = [];
+        for (let i = 64; i > 1; i /= 2) {
+            let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
+
+            let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}T`);
+            if(!addResult(results, result)) return results;
+
+            result = callback(1 / i * timeDivision, `${fraction}B`);
+            if(!addResult(results, result)) return results;
+
+            result = callback(1 / i * 1.5 * timeDivision, `${fraction}D`); //t== ticks or triplets?
+            if(!addResult(results, result)) return results;
+        }
+        for (let i = 1; i <= 16; i++) {
+            let result = callback(i * timeDivision, i + 'B');
+            if(!addResult(results, result)) return results;
+        }
+        return results;
+    }
+
 }
 
 function addResult (results, result) {

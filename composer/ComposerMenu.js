@@ -124,7 +124,7 @@ class ComposerMenu extends ComposerRenderer {
             <MenuAction onAction={() => onSelectValue(this.state.keyboardOctave)}>{noteName}{this.state.keyboardOctave} (Current)</MenuAction>
             {/*TODO: move into lower menu?*/}
             {this.values.getNoteOctaves((octave) =>
-                <MenuAction key={octave} onAction={() => onSelectValue(octave)}     >{noteName}{octave}</MenuAction>
+                <MenuAction key={octave} onAction={() => onSelectValue(noteName+octave)}     >{noteName+octave}</MenuAction>
             )}
         </>)
     }
@@ -137,7 +137,7 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
         return this.values.getNoteFrequencies((noteName) =>
-            <MenuAction key={noteName} onAction={() => onSelectValue(noteName)}     >{noteName}{octave}</MenuAction>
+            <MenuAction key={noteName} onAction={() => onSelectValue(noteName+octave)}     >{noteName+octave}</MenuAction>
         );
     }
 

@@ -11,6 +11,7 @@ import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} 
 
 import InstrumentList from "../instruments";
 import TrackInstruction from "./instruction/TrackInstruction";
+import Values from "./values/Values";
 
 // TODO: can be handled cleaner
 InstrumentList.addAllInstruments();
@@ -368,7 +369,7 @@ class Song {
 
     instructionInsertAtPosition(trackName, insertPositionInTicks, insertInstructionData) {
         if (typeof insertPositionInTicks === 'string')
-            insertPositionInTicks = Instruction.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
+            insertPositionInTicks = Values.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
 
         if (!Number.isInteger(insertPositionInTicks))
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
