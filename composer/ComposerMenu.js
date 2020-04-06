@@ -464,7 +464,7 @@ class ComposerMenu extends ComposerRenderer {
             <MenuAction
                 key="remove"
                 onAction={e => this.instrumentRemove(instrumentID)}
-                disabled={!this.song.isInstrumentLoaded(instrumentID)}
+                disabled={!this.song.hasInstrument(instrumentID)}
             >Remove from song</MenuAction>
         </>);
     }

@@ -68,12 +68,14 @@ class ComposerActions extends ComposerMenu {
     /** Playback **/
 
     playSelectedInstructions() {
-        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
-        return this.trackerGetTrackInfo(trackName).playInstructions(this.getVolumeGain(), selectedIndices);
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        trackInfo.stopPlayback();
+        return trackInfo.playSelectedInstructions(this.getVolumeGain());
     }
     playInstructions(selectedIndices) {
-        const {trackName} = this.trackerGetActiveSelectedTrackState();
-        return this.trackerGetTrackInfo(trackName).playInstructions(this.getVolumeGain(), selectedIndices);
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        trackInfo.stopPlayback();
+        return trackInfo.playInstructions(this.getVolumeGain(), selectedIndices);
     }
 
     /** Song actions **/
@@ -330,13 +332,15 @@ class ComposerActions extends ComposerMenu {
             throw new Error("Invalid Instruction command");
 
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
+            const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
+            instruction.command = newCommand;
+            // song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
             // if (instrumentID !== null) {
             //     song.instructionReplaceInstrument(trackName, selectedIndices[i], instrumentID);
             // }
             // this.renderInstruction(trackName, selectedIndices[i]); // Use song modified event to rerender
         }
-        this.playCursorInstruction();
+        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
     }
 
     // instructionReplaceInstrument(instrumentID = null) {
@@ -478,7 +482,7 @@ class ComposerActions extends ComposerMenu {
             if(trackData.destinationList)
                 selectedTrack = trackData.destinationList.slice(-1)[0];
             else
-                selectedTrack = this.getSong.getStartGroup();
+                selectedTrack = this.getSong.getStartTrackName();
             delete activeTracks[trackName];
         }
         this.setState({activeTracks, selectedTrack});
@@ -594,7 +598,7 @@ class ComposerActions extends ComposerMenu {
         if (!instrumentClassName)
             throw new Error(`Invalid instrument class`);
         const {title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
-        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
+        // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
@@ -616,7 +620,7 @@ class ComposerActions extends ComposerMenu {
             throw new Error(`Invalid Instrument ID: Not an integer`);
         if (!instrumentClassName)
             throw new Error(`Invalid Instrument class`);
-        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
+        // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.libraryURL; // TODO: set library url
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
         if (window.confirm(`Change Instrument (${instrumentID}) to ${instrumentClassName}`)) {

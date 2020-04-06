@@ -11,7 +11,8 @@ import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} 
 
 import InstrumentList from "../instruments";
 import TrackInstruction from "./instruction/TrackInstruction";
-import React from "react";
+
+// TODO: can be handled cleaner
 InstrumentList.addAllInstruments();
 // const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
 
@@ -20,7 +21,7 @@ class Song {
         this.audioContext = audioContext; //  || new (window.AudioContext || window.webkitAudioContext)();
 
         this.eventListeners = [];
-        this.instruments = [];
+        this.instrumentLoader = new InstrumentLoader(this);
 
         this.playback = null;
         // this.playbackPosition = 0;
@@ -84,7 +85,7 @@ class Song {
         this.values = new SongValues(this);
 
         this.loadSongData(songData);
-        this.instrumentLoadAll();
+        this.instrumentLoadAll(audioContext);
     }
 
     /** @deprecated? **/
@@ -117,23 +118,7 @@ class Song {
         }
     }
 
-    /** Initialization **/
 
-    async initInstrument(instrumentID, audioContext, throwException = true) {
-        const instrument = await this.instrumentGetLoaded(instrumentID, throwException);
-        if(!instrument) return;
-        await instrument.init(audioContext);
-    }
-
-    /** @todo combine with loadAllInstruments **/
-    async initAllInstruments(audioContext) {
-        console.time('initAllInstruments');
-        const instrumentList = this.instrumentGetList();
-        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            await this.initInstrument(instrumentID, audioContext, false);
-        }
-        console.timeEnd('initAllInstruments');
-    }
 
     /** Song Data **/
 
@@ -167,26 +152,16 @@ class Song {
         this.history = songHistory;
     }
 
-    /** Song Data Processing **/
-
-    instructionProcessGroupData(trackName) {
-        const instructionList = this.instructionGetList(trackName);
-        for (let i = 0; i < instructionList.length; i++) {
-            const instruction = InstructionList.parseInstruction(instructionList[i]);
-            instructionList[i] = instruction.data;
-        }
-    }
-
 
     /** Instrument Groups **/
 
-    getStartGroup() {
+    getStartTrackName() {
         return typeof this.data.startGroup === "undefined"
             ? this.data.startGroup
             : Object.keys(this.data.instructions)[0];
     }
 
-    hasGroup(trackName) {
+    hasTrack(trackName) {
         return typeof this.data.instructions[trackName] !== "undefined";
     }
 
@@ -202,49 +177,12 @@ class Song {
     }
 
 
-    /** Context **/
-    // get history() { return this.data.history; }
-    // getGroupTimeDivision(trackName) { // Bad idea
-    //     return this.timeDivision;
-    // }
-
-
-    /** Rendering Volume **/
-
-    // getVolumeGain() {
-    //     if (!this.volumeGain) {
-    //         const context = this.getAudioContext();
-    //         let gain = context.createGain();
-    //         gain.gain.value = this.volume; // Song.DEFAULT_VOLUME;
-    //         gain.connect(context.destination);
-    //         this.volumeGain = gain;
-    //     }
-    //     return this.volumeGain;
-    // }
-
-    /** @deprecated **/
-    // getVolumeValue() {
-    //     return this.volume; // this.volumeGain ? this.volumeGain.gain.value * 100 : Song.DEFAULT_VOLUME * 100;
-    // }
-
-    // setVolume(volume) {
-    //     if (typeof volume !== "number")
-    //         throw new Error("Invalid volume");
-    //     console.info("Setting volume: ", volume);
-    //     this.volume = volume;
-    //     if (this.audioContext) {
-    //         const gain = this.getVolumeGain();
-    //         gain.gain.value = volume;
-    //     }
-    //     this.dispatchEvent(new CustomEvent('song:volume', {detail: {volume}}));
-    // }
-
 
     /** Instruments **/
+    // All instruments are loaded and connected to the host's destination on song load.
 
-
-    isInstrumentLoaded(instrumentID) {
-        return !!this.instruments[instrumentID];
+    hasInstrument(instrumentID) {
+        return !!this.data.instruments[instrumentID];
     }
 
     playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
@@ -253,11 +191,7 @@ class Song {
             instrumentID = 0;
             // return;
         }
-        if (!this.instruments[instrumentID]) {
-            console.error(`Instrument ${instrumentID} is not loaded. Playback skipped. `);
-            return;
-        }
-        let instrument = this.instruments[instrumentID];
+        let instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = Song.parseFrequencyString(noteFrequency);
@@ -276,6 +210,7 @@ class Song {
         return this.data.instruments[instrumentID];
     }
 
+    /** @deprecated **/
     instrumentGetConfig(instrumentID) {
         return this.instrumentGetData(instrumentID)[1];
     }
@@ -287,93 +222,32 @@ class Song {
     }
 
 
-    /** @deprecated **/
-    instrumentGetLoaded(instrumentID) {
-        if (this.instruments[instrumentID])
-            return this.instruments[instrumentID];
-        throw new Error("Instrument not yet loading: " + instrumentID);
-    }
 
-    unloadInstrument(instrumentID) {
-        // TODO:
-    }
-
-
-    instrumentLoadAll(forceReload = false) {
+    instrumentLoadAll(destination) {
         const instrumentList = this.data.instruments;
         for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
             if (instrumentList[instrumentID]) {
-//                 console.info("Loading instruments: " + instrumentID, instrumentList[instrumentID]);
-                this.instrumentLoad(instrumentID, forceReload);
+                this.instrumentLoad(destination, instrumentID);
             }
         }
     }
 
 
-    instrumentLoad(instrumentID, forceReload = false) {
-        // instrumentID = parseInt(instrumentID);
-        if (!forceReload && this.instruments[instrumentID])
-            return this.instruments[instrumentID];
-
-        const instrument = this.instrumentLoadInstance(instrumentID);
-        // if (typeof instrument.init !== "function")
-        //     throw new Error("Instrument has no 'init' method: " + instrument.constructor.name);
-        this.instruments[instrumentID] = instrument;
-
+    instrumentLoad(destination, instrumentID) {
+        const instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
         this.dispatchEvent({
             type: 'instruments:instance',
             instrument,
             instrumentID,
             song: this
         });
-
-
-//             console.info("Instrument loaded: ", instance, instrumentID);
         return instrument;
     }
 
-    instrumentLoadInstance(instrumentID) {
-        const [className, config] = this.instrumentGetData(instrumentID);
-        if (!className)
-            throw new Error("Invalid instruments class");
-
-        const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
-        return new classInstrument(config);
-    }
-
     instrumentLoadRenderer(instrumentID) {
-        const [className, config] = this.instrumentGetData(instrumentID);
-        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
-        return <Renderer
-            instrumentID={instrumentID}
-            config={config}
-        />;
+        return this.instrumentLoader.instrumentLoadRenderer(instrumentID);
     }
 
-
-    // instrumentGetConfig(instrumentID) {
-    //     const instrumentEntry = this.instrumentGetEntry(instrumentID);
-    //     if (!instrumentEntry[1])
-    //         throw new Error("Invalid instrument Config: " + instrumentID);
-    //     return instrumentEntry[1];
-    // }
-    // instrumentGetClass(instrumentID) {
-    //     const instrumentEntry = this.instrumentGetEntry(instrumentID);
-    //     if (!instrumentEntry[0])
-    //         throw new Error("Invalid instrument Class: " + instrumentID);
-    //     return instrumentEntry[0];
-    // }
-
-
-    // updateInstrument(instrumentID, config, subPath=[]) {
-    //     return this.updateDataByPath(['instruments', instrumentID].concat(subPath), config);
-    // }
-
-    // getLoadedInstrument(instrumentID) {
-    //     if(typeof this.instruments[instrumentID] === "undefined" || this.instruments[instrumentID] instanceof Promise)
-    //         return null;
-    //     return this.instruments[instrumentID];
-    // }
 
     instrumentAdd(config) {
         if (typeof config !== 'object')
@@ -387,7 +261,8 @@ class Song {
 
         this.data.instruments[instrumentID] = config;
         // this.updateDataByPath(['instruments', instrumentID], config);
-        this.instrumentLoad(instrumentID);
+        // this.instrumentLoader.loadInstanceFromDestination()
+        // this.instrumentLoad(instrumentID);
         this.dispatchEvent({
             type: 'instruments:added',
             instrumentID,
@@ -408,7 +283,8 @@ class Song {
         oldConfig = this.data.instruments[instrumentID];
         this.data.instruments[instrumentID] = config;
         // oldConfig = this.updateDataByPath(['instruments', instrumentID], config);
-        this.instrumentLoad(instrumentID);
+        // this.instrumentLoader.loadInstanceFromDestination()
+        // this.instrumentLoad(instrumentID);
 
         this.dispatchEvent({
             type: 'instruments:modified',
@@ -427,11 +303,11 @@ class Song {
         // if(instrumentList.length === instrumentID) {
         //
         // }
-        const oldConfig = this.instruments[instrumentID];
+        const oldConfig = instrumentList[instrumentID];
         if(isLastInstrument) {
-            delete this.instruments[instrumentID];
+            delete instrumentList[instrumentID];
         } else {
-            this.instruments[instrumentID] = null;
+            instrumentList[instrumentID] = null;
         }
         this.unloadInstrument(instrumentID);
 
@@ -653,19 +529,19 @@ class Song {
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        return this.instructionGetIterator(this.getStartGroup())
+        return this.instructionGetIterator(this.getStartTrackName())
             .seekToEnd()
             .endPositionSeconds;
     }
 
     getSongLengthTicks() {
-        return this.instructionGetIterator(this.getStartGroup())
+        return this.instructionGetIterator(this.getStartTrackName())
             .seekToEnd()
             .endPositionTicks;
     }
 
     // getSongLength() {
-    //     return this.getGroupLength(this.getStartGroup());
+    //     return this.getGroupLength(this.getStartTrackName());
     // }
     //
     // getGroupLength(trackName) {
@@ -680,7 +556,7 @@ class Song {
 
 
     getSongPositionFromTicks(songPositionInTicks) {
-        return this.getGroupPositionFromTicks(this.getStartGroup(), songPositionInTicks);
+        return this.getGroupPositionFromTicks(this.getStartTrackName(), songPositionInTicks);
     }
 
     // Refactor
@@ -711,7 +587,7 @@ class Song {
     getSongPositionInTicks(positionInSeconds = null) {
         if (positionInSeconds === null)
             positionInSeconds = this.songPlaybackPosition;
-        return this.getGroupPositionInTicks(this.getStartGroup(), positionInSeconds);
+        return this.getGroupPositionInTicks(this.getStartTrackName(), positionInSeconds);
     }
 
 
@@ -785,7 +661,7 @@ class Song {
 
         if (isPlaying) {
             const oldDestination = this.playback.destination;
-            this.playback = new InstructionPlayback(oldDestination, this, this.getStartGroup(), oldDestination.context.currentTime - this.playbackPosition);
+            this.playback = new InstructionPlayback(oldDestination, this, this.getStartTrackName(), oldDestination.context.currentTime - this.playbackPosition);
             this.playback.awaitPlaybackReachedEnd()
                 .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
         }
@@ -816,7 +692,7 @@ class Song {
         }
 
         // await this.init(audioContext);
-        const playback = new InstructionPlayback(destination, this, this.getStartGroup(), this.playbackPosition);
+        const playback = new InstructionPlayback(destination, this, this.getStartTrackName(), this.playbackPosition);
         this.playback = playback;
         console.log("Start playback:", this.playbackPosition);
 
@@ -878,10 +754,10 @@ class Song {
     }
 
 
-    async playInstructionAtIndex(trackName, instructionIndex, noteStartTime = null) {
+    playInstructionAtIndex(trackName, instructionIndex, noteStartTime = null) {
         const instruction = this.instructionGetByIndex(trackName, instructionIndex, false);
         if (instruction)
-            await this.playInstruction(instruction, noteStartTime);
+            this.playInstruction(instruction, noteStartTime);
         else
             console.warn("No instruction at index");
     }

@@ -40,7 +40,7 @@ class SongValues extends Values{
         const results = [];
         const instrumentList = song.data.instruments;
         for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            if (song.isInstrumentLoaded(instrumentID)) {
+            if (song.hasInstrument(instrumentID)) {
                 const instance = song.getInstrument(instrumentID);
                 if (instance.getFrequencyAliases) {
                     const aliases = instance.getFrequencyAliases();

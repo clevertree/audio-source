@@ -68,7 +68,7 @@ class SongTest {
     // await song.loadSongData({});
 
 
-    const testTrackName = song.getStartGroup();
+    const testTrackName = song.getStartTrackName();
     const rootGroup = song.data.instructions.root;
 
     // Insert Instructions

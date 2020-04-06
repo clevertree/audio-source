@@ -363,7 +363,7 @@ class ComposerRenderer extends React.Component {
                 // destination: this.getAudioContext()
             },
         };
-        // activeTracks[song.getStartGroup()] = {
+        // activeTracks[song.getStartTrackName()] = {
         //     cursorOffset: 4,
         //     selectedIndices: [0]
         // };
@@ -377,7 +377,7 @@ class ComposerRenderer extends React.Component {
             songUUID: song.data.uuid,
             songLengthTicks: song.getSongLengthTicks(),
             songLengthSeconds: song.getSongLengthInSeconds(),
-            selectedTrack: song.getStartGroup() || 'root',
+            selectedTrack: song.getStartTrackName() || 'root',
             // trackerRowOffset: 0,
             // trackerQuantizationInTicks: timeDivision,
             // trackerSegmentLengthInTicks: timeDivision * 16,

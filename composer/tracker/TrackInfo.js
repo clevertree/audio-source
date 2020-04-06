@@ -258,6 +258,15 @@ export default class TrackInfo {
             song.playInstruction(destination, instruction, instrumentID);
         }
     }
+
+    playSelectedInstructions(destination) {
+        return this.playInstructions(destination, this.getSelectedIndices());
+    }
+
+    stopPlayback() {
+        console.log("TODO: stop playback")
+    }
+
 }
 
 

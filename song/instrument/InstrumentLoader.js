@@ -1,33 +1,44 @@
+import React from "react";
 
 class InstrumentLoader {
     constructor(song) {
         this.song = song;
+        this.destinations = new WeakMap();
     }
+
+    loadInstanceFromDestination(destination, instrumentID) {
+        let instruments = this.destinations.get(destination);
+        if(!instruments) {
+            instruments = {};
+            this.destinations.set(destination, instruments);
+        }
+        if(typeof instruments[instrumentID] === "undefined")
+            instruments[instrumentID] = this.instrumentLoadInstance(instrumentID);
+
+        return instruments[instrumentID];
+    }
+
+
 
     instrumentLoadInstance(instrumentID) {
-        const config = this.song.getInstrumentConfig(instrumentID);
-        if (!config.className)
-            throw new Error("Invalid instruments class");
-        let instrumentClassName = config.className;
-        // let instrumentClassURL = new URL(instrumentPreset.url, document.location.origin); // This should be an absolute url;
+        const [className, config] = this.song.instrumentGetData(instrumentID);
+        const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
+        const instrument = new classInstrument(config);
+        console.info("Instrument loaded: ", instrument, instrumentID);
+        return instrument;
+    }
 
-        // const configProxy = new Proxy(config, new InstrumentConfigListener(config, this.song, instrumentID));
-
-        // const instrumentPath = ['instruments', instrumentID];
-        // const concatPath = (path) => ['instruments', instrumentID].concat(path);
-
-
-        const {classInstrument} = InstrumentLoader.getInstrumentClass(instrumentClassName);
-        const props = {
-            config,
-            instrumentID,
-            // updateConfig: (path=[], newValue) => this.song.updateDataByPath(concatPath(path), newValue),
-            // spliceConfig: (path=[], deleteCount, ...newValues) => this.song.spliceDataByPath(concatPath(path), deleteCount, ...newValues),
-        };
-        return new classInstrument(props);
+    instrumentLoadRenderer(instrumentID) {
+        const [className, config] = this.song.instrumentGetData(instrumentID);
+        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
+        return <Renderer
+            instrumentID={instrumentID}
+            config={config}
+        />;
     }
 
 
+    /** Static **/
 
     static getInstrumentClass(className) {
         const classes = InstrumentLoader.registeredInstrumentClasses;
@@ -39,13 +50,6 @@ class InstrumentLoader {
         throw new Error(`Instrument class ${className} was not found`);
     }
 
-
-
-    static createInstrumentConfig(className, instrumentConfig={}) {
-        this.getInstrumentClass(className); // TODO: default config?
-        instrumentConfig.className = className;
-        return instrumentConfig;
-    }
 
 
     static addInstrumentClass(classInstrument, classRenderer=null, title=null) {

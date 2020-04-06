@@ -150,7 +150,7 @@ class InstrumentRenderer extends React.Component {
 
     instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
         const instrumentID = this.props.instrumentID;
-        instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
+        // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         this.getSong().instrumentReplace(instrumentID, instrumentConfig);
     }
     // instrumentRename(e) {
