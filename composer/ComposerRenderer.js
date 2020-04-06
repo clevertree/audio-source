@@ -271,7 +271,7 @@ class ComposerRenderer extends React.Component {
                                 <ButtonDropDown
                                     arrow={'▼'}
                                     // className="instruction-duration"
-                                    options={e => this.renderMenuEditSetDuration(e)}
+                                    options={() => this.renderMenuEditSetDuration()}
                                     title="Instrument Duration"
                                     disabled={selectedIndices.length === 0}
                                 >{trackState.currentDuration}</ButtonDropDown>

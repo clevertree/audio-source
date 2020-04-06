@@ -1,12 +1,10 @@
 import React from "react";
 
-import Song from "../song/Song";
+import {Song, Values, Storage, InstructionList} from "../song";
 import InstrumentLoader from "../song/instrument/InstrumentLoader";
-import Storage from "../song/Storage";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 import {TrackInfo} from "./tracker/";
-import {InstructionList} from "../song/instruction";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -289,6 +287,8 @@ class ComposerActions extends ComposerMenu {
 
     async instructionInsert(newCommand = null, promptUser = false) {
         const trackName = this.state.selectedTrack;
+        const activeTracks = {...this.state.activeTracks};
+        const trackState = activeTracks[trackName];
         // if (instrumentID !== null)
         //     newInstruction.instrument = instrumentID;
 
@@ -299,19 +299,22 @@ class ComposerActions extends ComposerMenu {
         // if(selectedIndices.length === 0)
         //     throw new Error("No selection");
         if (newCommand === null)
-            newCommand = this.state.currentTrackerCommand;
+            newCommand = trackState.currentCommand;
         if (promptUser)
             newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
         const newInstruction = InstructionList.parseInstruction([0, newCommand]);
-        this.setState({currentTrackerCommand: newInstruction.command});
+        if(trackState.currentDuration)
+            newInstruction.durationTicks = Values.parseDurationAsTicks(trackState.currentDuration, song.data.timeDivision);
+        trackState.currentDuration = newInstruction.getDurationString(song.data.timeDivision);
+        if(trackState.currentVelocity)
+            newInstruction.velocity = trackState.currentVelocity;
+        trackState.currentVelocity = newInstruction.velocity;
+        this.setState({activeTracks});
 
         const songPositionTicks = this.trackerGetTrackInfo(trackName).calculateCursorOffsetPositionTicks();
-        // const songPosition = song.getSongPositionInTicks();
-        // TODO calculate song position from cursorPosition
-        console.log(songPositionTicks);
         let insertIndex = song.instructionInsertAtPosition(trackName, songPositionTicks, newInstruction);
         this.selectIndices([insertIndex]);
 
@@ -468,11 +471,12 @@ class ComposerActions extends ComposerMenu {
         const activeTracks = {...this.state.activeTracks};
         let selectedTrack = trackName;
         if(toggleValue === true || typeof activeTracks[trackName] === "undefined") {
-            activeTracks[trackName] = trackData;
+            const currentTrackData = activeTracks[this.state.selectedTrack];
+            activeTracks[trackName] = Object.assign({}, currentTrackData, trackData);
         } else {
             trackData = activeTracks[trackName];
             if(trackData.destinationList)
-                selectedTrack = trackData.destinationList.slice(-1)[0];
+                selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
             else
                 selectedTrack = this.getSong.getStartTrackName();
             delete activeTracks[trackName];

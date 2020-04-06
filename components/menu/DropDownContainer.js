@@ -59,15 +59,14 @@ class DropDownContainer extends React.Component {
             className += ' vertical';
         if (this.state.stick)
             className += ' stick';
+        if(this.props.disabled)
+            return 'Disabled';
 
-        let options = null;
-        if(!this.props.disabled) {
-            options = this.props.options;
-            if (typeof options === "function")
-                options = options(this);
-            if (!options)
-                console.warn("Empty options returned by ", this);
-        }
+        let options = this.props.options;
+        if (typeof options === "function")
+            options = options(this);
+        if (!options)
+            console.warn("Empty options returned by ", this);
 
         return <MenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
@@ -97,6 +96,8 @@ class DropDownContainer extends React.Component {
     }
 
     openMenu() {
+        if (this.props.disabled)
+            return console.error("Menu is disabled");
         if (this.state.open)
             throw new Error("Menu was already open");
 

@@ -31,12 +31,12 @@ class MenuOverlayContainer extends React.Component {
         return <MenuContext.Provider
             value={{overlay:this, parentDropDown:null}}>
             <>
-                {this.state.openOverlay ? <Div className="asui-menu-overlay-container" // TODO: fix overlay z-index
+                {this.state.openOverlay ? <Div className="asui-menu-overlay-container"
                     onClick={this.cb.closeAllMenus}
                     /> : null}
 
                 {this.state.open ? <Div className="asui-menu-overlay-dropdown">
-                    {typeof this.state.options === "function" ? this.state.options(this) : this.state.options}
+                    {this.state.options}
                     <MenuBreak/>
                     <MenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</MenuAction>
                 </Div> : null}
@@ -57,16 +57,17 @@ class MenuOverlayContainer extends React.Component {
     }
 
     updateOverlay() {
-        clearTimeout(this.updateOverlayTimeout);
-        this.updateOverlayTimeout = setTimeout(() => {
+        // clearTimeout(this.updateOverlayTimeout);
+        // this.updateOverlayTimeout = setTimeout(() => {
             const openOverlay = this.state.open || this.getActiveMenuCount() > 0;
+            console.log('updateOverlay', openOverlay);
             if(this.state.openOverlay !== openOverlay)
                 this.setState({openOverlay})
-        }, 100);
+        // }, 100);
     }
 
     isHoverEnabled() {
-        return this.getActiveMenuCount() > 0;
+        return this.state.openOverlay || this.getActiveMenuCount() > 0;
     }
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {
@@ -81,11 +82,12 @@ class MenuOverlayContainer extends React.Component {
         const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);
         if(i !== -1)
             this.openMenus.splice(i, 1);
-        this.updateOverlay();
+        // this.updateOverlay();
     }
 
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
+        // console.log('closeMenus', butThese, stayOpenOnStick);
         // this.overlayContext.openMenuItems = [];
         this.openMenus.forEach(openMenu => {
             const [menuItem, closeMenuCallback] = openMenu;
@@ -93,7 +95,7 @@ class MenuOverlayContainer extends React.Component {
                 return;
             closeMenuCallback(stayOpenOnStick);
         });
-        this.updateOverlay();
+        // this.updateOverlay();
     }
 
 
@@ -109,6 +111,9 @@ class MenuOverlayContainer extends React.Component {
     openMenu(options) {
         if(!this.props.isActive)
             return false;
+
+        if(typeof options === "function")
+            options = options(this);
 
         this.setState({
             open: true,

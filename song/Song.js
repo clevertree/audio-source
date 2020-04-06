@@ -376,7 +376,7 @@ class Song {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
         const insertInstruction = InstructionList.parseInstruction(insertInstructionData);
-        let instructionList = this.instructionGetList(trackName);
+        let instructionList = this.data.instructions[trackName];
 
         // let groupPosition = 0, lastDeltaInstructionIndex;
 

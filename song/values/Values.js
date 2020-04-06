@@ -143,13 +143,25 @@ class Values {
 
 
     static parseDurationAsTicks(durationString, timeDivision) {
+        if(!timeDivision)
+            throw new Error("Invalid timeDivision");
         if (typeof durationString !== 'string')
             return durationString;
-        switch (durationString[durationString.length - 1].toLowerCase()) {
+        const units = durationString.substr(durationString.length - 1);
+        let fraction = durationString.substr(0, durationString.length - 1);
+        if(fraction.indexOf('/')) {
+            const fractionSplit = fraction.split('/');
+            fraction = parseInt(fractionSplit[0], 10) / parseInt(fractionSplit[1], 10);
+        }
+        switch (units) {
             case 't':
-                return parseInt(durationString.substr(0, durationString.length - 1));
-            case 'b':
-                return timeDivision * parseFloat(durationString.substr(0, durationString.length - 1));
+                return parseInt(fraction);
+            case 'B':
+                return timeDivision * parseFloat(fraction);
+            case 'D':
+                return timeDivision * 1.5 * parseFloat(fraction);
+            case 'T':
+                return timeDivision / 1.5 * parseFloat(fraction);
             default:
                 throw new Error("Invalid Duration: " + durationString);
         }
