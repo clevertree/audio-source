@@ -25,13 +25,7 @@ class Song {
         this.instrumentLoader = new InstrumentLoader(this);
 
         this.playback = null;
-        // this.playbackPosition = 0;
-        // this.isPaused = false;
-        // this.volume = Song.DEFAULT_VOLUME;
 
-        // this.activeGroups = {};
-
-        // this.getData = function() { return data; }
         const data = {
             title: Song.generateTitle(),
             uuid: Song.generateUUID(),
@@ -40,7 +34,7 @@ class Song {
             timeDivision: 96 * 4,
             bpm: 120,
             // beatsPerMeasure: 4,
-            startGroup: 'root',
+            startTrack: 'root',
             instruments: [ // Also called 'plugins'
                 [
                     'PolyphonyInstrument', {
@@ -81,8 +75,6 @@ class Song {
         this.getProxiedData = function() { return data; };
         this.data = new Proxy(data, new ConfigListener(this));
         this.history = [];
-        // this.waitCancels = [];
-        // this.playbackEndCallbacks = [];
         this.values = new SongValues(this);
 
         this.loadSongData(songData);
@@ -154,11 +146,11 @@ class Song {
     }
 
 
-    /** Instrument Groups **/
+    /** Instruction Tracks **/
 
     getStartTrackName() {
-        return typeof this.data.startGroup === "undefined"
-            ? this.data.startGroup
+        return typeof this.data.startTrack === "undefined"
+            ? this.data.startTrack
             : Object.keys(this.data.instructions)[0];
     }
 
@@ -199,11 +191,6 @@ class Song {
         return instrument.playNote(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
     }
 
-    hasInstrument(instrumentID) {
-        const instrumentList = this.data.instruments;
-        // console.log('hasInstrument', instrumentList[instrumentID], !!instrumentList[instrumentID])
-        return !!instrumentList[instrumentID];
-    }
 
     instrumentGetData(instrumentID) {
         if (!this.data.instruments[instrumentID])
@@ -236,12 +223,12 @@ class Song {
 
     instrumentLoad(destination, instrumentID) {
         const instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
-        this.dispatchEvent({
-            type: 'instruments:instance',
-            instrument,
-            instrumentID,
-            song: this
-        });
+        // this.dispatchEvent({
+        //     type: 'instruments:instance',
+        //     instrument,
+        //     instrumentID,
+        //     song: this
+        // });
         return instrument;
     }
 
@@ -255,15 +242,12 @@ class Song {
             throw new Error("Invalid instruments config object");
         if (!config.className)
             throw new Error("Invalid Instrument Class");
-        // config.url = config.url;
 
         const instrumentList = this.data.instruments;
         const instrumentID = instrumentList.length;
 
         this.data.instruments[instrumentID] = config;
-        // this.updateDataByPath(['instruments', instrumentID], config);
-        // this.instrumentLoader.loadInstanceFromDestination()
-        // this.instrumentLoad(instrumentID);
+        this.instrumentLoad(instrumentID, this.audioContext);
         this.dispatchEvent({
             type: 'instruments:added',
             instrumentID,
@@ -274,18 +258,14 @@ class Song {
     }
 
     instrumentReplace(instrumentID, config) {
-        // const instrumentList = this.data.instruments;
-        // if(instrumentList.length < instrumentID)
-        //     throw new Error("Invalid instruments ID: " + instrumentID);
         let oldConfig = this.data.instruments[instrumentID] || {};
+
+        // Preserve old instruments name
         if (oldConfig && oldConfig.title && !config.title)
             config.title = oldConfig.title;
-        // Preserve old instruments name
-        oldConfig = this.data.instruments[instrumentID];
+
         this.data.instruments[instrumentID] = config;
-        // oldConfig = this.updateDataByPath(['instruments', instrumentID], config);
-        // this.instrumentLoader.loadInstanceFromDestination()
-        // this.instrumentLoad(instrumentID);
+        this.instrumentLoad(instrumentID, this.audioContext);
 
         this.dispatchEvent({
             type: 'instruments:modified',
@@ -301,16 +281,14 @@ class Song {
         if (!instrumentList[instrumentID])
             throw new Error("Invalid instruments ID: " + instrumentID);
         const isLastInstrument = instrumentID === instrumentList.length - 1;
-        // if(instrumentList.length === instrumentID) {
-        //
-        // }
+
         const oldConfig = instrumentList[instrumentID];
         if(isLastInstrument) {
             delete instrumentList[instrumentID];
         } else {
             instrumentList[instrumentID] = null;
         }
-        this.unloadInstrument(instrumentID);
+        // this.instrumentUnload(instrumentID);
 
         this.dispatchEvent({
             type: 'instruments:removed',
@@ -367,6 +345,7 @@ class Song {
 
     /** Modify Instructions **/
 
+    /** TODO: fix insertion bugs **/
     instructionInsertAtPosition(trackName, insertPositionInTicks, insertInstructionData) {
         if (typeof insertPositionInTicks === 'string')
             insertPositionInTicks = Values.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
@@ -378,14 +357,11 @@ class Song {
         const insertInstruction = InstructionList.parseInstruction(insertInstructionData);
         let instructionList = this.data.instructions[trackName];
 
-        // let groupPosition = 0, lastDeltaInstructionIndex;
 
         const iterator = this.instructionGetIterator(trackName);
 
         let instruction = iterator.nextInstruction();
-        // noinspection JSAssignmentUsedAsCondition
         while (instruction) {
-            // const instruction = new SongInstruction(instructionList[i]);
             // if(instruction.deltaDuration > 0) {
             const currentPositionInTicks = iterator.positionTicks;
             if (currentPositionInTicks > insertPositionInTicks) {
@@ -447,7 +423,6 @@ class Song {
         let insertInstruction = InstructionList.parseInstruction(insertInstructionData);
         insertInstructionData = insertInstruction.data;
         this.instructionGetList(trackName).splice(insertIndex, 0, insertInstructionData);
-        // this.spliceDataByPath(['instructions', trackName, insertIndex], 0, insertInstructionData);
         return insertIndex;
     }
 
@@ -498,7 +473,6 @@ class Song {
         if (this.data.instructions.hasOwnProperty(newTrackName))
             throw new Error("New group already exists: " + newTrackName);
         this.data.instructions[newTrackName] = instructionList || [];
-        // this.updateDataByPath(['instructions', newTrackName], instructionList || []);
     }
 
 
@@ -509,7 +483,6 @@ class Song {
             throw new Error("Existing group not found: " + removeTrackName);
 
         delete this.data.instructions[removeTrackName];
-        // return this.updateDataByPath(['instructions', removeTrackName]);
     }
 
 
@@ -672,16 +645,6 @@ class Song {
     }
 
 
-    // isActive() {
-    //     for (const key in this.activeGroups) {
-    //         if (this.activeGroups.hasOwnProperty(key)) {
-    //             if (this.activeGroups[key] === true)
-    //                 return true;
-    //         }
-    //     }
-    //     return false;
-    // }
-
     play(destination) {
         if(!destination || !destination.context)
             throw new Error("Invalid destination");
@@ -823,72 +786,8 @@ class Song {
 
 
 
+    /** Song Modification History **/
 
-    // /** @deprecated **/
-    // instrumentRename(instrumentID, newInstrumentName) {
-    //     const oldValue = this.data.instruments[instrumentID].title;
-    //     this.data.instruments[instrumentID].title = newInstrumentName;
-    //     return oldValue;
-    // }
-
-
-    // instrumentReplaceParams(instrumentID, replaceParams) {
-    //     const instrumentList = this.songData.instruments;
-    //     if(!instrumentList[instrumentID])
-    //         throw new Error("Invalid instruments ID: " + instrumentID);
-    //
-    //     const oldParams = {};
-    //     for(const paramName in replaceParams) {
-    //         if(replaceParams.hasOwnProperty(paramName)) {
-    //             const paramValue = replaceParams[paramName];
-    //             const oldData = this.instrumentReplaceParam(instrumentID, paramName, paramValue)
-    //                 .oldData;
-    //             if(typeof oldData !== "undefined")
-    //                 oldParams[paramName] = oldData;
-    //         }
-    //     }
-    //     return oldParams;
-    // }
-
-    /** Song Data Modification **/
-
-
-    // findDataPathOld(pathList) {
-    //     if (!Array.isArray(pathList))
-    //         throw new Error("Path list must be an array");
-    //     if (pathList[0] === "*") {
-    //         return {
-    //             value: this.data,
-    //             parent: {key: this.data},
-    //             key: 'key'
-    //         };
-    //     }
-    //     // const pathList = path.split('.');
-    //     let value = this.data, parent, key = null;
-    //     for (let i = 0; i < pathList.length; i++) {
-    //         key = pathList[i];
-    //         // if(/^\d+$/.test(key)) {
-    //         //     key = parseInt(key);
-    //         //     // if(typeof target.length < targetPathPart)
-    //         //     //     throw new Error(`Path is out of index: ${target.length} < ${targetPathPart} (Path: -${path}) `);
-    //         // } else {
-    //         //     // if(typeof target[targetPathPart] === 'undefined')
-    //         //     //     throw new Error("Path not found: " + path);
-    //         // }
-    //         parent = value;
-    //         if (typeof value === "undefined")
-    //             throw new Error("Invalid path key: " + key);
-    //         value = value[key];
-    //     }
-    //     if (!parent)
-    //         throw new Error("Invalid path: " + pathList.join('.'));
-    //
-    //     return {
-    //         value: value,
-    //         parent: parent,
-    //         key: key
-    //     };
-    // }
 
 
     queueHistoryAction(action, pathList, data = null, oldData = null) {
@@ -933,15 +832,6 @@ class Song {
         return 440 * Math.pow(2, (keyNumber - 49) / 12);
     }
 
-//     getCommandFrequency(command) {
-//         const keyNumber = this.getCommandKeyNumber(command);
-//         return 440 * Math.pow(2, (keyNumber - 49) / 12);
-//     }
-//
-//     get noteFrequencies() {
-//         return ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-//     }
-//
     /** History **/
 
     // applyHistoryActions(songHistory) {
@@ -967,6 +857,10 @@ class Song {
     //     this.history = [];
     //     this.instructionProcessGroupData();
     // }
+
+
+    /** Static Song Loading **/
+
     static loadSongFromData(audioContext, songData) {
         const song = new Song(audioContext);
         song.loadSongData(songData);
@@ -1019,6 +913,7 @@ class Song {
         });
     }
 
+    /** Static Fle Support Module **/
 
     static getFileSupportModule(filePath) {
         // const AudioSourceLoader = customElements.get('audio-source-loader');

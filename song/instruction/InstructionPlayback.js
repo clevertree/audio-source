@@ -21,13 +21,13 @@ class InstructionPlayback {
             bpm: song.data.bpm,
             timeDivision: song.data.timeDivision,
         };
-        this.startGroupPlayback(startingStats);
+        this.startTrackPlayback(startingStats);
         setInterval(() => this.renderPlayback(), this.seekLength);
         this.renderPlayback();
 
     }
 
-    startGroupPlayback(stats) {
+    startTrackPlayback(stats) {
         const iterator = this.song.instructionGetIterator(stats.trackName, stats.bpm, stats.timeDivision);
         this.subGroups.push([
             stats,
@@ -108,7 +108,7 @@ class InstructionPlayback {
                         startTime: noteStartTime,
                         trackName: instruction.getTrackName()
                     });
-                    this.startGroupPlayback(subStats);
+                    this.startTrackPlayback(subStats);
 
                 } else {
                     this.song.playInstruction(stats.destination, instruction, noteStartTime, iterator.trackName);

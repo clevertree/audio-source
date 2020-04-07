@@ -5,6 +5,20 @@ import './assets/Button.css';
 import MenuContext from "../menu/MenuContext";
 
 class Button extends React.Component {
+    /** Context **/
+    static contextType = MenuContext;
+
+    /** Default Properties **/
+    static defaultProps = {
+    };
+
+    /** Property validation **/
+    static propTypes = {
+        onAction: PropTypes.func.isRequired,
+        disabled: PropTypes.bool,
+    };
+
+
     constructor(props) {
         super(props);
         this.cb = {
@@ -40,6 +54,8 @@ class Button extends React.Component {
         );
     }
 
+    /** User Input **/
+
     onMouseInput(e) {
         if(e.defaultPrevented)
             return;
@@ -48,22 +64,34 @@ class Button extends React.Component {
     }
 
 
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+        switch(e.key) {
+            case ' ':
+            case 'Enter':
+                this.doAction(e);
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+                break;
+        }
+    }
+
+    /** Actions **/
+
     doAction(e) {
         if(this.props.disabled) {
             console.warn(this.constructor.name + " is disabled.", this);
             return;
         }
 
-        if(this.props.onAction) {
-            if(e.type !== 'click')
-                throw new Error("Skipping onAction for type " + e.type);
-            const result = this.props.onAction(e, this);
-            if (result !== false)
-                this.closeAllDropDownMenus();
-
-        } else {
+        if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
-        }
+        const result = this.props.onAction(e, this);
+        if (result !== false)
+            this.closeAllDropDownMenus();
     }
 
 
@@ -73,19 +101,6 @@ class Button extends React.Component {
     }
 }
 
-Button.contextType = MenuContext;
-
-
-// creating default props
-Button.defaultProps = {
-    // disabled:       false,
-};
-
-// validating prop types
-Button.propTypes = {
-    onAction: PropTypes.func.isRequired,
-    disabled: PropTypes.bool,
-};
 
 
 

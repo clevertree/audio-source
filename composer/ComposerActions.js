@@ -1,7 +1,6 @@
 import React from "react";
 
-import {Song, Values, Storage, InstructionList} from "../song";
-import InstrumentLoader from "../song/instrument/InstrumentLoader";
+import {Song, Values, Storage, InstructionList, InstrumentLoader} from "../song";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 import {TrackInfo} from "./tracker/";

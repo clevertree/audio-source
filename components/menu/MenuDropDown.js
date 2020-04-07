@@ -87,10 +87,22 @@ export default class MenuDropDown extends React.Component {
         }
     }
 
-    onKeyDown(e) {
-        this.toggleMenu();
-    }
 
+
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+        switch(e.key) {
+            case ' ':
+            case 'Enter':
+                this.toggleMenu();
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key);
+                break;
+        }
+    }
     onMouseEnter(e) {
         this.toggleMenu();
     }

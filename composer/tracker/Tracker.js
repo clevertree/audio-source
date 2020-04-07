@@ -20,8 +20,6 @@ class Tracker extends React.Component {
     /** Property validation **/
     static propTypes = {
         composer: PropTypes.object.isRequired
-        // destination: PropTypes.object.isRequired
-        // tracker: PropTypes.any.isRequired,
     };
 
     constructor(props) {
@@ -29,9 +27,7 @@ class Tracker extends React.Component {
 
         if(!props.composer)
             throw new Error("Invalid composer");
-        // if(!props.destination)
-        //     throw new Error("Invalid track destination");
-        // this.state = this.props.composer.state;
+
         this.cb = {
             onKeyDown: (e) => this.onKeyDown(e),
             onWheel: e => this.onWheel(e)
@@ -82,7 +78,7 @@ class Tracker extends React.Component {
         return {segmentCount, currentSegmentID};
     }
 
-    // TODO: move to TrackerActions
+    /** @deprecated **/
     findRowCursorOffset() {
         return this.getTrackInfo().findRowCursorOffset();
     }
@@ -329,28 +325,6 @@ class Tracker extends React.Component {
                 break;
         }
     }
-
-
-    // renderOptions() {
-    //     return <>
-    //         <Form className="tracker-row-length" title="Row &#120491;">
-    //             <Button
-    //                 arrow={'▼'}
-    //                 // className="tracker-row-length"
-    //                 onAction={e => this.openMenuTrackerSetQuantization(e)}
-    //             >1B</Button>
-    //         </Form>
-    //
-    //         <Form className="tracker-segment-length" title="Seg &#120491;">
-    //             <Button
-    //                 arrow={'▼'}
-    //                 // className="tracker-segment-length"
-    //                 onAction={e => this.openMenuTrackerSetSegmentLength(e)}
-    //                 title="Select Tracker Segment Length"
-    //             >16B</Button>
-    //         </Form>
-    //     </>;
-    // }
 
 }
 
