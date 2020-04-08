@@ -192,7 +192,7 @@ class ComposerRenderer extends React.Component {
                         <Panel className="instruments" header="Instruments"
                                ref={ref=>this.panelInstruments = ref}
                                children={() => (<>
-                                   {this.song.instrumentGetList().map((instrumentConfig, instrumentID) =>
+                                   {this.song.instrumentEach((instrumentID, instrumentClass, instrumentConfig) =>
                                        <InstrumentRenderer
                                            key={instrumentID}
                                            composer={this}

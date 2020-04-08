@@ -3,16 +3,22 @@
 
 div.asui-menu-item {
     /*z-index: 4;*/
-    display: flex;
     position: relative;
     /*color: black;*/
-    padding: 0 0;
-    margin: 0 0;
     cursor: pointer;
-    white-space: nowrap;
     /*min-width: 1em;*/
     /*min-height: 1em;*/
     transition: background-color 0.3s;
+
+}
+
+div.asui-menu-item > div.title {
+    /*z-index: 4;*/
+    display: flex;
+    /*color: black;*/
+    padding: 0 0;
+    margin: 0 0;
+    white-space: nowrap;
 
 }
 
@@ -38,7 +44,8 @@ div.asui-menu-item.stick {
 
 
 /** Menu Arrow **/
-div.asui-menu-item > div.arrow {
+div.asui-menu-item > div.arrow`,
+div.asui-menu-item > div.title > div.arrow` {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;

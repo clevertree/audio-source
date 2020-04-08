@@ -452,10 +452,10 @@ class ComposerActions extends ComposerMenu {
         }
     }
 
-    trackRemove(trackName, promptUser = true) {
+    async trackRemove(trackName, promptUser = true) {
         const song = this.song;
 
-        const result = promptUser ? window.confirm(`Remove instruction group (${trackName})?`) : true;
+        const result = promptUser ? await this.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
         if (result) {
             song.groupRemove(trackName);
             this.trackerToggleTrack(trackName, true);
@@ -591,7 +591,7 @@ class ComposerActions extends ComposerMenu {
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (promptUser === false || window.confirm(`Add '${title}' to Song?`)) {
+        if (promptUser === false || await this.openPromptDialog(`Add '${title}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
             this.setStatus(`New instrument class '${instrumentClassName}' added to song at position ${instrumentID}`);
             // this.forceUpdate();
@@ -608,36 +608,29 @@ class ComposerActions extends ComposerMenu {
             throw new Error(`Invalid Instrument ID: Not an integer`);
         if (!instrumentClassName)
             throw new Error(`Invalid Instrument class`);
-        // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
-        // instrumentConfig.libraryURL = this.libraryURL; // TODO: set library url
-        // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
-        if (window.confirm(`Change Instrument (${instrumentID}) to ${instrumentClassName}`)) {
+
+        if (await this.openPromptDialog(`Change Instrument (${instrumentID}) to ${instrumentClassName}`)) {
             await this.song.instrumentReplace(instrumentID, instrumentConfig);
-            await this.song.loadInstrument(instrumentID, true);
             this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentClassName}`);
-            // this.fieldInstructionInstrument.setValue(instrumentID);
 
         } else {
             this.setError(`Change instrument canceled: ${instrumentClassName}`);
         }
     }
 
-    /** @deprecated **/
-    // instrumentRename(instrumentID, newInstrumentName = null) {
-    //     const config = this.song.getInstrumentConfig(instrumentID);
-    //     let oldInstrumentName = config.name;
-    //     if (!newInstrumentName)
-    //         newInstrumentName = await this.openPromptDialog(`Change name for instruments ${instrumentID}: `, oldInstrumentName);
-    //     if (!newInstrumentName)
-    //         throw new Error("Instrument name change canceled");
-    //     this.song.instrumentRename(instrumentID, newInstrumentName);
-    //     this.setStatus(`Instrument name updated: ${newInstrumentName}`);
-    // }
+    async instrumentRename(instrumentID, newInstrumentTitle = null) {
+        console.log(this.song.instrumentGetConfig(instrumentID).title, instrumentID);
+        const oldInstrumentTitle = this.song.instrumentGetConfig(instrumentID).title;
+        if (!newInstrumentTitle)
+            newInstrumentTitle = await this.openPromptDialog(`Change name for instruments ${instrumentID}: `, oldInstrumentTitle);
+        if (!newInstrumentTitle)
+            return console.error("Instrument name change canceled");
+        this.song.instrumentRename(instrumentID, newInstrumentTitle);
+        this.setStatus(`Instrument title updated: ${newInstrumentTitle}`);
+    }
 
-    instrumentRemove(instrumentRemoveID = null) {
-        // if (instrumentRemoveID === null)
-        //     instrumentRemoveID = parseInt(e.target.form.elements['instrumentID'].value);
-        if (window.confirm(`Remove Instrument ID: ${instrumentRemoveID}`)) {
+    async instrumentRemove(instrumentRemoveID = null) {
+        if (await this.openPromptDialog(`Remove Instrument ID: ${instrumentRemoveID}`)) {
             this.song.instrumentRemove(instrumentRemoveID);
             this.setStatus(`Instrument (${instrumentRemoveID}) removed`);
 

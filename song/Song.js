@@ -198,17 +198,21 @@ class Song {
         return this.data.instruments[instrumentID];
     }
 
-    /** @deprecated **/
+
     instrumentGetConfig(instrumentID) {
         return this.instrumentGetData(instrumentID)[1];
     }
 
 
-
     instrumentGetList() {
         return this.data.instruments;
     }
-
+    instrumentEach(callback) {
+        return this.data.instruments.map(function(entry, instrumentID) {
+            const [className, config] = entry;
+            return callback(instrumentID, className, config);
+        });
+    }
 
 
     instrumentLoadAll(destination) {
@@ -248,17 +252,17 @@ class Song {
 
         this.data.instruments[instrumentID] = config;
         this.instrumentLoad(instrumentID, this.audioContext);
-        this.dispatchEvent({
-            type: 'instruments:added',
-            instrumentID,
-            config,
-            song: this
-        });
+        // this.dispatchEvent({
+        //     type: 'instruments:added',
+        //     instrumentID,
+        //     config,
+        //     song: this
+        // });
         return instrumentID;
     }
 
     instrumentReplace(instrumentID, config) {
-        let oldConfig = this.data.instruments[instrumentID] || {};
+        let oldConfig = this.instrumentGetConfig(instrumentID);
 
         // Preserve old instruments name
         if (oldConfig && oldConfig.title && !config.title)
@@ -267,19 +271,24 @@ class Song {
         this.data.instruments[instrumentID] = config;
         this.instrumentLoad(instrumentID, this.audioContext);
 
-        this.dispatchEvent({
-            type: 'instruments:modified',
-            instrumentID,
-            oldConfig,
-            song: this
-        });
+        // this.dispatchEvent({
+        //     type: 'instruments:modified',
+        //     instrumentID,
+        //     oldConfig,
+        //     song: this
+        // });
         return oldConfig;
+    }
+
+    instrumentRename(instrumentID, newTitle) {
+        const config = this.instrumentGetConfig(instrumentID);
+        config.title = newTitle;
     }
 
     instrumentRemove(instrumentID) {
         const instrumentList = this.data.instruments;
         if (!instrumentList[instrumentID])
-            throw new Error("Invalid instruments ID: " + instrumentID);
+            return console.error("Invalid instruments ID: " + instrumentID);
         const isLastInstrument = instrumentID === instrumentList.length - 1;
 
         const oldConfig = instrumentList[instrumentID];
@@ -290,11 +299,11 @@ class Song {
         }
         // this.instrumentUnload(instrumentID);
 
-        this.dispatchEvent({
-            type: 'instruments:removed',
-            instrumentID,
-            song: this
-        });
+        // this.dispatchEvent({
+        //     type: 'instruments:removed',
+        //     instrumentID,
+        //     song: this
+        // });
         return oldConfig;
     }
 

@@ -40,3 +40,6 @@ div.polyphony-instrument-renderer > div.header {
 div.polyphony-instrument-renderer > div.header > button.toggle-container {
 }
 
+div.polyphony-instrument-renderer > div.samples {
+    max-width: 50vw;
+}

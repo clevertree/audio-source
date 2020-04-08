@@ -142,10 +142,10 @@ class InstrumentRenderer extends React.Component {
 
     renderMenuLibraryList(e) {
         return 'TODO';
-        let library = this.state.library;
-        return library.getLibraries().map(config => (
-            <MenuAction onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuAction>
-        ));
+        // let library = this.state.library;
+        // return library.getLibraries().map(config => (
+        //     <MenuAction onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuAction>
+        // ));
     }
 
     instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
@@ -153,12 +153,10 @@ class InstrumentRenderer extends React.Component {
         // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         this.getSong().instrumentReplace(instrumentID, instrumentConfig);
     }
-    // instrumentRename(e) {
-    //     const instrumentID = this.props.instrumentID;
-    //     const instrumentConfig = this.getSong().getInstrumentConfig(instrumentID);
-    //     const newName = window.prompt(`Rename instruments (${instrumentID}): `, instrumentConfig.name);
-    //     this.getSong().instrumentRename(instrumentID, newName);
-    // }
+    instrumentRename(e) {
+        const instrumentID = this.props.instrumentID;
+        this.getComposer().instrumentRename(instrumentID);
+    }
     instrumentRemove(e) {
         const instrumentID = this.props.instrumentID;
         this.getSong().instrumentRemove(instrumentID);

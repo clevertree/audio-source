@@ -36,25 +36,25 @@ class SongValues extends Values{
 
     getAllNamedFrequencies(callback = (alias, aliasValue, instrumentID) => [alias, aliasValue, instrumentID]) {
         return 'TODO';
-        const song = this.song;
-        const results = [];
-        const instrumentList = song.data.instruments;
-        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            if (song.hasInstrument(instrumentID)) {
-                const instance = song.getInstrument(instrumentID);
-                if (instance.getFrequencyAliases) {
-                    const aliases = instance.getFrequencyAliases();
-                    for (const alias in aliases) {
-                        if (aliases.hasOwnProperty(alias)) {
-                            const aliasValue = aliases[alias];
-                            const result = callback(alias, aliasValue, instrumentID);
-                            if(!addResult(results, result)) return results;
-                        }
-                    }
-                }
-            }
-        }
-        return results;
+        // const song = this.song;
+        // const results = [];
+        // const instrumentList = song.data.instruments;
+        // for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
+        //     if (song.hasInstrument(instrumentID)) {
+        //         const instance = song.getInstrument(instrumentID);
+        //         if (instance.getFrequencyAliases) {
+        //             const aliases = instance.getFrequencyAliases();
+        //             for (const alias in aliases) {
+        //                 if (aliases.hasOwnProperty(alias)) {
+        //                     const aliasValue = aliases[alias];
+        //                     const result = callback(alias, aliasValue, instrumentID);
+        //                     if(!addResult(results, result)) return results;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // return results;
     }
 
 

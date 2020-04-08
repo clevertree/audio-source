@@ -4,10 +4,18 @@ import "./assets/InputRange.scss";
 class InputRange extends React.Component {
     constructor(props = {}) {
         super(props);
+        this.cb = {
+            onChange: e => this.onChange(e),
+            onClick: e => this.onClick(e),
+        }
     }
 
+    onClick(e) {
+        // e.preventDefault();
+    }
 
     onChange(e) {
+        e.preventDefault();
         const newValue = parseFloat(e.target.value);
         this.props.onChange
         ? this.props.onChange(e, newValue)
@@ -24,7 +32,8 @@ class InputRange extends React.Component {
                 className={className}
                 type="range"
                 defaultValue={this.props.value}
-                onChange={e => this.onChange(e)}
+                onChange={this.cb.onChange}
+                onClick={this.cb.onClick}
                 min={this.props.min}
                 max={this.props.max}
                 name={this.props.name}

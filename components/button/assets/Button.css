@@ -26,7 +26,8 @@ div.asui-button.disabled {
 
 
 /** Menu Arrow **/
-div.asui-button > div.arrow {
+div.asui-button > div.arrow,
+div.asui-button > div.title > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;

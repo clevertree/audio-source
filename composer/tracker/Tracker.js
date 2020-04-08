@@ -321,6 +321,14 @@ class Tracker extends React.Component {
                 break;
 
             default:
+                const keyboardCommand = this.getComposer().keyboard.getKeyboardCommand(e.key);
+                if(keyboardCommand) {
+                    const selectedIndices = this.getSelectedIndices();
+                    const cursorOffset = this.getCursorOffset();
+                    console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
+                    return;
+                }
+                // this.instructionInsert
                 console.info("Unhandled key: ", e.key);
                 break;
         }

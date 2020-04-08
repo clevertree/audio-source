@@ -22,17 +22,17 @@ class Instruction {
         this.data[0] = newDeltaDuration;
     }
 
-    getDurationString(timeDivision) {console.error("TODO: Implement for " + this.constructor.name);}
-    set durationTicks(velocity)  { console.error("TODO: Implement for " + this.constructor.name);}
-    get durationTicks()          { console.error("TODO: Implement for " + this.constructor.name);}
+    getDurationString(timeDivision) { throw new Error("TODO: Implement for " + this.constructor.name);}
+    set durationTicks(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
+    get durationTicks()          { throw new Error("TODO: Implement for " + this.constructor.name);}
     set duration(velocity)  { throw new Error("TODO: Not Implement for " + this.constructor.name);}
     get duration()          { throw new Error("TODO: Not Implement for " + this.constructor.name);}
     get clone()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 
     /** @deprecated **/
-    set velocity(velocity)  { console.error("TODO: Implement for " + this.constructor.name);}
+    set velocity(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
     /** @deprecated **/
-    get velocity()          { console.error("TODO: Implement for " + this.constructor.name);}
+    get velocity()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 }
 
 

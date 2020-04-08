@@ -7,21 +7,35 @@ div.oscillatornode-instrument-renderer {
     margin: 2px;
 
     padding: 1px;
-    color: #666;
+    color: #000;
     border: solid 1px #666;
     border-radius: 4px;
     background-color: #CCC;
     position: relative;
 }
-div.oscillatornode-instrument-renderer.open {
-    background-color: #AAA;
+
+div.oscillatornode-instrument-renderer > div {
+    border-left: 1px solid #888;
+    padding-right: 2px;
+    padding-left: 2px;
 }
 
-div.oscillatornode-instrument-renderer > div.name {
+div.oscillatornode-instrument-renderer.open {
+    background-color: #FFF;
+    /*font-weight: bold;*/
+}
+
+div.oscillatornode-instrument-renderer > div.title {
+    /*color: darkred;*/
+    border-left: 0px;
+    transition: max-width 0.5s;
+    /*padding-right: 2px;*/
+    padding-left: 0px;
+}
+
+div.oscillatornode-instrument-renderer:not(.open) > div.title {
     max-width: 30vw;
     overflow: hidden;
-    transition: max-width 0.5s;
-    padding-right: 2px;
 }
 
 div.oscillatornode-instrument-renderer > div.sample:not(.open) > div.name {
@@ -30,10 +44,10 @@ div.oscillatornode-instrument-renderer > div.sample:not(.open) > div.name {
 
 div.oscillatornode-instrument-renderer > div.name { color: #1E2526; }
 div.oscillatornode-instrument-renderer > div.root { color: #692a6a; }
-div.oscillatornode-instrument-renderer > div.loop { color: #980c12; }
+div.oscillatornode-instrument-renderer > div.loop { color: cornflowerblue; }
 div.oscillatornode-instrument-renderer > div.range { color: #92303a; }
-div.oscillatornode-instrument-renderer > div.mixer { color: #2e3a07; }
-div.oscillatornode-instrument-renderer > div.detune { color: #1e543c; }
+div.oscillatornode-instrument-renderer > div.mixer { color: green; }
+div.oscillatornode-instrument-renderer > div.detune { color: darkred; }
 div.oscillatornode-instrument-renderer > div.alias { color: #385049; }
 
 div.oscillatornode-instrument-renderer > div.root,
@@ -43,9 +57,9 @@ div.oscillatornode-instrument-renderer > div.mixer,
 div.oscillatornode-instrument-renderer > div.detune,
 div.oscillatornode-instrument-renderer > div.alias,
 div.oscillatornode-instrument-renderer > div.config {
-    border-left: 1px solid #888;
-    padding-right: 2px;
-    padding-left: 2px;
+    /*border-left: 1px solid #888;*/
+    /*padding-right: 2px;*/
+    /*padding-left: 2px;*/
 }
 
 

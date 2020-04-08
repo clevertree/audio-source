@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import './assets/Button.css';
 import MenuContext from "../menu/MenuContext";
 
+// TODO: subclass Button and MenuDropDown with hover close handler
 class Button extends React.Component {
     /** Context **/
     static contextType = MenuContext;
@@ -44,15 +45,21 @@ class Button extends React.Component {
             <div
                 title={this.props.title}
                 className={className}
-                onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
-                tabIndex={0}
                 >
-                {this.props.children}
+                <div
+                    className="title"
+                    onClick={this.cb.onMouseInput}
+                    onKeyDown={this.cb.onKeyDown}
+                    tabIndex={0}
+                    >
+                    {this.props.children}
+                </div>
             </div>
 
         );
     }
+
+
 
     /** User Input **/
 

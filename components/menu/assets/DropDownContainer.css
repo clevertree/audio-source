@@ -25,7 +25,8 @@ div.asui-menu-dropdown > div.asui-menu-item:hover {
 
 
 div.asui-menu-dropdown.stick {
-    background-color: #9ba0a3;
+    border: 2px solid black;
+    /*background-color: #9ba0a3;*/
 }
 div.asui-menu-dropdown:hover {
     z-index: 4;

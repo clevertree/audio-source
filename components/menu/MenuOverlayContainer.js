@@ -60,7 +60,7 @@ class MenuOverlayContainer extends React.Component {
         // clearTimeout(this.updateOverlayTimeout);
         // this.updateOverlayTimeout = setTimeout(() => {
             const openOverlay = this.state.open || this.getActiveMenuCount() > 0;
-            console.log('updateOverlay', openOverlay);
+//             console.log('updateOverlay', openOverlay);
             if(this.state.openOverlay !== openOverlay)
                 this.setState({openOverlay})
         // }, 100);
