@@ -5,7 +5,7 @@ import Storage from "./Storage";
 import Keyboard from "../song/Keyboard"
 import {InstrumentLoader} from "./instrument";
 import {InstructionList} from "./instruction";
-import {Values, SongValues} from "./values";
+import {Values, SongValues, MenuValues} from "./values";
 export {
     Song,
     Library,
@@ -18,5 +18,6 @@ export {
     Keyboard,
 
     Values,
-    SongValues
+    SongValues,
+    MenuValues
 }

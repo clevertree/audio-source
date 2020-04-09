@@ -89,14 +89,13 @@ class Tracker extends React.Component {
             return indexFound === null;
 
         }, (index, instruction, cursorPosition) => {
-            console.log("WUT", index, instruction, cursorPosition);
             if(cursorPosition > cursorOffset)
                 return false;
             if(cursorPosition === cursorOffset)
                 indexFound = index; // @Depreciated
             return indexFound === null;
         });
-        console.log('findInstructionIndexFromCursorOffset', cursorOffset, indexFound);
+        // console.log('findInstructionIndexFromCursorOffset', cursorOffset, indexFound);
         return indexFound;
     }
 
@@ -104,7 +103,7 @@ class Tracker extends React.Component {
 
     setCursorOffset(cursorOffset) {
         const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
-        console.log('selectedIndex', selectedIndex);
+        console.log('setCursorOffset', cursorOffset, selectedIndex);
         return this.selectIndices(selectedIndex === null ? [] : [selectedIndex], cursorOffset);
     }
 

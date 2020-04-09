@@ -257,7 +257,7 @@ class ComposerRenderer extends React.Component {
                                 <InputRange
                                     // className="velocity"
                                     onChange={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
-                                    value={trackState.currentVelocity}
+                                    value={trackState.currentVelocity || 0}
                                     min={1}
                                     max={127}
                                     // ref={ref => this.fieldInstrumentVelocity = ref}

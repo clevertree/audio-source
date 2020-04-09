@@ -37,6 +37,7 @@ class TrackerInstructionParameter extends React.Component {
             onKeyDown={this.cb.onKeyDown}
             onContextMenu={this.cb.onContextMenu}
             className={className}
+            title={this.props.title}
             // tabIndex={0}
         >
             {this.props.children}

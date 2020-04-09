@@ -242,7 +242,8 @@ export default class TrackInfo {
 
         }
         // renderQuantizedRows(maxLengthInTicks);
-
+        while(nextQuantizationBreakInTicks <= currentRowPositionTicks)
+            nextQuantizationBreakInTicks += quantizationTicks;
         for(let i=0; i<256; i++) {
             if(doCallback(nextQuantizationBreakInTicks) === false)
                 return;
@@ -250,11 +251,13 @@ export default class TrackInfo {
         }
 
         function doCallback(toPositionTicks) {
-            const lastRowPositionTicks = currentRowPositionTicks;
+            if(currentRowPositionTicks === toPositionTicks) {
+                console.warn("Row has a duration of zero", toPositionTicks, instructionIterator);
+            }
             // let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
-            currentRowPositionTicks = toPositionTicks;
 
-            const result = rowCallback(rowCount, lastRowPositionTicks, toPositionTicks, cursorPosition, rowInstructionElms);
+            const result = rowCallback(rowCount, currentRowPositionTicks, toPositionTicks, cursorPosition, rowInstructionElms);
+            currentRowPositionTicks = toPositionTicks;
 
             rowInstructionElms=[];
             rowCount++;

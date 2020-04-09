@@ -59,6 +59,7 @@ class TrackerInstruction extends React.Component {
 
         parameters.push(<TrackerInstructionParameter
             key="command"
+            title={`Command: ${instruction.command}`}
             trackerInstruction={this}
             className="command"
             options={() => this.renderMenuSelectCommand()}
@@ -67,12 +68,13 @@ class TrackerInstruction extends React.Component {
 
         // console.log('instruction', this.props, className);
         if(open) {
-            const rowDuration = instruction.durationTicks === null ? 'N/A'
+            const durationString = instruction.durationTicks === null ? 'N/A'
                 : this.getComposer().values.formatDuration(instruction.durationTicks);
 
             if(typeof instruction.velocity !== "undefined")
                 parameters.push(<TrackerInstructionParameter
                     key="velocity"
+                    title={`Velocity: ${instruction.velocity}`}
                     trackerInstruction={this}
                     className="velocity"
                     options={() => this.renderMenuSelectVelocity(instruction.velocity)}
@@ -80,10 +82,11 @@ class TrackerInstruction extends React.Component {
             if(typeof instruction.durationTicks !== "undefined")
                 parameters.push(<TrackerInstructionParameter
                     key="duration"
+                    title={`Duration: ${durationString}`}
                     trackerInstruction={this}
                     className="duration"
                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-                >{rowDuration||'-'}</TrackerInstructionParameter>);
+                >{durationString||'-'}</TrackerInstructionParameter>);
         }
         return <Div
             className={className}

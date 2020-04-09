@@ -9,7 +9,7 @@ import {
     InputRange,
     MenuDropDown,
 } from "../../../components";
-import {Values} from "../../../song";
+import {MenuValues, Values} from "../../../song";
 
 import "./assets/OscillatorNodeInstrumentRenderer.css";
 
@@ -18,6 +18,10 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         super(props);
         this.state = {
             open: false
+        };
+        this.cb = {
+            onClick: e => this.toggleOpen(),
+
         }
     }
 
@@ -29,7 +33,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     render() {
-        let className = "oscillatornode-instrument-renderer";
+        let className = "instrument-renderer-oscillator-node";
         if(this.state.open)
             className += ' open';
         let title = this.getTitle();
@@ -39,7 +43,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
             <Div
                 className="title"
                 title={`Oscillator: ${title}`}
-                onClick={(e) => this.toggleOpen()}
+                onClick={this.cb.onClick}
                 >
                 {title}
             </Div>
@@ -183,6 +187,10 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     renderMenuChangeKeyRoot() {
+        return new MenuValues().renderMenuSelectCommand(noteNameOctave => {
+            this.changeRoot(noteNameOctave)
+        });
+
         const values = new Values();
         return (<>
             <MenuAction onAction={()=>{}} disabled>Edit Key Root</MenuAction>

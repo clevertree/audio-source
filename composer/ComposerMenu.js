@@ -1,10 +1,6 @@
 import React from "react";
-
 import {MenuAction, MenuDropDown, MenuBreak, InputRange} from "../components";
-
-import Storage from "../song/Storage";
-// import InputSelect from "../components/input-select/InputSelect";
-import InstrumentLoader from "../song/instrument/InstrumentLoader";
+import {Storage, MenuValues, InstrumentLoader} from "../song";
 import ComposerRenderer from "./ComposerRenderer";
 
 import "./assets/Composer.css";
@@ -92,6 +88,10 @@ class ComposerMenu extends ComposerRenderer {
     /** Deep selection menus **/
 
 
+
+    /** Deep selection menus **/
+
+
     renderMenuSelectCommand(onSelectValue) {
         return (<>
             <MenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue)}           >By Frequency</MenuDropDown>
@@ -150,20 +150,20 @@ class ComposerMenu extends ComposerRenderer {
         );
     }
 
-    renderMenuSelectDuration(onSelectValue, currentDuration, key=null) {
+    renderMenuSelectDuration(onSelectValue, key=null) {
         let results = [],
             timeDivision = this.song.data.timeDivision;
         switch(key) {
             default:
             case null:
                 return (<>
-                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'recent')}    >Recent</MenuDropDown>
+                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, 'recent')}    >Recent</MenuDropDown>
                     <MenuBreak />
-                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'fraction')}  >Fraction</MenuDropDown>
-                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'triplet')}   >Triplet</MenuDropDown>
-                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'dotted')}    >Dotted</MenuDropDown>
+                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, 'fraction')}  >Fraction</MenuDropDown>
+                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, 'triplet')}   >Triplet</MenuDropDown>
+                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, 'dotted')}    >Dotted</MenuDropDown>
                     <MenuBreak />
-                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'custom')}    >Custom</MenuDropDown>
+                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, 'custom')}    >Custom</MenuDropDown>
                 </>);
 
             case 'fraction':
@@ -214,7 +214,7 @@ class ComposerMenu extends ComposerRenderer {
                 max={127}
                 value={currentVelocity}
                 onChange={(e, mixerValue) => onSelectValue(mixerValue)}
-                />
+            />
             <MenuBreak/>
             {this.values.getNoteVelocities((velocity) =>
                 <MenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</MenuAction>)}
@@ -227,12 +227,10 @@ class ComposerMenu extends ComposerRenderer {
         return (<>
             {menuTitle ? <><MenuAction disabled onAction={() => {}}>{menuTitle}</MenuAction><MenuBreak/></> : null}
             {InstrumentLoader.getInstruments().map((config, i) =>
-            <MenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuAction>
+                <MenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuAction>
             )}
         </>);
     }
-
-
 
 
 

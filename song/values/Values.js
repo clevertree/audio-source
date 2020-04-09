@@ -121,26 +121,6 @@ class Values {
             + (parseInt(parts[2], 10) / 1000);
     }
 
-    // get valueTypes() {
-    //     return [
-    //         'beats-per-measure',
-    //         'beats-per-minute',
-    //         'command-group-execute',
-    //         'note-frequency-named',
-    //         'durations',
-    //         'groups',
-    //         // 'instruments-available',
-    //         'named-durations',
-    //         'note-frequency',
-    //         'note-frequency-all',
-    //         'note-frequency-octaves',
-    //         'song-groups',
-    //         'song-instruments',
-    //         'song-recent-list',
-    //         'velocities',
-    //     ]
-    // }
-
 
     static parseDurationAsTicks(durationString, timeDivision) {
         if(!timeDivision)
@@ -225,3 +205,5 @@ function addResult (results, result) {
 
 
 export default Values;
+
+
