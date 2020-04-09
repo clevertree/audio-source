@@ -107,13 +107,13 @@ div.asp-menu-button-toggle {
     border: none;
 }
 
-div.asp-menu-button-toggle > div.title > div.asui-icon {
+div.asp-menu-button-toggle > div.asui-icon {
     height: 2em;
     width: 2em;
     transition: transform 0.3s ease-out;
 }
 
-div.asp-menu-button-toggle.stick > div.title > div.asp-icon {
+div.asp-menu-button-toggle.stick > div.asp-icon {
     transform: rotate(90deg);
 }
 

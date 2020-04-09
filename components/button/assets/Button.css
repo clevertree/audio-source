@@ -1,11 +1,11 @@
 
 div.asui-button {
     /*z-index: 3;*/
-    padding: 0 0;
+    padding: 0 6px;
     margin: 0 0;
     position: relative;
-    /*display: inline-flex;*/
-    /*align-items: center;*/
+    display: inline-flex;
+    align-items: center;
     /*justify-content: center;*/
     cursor: pointer;
 
@@ -27,15 +27,9 @@ div.asui-button.disabled {
     cursor: not-allowed;
 }
 
-/** Title **/
-
-div.asui-button > div.title {
-    padding: 0 6px;
-}
 
 /** Menu Arrow **/
-div.asui-button > div.arrow,
-div.asui-button > div.title > div.arrow {
+div.asui-button > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;

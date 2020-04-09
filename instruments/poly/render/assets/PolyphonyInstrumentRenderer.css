@@ -45,5 +45,5 @@ div.polyphony-instrument-renderer > div.voices {
 }
 
 div.polyphony-instrument-renderer > div.add-voice {
-    flex-flow: column;
+    /*flex-flow: column;*/
 }

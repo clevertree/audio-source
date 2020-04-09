@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-    Button, ButtonDropDown,
+    ButtonDropDown,
     Div,
 } from "../../../components";
 
@@ -21,21 +21,11 @@ class PolyphonyInstrumentRenderer extends React.Component {
     }
     render() {
         const voices = this.props.config.voices;
-
+//         console.log('voices', voices);
         // Presets are handled by composer
         return (
             <Div className="polyphony-instrument-renderer">
                 <Div className="voices">
-                    {voices.map((voiceData, voiceID) => {
-                        const [className, config] = voiceData;
-                        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
-                        return <Renderer
-                            onRemove={this.cb.onRemove}
-                            key={voiceID}
-                            instrumentID={voiceID}
-                            config={config}
-                        />
-                    })}
                     {voices.map((voiceData, voiceID) => {
                         const [className, config] = voiceData;
                         const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
@@ -61,6 +51,10 @@ class PolyphonyInstrumentRenderer extends React.Component {
 
     /** Actions **/
 
+    // TODO: link to composer somehow
+    setStatus(message) { console.info(this.constructor.name, 'setStatus', message); }
+    setError(message) { console.error(this.constructor.name, 'setStatus', message); }
+
     wrapVoiceWithNewInstrument(voiceID) {
 
     }
@@ -69,14 +63,15 @@ class PolyphonyInstrumentRenderer extends React.Component {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);
         const {title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        const instrumentConfig = {};
         // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (promptUser === false || await this.openPromptDialog(`Add voice class '${title}' to Instrument?`)) {
+        if (promptUser === false || await new MenuValues().openConfirmDialog(`Add voice class '${title}' to Instrument?`)) {
             const newVoiceID = this.props.config.voices.length;
-            this.props.config.voices[newVoiceID] = newVoiceID;
+            this.props.config.voices[newVoiceID] = [instrumentClassName, instrumentConfig];
             this.setStatus(`Instrument '${instrumentClassName}' added as voice ${newVoiceID}`);
 
         } else {

@@ -101,14 +101,17 @@ class Tracker extends React.Component {
 
     /** Actions **/
 
-    setCursorOffset(cursorOffset) {
+    setCursorOffset(cursorOffset, playSelected= false) {
         const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
-        console.log('setCursorOffset', cursorOffset, selectedIndex);
-        return this.selectIndices(selectedIndex === null ? [] : [selectedIndex], cursorOffset);
+        // console.log('setCursorOffset', cursorOffset, selectedIndex);
+        this.selectIndices(selectedIndex === null ? [] : [selectedIndex], cursorOffset);
+        this.playSelectedInstructions();
     }
 
     selectIndices(selectedIndices=null, cursorOffset=null, rowOffset=null) {
-        return this.getTrackInfo().selectIndices(selectedIndices, cursorOffset, rowOffset);
+        this.getTrackInfo().selectIndices(selectedIndices, cursorOffset, rowOffset);
+        // if(selectedIndices.length > 0)
+        //     this.playInstructions(selectedIndices);
     }
 
     /** Render **/
@@ -244,11 +247,12 @@ class Tracker extends React.Component {
 
     /** Playback **/
 
-    // playSelectedInstructions() {
-    //     return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
-    // }
+    playSelectedInstructions() {
+        return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
+    }
+
     playInstructions(selectedInstructions, destination=null) {
-        destination = destination || this.getDestination()
+        destination = destination || this.getDestination();
         return this.getTrackInfo().playInstructions(destination, selectedInstructions);
     }
 
@@ -290,24 +294,24 @@ class Tracker extends React.Component {
             //
             case 'ArrowRight':
                 e.preventDefault();
-                this.setCursorOffset(this.getCursorOffset() + 1);
+                this.setCursorOffset(this.getCursorOffset() + 1, true);
                 break;
             case 'ArrowLeft':
                 e.preventDefault();
-                this.setCursorOffset(this.getCursorOffset() - 1);
+                this.setCursorOffset(this.getCursorOffset() - 1, true);
                 break;
 
 
             case 'ArrowUp':
                 e.preventDefault();
                 const {previousRowOffset} = this.findRowCursorOffset();
-                this.setCursorOffset(previousRowOffset);
+                this.setCursorOffset(previousRowOffset, true);
                 break;
 
             case 'ArrowDown':
                 e.preventDefault();
                 const {nextRowOffset} = this.findRowCursorOffset();
-                this.setCursorOffset(nextRowOffset);
+                this.setCursorOffset(nextRowOffset, true);
                 break;
             //
             // case ' ':

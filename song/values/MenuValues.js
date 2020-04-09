@@ -154,7 +154,11 @@ export default class MenuValues {
 
     /** Prompt **/
 
-    openPromptDialog(message, defaultValue='') {
+    async openPromptDialog(message, defaultValue='') {
         return window.prompt(message, defaultValue);
+    }
+
+    async openConfirmDialog(message) {
+        return window.confirm(message);
     }
 }

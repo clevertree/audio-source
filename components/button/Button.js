@@ -45,17 +45,12 @@ class Button extends React.Component {
             <div
                 title={this.props.title}
                 className={className}
+                onClick={this.cb.onMouseInput}
+                onKeyDown={this.cb.onKeyDown}
+                tabIndex={0}
                 >
-                <div
-                    className="title"
-                    onClick={this.cb.onMouseInput}
-                    onKeyDown={this.cb.onKeyDown}
-                    tabIndex={0}
-                    >
-                    {this.props.children}
-                </div>
+                {this.props.children}
             </div>
-
         );
     }
 

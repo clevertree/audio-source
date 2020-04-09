@@ -104,7 +104,7 @@ div.asc-menu-button-toggle {
     border: none;
 }
 
-div.asc-menu-button-toggle > div.title > div.asui-icon {
+div.asc-menu-button-toggle > div.asui-icon {
     height: 2em;
     width: 2em;
     transition: transform 0.3s ease-out;

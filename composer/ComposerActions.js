@@ -597,7 +597,7 @@ class ComposerActions extends ComposerMenu {
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (promptUser === false || await this.openPromptDialog(`Add '${title}' to Song?`)) {
+        if (promptUser === false || await this.openConfirmDialog(`Add '${title}' to Song?`)) {
             const instrumentID = this.song.instrumentAdd(instrumentConfig);
             this.setStatus(`New instrument class '${instrumentClassName}' added to song at position ${instrumentID}`);
             // this.forceUpdate();
@@ -636,7 +636,7 @@ class ComposerActions extends ComposerMenu {
     }
 
     async instrumentRemove(instrumentRemoveID = null) {
-        if (await this.openPromptDialog(`Remove Instrument ID: ${instrumentRemoveID}`)) {
+        if (await this.openConfirmDialog(`Remove Instrument ID: ${instrumentRemoveID}`)) {
             this.song.instrumentRemove(instrumentRemoveID);
             this.setStatus(`Instrument (${instrumentRemoveID}) removed`);
 

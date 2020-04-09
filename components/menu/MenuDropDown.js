@@ -45,16 +45,12 @@ export default class MenuDropDown extends React.Component {
                 title={this.props.title}
                 className={className}
                 onMouseEnter={this.cb.onMouseInput}
+                onClick={this.cb.onMouseInput}
+                onKeyDown={this.cb.onKeyDown}
+                tabIndex={0}
                 >
-                <div
-                    className="title"
-                    onClick={this.cb.onMouseInput}
-                    onKeyDown={this.cb.onKeyDown}
-                    tabIndex={0}
-                    >
-                    {this.props.children}
-                    {arrow ? <div className="arrow">{arrow}</div> : null}
-                </div>
+                {this.props.children}
+                {arrow ? <div className="arrow">{arrow}</div> : null}
                 <DropDownContainer
                     ref={this.dropdown}
                     disabled={this.props.disabled}
