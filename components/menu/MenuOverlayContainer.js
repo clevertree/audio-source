@@ -45,29 +45,19 @@ class MenuOverlayContainer extends React.Component {
         </MenuContext.Provider>;
     }
 
-    getActiveMenuCount() {
-        return this.openMenus.length;
-        // let count=0;
-        // this.closeMenuCallbacks.forEach(dropDownMenu => {
-        //     if(dropDownMenu.state.open === true)
-        //         count++;
-        // });
-        // // console.log('getActiveMenuCount', count);
-        // return count;
-    }
+    // getActiveMenuCount() {
+    //     return this.openMenus.length;
+    // }
 
     updateOverlay() {
-        // clearTimeout(this.updateOverlayTimeout);
-        // this.updateOverlayTimeout = setTimeout(() => {
-            const openOverlay = this.state.open || this.getActiveMenuCount() > 0;
+        const openOverlay = this.state.open || this.openMenus.length > 0;
 //             console.log('updateOverlay', openOverlay);
-            if(this.state.openOverlay !== openOverlay)
-                this.setState({openOverlay})
-        // }, 100);
+        if(this.state.openOverlay !== openOverlay)
+            this.setState({openOverlay})
     }
 
     isHoverEnabled() {
-        return this.state.openOverlay || this.getActiveMenuCount() > 0;
+        return !this.props.isActive && (this.state.openOverlay || this.openMenus.length > 0);
     }
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {

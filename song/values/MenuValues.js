@@ -145,10 +145,16 @@ export default class MenuValues {
     renderMenuSelectAvailableInstrument(onSelectValue, menuTitle=null) {
         return (<>
             {menuTitle ? <><MenuAction disabled onAction={() => {}}>{menuTitle}</MenuAction><MenuBreak/></> : null}
-            {InstrumentLoader.getInstruments().map((config, i) =>
+            {InstrumentLoader.getRegisteredInstruments().map((config, i) =>
                 <MenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuAction>
             )}
         </>);
     }
 
+
+    /** Prompt **/
+
+    openPromptDialog(message, defaultValue='') {
+        return window.prompt(message, defaultValue);
+    }
 }

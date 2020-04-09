@@ -28,7 +28,7 @@ div.asct-instruction-add, div.asct-instruction.selected {
   font-weight: bold;
   max-width: 1000px;
   box-shadow: #6b6b6b 0 0px 3px;
-  z-index: 2;
+  z-index: 1;
 }
 
 div.asct-instruction-add,

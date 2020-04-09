@@ -96,7 +96,7 @@ class InstrumentRenderer extends React.Component {
 
     renderMenuChange(e) {
         return (<>
-            {InstrumentLoader.getInstruments().map(config =>
+            {InstrumentLoader.getRegisteredInstruments().map(config =>
                 <MenuAction onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
             )}
         </>);

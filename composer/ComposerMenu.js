@@ -416,7 +416,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuInstrumentAdd() {
-        return InstrumentLoader.getInstruments().map((config, i) =>
+        return InstrumentLoader.getRegisteredInstruments().map((config, i) =>
             <MenuAction key={i} onAction={e => this.instrumentAdd(config.className)}       >{config.title}</MenuAction>
         );
     }
@@ -433,7 +433,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuInstrumentEditReplace(instrumentID) {
-        return InstrumentLoader.getInstruments().map((config, i) =>
+        return InstrumentLoader.getRegisteredInstruments().map((config, i) =>
             <MenuAction key={i} onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</MenuAction>
         );
     }

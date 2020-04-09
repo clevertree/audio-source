@@ -270,7 +270,7 @@ class Tracker extends React.Component {
         this.getTrackInfo().changeRowOffset(this.getTrackName(), rowOffset);
     }
 
-    onKeyDown(e) {
+    async onKeyDown(e) {
         if(e.isDefaultPrevented())
             return;
         switch(e.key) {
@@ -281,8 +281,9 @@ class Tracker extends React.Component {
             // case 'Backspace':
             //     break;
             //
-            // case 'Enter':
-            //     break;
+            case 'Enter':
+                await this.getComposer().instructionInsert();
+                break;
             //
             // case 'Play':
             //     break;
@@ -321,11 +322,17 @@ class Tracker extends React.Component {
                 break;
 
             default:
-                const keyboardCommand = this.getComposer().keyboard.getKeyboardCommand(e.key);
+                const keyboardCommand = this.getComposer().keyboard.getKeyboardCommand(e.key, this.getComposer().state.keyboardOctave);
                 if(keyboardCommand) {
                     const selectedIndices = this.getSelectedIndices();
-                    const cursorOffset = this.getCursorOffset();
-                    console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
+                    // const cursorOffset = this.getCursorOffset();
+                    if(selectedIndices.length > 0) {
+                        await this.getComposer().instructionReplaceCommand(keyboardCommand);
+
+                    } else {
+                        await this.getComposer().instructionInsert(keyboardCommand);
+                    }
+                    // console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
                     return;
                 }
                 // this.instructionInsert

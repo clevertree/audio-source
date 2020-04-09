@@ -59,7 +59,7 @@ class InstrumentLoader {
         classes.push({classInstrument, classRenderer, className, title})
     }
 
-    static getInstruments() { return InstrumentLoader.registeredInstrumentClasses; }
+    static getRegisteredInstruments() { return InstrumentLoader.registeredInstrumentClasses; }
         // const classes = InstrumentLoader.registeredInstrumentClasses;
         // const results = [];
         // for(let i=0; i<classes.length; i++) {

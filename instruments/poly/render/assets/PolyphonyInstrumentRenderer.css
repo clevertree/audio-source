@@ -18,7 +18,7 @@ div.polyphony-instrument-renderer {
     border: 1px outset #FFF;
     padding: 0px 0px;
     margin: 0px 0px 0px 0px;
-    display: inline-block;
+    display: inline-flex;
     vertical-align: top;
 }
 
@@ -40,6 +40,10 @@ div.polyphony-instrument-renderer > div.header {
 div.polyphony-instrument-renderer > div.header > button.toggle-container {
 }
 
-div.polyphony-instrument-renderer > div.samples {
+div.polyphony-instrument-renderer > div.voices {
     max-width: 50vw;
+}
+
+div.polyphony-instrument-renderer > div.add-voice {
+    flex-flow: column;
 }
