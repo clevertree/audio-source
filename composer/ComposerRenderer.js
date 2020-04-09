@@ -260,7 +260,7 @@ class ComposerRenderer extends React.Component {
                                     value={trackState.currentVelocity}
                                     min={1}
                                     max={127}
-                                    ref={ref => this.fieldInstrumentVelocity = ref}
+                                    // ref={ref => this.fieldInstrumentVelocity = ref}
                                     title="Instrument Velocity"
                                     disabled={selectedIndices.length === 0}
                                     />

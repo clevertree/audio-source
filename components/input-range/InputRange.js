@@ -1,13 +1,25 @@
 import React from "react";
 import "./assets/InputRange.scss";
+import PropTypes from "prop-types";
 
 class InputRange extends React.Component {
+    /** Default Properties **/
+    static defaultProps = {
+    };
+
+    /** Property validation **/
+    static propTypes = {
+        onChange: PropTypes.func.isRequired,
+    };
+
+
+
     constructor(props = {}) {
         super(props);
         this.cb = {
             onChange: e => this.onChange(e),
             onClick: e => this.onClick(e),
-        }
+        };
     }
 
     onClick(e) {
@@ -17,21 +29,19 @@ class InputRange extends React.Component {
     onChange(e) {
         e.preventDefault();
         const newValue = parseFloat(e.target.value);
-        this.props.onChange
-        ? this.props.onChange(e, newValue)
-        : console.warn("Input range has no onChange prop", this);
+        this.props.onChange(e, newValue)
+        // this.setState({value: newValue});
     }
 
     render() {
         let className = "asui-input-range";
         if(this.props.className)
             className += ' ' + this.props.className;
-
         return (
             <input
                 className={className}
                 type="range"
-                defaultValue={this.props.value}
+                value={this.props.value}
                 onChange={this.cb.onChange}
                 onClick={this.cb.onClick}
                 min={this.props.min}

@@ -149,7 +149,7 @@ class Values {
             return durationString;
         const units = durationString.substr(durationString.length - 1);
         let fraction = durationString.substr(0, durationString.length - 1);
-        if(fraction.indexOf('/')) {
+        if(fraction.indexOf('/') !== -1) {
             const fractionSplit = fraction.split('/');
             fraction = parseInt(fractionSplit[0], 10) / parseInt(fractionSplit[1], 10);
         }
@@ -192,17 +192,23 @@ class Values {
         for (let i = 64; i > 1; i /= 2) {
             let fraction = `1/${i}`; //.replace('1/2', '½').replace('1/4', '¼');
 
-            let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}T`);
+            let result = callback((1 / i) / 1.5 * timeDivision, `${fraction}T`); // Triplet
             if(!addResult(results, result)) return results;
 
-            result = callback(1 / i * timeDivision, `${fraction}B`);
+            result = callback(1 / i * timeDivision, `${fraction}B`);            // Full Beats
             if(!addResult(results, result)) return results;
 
-            result = callback(1 / i * 1.5 * timeDivision, `${fraction}D`); //t== ticks or triplets?
+            result = callback(1 / i * 1.5 * timeDivision, `${fraction}D`);      // Dotted
             if(!addResult(results, result)) return results;
         }
         for (let i = 1; i <= 16; i++) {
-            let result = callback(i * timeDivision, i + 'B');
+            let result = callback(i / 1.5 * timeDivision, `${i}T`); // Triplet
+            if(!addResult(results, result)) return results;
+
+            result = callback(i * timeDivision, `${i}B`);            // Full Beats
+            if(!addResult(results, result)) return results;
+
+            result = callback(i * 1.5 * timeDivision, `${i}D`);      // Dotted
             if(!addResult(results, result)) return results;
         }
         return results;

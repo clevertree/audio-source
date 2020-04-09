@@ -44,8 +44,8 @@ div.asui-menu-item.stick {
 
 
 /** Menu Arrow **/
-div.asui-menu-item > div.arrow`,
-div.asui-menu-item > div.title > div.arrow` {
+div.asui-menu-item > div.arrow,
+div.asui-menu-item > div.title > div.arrow {
     display: inline-block;
     font-size: small;
     margin: 2px 2px 0 auto;

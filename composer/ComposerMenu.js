@@ -1,6 +1,6 @@
 import React from "react";
 
-import {MenuAction, MenuDropDown, MenuBreak} from "../components";
+import {MenuAction, MenuDropDown, MenuBreak, InputRange} from "../components";
 
 import Storage from "../song/Storage";
 // import InputSelect from "../components/input-select/InputSelect";
@@ -150,21 +150,75 @@ class ComposerMenu extends ComposerRenderer {
         );
     }
 
-    renderMenuSelectDuration(onSelectValue) {
-        return this.values.getNoteDurations((durationTicks, durationName) =>
-            <MenuAction key={durationTicks} onAction={() => onSelectValue(durationTicks)}  >{durationName}</MenuAction>
-        );
+    renderMenuSelectDuration(onSelectValue, currentDuration, key=null) {
+        let results = [],
+            timeDivision = this.song.data.timeDivision;
+        switch(key) {
+            default:
+            case null:
+                return (<>
+                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'recent')}    >Recent</MenuDropDown>
+                    <MenuBreak />
+                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'fraction')}  >Fraction</MenuDropDown>
+                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'triplet')}   >Triplet</MenuDropDown>
+                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'dotted')}    >Dotted</MenuDropDown>
+                    <MenuBreak />
+                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, currentDuration, 'custom')}    >Custom</MenuDropDown>
+                </>);
+
+            case 'fraction':
+                for (let i = 64; i > 1; i /= 2)
+                    results.push(
+                        <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</MenuAction>
+                    );
+                for (let i = 1; i <= 16; i++)
+                    results.push(
+                        <MenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</MenuAction>
+                    );
+                break;
+
+            case 'triplet':
+                for (let i = 64; i > 1; i /= 2)
+                    results.push(
+                        <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</MenuAction>
+                    );
+                for (let i = 1; i <= 16; i++)
+                    results.push(
+                        <MenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</MenuAction>
+                    );
+                break;
+
+            case 'dotted':
+                for (let i = 64; i > 1; i /= 2)
+                    results.push(
+                        <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</MenuAction>
+                    );
+                for (let i = 1; i <= 16; i++)
+                    results.push(
+                        <MenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</MenuAction>
+                    );
+                break;
+        }
+        return results;
     }
 
-    renderMenuSelectVelocity(onSelectValue) {
+    renderMenuSelectVelocity(onSelectValue, currentVelocity=null) {
         const customAction = async () => {
-            const velocity = await this.openPromptDialog("Enter custom velocity in ticks", 100);
+            const velocity = await this.openPromptDialog("Enter custom velocity (1-127)", 127);
             onSelectValue(velocity);
         };
         return (<>
+            <MenuAction onAction={()=>{}} disabled>Set Velocity</MenuAction>
+            <InputRange
+                min={0}
+                max={127}
+                value={currentVelocity}
+                onChange={(e, mixerValue) => onSelectValue(mixerValue)}
+                />
+            <MenuBreak/>
             {this.values.getNoteVelocities((velocity) =>
                 <MenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</MenuAction>)}
-            <MenuAction onAction={customAction} hasBreak >Custom Velocity</MenuAction>
+            <MenuAction onAction={customAction} hasBreak >Custom</MenuAction>
         </>);
     }
 
@@ -219,23 +273,23 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditInsert() {
         return (<>
-            <MenuDropDown options={() => this.renderMenuEditInsertCommandFrequency()}           >By Frequency</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuEditInsertCommandOctave()}              >By Octave</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditInsertCommandFrequency()}           >Frequency</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditInsertCommandOctave()}              >Octave</MenuDropDown>
             <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuEditInsertCommandNamed()}               >By Alias</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuEditInsertCommandGroup()}               >By Group</MenuDropDown>
+            <MenuDropDown disabled options={() => this.renderMenuEditInsertCommandNamed()}      >Alias</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditInsertCommandTrack()}               >Track</MenuDropDown>
             <MenuAction onAction={e => this.instructionInsert(null, true)}   >Custom Command</MenuAction>
         </>);
 
     }
 
-    renderMenuEditInsertCommandGroup() {
+    renderMenuEditInsertCommandTrack() {
         return (<>
             {this.values.getAllSongGroups((trackName) =>
                 <MenuAction
                     key={trackName}
                     options={e => this.renderMenuEditInsertCommandFrequency()}
-                    disabled={trackName === this.state.selectedGroup}
+                    disabled={trackName === this.state.selectedTrack}
                     onAction={e => this.instructionInsert('@' + trackName, false)}
                 >{trackName}</MenuAction>)}
             <MenuAction
@@ -286,11 +340,11 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditSetCommand() {
         return (<>
-            <MenuDropDown options={() => this.renderMenuEditSetCommandFrequency()}           >By Frequency</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuEditSetCommandOctave()}              >By Octave</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditSetCommandFrequency()}           >Frequency</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditSetCommandOctave()}              >Octave</MenuDropDown>
             <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuEditSetCommandNamed()}               >By Alias</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuEditSetCommandGroup()}               >By Group</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditSetCommandNamed()}               >Alias</MenuDropDown>
+            <MenuDropDown options={() => this.renderMenuEditSetCommandTrack()}               >Track</MenuDropDown>
             <MenuAction onAction={e => this.instructionReplaceCommand(null, true)}      >Custom</MenuAction>
         </>);
 
@@ -337,13 +391,13 @@ class ComposerMenu extends ComposerRenderer {
         );
     }
 
-    renderMenuEditSetCommandGroup() {
+    renderMenuEditSetCommandTrack() {
         return (<>
             {this.values.getAllSongGroups((trackName) =>
                 trackName === this.trackName ? null :
                     <MenuAction
                         key={trackName}
-                        disabled={trackName === this.state.selectedGroup}
+                        disabled={trackName === this.state.selectedTrack}
                         onAction={e => this.instructionReplaceCommand('@' + trackName, false)}
                     >{trackName}</MenuAction>
             )}
@@ -482,7 +536,7 @@ class ComposerMenu extends ComposerRenderer {
             {this.values.getAllSongGroups((trackName) =>
                 <MenuDropDown
                     key={trackName}
-                    disabled={trackName === this.state.selectedGroup}
+                    disabled={trackName === this.state.selectedTrack}
                     options={() => this.renderMenuTrackEdit(trackName)}
                 >{trackName}</MenuDropDown>)}
         </>);

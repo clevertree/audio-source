@@ -178,6 +178,13 @@ class Song {
         return !!this.data.instruments[instrumentID];
     }
 
+    stopInstrumentPlayback(destination, instrumentID) {
+        let instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
+        if(typeof instrument.stopPlayback !== "function")
+            return console.error(instrument.constructor.name + ".stopPlayback is not a function");
+        instrument.stopPlayback();
+    }
+
     playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
         if (!instrumentID && instrumentID !== 0) {
             console.warn("No instruments set for instruction. Using instruments 0");
@@ -188,7 +195,7 @@ class Song {
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = Song.parseFrequencyString(noteFrequency);
-        return instrument.playNote(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
+        return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
     }
 
 

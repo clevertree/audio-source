@@ -32,8 +32,8 @@ class OscillatorNodeInstrument {
 
     /** Playback **/
 
-    playNote(destination, frequency, startTime, duration, velocity, onended=null) {
-//         console.log('playNote', destination, frequency, startTime, duration, velocity)
+    playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
+//         console.log('playFrequency', destination, frequency, startTime, duration, velocity)
 
 
         //         // Filter voice playback
@@ -89,7 +89,7 @@ class OscillatorNodeInstrument {
 
     stopPlayback() {
         // Stop all active sources
-//             console.log("activeSources!", this.activeSources);
+        //     console.log("this.playingOSCs", this.playingOSCs);
         for (let i = 0; i < this.playingOSCs.length; i++) {
             try {
                 this.playingOSCs[i].stop();

@@ -31,7 +31,7 @@ class TrackerRow extends React.Component {
         deltaDuration: PropTypes.number.isRequired,
         tracker: PropTypes.any.isRequired,
         cursor: PropTypes.bool.isRequired,
-        cursorPosition: PropTypes.number.isRequired // TODO: inefficient
+        cursorPosition: PropTypes.number.isRequired // TODO: inefficient?
     };
 
     getTracker() { return this.props.tracker; }
@@ -76,6 +76,7 @@ class TrackerRow extends React.Component {
         if(e.defaultPrevented)
             return;
         e.preventDefault();
+        console.log(e.type, e.button);
 
         switch(e.type) {
             case 'mousedown':

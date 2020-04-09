@@ -1,4 +1,4 @@
-import {InstructionList} from "../../song/instruction/";
+import {CommandInstruction, InstructionList} from "../../song/instruction/";
 
 
 export default class TrackInfo {
@@ -77,7 +77,7 @@ export default class TrackInfo {
     }
 
     selectIndices(selectedIndices=null, cursorOffset=null) {
-        console.info('TrackInfo.selectIndices', selectedIndices, cursorOffset);
+//         console.info('TrackInfo.selectIndices', selectedIndices, cursorOffset);
         // if(cursorIndex === null)
         //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
 
@@ -100,15 +100,25 @@ export default class TrackInfo {
         }
 
         this.track.rowOffset = this.calculateRowOffset(cursorOffset);
+        this.updateCurrentInstruction();
+        this.updateState(); // TODO: ugly double update
+        return selectedIndices;
+    }
+
+    updateCurrentInstruction() {
+        const selectedIndices = this.track.selectedIndices;
         if(selectedIndices.length > 0) {
             const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
             this.track.currentCommand = firstSelectedInstruction.command;
-            this.track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
-            this.track.currentVelocity = firstSelectedInstruction.velocity;
+            if(firstSelectedInstruction instanceof CommandInstruction) {
+                if(typeof firstSelectedInstruction.durationTicks !== "undefined")
+                    this.track.currentDuration = firstSelectedInstruction.durationTicks;
+                if(typeof firstSelectedInstruction.velocity !== "undefined")
+                    this.track.currentVelocity = firstSelectedInstruction.velocity;
+            }
 //             console.log(this.track);
+            this.updateState();
         }
-        this.updateState();
-        return selectedIndices;
     }
 
 
@@ -256,10 +266,16 @@ export default class TrackInfo {
 
     /** Playback **/
 
-    playInstructions(destination, selectedIndices) {
+    playInstructions(destination, selectedIndices, stopPlayback=true) {
+        if(!Array.isArray(selectedIndices))
+            selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
         const instrumentID = typeof this.track.instrumentID !== "undefined" ? this.track.instrumentID : 0;
         const song = this.composer.getSong();
+
+        if(stopPlayback)
+            song.stopInstrumentPlayback(destination, instrumentID);
+
         for(let i=0; i<selectedIndices.length; i++) {
             const selectedIndex = selectedIndices[i];
             const instruction = song.instructionGetByIndex(this.getTrackName(), selectedIndex);
@@ -267,12 +283,13 @@ export default class TrackInfo {
         }
     }
 
-    playSelectedInstructions(destination) {
-        return this.playInstructions(destination, this.getSelectedIndices());
+    playSelectedInstructions(destination, stopPlayback=true) {
+        return this.playInstructions(destination, this.getSelectedIndices(), stopPlayback);
     }
 
-    stopPlayback() {
-        console.log("TODO: stop playback")
+    stopPlayback(destination) {
+        const instrumentID = typeof this.track.instrumentID !== "undefined" ? this.track.instrumentID : 0;
+        this.composer.getSong().stopInstrumentPlayback(destination, instrumentID);
     }
 
 }

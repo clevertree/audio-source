@@ -65,10 +65,9 @@ class ComposerActions extends ComposerMenu {
 
     /** Playback **/
 
-    playSelectedInstructions() {
+    playSelectedInstructions(stopPlayback=true) {
         const trackInfo = this.trackerGetSelectedTrackInfo();
-        trackInfo.stopPlayback();
-        return trackInfo.playSelectedInstructions(this.getVolumeGain());
+        return trackInfo.playSelectedInstructions(this.getVolumeGain(), stopPlayback);
     }
     playInstructions(selectedIndices) {
         const trackInfo = this.trackerGetSelectedTrackInfo();
@@ -305,63 +304,67 @@ class ComposerActions extends ComposerMenu {
             throw new Error("Invalid Instruction command");
 
         const newInstruction = InstructionList.parseInstruction([0, newCommand]);
+        trackState.currentCommand = newInstruction.command;
         if(trackState.currentDuration)
-            newInstruction.durationTicks = Values.parseDurationAsTicks(trackState.currentDuration, song.data.timeDivision);
-        trackState.currentDuration = newInstruction.getDurationString(song.data.timeDivision);
+            newInstruction.durationTicks = trackState.currentDuration;
         if(trackState.currentVelocity)
             newInstruction.velocity = trackState.currentVelocity;
-        trackState.currentVelocity = newInstruction.velocity;
         this.setState({activeTracks});
 
         const songPositionTicks = this.trackerGetTrackInfo(trackName).calculateCursorOffsetPositionTicks();
         let insertIndex = song.instructionInsertAtPosition(trackName, songPositionTicks, newInstruction);
         this.selectIndices([insertIndex]);
 
-        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
+        this.playSelectedInstructions();
     }
 
     async instructionReplaceCommand(newCommand = null, promptUser = false) {
         //: TODO: check for recursive group
         const song = this.song;
-        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        const selectedIndices = trackInfo.getSelectedIndices();
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
         if (newCommand === null)
-            newCommand = this.state.currentTrackerCommand;
+            newCommand = trackInfo.track.currentCommand;
         if (promptUser)
             newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        this.setState({currentTrackerCommand: newCommand});
+        // this.setState({currentTrackerCommand: newCommand});
         for (let i = 0; i < selectedIndices.length; i++) {
-            const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
+            const instruction = song.instructionGetByIndex(trackInfo.getTrackName(), selectedIndices[i]);
             instruction.command = newCommand;
         }
-        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
+
+        this.playSelectedInstructions();
+        trackInfo.updateCurrentInstruction();
     }
     // }
 
     async instructionReplaceDuration(duration = null, promptUser = false) {
         const song = this.song;
-        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        const selectedIndices = trackInfo.getSelectedIndices();
 
         if (duration === null && promptUser)
             duration = parseInt(await this.openPromptDialog("Set custom duration in ticks:", duration), 10);
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
         for (let i = 0; i < selectedIndices.length; i++) {
-            const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
+            const instruction = song.instructionGetByIndex(trackInfo.getTrackName(), selectedIndices[i]);
             instruction.durationTicks = duration;
         }
-        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
-
+        this.playSelectedInstructions();
+        trackInfo.updateCurrentInstruction();
     }
 
     async instructionReplaceVelocity(velocity = null, promptUser = false) {
         const song = this.song;
-        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        const selectedIndices = trackInfo.getSelectedIndices();
 
         if (velocity === null && promptUser)
             velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
@@ -369,10 +372,11 @@ class ComposerActions extends ComposerMenu {
         if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
         for (let i = 0; i < selectedIndices.length; i++) {
-            const instruction = song.instructionGetByIndex(trackName, selectedIndices[i]);
+            const instruction = song.instructionGetByIndex(trackInfo.getTrackName(), selectedIndices[i]);
             instruction.velocity = velocity;
         }
-        this.playSelectedInstructions(); // TODO: play same note (no retrigger)
+        this.playSelectedInstructions();
+        trackInfo.updateCurrentInstruction();
     }
 
     instructionDelete() {
@@ -395,10 +399,12 @@ class ComposerActions extends ComposerMenu {
 
     /** Track State **/
 
+    /** @deprecated **/
     trackerGetActiveSelectedTrackState() {
         return this.trackerGetActiveTrackState(this.state.selectedTrack);
     }
 
+    /** @deprecated **/
     trackerGetActiveTrackState(trackName) {
         if(typeof this.state.activeTracks[trackName] === "undefined")
             throw new Error("Invalid active track: " + trackName);

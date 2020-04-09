@@ -3,6 +3,10 @@
 
 /** Tracker Instruction Parameters **/
 
+div.asct-parameter {
+    position: relative;
+}
+
 div.asct-parameter.instrument,
 div.asct-parameter.velocity,
 div.asct-parameter.duration {

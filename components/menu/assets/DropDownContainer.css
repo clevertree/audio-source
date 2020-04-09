@@ -16,7 +16,7 @@ div.asui-menu-dropdown {
 
 div.asui-menu-dropdown > div.asui-menu-item {
     padding: 4px;
-    border: 1px outset #FFF;
+    /*border: 1px outset #AAA;*/
 }
 
 div.asui-menu-dropdown > div.asui-menu-item:hover {

@@ -41,6 +41,7 @@ class TrackerInstruction extends React.Component {
     getSong() { return this.getComposer().getSong(); }
     /** @returns Instruction **/
     getInstruction() { return this.props.instruction; }
+    getInstructionIndex() { return this.props.index; }
 
     render() {
         const instruction = this.props.instruction;
@@ -74,14 +75,14 @@ class TrackerInstruction extends React.Component {
                     key="velocity"
                     trackerInstruction={this}
                     className="velocity"
-                    options={() => this.renderMenuSelectVelocity()}
+                    options={() => this.renderMenuSelectVelocity(instruction.velocity)}
                 >{instruction.velocity}</TrackerInstructionParameter>);
             if(typeof instruction.durationTicks !== "undefined")
                 parameters.push(<TrackerInstructionParameter
                     key="duration"
                     trackerInstruction={this}
                     className="duration"
-                    options={() => this.renderMenuSelectDuration()}
+                    options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
                 >{rowDuration||'-'}</TrackerInstructionParameter>);
         }
         return <Div
@@ -94,6 +95,12 @@ class TrackerInstruction extends React.Component {
     }
 
     /** Actions **/
+
+    playInstruction(destination=null) {
+        this.getTracker().getTrackInfo().updateCurrentInstruction(); // Hack
+        return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
+    }
+
     selectInstruction(clearSelection=true) {
         // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
@@ -158,30 +165,30 @@ class TrackerInstruction extends React.Component {
     }
 
 
-    renderMenuSelectVelocity(e) {
+    renderMenuSelectVelocity(currentVelocity=null) {
         return this.getComposer().renderMenuSelectVelocity(velocity => {
             this.instructionReplaceVelocity(velocity);
-        });
+        }, currentVelocity);
     }
 
-    renderMenuSelectDuration(e) {
+    renderMenuSelectDuration(currentDuration=null) {
         return this.getComposer().renderMenuSelectDuration(duration => {
             this.instructionReplaceDuration(duration);
-        });
+        }, currentDuration);
     }
 
 
     instructionReplaceCommand(command) {
         this.getSong().instructionReplaceCommand(
-            this.getComposer().state.selectedGroup,
+            this.getComposer().state.selectedTrack,
             this.props.index,
             command);
-        this.forceUpdate();
+        this.playInstruction();
     }
 
     // instructionReplaceInstrument(instrumentID) {
     //     this.getSong().instructionReplaceInstrument(
-    //         this.getComposer().state.selectedGroup,
+    //         this.getComposer().state.selectedTrack,
     //         this.props.index,
     //         instrumentID);
     //     this.forceUpdate();
@@ -190,18 +197,18 @@ class TrackerInstruction extends React.Component {
 
     instructionReplaceVelocity(velocity) {
         this.getSong().instructionReplaceVelocity(
-            this.getComposer().state.selectedGroup,
+            this.getComposer().state.selectedTrack,
             this.props.index,
             velocity);
-        this.forceUpdate();
+        this.playInstruction();
     }
 
     instructionReplaceDuration(duration) {
         this.getSong().instructionReplaceDuration(
-            this.getComposer().state.selectedGroup,
+            this.getComposer().state.selectedTrack,
             this.props.index,
             duration);
-        this.forceUpdate();
+        this.playInstruction();
     }
 }
 export default TrackerInstruction;

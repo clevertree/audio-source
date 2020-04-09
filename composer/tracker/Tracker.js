@@ -248,8 +248,9 @@ class Tracker extends React.Component {
     // playSelectedInstructions() {
     //     return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
     // }
-    playInstructions(selectedInstructions) {
-        return this.getTrackInfo().playInstructions(this.getDestination(), selectedInstructions);
+    playInstructions(selectedInstructions, destination=null) {
+        destination = destination || this.getDestination()
+        return this.getTrackInfo().playInstructions(destination, selectedInstructions);
     }
 
     /** Row Iterator **/

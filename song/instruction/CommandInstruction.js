@@ -3,12 +3,6 @@ import {SongValues} from "../values";
 
 class CommandInstruction extends Instruction {
 
-    getDurationString(timeDivision) {
-        const durationTicks = this.durationTicks;
-        if(durationTicks === null)
-            return 'N/A';
-        return SongValues.formatDuration(durationTicks, timeDivision);
-    }
 
     get durationTicks() {
         return typeof this.data[2] !== "undefined" ? this.data[2] : undefined;

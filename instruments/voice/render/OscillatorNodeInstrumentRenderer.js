@@ -151,13 +151,13 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
             <MenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</MenuDropDown>
             <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuChangeSample()}>Change Sample</MenuDropDown>
-            <MenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(e)}>Remove Sample</MenuAction>
+            <MenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</MenuDropDown>
+            <MenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</MenuAction>
         </>);
     }
 
     // TODO: use generic menu/value library
-    renderMenuChangeSample() {
+    renderMenuChangeOscillator() {
         const config = this.props.config;
         return <InputRange min={0} max={100} value={config.mixer} />;
     }

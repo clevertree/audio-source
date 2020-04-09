@@ -13,7 +13,7 @@ class AudioBufferInstrument {
 
     /** Playback **/
 
-    playNote(destination, frequencyValue, startTime, duration, velocity, onended=null) {
+    playFrequency(destination, frequencyValue, startTime, duration, velocity, onended=null) {
         // Velocity
         let velocityGain = destination.context.createGain();
         velocityGain.gain.value = parseFloat(velocity || 127) / 127;

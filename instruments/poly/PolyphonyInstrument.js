@@ -51,10 +51,10 @@ class PolyphonyInstrument {
 
     /** Playback **/
 
-    playNote(destination, frequency, startTime, duration, velocity=null, onended=null) {
+    playFrequency(destination, frequency, startTime, duration, velocity=null, onended=null) {
         for (let i = 0; i < this.voices.length; i++) {
             const voice = this.voices[i];
-            voice.playNote(destination, frequency, startTime, duration, velocity, onended);
+            voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
 
         }
     }
@@ -62,14 +62,13 @@ class PolyphonyInstrument {
     stopPlayback() {
         // Stop all active sources
 //             console.log("activeSources!", this.activeSources);
-        for (let i = 0; i < this.activeSources.length; i++) {
+        for (let i = 0; i < this.voices.length; i++) {
             try {
-                this.activeSources[i].stop();
+                this.voices[i].stopPlayback();
             } catch (e) {
                 console.warn(e);
             }
         }
-        this.activeSources = [];
 
     }
 

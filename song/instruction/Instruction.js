@@ -1,3 +1,5 @@
+import {SongValues} from "../values";
+
 class Instruction {
     constructor(instructionData = [0], index=null) {
         /** @deprecated **/
@@ -22,7 +24,12 @@ class Instruction {
         this.data[0] = newDeltaDuration;
     }
 
-    getDurationString(timeDivision) { throw new Error("TODO: Implement for " + this.constructor.name);}
+    getDurationString(timeDivision) {
+        const durationTicks = this.durationTicks;
+        if(durationTicks === null)
+            return 'N/A';
+        return SongValues.formatDuration(durationTicks, timeDivision);
+    }
     set durationTicks(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
     get durationTicks()          { throw new Error("TODO: Implement for " + this.constructor.name);}
     set duration(velocity)  { throw new Error("TODO: Not Implement for " + this.constructor.name);}
