@@ -1,5 +1,5 @@
 import React from "react";
-import {MenuAction, MenuDropDown, MenuBreak, InputRange} from "../components";
+import {MenuAction, MenuDropDown, MenuBreak} from "../components";
 import {Storage, MenuValues, InstrumentLoader} from "../song";
 import ComposerRenderer from "./ComposerRenderer";
 
@@ -93,15 +93,7 @@ class ComposerMenu extends ComposerRenderer {
 
 
     renderMenuSelectCommand(onSelectValue) {
-        return (<>
-            <MenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue)}           >By Frequency</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue)}              >By Octave</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</MenuDropDown>
-            <MenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</MenuDropDown>
-            <MenuAction onAction={async e => onSelectValue(await this.openPromptDialog("Insert custom command"))}      >Custom Command</MenuAction>
-        </>);
-
+        return new MenuValues().renderMenuSelectCommand(onSelectValue, this.state.keyboardOctave);
     }
 
 
@@ -114,32 +106,20 @@ class ComposerMenu extends ComposerRenderer {
 
 
     renderMenuSelectCommandByFrequency(onSelectValue) {
-        return this.values.getNoteFrequencies((noteName) =>
-            <MenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName)}                   >{noteName}</MenuDropDown>
-        );
+        return new MenuValues().renderMenuSelectCommandByFrequency(onSelectValue, this.state.keyboardOctave);
     }
 
-    renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName) {
-        return (<>
-            <MenuAction onAction={() => onSelectValue(noteName+''+this.state.keyboardOctave)}>{noteName+''+this.state.keyboardOctave} (Current)</MenuAction>
-            {/*TODO: move into lower menu?*/}
-            {this.values.getNoteOctaves((octave) =>
-                <MenuAction key={octave} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</MenuAction>
-            )}
-        </>)
-    }
+    // renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName) {
+    //     return new MenuValues().renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName);
+    // }
 
     renderMenuSelectCommandByOctave(onSelectValue) {
-        return this.values.getNoteOctaves((octave) =>
-            <MenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}                   >{octave}</MenuDropDown>
-        );
+        return new MenuValues().renderMenuSelectCommandByOctave(onSelectValue, this.state.keyboardOctave);
     }
 
-    renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
-        return this.values.getNoteFrequencies((noteName) =>
-            <MenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</MenuAction>
-        );
-    }
+    // renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
+    //     return new MenuValues().renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave);
+    // }
 
 
 
@@ -150,86 +130,17 @@ class ComposerMenu extends ComposerRenderer {
         );
     }
 
-    renderMenuSelectDuration(onSelectValue, key=null) {
-        let results = [],
-            timeDivision = this.song.data.timeDivision;
-        switch(key) {
-            default:
-            case null:
-                return (<>
-                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, 'recent')}    >Recent</MenuDropDown>
-                    <MenuBreak />
-                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, 'fraction')}  >Fraction</MenuDropDown>
-                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, 'triplet')}   >Triplet</MenuDropDown>
-                    <MenuDropDown options={() => this.renderMenuSelectDuration(onSelectValue, 'dotted')}    >Dotted</MenuDropDown>
-                    <MenuBreak />
-                    <MenuDropDown disabled options={() => this.renderMenuSelectDuration(onSelectValue, 'custom')}    >Custom</MenuDropDown>
-                </>);
-
-            case 'fraction':
-                for (let i = 64; i > 1; i /= 2)
-                    results.push(
-                        <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</MenuAction>
-                    );
-                for (let i = 1; i <= 16; i++)
-                    results.push(
-                        <MenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</MenuAction>
-                    );
-                break;
-
-            case 'triplet':
-                for (let i = 64; i > 1; i /= 2)
-                    results.push(
-                        <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</MenuAction>
-                    );
-                for (let i = 1; i <= 16; i++)
-                    results.push(
-                        <MenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</MenuAction>
-                    );
-                break;
-
-            case 'dotted':
-                for (let i = 64; i > 1; i /= 2)
-                    results.push(
-                        <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</MenuAction>
-                    );
-                for (let i = 1; i <= 16; i++)
-                    results.push(
-                        <MenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</MenuAction>
-                    );
-                break;
-        }
-        return results;
+    renderMenuSelectDuration(onSelectValue, currentDuration, timeDivision=null) {
+        return new MenuValues().renderMenuSelectDuration(onSelectValue, currentDuration, timeDivision || this.song.data.timeDivision);
     }
 
     renderMenuSelectVelocity(onSelectValue, currentVelocity=null) {
-        const customAction = async () => {
-            const velocity = await this.openPromptDialog("Enter custom velocity (1-127)", 127);
-            onSelectValue(velocity);
-        };
-        return (<>
-            <MenuAction onAction={()=>{}} disabled>Set Velocity</MenuAction>
-            <InputRange
-                min={0}
-                max={127}
-                value={currentVelocity}
-                onChange={(e, mixerValue) => onSelectValue(mixerValue)}
-            />
-            <MenuBreak/>
-            {this.values.getNoteVelocities((velocity) =>
-                <MenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</MenuAction>)}
-            <MenuAction onAction={customAction} hasBreak >Custom</MenuAction>
-        </>);
+        return new MenuValues().renderMenuSelectVelocity(onSelectValue, currentVelocity);
     }
 
 
     renderMenuSelectAvailableInstrument(onSelectValue, menuTitle=null) {
-        return (<>
-            {menuTitle ? <><MenuAction disabled onAction={() => {}}>{menuTitle}</MenuAction><MenuBreak/></> : null}
-            {InstrumentLoader.getInstruments().map((config, i) =>
-                <MenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuAction>
-            )}
-        </>);
+        return new MenuValues().renderMenuSelectAvailableInstrument(onSelectValue, menuTitle);
     }
 
 

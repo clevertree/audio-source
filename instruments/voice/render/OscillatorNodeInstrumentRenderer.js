@@ -9,7 +9,7 @@ import {
     InputRange,
     MenuDropDown,
 } from "../../../components";
-import {MenuValues, Values} from "../../../song";
+import {MenuValues} from "../../../song";
 
 import "./assets/OscillatorNodeInstrumentRenderer.css";
 
@@ -190,52 +190,21 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         return new MenuValues().renderMenuSelectCommand(noteNameOctave => {
             this.changeRoot(noteNameOctave)
         });
-
-        const values = new Values();
-        return (<>
-            <MenuAction onAction={()=>{}} disabled>Edit Key Root</MenuAction>
-            <MenuBreak />
-            {values.getNoteOctaves((octave) =>
-                <MenuDropDown
-                    key={octave}
-                    options={() =>
-                    values.getNoteFrequencies((noteName) =>
-                        <MenuAction
-                            key={noteName}
-                            onAction={e => this.changeRoot(noteName+octave)}
-                        >{noteName+octave}</MenuAction>
-                    )
-                }>{octave}</MenuDropDown>)}
-        </>);
     }
 
     renderMenuChangeKeyAlias() {
-        const values = new Values();
-        return (<>
-            <MenuAction onAction={()=>{}} disabled>Edit Key Root</MenuAction>
-            <MenuBreak />
-            {values.getNoteOctaves((octave) =>
-                <MenuDropDown
-                    key={octave}
-                    options={() =>
-                    values.getNoteFrequencies((noteName) =>
-                        <MenuAction
-                            key={noteName}
-                            onAction={e => this.changeAlias(noteName+octave)}
-                        >{noteName+octave}</MenuAction>
-
-                )}>{octave}</MenuDropDown>)}
-        </>);
+        return new MenuValues().renderMenuSelectCommand(noteNameOctave => {
+            this.changeAlias(noteNameOctave)
+        });
     }
-
 
 
     renderMenuChangeKeyRange() {
-        return (<></>);
+        return (<>TODO</>);
     }
 
     renderMenuChangeLoop() {
-        return (<></>);
+        return (<>TODO</>);
     }
 }
 

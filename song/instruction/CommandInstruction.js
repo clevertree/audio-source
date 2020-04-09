@@ -1,5 +1,4 @@
 import Instruction from "./Instruction";
-import {SongValues} from "../values";
 
 class CommandInstruction extends Instruction {
 
