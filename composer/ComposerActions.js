@@ -59,7 +59,8 @@ class ComposerActions extends ComposerMenu {
         if(gain.gain.value !== volume) {
             gain.gain.value = volume;
         }
-        this.state.volume = volume;
+        this.setState({volume});
+        // this.state.volume = volume;
         this.fieldSongVolume.value = volume * 100;
     }
 

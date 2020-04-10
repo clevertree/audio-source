@@ -1,6 +1,5 @@
 import {MenuAction, MenuBreak, MenuDropDown} from "../../components/menu";
 import React from "react";
-import {Preset} from "./Preset";
 
 class Library {
     supportsInstrument(instrumentClass) {

@@ -72,6 +72,12 @@ class PolyphonyInstrument {
 
     }
 
+    /** Static **/
+
+    unloadAll() {
+        // Unload all cached samples from this instrument type
+    }
+
     /** Modify Instrument **/
 
 

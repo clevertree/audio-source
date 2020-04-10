@@ -363,9 +363,10 @@ class ComposerRenderer extends React.Component {
                 this.song.stopPlayback();
             }
             this.song.removeEventListener('*', this.onSongEventCallback);
-            // TODO: unload song?
+            this.song.unloadAll();
         }
         this.song = song;
+        // console.log("Current Song: ", song);
         // const timeDivision = song.data.timeDivision;
         // this.state.tracker.trackerSegmentLengthInTicks = null;
 

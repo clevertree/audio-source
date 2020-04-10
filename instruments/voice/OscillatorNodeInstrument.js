@@ -1,24 +1,19 @@
 class OscillatorNodeInstrument {
     constructor(config={}, audioContext=null) {
+        console.log('OscillatorNodeInstrument', config, audioContext);
         this.config = config;
         this.audioContext = audioContext;
 
         this.periodicWave = null;
-        if(config.url || config.real || config.imag)
-            config.type = 'custom';
-        if(config.type === 'custom')
-            this.loadPeriodicWave()
-                .then();
+        if(config.url)
+            this.loadPeriodicWaveFromURL(config.url);
+        else if(config.real || config.imag)
+            this.loadPeriodicWave(this.config);
 
         this.playingOSCs = [];
     }
 
-    async loadPeriodicWave() {
-        let waveData = this.config;
-        if(this.config.url) {
-            const response = await fetch(this.config.url);
-            waveData = await response.json();
-        }
+    loadPeriodicWave(waveData) {
         if(!waveData.real)
             throw new Error("Invalid 'real' data for createPeriodicWave");
         if(!waveData.imag)
@@ -27,12 +22,26 @@ class OscillatorNodeInstrument {
             new Float32Array(waveData.real),
             new Float32Array(waveData.imag)
         );
+    }
 
+    async loadPeriodicWaveFromURL(url) {
+        // TODO Use file service
+        if(OscillatorNodeInstrument.waveURLCache[url]) {
+            this.periodicWave = OscillatorNodeInstrument.waveURLCache[url];
+        } else {
+            const response = await fetch(url);
+            const waveData = await response.json();
+            this.loadPeriodicWave(waveData);
+            OscillatorNodeInstrument.waveURLCache[url] = this.periodicWave;
+        }
     }
 
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
+
+        // TODO: Detect config changes on the fly. Leave caching to browser. Destination cache?
+
 //         console.log('playFrequency', destination, frequency, startTime, duration, velocity)
 
 
@@ -64,12 +73,16 @@ class OscillatorNodeInstrument {
         if (typeof this.config.detune !== "undefined")
             osc.detune.value = this.config.detune;
 
-        osc.type = this.config.type;
         switch(this.config.type) {
             default:
+                osc.type = this.config.type;
                 break;
+            case null:
             case 'custom':
-                osc.setPeriodicWave(this.periodicWave);
+                if(this.periodicWave)
+                    osc.setPeriodicWave(this.periodicWave);
+                else
+                    console.warn("Periodic wave was not loaded");
                 break;
         }
 
@@ -99,6 +112,16 @@ class OscillatorNodeInstrument {
         }
         this.playingOSCs = [];
 
+    }
+
+
+    /** Static **/
+
+    static waveURLCache = {};
+
+    static unloadAll() {
+        this.waveURLCache = {}
+        // Unload all cached samples from this instrument type
     }
 }
 

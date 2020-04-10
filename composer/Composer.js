@@ -83,8 +83,10 @@ export default class Composer extends ComposerActions {
         if (state) {
             if (typeof state.volume !== "undefined")
                 this.setVolume(state.volume);
-            if(state.songUUID)
-                this.loadDefaultSong(state.songUUID);
+            delete state.volume;
+            // if(state.songUUID)
+            this.loadDefaultSong(state.songUUID);
+            delete state.songUUID;
             this.setState(state);
 
         } else {
@@ -241,6 +243,7 @@ export default class Composer extends ComposerActions {
                 break;
 
             case 'song:modified':
+                console.log(e.type);
                 this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
                 clearTimeout(this.timeouts.saveSongToMemory);

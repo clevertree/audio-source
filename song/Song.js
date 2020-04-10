@@ -22,7 +22,7 @@ class Song {
         this.audioContext = audioContext; //  || new (window.AudioContext || window.webkitAudioContext)();
 
         this.eventListeners = [];
-        this.instrumentLoader = new InstrumentLoader(this);
+        this.instrumentLoader = new InstrumentLoader(this, audioContext);
 
         this.playback = null;
 
@@ -78,7 +78,7 @@ class Song {
         this.values = new SongValues(this);
 
         this.loadSongData(songData);
-        this.instrumentLoadAll(audioContext);
+        this.instrumentLoadAll(audioContext.destination);
     }
 
     /** @deprecated? **/
@@ -111,6 +111,10 @@ class Song {
         }
     }
 
+    unloadAll() {
+        this.instrumentLoader.unloadAllInstruments();
+        this.eventListeners = [];
+    }
 
 
     /** Song Data **/
@@ -826,7 +830,6 @@ class Song {
             song: this
         });
 
-        // console.log('historyAction', historyAction);
         return historyAction;
     }
 

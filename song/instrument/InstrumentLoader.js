@@ -1,8 +1,9 @@
 import React from "react";
 
 class InstrumentLoader {
-    constructor(song) {
+    constructor(song, audioContext) {
         this.song = song;
+        this.audioContext = audioContext;
         this.destinations = new WeakMap();
     }
 
@@ -23,7 +24,7 @@ class InstrumentLoader {
     instrumentLoadInstance(instrumentID) {
         const [className, config] = this.song.instrumentGetData(instrumentID);
         const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
-        const instrument = new classInstrument(config);
+        const instrument = new classInstrument(config, this.audioContext);
         console.info("Instrument loaded: ", instrument, instrumentID);
         return instrument;
     }
@@ -37,6 +38,20 @@ class InstrumentLoader {
         />;
     }
 
+
+
+    unloadAllInstruments() {
+        const classes = InstrumentLoader.registeredInstrumentClasses;
+        for(let i=0; i<classes.length; i++) {
+            const {classInstrument} = classes[i];
+            if(!classInstrument.unloadAll) {
+                console.warn(classInstrument.name + " has no static unloadAll method");
+                continue;
+            }
+            classInstrument.unloadAll();
+        }
+
+    }
 
     /** Static **/
 
