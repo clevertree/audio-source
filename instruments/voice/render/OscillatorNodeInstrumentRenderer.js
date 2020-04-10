@@ -160,6 +160,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     loadPreset(preset) {
+        console.log("Loading preset: ", preset);
         Object.assign(this.props.config, preset);
     }
 
@@ -169,14 +170,14 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         return (<>
             <MenuAction onAction={()=>{}} disabled>Oscillator: {this.getTitle()}</MenuAction>
             <MenuBreak />
+            <MenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</MenuDropDown>
+            <MenuBreak />
             <MenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</MenuDropDown>
             <MenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</MenuAction>
         </>);
     }
@@ -186,10 +187,17 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         if(key === null) {
             return (<>
                 <MenuDropDown options={() => this.renderMenuChangeOscillator('standard')}>Standard</MenuDropDown>
-                <MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>
+                {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
+                <MenuBreak/>
+                {this.renderMenuChangeOscillator('custom')}
             </>);
         }
         switch(key) {
+            case null:
+                return (<>
+                    <MenuDropDown options={() => {}}>Unknown</MenuDropDown>
+                </>);
+
             case 'standard':
                 return (<>
                     <MenuAction onAction={e => this.changeOscillator('sine')}>Sine</MenuAction>
@@ -199,13 +207,11 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
                 </>);
 
             case 'custom':
-                return this.library.renderMenuInstrumentLibraryPresets(this.constructor.name,
+                return this.library.renderMenuInstrumentPresets(this.constructor.name,
                     (preset) => this.loadPreset(preset));
 
             default:
-                return (<>
-                    <MenuDropDown options={() => {}}>Unknown</MenuDropDown>
-                </>);
+                throw new Error("Unknown key:" + key);
         }
     }
 

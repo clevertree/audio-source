@@ -1,16 +1,17 @@
+import WaveLibrary from "./sample/wave.library.js";
+import SampleLibrary from "./sample/sample.library";
+import MohayonaoWaveLibrary from "./sample/wave/mohayonao.library.js";
+
 import {Library} from "./song";
 
 export default class extends Library {
   getTitle() { return "Audio Source Index"; }
   getLibraries() {
     return [
-      require("./sample/sample.library.js"),
-      require("./sample/wave.library.js"),
-      require("./sample/wave/mohayonao.library.js"),
-    ].map(library => {
-      library = library.default || library;
-      return new library();
-    });
+      new SampleLibrary(),
+      new WaveLibrary(),
+      new MohayonaoWaveLibrary(),
+    ];
   }
 
   getPlaylists() {
