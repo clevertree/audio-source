@@ -8,7 +8,7 @@ class OscillatorNodeInstrument {
             config.type = 'custom';
         if(config.type === 'custom')
             this.loadPeriodicWave()
-                .then()
+                .then();
 
         this.playingOSCs = [];
     }

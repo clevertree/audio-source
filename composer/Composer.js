@@ -18,7 +18,8 @@ export default class Composer extends ComposerActions {
 
         this.keyboard = new Keyboard();
 
-        this.library = new Library(require('../default.library')); // TODO: get default library url from composer?
+        this.library = Library.loadDefault();
+        console.log('library', this.library);
 
         this.song = new Song(this.getAudioContext());
 
@@ -50,6 +51,7 @@ export default class Composer extends ComposerActions {
         if(window)
             window.addEventListener('resize', this.onResizeCallback);
         this.onResize();
+        // TODO: get default library url from composer?
     }
 
     componentWillUnmount() {

@@ -9,7 +9,7 @@ import {
     InputRange,
     MenuDropDown,
 } from "../../../components";
-import {MenuValues} from "../../../song";
+import {MenuValues, Library} from "../../../song";
 
 import "./assets/OscillatorNodeInstrumentRenderer.css";
 
@@ -22,6 +22,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         this.cb = {
             onClick: e => this.toggleOpen(),
         };
+        this.library = Library.loadDefault();
     }
 
 
@@ -142,10 +143,24 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         this.props.config.alias = newAliasValue;
     }
 
+
+    changeOscillator(newType, customURL=null) {
+        if(newType === 'custom') {
+            if(!customURL)
+                throw new Error("Invalid Custom URL");
+            this.props.config.url = customURL;
+        }
+        this.props.config.type = newType;
+    }
+
     changeLoop(newLoopValue=null) {
         if(newLoopValue === null)
             newLoopValue = !this.props.config.loop;
         this.props.config.loop = newLoopValue?1:0;
+    }
+
+    loadPreset(preset) {
+        Object.assign(this.props.config, preset);
     }
 
     /** Menus **/
@@ -167,9 +182,31 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     // TODO: use generic menu/value library
-    renderMenuChangeOscillator() {
-        const config = this.props.config;
-        return <InputRange min={0} max={100} value={config.mixer} />;
+    renderMenuChangeOscillator(key=null) {
+        if(key === null) {
+            return (<>
+                <MenuDropDown options={() => this.renderMenuChangeOscillator('standard')}>Standard</MenuDropDown>
+                <MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>
+            </>);
+        }
+        switch(key) {
+            case 'standard':
+                return (<>
+                    <MenuAction onAction={e => this.changeOscillator('sine')}>Sine</MenuAction>
+                    <MenuAction onAction={e => this.changeOscillator('square')}>Square</MenuAction>
+                    <MenuAction onAction={e => this.changeOscillator('sawtooth')}>Sawtooth</MenuAction>
+                    <MenuAction onAction={e => this.changeOscillator('triangle')}>Triangle</MenuAction>
+                </>);
+
+            case 'custom':
+                return this.library.renderMenuInstrumentLibraryPresets(this.constructor.name,
+                    (preset) => this.loadPreset(preset));
+
+            default:
+                return (<>
+                    <MenuDropDown options={() => {}}>Unknown</MenuDropDown>
+                </>);
+        }
     }
 
     renderMenuChangeMixer() {

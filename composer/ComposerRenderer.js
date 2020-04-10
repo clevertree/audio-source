@@ -177,17 +177,6 @@ class ComposerRenderer extends React.Component {
                             </Form>
                         </Panel>
 
-                        <Panel className="keyboard" header={`Keyboard`}
-                            >
-                            <Form className="keyboard-octave" header="Octave">
-                                <ButtonDropDown
-                                    arrow={'▼'}
-                                    className="keyboard-octave"
-                                    options={() => this.renderMenuKeyboardSetOctave()}
-                                    title="Change Keyboard Octave"
-                                >{this.state.keyboardOctave}</ButtonDropDown>
-                            </Form>
-                        </Panel>
 
                         <Panel className="instruments" header="Instruments"
                                ref={ref=>this.panelInstruments = ref}
@@ -284,6 +273,15 @@ class ComposerRenderer extends React.Component {
                                     title="Tracker Note Selection"
                                     children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
                                 />
+                            </Form>
+
+                            <Form className="keyboard-octave" header="Octave">
+                                <ButtonDropDown
+                                    arrow={'▼'}
+                                    className="keyboard-octave"
+                                    options={() => this.renderMenuKeyboardSetOctave()}
+                                    title="Change Keyboard Octave"
+                                >{this.state.keyboardOctave}</ButtonDropDown>
                             </Form>
 
                             {/*<Form className="tracker-octave" header="Octave">*/}
