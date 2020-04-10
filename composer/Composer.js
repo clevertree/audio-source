@@ -239,7 +239,7 @@ export default class Composer extends ComposerActions {
                 break;
 
             case 'song:modified':
-                this.forceUpdate();
+                this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
                 clearTimeout(this.timeouts.saveSongToMemory);
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);

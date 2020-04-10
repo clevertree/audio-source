@@ -21,10 +21,16 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         };
         this.cb = {
             onClick: e => this.toggleOpen(),
-
-        }
+        };
     }
 
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(!this.props.config.type) {
+            console.warn("No default oscillator type was set. Setting to 'sawtooth'");
+            this.props.config.type = 'sawtooth';
+        }
+    }
 
     getTitle() {
         return this.props.config.title

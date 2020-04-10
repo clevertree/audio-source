@@ -23,16 +23,21 @@ div.asct-instruction:last-child {
 }
 
 
-div.asct-instruction-add, div.asct-instruction.selected {
+div.asct-instruction-add,
+div.asct-instruction.selected {
   background-color: white;
+}
+
+div.asc-tracker.selected div.asct-instruction-add,
+div.asc-tracker.selected div.asct-instruction.selected {
   font-weight: bold;
-  max-width: 1000px;
+  /*max-width: 1000px;*/
   box-shadow: #6b6b6b 0 0px 3px;
   z-index: 1;
 }
 
-div.asct-instruction-add,
-div.asct-instruction.cursor {
+div.asc-tracker.selected div.asct-instruction-add,
+div.asc-tracker.selected div.asct-instruction.cursor {
   border-color: red;
   box-shadow: darkred 0 0 12px;
 }

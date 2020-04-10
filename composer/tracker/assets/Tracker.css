@@ -24,7 +24,7 @@ div.asc-tracker {
     display: inline-block;
     min-width: 30vw;
 }
-div.asc-tracker:not(.selected) > div.title {
+div.asc-tracker:not(.selected) > div.header {
     background-color: #777;
 }
 div.asc-tracker:not(.selected) {
@@ -52,17 +52,10 @@ div.asc-tracker > div.asui-panel {
     /*background-color: #333;*/
     /*color: #FFF;*/
 }
-div.asc-tracker > div.asui-panel > div.title {
-    text-align: center;
-}
-div.asc-tracker > div.asui-panel > div.title > div.delta {
-    float: left;
+div.asc-tracker > div.asui-panel > div.header {
+    /*text-align: center;*/
 }
 
-div.asc-tracker .tracker-header-pause {
-    text-align: center;
-    min-width: 44px;
-}
 
 
 
