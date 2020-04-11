@@ -163,7 +163,7 @@ class Song {
     }
 
 
-    generateInstructionTrackName(trackName = 'group') {
+    generateInstructionTrackName(trackName = 'track') {
         const songData = this.data;
         for (let i = 0; i <= 999; i++) {
             const currentTrackName = trackName + i;
@@ -176,7 +176,7 @@ class Song {
 
 
     /** Instruments **/
-    // All instruments are loaded and connected to the host's destination on song load.
+    // All instruments are sent a 0 frequency play in order to pre-load samples.
 
     hasInstrument(instrumentID) {
         return !!this.data.instruments[instrumentID];
@@ -185,21 +185,25 @@ class Song {
     stopInstrumentPlayback(destination, instrumentID) {
         let instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
         if(typeof instrument.stopPlayback !== "function")
-            return console.error(instrument.constructor.name + ".stopPlayback is not a function");
-        instrument.stopPlayback();
+            return console.error(instrument.name + ".stopPlayback is not a function");
+        instrument.stopPlayback(destination);
+        // let instrumentClass = this.instrumentLoader.instrumentGetClass(instrumentID);
+        // if(typeof instrumentClass.stopPlayback !== "function")
+        //     return console.error(instrumentClass.name + ".stopPlayback is not a function");
+        // instrumentClass.stopPlayback();
     }
 
     playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
-        if (!instrumentID && instrumentID !== 0) {
-            console.warn("No instruments set for instruction. Using instruments 0");
-            instrumentID = 0;
-            // return;
-        }
+        // if (!instrumentID && instrumentID !== 0) {
+        //     console.warn("No instruments set for instruction. Using instruments 0");
+        //     instrumentID = 0;
+        //     // return;
+        // }
         let instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = Song.parseFrequencyString(noteFrequency);
-        return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended)
+        return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
 
@@ -237,14 +241,13 @@ class Song {
 
 
     instrumentLoad(destination, instrumentID) {
-        const instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
+        return this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
         // this.dispatchEvent({
         //     type: 'instruments:instance',
         //     instrument,
         //     instrumentID,
         //     song: this
         // });
-        return instrument;
     }
 
     instrumentLoadRenderer(instrumentID) {
@@ -698,7 +701,7 @@ class Song {
             throw new Error("Playback is already stopped");
         const playback = this.playback;
         this.playback = null;
-        this.playbackPosition = playback.getGroupPositionInSeconds();
+        this.playbackPosition = playback.getTrackPositionInSeconds();
         playback.stopPlayback();
 
         // TODO: move to playback class

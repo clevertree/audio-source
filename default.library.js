@@ -1,6 +1,6 @@
-import WaveLibrary from "./sample/wave.library.js";
-import SampleLibrary from "./sample/sample.library";
-import MohayonaoWaveLibrary from "./sample/wave/mohayonao.library.js";
+import WaveLibrary from "./samples/wave.library.js";
+import SampleLibrary from "./samples/sample.library";
+import MohayonaoWaveLibrary from "./samples/wave/mohayonao.library.js";
 
 import {Library} from "./song";
 

@@ -4,28 +4,33 @@ class InstrumentLoader {
     constructor(song, audioContext) {
         this.song = song;
         this.audioContext = audioContext;
-        this.destinations = new WeakMap();
+        // this.destinations = new WeakMap();
     }
 
     loadInstanceFromDestination(destination, instrumentID) {
-        let instruments = this.destinations.get(destination);
-        if(!instruments) {
-            instruments = {};
-            this.destinations.set(destination, instruments);
-        }
-        if(typeof instruments[instrumentID] === "undefined")
-            instruments[instrumentID] = this.instrumentLoadInstance(instrumentID);
+        return this.instrumentLoadInstance(instrumentID);
+        // let instruments = this.destinations.get(destination);
+        // if(!instruments) {
+        //     instruments = {};
+        //     this.destinations.set(destination, instruments);
+        // }
+        // if(typeof instruments[instrumentID] === "undefined")
+        //     instruments[instrumentID] = this.instrumentLoadInstance(instrumentID);
 
-        return instruments[instrumentID];
+        // return instruments[instrumentID];
     }
 
-
+    instrumentGetClass(instrumentID) {
+        const [className, config] = this.song.instrumentGetData(instrumentID);
+        const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
+        return classInstrument;
+    }
 
     instrumentLoadInstance(instrumentID) {
         const [className, config] = this.song.instrumentGetData(instrumentID);
         const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
         const instrument = new classInstrument(config, this.audioContext);
-        console.info("Instrument loaded: ", instrument, instrumentID);
+        // console.info("Instrument loaded: ", instrument, instrumentID);
         return instrument;
     }
 

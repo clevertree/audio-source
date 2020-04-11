@@ -144,13 +144,15 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
 
-    changeOscillator(newType, customURL=null) {
+    changeOscillator(newType) {
         if(newType === 'custom') {
-            if(!customURL)
-                throw new Error("Invalid Custom URL");
-            this.props.config.url = customURL;
+        } else {
+            delete this.props.config.url;
+            delete this.props.config.real;
+            delete this.props.config.imag;
+            delete this.props.config.title;
+            this.props.config.type = newType;
         }
-        this.props.config.type = newType;
     }
 
     changeLoop(newLoopValue=null) {
@@ -161,6 +163,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     loadPreset(preset) {
         console.log("Loading preset: ", preset);
+        preset.type = 'custom';
         Object.assign(this.props.config, preset);
     }
 

@@ -382,10 +382,11 @@ class ComposerRenderer extends React.Component {
 
         // this.song.setVolume(this.state.volume);
         this.song.addEventListener('*', this.onSongEventCallback);
-        this.setStatus("Initializing song: " + song.data.title);
+        // this.setStatus("Initializing song: " + song.data.title);
         this.song.connect(this.getAudioContext());
-        this.setStatus("Loaded song: " + song.data.title);
+        // this.setStatus("Loaded song: " + song.data.title);
         this.setState({
+            status: "Loaded song: " + song.data.title,
             title: song.data.title,
             songUUID: song.data.uuid,
             songLengthTicks: song.getSongLengthTicks(),

@@ -30,10 +30,8 @@ class Instruction {
             return 'N/A';
         return SongValues.formatDuration(durationTicks, timeDivision);
     }
-    set durationTicks(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
-    get durationTicks()          { throw new Error("TODO: Implement for " + this.constructor.name);}
-    set duration(velocity)  { throw new Error("TODO: Not Implement for " + this.constructor.name);}
-    get duration()          { throw new Error("TODO: Not Implement for " + this.constructor.name);}
+    set durationTicks(newDuration)  { throw new Error("TODO: Implement for " + this.constructor.name);}
+    get durationTicks()             { throw new Error("TODO: Implement for " + this.constructor.name);}
     get clone()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 
     /** @deprecated **/

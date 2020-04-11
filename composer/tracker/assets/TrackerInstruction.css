@@ -33,7 +33,7 @@ div.asc-tracker.selected div.asct-instruction.selected {
   font-weight: bold;
   /*max-width: 1000px;*/
   box-shadow: #6b6b6b 0 0px 3px;
-  z-index: 1;
+  /*z-index: 1;*/
 }
 
 div.asc-tracker.selected div.asct-instruction-add,
