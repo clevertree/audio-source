@@ -28,7 +28,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
                 <Div className="voices">
                     {voices.map((voiceData, voiceID) => {
                         const [className, config] = voiceData;
-                        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
+                        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClassInfo(className);
                         return <Renderer
                             onRemove={this.cb.onRemove}
                             key={voiceID}
@@ -62,7 +62,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
     async addVoice(instrumentClassName, promptUser=true) {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);
-        const {title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        const {title} = InstrumentLoader.getInstrumentClassInfo(instrumentClassName);
         const instrumentConfig = {};
         // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.defaultLibraryURL;

@@ -2,16 +2,16 @@ import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
 
 
 class OscillatorNodeInstrument {
-    constructor(config={}, audioContext=null) {
+    constructor(config={}) {
         console.log('OscillatorNodeInstrument', config);
         this.config = config;
-        this.audioContext = audioContext;
-        this.waveLoader = new PeriodicWaveLoader(audioContext);
     }
 
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
+        const audioContext = destination.context;
+        const waveLoader = new PeriodicWaveLoader(audioContext);
 
 
         // TODO: Detect config changes on the fly. Leave caching to browser. Destination cache?
@@ -56,10 +56,10 @@ class OscillatorNodeInstrument {
             case 'custom':
                 if(!this.config.url)
                     throw new Error("Custom osc requires a url");
-                if(this.waveLoader.isPeriodicWaveAvailable(this.config.url)) {
-                    osc.setPeriodicWave(this.waveLoader.getCachedPeriodicWaveFromURL(this.config.url))
+                if(waveLoader.isPeriodicWaveAvailable(this.config.url)) {
+                    osc.setPeriodicWave(waveLoader.getCachedPeriodicWaveFromURL(this.config.url))
                 } else {
-                    this.waveLoader.loadPeriodicWaveFromURL(this.config.url)
+                    waveLoader.loadPeriodicWaveFromURL(this.config.url)
                         .then(periodicWave => osc.setPeriodicWave(periodicWave));
                 }
                 break;

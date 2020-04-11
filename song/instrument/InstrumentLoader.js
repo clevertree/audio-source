@@ -22,13 +22,13 @@ class InstrumentLoader {
 
     instrumentGetClass(instrumentID) {
         const [className, config] = this.song.instrumentGetData(instrumentID);
-        const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
+        const {classInstrument} = InstrumentLoader.getInstrumentClassInfo(className);
         return classInstrument;
     }
 
     instrumentLoadInstance(instrumentID) {
         const [className, config] = this.song.instrumentGetData(instrumentID);
-        const {classInstrument} = InstrumentLoader.getInstrumentClass(className);
+        const {classInstrument} = InstrumentLoader.getInstrumentClassInfo(className);
         const instrument = new classInstrument(config, this.audioContext);
         // console.info("Instrument loaded: ", instrument, instrumentID);
         return instrument;
@@ -36,7 +36,7 @@ class InstrumentLoader {
 
     instrumentLoadRenderer(instrumentID) {
         const [className, config] = this.song.instrumentGetData(instrumentID);
-        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClass(className);
+        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClassInfo(className);
         return <Renderer
             instrumentID={instrumentID}
             config={config}
@@ -60,7 +60,7 @@ class InstrumentLoader {
 
     /** Static **/
 
-    static getInstrumentClass(className) {
+    static getInstrumentClassInfo(className) {
         const classes = InstrumentLoader.registeredInstrumentClasses;
         for(let i=0; i<classes.length; i++) {
             const classInfo = classes[i];

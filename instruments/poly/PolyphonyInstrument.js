@@ -1,70 +1,38 @@
-import AudioBufferInstrument from "../voice/AudioBufferInstrument";
-import OscillatorNodeInstrument from "../voice/OscillatorNodeInstrument";
-// import InstrumentLoader from "../../song/instrument/InstrumentLoader";
+import InstrumentLoader from "../../song/instrument/InstrumentLoader";
 // import Values from "../../song/Values";
 
 class PolyphonyInstrument {
-    constructor(config={}, audioContext=null) {
-        this.config = {};
-        this.audioContext = audioContext;
-
-        this.voices = [];
-        this.loadConfig(config);
+    constructor(config={}) {
+        this.config = config;
     }
 
     /** Loading **/
-
-    loadConfig(newConfig) {
-        if (!newConfig.voices)
-            newConfig.voices = [];
-        Object.assign(this.config, newConfig);
-        this.loadVoices();
-    }
-
-
-    loadVoices() {
-        this.voices = [];
-        for (let voiceID = 0; voiceID < this.config.voices.length; voiceID++)
-            this.loadVoice(voiceID);
-    }
 
     loadVoice(voiceID) {
         if(!this.config.voices[voiceID])
             throw new Error("Voice config is missing: " + voiceID);
         const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
-        let voiceClass = PolyphonyInstrument.voiceClasses.find(voiceClass => voiceClass.name === voiceClassName);
-        if (!voiceClass)
-            throw new Error("Unrecognized voice class: " + voiceClassName);
-        this.voices[voiceID] = new voiceClass(voiceConfig, this.audioContext);
-    }
-
-    static voiceClasses = [
-        AudioBufferInstrument,
-        OscillatorNodeInstrument
-    ];
-
-
-    isVoiceLoaded(voiceID) {
-        return !!this.voices[voiceID];
+        let {classInstrument:voiceClass} = InstrumentLoader.getInstrumentClassInfo(voiceClassName);
+        return new voiceClass(voiceConfig);
     }
 
 
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration, velocity=null, onended=null) {
-        for (let i = 0; i < this.voices.length; i++) {
-            const voice = this.voices[i];
+        for (let i = 0; i < this.config.voices.length; i++) {
+            const voice = this.loadVoice(i);
             voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
-
         }
     }
 
     stopPlayback() {
         // Stop all active sources
 //             console.log("activeSources!", this.activeSources);
-        for (let i = 0; i < this.voices.length; i++) {
+        for (let i = 0; i < this.config.voices.length; i++) {
             try {
-                this.voices[i].stopPlayback();
+                const voice = this.loadVoice(i);
+                voice.stopPlayback(); // TODO: hacky?
             } catch (e) {
                 console.warn(e);
             }

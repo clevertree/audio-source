@@ -592,7 +592,7 @@ class ComposerActions extends ComposerMenu {
     async instrumentAdd(instrumentClassName, instrumentConfig = {}, promptUser=false) {
         if (!instrumentClassName)
             throw new Error(`Invalid instrument class`);
-        const {title} = InstrumentLoader.getInstrumentClass(instrumentClassName);
+        const {title} = InstrumentLoader.getInstrumentClassInfo(instrumentClassName);
         // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.defaultLibraryURL;
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
