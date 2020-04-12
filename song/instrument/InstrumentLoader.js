@@ -1,4 +1,5 @@
 import React from "react";
+import {MenuAction, MenuBreak} from "../../components/menu";
 
 class InstrumentLoader {
     constructor(song, audioContext) {
@@ -7,7 +8,7 @@ class InstrumentLoader {
         // this.destinations = new WeakMap();
     }
 
-    loadInstanceFromDestination(destination, instrumentID) {
+    loadInstanceFromDestination(instrumentID, destination) {
         return this.instrumentLoadInstance(instrumentID);
         // let instruments = this.destinations.get(destination);
         // if(!instruments) {
@@ -20,22 +21,37 @@ class InstrumentLoader {
         // return instruments[instrumentID];
     }
 
+    instrumentGetData(instrumentID) {
+        if (!this.song.data.instruments[instrumentID])
+            throw new Error("Invalid instrument ID: " + instrumentID);
+        return this.song.data.instruments[instrumentID];
+    }
+
+
+    instrumentGetClassName(instrumentID) {
+        const [className] = this.instrumentGetData(instrumentID);
+        return className;
+    }
+    instrumentGetConfig(instrumentID) {
+        const [, config] = this.instrumentGetData(instrumentID);
+        return config;
+    }
     instrumentGetClass(instrumentID) {
-        const [className, config] = this.song.instrumentGetData(instrumentID);
+        const className = this.instrumentGetClassName(instrumentID);
         const {classInstrument} = InstrumentLoader.getInstrumentClassInfo(className);
         return classInstrument;
     }
 
     instrumentLoadInstance(instrumentID) {
-        const [className, config] = this.song.instrumentGetData(instrumentID);
+        const [className, config] = this.instrumentGetData(instrumentID);
         const {classInstrument} = InstrumentLoader.getInstrumentClassInfo(className);
-        const instrument = new classInstrument(config, this.audioContext);
+        return new classInstrument(config, this.audioContext);
         // console.info("Instrument loaded: ", instrument, instrumentID);
-        return instrument;
+        // return instrument;
     }
 
     instrumentLoadRenderer(instrumentID) {
-        const [className, config] = this.song.instrumentGetData(instrumentID);
+        const [className, config] = this.instrumentGetData(instrumentID);
         const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClassInfo(className);
         return <Renderer
             instrumentID={instrumentID}
@@ -44,6 +60,7 @@ class InstrumentLoader {
     }
 
 
+    /** Actions **/
 
     unloadAllInstruments() {
         const classes = InstrumentLoader.registeredInstrumentClasses;
@@ -57,6 +74,10 @@ class InstrumentLoader {
         }
 
     }
+
+    /** Menu **/
+
+
 
     /** Static **/
 

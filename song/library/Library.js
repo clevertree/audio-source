@@ -1,10 +1,8 @@
 import {MenuAction, MenuBreak, MenuDropDown} from "../../components/menu";
 import React from "react";
+import InstrumentLoader from "../instrument/InstrumentLoader";
 
 class Library {
-    supportsInstrument(instrumentClass) {
-        return true;
-    }
 
     getTitle() {
         return this.constructor.name;
@@ -14,83 +12,102 @@ class Library {
         return [];
     }
 
-    /** @deprecated **/
-    getSamples() {
-        return [];
-    }
 
     getPresets() {
         return [];
     }
 
 
-    /** Menu **/
+    /** Shortcuts **/
 
-    renderMenuInstrumentPresets(instrumentClass, onSelectPreset, key=null) {
-        let recentLibrary = Library.lastSelectedLibrary; // TODO: move to state?
-        switch(key) {
-            case 'child':
-                return (<>
-                    <MenuDropDown
-                        disabled={this.getPresets().length === 0}
-                        options={() => this.renderMenuInstrumentPresets(instrumentClass, onSelectPreset, 'preset')}>
-                        Presets
-                    </MenuDropDown>
-                    <MenuDropDown
-                        disabled={this.getLibraries().length === 0}
-                        options={() => this.renderMenuInstrumentPresets(instrumentClass, onSelectPreset, 'libraries')}>
-                        Other Libraries
-                    </MenuDropDown>
-                </>);
 
-            case null:
-                return (<>
-                    <MenuDropDown
-                        disabled={true}
-                        options={() => this.renderMenuInstrumentPresets(instrumentClass, onSelectPreset, 'recent')}>
-                        Recent Presets
-                    </MenuDropDown>
-                    {recentLibrary ? <MenuDropDown
-                        disabled={recentLibrary.getPresets().length === 0}
-                        options={() => recentLibrary.renderMenuInstrumentPresets(instrumentClass, onSelectPreset, 'preset')}>
-                        Recent Library
-                    </MenuDropDown> : null }
-                    <MenuDropDown
-                        disabled={this.getLibraries().length === 0}
-                        options={() => this.renderMenuInstrumentPresets(instrumentClass, onSelectPreset, 'libraries')}>
-                        Other Libraries
-                    </MenuDropDown>
-                </>);
-
-            case 'libraries':
-                return this.renderMenuLibraryOptions(instrumentClass, library =>
-                     library.renderMenuInstrumentPresets(instrumentClass, onSelectPreset, 'child')
-                );
-
-            case 'preset':
-                return (<>
-                    <MenuAction onAction={()=>{}} disabled>{this.getTitle()}</MenuAction>
-                    <MenuBreak />
-                    {this.getPresets().map((preset, i) => {
-                        return <MenuAction key={i} onAction={e => onSelectPreset(preset)}>{preset.title || 'Untitled Preset #' + i}</MenuAction>
-                    })}
-                </>);
-
-            case 'recent':
-                return this.getPresets().map((preset, i) => {
-                    return <MenuAction key={i} onAction={e => onSelectPreset(preset)}>{preset.title || 'Untitled Preset #' + i}</MenuAction>
-                });
-
-            default:
-                throw new Error("Unknown key: " + key);
+    supportsInstrument(instrumentClassName) {
+        const presets = this.getPresets();
+        for(let i=0; i<presets.length; i++) {
+            const [className] = presets[i];
+            if(className === instrumentClassName)
+                return true;
         }
+        return false;
     }
 
-    renderMenuLibraryOptions(instrumentClass, onSelectLibraryOptions) {
-        console.log(this, this.getLibraries());
+    /** Menu **/
+
+
+    renderMenuInstrumentAll(onSelectPreset, instrumentClass=null) {
+        return (<>
+            <MenuDropDown options={() => this.renderMenuInstrumentNew(onSelectPreset, instrumentClass)}>New Instrument</MenuDropDown>
+            <MenuBreak />
+            <MenuDropDown options={() => this.renderMenuInstrumentAllPresets(onSelectPreset, instrumentClass, true)}>Using Preset</MenuDropDown>
+        </>);
+    }
+
+    renderMenuInstrumentNew(onSelectPreset) {
+        return (<>
+            {InstrumentLoader.getRegisteredInstruments().map((config, i) =>
+                <MenuAction key={i} onAction={e => onSelectPreset(config.className)}>{config.title || 'Untitled Preset #' + i}</MenuAction>
+            )}
+        </>);
+    }
+
+    renderMenuInstrumentAllPresets(onSelectPreset, instrumentClass=null, includeRecent=true) {
+        return (<>
+            {includeRecent && false ? <MenuDropDown
+                disabled={true}
+                options={() => this.renderMenuInstrumentRecentPresets(onSelectPreset, instrumentClass)}>
+                Recent Presets
+            </MenuDropDown> : null}
+            {includeRecent && Library.lastSelectedLibrary ? <MenuDropDown
+                disabled={Library.lastSelectedLibrary.getPresets().length === 0}
+                options={() => Library.lastSelectedLibrary.renderMenuInstrumentPresets(onSelectPreset, instrumentClass)}>
+                Current Library
+            </MenuDropDown> : null }
+            <MenuDropDown
+                disabled={this.getPresets().length === 0}
+                options={() => this.renderMenuInstrumentPresets(onSelectPreset, instrumentClass)}>
+                Presets
+            </MenuDropDown>
+            <MenuDropDown
+                disabled={this.getLibraries().length === 0}
+                options={() => this.renderMenuLibraryOptions(library =>
+                    library.renderMenuInstrumentAllPresets(onSelectPreset, instrumentClass, false)
+                    , instrumentClass)}>
+                Other Libraries
+            </MenuDropDown>
+        </>);
+    }
+
+
+    renderMenuInstrumentRecentPresets(onSelectPreset, instrumentClass=null) {
+        // let recentLibrary = Library.lastSelectedLibrary; // TODO: move to state?
+        return (<>
+            <MenuAction onAction={()=>{}} disabled>{this.getTitle()}</MenuAction>
+            <MenuBreak />
+            {this.getPresets().map(([className, presetConfig], i) => {
+                return instrumentClass === null || instrumentClass === className
+                    ? <MenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</MenuAction>
+                    : null;
+            })}
+        </>);
+    }
+
+
+    renderMenuInstrumentPresets(onSelectPreset, instrumentClass=null) {
+        return (<>
+            <MenuAction onAction={()=>{}} disabled>{this.getTitle()}</MenuAction>
+            <MenuBreak />
+            {this.getPresets().map(([className, presetConfig], i) => {
+                return instrumentClass === null || instrumentClass === className
+                    ? <MenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</MenuAction>
+                    : null;
+            })}
+        </>);
+    }
+
+    renderMenuLibraryOptions(onSelectLibraryOptions, instrumentClass=null) {
         return this.getLibraries().map((library, i) => {
-            if (!library.supportsInstrument(instrumentClass))
-                return null;
+            // if (instrumentClass !== null && !library.supportsInstrument(instrumentClass))
+            //     return null;
             return (
                 <MenuDropDown key={i++}
                               options={() => {
@@ -103,6 +120,11 @@ class Library {
         });
     }
 
+    // renderMenuInstrumentLibraryPresets(onSelectPreset, instrumentClass=null) {
+    //     return this.renderMenuLibraryOptions(instrumentClass, library =>
+    //         library.renderSubMenuInstrumentPresets(onSelectPreset, instrumentClass)
+    //     );
+    // }
 
     // constructor(title=null) {
     // this.title = title || this.constructor.name;
@@ -145,6 +167,7 @@ class Library {
     //     return presetConfig;
     // }
 
+    /** @var Library **/
     static lastSelectedLibrary = null;
 
     static historicLibraryCount() {

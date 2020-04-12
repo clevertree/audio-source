@@ -617,7 +617,7 @@ class ComposerActions extends ComposerMenu {
             throw new Error(`Invalid Instrument class`);
 
         if (await this.openPromptDialog(`Change Instrument (${instrumentID}) to ${instrumentClassName}`)) {
-            await this.song.instrumentReplace(instrumentID, instrumentConfig);
+            await this.song.instrumentReplace(instrumentID, instrumentClassName, instrumentConfig);
             this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentClassName}`);
 
         } else {

@@ -12,6 +12,7 @@ import InstrumentLoader from "../../song/instrument/InstrumentLoader";
 
 // import Library from "../../song/Library";
 import "./assets/InstrumentRenderer.css";
+import {Library} from "../../song";
 
 class InstrumentRenderer extends React.Component {
     constructor(props) {
@@ -27,13 +28,14 @@ class InstrumentRenderer extends React.Component {
     render() {
         const song = this.getSong();
         const instrumentID = this.props.instrumentID;
+        const instrumentConfig = song.instrumentGetData(instrumentID);
         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 
 
         // let contentClass = 'error';
         let titleHTML = '';
         if (song.hasInstrument(instrumentID)) {
-            titleHTML = this.props.instrumentConfig.title || "No Title"
+            titleHTML = instrumentConfig.title || "No Title"
 
         } else {
             titleHTML = `Empty`;
@@ -43,7 +45,7 @@ class InstrumentRenderer extends React.Component {
                 <Div className="header">
                     <Button
                         className="toggle-container"
-                        onAction={e => this.toggleContainer(e)}
+                        onAction={e => this.toggleContainer()}
                     >{instrumentIDHTML}: {titleHTML}</Button>
                     <ButtonDropDown
                         arrow={false}
@@ -78,86 +80,56 @@ class InstrumentRenderer extends React.Component {
         this.setState({open: !this.state.open});
     }
 
+    loadPreset(presetClassName, presetConfig) {
+        console.log("Loading preset: ", presetClassName, presetConfig);
+        const song = this.getSong();
+        const instrumentID = this.props.instrumentID;
+        song.instrumentReplace(instrumentID, presetClassName, presetConfig);
+    }
 
     /** Menu **/
 
 
 
 
-    renderMenuRoot(e) {
+    renderMenuRoot() {
         return (<>
             <MenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</MenuDropDown>
             <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuChange()}>Change Instrument</MenuDropDown>
-            <MenuAction onAction={e => this.instrumentRename(e)}>Rename Instrument</MenuAction>
-            <MenuAction onAction={e => this.instrumentRemove(e)}>Remove Instrument</MenuAction>
+            <MenuDropDown options={() => this.renderMenuChangeInstrument()}>Change Instrument</MenuDropDown>
+            <MenuAction onAction={e => this.instrumentRename()}>Rename Instrument</MenuAction>
+            <MenuAction onAction={e => this.instrumentRemove()}>Remove Instrument</MenuAction>
         </>);
     }
 
-    renderMenuChange(e) {
-        return (<>
-            {InstrumentLoader.getRegisteredInstruments().map(config =>
-                <MenuAction onAction={e => this.instrumentReplace(e, config.className)}>Change instrument to '{config.title}'</MenuAction>
-            )}
-        </>);
+    renderMenuChangeInstrument() {
+        const library = Library.loadDefault();
+        return library.renderMenuInstrumentAll(([className, presetConfig]) => {
+            this.loadPreset(className, presetConfig);
+        });
+
     }
 
-    renderMenuChangePreset(e) {
-        let library = this.state.library;
-        return (<>
-            <MenuDropDown options={() => this.renderMenuLibraryList()}    >Libraries</MenuDropDown>
-            <MenuBreak />
-            <MenuAction onAction={()=>{}} disabled>Search</MenuAction>
-            <MenuBreak />
-            {false ? ( // library.getPresets().length > 0
-                <Scrollable>
-                    {library.getPresets().map(config => (
-                        <MenuAction onAction={e => this.loadPreset(config.name)}>{config.name}</MenuAction>
-                    ))}
-                </Scrollable>
-            ) : <MenuAction onAction={()=>{}} fdisabled> - Select a Library - </MenuAction>}
-        </>);
-
-        // selectElm.getOptGroup((library.name || 'Unnamed Library') + '', () =>
-        //     library.getPresets().map(config => selectElm.getOption(config.url, config.name)),
-        // ),
-        //     selectElm.getOptGroup('Libraries', () =>
-        //             library.getLibraries().map(config => selectElm.getOption(config.url, config.name)),
-        //         {disabled: library.libraryCount === 0}
-        //     ),
-        //     selectElm.getOptGroup('Other Libraries', () =>
-        //             Library.eachHistoricLibrary(config => selectElm.getOption(config.url, config.name)),
-        //         {disabled: Library.historicLibraryCount === 0}
-        //     ),
+    renderMenuChangePreset() {
+        const library = Library.loadDefault();
+        const instrumentID = this.props.instrumentID;
+        const instrumentClassName = this.getSong().instrumentGetClassName(instrumentID);
+        return library.renderMenuInstrumentAllPresets((className, presetConfig) => {
+            this.loadPreset(className, presetConfig);
+        }, instrumentClassName);
     }
 
-    renderMenuPresetList(e) {
-        let library = this.state.library;
-        // if(library.getPresets().length === 0)
-        //     return <Menu disabled>No presets</Menu>;
-        return library.getPresets().map(config => (
-            <MenuAction>{config.name}</MenuAction>
-        ));
-    }
-
-    renderMenuLibraryList(e) {
-        return 'TODO';
-        // let library = this.state.library;
-        // return library.getLibraries().map(config => (
-        //     <MenuAction onAction={e=>{this.changeLibrary(config.url); return false;}}>{config.name}</MenuAction>
-        // ));
-    }
 
     instrumentReplace(e, instrumentClassName, instrumentConfig={}) {
         const instrumentID = this.props.instrumentID;
         // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
-        this.getSong().instrumentReplace(instrumentID, instrumentConfig);
+        this.getSong().instrumentReplace(instrumentID, instrumentClassName, instrumentConfig);
     }
-    instrumentRename(e) {
+    instrumentRename() {
         const instrumentID = this.props.instrumentID;
         this.getComposer().instrumentRename(instrumentID);
     }
-    instrumentRemove(e) {
+    instrumentRemove() {
         const instrumentID = this.props.instrumentID;
         this.getSong().instrumentRemove(instrumentID);
     }

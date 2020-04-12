@@ -112,7 +112,7 @@ export default class TrackInfo {
             this.track.currentCommand = firstSelectedInstruction.command;
             if(firstSelectedInstruction instanceof CommandInstruction) {
                 if(typeof firstSelectedInstruction.durationTicks !== "undefined")
-                    this.track.currentDuration = firstSelectedInstruction.durationTicks;
+                    this.track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
                 if(typeof firstSelectedInstruction.velocity !== "undefined")
                     this.track.currentVelocity = firstSelectedInstruction.velocity;
             }

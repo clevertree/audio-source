@@ -206,22 +206,15 @@ class Song {
         return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
-
-    instrumentGetData(instrumentID) {
-        if (!this.data.instruments[instrumentID])
-            throw new Error("Invalid instrument ID: " + instrumentID);
-        return this.data.instruments[instrumentID];
-    }
+    instrumentGetData(instrumentID) { return this.instrumentLoader.instrumentGetData(instrumentID); }
+    instrumentGetClassName(instrumentID) { return this.instrumentLoader.instrumentGetClassName(instrumentID); }
+    instrumentGetClass(instrumentID) { return this.instrumentLoader.instrumentGetClass(instrumentID); }
+    instrumentGetConfig(instrumentID) { return this.instrumentLoader.instrumentGetConfig(instrumentID); }
 
 
-    instrumentGetConfig(instrumentID) {
-        return this.instrumentGetData(instrumentID)[1];
-    }
-
-
-    instrumentGetList() {
-        return this.data.instruments;
-    }
+    // instrumentGetList() {
+    //     return this.data.instruments;
+    // }
     instrumentEach(callback) {
         return this.data.instruments.map(function(entry, instrumentID) {
             const [className, config] = entry;
@@ -234,14 +227,14 @@ class Song {
         const instrumentList = this.data.instruments;
         for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
             if (instrumentList[instrumentID]) {
-                this.instrumentLoad(destination, instrumentID);
+                this.instrumentLoad(instrumentID, destination);
             }
         }
     }
 
 
-    instrumentLoad(destination, instrumentID) {
-        return this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
+    instrumentLoad(instrumentID, destination) {
+        return this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
         // this.dispatchEvent({
         //     type: 'instruments:instance',
         //     instrument,
@@ -265,7 +258,7 @@ class Song {
         const instrumentID = instrumentList.length;
 
         this.data.instruments[instrumentID] = config;
-        this.instrumentLoad(instrumentID, this.audioContext);
+        this.instrumentLoad(instrumentID, this.audioContext.destination);
         // this.dispatchEvent({
         //     type: 'instruments:added',
         //     instrumentID,
@@ -275,15 +268,14 @@ class Song {
         return instrumentID;
     }
 
-    instrumentReplace(instrumentID, config) {
-        let oldConfig = this.instrumentGetConfig(instrumentID);
-
+    instrumentReplace(instrumentID, instrumentClassName, instrumentConfig={}) {
         // Preserve old instruments name
-        if (oldConfig && oldConfig.title && !config.title)
-            config.title = oldConfig.title;
+        // if (oldConfig && oldConfig.title && !instrumentConfig.title)
+        //     instrumentConfig.title = oldConfig.title;
 
-        this.data.instruments[instrumentID] = config;
-        this.instrumentLoad(instrumentID, this.audioContext);
+        const oldConfig = this.data.instruments[instrumentID];
+        this.data.instruments[instrumentID] = [instrumentClassName, instrumentConfig];
+        this.instrumentLoad(instrumentID, this.audioContext.destination);
 
         // this.dispatchEvent({
         //     type: 'instruments:modified',

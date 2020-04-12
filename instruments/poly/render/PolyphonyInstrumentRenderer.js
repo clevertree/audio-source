@@ -2,10 +2,10 @@ import React from 'react';
 
 import {
     ButtonDropDown,
-    Div,
+    Div, MenuAction, MenuBreak,
 } from "../../../components";
 
-import {InstrumentLoader, MenuValues} from "../../../song";
+import {InstrumentLoader, Library, MenuValues} from "../../../song";
 
 
 import "./assets/PolyphonyInstrumentRenderer.css";
@@ -51,7 +51,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
 
     /** Actions **/
 
-    // TODO: link to composer somehow
+    // TODO: Use Context Consumer/Provider for status/error callbacks
     setStatus(message) { console.info(this.constructor.name, 'setStatus', message); }
     setError(message) { console.error(this.constructor.name, 'setStatus', message); }
 
@@ -94,9 +94,17 @@ class PolyphonyInstrumentRenderer extends React.Component {
     /** Menu **/
 
     renderMenuAddVoice() {
-        return new MenuValues().renderMenuSelectAvailableInstrument((instrumentClass) => {
-            this.addVoice(instrumentClass);
-        }, "Add new instrument as voice")
+        const library = Library.loadDefault();
+        return (<>
+            <MenuAction disabled action={()=>{}}>Add new voice instrument</MenuAction>
+            <MenuBreak/>
+            {library.renderMenuInstrumentAllPresets(([className, presetConfig]) => {
+                this.addVoice(className, presetConfig);
+            })}
+        </>)
+        // return new MenuValues().renderMenuSelectAvailableInstrument((instrumentClass) => {
+        //     this.addVoice(instrumentClass);
+        // }, "Add new instrument as voice")
     }
 }
 
