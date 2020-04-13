@@ -6,7 +6,7 @@ import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
-import {Instruction, InstructionList, InstructionIterator, InstructionPlayback} from "./instruction/";
+import {Instruction, InstructionIterator, InstructionPlayback} from "./instruction/";
 
 
 import InstrumentList from "../instruments";
@@ -135,8 +135,9 @@ class Song {
         this.playbackPosition = 0;
 
         // Process all instructions
-        Object.keys(data.tracks).forEach((trackName, i) =>
-            new InstructionList(data.tracks[trackName].instructions).processInstructions());
+        if(!data.tracks)
+            throw new Error("No tracks found in song data");
+        Instruction.processInstructionTracks(data.tracks);
 
         // let loadingInstruments = 0;
 
@@ -187,7 +188,7 @@ class Song {
     }
 
     stopInstrumentPlayback(destination, instrumentID) {
-        let instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
+        let instrument = this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
         if(typeof instrument.stopPlayback !== "function")
             return console.error(instrument.name + ".stopPlayback is not a function");
         instrument.stopPlayback(destination);
@@ -198,12 +199,14 @@ class Song {
     }
 
     playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
+        if (!instrumentID && instrumentID !== 0)
+            throw new Error("Invalid instrument ID");
         // if (!instrumentID && instrumentID !== 0) {
         //     console.warn("No instruments set for instruction. Using instruments 0");
         //     instrumentID = 0;
         //     // return;
         // }
-        let instrument = this.instrumentLoader.loadInstanceFromDestination(destination, instrumentID);
+        let instrument = this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = Song.parseFrequencyString(noteFrequency);
@@ -342,23 +345,23 @@ class Song {
     instructionGetList(trackName) {
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        return new InstructionList(this.data.tracks[trackName].instructions);
+        return this.data.tracks[trackName].instructions;
     }
 
     instructionGetByIndex(trackName, index) {
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         let instructionList = this.instructionGetList(trackName);
-        return instructionList.getInstruction(index);
+        if(index < 0 || index > instructionList.length)
+            throw new Error("Index is out or range: " + index);
+        return Instruction.getInstruction(instructionList[index]);
     }
 
 
-    instructionGetIterator(trackName, bpm=null, timeDivision=null) {
+    instructionGetIterator(trackName) {
         return new InstructionIterator(
             this,
             trackName,
-            bpm || this.data.bpm,
-            timeDivision || this.data.timeDivision
         );
     }
 
@@ -374,7 +377,7 @@ class Song {
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        const insertInstruction = InstructionList.parseInstruction(insertInstructionData);
+        const insertInstruction = Instruction.parseInstruction(insertInstructionData);
         let instructionList = this.data.tracks[trackName].instructions;
 
 
@@ -440,7 +443,7 @@ class Song {
     instructionInsertAtIndex(trackName, insertIndex, insertInstructionData) {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
-        let insertInstruction = InstructionList.parseInstruction(insertInstructionData);
+        let insertInstruction = Instruction.parseInstruction(insertInstructionData);
         insertInstructionData = insertInstruction.data;
         this.instructionGetList(trackName).splice(insertIndex, 0, insertInstructionData);
         return insertIndex;

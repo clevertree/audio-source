@@ -1,5 +1,6 @@
 import TrackInstruction from "./TrackInstruction";
 
+// Meant to be used in real-time
 class InstructionPlayback {
     constructor(destination, song, trackName, startTime = null, onended = null) {
         if (!destination || !destination.context)
@@ -12,7 +13,7 @@ class InstructionPlayback {
         this.onended = onended;
         // this.trackName = trackName;
         // this.seekLength = seekLength;
-        this.subGroups = [];
+        this.subTracks = [];
         this.seekLength = 1000;
         const startingStats = {
             startTime,
@@ -29,12 +30,12 @@ class InstructionPlayback {
 
     startTrackPlayback(stats) {
         const iterator = this.song.instructionGetIterator(stats.trackName, stats.bpm, stats.timeDivision);
-        this.subGroups.push([
+        this.subTracks.push([
             stats,
             iterator
         ]);
-        console.log('group:start', stats.trackName);
-        this.song.dispatchEvent(new CustomEvent('group:start', {
+        console.log('track:start', stats.trackName);
+        this.song.dispatchEvent(new CustomEvent('track:start', {
             detail: {
                 playback: this,
                 stats,
@@ -43,23 +44,23 @@ class InstructionPlayback {
         }));
     }
 
-    endTrackPlayback(groupID) {
-        const [stats, iterator] = this.subGroups[groupID];
-        this.subGroups.splice(groupID, 1);
-        const groupEndDelaySeconds = (iterator.endPositionSeconds + stats.startTime) - this.audioContext.currentTime;
+    endTrackPlayback(trackID) {
+        const [stats, iterator] = this.subTracks[trackID];
+        this.subTracks.splice(trackID, 1);
+        const trackEndDelaySeconds = (iterator.endPositionSeconds + stats.startTime) - this.audioContext.currentTime;
         setTimeout(() => {
-            console.log('group:end', stats.trackName, iterator.endPositionSeconds);
-            this.song.dispatchEvent(new CustomEvent('group:end', {
+            console.log('track:end', stats.trackName, iterator.endPositionSeconds);
+            this.song.dispatchEvent(new CustomEvent('track:end', {
                 detail: {
                     playback: this,
                     stats,
                     iterator
                 }
             }));
-            if(this.subGroups.length === 0) {
+            if(this.subTracks.length === 0) {
                 this.onended();
             }
-        }, groupEndDelaySeconds)
+        }, trackEndDelaySeconds)
     }
 
     async awaitPlaybackReachedEnd() {
@@ -81,8 +82,8 @@ class InstructionPlayback {
 
     renderPlayback() {
         const audioContext = this.audioContext;
-        for(let i=0; i<this.subGroups.length; i++) {
-            const [stats, iterator] = this.subGroups[i];
+        for(let i=0; i<this.subTracks.length; i++) {
+            const [stats, iterator] = this.subTracks[i];
             const currentPositionSeconds = audioContext.currentTime - stats.startTime;
 
             while(true) {
@@ -97,10 +98,10 @@ class InstructionPlayback {
                 }
 
                 const instruction = iterator.nextInstruction();
-                const noteStartTime = stats.startTime + iterator.positionSeconds; // Group start time equals current group's start + playback times
+                const noteStartTime = stats.startTime + iterator.positionSeconds; // Track start time equals current track's start + playback times
                 if (instruction instanceof TrackInstruction) {
-                    if (instruction.getTrackName() === iterator.trackName) { // TODO group stack
-                        console.error(`Recursive group call. Skipping group '${instruction.getTrackName()}'`);
+                    if (instruction.getTrackName() === iterator.trackName) { // TODO track stack
+                        console.error(`Recursive track call. Skipping track '${instruction.getTrackName()}'`);
                         continue;
                     }
 
@@ -111,7 +112,8 @@ class InstructionPlayback {
                     this.startTrackPlayback(subStats);
 
                 } else {
-                    this.song.playInstruction(stats.destination, instruction, noteStartTime, iterator.trackName);
+                    // TODO: get instruction ID
+                    this.song.playInstruction(stats.destination, instruction, 0, noteStartTime, iterator.trackName);
                 }
             }
         }
@@ -132,24 +134,24 @@ class InstructionPlayback {
 //         this.seekLength = seekLength;
 //         this.iterator = null;
 //         this.stopPlaybackCallback = null;
-//         this.subGroups = [];
+//         this.subTracks = [];
 //         this.startTime = startTime;
 //         // this.lastRowPlaybackTime = 0;
 //         this.trackerQuantizationInTicks = song.data.timeDivision;
 //         this.isActive = false;
 //         this.isPaused = false;
-//         // this.activeGroups =
+//         // this.activeTracks =
 //     }
 //
 //     get audioContext() {
 //         return this.destination.context;
 //     }
 //
-//     get groupPositionInTicks() {
+//     get trackPositionInTicks() {
 //         return this.iterator.positionTicks;
 //     }
 //
-//     getGroupPositionInSeconds() {
+//     getTrackPositionInSeconds() {
 //         return this.audioContext.currentTime - this.startTime;
 //     }
 //
@@ -157,7 +159,7 @@ class InstructionPlayback {
 // //             console.info("Waiting... ", waitTimeInSeconds);
 //         return await new Promise((resolve, reject) => {
 //             this.stopPlaybackCallback = () => {
-//                 console.info("Group aborted: ", this.trackName);
+//                 console.info("Track aborted: ", this.trackName);
 //                 this.isActive = false;
 //                 resolve(false);
 //             };
@@ -166,12 +168,12 @@ class InstructionPlayback {
 //     }
 //
 //     /** @deprecated **/
-//     async playGroup() {
+//     async playTrack() {
 //         const audioContext = this.audioContext;
 //         this.isActive = true;
 //         const iterator = this.song.getInstructionIterator(this.trackName);
 //         this.iterator = iterator;
-//         this.song.dispatchEvent(new CustomEvent('group:play', {
+//         this.song.dispatchEvent(new CustomEvent('track:play', {
 //             detail: {
 //                 playback: this,
 //                 iterator
@@ -180,14 +182,14 @@ class InstructionPlayback {
 //
 //         while (this.isActive && this.playNextInstructionRow(this.destination)) {
 //             let currentTime = audioContext.currentTime - this.startTime;
-//             const waitTime = this.iterator.groupPlaybackTime - currentTime - this.seekLength;
+//             const waitTime = this.iterator.trackPlaybackTime - currentTime - this.seekLength;
 //             await this.wait(waitTime);
 //         }
 //
 //         let remainingTime = audioContext.currentTime - this.startTime;
-//         if (this.isActive && this.iterator && remainingTime < this.iterator.groupPlaybackEndTime) {
+//         if (this.isActive && this.iterator && remainingTime < this.iterator.trackPlaybackEndTime) {
 //             // Wait for notes to finish
-//             const waitTime = this.iterator.groupPlaybackEndTime - remainingTime;
+//             const waitTime = this.iterator.trackPlaybackEndTime - remainingTime;
 //             await this.wait(waitTime);
 //         }
 //
@@ -196,7 +198,7 @@ class InstructionPlayback {
 //         // if(this.iterator) never happens
 //         //     this.stopPlayback(false);
 //
-//         this.song.dispatchEvent(new CustomEvent('group:end', {
+//         this.song.dispatchEvent(new CustomEvent('track:end', {
 //             detail: {
 //                 playback: this,
 //                 iterator
@@ -205,7 +207,7 @@ class InstructionPlayback {
 //
 //
 //         let elapsedTime = audioContext.currentTime - this.startTime;
-//         console.info("Group finished: ", this.trackName, elapsedTime);
+//         console.info("Track finished: ", this.trackName, elapsedTime);
 //         const wasActive = this.isActive;
 //         this.isActive = true;
 //         return wasActive; // Determines if the playlist should play the next song
@@ -220,7 +222,7 @@ class InstructionPlayback {
 //         const iterator = this.iterator;
 //         this.iterator = null;
 //         // If we reached the end of the iterator, trigger event
-//         this.song.dispatchEvent(new CustomEvent('group:stop', {
+//         this.song.dispatchEvent(new CustomEvent('track:stop', {
 //             detail: {
 //                 playback: this,
 //                 iterator
@@ -238,8 +240,8 @@ class InstructionPlayback {
 //             }
 //         }
 //
-//         // Stop subgroups
-//         this.subGroups.forEach(playback => playback.stopPlayback(stopInstruments));
+//         // Stop subtracks
+//         this.subTracks.forEach(playback => playback.stopPlayback(stopInstruments));
 //     }
 //
 //     playNextInstructionRow(destination) {
@@ -253,13 +255,13 @@ class InstructionPlayback {
 //
 //
 //         // const audioContext = audioContext;
-//         const noteStartTime = this.startTime + this.iterator.groupPlaybackTime;
+//         const noteStartTime = this.startTime + this.iterator.trackPlaybackTime;
 //         // const waitTime = (notePosition - audioContext.currentTime); //  - this.seekLength;
 // //         console.log(this.iterator.positionTicks, instructionList, this.iterator.currentIndex);
 //
 //         // Wait ahead of notes if necessary (by seek time)
 //         // if (waitTime > 0) {
-//         //     // console.log("Waiting ... " + waitTime, notePosition, this.iterator.groupPlaybackTime, audioContext.currentTime);
+//         //     // console.log("Waiting ... " + waitTime, notePosition, this.iterator.trackPlaybackTime, audioContext.currentTime);
 //         //     await new Promise((resolve, reject) => setTimeout(resolve, waitTime * 1000));
 //         // }
 //         // if (!this.isActive)
@@ -268,16 +270,16 @@ class InstructionPlayback {
 //
 //         for (let i = 0; i < instructionList.length; i++) {
 //             const instruction = instructionList[i];
-//             if (instruction.isGroupCommand()) {
-//                 let subTrackName = instruction.getGroupFromCommand();
-//                 if (subTrackName === this.iterator.trackName) { // TODO group stack
-//                     console.error("Recursive group call. Skipping group '" + subTrackName + "'");
+//             if (instruction.isTrackCommand()) {
+//                 let subTrackName = instruction.getTrackFromCommand();
+//                 if (subTrackName === this.iterator.trackName) { // TODO track stack
+//                     console.error("Recursive track call. Skipping track '" + subTrackName + "'");
 //                     continue;
 //                 }
 //
-//                 const groupPlayback = new InstructionPlayback(destination, this.song, subTrackName, audioContext.startTime - noteStartTime);
-//                 this.subGroups.push(groupPlayback);
-//                 groupPlayback.playGroup(); // TODO: ugly
+//                 const trackPlayback = new InstructionPlayback(destination, this.song, subTrackName, audioContext.startTime - noteStartTime);
+//                 this.subTracks.push(trackPlayback);
+//                 trackPlayback.playTrack(); // TODO: ugly
 //
 //             } else {
 //                 this.song.playInstruction(destination, instruction, noteStartTime, this.trackName);
@@ -286,11 +288,11 @@ class InstructionPlayback {
 //
 //         // const detail = {
 //         //     trackName: this.trackName,
-//         //     position: this.iterator.groupPlaybackTime,
+//         //     position: this.iterator.trackPlaybackTime,
 //         //     positionInTicks: this.iterator.positionTicks
 //         // };
-//         // this.song.dispatchEvent(new CustomEvent('group:seek', this));
-//         // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.groupPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
+//         // this.song.dispatchEvent(new CustomEvent('track:seek', this));
+//         // console.info('playNextInstructionRow', this.startTime, waitTime, this.iterator.trackPlaybackTime, instructionList); // audioContext.currentTime, waitTime, instructionList);
 //
 //         return true;
 //

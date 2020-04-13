@@ -1,12 +1,12 @@
-import {InstructionList} from "./InstructionList";
+import Instruction from "./Instruction";
 
-class InstructionIterator extends InstructionList {
-    constructor(song, trackName, bpm, timeDivision) {
+class InstructionIterator {
+    constructor(song, trackName) {
         if(!song.data.tracks[trackName])
-            throw new Error("Invalid instruction group: " + trackName);
-        super(song.data.tracks[trackName].instructions);
-        this.bpm = bpm;
-        this.timeDivision = timeDivision;
+            throw new Error("Invalid instruction track: " + trackName);
+        this.trackInfo = song.data.tracks[trackName];
+        this.bpm = this.trackInfo.bpm || song.data.bpm; // getStartingTimeDivision();
+        this.timeDivision = this.trackInfo.timeDivision || song.data.timeDivision;
 
         this.currentIndex = -1;
         this.positionTicks = 0;
@@ -22,26 +22,32 @@ class InstructionIterator extends InstructionList {
     }
 
     hasReachedEnd() {
-        return this.currentIndex >= this.instructionList.length - 1;
+        return this.currentIndex >= this.trackInfo.instructions.length - 1;
     }
 
     incrementPositionByInstruction(instruction) {
-        const deltaDuration = instruction.deltaDurationTicks;
-        this.positionTicks = this.lastInstructionPositionInTicks + deltaDuration;
+        const deltaDurationTicks = instruction.deltaDurationTicks;
+        this.positionTicks = this.lastInstructionPositionInTicks + deltaDurationTicks;
         this.lastInstructionPositionInTicks = this.positionTicks;
 
-        const elapsedTime = (deltaDuration / this.timeDivision) / (this.bpm / 60);
+        const elapsedTime = (deltaDurationTicks / this.timeDivision) / (this.bpm / 60);
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
         this.lastInstructionPositionInSeconds = this.positionSeconds;
 
-        const groupEndPositionInTicks = this.positionTicks + instruction.durationTicks;
-        if (groupEndPositionInTicks > this.endPositionTicks)
-            this.endPositionTicks = groupEndPositionInTicks;
-        const groupPlaybackEndTime = this.positionSeconds + (instruction.durationTicks / this.timeDivision) / (this.bpm / 60);
-        if (groupPlaybackEndTime > this.endPositionSeconds)
-            this.endPositionSeconds = groupPlaybackEndTime;
+        const durationTicks = instruction.durationTicks || 0;
+        const trackEndPositionInTicks = this.positionTicks + durationTicks;
+        if (trackEndPositionInTicks > this.endPositionTicks)
+            this.endPositionTicks = trackEndPositionInTicks;
+        const trackPlaybackEndTime = this.positionSeconds + (durationTicks / this.timeDivision) / (this.bpm / 60);
+        if (trackPlaybackEndTime > this.endPositionSeconds)
+            this.endPositionSeconds = trackPlaybackEndTime;
 
         // TODO: calculate bpm and timeDivision changes
+    }
+
+    getInstruction(index) {
+        const instructionData = this.trackInfo.instructions[index];
+        return Instruction.getInstruction(instructionData);
     }
 
 
@@ -56,7 +62,7 @@ class InstructionIterator extends InstructionList {
             return null;
 
         this.currentIndex++;
-        let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.groupIndex]);
+        let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.trackIndex]);
         this.incrementPositionByInstruction(currentInstruction); // , currentInstruction.duration);
         return currentInstruction;
     }
@@ -74,8 +80,8 @@ class InstructionIterator extends InstructionList {
     }
 
     seekToEnd() {
-        while (!this.hasReachedEnd() && this.nextInstruction()) {
-        }
+        while (!this.hasReachedEnd())
+            this.nextInstruction();
         return this;
     }
 }

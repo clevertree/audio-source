@@ -1,4 +1,4 @@
-import {CommandInstruction, InstructionList} from "../../song/instruction/";
+import {CommandInstruction} from "../../song/instruction/";
 
 
 export default class TrackInfo {
@@ -13,7 +13,7 @@ export default class TrackInfo {
 
     getComposer()               { return this.composer; }
     getSong()                   { return this.composer.getSong(); }
-    getInstructionList()        { return new InstructionList(this.getSong().instructionGetList(this.trackName))}
+    // getInstructionList()        { return new InstructionList(this.getSong().instructionGetList(this.trackName))}
     getTrackName()              { return this.trackName; }
     getSelectedIndices()        { return this.track.selectedIndices; }
     getCursorOffset()           { return this.track.cursorOffset; }

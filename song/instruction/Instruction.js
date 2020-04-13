@@ -38,6 +38,58 @@ class Instruction {
     set velocity(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
     /** @deprecated **/
     get velocity()          { throw new Error("TODO: Implement for " + this.constructor.name);}
+
+
+
+    /** Static **/
+
+    static processInstructionTracks(trackList) {
+        Object.keys(trackList).forEach((trackName, i) =>
+            this.processInstructionTrack(trackList[trackName]));
+    }
+    static processInstructionTrack(trackInfo) {
+        if(!Array.isArray(trackInfo.instructions))
+            throw new Error("Invalid Track instruction array");
+        for(let i=0; i<trackInfo.instructions.length; i++) {
+            const instruction = this.parseInstruction(trackInfo.instructions[i]);
+            trackInfo.instructions[i] = instruction.data;
+        }
+    }
+
+    static parseInstruction(instructionData, index=null) {
+        if (instructionData instanceof Instruction)
+            return instructionData;
+        if(typeof instructionData === "number")
+            instructionData = [instructionData];
+        if(typeof instructionData === "string")
+            instructionData = [0, instructionData];
+        if(!Array.isArray(instructionData))
+            throw new Error("Invalid instruction data");
+        if(typeof instructionData[0] === "string")
+            instructionData.unshift(0);
+        return this.getInstruction(instructionData, index);
+    }
+
+    static getInstruction(instructionData) {
+        if(!instructionData)
+            throw new Error("Invalid Instruction data");
+        if(this.isTrackInstruction(instructionData))
+            return new (require("./TrackInstruction").default)(instructionData);
+        if(this.isMIDIInstruction(instructionData))
+            return new (require("./MIDIInstruction").default)(instructionData);
+        return new (require("./CommandInstruction").default)(instructionData);
+    }
+
+
+    static isTrackInstruction(instructionData) {
+        return typeof instructionData[1] === "string" && instructionData[1][0] === '@';
+    }
+
+    static isMIDIInstruction(instructionData) {
+        return typeof instructionData[1] === "number";
+    }
+
+
 }
 
 

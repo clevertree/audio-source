@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Song, Storage, InstructionList, InstrumentLoader} from "../song";
+import {Song, Storage, Instruction, InstrumentLoader} from "../song";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 import {TrackInfo} from "./tracker/";
@@ -304,7 +304,7 @@ class ComposerActions extends ComposerMenu {
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        const newInstruction = InstructionList.parseInstruction([0, newCommand]);
+        const newInstruction = Instruction.parseInstruction([0, newCommand]);
         trackState.currentCommand = newInstruction.command;
         if(trackState.currentDuration)
             newInstruction.durationTicks = trackState.currentDuration;

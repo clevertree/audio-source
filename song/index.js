@@ -3,7 +3,7 @@ import Song from "./Song";
 import Storage from "./Storage";
 import Keyboard from "../song/Keyboard"
 import {InstrumentLoader} from "./instrument";
-import {InstructionList} from "./instruction";
+import {Instruction, CommandInstruction, TrackInstruction, InstructionPlayback, InstructionIterator} from "./instruction";
 import {Values, SongValues, MenuValues} from "./values";
 import Library from "./library/Library";
 export {
@@ -11,7 +11,11 @@ export {
     Library,
     InstrumentLoader,
 
-    InstructionList,
+    Instruction,
+    CommandInstruction,
+    TrackInstruction,
+    InstructionPlayback,
+    InstructionIterator,
 
     Storage,
 
