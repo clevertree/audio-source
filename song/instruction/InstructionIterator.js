@@ -1,12 +1,10 @@
 import Instruction from "./Instruction";
 
 class InstructionIterator {
-    constructor(song, trackName) {
-        if(!song.data.tracks[trackName])
-            throw new Error("Invalid instruction track: " + trackName);
-        this.trackInfo = song.data.tracks[trackName];
-        this.bpm = this.trackInfo.bpm || song.data.bpm; // getStartingTimeDivision();
-        this.timeDivision = this.trackInfo.timeDivision || song.data.timeDivision;
+    constructor(instructionList, timeDivision, bpm) {
+        this.instructions = instructionList;
+        this.bpm = bpm;
+        this.timeDivision = timeDivision;
 
         this.currentIndex = -1;
         this.positionTicks = 0;
@@ -17,12 +15,11 @@ class InstructionIterator {
         this.lastInstructionPositionInSeconds = 0;
 
         // this.stats = stats || {};
-        this.instrumentID = 0;
 
     }
 
     hasReachedEnd() {
-        return this.currentIndex >= this.trackInfo.instructions.length - 1;
+        return this.currentIndex >= this.instructions.length - 1;
     }
 
     incrementPositionByInstruction(instruction) {
@@ -42,11 +39,11 @@ class InstructionIterator {
         if (trackPlaybackEndTime > this.endPositionSeconds)
             this.endPositionSeconds = trackPlaybackEndTime;
 
-        // TODO: calculate bpm and timeDivision changes
+        // TODO: calculate bpm changes
     }
 
     getInstruction(index) {
-        const instructionData = this.trackInfo.instructions[index];
+        const instructionData = this.instructions[index];
         return Instruction.getInstruction(instructionData);
     }
 
@@ -54,16 +51,18 @@ class InstructionIterator {
     currentInstruction() {
         if (this.currentIndex === -1)
             throw new Error("Iterator has not been started");
-        return this.getInstruction(this.currentIndex, this.instrumentID);
+        return this.getInstruction(this.currentIndex);
     }
 
-    nextInstruction() {
+    nextInstruction(callback=null) {
         if (this.hasReachedEnd())
             return null;
 
         this.currentIndex++;
         let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.trackIndex]);
         this.incrementPositionByInstruction(currentInstruction); // , currentInstruction.duration);
+        if(callback)
+            callback(currentInstruction);
         return currentInstruction;
     }
 
@@ -79,9 +78,21 @@ class InstructionIterator {
         return this;
     }
 
-    seekToEnd() {
+    seekToEnd(callback=null) {
         while (!this.hasReachedEnd())
-            this.nextInstruction();
+            this.nextInstruction(callback);
+        return this;
+    }
+
+    seekToPosition(positionSeconds, callback=null) {
+        while (this.positionSeconds < positionSeconds)
+            this.nextInstruction(callback);
+        return this;
+    }
+
+    seekToPositionTicks(positionTicks, callback=null) {
+        while (this.positionTicks < positionTicks)
+            this.nextInstruction(callback);
         return this;
     }
 }

@@ -14,7 +14,7 @@ class InstructionPlayback {
         // this.trackName = trackName;
         // this.seekLength = seekLength;
         this.subTracks = [];
-        this.seekLength = 1000;
+        this.seekLength = 10;
         const startingStats = {
             startTime,
             destination,
@@ -87,7 +87,7 @@ class InstructionPlayback {
             const currentPositionSeconds = audioContext.currentTime - stats.startTime;
 
             while(true) {
-                if (iterator.positionSeconds > currentPositionSeconds)
+                if (iterator.positionSeconds > currentPositionSeconds + this.seekLength)
                     break;
 
 

@@ -359,9 +359,15 @@ class Song {
 
 
     instructionGetIterator(trackName) {
+        if(!this.data.tracks[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        const trackInfo = this.data.tracks[trackName];
+        this.instructions = trackInfo.instructions;
+
         return new InstructionIterator(
-            this,
-            trackName,
+            trackInfo.instructions,
+            trackInfo.timeDivision || this.data.timeDivision,
+            trackInfo.bpm || this.data.bpm,
         );
     }
 
