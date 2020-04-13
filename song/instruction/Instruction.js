@@ -47,12 +47,12 @@ class Instruction {
         Object.keys(trackList).forEach((trackName, i) =>
             this.processInstructionTrack(trackList[trackName]));
     }
-    static processInstructionTrack(trackInfo) {
-        if(!Array.isArray(trackInfo.instructions))
+    static processInstructionTrack(instructionList) {
+        if(!Array.isArray(instructionList))
             throw new Error("Invalid Track instruction array");
-        for(let i=0; i<trackInfo.instructions.length; i++) {
-            const instruction = this.parseInstruction(trackInfo.instructions[i]);
-            trackInfo.instructions[i] = instruction.data;
+        for(let i=0; i<instructionList.length; i++) {
+            const instruction = this.parseInstruction(instructionList[i]);
+            instructionList[i] = instruction.data;
         }
     }
 

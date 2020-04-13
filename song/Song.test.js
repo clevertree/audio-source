@@ -69,7 +69,7 @@ class SongTest {
 
 
     const testTrackName = song.getStartTrackName();
-    const rootGroup = song.data.tracks.root.instructions;
+    const rootGroup = song.data.tracks.root;
 
     // Insert Instructions
     const textNotes = {

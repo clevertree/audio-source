@@ -5,4 +5,6 @@ export default class TrackIterator {
             throw new Error("Invalid instruction track: " + startingTrackName);
 
     }
+
+    // Keep track of instructions by destination. Allow routing of effects within a channel
 }

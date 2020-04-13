@@ -49,30 +49,24 @@ class Song {
                 ['OscillatorNodeInstrument',{type: 'square'}],
             ],
             tracks: {
-                root: {
-                    instructions: [
-                        ['@track0', 288],
-                        ['@track1'],
-                    ]
-                },
-                track0: {
-                    instrument: 0,
-                    instructions: [
-                        [0, 'C4', 64],
-                        [64, 'D4', 64],
-                        [64, 'E4', 64],
-                        [64, 'F4', 48, 50],
-                    ]
-                },
-                track1: {
-                    instrument: 1,
-                    instructions: [
-                        [0, 'C4', 64],
-                        [96, 'D4', 64],
-                        [96, 'E4', 64],
-                        [96, 'F4', 48, 50],
-                    ]
-                }
+                root: [
+                    ['@track0', 288],
+                    ['@track1'],
+                ],
+                track0: [
+                    ['!i', 0],
+                    [0, 'C4', 64],
+                    [64, 'D4', 64],
+                    [64, 'E4', 64],
+                    [64, 'F4', 48, 50],
+                ],
+                track1: [
+                    ['!i', 1],
+                    [0, 'C4', 64],
+                    [96, 'D4', 64],
+                    [96, 'E4', 64],
+                    [96, 'F4', 48, 50],
+                ]
             }
         };
 
@@ -331,7 +325,7 @@ class Song {
 
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        let instructionList = this.data.tracks[trackName].instructions;
+        let instructionList = this.data.tracks[trackName];
 
         instruction = ConfigListener.resolveProxiedObject(instruction);
         // instructionList = ConfigListener.resolveProxiedObject(instructionList);
@@ -345,7 +339,7 @@ class Song {
     instructionGetList(trackName) {
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        return this.data.tracks[trackName].instructions;
+        return this.data.tracks[trackName];
     }
 
     instructionGetByIndex(trackName, index) {
@@ -358,16 +352,15 @@ class Song {
     }
 
 
-    instructionGetIterator(trackName) {
+    instructionGetIterator(trackName, timeDivision=null, bpm=null) {
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        const trackInfo = this.data.tracks[trackName];
-        this.instructions = trackInfo.instructions;
+        const instructionList = this.data.tracks[trackName];
 
         return new InstructionIterator(
-            trackInfo.instructions,
-            trackInfo.timeDivision || this.data.timeDivision,
-            trackInfo.bpm || this.data.bpm,
+            instructionList,
+            timeDivision || this.data.timeDivision,
+            bpm || this.data.bpm,
         );
     }
 
@@ -384,7 +377,7 @@ class Song {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
         const insertInstruction = Instruction.parseInstruction(insertInstructionData);
-        let instructionList = this.data.tracks[trackName].instructions;
+        let instructionList = this.data.tracks[trackName];
 
 
         const iterator = this.instructionGetIterator(trackName);
