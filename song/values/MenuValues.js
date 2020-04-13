@@ -141,7 +141,7 @@ export default class MenuValues {
         </>);
     }
 
-
+    /** @deprecated moved to Library **/
     renderMenuSelectAvailableInstrument(onSelectValue, menuTitle=null) {
         return (<>
             {menuTitle ? <><MenuAction disabled onAction={() => {}}>{menuTitle}</MenuAction><MenuBreak/></> : null}

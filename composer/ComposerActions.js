@@ -438,7 +438,7 @@ class ComposerActions extends ComposerMenu {
         if(promptUser)
             newTrackName = await this.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
-            song.groupAdd(newTrackName, []);
+            song.trackAdd(newTrackName, []);
             this.trackerToggleTrack(newTrackName, true);
         } else {
             this.setStatus("<span class='error'>Create instruction group canceled</span>");
@@ -451,7 +451,7 @@ class ComposerActions extends ComposerMenu {
         if(promptUser)
             newTrackName = await this.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
         if (newTrackName !== oldTrackName) {
-            song.groupRename(oldTrackName, newTrackName);
+            song.trackRename(oldTrackName, newTrackName);
             this.trackerToggleTrack(newTrackName, true);
             this.trackerToggleTrack(oldTrackName, false);
         } else {
@@ -464,7 +464,7 @@ class ComposerActions extends ComposerMenu {
 
         const result = promptUser ? await this.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
         if (result) {
-            song.groupRemove(trackName);
+            song.trackRemove(trackName);
             this.trackerToggleTrack(trackName, true);
         } else {
             this.setStatus("<span class='error'>Remove instruction group canceled</span>");

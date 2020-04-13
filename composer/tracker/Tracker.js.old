@@ -95,7 +95,7 @@ class Tracker extends React.Component {
 
         buttons.push(<Button
             key="segment-add"
-            onAction={e => this.groupAdd(e)}
+            onAction={e => this.trackAdd(e)}
         >+</Button>);
 
         // buttons.push(<Button

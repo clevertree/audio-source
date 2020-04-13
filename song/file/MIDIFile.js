@@ -53,12 +53,14 @@
         loadSongFromMIDIData(midiData, defaultInstrumentURL = null) {
 
             const newInstructions = {};
-            newInstructions.root = [];
+            newInstructions.root = {
+                instructions:[]
+            };
 
             const storage = new Storage();
             let songData = storage.generateDefaultSong();
 
-            songData.instructions = newInstructions;
+            songData.tracks = newInstructions;
             songData.timeDivision = midiData.timeDivision;
             const song = new Song(songData);
 

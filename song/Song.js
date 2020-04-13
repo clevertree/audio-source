@@ -36,39 +36,43 @@ class Song {
             // beatsPerMeasure: 4,
             startTrack: 'root',
             instruments: [ // Also called 'plugins'
-                [
-                    'PolyphonyInstrument', {
-                        voices: [
-                            [
-                                'OscillatorNodeInstrument', {
-                                    type: 'sawtooth'
-                                }
-                            ],
-                            ['OscillatorNodeInstrument',{type: 'sawtooth'}],
-                        ]
-                    }
+                ['PolyphonyInstrument', {
+                    voices: [
+                        ['OscillatorNodeInstrument', {
+                            type: 'sawtooth'
+                        }],
+                        ['OscillatorNodeInstrument', {
+                            type: 'sawtooth'
+                        }],
+                    ]}
                 ],
                 ['OscillatorNodeInstrument',{type: 'square'}],
             ],
-            instructions: {
-                'root': [
-                    ['@track0', 0, 288],
-                    ['@track1', 1],
-                ],
-                'track0': [
-                    [0, 'C4', 64],
-                    [64, 'D4', 64],
-                    [64, 'E4', 64],
-                    [64, 'F4', 48, 50],
-                    [64, 9, 34],
-                    [64, 8, 34],
-                ],
-                'track1': [
-                    [0, 'C4', 64],
-                    [96, 'D4', 64],
-                    [96, 'E4', 64],
-                    [96, 'F4', 48, 50],
-                ]
+            tracks: {
+                root: {
+                    instructions: [
+                        ['@track0', 288],
+                        ['@track1'],
+                    ]
+                },
+                track0: {
+                    instrument: 0,
+                    instructions: [
+                        [0, 'C4', 64],
+                        [64, 'D4', 64],
+                        [64, 'E4', 64],
+                        [64, 'F4', 48, 50],
+                    ]
+                },
+                track1: {
+                    instrument: 1,
+                    instructions: [
+                        [0, 'C4', 64],
+                        [96, 'D4', 64],
+                        [96, 'E4', 64],
+                        [96, 'F4', 48, 50],
+                    ]
+                }
             }
         };
 
@@ -131,8 +135,8 @@ class Song {
         this.playbackPosition = 0;
 
         // Process all instructions
-        Object.keys(data.instructions).forEach((trackName, i) =>
-            new InstructionList(data.instructions[trackName]).processInstructions());
+        Object.keys(data.tracks).forEach((trackName, i) =>
+            new InstructionList(data.tracks[trackName].instructions).processInstructions());
 
         // let loadingInstruments = 0;
 
@@ -155,19 +159,19 @@ class Song {
     getStartTrackName() {
         return typeof this.data.startTrack === "undefined"
             ? this.data.startTrack
-            : Object.keys(this.data.instructions)[0];
+            : Object.keys(this.data.tracks)[0];
     }
 
     hasTrack(trackName) {
-        return typeof this.data.instructions[trackName] !== "undefined";
+        return typeof this.data.tracks[trackName] !== "undefined";
     }
 
 
     generateInstructionTrackName(trackName = 'track') {
-        const songData = this.data;
+        const tracks = this.data.tracks;
         for (let i = 0; i <= 999; i++) {
             const currentTrackName = trackName + i;
-            if (!songData.instructions.hasOwnProperty(currentTrackName))
+            if (!tracks.hasOwnProperty(currentTrackName))
                 return currentTrackName;
         }
         throw new Error("Failed to generate group name");
@@ -321,9 +325,10 @@ class Song {
     instructionIndexOf(trackName, instruction) {
         if (instruction instanceof Instruction)
             instruction = instruction.data;
-        if(!this.data.instructions[trackName])
+
+        if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        let instructionList = this.data.instructions[trackName];
+        let instructionList = this.data.tracks[trackName].instructions;
 
         instruction = ConfigListener.resolveProxiedObject(instruction);
         // instructionList = ConfigListener.resolveProxiedObject(instructionList);
@@ -335,13 +340,13 @@ class Song {
     }
 
     instructionGetList(trackName) {
-        if(!this.data.instructions[trackName])
+        if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        return new InstructionList(this.data.instructions[trackName]);
+        return new InstructionList(this.data.tracks[trackName].instructions);
     }
 
     instructionGetByIndex(trackName, index) {
-        if(!this.data.instructions[trackName])
+        if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         let instructionList = this.instructionGetList(trackName);
         return instructionList.getInstruction(index);
@@ -370,7 +375,7 @@ class Song {
         if (!insertInstructionData)
             throw new Error("Invalid insert instruction");
         const insertInstruction = InstructionList.parseInstruction(insertInstructionData);
-        let instructionList = this.data.instructions[trackName];
+        let instructionList = this.data.tracks[trackName].instructions;
 
 
         const iterator = this.instructionGetIterator(trackName);
@@ -484,34 +489,36 @@ class Song {
 
     /** Song Groups **/
 
-    groupAdd(newTrackName, instructionList) {
-        if (this.data.instructions.hasOwnProperty(newTrackName))
+    trackAdd(newTrackName, instructionList) {
+        if (this.data.tracks.hasOwnProperty(newTrackName))
             throw new Error("New group already exists: " + newTrackName);
-        this.data.instructions[newTrackName] = instructionList || [];
+        this.data.tracks[newTrackName] = {
+            instructions: instructionList || []
+        };
     }
 
 
-    groupRemove(removeTrackName) {
+    trackRemove(removeTrackName) {
         if (removeTrackName === 'root')
             throw new Error("Cannot remove root instruction track, n00b");
-        if (!this.data.instructions.hasOwnProperty(removeTrackName))
+        if (!this.data.tracks.hasOwnProperty(removeTrackName))
             throw new Error("Existing group not found: " + removeTrackName);
 
-        delete this.data.instructions[removeTrackName];
+        delete this.data.tracks[removeTrackName];
     }
 
 
-    groupRename(oldTrackName, newTrackName) {
+    trackRename(oldTrackName, newTrackName) {
         if (oldTrackName === 'root')
             throw new Error("Cannot rename root instruction track, n00b");
-        if (!this.data.instructions.hasOwnProperty(oldTrackName))
+        if (!this.data.tracks.hasOwnProperty(oldTrackName))
             throw new Error("Existing group not found: " + oldTrackName);
-        if (this.data.instructions.hasOwnProperty(newTrackName))
+        if (this.data.tracks.hasOwnProperty(newTrackName))
             throw new Error("New group already exists: " + newTrackName);
 
-        const removedGroupData = this.data.instructions[oldTrackName];
-        delete this.data.instructions[oldTrackName];
-        this.data.instructions[newTrackName] = removedGroupData;
+        const removedGroupData = this.data.tracks[oldTrackName];
+        delete this.data.tracks[oldTrackName];
+        this.data.tracks[newTrackName] = removedGroupData;
     }
 
 

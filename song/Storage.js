@@ -61,9 +61,9 @@ class Storage {
     saveSongToFile(songData, prompt = true) {
         // const song = this.data;
         const instructionsKey = "/** INSTRUCTIONS-" + this.generateUUID() + ' **/';
-        let jsonStringInstructions = JSON.stringify(songData.instructions);
+        let jsonStringInstructions = JSON.stringify(songData.tracks);
         let jsonString = JSON.stringify(Object.assign({}, songData, {
-            instructions: instructionsKey
+            tracks: instructionsKey
         }), null, "\t");
         jsonString = jsonString.replace('"' + instructionsKey + '"', jsonStringInstructions);
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonString);

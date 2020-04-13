@@ -69,7 +69,7 @@ class SongTest {
 
 
     const testTrackName = song.getStartTrackName();
-    const rootGroup = song.data.instructions.root;
+    const rootGroup = song.data.tracks.root.instructions;
 
     // Insert Instructions
     const textNotes = {
@@ -126,10 +126,10 @@ class SongTest {
 
     // Groups
     const newRootGroup = song.generateInstructionTrackName('rootGroup');
-    song.groupAdd(newRootGroup, ['A', 'B', 'C', 10, 'D']);
-    song.groupRemove(newRootGroup);
+    song.trackAdd(newRootGroup, ['A', 'B', 'C', 10, 'D']);
+    song.trackRemove(newRootGroup);
 
-    const songLength = song.getSongLengthInSeconds();
+    const songLength = song.getSongLengthInSeconds(); // TODO: how did this work?
     expect(songLength).toBeGreaterThan(0);
     // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
 

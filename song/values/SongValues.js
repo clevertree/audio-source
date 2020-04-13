@@ -25,7 +25,7 @@ class SongValues extends Values{
     getAllSongGroups(callback = (trackName) => trackName) {
         const song = this.song;
         const results = [];
-        const instructionList = song.data.instructions;
+        const instructionList = song.data.tracks;
         Object.keys(instructionList).forEach(function (key, i) {
             const result = callback(key);
             if(!addResult(results, result)) return results;
