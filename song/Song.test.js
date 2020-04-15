@@ -34,7 +34,7 @@ class SongTest {
   async test() {
     console.info("Test Started: ", this.constructor.name, __filename);
     // this.testStorage();
-    const song = await this.testSongClass();
+    const song = this.testSongClass();
     // await this.testValues();
     console.info("Test Complete: ", this.constructor.name, song.data);
   }
@@ -58,7 +58,7 @@ class SongTest {
   //
   // }
 
-  async testSongClass() {
+  testSongClass() {
     const song = new Song(this.audioContext, {
       instruments: [
           ['TestInstrument']
@@ -97,13 +97,15 @@ class SongTest {
     for(let i=0; i<textNotes.insert.length; i++) {
       const [pos, insertNote] = textNotes.insert[i];
       const index = song.instructionInsertAtIndex(testTrackName, rootGroup.length, insertNote);
-      const stats = song.instructionGetIterator(testTrackName).seekToIndex(index);
+      const stats = song.instructionGetIterator(testTrackName);
+      stats.seekToIndex(index);
       expect(stats.positionTicks).toBe(pos);
     }
     for(let i=0; i<textNotes.position.length; i++) {
       const [pos, insertNote] = textNotes.position[i];
       const index = song.instructionInsertAtPosition(testTrackName, pos, insertNote);
-      const stats = song.instructionGetIterator(testTrackName).seekToIndex(index);
+      const stats = song.instructionGetIterator(testTrackName);
+      stats.seekToIndex(index);
       expect(stats.positionTicks).toBe(pos);
     }
 
@@ -129,7 +131,7 @@ class SongTest {
     song.trackAdd(newRootGroup, ['A', 'B', 'C', 10, 'D']);
     song.trackRemove(newRootGroup);
 
-    const songLength = song.getSongLengthInSeconds(); // TODO: how did this work?
+    const songLength = song.getSongLengthInSeconds();
     expect(songLength).toBeGreaterThan(0);
     // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
 
@@ -148,8 +150,8 @@ class SongTest {
     // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
 
     song.setPlaybackPosition(0);
-    const playback = song.play(this.destination);
-    await playback.awaitPlaybackReachedEnd();
+    // const playback = song.play(this.destination);
+    // await playback.awaitPlaybackReachedEnd();
 
     // Delete Instructions
     while(rootGroup.length > 5)

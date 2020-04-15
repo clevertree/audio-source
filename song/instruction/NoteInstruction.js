@@ -1,6 +1,6 @@
 import Instruction from "./Instruction";
 
-class CommandInstruction extends Instruction {
+class NoteInstruction extends Instruction {
 
 
     get durationTicks() {
@@ -27,8 +27,8 @@ class CommandInstruction extends Instruction {
 
 
     clone() {
-        return new CommandInstruction(this.data.slice());
+        return new NoteInstruction(this.data.slice());
     }
 }
 
-export default CommandInstruction;
+export default NoteInstruction;

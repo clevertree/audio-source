@@ -1,9 +1,7 @@
 import {SongValues} from "../values";
 
 class Instruction {
-    constructor(instructionData = [0], index=null) {
-        /** @deprecated **/
-        this.index = index;
+    constructor(instructionData = [0]) {
         this.data = instructionData;
     }
 
@@ -77,7 +75,7 @@ class Instruction {
             return new (require("./TrackInstruction").default)(instructionData);
         if(this.isMIDIInstruction(instructionData))
             return new (require("./MIDIInstruction").default)(instructionData);
-        return new (require("./CommandInstruction").default)(instructionData);
+        return new (require("./NoteInstruction").default)(instructionData);
     }
 
 

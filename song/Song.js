@@ -12,6 +12,7 @@ import {Instruction, InstructionIterator, InstructionPlayback} from "./instructi
 import InstrumentList from "../instruments";
 import TrackInstruction from "./instruction/TrackInstruction";
 import Values from "./values/Values";
+import TrackIterator from "./track/TrackIterator";
 
 // TODO: can be handled cleaner
 InstrumentList.addAllInstruments();
@@ -35,7 +36,7 @@ class Song {
             bpm: 120,
             // beatsPerMeasure: 4,
             startTrack: 'root',
-            instruments: [ // Also called 'plugins'
+            instruments: [ // Also called 'programs' or 'patches'
                 ['PolyphonyInstrument', {
                     voices: [
                         ['OscillatorNodeInstrument', {
@@ -54,14 +55,15 @@ class Song {
                     ['@track1'],
                 ],
                 track0: [
-                    ['!i', 0],
+                    // ['!d', 'Effect'],
+                    ['!d', 0],
                     [0, 'C4', 64],
                     [64, 'D4', 64],
                     [64, 'E4', 64],
                     [64, 'F4', 48, 50],
                 ],
                 track1: [
-                    ['!i', 1],
+                    ['!d', 1],
                     [0, 'C4', 64],
                     [96, 'D4', 64],
                     [96, 'E4', 64],
@@ -489,7 +491,7 @@ class Song {
     }
 
 
-    /** Song Groups **/
+    /** Song Tracks **/
 
     trackAdd(newTrackName, instructionList) {
         if (this.data.tracks.hasOwnProperty(newTrackName))
@@ -524,19 +526,23 @@ class Song {
     }
 
 
+    trackGetIterator(destination) {
+        return new TrackIterator(destination, this, this.getStartTrackName());
+    }
+
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        return this.instructionGetIterator(this.getStartTrackName())
-            .seekToEnd()
-            .endPositionSeconds;
+        const iterator = this.trackGetIterator(this.getStartTrackName());
+        iterator.seekToEnd();
+        return iterator.getEndPositionInSeconds();
     }
 
-    getSongLengthTicks() {
-        return this.instructionGetIterator(this.getStartTrackName())
-            .seekToEnd()
-            .endPositionTicks;
-    }
+    // getSongLengthTicks() {
+    //     return this.instructionGetIterator(this.getStartTrackName())
+    //         .seekToEnd()
+    //         .endPositionTicks;
+    // }
 
     // getSongLength() {
     //     return this.getGroupLength(this.getStartTrackName());

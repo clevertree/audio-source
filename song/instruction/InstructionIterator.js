@@ -75,25 +75,23 @@ class InstructionIterator {
             if (!this.nextInstruction())
                 break;
         }
-        return this;
     }
 
     seekToEnd(callback=null) {
         while (!this.hasReachedEnd())
             this.nextInstruction(callback);
-        return this;
     }
 
     seekToPosition(positionSeconds, callback=null) {
-        while (this.positionSeconds < positionSeconds)
+        while (!this.hasReachedEnd() && this.positionSeconds < positionSeconds) {
             this.nextInstruction(callback);
-        return this;
+        }
     }
 
     seekToPositionTicks(positionTicks, callback=null) {
-        while (this.positionTicks < positionTicks)
+        while (!this.hasReachedEnd() && this.positionTicks < positionTicks) {
             this.nextInstruction(callback);
-        return this;
+        }
     }
 }
 

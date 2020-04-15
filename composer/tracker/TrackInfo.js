@@ -1,4 +1,4 @@
-import {CommandInstruction} from "../../song/instruction/";
+import {NoteInstruction} from "../../song/instruction/";
 
 
 export default class TrackInfo {
@@ -110,7 +110,7 @@ export default class TrackInfo {
         if(selectedIndices.length > 0) {
             const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
             this.track.currentCommand = firstSelectedInstruction.command;
-            if(firstSelectedInstruction instanceof CommandInstruction) {
+            if(firstSelectedInstruction instanceof NoteInstruction) {
                 if(typeof firstSelectedInstruction.durationTicks !== "undefined")
                     this.track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
                 if(typeof firstSelectedInstruction.velocity !== "undefined")

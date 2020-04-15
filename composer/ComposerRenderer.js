@@ -32,7 +32,7 @@ class ComposerRenderer extends React.Component {
 
             // Song Information
             songUUID: null,
-            songLengthTicks: 0,
+            // songLengthTicks: 0,
             songLengthSeconds: 0,
 
             // Trackers
@@ -390,7 +390,7 @@ class ComposerRenderer extends React.Component {
             status: "Loaded song: " + song.data.title,
             title: song.data.title,
             songUUID: song.data.uuid,
-            songLengthTicks: song.getSongLengthTicks(),
+            // songLengthTicks: song.getSongLengthTicks(),
             songLengthSeconds: song.getSongLengthInSeconds(),
             selectedTrack: song.getStartTrackName() || 'root',
             // trackerRowOffset: 0,
