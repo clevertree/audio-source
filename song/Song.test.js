@@ -35,6 +35,7 @@ class SongTest {
     console.info("Test Started: ", this.constructor.name, __filename);
     // this.testStorage();
     const song = this.testSongClass();
+    await this.testSongPlayback(song);
     // await this.testValues();
     console.info("Test Complete: ", this.constructor.name, song.data);
   }
@@ -161,5 +162,10 @@ class SongTest {
     // console.assert(r.getSongPositionFromTicks() === 0, "getSongPositionInSeconds");
     // console.assert(r.getSongPositionInTicks() === 0, "getSongPositionInTicks");
     return song;
+  }
+
+  async testSongPlayback(song) {
+    const playback = song.play(this.destination);
+    await playback.awaitPlaybackReachedEnd();
   }
 }

@@ -526,8 +526,8 @@ class Song {
     }
 
 
-    trackGetIterator(destination) {
-        return new TrackIterator(destination, this, this.getStartTrackName());
+    trackGetIterator(destination, onEvent=null) {
+        return new TrackIterator(destination, this, this.getStartTrackName(), onEvent);
     }
 
     /** Playback Timing **/

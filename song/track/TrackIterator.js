@@ -1,11 +1,12 @@
 import TrackInstruction from "../instruction/TrackInstruction";
 
 export default class TrackIterator {
-    constructor(destination, song, startingTrackName = null) {
+    constructor(destination, song, startingTrackName = null, onEvent=null) {
         startingTrackName = startingTrackName || song.getStartTrackName();
         if (!song.data.tracks[startingTrackName])
             throw new Error("Invalid instruction track: " + startingTrackName);
 
+        this.onEvent = onEvent;
         this.song = song;
         this.positionSeconds = 0;
         // this.seekLength = 10;
@@ -15,7 +16,7 @@ export default class TrackIterator {
 
 
         const startingStats = {
-            startTime: 0,
+            startPosition: 0,
             destination,
             trackName: startingTrackName,
             bpm: song.data.bpm,
@@ -24,11 +25,12 @@ export default class TrackIterator {
         this.startTrackIteration(startingStats);
     }
 
+
     getPositionInSeconds() {
         let totalPositionSeconds = 0;
         for(let i=0; i<this.activeTracks.length; i++) {
-            const {iterator, startTime} = this.activeTracks[i];
-            const positionSeconds = startTime + iterator.positionSeconds;
+            const {iterator, startPosition} = this.activeTracks[i];
+            const positionSeconds = startPosition + iterator.positionSeconds;
             if (positionSeconds > totalPositionSeconds)
                 totalPositionSeconds = positionSeconds;
         }
@@ -39,8 +41,8 @@ export default class TrackIterator {
     getEndPositionInSeconds() {
         let totalEndPositionSeconds = 0;
         for(let i=0; i<this.activeTracks.length; i++) {
-            const {iterator, startTime} = this.activeTracks[i];
-            const endPositionSeconds = startTime + iterator.endPositionSeconds;
+            const {iterator, startPosition} = this.activeTracks[i];
+            const endPositionSeconds = startPosition + iterator.endPositionSeconds;
             if (endPositionSeconds > totalEndPositionSeconds)
                 totalEndPositionSeconds = endPositionSeconds;
         }
@@ -70,10 +72,11 @@ export default class TrackIterator {
      * @param callback
      */
     processTrackInstruction(instruction, trackStats, callback=null) {
+        // if (instruction.getTrackName() === iterator.trackName) { // TODO track stack
 
         const subTrackStats = {
             // parentStats: trackStats,
-            startTime: trackStats.iterator.positionSeconds,
+            startPosition: trackStats.iterator.positionSeconds,
             destination: trackStats.destination,
             trackName: instruction.getTrackName(),
             bpm: trackStats.bpm,
@@ -94,20 +97,19 @@ export default class TrackIterator {
         trackStats.iterator = this.song.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.bpm);
         this.activeTracks.push(trackStats);
 
-        // this.song.dispatchEvent(new CustomEvent('track:start', {
-        //     detail: {
-        //         playback: this,
-        //         stats,
-        //         iterator
-        //     }
-        // }));
+
+        this.onEvent && this.onEvent({
+            type: 'track:start',
+            trackIterator: this,
+            trackStats
+        });
     }
 
     seekToEnd(callback=null, seekLength=1) {
         let seekPosition=0, finished = false;
         while(!finished) {
+            seekPosition += seekLength; // Seek before
             finished = this.seekToPosition(seekPosition, callback);
-            seekPosition += seekLength;
         }
         // return this;
     }
