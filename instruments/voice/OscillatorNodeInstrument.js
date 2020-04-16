@@ -7,6 +7,12 @@ class OscillatorNodeInstrument {
         this.config = config;
     }
 
+    /** Effect **/
+
+    getDestination(oldDestination) {
+        return null; // Null is no effect processing
+    }
+
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {

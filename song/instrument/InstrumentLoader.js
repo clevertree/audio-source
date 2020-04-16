@@ -2,14 +2,14 @@ import React from "react";
 import {MenuAction, MenuBreak} from "../../components/menu";
 
 class InstrumentLoader {
-    constructor(song, audioContext) {
+    constructor(song) {
         this.song = song;
-        this.audioContext = audioContext;
+        // this.audioContext = audioContext;
         // this.destinations = new WeakMap();
     }
 
     loadInstanceFromDestination(instrumentID, destination) {
-        return this.instrumentLoadInstance(instrumentID);
+        return this.loadInstanceFromID(instrumentID);
         // let instruments = this.destinations.get(destination);
         // if(!instruments) {
         //     instruments = {};
@@ -21,37 +21,35 @@ class InstrumentLoader {
         // return instruments[instrumentID];
     }
 
-    instrumentGetData(instrumentID) {
+    getData(instrumentID) {
         if (!this.song.data.instruments[instrumentID])
             throw new Error("Invalid instrument ID: " + instrumentID);
         return this.song.data.instruments[instrumentID];
     }
 
 
-    instrumentGetClassName(instrumentID) {
-        const [className] = this.instrumentGetData(instrumentID);
+    getClassName(instrumentID) {
+        const [className] = this.getData(instrumentID);
         return className;
     }
-    instrumentGetConfig(instrumentID) {
-        const [, config] = this.instrumentGetData(instrumentID);
+    getConfig(instrumentID) {
+        const [, config] = this.getData(instrumentID);
         return config;
     }
-    instrumentGetClass(instrumentID) {
-        const className = this.instrumentGetClassName(instrumentID);
+    getClass(instrumentID) {
+        const className = this.getClassName(instrumentID);
         const {classInstrument} = InstrumentLoader.getInstrumentClassInfo(className);
         return classInstrument;
     }
 
-    instrumentLoadInstance(instrumentID) {
-        const [className, config] = this.instrumentGetData(instrumentID);
-        const {classInstrument} = InstrumentLoader.getInstrumentClassInfo(className);
-        return new classInstrument(config, this.audioContext);
-        // console.info("Instrument loaded: ", instrument, instrumentID);
-        // return instrument;
+    loadInstanceFromID(instrumentID) {
+        const [className, config] = this.getData(instrumentID);
+        return InstrumentLoader.loadInstance(className, config);
     }
 
+
     instrumentLoadRenderer(instrumentID) {
-        const [className, config] = this.instrumentGetData(instrumentID);
+        const [className, config] = this.getData(instrumentID);
         const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClassInfo(className);
         return <Renderer
             instrumentID={instrumentID}
@@ -80,6 +78,11 @@ class InstrumentLoader {
 
 
     /** Static **/
+
+    static loadInstance(className, config={}) {
+        const {classInstrument} = this.getInstrumentClassInfo(className);
+        return new classInstrument(config);
+    }
 
     static getInstrumentClassInfo(className) {
         const classes = InstrumentLoader.registeredInstrumentClasses;

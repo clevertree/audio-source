@@ -23,7 +23,7 @@ class Song {
         this.audioContext = audioContext; //  || new (window.AudioContext || window.webkitAudioContext)();
 
         this.eventListeners = [];
-        this.instrumentLoader = new InstrumentLoader(this, audioContext);
+        this.instrumentLoader = new InstrumentLoader(this);
 
         this.playback = null;
 
@@ -56,14 +56,14 @@ class Song {
                 ],
                 track0: [
                     // ['!d', 'Effect'],
-                    ['!d', 0],
+                    ['!i', 0],
                     [0, 'C4', 64],
                     [64, 'D4', 64],
                     [64, 'E4', 64],
                     [64, 'F4', 48, 50],
                 ],
                 track1: [
-                    ['!d', 1],
+                    ['!i', 1],
                     [0, 'C4', 64],
                     [96, 'D4', 64],
                     [96, 'E4', 64],
@@ -184,7 +184,7 @@ class Song {
     }
 
     stopInstrumentPlayback(destination, instrumentID) {
-        let instrument = this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
+        let instrument = this.instrumentLoader.loadInstanceFromID(instrumentID);
         if(typeof instrument.stopPlayback !== "function")
             return console.error(instrument.name + ".stopPlayback is not a function");
         instrument.stopPlayback(destination);
@@ -202,17 +202,17 @@ class Song {
         //     instrumentID = 0;
         //     // return;
         // }
-        let instrument = this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
+        let instrument = this.instrumentLoader.loadInstanceFromID(instrumentID);
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = this.values.parseFrequencyString(noteFrequency);
         return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
-    instrumentGetData(instrumentID) { return this.instrumentLoader.instrumentGetData(instrumentID); }
-    instrumentGetClassName(instrumentID) { return this.instrumentLoader.instrumentGetClassName(instrumentID); }
-    instrumentGetClass(instrumentID) { return this.instrumentLoader.instrumentGetClass(instrumentID); }
-    instrumentGetConfig(instrumentID) { return this.instrumentLoader.instrumentGetConfig(instrumentID); }
+    instrumentGetData(instrumentID)         { return this.instrumentLoader.getData(instrumentID); }
+    instrumentGetClassName(instrumentID)    { return this.instrumentLoader.getClassName(instrumentID); }
+    instrumentGetClass(instrumentID)        { return this.instrumentLoader.getClass(instrumentID); }
+    instrumentGetConfig(instrumentID)       { return this.instrumentLoader.getConfig(instrumentID); }
 
 
     // instrumentGetList() {
@@ -230,14 +230,15 @@ class Song {
         const instrumentList = this.data.instruments;
         for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
             if (instrumentList[instrumentID]) {
-                this.instrumentLoad(instrumentID, destination);
+                this.instrumentLoadInstanceFromID(instrumentID, destination);
+                // TODO wait for init?
             }
         }
     }
 
 
-    instrumentLoad(instrumentID, destination) {
-        return this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
+    instrumentLoadInstanceFromID(instrumentID) {
+        return this.instrumentLoader.loadInstanceFromID(instrumentID);
         // this.dispatchEvent({
         //     type: 'instruments:instance',
         //     instrument,
@@ -261,7 +262,7 @@ class Song {
         const instrumentID = instrumentList.length;
 
         this.data.instruments[instrumentID] = config;
-        this.instrumentLoad(instrumentID, this.audioContext.destination);
+        this.instrumentLoadInstanceFromID(instrumentID, this.audioContext.destination);
         // this.dispatchEvent({
         //     type: 'instruments:added',
         //     instrumentID,
@@ -278,7 +279,7 @@ class Song {
 
         const oldConfig = this.data.instruments[instrumentID];
         this.data.instruments[instrumentID] = [instrumentClassName, instrumentConfig];
-        this.instrumentLoad(instrumentID, this.audioContext.destination);
+        this.instrumentLoadInstanceFromID(instrumentID, this.audioContext.destination);
 
         // this.dispatchEvent({
         //     type: 'instruments:modified',

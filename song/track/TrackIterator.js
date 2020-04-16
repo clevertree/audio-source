@@ -21,7 +21,7 @@ export default class TrackIterator {
             destination,
             trackName: startingTrackName,
             bpm: song.data.bpm,
-            timeDivision: song.data.timeDivision,
+            // timeDivision: song.data.timeDivision, // Time division is not passed to sub-groups
         };
         this.startTrackIteration(startingStats);
     }
@@ -81,7 +81,7 @@ export default class TrackIterator {
             destination: trackStats.destination,
             trackName: instruction.getTrackName(),
             bpm: trackStats.bpm,
-            timeDivision: trackStats.timeDivision,
+            // timeDivision: trackStats.timeDivision, // Time division is not passed to sub-groups
         };
         // TODO: process track instruction parameters
         this.startTrackIteration(subTrackStats);
@@ -94,7 +94,25 @@ export default class TrackIterator {
      * @param callback
      */
     processCommandInstruction(instruction, trackStats, callback=null) {
-        console.log("TODO Set instrument", instruction.data);
+        const command = instruction.getCommandName().toLowerCase();
+        switch(command) {
+            case 'instrument':   // Set Instrument
+            case 'i':
+                const [instrument] = command.getParams();
+                if(!instrument)
+                    throw new Error("Invalid instrument");
+                trackStats.instrument = instrument;
+                break;
+
+            case 'destination':     // Change destination (does not handle note processing)
+            case 'd':
+                const destinationProgram = instruction.loadDestinationFromParams(this.song);
+                if(destinationProgram) {
+
+                }
+                // this.song.instrumentLoadInstance()
+                break;
+        }
     }
 
     processInstruction(instruction, trackStats, callback=null) {
