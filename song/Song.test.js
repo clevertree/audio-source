@@ -30,12 +30,13 @@ class SongTest {
     }
   }
 
-  async test() {
+  test() {
     console.info("Test Started: ", this.constructor.name, __filename);
     // this.testStorage();
     this.testValues();
     const song = this.testSongClass();
-    await this.testSongPlayback(song);
+    this.testSongPlayback(song);
+
     // await this.testValues();
     console.info("Test Complete: ", this.constructor.name, song.data);
   }
@@ -199,9 +200,9 @@ class SongTest {
     return song;
   }
 
-  async testSongPlayback(song) {
-    const playback = song.play(this.destination);
-    await playback.awaitPlaybackReachedEnd();
+  testSongPlayback(song) {
+    song.play(this.destination);
+    // playback.awaitPlaybackReachedEnd();
   }
 }
 

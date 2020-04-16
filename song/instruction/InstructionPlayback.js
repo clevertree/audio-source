@@ -14,7 +14,7 @@ class InstructionPlayback {
         this.audioContext = destination.context;
         this.song = song;
         this.seekLength = 10;
-        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength);
+        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
@@ -30,7 +30,7 @@ class InstructionPlayback {
     renderPlayback() {
         const currentPositionSeconds = this.audioContext.currentTime - this.startTime;
 
-        this.trackIterator.seekToPosition(currentPositionSeconds, this.playTrackInstruction.bind(this));
+        this.trackIterator.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstruction.bind(this));
         if(this.trackIterator.hasReachedEnd()) {
             clearInterval(this.seekInterval);
             const endPositionSeconds = this.trackIterator.getEndPositionInSeconds();

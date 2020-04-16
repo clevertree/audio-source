@@ -90,6 +90,7 @@ export default class TrackIterator {
         if(instruction instanceof TrackInstruction)
             this.processTrackInstruction(instruction, trackStats, callback);
         callback && callback(instruction, trackStats);
+        // console.log("Note Playback: ", instruction, callback);
     }
 
 
@@ -103,6 +104,7 @@ export default class TrackIterator {
             trackIterator: this,
             trackStats
         });
+        // console.log("Track Playback: ", trackStats.trackName);
     }
 
     seekToEnd(callback=null, seekLength=1) {
@@ -119,14 +121,13 @@ export default class TrackIterator {
         for(let i=0; i<this.activeTracks.length; i++) {
             const trackStats = this.activeTracks[i];
             const iterator = trackStats.iterator;
-            if(iterator.hasReachedEnd())
-                continue;
-
-            iterator.seekToPosition(positionSeconds, (instruction) => {
-                this.processInstruction(instruction, trackStats, callback);
-            });
-            if(!iterator.hasReachedEnd())
-                finished = false;
+            if(!iterator.hasReachedEnd()) {
+                iterator.seekToPosition(positionSeconds, (instruction) => {
+                    this.processInstruction(instruction, trackStats, callback);
+                });
+                if (!iterator.hasReachedEnd())
+                    finished = false;
+            }
         }
         return finished;
     }
