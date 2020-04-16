@@ -38,7 +38,7 @@ class SongTest {
     this.testSongPlayback(song);
 
     // await this.testValues();
-    console.info("Test Complete: ", this.constructor.name, song.data);
+    console.info("Test Complete: ", this.constructor.name, song.data.tracks, song.data.instruments);
   }
 
 
@@ -92,7 +92,10 @@ class SongTest {
 
     const testTrackName = 'testTrack';
     song.trackAdd(testTrackName);
+    const testTrack = song.data.tracks[testTrackName];
+
     song.instructionInsertAtIndex(song.getStartTrackName(), 0, '@' + testTrackName);
+    song.instructionInsertAtIndex(testTrackName, 0, [0, '!d', 0]);
 
     // const rootGroup = song.data.tracks.root;
     const TD = song.data.timeDivision;
@@ -122,7 +125,7 @@ class SongTest {
     };
     for(let i=0; i<textNotes.insert.length; i++) {
       const [expPos, delta, insertNote] = textNotes.insert[i];
-      const index = song.instructionInsertAtIndex(testTrackName, i, [delta, insertNote]);
+      const index = song.instructionInsertAtIndex(testTrackName, testTrack.length, [delta, insertNote]);
       const iterator = song.instructionGetIterator(testTrackName);
       iterator.seekToIndex(index);
       test(`Insert ${insertNote} with delta=${delta}`, () => {

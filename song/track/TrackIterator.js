@@ -1,4 +1,5 @@
 import TrackInstruction from "../instruction/TrackInstruction";
+import CommandInstruction from "../instruction/CommandInstruction";
 
 export default class TrackIterator {
     constructor(destination, song, startingTrackName = null, onEvent=null) {
@@ -86,8 +87,20 @@ export default class TrackIterator {
         this.startTrackIteration(subTrackStats);
     }
 
+    /**
+     *
+     * @param {CommandInstruction} instruction
+     * @param trackStats
+     * @param callback
+     */
+    processCommandInstruction(instruction, trackStats, callback=null) {
+        console.log("TODO Set instrument", instruction.data);
+    }
+
     processInstruction(instruction, trackStats, callback=null) {
-        if(instruction instanceof TrackInstruction)
+        if(instruction instanceof CommandInstruction)
+            this.processCommandInstruction(instruction, trackStats, callback);
+        else if(instruction instanceof TrackInstruction)
             this.processTrackInstruction(instruction, trackStats, callback);
         callback && callback(instruction, trackStats);
         // console.log("Note Playback: ", instruction, callback);

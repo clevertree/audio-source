@@ -49,10 +49,11 @@ class InstructionPlayback {
     }
 
     playTrackInstruction(instruction, trackStats) {
+        if(typeof trackStats.instrument === "undefined")
+            return console.error("Track has no instrument set: ", trackStats);
         if(instruction instanceof NoteInstruction) {
             const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // Track start time equals current track's start + playback times
-            // TODO: get instruction ID
-            this.song.playInstruction(trackStats.destination, instruction, 0, noteStartTime, trackStats.trackName);
+            this.song.playInstruction(trackStats.destination, instruction, trackStats.instrument, noteStartTime, trackStats.trackName);
         }
     }
 
