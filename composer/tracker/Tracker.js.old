@@ -121,7 +121,7 @@ class Tracker extends React.Component {
         // Instruction Iterator
         let instructionIterator = composer.song.instructionGetIterator(this.props.trackName);
 
-        const trackerFilterByInstrumentID = composer.state.trackerFilterByInstrumentID;
+        const trackerFilterByProgramID = composer.state.trackerFilterByProgramID;
 
         const selectedIndices = this.props.selectedIndices || [];
         const cursorIndex = this.props.cursorIndex || 0;
@@ -161,7 +161,7 @@ class Tracker extends React.Component {
                 addRow(endPositionTicks);
             }
 
-            if(trackerFilterByInstrumentID !== null && trackerFilterByInstrumentID !== nextInstruction.instrument)
+            if(trackerFilterByProgramID !== null && trackerFilterByProgramID !== nextInstruction.program)
                 continue;
 
             // Render instruction
@@ -916,12 +916,12 @@ class Tracker extends React.Component {
     //     return this.editor.song.instructionReplaceParams(this.gettrackName(), replaceIndex, replaceParams);
     // }
 
-    // replaceFrequencyAlias(noteFrequency, instrumentID) {
+    // replaceFrequencyAlias(noteFrequency, programID) {
     //     const composer = this.props.composer;
-    //     const instrument = composer.song.getInstrument(instrumentID, false);
-    //     if (!instrument || !instrument.getFrequencyAliases)
+    //     const program = composer.song.getProgram(programID, false);
+    //     if (!program || !program.getFrequencyAliases)
     //         return noteFrequency;
-    //     const aliases = instrument.getFrequencyAliases(noteFrequency);
+    //     const aliases = program.getFrequencyAliases(noteFrequency);
     //     if (typeof aliases[noteFrequency] === "undefined")
     //         return noteFrequency;
     //     return aliases[noteFrequency];

@@ -1,4 +1,4 @@
-import InstrumentLoader from "./instrument/InstrumentLoader";
+import ProgramLoader from "./program/ProgramLoader";
 import {SongValues} from "./values/";
 
 import Storage from "./Storage";
@@ -9,21 +9,21 @@ import {ConfigListener} from "./config/ConfigListener";
 import {Instruction, InstructionIterator, InstructionPlayback} from "./instruction/";
 
 
-import InstrumentList from "../instruments";
+import ProgramList from "../programs";
 import TrackInstruction from "./instruction/TrackInstruction";
 import Values from "./values/Values";
 import TrackIterator from "./track/TrackIterator";
 
 // TODO: can be handled cleaner
-InstrumentList.addAllInstruments();
-// const DEFAULT_INSTRUMENT_CLASS = 'PolyphonyInstrument';
+ProgramList.addAllPrograms();
+// const DEFAULT_PROGRAM_CLASS = 'PolyphonyProgram';
 
 class Song {
     constructor(audioContext=null, songData={}) {
         this.audioContext = audioContext; //  || new (window.AudioContext || window.webkitAudioContext)();
 
         this.eventListeners = [];
-        this.instrumentLoader = new InstrumentLoader(this);
+        this.programLoader = new ProgramLoader(this);
 
         this.playback = null;
 
@@ -36,7 +36,7 @@ class Song {
             bpm: 120,
             // beatsPerMeasure: 4,
             startTrack: 'root',
-            instruments: [ // Also called 'programs' or 'patches'
+            programs: [ // Also called 'programs' or 'patches'
                 ['PolyphonyInstrument', {
                     voices: [
                         ['OscillatorNodeInstrument', {
@@ -56,14 +56,14 @@ class Song {
                 ],
                 track0: [
                     // ['!d', 'Effect'],
-                    ['!i', 0],
+                    ['!p', 0],
                     [0, 'C4', 64],
                     [64, 'D4', 64],
                     [64, 'E4', 64],
                     [64, 'F4', 48, 50],
                 ],
                 track1: [
-                    ['!i', 1],
+                    ['!p', 1],
                     [0, 'C4', 64],
                     [96, 'D4', 64],
                     [96, 'E4', 64],
@@ -78,7 +78,7 @@ class Song {
         this.values = new SongValues(this);
 
         this.loadSongData(songData);
-        this.instrumentLoadAll(audioContext.destination);
+        this.programLoadAll(audioContext.destination);
     }
 
     /** @deprecated? **/
@@ -112,7 +112,7 @@ class Song {
     }
 
     unloadAll() {
-        this.instrumentLoader.unloadAllInstruments();
+        this.programLoader.unloadAllPrograms();
         this.eventListeners = [];
     }
 
@@ -135,7 +135,7 @@ class Song {
             throw new Error("No tracks found in song data");
         Instruction.processInstructionTracks(data.tracks);
 
-        // let loadingInstruments = 0;
+        // let loadingPrograms = 0;
 
         // console.log("Song data loaded: ", songData);
 
@@ -176,142 +176,142 @@ class Song {
 
 
 
-    /** Instruments **/
-    // All instruments are sent a 0 frequency play in order to pre-load samples.
+    /** Programs **/
+    // All programs are sent a 0 frequency play in order to pre-load samples.
 
-    hasInstrument(instrumentID) {
-        return !!this.data.instruments[instrumentID];
+    hasProgram(programID) {
+        return !!this.data.programs[programID];
     }
 
-    stopInstrumentPlayback(destination, instrumentID) {
-        let instrument = this.instrumentLoader.loadInstanceFromID(instrumentID);
-        if(typeof instrument.stopPlayback !== "function")
-            return console.error(instrument.name + ".stopPlayback is not a function");
-        instrument.stopPlayback(destination);
-        // let instrumentClass = this.instrumentLoader.instrumentGetClass(instrumentID);
-        // if(typeof instrumentClass.stopPlayback !== "function")
-        //     return console.error(instrumentClass.name + ".stopPlayback is not a function");
-        // instrumentClass.stopPlayback();
+    stopProgramPlayback(destination, programID) {
+        let program = this.programLoader.loadInstanceFromID(programID);
+        if(typeof program.stopPlayback !== "function")
+            return console.error(program.name + ".stopPlayback is not a function");
+        program.stopPlayback(destination);
+        // let programClass = this.programLoader.programGetClass(programID);
+        // if(typeof programClass.stopPlayback !== "function")
+        //     return console.error(programClass.name + ".stopPlayback is not a function");
+        // programClass.stopPlayback();
     }
 
-    playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
-        if (!instrumentID && instrumentID !== 0)
-            throw new Error("Invalid instrument ID");
-        // if (!instrumentID && instrumentID !== 0) {
-        //     console.warn("No instruments set for instruction. Using instruments 0");
-        //     instrumentID = 0;
+    playProgram(destination, programID, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
+        if (!programID && programID !== 0)
+            throw new Error("Invalid program ID");
+        // if (!programID && programID !== 0) {
+        //     console.warn("No programs set for instruction. Using programs 0");
+        //     programID = 0;
         //     // return;
         // }
-        let instrument = this.instrumentLoader.loadInstanceFromID(instrumentID);
-        // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
+        let program = this.programLoader.loadInstanceFromID(programID);
+        // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = this.values.parseFrequencyString(noteFrequency);
-        return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
+        return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
-    instrumentGetData(instrumentID)         { return this.instrumentLoader.getData(instrumentID); }
-    instrumentGetClassName(instrumentID)    { return this.instrumentLoader.getClassName(instrumentID); }
-    instrumentGetClass(instrumentID)        { return this.instrumentLoader.getClass(instrumentID); }
-    instrumentGetConfig(instrumentID)       { return this.instrumentLoader.getConfig(instrumentID); }
+    programGetData(programID)         { return this.programLoader.getData(programID); }
+    programGetClassName(programID)    { return this.programLoader.getClassName(programID); }
+    programGetClass(programID)        { return this.programLoader.getClass(programID); }
+    programGetConfig(programID)       { return this.programLoader.getConfig(programID); }
 
 
-    // instrumentGetList() {
-    //     return this.data.instruments;
+    // programGetList() {
+    //     return this.data.programs;
     // }
-    instrumentEach(callback) {
-        return this.data.instruments.map(function(entry, instrumentID) {
+    programEach(callback) {
+        return this.data.programs.map(function(entry, programID) {
             const [className, config] = entry;
-            return callback(instrumentID, className, config);
+            return callback(programID, className, config);
         });
     }
 
 
-    instrumentLoadAll(destination) {
-        const instrumentList = this.data.instruments;
-        for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-            if (instrumentList[instrumentID]) {
-                this.instrumentLoadInstanceFromID(instrumentID, destination);
+    programLoadAll(destination) {
+        const programList = this.data.programs;
+        for (let programID = 0; programID < programList.length; programID++) {
+            if (programList[programID]) {
+                this.programLoadInstanceFromID(programID, destination);
                 // TODO wait for init?
             }
         }
     }
 
 
-    instrumentLoadInstanceFromID(instrumentID) {
-        return this.instrumentLoader.loadInstanceFromID(instrumentID);
+    programLoadInstanceFromID(programID) {
+        return this.programLoader.loadInstanceFromID(programID);
         // this.dispatchEvent({
-        //     type: 'instruments:instance',
-        //     instrument,
-        //     instrumentID,
+        //     type: 'programs:instance',
+        //     program,
+        //     programID,
         //     song: this
         // });
     }
 
-    instrumentLoadRenderer(instrumentID) {
-        return this.instrumentLoader.instrumentLoadRenderer(instrumentID);
+    programLoadRenderer(programID) {
+        return this.programLoader.programLoadRenderer(programID);
     }
 
 
-    instrumentAdd(config) {
+    programAdd(config) {
         if (typeof config !== 'object')
-            throw new Error("Invalid instruments config object");
+            throw new Error("Invalid programs config object");
         if (!config.className)
-            throw new Error("Invalid Instrument Class");
+            throw new Error("Invalid Program Class");
 
-        const instrumentList = this.data.instruments;
-        const instrumentID = instrumentList.length;
+        const programList = this.data.programs;
+        const programID = programList.length;
 
-        this.data.instruments[instrumentID] = config;
-        this.instrumentLoadInstanceFromID(instrumentID, this.audioContext.destination);
+        this.data.programs[programID] = config;
+        this.programLoadInstanceFromID(programID, this.audioContext.destination);
         // this.dispatchEvent({
-        //     type: 'instruments:added',
-        //     instrumentID,
+        //     type: 'programs:added',
+        //     programID,
         //     config,
         //     song: this
         // });
-        return instrumentID;
+        return programID;
     }
 
-    instrumentReplace(instrumentID, instrumentClassName, instrumentConfig={}) {
-        // Preserve old instruments name
-        // if (oldConfig && oldConfig.title && !instrumentConfig.title)
-        //     instrumentConfig.title = oldConfig.title;
+    programReplace(programID, programClassName, programConfig={}) {
+        // Preserve old programs name
+        // if (oldConfig && oldConfig.title && !programConfig.title)
+        //     programConfig.title = oldConfig.title;
 
-        const oldConfig = this.data.instruments[instrumentID];
-        this.data.instruments[instrumentID] = [instrumentClassName, instrumentConfig];
-        this.instrumentLoadInstanceFromID(instrumentID, this.audioContext.destination);
+        const oldConfig = this.data.programs[programID];
+        this.data.programs[programID] = [programClassName, programConfig];
+        this.programLoadInstanceFromID(programID, this.audioContext.destination);
 
         // this.dispatchEvent({
-        //     type: 'instruments:modified',
-        //     instrumentID,
+        //     type: 'programs:modified',
+        //     programID,
         //     oldConfig,
         //     song: this
         // });
         return oldConfig;
     }
 
-    instrumentRename(instrumentID, newTitle) {
-        const config = this.instrumentGetConfig(instrumentID);
+    programRename(programID, newTitle) {
+        const config = this.programGetConfig(programID);
         config.title = newTitle;
     }
 
-    instrumentRemove(instrumentID) {
-        const instrumentList = this.data.instruments;
-        if (!instrumentList[instrumentID])
-            return console.error("Invalid instruments ID: " + instrumentID);
-        const isLastInstrument = instrumentID === instrumentList.length - 1;
+    programRemove(programID) {
+        const programList = this.data.programs;
+        if (!programList[programID])
+            return console.error("Invalid programs ID: " + programID);
+        const isLastProgram = programID === programList.length - 1;
 
-        const oldConfig = instrumentList[instrumentID];
-        if(isLastInstrument) {
-            delete instrumentList[instrumentID];
+        const oldConfig = programList[programID];
+        if(isLastProgram) {
+            delete programList[programID];
         } else {
-            instrumentList[instrumentID] = null;
+            programList[programID] = null;
         }
-        // this.instrumentUnload(instrumentID);
+        // this.programUnload(programID);
 
         // this.dispatchEvent({
-        //     type: 'instruments:removed',
-        //     instrumentID,
+        //     type: 'programs:removed',
+        //     programID,
         //     song: this
         // });
         return oldConfig;
@@ -475,8 +475,8 @@ class Song {
         this.instructionGetByIndex(trackName, replaceIndex).command = newCommand;
     }
 
-    instructionReplaceInstrument(trackName, replaceIndex, instrumentID) {
-        this.instructionGetByIndex(trackName, replaceIndex).instrument = instrumentID;
+    instructionReplaceProgram(trackName, replaceIndex, programID) {
+        this.instructionGetByIndex(trackName, replaceIndex).program = programID;
     }
 
     instructionReplaceDuration(trackName, replaceIndex, newDuration) {
@@ -755,7 +755,7 @@ class Song {
             console.warn("No instruction at index");
     }
 
-    playInstruction(destination, instruction, instrumentID, noteStartTime = null, trackName = null) {
+    playInstruction(destination, instruction, programID, noteStartTime = null, trackName = null) {
         const audioContext = this.audioContext;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
@@ -786,7 +786,7 @@ class Song {
             noteStartTime = currentTime;
 
 
-        this.playInstrument(destination, instrumentID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+        this.playProgram(destination, programID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
         // Wait for note to start
         // if (noteStartTime > currentTime) {
         //     await this.wait(noteStartTime - currentTime);
@@ -994,10 +994,10 @@ class Song {
 Song.DEFAULT_VOLUME = 0.7;
 
 
-// Song.loadSongFromMIDIFile = async function (file, defaultInstrumentURL = null) {
-//     defaultInstrumentURL = defaultInstrumentURL || this.getDefaultInstrumentURL();
+// Song.loadSongFromMIDIFile = async function (file, defaultProgramURL = null) {
+//     defaultProgramURL = defaultProgramURL || this.getDefaultProgramURL();
 //     const midiSupport = new MIDIImport();
-//     const songData = await midiSupport.loadSongFromMidiFile(file, defaultInstrumentURL);
+//     const songData = await midiSupport.loadSongFromMidiFile(file, defaultProgramURL);
 //     const song = new Song();
 //     await song.loadSongData(songData);
 //     return song;

@@ -1,7 +1,7 @@
 {
-  "instruments": [
+  "programs": [
     {
-      "url": "/audio-source/instrument/audio-source-synthesizer.js",
+      "url": "/audio-source/program/audio-source-synthesizer.js",
       "samples": [
         {
           "name": "Piano",

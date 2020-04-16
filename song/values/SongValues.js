@@ -7,15 +7,15 @@ class SongValues extends Values{
     }
 
 
-    getSongInstruments(callback = (id, name) => [id, name]) {
+    getSongPrograms(callback = (id, name) => [id, name]) {
         const song = this.song;
         const results = [];
-        if (song && song.data.instruments) {
-            const instrumentList = song.data.instruments;
-            for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-                const [instrumentClass, instrumentInfo] = instrumentList[instrumentID]; //  || {title: "No Instrument Loaded"};
-                // const instruments = this.renderer.getInstrument(instrumentID);
-                const result = callback(instrumentID, instrumentClass, instrumentInfo);
+        if (song && song.data.programs) {
+            const programList = song.data.programs;
+            for (let programID = 0; programID < programList.length; programID++) {
+                const [programClass, programInfo] = programList[programID]; //  || {title: "No Program Loaded"};
+                // const programs = this.renderer.getProgram(programID);
+                const result = callback(programID, programClass, programInfo);
                 if(!addResult(results, result)) return results;
             }
         }
@@ -34,20 +34,20 @@ class SongValues extends Values{
     }
 
 
-    getAllNamedFrequencies(callback = (alias, aliasValue, instrumentID) => [alias, aliasValue, instrumentID]) {
+    getAllNamedFrequencies(callback = (alias, aliasValue, programID) => [alias, aliasValue, programID]) {
         return 'TODO';
         // const song = this.song;
         // const results = [];
-        // const instrumentList = song.data.instruments;
-        // for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-        //     if (song.hasInstrument(instrumentID)) {
-        //         const instance = song.getInstrument(instrumentID);
+        // const programList = song.data.programs;
+        // for (let programID = 0; programID < programList.length; programID++) {
+        //     if (song.hasProgram(programID)) {
+        //         const instance = song.getProgram(programID);
         //         if (instance.getFrequencyAliases) {
         //             const aliases = instance.getFrequencyAliases();
         //             for (const alias in aliases) {
         //                 if (aliases.hasOwnProperty(alias)) {
         //                     const aliasValue = aliases[alias];
-        //                     const result = callback(alias, aliasValue, instrumentID);
+        //                     const result = callback(alias, aliasValue, programID);
         //                     if(!addResult(results, result)) return results;
         //                 }
         //             }

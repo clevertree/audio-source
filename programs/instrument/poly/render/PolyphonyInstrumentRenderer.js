@@ -3,9 +3,9 @@ import React from 'react';
 import {
     ButtonDropDown,
     Div, MenuAction, MenuBreak,
-} from "../../../components";
+} from "../../../../components";
 
-import {InstrumentLoader, Library, MenuValues} from "../../../song";
+import {ProgramLoader, Library, MenuValues} from "../../../../song";
 
 
 import "./assets/PolyphonyInstrumentRenderer.css";
@@ -28,7 +28,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
                 <Div className="voices">
                     {voices.map((voiceData, voiceID) => {
                         const [className, config] = voiceData;
-                        const {classRenderer: Renderer} = InstrumentLoader.getInstrumentClassInfo(className);
+                        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
                         return <Renderer
                             onRemove={this.cb.onRemove}
                             key={voiceID}
@@ -62,7 +62,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
     async addVoice(instrumentClassName, promptUser=true) {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);
-        const {title} = InstrumentLoader.getInstrumentClassInfo(instrumentClassName);
+        const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
         const instrumentConfig = {};
         // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
         // instrumentConfig.libraryURL = this.defaultLibraryURL;
@@ -104,7 +104,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
         </>)
         // return new MenuValues().renderMenuSelectAvailableInstrument((instrumentClass) => {
         //     this.addVoice(instrumentClass);
-        // }, "Add new instrument as voice")
+        // }, "Add new program as voice")
     }
 }
 

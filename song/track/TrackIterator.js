@@ -96,22 +96,25 @@ export default class TrackIterator {
     processCommandInstruction(instruction, trackStats, callback=null) {
         const command = instruction.getCommandName().toLowerCase();
         switch(command) {
-            case 'instrument':   // Set Instrument
-            case 'i':
-                const [instrument] = command.getParams();
-                if(!instrument)
-                    throw new Error("Invalid instrument");
-                trackStats.instrument = instrument;
+            case 'program':      // Set Program (can be changed many times per track)
+            case 'p':
+                const [program] = instruction.getParams();
+                if(!program && program !== 0)
+                    throw new Error("Invalid program");
+                trackStats.program = program;
                 break;
 
-            case 'destination':     // Change destination (does not handle note processing)
+            case 'destination':     // Append destination (does not handle note processing)
             case 'd':
-                const destinationProgram = instruction.loadDestinationFromParams(this.song);
-                if(destinationProgram) {
+                // if(!trackStats.originalDestination)
+                //     trackStats.originalDestination = trackStats.destination;
+                trackStats.destination = instruction.loadDestinationFromParams(trackStats.destination, this.song);
 
-                }
-                // this.song.instrumentLoadInstance()
+                // this.song.programLoadInstance()
                 break;
+
+            default:
+                return console.error("Unknown command instruction: " + command);
         }
     }
 

@@ -12,7 +12,7 @@ export default class Composer extends ComposerActions {
 
         this.timeouts = {
             saveSongToMemory: null,
-            renderInstruments: null
+            renderPrograms: null
         };
         this.autoSaveTimeout = 4000;
 
@@ -228,15 +228,15 @@ export default class Composer extends ComposerActions {
                 this.setProps({playing: false, paused: false});
                 break;
 
-            case 'instruments:instance':
-            case 'instruments:added':
-            case 'instruments:removed':
-                this.panelInstruments && this.panelInstruments.forceUpdate();
+            case 'programs:instance':
+            case 'programs:added':
+            case 'programs:removed':
+                this.panelPrograms && this.panelPrograms.forceUpdate();
                 break;
 
-            case 'instruments:modified':
-                this.panelInstruments && this.panelInstruments.forceUpdate();
-                // this.renderInstrument(e.detail.instrumentID);
+            case 'programs:modified':
+                this.panelPrograms && this.panelPrograms.forceUpdate();
+                // this.renderProgram(e.detail.programID);
 
                 clearTimeout(this.timeouts.saveSongToMemory);
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
@@ -250,10 +250,10 @@ export default class Composer extends ComposerActions {
                 this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
                 break;
 
-            case 'instruments:library':
+            case 'programs:library':
 //                 console.log(e.type);
-                // TODO: this.instruments.render();
-                // this.renderInstruments();
+                // TODO: this.programs.render();
+                // this.renderPrograms();
                 this.updateForms();
                 break;
 

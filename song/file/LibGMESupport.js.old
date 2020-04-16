@@ -79,9 +79,9 @@
                 timeDivision: timeDivision,
                 beatsPerMinute: beatsPerMinute,
                 beatsPerMeasure: 4,
-                instruments: [
+                programs: [
                     {
-                        url: findThisScript()[0].basePath + 'instrument/chip/spc-player-synthesizer.js',
+                        url: findThisScript()[0].basePath + 'program/chip/spc-player-synthesizer.js',
                         spcURL: spcURL
                     }
                 ],

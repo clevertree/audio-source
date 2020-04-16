@@ -120,7 +120,7 @@ class GMESongFile {
             bpm: beatsPerMinute,
             // beatsPerMeasure: 4,
             rootGroup: 'root',
-            instruments: [
+            programs: [
                 {
                     "className": "GMEPlayerSynthesizer",
                     fileURL: filepath

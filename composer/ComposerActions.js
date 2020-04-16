@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Song, Storage, Instruction, InstrumentLoader} from "../song";
+import {Song, Storage, Instruction, ProgramLoader} from "../song";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 import {TrackInfo} from "./tracker/";
@@ -120,8 +120,8 @@ class ComposerActions extends ComposerMenu {
 
     loadNewSongData() {
         // const storage = new Storage();
-        // const defaultInstrumentURL = this.getDefaultInstrumentClass() + '';
-        // let songData = storage.generateDefaultSong(defaultInstrumentURL);
+        // const defaultProgramURL = this.getDefaultProgramClass() + '';
+        // let songData = storage.generateDefaultSong(defaultProgramURL);
         // const song = Song.loadSongFromData(songData);
         const song = new Song(this.audioContext);
         this.setCurrentSong(song);
@@ -288,8 +288,8 @@ class ComposerActions extends ComposerMenu {
         const trackName = this.state.selectedTrack;
         const activeTracks = {...this.state.activeTracks};
         const trackState = activeTracks[trackName];
-        // if (instrumentID !== null)
-        //     newInstruction.instrument = instrumentID;
+        // if (programID !== null)
+        //     newInstruction.program = programID;
 
         //: TODO: check for recursive group
         const song = this.song;
@@ -586,71 +586,71 @@ class ComposerActions extends ComposerMenu {
     //     await contextMenu.openContextMenu(e);
     // }
 
-    /** Instruments **/
+    /** Programs **/
 
 
-    async instrumentAdd(instrumentClassName, instrumentConfig = {}, promptUser=false) {
-        if (!instrumentClassName)
-            throw new Error(`Invalid instrument class`);
-        const {title} = InstrumentLoader.getInstrumentClassInfo(instrumentClassName);
-        // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
-        // instrumentConfig.libraryURL = this.defaultLibraryURL;
-        // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
+    async programAdd(programClassName, programConfig = {}, promptUser=false) {
+        if (!programClassName)
+            throw new Error(`Invalid program class`);
+        const {title} = ProgramLoader.getProgramClassInfo(programClassName);
+        // programConfig = ProgramLoader.createProgramConfig(programClassName, programConfig);
+        // programConfig.libraryURL = this.defaultLibraryURL;
+        // programConfig.name = programConfig.name || programURL.split('/').pop();
 
-//         e.target.form.elements['instrumentURL'].value = '';
+//         e.target.form.elements['programURL'].value = '';
         if (promptUser === false || await this.openConfirmDialog(`Add '${title}' to Song?`)) {
-            const instrumentID = this.song.instrumentAdd(instrumentConfig);
-            this.setStatus(`New instrument class '${instrumentClassName}' added to song at position ${instrumentID}`);
+            const programID = this.song.programAdd(programConfig);
+            this.setStatus(`New program class '${programClassName}' added to song at position ${programID}`);
             // this.forceUpdate();
-            // this.fieldInstructionInstrument.setValue(instrumentID);
-            // await this.panelInstruments.forceUpdate();
+            // this.fieldInstructionProgram.setValue(programID);
+            // await this.panelPrograms.forceUpdate();
 
         } else {
-            this.setError(`New instrument canceled: ${instrumentClassName}`);
+            this.setError(`New program canceled: ${programClassName}`);
         }
     }
 
-    async instrumentReplace(instrumentID, instrumentClassName, instrumentConfig = {}) {
-        if (!Number.isInteger(instrumentID))
-            throw new Error(`Invalid Instrument ID: Not an integer`);
-        if (!instrumentClassName)
-            throw new Error(`Invalid Instrument class`);
+    async programReplace(programID, programClassName, programConfig = {}) {
+        if (!Number.isInteger(programID))
+            throw new Error(`Invalid Program ID: Not an integer`);
+        if (!programClassName)
+            throw new Error(`Invalid Program class`);
 
-        if (await this.openPromptDialog(`Change Instrument (${instrumentID}) to ${instrumentClassName}`)) {
-            await this.song.instrumentReplace(instrumentID, instrumentClassName, instrumentConfig);
-            this.setStatus(`Instrument (${instrumentID}) changed to: ${instrumentClassName}`);
+        if (await this.openPromptDialog(`Change Program (${programID}) to ${programClassName}`)) {
+            await this.song.programReplace(programID, programClassName, programConfig);
+            this.setStatus(`Program (${programID}) changed to: ${programClassName}`);
 
         } else {
-            this.setError(`Change instrument canceled: ${instrumentClassName}`);
+            this.setError(`Change program canceled: ${programClassName}`);
         }
     }
 
-    async instrumentRename(instrumentID, newInstrumentTitle = null) {
-        console.log(this.song.instrumentGetConfig(instrumentID).title, instrumentID);
-        const oldInstrumentTitle = this.song.instrumentGetConfig(instrumentID).title;
-        if (!newInstrumentTitle)
-            newInstrumentTitle = await this.openPromptDialog(`Change name for instruments ${instrumentID}: `, oldInstrumentTitle);
-        if (!newInstrumentTitle)
-            return console.error("Instrument name change canceled");
-        this.song.instrumentRename(instrumentID, newInstrumentTitle);
-        this.setStatus(`Instrument title updated: ${newInstrumentTitle}`);
+    async programRename(programID, newProgramTitle = null) {
+        console.log(this.song.programGetConfig(programID).title, programID);
+        const oldProgramTitle = this.song.programGetConfig(programID).title;
+        if (!newProgramTitle)
+            newProgramTitle = await this.openPromptDialog(`Change name for programs ${programID}: `, oldProgramTitle);
+        if (!newProgramTitle)
+            return console.error("Program name change canceled");
+        this.song.programRename(programID, newProgramTitle);
+        this.setStatus(`Program title updated: ${newProgramTitle}`);
     }
 
-    async instrumentRemove(instrumentRemoveID = null) {
-        if (await this.openConfirmDialog(`Remove Instrument ID: ${instrumentRemoveID}`)) {
-            this.song.instrumentRemove(instrumentRemoveID);
-            this.setStatus(`Instrument (${instrumentRemoveID}) removed`);
+    async programRemove(programRemoveID = null) {
+        if (await this.openConfirmDialog(`Remove Program ID: ${programRemoveID}`)) {
+            this.song.programRemove(programRemoveID);
+            this.setStatus(`Program (${programRemoveID}) removed`);
 
         } else {
-            this.setError(`Remove instrument canceled`);
+            this.setError(`Remove program canceled`);
         }
     }
 
 
     /** Toggle Panels **/
 
-    togglePanelInstruments() {
-        this.classList.toggle('hide-panel-instruments');
+    togglePanelPrograms() {
+        this.classList.toggle('hide-panel-programs');
     }
 
     togglePanelTracker() {
@@ -673,7 +673,7 @@ class ComposerActions extends ComposerMenu {
     async batchSelect(e, searchCallbackString = null, promptUser = false) {
         if (promptUser || !searchCallbackString)
             searchCallbackString = await this.openPromptDialog("Run custom search:", searchCallbackString ||
-                `/** Example Search **/ i.command === "C3"   &&   i.instrument === 0`);
+                `/** Example Search **/ i.command === "C3"   &&   i.program === 0`);
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
 
@@ -707,7 +707,7 @@ class ComposerActions extends ComposerMenu {
 
         if (promptUser || !searchCallbackString)
             searchCallbackString = await this.openPromptDialog("Run custom search:", searchCallbackString ||
-                `/** Example Search **/ i.command === "C3"   &&   i.instrument === 0`);
+                `/** Example Search **/ i.command === "C3"   &&   i.program === 0`);
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
         storage.addBatchRecentSearches(searchCallbackString);

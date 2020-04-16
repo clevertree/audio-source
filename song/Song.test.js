@@ -38,7 +38,7 @@ class SongTest {
     this.testSongPlayback(song);
 
     // await this.testValues();
-    console.info("Test Complete: ", this.constructor.name, song.data.tracks, song.data.instruments);
+    console.info("Test Complete: ", this.constructor.name, song.data.tracks, song.data.programs);
   }
 
 
@@ -82,7 +82,8 @@ class SongTest {
 
   testSongClass() {
     const song = new Song(this.audioContext, {
-      instruments: [
+      programs: [
+          ['TestInstrument'],
           ['TestInstrument']
       ]
     });
@@ -95,7 +96,7 @@ class SongTest {
     const testTrack = song.data.tracks[testTrackName];
 
     song.instructionInsertAtIndex(song.getStartTrackName(), 0, '@' + testTrackName);
-    song.instructionInsertAtIndex(testTrackName, 0, [0, '!i', 0]);
+    song.instructionInsertAtIndex(testTrackName, 0, [0, '!p', 0]);
 
     // const rootGroup = song.data.tracks.root;
     const TD = song.data.timeDivision;

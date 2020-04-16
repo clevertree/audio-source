@@ -7,7 +7,7 @@ import {
     MenuAction,
     MenuBreak,
     Icon, InputRange, MenuDropDown,
-} from "../../../components";
+} from "../../../../components";
 
 import "./assets/AudioBufferInstrumentRenderer.css";
 

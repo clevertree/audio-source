@@ -8,8 +8,8 @@ import {
     Icon,
     InputRange,
     MenuDropDown,
-} from "../../../components";
-import {MenuValues, Library} from "../../../song";
+} from "../../../../components";
+import {MenuValues, Library} from "../../../../song";
 
 import "./assets/OscillatorNodeInstrumentRenderer.css";
 

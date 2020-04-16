@@ -1,6 +1,6 @@
 import React from "react";
 import {MenuAction, MenuDropDown, MenuBreak} from "../components";
-import {Storage, MenuValues, InstrumentLoader} from "../song";
+import {Storage, MenuValues, ProgramLoader} from "../song";
 import ComposerRenderer from "./ComposerRenderer";
 
 import "./assets/Composer.css";
@@ -19,7 +19,7 @@ class ComposerMenu extends ComposerRenderer {
             <MenuDropDown {...props} options={() => this.renderMenuFile()}          >File</MenuDropDown>
             <MenuDropDown {...props} options={() => this.renderMenuEdit()}          >Edit</MenuDropDown>
             <MenuDropDown {...props} options={() => this.renderMenuTrack()}         >Track</MenuDropDown>
-            <MenuDropDown {...props} options={() => this.renderMenuInstrument()}    >Instrument</MenuDropDown>
+            <MenuDropDown {...props} options={() => this.renderMenuProgram()}    >Program</MenuDropDown>
             <MenuDropDown {...props} options={() => this.renderMenuView()}          >View</MenuDropDown>
         </>);
     }
@@ -124,9 +124,9 @@ class ComposerMenu extends ComposerRenderer {
 
 
 
-    renderMenuSelectSongInstrument(onSelectValue) {
-        return this.values.getSongInstruments((instrumentID, instrumentClass, instrumentInfo) =>
-            <MenuAction key={instrumentID} onAction={() => onSelectValue(instrumentID)}  >{instrumentID}: {instrumentInfo.title || instrumentClass}</MenuAction>
+    renderMenuSelectSongProgram(onSelectValue) {
+        return this.values.getSongPrograms((programID, programClass, programInfo) =>
+            <MenuAction key={programID} onAction={() => onSelectValue(programID)}  >{programID}: {programInfo.title || programClass}</MenuAction>
         );
     }
 
@@ -139,8 +139,8 @@ class ComposerMenu extends ComposerRenderer {
     }
 
 
-    renderMenuSelectAvailableInstrument(onSelectValue, menuTitle=null) {
-        return new MenuValues().renderMenuSelectAvailableInstrument(onSelectValue, menuTitle);
+    renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
+        return new MenuValues().renderMenuSelectAvailableProgram(onSelectValue, menuTitle);
     }
 
 
@@ -211,8 +211,8 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditInsertCommandNamed() {
         return this.values.getAllNamedFrequencies(
-            (noteName, frequency, instrumentID) => <MenuAction
-                onAction={e => this.instructionInsert(noteName, false, instrumentID)}
+            (noteName, frequency, programID) => <MenuAction
+                onAction={e => this.instructionInsert(noteName, false, programID)}
             >{noteName}</MenuAction>
         );
 
@@ -237,7 +237,7 @@ class ComposerMenu extends ComposerRenderer {
         return (<>
             <MenuDropDown options={() => this.renderMenuEditSetCommand()}            >Set Command</MenuDropDown>
             <MenuBreak />
-            {/*<MenuDropDown options={() => this.renderMenuEditSetInstrument()}         >Set Instrument</MenuDropDown>*/}
+            {/*<MenuDropDown options={() => this.renderMenuEditSetProgram()}         >Set Program</MenuDropDown>*/}
             {/*<MenuBreak />*/}
             <MenuDropDown options={() => this.renderMenuEditSetDuration()}           >Set Duration</MenuDropDown>
             <MenuBreak />
@@ -259,10 +259,10 @@ class ComposerMenu extends ComposerRenderer {
 
     }
 
-    // renderMenuEditSetInstrument() {
-    //     return this.values.getSongInstruments((instrumentID, instrumentClass, instrumentInfo) =>
-    //         <MenuAction key={instrumentID} onAction={e => this.instructionReplaceInstrument(instrumentID)}  >
-    //             {instrumentID}: {instrumentInfo.title || instrumentClass}
+    // renderMenuEditSetProgram() {
+    //     return this.values.getSongPrograms((programID, programClass, programInfo) =>
+    //         <MenuAction key={programID} onAction={e => this.instructionReplaceProgram(programID)}  >
+    //             {programID}: {programInfo.title || programClass}
     //         </MenuAction>
     //     );
     // }
@@ -295,8 +295,8 @@ class ComposerMenu extends ComposerRenderer {
 
 
     renderMenuEditSetCommandNamed() {
-        return this.values.getAllNamedFrequencies((noteName, frequency, instrumentID) =>
-            <MenuAction key={noteName} onAction={e => this.instructionReplaceCommand(noteName, false, instrumentID)}                    >{noteName}</MenuAction>
+        return this.values.getAllNamedFrequencies((noteName, frequency, programID) =>
+            <MenuAction key={noteName} onAction={e => this.instructionReplaceCommand(noteName, false, programID)}                    >{noteName}</MenuAction>
         );
     }
 
@@ -383,8 +383,8 @@ class ComposerMenu extends ComposerRenderer {
         </>);
     }
 
-    // renderMenuTrackerSetInstrumentFilter() {
-    //     return this.renderMenuSelectSongInstrument(instrumentID => this.trackerChangeInstrumentFilter(instrumentID));
+    // renderMenuTrackerSetProgramFilter() {
+    //     return this.renderMenuSelectSongProgram(programID => this.trackerChangeProgramFilter(programID));
     // }
 
     renderMenuKeyboardSetOctave() {
@@ -399,42 +399,42 @@ class ComposerMenu extends ComposerRenderer {
             <MenuAction onAction={e => this.toggleFullscreen(e)}       >{this.props.fullscreen ? 'Disable' : 'Enable'} Fullscreen</MenuAction>
             <MenuAction onAction={e => this.togglePanelSong(e)}       >{this.props.hidePanelSongs ? 'Disable' : 'Enable'} Song Forms</MenuAction>
             <MenuAction onAction={e => this.togglePanelTracker(e)}       >{this.props.hidePanelTracker ? 'Disable' : 'Enable'} Tracker Forms</MenuAction>
-            <MenuAction onAction={e => this.togglePanelInstruments(e)}       >{this.props.hidePanelInstrument ? 'Disable' : 'Enable'} Instrument Forms</MenuAction>
+            <MenuAction onAction={e => this.togglePanelPrograms(e)}       >{this.props.hidePanelProgram ? 'Disable' : 'Enable'} Program Forms</MenuAction>
         </>);
 
     }
 
-    renderMenuInstrument() {
+    renderMenuProgram() {
         return (<>
-            <MenuDropDown key="add" options={() => this.renderMenuInstrumentAdd()}    >Add instrument to song</MenuDropDown>
+            <MenuDropDown key="add" options={() => this.renderMenuProgramAdd()}    >Add program to song</MenuDropDown>
             <MenuBreak />
-            {this.values.getSongInstruments((instrumentID, instrumentClass, instrumentInfo) =>
-                <MenuDropDown key={instrumentID} options={() => this.renderMenuInstrumentEdit(instrumentID)}       >
-                    {instrumentID}: {instrumentInfo.title || instrumentClass}
+            {this.values.getSongPrograms((programID, programClass, programInfo) =>
+                <MenuDropDown key={programID} options={() => this.renderMenuProgramEdit(programID)}       >
+                    {programID}: {programInfo.title || programClass}
                 </MenuDropDown>)}
         </>);
     }
 
-    renderMenuInstrumentAdd() {
-        return InstrumentLoader.getRegisteredInstruments().map((config, i) =>
-            <MenuAction key={i} onAction={e => this.instrumentAdd(config.className)}       >{config.title}</MenuAction>
+    renderMenuProgramAdd() {
+        return ProgramLoader.getRegisteredPrograms().map((config, i) =>
+            <MenuAction key={i} onAction={e => this.programAdd(config.className)}       >{config.title}</MenuAction>
         );
     }
 
-    renderMenuInstrumentEdit(instrumentID) {
+    renderMenuProgramEdit(programID) {
         return (<>
-            <MenuDropDown key="replace" options={() => this.renderMenuInstrumentEditReplace(instrumentID)}    >Replace</MenuDropDown>
+            <MenuDropDown key="replace" options={() => this.renderMenuProgramEditReplace(programID)}    >Replace</MenuDropDown>
             <MenuAction
                 key="remove"
-                onAction={e => this.instrumentRemove(instrumentID)}
-                disabled={!this.song.hasInstrument(instrumentID)}
+                onAction={e => this.programRemove(programID)}
+                disabled={!this.song.hasProgram(programID)}
             >Remove from song</MenuAction>
         </>);
     }
 
-    renderMenuInstrumentEditReplace(instrumentID) {
-        return InstrumentLoader.getRegisteredInstruments().map((config, i) =>
-            <MenuAction key={i} onAction={e => this.instrumentReplace(instrumentID, config.className)}       >{config.name}</MenuAction>
+    renderMenuProgramEditReplace(programID) {
+        return ProgramLoader.getRegisteredPrograms().map((config, i) =>
+            <MenuAction key={i} onAction={e => this.programReplace(programID, config.className)}       >{config.name}</MenuAction>
         );
     }
 

@@ -11,7 +11,7 @@ div.asc-instrument-renderer-empty > div.header {
     display: flex;
 }
 
-div.asc-instrument-renderer-empty > div.header > div.instrument-config {
+div.asc-instrument-renderer-empty > div.header > div.program-config {
     padding-left: 4px;
 }
 div.asc-instrument-renderer-empty > div.header > div.error {

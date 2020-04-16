@@ -83,16 +83,16 @@ class Values {
 
     formatVelocity(velocity) {
         if (typeof velocity !== 'number')
-            return 'N/A'; // throw new Error("Invalid Instrument");
+            return 'N/A'; // throw new Error("Invalid Program");
         return velocity === 100 ? "Max" : velocity + '';
     }
 
 
 
-    formatInstrumentID(instrumentID) {
-        if (typeof instrumentID !== 'number')
-            return 'N/A'; // throw new Error("Invalid Instrument");
-        return instrumentID < 10 ? "0" + instrumentID : "" + instrumentID;
+    formatProgramID(programID) {
+        if (typeof programID !== 'number')
+            return 'N/A'; // throw new Error("Invalid Program");
+        return programID < 10 ? "0" + programID : "" + programID;
     }
 
     formatCommand(commandString) {

@@ -1,4 +1,4 @@
-import InstrumentLoader from "../../song/instrument/InstrumentLoader";
+import ProgramLoader from "../../../song/program/ProgramLoader";
 // import Values from "../../song/Values";
 
 class PolyphonyInstrument {
@@ -12,7 +12,7 @@ class PolyphonyInstrument {
         if(!this.config.voices[voiceID])
             throw new Error("Voice config is missing: " + voiceID);
         const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
-        let {classInstrument:voiceClass} = InstrumentLoader.getInstrumentClassInfo(voiceClassName);
+        let {classInstrument:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
         return new voiceClass(voiceConfig);
     }
 
@@ -43,7 +43,7 @@ class PolyphonyInstrument {
     /** Static **/
 
     unloadAll() {
-        // Unload all cached samples from this instrument type
+        // Unload all cached samples from this program type
     }
 
 

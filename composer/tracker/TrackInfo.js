@@ -273,16 +273,16 @@ export default class TrackInfo {
         if(!Array.isArray(selectedIndices))
             selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
-        const instrumentID = typeof this.track.instrumentID !== "undefined" ? this.track.instrumentID : 0;
+        const programID = typeof this.track.programID !== "undefined" ? this.track.programID : 0;
         const song = this.composer.getSong();
 
         if(stopPlayback)
-            song.stopInstrumentPlayback(destination, instrumentID);
+            song.stopProgramPlayback(destination, programID);
 
         for(let i=0; i<selectedIndices.length; i++) {
             const selectedIndex = selectedIndices[i];
             const instruction = song.instructionGetByIndex(this.getTrackName(), selectedIndex);
-            song.playInstruction(destination, instruction, instrumentID);
+            song.playInstruction(destination, instruction, programID);
         }
     }
 
@@ -291,8 +291,8 @@ export default class TrackInfo {
     }
 
     stopPlayback(destination) {
-        const instrumentID = typeof this.track.instrumentID !== "undefined" ? this.track.instrumentID : 0;
-        this.composer.getSong().stopInstrumentPlayback(destination, instrumentID);
+        const programID = typeof this.track.programID !== "undefined" ? this.track.programID : 0;
+        this.composer.getSong().stopProgramPlayback(destination, programID);
     }
 
 }

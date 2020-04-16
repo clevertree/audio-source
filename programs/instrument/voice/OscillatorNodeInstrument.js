@@ -111,7 +111,7 @@ class OscillatorNodeInstrument {
 
     static unloadAll() {
         this.waveURLCache = {}
-        // Unload all cached samples from this instrument type
+        // Unload all cached samples from this program type
     }
 }
 

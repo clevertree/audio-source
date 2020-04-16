@@ -2,7 +2,7 @@ import React from "react";
 
 import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
 import {Div, Icon, Form, Panel, InputRange, Button, ButtonDropDown, MenuDropDown} from "../components";
-import InstrumentRenderer from "./instrument/InstrumentRenderer";
+import ProgramRenderer from "./program/ProgramRenderer";
 import Tracker from "./tracker/Tracker";
 import {Song} from "../song/";
 import "./assets/Composer.css";
@@ -178,27 +178,27 @@ class ComposerRenderer extends React.Component {
                         </Panel>
 
 
-                        <Panel className="instruments" header="Instruments"
-                               ref={ref=>this.panelInstruments = ref}
+                        <Panel className="programs" header="Programs"
+                               ref={ref=>this.panelPrograms = ref}
                                children={() => (<>
-                                   {this.song.instrumentEach((instrumentID, instrumentClass, instrumentConfig) =>
-                                       <InstrumentRenderer
-                                           key={instrumentID}
+                                   {this.song.programEach((programID, programClass, programConfig) =>
+                                       <ProgramRenderer
+                                           key={programID}
                                            composer={this}
                                            // openMenu={(e, options) => this.renderMenu(e, options)}
-                                           // instrumentClass={instrumentClass}
-                                           // instrumentConfig={instrumentConfig}
-                                           instrumentID={instrumentID}
+                                           // programClass={programClass}
+                                           // programConfig={programConfig}
+                                           programID={programID}
                                        />
                                    )}
-                                   <Form className="instrument-add" header="Add Instrument">
+                                   <Form className="program-add" header="Add Program">
                                        <MenuDropDown
                                            arrow={'▼'}
-                                           className="instrument-add"
-                                           options={() => this.renderMenuSelectAvailableInstrument(instrumentClass =>
-                                                   this.instrumentAdd(instrumentClass)
-                                               , 'Add New Instrument')}
-                                           title="Add Instrument"
+                                           className="program-add"
+                                           options={() => this.renderMenuSelectAvailableProgram(programClass =>
+                                                   this.programAdd(programClass)
+                                               , 'Add New Program')}
+                                           title="Add Program"
                                        >Select...</MenuDropDown>
                                    </Form>
                                </>)} />
@@ -234,12 +234,12 @@ class ComposerRenderer extends React.Component {
                                 </Button>
                             </Form>
 
-                            {/*<Form className="instruction-instrument" header="Instrument">*/}
+                            {/*<Form className="instruction-program" header="Program">*/}
                             {/*    <ButtonDropDown*/}
                             {/*        arrow={'▼'}*/}
-                            {/*        // className="instruments-instruments"*/}
-                            {/*        options={() => this.renderMenuEditSetInstrument()}*/}
-                            {/*        header="Song Instruments"*/}
+                            {/*        // className="programs-programs"*/}
+                            {/*        options={() => this.renderMenuEditSetProgram()}*/}
+                            {/*        header="Song Programs"*/}
                             {/*    >Select</ButtonDropDown>*/}
                             {/*</Form>*/}
 
@@ -250,8 +250,8 @@ class ComposerRenderer extends React.Component {
                                     value={trackState.currentVelocity || 0}
                                     min={1}
                                     max={127}
-                                    // ref={ref => this.fieldInstrumentVelocity = ref}
-                                    title="Instrument Velocity"
+                                    // ref={ref => this.fieldProgramVelocity = ref}
+                                    title="Program Velocity"
                                     disabled={selectedIndices.length === 0}
                                     />
                             </Form>
@@ -262,7 +262,7 @@ class ComposerRenderer extends React.Component {
                                     arrow={'▼'}
                                     // className="instruction-duration"
                                     options={() => this.renderMenuEditSetDuration()}
-                                    title="Instrument Duration"
+                                    title="Program Duration"
                                     disabled={selectedIndices.length === 0}
                                 >{trackState.currentDuration}</ButtonDropDown>
                             </Form>
@@ -317,12 +317,12 @@ class ComposerRenderer extends React.Component {
                         {/*        >16B</Button>*/}
                         {/*    </Form>*/}
 
-                        {/*    /!*<Form className="tracker-instrument" header="Instrument">*!/*/}
+                        {/*    /!*<Form className="tracker-program" header="Program">*!/*/}
                         {/*    /!*    <Button*!/*/}
                         {/*    /!*        arrow={'▼'}*!/*/}
-                        {/*    /!*        // className="tracker-instruments"*!/*/}
-                        {/*    /!*        onAction={e => this.renderMenuTrackerSetInstrumentFilter(e)}*!/*/}
-                        {/*    /!*        title="Filter by Tracker Instrument"*!/*/}
+                        {/*    /!*        // className="tracker-programs"*!/*/}
+                        {/*    /!*        onAction={e => this.renderMenuTrackerSetProgramFilter(e)}*!/*/}
+                        {/*    /!*        title="Filter by Tracker Program"*!/*/}
                         {/*    /!*    >Any</Button>*!/*/}
                         {/*    /!*</Form>*!/*/}
                         {/*</Panel>*/}
@@ -396,7 +396,7 @@ class ComposerRenderer extends React.Component {
             // trackerRowOffset: 0,
             // trackerQuantizationInTicks: timeDivision,
             // trackerSegmentLengthInTicks: timeDivision * 16,
-            // trackerFilterByInstrumentID: null,
+            // trackerFilterByProgramID: null,
             activeTracks
         });
     }
@@ -441,7 +441,7 @@ class ComposerRenderer extends React.Component {
     // }
 
 
-    // get fieldinstrumentAdd()
+    // get fieldprogramAdd()
     // TODO: AudioSourceComposerSongFormRenderer()
     /** @deprecated **/
     updateForms() {
@@ -456,8 +456,8 @@ class ComposerRenderer extends React.Component {
 
 
         if (cursorInstruction) {
-            this.fieldInstructionCommand.value = cursorInstruction.command; // , "Unknown Instrument");
-            this.fieldInstructionInstrument.addOrSetValue(cursorInstruction.instrument, cursorInstruction.instrument + ": Unknown Instrument");
+            this.fieldInstructionCommand.value = cursorInstruction.command; // , "Unknown Program");
+            this.fieldInstructionProgram.addOrSetValue(cursorInstruction.program, cursorInstruction.program + ": Unknown Program");
             this.fieldInstructionVelocity.value = cursorInstruction.velocity;
             this.fieldInstructionDuration.value = cursorInstruction.durationTicksn;
         }

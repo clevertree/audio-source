@@ -1,4 +1,4 @@
-import FileService from "../../song/file/FileService";
+import FileService from "../../../song/file/FileService";
 
 class SPCPlayerSynthesizer {
 
@@ -150,11 +150,11 @@ class SPCPlayerSynthesizer {
 //     /**
 //      *
 //      * @param {AudioSourceComposerForm} instrumentForm
-//      * @param instruments
+//      * @param programs
 //      */
-//     constructor(instrumentForm, instruments) {
+//     constructor(instrumentForm, programs) {
 //         this.form = instrumentForm;
-//         this.instruments = instruments;
+//         this.programs = programs;
 //         const root = instrumentForm.getRootNode() || document;
 //         this.appendCSS(root);
 //         this.render();
@@ -169,7 +169,7 @@ class SPCPlayerSynthesizer {
 // //     appendCSS(rootElm) {
 // //
 // //         // Append Instrument CSS
-// //         const PATH = 'instruments/chip/spc-player-synthesizer.css';
+// //         const PATH = 'programs/chip/spc-player-synthesizer.css';
 // //         const linkHRef = getScriptDirectory(PATH);
 // // //             console.log(rootElm);
 // //         let linkElms = rootElm.querySelectorAll('link');
@@ -186,17 +186,17 @@ class SPCPlayerSynthesizer {
 //     /** Modify Instrument **/
 //
 //     remove() {
-//         this.instruments.song.instrumentRemove(this.instruments.id);
-//         // document.dispatchEvent(new CustomEvent('instruments:remove', this));
+//         this.programs.song.instrumentRemove(this.programs.id);
+//         // document.dispatchEvent(new CustomEvent('programs:remove', this));
 //     }
 //
 //     instrumentRename(newInstrumentName) {
-//         return this.instruments.song.instrumentRename(this.instruments.id, newInstrumentName);
+//         return this.programs.song.instrumentRename(this.programs.id, newInstrumentName);
 //     }
 //
 //     render() {
-//         // const instruments = this.instruments;
-//         const instrumentID = typeof this.instruments.id !== "undefined" ? this.instruments.id : -1;
+//         // const programs = this.programs;
+//         const instrumentID = typeof this.programs.id !== "undefined" ? this.programs.id : -1;
 //         const instrumentIDHTML = (instrumentID < 10 ? "0" : "") + (instrumentID);
 //         this.form.innerHTML = '';
 //         this.form.classList.add('spc-player-synthesizer-container');
@@ -204,31 +204,31 @@ class SPCPlayerSynthesizer {
 //         // this.form.removeEventListener('focus', this.focusHandler);
 //         // this.form.addEventListener('focus', this.focusHandler, true);
 //
-//         const instrumentToggleButton = this.form.addButtonInput('instruments-id',
+//         const instrumentToggleButton = this.form.addButtonInput('programs-id',
 //             e => this.form.classList.toggle('selected'),
 //             instrumentIDHTML + ':'
 //         );
 //         instrumentToggleButton.classList.add('show-on-focus');
 //
-//         const instrumentNameInput = this.form.addTextInput('instruments-name',
+//         const instrumentNameInput = this.form.addTextInput('programs-name',
 //             (e, newInstrumentName) => this.instrumentRename(newInstrumentName),
 //             'Instrument Name',
-//             this.instruments.config.name || '',
+//             this.programs.config.name || '',
 //             'Unnamed'
 //         );
 //         instrumentNameInput.classList.add('show-on-focus');
 //
 //
-//         this.form.addButtonInput('instruments-remove',
+//         this.form.addButtonInput('programs-remove',
 //             (e) => this.remove(e, instrumentID),
 //             this.form.createIcon('delete'),
 //             'Remove Instrument');
 //
 //         let defaultPresetURL = '';
-//         if (this.instruments.config.libraryURL && this.instruments.config.preset)
-//             defaultPresetURL = new URL(this.instruments.config.libraryURL + '#' + this.instruments.config.preset, document.location) + '';
+//         if (this.programs.config.libraryURL && this.programs.config.preset)
+//             defaultPresetURL = new URL(this.programs.config.libraryURL + '#' + this.programs.config.preset, document.location) + '';
 //
-//         this.fieldChangePreset = this.form.addSelectInput('instruments-preset',
+//         this.fieldChangePreset = this.form.addSelectInput('programs-preset',
 //             (e, presetURL) => this.setPreset(presetURL),
 //             (addOption, setOptgroup) => {
 //                 addOption('', 'Change Preset');

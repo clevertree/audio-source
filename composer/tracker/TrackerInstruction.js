@@ -190,11 +190,11 @@ class TrackerInstruction extends React.Component {
         this.playInstruction();
     }
 
-    // instructionReplaceInstrument(instrumentID) {
-    //     this.getSong().instructionReplaceInstrument(
+    // instructionReplaceProgram(programID) {
+    //     this.getSong().instructionReplaceProgram(
     //         this.getComposer().state.selectedTrack,
     //         this.props.index,
-    //         instrumentID);
+    //         programID);
     //     this.forceUpdate();
     //
     // }

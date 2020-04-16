@@ -1,5 +1,5 @@
 import Instruction from "./Instruction";
-import InstrumentLoader from "../instrument/InstrumentLoader";
+import ProgramLoader from "../program/ProgramLoader";
 
 class CommandInstruction extends Instruction {
 
@@ -28,9 +28,9 @@ class CommandInstruction extends Instruction {
         const params = this.getParams();
         let program;
         if(typeof params[0] === "string") {
-            program = InstrumentLoader.loadInstance(params[0], params[1]);
+            program = ProgramLoader.loadInstance(params[0], params[1]);
         } else {
-            program = song.instrumentLoadInstanceFromID(params[0]);
+            program = song.programLoadInstanceFromID(params[0]);
         }
 
         if(typeof program.getDestination !== 'function')

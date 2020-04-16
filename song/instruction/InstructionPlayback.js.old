@@ -214,7 +214,7 @@ class InstructionPlayback {
 //     }
 //
 //
-//     async stopPlayback(stopInstruments = true) {
+//     async stopPlayback(stopPrograms = true) {
 //         if (this.stopPlaybackCallback) {
 //             this.stopPlaybackCallback();
 //             this.stopPlaybackCallback = null;
@@ -229,19 +229,19 @@ class InstructionPlayback {
 //             }
 //         }));
 //
-//         if (stopInstruments) {
+//         if (stopPrograms) {
 //
-//             // Stop all instruments playback (if supported)
-//             const instrumentList = this.song.instrumentGetList();
-//             for (let instrumentID = 0; instrumentID < instrumentList.length; instrumentID++) {
-//                 const instrument = await this.song.getInstrument(instrumentID, false);
-//                 if (instrument && instrument.stopPlayback)
-//                     instrument.stopPlayback();
+//             // Stop all programs playback (if supported)
+//             const programList = this.song.programGetList();
+//             for (let programID = 0; programID < programList.length; programID++) {
+//                 const program = await this.song.getProgram(programID, false);
+//                 if (program && program.stopPlayback)
+//                     program.stopPlayback();
 //             }
 //         }
 //
 //         // Stop subtracks
-//         this.subTracks.forEach(playback => playback.stopPlayback(stopInstruments));
+//         this.subTracks.forEach(playback => playback.stopPlayback(stopPrograms));
 //     }
 //
 //     playNextInstructionRow(destination) {

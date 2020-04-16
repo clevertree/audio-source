@@ -43,14 +43,14 @@
             return midiData;
         }
 
-        async loadSongDataFromFileInput(file, defaultInstrumentURL = null) {
+        async loadSongDataFromFileInput(file, defaultProgramURL = null) {
             const midiData = await this.loadMIDIFile(file);
-            const songData = this.loadSongFromMIDIData(midiData, defaultInstrumentURL);
+            const songData = this.loadSongFromMIDIData(midiData, defaultProgramURL);
             return songData;
         }
 
         /** Loading **/
-        loadSongFromMIDIData(midiData, defaultInstrumentURL = null) {
+        loadSongFromMIDIData(midiData, defaultProgramURL = null) {
 
             const newInstructions = {};
             newInstructions.root = {
@@ -65,7 +65,7 @@
             const song = new Song(songData);
 
 
-            let instrumentCount = 0;
+            let programCount = 0;
 
             for (let trackID = 0; trackID < midiData.track.length; trackID++) {
                 // newInstructions.root.push([0, `@track` + trackID]);
@@ -80,7 +80,7 @@
 
 
                 let notesFound = false;
-                let defaultInstrumentName = 'Track ' + trackID;
+                let defaultProgramName = 'Track ' + trackID;
                 for (let eventID = 0; eventID < trackEvents.length; eventID++) {
                     const trackEvent = trackEvents[eventID];
                     switch (trackEvent.type) {
@@ -91,7 +91,7 @@
                         case 255:
                             switch (trackEvent.metaType) {
                                 case 3:
-                                    defaultInstrumentName = trackEvent.data.trim();
+                                    defaultProgramName = trackEvent.data.trim();
                                     break;
                             }
                     }
@@ -102,9 +102,9 @@
                     continue;
                 }
 
-                const instrumentID = instrumentCount++;
-                if (defaultInstrumentURL) {
-                    songData.instruments[instrumentID] = {url: defaultInstrumentURL + '', name: defaultInstrumentName};
+                const programID = programCount++;
+                if (defaultProgramURL) {
+                    songData.programs[programID] = {url: defaultProgramURL + '', name: defaultProgramName};
                 }
 
                 for (let eventID = 0; eventID < trackEvents.length; eventID++) {
@@ -148,7 +148,7 @@
 
                             // let newInstructionDelta = trackEvent.deltaTime + (songPositionInTicks - lastInsertSongPositionInTicks);
                             lastInsertSongPositionInTicks = songPositionInTicks;
-                            const newInstruction = new Instruction([0, newMIDICommandOn, instrumentID, 0, newMIDIVelocityOn]);
+                            const newInstruction = new Instruction([0, newMIDICommandOn, programID, 0, newMIDIVelocityOn]);
                             const insertIndex = song.instructionInsertAtPosition(currentGroup, songPositionInTicks, newInstruction);
 
                             lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];

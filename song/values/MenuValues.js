@@ -1,7 +1,7 @@
 import Values from "./Values";
 import {MenuAction, MenuBreak, MenuDropDown} from "../../components/menu";
 import {InputRange} from "../../components";
-import InstrumentLoader from "../instrument/InstrumentLoader";
+import ProgramLoader from "../program/ProgramLoader";
 import React from "react";
 
 export default class MenuValues {
@@ -142,10 +142,10 @@ export default class MenuValues {
     }
 
     /** @deprecated moved to Library **/
-    renderMenuSelectAvailableInstrument(onSelectValue, menuTitle=null) {
+    renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
         return (<>
             {menuTitle ? <><MenuAction disabled onAction={() => {}}>{menuTitle}</MenuAction><MenuBreak/></> : null}
-            {InstrumentLoader.getRegisteredInstruments().map((config, i) =>
+            {ProgramLoader.getRegisteredPrograms().map((config, i) =>
                 <MenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuAction>
             )}
         </>);

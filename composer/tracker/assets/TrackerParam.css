@@ -7,7 +7,7 @@ div.asct-parameter {
     position: relative;
 }
 
-div.asct-parameter.instrument,
+div.asct-parameter.program,
 div.asct-parameter.velocity,
 div.asct-parameter.duration {
     /*overflow: hidden;*/
@@ -23,7 +23,7 @@ div.asct-parameter.duration {
 div.asct-parameter.command {
     color: darkred;
 }
-div.asct-parameter.instrument {
+div.asct-parameter.program {
     color: darkblue;
 }
 div.asct-parameter.duration {
@@ -34,7 +34,7 @@ div.asct-parameter.velocity {
 }
 
 div.asct-parameter.command,
-div.asct-parameter.instrument,
+div.asct-parameter.program,
 div.asct-parameter.velocity,
 div.asct-parameter.duration {
     /*overflow: hidden;*/
