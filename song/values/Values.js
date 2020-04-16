@@ -5,9 +5,6 @@ class Values {
     //     return this.renderer.noteFrequencies; // ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     // }
 
-    get noteFrequencies() {
-        return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    }
 
 
     getNoteFrequencies(callback = (freq) => freq) {
@@ -122,7 +119,73 @@ class Values {
     }
 
 
-    static parseDurationAsTicks(durationString, timeDivision) {
+    /** Frequency **/
+    // const noteCommands = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+   // Uses quarter tones
+    get noteFrequencies() {
+        return {
+            'A': 0,
+            'Aq': 1,
+            'A#': 2,
+            'Bb': 2,
+            'A#q': 3,
+            'Bbq': 3,
+            'B': 4,
+            'Bq': 5,
+            'C': 6,
+            'Cq': 7,
+            'C#': 8,
+            'Db': 8,
+            'Dbq': 9,
+            'D': 10,
+            'Dq': 11,
+            'D#': 12,
+            'D#q': 13,
+            'Eb': 12,
+            'Ebq': 13,
+            'E': 14,
+            'Eq': 15,
+            'E#': 16,
+            'F': 16,
+            'Fq': 17,
+            'F#': 18,
+            'Gb': 18,
+            'Gbq': 19,
+            'G': 20,
+            'Gq': 21,
+            'G#': 22,
+            'Ab': 22,
+            'Abq': 23,
+        }
+    }
+
+    parseFrequencyString(note) {
+        if (typeof note !== "string")
+            throw new Error("Frequency is not a string");
+        if (!note)
+            throw new Error("Frequency is null");
+
+        const noteFrequencies = this.noteFrequencies;
+        const noteScale = note.slice(0, -1);
+        const octave = parseInt(note.slice(-1));
+        if(isNaN(octave))
+            throw new Error("Invalid octave value: " + octave);
+        if(typeof noteFrequencies[noteScale] === "undefined")
+            throw new Error("Unrecognized Note: " + noteScale);
+        let keyNumber = noteFrequencies[noteScale];
+
+        if (keyNumber < 6)
+            keyNumber = keyNumber + 24 + ((octave - 1) * 24) + 2;
+        else
+            keyNumber = keyNumber + ((octave - 1) * 24) + 2;
+
+        return 440 * Math.pow(2, (keyNumber - 98) / 24);
+    }
+
+
+
+    /** Duration **/
+    parseDurationAsTicks(durationString, timeDivision) {
         if(!timeDivision)
             throw new Error("Invalid timeDivision");
         if (typeof durationString !== 'string')
@@ -147,7 +210,7 @@ class Values {
         }
     }
 
-    static formatDuration(input, timeDivision) {
+    formatDuration(input, timeDivision) {
         let stringValue;
         this.getNoteDurations((duration, durationString) => {
             if (input === duration || input === durationString) {
@@ -167,7 +230,7 @@ class Values {
     }
 
 
-    static getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
+    getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
         const results = [];
         for (let i = 64; i > 1; i /= 2) {
             let result = callback(1 / i * timeDivision, `1/${i}B`);            // Full Beats

@@ -39,7 +39,7 @@ class TrackerRow extends React.Component {
 
     render() {
         const composer = this.props.tracker.getComposer();
-        const rowDeltaDuration = composer.values.formatDuration(this.props.deltaDuration);
+        const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (
             <Div
                 className="asct-row"

@@ -54,7 +54,7 @@ class Instruction {
         }
     }
 
-    static parseInstruction(instructionData, index=null) {
+    static parseInstruction(instructionData) {
         if (instructionData instanceof Instruction)
             return instructionData;
         if(typeof instructionData === "number")
@@ -65,17 +65,27 @@ class Instruction {
             throw new Error("Invalid instruction data");
         if(typeof instructionData[0] === "string")
             instructionData.unshift(0);
-        return this.getInstruction(instructionData, index);
+        return this.getInstruction(instructionData);
     }
 
     static getInstruction(instructionData) {
         if(!instructionData)
             throw new Error("Invalid Instruction data");
-        if(this.isTrackInstruction(instructionData))
-            return new (require("./TrackInstruction").default)(instructionData);
-        if(this.isMIDIInstruction(instructionData))
+        if(typeof instructionData[1] === "string") {
+            switch(instructionData[1][0]) {
+                case '@':
+                    return new (require("./TrackInstruction").default)(instructionData);
+                case '!':
+                    return new (require("./CommandInstruction").default)(instructionData);
+                default:
+                    return new (require("./NoteInstruction").default)(instructionData);
+            }
+
+        } else if(typeof instructionData[1] === "number") {
             return new (require("./MIDIInstruction").default)(instructionData);
-        return new (require("./NoteInstruction").default)(instructionData);
+        }
+        throw new Error("Unknown Instruction");
+        // if(this.isMIDIInstruction(instructionData))
     }
 
 

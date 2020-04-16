@@ -69,7 +69,7 @@ class TrackerInstruction extends React.Component {
         // console.log('instruction', this.props, className);
         if(open) {
             const durationString = instruction.durationTicks === null ? 'N/A'
-                : this.getComposer().values.formatDuration(instruction.durationTicks);
+                : this.getComposer().values.formatSongDuration(instruction.durationTicks);
 
             if(typeof instruction.velocity !== "undefined")
                 parameters.push(<TrackerInstructionParameter

@@ -194,7 +194,7 @@ class Tracker extends React.Component {
             ) {
                 const newRowElm = <TrackerRow
                     key={rowContent.length}
-                    deltaDuration={composer.values.formatDuration(rowDeltaDuration)}
+                    deltaDuration={composer.values.formatSongDuration(rowDeltaDuration)}
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
             }

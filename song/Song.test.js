@@ -1,16 +1,15 @@
-import React from 'react';
+// import React from 'react';
 // import { render } from '@testing-library/react';
 // import Instruction from "./instruction/Instruction";
 // import Storage from "./Storage";
-import Song from "./Song";
+import {Song, Values} from "./";
 
 
-test('song test', async () => {
-  await new SongTest().test();
+// (async () => {
   // const { getByText } = render(<App />);
   // const linkElement = getByText(/learn react/i);
   // expect(linkElement).toBeInTheDocument();
-});
+// })();
 
 const startTime = getSeconds();
 function getSeconds() {
@@ -34,12 +33,33 @@ class SongTest {
   async test() {
     console.info("Test Started: ", this.constructor.name, __filename);
     // this.testStorage();
+    this.testValues();
     const song = this.testSongClass();
     await this.testSongPlayback(song);
     // await this.testValues();
     console.info("Test Complete: ", this.constructor.name, song.data);
   }
 
+
+  testValues() {
+    const values = [
+      ['A3', 220],
+      ['B3', 247],
+      ['C4', 262],
+      ['D4', 294],
+      ['E4', 330],
+      ['F4', 349],
+      ['G4', 392],
+      ['A4', 440],
+      ['B4', 494],
+    ];
+    for(let i=0; i<values.length; i++) {
+      const [note, expFreq] = values[i];
+      const freq = new Values().parseFrequencyString(note);
+      expect(Math.round(expFreq)).toBe(Math.round(freq));
+    }
+
+  }
 
   // testStorage() {
   //   const s = new Storage();
@@ -69,63 +89,76 @@ class SongTest {
     // await song.loadSongData({});
 
 
-    const testTrackName = song.getStartTrackName();
-    const rootGroup = song.data.tracks.root;
+    const testTrackName = 'testTrack';
+    song.trackAdd(testTrackName);
+    song.instructionInsertAtIndex(song.getStartTrackName(), 0, '@' + testTrackName);
+
+    // const rootGroup = song.data.tracks.root;
+    const TD = song.data.timeDivision;
 
     // Insert Instructions
     const textNotes = {
       insert: [
-        [0, 'ins00'],
-        [10, [10, 'ins10']],
-        [30, [20, 'ins30']],
-        [60, [30, 'ins60']],
-        [100, [40, 'ins100']],
-        [150, [50, 'ins150']],
+        [0, 'Cq4'],
+        [10, 10, 'Dq4'],
+        [30, 20, 'Dbq4'],
+        [60, 30, 'E#4'],
+        [100, 40, 'Gbq4'],
+        [150, 50, 'Gq4'],
       ],
       position: [
-        [0,     [0,  'pos00']],
-        [5,     [5,  'pos05']],
-        [10,    [10, 'pos10']],
-        [15,    [15, 'pos15']],
-        [20,    [20, 'pos20']],
-        [25,    [25, 'pos25']],
-        [30,    [30, 'pos30']],
-        [30,    ['0.5B', 'pos.5B']],
-        [30,    ['1B', 'pos1B']],
-        [30,    ['8B', 'pos8B']],
+        [0,     0,  'C4'],
+        [5,     5,  'D4'],
+        [10,    10, 'E#4'],
+        [15,    15, 'F4'],
+        [20,    20, 'A4'],
+        [25,    25, 'B4'],
+        [30,    30, 'A3'],
+        [TD/2,  '0.5B', 'A4'],
+        [TD,    '1B', 'A5'],
+        [TD*8,  '8B', 'A6'],
       ]
     };
     for(let i=0; i<textNotes.insert.length; i++) {
-      const [pos, insertNote] = textNotes.insert[i];
-      const index = song.instructionInsertAtIndex(testTrackName, rootGroup.length, insertNote);
-      const stats = song.instructionGetIterator(testTrackName);
-      stats.seekToIndex(index);
-      expect(stats.positionTicks).toBe(pos);
+      const [expPos, delta, insertNote] = textNotes.insert[i];
+      const index = song.instructionInsertAtIndex(testTrackName, i, [delta, insertNote]);
+      const iterator = song.instructionGetIterator(testTrackName);
+      iterator.seekToIndex(index);
+      test(`Insert ${insertNote} with delta=${delta}`, () => {
+        expect(iterator.positionTicks).toBe(expPos);
+      });
     }
     for(let i=0; i<textNotes.position.length; i++) {
-      const [pos, insertNote] = textNotes.position[i];
-      const index = song.instructionInsertAtPosition(testTrackName, pos, insertNote);
-      const stats = song.instructionGetIterator(testTrackName);
-      stats.seekToIndex(index);
-      expect(stats.positionTicks).toBe(pos);
+      const [expPos, insPos, insertNote] = textNotes.position[i];
+      const index = song.instructionInsertAtPosition(testTrackName, insPos, insertNote);
+      const iterator = song.instructionGetIterator(testTrackName);
+      iterator.seekToIndex(index);
+      test(`Insert ${insertNote} at position=${insPos}`, () => {
+        expect(iterator.positionTicks).toBe(expPos);
+      });
     }
 
 
     // Test Get Instructions
 
-    [1,2].forEach(i => {
-      const testInstruction = song.instructionGetByIndex(testTrackName, i);
-      console.assert(song.instructionIndexOf(testTrackName, testInstruction) === i, 'instructionFindIndex');
+    test(`Test instructionGetByIndex`, () => {
+      [1, 2].forEach(i => {
+        const testInstruction = song.instructionGetByIndex(testTrackName, i);
+        console.assert(song.instructionIndexOf(testTrackName, testInstruction) === i, 'instructionFindIndex');
+      });
     });
 
     // Test Iterator
-    let currentIndex = 0;
+    // let currentIndex = 0;
     let iterator = song.instructionGetIterator(testTrackName);
-    let instruction, instructionList, positionInTicks=0, playbackTime=0;
+    let instruction, positionInTicks=0;
     while(instruction = iterator.nextInstruction()) {
       positionInTicks += instruction.deltaDurationTicks;
-      expect(iterator.positionTicks).toBe(positionInTicks);
+      test(`Iterator ${iterator.positionTicks} test`, () => {
+        expect(iterator.positionTicks).toBe(positionInTicks);
+      });
     }
+
 
     // Groups
     const newRootGroup = song.generateInstructionTrackName('rootGroup');
@@ -133,7 +166,9 @@ class SongTest {
     song.trackRemove(newRootGroup);
 
     const songLength = song.getSongLengthInSeconds();
-    expect(songLength).toBeGreaterThan(0);
+    test(`Song length test`, () => {
+        expect(songLength).toBeGreaterThan(0);
+    });
     // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
 
     // TODO: set position
@@ -155,8 +190,8 @@ class SongTest {
     // await playback.awaitPlaybackReachedEnd();
 
     // Delete Instructions
-    while(rootGroup.length > 5)
-      song.instructionDeleteAtIndex(testTrackName, 0);
+    // while(rootGroup.length > 5)
+    //   song.instructionDeleteAtIndex(testTrackName, 0);
 
 
     // console.assert(r.getSongPositionFromTicks() === 0, "getSongPositionInSeconds");
@@ -169,3 +204,5 @@ class SongTest {
     await playback.awaitPlaybackReachedEnd();
   }
 }
+
+new SongTest().test();

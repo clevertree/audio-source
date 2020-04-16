@@ -194,7 +194,7 @@ class Song {
         // instrumentClass.stopPlayback();
     }
 
-    playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended=null) {
+    playInstrument(destination, instrumentID, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
         if (!instrumentID && instrumentID !== 0)
             throw new Error("Invalid instrument ID");
         // if (!instrumentID && instrumentID !== 0) {
@@ -205,7 +205,7 @@ class Song {
         let instrument = this.instrumentLoader.loadInstanceFromDestination(instrumentID, destination);
         // return await instrument.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
-            noteFrequency = Song.parseFrequencyString(noteFrequency);
+            noteFrequency = this.values.parseFrequencyString(noteFrequency);
         return instrument.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
@@ -372,7 +372,7 @@ class Song {
     /** TODO: fix insertion bugs **/
     instructionInsertAtPosition(trackName, insertPositionInTicks, insertInstructionData) {
         if (typeof insertPositionInTicks === 'string')
-            insertPositionInTicks = Values.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
+            insertPositionInTicks = new Values().parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
 
         if (!Number.isInteger(insertPositionInTicks))
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
@@ -496,9 +496,7 @@ class Song {
     trackAdd(newTrackName, instructionList) {
         if (this.data.tracks.hasOwnProperty(newTrackName))
             throw new Error("New group already exists: " + newTrackName);
-        this.data.tracks[newTrackName] = {
-            instructions: instructionList || []
-        };
+        this.data.tracks[newTrackName] = instructionList || [];
     }
 
 
@@ -688,7 +686,7 @@ class Song {
         // await this.init(audioContext);
         const playback = new InstructionPlayback(destination, this, this.getStartTrackName(), this.playbackPosition);
         this.playback = playback;
-        console.log("Start playback:", this.playbackPosition);
+        // console.log("Start playback:", this.playbackPosition);
 
         this.dispatchEvent({
             type: 'song:play',
@@ -771,12 +769,15 @@ class Song {
         }
 
 
-        let bpm = this.data.bpm; // getStartingBeatsPerMinute();
         // const noteDuration = (instruction.duration || 1) * (60 / bpm);
-        let timeDivision = this.data.timeDivision;
 
-        const notedurationTicks = instruction.durationTicks || 0; // (timeDivision);
-        const noteDuration = (notedurationTicks / timeDivision) / (bpm / 60);
+        let noteDuration = null;
+        if(typeof instruction.durationTicks !== "undefined") {
+            let bpm = this.data.bpm; // getStartingBeatsPerMinute();
+            let timeDivision = this.data.timeDivision;
+            const noteDurationTicks = instruction.durationTicks; // (timeDivision);
+            noteDuration = (noteDurationTicks / timeDivision) / (bpm / 60);
+        }
 
         let currentTime = audioContext.currentTime;
 
@@ -844,22 +845,6 @@ class Song {
     }
 
 
-    /** Parsing **/
-
-
-    static parseFrequencyString(note) {
-        if (typeof note !== "string")
-            throw new Error("Frequency is not a string");
-        if (!note)
-            throw new Error("Frequency is null");
-
-        const noteCommands = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-        let octave = note.length === 3 ? note.charAt(2) : note.charAt(1),
-            keyNumber = noteCommands.indexOf(note.slice(0, -1));
-        if (keyNumber < 3) keyNumber = keyNumber + 12 + ((octave - 1) * 12) + 1;
-        else keyNumber = keyNumber + ((octave - 1) * 12) + 1;
-        return 440 * Math.pow(2, (keyNumber - 49) / 12);
-    }
 
     /** History **/
 

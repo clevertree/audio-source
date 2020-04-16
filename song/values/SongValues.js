@@ -60,13 +60,13 @@ class SongValues extends Values{
 
 
 
-    formatDuration(input) {
-        return SongValues.formatDuration(input, this.song.data.timeDivision);
+    formatSongDuration(input) {
+        return super.formatDuration(input, this.song.data.timeDivision);
     }
 
 
-    getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
-        return SongValues.getNoteDurations(callback, this.song.data.timeDivision);
+    getSongNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
+        return super.getNoteDurations(callback, this.song.data.timeDivision);
     }
 
 

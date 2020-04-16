@@ -66,13 +66,13 @@ class InstructionIterator {
         return currentInstruction;
     }
 
-    seekToIndex(index) {
+    seekToIndex(index, callback=null) {
         if (!Number.isInteger(index))
             throw new Error("Invalid seek index");
         while (true) {
             if (index === this.currentIndex)
                 break;
-            if (!this.nextInstruction())
+            if (!this.nextInstruction(callback))
                 break;
         }
     }

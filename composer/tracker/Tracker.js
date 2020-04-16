@@ -179,7 +179,7 @@ class Tracker extends React.Component {
 
     renderRowOptions() {
         const composer = this.props.composer;
-        const rowDeltaDuration = composer.values.formatDuration(this.getQuantizationInTicks());
+        const rowDeltaDuration = composer.values.formatSongDuration(this.getQuantizationInTicks());
 
         const buttons = [];
 

@@ -8,7 +8,7 @@ class TestInstrument {
 
     /** Playback **/
 
-    playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
+    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         console.log('playFrequency(', frequency, startTime, duration, velocity, ')')
     }
 
