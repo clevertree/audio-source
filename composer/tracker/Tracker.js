@@ -205,7 +205,7 @@ class Tracker extends React.Component {
 
         const rowContent = [];
 
-
+        // TODO: calculate from offset: positionTicks, positionSeconds, isCursor, isSelected
         this.eachRow((rowCount, currentRowPositionTicks, toPositionTicks, cursorPositionCount, instructionList) => {
             const rowInstructionElms = [];
             for(let i=0; i<instructionList.length; i++) {
@@ -227,11 +227,13 @@ class Tracker extends React.Component {
             ) {
                 const newRowElm = <TrackerRow
                     key={rowCount}
-                    cursor={cursorPositionCount === cursorOffset}
+                    cursor={cursorPositionCount === cursorOffset} // TODO: Redundant
                     tracker={this}
                     positionTicks={currentRowPositionTicks}
+                    positionSeconds={1} // TODO:
                     deltaDuration={rowDeltaDuration}
-                    cursorPosition={cursorPositionCount} // TODO: inefficient?
+                    cursorPosition={cursorPositionCount} // TODO: inefficient? nah
+
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
             }

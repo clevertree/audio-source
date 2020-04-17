@@ -230,7 +230,7 @@ export default class TrackInfo {
             const props = {
                 instruction,
                 index,
-                cursorPosition // TODO: inefficient?
+                cursorPosition // TODO: inefficient? nah.
             };
             if (selectedIndices.indexOf(index) !== -1)
                 props.selected = true;
@@ -256,6 +256,7 @@ export default class TrackInfo {
             }
             // let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
 
+            // TODO: refactor as row props
             const result = rowCallback(rowCount, currentRowPositionTicks, toPositionTicks, cursorPosition, rowInstructionElms);
             currentRowPositionTicks = toPositionTicks;
 
