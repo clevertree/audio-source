@@ -164,6 +164,30 @@ class SongTest {
       });
     }
 
+    // Test Row Iterator
+    // let currentIndex = 0;
+    iterator = song.instructionGetIterator(testTrackName);
+    let row;
+    positionInTicks = 0;
+    while(row = iterator.nextInstructionRow()) {
+      positionInTicks += row[0].deltaDurationTicks;
+      test(`Row Iterator ${iterator.positionTicks} test`, () => {
+        expect(iterator.positionTicks).toBe(positionInTicks);
+      });
+    }
+
+
+    // Test Row Iterator
+    // let currentIndex = 0;
+    // let rowIterator = song.instructionGetRowIterator(testTrackName);
+    // while(row = rowIterator.nextQuantizedInstructionRow()) {
+    //   console.log(row, rowIterator);
+    //   // positionInTicks += instruction.deltaDurationTicks;
+    //   // test(`Row Iterator ${iterator.positionTicks} test`, () => {
+    //   //   expect(iterator.positionTicks).toBe(positionInTicks);
+    //   // });
+    // }
+
 
     // Groups
     const newRootGroup = song.generateInstructionTrackName('rootGroup');

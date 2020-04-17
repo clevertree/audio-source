@@ -6,7 +6,7 @@ import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
-import {Instruction, InstructionIterator, InstructionPlayback} from "./instruction/";
+import {Instruction, InstructionIterator, InstructionRowIterator, InstructionPlayback} from "./instruction/";
 
 
 import ProgramList from "../programs";
@@ -356,6 +356,18 @@ class Song {
         const instructionList = this.data.tracks[trackName];
 
         return new InstructionIterator(
+            instructionList,
+            timeDivision || this.data.timeDivision,
+            bpm || this.data.bpm,
+        );
+    }
+    instructionGetRowIterator(trackName, quantizationTicks, timeDivision=null, bpm=null) {
+        if(!this.data.tracks[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        const instructionList = this.data.tracks[trackName];
+
+        return new InstructionRowIterator(
+            quantizationTicks,
             instructionList,
             timeDivision || this.data.timeDivision,
             bpm || this.data.bpm,
