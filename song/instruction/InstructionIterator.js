@@ -98,84 +98,98 @@ class InstructionIterator {
 
     /** Row Quantization **/
     nextQuantizedInstructionRow(quantizationTicks, toPositionTicks, rowCallback=null, instructionCallback=null) {
+        if(this.positionTicks >= toPositionTicks)
+            return null; // Reached the end
+
         // Initiate quantization breaks
         if(this.nextQuantizationBreakInTicks === null)
             this.nextQuantizationBreakInTicks = quantizationTicks;
 
         // Catch up the quantization breaks
-        while(this.nextQuantizationBreakInTicks < this.positionTicks)
+        while(this.nextQuantizationBreakInTicks <= this.positionTicks)
             this.nextQuantizationBreakInTicks += quantizationTicks;
 
         if(!this.hasReachedEnd()) {
+            // If there is a next instruction
             let instruction = this.getInstruction(this.currentIndex + 1);
-            const nextPositionTicks = instruction.deltaDurationTicks + this.positionTicks;
+            const nextPositionTicks = instruction.deltaDurationTicks + this.lastInstructionPositionInTicks;
             if (this.nextQuantizationBreakInTicks < nextPositionTicks) {
+                // Next break comes before next instruction
 
+                this.positionTicks = this.nextQuantizationBreakInTicks;
+                this.nextQuantizationBreakInTicks += quantizationTicks;
+                return []; // Return empty row
             }
 
+            // Return the next row
+            return this.nextInstructionRow(rowCallback, instructionCallback);
         }
 
+        // Render the next quantized row
+        this.positionTicks = this.nextQuantizationBreakInTicks;
+        this.nextQuantizationBreakInTicks += quantizationTicks;
+        return [];  // Return empty row
     }
 
 
-    nextQuantizedInstructionRow(quantizationTicks, toPositionTicks, rowCallback=null, instructionCallback=null) {
-        // let nextQuantizationBreakInTicks = quantizationTicks;
-        const instructionList = [];
-        if(instructionCallback === null)
-            instructionCallback = function(instruction) { return instruction };
-
-        // Scan ahead to next instruction
-        let nextPositionTicks = this.positionTicks;
-        if(!this.hasReachedEnd()) {
-            let instruction = this.getInstruction(this.currentIndex + 1);
-            nextPositionTicks += instruction.deltaDurationTicks;
-        }
-
-        if(this.hasReachedEnd()) {
-
-        } else if(nextPositionTicks < this.nextQuantizationBreakInTicks) {
-            // If next position is after next quantized break, return a blank row
-            this.rowPositionTicks = this.nextQuantizationBreakInTicks;
-            this.nextQuantizationBreakInTicks += this.quantizationTicks;
-
-        } else {
-            // Increment instruction position
-            this.nextInstruction();
-
-
-            while (!this.hasReachedEnd()) {
-                // Scan ahead to next instruction
-                let instruction = this.getInstruction(this.currentIndex + 1);
-
-                // If the next instruction has a delta, then the current row ends
-                if (!instruction || instruction.deltaDurationTicks > 0) {
-                    // Finish rendering last row
-                    break;
-
-                    // Move next quantized row up to current position
-                    // while (this.nextQuantizationBreakInTicks <= currentRowPositionTicks)
-                    //     this.nextQuantizationBreakInTicks += quantizationTicks;
-
-
-                }
-
-                // Increment instruction position
-                instruction = this.nextInstruction();
-
-                // Increment instruction cursor offset
-                this.cursorOffset++;
-                const ret = instructionCallback(instruction);
-                if (ret !== null)
-                    instructionList.push(ret);
-            }
-            this.rowPositionTicks = this.positionTicks;
-        }
-        this.rowCount++;
-        this.cursorOffset++;
-        return instructionList;
-
-
-    }
+    // nextQuantizedInstructionRow(quantizationTicks, toPositionTicks, rowCallback=null, instructionCallback=null) {
+    //     // let nextQuantizationBreakInTicks = quantizationTicks;
+    //     const instructionList = [];
+    //     if(instructionCallback === null)
+    //         instructionCallback = function(instruction) { return instruction };
+    //
+    //     // Scan ahead to next instruction
+    //     let nextPositionTicks = this.positionTicks;
+    //     if(!this.hasReachedEnd()) {
+    //         let instruction = this.getInstruction(this.currentIndex + 1);
+    //         nextPositionTicks += instruction.deltaDurationTicks;
+    //     }
+    //
+    //     if(this.hasReachedEnd()) {
+    //
+    //     } else if(nextPositionTicks < this.nextQuantizationBreakInTicks) {
+    //         // If next position is after next quantized break, return a blank row
+    //         this.rowPositionTicks = this.nextQuantizationBreakInTicks;
+    //         this.nextQuantizationBreakInTicks += this.quantizationTicks;
+    //
+    //     } else {
+    //         // Increment instruction position
+    //         this.nextInstruction();
+    //
+    //
+    //         while (!this.hasReachedEnd()) {
+    //             // Scan ahead to next instruction
+    //             let instruction = this.getInstruction(this.currentIndex + 1);
+    //
+    //             // If the next instruction has a delta, then the current row ends
+    //             if (!instruction || instruction.deltaDurationTicks > 0) {
+    //                 // Finish rendering last row
+    //                 break;
+    //
+    //                 // Move next quantized row up to current position
+    //                 // while (this.nextQuantizationBreakInTicks <= currentRowPositionTicks)
+    //                 //     this.nextQuantizationBreakInTicks += quantizationTicks;
+    //
+    //
+    //             }
+    //
+    //             // Increment instruction position
+    //             instruction = this.nextInstruction();
+    //
+    //             // Increment instruction cursor offset
+    //             this.cursorOffset++;
+    //             const ret = instructionCallback(instruction);
+    //             if (ret !== null)
+    //                 instructionList.push(ret);
+    //         }
+    //         this.rowPositionTicks = this.positionTicks;
+    //     }
+    //     this.rowCount++;
+    //     this.cursorOffset++;
+    //     return instructionList;
+    //
+    //
+    // }
 
     /** Seeking **/
 

@@ -98,7 +98,7 @@ class SongTest {
     song.instructionInsertAtIndex(song.getStartTrackName(), 0, '@' + testTrackName);
     song.instructionInsertAtIndex(testTrackName, 0, [0, '!p', 0]);
 
-    // const rootGroup = song.data.tracks.root;
+    // const rootTrack = song.data.tracks.root;
     const TD = song.data.timeDivision;
 
     // Insert Instructions
@@ -124,24 +124,24 @@ class SongTest {
         [TD*8,  '8B', 'A6'],
       ]
     };
-    for(let i=0; i<textNotes.insert.length; i++) {
-      const [expPos, delta, insertNote] = textNotes.insert[i];
-      const index = song.instructionInsertAtIndex(testTrackName, testTrack.length, [delta, insertNote]);
-      const iterator = song.instructionGetIterator(testTrackName);
-      iterator.seekToIndex(index);
-      test(`Insert ${insertNote} with delta=${delta}`, () => {
+    test(`Insert at index`, () => {
+      for(let i=0; i<textNotes.insert.length; i++) {
+        const [expPos, delta, insertNote] = textNotes.insert[i];
+        const index = song.instructionInsertAtIndex(testTrackName, testTrack.length, [delta, insertNote]);
+        const iterator = song.instructionGetIterator(testTrackName);
+        iterator.seekToIndex(index);
         expect(iterator.positionTicks).toBe(expPos);
-      });
-    }
-    for(let i=0; i<textNotes.position.length; i++) {
-      const [expPos, insPos, insertNote] = textNotes.position[i];
-      const index = song.instructionInsertAtPosition(testTrackName, insPos, insertNote);
-      const iterator = song.instructionGetIterator(testTrackName);
-      iterator.seekToIndex(index);
-      test(`Insert ${insertNote} at position=${insPos}`, () => {
+      }
+    });
+    test(`Insert at position`, () => {
+      for(let i=0; i<textNotes.position.length; i++) {
+        const [expPos, insPos, insertNote] = textNotes.position[i];
+        const index = song.instructionInsertAtPosition(testTrackName, insPos, insertNote);
+        const iterator = song.instructionGetIterator(testTrackName);
+        iterator.seekToIndex(index);
         expect(iterator.positionTicks).toBe(expPos);
-      });
-    }
+      }
+    });
 
 
     // Test Get Instructions
@@ -155,47 +155,57 @@ class SongTest {
 
     // Test Iterator
     // let currentIndex = 0;
-    let iterator = song.instructionGetIterator(testTrackName);
-    let instruction, positionInTicks=0;
-    while(instruction = iterator.nextInstruction()) {
-      positionInTicks += instruction.deltaDurationTicks;
-      test(`Iterator ${iterator.positionTicks} test`, () => {
-        expect(iterator.positionTicks).toBe(positionInTicks);
-      });
-    }
+    test(`Iterator test`, () => {
+      let iterator = song.instructionGetIterator(testTrackName);
+      let instruction, positionInTicks=0;
+      while(instruction = iterator.nextInstruction()) {
+        positionInTicks += instruction.deltaDurationTicks;
+          expect(iterator.positionTicks).toBe(positionInTicks);
+      }
+    });
 
     // Test Row Iterator
     // let currentIndex = 0;
-    iterator = song.instructionGetIterator(testTrackName);
-    let row;
-    positionInTicks = 0;
-    while(row = iterator.nextInstructionRow()) {
-      positionInTicks += row[0].deltaDurationTicks;
-      test(`Row Iterator ${iterator.positionTicks} test`, () => {
+    test(`Row Iterator`, () => {
+      let row;
+      let positionInTicks = 0;
+      const iterator = song.instructionGetIterator(testTrackName);
+      while(row = iterator.nextInstructionRow()) {
+        positionInTicks += row[0].deltaDurationTicks;
         expect(iterator.positionTicks).toBe(positionInTicks);
-      });
-    }
+      }
+    });
 
 
-    // Test Row Iterator
-    // let currentIndex = 0;
-    // let rowIterator = song.instructionGetRowIterator(testTrackName);
-    // while(row = rowIterator.nextQuantizedInstructionRow()) {
-    //   console.log(row, rowIterator);
-    //   // positionInTicks += instruction.deltaDurationTicks;
-    //   // test(`Row Iterator ${iterator.positionTicks} test`, () => {
-    //   //   expect(iterator.positionTicks).toBe(positionInTicks);
-    //   // });
-    // }
+    test(`Quantized Row Iterator`, () => {
+      // Test Row Iterator
+      // let currentIndex = 0;
+      // let rowIterator = song.instructionGetRowIterator(testTrackName);
+      const iterator = song.instructionGetIterator(testTrackName);
+      let row;
+      while(row = iterator.nextQuantizedInstructionRow(5, 65)) {
+        switch(true) {
+          case iterator.positionTicks <= 30:
+          case iterator.positionTicks === 60:
+            expect(row.length).toBeGreaterThanOrEqual(1);
+            break;
+          default:
+            expect(row.length).toBe(0);
+        }
+        // console.log(row);
+      }
+    });
 
 
-    // Groups
-    const newRootGroup = song.generateInstructionTrackName('rootGroup');
-    song.trackAdd(newRootGroup, ['A', 'B', 'C', 10, 'D']);
-    song.trackRemove(newRootGroup);
+    // Tracks
+    test(`Add Track`, () => {
+        const newRootTrack = song.generateInstructionTrackName('rootTrack');
+        song.trackAdd(newRootTrack, ['A', 'B', 'C', 10, 'D']);
+        song.trackRemove(newRootTrack);
+    });
 
-    const songLength = song.getSongLengthInSeconds();
-    test(`Song length test`, () => {
+    test(`Song Length test`, () => {
+        const songLength = song.getSongLengthInSeconds();
         expect(songLength).toBeGreaterThan(0);
     });
     // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
@@ -219,7 +229,7 @@ class SongTest {
     // await playback.awaitPlaybackReachedEnd();
 
     // Delete Instructions
-    // while(rootGroup.length > 5)
+    // while(rootTrack.length > 5)
     //   song.instructionDeleteAtIndex(testTrackName, 0);
 
 
