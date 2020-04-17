@@ -26,7 +26,7 @@ class Instruction {
         const durationTicks = this.durationTicks;
         if(durationTicks === null)
             return 'N/A';
-        return SongValues.formatDuration(durationTicks, timeDivision);
+        return new SongValues().formatDuration(durationTicks, timeDivision);
     }
     set durationTicks(newDuration)  { throw new Error("TODO: Implement for " + this.constructor.name);}
     get durationTicks()             { throw new Error("TODO: Implement for " + this.constructor.name);}

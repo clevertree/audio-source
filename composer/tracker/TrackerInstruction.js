@@ -128,6 +128,10 @@ class TrackerInstruction extends React.Component {
         } else {
             this.getTracker().playInstructions(selectedIndices);
         }
+
+        // TODO: get song position by this.props.index
+        console.log('TODO: get song position by this.props.index');
+
     }
 
     /** TODO: Inefficient **/

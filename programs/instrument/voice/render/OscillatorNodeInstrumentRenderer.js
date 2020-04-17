@@ -190,7 +190,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
             <MenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</MenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
             <MenuBreak/>
-            {this.library.renderMenuInstrumentAllPresets(([className, presetConfig]) => {
+            {this.library.renderMenuProgramAllPresets(([className, presetConfig]) => {
                 this.loadPreset(className, presetConfig);
             })}
         </>);

@@ -7,6 +7,7 @@ class ProgramLoader {
         // this.destinations = new WeakMap();
     }
 
+
     loadInstanceFromDestination(programID, destination) {
         return this.loadInstanceFromID(programID);
         // let programs = this.destinations.get(destination);
@@ -59,6 +60,22 @@ class ProgramLoader {
 
     /** Actions **/
 
+    stopProgramPlayback(programID) {
+        const classes = ProgramLoader.registeredProgramClasses;
+        const {classProgram} = classes[programID];
+        if(!classProgram.stopPlayback) {
+            // console.warn(classProgram.name + " has no static stopPlayback method");
+        } else {
+            classProgram.stopPlayback();
+        }
+    }
+
+    stopAllPlayback() {
+        const classes = ProgramLoader.registeredProgramClasses;
+        for(let i=0; i<classes.length; i++) {
+            this.stopProgramPlayback(i);
+        }
+    }
     unloadAllPrograms() {
         const classes = ProgramLoader.registeredProgramClasses;
         for(let i=0; i<classes.length; i++) {

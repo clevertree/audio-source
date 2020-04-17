@@ -15,12 +15,18 @@ class InstructionPlayback {
         this.song = song;
         this.seekLength = 10;
         this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
+        this.active = true;
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
 
         this.renderPlayback();
+        this.playTrackInstructionCallback = this.playTrackInstruction.bind(this);
+    }
+
+    getPositionInSeconds() {
+        return this.audioContext.currentTime - this.startTime;
     }
 
     async awaitPlaybackReachedEnd() {
@@ -28,10 +34,9 @@ class InstructionPlayback {
     }
 
     renderPlayback() {
-        const currentPositionSeconds = this.audioContext.currentTime - this.startTime;
+        const currentPositionSeconds = this.getPositionInSeconds(); // this.audioContext.currentTime - this.startTime;
 
-        this.trackIterator.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstruction.bind(this));
-        if(this.trackIterator.hasReachedEnd()) {
+        if(!this.active || this.trackIterator.hasReachedEnd()) {
             clearInterval(this.seekInterval);
             const endPositionSeconds = this.trackIterator.getEndPositionInSeconds();
             const timeTillFinished = endPositionSeconds - currentPositionSeconds;
@@ -40,11 +45,14 @@ class InstructionPlayback {
                 setTimeout(() => this.endPlayback(), timeTillFinished * 1000);
             else
                 this.endPlayback();
+        } else {
+            this.trackIterator.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstructionCallback);
         }
     }
 
     endPlayback() {
         this.endResolve();
+        this.active = false;
         // this.endPromise = true;
     }
 

@@ -86,25 +86,23 @@ class OscillatorNodeInstrument {
     }
 
 
-    stopPlayback(destination) {
-        // Stop all active sources
-        //     console.log("this.playingOSCs", this.playingOSCs);
-        for (let i = 0; i < OscillatorNodeInstrument.playingOSCs.length; i++) {
-            try {
-                OscillatorNodeInstrument.playingOSCs[i].stop();
-            } catch (e) {
-                console.warn(e);
-            }
-        }
-        OscillatorNodeInstrument.playingOSCs = [];
-
-    }
-
-
 
     /** Static **/
 
     static playingOSCs = [];
+
+    static stopPlayback() {
+        // Stop all active sources
+        //     console.log("this.playingOSCs", this.playingOSCs);
+        for (let i = 0; i < this.playingOSCs.length; i++) {
+            try {
+                this.playingOSCs[i].stop();
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+        this.playingOSCs = [];
+    }
 
 
     static waveURLCache = {};

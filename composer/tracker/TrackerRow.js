@@ -67,6 +67,8 @@ class TrackerRow extends React.Component {
     selectRow(clearSelection=true) {
         const selectedIndices = clearSelection ? [] : null;
         this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
+        console.log('TODO: get song position by this.props.index');
+        // TODO: get song position by this.props.index
     }
 
 

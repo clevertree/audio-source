@@ -1,4 +1,4 @@
-import {NoteInstruction} from "../../song/instruction/";
+import {ProgramLoader, NoteInstruction} from "../../song/";
 
 
 export default class TrackInfo {
@@ -277,7 +277,7 @@ export default class TrackInfo {
         const song = this.composer.getSong();
 
         if(stopPlayback)
-            song.stopProgramPlayback(destination, programID);
+            song.programLoader.stopAllPlayback();
 
         for(let i=0; i<selectedIndices.length; i++) {
             const selectedIndex = selectedIndices[i];

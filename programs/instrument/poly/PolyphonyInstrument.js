@@ -12,7 +12,7 @@ class PolyphonyInstrument {
         if(!this.config.voices[voiceID])
             throw new Error("Voice config is missing: " + voiceID);
         const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
-        let {classInstrument:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+        let {classProgram:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
         return new voiceClass(voiceConfig);
     }
 

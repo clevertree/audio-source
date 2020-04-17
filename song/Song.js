@@ -60,14 +60,20 @@ class Song {
                     [0, 'C4', 64],
                     [64, 'D4', 64],
                     [64, 'E4', 64],
-                    [64, 'F4', 48, 50],
+                    [64, 'F4', 64],
+                    [64, 'G4', 64],
+                    [64, 'A4', 64],
                 ],
                 track1: [
                     ['!p', 1],
                     [0, 'C4', 64],
+                    [96, 'Cq4', 64],
+                    [96, 'C#4', 64],
+                    [96, 'C#q4', 64],
                     [96, 'D4', 64],
-                    [96, 'E4', 64],
-                    [96, 'A5', 48, 50],
+                    [96, 'Dq4', 64],
+                    [96, 'D#4', 64],
+                    [96, 'D#q4', 64],
                 ]
             }
         };
@@ -181,17 +187,6 @@ class Song {
 
     hasProgram(programID) {
         return !!this.data.programs[programID];
-    }
-
-    stopProgramPlayback(destination, programID) {
-        let program = this.programLoader.loadInstanceFromID(programID);
-        if(typeof program.stopPlayback !== "function")
-            return console.error(program.name + ".stopPlayback is not a function");
-        program.stopPlayback(destination);
-        // let programClass = this.programLoader.programGetClass(programID);
-        // if(typeof programClass.stopPlayback !== "function")
-        //     return console.error(programClass.name + ".stopPlayback is not a function");
-        // programClass.stopPlayback();
     }
 
     playProgram(destination, programID, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
@@ -658,15 +653,15 @@ class Song {
         // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
         let isPlaying = !!this.playback;
         if (this.playback) {
-            this.playback.stopPlayback();
+            this.stopPlayback();
         }
         this.playbackPosition = songPosition;
 
         if (isPlaying) {
             const oldDestination = this.playback.destination;
             this.playback = new InstructionPlayback(oldDestination, this, this.getStartTrackName(), oldDestination.context.currentTime - this.playbackPosition);
-            this.playback.awaitPlaybackReachedEnd()
-                .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
+            // this.playback.awaitPlaybackReachedEnd()
+            //     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
         }
         // const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 //         console.log("Seek position: ", this.playbackPosition, positionInTicks);
@@ -702,21 +697,30 @@ class Song {
         //     this.stopPlayback(true);
     }
 
+
+    stopProgramPlayback(programID) {
+        this.programLoader.stopProgramPlayback(programID);
+        // let programClass = this.programLoader.programGetClass(programID);
+        // if(typeof programClass.stopPlayback !== "function")
+        //     return console.error(programClass.name + ".stopPlayback is not a function");
+        // programClass.stopPlayback();
+    }
+
     stopPlayback() {
         if (!this.playback)
-            throw new Error("Playback is already stopped");
+            return console.warn("Playback is already stopped");
         const playback = this.playback;
         this.playback = null;
-        this.playbackPosition = playback.getTrackPositionInSeconds();
-        playback.stopPlayback();
+        this.playbackPosition = playback.getPositionInSeconds();
+        this.programLoader.stopAllPlayback();
 
         // TODO: move to playback class
-        for (let i = 0; i < this.playbackEndCallbacks.length; i++)
-            this.playbackEndCallbacks[i]();
-        this.playbackEndCallbacks = [];
-        for (let i = 0; i < this.waitCancels.length; i++)
-            this.waitCancels[i]();
-        this.waitCancels = [];
+        // for (let i = 0; i < this.playbackEndCallbacks.length; i++)
+        //     this.playbackEndCallbacks[i]();
+        // this.playbackEndCallbacks = [];
+        // for (let i = 0; i < this.waitCancels.length; i++)
+        //     this.waitCancels[i]();
+        // this.waitCancels = [];
 
 
         console.log("End playback:", this.playbackPosition);
@@ -755,7 +759,7 @@ class Song {
             console.warn("No instruction at index");
     }
 
-    playInstruction(destination, instruction, programID, noteStartTime = null, trackName = null) {
+    playInstruction(destination, instruction, programID, noteStartTime = null) {
         const audioContext = this.audioContext;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
@@ -764,9 +768,7 @@ class Song {
         //     this.stopPlayback();
 
         if (instruction instanceof TrackInstruction) {
-            const groupPlayback = new InstructionPlayback(destination, this, instruction.getTrackName(), noteStartTime);
-            // const groupPlayback = new InstructionPlayback(this.song, subTrackName, notePosition);
-            return groupPlayback;
+            return new InstructionPlayback(destination, this, instruction.getTrackName(), noteStartTime);
         }
 
 

@@ -196,7 +196,7 @@ export default class Composer extends ComposerActions {
                 break;
 
             case 'song:seek':
-                this.updateSongPositionValue(e.detail.position);
+                this.updateSongPositionValue(e.position);
                 break;
 
             case 'song:volume':
@@ -208,24 +208,24 @@ export default class Composer extends ComposerActions {
                 break;
 
             case 'song:play':
-                this.setProps({playing: true});
-                this.fieldSongPlaybackPause.disabled = false;
+                this.setState({playing: true});
+                // this.fieldSongPlaybackPause.disabled = false;
                 const updateSongPositionInterval = setInterval(e => {
                     if (!this.song.isPlaying) {
                         clearInterval(updateSongPositionInterval);
-                        this.fieldSongPlaybackPause.disabled = true;
-                        this.setProps({playing: false, paused: false});
+                        // this.fieldSongPlaybackPause.disabled = true;
+                        this.setState({playing: false, paused: false});
                     }
                     this.updateSongPositionValue(this.song.getSongPlaybackPosition());
                 }, 10);
                 break;
 
             case 'song:pause':
-                this.setProps({paused: true});
+                this.setState({paused: true});
                 break;
 
             case 'song:end':
-                this.setProps({playing: false, paused: false});
+                this.setState({playing: false, paused: false});
                 break;
 
             case 'programs:instance':

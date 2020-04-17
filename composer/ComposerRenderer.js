@@ -32,8 +32,9 @@ class ComposerRenderer extends React.Component {
 
             // Song Information
             songUUID: null,
+            songPosition: 0,
             // songLengthTicks: 0,
-            songLengthSeconds: 0,
+            songLength: 0,
 
             // Trackers
             selectedTrack: 'root',
@@ -138,9 +139,9 @@ class ComposerRenderer extends React.Component {
                                 <InputRange
                                     className="position"
                                     onChange={(e, pos) => this.setSongPosition(pos)}
-                                    value={this.song ? this.song.getSongPlaybackPosition() : 0}
+                                    value={this.state.songPosition}
                                     min={0}
-                                    max={Math.ceil(this.state.songLengthSeconds)}
+                                    max={Math.ceil(this.state.songLength)}
                                     ref={ref => this.fieldSongPosition = ref}
                                     title="Song Position"
                                 />
@@ -152,7 +153,7 @@ class ComposerRenderer extends React.Component {
                                     onAction={(e, timingString) => this.setSongPosition(timingString)}
                                     ref={ref => this.fieldSongTiming = ref}
                                     title="Song Timing"
-                                    children="00:00:000"
+                                    children={this.values.formatPlaybackPosition(this.state.songPosition)}
                                 />
                             </Form>
 
@@ -391,7 +392,7 @@ class ComposerRenderer extends React.Component {
             title: song.data.title,
             songUUID: song.data.uuid,
             // songLengthTicks: song.getSongLengthTicks(),
-            songLengthSeconds: song.getSongLengthInSeconds(),
+            songLength: song.getSongLengthInSeconds(),
             selectedTrack: song.getStartTrackName() || 'root',
             // trackerRowOffset: 0,
             // trackerQuantizationInTicks: timeDivision,

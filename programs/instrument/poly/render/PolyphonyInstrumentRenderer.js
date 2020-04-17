@@ -98,7 +98,7 @@ class PolyphonyInstrumentRenderer extends React.Component {
         return (<>
             <MenuAction disabled action={()=>{}}>Add new voice instrument</MenuAction>
             <MenuBreak/>
-            {library.renderMenuInstrumentAllPresets(([className, presetConfig]) => {
+            {library.songLengthAllPresets(([className, presetConfig]) => {
                 this.addVoice(className, presetConfig);
             })}
         </>)

@@ -211,47 +211,13 @@ class ComposerActions extends ComposerMenu {
 //             this.forceUpdate();
 //         }
 
+    /** Song Playback Position **/
+
+    updateSongPositionValue(songPosition) {
+        this.setState({songPosition});
+    }
+
     /** Song Playback **/
-
-
-
-    setPlaybackPositionInTicks(groupPositionInTicks) {
-        this.clearRowPositions();
-        const rowElm = this.findRowElement(groupPositionInTicks);
-        if (rowElm)
-            rowElm.setProps({position: true});
-        else
-            console.warn('row not found: ' + groupPositionInTicks);
-        // console.warn('REFACTOR');
-        // TODO: get current 'playing' and check position
-        // let rowElm = this.navigateGroup(groupPositionInTicks);
-        // this.querySelectorAll('asct-row.position')
-        //     .forEach(rowElm => rowElm.classList.remove('position'));
-        // rowElm.classList.add('position');
-
-    }
-
-    async updateSongPositionValue(playbackPositionInSeconds) {
-        const roundedSeconds = Math.round(playbackPositionInSeconds);
-        this.fieldSongTiming.value = this.values.formatPlaybackPosition(playbackPositionInSeconds);
-        if (this.fieldSongPosition.value !== roundedSeconds)
-            this.fieldSongPosition.value = roundedSeconds;
-
-        let positionRow;
-        for (let i = this.rows.length - 1; i >= 0; i--) {
-            positionRow = this.rows[i];
-            if (playbackPositionInSeconds > positionRow.positionInSeconds)
-                break;
-        }
-        // console.info('playbackPositionInSeconds', playbackPositionInSeconds, positionRow.positionInSeconds, positionRow);
-
-
-        if (positionRow && !positionRow.props.position) {
-            await this.clearAllPositions();
-            positionRow.setPosition();
-        }
-    }
-
 
     async songPlay() {
         await this.song.play(this.getVolumeGain());
@@ -267,15 +233,16 @@ class ComposerActions extends ComposerMenu {
         this.song.setPlaybackPositionInTicks(0);
     }
 
-    setSongPosition(playbackPosition = null) {
+    async setSongPosition(playbackPosition, promptUser=false) {
         // const wasPlaying = !!this.song.playback;
         // if (wasPlaying)
         //     this.song.stopPlayback();
         const song = this.song;
-        if (playbackPosition === null) {
-            const values = this.values;
-            playbackPosition = values.parsePlaybackPosition(this.fieldSongPosition.value);
-        }
+        // if (playbackPosition === null)
+        //     playbackPosition = this.values.parsePlaybackPosition(this.fieldSongPosition.value);
+        if(promptUser)
+            playbackPosition = await this.openPromptDialog("Set playback position:", playbackPosition || '00:00:00');
+
         song.setPlaybackPosition(playbackPosition);
         // if (wasPlaying)
         //     this.song.play();
