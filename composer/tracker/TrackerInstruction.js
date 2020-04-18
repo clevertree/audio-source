@@ -110,7 +110,8 @@ class TrackerInstruction extends React.Component {
         // const instruction = this.getInstruction();
         selectedIndices.push(this.props.index);
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
-        this.getTracker().selectIndices(selectedIndices, this.props.cursorPosition);
+        this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
+        this.getTracker().setCursorOffset(this.props.cursorPosition);
         return selectedIndices;
     }
 

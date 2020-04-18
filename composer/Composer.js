@@ -32,19 +32,20 @@ export default class Composer extends ComposerActions {
 
     get values() { return new SongValues(this.song); }
 
-    async connectedCallback() {
-        this.shadowDOM = this.attachShadow({mode: 'closed'});
+    // async connectedCallback() {
+    //     this.shadowDOM = this.attachShadow({mode: 'closed'});
+    //
+    //     super.connectedCallback(false);
+    //
+    //     this.focus();
+    //
+    //     this.forceUpdate();
+    //     this.loadState();
+    //
+    //     this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
+    //
+    // }
 
-        super.connectedCallback(false);
-
-        this.focus();
-
-        this.forceUpdate();
-        this.loadState();
-
-        this.loadMIDIInterface(e => this.onInput(e));        // TODO: wait for user input
-
-    }
     componentDidMount() {
         this.loadState();
 

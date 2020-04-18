@@ -64,18 +64,6 @@ class ComposerActions extends ComposerMenu {
         this.fieldSongVolume.value = volume * 100;
     }
 
-    /** Playback **/
-
-    playSelectedInstructions(stopPlayback=true) {
-        const trackInfo = this.trackerGetSelectedTrackInfo();
-        return trackInfo.playSelectedInstructions(this.getVolumeGain(), stopPlayback);
-    }
-    playInstructions(selectedIndices) {
-        const trackInfo = this.trackerGetSelectedTrackInfo();
-        trackInfo.stopPlayback();
-        return trackInfo.playInstructions(this.getVolumeGain(), selectedIndices);
-    }
-
     /** Song actions **/
 
 
@@ -397,6 +385,20 @@ class ComposerActions extends ComposerMenu {
     //     return new TrackInfo(trackName, this);
     // }
 
+    /** Tracker Playback **/
+
+    // TODO: next
+    trackerPlaySelectedInstructions(trackName, stopPlayback=true) {
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        return trackInfo.playSelectedInstructions(this.getVolumeGain(), stopPlayback);
+    }
+    trackerPlayInstructions(selectedIndices) {
+        const trackInfo = this.trackerGetSelectedTrackInfo();
+        trackInfo.stopPlayback();
+        return trackInfo.playInstructions(this.getVolumeGain(), selectedIndices);
+    }
+
+
     /** Tracker Commands **/
 
     async trackAdd(newTrackName = null, promptUser = true) {
@@ -503,7 +505,16 @@ class ComposerActions extends ComposerMenu {
 
     }
 
-    trackerChangeRowOffset(trackName, newRowOffset) {
+    trackerSetCursorOffset(trackName, newCursorOffset) {
+        if (!Number.isInteger(newCursorOffset))
+            throw new Error("Invalid cursor offset");
+        this.setState(state => {
+            state.activeTracks[trackName].cursorOffset = newCursorOffset;
+            return state;
+        });
+    }
+
+    trackerSetRowOffset(trackName, newRowOffset) {
         if (!Number.isInteger(newRowOffset))
             throw new Error("Invalid row offset");
         this.setState(state => {
@@ -512,55 +523,70 @@ class ComposerActions extends ComposerMenu {
         });
     }
 
-    trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null, rowOffset=null) {
-        const track = this.state.activeTracks[trackName];
-//         console.info('TrackInfo.selectIndices', selectedIndices, cursorOffset);
+    trackerSelectIndices(trackName, selectedIndices) { // }, cursorOffset=null, rowOffset=null) {
+        // const track = this.state.activeTracks[trackName];
         // if(cursorIndex === null)
         //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
 
         // if selectedIndices is an array, clear selection, if integer, add to selection
-        if(selectedIndices === null)
-            selectedIndices = track.selectedIndices || [];
+        // if(selectedIndices === null)
+        //     selectedIndices = track.selectedIndices || [];
 
         // Filter unique indices
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
         // Sort indices
         selectedIndices.sort((a, b) => a - b);
+        console.info('TrackInfo.trackerSelectIndices', trackName, selectedIndices);
 
-        track.selectedIndices = selectedIndices;
-        if(cursorOffset !== null) {
-            if(cursorOffset < 0)
-                throw new Error("Invalid cursor offset: " + cursorOffset);
-            track.cursorOffset = cursorOffset;
-        } else {
+        // track.selectedIndices = selectedIndices;
+        // if(cursorOffset !== null) {
+        //     if(cursorOffset < 0)
+        //         throw new Error("Invalid cursor offset: " + cursorOffset);
+        //     track.cursorOffset = cursorOffset;
+        // } else {
+        //
+        // }
 
-        }
-
-        // track.rowOffset = this.calculateRowOffset(cursorOffset);
-        this.trackerUpdateCurrentInstruction(trackName);
-        this.updateState(); // TODO: ugly double update
-        return selectedIndices;
-    }
-
-
-    trackerUpdateCurrentInstruction(trackName) {
         this.setState(state => {
             const track = state.activeTracks[trackName];
-            const selectedIndices = track.selectedIndices;
+
+            track.selectedIndices = selectedIndices;
+
+            // If selected, update default instruction params
             if(selectedIndices.length > 0) {
-                const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
+                const firstSelectedInstruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
                 track.currentCommand = firstSelectedInstruction.command;
                 if(firstSelectedInstruction instanceof NoteInstruction) {
                     if(typeof firstSelectedInstruction.durationTicks !== "undefined")
-                        track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
+                        track.currentDuration = firstSelectedInstruction.getDurationString(track.timeDivision || this.getSong().data.timeDivision);
                     if(typeof firstSelectedInstruction.velocity !== "undefined")
                         track.currentVelocity = firstSelectedInstruction.velocity;
                 }
             }
             return state;
         });
-
+        return selectedIndices;
     }
+
+
+    // trackerUpdateCurrentInstruction(trackName) {
+    //     this.setState(state => {
+    //         const track = state.activeTracks[trackName];
+    //         const selectedIndices = track.selectedIndices;
+    //         if(selectedIndices.length > 0) {
+    //             const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
+    //             track.currentCommand = firstSelectedInstruction.command;
+    //             if(firstSelectedInstruction instanceof NoteInstruction) {
+    //                 if(typeof firstSelectedInstruction.durationTicks !== "undefined")
+    //                     track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
+    //                 if(typeof firstSelectedInstruction.velocity !== "undefined")
+    //                     track.currentVelocity = firstSelectedInstruction.velocity;
+    //             }
+    //         }
+    //         return state;
+    //     });
+    //
+    // }
 
     /** @deprecated **/
     trackerCalculateRowOffset(trackName, cursorOffset=null) {
