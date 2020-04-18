@@ -392,10 +392,29 @@ class ComposerActions extends ComposerMenu {
         const trackInfo = this.trackerGetSelectedTrackInfo();
         return trackInfo.playSelectedInstructions(this.getVolumeGain(), stopPlayback);
     }
-    trackerPlayInstructions(selectedIndices) {
-        const trackInfo = this.trackerGetSelectedTrackInfo();
-        trackInfo.stopPlayback();
-        return trackInfo.playInstructions(this.getVolumeGain(), selectedIndices);
+    trackerPlayInstructions(trackName, selectedIndices) {
+        const track = this.state.activeTracks[trackName];
+
+        const song = this.getSong();
+        song.stopPlayback();
+
+        let destination = this.getVolumeGain();
+
+
+        // destination = destination || this.getDestination();
+        if(!Array.isArray(selectedIndices))
+            selectedIndices = [selectedIndices];
+        // console.log('playInstructions', selectedIndices);
+        const programID = typeof this.track.programID !== "undefined" ? this.track.programID : 0;
+
+        // if(stopPlayback)
+        //     song.programLoader.stopAllPlayback();
+
+        for(let i=0; i<selectedIndices.length; i++) {
+            const selectedIndex = selectedIndices[i];
+            const instruction = song.instructionGetByIndex(this.getTrackName(), selectedIndex);
+            song.playInstruction(destination, instruction, programID);
+        }
     }
 
 

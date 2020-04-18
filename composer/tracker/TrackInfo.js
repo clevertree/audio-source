@@ -240,6 +240,7 @@ export default class TrackInfo {
 
     /** Playback **/
 
+    /** @deprecated **/
     playInstructions(destination, selectedIndices, stopPlayback=true) {
         if(!Array.isArray(selectedIndices))
             selectedIndices = [selectedIndices];

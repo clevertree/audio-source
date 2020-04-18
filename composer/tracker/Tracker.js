@@ -216,11 +216,14 @@ class Tracker extends React.Component {
         let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
         // eslint-disable-next-line no-cond-assign
         while(row = iterator.nextQuantizedInstructionRow(quantizationTicks)) {
-            if(rowContent.length >= rowLength)
+            if (rowContent.length >= rowLength)
                 break;
 
-            let nextRowPositionTicks = iterator.getNextRowPositionTicks(true);
+            let nextRowPositionTicks = iterator.getNextRowPositionTicks(quantizationTicks);
             let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
+            if (rowDeltaDuration <= 0) {
+                console.warn("rowDeltaDuration is ", rowDeltaDuration);
+            }
             // lastPositionTicks = iterator.positionTicks;
 
 
@@ -322,10 +325,10 @@ class Tracker extends React.Component {
             selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
         const programID = typeof this.track.programID !== "undefined" ? this.track.programID : 0;
-        const song = this.composer.getSong();
+        const song = this.getSong();
 
-        if(stopPlayback)
-            song.programLoader.stopAllPlayback();
+        // if(stopPlayback)
+        //     song.programLoader.stopAllPlayback();
 
         for(let i=0; i<selectedIndices.length; i++) {
             const selectedIndex = selectedIndices[i];
