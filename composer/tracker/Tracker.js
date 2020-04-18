@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 
-import {TrackerInstruction, TrackerRow, TrackInfo} from "./";
+import {TrackerInstruction, TrackerRow} from "./";
 import {Button, ButtonDropDown, Panel} from "../../components/";
 
 import "./assets/Tracker.css";
@@ -35,6 +35,11 @@ class Tracker extends React.Component {
         this.container = React.createRef();
         this.destination = null;
         this.cursorInstruction = React.createRef();
+
+        const activeTracks = props.composer.state.activeTracks;
+        if(typeof activeTracks[this.props.trackName] === "undefined")
+            throw new Error(`Track ${this.props.trackName} is not active`);
+        this.track = activeTracks[this.props.trackName];
     }
 
     componentDidMount() {
@@ -45,9 +50,9 @@ class Tracker extends React.Component {
         this.container.current.removeEventListener('wheel', this.cb.onWheel);
     }
 
-    getTrackInfo() {
-        return new TrackInfo(this.props.trackName, this.props.composer);
-    }
+    // getTrackInfo() {
+    //     return new TrackInfo(this.props.trackName, this.props.composer);
+    // }
 
     /** TODO: calculate correct destination **/
     getDestination()            {
@@ -108,10 +113,8 @@ class Tracker extends React.Component {
         this.playSelectedInstructions();
     }
 
-    selectIndices(selectedIndices=null, cursorOffset=null, rowOffset=null) {
-        this.getTrackInfo().selectIndices(selectedIndices, cursorOffset, rowOffset);
-        // if(selectedIndices.length > 0)
-        //     this.playInstructions(selectedIndices);
+    selectIndices(selectedIndices=null) {
+        this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices)
     }
 
     /** Render **/
@@ -198,6 +201,65 @@ class Tracker extends React.Component {
 
 
     renderRowContent() {
+        const quantizationTicks = this.track.quantizationTicks || this.getSong().data.timeDivision;
+
+        // console.time('tracker.renderRowContent()');
+        const rowOffset = this.props.rowOffset;
+        const rowLength = this.props.rowLength;
+        const cursorOffset = this.props.cursorOffset || 0;
+
+        const rowContent = [];
+
+        const iterator = this.getSong().instructionGetIterator(this.getTrackName());
+        let row;
+        let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
+        // eslint-disable-next-line no-cond-assign
+        while(row = iterator.nextQuantizedInstructionRow(quantizationTicks)) {
+            if(rowContent.length >= rowLength)
+                break;
+
+            let nextRowPositionTicks = iterator.getNextRowPositionTicks(true);
+            let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
+            // lastPositionTicks = iterator.positionTicks;
+
+
+            if (rowCount >= rowOffset) {
+                const rowInstructionElms = [];
+                for(let i=0; i<row.length; i++) {
+                    const index = iterator.currentIndex - row.length + i;
+                    rowInstructionElms.push(<TrackerInstruction
+                        key={index}
+                        index={index}
+                        instruction={row[i]}
+                        tracker={this}
+                        cursorPosition={cursorPosition}
+                    />)
+                    cursorPosition ++;
+                }
+
+                const newRowElm = <TrackerRow
+                    key={rowCount}
+                    cursor={cursorPosition === cursorOffset} // TODO: Redundant
+                    tracker={this}
+                    positionTicks={iterator.positionTicks}
+                    positionSeconds={iterator.positionSeconds}
+                    deltaDuration={rowDeltaDuration}
+                    cursorPosition={cursorPosition} // TODO: inefficient? nah
+
+                >{rowInstructionElms}</TrackerRow>;
+                rowContent.push(newRowElm);
+            }
+
+            cursorPosition++;
+            rowCount++;
+        }
+
+
+        // console.timeEnd('tracker.renderRowContent()');
+        return rowContent;
+    }
+
+    renderRowContent2() {
         // console.time('tracker.renderRowContent()');
         const rowOffset = this.props.rowOffset;
         const rowLength = this.props.rowLength;
@@ -269,11 +331,12 @@ class Tracker extends React.Component {
 
     onWheel(e) {
         e.preventDefault();
-        let rowOffset = this.props.rowOffset;
-        rowOffset += e.deltaY > 0 ? 1 : -1;
-        if(rowOffset < 0)
-            rowOffset = 0; // return console.log("Unable to scroll past beginning");
-        this.getTrackInfo().changeRowOffset(this.getTrackName(), rowOffset);
+        let newRowOffset = this.props.rowOffset;
+        newRowOffset += e.deltaY > 0 ? 1 : -1;
+        if(newRowOffset < 0)
+            newRowOffset = 0; // return console.log("Unable to scroll past beginning");
+        this.getComposer().trackerChangeRowOffset(this.getTrackName(), newRowOffset)
+        // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
     }
 
     async onKeyDown(e) {

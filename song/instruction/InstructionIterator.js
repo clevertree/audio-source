@@ -97,8 +97,21 @@ class InstructionIterator {
     }
 
     /** Row Quantization **/
-    nextQuantizedInstructionRow(quantizationTicks, toPositionTicks, rowCallback=null, instructionCallback=null) {
-        if(this.positionTicks >= toPositionTicks)
+
+    getNextRowPositionTicks() {
+        if(this.hasReachedEnd())
+            return this.nextQuantizationBreakInTicks;
+        // If there is a next instruction
+        let instruction = this.getInstruction(this.currentIndex + 1);
+        const nextPositionTicks = instruction.deltaDurationTicks + this.lastInstructionPositionInTicks;
+
+        if(nextPositionTicks < this.nextQuantizationBreakInTicks)
+            return nextPositionTicks;
+        return this.nextQuantizationBreakInTicks;
+    }
+
+    nextQuantizedInstructionRow(quantizationTicks, toPositionTicks=null, rowCallback=null, instructionCallback=null) {
+        if(toPositionTicks !== null && this.positionTicks >= toPositionTicks)
             return null; // Reached the end
 
         // Initiate quantization breaks

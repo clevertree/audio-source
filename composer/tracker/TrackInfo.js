@@ -1,6 +1,6 @@
 import {ProgramLoader, NoteInstruction} from "../../song/";
 
-
+/** @deprecated **/
 export default class TrackInfo {
     constructor(trackName, composer) {
         this.trackName = trackName;
@@ -35,47 +35,13 @@ export default class TrackInfo {
         }
     }
 
-    changeRowOffset(trackName, newRowOffset) {
-        if (!Number.isInteger(newRowOffset))
-            throw new Error("Invalid row offset");
-        this.track.rowOffset = newRowOffset;
-        this.updateState();
-    }
-
-    async changeQuantization(trackerQuantizationTicks = null, promptUser=true) {
-        if(trackerQuantizationTicks === null && promptUser)
-            trackerQuantizationTicks = parseInt(await this.composer.openPromptDialog(`Enter custom tracker quantization in ticks:`, this.track.quantizationTicks));
-        if (!Number.isInteger(trackerQuantizationTicks))
-            throw new Error("Invalid quantization value");
-
-        this.track.quantizationTicks = trackerQuantizationTicks;
-        this.updateState();
-
-    }
-
-    async changeSegmentLength(trackerSegmentLengthInRows = null, promptUser=true) {
-        if(trackerSegmentLengthInRows === null && promptUser)
-            trackerSegmentLengthInRows = parseInt(await this.composer.openPromptDialog(`Enter custom tracker segment length in rows:`, this.track.rowLength));
-        if (!Number.isInteger(trackerSegmentLengthInRows))
-            throw new Error("Invalid tracker row length value");
-        this.track.rowLength = trackerSegmentLengthInRows;
-        this.updateState();
-    }
-
-    async changeSelection(selectedIndices = null, promptUser=true) {
-        const oldSelectedIndices = this.track.selectedIndices;
-
-        if (selectedIndices === null && promptUser)
-            selectedIndices = await this.composer.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
-        selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-        this.selectIndices(selectedIndices);
-    }
 
     calculateCursorOffsetPositionTicks() {
         const {cursorPositionTicks} = this.findCursorRow();
         return cursorPositionTicks;
     }
 
+    /** @deprecated **/
     selectIndices(selectedIndices=null, cursorOffset=null) {
 //         console.info('TrackInfo.selectIndices', selectedIndices, cursorOffset);
         // if(cursorIndex === null)
@@ -105,6 +71,7 @@ export default class TrackInfo {
         return selectedIndices;
     }
 
+    /** @deprecated **/
     updateCurrentInstruction() {
         const selectedIndices = this.track.selectedIndices;
         if(selectedIndices.length > 0) {
@@ -121,7 +88,7 @@ export default class TrackInfo {
         }
     }
 
-
+    /** @deprecated **/
     calculateRowOffset(trackName, cursorOffset=null) {
 
         const rowLength = this.track.rowLength;
@@ -138,6 +105,7 @@ export default class TrackInfo {
         return rowOffset;
     }
 
+    /** @deprecated **/
     findCursorRow(cursorOffset=null) {
         if(cursorOffset === null)
             cursorOffset = this.getCursorOffset();
@@ -152,6 +120,7 @@ export default class TrackInfo {
         return {currentRow, cursorPositionTicks};
     }
 
+    /** @deprecated **/
     findRowCursorOffset() {
         let cursorOffset = this.getCursorOffset();
 
@@ -181,6 +150,7 @@ export default class TrackInfo {
 
     /** Row Iterator **/
 
+    /** @deprecated **/
     eachRow(rowCallback, instructionCallback=null) {
         const cursorOffset = this.track.cursorOffset || 0;
         const selectedIndices = this.track.selectedIndices || [];

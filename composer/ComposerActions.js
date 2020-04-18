@@ -1,9 +1,9 @@
 import React from "react";
 
-import {Song, Storage, Instruction, ProgramLoader} from "../song";
+import {Song, Storage, Instruction, ProgramLoader, NoteInstruction} from "../song";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
-import {TrackInfo} from "./tracker/";
+// import {TrackInfo} from "./tracker/";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -388,13 +388,14 @@ class ComposerActions extends ComposerMenu {
 
     /** Track Info **/
 
-    trackerGetTrackInfo(trackName) {
-        return new TrackInfo(trackName, this);
-    }
-    trackerGetSelectedTrackInfo() {
-        const trackName = this.state.selectedTrack;
-        return new TrackInfo(trackName, this);
-    }
+    // /** @deprecated **/
+    // trackerGetTrackInfo(trackName) {
+    //     return new TrackInfo(trackName, this);
+    // }
+    // trackerGetSelectedTrackInfo() {
+    //     const trackName = this.state.selectedTrack;
+    //     return new TrackInfo(trackName, this);
+    // }
 
     /** Tracker Commands **/
 
@@ -457,35 +458,125 @@ class ComposerActions extends ComposerMenu {
         this.setState({activeTracks, selectedTrack});
     }
 
+    trackerChangeQuantization(trackName, trackerQuantizationTicks) {
+        if (!trackerQuantizationTicks || !Number.isInteger(trackerQuantizationTicks))
+            throw new Error("Invalid quantization value");
+        this.setState(state => {
+            state.activeTracks[trackName].quantizationTicks = trackerQuantizationTicks;
+            return state;
+        });
+    }
+
+    async trackerChangeQuantizationPrompt(trackName) {
+        const trackerQuantizationTicks = await this.composer.openPromptDialog(`Enter custom tracker quantization in ticks:`, this.track.quantizationTicks);
+        this.trackerChangeQuantization(trackName, trackerQuantizationTicks)
+    }
+
+
+    trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows = null) {
+        if (!trackerSegmentLengthInRows || !Number.isInteger(trackerSegmentLengthInRows))
+            throw new Error("Invalid tracker row length value");
+        this.setState(state => {
+            state.activeTracks[trackName].rowLength = trackerSegmentLengthInRows;
+            return state;
+        });
+    }
+
+    async trackerChangeSegmentLengthPrompt(trackName) {
+        const trackerSegmentLengthInRows = parseInt(await this.composer.openPromptDialog(`Enter custom tracker segment length in rows:`, this.track.rowLength));
+        this.trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows);
+    }
+
+    trackerChangeSelection(trackName, selectedIndices) {
+        selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+        this.trackerSelectIndices(trackName, selectedIndices);
+    }
+
+    async trackerSelectIndicesPrompt(trackName) {
+        const oldSelectedIndices = this.state.activeTracks[trackName].selectedIndices;
+        let selectedIndices = await this.composer.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+        selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+        this.trackerSelectIndices(trackName, selectedIndices);
+    }
+
+    trackerSelectCursor(trackName, cursorOffset) {
+
+    }
+
     trackerChangeRowOffset(trackName, newRowOffset) {
-        return this.trackerGetTrackInfo(trackName).changeRowOffset(trackName, newRowOffset);
+        if (!Number.isInteger(newRowOffset))
+            throw new Error("Invalid row offset");
+        this.setState(state => {
+            state.activeTracks[trackName].rowOffset = newRowOffset;
+            return state;
+        });
     }
-
-
-    trackerChangeQuantization(trackName, trackerQuantizationTicks = null, promptUser=true) {
-        return this.trackerGetTrackInfo(trackName).changeQuantization(trackerQuantizationTicks, promptUser);
-    }
-
-    trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows = null, promptUser=true) {
-        return this.trackerGetTrackInfo(trackName).changeSegmentLength(trackerSegmentLengthInRows, trackerSegmentLengthInRows, promptUser);
-    }
-
-    trackerChangeSelection(trackName, selectedIndices = null) {
-        return this.trackerGetTrackInfo(trackName).changeSelection(selectedIndices);
-    }
-
 
     trackerSelectIndices(trackName, selectedIndices=null, cursorOffset=null, rowOffset=null) {
-        return this.trackerGetTrackInfo(trackName).selectIndices(selectedIndices, cursorOffset, rowOffset);
+        const track = this.state.activeTracks[trackName];
+//         console.info('TrackInfo.selectIndices', selectedIndices, cursorOffset);
+        // if(cursorIndex === null)
+        //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
+
+        // if selectedIndices is an array, clear selection, if integer, add to selection
+        if(selectedIndices === null)
+            selectedIndices = track.selectedIndices || [];
+
+        // Filter unique indices
+        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
+        // Sort indices
+        selectedIndices.sort((a, b) => a - b);
+
+        track.selectedIndices = selectedIndices;
+        if(cursorOffset !== null) {
+            if(cursorOffset < 0)
+                throw new Error("Invalid cursor offset: " + cursorOffset);
+            track.cursorOffset = cursorOffset;
+        } else {
+
+        }
+
+        // track.rowOffset = this.calculateRowOffset(cursorOffset);
+        this.trackerUpdateCurrentInstruction(trackName);
+        this.updateState(); // TODO: ugly double update
+        return selectedIndices;
     }
 
 
+    trackerUpdateCurrentInstruction(trackName) {
+        this.setState(state => {
+            const track = state.activeTracks[trackName];
+            const selectedIndices = track.selectedIndices;
+            if(selectedIndices.length > 0) {
+                const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
+                track.currentCommand = firstSelectedInstruction.command;
+                if(firstSelectedInstruction instanceof NoteInstruction) {
+                    if(typeof firstSelectedInstruction.durationTicks !== "undefined")
+                        track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
+                    if(typeof firstSelectedInstruction.velocity !== "undefined")
+                        track.currentVelocity = firstSelectedInstruction.velocity;
+                }
+            }
+            return state;
+        });
+
+    }
+
+    /** @deprecated **/
     trackerCalculateRowOffset(trackName, cursorOffset=null) {
         return this.trackerGetTrackInfo(trackName).calculateRowOffset(trackName, cursorOffset);
     }
 
+    /** @deprecated **/
     trackerFindCursorRow(trackName, cursorOffset=null) {
         return this.trackerGetTrackInfo(trackName).findCursorRow(trackName, cursorOffset);
+    }
+
+    /** @deprecated **/
+    trackerGetActiveTrackInfo(trackName) {
+        if(!this.state.activeTracks[trackName])
+            throw new Error("Invalid active track: " + trackName);
+        return this.state.activeTracks[trackName];
     }
 
     /** Row Iterator **/
