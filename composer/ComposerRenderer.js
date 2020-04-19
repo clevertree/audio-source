@@ -334,10 +334,11 @@ class ComposerRenderer extends React.Component {
                         {Object.keys(this.state.activeTracks).map(trackName => (
                             <Tracker
                                 key={trackName}
-                                selected={trackName === selectedTrackName}
-                                {...this.state.activeTracks[trackName]}
-                                // destination={this.getAudioContext()}
                                 trackName={trackName}
+                                trackState={this.state.activeTracks[trackName]}
+                                selected={trackName === selectedTrackName}
+                                // TODO bad idea? {...this.state.activeTracks[trackName]}
+                                // destination={this.getAudioContext()}
                                 composer={this}
                             />
                         ))}

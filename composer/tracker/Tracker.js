@@ -9,17 +9,19 @@ import "./assets/Tracker.css";
 class Tracker extends React.Component {
     /** Default Properties **/
     static defaultProps = {
-        cursorOffset: 4,
-        selectedIndices: [],
-        rowOffset: 0,
-        rowLength: 16,
-        quantizationTicks: null,
-        destinationList: []
+        // cursorOffset: 0,
+        // selectedIndices: [],
+        // rowOffset: 0,
+        // rowLength: 16,
+        // quantizationTicks: null,
+        // destinationList: []
     };
 
     /** Property validation **/
     static propTypes = {
-        composer: PropTypes.object.isRequired
+        composer: PropTypes.object.isRequired,
+        trackName: PropTypes.string.isRequired,
+        trackState: PropTypes.object.isRequired
     };
 
     constructor(props) {
@@ -35,11 +37,7 @@ class Tracker extends React.Component {
         this.container = React.createRef();
         this.destination = null;
         this.cursorInstruction = React.createRef();
-
-        const activeTracks = props.composer.state.activeTracks;
-        if(typeof activeTracks[this.props.trackName] === "undefined")
-            throw new Error(`Track ${this.props.trackName} is not active`);
-        this.track = activeTracks[this.props.trackName];
+        this.getTrackState();
     }
 
     componentDidMount() {
@@ -61,20 +59,63 @@ class Tracker extends React.Component {
         console.warn('TODO: calculate correct destination');
         return this.destination = this.getComposer().getVolumeGain();
     }
-    getDestinationList()        { return this.props.destinationList; }
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }
+
     getTrackName()              { return this.props.trackName; }
-    getSelectedIndices()        { return this.props.selectedIndices; }
-    getCursorOffset()           { return this.props.cursorOffset; }
+    getTrackState()             { return this.props.trackState; }
+    getDestinationList()        { return this.props.trackState.destinationList || []; }
+    getSelectedIndices()        { return this.props.trackState.selectedIndices || []; }
+    getCursorOffset()           { return this.props.trackState.cursorOffset; }
+    getRowLength()              { return this.props.trackState.rowLength; }
+    getRowOffset()              { return this.props.trackState.rowOffset; }
+
+    findRowCursorOffset() {
+        let cursorOffset = this.getCursorOffset();
+        const iterator = this.instructionGetQuantizedIterator();
+        let row;
+        while(row = iterator.nextQuantizedInstructionRow()) {
+            if(iterator.cursorPosition > cursorOffset)
+                break;
+            console.log(iterator.cursorPosition, cursorOffset);
+        }
+
+        // TODO: fix first position bug
+    }
+
+    // findInstructionIndexFromCursorOffset(cursorOffset) {
+    //     let indexFound = null;
+    //     this.eachRow(() => {
+    //         return indexFound === null;
+    //
+    //     }, (index, instruction, cursorPosition) => {
+    //         if(cursorPosition > cursorOffset)
+    //             return false;
+    //         if(cursorPosition === cursorOffset)
+    //             indexFound = index; // @Depreciated
+    //         return indexFound === null;
+    //     });
+    //     // console.log('findInstructionIndexFromCursorOffset', cursorOffset, indexFound);
+    //     return indexFound;
+    // }
+
+    instructionGetQuantizedIterator() {
+        const trackState = this.getTrackState();
+        return this.getSong().instructionGetQuantizedIterator(
+            this.getTrackName(),
+            this.getQuantizationInTicks(),
+            trackState.timeDivision, // || this.getSong().data.timeDivision,
+            trackState.bpm //  || this.getSong().data.bpm
+        )
+    }
 
     getQuantizationInTicks() {
         return this.props.quantizationTicks || this.props.composer.song.data.timeDivision;
     }
 
     getSegmentInfo() {
-        const rowLength = this.props.rowLength;
-        const rowOffset = this.props.rowOffset;
+        const rowLength = this.getRowLength();
+        const rowOffset = this.getRowOffset();
 
         const currentSegmentID = Math.floor(rowOffset / rowLength);
         let segmentCount = 3;
@@ -84,25 +125,10 @@ class Tracker extends React.Component {
     }
 
     /** @deprecated **/
-    findRowCursorOffset() {
-        return this.getTrackInfo().findRowCursorOffset();
-    }
+    // findRowCursorOffset() {
+    //     return this.getTrackInfo().findRowCursorOffset();
+    // }
 
-    findInstructionIndexFromCursorOffset(cursorOffset) {
-        let indexFound = null;
-        this.eachRow(() => {
-            return indexFound === null;
-
-        }, (index, instruction, cursorPosition) => {
-            if(cursorPosition > cursorOffset)
-                return false;
-            if(cursorPosition === cursorOffset)
-                indexFound = index; // @Depreciated
-            return indexFound === null;
-        });
-        // console.log('findInstructionIndexFromCursorOffset', cursorOffset, indexFound);
-        return indexFound;
-    }
 
     /** Actions **/
 
@@ -157,7 +183,8 @@ class Tracker extends React.Component {
     renderRowSegments() {
         const composer = this.props.composer;
         const {segmentCount, currentSegmentID} = this.getSegmentInfo();
-        const rowLength = this.props.rowLength;
+
+        const rowLength = this.getRowLength();
 
         const buttons = [];
 
@@ -170,12 +197,12 @@ class Tracker extends React.Component {
 
         buttons.push(<ButtonDropDown
             className="row-length"
-            title={`Segment Length (${this.props.rowLength} Rows)`}
+            title={`Segment Length (${this.getRowLength()} Rows)`}
             arrow="▼"
             key="row-length"
             onClick={e => this.getTrackInfo().setActive()}
             options={() => this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())}
-        >{this.props.rowLength}</ButtonDropDown>);
+        >{this.getRowLength()}</ButtonDropDown>);
 
         return buttons;
     }
@@ -202,25 +229,26 @@ class Tracker extends React.Component {
 
 
     renderRowContent() {
-        const quantizationTicks = this.track.quantizationTicks || this.getSong().data.timeDivision;
+        // const trackState = this.getTrackState();
+        // const quantizationTicks = trackState.quantizationTicks || this.getSong().data.timeDivision;
 
         // console.time('Tracker.renderRowContent()');
-        const rowOffset = this.props.rowOffset;
-        const rowLength = this.props.rowLength;
-        const cursorOffset = this.props.cursorOffset || 0;
+        const rowLength = this.getRowLength() || 16;
+        const rowOffset = this.getRowOffset() || 0;
+        const cursorOffset = this.getCursorOffset() || 0;
         const selectedIndices = this.getSelectedIndices();
 
         const rowContent = [];
 
-        const iterator = this.getSong().instructionGetIterator(this.getTrackName());
+        const iterator = this.instructionGetQuantizedIterator();
         let row;
         let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
         // eslint-disable-next-line no-cond-assign
-        while(row = iterator.nextQuantizedInstructionRow(quantizationTicks)) {
+        while(row = iterator.nextQuantizedInstructionRow()) {
             if (rowContent.length >= rowLength)
                 break;
 
-            let nextRowPositionTicks = iterator.getNextRowPositionTicks(quantizationTicks);
+            let nextRowPositionTicks = iterator.getNextRowPositionTicks();
             let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
             if (rowDeltaDuration <= 0) {
                 console.warn("rowDeltaDuration is ", rowDeltaDuration);
@@ -322,15 +350,17 @@ class Tracker extends React.Component {
     /** Playback **/
 
     playSelectedInstructions() {
-        return this.getTrackInfo().playInstructions(this.getDestination(), this.getSelectedIndices());
+        return this.playInstructions(this.getSelectedIndices());
     }
 
     playInstructions(selectedIndices, destination=null) {
+        const trackState = this.getTrackState();
+
         destination = destination || this.getDestination();
         if(!Array.isArray(selectedIndices))
             selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
-        const programID = typeof this.track.programID !== "undefined" ? this.track.programID : 0;
+        const programID = typeof trackState.programID !== "undefined" ? trackState.programID : 0;
         const song = this.getSong();
 
         // if(stopPlayback)
@@ -343,18 +373,12 @@ class Tracker extends React.Component {
         }
     }
 
-    /** Row Iterator **/
-
-    eachRow(rowCallback, instructionCallback=null) {
-        return this.getTrackInfo().eachRow(rowCallback, instructionCallback);
-    }
-
 
     /** User Input **/
 
     onWheel(e) {
         e.preventDefault();
-        let newRowOffset = this.props.rowOffset;
+        let newRowOffset = this.getRowOffset();
         newRowOffset += e.deltaY > 0 ? 1 : -1;
         if(newRowOffset < 0)
             newRowOffset = 0; // return console.log("Unable to scroll past beginning");

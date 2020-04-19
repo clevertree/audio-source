@@ -183,7 +183,8 @@ class SongTest {
       // let rowIterator = song.instructionGetRowIterator(testTrackName);
       const iterator = song.instructionGetIterator(testTrackName);
       let row;
-      while(row = iterator.nextQuantizedInstructionRow(5, 65)) {
+      while(iterator.positionTicks < 65
+        && (row = iterator.nextQuantizedInstructionRow(5))) {
         switch(true) {
           case iterator.positionTicks <= 30:
           case iterator.positionTicks === 60:

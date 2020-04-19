@@ -6,15 +6,17 @@ class InstructionIterator {
         this.bpm = bpm;
         this.timeDivision = timeDivision;
 
-        this.currentIndex = -1;
+        this.currentIndex = -1; // TODO: rename to index?
         this.positionTicks = 0;
         this.endPositionTicks = 0;
         this.positionSeconds = 0;
         this.endPositionSeconds = 0;
         this.lastInstructionPositionInTicks = 0;
         this.lastInstructionPositionInSeconds = 0;
+        this.rowCount = 0;
+        this.cursorPosition = 0;
 
-        this.nextQuantizationBreakInTicks = null;
+        // this.nextQuantizationBreakInTicks = null;
         // this.stats = stats || {};
 
     }
@@ -33,13 +35,18 @@ class InstructionIterator {
         this.lastInstructionPositionInSeconds = this.positionSeconds;
 
         const durationTicks = instruction.durationTicks || 0;
-        const trackEndPositionInTicks = this.positionTicks + durationTicks;
-        if (trackEndPositionInTicks > this.endPositionTicks)
-            this.endPositionTicks = trackEndPositionInTicks;
-        const trackPlaybackEndTime = this.positionSeconds + (durationTicks / this.timeDivision) / (this.bpm / 60);
-        if (trackPlaybackEndTime > this.endPositionSeconds)
-            this.endPositionSeconds = trackPlaybackEndTime;
+        if(durationTicks) {
+            const trackEndPositionInTicks = this.positionTicks + durationTicks;
+            if (trackEndPositionInTicks > this.endPositionTicks)
+                this.endPositionTicks = trackEndPositionInTicks;
+            const trackPlaybackEndTime = this.positionSeconds + (durationTicks / this.timeDivision) / (this.bpm / 60);
+            if (trackPlaybackEndTime > this.endPositionSeconds)
+                this.endPositionSeconds = trackPlaybackEndTime;
 
+            this.rowCount++;
+            this.cursorPosition++;
+        }
+        this.cursorPosition++;
         // TODO: calculate bpm changes
     }
 
@@ -96,123 +103,6 @@ class InstructionIterator {
         return instructionList;
     }
 
-    /** Row Quantization **/
-
-    getNextQuantizationBreaksInTicks(quantizationTicks) {
-        if(!quantizationTicks)
-            throw new Error("Invalid quantizationTicks");
-        // Initiate quantization breaks
-        if(this.nextQuantizationBreakInTicks === null)
-            this.nextQuantizationBreakInTicks = quantizationTicks;
-
-        // Catch up the quantization breaks
-        while(this.nextQuantizationBreakInTicks <= this.positionTicks)
-            this.nextQuantizationBreakInTicks += quantizationTicks;
-
-        return this.nextQuantizationBreakInTicks;
-    }
-
-    getNextRowPositionTicks(quantizationTicks) {
-        const nextQuantizationBreakInTicks = this.getNextQuantizationBreaksInTicks(quantizationTicks);
-        if(this.hasReachedEnd())
-            return nextQuantizationBreakInTicks;
-        // If there is a next instruction
-        let instruction = this.getInstruction(this.currentIndex + 1);
-        const nextPositionTicks = instruction.deltaDurationTicks + this.lastInstructionPositionInTicks;
-
-        if(nextPositionTicks < nextQuantizationBreakInTicks)
-            return nextPositionTicks;
-        return nextQuantizationBreakInTicks;
-    }
-
-
-    nextQuantizedInstructionRow(quantizationTicks, toPositionTicks=null, rowCallback=null, instructionCallback=null) {
-        if(toPositionTicks !== null && this.positionTicks >= toPositionTicks)
-            return null; // Reached the end
-
-        const nextQuantizationBreakInTicks = this.getNextQuantizationBreaksInTicks(quantizationTicks);
-
-        if(!this.hasReachedEnd()) {
-            // If there is a next instruction
-            let instruction = this.getInstruction(this.currentIndex + 1);
-            const nextPositionTicks = instruction.deltaDurationTicks + this.lastInstructionPositionInTicks;
-            if (nextQuantizationBreakInTicks < nextPositionTicks) {
-                // Next break comes before next instruction
-
-                this.positionTicks = nextQuantizationBreakInTicks;
-                this.nextQuantizationBreakInTicks += quantizationTicks;
-                return []; // Return empty row
-            }
-
-            // Return the next row
-            return this.nextInstructionRow(rowCallback, instructionCallback);
-        }
-
-        // Render the next quantized row
-        this.positionTicks = nextQuantizationBreakInTicks;
-        this.nextQuantizationBreakInTicks += quantizationTicks;
-        return [];  // Return empty row
-    }
-
-
-    // nextQuantizedInstructionRow(quantizationTicks, toPositionTicks, rowCallback=null, instructionCallback=null) {
-    //     // let nextQuantizationBreakInTicks = quantizationTicks;
-    //     const instructionList = [];
-    //     if(instructionCallback === null)
-    //         instructionCallback = function(instruction) { return instruction };
-    //
-    //     // Scan ahead to next instruction
-    //     let nextPositionTicks = this.positionTicks;
-    //     if(!this.hasReachedEnd()) {
-    //         let instruction = this.getInstruction(this.currentIndex + 1);
-    //         nextPositionTicks += instruction.deltaDurationTicks;
-    //     }
-    //
-    //     if(this.hasReachedEnd()) {
-    //
-    //     } else if(nextPositionTicks < this.nextQuantizationBreakInTicks) {
-    //         // If next position is after next quantized break, return a blank row
-    //         this.rowPositionTicks = this.nextQuantizationBreakInTicks;
-    //         this.nextQuantizationBreakInTicks += this.quantizationTicks;
-    //
-    //     } else {
-    //         // Increment instruction position
-    //         this.nextInstruction();
-    //
-    //
-    //         while (!this.hasReachedEnd()) {
-    //             // Scan ahead to next instruction
-    //             let instruction = this.getInstruction(this.currentIndex + 1);
-    //
-    //             // If the next instruction has a delta, then the current row ends
-    //             if (!instruction || instruction.deltaDurationTicks > 0) {
-    //                 // Finish rendering last row
-    //                 break;
-    //
-    //                 // Move next quantized row up to current position
-    //                 // while (this.nextQuantizationBreakInTicks <= currentRowPositionTicks)
-    //                 //     this.nextQuantizationBreakInTicks += quantizationTicks;
-    //
-    //
-    //             }
-    //
-    //             // Increment instruction position
-    //             instruction = this.nextInstruction();
-    //
-    //             // Increment instruction cursor offset
-    //             this.cursorOffset++;
-    //             const ret = instructionCallback(instruction);
-    //             if (ret !== null)
-    //                 instructionList.push(ret);
-    //         }
-    //         this.rowPositionTicks = this.positionTicks;
-    //     }
-    //     this.rowCount++;
-    //     this.cursorOffset++;
-    //     return instructionList;
-    //
-    //
-    // }
 
     /** Seeking **/
 

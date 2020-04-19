@@ -3,7 +3,7 @@ import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
 
 class OscillatorNodeInstrument {
     constructor(config={}) {
-        console.log('OscillatorNodeInstrument', config);
+        // console.log('OscillatorNodeInstrument', config);
         this.config = config;
     }
 

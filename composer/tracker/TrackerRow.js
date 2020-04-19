@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import TrackerDelta from "./TrackerDelta";
 import TrackerInstructionAdd from "./TrackerInstructionAdd";
 
-import Div from "../../components/div/Div";
 import TrackerPosition from "./TrackerPosition";
 
 import "./assets/TrackerRow.css";
@@ -41,7 +40,9 @@ class TrackerRow extends React.Component {
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (
-            <Div
+            <div
+                ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
+                tabIndex={0}
                 className="asct-row"
                 // onClick={this.cb.onMouseInput}
                 onMouseDown={this.cb.onMouseInput}
@@ -58,7 +59,7 @@ class TrackerRow extends React.Component {
                     options={this.props.options}
                     vertical={this.props.vertical}
                 />
-            </Div>
+            </div>
         )
     }
 
