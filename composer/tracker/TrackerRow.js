@@ -79,7 +79,7 @@ class TrackerRow extends React.Component {
         if(e.defaultPrevented)
             return;
         e.preventDefault();
-        console.log(e.type, e.button);
+        // console.log(e.type, e.button);
 
         switch(e.type) {
             case 'mousedown':

@@ -25,7 +25,7 @@ class InstructionIterator {
         return this.currentIndex >= this.instructions.length - 1;
     }
 
-    incrementPositionByInstruction(instruction) {
+    incrementPositionByInstruction(instruction, callback=null) {
         const deltaDurationTicks = instruction.deltaDurationTicks;
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDurationTicks;
         this.lastInstructionPositionInTicks = this.positionTicks;
@@ -36,6 +36,7 @@ class InstructionIterator {
 
         const durationTicks = instruction.durationTicks || 0;
         if(durationTicks) {
+
             const trackEndPositionInTicks = this.positionTicks + durationTicks;
             if (trackEndPositionInTicks > this.endPositionTicks)
                 this.endPositionTicks = trackEndPositionInTicks;
@@ -43,10 +44,11 @@ class InstructionIterator {
             if (trackPlaybackEndTime > this.endPositionSeconds)
                 this.endPositionSeconds = trackPlaybackEndTime;
 
-            this.rowCount++;
-            this.cursorPosition++;
         }
+        if(callback)
+            callback(instruction);
         this.cursorPosition++;
+
         // TODO: calculate bpm changes
     }
 
@@ -68,9 +70,7 @@ class InstructionIterator {
 
         this.currentIndex++;
         let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.trackIndex]);
-        this.incrementPositionByInstruction(currentInstruction); // , currentInstruction.duration);
-        if(callback)
-            callback(currentInstruction);
+        this.incrementPositionByInstruction(currentInstruction, callback); // , currentInstruction.duration);
         return currentInstruction;
     }
 
@@ -100,6 +100,10 @@ class InstructionIterator {
             // instruction = this.nextInstruction(instructionCallback);
         }
 
+        if(rowCallback)
+            rowCallback(instructionList);
+        this.rowCount++;
+        this.cursorPosition++;
         return instructionList;
     }
 

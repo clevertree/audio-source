@@ -38,6 +38,7 @@ class Tracker extends React.Component {
         this.destination = null;
         this.cursorInstruction = React.createRef();
         this.getTrackState();
+        this.findRowCursorOffset();
     }
 
     componentDidMount() {
@@ -63,23 +64,43 @@ class Tracker extends React.Component {
     getSong()                   { return this.props.composer.song; }
 
     getTrackName()              { return this.props.trackName; }
-    getTrackState()             { return this.props.trackState; }
+    getTrackState()             { return this.props.trackState || {}; }
     getDestinationList()        { return this.props.trackState.destinationList || []; }
     getSelectedIndices()        { return this.props.trackState.selectedIndices || []; }
-    getCursorOffset()           { return this.props.trackState.cursorOffset; }
+    getCursorOffset()           { return this.props.trackState.cursorOffset || 0; }
     getRowLength()              { return this.props.trackState.rowLength; }
-    getRowOffset()              { return this.props.trackState.rowOffset; }
+    getRowOffset()              { return this.props.trackState.rowOffset || 0; }
 
-    findRowCursorOffset() {
+    findRowCursorOffset() { // MESSY BROKEN
         let cursorOffset = this.getCursorOffset();
+        let cursorColumn = 0;
+        let finalRow = null;
         const iterator = this.instructionGetQuantizedIterator();
-        let row;
-        while(row = iterator.nextQuantizedInstructionRow()) {
-            if(iterator.cursorPosition > cursorOffset)
+        let offsetRows = [];
+        let currentOffsetRow = [];
+        while(iterator.nextQuantizedInstructionRow(row => {
+            currentOffsetRow.push(iterator.cursorPosition)
+            if(currentOffsetRow.indexOf(cursorOffset) !== -1)
+                cursorColumn = currentOffsetRow.indexOf(cursorOffset);
+            offsetRows.push(currentOffsetRow);
+            currentOffsetRow = [];
+        }, instruction => {
+            currentOffsetRow.push(iterator.cursorPosition);
+        })) {
+            if(iterator.cursorPosition >= cursorOffset && finalRow === null)
+                finalRow = iterator.rowCount + 1;
+            if(finalRow !== null && iterator.rowCount > finalRow)
                 break;
-            console.log(iterator.cursorPosition, cursorOffset);
         }
-
+        const nextRow = offsetRows[offsetRows.length - 1];
+        const lastRow = offsetRows[offsetRows.length - 3];
+        const nextRowOffset = nextRow ? nextRow[cursorColumn] : null;
+        const lastRowOffset = lastRow ? lastRow[cursorColumn] : null;
+        console.log(this.getTrackName(), {nextRowOffset, lastRowOffset}, cursorOffset, cursorColumn, finalRow, offsetRows);
+        return {
+            nextRowOffset,
+            lastRowOffset,
+        }
         // TODO: fix first position bug
     }
 
@@ -241,55 +262,47 @@ class Tracker extends React.Component {
         const rowContent = [];
 
         const iterator = this.instructionGetQuantizedIterator();
-        let row;
-        let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
+        // let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
         // eslint-disable-next-line no-cond-assign
-        while(row = iterator.nextQuantizedInstructionRow()) {
-            if (rowContent.length >= rowLength)
-                break;
-
+        let rowInstructionElms = [];
+        while(iterator.nextQuantizedInstructionRow((row) => {
+            if(iterator.rowCount < rowOffset)
+                return;
             let nextRowPositionTicks = iterator.getNextRowPositionTicks();
             let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
             if (rowDeltaDuration <= 0) {
                 console.warn("rowDeltaDuration is ", rowDeltaDuration);
             }
-            // lastPositionTicks = iterator.positionTicks;
 
+            const newRowElm = <TrackerRow
+                key={iterator.rowCount}
+                tracker={this}
+                positionTicks={iterator.positionTicks}
+                positionSeconds={iterator.positionSeconds}
+                deltaDuration={rowDeltaDuration}
+                cursorPosition={iterator.cursorPosition}
+                cursor={iterator.cursorPosition === cursorOffset}
 
-            if (rowCount >= rowOffset) {
-                const rowInstructionElms = [];
-                for(let i=0; i<row.length; i++) {
-                    const index = iterator.currentIndex - row.length + i + 1;
-                    rowInstructionElms.push(<TrackerInstruction
-                        key={index}
-                        index={index}
-                        instruction={row[i]}
-                        tracker={this}
-                        cursorPosition={cursorPosition}
-                        cursor={cursorPosition === cursorOffset}
-                        selected={selectedIndices.indexOf(index) !== -1}
-                    />)
-                    cursorPosition ++;
-                }
+            >{rowInstructionElms}</TrackerRow>;
+            rowContent.push(newRowElm);
+            rowInstructionElms = [];
+        }, (instruction) => {
+            if(iterator.rowCount < rowOffset)
+                return;
+            const index = iterator.currentIndex;
+            rowInstructionElms.push(<TrackerInstruction
+                key={index}
+                index={index}
+                instruction={instruction}
+                tracker={this}
+                cursorPosition={iterator.cursorPosition}
+                cursor={iterator.cursorPosition === cursorOffset}
+                selected={selectedIndices.indexOf(index) !== -1}
+            />)
 
-                const newRowElm = <TrackerRow
-                    key={rowCount}
-                    tracker={this}
-                    positionTicks={iterator.positionTicks}
-                    positionSeconds={iterator.positionSeconds}
-                    deltaDuration={rowDeltaDuration}
-                    cursorPosition={cursorPosition}
-                    cursor={cursorPosition === cursorOffset}
-
-                >{rowInstructionElms}</TrackerRow>;
-                rowContent.push(newRowElm);
-
-            } else {
-                cursorPosition += row.length;
-            }
-
-            cursorPosition++;
-            rowCount++;
+        })) {
+            if (rowContent.length >= rowLength)
+                break;
         }
 
 
