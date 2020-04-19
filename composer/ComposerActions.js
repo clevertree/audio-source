@@ -405,7 +405,7 @@ class ComposerActions extends ComposerMenu {
         if(!Array.isArray(selectedIndices))
             selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
-        const programID = typeof this.track.programID !== "undefined" ? this.track.programID : 0;
+        const programID = typeof track.programID !== "undefined" ? track.programID : 0;
 
         // if(stopPlayback)
         //     song.programLoader.stopAllPlayback();
@@ -542,33 +542,16 @@ class ComposerActions extends ComposerMenu {
         });
     }
 
-    trackerSelectIndices(trackName, selectedIndices) { // }, cursorOffset=null, rowOffset=null) {
-        // const track = this.state.activeTracks[trackName];
-        // if(cursorIndex === null)
-        //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
-
-        // if selectedIndices is an array, clear selection, if integer, add to selection
-        // if(selectedIndices === null)
-        //     selectedIndices = track.selectedIndices || [];
-
+    trackerSelectIndices(trackName, selectedIndices) {
         // Filter unique indices
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
         // Sort indices
         selectedIndices.sort((a, b) => a - b);
-        console.info('TrackInfo.trackerSelectIndices', trackName, selectedIndices);
-
-        // track.selectedIndices = selectedIndices;
-        // if(cursorOffset !== null) {
-        //     if(cursorOffset < 0)
-        //         throw new Error("Invalid cursor offset: " + cursorOffset);
-        //     track.cursorOffset = cursorOffset;
-        // } else {
-        //
-        // }
+        console.info('ComposerActions.trackerSelectIndices', trackName, selectedIndices);
 
         this.setState(state => {
             const track = state.activeTracks[trackName];
-
+            state.selectedTrack = trackName;
             track.selectedIndices = selectedIndices;
 
             // If selected, update default instruction params
@@ -585,6 +568,26 @@ class ComposerActions extends ComposerMenu {
             return state;
         });
         return selectedIndices;
+
+        // }, cursorOffset=null, rowOffset=null) {
+        // const track = this.state.activeTracks[trackName];
+        // if(cursorIndex === null)
+        //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
+
+        // if selectedIndices is an array, clear selection, if integer, add to selection
+        // if(selectedIndices === null)
+        //     selectedIndices = track.selectedIndices || [];
+
+
+        // track.selectedIndices = selectedIndices;
+        // if(cursorOffset !== null) {
+        //     if(cursorOffset < 0)
+        //         throw new Error("Invalid cursor offset: " + cursorOffset);
+        //     track.cursorOffset = cursorOffset;
+        // } else {
+        //
+        // }
+
     }
 
 

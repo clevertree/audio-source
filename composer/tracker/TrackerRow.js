@@ -43,8 +43,8 @@ class TrackerRow extends React.Component {
         return (
             <Div
                 className="asct-row"
-                onClick={this.cb.onMouseInput}
-                // onMouseDown={this.cb.onMouseInput}
+                // onClick={this.cb.onMouseInput}
+                onMouseDown={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 >
                 <TrackerPosition positionTicks={this.props.positionTicks} />
@@ -82,8 +82,6 @@ class TrackerRow extends React.Component {
 
         switch(e.type) {
             case 'mousedown':
-                console.log(e.type);
-                break;
             case 'click':
                 if(e.button === 0)
                     this.selectRow(!e.ctrlKey);

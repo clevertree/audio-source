@@ -2,7 +2,7 @@ import * as React from "react";
 import {
     TrackerInstructionParameter
 } from "./";
-import Div from "../../components/div/Div";
+// import Div from "../../components/div/Div";
 // import TrackerDelta from "./TrackerDelta";
 
 import "./assets/TrackerInstruction.css";
@@ -29,7 +29,9 @@ class TrackerInstruction extends React.Component {
         index: PropTypes.number.isRequired,
         instruction: PropTypes.any.isRequired,
         tracker: PropTypes.any.isRequired,
-        cursorPosition: PropTypes.number.isRequired
+        cursorPosition: PropTypes.number.isRequired,
+        selected: PropTypes.bool.isRequired,
+        cursor: PropTypes.bool.isRequired
     };
 
     // play() {
@@ -88,13 +90,16 @@ class TrackerInstruction extends React.Component {
                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
                 >{durationString||'-'}</TrackerInstructionParameter>);
         }
-        return <Div
+        return <div
+            ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
+            tabIndex={0}
             className={className}
             onKeyDown={this.cb.onKeyDown}
-            onClick={this.cb.onMouseInput}
+            // onClick={this.cb.onMouseInput}
+            onMouseDown={this.cb.onMouseInput}
             >
             {parameters}
-        </Div>;
+        </div>;
     }
 
     /** Actions **/
@@ -148,6 +153,7 @@ class TrackerInstruction extends React.Component {
         e.preventDefault();
 
         switch(e.type) {
+            case 'mousedown':
             case 'click':
                 if(e.button === 0)
                     this.selectInstructionWithAction(!e.ctrlKey);

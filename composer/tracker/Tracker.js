@@ -204,10 +204,11 @@ class Tracker extends React.Component {
     renderRowContent() {
         const quantizationTicks = this.track.quantizationTicks || this.getSong().data.timeDivision;
 
-        // console.time('tracker.renderRowContent()');
+        // console.time('Tracker.renderRowContent()');
         const rowOffset = this.props.rowOffset;
         const rowLength = this.props.rowLength;
         const cursorOffset = this.props.cursorOffset || 0;
+        const selectedIndices = this.getSelectedIndices();
 
         const rowContent = [];
 
@@ -237,21 +238,26 @@ class Tracker extends React.Component {
                         instruction={row[i]}
                         tracker={this}
                         cursorPosition={cursorPosition}
+                        cursor={cursorPosition === cursorOffset}
+                        selected={selectedIndices.indexOf(index) !== -1}
                     />)
                     cursorPosition ++;
                 }
 
                 const newRowElm = <TrackerRow
                     key={rowCount}
-                    cursor={cursorPosition === cursorOffset} // TODO: Redundant
                     tracker={this}
                     positionTicks={iterator.positionTicks}
                     positionSeconds={iterator.positionSeconds}
                     deltaDuration={rowDeltaDuration}
-                    cursorPosition={cursorPosition} // TODO: inefficient? nah
+                    cursorPosition={cursorPosition}
+                    cursor={cursorPosition === cursorOffset}
 
                 >{rowInstructionElms}</TrackerRow>;
                 rowContent.push(newRowElm);
+
+            } else {
+                cursorPosition += row.length;
             }
 
             cursorPosition++;
@@ -259,7 +265,7 @@ class Tracker extends React.Component {
         }
 
 
-        // console.timeEnd('tracker.renderRowContent()');
+        // console.timeEnd('Tracker.renderRowContent()');
         return rowContent;
     }
 
@@ -357,6 +363,7 @@ class Tracker extends React.Component {
     }
 
     async onKeyDown(e) {
+        console.log(e.type);
         if(e.isDefaultPrevented())
             return;
         switch(e.key) {
