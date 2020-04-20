@@ -520,13 +520,12 @@ class ComposerActions extends ComposerMenu {
         this.trackerSelectIndices(trackName, selectedIndices);
     }
 
-    trackerSelectCursor(trackName, cursorOffset) {
-
-    }
 
     trackerSetCursorOffset(trackName, newCursorOffset) {
         if (!Number.isInteger(newCursorOffset))
             throw new Error("Invalid cursor offset");
+        if(newCursorOffset < 0)
+            throw new Error("Cursor offset must be >= 0");
         this.setState(state => {
             state.activeTracks[trackName].cursorOffset = newCursorOffset;
             return state;
@@ -543,6 +542,8 @@ class ComposerActions extends ComposerMenu {
     }
 
     trackerSelectIndices(trackName, selectedIndices) {
+        if(!Array.isArray(selectedIndices))
+            selectedIndices = [selectedIndices];
         selectedIndices.forEach(index => {
             if(isNaN(index))
                 throw new Error("Invalid selection index: " + index);

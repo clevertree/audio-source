@@ -40,10 +40,13 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
         const doRow = () => {
             this.positionTicks = nextQuantizationBreakInTicks;
             this.nextQuantizationBreakInTicks += this.quantizationTicks;
+            const row = [];
+            if(rowCallback)
+                rowCallback(row);
+
             this.rowCount++;
             this.cursorPosition++;
-            if(rowCallback)
-                rowCallback([]);
+            return row;
         };
 
         if(!this.hasReachedEnd()) {
@@ -53,8 +56,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
             if (nextQuantizationBreakInTicks < nextPositionTicks) {
                 // Next break comes before next instruction
 
-                doRow();
-                return []; // Return empty row
+                return doRow();
             }
 
             // Return the next row
@@ -62,9 +64,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
         }
 
         // Render the next quantized row
-        doRow();
-        return [];  // Return empty row
-
+        return doRow();
     }
 
 

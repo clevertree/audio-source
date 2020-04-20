@@ -71,37 +71,33 @@ class Tracker extends React.Component {
     getRowLength()              { return this.props.trackState.rowLength; }
     getRowOffset()              { return this.props.trackState.rowOffset || 0; }
 
-    findRowCursorOffset() { // MESSY BROKEN
+    findRowCursorOffset() {
         let cursorOffset = this.getCursorOffset();
-        let cursorColumn = 0;
-        let finalRow = null;
         const iterator = this.instructionGetQuantizedIterator();
-        let offsetRows = [];
-        let currentOffsetRow = [];
-        while(iterator.nextQuantizedInstructionRow(row => {
-            currentOffsetRow.push(iterator.cursorPosition)
-            if(currentOffsetRow.indexOf(cursorOffset) !== -1)
-                cursorColumn = currentOffsetRow.indexOf(cursorOffset);
-            offsetRows.push(currentOffsetRow);
-            currentOffsetRow = [];
-        }, instruction => {
-            currentOffsetRow.push(iterator.cursorPosition);
+        let row, currentRowStartPosition=0, lastRowStartPosition=0, column=0;
+        // let indexFound = null;
+        while(row = iterator.nextQuantizedInstructionRow(null, instruction => {
+            // if(iterator.cursorPosition === cursorOffset)
+            //     indexFound = iterator.currentIndex;
         })) {
-            if(iterator.cursorPosition >= cursorOffset && finalRow === null)
-                finalRow = iterator.rowCount + 1;
-            if(finalRow !== null && iterator.rowCount > finalRow)
+            if(iterator.cursorPosition >= cursorOffset) {
+                column = cursorOffset - currentRowStartPosition;
                 break;
+            }
+            lastRowStartPosition = currentRowStartPosition;
+            currentRowStartPosition = iterator.cursorPosition;
         }
-        const nextRow = offsetRows[offsetRows.length - 1];
-        const lastRow = offsetRows[offsetRows.length - 3];
-        const nextRowOffset = nextRow ? nextRow[cursorColumn] : null;
-        const lastRowOffset = lastRow ? lastRow[cursorColumn] : null;
-        console.log(this.getTrackName(), {nextRowOffset, lastRowOffset}, cursorOffset, cursorColumn, finalRow, offsetRows);
+
+        const nextRowOffset = iterator.cursorPosition + column;
+        const lastRowOffset = lastRowStartPosition + column;
+        // console.log({indexFound, p: iterator.cursorPosition, cursorOffset, column, lastRowOffset, nextRowOffset});
         return {
-            nextRowOffset,
+            // indexFound, // TODO: index is broken
+            previousOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
+            nextOffset: cursorOffset + 1,
             lastRowOffset,
+            nextRowOffset
         }
-        // TODO: fix first position bug
     }
 
     // findInstructionIndexFromCursorOffset(cursorOffset) {
@@ -145,16 +141,11 @@ class Tracker extends React.Component {
         return {segmentCount, currentSegmentID};
     }
 
-    /** @deprecated **/
-    // findRowCursorOffset() {
-    //     return this.getTrackInfo().findRowCursorOffset();
-    // }
-
 
     /** Actions **/
 
     setCursorOffset(cursorOffset, playSelected= false) {
-        this.getComposer().trackerSetCursorOffset(this.getTrackName(), cursorOffset);
+        this.getComposer().trackerSetCursorOffset(this.getTrackName(), cursorOffset, playSelected);
         // const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
         // console.log('setCursorOffset', cursorOffset, selectedIndex);
         // this.selectIndices(selectedIndex === null ? [] : [selectedIndex], cursorOffset);
@@ -162,6 +153,7 @@ class Tracker extends React.Component {
     }
 
     selectIndices(selectedIndices=null) {
+        console.log('selectedIndices', selectedIndices);
         this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices)
     }
 
@@ -400,7 +392,7 @@ class Tracker extends React.Component {
     }
 
     async onKeyDown(e) {
-        console.log(e.type);
+        // console.log(e.type);
         if(e.isDefaultPrevented())
             return;
         switch(e.key) {
@@ -419,25 +411,35 @@ class Tracker extends React.Component {
             //     break;
             //
             case 'ArrowRight':
+                const {nextOffset, indexFound:nextIndexFound} = this.findRowCursorOffset();
                 e.preventDefault();
-                this.setCursorOffset(this.getCursorOffset() + 1, true);
-                break;
-            case 'ArrowLeft':
-                e.preventDefault();
-                this.setCursorOffset(this.getCursorOffset() - 1, true);
+                this.setCursorOffset(nextOffset, true);
+                this.selectIndices(nextIndexFound === null ? [] : nextIndexFound);
                 break;
 
+            case 'ArrowLeft':
+                e.preventDefault();
+                const {previousOffset, indexFound:previousIndexFound} = this.findRowCursorOffset();
+                if(previousOffset >= 0) {
+                    this.setCursorOffset(previousOffset, true);
+                    this.selectIndices(previousIndexFound === null ? [] : previousIndexFound);
+                }
+                break;
 
             case 'ArrowUp':
                 e.preventDefault();
-                const {previousRowOffset} = this.findRowCursorOffset();
-                this.setCursorOffset(previousRowOffset, true);
+                const {lastRowOffset, indexFound:lastRowIndexFound} = this.findRowCursorOffset();
+                if(lastRowOffset >= 0) {
+                    this.setCursorOffset(lastRowOffset, true);
+                    this.selectIndices(lastRowIndexFound === null ? [] : lastRowIndexFound);
+                }
                 break;
 
             case 'ArrowDown':
                 e.preventDefault();
-                const {nextRowOffset} = this.findRowCursorOffset();
+                const {nextRowOffset, indexFound:nextRowIndexFound} = this.findRowCursorOffset();
                 this.setCursorOffset(nextRowOffset, true);
+                this.selectIndices(nextRowIndexFound === null ? [] : nextRowIndexFound)
                 break;
             //
             // case ' ':
