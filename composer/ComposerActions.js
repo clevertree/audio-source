@@ -545,14 +545,14 @@ class ComposerActions extends ComposerMenu {
         if(!Array.isArray(selectedIndices))
             selectedIndices = [selectedIndices];
         selectedIndices.forEach(index => {
-            if(isNaN(index))
+            if(typeof index !== "number")
                 throw new Error("Invalid selection index: " + index);
         });
         // Filter unique indices
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
         // Sort indices
         selectedIndices.sort((a, b) => a - b);
-        // console.info('ComposerActions.trackerSelectIndices', trackName, selectedIndices);
+        console.info('ComposerActions.trackerSelectIndices', trackName, selectedIndices);
 
         this.setState(state => {
             const track = state.activeTracks[trackName];

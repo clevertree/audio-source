@@ -346,6 +346,8 @@ class Song {
         let instructionList = this.instructionGetList(trackName);
         if(index < 0 || index > instructionList.length)
             throw new Error("Index is out or range: " + index);
+        if(!instructionList[index])
+            throw new Error("Invalid instruction index: " + index);
         return Instruction.getInstruction(instructionList[index]);
     }
 

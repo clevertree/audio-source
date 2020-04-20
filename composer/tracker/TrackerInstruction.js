@@ -120,6 +120,7 @@ class TrackerInstruction extends React.Component {
         return selectedIndices;
     }
 
+    // TODO: move to tracker
     selectInstructionWithAction(clearSelection=true) {
         const selectedIndices = this.selectInstruction(clearSelection);
         const instruction = this.getInstruction();
