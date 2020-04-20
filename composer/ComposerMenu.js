@@ -316,9 +316,9 @@ class ComposerMenu extends ComposerRenderer {
 
     renderMenuEditSelect() {
         return (<>
-            <MenuAction onAction={e => this.trackerChangeSelection('segment')}      >Select Segment Instructions</MenuAction>
-            <MenuAction onAction={e => this.trackerChangeSelection('all')}       >Select All Song Instructions</MenuAction>
-            <MenuAction onAction={e => this.trackerChangeSelection('none')}       >Select No Instructions</MenuAction>
+            <MenuAction onAction={e => this.trackerSelectIndices('segment')}      >Select Segment Instructions</MenuAction>
+            <MenuAction onAction={e => this.trackerSelectIndices('all')}       >Select All Song Instructions</MenuAction>
+            <MenuAction onAction={e => this.trackerSelectIndices('none')}       >Select No Instructions</MenuAction>
             <MenuBreak />
             <MenuDropDown options={() => this.renderMenuEditSelectBatch()} hasBreak                        >Batch Select</MenuDropDown>
         </>);

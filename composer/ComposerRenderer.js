@@ -271,7 +271,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="tracker-selection" header="Selection">
                                 <Button
                                     // className="tracker-selection"
-                                    onAction={(e) => this.trackerChangeSelection(e)}
+                                    onAction={(e) => this.trackerSelectIndices(e)}
                                     title="Tracker Note Selection"
                                     children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
                                 />

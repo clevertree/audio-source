@@ -142,20 +142,23 @@ class Tracker extends React.Component {
 
     /** Actions **/
 
-    setCursorOffset(cursorOffset, selectedIndices=null, playSelected= false) {
+    async setCursorOffset(cursorOffset, selectedIndices=null, playSelected= false) {
+        // TODO: get song position by this.props.index
+        console.log('TODO: get song position by this.props.index');
         if(selectedIndices === null)
             selectedIndices = this.findInstructionIndexFromCursorOffset(cursorOffset);
-        this.getComposer().trackerSetCursorOffset(this.getTrackName(), cursorOffset, playSelected);
+        await this.getComposer().trackerSetCursorOffset(this.getTrackName(), cursorOffset, selectedIndices || []);
         // const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
         // console.log('setCursorOffset', cursorOffset, selectedIndex);
-        this.selectIndices(selectedIndices === null ? [] : selectedIndices);
         // this.playSelectedInstructions();
     }
 
-    selectIndices(selectedIndices=null) {
-        console.log('selectedIndices', selectedIndices);
-        this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices)
+    async selectIndices(selectedIndices=null) {
+        // TODO: get song position by this.props.index
+        console.log('TODO: get song position by this.props.index');
+        await this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices);
     }
+
 
     /** Render **/
 
@@ -358,25 +361,11 @@ class Tracker extends React.Component {
         return this.playInstructions(this.getSelectedIndices());
     }
 
-    playInstructions(selectedIndices, destination=null) {
-        const trackState = this.getTrackState();
-
-        destination = destination || this.getDestination();
-        if(!Array.isArray(selectedIndices))
-            selectedIndices = [selectedIndices];
-        // console.log('playInstructions', selectedIndices);
-        const programID = typeof trackState.programID !== "undefined" ? trackState.programID : 0;
-        const song = this.getSong();
-
-        // if(stopPlayback)
-        //     song.programLoader.stopAllPlayback();
-
-        for(let i=0; i<selectedIndices.length; i++) {
-            const selectedIndex = selectedIndices[i];
-            const instruction = song.instructionGetByIndex(this.getTrackName(), selectedIndex);
-            song.playInstruction(destination, instruction, programID);
-        }
+    playInstructions(selectedIndices, stopPlayback=true) {
+        this.getComposer().trackerPlaySelectedInstructions(this.getTrackName(), selectedIndices, stopPlayback)
     }
+
+
 
 
     /** User Input **/
@@ -395,6 +384,7 @@ class Tracker extends React.Component {
         // console.log(e.type);
         if(e.isDefaultPrevented())
             return;
+        let selectedIndices;
         switch(e.key) {
             // case 'Delete':
             //     break;
@@ -413,14 +403,16 @@ class Tracker extends React.Component {
             case 'ArrowRight':
                 const {nextOffset} = this.findRowCursorOffset();
                 e.preventDefault();
-                this.setCursorOffset(nextOffset, null, true);
+                selectedIndices = await this.setCursorOffset(nextOffset, null, true);
+                this.playInstructions(selectedIndices);
                 break;
 
             case 'ArrowLeft':
                 e.preventDefault();
                 const {previousOffset} = this.findRowCursorOffset();
                 if(previousOffset >= 0) {
-                    this.setCursorOffset(previousOffset, null, true);
+                    selectedIndices = await this.setCursorOffset(previousOffset, null, true);
+                    this.playInstructions(selectedIndices);
                 }
                 break;
 
@@ -428,14 +420,16 @@ class Tracker extends React.Component {
                 e.preventDefault();
                 const {lastRowOffset} = this.findRowCursorOffset();
                 if(lastRowOffset >= 0) {
-                    this.setCursorOffset(lastRowOffset,null,  true);
+                    selectedIndices = await this.setCursorOffset(lastRowOffset,null,  true);
+                    this.playInstructions(selectedIndices);
                 }
                 break;
 
             case 'ArrowDown':
                 e.preventDefault();
                 const {nextRowOffset} = this.findRowCursorOffset();
-                this.setCursorOffset(nextRowOffset, null, true);
+                selectedIndices = await this.setCursorOffset(nextRowOffset, null, true);
+                this.playInstructions(selectedIndices);
                 break;
             //
             // case ' ':

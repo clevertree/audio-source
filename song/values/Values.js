@@ -173,7 +173,7 @@ class Values {
         const noteScale = note.slice(0, -1);
         const octave = parseInt(note.slice(-1));
         if(isNaN(octave))
-            throw new Error("Invalid octave value: " + octave);
+            throw new Error("Invalid octave value: " + note);
         if(typeof noteFrequencies[noteScale] === "undefined")
             throw new Error("Unrecognized Note: " + noteScale);
         let keyNumber = noteFrequencies[noteScale];

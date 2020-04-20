@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Song, Storage, Instruction, ProgramLoader, NoteInstruction} from "../song";
+import {Song, Storage, Instruction, ProgramLoader, NoteInstruction, TrackInstruction} from "../song";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 // import {TrackInfo} from "./tracker/";
@@ -269,7 +269,7 @@ class ComposerActions extends ComposerMenu {
 
         const songPositionTicks = this.trackerGetTrackInfo(trackName).calculateCursorOffsetPositionTicks();
         let insertIndex = song.instructionInsertAtPosition(trackName, songPositionTicks, newInstruction);
-        this.selectIndices([insertIndex]);
+        this.trackerSelectIndices(trackName, [insertIndex]);
 
         this.playSelectedInstructions();
     }
@@ -387,10 +387,9 @@ class ComposerActions extends ComposerMenu {
 
     /** Tracker Playback **/
 
-    // TODO: next
     trackerPlaySelectedInstructions(trackName, stopPlayback=true) {
-        const trackInfo = this.trackerGetSelectedTrackInfo();
-        return trackInfo.playSelectedInstructions(this.getVolumeGain(), stopPlayback);
+        const track = this.state.activeTracks[trackName];
+        return this.trackerPlayInstructions(trackName, track.selectedIndices, stopPlayback);
     }
     trackerPlayInstructions(trackName, selectedIndices) {
         const track = this.state.activeTracks[trackName];
@@ -398,7 +397,7 @@ class ComposerActions extends ComposerMenu {
         const song = this.getSong();
         song.stopPlayback();
 
-        let destination = this.getVolumeGain();
+        let destination = this.getVolumeGain(); // TODO: get track destination
 
 
         // destination = destination || this.getDestination();
@@ -412,7 +411,7 @@ class ComposerActions extends ComposerMenu {
 
         for(let i=0; i<selectedIndices.length; i++) {
             const selectedIndex = selectedIndices[i];
-            const instruction = song.instructionGetByIndex(this.getTrackName(), selectedIndex);
+            const instruction = song.instructionGetByIndex(trackName, selectedIndex);
             song.playInstruction(destination, instruction, programID);
         }
     }
@@ -508,45 +507,40 @@ class ComposerActions extends ComposerMenu {
         this.trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows);
     }
 
-    trackerChangeSelection(trackName, selectedIndices) {
-        selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-        this.trackerSelectIndices(trackName, selectedIndices);
-    }
+    /** Selection **/
 
-    async trackerSelectIndicesPrompt(trackName) {
-        const oldSelectedIndices = this.state.activeTracks[trackName].selectedIndices;
-        let selectedIndices = await this.composer.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
-        selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-        this.trackerSelectIndices(trackName, selectedIndices);
-    }
+    async trackerSelectIndices(trackName, selectedIndices, cursorOffset=null) {
+        // let selectedIndices = await this.composer.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+        if (typeof selectedIndices === "string") {
+            switch (selectedIndices) {
+                case 'all':
+                    selectedIndices = [];
+                    const maxLength = this.song.instructionFindGroupLength(this.trackName);
+                    for (let i = 0; i < maxLength; i++)
+                        selectedIndices.push(i);
+                    break;
+                case 'segment':
+                    selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                    break;
+                case 'row':
+                    throw new Error('TODO');
+                case 'none':
+                    selectedIndices = [];
+                    break;
+                default:
+                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+                    // throw new Error("Invalid selection: " + selectedIndices);
+            }
+        }
 
-
-    trackerSetCursorOffset(trackName, newCursorOffset) {
-        if (!Number.isInteger(newCursorOffset))
-            throw new Error("Invalid cursor offset");
-        if(newCursorOffset < 0)
-            throw new Error("Cursor offset must be >= 0");
-        this.setState(state => {
-            state.activeTracks[trackName].cursorOffset = newCursorOffset;
-            return state;
-        });
-    }
-
-    trackerSetRowOffset(trackName, newRowOffset) {
-        if (!Number.isInteger(newRowOffset))
-            throw new Error("Invalid row offset");
-        this.setState(state => {
-            state.activeTracks[trackName].rowOffset = newRowOffset;
-            return state;
-        });
-    }
-
-    trackerSelectIndices(trackName, selectedIndices) {
-        if(!Array.isArray(selectedIndices))
+        if (typeof selectedIndices === 'number')
             selectedIndices = [selectedIndices];
-        selectedIndices.forEach(index => {
+        if (!Array.isArray(selectedIndices))
+            throw new Error("Invalid selection: " + selectedIndices);
+
+        selectedIndices.forEach((index, i) => {
             if(typeof index !== "number")
-                throw new Error("Invalid selection index: " + index);
+                throw new Error(`Invalid selection index (${i}): ${index}`);
         });
         // Filter unique indices
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
@@ -554,10 +548,12 @@ class ComposerActions extends ComposerMenu {
         selectedIndices.sort((a, b) => a - b);
         console.info('ComposerActions.trackerSelectIndices', trackName, selectedIndices);
 
-        this.setState(state => {
+        await new Promise(resolve => this.setState(state => {
             const track = state.activeTracks[trackName];
             state.selectedTrack = trackName;
             track.selectedIndices = selectedIndices;
+            if(cursorOffset !== null)
+                track.cursorOffset = cursorOffset;
 
             // If selected, update default instruction params
             if(selectedIndices.length > 0) {
@@ -571,28 +567,27 @@ class ComposerActions extends ComposerMenu {
                 }
             }
             return state;
-        });
+        }, resolve));
         return selectedIndices;
-
-        // }, cursorOffset=null, rowOffset=null) {
-        // const track = this.state.activeTracks[trackName];
-        // if(cursorIndex === null)
-        //     cursorIndex = selectedIndices.length > 0 ? selectedIndices[0] : 0;
-
-        // if selectedIndices is an array, clear selection, if integer, add to selection
-        // if(selectedIndices === null)
-        //     selectedIndices = track.selectedIndices || [];
+    }
 
 
-        // track.selectedIndices = selectedIndices;
-        // if(cursorOffset !== null) {
-        //     if(cursorOffset < 0)
-        //         throw new Error("Invalid cursor offset: " + cursorOffset);
-        //     track.cursorOffset = cursorOffset;
-        // } else {
-        //
-        // }
 
+    async trackerSetCursorOffset(trackName, newCursorOffset, selectedIndices=[]) {
+        if (!Number.isInteger(newCursorOffset))
+            throw new Error("Invalid cursor offset");
+        if(newCursorOffset < 0)
+            throw new Error("Cursor offset must be >= 0");
+        return await this.trackerSelectIndices(trackName, selectedIndices, newCursorOffset);
+    }
+
+    trackerSetRowOffset(trackName, newRowOffset) {
+        if (!Number.isInteger(newRowOffset))
+            throw new Error("Invalid row offset");
+        this.setState(state => {
+            state.activeTracks[trackName].rowOffset = newRowOffset;
+            return state;
+        });
     }
 
 
@@ -625,71 +620,9 @@ class ComposerActions extends ComposerMenu {
         return this.trackerGetTrackInfo(trackName).findCursorRow(trackName, cursorOffset);
     }
 
-    /** @deprecated **/
-    trackerGetActiveTrackInfo(trackName) {
-        if(!this.state.activeTracks[trackName])
-            throw new Error("Invalid active track: " + trackName);
-        return this.state.activeTracks[trackName];
-    }
-
-    /** Row Iterator **/
-
-    trackerEachRow(trackName, rowCallback, instructionCallback=null) {
-        return this.trackerGetTrackInfo(trackName).eachRow(rowCallback, instructionCallback=null);
-    }
 
 
-    /** Selection **/
 
-    // selectIndex(index, clearSelection = null, toggleValue = null) {
-    //     let selectedIndices = clearSelection ? [] : this.state.selectedIndices;
-    //     if (toggleValue) {
-    //         selectedIndices.unshift(index); // Cursor goes first
-    //     } else {
-    //         const pos = selectedIndices.indexOf(index);
-    //         selectedIndices.splice(pos, 1);
-    //     }
-    //     return this.selectIndicies(selectedIndices);
-    // }
-
-    selectIndices(selectedIndices, cursorOffset=null) {
-        const trackName = this.state.selectedTrack;
-        if (typeof selectedIndices === "string") {
-
-            switch (selectedIndices) {
-                case 'all':
-                    selectedIndices = [];
-                    const maxLength = this.song.instructionFindGroupLength(this.trackName);
-                    for (let i = 0; i < maxLength; i++)
-                        selectedIndices.push(i);
-                    break;
-                case 'segment':
-                    selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                    break;
-                case 'row':
-                    throw new Error('TODO');
-                case 'none':
-                    selectedIndices = [];
-                    break;
-                default:
-                    throw new Error("Invalid selection: " + selectedIndices);
-            }
-        }
-        if (typeof selectedIndices === 'number')
-            selectedIndices = [selectedIndices];
-        if (!Array.isArray(selectedIndices)) {
-            console.warn("Invalid selection");
-            return;
-        }
-
-        this.trackerSelectIndices(trackName, selectedIndices, cursorOffset);
-
-        // this.state.selectedIndices = selectedIndices;
-        // this.fieldTrackerSelection.value = selectedIndices.join(',');
-
-        // await this.tracker.selectIndicies(selectedIndices);
-        // this.tracker.forceUpdate();
-    }
 
     /** Context menu **/
     // async openContextMenu(e) {

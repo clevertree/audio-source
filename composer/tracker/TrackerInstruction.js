@@ -109,20 +109,19 @@ class TrackerInstruction extends React.Component {
         return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
     }
 
-    selectInstruction(clearSelection=true) {
+    async selectInstruction(clearSelection=true) {
         // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
         // const instruction = this.getInstruction();
         selectedIndices.push(this.props.index);
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
-        this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
-        this.getTracker().setCursorOffset(this.props.cursorPosition);
+        // this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
+        await this.getTracker().setCursorOffset(this.props.cursorPosition, selectedIndices);
         return selectedIndices;
     }
 
-    // TODO: move to tracker
-    selectInstructionWithAction(clearSelection=true) {
-        const selectedIndices = this.selectInstruction(clearSelection);
+    async selectInstructionWithAction(clearSelection=true) {
+        const selectedIndices = await this.selectInstruction(clearSelection);
         const instruction = this.getInstruction();
         if(instruction instanceof TrackInstruction) {
             this.getComposer().trackerToggleTrack(
@@ -135,9 +134,6 @@ class TrackerInstruction extends React.Component {
         } else {
             this.getTracker().playInstructions(selectedIndices);
         }
-
-        // TODO: get song position by this.props.index
-        console.log('TODO: get song position by this.props.index');
 
     }
 
