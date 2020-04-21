@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 import * as React from "react";
 import PropTypes from 'prop-types';
 
@@ -80,11 +81,13 @@ class Tracker extends React.Component {
         while(iterator.cursorPosition <= cursorOffset) {
             lastRowStartPosition = currentRowStartPosition;
             currentRowStartPosition = iterator.cursorPosition;
+            // eslint-disable-next-line no-loop-func
             iterator.nextQuantizedInstructionRow(function() {
                 if(iterator.cursorPosition === cursorOffset) {
                     cursorRow = iterator.rowCount;
                     column = cursorOffset - currentRowStartPosition;
                 }
+                // eslint-disable-next-line no-loop-func
             }, function() {
                 if(iterator.cursorPosition === cursorOffset) {
                     cursorIndex = iterator.currentIndex;
@@ -95,14 +98,14 @@ class Tracker extends React.Component {
         }
 
         const nextRowOffset = iterator.cursorPosition + column;
-        const lastRowOffset = lastRowStartPosition + column;
-        // console.log({p: iterator.cursorPosition, cursorOffset, column, lastRowOffset, nextRowOffset});
+        const previousRowOffset = lastRowStartPosition + column;
+        // console.log({p: iterator.cursorPosition, cursorOffset, column, previousRowOffset, nextRowOffset});
         return {
             cursorIndex,
             cursorRow,
             previousOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
             nextOffset: cursorOffset + 1,
-            lastRowOffset,
+            previousRowOffset,
             nextRowOffset
         }
     }
@@ -138,8 +141,8 @@ class Tracker extends React.Component {
     /** Actions **/
 
     async setCursorOffset(cursorOffset, selectedIndices=null, rowOffset=null) {
-        const {cursorIndex} = this.findRowCursorOffset(cursorOffset);
         if(selectedIndices === null) {
+            const {cursorIndex} = this.findRowCursorOffset(cursorOffset);
             selectedIndices = [];
             if(cursorIndex !== null)
                 selectedIndices = [cursorIndex];
@@ -167,7 +170,7 @@ class Tracker extends React.Component {
                 if(currentRowOffset > cursorRow)
                     rowOffset = cursorRow - Math.ceil(currentRowLength * 0.2);
             }
-            console.log({cursorOffset, rowOffset, cursorRow, currentRowOffset, currentRowLength})
+            // console.log({cursorOffset, rowOffset, cursorRow, currentRowOffset, currentRowLength})
         }
         return await this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset, rowOffset);
         // TODO: get song position by this.props.index
@@ -272,9 +275,8 @@ class Tracker extends React.Component {
 
         const iterator = this.instructionGetQuantizedIterator();
         // let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
-        // eslint-disable-next-line no-cond-assign
         let rowInstructionElms = [];
-        while(iterator.nextQuantizedInstructionRow((row) => {
+        while(iterator.nextQuantizedInstructionRow(() => {
             if(iterator.rowCount < rowOffset)
                 return;
             let nextRowPositionTicks = iterator.getNextRowPositionTicks();
@@ -376,7 +378,7 @@ class Tracker extends React.Component {
     }
 
     playInstructions(selectedIndices, stopPlayback=true) {
-        this.getComposer().trackerPlaySelectedInstructions(this.getTrackName(), selectedIndices, stopPlayback)
+        this.getComposer().instructionPlaySelected(this.getTrackName(), selectedIndices, stopPlayback)
     }
 
 
@@ -432,9 +434,9 @@ class Tracker extends React.Component {
 
             case 'ArrowUp':
                 e.preventDefault();
-                const {lastRowOffset} = this.findRowCursorOffset();
-                if(lastRowOffset >= 0) {
-                    selectedIndices = await this.setCursorOffset(lastRowOffset);
+                const {previousRowOffset} = this.findRowCursorOffset();
+                if(previousRowOffset >= 0) {
+                    selectedIndices = await this.setCursorOffset(previousRowOffset);
                     this.playInstructions(selectedIndices);
                 }
                 break;
@@ -463,7 +465,7 @@ class Tracker extends React.Component {
                     const selectedIndices = this.getSelectedIndices();
                     // const cursorOffset = this.getCursorOffset();
                     if(selectedIndices.length > 0) {
-                        await this.getComposer().instructionReplaceCommand(keyboardCommand);
+                        await this.getComposer().instructionReplaceCommandSelected(keyboardCommand);
 
                     } else {
                         await this.getComposer().instructionInsert(keyboardCommand);

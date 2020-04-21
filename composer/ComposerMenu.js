@@ -254,7 +254,7 @@ class ComposerMenu extends ComposerRenderer {
             <MenuBreak />
             <MenuDropDown options={() => this.renderMenuEditSetCommandNamed()}               >Alias</MenuDropDown>
             <MenuDropDown options={() => this.renderMenuEditSetCommandTrack()}               >Track</MenuDropDown>
-            <MenuAction onAction={e => this.instructionReplaceCommand(null, true)}      >Custom</MenuAction>
+            <MenuAction onAction={e => this.instructionReplaceCommandSelectedPrompt()}      >Custom</MenuAction>
         </>);
 
     }
@@ -282,21 +282,25 @@ class ComposerMenu extends ComposerRenderer {
     }
 
     renderMenuEditSetCommandFrequency() {
-        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
+        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
     }
 
     // renderMenuEditSetCommandCurrentOctave(octave=null) {
-    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionReplaceCommand(noteNameOctave, false), octave);
+    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.trackerReplaceSelectedInstructions(noteNameOctave, false), octave);
     // }
 
     renderMenuEditSetCommandOctave() {
-        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommand(noteNameOctave, false));
+        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
     }
 
 
     renderMenuEditSetCommandNamed() {
         return this.values.getAllNamedFrequencies((noteName, frequency, programID) =>
-            <MenuAction key={noteName} onAction={e => this.instructionReplaceCommand(noteName, false, programID)}                    >{noteName}</MenuAction>
+            <MenuAction
+                key={noteName}
+                onAction={e => this.instructionReplaceCommandSelected(noteName)}
+                children={noteName}
+                />
         );
     }
 
@@ -307,7 +311,7 @@ class ComposerMenu extends ComposerRenderer {
                     <MenuAction
                         key={trackName}
                         disabled={trackName === this.state.selectedTrack}
-                        onAction={e => this.instructionReplaceCommand('@' + trackName, false)}
+                        onAction={e => this.instructionReplaceCommandSelected('@' + trackName)}
                     >{trackName}</MenuAction>
             )}
             <MenuAction onAction={e => this.trackAdd()} hasBreak  >Create New Group</MenuAction>

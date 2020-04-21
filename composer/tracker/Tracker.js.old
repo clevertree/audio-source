@@ -360,8 +360,8 @@ class Tracker extends React.Component {
     //     if (!cursorList[offset])
     //         throw new Error("Shouldn't happen");
     //     // Find the end of the row, and return the next entry
-    //     let lastRowOffset = offset, rowPosition = 0;
-    //     while (cursorList[--lastRowOffset] instanceof TrackInstruction) rowPosition++;
+    //     let previousRowOffset = offset, rowPosition = 0;
+    //     while (cursorList[--previousRowOffset] instanceof TrackInstruction) rowPosition++;
     //
     //     while (cursorList[offset++] instanceof TrackInstruction) ;
     //     while (cursorList[offset] instanceof TrackInstruction && rowPosition-- > 0) offset++;
@@ -382,8 +382,8 @@ class Tracker extends React.Component {
     //     const cursorList = this.cursorList;
     //     if (!cursorList[offset])
     //         throw new Error("Shouldn't happen");
-    //     let lastRowOffset = offset, rowPosition = 0;
-    //     while (cursorList[--lastRowOffset] instanceof TrackInstruction) rowPosition++;
+    //     let previousRowOffset = offset, rowPosition = 0;
+    //     while (cursorList[--previousRowOffset] instanceof TrackInstruction) rowPosition++;
     //     offset -= rowPosition + 1;
     //
     //     // Find the previous non-instruction entry

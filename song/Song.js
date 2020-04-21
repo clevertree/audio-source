@@ -522,6 +522,7 @@ class Song {
     }
 
     instructionReplaceCommand(trackName, replaceIndex, newCommand) {
+        //: TODO: check for recursive group
         this.instructionGetByIndex(trackName, replaceIndex).command = newCommand;
     }
 

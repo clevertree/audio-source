@@ -191,11 +191,11 @@ class TrackerInstruction extends React.Component {
 
 
     instructionReplaceCommand(command) {
-        this.getSong().instructionReplaceCommand(
+        this.getComposer().instructionReplaceCommandSelected(
+            command,
             this.getComposer().state.selectedTrack,
             this.props.index,
-            command);
-        this.playInstruction();
+        )
     }
 
     // instructionReplaceProgram(programID) {
