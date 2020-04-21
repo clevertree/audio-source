@@ -801,7 +801,7 @@ class Song {
         this.isPaused = false;
     }
 
-    get isPlaying() {
+    isPlaying() {
         return !!this.playback;
     }
 

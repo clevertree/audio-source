@@ -395,7 +395,8 @@ class ComposerActions extends ComposerMenu {
         const track = this.state.activeTracks[trackName];
 
         const song = this.getSong();
-        song.stopPlayback();
+        if(song.isPlaying())
+            song.stopPlayback();
 
         let destination = this.getVolumeGain(); // TODO: get track destination
 
@@ -509,7 +510,9 @@ class ComposerActions extends ComposerMenu {
 
     /** Selection **/
 
-    async trackerSelectIndices(trackName, selectedIndices, cursorOffset=null) {
+    async trackerSelectIndices(trackName, selectedIndices, cursorOffset=null, rowOffset=null) {
+        console.log('trackerSelectIndices', {trackName, selectedIndices, cursorOffset, rowOffset});
+        // TODO: get song position by this.props.index
         // let selectedIndices = await this.composer.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
@@ -542,18 +545,22 @@ class ComposerActions extends ComposerMenu {
             if(typeof index !== "number")
                 throw new Error(`Invalid selection index (${i}): ${index}`);
         });
+
         // Filter unique indices
         selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
         // Sort indices
         selectedIndices.sort((a, b) => a - b);
-        console.info('ComposerActions.trackerSelectIndices', trackName, selectedIndices);
+        // console.info('ComposerActions.trackerSelectIndices', trackName, selectedIndices);
+
 
         await new Promise(resolve => this.setState(state => {
-            const track = state.activeTracks[trackName];
             state.selectedTrack = trackName;
+            const track = state.activeTracks[trackName];
             track.selectedIndices = selectedIndices;
             if(cursorOffset !== null)
                 track.cursorOffset = cursorOffset;
+            if(rowOffset !== null)
+                track.rowOffset = rowOffset;
 
             // If selected, update default instruction params
             if(selectedIndices.length > 0) {

@@ -65,11 +65,9 @@ class TrackerRow extends React.Component {
 
     toggleMenu()    { return this.dropdown.current.toggleMenu(); }
 
-    selectRow(clearSelection=true) {
+    async selectRow(clearSelection=true) {
         // const selectedIndices = clearSelection ? [] : null;
-        if(clearSelection)
-            this.getTracker().selectIndices([]);
-        this.getTracker().setCursorOffset(this.props.cursorPosition);
+        await this.getTracker().setCursorOffset(this.props.cursorPosition, clearSelection ? [] : null);
     }
 
 
