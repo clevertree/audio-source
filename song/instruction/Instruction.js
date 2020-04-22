@@ -1,4 +1,4 @@
-import {SongValues} from "../values";
+import {Values} from "../values";
 
 class Instruction {
     constructor(instructionData = [0]) {
@@ -26,7 +26,7 @@ class Instruction {
         const durationTicks = this.durationTicks;
         if(durationTicks === null)
             return 'N/A';
-        return new SongValues().formatDuration(durationTicks, timeDivision);
+        return Values.formatDuration(durationTicks, timeDivision);
     }
     set durationTicks(newDuration)  { throw new Error("TODO: Implement for " + this.constructor.name);}
     get durationTicks()             { throw new Error("TODO: Implement for " + this.constructor.name);}

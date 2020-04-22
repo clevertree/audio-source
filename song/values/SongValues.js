@@ -1,8 +1,7 @@
 import Values from "./Values";
 
-class SongValues extends Values{
-    constructor(song = null) {
-        super();
+class SongValues {
+    constructor(song) {
         this.song = song;
     }
 
@@ -61,14 +60,24 @@ class SongValues extends Values{
 
 
     formatSongDuration(input) {
-        return super.formatDuration(input, this.song.data.timeDivision);
+        return Values.formatDuration(input, this.song.data.timeDivision);
     }
 
 
-    getSongNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
-        return super.getNoteDurations(callback, this.song.data.timeDivision);
+    /** Duration **/
+
+    parseDurationAsTicks(durationString) {
+        return Values.parseDurationAsTicks(durationString, this.song.data.timeDivision);
     }
 
+    formatDuration(input) {
+        return Values.formatDuration(input, this.song.data.timeDivision);
+    }
+
+
+    getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
+        return Values.getNoteDurations(callback, this.song.data.timeDivision);
+    }
 
 }
 

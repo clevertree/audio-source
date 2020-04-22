@@ -240,7 +240,7 @@ class Song {
         let program = this.programLoader.loadInstanceFromID(programID);
         // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
-            noteFrequency = this.values.parseFrequencyString(noteFrequency);
+            noteFrequency = Values.parseFrequencyString(noteFrequency);
         return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 

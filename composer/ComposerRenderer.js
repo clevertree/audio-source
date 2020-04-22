@@ -4,7 +4,7 @@ import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
 import {Div, Icon, Form, Panel, InputRange, Button, ButtonDropDown, MenuDropDown} from "../components";
 import ProgramRenderer from "./program/ProgramRenderer";
 import Tracker from "./tracker/Tracker";
-import {Song} from "../song/";
+import {Song, Values} from "../song/";
 import "./assets/Composer.css";
 
 class ComposerRenderer extends React.Component {
@@ -62,7 +62,9 @@ class ComposerRenderer extends React.Component {
     // getSelectedTrack() { return this.state.selectedTrack; }
 
     render() {
-        const {trackName:selectedTrackName, selectedIndices, trackState} = this.trackerGetActiveSelectedTrackState();
+        const selectedTrackName = this.state.selectedTrack;
+        const trackState = this.state.activeTracks[selectedTrackName];
+        const selectedIndices = trackState.selectedIndices || [];
         // console.log('trackState', trackState);
         return (
             <Div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
@@ -153,7 +155,7 @@ class ComposerRenderer extends React.Component {
                                     onAction={(e, timingString) => this.setSongPosition(timingString)}
                                     ref={ref => this.fieldSongTiming = ref}
                                     title="Song Timing"
-                                    children={this.values.formatPlaybackPosition(this.state.songPosition)}
+                                    children={Values.formatPlaybackPosition(this.state.songPosition)}
                                 />
                             </Form>
 

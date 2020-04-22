@@ -39,7 +39,7 @@ class Tracker extends React.Component {
         this.destination = null;
         this.cursorInstruction = React.createRef();
         this.getTrackState();
-        this.findRowCursorOffset();
+        this.trackerGetCursorInfo();
     }
 
     componentDidMount() {
@@ -72,45 +72,10 @@ class Tracker extends React.Component {
     getRowLength()              { return this.props.trackState.rowLength || 16; }
     getRowOffset()              { return this.props.trackState.rowOffset || 0; }
 
-    findRowCursorOffset(cursorOffset=null) {
-        cursorOffset = cursorOffset === null ? this.getCursorOffset() : cursorOffset;
-        const iterator = this.instructionGetQuantizedIterator();
-        let cursorIndex = null, cursorRow = null;
-        let currentRowStartPosition=0, lastRowStartPosition=0, column=0;
-        // let indexFound = null;
-        while(iterator.cursorPosition <= cursorOffset) {
-            lastRowStartPosition = currentRowStartPosition;
-            currentRowStartPosition = iterator.cursorPosition;
-            // eslint-disable-next-line no-loop-func
-            iterator.nextQuantizedInstructionRow(function() {
-                if(iterator.cursorPosition === cursorOffset) {
-                    cursorRow = iterator.rowCount;
-                    column = cursorOffset - currentRowStartPosition;
-                }
-                // eslint-disable-next-line no-loop-func
-            }, function() {
-                if(iterator.cursorPosition === cursorOffset) {
-                    cursorIndex = iterator.currentIndex;
-                    cursorRow = iterator.rowCount;
-                    column = cursorOffset - currentRowStartPosition;
-                }
-            });
-        }
 
-        const nextRowOffset = iterator.cursorPosition + column;
-        const previousRowOffset = lastRowStartPosition + column;
-        // console.log({p: iterator.cursorPosition, cursorOffset, column, previousRowOffset, nextRowOffset});
-        return {
-            cursorIndex,
-            cursorRow,
-            previousOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
-            nextOffset: cursorOffset + 1,
-            previousRowOffset,
-            nextRowOffset
-        }
+    trackerGetCursorInfo(cursorOffset=null) {
+        return this.getComposer().trackerGetCursorInfo(this.getTrackName(), cursorOffset);
     }
-
-
 
     instructionGetQuantizedIterator() {
         const trackState = this.getTrackState();
@@ -140,39 +105,24 @@ class Tracker extends React.Component {
 
     /** Actions **/
 
-    async setCursorOffset(cursorOffset, selectedIndices=null, rowOffset=null) {
+    setCursorOffset(cursorOffset, selectedIndices=null, rowOffset=null) {
         if(selectedIndices === null) {
-            const {cursorIndex} = this.findRowCursorOffset(cursorOffset);
+            const {cursorIndex} = this.trackerGetCursorInfo(cursorOffset);
             selectedIndices = [];
             if(cursorIndex !== null)
                 selectedIndices = [cursorIndex];
         }
         // if(selectedIndices === null)
         //     selectedIndices = [];
-        await this.selectIndices(selectedIndices, cursorOffset, rowOffset);
+        return this.selectIndices(selectedIndices, cursorOffset, rowOffset);
 
         // const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
         // console.log('setCursorOffset', cursorOffset, selectedIndex);
         // this.playSelectedInstructions();
     }
 
-    async selectIndices(selectedIndices, cursorOffset=null, rowOffset=null) {
-        // TODO: get song position by this.props.index
-        if(rowOffset === null) {
-            const {cursorRow} = this.findRowCursorOffset(cursorOffset);
-            const currentRowOffset = this.getRowOffset();
-            const currentRowLength = this.getRowLength();
-            if(cursorRow !== null) {
-                if(currentRowOffset === null)
-                    rowOffset = cursorRow;
-                if(currentRowOffset + currentRowLength <= cursorRow)
-                    rowOffset = cursorRow - Math.floor(currentRowLength * 0.8);
-                if(currentRowOffset > cursorRow)
-                    rowOffset = cursorRow - Math.ceil(currentRowLength * 0.2);
-            }
-            // console.log({cursorOffset, rowOffset, cursorRow, currentRowOffset, currentRowLength})
-        }
-        return await this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset, rowOffset);
+    selectIndices(selectedIndices, cursorOffset=null, rowOffset=null) {
+        return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices, cursorOffset, rowOffset);
         // TODO: get song position by this.props.index
     }
 
@@ -378,7 +328,8 @@ class Tracker extends React.Component {
     }
 
     playInstructions(selectedIndices, stopPlayback=true) {
-        this.getComposer().instructionPlaySelected(this.getTrackName(), selectedIndices, stopPlayback)
+        // console.log("Tracker.playInstructions", selectedIndices);
+        this.getComposer().trackerPlay(this.getTrackName(), selectedIndices, stopPlayback)
     }
 
 
@@ -410,41 +361,41 @@ class Tracker extends React.Component {
             //     break;
             //
             case 'Enter':
-                await this.getComposer().instructionInsert();
+                this.getComposer().instructionInsert();
                 break;
             //
             // case 'Play':
             //     break;
             //
             case 'ArrowRight':
-                const {nextOffset} = this.findRowCursorOffset();
+                const {nextOffset} = this.trackerGetCursorInfo();
                 e.preventDefault();
-                selectedIndices = await this.setCursorOffset(nextOffset);
+                selectedIndices = this.setCursorOffset(nextOffset);
                 this.playInstructions(selectedIndices);
                 break;
 
             case 'ArrowLeft':
                 e.preventDefault();
-                const {previousOffset} = this.findRowCursorOffset();
+                const {previousOffset} = this.trackerGetCursorInfo();
                 if(previousOffset >= 0) {
-                    selectedIndices = await this.setCursorOffset(previousOffset);
+                    selectedIndices = this.setCursorOffset(previousOffset);
                     this.playInstructions(selectedIndices);
                 }
                 break;
 
             case 'ArrowUp':
                 e.preventDefault();
-                const {previousRowOffset} = this.findRowCursorOffset();
+                const {previousRowOffset} = this.trackerGetCursorInfo();
                 if(previousRowOffset >= 0) {
-                    selectedIndices = await this.setCursorOffset(previousRowOffset);
+                    selectedIndices = this.setCursorOffset(previousRowOffset);
                     this.playInstructions(selectedIndices);
                 }
                 break;
 
             case 'ArrowDown':
                 e.preventDefault();
-                const {nextRowOffset} = this.findRowCursorOffset();
-                selectedIndices = await this.setCursorOffset(nextRowOffset);
+                const {nextRowOffset} = this.trackerGetCursorInfo();
+                selectedIndices = this.setCursorOffset(nextRowOffset);
                 this.playInstructions(selectedIndices);
                 break;
             //
