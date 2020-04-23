@@ -401,7 +401,7 @@ class ComposerMenu extends ComposerRenderer {
             {this.values.getAllSongGroups((trackName) =>
                 <MenuDropDown
                     key={trackName}
-                    disabled={trackName === this.state.selectedTrack}
+                    // disabled={trackName === this.state.selectedTrack}
                     options={() => this.renderMenuTrackEdit(trackName)}
                 >{trackName}</MenuDropDown>)}
         </>);

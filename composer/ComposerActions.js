@@ -241,6 +241,7 @@ class ComposerActions extends ComposerMenu {
     /** Song Playback **/
 
     async songPlay() {
+        this.song.setPlaybackPosition(this.state.songPosition);
         await this.song.play(this.getVolumeGain());
     }
 
@@ -265,7 +266,6 @@ class ComposerActions extends ComposerMenu {
             songPosition = Values.parsePlaybackPosition(songPosition);
         if(isNaN(songPosition))
             throw new Error("Invalid song position: " + songPosition);
-        this.song.setPlaybackPosition(songPosition); // TODO: duplicate values? Does the song need to store position?
         this.setState({songPosition})
     }
     async setSongPositionPrompt() {

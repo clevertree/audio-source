@@ -8,21 +8,22 @@ class InstructionPlayback {
             throw new Error("Invalid destination");
         if(startTime === null)
             startTime = destination.context.currentTime;
-        this.startTime = startTime;
 
         this.trackIterator = song.trackGetIterator(destination, onEvent);
         this.audioContext = destination.context;
         this.song = song;
         this.seekLength = 10;
-        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
         this.active = true;
+        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
+        this.startTime = this.audioContext.currentTime - startTime;
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
 
-        this.renderPlayback();
         this.playTrackInstructionCallback = this.playTrackInstruction.bind(this);
+
+        this.renderPlayback();
     }
 
     getPositionInSeconds() {
@@ -42,17 +43,19 @@ class InstructionPlayback {
             const timeTillFinished = endPositionSeconds - currentPositionSeconds;
             console.log(`Song is ending in ${timeTillFinished} seconds`);
             if(timeTillFinished > 0)
-                setTimeout(() => this.endPlayback(), timeTillFinished * 1000);
+                setTimeout(() => this.stopPlayback(), timeTillFinished * 1000);
             else
-                this.endPlayback();
+                this.stopPlayback();
         } else {
             this.trackIterator.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstructionCallback);
         }
     }
 
-    endPlayback() {
-        this.endResolve();
-        this.active = false;
+    stopPlayback() {
+        if(this.active) {
+            this.active = false;
+            this.endResolve();
+        }
         // this.endPromise = true;
     }
 
@@ -61,7 +64,9 @@ class InstructionPlayback {
             return console.error("Track has no program set: ", trackStats);
         if(instruction instanceof NoteInstruction) {
             const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // Track start time equals current track's start + playback times
-            this.song.playInstruction(trackStats.destination, instruction, trackStats.program, noteStartTime, trackStats.trackName);
+            if(noteStartTime > 0) {
+                this.song.playInstruction(trackStats.destination, instruction, trackStats.program, noteStartTime, trackStats.trackName);
+            }
         }
     }
 

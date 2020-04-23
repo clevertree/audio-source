@@ -190,7 +190,7 @@ export default class Composer extends ComposerActions {
                 this.setState({playing: true});
                 // this.fieldSongPlaybackPause.disabled = false;
                 const updateSongPositionInterval = setInterval(e => {
-                    if (!this.song.isPlaying) {
+                    if (!this.song.isPlaying()) {
                         clearInterval(updateSongPositionInterval);
                         // this.fieldSongPlaybackPause.disabled = true;
                         this.setState({playing: false, paused: false});

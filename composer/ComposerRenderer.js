@@ -32,9 +32,9 @@ class ComposerRenderer extends React.Component {
 
             // Song Information
             songUUID: null,
-            songPosition: 0,
             // songLengthTicks: 0,
             songLength: 0,
+            songPosition: 0,
 
             // Trackers
             selectedTrack: 'root',
@@ -132,7 +132,7 @@ class ComposerRenderer extends React.Component {
                                     value={this.state.volume}
                                     min={0}
                                     max={1}
-                                    step={0.1}
+                                    step={0.02}
                                     title="Song Volume"
                                 />
                             </Form>
@@ -141,7 +141,7 @@ class ComposerRenderer extends React.Component {
                                 <InputRange
                                     className="position"
                                     onChange={(e, pos) => this.setSongPositionPercentage(pos)}
-                                    value={Math.floor(this.state.songPosition / this.state.songLength * 100)}
+                                    value={Math.floor(this.state.songPosition / (this.state.songLength || 1) * 100)}
                                     min={0}
                                     max={100}
                                     // ref={ref => this.fieldSongPosition = ref}

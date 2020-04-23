@@ -587,7 +587,7 @@ class Song {
     getSongLengthInSeconds() {
         const iterator = this.trackGetIterator(this.getStartTrackName());
         iterator.seekToEnd();
-        console.log('getSongLengthInSeconds()', iterator, iterator.getEndPositionInSeconds())
+        // console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
         return iterator.getEndPositionInSeconds();
     }
 
@@ -702,6 +702,13 @@ class Song {
         if (Number.isNaN(songPosition))
             throw new Error("Invalid start position");
 
+        // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
+        // let isPlaying = !!this.playback;
+        if (this.playback) {
+            this.stopPlayback();
+        }
+        this.playbackPosition = songPosition;
+
         this.dispatchEvent({
             type: 'song:seek',
             position: this.playbackPosition,
@@ -709,26 +716,19 @@ class Song {
             song: this
         });
 
-        // this.playback.setPlaybackPosition(this.getAudioContext().currentTime - this.playbackPosition);
-        let isPlaying = !!this.playback;
-        if (this.playback) {
-            this.stopPlayback();
-        }
-        this.playbackPosition = songPosition;
-
-        if (isPlaying) {
-            const oldDestination = this.playback.destination;
-            this.playback = new InstructionPlayback(oldDestination, this, this.getStartTrackName(), oldDestination.context.currentTime - this.playbackPosition);
-            // this.playback.awaitPlaybackReachedEnd()
-            //     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
-        }
+        // if (isPlaying) {
+        //     const oldDestination = this.playback.destination;
+        //     this.playback = new InstructionPlayback(oldDestination, this, this.getStartTrackName(), oldDestination.context.currentTime - this.playbackPosition);
+        //     // this.playback.awaitPlaybackReachedEnd()
+        //     //     .then((reachedEnding) => reachedEnding ? this.stopPlayback(true) : null);
+        // }
         // const positionInTicks = this.getSongPositionInTicks(this.playbackPosition);
 //         console.log("Seek position: ", this.playbackPosition, positionInTicks);
 
     }
 
 
-    play(destination) {
+    async play(destination) {
         if(!destination || !destination.context)
             throw new Error("Invalid destination");
         // const audioContext = destination.context;
@@ -739,9 +739,9 @@ class Song {
         }
 
         // await this.init(audioContext);
+        console.log("Start playback:", this.playbackPosition);
         const playback = new InstructionPlayback(destination, this, this.getStartTrackName(), this.playbackPosition);
         this.playback = playback;
-        // console.log("Start playback:", this.playbackPosition);
 
         this.dispatchEvent({
             type: 'song:play',
@@ -749,6 +749,17 @@ class Song {
             // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
             song: this
         });
+
+        await playback.awaitPlaybackReachedEnd();
+
+        this.dispatchEvent({
+            type: 'song:play',
+            playback: this.playback,
+            // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
+            song: this
+        });
+        if(this.playback)
+            this.stopPlayback()
 
         return playback;
         // const reachedEnding = await this.playback.awaitPlaybackReachedEnd();
@@ -771,7 +782,8 @@ class Song {
         const playback = this.playback;
         this.playback = null;
         this.playbackPosition = playback.getPositionInSeconds();
-        this.programLoader.stopAllPlayback();
+        playback.stopPlayback();
+        this.programLoader.stopAllPlayback(); // TODO: redundant? 
 
         // TODO: move to playback class
         // for (let i = 0; i < this.playbackEndCallbacks.length; i++)
@@ -893,7 +905,7 @@ class Song {
             historyAction.push(data);
         if (oldData !== null)
             historyAction.push(oldData);
-        this.history.push(historyAction);
+        // this.history.push(historyAction);
 
         // setTimeout(() => {
 
