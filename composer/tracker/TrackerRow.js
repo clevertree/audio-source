@@ -37,13 +37,16 @@ class TrackerRow extends React.Component {
     getComposer() { return this.getTracker().getComposer(); }
 
     render() {
+        let className = "asct-row";
+        if(this.props.highlight)
+            className += ' highlight';
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (
             <div
                 ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
                 tabIndex={0}
-                className="asct-row"
+                className={className}
                 // onClick={this.cb.onMouseInput}
                 onMouseDown={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}

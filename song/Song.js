@@ -423,7 +423,7 @@ class Song {
     /** TODO: fix insertion bugs **/
     instructionInsertAtPosition(trackName, insertPositionInTicks, insertInstructionData) {
         if (typeof insertPositionInTicks === 'string')
-            insertPositionInTicks = new Values().parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
+            insertPositionInTicks = Values.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
 
         if (!Number.isInteger(insertPositionInTicks))
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
@@ -531,6 +531,8 @@ class Song {
     }
 
     instructionReplaceDuration(trackName, replaceIndex, newDuration) {
+        if (typeof newDuration === 'string')
+            newDuration = Values.parseDurationAsTicks(newDuration, this.data.timeDivision);
         this.instructionGetByIndex(trackName, replaceIndex).durationTicks = newDuration;
     }
 
@@ -585,6 +587,7 @@ class Song {
     getSongLengthInSeconds() {
         const iterator = this.trackGetIterator(this.getStartTrackName());
         iterator.seekToEnd();
+        console.log('getSongLengthInSeconds()', iterator, iterator.getEndPositionInSeconds())
         return iterator.getEndPositionInSeconds();
     }
 
@@ -694,7 +697,7 @@ class Song {
         return this.setPlaybackPosition(playbackPosition);
     }
 
-    setPlaybackPosition(songPosition) {
+    setPlaybackPosition(songPosition) {// TODO: duplicate values? Does the song need to store position?
         songPosition = parseFloat(songPosition);
         if (Number.isNaN(songPosition))
             throw new Error("Invalid start position");

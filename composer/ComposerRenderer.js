@@ -128,11 +128,11 @@ class ComposerRenderer extends React.Component {
                             <Form className="volume" header="Volume">
                                 <InputRange
                                     className="volume"
-                                    onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                    onChange={(e, newVolume) => this.setVolume(newVolume)}
                                     value={this.state.volume}
-                                    min={1}
-                                    max={100}
-                                    ref={ref => this.fieldSongVolume = ref}
+                                    min={0}
+                                    max={1}
+                                    step={0.1}
                                     title="Song Volume"
                                 />
                             </Form>
@@ -140,11 +140,11 @@ class ComposerRenderer extends React.Component {
                             <Form className="position" header="Position">
                                 <InputRange
                                     className="position"
-                                    onChange={(e, pos) => this.setSongPosition(pos)}
-                                    value={this.state.songPosition}
+                                    onChange={(e, pos) => this.setSongPositionPercentage(pos)}
+                                    value={Math.floor(this.state.songPosition / this.state.songLength * 100)}
                                     min={0}
-                                    max={Math.ceil(this.state.songLength)}
-                                    ref={ref => this.fieldSongPosition = ref}
+                                    max={100}
+                                    // ref={ref => this.fieldSongPosition = ref}
                                     title="Song Position"
                                 />
                             </Form>
@@ -152,8 +152,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="timing" header="Timing">
                                 <Button
                                     className="timing"
-                                    onAction={(e, timingString) => this.setSongPosition(timingString)}
-                                    ref={ref => this.fieldSongTiming = ref}
+                                    onAction={(e, timingString) => this.setSongPositionPrompt(timingString)}
                                     title="Song Timing"
                                     children={Values.formatPlaybackPosition(this.state.songPosition)}
                                 />
@@ -162,8 +161,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="name" header="Name">
                                 <Button
                                     className="name"
-                                    onAction={(e) => this.setSongName(e)}
-                                    ref={ref => this.fieldSongVersion = ref}
+                                    onAction={(e) => this.setSongNamePrompt()}
                                     title="Song Name"
                                     children={this.song ? this.song.data.title : "no song loaded"}
                                 />
@@ -172,8 +170,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="version" header="Version">
                                 <Button
                                     className="version"
-                                    onAction={(e, newSongVersion) => this.setSongVersion(e, newSongVersion)}
-                                    ref={ref => this.fieldSongVersion = ref}
+                                    onAction={(e) => this.setSongVersionPrompt()}
                                     title="Song Version"
                                     children={this.song ? this.song.data.version : "0.0.0"}
                                 />
@@ -273,7 +270,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="tracker-selection" header="Selection">
                                 <Button
                                     // className="tracker-selection"
-                                    onAction={(e) => this.trackerSelectIndices(e)}
+                                    onAction={(e) => this.trackerSelectIndicesPrompt()}
                                     title="Tracker Note Selection"
                                     children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
                                 />
@@ -405,6 +402,11 @@ class ComposerRenderer extends React.Component {
         });
     }
 
+    updateCurrentSong() {
+        this.setState({
+            songLength: this.song.getSongLengthInSeconds(),
+        });
+    }
 
     // createStyleSheetLink(stylePath, scriptElm=null) {
     //     const linkHRef = new URL(stylePath, (scriptElm || thisModule).src);

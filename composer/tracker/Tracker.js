@@ -38,7 +38,6 @@ class Tracker extends React.Component {
         this.container = React.createRef();
         this.destination = null;
         this.cursorInstruction = React.createRef();
-        this.getTrackState();
         this.trackerGetCursorInfo();
     }
 
@@ -71,6 +70,7 @@ class Tracker extends React.Component {
     getCursorOffset()           { return this.props.trackState.cursorOffset || 0; }
     getRowLength()              { return this.props.trackState.rowLength || 16; }
     getRowOffset()              { return this.props.trackState.rowOffset || 0; }
+    getStartPosition()          { return this.props.trackState.startPosition || 0; }
 
 
     trackerGetCursorInfo(cursorOffset=null) {
@@ -212,7 +212,10 @@ class Tracker extends React.Component {
 
 
     renderRowContent() {
-        // const trackState = this.getTrackState();
+        const trackStartPosition = this.getStartPosition();
+        const songPosition = this.getComposer().state.songPosition;
+        const trackSongPosition = songPosition - trackStartPosition;
+        let trackSongPositionFound = false;
         // const quantizationTicks = trackState.quantizationTicks || this.getSong().data.timeDivision;
 
         // console.time('Tracker.renderRowContent()');
@@ -235,6 +238,11 @@ class Tracker extends React.Component {
                 console.warn("rowDeltaDuration is ", rowDeltaDuration);
             }
 
+            let highlight = false;
+            if(!trackSongPositionFound && trackSongPosition <= iterator.positionSeconds) {
+                trackSongPositionFound = true;
+                highlight = true;
+            }
             const newRowElm = <TrackerRow
                 key={iterator.rowCount}
                 tracker={this}
@@ -243,6 +251,7 @@ class Tracker extends React.Component {
                 deltaDuration={rowDeltaDuration}
                 cursorPosition={iterator.cursorPosition}
                 cursor={iterator.cursorPosition === cursorOffset}
+                highlight={highlight}
 
             >{rowInstructionElms}</TrackerRow>;
             rowContent.push(newRowElm);
@@ -270,56 +279,6 @@ class Tracker extends React.Component {
         // console.timeEnd('Tracker.renderRowContent()');
         return rowContent;
     }
-
-    // renderRowContent2() {
-    //     // console.time('tracker.renderRowContent()');
-    //     const rowOffset = this.props.rowOffset;
-    //     const rowLength = this.props.rowLength;
-    //     const cursorOffset = this.props.cursorOffset || 0;
-    //
-    //     const rowContent = [];
-    //
-    //     // TODO: calculate from offset: positionTicks, positionSeconds, isCursor, isSelected
-    //     this.eachRow((rowCount, currentRowPositionTicks, toPositionTicks, cursorPositionCount, instructionList) => {
-    //         const rowInstructionElms = [];
-    //         for(let i=0; i<instructionList.length; i++) {
-    //             const props = instructionList[i];
-    //             if(props.cursor) {
-    //                 props.ref = this.cursorInstruction;
-    //             }
-    //             rowInstructionElms.push(<TrackerInstruction
-    //                 key={props.index}
-    //                 tracker={this}
-    //                 {...props}
-    //             />);
-    //         }
-    //
-    //
-    //         let rowDeltaDuration = toPositionTicks - currentRowPositionTicks;
-    //         if (rowCount >= rowOffset
-    //             && rowContent.length < rowLength
-    //         ) {
-    //             const newRowElm = <TrackerRow
-    //                 key={rowCount}
-    //                 cursor={cursorPositionCount === cursorOffset} // TODO: Redundant
-    //                 tracker={this}
-    //                 positionTicks={currentRowPositionTicks}
-    //                 positionSeconds={1} // TODO:
-    //                 deltaDuration={rowDeltaDuration}
-    //                 cursorPosition={cursorPositionCount} // TODO: inefficient? nah
-    //
-    //             >{rowInstructionElms}</TrackerRow>;
-    //             rowContent.push(newRowElm);
-    //         }
-    //
-    //         // Continue rendering rows until we've reached rowLength
-    //         return rowContent.length < rowLength;
-    //     });
-    //
-    //
-    //     // console.timeEnd('tracker.renderRowContent()');
-    //     return rowContent;
-    // }
 
     /** Playback **/
 

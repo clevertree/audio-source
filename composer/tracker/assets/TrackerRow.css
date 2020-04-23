@@ -21,26 +21,26 @@ div.asct-row:nth-child(odd) {
     background-color: #D0D0D0;
 }
 
+/** Hover **/
+
+div.asct-row:hover {
+    background-color: #EEE;
+    border: 1px outset #4EE;
+}
+
+/** Selected **/
+
 div.asct-row.cursor,
-div.asct-row[selected] {
+div.asct-row.selected {
     background-color: #ffeedd;
     position: relative;
     box-shadow: #ffeedd 0px 0px 9px;
     z-index: 2;
 }
-div.asct-row[position],
-div.asct-row[playing] {
+div.asct-row.playing,
+div.asct-row.highlight {
     background-color: #609060;
     position: relative;
     box-shadow: #AFA 0px 0px 4px;
     z-index: 1;
-}
-
-/** Hover **/
-
-div.asct-row:hover {
-    background-color: #EEE;
-}
-div.asct-row:active:hover {
-    background-color: #4EE;
 }

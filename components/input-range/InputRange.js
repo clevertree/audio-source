@@ -23,6 +23,9 @@ class InputRange extends React.Component {
     }
 
     onClick(e) {
+        e.preventDefault();
+        const newValue = parseFloat(e.target.value);
+        this.props.onChange(e, newValue)
         // e.preventDefault();
     }
 
@@ -46,6 +49,7 @@ class InputRange extends React.Component {
                 onClick={this.cb.onClick}
                 min={this.props.min}
                 max={this.props.max}
+                step={this.props.step}
                 name={this.props.name}
                 title={this.props.title}
                 />

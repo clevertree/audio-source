@@ -647,16 +647,17 @@ class PlayerActions extends PlayerMenu {
     // }
 
 
-    setSongPosition(playbackPosition = null) {
+    setSongPositionPercentage(playbackPercentage) {
+        const playbackPosition = (playbackPercentage / 100) * this.state.songLength;
+        return this.setSongPosition(playbackPosition);
+    }
+    setSongPosition(playbackPosition) {
         // const wasPlaying = !!this.song.playback;
         // if (wasPlaying)
         //     this.song.stopPlayback();
         if(!this.song)
             throw new Error("No song loaded");
         const song = this.song;
-        if (playbackPosition === null) {
-            playbackPosition = this.fieldSongPosition.value; // this.values.parsePlaybackPosition(this.fieldSongPosition.value);
-        }
         song.setPlaybackPosition(playbackPosition);
         // if (wasPlaying)
         //     this.song.play();

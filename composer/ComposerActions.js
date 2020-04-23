@@ -1,8 +1,10 @@
 import React from "react";
 
-import {Song, Storage, Instruction, ProgramLoader, NoteInstruction} from "../song";
+import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
+import Values from "../song/values/Values";
+
 // import {TrackInfo} from "./tracker/";
 
 class ComposerActions extends ComposerMenu {
@@ -61,25 +63,34 @@ class ComposerActions extends ComposerMenu {
         }
         this.setState({volume});
         // this.state.volume = volume;
-        this.fieldSongVolume.value = volume * 100;
     }
 
     /** Song actions **/
 
 
-    async setSongName(e, newSongName=null) {
-        if(newSongName === null)
-            newSongName = await this.openPromptDialog("Enter a new song name", this.song.data.title);
-        this.song.songChangeName(newSongName);
-        this.setStatus(`Song name updated: ${newSongName}`);
+    async setSongNamePrompt(newSongTitle) {
+        newSongTitle = await this.openPromptDialog("Enter a new song name", this.song.data.title);
+        this.setSongName(newSongTitle);
+    }
+    setSongName(newSongTitle=null) {
+        if(typeof newSongTitle !== "string")
+            throw new Error("Invalid song title: " + newSongTitle);
+        this.song.data.title = newSongTitle;
+        this.setStatus(`Song title updated: ${newSongTitle}`);
     }
 
-    setSongVersion(e, newSongVersion) {
-        this.song.songChangeVersion(newSongVersion);
+    async setSongVersionPrompt(newSongVersion) {
+        newSongVersion = await this.openPromptDialog("Enter a new song version", this.song.data.version);
+        this.setSongVersion(newSongVersion);
+    }
+    setSongVersion(newSongVersion) {
+        if(typeof newSongVersion !== "string")
+            throw new Error("Invalid song version: " + newSongVersion);
+        this.song.data.version = newSongVersion;
         this.setStatus(`Song version updated: ${newSongVersion}`);
     }
 
-    songChangeStartingBPM(e, newSongBPM) {
+    songChangeStartingBPM(newSongBPM) {
         this.song.data.bpm = newSongBPM; // songChangeStartingBPM(newSongBPM);
         this.setStatus(`Song beats per minute updated: ${newSongBPM}`);
     }
@@ -105,6 +116,28 @@ class ComposerActions extends ComposerMenu {
 
     /** Song utilities **/
 
+    loadDefaultSong(recentSongUUID = null) {
+        const src = this.props.src || this.props.url;
+        if (src) {
+            this.loadSongFromURL(src);
+            return true;
+        }
+
+
+        if (recentSongUUID) {
+            try {
+                this.loadSongFromMemory(recentSongUUID);
+                return;
+            } catch (e) {
+                console.error(e);
+                this.setError("Error: " + e.message)
+            }
+        }
+
+        this.loadNewSongData();
+
+        return false;
+    }
 
     loadNewSongData() {
         // const storage = new Storage();
@@ -221,19 +254,24 @@ class ComposerActions extends ComposerMenu {
         this.song.setPlaybackPositionInTicks(0);
     }
 
-    async setSongPosition(playbackPosition, promptUser=false) {
-        // const wasPlaying = !!this.song.playback;
-        // if (wasPlaying)
-        //     this.song.stopPlayback();
-        const song = this.song;
-        // if (playbackPosition === null)
-        //     playbackPosition = this.values.parsePlaybackPosition(this.fieldSongPosition.value);
-        if(promptUser)
-            playbackPosition = await this.openPromptDialog("Set playback position:", playbackPosition || '00:00:00');
+    setSongPositionPercentage(playbackPercentage) {
+        const playbackPosition = (playbackPercentage / 100) * this.state.songLength;
+        return this.setSongPosition(playbackPosition);
+    }
 
-        song.setPlaybackPosition(playbackPosition);
-        // if (wasPlaying)
-        //     this.song.play();
+    setSongPosition(songPosition) {
+        // TODO: parse % percentage
+        if(typeof songPosition === 'string')
+            songPosition = Values.parsePlaybackPosition(songPosition);
+        if(isNaN(songPosition))
+            throw new Error("Invalid song position: " + songPosition);
+        this.song.setPlaybackPosition(songPosition); // TODO: duplicate values? Does the song need to store position?
+        this.setState({songPosition})
+    }
+    async setSongPositionPrompt() {
+        let songPosition = Values.formatPlaybackPosition(this.state.songPosition || 0);
+        songPosition = await this.openPromptDialog("Set playback position:", songPosition);
+        this.setSongPosition(songPosition);
     }
 
     /** Instruction Modification **/
@@ -272,7 +310,7 @@ class ComposerActions extends ComposerMenu {
             newInstruction.velocity = trackState.currentVelocity;
         // this.setState({activeTracks});
 
-        const songPositionTicks = trackState.cursorPositionTicks; // this.trackerGetTrackInfo(trackName).calculateCursorOffsetPositionTicks();
+        const songPositionTicks = trackState.cursorPositionTicks; // Using cursorPositionTicks is more accurate for insert
         let insertIndex = song.instructionInsertAtPosition(trackName, songPositionTicks, newInstruction);
         this.trackerSelectIndices(trackName, [insertIndex]);
 
@@ -319,24 +357,37 @@ class ComposerActions extends ComposerMenu {
 
         if (duration === null && promptUser)
             duration = parseInt(await this.openPromptDialog("Set custom duration in ticks:", duration), 10);
+
+        if (typeof duration === 'string')
+            duration = Values.parseDurationAsTicks(duration, this.song.data.timeDivision);
+        else duration = parseInt(duration)
+
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
         for (let i = 0; i < selectedIndices.length; i++) {
             song.instructionReplaceDuration(trackName, selectedIndices[i], duration);
         }
         this.trackerPlay(trackName, selectedIndices);
+        this.setState(state => {
+            state.activeTracks[trackName].currentDuration = duration;
+        })
         // trackState.updateCurrentInstruction();
     }
 
-    async instructionReplaceVelocity(velocity = null, trackName = null, selectedIndices = null, promptUser = false) {
+    async instructionReplaceVelocityPrompt(velocity = null, trackName = null, selectedIndices = null) {
+        trackName = trackName || this.state.selectedTrack;
+        const trackState = this.trackGetState(trackName);
+        velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", trackState.currentVelocity));
+        return this.instructionReplaceVelocity(velocity, trackName, selectedIndices);
+    }
+
+    instructionReplaceVelocity(velocity = null, trackName = null, selectedIndices = null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
         const trackState = this.trackGetState(trackName);
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
 
-        if (velocity === null && promptUser)
-            velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", this.fieldInstructionVelocity.value));
         velocity = parseFloat(velocity);
         if (velocity === null || isNaN(velocity))
             throw new Error("Invalid velocity: " + typeof velocity);
@@ -344,6 +395,10 @@ class ComposerActions extends ComposerMenu {
             song.instructionReplaceVelocity(trackName, selectedIndices[i], velocity);
         }
         this.trackerPlay(trackName, selectedIndices);
+        this.setState(state => {
+            state.activeTracks[trackName].currentVelocity = velocity;
+            return state;
+        })
         // trackInfo.updateCurrentInstruction();
     }
 
@@ -536,7 +591,6 @@ class ComposerActions extends ComposerMenu {
                 }
             });
         }
-        const positionTicks = iterator.positionTicks;
         const column = cursorOffset - currentRowStartPosition;
 
         const cursorRow = iterator.rowCount;
@@ -553,8 +607,10 @@ class ComposerActions extends ComposerMenu {
         const nextRowOffset = iterator.cursorPosition + column;
         const previousRowOffset = lastRowStartPosition + column;
         // console.log({p: iterator.cursorPosition, cursorOffset, column, previousRowOffset, nextRowOffset});
-        const ret = {
-            positionTicks,
+        // console.log(ret);
+        return {
+            positionTicks: iterator.positionTicks,
+            positionSeconds: iterator.positionSeconds,
             cursorIndex,
             cursorRow,
             adjustedCursorRow,
@@ -562,11 +618,17 @@ class ComposerActions extends ComposerMenu {
             nextOffset: cursorOffset + 1,
             previousRowOffset,
             nextRowOffset
-        }
-        console.log(ret);
-        return ret;
+        };
     }
 
+    async trackerSelectIndicesPrompt(trackName=null) {
+        if(trackName === null)
+            trackName = this.state.selectedTrack;
+        const trackState = this.trackGetState(trackName);
+        let selectedIndices = (trackState.selectedIndices || []).join(', ');
+        selectedIndices = await this.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
+        this.trackerSelectIndices(trackName, selectedIndices);
+    }
 
     trackerSelectIndices(trackName, selectedIndices, cursorOffset=null) {
         // console.log('trackerSelectIndices', {trackName, selectedIndices, cursorOffset, rowOffset});
@@ -623,6 +685,7 @@ class ComposerActions extends ComposerMenu {
                 if(cursorInfo.adjustedCursorRow !== null)
                     trackState.rowOffset = cursorInfo.adjustedCursorRow;
                 trackState.cursorPositionTicks = cursorInfo.positionTicks;
+                state.songPosition = cursorInfo.positionSeconds + (trackState.startPosition || 0);
             }
             // If selected, update default instruction params
             if(selectedIndices.length > 0) {

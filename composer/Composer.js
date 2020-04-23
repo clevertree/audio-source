@@ -89,6 +89,8 @@ export default class Composer extends ComposerActions {
             this.loadDefaultSong(state.songUUID);
             delete state.songUUID;
             this.setState(state);
+            this.updateCurrentSong();
+            // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
         } else {
             this.loadDefaultSong();
@@ -102,30 +104,6 @@ export default class Composer extends ComposerActions {
         console.log('Saving State: ', this.state);
     }
 
-    /** Song **/
-
-    loadDefaultSong(recentSongUUID = null) {
-        const src = this.props.src || this.props.url;
-        if (src) {
-            this.loadSongFromURL(src);
-            return true;
-        }
-
-
-        if (recentSongUUID) {
-            try {
-                this.loadSongFromMemory(recentSongUUID);
-                return;
-            } catch (e) {
-                console.error(e);
-                this.setError("Error: " + e.message)
-            }
-        }
-
-        this.loadNewSongData();
-
-        return false;
-    }
 
 
     /** Input **/
@@ -244,7 +222,7 @@ export default class Composer extends ComposerActions {
                 break;
 
             case 'song:modified':
-                console.log(e.type);
+                // console.log(e.type);
                 this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
                 clearTimeout(this.timeouts.saveSongToMemory);

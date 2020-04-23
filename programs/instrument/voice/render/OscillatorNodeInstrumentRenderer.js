@@ -9,7 +9,7 @@ import {
     InputRange,
     MenuDropDown,
 } from "../../../../components";
-import {MenuValues, Library} from "../../../../song";
+import {Library, Values} from "../../../../song";
 
 import "./assets/OscillatorNodeInstrumentRenderer.css";
 
@@ -228,13 +228,13 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
     }
 
     renderMenuChangeKeyRoot() {
-        return new MenuValues().renderMenuSelectCommand(noteNameOctave => {
+        return Values.renderMenuSelectCommand(noteNameOctave => {
             this.changeRoot(noteNameOctave)
         });
     }
 
     renderMenuChangeKeyAlias() {
-        return new MenuValues().renderMenuSelectCommand(noteNameOctave => {
+        return Values.renderMenuSelectCommand(noteNameOctave => {
             this.changeAlias(noteNameOctave)
         });
     }
