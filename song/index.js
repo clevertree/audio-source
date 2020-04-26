@@ -3,8 +3,9 @@ import Song from "./Song";
 import Storage from "./Storage";
 import Keyboard from "../song/Keyboard"
 import {ProgramLoader} from "./program";
-import {Instruction, NoteInstruction, TrackInstruction, InstructionPlayback, InstructionIterator} from "./instruction";
+import {Instruction, NoteInstruction, TrackInstruction, InstructionIterator} from "./instruction";
 import {Values, SongValues} from "./values";
+import {TrackIterator, TrackPlayback} from "./track";
 import Library from "./library/Library";
 export {
     Song,
@@ -14,8 +15,10 @@ export {
     Instruction,
     NoteInstruction,
     TrackInstruction,
-    InstructionPlayback,
     InstructionIterator,
+
+    TrackIterator,
+    TrackPlayback,
 
     Storage,
 

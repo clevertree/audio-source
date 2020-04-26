@@ -1,21 +1,28 @@
+import TrackIterator from "./TrackIterator";
+import {NoteInstruction} from "../instruction";
 
-// Meant to be used in real-time
-import {NoteInstruction} from "./index";
 
-class InstructionPlayback {
-    constructor(destination, song, trackName, startTime = null, onEvent = null) {
+export default class TrackPlayback extends TrackIterator {
+    constructor(destination, song, startingTrackName = null, startTime = null, onEvent=null) {
+        super(song.data.tracks,
+            startingTrackName || song.getStartTrackName(),
+            song.data.beatsPerMinute,
+            song.data.timeDivision)
+
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
+        this.audioContext = destination.context;
+
         if(startTime === null)
             startTime = destination.context.currentTime;
+        this.startTime = this.audioContext.currentTime - startTime;
 
-        this.trackIterator = song.trackGetIterator(destination, onEvent);
-        this.audioContext = destination.context;
+        this.onEvent = onEvent;
+
         this.song = song;
         this.seekLength = 10;
         this.active = true;
         this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
-        this.startTime = this.audioContext.currentTime - startTime;
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
@@ -37,9 +44,9 @@ class InstructionPlayback {
     renderPlayback() {
         const currentPositionSeconds = this.getPositionInSeconds(); // this.audioContext.currentTime - this.startTime;
 
-        if(!this.active || this.trackIterator.hasReachedEnd()) {
+        if(!this.active || this.hasReachedEnd()) {
             clearInterval(this.seekInterval);
-            const endPositionSeconds = this.trackIterator.getEndPositionInSeconds();
+            const endPositionSeconds = this.getEndPositionInSeconds();
             const timeTillFinished = endPositionSeconds - currentPositionSeconds;
             console.log(`Song is ending in ${timeTillFinished} seconds`);
             if(timeTillFinished > 0)
@@ -47,7 +54,7 @@ class InstructionPlayback {
             else
                 this.stopPlayback();
         } else {
-            this.trackIterator.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstructionCallback);
+            this.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstructionCallback);
         }
     }
 
@@ -70,6 +77,25 @@ class InstructionPlayback {
         }
     }
 
-}
+    /**
+     * @param {CommandInstruction} instruction
+     * @param trackStats
+     */
+    processCommandInstruction(instruction, trackStats) {
+        instruction.processCommandInstruction(this.song, trackStats);
+    }
 
-export default InstructionPlayback;
+
+
+    startTrackIteration(trackStats) {
+        super.startTrackIteration(trackStats);
+
+        this.onEvent && this.onEvent({
+            type: 'track:start',
+            playback: this,
+            trackStats
+        });
+        // console.log("Track Playback: ", trackStats.trackName);
+    }
+
+}

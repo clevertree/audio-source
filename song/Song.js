@@ -13,6 +13,7 @@ import ProgramList from "../programs";
 import TrackInstruction from "./instruction/TrackInstruction";
 import Values from "./values/Values";
 import TrackIterator from "./track/TrackIterator";
+import TrackPlayback from "./track/TrackPlayback";
 
 // TODO: can be handled cleaner
 ProgramList.addAllPrograms();
@@ -578,16 +579,14 @@ class Song {
     }
 
 
-    trackGetIterator(destination, onEvent=null) {
-        return new TrackIterator(destination, this, this.getStartTrackName(), onEvent);
-    }
+    // trackGetIterator(destination, onEvent=null) {
+    //     return new TrackIterator(destination, this, this.getStartTrackName(), onEvent);
+    // }
 
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        const iterator = new TrackIterator(destination, this, this.getStartTrackName(), onEvent);
-
-        const iterator = this.trackGetIterator(this.getStartTrackName());
+        const iterator = new TrackIterator(this.data.tracks, this.getStartTrackName(), this.data.beatsPerMinute, this.data.timeDivision);
         iterator.seekToEnd();
         // console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
         return iterator.getEndPositionInSeconds();
@@ -742,7 +741,7 @@ class Song {
 
         // await this.init(audioContext);
         console.log("Start playback:", this.playbackPosition);
-        const playback = new InstructionPlayback(destination, this, this.getStartTrackName(), this.playbackPosition);
+        const playback = new TrackPlayback(destination, this, this.getStartTrackName(), this.playbackPosition);
         this.playback = playback;
 
         this.dispatchEvent({
@@ -824,17 +823,20 @@ class Song {
     }
 
 
-    playSelectedInstructions(trackName, selectedIndices) {
-        for(let i=0; i<selectedIndices.length; i++) {
-            const selectedIndex = selectedIndices[i];
-            const instruction = song.instructionGetByIndex(trackName, selectedIndex);
-            song.playInstruction(destination, instruction, trackState.programID);
-            // TODO: song.playInstructions
-        }
+    playSelectedInstructions(destination, trackName, selectedIndices) {
+        // TODO: TrackIterator find first index start point
+        // TODO: TrackPlayback with selective callback
+        const playback = new TrackPlayback(destination, this);
+
+        // for(let i=0; i<selectedIndices.length; i++) {
+        //     const selectedIndex = selectedIndices[i];
+        //     const instruction = song.instructionGetByIndex(trackName, selectedIndex);
+        //     song.playInstruction(destination, instruction, trackState.programID);
+        // }
 
     }
 
-    playInstructionAtIndex(trackName, instructionIndex, noteStartTime = null) {
+    playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {
         const instruction = this.instructionGetByIndex(trackName, instructionIndex, false);
         if (instruction)
             this.playInstruction(instruction, noteStartTime);
@@ -850,9 +852,9 @@ class Song {
         // if(this.playback)
         //     this.stopPlayback();
 
-        if (instruction instanceof TrackInstruction) {
-            return new InstructionPlayback(destination, this, instruction.getTrackName(), noteStartTime);
-        }
+        // if (instruction instanceof TrackInstruction) { // Handled in  TrackPlayback
+        //     return new TrackPlayback(destination, this, instruction.getTrackName(), noteStartTime);
+        // }
 
 
         // const noteDuration = (instruction.duration || 1) * (60 / beatsPerMinute);

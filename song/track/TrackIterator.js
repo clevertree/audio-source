@@ -1,30 +1,50 @@
 import TrackInstruction from "../instruction/TrackInstruction";
 import CommandInstruction from "../instruction/CommandInstruction";
+import {InstructionIterator} from "../instruction";
+
 
 export default class TrackIterator {
-    constructor(destination, song, startingTrackName = null, onEvent=null) {
-        startingTrackName = startingTrackName || song.getStartTrackName();
-        if (!song.data.tracks[startingTrackName])
+    constructor(tracks, startingTrackName, startingBeatsPerMinute, startingTimeDivision) {
+        this.tracks = tracks;
+        if (!this.tracks[startingTrackName])
             throw new Error("Invalid instruction track: " + startingTrackName);
 
-        this.onEvent = onEvent;
-        this.song = song;
+        // this.onEvent = onEvent;
         this.positionSeconds = 0;
         // this.seekLength = 10;
         this.activeTracks = [];
         // this.currentTrackID = -1;
 
-
+        this.startingBeatsPerMinute = startingBeatsPerMinute;
+        this.startingTimeDivision = startingTimeDivision;
 
         const startingStats = {
-            program: null,
+            // program: trackStats.program,            // Current program which all notes route through
+            // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             startPosition: 0,
-            destination,
             trackName: startingTrackName,
-            beatsPerMinute: song.data.beatsPerMinute,
-            // timeDivision: song.data.timeDivision, // Time division is not passed to sub-groups
+            // beatsPerMinute: beatsPerMinute,
+            // startingTimeDivision: song.data.startingTimeDivision, // Time division is not passed to sub-groups
         };
         this.startTrackIteration(startingStats);
+    }
+
+    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
+        if(!this.tracks[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        const instructionList = this.tracks[trackName];
+
+        return new InstructionIterator(
+            instructionList,
+            timeDivision || this.startingTimeDivision,
+            beatsPerMinute || this.startingBeatsPerMinute,
+        );
+    }
+
+
+    startTrackIteration(trackStats) {
+        trackStats.iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
+        this.activeTracks.push(trackStats);
     }
 
 
@@ -38,7 +58,6 @@ export default class TrackIterator {
         }
         return totalPositionSeconds;
     }
-
 
     getEndPositionInSeconds() {
         let totalEndPositionSeconds = 0;
@@ -67,8 +86,8 @@ export default class TrackIterator {
         return false;
     }
 
+
     /**
-     *
      * @param {TrackInstruction} instruction
      * @param trackStats
      */
@@ -76,40 +95,37 @@ export default class TrackIterator {
         // if (instruction.getTrackName() === iterator.trackName) { // TODO track stack
 
         const subTrackStats = {
-            program: trackStats.program,            // Current program which all notes route through
-            destination: trackStats.destination,    // Current destination sent to all playFrequency calls
+            // program: trackStats.program,            // Current program which all notes route through
+            // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
             startPosition: trackStats.iterator.positionSeconds,
             trackName: instruction.getTrackName(),
             beatsPerMinute: trackStats.beatsPerMinute,
             // timeDivision: trackStats.timeDivision, // Time division is not passed to sub-groups
         };
+        if(typeof trackStats.program !== "undefined" && trackStats.program)
+            subTrackStats.program = trackStats.program;
+        if(typeof trackStats.destination !== "undefined" && trackStats.destination)
+            subTrackStats.destination = trackStats.destination;
         // TODO: process track instruction parameters
         this.startTrackIteration(subTrackStats);
     }
 
+    /**
+     * @param {CommandInstruction} instruction
+     * @param trackStats
+     */
+    processCommandInstruction(instruction, trackStats) {
+
+    }
 
     processInstruction(instruction, trackStats, callback=null) {
-        if(instruction instanceof CommandInstruction) // TODO: refactor out command processing for base class
-            instruction.processCommandInstruction(this.song, trackStats);
+        if(instruction instanceof CommandInstruction)
+            this.processCommandInstruction(instruction, trackStats);
         else if(instruction instanceof TrackInstruction)
             this.processTrackInstruction(instruction, trackStats);
         callback && callback(instruction, trackStats);
         // console.log("Note Playback: ", instruction, callback);
-    }
-
-
-    startTrackIteration(trackStats) {
-        trackStats.iterator = this.song.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
-        this.activeTracks.push(trackStats);
-
-
-        this.onEvent && this.onEvent({
-            type: 'track:start',
-            trackIterator: this,
-            trackStats
-        });
-        // console.log("Track Playback: ", trackStats.trackName);
     }
 
     seekToEnd(callback=null, seekLength=1) {
