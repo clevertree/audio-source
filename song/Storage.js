@@ -1,4 +1,5 @@
 import LZString from 'lz-string';
+import Values from "./values/Values";
 
 class Storage {
     /** Loading **/
@@ -40,7 +41,7 @@ class Storage {
     saveSongToMemory(songData, songHistory) {
         // const song = this.data;
         if (!songData.uuid)
-            songData.uuid = this.generateUUID();
+            songData.uuid = Values.generateUUID();
         let songRecentUUIDs = [];
         try {
             songRecentUUIDs = this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
@@ -60,7 +61,7 @@ class Storage {
 
     saveSongToFile(songData, prompt = true) {
         // const song = this.data;
-        const instructionsKey = "/** INSTRUCTIONS-" + this.generateUUID() + ' **/';
+        const instructionsKey = "/** INSTRUCTIONS-" + Values.generateUUID() + ' **/';
         let jsonStringInstructions = JSON.stringify(songData.tracks);
         let jsonString = JSON.stringify(Object.assign({}, songData, {
             tracks: instructionsKey

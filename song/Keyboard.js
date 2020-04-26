@@ -37,7 +37,7 @@ class Keyboard {
         const keyboardLayout = this.getKeyboardLayout(layoutName);
         if (typeof keyboardLayout[key] === 'undefined')
             return null;
-        // const octave = parseInt(this.editor.tracker.fieldTrackerOctave.value) || 1;
+        // const octave = parseInt(this.editor.track.fieldTrackerOctave.value) || 1;
         let command = keyboardLayout[key];
         for (let i = 6; i >= 1; i--)
             command = command.replace(i, octave + i - 1);

@@ -3,7 +3,7 @@ import React from "react";
 import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
 import {Div, Icon, Form, Panel, InputRange, Button, ButtonDropDown, MenuDropDown} from "../components";
 import ProgramRenderer from "./program/ProgramRenderer";
-import Tracker from "./tracker/Tracker";
+import Track from "./track/Tracker";
 import {Song, Values} from "../song/";
 import "./assets/Composer.css";
 
@@ -226,7 +226,7 @@ class ComposerRenderer extends React.Component {
                             <Form className="instruction-delete" header="Rem">
                                 <Button
                                     // className="instruction-delete"
-                                    onAction={e => this.instructionDelete(e)}
+                                    onAction={e => this.instructionDeleteSelected(e)}
                                     title="Delete Instruction"
                                     disabled={selectedIndices.length === 0}
                                 >
@@ -269,7 +269,7 @@ class ComposerRenderer extends React.Component {
 
                             <Form className="tracker-selection" header="Selection">
                                 <Button
-                                    // className="tracker-selection"
+                                    // className="track-selection"
                                     onAction={(e) => this.trackerSelectIndicesPrompt()}
                                     title="Tracker Note Selection"
                                     children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
@@ -285,12 +285,12 @@ class ComposerRenderer extends React.Component {
                                 >{this.state.keyboardOctave}</ButtonDropDown>
                             </Form>
 
-                            {/*<Form className="tracker-octave" header="Octave">*/}
+                            {/*<Form className="track-octave" header="Octave">*/}
                             {/*    <Button*/}
                             {/*        arrow={'▼'}*/}
-                            {/*        className="tracker-selection"*/}
+                            {/*        className="track-selection"*/}
                             {/*        onAction={e => this.renderMenuKeyboardSetOctave(e)}*/}
-                            {/*        title="Tracker Change Octave"*/}
+                            {/*        title="Track Change Octave"*/}
                             {/*    >4</Button>*/}
                             {/*</Form>*/}
                         </Panel>
@@ -299,30 +299,30 @@ class ComposerRenderer extends React.Component {
                         l composer={this} />*/}
                         {/*<TrackerRowSegmentsPanel composer={this} />*/}
 
-                        {/*<Panel className="tracker" header="Tracker">*/}
-                        {/*    <Form className="tracker-row-length" title="Row &#120491;">*/}
+                        {/*<Panel className="track" header="Track">*/}
+                        {/*    <Form className="track-row-length" title="Row &#120491;">*/}
                         {/*        <Button*/}
                         {/*            arrow={'▼'}*/}
-                        {/*            // className="tracker-row-length"*/}
+                        {/*            // className="track-row-length"*/}
                         {/*            onAction={e => this.renderMenuTrackerSetQuantization(e)}*/}
                         {/*        >1B</Button>*/}
                         {/*    </Form>*/}
 
-                        {/*    <Form className="tracker-segment-length" header="Seg &#120491;">*/}
+                        {/*    <Form className="track-segment-length" header="Seg &#120491;">*/}
                         {/*        <Button*/}
                         {/*            arrow={'▼'}*/}
-                        {/*            // className="tracker-segment-length"*/}
+                        {/*            // className="track-segment-length"*/}
                         {/*            onAction={e => this.renderMenuTrackerSetSegmentLength(e)}*/}
-                        {/*            title="Select Tracker Segment Length"*/}
+                        {/*            title="Select Track Segment Length"*/}
                         {/*        >16B</Button>*/}
                         {/*    </Form>*/}
 
-                        {/*    /!*<Form className="tracker-program" header="Program">*!/*/}
+                        {/*    /!*<Form className="track-program" header="Program">*!/*/}
                         {/*    /!*    <Button*!/*/}
                         {/*    /!*        arrow={'▼'}*!/*/}
-                        {/*    /!*        // className="tracker-programs"*!/*/}
+                        {/*    /!*        // className="track-programs"*!/*/}
                         {/*    /!*        onAction={e => this.renderMenuTrackerSetProgramFilter(e)}*!/*/}
-                        {/*    /!*        title="Filter by Tracker Program"*!/*/}
+                        {/*    /!*        title="Filter by Track Program"*!/*/}
                         {/*    /!*    >Any</Button>*!/*/}
                         {/*    /!*</Form>*!/*/}
                         {/*</Panel>*/}
@@ -331,7 +331,7 @@ class ComposerRenderer extends React.Component {
                     </Div>
                     <Div className="asc-trackers-container">
                         {Object.keys(this.state.activeTracks).map(trackName => (
-                            <Tracker
+                            <Track
                                 key={trackName}
                                 trackName={trackName}
                                 trackState={this.state.activeTracks[trackName]}
@@ -370,7 +370,7 @@ class ComposerRenderer extends React.Component {
         this.song = song;
         // console.log("Current Song: ", song);
         // const timeDivision = song.data.timeDivision;
-        // this.state.tracker.trackerSegmentLengthInTicks = null;
+        // this.state.track.trackerSegmentLengthInTicks = null;
 
         const activeTracks = {
             'root': {
@@ -453,7 +453,7 @@ class ComposerRenderer extends React.Component {
     updateForms() {
         this.fieldSongName.value = this.song.data.title;
         this.fieldSongVersion.value = this.song.data.version;
-        this.fieldSongBPM.value = this.song.data.bpm;
+        this.fieldSongBeatsPerMinute.value = this.song.data.beatsPerMinute;
 
         this.fieldSongVolume.value = this.song.getVolumeValue();
 

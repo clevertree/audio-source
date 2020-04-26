@@ -191,6 +191,20 @@ class Values {
         return window.confirm(message);
     }
 
+    /** UUID **/
+    static generateUUID() {
+        var d = new Date().getTime();
+        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+            d += performance.now(); //use high-precision timer if available
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            // eslint-disable-next-line no-mixed-operators
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
     /** Values **/
 
     static getNoteFrequencies(callback = (freq) => freq) {
@@ -326,7 +340,6 @@ class Values {
 
         return 440 * Math.pow(2, (keyNumber - 98) / 24);
     }
-
 
 
     /** Duration **/

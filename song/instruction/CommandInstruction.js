@@ -24,7 +24,40 @@ class CommandInstruction extends Instruction {
     }
 
 
-    loadDestinationFromParams(oldDestination, song) {
+    /**
+     * @param {CommandInstruction} song
+     * @param trackStats
+     */
+    processCommandInstruction(song, trackStats) {
+        const command = this.getCommandName().toLowerCase();
+        switch(command) {
+            case 'program':      // Set Program (can be changed many times per track)
+            case 'p':
+                let programInstance = this.loadProgramFromParams(trackStats.program, song);
+                trackStats.program = programInstance;
+
+                // getDestination allows for audio processing (i.e. effects)
+                if(typeof programInstance.getDestination !== 'function') {
+                    trackStats.destination = programInstance.getDestination(trackStats.destination);
+                }
+                break;
+
+            // case 'destination':     // Append destination (does not handle note processing)
+            // case 'd':
+            //     // if(!trackStats.originalDestination)
+            //     //     trackStats.originalDestination = trackStats.destination;
+            //     trackStats.destination = instruction.loadDestinationFromParams(trackStats.destination, this.song);
+            //
+            //     // this.song.programLoadInstance()
+            //     break;
+
+            default:
+                return console.error("Unknown command instruction: " + command);
+        }
+    }
+
+
+    loadProgramFromParams(song) {
         const params = this.getParams();
         let program;
         if(typeof params[0] === "string") {
@@ -32,12 +65,7 @@ class CommandInstruction extends Instruction {
         } else {
             program = song.programLoadInstanceFromID(params[0]);
         }
-
-        if(typeof program.getDestination !== 'function')
-            throw new Error("Program " + program.constructor.name + " has no function 'getDestination'");
-
-        const destination = program.getDestination(oldDestination);
-        return destination;
+        return program;
     }
 
 

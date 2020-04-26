@@ -1,13 +1,14 @@
 import InstructionIterator from "./InstructionIterator";
 
+// TODO: make own class
 export default class QuantizedInstructionIterator extends InstructionIterator {
-    constructor(instructionList, quantizationTicks, timeDivision, bpm) {
-        super(instructionList, timeDivision, bpm);
+    constructor(instructionList, quantizationTicks, timeDivision, beatsPerMinute) {
+        super(instructionList, timeDivision, beatsPerMinute);
         if(!quantizationTicks)
             throw new Error("Invalid quantizationTicks");
         this.quantizationTicks = quantizationTicks;
         // Initiate quantization breaks
-        this.nextQuantizationBreakInTicks = 0; // TODO: missing first quantization position
+        this.nextQuantizationBreakInTicks = 0;
     }
 
     getNextInstructionPositionInTicks() {
@@ -55,7 +56,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
 
         const nextQuantizationBreakInTicks = this.nextQuantizationBreakInTicks;
         const doRow = () => {
-            const elapsedTime = ((nextQuantizationBreakInTicks - this.positionTicks) / this.timeDivision) / (this.bpm / 60);
+            const elapsedTime = ((nextQuantizationBreakInTicks - this.positionTicks) / this.timeDivision) / (this.beatsPerMinute / 60);
             this.positionSeconds += elapsedTime;
             this.positionTicks = nextQuantizationBreakInTicks;
             this.updateNextQuantizationBreakInTicks();
@@ -149,32 +150,33 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
     // }
 
     /** Seeking **/
-
+    // TODO: hack overrides subclass
     seekToIndex(index, callback=null) {
         if (!Number.isInteger(index))
             throw new Error("Invalid seek index");
         while (true) {
             if (index === this.currentIndex)
                 break;
-            if (!this.nextInstruction(callback))
+            this.nextInstruction(callback);
+            if (!this.nextQuantizedInstructionRow(null, callback))
                 break;
         }
     }
 
     seekToEnd(callback=null) {
         while (!this.hasReachedEnd())
-            this.nextInstruction(callback);
+            this.nextQuantizedInstructionRow(null, callback);
     }
 
     seekToPosition(positionSeconds, callback=null) {
         while (!this.hasReachedEnd() && this.positionSeconds < positionSeconds) {
-            this.nextInstruction(callback);
+            this.nextQuantizedInstructionRow(null, callback);
         }
     }
 
     seekToPositionTicks(positionTicks, callback=null) {
         while (!this.hasReachedEnd() && this.positionTicks < positionTicks) {
-            this.nextInstruction(callback);
+            this.nextQuantizedInstructionRow(null, callback);
         }
     }
 }

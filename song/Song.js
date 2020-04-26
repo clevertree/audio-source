@@ -29,12 +29,12 @@ class Song {
 
         const data = {
             title: Song.generateTitle(),
-            uuid: Song.generateUUID(),
+            uuid: Values.generateUUID(),
             version: '0.0.1',
             created: new Date().getTime(),
             timeDivision: 96 * 4,
-            bpm: 120,
-            // beatsPerMeasure: 4,
+            beatsPerMinute: 120,
+            beatsPerMeasure: 4,
             startTrack: 'root',
             programs: [ // Also called 'programs' or 'patches'
                 ['PolyphonyInstrument', {
@@ -392,7 +392,7 @@ class Song {
     }
 
 
-    instructionGetIterator(trackName, timeDivision=null, bpm=null) {
+    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = this.data.tracks[trackName];
@@ -400,11 +400,11 @@ class Song {
         return new InstructionIterator(
             instructionList,
             timeDivision || this.data.timeDivision,
-            bpm || this.data.bpm,
+            beatsPerMinute || this.data.beatsPerMinute,
         );
     }
 
-    instructionGetQuantizedIterator(trackName, quantizationTicks, timeDivision=null, bpm=null) {
+    instructionGetQuantizedIterator(trackName, quantizationTicks, timeDivision=null, beatsPerMinute=null) {
         if(!this.data.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = this.data.tracks[trackName];
@@ -413,7 +413,7 @@ class Song {
             instructionList,
             quantizationTicks,
             timeDivision || this.data.timeDivision,
-            bpm || this.data.bpm,
+            beatsPerMinute || this.data.beatsPerMinute,
         );
     }
 
@@ -585,6 +585,8 @@ class Song {
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
+        const iterator = new TrackIterator(destination, this, this.getStartTrackName(), onEvent);
+
         const iterator = this.trackGetIterator(this.getStartTrackName());
         iterator.seekToEnd();
         // console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
@@ -629,11 +631,11 @@ class Song {
 
         if (groupPositionInTicks > iterator.positionTicks) {
             const elapsedTicks = groupPositionInTicks - iterator.positionTicks;
-            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.bpm, iterator.timeDivision);
+            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.beatsPerMinute, iterator.timeDivision);
 
         } else if (groupPositionInTicks < iterator.positionTicks) {
             const elapsedTicks = iterator.positionTicks - groupPositionInTicks;
-            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.bpm, iterator.timeDivision);
+            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.beatsPerMinute, iterator.timeDivision);
         }
 
         // console.info("getGroupPositionFromTicks", groupPositionInTicks, currentPosition);
@@ -658,23 +660,23 @@ class Song {
         let currentPositionInTicks = iterator.positionTicks;
         if (positionInSeconds > iterator.positionSeconds) {
             const elapsedTime = positionInSeconds - iterator.positionSeconds;
-            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.bpm);
+            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.beatsPerMinute);
 
         } else if (positionInSeconds < iterator.positionSeconds) {
             const elapsedTime = iterator.positionSeconds - positionInSeconds;
-            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.bpm);
+            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.beatsPerMinute);
         }
 
         // console.info("getSongPositionInTicks", positionInSeconds, currentPositionInTicks);
         return currentPositionInTicks;
     }
 
-    static ticksToSeconds(elapsedTicks, bpm, timeDivision) {
-        return (elapsedTicks / timeDivision) * (60 / bpm);
+    static ticksToSeconds(elapsedTicks, beatsPerMinute, timeDivision) {
+        return (elapsedTicks / timeDivision) * (60 / beatsPerMinute);
     }
 
-    static secondsToTicks(elapsedTime, bpm, timeDivision) {
-        return Math.round((elapsedTime * timeDivision) / (60 / bpm));
+    static secondsToTicks(elapsedTime, beatsPerMinute, timeDivision) {
+        return Math.round((elapsedTime * timeDivision) / (60 / beatsPerMinute));
     }
 
 
@@ -783,7 +785,7 @@ class Song {
         this.playback = null;
         this.playbackPosition = playback.getPositionInSeconds();
         playback.stopPlayback();
-        this.programLoader.stopAllPlayback(); // TODO: redundant? 
+        this.programLoader.stopAllPlayback(); // TODO: redundant?
 
         // TODO: move to playback class
         // for (let i = 0; i < this.playbackEndCallbacks.length; i++)
@@ -822,6 +824,16 @@ class Song {
     }
 
 
+    playSelectedInstructions(trackName, selectedIndices) {
+        for(let i=0; i<selectedIndices.length; i++) {
+            const selectedIndex = selectedIndices[i];
+            const instruction = song.instructionGetByIndex(trackName, selectedIndex);
+            song.playInstruction(destination, instruction, trackState.programID);
+            // TODO: song.playInstructions
+        }
+
+    }
+
     playInstructionAtIndex(trackName, instructionIndex, noteStartTime = null) {
         const instruction = this.instructionGetByIndex(trackName, instructionIndex, false);
         if (instruction)
@@ -843,14 +855,14 @@ class Song {
         }
 
 
-        // const noteDuration = (instruction.duration || 1) * (60 / bpm);
+        // const noteDuration = (instruction.duration || 1) * (60 / beatsPerMinute);
 
         let noteDuration = null;
         if(typeof instruction.durationTicks !== "undefined") {
-            let bpm = this.data.bpm; // getStartingBeatsPerMinute();
+            let beatsPerMinute = this.data.beatsPerMinute; // getStartingBeatsPerMinute();
             let timeDivision = this.data.timeDivision;
             const noteDurationTicks = instruction.durationTicks; // (timeDivision);
-            noteDuration = (noteDurationTicks / timeDivision) / (bpm / 60);
+            noteDuration = (noteDurationTicks / timeDivision) / (beatsPerMinute / 60);
         }
 
         let currentTime = audioContext.currentTime;
@@ -1050,18 +1062,6 @@ class Song {
         return `Untitled (${new Date().toJSON().slice(0, 10).replace(/-/g, '/')})`;
     }
 
-    static generateUUID() {
-        var d = new Date().getTime();
-        if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-            d += performance.now(); //use high-precision timer if available
-        }
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (d + Math.random() * 16) % 16 | 0;
-            d = Math.floor(d / 16);
-            // eslint-disable-next-line no-mixed-operators
-            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-    }
 }
 
 Song.DEFAULT_VOLUME = 0.7;

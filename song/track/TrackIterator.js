@@ -17,10 +17,11 @@ export default class TrackIterator {
 
 
         const startingStats = {
+            program: null,
             startPosition: 0,
             destination,
             trackName: startingTrackName,
-            bpm: song.data.bpm,
+            beatsPerMinute: song.data.beatsPerMinute,
             // timeDivision: song.data.timeDivision, // Time division is not passed to sub-groups
         };
         this.startTrackIteration(startingStats);
@@ -70,66 +71,36 @@ export default class TrackIterator {
      *
      * @param {TrackInstruction} instruction
      * @param trackStats
-     * @param callback
      */
-    processTrackInstruction(instruction, trackStats, callback=null) {
+    processTrackInstruction(instruction, trackStats) {
         // if (instruction.getTrackName() === iterator.trackName) { // TODO track stack
 
         const subTrackStats = {
+            program: trackStats.program,            // Current program which all notes route through
+            destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
             startPosition: trackStats.iterator.positionSeconds,
-            destination: trackStats.destination,
             trackName: instruction.getTrackName(),
-            bpm: trackStats.bpm,
+            beatsPerMinute: trackStats.beatsPerMinute,
             // timeDivision: trackStats.timeDivision, // Time division is not passed to sub-groups
         };
         // TODO: process track instruction parameters
         this.startTrackIteration(subTrackStats);
     }
 
-    /**
-     *
-     * @param {CommandInstruction} instruction
-     * @param trackStats
-     * @param callback
-     */
-    processCommandInstruction(instruction, trackStats, callback=null) {
-        const command = instruction.getCommandName().toLowerCase();
-        switch(command) {
-            case 'program':      // Set Program (can be changed many times per track)
-            case 'p':
-                const [program] = instruction.getParams();
-                if(!program && program !== 0)
-                    throw new Error("Invalid program");
-                trackStats.program = program;
-                break;
-
-            case 'destination':     // Append destination (does not handle note processing)
-            case 'd':
-                // if(!trackStats.originalDestination)
-                //     trackStats.originalDestination = trackStats.destination;
-                trackStats.destination = instruction.loadDestinationFromParams(trackStats.destination, this.song);
-
-                // this.song.programLoadInstance()
-                break;
-
-            default:
-                return console.error("Unknown command instruction: " + command);
-        }
-    }
 
     processInstruction(instruction, trackStats, callback=null) {
-        if(instruction instanceof CommandInstruction)
-            this.processCommandInstruction(instruction, trackStats, callback);
+        if(instruction instanceof CommandInstruction) // TODO: refactor out command processing for base class
+            instruction.processCommandInstruction(this.song, trackStats);
         else if(instruction instanceof TrackInstruction)
-            this.processTrackInstruction(instruction, trackStats, callback);
+            this.processTrackInstruction(instruction, trackStats);
         callback && callback(instruction, trackStats);
         // console.log("Note Playback: ", instruction, callback);
     }
 
 
     startTrackIteration(trackStats) {
-        trackStats.iterator = this.song.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.bpm);
+        trackStats.iterator = this.song.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
         this.activeTracks.push(trackStats);
 
 

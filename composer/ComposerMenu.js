@@ -317,7 +317,7 @@ class ComposerMenu extends ComposerRenderer {
     }
 
 
-    /** Tracker Menu **/
+    /** Track Menu **/
 
     renderMenuTrackerSetQuantization(trackName) {
         return (<>

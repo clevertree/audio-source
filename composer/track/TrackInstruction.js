@@ -1,15 +1,15 @@
 import * as React from "react";
 import {
-    TrackerInstructionParameter
+    TrackInstructionParameter
 } from "./";
 // import Div from "../../components/div/Div";
-// import TrackerDelta from "./TrackerDelta";
+// import TrackDelta from "./TrackDelta";
 
 import "./assets/TrackerInstruction.css";
 import PropTypes from "prop-types";
 import {TrackInstruction} from "../../song/instruction";
 
-class TrackerInstruction extends React.Component {
+class TrackInstruction extends React.Component {
     constructor(props) {
         super(props);
 
@@ -36,7 +36,7 @@ class TrackerInstruction extends React.Component {
 
     // play() {
     //     const composer = this.props.composer;
-    //     composer.song.playInstructionAtIndex(destination, this.state.tracker.currentGroup, this.index, composer.song.getAudioContext().currentTime);
+    //     composer.song.playInstructionAtIndex(destination, this.state.track.currentGroup, this.index, composer.song.getAudioContext().currentTime);
     //     return this;
     getTracker() { return this.props.tracker; }
     getComposer() { return this.getTracker().props.composer; }
@@ -59,14 +59,14 @@ class TrackerInstruction extends React.Component {
 
         const parameters = [];
 
-        parameters.push(<TrackerInstructionParameter
+        parameters.push(<TrackInstructionParameter
             key="command"
             title={`Command: ${instruction.command}`}
             trackerInstruction={this}
             className="command"
             options={() => this.renderMenuSelectCommand()}
             ref={this.commandParam}
-        >{instruction.command}</TrackerInstructionParameter>);
+        >{instruction.command}</TrackInstructionParameter>);
 
         // console.log('instruction', this.props, className);
         if(open) {
@@ -74,21 +74,21 @@ class TrackerInstruction extends React.Component {
                 : this.getComposer().values.formatSongDuration(instruction.durationTicks);
 
             if(typeof instruction.velocity !== "undefined")
-                parameters.push(<TrackerInstructionParameter
+                parameters.push(<TrackInstructionParameter
                     key="velocity"
                     title={`Velocity: ${instruction.velocity}`}
                     trackerInstruction={this}
                     className="velocity"
                     options={() => this.renderMenuSelectVelocity(instruction.velocity)}
-                >{instruction.velocity}</TrackerInstructionParameter>);
+                >{instruction.velocity}</TrackInstructionParameter>);
             if(typeof instruction.durationTicks !== "undefined")
-                parameters.push(<TrackerInstructionParameter
+                parameters.push(<TrackInstructionParameter
                     key="duration"
                     title={`Duration: ${durationString}`}
                     trackerInstruction={this}
                     className="duration"
                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-                >{durationString||'-'}</TrackerInstructionParameter>);
+                >{durationString||'-'}</TrackInstructionParameter>);
         }
         return <div
             ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
@@ -111,7 +111,7 @@ class TrackerInstruction extends React.Component {
 
     async selectInstruction(clearSelection=true) {
         // const trackName = this.getTracker().getTrackName();
-        const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
+        const selectedIndices = clearSelection ? [] : this.getTracker().getTrackState().selectedIndices;
         // const instruction = this.getInstruction();
         selectedIndices.push(this.props.index);
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
@@ -128,7 +128,7 @@ class TrackerInstruction extends React.Component {
                 instruction.getTrackName(),
                 null,
                 {
-                    destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())
+                    destinationList: this.getTracker().getTrackState().destinationList.concat(this.getTracker().getTrackName())
                 }
             );
         } else {
@@ -223,4 +223,4 @@ class TrackerInstruction extends React.Component {
         this.playInstruction();
     }
 }
-export default TrackerInstruction;
+export default TrackInstruction;

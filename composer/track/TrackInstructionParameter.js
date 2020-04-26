@@ -6,7 +6,7 @@ import DropDownContainer from "../../components/menu/DropDownContainer";
 import "./assets/TrackerParam.css";
 
 
-class TrackerInstructionParameter extends React.Component {
+class TrackInstructionParameter extends React.Component {
     /** Default Properties **/
     static defaultProps = {
         vertical: true
@@ -111,5 +111,5 @@ class TrackerInstructionParameter extends React.Component {
 
 }
 
-export default TrackerInstructionParameter;
+export default TrackInstructionParameter;
 

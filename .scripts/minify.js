@@ -22,7 +22,7 @@ const fs = require('fs');
 
     const minified = '(function(){'
         + await convert('composer/audio-source-composer-element.js')
-        + await convert('composer/ascui-tracker.js')
+        + await convert('composer/ascui-track.js')
         // + await convert('composer/audio-source-composer-programs.js')
         + await convert('composer/audio-source-composer-keyboard.js')
         // + await convert('composer/audio-source-composer-menu.js')

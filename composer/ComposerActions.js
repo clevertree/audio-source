@@ -4,8 +4,10 @@ import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../son
 import ComposerMenu from "./ComposerMenu";
 import {Div} from "../components";
 import Values from "../song/values/Values";
+import Track from "./track/Tracker";
+import TrackState from "./track/TrackState";
 
-// import {TrackInfo} from "./tracker/";
+// import {TrackInfo} from "./track/";
 
 class ComposerActions extends ComposerMenu {
     constructor(state = {}, props = {}) {
@@ -90,9 +92,9 @@ class ComposerActions extends ComposerMenu {
         this.setStatus(`Song version updated: ${newSongVersion}`);
     }
 
-    songChangeStartingBPM(newSongBPM) {
-        this.song.data.bpm = newSongBPM; // songChangeStartingBPM(newSongBPM);
-        this.setStatus(`Song beats per minute updated: ${newSongBPM}`);
+    songChangeStartingBeatsPerMinute(newSongBeatsPerMinute) {
+        this.song.data.beatsPerMinute = newSongBeatsPerMinute; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
+        this.setStatus(`Song beats per minute updated: ${newSongBeatsPerMinute}`);
     }
 
 
@@ -277,7 +279,7 @@ class ComposerActions extends ComposerMenu {
     /** Instruction Modification **/
 
     async instructionInsertPrompt(newCommand = null, trackName = null, promptUser = false) {
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         if (newCommand === null)
             newCommand = trackState.currentCommand;
         newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
@@ -287,7 +289,7 @@ class ComposerActions extends ComposerMenu {
     instructionInsert(newCommand = null, trackName = null) {
         // const activeTracks = {...this.state.activeTracks};
         trackName = trackName || this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         // if (programID !== null)
         //     newInstruction.program = programID;
 
@@ -303,7 +305,7 @@ class ComposerActions extends ComposerMenu {
             throw new Error("Invalid Instruction command");
 
         const newInstruction = Instruction.parseInstruction([0, newCommand]);
-        trackState.currentCommand = newInstruction.command;
+        trackState.update(state => state.currentCommand = newInstruction.command).then();
         if(trackState.currentDuration)
             newInstruction.durationTicks = song.values.parseDurationAsTicks(trackState.currentDuration);
         if(trackState.currentVelocity)
@@ -327,9 +329,9 @@ class ComposerActions extends ComposerMenu {
     instructionReplaceCommandSelected(newCommand, trackName=null, selectedIndices=null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         if(selectedIndices === null)
-            selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
+            selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
@@ -348,12 +350,12 @@ class ComposerActions extends ComposerMenu {
     }
     // }
 
-    async instructionReplaceDuration(duration = null, trackName = null, selectedIndices = null, promptUser = false) {
+    async instructionReplaceDurationSelected(duration = null, trackName = null, selectedIndices = null, promptUser = false) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         if(selectedIndices === null)
-            selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
+            selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
 
         if (duration === null && promptUser)
             duration = parseInt(await this.openPromptDialog("Set custom duration in ticks:", duration), 10);
@@ -376,15 +378,15 @@ class ComposerActions extends ComposerMenu {
 
     async instructionReplaceVelocityPrompt(velocity = null, trackName = null, selectedIndices = null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", trackState.currentVelocity));
-        return this.instructionReplaceVelocity(velocity, trackName, selectedIndices);
+        return this.instructionReplaceVelocitySelected(velocity, trackName, selectedIndices);
     }
 
-    instructionReplaceVelocity(velocity = null, trackName = null, selectedIndices = null) {
+    instructionReplaceVelocitySelected(velocity = null, trackName = null, selectedIndices = null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
 
@@ -402,12 +404,14 @@ class ComposerActions extends ComposerMenu {
         // trackInfo.updateCurrentInstruction();
     }
 
-    instructionDelete() {
-        const song = this.song;
-        const {trackName, selectedIndices} = this.trackerGetActiveSelectedTrackState();
+    instructionDeleteSelected(trackName=null, selectedIndices=null) {
+        trackName = trackName || this.state.selectedTrack;
+        const trackState = new TrackState(this, trackName);
+        if(selectedIndices === null)
+            selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
 
         for (let i = 0; i < selectedIndices.length; i++)
-            song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
+            this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
     }
 
@@ -419,17 +423,18 @@ class ComposerActions extends ComposerMenu {
         this.setState({keyboardOctave});
     }
 
+    /** Composer State **/
 
-    /** Track State **/
-
-
-    trackGetState(trackName=null) {
-        if(trackName === null)
-            trackName = this.state.selectedTrack;
-        if(!this.state.activeTracks.hasOwnProperty(trackName))
-            throw new Error(`Invalid track: ${trackName}`)
-        return this.state.activeTracks[trackName];
+    async updateState(newState) {
+        new Promise(resolve => {
+            this.setState(state => {
+                if(typeof newState === "function")
+                    newState = newState(state) || state;
+                return newState;
+            }, resolve)
+        })
     }
+
 
     // /** @deprecated **/
     // trackerGetTrackInfo(trackName) {
@@ -445,11 +450,13 @@ class ComposerActions extends ComposerMenu {
 
 
     trackerPlaySelected(trackName=null, stopPlayback=true) {
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         return this.trackerPlay(trackName, trackState.selectedIndices, stopPlayback);
     }
+
     trackerPlay(trackName, selectedIndices, stopPlayback=true) {
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
+
 
         const song = this.getSong();
         if(stopPlayback && song.isPlaying())
@@ -462,20 +469,16 @@ class ComposerActions extends ComposerMenu {
         if(!Array.isArray(selectedIndices))
             selectedIndices = [selectedIndices];
         // console.log('playInstructions', selectedIndices);
-        const programID = typeof trackState.programID !== "undefined" ? trackState.programID : 0;
+        // const programID = typeof trackState.programID !== "undefined" ? trackState.programID : 0;
 
         // if(stopPlayback)
         //     song.programLoader.stopAllPlayback();
 
-        for(let i=0; i<selectedIndices.length; i++) {
-            const selectedIndex = selectedIndices[i];
-            const instruction = song.instructionGetByIndex(trackName, selectedIndex);
-            song.playInstruction(destination, instruction, programID);
-        }
+        song.playSelectedInstructions(selectedIndices);
     }
 
 
-    /** Tracker Commands **/
+    /** Track Commands **/
 
     async trackAdd(newTrackName = null, promptUser = true) {
         const song = this.song;
@@ -485,7 +488,7 @@ class ComposerActions extends ComposerMenu {
             newTrackName = await this.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
-            this.trackerToggleTrack(newTrackName, true);
+            await this.trackerToggleTrack(newTrackName, true);
         } else {
             this.setStatus("<span class='error'>Create instruction group canceled</span>");
         }
@@ -498,8 +501,8 @@ class ComposerActions extends ComposerMenu {
             newTrackName = await this.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
         if (newTrackName !== oldTrackName) {
             song.trackRename(oldTrackName, newTrackName);
-            this.trackerToggleTrack(newTrackName, true);
-            this.trackerToggleTrack(oldTrackName, false);
+            await this.trackerToggleTrack(newTrackName, true);
+            await this.trackerToggleTrack(oldTrackName, false);
         } else {
             this.setStatus("<span class='error'>Rename instruction group canceled</span>");
         }
@@ -511,30 +514,37 @@ class ComposerActions extends ComposerMenu {
         const result = promptUser ? await this.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
         if (result) {
             song.trackRemove(trackName);
-            this.trackerToggleTrack(trackName, true);
+            await this.trackerToggleTrack(trackName, true);
         } else {
             this.setStatus("<span class='error'>Remove instruction group canceled</span>");
         }
 
     }
 
-
-    trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
+    async trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
         // const trackState = this.trackGetState(trackName);
-        const activeTracks = {...this.state.activeTracks};
+        // const activeTracks = {...this.state.activeTracks};
         let selectedTrack = trackName;
-        if(toggleValue === true || typeof activeTracks[trackName] === "undefined") {
-            const currentTrackData = activeTracks[this.state.selectedTrack];
-            activeTracks[trackName] = Object.assign({}, currentTrackData, trackData);
+        if(toggleValue === true || typeof this.state.activeTracks[trackName] === "undefined") {
+            // const currentTrackData = activeTracks[this.state.selectedTrack];
+            // activeTracks[trackName] = trackData; //Object.assign({}, currentTrackData, trackData);
+            await this.updateState(state => {
+                state.selectedTrack = selectedTrack;
+                state.activeTracks[trackName] = trackData
+            })
+            await this.trackerUpdateSegmentLength(trackName);
+
         } else {
-            trackData = activeTracks[trackName];
+            trackData = this.state.activeTracks[trackName];
             if(trackData.destinationList)
                 selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
             else
                 selectedTrack = this.getSong.getStartTrackName();
-            delete activeTracks[trackName];
+            await this.updateState(state => {
+                state.selectedTrack = selectedTrack;
+                delete state.activeTracks[trackName];
+            })
         }
-        this.setState({activeTracks, selectedTrack});
     }
 
     trackerChangeQuantization(trackName, trackerQuantizationTicks) {
@@ -554,7 +564,7 @@ class ComposerActions extends ComposerMenu {
 
     trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows = null) {
         if (!trackerSegmentLengthInRows || !Number.isInteger(trackerSegmentLengthInRows))
-            throw new Error("Invalid tracker row length value");
+            throw new Error("Invalid track row length value");
         this.setState(state => {
             state.activeTracks[trackName].rowLength = trackerSegmentLengthInRows;
             return state;
@@ -566,18 +576,48 @@ class ComposerActions extends ComposerMenu {
         this.trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows);
     }
 
+    async trackerUpdateSegmentLength(trackName) {
+        trackName = trackName || this.state.selectedTrack;
+        const trackState = new TrackState(this, trackName);
+        const iterator = this.trackerGetIterator(trackName);
+        iterator.seekToEnd();
+        // const segmentLengthInRows = trackState.rowLength || Track.DEFAULT_SEGMENT_LENGTH;
+        // const segmentCount = Math.ceil(iterator.rowCount / segmentLengthInRows) + 1;
+        // console.log('segmentCount', {segmentCount, segmentLengthInRows, rowCount: iterator.rowCount});
+
+        // if(trackState.segmentCount !== segmentCount) {
+        //     await trackState.update(state => {
+        //         state.segmentCount = segmentCount;
+        //     });
+        // }
+    }
+
     /** Selection **/
+
+    trackerGetIterator(trackName=null) {
+        const trackState = new TrackState(this, trackName);
+        return this.getSong().instructionGetIterator(
+            trackName,
+            trackState.timeDivision, // || this.getSong().data.timeDivision,
+            trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
+        );
+    }
+
+    trackerGetQuantizedIterator(trackName=null) {
+        const trackState = new TrackState(this, trackName);
+        return this.getSong().instructionGetQuantizedIterator(
+            trackName,
+            trackState.quantizationTicks,
+            trackState.timeDivision, // || this.getSong().data.timeDivision,
+            trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
+        );
+    }
 
     trackerGetCursorInfo(trackName=null, cursorOffset=null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
-        const iterator = this.getSong().instructionGetQuantizedIterator(
-            trackName,
-            trackState.quantizationTicks || trackState.timeDivision || this.getSong().data.timeDivision,
-            trackState.timeDivision, // || this.getSong().data.timeDivision,
-            trackState.bpm //  || this.getSong().data.bpm
-        )
+        const iterator = this.trackerGetQuantizedIterator(trackName);
         let cursorIndex = null;
         let currentRowStartPosition=0, lastRowStartPosition=0
         // let indexFound = null;
@@ -595,10 +635,10 @@ class ComposerActions extends ComposerMenu {
 
         const cursorRow = iterator.rowCount;
         const currentRowOffset = trackState.rowOffset || 0;
-        const currentRowLength = trackState.rowLength || 16;
+        const segmentLengthInRows = trackState.rowLength || 16;
         let adjustedCursorRow = null;
-        if(currentRowOffset + currentRowLength <= cursorRow)
-            adjustedCursorRow = cursorRow - currentRowLength; //  - Math.floor(currentRowLength * 0.8);
+        if(currentRowOffset + segmentLengthInRows <= cursorRow)
+            adjustedCursorRow = cursorRow - segmentLengthInRows; //  - Math.floor(currentRowLength * 0.8);
         if(currentRowOffset >= cursorRow)
             adjustedCursorRow = cursorRow - 1; // - Math.ceil(currentRowLength * 0.2);
 
@@ -624,7 +664,7 @@ class ComposerActions extends ComposerMenu {
     async trackerSelectIndicesPrompt(trackName=null) {
         if(trackName === null)
             trackName = this.state.selectedTrack;
-        const trackState = this.trackGetState(trackName);
+        const trackState = new TrackState(this, trackName);
         let selectedIndices = (trackState.selectedIndices || []).join(', ');
         selectedIndices = await this.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
         this.trackerSelectIndices(trackName, selectedIndices);
@@ -830,7 +870,7 @@ class ComposerActions extends ComposerMenu {
     }
 
     togglePanelTracker() {
-        this.classList.toggle('hide-panel-tracker');
+        this.classList.toggle('hide-panel-track');
     }
 
     togglePanelSong() {
@@ -857,9 +897,9 @@ class ComposerActions extends ComposerMenu {
         storage.addBatchRecentSearches(searchCallbackString);
 
         throw new Error("TODO Implement");
-        // const tracker = this.tracker;
+        // const track = this.track;
         // this.clearselectedIndices();
-        // const trackName = tracker.getTrackName();
+        // const trackName = track.getTrackName();
         // try {
         //     const stats = {count: 0};
         //     const iterator = this.song.instructionGetIterator(trackName);
@@ -870,7 +910,7 @@ class ComposerActions extends ComposerMenu {
         //         return eval(searchCallbackString);
         //     })) {
         //         stats.count++;
-        //         tracker.selectIndicies(e, iterator.currentIndex);
+        //         track.selectIndicies(e, iterator.currentIndex);
         //     }
         //     this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
         // } catch (err) {
@@ -898,8 +938,8 @@ class ComposerActions extends ComposerMenu {
 
         throw new Error("TODO Implement");
         // const instructionList = [];
-        // const tracker = this.tracker;
-        // const trackName = tracker.getTrackName(), g = trackName;
+        // const track = this.track;
+        // const trackName = track.getTrackName(), g = trackName;
         // try {
         //     const stats = {count: 0, modified: 0};
         //     const iterator = this.song.instructionGetIterator(trackName);
@@ -916,7 +956,7 @@ class ComposerActions extends ComposerMenu {
         //             stats.modified++;
         //
         //         stats.count++;
-        //         tracker.selectIndex(e, iterator.currentIndex);
+        //         track.selectIndex(e, iterator.currentIndex);
         //     }
         //     this.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
         //     return instructionList;

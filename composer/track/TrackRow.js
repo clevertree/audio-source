@@ -1,14 +1,14 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import TrackerDelta from "./TrackerDelta";
-import TrackerInstructionAdd from "./TrackerInstructionAdd";
+import TrackDelta from "./TrackerDelta";
+import TrackInstructionAdd from "./TrackerInstructionAdd";
 
-import TrackerPosition from "./TrackerPosition";
+import TrackPosition from "./TrackerPosition";
 
 import "./assets/TrackerRow.css";
 import DropDownContainer from "../../components/menu/DropDownContainer";
 
-class TrackerRow extends React.Component {
+class TrackRow extends React.Component {
     constructor(props) {
         super(props);
         this.dropdown = React.createRef();
@@ -51,12 +51,12 @@ class TrackerRow extends React.Component {
                 onMouseDown={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 >
-                <TrackerPosition positionTicks={this.props.positionTicks} />
+                <TrackPosition positionTicks={this.props.positionTicks} />
                 {this.props.children}
-                {this.props.cursor ? <TrackerInstructionAdd
+                {this.props.cursor ? <TrackInstructionAdd
                     cursorPosition={this.props.cursorPosition}
                     /> : null}
-                <TrackerDelta duration={rowDeltaDuration} />
+                <TrackDelta duration={rowDeltaDuration} />
                 <DropDownContainer
                     ref={this.dropdown}
                     options={this.props.options}
@@ -127,4 +127,4 @@ class TrackerRow extends React.Component {
 
 }
 
-export default TrackerRow;
+export default TrackRow;

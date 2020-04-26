@@ -1,5 +1,5 @@
 
-/** Tracker **/
+/** Track **/
 
 /*div.asct-container {*/
 /*    flex: 1 1 auto;*/
@@ -15,14 +15,14 @@ div.asct-container {
 
 
 
-/** Tracker **/
+/** Track **/
 div.asc-tracker {
     position: relative;
     /* height: 100%; */
     /*overflow: auto;*/
     vertical-align: top;
     display: inline-block;
-    min-width: 30vw;
+    /*min-width: 30vw;*/
 }
 div.asc-tracker:not(.selected) > div.header {
     background-color: #777;
@@ -42,7 +42,7 @@ div.asc-tracker:not(.selected) {
     /*height: 700px;*/
 }
 
-/** Tracker Header **/
+/** Track Header **/
 
 
 div.asc-tracker > div.asui-panel {
@@ -59,7 +59,7 @@ div.asc-tracker > div.asui-panel > div.header {
 
 
 
-/** Tracker Segments **/
+/** Track Segments **/
 
 div.asct-segments,
 div.asct-options {

@@ -3,14 +3,14 @@ const archiveBuffers = {};
 const torrentCache = {};
 const trackerURLS = [
     "udp://explodie.org:6969",
-    "udp://tracker.coppersurfer.tk:6969",
-    "udp://tracker.empire-js.us:1337",
-    "udp://tracker.leechers-paradise.org:6969",
-    "udp://tracker.opentrackr.org:1337",
+    "udp://track.coppersurfer.tk:6969",
+    "udp://track.empire-js.us:1337",
+    "udp://track.leechers-paradise.org:6969",
+    "udp://track.opentrackr.org:1337",
     // "wss://snesology.net/wss",
-    "wss://tracker.fastcast.nz",
-    "wss://tracker.openwebtorrent.com",
-    "wss://tracker.btorrent.xyz",
+    "wss://track.fastcast.nz",
+    "wss://track.openwebtorrent.com",
+    "wss://track.btorrent.xyz",
 ];
 
 class FileService {

@@ -117,7 +117,7 @@ class GMESongFile {
             version: 'auto',
             created: new Date().getTime(),
             timeDivision: timeDivision,
-            bpm: beatsPerMinute,
+            beatsPerMinute: beatsPerMinute,
             // beatsPerMeasure: 4,
             rootGroup: 'root',
             programs: [
