@@ -1,11 +1,11 @@
 // const SongTest = require("../song/SongTest").default;
-// const ComposerTest = require("../composer/ComposerTest").default;
+// const ASComposerTest = require("../composer/ASComposerTest").default;
 //
 //
 // (async () => {
 //     const tests = [
 //         new SongTest(),
-//         new ComposerTest(),
+//         new ASComposerTest(),
 //     ];
 //
 //     for(let i=0; i<tests.length; i++) {

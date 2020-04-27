@@ -20,7 +20,7 @@ class GMEPlayerSynthesizer {
             const src = this.config.fileURL;
             const service = new FileService();
             this.fileBuffer = service.loadBufferFromURL(src);
-            console.info("SPC Player loaded");
+            console.info("SPC ASPlayer loaded");
         }
         if(this.fileBuffer instanceof Promise)
             this.spcBuffer = await this.spcBuffer;
@@ -40,7 +40,7 @@ class GMEPlayerSynthesizer {
         this.audioContext = audioContext;
         if (this.config.fileURL)
             await this.loadBuffer();
-        console.info("SPC Player initialized");
+        console.info("SPC ASPlayer initialized");
     }
 
     /** Playback **/

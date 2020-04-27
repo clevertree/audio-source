@@ -1,0 +1,46 @@
+
+/** ASCTrack Row **/
+
+div.asct-row {
+    display: flex;
+    cursor: pointer;
+    background-color: #C0C0C0;
+    height: 1.45em;
+    position: relative;
+    border: 1px outset #FFF;
+    padding: 0px;
+}
+
+div.asct-row.beat-end {
+    border-top: 1px solid #888;
+}
+div.asct-row.measure-end {
+    border-top: 1px solid #000;
+}
+div.asct-row:nth-child(odd) {
+    background-color: #D0D0D0;
+}
+
+/** Hover **/
+
+div.asct-row:hover {
+    background-color: #EEE;
+    border: 1px outset #4EE;
+}
+
+/** Selected **/
+
+div.asct-row.cursor,
+div.asct-row.selected {
+    background-color: #ffeedd;
+    position: relative;
+    box-shadow: #ffeedd 0px 0px 9px;
+    z-index: 2;
+}
+div.asct-row.playing,
+div.asct-row.highlight {
+    background-color: #609060;
+    position: relative;
+    box-shadow: #AFA 0px 0px 4px;
+    z-index: 1;
+}

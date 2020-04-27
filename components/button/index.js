@@ -1,7 +1,7 @@
-import Button from "./Button";
-import ButtonDropDown from "./ButtonDropDown";
+import ASUIButton from "./ASUIButton";
+import ASUIButtonDropDown from "./ASUIButtonDropDown";
 
 export {
-    Button,
-    ButtonDropDown
+    ASUIButton,
+    ASUIButtonDropDown
 }

@@ -47,7 +47,7 @@ class Instruction {
     }
     static processInstructionTrack(instructionList) {
         if(!Array.isArray(instructionList))
-            throw new Error("Invalid Track instruction array");
+            throw new Error("Invalid ASCTrack instruction array");
         for(let i=0; i<instructionList.length; i++) {
             const instruction = this.parseInstruction(instructionList[i]);
             instructionList[i] = instruction.data;
@@ -71,8 +71,9 @@ class Instruction {
     static getInstruction(instructionData) {
         if(!instructionData)
             throw new Error("Invalid Instruction data");
-        if(typeof instructionData[1] === "string") {
-            switch(instructionData[1][0]) {
+        const commandString = instructionData[1];
+        if(typeof commandString === "string") {
+            switch(commandString[0]) {
                 case '@':
                     return new (require("./TrackInstruction").default)(instructionData);
                 case '!':
@@ -81,7 +82,7 @@ class Instruction {
                     return new (require("./NoteInstruction").default)(instructionData);
             }
 
-        } else if(typeof instructionData[1] === "number") {
+        } else if(typeof commandString === "number") {
             return new (require("./MIDIInstruction").default)(instructionData);
         }
         throw new Error("Unknown Instruction");
@@ -89,13 +90,13 @@ class Instruction {
     }
 
 
-    static isTrackInstruction(instructionData) {
-        return typeof instructionData[1] === "string" && instructionData[1][0] === '@';
-    }
-
-    static isMIDIInstruction(instructionData) {
-        return typeof instructionData[1] === "number";
-    }
+    // static isTrackInstruction(instructionData) {
+    //     return typeof instructionData[1] === "string" && instructionData[1][0] === '@';
+    // }
+    //
+    // static isMIDIInstruction(instructionData) {
+    //     return typeof instructionData[1] === "number";
+    // }
 
 
 }

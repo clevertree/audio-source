@@ -80,7 +80,7 @@
 
 
                 let notesFound = false;
-                let defaultProgramName = 'Track ' + trackID;
+                let defaultProgramName = 'ASCTrack ' + trackID;
                 for (let eventID = 0; eventID < trackEvents.length; eventID++) {
                     const trackEvent = trackEvents[eventID];
                     switch (trackEvent.type) {

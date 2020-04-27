@@ -2,11 +2,11 @@ import React from 'react';
 import {
     // Button,
     // InputSelect,
-    Div,
-    Button,
-    MenuAction,
-    MenuBreak,
-    Icon, InputRange, MenuDropDown,
+    ASUIDiv,
+    ASUIButton,
+    ASUIMenuAction,
+    ASUIMenuBreak,
+    ASUIIcon, ASUIInputRange, ASUIMenuDropDown,
 } from "../../../../components";
 
 import "./assets/AudioBufferInstrumentRenderer.css";
@@ -36,67 +36,67 @@ class AudioBufferInstrumentRenderer extends React.Component {
             className += ' open';
 
         return (
-            <Div
+            <ASUIDiv
                 className={className}
                 >
-                <Button
+                <ASUIButton
                     title="Change Sample"
                     className="name"
                     onAction={e => this.toggleOpen(e)}>
                     {sampleName || "Unnamed"}
-                </Button>
+                </ASUIButton>
                 {!this.state.open ? null : (
                     <>
                         {typeof sample.mixer === 'undefined' ? null : (
-                            <Div title="Edit Mixer" className="mixer">
-                                <Button onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
+                            <ASUIDiv title="Edit Mixer" className="mixer">
+                                <ASUIButton onAction={e => this.openMenuChangeMixer(e)} vertical openOnHover={false}>
                                     {sample.mixer+'%'}
-                                </Button>
-                            </Div>
+                                </ASUIButton>
+                            </ASUIDiv>
                         )}
                         {typeof sample.detune === 'undefined' ? null : (
-                            <Div title={`Detune by ${sample.detune} cents`} className="detune">
-                                <Button onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
+                            <ASUIDiv title={`Detune by ${sample.detune} cents`} className="detune">
+                                <ASUIButton onAction={e => this.openMenuChangeDetune(e)} vertical openOnHover={false}>
                                     {sample.detune+'c'}
-                                </Button>
-                            </Div>
+                                </ASUIButton>
+                            </ASUIDiv>
                         )}
                         {typeof sample.root === 'undefined' ? null : (
-                            <Div title={`Key Root is ${sample.root}`} className="root">
-                                <Button onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
+                            <ASUIDiv title={`Key Root is ${sample.root}`} className="root">
+                                <ASUIButton onAction={e => this.openMenuChangeKeyRoot(e)} vertical openOnHover={false}>
                                     {sample.root}
-                                </Button>
-                            </Div>
+                                </ASUIButton>
+                            </ASUIDiv>
                         )}
                         {typeof sample.alias === 'undefined' ? null : (
-                            <Div title={`Key Alias is ${sample.alias}`} className="alias">
-                                <Button onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
+                            <ASUIDiv title={`Key Alias is ${sample.alias}`} className="alias">
+                                <ASUIButton onAction={e => this.openMenuChangeKeyAlias(e)} vertical openOnHover={false}>
                                     {sample.alias}
-                                </Button>
-                            </Div>
+                                </ASUIButton>
+                            </ASUIDiv>
                         )}
                         {typeof sample.range === 'undefined' ? null : (
-                            <Div title={`Key Range is ${sample.range}`} className="range">
-                                <Button onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
+                            <ASUIDiv title={`Key Range is ${sample.range}`} className="range">
+                                <ASUIButton onAction={e => this.openMenuChangeKeyRange(e)} vertical openOnHover={false}>
                                     {sample.range}
-                                </Button>
-                            </Div>
+                                </ASUIButton>
+                            </ASUIDiv>
                         )}
                         {typeof sample.loop === 'undefined' ? null : (
-                            <Div title="Toggle Loop" className="loop">
-                                <Button title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
+                            <ASUIDiv title="Toggle Loop" className="loop">
+                                <ASUIButton title="" onAction={e => this.changeLoop(!sample.loop)} arrow={false} vertical openOnHover={false}>
                                     {sample.loop?'∞':'⇥'}
-                                </Button>
-                            </Div>
+                                </ASUIButton>
+                            </ASUIDiv>
                         )}
                     </>)
                 }
-                <Div title={`Edit Sample '${sampleName}'`} className="config">
-                    <Button onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
-                        <Icon className="config"/>
-                    </Button>
-                </Div>
-            </Div>
+                <ASUIDiv title={`Edit Sample '${sampleName}'`} className="config">
+                    <ASUIButton onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
+                        <ASUIIcon className="config"/>
+                    </ASUIButton>
+                </ASUIDiv>
+            </ASUIDiv>
         );
     }
 
@@ -110,28 +110,28 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
     openMenuRoot(e) {
         this.openMenu(e, <>
-            <MenuAction onAction={()=>{}} disabled>Sample {this.props.sampleID}</MenuAction>
-            <MenuBreak />
-            <MenuDropDown key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</MenuDropDown>
-            <MenuDropDown key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</MenuDropDown>
-            <MenuDropDown key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</MenuDropDown>
-            <MenuDropDown key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</MenuDropDown>
-            <MenuDropDown key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</MenuDropDown>
-            <MenuDropDown key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</MenuDropDown>
-            <MenuAction key="remove" onAction={e => this.renderMenu('voice-remove')}>Remove Sample</MenuAction>
+            <ASUIMenuAction onAction={()=>{}} disabled>Sample {this.props.sampleID}</ASUIMenuAction>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown key="mixer" onAction={e => this.openMenuChangeMixer(e)}>Edit Mixer</ASUIMenuDropDown>
+            <ASUIMenuDropDown key="detune" onAction={e => this.openMenuChangeDetune(e)}>Edit Detune</ASUIMenuDropDown>
+            <ASUIMenuDropDown key="root" onAction={e => this.openMenuChangeKeyRoot(e)}>Edit Key Root</ASUIMenuDropDown>
+            <ASUIMenuDropDown key="alias" onAction={e => this.openMenuChangeKeyAlias(e)}>Edit Key Alias</ASUIMenuDropDown>
+            <ASUIMenuDropDown key="range" onAction={e => this.openMenuChangeKeyRange(e)}>Edit Key Range</ASUIMenuDropDown>
+            <ASUIMenuDropDown key="loop" onAction={e => this.openMenuChangeLoop(e)}>Toggle Loop</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown key="change" onAction={e => this.openMenuChangeSample(e)}>Change Sample</ASUIMenuDropDown>
+            <ASUIMenuAction key="remove" onAction={e => this.renderMenu('voice-remove')}>Remove Sample</ASUIMenuAction>
         </>);
     }
 
     openMenuChangeSample(e) {
         const sample = this.getSampleData();
-        this.openMenu(e, <InputRange min={0} max={100} value={sample.mixer} />);
+        this.openMenu(e, <ASUIInputRange min={0} max={100} value={sample.mixer} />);
     }
 
     openMenuChangeMixer(e) {
         const sample = this.getSampleData();
-        this.openMenu(e, <InputRange
+        this.openMenu(e, <ASUIInputRange
             min={0}
             max={100}
             value={typeof sample.mixer !== "undefined" ? sample.mixer : 100}
@@ -141,7 +141,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
     openMenuChangeDetune(e) {
         const sample = this.getSampleData();
-        this.openMenu(e, <InputRange
+        this.openMenu(e, <ASUIInputRange
             min={-1000}
             max={1000}
             value={typeof sample.detune !== "undefined" ? sample.detune : 100}
@@ -153,28 +153,28 @@ class AudioBufferInstrumentRenderer extends React.Component {
     openMenuChangeKeyRoot(e) {
         const values = this.getSong().values;
         this.openMenu(e, <>
-            <MenuAction onAction={null} disabled>Edit Key Root</MenuAction>
-            <MenuBreak />
+            <ASUIMenuAction onAction={null} disabled>Edit Key Root</ASUIMenuAction>
+            <ASUIMenuBreak />
             {values.getNoteOctaves((octave) =>
-                <MenuDropDown onAction={e => this.openMenu(e,
+                <ASUIMenuDropDown onAction={e => this.openMenu(e,
                     values.getNoteFrequencies((noteName) =>
-                        <MenuAction onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuAction>
+                        <ASUIMenuAction onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</ASUIMenuAction>
                     )
-                )}>{octave}</MenuDropDown>)}
+                )}>{octave}</ASUIMenuDropDown>)}
         </>);
     }
 
     openMenuChangeKeyAlias(e) {
         const values = this.getSong().values;
         this.openMenu(e, <>
-            <MenuAction onAction={null} disabled>Edit Key Root</MenuAction>
-            <MenuBreak />
+            <ASUIMenuAction onAction={null} disabled>Edit Key Root</ASUIMenuAction>
+            <ASUIMenuBreak />
             {values.getNoteOctaves((octave) =>
-                <MenuDropDown onAction={e => this.openMenu(e,
+                <ASUIMenuDropDown onAction={e => this.openMenu(e,
                     values.getNoteFrequencies((noteName) =>
-                        <MenuAction onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuAction>
+                        <ASUIMenuAction onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</ASUIMenuAction>
                     )
-                )}>{octave}</MenuDropDown>)}
+                )}>{octave}</ASUIMenuDropDown>)}
         </>);
     }
 
@@ -205,71 +205,71 @@ class AudioBufferInstrumentRenderer extends React.Component {
             case 'voice-mixer':
                 return <>
 
-                    <MenuBreak />
-                    <MenuAction onAction={null} disabled>Edit Mixer</MenuAction>
+                    <ASUIMenuBreak />
+                    <ASUIMenuAction onAction={null} disabled>Edit Mixer</ASUIMenuAction>
                 </>;
 
             case 'voice-detune':
                 return <>
 
-                    <MenuBreak />
-                    <MenuAction onAction={null} disabled>Edit Detune</MenuAction>
+                    <ASUIMenuBreak />
+                    <ASUIMenuAction onAction={null} disabled>Edit Detune</ASUIMenuAction>
                 </>;
 
             case 'voice-root':
                 return <>
-                    <MenuAction onAction={null} disabled>Edit Key Root</MenuAction>
-                    <MenuBreak />
+                    <ASUIMenuAction onAction={null} disabled>Edit Key Root</ASUIMenuAction>
+                    <ASUIMenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <MenuAction onAction={
+                    <ASUIMenuAction onAction={
                         () => values.getNoteFrequencies((noteName) =>
-                            <MenuAction onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</MenuAction>
+                            <ASUIMenuAction onAction={e => this.changeRoot(noteName+octave)}    >{noteName+octave}</ASUIMenuAction>
                         )
-                    }>{octave}</MenuAction>)}
+                    }>{octave}</ASUIMenuAction>)}
                 </>;
 
             case 'voice-alias':
                 return <>
-                    <MenuAction onAction={null} disabled>Edit Key Alias</MenuAction>
-                    <MenuBreak />
+                    <ASUIMenuAction onAction={null} disabled>Edit Key Alias</ASUIMenuAction>
+                    <ASUIMenuBreak />
                     {values.getNoteOctaves((octave) =>
-                    <MenuAction onAction={
+                    <ASUIMenuAction onAction={
                         () => values.getNoteFrequencies((noteName) =>
-                            <MenuAction onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</MenuAction>
+                            <ASUIMenuAction onAction={e => this.changeAlias(noteName+octave)}    >{noteName+octave}</ASUIMenuAction>
                         )
-                    }>{octave}</MenuAction>)}
+                    }>{octave}</ASUIMenuAction>)}
                 </>;
 
             case 'voice-range':
                 return <>
-                    <MenuAction onAction={null} disabled>Edit Key Range</MenuAction>
-                    <MenuBreak />
-                    <MenuAction onAction={e => this.renderMenu('voice-range-start')} >Set Range Start</MenuAction>
-                    <MenuAction onAction={e => this.renderMenu('voice-range-end')} >Set Range End</MenuAction>
+                    <ASUIMenuAction onAction={null} disabled>Edit Key Range</ASUIMenuAction>
+                    <ASUIMenuBreak />
+                    <ASUIMenuAction onAction={e => this.renderMenu('voice-range-start')} >Set Range Start</ASUIMenuAction>
+                    <ASUIMenuAction onAction={e => this.renderMenu('voice-range-end')} >Set Range End</ASUIMenuAction>
                 </>;
 
             case 'voice-range-start':
                 return (<>
-                    <MenuAction onAction={null} disabled>Range Start</MenuAction>
-                    <MenuBreak />
+                    <ASUIMenuAction onAction={null} disabled>Range Start</ASUIMenuAction>
+                    <ASUIMenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <MenuAction onAction={
+                        <ASUIMenuAction onAction={
                             () => values.getNoteFrequencies((noteName) =>
-                                <MenuAction onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</MenuAction>
+                                <ASUIMenuAction onAction={e => this.changeRange(noteName+octave)}    >{noteName+octave}</ASUIMenuAction>
                             )
-                        }>{octave}</MenuAction>)}
+                        }>{octave}</ASUIMenuAction>)}
                 </>);
 
             case 'voice-range-end':
                 return (<>
-                    <MenuAction onAction={null} disabled>Range End</MenuAction>
-                    <MenuBreak />
+                    <ASUIMenuAction onAction={null} disabled>Range End</ASUIMenuAction>
+                    <ASUIMenuBreak />
                     {values.getNoteOctaves((octave) =>
-                        <MenuAction onAction={
+                        <ASUIMenuAction onAction={
                             () => values.getNoteFrequencies((noteName) =>
-                                <MenuAction onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</MenuAction>
+                                <ASUIMenuAction onAction={e => this.changeRange(null, noteName+octave)}    >{noteName+octave}</ASUIMenuAction>
                             )
-                        }>{octave}</MenuAction>)}
+                        }>{octave}</ASUIMenuAction>)}
                 </>);
 
 

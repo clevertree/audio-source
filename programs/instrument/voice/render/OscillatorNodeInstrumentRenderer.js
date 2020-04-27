@@ -2,12 +2,12 @@ import React from 'react';
 import {
     // Button,
     // InputSelect,
-    Div,
-    MenuAction,
-    MenuBreak,
-    Icon,
-    InputRange,
-    MenuDropDown,
+    ASUIDiv,
+    ASUIMenuAction,
+    ASUIMenuBreak,
+    ASUIIcon,
+    ASUIInputRange,
+    ASUIMenuDropDown,
 } from "../../../../components";
 import {Library, Values} from "../../../../song";
 
@@ -46,23 +46,23 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
         let title = this.getTitle();
 
 
-        return <Div className={className}>
-            <Div
+        return <ASUIDiv className={className}>
+            <ASUIDiv
                 className="title"
                 title={`Oscillator: ${title}`}
                 onClick={this.cb.onClick}
                 >
                 {title}
-            </Div>
+            </ASUIDiv>
             {this.renderParameters()}
-            <MenuDropDown
+            <ASUIMenuDropDown
                 arrow={false}
                 className="config"
                 options={() => this.renderMenuRoot()}
             >
-                <Icon className="config"/>
-            </MenuDropDown>
-        </Div>;
+                <ASUIIcon className="config"/>
+            </ASUIMenuDropDown>
+        </ASUIDiv>;
     }
 
     renderParameters() {
@@ -70,49 +70,49 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
             return [];
         const config = this.props.config;
         return (<>
-            <MenuDropDown title="Edit Mixer"
-                          className="mixer"
-                          options={() => this.renderMenuChangeMixer()}
-                          arrow={false}
-                          vertical>
+            <ASUIMenuDropDown title="Edit Mixer"
+                              className="mixer"
+                              options={() => this.renderMenuChangeMixer()}
+                              arrow={false}
+                              vertical>
                 {typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
-            </MenuDropDown>
-            <MenuDropDown title={`Detune by ${config.detune} cents`}
-                          className="detune"
-                          options={() => this.renderMenuChangeDetune()}
-                          arrow={false}
-                          vertical>
+            </ASUIMenuDropDown>
+            <ASUIMenuDropDown title={`Detune by ${config.detune} cents`}
+                              className="detune"
+                              options={() => this.renderMenuChangeDetune()}
+                              arrow={false}
+                              vertical>
                 {typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
-            </MenuDropDown>
-            {config.root ? <MenuDropDown title={`Key Root is ${config.root}`}
-                          className="root"
-                          options={() => this.renderMenuChangeKeyRoot()}
-                          arrow={false}
-                          vertical>
+            </ASUIMenuDropDown>
+            {config.root ? <ASUIMenuDropDown title={`Key Root is ${config.root}`}
+                                             className="root"
+                                             options={() => this.renderMenuChangeKeyRoot()}
+                                             arrow={false}
+                                             vertical>
                 {config.root ? config.root : "-"}
-            </MenuDropDown> : null}
-            {config.alias ? <MenuDropDown title={`Key Alias is ${config.alias}`}
-                          className="alias"
-                          options={() => this.renderMenuChangeKeyAlias()}
-                          arrow={false}
-                          vertical>
+            </ASUIMenuDropDown> : null}
+            {config.alias ? <ASUIMenuDropDown title={`Key Alias is ${config.alias}`}
+                                              className="alias"
+                                              options={() => this.renderMenuChangeKeyAlias()}
+                                              arrow={false}
+                                              vertical>
                 {config.alias ? config.alias : "-"}
-            </MenuDropDown> : null}
-            {config.range ? <MenuDropDown title={`Key Range is ${config.range}`}
-                          className="range"
-                          options={() => this.renderMenuChangeKeyRange()}
-                          arrow={false}
-                          vertical>
+            </ASUIMenuDropDown> : null}
+            {config.range ? <ASUIMenuDropDown title={`Key Range is ${config.range}`}
+                                              className="range"
+                                              options={() => this.renderMenuChangeKeyRange()}
+                                              arrow={false}
+                                              vertical>
                 {config.range ? config.range : "-"}
-            </MenuDropDown> : null}
-            <MenuAction
+            </ASUIMenuDropDown> : null}
+            <ASUIMenuAction
                     className="loop"
                     title="Toggle Loop"
                     onAction={e => this.changeLoop(!config.loop)}
                     arrow={false}
                     vertical>
                     {config.loop?'∞':'1'}
-            </MenuAction>
+            </ASUIMenuAction>
         </>);
     }
 
@@ -171,25 +171,25 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     renderMenuRoot() {
         return (<>
-            <MenuAction onAction={()=>{}} disabled>Oscillator: {this.getTitle()}</MenuAction>
-            <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</MenuDropDown>
-            <MenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</MenuAction>
+            <ASUIMenuAction onAction={()=>{}} disabled>Oscillator: {this.getTitle()}</ASUIMenuAction>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>
+            <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</ASUIMenuAction>
         </>);
     }
 
     renderMenuChangeOscillator() {
         return (<>
-            <MenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</MenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</ASUIMenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
-            <MenuBreak/>
+            <ASUIMenuBreak/>
             {this.library.renderMenuProgramAllPresets(([className, presetConfig]) => {
                 this.loadPreset(className, presetConfig);
             })}
@@ -198,10 +198,10 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     renderMenuChangeOscillatorStandard() {
         return (<>
-            <MenuAction onAction={e => this.changeOscillator('sine')}>Sine</MenuAction>
-            <MenuAction onAction={e => this.changeOscillator('square')}>Square</MenuAction>
-            <MenuAction onAction={e => this.changeOscillator('sawtooth')}>Sawtooth</MenuAction>
-            <MenuAction onAction={e => this.changeOscillator('triangle')}>Triangle</MenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillator('sine')}>Sine</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillator('square')}>Square</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillator('sawtooth')}>Sawtooth</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillator('triangle')}>Triangle</ASUIMenuAction>
         </>);
     }
 
@@ -209,7 +209,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     renderMenuChangeMixer() {
         const config = this.props.config;
-        return <InputRange
+        return <ASUIInputRange
             min={0}
             max={100}
             value={typeof config.mixer !== "undefined" ? config.mixer : 100}
@@ -219,7 +219,7 @@ class OscillatorNodeInstrumentRenderer extends React.Component {
 
     renderMenuChangeDetune() {
         const config = this.props.config;
-        return ( <InputRange
+        return ( <ASUIInputRange
             min={-1000}
             max={1000}
             value={typeof config.detune !== "undefined" ? config.detune : 100}

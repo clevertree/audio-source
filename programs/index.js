@@ -23,7 +23,7 @@ export default {
         ProgramLoader.addProgramClass(AudioBufferInstrument, AudioBufferInstrumentRenderer, 'AudioBuffer Instrument');
         ProgramLoader.addProgramClass(OscillatorNodeInstrument, OscillatorNodeInstrumentRenderer, 'OscillatorNode Instrument');
         ProgramLoader.addProgramClass(PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Audio Source Synthesizer');
-        ProgramLoader.addProgramClass(GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music Player Synthesizer');
+        ProgramLoader.addProgramClass(GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music ASPlayer Synthesizer');
         ProgramLoader.addProgramClass(TestInstrument, null, 'Test Instrument');
     }
 }

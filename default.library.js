@@ -16,7 +16,7 @@ export default class extends Library {
 
   getPlaylists() {
     return [
-      "assets/files/test.pl.json;Test Playlist"
+      "assets/files/test.pl.json;Test ASPPlaylist"
     ]
   }
 }

@@ -10,7 +10,7 @@ class SPCPlayerSynthesizer {
 
         this.audioContext = null;
         if(typeof config.name === "undefined")
-            config.name = 'SPC Player ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
+            config.name = 'SPC ASPlayer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
         this.config = config || {};
         this.spcPlayers = [];
         this.spcBuffer = null;
@@ -21,7 +21,7 @@ class SPCPlayerSynthesizer {
             const spcURL = this.config.spcURL;
             const service = new FileService();
             this.spcBuffer = service.loadBufferFromURL(spcURL);
-            console.info("SPC Player loaded");
+            console.info("SPC ASPlayer loaded");
         }
         if(this.spcBuffer instanceof Promise)
             this.spcBuffer = await this.spcBuffer;
@@ -54,7 +54,7 @@ class SPCPlayerSynthesizer {
         }
         if (this.config.spcURL)
             await this.loadBuffer();
-        console.info("SPC Player initialized");
+        console.info("SPC ASPlayer initialized");
     }
 
     /** Playback **/

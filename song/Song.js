@@ -1,7 +1,7 @@
 import ProgramLoader from "./program/ProgramLoader";
 import {SongValues} from "./values/";
 
-import Storage from "./Storage";
+import Storage from "./storage/Storage";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
@@ -825,8 +825,9 @@ class Song {
 
     playSelectedInstructions(destination, trackName, selectedIndices) {
         // TODO: TrackIterator find first index start point
+        const playback = new TrackPlayback(destination, this, trackName);
+        playback.seekToIndex(selectedIndices[0])
         // TODO: TrackPlayback with selective callback
-        const playback = new TrackPlayback(destination, this);
 
         // for(let i=0; i<selectedIndices.length; i++) {
         //     const selectedIndex = selectedIndices[i];
@@ -852,7 +853,7 @@ class Song {
         // if(this.playback)
         //     this.stopPlayback();
 
-        // if (instruction instanceof TrackInstruction) { // Handled in  TrackPlayback
+        // if (instruction instanceof ASCTrackInstruction) { // Handled in  TrackPlayback
         //     return new TrackPlayback(destination, this, instruction.getTrackName(), noteStartTime);
         // }
 

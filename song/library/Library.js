@@ -1,4 +1,4 @@
-import {MenuAction, MenuBreak, MenuDropDown} from "../../components/menu";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import React from "react";
 import ProgramLoader from "../program/ProgramLoader";
 
@@ -36,44 +36,44 @@ class Library {
 
     renderMenuProgramAll(onSelectPreset, programClass=null) {
         return (<>
-            <MenuDropDown options={() => this.renderMenuProgramNew(onSelectPreset, programClass)}>New Program</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown options={() => this.renderMenuProgramAllPresets(onSelectPreset, programClass, true)}>Using Preset</MenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuProgramNew(onSelectPreset, programClass)}>New Program</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuProgramAllPresets(onSelectPreset, programClass, true)}>Using Preset</ASUIMenuDropDown>
         </>);
     }
 
     renderMenuProgramNew(onSelectPreset) {
         return (<>
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
-                <MenuAction key={i} onAction={e => onSelectPreset(config.className)}>{config.title || 'Untitled Preset #' + i}</MenuAction>
+                <ASUIMenuAction key={i} onAction={e => onSelectPreset(config.className)}>{config.title || 'Untitled Preset #' + i}</ASUIMenuAction>
             )}
         </>);
     }
 
     renderMenuProgramAllPresets(onSelectPreset, programClass=null, includeRecent=true) {
         return (<>
-            {includeRecent && false ? <MenuDropDown
+            {includeRecent && false ? <ASUIMenuDropDown
                 disabled={true}
                 options={() => this.renderMenuProgramRecentPresets(onSelectPreset, programClass)}>
                 Recent Presets
-            </MenuDropDown> : null}
-            {includeRecent && Library.lastSelectedLibrary ? <MenuDropDown
+            </ASUIMenuDropDown> : null}
+            {includeRecent && Library.lastSelectedLibrary ? <ASUIMenuDropDown
                 disabled={Library.lastSelectedLibrary.getPresets().length === 0}
                 options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClass)}>
                 Current Library
-            </MenuDropDown> : null }
-            <MenuDropDown
+            </ASUIMenuDropDown> : null }
+            <ASUIMenuDropDown
                 disabled={this.getPresets().length === 0}
                 options={() => this.renderMenuProgramPresets(onSelectPreset, programClass)}>
                 Presets
-            </MenuDropDown>
-            <MenuDropDown
+            </ASUIMenuDropDown>
+            <ASUIMenuDropDown
                 disabled={this.getLibraries().length === 0}
                 options={() => this.renderMenuLibraryOptions(library =>
                     library.renderMenuProgramAllPresets(onSelectPreset, programClass, false)
                     , programClass)}>
                 Other Libraries
-            </MenuDropDown>
+            </ASUIMenuDropDown>
         </>);
     }
 
@@ -81,11 +81,11 @@ class Library {
     renderMenuProgramRecentPresets(onSelectPreset, programClass=null) {
         // let recentLibrary = Library.lastSelectedLibrary; // TODO: move to state?
         return (<>
-            <MenuAction onAction={()=>{}} disabled>{this.getTitle()}</MenuAction>
-            <MenuBreak />
+            <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
+            <ASUIMenuBreak />
             {this.getPresets().map(([className, presetConfig], i) => {
                 return programClass === null || programClass === className
-                    ? <MenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</MenuAction>
+                    ? <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
                     : null;
             })}
         </>);
@@ -94,11 +94,11 @@ class Library {
 
     renderMenuProgramPresets(onSelectPreset, programClass=null) {
         return (<>
-            <MenuAction onAction={()=>{}} disabled>{this.getTitle()}</MenuAction>
-            <MenuBreak />
+            <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
+            <ASUIMenuBreak />
             {this.getPresets().map(([className, presetConfig], i) => {
                 return programClass === null || programClass === className
-                    ? <MenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</MenuAction>
+                    ? <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
                     : null;
             })}
         </>);
@@ -109,13 +109,13 @@ class Library {
             // if (programClass !== null && !library.supportsProgram(programClass))
             //     return null;
             return (
-                <MenuDropDown key={i++}
-                              options={() => {
+                <ASUIMenuDropDown key={i++}
+                                  options={() => {
                                   Library.lastSelectedLibrary = library;
                                   return onSelectLibraryOptions(library);
                               }}>
                     {library.getTitle()}
-                </MenuDropDown>
+                </ASUIMenuDropDown>
             );
         });
     }

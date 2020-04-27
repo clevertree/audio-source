@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Animated} from 'react-native';
 
 /** Div **/
+/** @deprecated **/
 class Div extends React.Component {
 
     render() {

@@ -1,8 +1,8 @@
 import React from 'react';
 
 import {
-    ButtonDropDown,
-    Div, MenuAction, MenuBreak,
+    ASUIButtonDropDown,
+    ASUIDiv, ASUIMenuAction, ASUIMenuBreak,
 } from "../../../../components";
 
 import {ProgramLoader, Library, Values} from "../../../../song";
@@ -24,8 +24,8 @@ class PolyphonyInstrumentRenderer extends React.Component {
 //         console.log('voices', voices);
         // Presets are handled by composer
         return (
-            <Div className="polyphony-instrument-renderer">
-                <Div className="voices">
+            <ASUIDiv className="polyphony-instrument-renderer">
+                <ASUIDiv className="voices">
                     {voices.map((voiceData, voiceID) => {
                         const [className, config] = voiceData;
                         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
@@ -36,15 +36,15 @@ class PolyphonyInstrumentRenderer extends React.Component {
                             config={config}
                         />
                     })}
-                </Div>
-                <ButtonDropDown
+                </ASUIDiv>
+                <ASUIButtonDropDown
                     title="Add new voice"
                     className="add-voice"
                     arrow={false}
                     options={() => this.renderMenuAddVoice()}>
                     +
-                </ButtonDropDown>
-            </Div>
+                </ASUIButtonDropDown>
+            </ASUIDiv>
         );
 
     }
@@ -96,8 +96,8 @@ class PolyphonyInstrumentRenderer extends React.Component {
     renderMenuAddVoice() {
         const library = Library.loadDefault();
         return (<>
-            <MenuAction disabled action={()=>{}}>Add new voice instrument</MenuAction>
-            <MenuBreak/>
+            <ASUIMenuAction disabled action={()=>{}}>Add new voice instrument</ASUIMenuAction>
+            <ASUIMenuBreak/>
             {library.songLengthAllPresets(([className, presetConfig]) => {
                 this.addVoice(className, presetConfig);
             })}

@@ -1,5 +1,5 @@
-import {MenuAction, MenuBreak, MenuDropDown} from "../../components/menu";
-import {InputRange} from "../../components";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
+import {ASUIInputRange} from "../../components";
 import ProgramLoader from "../program/ProgramLoader";
 import React from "react";
 
@@ -10,12 +10,12 @@ class Values {
     // TODO: move copy to SongValues
     static renderMenuSelectCommand(onSelectValue, keyboardOctave=null) {
         return (<>
-            <MenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, keyboardOctave)}           >By Frequency</MenuDropDown>
-            <MenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave)}              >By Octave</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</MenuDropDown>
-            <MenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</MenuDropDown>
-            <MenuAction onAction={async e => onSelectValue(await this.openPromptDialog("Insert custom command"))}      >Custom Command</MenuAction>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, keyboardOctave)}           >By Frequency</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave)}              >By Octave</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>
+            <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</ASUIMenuDropDown>
+            <ASUIMenuAction onAction={async e => onSelectValue(await this.openPromptDialog("Insert custom command"))}      >Custom Command</ASUIMenuAction>
         </>);
 
     }
@@ -24,7 +24,7 @@ class Values {
     // TODO: move copy to SongValues
     static renderMenuSelectCommandByNamed(onSelectValue) {
         return this.values.getAllNamedFrequencies((noteName, frequency, programID) =>
-            <MenuAction
+            <ASUIMenuAction
                 key={noteName}
                 onAction={e => onSelectValue(noteName)}
                 children={noteName}
@@ -37,13 +37,13 @@ class Values {
         return (<>
             {this.getAllSongGroups((trackName) =>
                 trackName === this.trackName ? null :
-                    <MenuAction
+                    <ASUIMenuAction
                         key={trackName}
                         disabled={trackName === this.state.selectedTrack}
                         onAction={e => onSelectValue('@' + trackName)}
-                    >{trackName}</MenuAction>
+                    >{trackName}</ASUIMenuAction>
             )}
-            <MenuAction onAction={onTrackAdd} hasBreak  >Create New Track</MenuAction>
+            <ASUIMenuAction onAction={onTrackAdd} hasBreak  >Create New Track</ASUIMenuAction>
         </>);
     }
 
@@ -58,53 +58,53 @@ class Values {
 
     static renderMenuSelectCommandByFrequency(onSelectValue, keyboardOctave=null) {
         return this.getNoteFrequencies((noteName) =>
-            <MenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, keyboardOctave)}>
+            <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, keyboardOctave)}>
                 {noteName}
-            </MenuDropDown>
+            </ASUIMenuDropDown>
         );
     }
 
     // TODO: move into lower menu?
     static renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, keyboardOctave=null) {
         return (<>
-            {keyboardOctave !== null ? <MenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{noteName+''+keyboardOctave} (Current)</MenuAction> : null}
+            {keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{noteName+''+keyboardOctave} (Current)</ASUIMenuAction> : null}
             {this.getNoteOctaves((octave) =>
-                <MenuAction key={octave} onAction={() => onSelectValue(noteName+''+octave)}>
+                <ASUIMenuAction key={octave} onAction={() => onSelectValue(noteName+''+octave)}>
                     {noteName+''+octave}
-                </MenuAction>
+                </ASUIMenuAction>
             )}
         </>)
     }
 
     static renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave=null) {
         return (<>
-            {keyboardOctave !== null ? <MenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>
+            {keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>
                 {keyboardOctave} (Current)
-            </MenuDropDown> : null}
+            </ASUIMenuDropDown> : null}
             {this.getNoteOctaves((octave) =>
-                <MenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}>
+                <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}>
                     {octave}
-                </MenuDropDown>
+                </ASUIMenuDropDown>
             )}
         </>)
     }
 
     static renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
         return this.getNoteFrequencies((noteName) =>
-            <MenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</MenuAction>
+            <ASUIMenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</ASUIMenuAction>
         );
     }
 
 
     static renderMenuSelectDuration(onSelectValue, currentDuration, timeDivision) {
         return (<>
-            <MenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</MenuDropDown>
-            <MenuDropDown options={() => renderMenuSelect('triplet')}   >Triplet</MenuDropDown>
-            <MenuDropDown options={() => renderMenuSelect('dotted')}    >Dotted</MenuDropDown>
-            <MenuBreak />
-            <MenuDropDown disabled options={() => renderMenuSelect('custom')}    >Custom</MenuDropDown>
+            <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => renderMenuSelect('triplet')}   >Triplet</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => renderMenuSelect('dotted')}    >Dotted</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown disabled options={() => renderMenuSelect('custom')}    >Custom</ASUIMenuDropDown>
         </>);
 
         function renderMenuSelect(key) {
@@ -113,33 +113,33 @@ class Values {
                 case 'fraction':
                     for (let i = 64; i > 1; i /= 2)
                         results.push(
-                            <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</MenuAction>
+                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</ASUIMenuAction>
                         );
                     for (let i = 1; i <= 16; i++)
                         results.push(
-                            <MenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</MenuAction>
+                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</ASUIMenuAction>
                         );
                     break;
 
                 case 'triplet':
                     for (let i = 64; i > 1; i /= 2)
                         results.push(
-                            <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</MenuAction>
+                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</ASUIMenuAction>
                         );
                     for (let i = 1; i <= 16; i++)
                         results.push(
-                            <MenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</MenuAction>
+                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</ASUIMenuAction>
                         );
                     break;
 
                 case 'dotted':
                     for (let i = 64; i > 1; i /= 2)
                         results.push(
-                            <MenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</MenuAction>
+                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</ASUIMenuAction>
                         );
                     for (let i = 1; i <= 16; i++)
                         results.push(
-                            <MenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</MenuAction>
+                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</ASUIMenuAction>
                         );
                     break;
 
@@ -156,26 +156,26 @@ class Values {
             onSelectValue(velocity);
         };
         return (<>
-            <MenuAction onAction={()=>{}} disabled>Set Velocity</MenuAction>
-            <InputRange
+            <ASUIMenuAction onAction={()=>{}} disabled>Set Velocity</ASUIMenuAction>
+            <ASUIInputRange
                 min={0}
                 max={127}
                 value={currentVelocity}
                 onChange={(e, mixerValue) => onSelectValue(mixerValue)}
             />
-            <MenuBreak/>
+            <ASUIMenuBreak/>
             {this.getNoteVelocities((velocity) =>
-                <MenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</MenuAction>)}
-            <MenuAction onAction={customAction} hasBreak >Custom</MenuAction>
+                <ASUIMenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</ASUIMenuAction>)}
+            <ASUIMenuAction onAction={customAction} hasBreak >Custom</ASUIMenuAction>
         </>);
     }
 
     /** @deprecated moved to Library **/
     static renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
         return (<>
-            {menuTitle ? <><MenuAction disabled onAction={() => {}}>{menuTitle}</MenuAction><MenuBreak/></> : null}
+            {menuTitle ? <><ASUIMenuAction disabled onAction={() => {}}>{menuTitle}</ASUIMenuAction><ASUIMenuBreak/></> : null}
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
-                <MenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</MenuAction>
+                <ASUIMenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</ASUIMenuAction>
             )}
         </>);
     }

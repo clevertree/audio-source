@@ -1,10 +1,10 @@
-import Player from "./Player";
-import PlayerActions from "./PlayerActions";
-import PlayerRenderer from "./PlayerRenderer";
-import PlayerMenu from "./PlayerMenu";
+import ASPlayer from "./ASPlayer";
+import ASPlayerActions from "./ASPlayerActions";
+import ASPlayerRenderer from "./ASPlayerRenderer";
+import ASPlayerMenu from "./ASPlayerMenu";
 export {
-    Player,
-    PlayerActions,
-    PlayerRenderer,
-    PlayerMenu
+    ASPlayer,
+    ASPlayerActions,
+    ASPlayerRenderer,
+    ASPlayerMenu
 }

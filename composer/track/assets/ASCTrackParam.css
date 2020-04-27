@@ -1,0 +1,53 @@
+
+
+
+/** ASCTrack Instruction Parameters **/
+
+div.asct-parameter {
+    position: relative;
+}
+
+div.asct-parameter.program,
+div.asct-parameter.velocity,
+div.asct-parameter.duration {
+    /*overflow: hidden;*/
+    border-left: 1px solid #888;
+    /*animation: slide-open 1s;*/
+}
+
+@keyframes slide-open {
+    0% { max-width: 0px; }
+    100% { max-width: 99px; }
+}
+
+div.asct-parameter.command {
+    color: darkred;
+}
+div.asct-parameter.program {
+    color: darkblue;
+}
+div.asct-parameter.duration {
+    color: purple;
+}
+div.asct-parameter.velocity {
+    color: green;
+}
+
+div.asct-parameter.command,
+div.asct-parameter.program,
+div.asct-parameter.velocity,
+div.asct-parameter.duration {
+    /*overflow: hidden;*/
+    padding: 0px 2px;
+}
+
+
+
+/*asc-track > div.selection-rect {*/
+/*    z-index: 99;*/
+/*    position: fixed;*/
+/*    border: 1px outset #00F;*/
+/*    border-radius: 4px;*/
+/*    background-color: #00F4;*/
+/*    box-shadow:  1px 1px 4px #777;*/
+/*}*/
