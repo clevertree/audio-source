@@ -1,4 +1,4 @@
-export default class ASCTrackState {
+export default class ActiveTrackState {
     static DEFAULT_ROW_LENGTH = 16;
     static DEFAULT_SEGMENT_LENGTH = 16;
 
@@ -29,7 +29,7 @@ export default class ASCTrackState {
     get currentVelocity() { return this.state.currentVelocity || null; }
 
     get destinationList() { return this.state.destinationList || []; }
-    get rowLength() { return this.state.rowLength || ASCTrackState.DEFAULT_ROW_LENGTH; }
+    get rowLength() { return this.state.rowLength || ActiveTrackState.DEFAULT_ROW_LENGTH; }
     get rowOffset() { return this.state.rowOffset || 0; }
     get segmentCount() { return this.state.segmentCount || 3; }
     get startPosition() { return this.state.startPosition || 0; }

@@ -4,7 +4,7 @@ import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../son
 import ASComposerMenu from "./ASComposerMenu";
 import {ASUIDiv} from "../components";
 import Values from "../song/values/Values";
-import ASCTrackState from "./track/ASCTrackState";
+import ActiveTrackState from "./track/ActiveTrackState";
 
 // import {TrackInfo} from "./track/";
 
@@ -278,7 +278,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Instruction Modification **/
 
     async instructionInsertPrompt(newCommand = null, trackName = null, promptUser = false) {
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         if (newCommand === null)
             newCommand = trackState.currentCommand;
         newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
@@ -288,7 +288,7 @@ class ASComposerActions extends ASComposerMenu {
     instructionInsert(newCommand = null, trackName = null) {
         // const activeTracks = {...this.state.activeTracks};
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         // if (programID !== null)
         //     newInstruction.program = programID;
 
@@ -328,7 +328,7 @@ class ASComposerActions extends ASComposerMenu {
     instructionReplaceCommandSelected(newCommand, trackName=null, selectedIndices=null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
 
@@ -352,7 +352,7 @@ class ASComposerActions extends ASComposerMenu {
     async instructionReplaceDurationSelected(duration = null, trackName = null, selectedIndices = null, promptUser = false) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
 
@@ -377,7 +377,7 @@ class ASComposerActions extends ASComposerMenu {
 
     async instructionReplaceVelocityPrompt(velocity = null, trackName = null, selectedIndices = null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", trackState.currentVelocity));
         return this.instructionReplaceVelocitySelected(velocity, trackName, selectedIndices);
     }
@@ -385,7 +385,7 @@ class ASComposerActions extends ASComposerMenu {
     instructionReplaceVelocitySelected(velocity = null, trackName = null, selectedIndices = null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
 
@@ -405,7 +405,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionDeleteSelected(trackName=null, selectedIndices=null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
 
@@ -449,12 +449,12 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackerPlaySelected(trackName=null, stopPlayback=true) {
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         return this.trackerPlay(trackName, trackState.selectedIndices, stopPlayback);
     }
 
     trackerPlay(trackName, selectedIndices, stopPlayback=true) {
-        const trackState = new ASCTrackState(this, trackName);
+        // const trackState = new ActiveTrackState(this, trackName);
 
 
         const song = this.getSong();
@@ -473,7 +473,7 @@ class ASComposerActions extends ASComposerMenu {
         // if(stopPlayback)
         //     song.programLoader.stopAllPlayback();
 
-        song.playSelectedInstructions(selectedIndices);
+        song.playSelectedInstructions(destination, trackName, selectedIndices);
     }
 
 
@@ -577,9 +577,10 @@ class ASComposerActions extends ASComposerMenu {
 
     async trackerUpdateSegmentLength(trackName) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        // const trackState = new ActiveTrackState(this, trackName);
         const iterator = this.trackerGetIterator(trackName);
         iterator.seekToEnd();
+        // TODO: finish
         // const segmentLengthInRows = trackState.rowLength || ASCTrack.DEFAULT_SEGMENT_LENGTH;
         // const segmentCount = Math.ceil(iterator.rowCount / segmentLengthInRows) + 1;
         // console.log('segmentCount', {segmentCount, segmentLengthInRows, rowCount: iterator.rowCount});
@@ -594,7 +595,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Selection **/
 
     trackerGetIterator(trackName=null) {
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         return this.getSong().instructionGetIterator(
             trackName,
             trackState.timeDivision, // || this.getSong().data.timeDivision,
@@ -603,7 +604,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     trackerGetQuantizedIterator(trackName=null) {
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         return this.getSong().instructionGetQuantizedIterator(
             trackName,
             trackState.quantizationTicks,
@@ -614,7 +615,7 @@ class ASComposerActions extends ASComposerMenu {
 
     trackerGetCursorInfo(trackName=null, cursorOffset=null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
         const iterator = this.trackerGetQuantizedIterator(trackName);
         let cursorIndex = null;
@@ -663,7 +664,7 @@ class ASComposerActions extends ASComposerMenu {
     async trackerSelectIndicesPrompt(trackName=null) {
         if(trackName === null)
             trackName = this.state.selectedTrack;
-        const trackState = new ASCTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         let selectedIndices = (trackState.selectedIndices || []).join(', ');
         selectedIndices = await this.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
         this.trackerSelectIndices(trackName, selectedIndices);

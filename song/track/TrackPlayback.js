@@ -1,34 +1,50 @@
 import TrackIterator from "./TrackIterator";
-import {NoteInstruction} from "../instruction";
+import {Instruction, NoteInstruction} from "../instruction";
 
 
 export default class TrackPlayback extends TrackIterator {
-    constructor(destination, song, startingTrackName = null, startTime = null, onEvent=null) {
+    constructor(song, startingTrackName = null, onEvent=null) {
         super(song.data.tracks,
             startingTrackName || song.getStartTrackName(),
             song.data.beatsPerMinute,
             song.data.timeDivision)
 
-        if (!destination || !destination.context)
-            throw new Error("Invalid destination");
-        this.audioContext = destination.context;
 
-        if(startTime === null)
-            startTime = destination.context.currentTime;
-        this.startTime = this.audioContext.currentTime - startTime;
 
         this.onEvent = onEvent;
 
         this.song = song;
         this.seekLength = 10;
         this.active = true;
-        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
 
         this.playTrackInstructionCallback = this.playTrackInstruction.bind(this);
+
+    }
+
+    addInstructionFilter(filterCallback) {
+        const oldCallback = this.playTrackInstructionCallback;
+        this.playTrackInstructionCallback = function(instruction, trackStats) {
+            instruction = filterCallback(instruction, trackStats)
+            if(instruction instanceof Instruction)
+                oldCallback(instruction, trackStats);
+        }
+    }
+
+    play(destination, startTime=null) {
+        if (!destination || !destination.context)
+            throw new Error("Invalid destination");
+        this.audioContext = destination.context;
+        this.destination = destination;
+
+        if(startTime === null)
+            startTime = this.audioContext.currentTime;
+        this.startTime = startTime; // this.audioContext.currentTime
+
+        this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
         this.renderPlayback();
     }
@@ -70,9 +86,10 @@ export default class TrackPlayback extends TrackIterator {
         if(typeof trackStats.program === "undefined")
             return console.error("ASCTrack has no program set: ", trackStats);
         if(instruction instanceof NoteInstruction) {
+            const destination = trackStats.destination || this.destination;
             const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // ASCTrack start time equals current track's start + playback times
             if(noteStartTime > 0) {
-                this.song.playInstruction(trackStats.destination, instruction, trackStats.program, noteStartTime, trackStats.trackName);
+                this.song.playInstruction(destination, instruction, trackStats.program, noteStartTime, trackStats.trackName);
             }
         }
     }

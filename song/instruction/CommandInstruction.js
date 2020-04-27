@@ -33,13 +33,19 @@ class CommandInstruction extends Instruction {
         switch(command) {
             case 'program':      // Set Program (can be changed many times per track)
             case 'p':
-                let programInstance = this.loadProgramFromParams(trackStats.program, song);
+                const oldProgram = trackStats.program;
+                const oldDestination = trackStats.destination;
+                let programInstance = this.loadProgramFromParams(song);
                 trackStats.program = programInstance;
 
-                // getDestination allows for audio processing (i.e. effects)
-                if(typeof programInstance.getDestination !== 'function') {
-                    trackStats.destination = programInstance.getDestination(trackStats.destination);
-                }
+                // useDestination allows for audio processing (i.e. effects)
+                if(typeof programInstance.useDestination === 'function')
+                    trackStats.destination = programInstance.useDestination(oldDestination);
+
+                // useProgram allows for both note processing and audio processing effects
+                if(typeof programInstance.useProgram === 'function')
+                    programInstance.useProgram(oldProgram);
+
                 break;
 
             // case 'destination':     // Append destination (does not handle note processing)

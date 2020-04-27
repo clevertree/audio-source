@@ -128,6 +128,10 @@ export default class TrackIterator {
         // console.log("Note Playback: ", instruction, callback);
     }
 
+
+    /** Seeking **/
+
+
     seekToEnd(callback=null, seekLength=1) {
         let seekPosition=0, finished = false;
         while(!finished) {
@@ -141,7 +145,8 @@ export default class TrackIterator {
         let finished = true;
         for(let i=0; i<this.activeTracks.length; i++) {
             const trackStats = this.activeTracks[i];
-            const iterator = trackStats.iterator;
+            const {iterator, startPosition} = trackStats;
+            positionSeconds -= startPosition;
             if(!iterator.hasReachedEnd()) {
                 iterator.seekToPosition(positionSeconds, (instruction) => {
                     this.processInstruction(instruction, trackStats, callback);
@@ -151,6 +156,14 @@ export default class TrackIterator {
             }
         }
         return finished;
+    }
+
+    seekToStartingTrackIndex(index, callback=null) {
+        const trackStats = this.activeTracks[0];
+        const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
+        iterator.seekToIndex(index, callback);
+        const startPosition = iterator.positionSeconds;
+        this.seekToPosition(startPosition, callback);
     }
 
     // seekToPositionTicks(positionTicks, callback=null) {

@@ -113,8 +113,8 @@ class InstructionIterator {
     seekToIndex(index, callback=null) {
         if (!Number.isInteger(index))
             throw new Error("Invalid seek index");
-        while (true) {
-            if (index === this.currentIndex)
+        while (!this.hasReachedEnd()) {
+            if (index <= this.currentIndex + 1)
                 break;
             if (!this.nextInstruction(callback))
                 break;

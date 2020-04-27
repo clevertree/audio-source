@@ -6,11 +6,10 @@ import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
-import {Instruction, InstructionIterator, QuantizedInstructionIterator, InstructionPlayback} from "./instruction/";
+import {Instruction, InstructionIterator, QuantizedInstructionIterator} from "./instruction/";
 
 
 import ProgramList from "../programs";
-import TrackInstruction from "./instruction/TrackInstruction";
 import Values from "./values/Values";
 import TrackIterator from "./track/TrackIterator";
 import TrackPlayback from "./track/TrackPlayback";
@@ -230,15 +229,15 @@ class Song {
         return !!this.data.programs[programID];
     }
 
-    playProgram(destination, programID, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
-        if (!programID && programID !== 0)
-            throw new Error("Invalid program ID");
+    playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
+        // if (!programID && programID !== 0)
+        //     throw new Error("Invalid program ID");
         // if (!programID && programID !== 0) {
         //     console.warn("No programs set for instruction. Using programs 0");
         //     programID = 0;
         //     // return;
         // }
-        let program = this.programLoader.loadInstanceFromID(programID);
+        // let program = this.programLoader.loadInstanceFromID(programID);
         // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(typeof noteFrequency === "string")
             noteFrequency = Values.parseFrequencyString(noteFrequency);
@@ -741,8 +740,9 @@ class Song {
 
         // await this.init(audioContext);
         console.log("Start playback:", this.playbackPosition);
-        const playback = new TrackPlayback(destination, this, this.getStartTrackName(), this.playbackPosition);
+        const playback = new TrackPlayback(this, this.getStartTrackName());
         this.playback = playback;
+        playback.play(destination, this.playbackPosition)
 
         this.dispatchEvent({
             type: 'song:play',
@@ -824,10 +824,22 @@ class Song {
 
 
     playSelectedInstructions(destination, trackName, selectedIndices) {
-        // TODO: TrackIterator find first index start point
-        const playback = new TrackPlayback(destination, this, trackName);
-        playback.seekToIndex(selectedIndices[0])
-        // TODO: TrackPlayback with selective callback
+        // TrackIterator find playback position of first index start point
+        const playback = new TrackPlayback(this, trackName);
+        playback.seekToStartingTrackIndex(selectedIndices[0])
+        playback.addInstructionFilter(function(instruction, trackStats) {
+            if(trackStats.trackName !== trackName)
+                return null;
+            const index = trackStats.iterator.currentIndex;
+            for(let i=0; i<selectedIndices.length; i++)
+                if(selectedIndices[i] === index) {
+                    console.log("Playing instruction ", index, instruction);
+                    return instruction;
+                }
+            // console.log("Skipping instruction ", index, instruction);
+        })
+        // TrackPlayback with selective callback
+        playback.play(destination);
 
         // for(let i=0; i<selectedIndices.length; i++) {
         //     const selectedIndex = selectedIndices[i];
@@ -837,15 +849,15 @@ class Song {
 
     }
 
-    playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {
-        const instruction = this.instructionGetByIndex(trackName, instructionIndex, false);
-        if (instruction)
-            this.playInstruction(instruction, noteStartTime);
-        else
-            console.warn("No instruction at index");
-    }
+    // playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {
+    //     const instruction = this.instructionGetByIndex(trackName, instructionIndex, false);
+    //     if (instruction)
+    //         this.playInstruction(instruction, noteStartTime);
+    //     else
+    //         console.warn("No instruction at index");
+    // }
 
-    playInstruction(destination, instruction, programID, noteStartTime = null) {
+    playInstruction(destination, instruction, program, noteStartTime = null) {
         const audioContext = this.audioContext;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
@@ -874,7 +886,7 @@ class Song {
             noteStartTime = currentTime;
 
 
-        this.playProgram(destination, programID, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+        this.playProgram(destination, program, instruction.command, noteStartTime, noteDuration, instruction.velocity);
         // Wait for note to start
         // if (noteStartTime > currentTime) {
         //     await this.wait(noteStartTime - currentTime);

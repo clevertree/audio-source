@@ -6,7 +6,7 @@ import {ASCTrackInstruction, ASCTrackRow} from "./";
 import {ASUIButton, ASUIButtonDropDown, ASUIPanel} from "../../components/";
 
 import "./assets/ASCTrack.css";
-import ASCTrackState from "./ASCTrackState";
+import ActiveTrackState from "./ActiveTrackState";
 
 class ASCTrack extends React.Component {
     /** Default Properties **/
@@ -65,7 +65,7 @@ class ASCTrack extends React.Component {
     getSong()                   { return this.props.composer.song; }
 
     getTrackName()              { return this.props.trackName; }
-    getTrackState()             { return new ASCTrackState(this.props.composer, this.props.trackName); }
+    getTrackState()             { return new ActiveTrackState(this.props.composer, this.props.trackName); }
     // getDestinationList()        { return this.getTrackState().destinationList; }
     // getSelectedIndices()        { return this.getTrackState().selectedIndices; }
     // getCursorOffset()           { return this.getTrackState().cursorOffset; }

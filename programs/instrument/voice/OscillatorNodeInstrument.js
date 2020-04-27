@@ -9,7 +9,7 @@ class OscillatorNodeInstrument {
 
     /** Effect **/
 
-    getDestination(oldDestination) {
+    useDestination(oldDestination) {
         return null; // Null is no effect processing
     }
 
