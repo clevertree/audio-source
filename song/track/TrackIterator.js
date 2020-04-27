@@ -47,7 +47,7 @@ export default class TrackIterator {
         this.activeTracks.push(trackStats);
     }
 
-
+    /** @deprecated **/
     getPositionInSeconds() {
         let totalPositionSeconds = 0;
         for(let i=0; i<this.activeTracks.length; i++) {

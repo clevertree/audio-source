@@ -114,7 +114,7 @@ class InstructionIterator {
         if (!Number.isInteger(index))
             throw new Error("Invalid seek index");
         while (!this.hasReachedEnd()) {
-            if (index <= this.currentIndex + 1)
+            if (index <= this.currentIndex)
                 break;
             if (!this.nextInstruction(callback))
                 break;
@@ -127,13 +127,22 @@ class InstructionIterator {
     }
 
     seekToPosition(positionSeconds, callback=null) {
-        while (!this.hasReachedEnd() && this.positionSeconds < positionSeconds) {
+        while (!this.hasReachedEnd()) {
+            const nextInstruction = this.getInstruction(this.currentIndex + 1);
+            const elapsedTime = (nextInstruction.deltaDurationTicks / this.timeDivision) / (this.bpm / 60);
+            if(this.positionSeconds + elapsedTime >= positionSeconds) {
+                break;
+            }
             this.nextInstruction(callback);
         }
     }
 
     seekToPositionTicks(positionTicks, callback=null) {
-        while (!this.hasReachedEnd() && this.positionTicks < positionTicks) {
+        while (!this.hasReachedEnd() && this.positionTicks <= positionTicks) {
+            const nextInstruction = this.getInstruction(this.currentIndex + 1);
+            if(this.positionTicks + nextInstruction.deltaDurationTicks > positionTicks) {
+                break;
+            }
             this.nextInstruction(callback);
         }
     }

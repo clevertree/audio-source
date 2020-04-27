@@ -28,37 +28,58 @@ export default class TrackPlayback extends TrackIterator {
     addInstructionFilter(filterCallback) {
         const oldCallback = this.playTrackInstructionCallback;
         this.playTrackInstructionCallback = function(instruction, trackStats) {
-            instruction = filterCallback(instruction, trackStats)
-            if(instruction instanceof Instruction)
-                oldCallback(instruction, trackStats);
+            instruction = filterCallback(instruction, trackStats);
+            if(!instruction)
+                return;
+            if(!instruction instanceof Instruction)
+                throw new Error("Invalid Instruction");
+            oldCallback(instruction, trackStats);
         }
     }
 
-    play(destination, startTime=null) {
+    play(destination, startPosition=null) {
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
         this.audioContext = destination.context;
         this.destination = destination;
 
-        if(startTime === null)
-            startTime = this.audioContext.currentTime;
-        this.startTime = startTime; // this.audioContext.currentTime
+        this.startTime = this.audioContext.currentTime; // this.audioContext.currentTime
 
         this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
+        if(startPosition !== null) {
+            this.seekToPosition(startPosition);
+            this.startTime -= startPosition;
+        }
         this.renderPlayback();
     }
 
-    getPositionInSeconds() {
-        return this.audioContext.currentTime - this.startTime;
+
+    playAtStartingTrackIndex(destination, index, callback=null) {
+        const trackStats = this.activeTracks[0];
+        const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
+        iterator.seekToIndex(index, callback);
+        const startPosition = iterator.positionSeconds;
+        this.play(destination, startPosition);
+        console.log('playAtStartingTrackIndex', index, startPosition);
+        // this.seekToPosition(startPosition, callback);
     }
+
+    getPlaybackPosition() {
+        return this.audioContext.currentTime - this.startTime;
+
+    }
+
+    // getPositionInSeconds() {
+    //     return this.startTime;
+    // }
 
     async awaitPlaybackReachedEnd() {
         return await this.endPromise;
     }
 
     renderPlayback() {
-        const currentPositionSeconds = this.getPositionInSeconds(); // this.audioContext.currentTime - this.startTime;
+        const currentPositionSeconds = this.getPlaybackPosition();
 
         if(!this.active || this.hasReachedEnd()) {
             clearInterval(this.seekInterval);

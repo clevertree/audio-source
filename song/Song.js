@@ -825,8 +825,10 @@ class Song {
 
     playSelectedInstructions(destination, trackName, selectedIndices) {
         // TrackIterator find playback position of first index start point
+        if(this.playback)
+            this.stopPlayback();
         const playback = new TrackPlayback(this, trackName);
-        playback.seekToStartingTrackIndex(selectedIndices[0])
+        this.playback = playback;
         playback.addInstructionFilter(function(instruction, trackStats) {
             if(trackStats.trackName !== trackName)
                 return null;
@@ -839,7 +841,9 @@ class Song {
             // console.log("Skipping instruction ", index, instruction);
         })
         // TrackPlayback with selective callback
-        playback.play(destination);
+        playback.playAtStartingTrackIndex(destination, selectedIndices[0])
+        // playback.play(destination);
+
 
         // for(let i=0; i<selectedIndices.length; i++) {
         //     const selectedIndex = selectedIndices[i];
