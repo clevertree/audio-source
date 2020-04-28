@@ -851,7 +851,8 @@ class Song {
             // console.log("Skipping instruction ", index, instruction);
         })
         // TrackPlayback with selective callback
-        playback.playAtStartingTrackIndex(destination, selectedIndices[0])
+        if(selectedIndices.length > 0)
+            playback.playAtStartingTrackIndex(destination, selectedIndices[0])
         // playback.play(destination);
 
 

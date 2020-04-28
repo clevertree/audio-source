@@ -176,6 +176,9 @@ export default class ASComposer extends ASComposerActions {
                 this.setStatus(e.detail);
                 break;
 
+            case 'track:start':
+            case 'track:end':
+                break;
 
             case 'instruction:play':
             case 'instruction:stop':

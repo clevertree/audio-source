@@ -1,9 +1,9 @@
 import Instruction from "./Instruction";
 
 class InstructionIterator {
-    constructor(instructionList, timeDivision, bpm) {
+    constructor(instructionList, timeDivision, beatsPerMinute) {
         this.instructions = instructionList;
-        this.bpm = bpm;
+        this.beatsPerMinute = beatsPerMinute;
         this.timeDivision = timeDivision;
 
         this.currentIndex = -1; // TODO: rename to index?
@@ -30,7 +30,7 @@ class InstructionIterator {
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDurationTicks;
         this.lastInstructionPositionInTicks = this.positionTicks;
 
-        const elapsedTime = (deltaDurationTicks / this.timeDivision) / (this.bpm / 60);
+        const elapsedTime = (deltaDurationTicks / this.timeDivision) / (this.beatsPerMinute / 60);
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
         this.lastInstructionPositionInSeconds = this.positionSeconds;
 
@@ -40,7 +40,7 @@ class InstructionIterator {
             const trackEndPositionInTicks = this.positionTicks + durationTicks;
             if (trackEndPositionInTicks > this.endPositionTicks)
                 this.endPositionTicks = trackEndPositionInTicks;
-            const trackPlaybackEndTime = this.positionSeconds + (durationTicks / this.timeDivision) / (this.bpm / 60);
+            const trackPlaybackEndTime = this.positionSeconds + (durationTicks / this.timeDivision) / (this.beatsPerMinute / 60);
             if (trackPlaybackEndTime > this.endPositionSeconds)
                 this.endPositionSeconds = trackPlaybackEndTime;
 
@@ -129,7 +129,7 @@ class InstructionIterator {
     seekToPosition(positionSeconds, callback=null) {
         while (!this.hasReachedEnd()) {
             const nextInstruction = this.getInstruction(this.currentIndex + 1);
-            const elapsedTime = (nextInstruction.deltaDurationTicks / this.timeDivision) / (this.bpm / 60);
+            const elapsedTime = (nextInstruction.deltaDurationTicks / this.timeDivision) / (this.beatsPerMinute / 60);
             if(this.positionSeconds + elapsedTime >= positionSeconds) {
                 break;
             }

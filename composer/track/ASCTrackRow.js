@@ -39,7 +39,7 @@ class ASCTrackRow extends React.Component {
     render() {
         let className = "asct-row";
         if(this.props.highlight)
-            className += ' highlight';
+            className += ` ${this.props.highlight}`; // ' highlight';
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (

@@ -1,6 +1,7 @@
 export default class ActiveTrackState {
     static DEFAULT_ROW_LENGTH = 16;
     static DEFAULT_SEGMENT_LENGTH = 16;
+    static DEFAULT_BEATS_PER_MEASURE = 4;
 
     constructor(composer, trackName=null) {
         if(trackName === null)
@@ -17,7 +18,7 @@ export default class ActiveTrackState {
     get quantizationTicks() { return this.state.quantizationTicks || this.timeDivision; }
 
     get beatsPerMinute() { return this.state.beatsPerMinute || this.composer.song.data.beatsPerMinute; }
-    get beatsPerMeasure() { return this.state.beatsPerMeasure || this.composer.song.data.beatsPerMeasure; }
+    get beatsPerMeasure() { return this.state.beatsPerMeasure || this.composer.song.data.beatsPerMeasure || ActiveTrackState.DEFAULT_BEATS_PER_MEASURE; }
 
     get programID() { return this.state.programID; }
 

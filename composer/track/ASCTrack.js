@@ -213,7 +213,7 @@ class ASCTrack extends React.Component {
         return buttons;
     }
 
-
+    // TODO: beats/measures/segments
     renderRowContent() {
         const trackState = this.getTrackState();
         const songPosition = this.getComposer().state.songPosition;
@@ -224,12 +224,19 @@ class ASCTrack extends React.Component {
         // console.time('ASCTrack.renderRowContent()');
         const selectedIndices = trackState.selectedIndices;
         const playingIndices = trackState.playingIndices;
-        // console.log('playingIndices', playingIndices);
+        const beatsPerMeasureTicks = trackState.beatsPerMeasure * trackState.timeDivision;
+        // console.log('beatsPerMeasureTicks', beatsPerMeasureTicks);
+
+
+        // Get Iterator
+        const iterator = this.getSong().instructionGetQuantizedIterator(
+            this.getTrackName(),
+            this.getQuantizationInTicks(),
+            trackState.timeDivision, // || this.getSong().data.timeDivision,
+            trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
+        )
 
         const rowContent = [];
-
-        const iterator = this.instructionGetQuantizedIterator();
-        // let cursorPosition = 0, rowCount = 0; // , lastPositionTicks = 0;
         let rowInstructionElms = [];
         while(iterator.nextQuantizedInstructionRow(() => {
             if(iterator.rowCount < trackState.rowOffset)
@@ -241,9 +248,11 @@ class ASCTrack extends React.Component {
             }
 
             let highlight = false;
+            if(iterator.positionTicks % beatsPerMeasureTicks === 0)
+                highlight = 'measure-start';
             if(!trackSongPositionFound && trackSongPosition <= iterator.positionSeconds) {
                 trackSongPositionFound = true;
-                highlight = true;
+                highlight = 'position';
             }
             const newRowElm = <ASCTrackRow
                 key={iterator.rowCount}
