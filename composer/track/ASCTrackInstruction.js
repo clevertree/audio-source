@@ -56,6 +56,8 @@ class ASCTrackInstruction extends React.Component {
             className += ' cursor';
         if(this.props.selected)
             className += ' selected';
+        if(this.props.playing)
+            className += ' playing';
 
         const parameters = [];
 

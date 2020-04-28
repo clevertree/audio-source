@@ -223,6 +223,8 @@ class ASCTrack extends React.Component {
 
         // console.time('ASCTrack.renderRowContent()');
         const selectedIndices = trackState.selectedIndices;
+        const playingIndices = trackState.playingIndices;
+        // console.log('playingIndices', playingIndices);
 
         const rowContent = [];
 
@@ -268,6 +270,7 @@ class ASCTrack extends React.Component {
                 cursorPosition={iterator.cursorPosition}
                 cursor={iterator.cursorPosition === trackState.cursorOffset}
                 selected={selectedIndices.indexOf(index) !== -1}
+                playing={playingIndices.indexOf(index) !== -1}
             />)
 
         })) {

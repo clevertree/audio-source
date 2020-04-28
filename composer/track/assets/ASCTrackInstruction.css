@@ -43,7 +43,7 @@ div.asc-track.selected div.asct-instruction.cursor {
 }
 
 
-
+/** Playing **/
 div.asct-instruction.playing {
   font-weight: bold;
   background-color: #80d55c;

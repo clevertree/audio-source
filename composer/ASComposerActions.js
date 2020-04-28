@@ -11,7 +11,6 @@ import ActiveTrackState from "./track/ActiveTrackState";
 class ASComposerActions extends ASComposerMenu {
     constructor(state = {}, props = {}) {
         super(state, props);
-        this.onSongEventCallback = (e) => this.onSongEvent(e);
     }
 
     setStatus(newStatus) {
@@ -538,7 +537,7 @@ class ASComposerActions extends ASComposerMenu {
             if(trackData.destinationList)
                 selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
             else
-                selectedTrack = this.getSong.getStartTrackName();
+                selectedTrack = this.getSong().getStartTrackName();
             await this.updateState(state => {
                 state.selectedTrack = selectedTrack;
                 delete state.activeTracks[trackName];

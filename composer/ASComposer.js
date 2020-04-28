@@ -5,6 +5,7 @@ import {
     Keyboard,
     Library}          from "../song";
 import ASComposerActions from "./ASComposerActions";
+import ActiveTrackState from "./track/ActiveTrackState";
 
 export default class ASComposer extends ASComposerActions {
     constructor(props={}) {
@@ -26,6 +27,7 @@ export default class ASComposer extends ASComposerActions {
         // this.onSongEvent = (e) => this.onSongEvent(e);
         window.addEventListener('unload', e => this.saveState(e));
 
+        this.onSongEventCallback = (e) => this.onSongEvent(e);
         this.onResizeCallback = e => this.onResize(e);
     }
 
@@ -168,10 +170,21 @@ export default class ASComposer extends ASComposerActions {
     /** Song Events **/
 
     async onSongEvent(e) {
-//         console.log("Song Event: ", e.type);
+        // console.log("Song Event: ", e.type);
         switch (e.type) {
             case 'log':
                 this.setStatus(e.detail);
+                break;
+
+
+            case 'instruction:play':
+            case 'instruction:stop':
+                // console.log(e.type, e.playingIndices);
+                const trackState = new ActiveTrackState(this, e.trackStats.trackName);
+                await trackState.update(state => {
+                    state.playingIndices = e.playingIndices;
+                })
+                // this.forceUpdate();
                 break;
 
             case 'song:seek':

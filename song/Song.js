@@ -125,6 +125,8 @@ class Song {
 
         this.loadSongData(songData);
         this.programLoadAll(audioContext.destination);
+
+        this.dispatchEventCallback = e => this.dispatchEvent(e);
     }
 
     /** @deprecated? **/
@@ -748,7 +750,7 @@ class Song {
         if(startPosition === null)
             startPosition = this.playbackPosition;
         console.log("Start playback:", startPosition);
-        const playback = new TrackPlayback(this, this.getStartTrackName());
+        const playback = new TrackPlayback(this, this.getStartTrackName(), this.dispatchEventCallback);
         this.playback = playback;
         playback.play(destination, startPosition)
 
@@ -835,7 +837,7 @@ class Song {
         // TrackIterator find playback position of first index start point
         if(this.playback)
             this.stopPlayback();
-        const playback = new TrackPlayback(this, trackName);
+        const playback = new TrackPlayback(this, trackName, this.dispatchEventCallback);
         this.playback = playback;
         playback.addInstructionFilter(function(instruction, trackStats) {
             if(trackStats.trackName !== trackName)
@@ -843,7 +845,7 @@ class Song {
             const index = trackStats.iterator.currentIndex;
             for(let i=0; i<selectedIndices.length; i++)
                 if(selectedIndices[i] === index) {
-                    console.log("Playing instruction ", index, instruction);
+                    // console.log("Playing instruction ", index, instruction);
                     return instruction;
                 }
             // console.log("Skipping instruction ", index, instruction);

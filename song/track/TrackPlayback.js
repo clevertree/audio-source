@@ -1,5 +1,6 @@
 import TrackIterator from "./TrackIterator";
 import {Instruction, NoteInstruction} from "../instruction";
+import ActiveTrackState from "../../composer/track/ActiveTrackState";
 
 
 export default class TrackPlayback extends TrackIterator {
@@ -7,11 +8,8 @@ export default class TrackPlayback extends TrackIterator {
         super(song.data.tracks,
             startingTrackName || song.getStartTrackName(),
             song.data.beatsPerMinute,
-            song.data.timeDivision)
-
-
-
-        this.onEvent = onEvent;
+            song.data.timeDivision,
+            onEvent)
 
         this.song = song;
         this.seekLength = 10;
@@ -29,7 +27,7 @@ export default class TrackPlayback extends TrackIterator {
         super.startTrackIteration(trackStats)
         if(!trackStats.playingIndices)
             trackStats.playingIndices = [];
-        this.onEvent && this.onEvent({
+        this.onEvent({
             type: 'track:start',
             playback: this,
             trackStats
@@ -72,7 +70,7 @@ export default class TrackPlayback extends TrackIterator {
         iterator.seekToIndex(index, callback);
         const startPosition = iterator.positionSeconds;
         this.play(destination, startPosition);
-        console.log('playAtStartingTrackIndex', index, startPosition);
+        // console.log('playAtStartingTrackIndex', index, startPosition);
         // this.seekToPosition(startPosition, callback);
     }
 
@@ -123,16 +121,32 @@ export default class TrackPlayback extends TrackIterator {
             if(noteStartTime > 0) {
                 const noteIndex = trackStats.iterator.currentIndex;
                 const playingIndices = trackStats.playingIndices;
+                const onEvent = this.onEvent;
                 this.song.playInstruction(destination, instruction, trackStats.program, noteStartTime,
-                    function() {
+                    () => {
                         if(playingIndices.indexOf(noteIndex) === -1) {
                             playingIndices.push(noteIndex);
-                            console.log('playingIndices.push', playingIndices);
+                            // console.log('playingIndices.push', playingIndices);
+
+                            onEvent({
+                                type: 'instruction:play',
+                                playback: this,
+                                playingIndices,
+                                trackStats
+                            });
                         }
                     },
-                    function() {
+                    () => {
                         playingIndices.splice(playingIndices.indexOf(noteIndex), 1);
-                        console.log('playingIndices.splice', playingIndices);
+                        // console.log('playingIndices.splice', playingIndices);
+                        onEvent({
+                            type: 'instruction:stop',
+                            playback: this,
+                            playingIndices,
+                            trackStats
+                        });
+
+
                     });
             }
         }

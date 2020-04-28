@@ -4,10 +4,12 @@ import {InstructionIterator} from "../instruction";
 
 
 export default class TrackIterator {
-    constructor(tracks, startingTrackName, startingBeatsPerMinute, startingTimeDivision) {
+    constructor(tracks, startingTrackName, startingBeatsPerMinute, startingTimeDivision, onEvent=null) {
         this.tracks = tracks;
         if (!this.tracks[startingTrackName])
             throw new Error("Invalid instruction track: " + startingTrackName);
+
+        this.onEvent = onEvent || function() {};
 
         // this.onEvent = onEvent;
         this.positionSeconds = 0;

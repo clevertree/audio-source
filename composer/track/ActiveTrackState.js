@@ -23,6 +23,7 @@ export default class ActiveTrackState {
 
     get selectedIndices() { return this.state.selectedIndices || []; }
     get cursorOffset() { return this.state.cursorOffset || 0; }
+    get playingIndices() { return this.state.playingIndices || []; }
 
     get currentCommand() { return this.state.currentCommand || 'C4'; }
     get currentDuration() { return this.state.currentDuration || '1B'; }
@@ -37,9 +38,9 @@ export default class ActiveTrackState {
     async update(newState) {
         await this.composer.updateState(state => {
             if(typeof newState === "function")
-                newState = newState();
+                newState(state.activeTracks[this.trackName]);
 
-            state.activeTracks[this.trackName] = newState;
+            // state.activeTracks[this.trackName] = newState;
             return state;
         })
     }

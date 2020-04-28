@@ -64,8 +64,8 @@ class ASComposerRenderer extends React.Component {
     render() {
         const selectedTrackName = this.state.selectedTrack;
         const trackState = this.state.activeTracks[selectedTrackName];
-        const selectedIndices = trackState.selectedIndices || [];
         // console.log('trackState', trackState);
+        const selectedIndices = trackState.selectedIndices || [];
         return (
             <ASUIDiv className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <ASUIMenuOverlayContainer
