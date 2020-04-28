@@ -25,6 +25,17 @@ export default class TrackPlayback extends TrackIterator {
 
     }
 
+    startTrackIteration(trackStats) {
+        super.startTrackIteration(trackStats)
+        if(!trackStats.playingIndices)
+            trackStats.playingIndices = [];
+        this.onEvent && this.onEvent({
+            type: 'track:start',
+            playback: this,
+            trackStats
+        });
+    }
+
     addInstructionFilter(filterCallback) {
         const oldCallback = this.playTrackInstructionCallback;
         this.playTrackInstructionCallback = function(instruction, trackStats) {
@@ -110,7 +121,19 @@ export default class TrackPlayback extends TrackIterator {
             const destination = trackStats.destination || this.destination;
             const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // ASCTrack start time equals current track's start + playback times
             if(noteStartTime > 0) {
-                this.song.playInstruction(destination, instruction, trackStats.program, noteStartTime, trackStats.trackName);
+                const noteIndex = trackStats.iterator.currentIndex;
+                const playingIndices = trackStats.playingIndices;
+                this.song.playInstruction(destination, instruction, trackStats.program, noteStartTime,
+                    function() {
+                        if(playingIndices.indexOf(noteIndex) === -1) {
+                            playingIndices.push(noteIndex);
+                            console.log('playingIndices.push', playingIndices);
+                        }
+                    },
+                    function() {
+                        playingIndices.splice(playingIndices.indexOf(noteIndex), 1);
+                        console.log('playingIndices.splice', playingIndices);
+                    });
             }
         }
     }
@@ -121,19 +144,6 @@ export default class TrackPlayback extends TrackIterator {
      */
     processCommandInstruction(instruction, trackStats) {
         instruction.processCommandInstruction(this.song, trackStats);
-    }
-
-
-
-    startTrackIteration(trackStats) {
-        super.startTrackIteration(trackStats);
-
-        this.onEvent && this.onEvent({
-            type: 'track:start',
-            playback: this,
-            trackStats
-        });
-        // console.log("ASCTrack Playback: ", trackStats.trackName);
     }
 
 }

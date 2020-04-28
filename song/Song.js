@@ -229,7 +229,7 @@ class Song {
         return !!this.data.programs[programID];
     }
 
-    playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onended=null) {
+    playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
         // if (!programID && programID !== 0)
         //     throw new Error("Invalid program ID");
         // if (!programID && programID !== 0) {
@@ -239,6 +239,10 @@ class Song {
         // }
         // let program = this.programLoader.loadInstanceFromID(programID);
         // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
+        if(onstart !== null) {
+            let currentTime = destination.context.currentTime;
+            setTimeout(onstart, (noteStartTime - currentTime) * 1000);
+        }
         if(typeof noteFrequency === "string")
             noteFrequency = Values.parseFrequencyString(noteFrequency);
         return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
@@ -716,6 +720,8 @@ class Song {
             song: this
         });
 
+        console.log('setPlaybackPosition', songPosition);
+
         // if (isPlaying) {
         //     const oldDestination = this.playback.destination;
         //     this.playback = new InstructionPlayback(oldDestination, this, this.getStartTrackName(), oldDestination.context.currentTime - this.playbackPosition);
@@ -728,7 +734,7 @@ class Song {
     }
 
 
-    async play(destination) {
+    async play(destination, startPosition=null) {
         if(!destination || !destination.context)
             throw new Error("Invalid destination");
         // const audioContext = destination.context;
@@ -739,10 +745,12 @@ class Song {
         }
 
         // await this.init(audioContext);
-        console.log("Start playback:", this.playbackPosition);
+        if(startPosition === null)
+            startPosition = this.playbackPosition;
+        console.log("Start playback:", startPosition);
         const playback = new TrackPlayback(this, this.getStartTrackName());
         this.playback = playback;
-        playback.play(destination, this.playbackPosition)
+        playback.play(destination, startPosition)
 
         this.dispatchEvent({
             type: 'song:play',
@@ -754,7 +762,7 @@ class Song {
         await playback.awaitPlaybackReachedEnd();
 
         this.dispatchEvent({
-            type: 'song:play',
+            type: 'song:end',
             playback: this.playback,
             // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
             song: this
@@ -861,7 +869,7 @@ class Song {
     //         console.warn("No instruction at index");
     // }
 
-    playInstruction(destination, instruction, program, noteStartTime = null) {
+    playInstruction(destination, instruction, program, noteStartTime = null, onstart=null, onended=null) {
         const audioContext = this.audioContext;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
@@ -890,7 +898,7 @@ class Song {
             noteStartTime = currentTime;
 
 
-        this.playProgram(destination, program, instruction.command, noteStartTime, noteDuration, instruction.velocity);
+        this.playProgram(destination, program, instruction.command, noteStartTime, noteDuration, instruction.velocity, onstart, onended);
         // Wait for note to start
         // if (noteStartTime > currentTime) {
         //     await this.wait(noteStartTime - currentTime);

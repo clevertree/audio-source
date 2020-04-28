@@ -109,19 +109,26 @@ class ASCTrackInstruction extends React.Component {
         return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
     }
 
-    async selectInstruction(clearSelection=true) {
+    async selectInstruction(clearSelection=true, toggleValue = null) {
         // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getTrackState().selectedIndices;
         // const instruction = this.getInstruction();
-        selectedIndices.push(this.props.index);
+        const i = selectedIndices.indexOf(this.props.index);
+        if(toggleValue === true || i === -1) {
+            if(i === -1)
+                selectedIndices.push(this.props.index);
+        } else {
+            if(i !== -1)
+                selectedIndices.splice(i, 1);
+        }
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
         // this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
         await this.getTracker().setCursorOffset(this.props.cursorPosition, selectedIndices);
         return selectedIndices;
     }
 
-    async selectInstructionWithAction(clearSelection=true) {
-        const selectedIndices = await this.selectInstruction(clearSelection);
+    async selectInstructionWithAction(clearSelection=true, toggleValue = null) {
+        const selectedIndices = await this.selectInstruction(clearSelection, toggleValue);
         const instruction = this.getInstruction();
         if(instruction instanceof TrackInstruction) {
             this.getComposer().trackerToggleTrack(
@@ -154,6 +161,7 @@ class ASCTrackInstruction extends React.Component {
             case 'click':
                 if(e.button === 0)
                     this.selectInstructionWithAction(!e.ctrlKey);
+                // TODO: e.shiftKey for selecting a range of notes
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)

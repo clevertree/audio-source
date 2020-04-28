@@ -45,6 +45,7 @@ export default class TrackIterator {
     startTrackIteration(trackStats) {
         trackStats.iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
         this.activeTracks.push(trackStats);
+        return trackStats;
     }
 
     /** @deprecated **/
