@@ -1,6 +1,6 @@
 export default class ActiveTrackState {
     static DEFAULT_ROW_LENGTH = 16;
-    static DEFAULT_SEGMENT_LENGTH = 16;
+    static DEFAULT_BEATS_PER_SEGMENT = 16;
     static DEFAULT_BEATS_PER_MEASURE = 4;
 
     constructor(composer, trackName=null) {
@@ -33,7 +33,11 @@ export default class ActiveTrackState {
     get destinationList() { return this.state.destinationList || []; }
     get rowLength() { return this.state.rowLength || ActiveTrackState.DEFAULT_ROW_LENGTH; }
     get rowOffset() { return this.state.rowOffset || 0; }
+
+    get trackLengthTicks() { return this.state.trackLengthTicks || null; }
+    get segmentLengthTicks() { return this.state.segmentLengthTicks || (this.timeDivision * ActiveTrackState.DEFAULT_BEATS_PER_SEGMENT); }
     get segmentCount() { return this.state.segmentCount || 3; }
+
     get startPosition() { return this.state.startPosition || 0; }
 
     async update(newState) {

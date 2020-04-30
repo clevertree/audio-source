@@ -66,7 +66,7 @@ div.asct-options {
     display: flex;
 }
 
-div.asct-segments > div.row-length,
-div.asct-options > div.row-quantization {
+div.asct-options > div.row-length,
+div.asct-segments > div.row-quantization {
     margin-left: auto;
 }

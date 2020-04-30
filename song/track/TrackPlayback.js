@@ -114,7 +114,7 @@ export default class TrackPlayback extends TrackIterator {
 
     playTrackInstruction(instruction, trackStats) {
         if(typeof trackStats.program === "undefined")
-            return console.error("ASCTrack has no program set: ", trackStats);
+            return console.error("ASCTrack has no program set: ", trackStats.trackName);
         if(instruction instanceof NoteInstruction) {
             const destination = trackStats.destination || this.destination;
             const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // ASCTrack start time equals current track's start + playback times

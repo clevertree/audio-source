@@ -107,7 +107,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
     //
     //     } else if(nextPositionTicks < this.nextQuantizationBreakInTicks) {
     //         // If next position is after next quantized break, return a blank row
-    //         this.rowPositionTicks = this.nextQuantizationBreakInTicks;
+    //         this.scrollPositionTicks = this.nextQuantizationBreakInTicks;
     //         this.nextQuantizationBreakInTicks += this.quantizationTicks;
     //
     //     } else {
@@ -140,7 +140,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
     //             if (ret !== null)
     //                 instructionList.push(ret);
     //         }
-    //         this.rowPositionTicks = this.positionTicks;
+    //         this.scrollPositionTicks = this.positionTicks;
     //     }
     //     this.rowCount++;
     //     this.cursorOffset++;
@@ -169,13 +169,13 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
     }
 
     seekToPosition(positionSeconds, callback=null) {
-        while (!this.hasReachedEnd() && this.positionSeconds < positionSeconds) {
+        while (this.positionSeconds < positionSeconds) {
             this.nextQuantizedInstructionRow(null, callback);
         }
     }
 
     seekToPositionTicks(positionTicks, callback=null) {
-        while (!this.hasReachedEnd() && this.positionTicks < positionTicks) {
+        while (this.positionTicks < positionTicks) {
             this.nextQuantizedInstructionRow(null, callback);
         }
     }

@@ -576,19 +576,16 @@ class ASComposerActions extends ASComposerMenu {
 
     async trackerUpdateSegmentLength(trackName) {
         trackName = trackName || this.state.selectedTrack;
-        // const trackState = new ActiveTrackState(this, trackName);
+        const trackState = new ActiveTrackState(this, trackName);
         const iterator = this.trackerGetIterator(trackName);
         iterator.seekToEnd();
-        // TODO: finish
-        // const segmentLengthInRows = trackState.rowLength || ASCTrack.DEFAULT_SEGMENT_LENGTH;
-        // const segmentCount = Math.ceil(iterator.rowCount / segmentLengthInRows) + 1;
-        // console.log('segmentCount', {segmentCount, segmentLengthInRows, rowCount: iterator.rowCount});
-
-        // if(trackState.segmentCount !== segmentCount) {
-        //     await trackState.update(state => {
-        //         state.segmentCount = segmentCount;
-        //     });
-        // }
+        const trackLengthTicks = iterator.positionTicks;
+        if (!trackState.trackLengthTicks || trackLengthTicks > trackState.trackLengthTicks) {
+            await trackState.update(state => {
+                state.trackLengthTicks = trackLengthTicks;
+                console.log('trackLengthTicks', trackLengthTicks);
+            });
+        }
     }
 
     /** Selection **/
@@ -640,14 +637,14 @@ class ASComposerActions extends ASComposerMenu {
             adjustedCursorRow = cursorRow - segmentLengthInRows; //  - Math.floor(currentRowLength * 0.8);
         if(currentRowOffset >= cursorRow)
             adjustedCursorRow = cursorRow - 1; // - Math.ceil(currentRowLength * 0.2);
+        // TODO: go back to rowOffset calculated from trackPosition
 
 
 
         const nextRowOffset = iterator.cursorPosition + column;
         const previousRowOffset = lastRowStartPosition + column;
         // console.log({p: iterator.cursorPosition, cursorOffset, column, previousRowOffset, nextRowOffset});
-        // console.log(ret);
-        return {
+        const ret = {
             positionTicks: iterator.positionTicks,
             positionSeconds: iterator.positionSeconds,
             cursorIndex,
@@ -658,6 +655,17 @@ class ASComposerActions extends ASComposerMenu {
             previousRowOffset,
             nextRowOffset
         };
+        console.log(ret);
+        return ret;
+    }
+
+    trackerFindRowOffsetFromPosition(trackName, trackPositionTicks) {
+        // const trackState = new ActiveTrackState(this, trackName);
+        const iterator = this.trackerGetQuantizedIterator(trackName);
+        iterator.seekToPositionTicks(trackPositionTicks);
+        const rowOffset = iterator.rowCount;
+        console.log('trackerFindRowOffsetFromPosition', trackPositionTicks, rowOffset, iterator);
+        return rowOffset;
     }
 
     async trackerSelectIndicesPrompt(trackName=null) {
@@ -721,8 +729,8 @@ class ASComposerActions extends ASComposerMenu {
                 trackState.cursorOffset = cursorOffset;
                 // TODO: rowOffset = this.trackerGetCursorInfo(cursorOffset).adjustedCursorRow;
                 // if (rowOffset !== null)
-                if(cursorInfo.adjustedCursorRow !== null)
-                    trackState.rowOffset = cursorInfo.adjustedCursorRow;
+                // if(cursorInfo.adjustedCursorRow !== null)
+                //     trackState.rowOffset = cursorInfo.adjustedCursorRow;
                 trackState.cursorPositionTicks = cursorInfo.positionTicks;
                 state.songPosition = cursorInfo.positionSeconds + (trackState.startPosition || 0);
             }
@@ -750,6 +758,22 @@ class ASComposerActions extends ASComposerMenu {
         if(newCursorOffset < 0)
             throw new Error("Cursor offset must be >= 0");
         return this.trackerSelectIndices(trackName, selectedIndices, newCursorOffset);
+    }
+
+    trackerSetScrollPosition(trackName, newScrollPositionTicks) {
+        if (!Number.isInteger(newScrollPositionTicks))
+            throw new Error("Invalid row offset");
+        this.setState(state => {
+            state.activeTracks[trackName].scrollPositionTicks = newScrollPositionTicks;
+            return state;
+        });
+    }
+
+    // trackerSetRowOffset
+
+    trackerSetRowOffsetFromPositionTicks(trackName, trackPositionTicks) {
+        const rowOffset = this.trackerFindRowOffsetFromPosition(trackName, trackPositionTicks);
+        this.trackerSetRowOffset(trackName, rowOffset);
     }
 
     trackerSetRowOffset(trackName, newRowOffset) {
@@ -864,22 +888,22 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Toggle Panels **/
 
-    togglePanelPrograms() {
-        this.classList.toggle('hide-panel-programs');
-    }
-
-    togglePanelTracker() {
-        this.classList.toggle('hide-panel-track');
-    }
-
-    togglePanelSong() {
-        this.classList.toggle('hide-panel-song');
-    }
-
-    toggleFullscreen() {
-        const setFullScreen = !this.classList.contains('fullscreen');
-        this.classList.toggle('fullscreen', setFullScreen);
-    }
+    // togglePanelPrograms() {
+    //     this.classList.toggle('hide-panel-programs');
+    // }
+    //
+    // togglePanelTracker() {
+    //     this.classList.toggle('hide-panel-track');
+    // }
+    //
+    // togglePanelSong() {
+    //     this.classList.toggle('hide-panel-song');
+    // }
+    //
+    // toggleFullscreen() {
+    //     const setFullScreen = !this.classList.contains('fullscreen');
+    //     this.classList.toggle('fullscreen', setFullScreen);
+    // }
 
     /** Tools **/
 
