@@ -45,6 +45,11 @@ div.asct-row.selected {
 /** Hover **/
 
 div.asct-row:hover {
-    background: #EEE;
+    background: #EFE;
+    border: 1px outset #4EE;
+}
+
+div.asct-row.position:hover {
+    background: #9C9;
     border: 1px outset #4EE;
 }

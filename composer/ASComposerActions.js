@@ -3,6 +3,7 @@ import React from "react";
 import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
 import ASComposerMenu from "./ASComposerMenu";
 import {ASUIDiv} from "../components";
+import {ASCTrack} from "./track";
 import Values from "../song/values/Values";
 import ActiveTrackState from "./track/ActiveTrackState";
 
@@ -530,7 +531,7 @@ class ASComposerActions extends ASComposerMenu {
                 state.selectedTrack = selectedTrack;
                 state.activeTracks[trackName] = trackData
             })
-            await this.trackerUpdateSegmentLength(trackName);
+            await this.trackerUpdateSegmentInfo(trackName);
 
         } else {
             trackData = this.state.activeTracks[trackName];
@@ -545,18 +546,19 @@ class ASComposerActions extends ASComposerMenu {
         }
     }
 
-    trackerChangeQuantization(trackName, trackerQuantizationTicks) {
+    async trackerChangeQuantization(trackName, trackerQuantizationTicks) {
         if (!trackerQuantizationTicks || !Number.isInteger(trackerQuantizationTicks))
             throw new Error("Invalid quantization value");
-        this.setState(state => {
+        await this.updateState(state => {
+            state.selectedTrack = trackName;
             state.activeTracks[trackName].quantizationTicks = trackerQuantizationTicks;
-            return state;
         });
+        await this.trackerUpdateSegmentInfo(trackName);
     }
 
     async trackerChangeQuantizationPrompt(trackName) {
         const trackerQuantizationTicks = await this.composer.openPromptDialog(`Enter custom tracker quantization in ticks:`, this.track.quantizationTicks);
-        this.trackerChangeQuantization(trackName, trackerQuantizationTicks)
+        await this.trackerChangeQuantization(trackName, trackerQuantizationTicks)
     }
 
 
@@ -574,18 +576,41 @@ class ASComposerActions extends ASComposerMenu {
         this.trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows);
     }
 
-    async trackerUpdateSegmentLength(trackName) {
+    /**
+     * Used when track has been modified
+     * @param trackName
+     * @returns {Promise<void>}
+     */
+    async trackerUpdateSegmentInfo(trackName) {
         trackName = trackName || this.state.selectedTrack;
         const trackState = new ActiveTrackState(this, trackName);
         const iterator = this.trackerGetIterator(trackName);
         iterator.seekToEnd();
         const trackLengthTicks = iterator.positionTicks;
-        if (!trackState.trackLengthTicks || trackLengthTicks > trackState.trackLengthTicks) {
+
+        const qIterator = this.trackerGetQuantizedIterator(trackName);
+        const segmentLengthTicks = trackState.segmentLengthTicks;
+        const segmentPositions = [];
+        let lastSegmentPositionTicks = 0;
+        while ( qIterator.positionTicks < trackLengthTicks
+                || segmentPositions.length < ASCTrack.DEFAULT_MIN_SEGMENTS) {
+            if(lastSegmentPositionTicks <= qIterator.positionTicks) {
+                // Found end of segment
+                segmentPositions.push(qIterator.rowCount);
+                lastSegmentPositionTicks += segmentLengthTicks;
+            }
+            qIterator.nextQuantizedInstructionRow();
+        }
+
+        // qIterator.seekToPosition()
+
+        // if (!trackState.trackLengthTicks || trackLengthTicks > trackState.trackLengthTicks) {
             await trackState.update(state => {
                 state.trackLengthTicks = trackLengthTicks;
-                console.log('trackLengthTicks', trackLengthTicks);
+                state.segmentPositions = segmentPositions;
+                // console.log('trackLengthTicks', {segmentPositions, trackLengthTicks, qIterator});
             });
-        }
+        // }
     }
 
     /** Selection **/
@@ -609,6 +634,12 @@ class ASComposerActions extends ASComposerMenu {
         );
     }
 
+    /**
+     * Used when selecting
+     * @param trackName
+     * @param cursorOffset
+     * @returns {{positionTicks: PositionTickInfo[] | number, cursorRow, positionSeconds, previousOffset: number, nextRowOffset, cursorIndex: null, adjustedCursorRow, nextOffset: *, previousRowOffset}}
+     */
     trackerGetCursorInfo(trackName=null, cursorOffset=null) {
         trackName = trackName || this.state.selectedTrack;
         const trackState = new ActiveTrackState(this, trackName);
@@ -626,18 +657,18 @@ class ASComposerActions extends ASComposerMenu {
                     cursorIndex = iterator.currentIndex;
                 }
             });
+
         }
         const column = cursorOffset - currentRowStartPosition;
 
         const cursorRow = iterator.rowCount;
         const currentRowOffset = trackState.rowOffset || 0;
-        const segmentLengthInRows = trackState.rowLength || 16;
+        const rowLength = trackState.rowLength || 16;
         let adjustedCursorRow = null;
-        if(currentRowOffset + segmentLengthInRows <= cursorRow)
-            adjustedCursorRow = cursorRow - segmentLengthInRows; //  - Math.floor(currentRowLength * 0.8);
+        if(currentRowOffset + rowLength <= cursorRow)
+            adjustedCursorRow = cursorRow - rowLength; //  - Math.floor(currentRowLength * 0.8);
         if(currentRowOffset >= cursorRow)
             adjustedCursorRow = cursorRow - 1; // - Math.ceil(currentRowLength * 0.2);
-        // TODO: go back to rowOffset calculated from trackPosition
 
 
 
@@ -655,18 +686,18 @@ class ASComposerActions extends ASComposerMenu {
             previousRowOffset,
             nextRowOffset
         };
-        console.log(ret);
+        // console.log(ret);
         return ret;
     }
 
-    trackerFindRowOffsetFromPosition(trackName, trackPositionTicks) {
-        // const trackState = new ActiveTrackState(this, trackName);
-        const iterator = this.trackerGetQuantizedIterator(trackName);
-        iterator.seekToPositionTicks(trackPositionTicks);
-        const rowOffset = iterator.rowCount;
-        console.log('trackerFindRowOffsetFromPosition', trackPositionTicks, rowOffset, iterator);
-        return rowOffset;
-    }
+    // trackerFindRowOffsetFromPosition(trackName, trackPositionTicks) {
+    //     // const trackState = new ActiveTrackState(this, trackName);
+    //     const iterator = this.trackerGetQuantizedIterator(trackName);
+    //     iterator.seekToPositionTicks(trackPositionTicks);
+    //     const rowOffset = iterator.rowCount;
+    //     console.log('trackerFindRowOffsetFromPosition', trackPositionTicks, rowOffset, iterator);
+    //     return rowOffset;
+    // }
 
     async trackerSelectIndicesPrompt(trackName=null) {
         if(trackName === null)
@@ -729,8 +760,8 @@ class ASComposerActions extends ASComposerMenu {
                 trackState.cursorOffset = cursorOffset;
                 // TODO: rowOffset = this.trackerGetCursorInfo(cursorOffset).adjustedCursorRow;
                 // if (rowOffset !== null)
-                // if(cursorInfo.adjustedCursorRow !== null)
-                //     trackState.rowOffset = cursorInfo.adjustedCursorRow;
+                if(cursorInfo.adjustedCursorRow !== null)
+                    trackState.rowOffset = cursorInfo.adjustedCursorRow;
                 trackState.cursorPositionTicks = cursorInfo.positionTicks;
                 state.songPosition = cursorInfo.positionSeconds + (trackState.startPosition || 0);
             }
@@ -771,15 +802,17 @@ class ASComposerActions extends ASComposerMenu {
 
     // trackerSetRowOffset
 
-    trackerSetRowOffsetFromPositionTicks(trackName, trackPositionTicks) {
-        const rowOffset = this.trackerFindRowOffsetFromPosition(trackName, trackPositionTicks);
-        this.trackerSetRowOffset(trackName, rowOffset);
-    }
+    // trackerSetRowOffsetFromPositionTicks(trackName, trackPositionTicks) {
+    //     const rowOffset = this.trackerFindRowOffsetFromPosition(trackName, trackPositionTicks);
+    //     this.trackerSetRowOffset(trackName, rowOffset);
+    // }
 
     trackerSetRowOffset(trackName, newRowOffset) {
         if (!Number.isInteger(newRowOffset))
             throw new Error("Invalid row offset");
+        // console.log('trackerSetRowOffset', {trackName, newRowOffset});
         this.setState(state => {
+            state.selectedTrack = trackName;
             state.activeTracks[trackName].rowOffset = newRowOffset;
             return state;
         });

@@ -36,7 +36,7 @@ export default class ActiveTrackState {
 
     get trackLengthTicks() { return this.state.trackLengthTicks || null; }
     get segmentLengthTicks() { return this.state.segmentLengthTicks || (this.timeDivision * ActiveTrackState.DEFAULT_BEATS_PER_SEGMENT); }
-    get segmentCount() { return this.state.segmentCount || 3; }
+    get segmentPositions() { return this.state.segmentPositions || [0]; }
 
     get startPosition() { return this.state.startPosition || 0; }
 

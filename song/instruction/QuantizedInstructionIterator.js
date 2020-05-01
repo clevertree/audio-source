@@ -59,7 +59,8 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
             const elapsedTime = ((nextQuantizationBreakInTicks - this.positionTicks) / this.timeDivision) / (this.beatsPerMinute / 60);
             this.positionSeconds += elapsedTime;
             this.positionTicks = nextQuantizationBreakInTicks;
-            this.updateNextQuantizationBreakInTicks();
+            this.nextQuantizationBreakInTicks += this.quantizationTicks;
+            // this.updateNextQuantizationBreakInTicks();
             // this.nextQuantizationBreakInTicks += this.quantizationTicks;
             const row = [];
             if(rowCallback)

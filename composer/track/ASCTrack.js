@@ -27,6 +27,7 @@ class ASCTrack extends React.Component {
     };
 
     static DEFAULT_MAX_SEGMENTS = 8;
+    static DEFAULT_MIN_SEGMENTS = 3;
 
     constructor(props) {
         super(props);
@@ -85,15 +86,15 @@ class ASCTrack extends React.Component {
         const trackState = this.getTrackState();
         return this.getSong().instructionGetQuantizedIterator(
             this.getTrackName(),
-            this.getQuantizationInTicks(),
+            trackState.quantizationTicks,
             trackState.timeDivision, // || this.getSong().data.timeDivision,
             trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
         )
     }
 
-    getQuantizationInTicks() {
-        return this.props.quantizationTicks || this.props.composer.song.data.timeDivision;
-    }
+    // getQuantizationInTicks() {
+    //     return this.props.quantizationTicks || this.props.composer.song.data.timeDivision;
+    // }
 
     getSegmentInfo() {
     }
@@ -126,12 +127,6 @@ class ASCTrack extends React.Component {
     /** Render **/
 
     render() {
-        const stats = {
-            selectedSegmentID: null,
-            segmentPositions: []
-        };
-        const rowContent = this.renderRowContent(stats);
-
         // console.log('ASCTrack.render');
         let className = "asc-track";
         // if(this.props.className)
@@ -146,7 +141,7 @@ class ASCTrack extends React.Component {
                 >
                 <div
                     className="asct-segments"
-                    children={this.renderRowSegments(stats)}
+                    children={this.renderRowSegments()}
                     />
                 <div
                     className="asct-container"
@@ -155,7 +150,7 @@ class ASCTrack extends React.Component {
                     onKeyDown={this.cb.onKeyDown}
                     // onWheel={this.cb.onWheel}
                     >
-                    {rowContent}
+                    {this.renderRowContent()}
                 </div>
                 <div
                     className="asct-options"
@@ -165,7 +160,7 @@ class ASCTrack extends React.Component {
         );
     }
 
-    renderRowContent(stats) {
+    renderRowContent() {
         const trackState = this.getTrackState();
         const songPosition = this.getComposer().state.songPosition;
         const trackSongPosition = songPosition - trackState.startPosition;
@@ -176,8 +171,8 @@ class ASCTrack extends React.Component {
         const selectedIndices = trackState.selectedIndices;
         const playingIndices = trackState.playingIndices;
         const beatsPerMeasureTicks = trackState.beatsPerMeasure * trackState.timeDivision;
-        const quantizationTicks = this.getQuantizationInTicks();
-        const segmentLengthTicks = trackState.segmentLengthTicks;
+        const quantizationTicks = trackState.quantizationTicks;
+        // const segmentLengthTicks = trackState.segmentLengthTicks;
         // console.log('beatsPerMeasureTicks', beatsPerMeasureTicks);
 
 
@@ -191,26 +186,7 @@ class ASCTrack extends React.Component {
 
         const rowContent = [];
         let rowInstructionElms = [];
-        let currentSegmentID = 0, lastSegmentPositionTicks = 0, selectedSegmentID = null;
         while(iterator.nextQuantizedInstructionRow(() => {
-            if(lastSegmentPositionTicks + segmentLengthTicks > iterator.positionTicks) {
-                // Found end of segment
-                stats.segmentPositions.push(lastSegmentPositionTicks);
-                lastSegmentPositionTicks += segmentLengthTicks;
-                if(stats.selectedSegmentID === null && iterator.rowCount >= trackState.rowOffset)
-                    stats.selectedSegmentID = currentSegmentID;
-                currentSegmentID++;
-
-            }
-
-            if(iterator.rowCount < trackState.rowOffset)
-                return;
-            let nextRowPositionTicks = iterator.getNextRowPositionTicks();
-            let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
-            if (rowDeltaDuration <= 0 || rowDeltaDuration > quantizationTicks) {
-                console.warn("rowDeltaDuration is ", rowDeltaDuration);
-            }
-
             let highlight = false;
             if(iterator.positionTicks % beatsPerMeasureTicks === 0)
                 highlight = 'measure-start';
@@ -218,6 +194,16 @@ class ASCTrack extends React.Component {
                 trackSongPositionFound = true;
                 highlight = 'position';
             }
+
+            if(iterator.rowCount < trackState.rowOffset)
+                return;
+
+            let nextRowPositionTicks = iterator.getNextRowPositionTicks();
+            let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
+            if (rowDeltaDuration <= 0 || rowDeltaDuration > quantizationTicks) {
+                console.warn("rowDeltaDuration is ", rowDeltaDuration);
+            }
+
             const newRowElm = <ASCTrackRow
                 key={iterator.rowCount}
                 tracker={this}
@@ -258,28 +244,35 @@ class ASCTrack extends React.Component {
     }
 
 
-    renderRowSegments(stats) {
-        console.log('stats', stats);
+    renderRowSegments() {
         const composer = this.props.composer;
-        // const trackState = this.getTrackState();
-
+        const trackState = this.getTrackState();
+        const rowOffset = trackState.rowOffset;
+        const rowLength = trackState.rowLength;
 
         // TODO: add next position segment
 
-        const buttons = [];
-        for(let segmentID=0; segmentID<stats.segmentPositions.length; segmentID++) {
+        let buttons = [], selectedSegmentID = null;
+        const segmentPositions = trackState.segmentPositions;
+        for(let segmentID=0; segmentID<segmentPositions.length; segmentID++) {
             if(segmentID > ASCTrack.DEFAULT_MAX_SEGMENTS)
                 break;
-            const segmentPosition = stats.segmentPositions[segmentID];
+            const segmentPosition = segmentPositions[segmentID];
+            const props = {
+                onAction: e => composer.trackerSetRowOffset(this.props.trackName, segmentPosition),
+                children: segmentID
+            }
+            if(selectedSegmentID === null && rowOffset - rowLength < segmentPosition) {
+                selectedSegmentID = segmentID;
+                props.selected = true;
+            }
             buttons.push(<ASUIButton
                 key={segmentID}
-                selected={segmentID === stats.selectedSegmentID}
-                onAction={e => composer.trackerSetRowOffsetFromPositionTicks(this.props.trackName, segmentPosition)}
-                children={segmentID}
+                {...props}
             />);
         }
 
-        const rowDeltaDuration = composer.values.formatSongDuration(this.getQuantizationInTicks());
+        const rowDeltaDuration = composer.values.formatSongDuration(trackState.quantizationTicks);
         buttons.push(<ASUIButtonDropDown
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
@@ -304,7 +297,7 @@ class ASCTrack extends React.Component {
             arrow="▼"
             key="row-length"
             options={() => this.getComposer().renderMenuTrackerSetSegmentLength(this.getTrackName())}
-            children={rowLength}
+            children={`${rowLength} Rows`}
         />);
 
 
@@ -334,6 +327,7 @@ class ASCTrack extends React.Component {
         if(newRowOffset < 0)
             newRowOffset = 0; // return console.log("Unable to scroll past beginning");
         this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
+        // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
         // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
     }
 
