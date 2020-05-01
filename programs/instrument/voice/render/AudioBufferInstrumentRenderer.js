@@ -9,10 +9,10 @@ import {
     ASUIIcon, ASUIInputRange, ASUIMenuDropDown,
 } from "../../../../components";
 
-import "./assets/AudioBufferInstrumentRenderer.css";
+import AudioBufferInstrumentRendererStyle from "./AudioBufferInstrumentRendererStyle";
 
 /** PolyphonyInstrumentRenderer **/
-class AudioBufferInstrumentRenderer extends React.Component {
+class AudioBufferInstrumentRenderer extends AudioBufferInstrumentRendererStyle {
 
     constructor(props) {
         super(props);

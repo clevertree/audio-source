@@ -8,10 +8,10 @@ import {
 import {ProgramLoader, Library, Values} from "../../../../song";
 
 
-import "./assets/PolyphonyInstrumentRenderer.css";
+import PolyphonyInstrumentRendererStyle from "./PolyphonyInstrumentRendererStyle";
 
 /** PolyphonyInstrumentRenderer **/
-class PolyphonyInstrumentRenderer extends React.Component {
+class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererStyle {
     constructor(props) {
         super(props);
         this.cb = {

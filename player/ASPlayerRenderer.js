@@ -4,9 +4,10 @@ import {ASUIDiv, ASUIIcon, ASUIInputRange, ASUIForm, ASUIPanel, ASUIMenuDropDown
 
 
 import ASPPlaylist from "./playlist/ASPPlaylist";
+import ASPlayerStyle from "./ASPlayerStyle";
 
 
-class ASPlayerRenderer extends React.Component {
+class ASPlayerRenderer extends ASPlayerStyle {
     constructor(props={}) {
         super(props);
         this.state = {

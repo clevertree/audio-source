@@ -11,9 +11,9 @@ import {
 } from "../../../../components";
 import {Library, Values} from "../../../../song";
 
-import "./assets/OscillatorNodeInstrumentRenderer.css";
+import OscillatorNodeInstrumentRendererStyle from "./OscillatorNodeInstrumentRendererStyle";
 
-class OscillatorNodeInstrumentRenderer extends React.Component {
+class OscillatorNodeInstrumentRenderer extends OscillatorNodeInstrumentRendererStyle {
     constructor(props) {
         super(props);
         this.state = {

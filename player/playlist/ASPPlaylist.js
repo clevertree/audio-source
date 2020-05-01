@@ -2,10 +2,9 @@ import React from "react";
 // import {ASUIDiv as Div} from "../../components/";
 import ASPPlaylistEntry from "./ASPPlaylistEntry";
 
-import "./assets/ASPPlaylist.css";
+import ASPPlaylistStyle from "./ASPPlaylistStyle";
 
-
-class ASPPlaylist extends React.Component {
+class ASPPlaylist extends ASPPlaylistStyle {
     constructor(props = {}) {
         super(props, {});
         if(!this.props.player)

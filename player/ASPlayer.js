@@ -3,7 +3,6 @@ import ASPlayerActions from "./ASPlayerActions";
 import {Song, SongValues}          from "../song";
 import Storage       from "../song/storage/Storage";
 
-import "./assets/ASPlayer.css";
 /**
  * ASPlayer requires a modern browser
  */
@@ -37,7 +36,7 @@ class ASPlayer extends ASPlayerActions {
         this.audioContext = null;
         this.volumeGain = null;
         this.song = null;
-        this.shadowDOM = null;
+        // this.shadowDOM = null;
         // this.props.playlistActive = false;
         // this.props.playing = false;
         // this.props.paused = false;
