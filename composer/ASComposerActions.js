@@ -152,9 +152,9 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    loadRecentSongData() {
+    async loadRecentSongData() {
         const storage = new Storage();
-        let songRecentUUIDs = storage.getRecentSongList();
+        let songRecentUUIDs = await storage.getRecentSongList();
         if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
             this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
             this.loadSongFromMemory(songRecentUUIDs[0].uuid);

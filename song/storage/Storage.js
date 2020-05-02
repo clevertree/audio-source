@@ -7,7 +7,7 @@ class Storage {
     /** Loading **/
 
     async getRecentSongList() {
-        return this.decodeForStorage(await LocalStorage.getItem('song-recent-list') || '[]');
+        return this.decodeForStorage((await LocalStorage.getItem('song-recent-list')) || '[]');
     }
 
 

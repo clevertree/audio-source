@@ -98,12 +98,14 @@ class ASUIMenuOverlayContainer extends React.Component {
         });
     }
 
-    openMenu(options) {
+    async openMenu(options) {
         if(!this.props.isActive)
             return false;
 
         if(typeof options === "function")
             options = options(this);
+        if(options instanceof Promise)
+            options = await options;
 
         this.setState({
             open: true,

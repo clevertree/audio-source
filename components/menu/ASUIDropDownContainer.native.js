@@ -60,11 +60,7 @@ class ASUIDropDownContainer extends React.Component {
         if(this.props.disabled)
             return 'Disabled';
 
-        let options = this.props.options;
-        if (typeof options === "function")
-            options = options(this);
-        if (!options)
-            console.warn("Empty options returned by ", this);
+        let options = this.state.options;
 
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
@@ -93,7 +89,7 @@ class ASUIDropDownContainer extends React.Component {
             this.closeMenu();
     }
 
-    openMenu() {
+    async openMenu() {
         if (this.props.disabled)
             return console.error("Menu is disabled");
         if (this.state.open)
@@ -108,8 +104,17 @@ class ASUIDropDownContainer extends React.Component {
             }
         }
 
+        let options = this.props.options;
+        if (typeof options === "function")
+            options = options(this);
+        if(options instanceof Promise)
+            options = await options;
+        if (!options)
+            console.warn("Empty options returned by ", this);
+
         this.setState({
             open: true,
+            options
         });
 
         setTimeout(() => {

@@ -68,9 +68,10 @@ class ASComposerMenu extends ASComposerRenderer {
 
     }
 
-    renderMenuFileOpenMemory() {
+    async renderMenuFileOpenMemory() {
         const storage = new Storage();
-        const songRecentUUIDs = storage.getRecentSongList() ;
+        const songRecentUUIDs = await storage.getRecentSongList() ;
+        console.log('songRecentUUIDs', songRecentUUIDs);
         return songRecentUUIDs.length > 0
             ? songRecentUUIDs.map((entry, i) =>
                 <ASUIMenuAction

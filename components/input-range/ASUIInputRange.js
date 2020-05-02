@@ -1,5 +1,5 @@
 import React from "react";
-import "./assets/InputRange.scss";
+import "./assets/ASUIInputRange.scss";
 import PropTypes from "prop-types";
 
 class ASUIInputRange extends React.Component {

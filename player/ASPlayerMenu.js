@@ -48,9 +48,9 @@ class ASPlayerMenu extends ASPlayerRenderer {
         </>);
     }
 
-    renderFileMemoryMenu() {
+    async renderFileMemoryMenu() {
         const storage = new Storage();
-        const songRecentUUIDs = storage.getRecentSongList() ;
+        const songRecentUUIDs = await storage.getRecentSongList() ;
         return songRecentUUIDs.length > 0
             ? songRecentUUIDs.map((entry, i) =>
                 <ASUIMenuAction

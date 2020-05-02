@@ -12,11 +12,17 @@ export default StyleSheet.create({
 
     header: {
         backgroundColor: '#333',
-        // font-size: smaller,
-        // border-bottom: 1px solid #BBB,
-        // margin-bottom: 1px,
-        // padding: 0 3px 1px 3px,
-        // height: 1em,
+        borderTopLeftRadius: 8,
+
+            // background-color: #333;
+        // color: #FFF;
+        // font-size: 11px;
+        // font-weight: bold;
+        // text-align: center;
+        // padding: 2px 6px 0px 6px;
+        // margin: 0;
+        // border-radius: 8px 8px 0 0;
+        // border-bottom: 1px solid #BBB;
     },
 
     container: {
