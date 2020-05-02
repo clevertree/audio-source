@@ -26,8 +26,8 @@ export default class ASUIPanel extends React.Component {
             <View
                 style={style}
                 >
-                {this.props.header ? <View style={styles.header}>{textify(this.props.header)}</View> : null}
-                <View style={styles.container}>{textify(this.props.children)}</View>
+                {this.props.header ? <View style={styles.header}>{textify(this.props.header, {style: styles.headerText})}</View> : null}
+                <View style={this.props.styleContainer || styles.container}>{textify(this.props.children)}</View>
             </View>
         )
     }

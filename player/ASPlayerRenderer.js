@@ -108,7 +108,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     onChange={(e, pos) => this.setSongPosition(pos)}
                                     value={0}
                                     min={0}
-                                    max={Math.ceil(this.state.songLength)}
+                                    max={Math.ceil(this.state.songLength) || 1}
                                     ref={ref => this.fieldSongPosition = ref}
                                     title="Song Position"
                                 />
@@ -153,7 +153,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                 </ASUIButton>
                             </ASUIForm>
                         </ASUIPanel>
-                        <ASUIPanel className="playlist" header="Playlist">
+                        <ASUIPanel className="playlist" header="Playlist" styleContainer={{}}>
                             <ASPPlaylist
                                 player={this}
                                 ref={ref => this.playlist = ref}

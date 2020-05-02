@@ -4,6 +4,11 @@ export default StyleSheet.create({
 
     default: {
         backgroundColor: '#DDD',
+        borderWidth: 1,
+        borderLeftColor: '#FFF',
+        borderTopColor: '#FFF',
+        borderRightColor: '#AAA',
+        borderBottomColor: '#AAA',
         // border: 1px outset #FFF,
         // padding: 0px 0px,
         // margin: 0px 0px 0px 0px,
@@ -11,6 +16,8 @@ export default StyleSheet.create({
     },
 
     header: {
+        paddingLeft: 2,
+        paddingRight: 2,
         borderBottomColor: '#BBB',
         borderBottomWidth: 1,
         // font-size: smaller,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
 import styles from './assets/ASUIButton.style';
-import {Text, TouchableHighlight, View} from "react-native";
+import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
 
 // TODO: subclass Button and MenuDropDown with hover close handler
 class ASUIButton extends React.Component {
@@ -46,11 +46,13 @@ class ASUIButton extends React.Component {
                 onPress={this.cb.onMouseInput}
                 onLongPress={this.cb.onMouseInput}
             >
-                <View
-                    style={style}
-                    >
-                    {textify(this.props.children)}
-                </View>
+                <ImageBackground source={require('./assets/img/bg.png')} style={{}}>
+                    <View
+                        style={style}
+                        >
+                        {textify(this.props.children)}
+                    </View>
+                </ImageBackground>
             </TouchableHighlight>
         );
     }

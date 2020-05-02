@@ -8,6 +8,12 @@ export default StyleSheet.create({
         // padding: 0px 0px,
         // margin: 0px 0px 0px 0px,
         display: 'flex',
+        padding: 2,
+        // borderWidth: 1,
+        // borderLeftColor: '#FFF',
+        // borderTopColor: '#FFF',
+        // borderRightColor: '#AAA',
+        // borderBottomColor: '#AAA',
     },
 
 });

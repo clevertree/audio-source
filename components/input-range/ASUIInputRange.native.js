@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import RangeSlider from 'rn-range-slider';
+import MultiSlider from "@ptomasroos/react-native-multi-slider";
+// import RangeSlider from 'rn-range-slider';
+// import { Knob } from 'react-native-knob';
 
 import styles from './assets/ASUIInputRange.style';
 
@@ -9,11 +11,17 @@ import styles from './assets/ASUIInputRange.style';
 class ASUIInputRange extends React.Component {
     /** Default Properties **/
     static defaultProps = {
+        min: 0,
+        max: 100,
+        step: 1,
     };
 
     /** Property validation **/
     static propTypes = {
         onChange: PropTypes.func.isRequired,
+        min: PropTypes.number.isRequired,
+        max: PropTypes.number.isRequired,
+        step: PropTypes.number.isRequired,
     };
 
 
@@ -27,16 +35,14 @@ class ASUIInputRange extends React.Component {
     }
 
     onClick(e) {
-        e.preventDefault();
         const newValue = parseFloat(e.target.value);
         this.props.onChange(e, newValue)
         // e.preventDefault();
     }
 
-    onChange(e) {
-        e.preventDefault();
-        const newValue = parseFloat(e.target.value);
-        this.props.onChange(e, newValue)
+    onChange(values) {
+        console.log('ASUIInputRange.onChange', values);
+        this.props.onChange(values[0])
         // this.setState({value: newValue});
     }
 
@@ -45,17 +51,28 @@ class ASUIInputRange extends React.Component {
         if(this.props.disabled)
             style.push(styles.disabled)
         return (
-            <RangeSlider
-                style={style}
-                value={this.props.value}
-                onValueChanged={this.cb.onChange}
-                onClick={this.cb.onClick}
+            <MultiSlider
+                containerStyle={{
+                    height: 30,
+                    paddingLeft: 8,
+                }}
+                sliderLength={40}
+                onValuesChangeFinish={this.cb.onChange}
                 min={this.props.min}
                 max={this.props.max}
                 step={this.props.step}
-                name={this.props.name}
-                title={this.props.title}
-                />
+            />
+        // <RangeSlider
+        //     style={style}
+        //     value={this.props.value}
+        //     onValueChanged={this.cb.onChange}
+        //     onClick={this.cb.onClick}
+        //     min={this.props.min}
+        //     max={this.props.max}
+        //     step={this.props.step}
+        //     name={this.props.name}
+        //     title={this.props.title}
+        // />
         )
     }
 

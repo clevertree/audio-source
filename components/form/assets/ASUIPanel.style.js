@@ -7,15 +7,20 @@ export default StyleSheet.create({
         // border: 1px outset #FFF,
         // padding: 0px 0px,
         // margin: 0px 0px 0px 0px,
-        display: 'flex',
+        // display: 'flex',
+    },
+
+    headerText: {
+        textAlign: 'center',
+        color: '#FFF',
     },
 
     header: {
         backgroundColor: '#333',
+        borderTopRightRadius: 8,
         borderTopLeftRadius: 8,
 
             // background-color: #333;
-        // color: #FFF;
         // font-size: 11px;
         // font-weight: bold;
         // text-align: center;
