@@ -1,11 +1,13 @@
 import LZString from 'lz-string';
 import Values from "../values/Values";
 
+import LocalStorage from "./LocalStorage";
+
 class Storage {
     /** Loading **/
 
-    getRecentSongList() {
-        return this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+    async getRecentSongList() {
+        return this.decodeForStorage(await LocalStorage.getItem('song-recent-list') || '[]');
     }
 
 
@@ -13,9 +15,8 @@ class Storage {
 
     encodeForStorage(json, replacer = null, space = null) {
         let encodedString = JSON.stringify(json, replacer, space);
-        const compressedString = LZString.compress(encodedString);
 //             console.log(`Compression: ${compressedString.length} / ${encodedString.length} = ${Math.round((compressedString.length / encodedString.length)*100)/100}`);
-        return compressedString;
+        return LZString.compress(encodedString);
     }
 
     decodeForStorage(encodedString) {
@@ -27,34 +28,34 @@ class Storage {
 
     /** Saving **/
 
-    saveState(state, key='audio-source-state') {
-        localStorage.setItem(key, JSON.stringify(state));
+    async saveState(state, key='audio-source-state') {
+        await LocalStorage.setItem(key, JSON.stringify(state));
     }
 
-    loadState(key='audio-source-state') {
-        let state = localStorage.getItem(key);
+    async loadState(key='audio-source-state') {
+        let state = await LocalStorage.getItem(key);
         if (state)
             state = JSON.parse(state);
         return state;
     }
 
-    saveSongToMemory(songData, songHistory) {
+    async saveSongToMemory(songData, songHistory) {
         // const song = this.data;
         if (!songData.uuid)
             songData.uuid = Values.generateUUID();
         let songRecentUUIDs = [];
         try {
-            songRecentUUIDs = this.decodeForStorage(localStorage.getItem('song-recent-list') || '[]');
+            songRecentUUIDs = this.decodeForStorage(await LocalStorage.getItem('song-recent-list') || '[]');
         } catch (e) {
             console.error(e);
         }
         songRecentUUIDs = songRecentUUIDs.filter((entry) => entry.uuid !== songData.uuid);
         songRecentUUIDs.unshift({uuid: songData.uuid, title: songData.title});
-        localStorage.setItem('song-recent-list', this.encodeForStorage(songRecentUUIDs));
+        await LocalStorage.setItem('song-recent-list', this.encodeForStorage(songRecentUUIDs));
 
 
-        localStorage.setItem('song:' + songData.uuid, this.encodeForStorage(songData));
-        localStorage.setItem('song-history:' + songData.uuid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
+        await LocalStorage.setItem('song:' + songData.uuid, this.encodeForStorage(songData));
+        await LocalStorage.setItem('song-history:' + songData.uuid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
         // this.querySelector('.song-menu').outerHTML = renderEditorMenuContent(this);
         console.info("Song saved to memory: " + songData.uuid, songData);
     }
@@ -86,8 +87,8 @@ class Storage {
 
     /** Loading **/
 
-    loadSongFromMemory(songUUID) {
-        let songDataString = localStorage.getItem('song:' + songUUID);
+    async loadSongFromMemory(songUUID) {
+        let songDataString = await LocalStorage.getItem('song:' + songUUID);
         if (!songDataString)
             throw new Error("Song Data not found for uuid: " + songUUID);
         let songData = this.decodeForStorage(songDataString);
@@ -97,8 +98,8 @@ class Storage {
         // console.info("Song loaded from memory: " + songUUID, songData, this.songHistory);
     }
 
-    loadSongHistoryFromMemory(songUUID) {
-        let songHistoryString = localStorage.getItem('song-history:' + songUUID);
+    async loadSongHistoryFromMemory(songUUID) {
+        let songHistoryString = await LocalStorage.getItem('song-history:' + songUUID);
         if (!songHistoryString)
             return null;
         return this.decodeForStorage(songHistoryString);
@@ -110,38 +111,38 @@ class Storage {
 
     /** Batch Commands **/
 
-    getBatchRecentCommands() {
-        let batchRecentCommands = localStorage.getItem('batch-recent-commands');
+    async getBatchRecentCommands() {
+        let batchRecentCommands = await LocalStorage.getItem('batch-recent-commands');
         if (!batchRecentCommands)
             return [];
         batchRecentCommands = JSON.parse(batchRecentCommands);
         return batchRecentCommands;
     }
 
-    addBatchRecentCommands(batchCommand) {
+    async addBatchRecentCommands(batchCommand) {
         let batchRecentCommands = this.getBatchRecentCommands();
         if (batchRecentCommands.indexOf(batchCommand) === -1) {
             batchRecentCommands.unshift(batchCommand);
         }
-        localStorage.setItem('batch-recent-commands', JSON.stringify(batchRecentCommands));
+        await LocalStorage.setItem('batch-recent-commands', JSON.stringify(batchRecentCommands));
     }
 
     /** Batch Searches **/
 
-    getBatchRecentSearches() {
-        let batchRecentSearches = localStorage.getItem('batch-recent-searches');
+    async getBatchRecentSearches() {
+        let batchRecentSearches = await LocalStorage.getItem('batch-recent-searches');
         if (!batchRecentSearches)
             return [];
         batchRecentSearches = JSON.parse(batchRecentSearches);
         return batchRecentSearches;
     }
 
-    addBatchRecentSearches(batchCommand) {
+    async addBatchRecentSearches(batchCommand) {
         let batchRecentSearches = this.getBatchRecentSearches();
         if (batchRecentSearches.indexOf(batchCommand) === -1) {
             batchRecentSearches.unshift(batchCommand);
         }
-        localStorage.setItem('batch-recent-searches', JSON.stringify(batchRecentSearches));
+        await LocalStorage.setItem('batch-recent-searches', JSON.stringify(batchRecentSearches));
     }
 
 

@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
+import styles from './assets/ASUIButton.style';
+import {Text, TouchableHighlight, View} from "react-native";
 
 // TODO: subclass Button and MenuDropDown with hover close handler
 class ASUIButton extends React.Component {
@@ -16,6 +18,7 @@ class ASUIButton extends React.Component {
     static propTypes = {
         onAction: PropTypes.func.isRequired,
         disabled: PropTypes.bool,
+        // selected: PropTypes.bool,
     };
 
 
@@ -29,27 +32,25 @@ class ASUIButton extends React.Component {
 
     getOverlay() { return this.context.overlay; }
 
-    getClassName() { return 'asui-button'; }
 
     render() {
-        let className = this.getClassName();
-        if(this.props.className)
-            className += ' ' + this.props.className;
+        const style = [styles.default];
         if(this.props.disabled)
-            className += ' disabled';
-        if(this.props.selected)
-            className += ' selected';
+            style.push(styles.disabled)
+        // if(this.props.selected)
+        //     style.push(styles.selected)
 
         return (
-            <div
-                title={this.props.title}
-                className={className}
-                onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
-                tabIndex={0}
-                >
-                {this.props.children}
-            </div>
+            <TouchableHighlight
+                onPress={this.cb.onMouseInput}
+                onLongPress={this.cb.onMouseInput}
+            >
+                <View
+                    style={style}
+                    >
+                    {textify(this.props.children)}
+                </View>
+            </TouchableHighlight>
         );
     }
 
@@ -107,3 +108,7 @@ class ASUIButton extends React.Component {
 
 export default ASUIButton;
 
+
+function textify(content, props={}) {
+    return typeof content === "string" ? <Text children={content} {...props}/> : content;
+}

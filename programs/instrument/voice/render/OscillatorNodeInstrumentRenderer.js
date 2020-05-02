@@ -60,7 +60,7 @@ class OscillatorNodeInstrumentRenderer extends OscillatorNodeInstrumentRendererS
                 className="config"
                 options={() => this.renderMenuRoot()}
             >
-                <ASUIIcon className="config"/>
+                <ASUIIcon source="config"/>
             </ASUIMenuDropDown>
         </ASUIDiv>;
     }

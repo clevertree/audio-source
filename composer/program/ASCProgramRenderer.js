@@ -49,7 +49,7 @@ class ASCProgramRenderer extends React.Component {
                         className="program-config"
                         options={() => this.renderMenuRoot()}
                     >
-                        <ASUIIcon className="config"/>
+                        <ASUIIcon source="config"/>
                     </ASUIButtonDropDown>
                 </ASUIDiv>
                 {this.state.open ? <ASUIDiv className="content">

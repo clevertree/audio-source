@@ -38,7 +38,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                 className="asp-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
                                 >
-                                <ASUIIcon className="menu" />
+                                <ASUIIcon source="menu" />
                               </ASUIMenuDropDown>
                             : <ASUIDiv className="asp-menu-container">{(p) => this.renderRootMenu(p)}</ASUIDiv>}
                     </ASUIDiv>
@@ -49,25 +49,25 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     className="song-play"
                                     onAction={e => this.playlistPlay(e)}
                                 >
-                                    <ASUIIcon className="play"/>
+                                    <ASUIIcon source="play"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="song-pause"
                                     onAction={e => this.playlistPause(e)}
                                 >
-                                    <ASUIIcon className="pause"/>
+                                    <ASUIIcon source="pause"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="song-stop"
                                     onAction={e => this.playlistStop(e)}
                                 >
-                                    <ASUIIcon className="stop"/>
+                                    <ASUIIcon source="stop"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="song-next"
                                     onAction={e => this.playlistNext(e)}
                                 >
-                                    <ASUIIcon className="next"/>
+                                    <ASUIIcon source="next"/>
                                 </ASUIButton>
                             </ASUIForm>
 
@@ -79,14 +79,14 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     ref={ref => this.fieldSongFileLoad = ref}
                                     title="Load Song from File"
                                 >
-                                    <ASUIIcon className="file-load"/>
+                                    <ASUIIcon source="file-load"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="file-save"
                                     onAction={e => this.saveSongToFile(e)}
                                     title="Save Song to File"
                                 >
-                                    <ASUIIcon className="file-save"/>
+                                    <ASUIIcon source="file-save"/>
                                 </ASUIButton>
                             </ASUIForm>
 
@@ -149,7 +149,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                     onAction={(e, newSongVersion) => this.openSongSource(e, newSongVersion)}
                                     title="Song Source"
                                 >
-                                    <ASUIIcon className="source"/>
+                                    <ASUIIcon source="source"/>
                                 </ASUIButton>
                             </ASUIForm>
                         </ASUIPanel>

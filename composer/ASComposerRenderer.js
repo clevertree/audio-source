@@ -79,7 +79,7 @@ class ASComposerRenderer extends React.Component {
                                 className="asc-menu-button-toggle"
                                 options={(p) => this.renderRootMenu(p)}
                                 >
-                                <ASUIIcon className="menu" />
+                                <ASUIIcon source="menu" />
                             </ASUIMenuDropDown>
                             : <ASUIDiv className="asc-menu-container">{(p) => this.renderRootMenu(p)}</ASUIDiv>}
                     </ASUIDiv>
@@ -90,19 +90,19 @@ class ASComposerRenderer extends React.Component {
                                     className="song-play"
                                     onAction={e => this.songPlay(e)}
                                 >
-                                    <ASUIIcon className="play"/>
+                                    <ASUIIcon source="play"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="song-pause"
                                     onAction={e => this.songPause(e)}
                                 >
-                                    <ASUIIcon className="pause"/>
+                                    <ASUIIcon source="pause"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="song-stop"
                                     onAction={e => this.songStop(e)}
                                 >
-                                    <ASUIIcon className="stop"/>
+                                    <ASUIIcon source="stop"/>
                                 </ASUIButton>
                             </ASUIForm>
 
@@ -114,14 +114,14 @@ class ASComposerRenderer extends React.Component {
                                     ref={ref => this.fieldSongFileLoad = ref}
                                     title="Load Song from File"
                                 >
-                                    <ASUIIcon className="file-load"/>
+                                    <ASUIIcon source="file-load"/>
                                 </ASUIButton>
                                 <ASUIButton
                                     className="file-save"
                                     onAction={e => this.saveSongToFile(e)}
                                     title="Save Song to File"
                                 >
-                                    <ASUIIcon className="file-save"/>
+                                    <ASUIIcon source="file-save"/>
                                 </ASUIButton>
                             </ASUIForm>
 
@@ -220,7 +220,7 @@ class ASComposerRenderer extends React.Component {
                                     title="Insert Instruction"
                                     disabled={selectedIndices.length > 0}
                                 >
-                                    <ASUIIcon className="insert"/>
+                                    <ASUIIcon source="insert"/>
                                 </ASUIButton>
                             </ASUIForm>
                             <ASUIForm className="instruction-delete" header="Rem">
@@ -230,7 +230,7 @@ class ASComposerRenderer extends React.Component {
                                     title="Delete Instruction"
                                     disabled={selectedIndices.length === 0}
                                 >
-                                    <ASUIIcon className="remove"/>
+                                    <ASUIIcon source="remove"/>
                                 </ASUIButton>
                             </ASUIForm>
 

@@ -93,7 +93,7 @@ class AudioBufferInstrumentRenderer extends AudioBufferInstrumentRendererStyle {
                 }
                 <ASUIDiv title={`Edit Sample '${sampleName}'`} className="config">
                     <ASUIButton onAction={e => this.openMenuRoot(e)} vertical openOnHover={false}>
-                        <ASUIIcon className="config"/>
+                        <ASUIIcon source="config"/>
                     </ASUIButton>
                 </ASUIDiv>
             </ASUIDiv>

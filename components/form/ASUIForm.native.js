@@ -1,7 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-class ASUIForm extends React.Component {
+import {Text, View} from 'react-native';
+
+import styles from './assets/ASUIForm.style';
+
+export default class ASUIForm extends React.Component {
     /** Default Properties **/
     static defaultProps = {
     };
@@ -10,27 +14,26 @@ class ASUIForm extends React.Component {
     static propTypes = {
         className: PropTypes.string,
         header: PropTypes.any,
+        children: PropTypes.required,
     };
 
     render() {
-        let className = 'asui-form';
-        if(this.props.className)
-            className += ' ' + this.props.className;
-
-        let children = this.props.children;
-        if(typeof children === "function")
-            children = children(this);
-
+        const style = [styles.default];
+        if(this.props.disabled)
+            style.push(styles.disabled)
+        if(this.props.selected)
+            style.push(styles.selected)
         return (
-            <div className={className}>
-                {this.props.header ? <div className="header">{this.props.header}</div> : null}
-                <div className="container">
-                    {children}
-                </div>
-            </div>
+            <View
+                style={style}
+                >
+                {this.props.header ? <View style={styles.header}>{textify(this.props.header)}</View> : null}
+                {textify(this.props.children)}
+            </View>
         )
     }
 }
 
-/** Export this script **/
-export default ASUIForm;
+function textify(content, props={}) {
+    return typeof content === "string" ? <Text children={content} {...props}/> : content;
+}

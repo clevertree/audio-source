@@ -1,7 +1,7 @@
 import React from 'react';
 
 /** Div **/
-class ASUIDiv extends React.Component {
+export default class ASUIDiv extends React.Component {
 
     render() {
         let children = this.props.children;
@@ -11,4 +11,3 @@ class ASUIDiv extends React.Component {
     }
 }
 
-export default ASUIDiv;

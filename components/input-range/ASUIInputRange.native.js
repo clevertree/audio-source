@@ -1,6 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import RangeSlider from 'rn-range-slider';
+
+import styles from './assets/ASUIInputRange.style';
+
+
 class ASUIInputRange extends React.Component {
     /** Default Properties **/
     static defaultProps = {
@@ -36,15 +41,14 @@ class ASUIInputRange extends React.Component {
     }
 
     render() {
-        let className = "asui-input-range";
-        if(this.props.className)
-            className += ' ' + this.props.className;
+        const style = [styles.default];
+        if(this.props.disabled)
+            style.push(styles.disabled)
         return (
-            <input
-                className={className}
-                type="range"
+            <RangeSlider
+                style={style}
                 value={this.props.value}
-                onChange={this.cb.onChange}
+                onValueChanged={this.cb.onChange}
                 onClick={this.cb.onClick}
                 min={this.props.min}
                 max={this.props.max}
