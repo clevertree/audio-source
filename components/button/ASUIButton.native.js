@@ -42,6 +42,7 @@ class ASUIButton extends React.Component {
 
         return (
             <TouchableHighlight
+                style={{display: 'flex'}}
                 onPress={this.cb.onMouseInput}
                 onLongPress={this.cb.onMouseInput}
             >

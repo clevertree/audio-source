@@ -11,7 +11,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
     constructor(props={}) {
         super(props);
         this.state = {
-            title: "Audio Source ASPlayer",
+            title: "Audio Source Player",
             status: "[No Song Loaded]",
             version: require('../package.json').version,
             menuKey: 'root',

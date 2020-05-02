@@ -14,7 +14,7 @@ class ASComposerRenderer extends React.Component {
         // this.state.trackerRowLength = null;
 
         this.state = {
-            title: "Audio Source ASComposer",
+            title: "Audio Source Composer",
             status: "[No Song Loaded]",
             version: require('../package.json').version,
             menuKey: 'root',

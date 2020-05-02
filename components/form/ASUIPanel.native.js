@@ -21,15 +21,13 @@ export default class ASUIPanel extends React.Component {
         const style = [styles.default];
         if(this.props.disabled)
             style.push(styles.disabled)
-        if(this.props.selected)
-            style.push(styles.selected)
 
         return (
             <View
                 style={style}
                 >
                 {this.props.header ? <View style={styles.header}>{textify(this.props.header)}</View> : null}
-                {textify(this.props.children)}
+                <View style={styles.container}>{textify(this.props.children)}</View>
             </View>
         )
     }
