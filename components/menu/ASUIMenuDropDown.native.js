@@ -32,7 +32,7 @@ export default class ASUIMenuDropDown extends React.Component {
     getClassName() { return 'asui-menu-item'; }
 
     render() {
-        const style = [styles.default];
+        const style = [styles.default, this.props.style];
         if(this.props.disabled)
             style.push(styles.disabled)
         if(this.props.selected)

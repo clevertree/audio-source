@@ -4,9 +4,9 @@ import PropTypes from 'prop-types';
 
 import {ASCTrackInstruction, ASCTrackRow} from "./";
 import {ASUIButton, ASUIButtonDropDown, ASUIPanel} from "../../components/";
+import ActiveTrackState from "./ActiveTrackState";
 
 import "./assets/ASCTrack.css";
-import ActiveTrackState from "./ActiveTrackState";
 
 class ASCTrack extends React.Component {
     /** Default Properties **/

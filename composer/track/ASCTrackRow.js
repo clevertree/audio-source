@@ -4,9 +4,9 @@ import ASCTrackDelta from "./ASCTrackDelta";
 import ASCTrackInstructionAdd from "./ASCTrackInstructionAdd";
 
 import ASCTrackPosition from "./ASCTrackPosition";
+import ASUIDropDownContainer from "../../components/menu/ASUIDropDownContainer";
 
 import "./assets/ASCTrackRow.css";
-import ASUIDropDownContainer from "../../components/menu/ASUIDropDownContainer";
 
 class ASCTrackRow extends React.Component {
     constructor(props) {

@@ -1,11 +1,19 @@
 import React from "react";
 
-import {ASUIDiv, ASUIIcon, ASUIInputRange, ASUIForm, ASUIPanel, ASUIMenuDropDown, ASUIButton, ASUIMenuOverlayContainer} from "../components";
+import {
+    ASUIButton,
+    ASUIDiv,
+    ASUIForm,
+    ASUIIcon,
+    ASUIInputRange,
+    ASUIMenuOverlayContainer,
+    ASUIPanel
+} from "../components";
 
 
 import ASPPlaylist from "./playlist/ASPPlaylist";
 import ASPlayerStyle from "./ASPlayerStyle";
-
+import {ASPlayerHeader} from "./header/ASPlayerHeader";
 
 class ASPlayerRenderer extends ASPlayerStyle {
     constructor(props={}) {
@@ -31,16 +39,11 @@ class ASPlayerRenderer extends ASPlayerStyle {
                     isActive={this.state.portrait}
                 >
                     <ASUIDiv key="header" className="asp-title-container">
-                        <ASUIDiv className="asp-title-text">{this.state.title}</ASUIDiv>
-                        {this.state.portrait
-                            ? <ASUIMenuDropDown
-                                arrow={false}
-                                className="asp-menu-button-toggle"
-                                options={this.renderRootMenu()}
-                                >
-                                <ASUIIcon source="menu" />
-                              </ASUIMenuDropDown>
-                            : <ASUIDiv className="asp-menu-container">{this.renderRootMenu()}</ASUIDiv>}
+                        <ASPlayerHeader
+                            title={this.state.title}
+                            portrait={this.state.portrait}
+                            menuContent={() => this.renderRootMenu()}
+                            />
                     </ASUIDiv>
                     <ASUIDiv className="asp-forms-container">
                         <ASUIPanel className="song" header="Song">
