@@ -36,11 +36,11 @@ class ASPlayerRenderer extends ASPlayerStyle {
                             ? <ASUIMenuDropDown
                                 arrow={false}
                                 className="asp-menu-button-toggle"
-                                options={(p) => this.renderRootMenu(p)}
+                                options={this.renderRootMenu()}
                                 >
                                 <ASUIIcon source="menu" />
                               </ASUIMenuDropDown>
-                            : <ASUIDiv className="asp-menu-container">{(p) => this.renderRootMenu(p)}</ASUIDiv>}
+                            : <ASUIDiv className="asp-menu-container">{this.renderRootMenu()}</ASUIDiv>}
                     </ASUIDiv>
                     <ASUIDiv className="asp-forms-container">
                         <ASUIPanel className="song" header="Song">

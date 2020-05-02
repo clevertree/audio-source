@@ -70,7 +70,7 @@ class ASPlayer extends ASPlayerActions {
 
         if(window)
             window.addEventListener('resize', this.onResizeCallback);
-        this.onResize(e);
+        // this.onResize(e);
         // this.loadPackageInfo()
         //     .then(packageInfo => this.setVersion(packageInfo.version));
     }
@@ -100,10 +100,10 @@ class ASPlayer extends ASPlayerActions {
             // window.addEventListener('unload', e => this.saveState(e));
     }
 
-    loadState() {
+    async loadState() {
 
         const storage = new Storage();
-        const state = storage.loadState('audio-source-player-state');
+        const state = await storage.loadState('audio-source-player-state');
         console.log('loadState', state);
 
 
@@ -113,11 +113,11 @@ class ASPlayer extends ASPlayerActions {
     }
 
 
-    saveState() {
+    async saveState() {
         // await this.saveSongToMemory(e);
         const state = this.state;
         const storage = new Storage();
-        storage.saveState(state, 'audio-source-player-state');
+        await storage.saveState(state, 'audio-source-player-state');
         console.log('saveState', state);
     }
 

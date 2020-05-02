@@ -14,7 +14,7 @@ export default class ASUIForm extends React.Component {
     static propTypes = {
         className: PropTypes.string,
         header: PropTypes.any,
-        children: PropTypes.required,
+        // children: PropTypes.required,
     };
 
     render() {
