@@ -6,7 +6,7 @@ import {ASCTrackInstruction, ASCTrackRow} from "./";
 import {ASUIButton, ASUIButtonDropDown, ASUIPanel} from "../../components/";
 import ActiveTrackState from "./state/ActiveTrackState";
 
-import "./ASCTrack.css";
+import styles from "./ASCTrack.style";
 
 class ASCTrack extends React.Component {
     /** Default Properties **/

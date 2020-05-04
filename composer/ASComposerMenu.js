@@ -3,8 +3,6 @@ import {ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
 import {Storage, Values, ProgramLoader} from "../song";
 import ASComposerRenderer from "./ASComposerRenderer";
 
-import "./assets/ASComposer.css";
-
 class ASComposerMenu extends ASComposerRenderer {
 
 

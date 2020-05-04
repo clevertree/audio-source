@@ -1,6 +1,6 @@
 import TrackIterator from "./TrackIterator";
 import {Instruction, NoteInstruction} from "../instruction";
-import ActiveTrackState from "../../composer/track/ActiveTrackState";
+import ActiveTrackState from "../../composer/track/state/ActiveTrackState";
 
 
 export default class TrackPlayback extends TrackIterator {

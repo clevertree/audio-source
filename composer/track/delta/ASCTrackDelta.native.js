@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import "./assets/ASCTrackDelta.css";
+import styles from "./ASCTrackDelta.style";
 
 class ASCTrackDelta extends React.Component {
     render() {

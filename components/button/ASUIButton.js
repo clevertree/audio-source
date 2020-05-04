@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from 'prop-types';
 
-import './assets/ASUIButton.css';
+import './assets/ASUIButton.css'; // TODO: module.css https://malcoded.com/posts/react-component-style/
 import ASUIMenuContext from "../menu/ASUIMenuContext";
 
 // TODO: subclass Button and MenuDropDown with hover close handler

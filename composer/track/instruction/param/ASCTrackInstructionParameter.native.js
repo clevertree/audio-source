@@ -1,10 +1,10 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 
-import ASUIDropDownContainer from "../../components/menu/ASUIDropDownContainer";
+import ASUIDropDownContainer from "../../../../components/menu/ASUIDropDownContainer";
 
-import "./assets/ASCTrackParam.css";
 
+import style from "./ASCTrackInstructionParameter.style";
 
 class ASCTrackInstructionParameter extends React.Component {
     /** Default Properties **/

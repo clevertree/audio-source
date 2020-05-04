@@ -1,9 +1,9 @@
 import ASCTrack from "./ASCTrack";
-import ASCTrackRow from "./ASCTrackRow";
-import ASCTrackDelta from "./ASCTrackDelta";
-import ASCTrackInstruction from "./ASCTrackInstruction";
-import ASCTrackInstructionAdd from "./ASCTrackInstructionAdd";
-import ASCTrackInstructionParameter from "./ASCTrackInstructionParameter"
+import ASCTrackDelta from "./delta/ASCTrackDelta";
+import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
+import ASCTrackInstructionAdd from "./row/ASCTrackInstructionAdd";
+import ASCTrackInstructionParameter from "./instruction/param/ASCTrackInstructionParameter"
+import ASCTrackRow from "./row/ASCTrackRow";
 
 // import TrackInfo from "./ASCTrackInfo";
 

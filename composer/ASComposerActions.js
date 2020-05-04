@@ -5,7 +5,7 @@ import ASComposerMenu from "./ASComposerMenu";
 import {ASUIDiv} from "../components";
 import {ASCTrack} from "./track";
 import Values from "../song/values/Values";
-import ActiveTrackState from "./track/ActiveTrackState";
+import ActiveTrackState from "./track/state/ActiveTrackState";
 
 // import {TrackInfo} from "./track/";
 
@@ -26,6 +26,74 @@ class ASComposerActions extends ASComposerMenu {
     setVersion(versionString) {
         this.setState({version: versionString});
     }
+
+    /** Song rendering **/
+    getSong() { return this.song; }
+
+    setCurrentSong(song) {
+        if(!song instanceof Song)
+            throw new Error("Invalid current song");
+        if(this.song) {
+            this.setStatus("Unloading song: " + this.song.data.title);
+            if(this.song.isPlaying) {
+                this.song.stopPlayback();
+            }
+            this.song.removeEventListener('*', this.onSongEventCallback);
+            this.song.unloadAll();
+        }
+        this.song = song;
+        // console.log("Current Song: ", song);
+
+        const activeTracks = {
+            'root': {
+                // destination: this.getAudioContext()
+            },
+        };
+
+        this.song.addEventListener('*', this.onSongEventCallback);
+        // this.setStatus("Initializing song: " + song.data.title);
+        this.song.connect(this.getAudioContext());
+        // this.setStatus("Loaded song: " + song.data.title);
+        this.setState({
+            status: "Loaded song: " + song.data.title,
+            title: song.data.title,
+            songUUID: song.data.uuid,
+            songLength: song.getSongLengthInSeconds(),
+            selectedTrack: song.getStartTrackName() || 'root',
+            activeTracks
+        });
+    }
+
+    updateCurrentSong() {
+        this.setState({
+            songLength: this.song.getSongLengthInSeconds(),
+        });
+    }
+
+
+    loadMIDIInterface(callback) {
+        // TODO: wait for user input
+        if (navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(
+                (MIDI) => {
+                    console.info("MIDI initialized", MIDI);
+                    const inputDevices = [];
+                    MIDI.inputs.forEach(
+                        (inputDevice) => {
+                            inputDevices.push(inputDevice);
+                            inputDevice.addEventListener('midimessage', callback);
+                        }
+                    );
+                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
+                },
+                (err) => {
+                    throw new Error("error initializing MIDI: " + err);
+                }
+            );
+        }
+    }
+
+
 
     /** Playback **/
 

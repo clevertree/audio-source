@@ -1,13 +1,14 @@
 import * as React from "react";
 import {
     ASCTrackInstructionParameter
-} from "./";
+} from "../index";
 // import Div from "../../components/div/Div";
 // import ASCTrackDelta from "./ASCTrackDelta";
 
-import "./assets/ASCTrackInstruction.css";
 import PropTypes from "prop-types";
-import {TrackInstruction} from "../../song/instruction";
+import {TrackInstruction} from "../../../song/instruction";
+
+import styles from "./ASCTrackInstruction.style"
 
 class ASCTrackInstruction extends React.Component {
     constructor(props) {
@@ -99,7 +100,7 @@ class ASCTrackInstruction extends React.Component {
             onKeyDown={this.cb.onKeyDown}
             // onClick={this.cb.onMouseInput}
             onMouseDown={this.cb.onMouseInput}
-            >
+        >
             {parameters}
         </div>;
     }

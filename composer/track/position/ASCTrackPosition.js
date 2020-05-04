@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import "./assets/ASCTrackPosition.css";
+import "./ASCTrackPosition.css";
 
 class ASCTrackPosition extends React.Component {
     render() {

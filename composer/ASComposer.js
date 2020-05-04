@@ -5,11 +5,53 @@ import {
     Keyboard,
     Library}          from "../song";
 import ASComposerActions from "./ASComposerActions";
-import ActiveTrackState from "./track/ActiveTrackState";
+import ActiveTrackState from "./track/state/ActiveTrackState";
 
 export default class ASComposer extends ASComposerActions {
     constructor(props={}) {
         super(props);
+        this.state = {
+            title: "Audio Source Composer",
+            status: "[No Song Loaded]",
+            version: require('../package.json').version,
+            menuKey: 'root',
+
+
+            portrait: false,
+            fullscreen: false,
+            showPanelSong: true,
+            showPanelPlaylist: true,
+
+            // Playback
+            volume: Song.DEFAULT_VOLUME,
+            playing: false,
+            paused: false,
+
+            // Song Information
+            songUUID: null,
+            // songLengthTicks: 0,
+            songLength: 0,
+            songPosition: 0,
+
+            // Trackers
+            selectedTrack: 'root',
+            activeTracks: {
+                root:{
+                    destination: this.getAudioContext(),
+                    currentCommand: 'C4',
+                    currentVelocity: null,
+                    currentDuration: '1B',
+                }
+            },
+
+
+            /** UI **/
+
+            // Keyboard
+            keyboardOctave: 4,
+
+
+        };
 
         this.timeouts = {
             saveSongToMemory: null,
