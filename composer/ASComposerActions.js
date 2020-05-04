@@ -76,6 +76,50 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
+    /** Portrait Mode **/
+
+    onResize() {
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        const portrait = aspectRatio < 14/16;
+        if(!this.state.portrait === portrait) {
+            console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
+            this.setState({portrait});
+        }
+    }
+
+
+    /** State **/
+
+    loadState() {
+        const storage = new Storage();
+        const state = storage.loadState('audio-source-composer-state');
+        console.log('Loading State: ', state);
+
+
+        if (state) {
+            if (typeof state.volume !== "undefined")
+                this.setVolume(state.volume);
+            delete state.volume;
+            // if(state.songUUID)
+            this.loadDefaultSong(state.songUUID);
+            delete state.songUUID;
+            this.setState(state);
+            this.updateCurrentSong();
+            // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
+
+        } else {
+            this.loadDefaultSong();
+        }
+    }
+
+
+    saveState(e) {
+        const storage = new Storage();
+        storage.saveState(this.state, 'audio-source-composer-state');
+        console.log('Saving State: ', this.state);
+    }
+
+
 
     /** Volume **/
 

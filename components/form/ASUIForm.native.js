@@ -34,5 +34,5 @@ export default class ASUIForm extends React.Component {
 }
 
 function textify(content, props={}) {
-    return typeof content === "string" ? <Text children={content} {...props}/> : content;
+    return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }

@@ -7,5 +7,20 @@ export default StyleSheet.create({
         padding: 2,
     },
 
+    containerRows: {
+
+    },
+
+    containerPanel: {
+
+    },
+
+    containerSegments: {
+
+    },
+
+    containerOptions: {
+
+    }
 });
 

@@ -5,9 +5,9 @@ import {
     Keyboard,
     Library}          from "../song";
 import ActiveTrackState from "./track/state/ActiveTrackState";
-import ASComposerPlayback from "./ASComposerPlayback";
+import ASComposerInput from "./ASComposerInput";
 
-export default class ASComposer extends ASComposerPlayback {
+export default class ASComposer extends ASComposerInput {
     constructor(props={}) {
         super(props);
         this.state = {
@@ -67,10 +67,8 @@ export default class ASComposer extends ASComposerPlayback {
         this.song = new Song();
 
         // this.onSongEvent = (e) => this.onSongEvent(e);
-        window.addEventListener('unload', e => this.saveState(e));
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);
-        this.onResizeCallback = e => this.onResize(e);
     }
 
 
@@ -91,121 +89,10 @@ export default class ASComposer extends ASComposerPlayback {
     // }
 
     componentDidMount() {
+        super.componentDidMount();
         this.loadState();
-
-        if(window)
-            window.addEventListener('resize', this.onResizeCallback);
         this.onResize();
         // TODO: get default library url from composer?
-    }
-
-    componentWillUnmount() {
-
-        if(window)
-            window.removeEventListener('resize', this.onResizeCallback);
-    }
-
-    /** Portrait Mode **/
-
-    onResize() {
-        const aspectRatio = window.innerWidth / window.innerHeight;
-        const portrait = aspectRatio < 14/16;
-        if(!this.state.portrait === portrait) {
-            console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
-            this.setState({portrait});
-        }
-    }
-
-
-    /** State **/
-
-    loadState() {
-        const storage = new Storage();
-        const state = storage.loadState('audio-source-composer-state');
-        console.log('Loading State: ', state);
-
-
-        if (state) {
-            if (typeof state.volume !== "undefined")
-                this.setVolume(state.volume);
-            delete state.volume;
-            // if(state.songUUID)
-            this.loadDefaultSong(state.songUUID);
-            delete state.songUUID;
-            this.setState(state);
-            this.updateCurrentSong();
-            // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
-
-        } else {
-            this.loadDefaultSong();
-        }
-    }
-
-
-    saveState(e) {
-        const storage = new Storage();
-        storage.saveState(this.state, 'audio-source-composer-state');
-        console.log('Saving State: ', this.state);
-    }
-
-
-
-    /** Input **/
-
-    onInput(e) {
-        // console.log(e.type);
-        if (e.defaultPrevented)
-            return;
-
-        switch (e.type) {
-            case 'focus':
-                break;
-
-            // case 'click':
-            //     this.closeAllMenus(true);
-            //     break;
-
-            case 'dragover':
-                e.stopPropagation();
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'copy';
-                break;
-
-            case 'drop':
-                e.stopPropagation();
-                e.preventDefault();
-                let files = e.dataTransfer.files; // Array of all files
-                this.loadSongFromFileInput(files[0]);
-                break;
-
-            case 'midimessage':
-                // console.log("MIDI", e.data, e);
-                switch (e.data[0]) {
-                    case 144:   // Note On
-                        // TODO: refactor
-                        e.preventDefault();
-                        throw new Error("TODO: Implement");
-                        // const midiImport = new MIDIImport();
-                        // let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
-                        // let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
-                        // console.log("MIDI ", newMIDICommand, newMIDIVelocity);
-
-                        // this.instructionInsertOrUpdate(e, newMIDICommand);
-                        // this.playSelectedInstructions(e);
-                        // this.focus();
-                    case 128:   // Note Off
-                        // TODO: turn off playing note, optionally set duration of note
-                        break;
-
-                    default:
-                        break;
-                }
-                break;
-
-            default:
-                throw new Error("Unhandled type: " + e.type);
-        }
-
     }
 
 

@@ -1,4 +1,5 @@
 import * as React from "react";
+import {Text, View} from 'react-native';
 import PropTypes from 'prop-types';
 
 import ASUIDropDownContainer from "../../../../components/menu/ASUIDropDownContainer";
@@ -33,7 +34,7 @@ class ASCTrackInstructionParameter extends React.Component {
         if(this.props.className)
             className += ' ' + this.props.className;
 
-        return <div
+        return <View
             // onClick={this.cb.onMouseInput}
             onKeyDown={this.cb.onKeyDown}
             onContextMenu={this.cb.onContextMenu}
@@ -41,13 +42,13 @@ class ASCTrackInstructionParameter extends React.Component {
             title={this.props.title}
             // tabIndex={0}
         >
-            {this.props.children}
+            {textify(this.props.children)}
             <ASUIDropDownContainer
                 ref={this.dropdown}
                 options={this.props.options}
                 vertical={this.props.vertical}
                 />
-        </div>;
+        </View>;
     }
 
     toggleMenu()    { return this.dropdown.current.toggleMenu(); }
@@ -114,3 +115,7 @@ class ASCTrackInstructionParameter extends React.Component {
 
 export default ASCTrackInstructionParameter;
 
+
+function textify(content, props={}) {
+    return typeof content !== "object" ? <Text children={content} {...props}/> : content;
+}
