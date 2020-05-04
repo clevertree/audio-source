@@ -9,6 +9,10 @@ export class IconList {
             case 'file-save':   return require('./img/file-save.icon.png');
             case 'file-load':   return require('./img/file-load.icon.png');
 
+
+            case 'insert':        return require('./img/insert.icon.png');
+            case 'remove':        return require('./img/remove.icon.png');
+
             case 'source':        return require('./img/source.icon.png');
 
             default:

@@ -38,7 +38,6 @@ export default class ASUIMenuDropDown extends React.Component {
         if(this.props.selected)
             style.push(styles.selected)
 
-        let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
         return (
             <TouchableHighlight
                 onPress={this.cb.onMouseInput}
@@ -47,15 +46,6 @@ export default class ASUIMenuDropDown extends React.Component {
                 <View
                     style={style}
                     >
-
-                    {this.props.children}
-                    {arrow ? <div className="arrow">{arrow}</div> : null}
-                    {/*<ASUIDropDownContainer*/}
-                    {/*    ref={this.dropdown}*/}
-                    {/*    disabled={this.props.disabled}*/}
-                    {/*    options={this.props.options}*/}
-                    {/*    vertical={this.props.vertical}*/}
-                    {/*    />*/}
                 </View>
             </TouchableHighlight>
         )

@@ -18,13 +18,15 @@ import TrackPlayback from "./track/TrackPlayback";
 ProgramList.addAllPrograms();
 // const DEFAULT_PROGRAM_CLASS = 'PolyphonyProgram';
 
+
 class Song {
-    constructor(audioContext=null, songData={}) {
-        this.audioContext = audioContext; //  || new (window.AudioContext || window.webkitAudioContext)();
+    constructor(songData={}) {
 
         this.eventListeners = [];
         this.programLoader = new ProgramLoader(this);
 
+        this.volume = null;
+        this.lastVolumeGain = null;
         this.playback = null;
 
         const data = {
@@ -124,7 +126,7 @@ class Song {
         this.values = new SongValues(this);
 
         this.loadSongData(songData);
-        this.programLoadAll(audioContext.destination);
+        this.programLoadAll();
 
         this.dispatchEventCallback = e => this.dispatchEvent(e);
     }
@@ -267,11 +269,11 @@ class Song {
     }
 
 
-    programLoadAll(destination) {
+    programLoadAll() {
         const programList = this.data.programs;
         for (let programID = 0; programID < programList.length; programID++) {
             if (programList[programID]) {
-                this.programLoadInstanceFromID(programID, destination);
+                this.programLoadInstanceFromID(programID);
                 // TODO wait for init?
             }
         }
@@ -303,7 +305,7 @@ class Song {
         const programID = programList.length;
 
         this.data.programs[programID] = config;
-        this.programLoadInstanceFromID(programID, this.audioContext.destination);
+        this.programLoadInstanceFromID(programID);
         // this.dispatchEvent({
         //     type: 'programs:added',
         //     programID,
@@ -320,7 +322,7 @@ class Song {
 
         const oldConfig = this.data.programs[programID];
         this.data.programs[programID] = [programClassName, programConfig];
-        this.programLoadInstanceFromID(programID, this.audioContext.destination);
+        this.programLoadInstanceFromID(programID);
 
         // this.dispatchEvent({
         //     type: 'programs:modified',
@@ -686,6 +688,26 @@ class Song {
 
     /** Playback **/
 
+    setVolumeGain(newVolume) {
+        this.volume = newVolume;
+        if(this.lastVolumeGain)
+            this.lastVolumeGain.gain.value = newVolume;
+    }
+
+    getVolumeGain(destination) {
+        if(!destination || !destination.context)
+            throw new Error("Invalid destination");
+        // if (this.volume !== null) {
+        const context = destination.context;
+        let gain = context.createGain();
+        gain.gain.value = this.volume === null ? 1 : this.volume;
+        gain.connect(destination);
+        this.lastVolumeGain = gain;
+        return gain;
+        // }
+        // return destination;
+    }
+
 
     getSongPlaybackPosition() {
         if (this.playback)
@@ -737,8 +759,7 @@ class Song {
 
 
     async play(destination, startPosition=null) {
-        if(!destination || !destination.context)
-            throw new Error("Invalid destination");
+        destination = this.getVolumeGain(destination);
         // const audioContext = destination.context;
         if (this.playback) {
             this.stopPlayback();
@@ -834,6 +855,8 @@ class Song {
 
 
     playSelectedInstructions(destination, trackName, selectedIndices) {
+        destination = this.getVolumeGain(destination);
+
         // TrackIterator find playback position of first index start point
         if(this.playback)
             this.stopPlayback();
@@ -873,7 +896,9 @@ class Song {
     // }
 
     playInstruction(destination, instruction, program, noteStartTime = null, onstart=null, onended=null) {
-        const audioContext = this.audioContext;
+        destination = this.getVolumeGain(destination);
+
+        const audioContext = destination.context;
         if (!instruction instanceof Instruction)
             throw new Error("Invalid instruction");
 
@@ -991,22 +1016,25 @@ class Song {
 
     /** Static Song Loading **/
 
+    /** @deprecated **/
     static loadSongFromData(audioContext, songData) {
-        const song = new Song(audioContext);
+        const song = new Song();
         song.loadSongData(songData);
         return song;
     }
 
+    /** @deprecated **/
     static loadSongFromMemory(audioContext, songUUID) {
         const storage = new Storage();
         const songData = storage.loadSongFromMemory(songUUID);
         const songHistory = storage.loadSongHistoryFromMemory(songUUID);
-        const song = new Song(audioContext, songData);
+        const song = new Song(songData);
         song.loadSongData(songData);
         song.loadSongHistory(songHistory);
         return song;
     }
 
+    /** @deprecated **/
     static loadSongFromFileInput(audioContext, file) {
         const library = Song.getFileSupportModule(file.name);
         if (typeof library.loadSongDataFromFileInput !== "function")
@@ -1014,11 +1042,12 @@ class Song {
 
         const buffer = Song.loadBufferFromFileInput(file);
         const songData = library.loadSongDataFromBuffer(buffer, file.name);
-        const song = new Song(audioContext);
+        const song = new Song();
         song.loadSongData(songData);
         return song;
     }
 
+    /** @deprecated **/
     static async loadSongFromURL(audioContext, src) {
         const library = Song.getFileSupportModule(src);
         if (typeof library.loadSongDataFromBuffer !== "function")
@@ -1028,11 +1057,12 @@ class Song {
         const buffer = await fileService.loadBufferFromURL(src);
         // const buffer = await response.arrayBuffer();
         const songData = library.loadSongDataFromBuffer(buffer, src);
-        const song = new Song(audioContext);
+        const song = new Song();
         song.loadSongData(songData);
         return song;
     }
 
+    /** @deprecated **/
     static async loadBufferFromFileInput(file) {
         return await new Promise((resolve, reject) => {
             let reader = new FileReader();                                      // prepare the file Reader

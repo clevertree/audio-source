@@ -4,10 +4,10 @@ import {
     Storage,
     Keyboard,
     Library}          from "../song";
-import ASComposerActions from "./ASComposerActions";
 import ActiveTrackState from "./track/state/ActiveTrackState";
+import ASComposerPlayback from "./ASComposerPlayback";
 
-export default class ASComposer extends ASComposerActions {
+export default class ASComposer extends ASComposerPlayback {
     constructor(props={}) {
         super(props);
         this.state = {
@@ -64,7 +64,7 @@ export default class ASComposer extends ASComposerActions {
         this.library = Library.loadDefault();
         console.log('library', this.library);
 
-        this.song = new Song(this.getAudioContext());
+        this.song = new Song();
 
         // this.onSongEvent = (e) => this.onSongEvent(e);
         window.addEventListener('unload', e => this.saveState(e));

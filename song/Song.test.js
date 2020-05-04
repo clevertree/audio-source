@@ -81,7 +81,7 @@ class SongTest {
   // }
 
   testSongClass() {
-    const song = new Song(this.audioContext, {
+    const song = new Song({
       programs: [
           ['TestInstrument'],
           ['TestInstrument']

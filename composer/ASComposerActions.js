@@ -30,6 +30,10 @@ class ASComposerActions extends ASComposerMenu {
     /** Song rendering **/
     getSong() { return this.song; }
 
+    /**
+     * Sets current composer song
+     * @param song
+     */
     setCurrentSong(song) {
         if(!song instanceof Song)
             throw new Error("Invalid current song");
@@ -52,7 +56,7 @@ class ASComposerActions extends ASComposerMenu {
 
         this.song.addEventListener('*', this.onSongEventCallback);
         // this.setStatus("Initializing song: " + song.data.title);
-        this.song.connect(this.getAudioContext());
+        // this.song.connect(this.getAudioContext());
         // this.setStatus("Loaded song: " + song.data.title);
         this.setState({
             status: "Loaded song: " + song.data.title,
@@ -71,258 +75,22 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    loadMIDIInterface(callback) {
-        // TODO: wait for user input
-        if (navigator.requestMIDIAccess) {
-            navigator.requestMIDIAccess().then(
-                (MIDI) => {
-                    console.info("MIDI initialized", MIDI);
-                    const inputDevices = [];
-                    MIDI.inputs.forEach(
-                        (inputDevice) => {
-                            inputDevices.push(inputDevice);
-                            inputDevice.addEventListener('midimessage', callback);
-                        }
-                    );
-                    console.log("MIDI input devices detected: " + inputDevices.map(d => d.name).join(', '));
-                },
-                (err) => {
-                    throw new Error("error initializing MIDI: " + err);
-                }
-            );
-        }
-    }
 
 
+    /** Volume **/
 
-    /** Playback **/
-
-
-    getAudioContext() {
-        if (this.audioContext)
-            return this.audioContext;
-
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        this.audioContext = audioContext;
-        return audioContext;
-    }
-
-    getVolumeGain() {
-        if (!this.volumeGain) {
-            const context = this.getAudioContext();
-            let gain = context.createGain();
-            gain.gain.value = this.state.volume; // Song.DEFAULT_VOLUME;
-            gain.connect(context.destination);
-            this.volumeGain = gain;
-        }
-        return this.volumeGain;
-    }
 
     getVolume () {
-        if(this.volumeGain) {
-            return this.volumeGain.gain.value;
-        }
         return this.state.volume;
     }
     setVolume (volume) {
         console.info("Setting volume: ", volume);
-        const gain = this.getVolumeGain();
-        if(gain.gain.value !== volume) {
-            gain.gain.value = volume;
-        }
         this.setState({volume});
-        // this.state.volume = volume;
-    }
-
-    /** Song actions **/
-
-
-    async setSongNamePrompt(newSongTitle) {
-        newSongTitle = await this.openPromptDialog("Enter a new song name", this.song.data.title);
-        this.setSongName(newSongTitle);
-    }
-    setSongName(newSongTitle=null) {
-        if(typeof newSongTitle !== "string")
-            throw new Error("Invalid song title: " + newSongTitle);
-        this.song.data.title = newSongTitle;
-        this.setStatus(`Song title updated: ${newSongTitle}`);
-    }
-
-    async setSongVersionPrompt(newSongVersion) {
-        newSongVersion = await this.openPromptDialog("Enter a new song version", this.song.data.version);
-        this.setSongVersion(newSongVersion);
-    }
-    setSongVersion(newSongVersion) {
-        if(typeof newSongVersion !== "string")
-            throw new Error("Invalid song version: " + newSongVersion);
-        this.song.data.version = newSongVersion;
-        this.setStatus(`Song version updated: ${newSongVersion}`);
-    }
-
-    songChangeStartingBeatsPerMinute(newSongBeatsPerMinute) {
-        this.song.data.beatsPerMinute = newSongBeatsPerMinute; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
-        this.setStatus(`Song beats per minute updated: ${newSongBeatsPerMinute}`);
-    }
-
-
-
-    async openSongFromFileDialog(e, accept=null) {
-        const file = await this.openFileDialog(accept);
-        this.loadSongFromFileInput(e, file);
-    }
-
-    async loadSongFromFileInput(e, file=null, accept=null) {
-        if(file === null)
-            file = await this.openFileDialog(accept);
-        if (!file)
-            throw new Error("Invalid file input");
-        const song = await Song.loadSongFromFileInput(file);
-        this.setCurrentSong(song);
-        // await this.song.loadSongFromFileInput(file);
-        // this.render();
-    }
-
-
-    /** Song utilities **/
-
-    loadDefaultSong(recentSongUUID = null) {
-        const src = this.props.src || this.props.url;
-        if (src) {
-            this.loadSongFromURL(src);
-            return true;
-        }
-
-
-        if (recentSongUUID) {
-            try {
-                this.loadSongFromMemory(recentSongUUID);
-                return;
-            } catch (e) {
-                console.error(e);
-                this.setError("Error: " + e.message)
-            }
-        }
-
-        this.loadNewSongData();
-
-        return false;
-    }
-
-    loadNewSongData() {
-        // const storage = new Storage();
-        // const defaultProgramURL = this.getDefaultProgramClass() + '';
-        // let songData = storage.generateDefaultSong(defaultProgramURL);
-        // const song = Song.loadSongFromData(songData);
-        const song = new Song(this.audioContext);
-        this.setCurrentSong(song);
-        // this.forceUpdate();
-        this.setStatus("Loaded new song", song.getProxiedData());
-    }
-
-
-    async loadRecentSongData() {
-        const storage = new Storage();
-        let songRecentUUIDs = await storage.getRecentSongList();
-        if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
-            this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
-            this.loadSongFromMemory(songRecentUUIDs[0].uuid);
-            return true;
-        }
-        return false;
-    }
-
-
-    loadSongFromMemory(songUUID) {
-        const song = Song.loadSongFromMemory(this.audioContext, songUUID);
-        this.setCurrentSong(song);
-        this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
-//         console.info(songData);
-    }
-
-    loadSongFromURL(url) {
-        const song = Song.loadSongFromURL(this.audioContext, url);
-        this.setCurrentSong(song);
-        this.setStatus("Loaded from url: " + url);
-    }
-
-    saveSongToMemory() {
-        const song = this.song;
-        const songData = song.data;
-        const songHistory = song.history;
-        const storage = new Storage();
-        this.setStatus("Saving song to memory...");
-        storage.saveSongToMemory(songData, songHistory);
-        this.setStatus("Saved song to memory: " + songData.uuid);
-    }
-
-    saveSongToFile() {
-        const songData = this.song.data;
-        // const songHistory = this.song.history;
-        const storage = new Storage();
-        this.setStatus("Saving song to file");
-        storage.saveSongToFile(songData);
-    }
-
-
-//         async loadSongFromMemory(songUUID) {
-//             await this.song.loadSongFromMemory(songUUID);
-//             this.forceUpdate();
-//             this.setStatus("Song loaded from memory: " + songUUID);
-// //         console.info(songData);
-//         }
-//
-//         async loadSongFromFileInput(fileInput = null) {
-//             fileInput = fileInput || this.fieldSongFileLoad.inputElm;
-//             if (!fileInput || !fileInput.files || fileInput.files.length === 0)
-//                 throw new Error("Invalid file input");
-//             if (fileInput.files.length > 1)
-//                 throw new Error("Invalid file input: only one file allowed");
-//             const file = fileInput.files[0];
-//             await this.song.loadSongFromFileInput(file);
-//             this.forceUpdate();
-//             this.setStatus("Song loaded from file: ", file);
-//         }
-//
-//
-//
-//         async loadSongFromURL(url=null, promptUser=true) {
-//             if (promptUser)
-//                 url = await this.openPromptDialog("Enter a Song URL:", url || 'https://mysite.com/songs/mysong.json');
-//             await this.song.loadSongFromURL(url);
-//             this.setStatus("Song loaded from url: " + url);
-//             // console.info(this.song.data);
-//             this.forceUpdate();
-//         }
-//
-//         async loadSongFromData(songData) {
-//             await this.song.loadSongData(songData);
-//             // this.render(true);
-//             this.setStatus("Song loaded from data", songData);
-//             this.forceUpdate();
-//         }
-
-    /** Song Playback Position **/
-
-    updateSongPositionValue(songPosition) {
-        this.setState({songPosition});
+        if(this.song)
+            this.song.setVolume(volume);
     }
 
     /** Song Playback **/
-
-    async songPlay() {
-        this.song.setPlaybackPosition(this.state.songPosition);
-        await this.song.play(this.getVolumeGain());
-    }
-
-    async songPause() {
-        this.song.stopPlayback();
-    }
-
-    async songStop() {
-        if (this.song.playback)
-            this.song.stopPlayback();
-        this.song.setPlaybackPositionInTicks(0);
-    }
 
     setSongPositionPercentage(playbackPercentage) {
         const playbackPosition = (playbackPercentage / 100) * this.state.songLength;

@@ -1,7 +1,7 @@
 
 import Song from "./Song";
 import Storage from "./storage/Storage";
-import Keyboard from "../song/Keyboard"
+import Keyboard from "./keyboard/Keyboard"
 import {ProgramLoader} from "./program";
 import {Instruction, NoteInstruction, TrackInstruction, InstructionIterator} from "./instruction";
 import {Values, SongValues} from "./values";

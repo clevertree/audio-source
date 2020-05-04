@@ -5,7 +5,8 @@ import {ASUIDiv, ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUI
 import ASCProgramRenderer from "./program/ASCProgramRenderer";
 import {ASCTrack} from "./track";
 import {Values} from "../song/";
-import "./assets/ASComposer.css";
+// import "./assets/ASComposer.css";
+import style from "./ASComposerRenderer.style";
 
 class ASComposerRenderer extends React.Component {
 
