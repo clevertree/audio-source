@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 
 import styles from "./ASCTrackRow.style";
 
-class ASCTrackRow extends React.Component {
+export default class ASCTrackRow extends React.Component {
     constructor(props) {
         super(props);
         this.dropdown = React.createRef();
@@ -43,8 +43,11 @@ class ASCTrackRow extends React.Component {
 
     render() {
         const style = [styles.default];
-        if(this.props.highlight)
+        if(this.props.highlight) {
+            if(!styles[this.props.highlight])
+                throw new Error("Invalid highlight style: " + this.props.highlight);
             style.push(styles[this.props.highlight])
+        }
 
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
@@ -107,5 +110,3 @@ class ASCTrackRow extends React.Component {
 
 
 }
-
-export default ASCTrackRow;

@@ -5,7 +5,16 @@ import {ASUIPanel} from "../../components/";
 import "./ASCTrack.css";
 import ASCTrackBase from "./ASCTrackBase";
 
-class ASCTrack extends ASCTrackBase {
+export default class ASCTrack extends ASCTrackBase {
+
+    componentDidMount() {
+        this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
+    }
+
+    componentWillUnmount() {
+        this.container.current.removeEventListener('wheel', this.cb.onWheel);
+    }
+
 
     /** Render **/
 
@@ -45,4 +54,3 @@ class ASCTrack extends ASCTrackBase {
 
 }
 
-export default ASCTrack;

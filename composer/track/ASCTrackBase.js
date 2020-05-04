@@ -36,18 +36,9 @@ export default class ASCTrackBase extends React.Component {
             onKeyDown: (e) => this.onKeyDown(e),
             onWheel: e => this.onWheel(e)
         };
-        this.container = React.createRef();
         this.destination = null;
-        this.cursorInstruction = React.createRef();
-        this.trackerGetCursorInfo();
-    }
-
-    componentDidMount() {
-        this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
-    }
-
-    componentWillUnmount() {
-        this.container.current.removeEventListener('wheel', this.cb.onWheel);
+        // this.cursorInstruction = React.createRef();
+        // this.trackerGetCursorInfo();
     }
 
     // getTrackInfo() {

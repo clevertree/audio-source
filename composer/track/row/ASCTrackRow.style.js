@@ -3,19 +3,23 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
 
     default: {
-        // backgroundColor: '#DDD',
-        // border: 1px outset #FFF,
-        // padding: 0px 0px,
-        // margin: 0px 0px 0px 0px,
         display: 'flex',
         padding: 2,
-        // borderWidth: 1,
-        // borderLeftColor: '#FFF',
-        // borderTopColor: '#FFF',
-        // borderRightColor: '#AAA',
-        // borderBottomColor: '#AAA',
     },
 
+    position: {
+
+    },
+    selected: {
+
+    },
+    cursor: {
+
+    },
+
+    'measure-start': {
+
+    }
 });
 
 

@@ -6,7 +6,10 @@ import styles from "./ASCTrack.style";
 import ASCTrackBase from "./ASCTrackBase";
 
 export default class ASCTrack extends ASCTrackBase {
-
+    constructor(props) {
+        super(props);
+        // this.container = React.createRef();
+    }
 
     /** Render **/
 
