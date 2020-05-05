@@ -4,7 +4,16 @@ export default StyleSheet.create({
 
     default: {
         display: 'flex',
-        padding: 2,
+        flexDirection:'row',
+        flexWrap:'wrap',
+
+        backgroundColor: '#C0C0C0',
+        borderWidth: 1,
+        borderLeftColor: '#DDD',
+        borderTopColor: '#DDD',
+        borderRightColor: '#AAA',
+        borderBottomColor: '#AAA',
+        // padding: 2,
     },
 
     position: {
@@ -18,7 +27,8 @@ export default StyleSheet.create({
     },
 
     'measure-start': {
-
+        borderTopWidth: 1,
+        borderTopColor: '#666',
     }
 });
 
