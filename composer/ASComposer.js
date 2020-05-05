@@ -17,7 +17,7 @@ export default class ASComposer extends ASComposerInput {
             menuKey: 'root',
 
 
-            portrait: false,
+            portrait: true,
             fullscreen: false,
             showPanelSong: true,
             showPanelPlaylist: true,
@@ -91,7 +91,6 @@ export default class ASComposer extends ASComposerInput {
     componentDidMount() {
         super.componentDidMount();
         this.loadState();
-        this.onResize();
         // TODO: get default library url from composer?
     }
 

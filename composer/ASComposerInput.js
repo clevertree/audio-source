@@ -15,6 +15,7 @@ export default class ASComposerInput extends ASComposerPlayback {
     }
 
     componentDidMount() {
+        this.onResize();
         window.addEventListener('unload', this.onUnloadCallback);
         window.addEventListener('resize', this.onResizeCallback);
     }
