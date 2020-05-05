@@ -76,12 +76,14 @@ class ProgramLoader {
             this.stopProgramPlayback(i);
         }
     }
+
     unloadAllPrograms() {
         const classes = ProgramLoader.registeredProgramClasses;
         for(let i=0; i<classes.length; i++) {
             const {classProgram} = classes[i];
             if(!classProgram.unloadAll) {
-                console.warn(classProgram.name + " has no static unloadAll method");
+                // TODO: use instance, not static
+                // console.warn(classProgram.name + " has no static unloadAll method");
                 continue;
             }
             classProgram.unloadAll();

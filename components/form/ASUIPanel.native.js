@@ -18,11 +18,11 @@ export default class ASUIPanel extends React.Component {
     };
 
     render() {
-        const style = [styles.default];
+        let style = [styles.default];
+        if(this.props.style)
+            style = [this.props.style];
         if(this.props.disabled)
             style.push(styles.disabled)
-        if(this.props.style)
-            style.push(this.props.style);
 
         return (
             <View

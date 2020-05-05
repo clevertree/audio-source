@@ -10,9 +10,9 @@ import ActiveTrackState from "./track/state/ActiveTrackState";
 // import {TrackInfo} from "./track/";
 
 class ASComposerActions extends ASComposerMenu {
-    constructor(state = {}, props = {}) {
-        super(state, props);
-    }
+    // constructor(props) {
+    //     super(props);
+    // }
 
     setStatus(newStatus) {
         console.info.apply(null, arguments); // (newStatus);

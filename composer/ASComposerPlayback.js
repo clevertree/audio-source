@@ -6,8 +6,9 @@ import ASComposerActions from "./ASComposerActions";
 // import {TrackInfo} from "./track/";
 
 export default class ASComposerPlayback extends ASComposerActions {
-    constructor() {
-        super();
+
+    constructor(props) {
+        super(props);
         this.audioContext = null;
     }
 

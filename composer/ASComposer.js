@@ -8,7 +8,7 @@ import ActiveTrackState from "./track/state/ActiveTrackState";
 import ASComposerInput from "./ASComposerInput";
 
 export default class ASComposer extends ASComposerInput {
-    constructor(props={}) {
+    constructor(props) {
         super(props);
         this.state = {
             title: "Audio Source Composer",

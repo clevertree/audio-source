@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableHighlight} from 'react-native';
+import {View, TouchableHighlight, Text} from 'react-native';
 import PropTypes from "prop-types";
 
 // import ASUIDropDownContainer from "./ASUIDropDownContainer";
@@ -38,6 +38,8 @@ export default class ASUIMenuDropDown extends React.Component {
         if(this.props.selected)
             style.push(styles.selected)
 
+        let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
+
         return (
             <TouchableHighlight
                 onPress={this.cb.onMouseInput}
@@ -46,6 +48,8 @@ export default class ASUIMenuDropDown extends React.Component {
                 <View
                     style={style}
                     >
+                    {textify(this.props.children)}
+                    {arrow ? <View className="arrow">{textify(arrow)}</View> : null}
                 </View>
             </TouchableHighlight>
         )
@@ -97,4 +101,8 @@ export default class ASUIMenuDropDown extends React.Component {
         this.toggleMenu();
     }
 
+}
+
+function textify(content, props={}) {
+    return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }

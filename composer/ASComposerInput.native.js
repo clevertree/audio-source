@@ -8,8 +8,8 @@ import ActiveTrackState from "./track/state/ActiveTrackState";
 import ASComposerPlayback from "./ASComposerPlayback";
 
 export default class ASComposerInput extends ASComposerPlayback {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.onResizeCallback = e => this.onResize(e);
         this.onUnloadCallback = e => this.saveState(e);
     }

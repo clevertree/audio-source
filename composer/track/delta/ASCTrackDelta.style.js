@@ -3,7 +3,10 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
 
     default: {
-        display: 'flex',
+        // display: 'flex',
+        width: 36,
+        paddingLeft: 4,
+        marginLeft: 'auto',
     },
 
 });

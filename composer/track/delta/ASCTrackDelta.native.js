@@ -1,13 +1,13 @@
 import * as React from "react";
 
-import styles from "./ASCTrackDelta.style";
 import {Text, View} from "react-native";
-import style from "./ASCTrackDelta.style";
+
+import styles from "./ASCTrackDelta.style";
 
 class ASCTrackDelta extends React.Component {
     render() {
         return <View
-            style={style.default}
+            style={styles.default}
         >
             <Text>
                 {this.props.duration}

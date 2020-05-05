@@ -30,7 +30,7 @@ class ASComposerRenderer extends React.Component {
                                 >
                                 <ASUIIcon source="menu" />
                             </ASUIMenuDropDown>
-                            : <ASUIDiv className="asc-menu-container">{(p) => this.renderRootMenu(p)}</ASUIDiv>}
+                            : <ASUIDiv className="asc-menu-container">{this.renderRootMenu()}</ASUIDiv>}
                     </ASUIDiv>
                     <ASUIDiv className="asc-panel-container">
                         <ASUIPanel className="song" header="Song">
@@ -127,34 +127,32 @@ class ASComposerRenderer extends React.Component {
                         </ASUIPanel>
 
 
-                        <ASUIPanel className="programs" header="Programs"
-                                   ref={ref=>this.panelPrograms = ref}
-                                   children={() => (<>
-                                   {this.song.programEach((programID, programClass, programConfig) =>
-                                       <ASCProgramRenderer
-                                           key={programID}
-                                           composer={this}
-                                           // openMenu={(e, options) => this.renderMenu(e, options)}
-                                           // programClass={programClass}
-                                           // programConfig={programConfig}
-                                           programID={programID}
-                                       />
-                                   )}
-                                   <ASUIForm className="program-add" header="Add Program">
-                                       <ASUIMenuDropDown
-                                           arrow={'▼'}
-                                           className="program-add"
-                                           options={() => this.renderMenuSelectAvailableProgram(programClass =>
-                                                   this.programAdd(programClass)
-                                               , 'Add New Program')}
-                                           title="Add Program"
-                                       >Select...</ASUIMenuDropDown>
-                                   </ASUIForm>
-                               </>)} />
+                        <ASUIPanel className="programs" header="Programs">
+                           {this.song.programEach((programID, programClass, programConfig) =>
+                               <ASCProgramRenderer
+                                   key={programID}
+                                   composer={this}
+                                   // openMenu={(e, options) => this.renderMenu(e, options)}
+                                   // programClass={programClass}
+                                   // programConfig={programConfig}
+                                   programID={programID}
+                               />
+                           )}
+                           <ASUIForm className="program-add" header="Add Program">
+                               <ASUIMenuDropDown
+                                   arrow={'▼'}
+                                   className="program-add"
+                                   options={() => this.renderMenuSelectAvailableProgram(programClass =>
+                                           this.programAdd(programClass)
+                                       , 'Add New Program')}
+                                   title="Add Program"
+                               >Select...</ASUIMenuDropDown>
+                           </ASUIForm>
+                        </ASUIPanel>
 
-                        <ASUIPanel className="instructions" header={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}
-                                   ref={ref=>this.panelInstructions = ref}
-                        >
+                        <ASUIPanel
+                            className="instructions"
+                            header={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}>
                             <ASUIForm className="instruction-command" header="Command">
                                 <ASUIButtonDropDown
                                     arrow={'▼'}

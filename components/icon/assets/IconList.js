@@ -13,6 +13,7 @@ export class IconList {
             case 'insert':        return require('./img/insert.icon.png');
             case 'remove':        return require('./img/remove.icon.png');
 
+            case 'config':        return require('./img/config.icon.png');
             case 'source':        return require('./img/source.icon.png');
 
             default:

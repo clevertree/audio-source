@@ -20,21 +20,26 @@ export default class ASCTrack extends ASCTrackBase {
                 header={this.getTrackName()}
                 title={`Track: ${this.getTrackName()}`}
                 >
-                <View
-                    style={styles.containerSegments}
-                    children={this.renderRowSegments()}
+                <View style={styles.default}>
+                    <View
+                        key="segments"
+                        style={styles.containerSegments}
+                        children={this.renderRowSegments()}
+                        />
+                    <View
+                        key="rows"
+                        style={styles.containerRows}
+                        onKeyDown={this.cb.onKeyDown}
+                        onWheel={this.cb.onWheel}
+                        >
+                        {this.renderRowContent()}
+                    </View>
+                    <View
+                        key="options"
+                        style={styles.containerOptions}
+                        children={this.renderRowOptions()}
                     />
-                <View
-                    style={styles.containerRows}
-                    onKeyDown={this.cb.onKeyDown}
-                    onWheel={this.cb.onWheel}
-                    >
-                    {this.renderRowContent()}
                 </View>
-                <View
-                    style={styles.containerOptions}
-                    children={this.renderRowOptions()}
-                />
             </ASUIPanel>
         );
     }

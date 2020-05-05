@@ -6,7 +6,7 @@ import styles from './assets/ASUIButton.style';
 import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
 
 // TODO: subclass Button and MenuDropDown with hover close handler
-class ASUIButton extends React.Component {
+export default class ASUIButton extends React.Component {
     /** Context **/
     static contextType = ASUIMenuContext;
 
@@ -42,16 +42,14 @@ class ASUIButton extends React.Component {
 
         return (
             <TouchableHighlight
-                style={{display: 'flex'}}
                 onPress={this.cb.onMouseInput}
                 onLongPress={this.cb.onMouseInput}
             >
-                <ImageBackground source={require('./assets/img/bg.png')} style={{}}>
+                <ImageBackground source={require('./assets/img/bg.png')} style={{}} resizeMode="repeat">
                     <View
                         style={style}
-                        >
-                        {textify(this.props.children)}
-                    </View>
+                        children={textify(this.props.children)}
+                        />
                 </ImageBackground>
             </TouchableHighlight>
         );
@@ -107,10 +105,7 @@ class ASUIButton extends React.Component {
 }
 
 
-
-
-export default ASUIButton;
-
 function textify(content, props={}) {
+    console.log('textify', content);
     return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }
