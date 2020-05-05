@@ -106,6 +106,6 @@ export default class ASUIButton extends React.Component {
 
 
 function textify(content, props={}) {
-    console.log('textify', content);
+    // console.log('textify', content);
     return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }

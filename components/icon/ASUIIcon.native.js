@@ -3,10 +3,9 @@ import PropTypes from "prop-types";
 
 import {Image} from 'react-native';
 
-import Style from './assets/ASUIIcon.style'
+import styles from './assets/ASUIIcon.style'
 import {IconList} from "./assets/IconList";
 
-Style.container;
 /** Icon **/
 class ASUIIcon extends React.Component {
 
