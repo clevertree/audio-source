@@ -114,8 +114,8 @@ class ProgramLoader {
 
 
 
-    static addProgramClass(classProgram, classRenderer=null, title=null) {
-        const className = classProgram.name;
+    static addProgramClass(className, classProgram, classRenderer=null, title=null) {
+        // const className = classProgram.name;
         const classes = ProgramLoader.registeredProgramClasses;
         title = title || classProgram.name;
         classes.push({classProgram, classRenderer, className, title})
