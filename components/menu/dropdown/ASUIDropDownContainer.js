@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import ASUIMenuContext from "./ASUIMenuContext";
+import ASUIMenuContext from "../ASUIMenuContext";
 
-import "./assets/ASUIDropDownContainer.css";
+import "./ASUIDropDownContainer.css";
 
 class ASUIDropDownContainer extends React.Component {
     static contextType = ASUIMenuContext;

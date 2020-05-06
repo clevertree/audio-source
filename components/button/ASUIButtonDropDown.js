@@ -1,4 +1,4 @@
-import ASUIMenuDropDown from "../menu/ASUIMenuDropDown";
+import {ASUIMenuDropDown} from "../menu/";
 import "./assets/ASUIButton.css"
 
 export default class ASUIButtonDropDown extends ASUIMenuDropDown {

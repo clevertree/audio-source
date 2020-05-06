@@ -2,7 +2,7 @@ import * as React from "react";
 import {Text, View} from 'react-native';
 import PropTypes from 'prop-types';
 
-import ASUIDropDownContainer from "../../../../components/menu/ASUIDropDownContainer";
+import {ASUIDropDownContainer} from "../../../../components/menu/";
 
 
 import style from "./ASCTrackInstructionParameter.style";

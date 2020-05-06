@@ -10,8 +10,7 @@ import styles from "./ASComposerContainer.style";
 export class ASComposerContainer extends React.Component {
     /** Property validation **/
     static propTypes = {
-        children: PropTypes.any.required,
-        composer: PropTypes.required
+        // composer: PropTypes.required
     };
 
 
@@ -39,7 +38,7 @@ export class ASComposerContainer extends React.Component {
                         style={styles.menuButton}
                         key="menu-button"
                         arrow={false}
-                        options={this.props.menuContent}
+                        options={() => this.props.composer.renderRootMenu()}
                     >
                         <ASUIIcon source="menu"/>
                     </ASUIMenuDropDown>
@@ -47,9 +46,9 @@ export class ASComposerContainer extends React.Component {
                 </View>
             );
 
-        let menuContent = this.props.menuContent;
-        if(typeof menuContent === "function")
-            menuContent = menuContent();
+        let menuContent = this.props.composer.renderRootMenu();
+        // if(typeof menuContent === "function")
+        //     menuContent = menuContent();
 
         return (
             <View style={styles.container}>

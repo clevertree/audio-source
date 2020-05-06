@@ -45,7 +45,7 @@ export default class ASUIButton extends React.Component {
                 onPress={this.cb.onMouseInput}
                 onLongPress={this.cb.onMouseInput}
             >
-                <ImageBackground source={require('./assets/img/bg.png')} style={{}} resizeMode="repeat">
+                <ImageBackground source={require('./assets/img/bg.png')} style={{}}>
                     <View
                         style={style}
                         children={textify(this.props.children)}

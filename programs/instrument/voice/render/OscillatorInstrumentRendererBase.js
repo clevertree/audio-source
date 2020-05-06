@@ -11,9 +11,8 @@ import {
 } from "../../../../components";
 import {Library, Values} from "../../../../song";
 
-import OscillatorNodeInstrumentRendererStyle from "./OscillatorNodeInstrumentRendererStyle";
 
-class OscillatorNodeInstrumentRenderer extends OscillatorNodeInstrumentRendererStyle {
+class OscillatorInstrumentRendererBase extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -39,31 +38,6 @@ class OscillatorNodeInstrumentRenderer extends OscillatorNodeInstrumentRendererS
             || "Unknown Osc";
     }
 
-    render() {
-        let className = "instrument-renderer-oscillator-node";
-        if(this.state.open)
-            className += ' open';
-        let title = this.getTitle();
-
-
-        return <ASUIDiv className={className}>
-            <ASUIDiv
-                className="title"
-                title={`Oscillator: ${title}`}
-                onClick={this.cb.onClick}
-                >
-                {title}
-            </ASUIDiv>
-            {this.renderParameters()}
-            <ASUIMenuDropDown
-                arrow={false}
-                className="config"
-                options={() => this.renderMenuRoot()}
-            >
-                <ASUIIcon source="config"/>
-            </ASUIMenuDropDown>
-        </ASUIDiv>;
-    }
 
     renderParameters() {
         if(!this.state.open)
@@ -249,4 +223,4 @@ class OscillatorNodeInstrumentRenderer extends OscillatorNodeInstrumentRendererS
     }
 }
 
-export default OscillatorNodeInstrumentRenderer;
+export default OscillatorInstrumentRendererBase;

@@ -1,9 +1,9 @@
 import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
 
 
-class OscillatorNodeInstrument {
+class OscillatorInstrument {
     constructor(config={}) {
-        // console.log('OscillatorNodeInstrument', config);
+        // console.log('OscillatorInstrument', config);
         this.config = config;
     }
 
@@ -75,11 +75,11 @@ class OscillatorNodeInstrument {
         osc.start(startTime);
         osc.stop(startTime + duration);
 
-        OscillatorNodeInstrument.playingOSCs.push(osc);
+        OscillatorInstrument.playingOSCs.push(osc);
         osc.onended = function() {
-            const i = OscillatorNodeInstrument.playingOSCs.indexOf(osc);
+            const i = OscillatorInstrument.playingOSCs.indexOf(osc);
             if(i !== -1)
-                OscillatorNodeInstrument.playingOSCs.splice(i, 1);
+                OscillatorInstrument.playingOSCs.splice(i, 1);
             onended && onended();
         };
 
@@ -113,4 +113,4 @@ class OscillatorNodeInstrument {
     }
 }
 
-export default OscillatorNodeInstrument;
+export default OscillatorInstrument;

@@ -39,7 +39,7 @@ class ASComposerActions extends ASComposerMenu {
             throw new Error("Invalid current song");
         if(this.song) {
             this.setStatus("Unloading song: " + this.song.data.title);
-            if(this.song.isPlaying) {
+            if(this.song.isPlaying()) {
                 this.song.stopPlayback();
             }
             this.song.removeEventListener('*', this.onSongEventCallback);

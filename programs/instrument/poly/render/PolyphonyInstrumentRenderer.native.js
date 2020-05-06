@@ -1,9 +1,11 @@
 import React from 'react';
+import {Text, View} from 'react-native';
 
-import "./PolyphonyInstrumentRenderer.css";
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
-import {ASUIButtonDropDown, ASUIDiv} from "../../../../components";
+import {ASUIButtonDropDown} from "../../../../components";
 import {ProgramLoader} from "../../../../song/program";
+
+import styles from "./PolyphonyInstrumentRenderer.style";
 
 /** PolyphonyInstrumentRenderer **/
 export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererBase {
@@ -13,8 +15,8 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
 //         console.log('voices', voices);
         // Presets are handled by composer
         return (
-            <div className="polyphony-instrument-renderer">
-                <div className="voices">
+            <View style={styles.container}>
+                <View style={styles.voices}>
                     {voices.map((voiceData, voiceID) => {
                         const [className, config] = voiceData;
                         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
@@ -25,18 +27,18 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                             config={config}
                         />
                     })}
-                </div>
-                <ASUIButtonDropDown
-                    title="Add new voice"
-                    className="add-voice"
-                    arrow={false}
-                    options={() => this.renderMenuAddVoice()}>
-                    +
-                </ASUIButtonDropDown>
-            </div>
+                    <View style={styles.buttonAddVoice}>
+                        <ASUIButtonDropDown
+                            title="Add new voice"
+                            arrow={false}
+                            options={() => this.renderMenuAddVoice()}>
+                            <Text style={styles.buttonAddText}>+</Text>
+                        </ASUIButtonDropDown>
+                    </View>
+                </View>
+            </View>
         );
 
     }
 
 }
-r

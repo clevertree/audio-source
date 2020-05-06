@@ -28,8 +28,8 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             titleHTML = `Empty`;
         }
         return (
-            <View className="asc-instrument-renderer-empty">
-                <View className="header">
+            <View style={styles.container}>
+                <View style={styles.header}>
                     <ASUIButton
                         className="toggle-container"
                         onAction={e => this.toggleContainer()}
@@ -43,7 +43,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         <ASUIIcon source="config"/>
                     </ASUIButtonDropDown>
                 </View>
-                {this.state.open ? <View className="content">
+                {this.state.open ? <View style={styles.content}>
                     {this.renderProgramContent()}
                 </View> : null}
             </View>

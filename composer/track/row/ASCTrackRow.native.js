@@ -3,7 +3,7 @@ import {Text, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "./ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
-import ASUIDropDownContainer from "../../../components/menu/ASUIDropDownContainer.native";
+import ASUIDropDownContainer from "../../../components/menu/dropdown/ASUIDropDownContainer";
 import PropTypes from "prop-types";
 
 import styles from "./ASCTrackRow.style";

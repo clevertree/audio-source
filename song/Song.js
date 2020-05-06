@@ -41,15 +41,15 @@ class Song {
             programs: [ // Also called 'programs' or 'patches'
                 ['PolyphonyInstrument', {
                     voices: [
-                        ['OscillatorNodeInstrument', {
+                        ['OscillatorInstrument', {
                             type: 'sawtooth'
                         }],
-                        ['OscillatorNodeInstrument', {
+                        ['OscillatorInstrument', {
                             type: 'sawtooth'
                         }],
                     ]}
                 ],
-                ['OscillatorNodeInstrument',{type: 'square'}],
+                ['OscillatorInstrument',{type: 'square'}],
             ],
             tracks: {
                 root: [

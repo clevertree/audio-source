@@ -1,8 +1,9 @@
 import React from "react";
+import {View, TouchableHighlight, Text} from 'react-native';
 import PropTypes from "prop-types";
 
-import "./assets/ASUIMenu.css";
-import ASUIDropDownContainer from "./ASUIDropDownContainer";
+// import ASUIDropDownContainer from "./ASUIDropDownContainer";
+import styles from "./ASUIMenuDropDown.style";
 
 export default class ASUIMenuDropDown extends React.Component {
     // Default Properties
@@ -31,33 +32,26 @@ export default class ASUIMenuDropDown extends React.Component {
     getClassName() { return 'asui-menu-item'; }
 
     render() {
-        let className = this.getClassName(); // 'asui-menu-item';
-        if(this.props.className)
-            className += ' ' + this.props.className;
+        const style = [styles.default, this.props.style];
         if(this.props.disabled)
-            className += ' disabled';
+            style.push(styles.disabled)
         if(this.props.selected)
-            className += ' selected';
+            style.push(styles.selected)
 
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
+
         return (
-            <div
-                title={this.props.title}
-                className={className}
-                onMouseEnter={this.cb.onMouseInput}
-                onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
-                tabIndex={0}
+            <TouchableHighlight
+                onPress={this.cb.onMouseInput}
+                onLongPress={this.cb.onMouseInput}
                 >
-                {this.props.children}
-                {arrow ? <div className="arrow">{arrow}</div> : null}
-                <ASUIDropDownContainer
-                    ref={this.dropdown}
-                    disabled={this.props.disabled}
-                    options={this.props.options}
-                    vertical={this.props.vertical}
-                    />
-            </div>
+                <View
+                    style={style}
+                    >
+                    {textify(this.props.children)}
+                    {arrow ? <View style={styles.arrow}>{textify(arrow)}</View> : null}
+                </View>
+            </TouchableHighlight>
         )
     }
 
@@ -107,4 +101,8 @@ export default class ASUIMenuDropDown extends React.Component {
         this.toggleMenu();
     }
 
+}
+
+function textify(content, props={}) {
+    return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }
