@@ -1,7 +1,7 @@
 import ASCTrack from "./ASCTrack";
 import ASCTrackDelta from "./delta/ASCTrackDelta";
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
-import ASCTrackInstructionAdd from "./row/ASCTrackInstructionAdd";
+import ASCTrackInstructionAdd from "./instruction/ASCTrackInstructionAdd";
 import ASCTrackInstructionParameter from "./instruction/param/ASCTrackInstructionParameter"
 import ASCTrackRow from "./row/ASCTrackRow";
 

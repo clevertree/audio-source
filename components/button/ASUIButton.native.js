@@ -1,8 +1,12 @@
-import ASUIClickableBase from "../button/ASUIClickableBase";
-import PropTypes from "prop-types";
 import React from "react";
+import PropTypes from 'prop-types';
 
-class ASUIMenuAction extends ASUIClickableBase {
+import {ImageBackground, StyleSheet, TouchableHighlight} from "react-native";
+import ASUIClickableBase from "./ASUIClickableBase";
+
+import styles from "./ASUIButton.style";
+
+export default class ASUIButton extends ASUIClickableBase {
     /** Default Properties **/
     static defaultProps = {
     };
@@ -14,8 +18,15 @@ class ASUIMenuAction extends ASUIClickableBase {
     };
 
 
-    // renderChildren(props={}) {
-    // }
+    renderChildren(props={}) {
+        return (
+            <ImageBackground
+                source={require('./assets/img/bg.png')}
+                style={styles.background}
+                children={super.renderChildren(props)}
+            />
+        );
+    }
 
     /** Actions **/
 
@@ -32,7 +43,5 @@ class ASUIMenuAction extends ASUIClickableBase {
             this.closeAllDropDownMenus();
     }
 
+
 }
-
-export default ASUIMenuAction;
-

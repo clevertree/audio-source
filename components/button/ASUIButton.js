@@ -2,9 +2,9 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
-import ASUIButtonBase from "./ASUIButtonBase.native";
+import ASUIClickableBase from "./ASUIClickableBase.native";
 
-export default class ASUIButton extends ASUIButtonBase {
+export default class ASUIButton extends ASUIClickableBase {
     /** Context **/
     static contextType = ASUIMenuContext;
 
@@ -29,6 +29,28 @@ export default class ASUIButton extends ASUIButtonBase {
 
     getOverlay() { return this.context.overlay; }
 
+
+    render() {
+        let className = this.getClassName();
+        if(this.props.className)
+            className += ' ' + this.props.className;
+        if(this.props.disabled)
+            className += ' disabled';
+        if(this.props.selected)
+            className += ' selected';
+
+        return (
+            <div
+                title={this.props.title}
+                className={className}
+                onClick={this.cb.onMouseInput}
+                onKeyDown={this.cb.onKeyDown}
+                tabIndex={0}
+            >
+                {this.props.children}
+            </div>
+        );
+    }
 
 
     /** Actions **/

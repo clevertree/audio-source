@@ -1,11 +1,11 @@
 import React from "react";
+import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
 import PropTypes from 'prop-types';
 
-import './assets/ASUIButton.css'; // TODO: module.css https://malcoded.com/posts/react-component-style/
 import ASUIMenuContext from "../menu/ASUIMenuContext";
+import styles from './ASUIButtonBase.style';
 
-// TODO: subclass Button and MenuDropDown with hover close handler
-export default class ASUIButtonBase extends React.Component {
+export default class ASUIClickableBase extends React.Component {
     /** Context **/
     static contextType = ASUIMenuContext;
 
@@ -17,9 +17,6 @@ export default class ASUIButtonBase extends React.Component {
         };
     }
 
-    getOverlay() { return this.context.overlay; }
-
-    getClassName() { return 'asui-button'; }
 
     render() {
         let className = this.getClassName();
@@ -37,13 +34,18 @@ export default class ASUIButtonBase extends React.Component {
                 onClick={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 tabIndex={0}
-                >
-                {this.props.children}
+            >
+                {this.renderChildren()}
             </div>
         );
     }
 
-
+    renderChildren(props={}) {
+        let children = this.props.children;
+        if(typeof children !== 'object')
+            children = <Text children={children} style={styles.text} {...props}></Text>;
+        return children;
+    }
 
     /** User Input **/
 
@@ -76,12 +78,13 @@ export default class ASUIButtonBase extends React.Component {
         throw new Error("Not implemented");
     }
 
+    /** Overlay Context **/
+
+    getOverlay() { return this.context.overlay; }
 
     closeAllDropDownMenus() {
         if(this.getOverlay())
             this.getOverlay().closeAllMenus();
     }
+
 }
-
-
-

@@ -1,7 +1,8 @@
-import ASUIButton from "../button/ASUIButton";
+import ASUIClickableBase from "../button/ASUIClickableBase.native";
+
 import './assets/ASUIMenu.css';
 
-class ASUIMenuAction extends ASUIButton {
+class ASUIMenuAction extends ASUIClickableBase {
     getClassName() { return 'asui-menu-item'; }
 }
 

@@ -1,9 +1,8 @@
 import * as React from "react";
-import {Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
 import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
 
-import styles from "./ASCTrackInstruction.style";
 
 export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     constructor(props) {
@@ -18,7 +17,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     }
 
     render() {
-        const style = [styles.default];
+        const style = [styles.cell];
 
         if(this.props.cursor)
             style.push(styles.cursor)
@@ -36,3 +35,25 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         </View>;
     }
 }
+
+
+const styles = StyleSheet.create({
+
+    cell: {
+        display: 'flex',
+
+        color: '#666',
+
+        backgroundColor: '#CCC',
+        borderRadius: 4,
+        borderWidth: 1,
+        borderLeftColor: '#AAA',
+        borderTopColor: '#AAA',
+        borderRightColor: '#666',
+        borderBottomColor: '#666',
+
+        paddingLeft: 2,
+        paddingRight: 2,
+    },
+
+});

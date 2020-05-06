@@ -1,11 +1,10 @@
 import React from "react";
-import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
+import {Text, TouchableHighlight, View, ImageBackground, StyleSheet} from "react-native";
 import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
-import styles from './ASUIButtonBase.style';
 
-export default class ASUIButtonBase extends React.Component {
+export default class ASUIClickableBase extends React.Component {
     /** Context **/
     static contextType = ASUIMenuContext;
 
@@ -17,7 +16,6 @@ export default class ASUIButtonBase extends React.Component {
         };
     }
 
-    getOverlay() { return this.context.overlay; }
 
 
     render() {
@@ -34,12 +32,10 @@ export default class ASUIButtonBase extends React.Component {
                 onPress={this.cb.onMouseInput}
                 onLongPress={this.cb.onMouseInput}
             >
-                <ImageBackground source={require('./assets/img/bg.png')} style={styles.background}>
-                    <View
-                        style={style}
-                        children={this.renderChildren()}
-                        />
-                </ImageBackground>
+                <View
+                    style={style}
+                    children={this.renderChildren()}
+                    />
             </TouchableHighlight>
         );
     }
@@ -82,5 +78,28 @@ export default class ASUIButtonBase extends React.Component {
         throw new Error("Not implemented");
     }
 
+    /** Overlay Context **/
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus() {
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
+    }
 
 }
+
+
+const styles = StyleSheet.create({
+
+    default: {
+    },
+
+    background: {
+    },
+
+    text: {
+        // fontSize: 17.5,
+    }
+
+});
