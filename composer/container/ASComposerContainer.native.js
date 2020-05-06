@@ -2,8 +2,8 @@ import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIIcon} from "../../components";
 import PropTypes from 'prop-types';
-import ASUIMenuOverlayContainer from "../../components/menu/ASUIMenuOverlayContainer.native";
-import {Text, View, ScrollView} from 'react-native';
+import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
+import {Text, View, ScrollView, TouchableHighlight} from 'react-native';
 
 import styles from "./ASComposerContainer.style";
 
@@ -13,6 +13,14 @@ export class ASComposerContainer extends React.Component {
         // composer: PropTypes.required
     };
 
+    constructor(props) {
+        super(props);
+
+        this.dropdown = React.createRef();
+        this.cb = {
+            onPress: e => this.onPress(e)
+        }
+    }
 
     render() {
         const state = this.props.composer.state;
@@ -33,17 +41,22 @@ export class ASComposerContainer extends React.Component {
         const state = this.props.composer.state;
         if (state.portrait)
             return (
-                <View style={styles.container}>
-                    <ASUIMenuDropDown
-                        style={styles.menuButton}
-                        key="menu-button"
-                        arrow={false}
-                        options={() => this.props.composer.renderRootMenu()}
-                    >
-                        <ASUIIcon source="menu"/>
-                    </ASUIMenuDropDown>
-                    <Text style={styles.title}>{state.title}</Text>
-                </View>
+                <TouchableHighlight
+                    onPress={this.cb.onPress}
+                >
+                    <View style={styles.container}>
+                        <ASUIMenuDropDown
+                            ref={this.dropdown}
+                            style={styles.menuButton}
+                            key="menu-button"
+                            arrow={false}
+                            options={() => this.props.composer.renderRootMenu()}
+                        >
+                            <ASUIIcon size="large" source="menu"/>
+                        </ASUIMenuDropDown>
+                        <Text style={styles.title}>{state.title}</Text>
+                    </View>
+                </TouchableHighlight>
             );
 
         let menuContent = this.props.composer.renderRootMenu();
@@ -63,11 +76,15 @@ export class ASComposerContainer extends React.Component {
     renderFooter() {
         const state = this.props.composer.state;
         return (
-            <View key="footer">
-                <Text>{state.status}</Text>
-                <Text ref={this.props.composer.footerVersionText}
+            <View key="footer" style={styles.footer}>
+                <Text style={styles.footerStatus}>{state.status}</Text>
+                <Text style={styles.footerVersion} ref={this.props.composer.footerVersionText}
                 >{state.version}</Text>
             </View>
         );
+    }
+
+    onPress(e) {
+        this.dropdown.current.toggleMenu();
     }
 }

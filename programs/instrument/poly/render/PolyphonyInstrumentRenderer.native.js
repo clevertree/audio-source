@@ -1,11 +1,9 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
 import {ASUIButtonDropDown} from "../../../../components";
 import {ProgramLoader} from "../../../../common/program";
-
-import styles from "./PolyphonyInstrumentRenderer.style";
 
 /** PolyphonyInstrumentRenderer **/
 export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererBase {
@@ -27,14 +25,13 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                             config={config}
                         />
                     })}
-                    <View style={styles.buttonAddVoice}>
-                        <ASUIButtonDropDown
-                            title="Add new voice"
-                            arrow={false}
-                            options={() => this.renderMenuAddVoice()}>
-                            <Text style={styles.buttonAddText}>+</Text>
-                        </ASUIButtonDropDown>
-                    </View>
+                    <ASUIButtonDropDown
+                        style={styles.buttonAddVoice}
+                        title="Add new voice"
+                        arrow={false}
+                        options={() => this.renderMenuAddVoice()}>
+                        <Text style={styles.buttonAddText}>+</Text>
+                    </ASUIButtonDropDown>
                 </View>
             </View>
         );
@@ -42,3 +39,34 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
     }
 
 }
+
+const styles = StyleSheet.create({
+    container: {
+        // borderTopWidth: 1,
+        // borderTopColor: '#AAA',
+        // backgroundColor: '#EEE',
+        // padding: 4
+        // borderWidth: 1
+    },
+
+    buttonAddVoice: {
+        backgroundColor: '#CCC',
+        borderRadius: 4,
+        borderWidth: 1,
+        borderLeftColor: '#AAA',
+        borderTopColor: '#AAA',
+        borderRightColor: '#666',
+        borderBottomColor: '#666',
+        paddingLeft: 6,
+        paddingRight: 6
+    },
+
+    buttonAddText: {
+        textAlign: 'center',
+    },
+
+    voices: {
+        flexDirection:'row',
+        flexWrap:'wrap',
+    }
+});

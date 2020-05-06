@@ -1,12 +1,10 @@
 import React from "react";
+import ASUIMenuContext from "../ASUIMenuContext";
+import ASUIMenuBreak from "../ASUIMenuBreak.native";
+import ASUIMenuAction from "../ASUIMenuAction.native";
 // import Div from "../div/Div";
 
-import "./assets/ASUIMenuOverlayContainer.css";
-import ASUIMenuContext from "./ASUIMenuContext";
-import ASUIMenuBreak from "./ASUIMenuBreak";
-import ASUIMenuAction from "./ASUIMenuAction";
-
-class ASUIMenuOverlayContainer extends React.Component {
+export default class ASUIMenuOverlayContainerBase extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -27,23 +25,18 @@ class ASUIMenuOverlayContainer extends React.Component {
     //     MenuDropDown.removeGlobalSubMenuHandler(this.openMenuHandler)
     // }
 
+    renderContent() {
+        throw new Error("Not implemented");
+    }
+
+
     render() {
         return <ASUIMenuContext.Provider
             value={{overlay:this, parentDropDown:null}}>
-            <>
-                {this.state.openOverlay ? <div className="asui-menu-overlay-container"
-                    onClick={this.cb.closeAllMenus}
-                    /> : null}
-
-                {this.state.open ? <div className="asui-menu-overlay-dropdown">
-                    {this.state.options}
-                    <ASUIMenuBreak/>
-                    <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>
-                </div> : null}
-                {this.props.children}
-            </>
+            {this.renderContent()}
         </ASUIMenuContext.Provider>;
     }
+
 
     // getActiveMenuCount() {
     //     return this.openMenus.length;
@@ -129,5 +122,3 @@ class ASUIMenuOverlayContainer extends React.Component {
     //     return true;
     // }
 }
-
-export default ASUIMenuOverlayContainer;

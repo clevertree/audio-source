@@ -24,4 +24,13 @@ export default StyleSheet.create({
         display: 'flex',
     },
 
+    footer: {
+        paddingLeft: 2,
+        paddingRight: 2,
+        borderTopWidth: 1,
+        // display: 'flex',
+        flexDirection:'row',
+        justifyContent: 'space-between',
+    }
+
 });

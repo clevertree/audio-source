@@ -22,8 +22,10 @@ export default class ASUIButtonBase extends React.Component {
 
     render() {
         const style = [styles.default];
+        if(this.props.style)
+            style.push(this.props.style);
         if(this.props.disabled)
-            style.push(styles.disabled)
+            style.push(styles.disabled);
         // if(this.props.selected)
         //     style.push(styles.selected)
 

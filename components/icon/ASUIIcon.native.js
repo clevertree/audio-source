@@ -1,13 +1,12 @@
 import React from 'react';
 import PropTypes from "prop-types";
 
-import {View, Image} from 'react-native';
+import {View, Image, StyleSheet} from 'react-native';
 
-import styles from './assets/ASUIIcon.style'
 import {IconList} from "./assets/IconList";
 
 /** Icon **/
-class ASUIIcon extends React.Component {
+export default class ASUIIcon extends React.Component {
 
     /** Property validation **/
     static propTypes = {
@@ -20,13 +19,32 @@ class ASUIIcon extends React.Component {
     }
 
     render() {
+        let style = styles.default;
+        if(this.props.size)
+            style = styles[this.props.size];
+
+
         let source = this.props.source;
         if(typeof source === "string")
             source = new IconList().getSource(source);
-        return <View style={styles.container}>
-            <Image style={styles.image} source={source}/>
-        </View>;
+        return <Image style={style} source={source}/>;
     }
 }
 
-export default ASUIIcon;
+
+const styles = StyleSheet.create({
+    container: {
+    },
+
+    default: {
+        width: 19.5,
+        height: 19.5
+    },
+
+    large: {
+        width: 32,
+        height: 32
+    }
+
+
+});

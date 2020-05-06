@@ -11,8 +11,8 @@ export default StyleSheet.create({
 
         borderRadius: 2,
         borderWidth: 1,
-        borderLeftColor: '#FFF',
-        borderTopColor: '#FFF',
+        borderLeftColor: '#CCC',
+        borderTopColor: '#CCC',
         borderRightColor: '#AAA',
         borderBottomColor: '#AAA',
     },

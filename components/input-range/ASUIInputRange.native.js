@@ -1,14 +1,13 @@
 import React from "react";
+import {StyleSheet, View} from "react-native";
 import PropTypes from "prop-types";
 
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 // import RangeSlider from 'rn-range-slider';
 // import { Knob } from 'react-native-knob';
 
-import styles from './assets/ASUIInputRange.style';
 
-
-class ASUIInputRange extends React.Component {
+export default class ASUIInputRange extends React.Component {
     /** Default Properties **/
     static defaultProps = {
         min: 0,
@@ -47,37 +46,50 @@ class ASUIInputRange extends React.Component {
     }
 
     render() {
-        const style = [styles.default];
-        if(this.props.disabled)
-            style.push(styles.disabled)
         return (
             <MultiSlider
-                containerStyle={{
-                    height: 30,
-                    paddingLeft: 8,
-                }}
-                sliderLength={40}
+                containerStyle={styles.containerStyle}
+                trackStyle={styles.trackStyle}
+                sliderLength={80}
                 onValuesChangeFinish={this.cb.onChange}
+                customMarker={() => <View style={styles.customMarker} />}
+                values={[this.props.value]}
                 min={this.props.min}
                 max={this.props.max}
                 step={this.props.step}
             />
-        // <RangeSlider
-        //     style={style}
-        //     value={this.props.value}
-        //     onValueChanged={this.cb.onChange}
-        //     onClick={this.cb.onClick}
-        //     min={this.props.min}
-        //     max={this.props.max}
-        //     step={this.props.step}
-        //     name={this.props.name}
-        //     title={this.props.title}
-        // />
         )
     }
 
 }
 
 
-/** Export this script **/
-export default ASUIInputRange;
+const styles = StyleSheet.create({
+
+    default: {
+    },
+
+    customMarker: {
+        borderRadius: 2,
+        backgroundColor: '#666',
+        marginTop: 19,
+        marginLeft: 4,
+        height: 19,
+        width: 4,
+    },
+
+    containerStyle: {
+        padding: 1,
+        height: 19,
+        // width: 60,
+        paddingTop: 4,
+        // paddingLeft: 3,
+    },
+    trackStyle: {
+        height: 19,
+    },
+    // selectedStyle: {},
+    // unselectedStyle: {},
+    // markerContainerStyle: {},
+    // markerStyle: {},
+});

@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
 import {
     ASUIIcon,
@@ -7,8 +7,6 @@ import {
     ASUIButton,
 } from "../../components";
 import ASCProgramRendererBase from "./ASCProgramRendererBase";
-
-import styles from "./ASCProgramRenderer.style"
 
 export default class ASCProgramRenderer extends ASCProgramRendererBase {
 
@@ -36,6 +34,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         children={`${programIDHTML}: ${titleHTML}`}
                         />
                     <ASUIButtonDropDown
+                        style={styles.config}
                         arrow={false}
                         className="program-config"
                         options={() => this.renderMenuRoot()}
@@ -53,3 +52,34 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
     }
 }
 
+const styles = StyleSheet.create({
+
+    header: {
+        flexDirection:'row',
+        flexWrap:'wrap',
+        // justifyContent: 'space-between'
+    },
+
+    config: {
+    },
+
+    content: {
+        borderTopWidth: 1,
+        borderTopColor: '#AAA',
+        padding: 4,
+        backgroundColor: '#DDD',
+        // borderWidth: 1
+    },
+
+    container: {
+        // backgroundColor: '#EEE',
+
+        borderWidth: 1,
+        borderLeftColor: '#DDD',
+        borderTopColor: '#DDD',
+        borderRightColor: '#AAA',
+        borderBottomColor: '#AAA',
+        // display: 'flex',
+    },
+
+});

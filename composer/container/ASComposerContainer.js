@@ -2,7 +2,7 @@ import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIDiv, ASUIIcon} from "../../components";
 import PropTypes from 'prop-types';
-import ASUIMenuOverlayContainer from "../../components/menu/ASUIMenuOverlayContainer.native";
+import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
 import {View} from "react-native";
 
 export class ASComposerContainer extends React.Component {

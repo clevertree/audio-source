@@ -1,9 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import {Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 
-import styles from './assets/ASUIForm.style';
 
 export default class ASUIForm extends React.Component {
     /** Default Properties **/
@@ -36,3 +35,39 @@ export default class ASUIForm extends React.Component {
 function textify(content, props={}) {
     return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }
+
+const styles = StyleSheet.create({
+
+    default: {
+        backgroundColor: '#DDD',
+        borderWidth: 1,
+        borderLeftColor: '#FFF',
+        borderTopColor: '#FFF',
+        borderRightColor: '#AAA',
+        borderBottomColor: '#AAA',
+        // border: 1px outset #FFF,
+        // padding: 0px 0px,
+        // margin: 0px 0px 0px 0px,
+        display: 'flex',
+    },
+
+    header: {
+        paddingLeft: 2,
+        paddingRight: 2,
+        borderBottomColor: '#BBB',
+        borderBottomWidth: 1,
+        // font-size: smaller,
+        // border-bottom: 1px solid #BBB,
+        // margin-bottom: 1px,
+        // padding: 0 3px 1px 3px,
+        // height: 1em,
+    },
+
+    container: {
+        flexDirection:'row',
+        flexWrap:'wrap',
+        // display: flex,
+        // min-height: 1.4em,
+    }
+
+});
