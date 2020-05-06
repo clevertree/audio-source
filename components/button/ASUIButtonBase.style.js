@@ -3,18 +3,26 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
 
     default: {
-        // backgroundColor: '#DDD',
-        // border: 1px outset #FFF,
-        // padding: 0px 0px,
-        // margin: 0px 0px 0px 0px,
-        display: 'flex',
-        padding: 2,
-        // borderWidth: 1,
-        // borderLeftColor: '#FFF',
-        // borderTopColor: '#FFF',
-        // borderRightColor: '#AAA',
-        // borderBottomColor: '#AAA',
+        flexWrap:'wrap',
+        flexDirection:'row',
+
+        paddingLeft: 4,
+        paddingRight: 4,
+
+        borderRadius: 2,
+        borderWidth: 1,
+        borderLeftColor: '#FFF',
+        borderTopColor: '#FFF',
+        borderRightColor: '#AAA',
+        borderBottomColor: '#AAA',
     },
+
+    background: {
+    },
+
+    text: {
+        // fontSize: 17.5,
+    }
 
 });
 

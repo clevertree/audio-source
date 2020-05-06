@@ -40,7 +40,7 @@ class ASComposerRenderer extends React.Component {
                             </ASUIButton>
                         </ASUIForm>
 
-                        <ASUIForm className="file" header="File">
+                        {this.state.portrait ? null : <ASUIForm className="file" header="File">
                             <ASUIButton
                                 className="file-load"
                                 onAction={(e) => this.loadSongFromFileInput(e)}
@@ -57,7 +57,7 @@ class ASComposerRenderer extends React.Component {
                             >
                                 <ASUIIcon source="file-save"/>
                             </ASUIButton>
-                        </ASUIForm>
+                        </ASUIForm>}
 
                         <ASUIForm className="volume" header="Volume">
                             <ASUIInputRange
@@ -92,14 +92,14 @@ class ASComposerRenderer extends React.Component {
                             />
                         </ASUIForm>
 
-                        <ASUIForm className="name" header="Name">
+                        {this.state.portrait ? null : <ASUIForm className="name" header="Name">
                             <ASUIButton
                                 className="name"
                                 onAction={(e) => this.setSongNamePrompt()}
                                 title="Song Name"
                                 children={this.song ? this.song.data.title : "no song loaded"}
                             />
-                        </ASUIForm>
+                        </ASUIForm>}
 
                         <ASUIForm className="version" header="Version">
                             <ASUIButton

@@ -67,6 +67,8 @@ class ASComposerActions extends ASComposerMenu {
             selectedTrack: song.getStartTrackName() || 'root',
             activeTracks
         });
+        this.trackerToggleTrack('track0', true);
+        this.trackerToggleTrack('track1', true);
     }
 
     updateCurrentSong() {

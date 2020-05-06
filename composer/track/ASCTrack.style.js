@@ -12,20 +12,18 @@ export default StyleSheet.create({
     containerRows: {
         // flexDirection:'column',
         // flexWrap:'nowrap',
-
     },
 
     containerPanel: {
-        // flexDirection:'column',
-        // flexWrap:'nowrap',
     },
 
     containerSegments: {
+        flexDirection:'row',
 
     },
 
     containerOptions: {
-
+        alignItems: 'flex-end'
     }
 });
 

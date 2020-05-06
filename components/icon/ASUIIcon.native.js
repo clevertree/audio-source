@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from "prop-types";
 
-import {Image} from 'react-native';
+import {View, Image} from 'react-native';
 
 import styles from './assets/ASUIIcon.style'
 import {IconList} from "./assets/IconList";
@@ -23,7 +23,9 @@ class ASUIIcon extends React.Component {
         let source = this.props.source;
         if(typeof source === "string")
             source = new IconList().getSource(source);
-        return <Image {...this.props} source={source}/>;
+        return <View style={styles.container}>
+            <Image style={styles.image} source={source}/>
+        </View>;
     }
 }
 

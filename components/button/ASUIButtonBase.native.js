@@ -1,26 +1,13 @@
 import React from "react";
+import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
 import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
-import styles from './assets/ASUIButton.style';
-import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
+import styles from './ASUIButtonBase.style';
 
-// TODO: subclass Button and MenuDropDown with hover close handler
-export default class ASUIButton extends React.Component {
+export default class ASUIButtonBase extends React.Component {
     /** Context **/
     static contextType = ASUIMenuContext;
-
-    /** Default Properties **/
-    static defaultProps = {
-    };
-
-    /** Property validation **/
-    static propTypes = {
-        onAction: PropTypes.func.isRequired,
-        disabled: PropTypes.bool,
-        // selected: PropTypes.bool,
-    };
-
 
     constructor(props) {
         super(props);
@@ -45,17 +32,22 @@ export default class ASUIButton extends React.Component {
                 onPress={this.cb.onMouseInput}
                 onLongPress={this.cb.onMouseInput}
             >
-                <ImageBackground source={require('./assets/img/bg.png')} style={{}}>
+                <ImageBackground source={require('./assets/img/bg.png')} style={styles.background}>
                     <View
                         style={style}
-                        children={textify(this.props.children)}
+                        children={this.renderChildren()}
                         />
                 </ImageBackground>
             </TouchableHighlight>
         );
     }
 
-
+    renderChildren(props={}) {
+        let children = this.props.children;
+        if(typeof children !== 'object')
+            children = <Text children={children} style={styles.text} {...props}></Text>;
+        return children;
+    }
 
     /** User Input **/
 
@@ -85,27 +77,8 @@ export default class ASUIButton extends React.Component {
     /** Actions **/
 
     doAction(e) {
-        if(this.props.disabled) {
-            console.warn(this.constructor.name + " is disabled.", this);
-            return;
-        }
-
-        if(!this.props.onAction)
-            throw new Error("Button does not contain props 'onAction'");
-        const result = this.props.onAction(e, this);
-        if (result !== false)
-            this.closeAllDropDownMenus();
+        throw new Error("Not implemented");
     }
 
 
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-    }
-}
-
-
-function textify(content, props={}) {
-    // console.log('textify', content);
-    return typeof content !== "object" ? <Text children={content} {...props}/> : content;
 }

@@ -17,6 +17,7 @@ export default class ASCTrack extends ASCTrackBase {
         return (
             <ASUIPanel
                 style={styles.containerPanel}
+                styleContainer={{}}
                 header={this.getTrackName()}
                 title={`Track: ${this.getTrackName()}`}
                 >

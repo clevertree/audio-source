@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 // import ASUIDropDownContainer from "./ASUIDropDownContainer";
 import styles from "./ASUIMenuDropDown.style";
+import ASUIDropDownContainer from "./ASUIDropDownContainer.native";
 
 export default class ASUIMenuDropDown extends React.Component {
     // Default Properties
@@ -28,10 +29,10 @@ export default class ASUIMenuDropDown extends React.Component {
         this.dropdown = React.createRef();
     }
 
-
-    getClassName() { return 'asui-menu-item'; }
+    getStyles() { return styles; }
 
     render() {
+        const styles = this.getStyles();
         const style = [styles.default, this.props.style];
         if(this.props.disabled)
             style.push(styles.disabled)
@@ -50,6 +51,12 @@ export default class ASUIMenuDropDown extends React.Component {
                     >
                     {textify(this.props.children)}
                     {arrow ? <View style={styles.arrow}>{textify(arrow)}</View> : null}
+                    <ASUIDropDownContainer
+                        ref={this.dropdown}
+                        disabled={this.props.disabled}
+                        options={this.props.options}
+                        vertical={this.props.vertical}
+                    />
                 </View>
             </TouchableHighlight>
         )
