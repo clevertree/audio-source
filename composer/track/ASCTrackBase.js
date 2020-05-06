@@ -1,7 +1,8 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 
-import {ASCTrackInstruction, ASCTrackRow} from "./";
+import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
+import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown, ASUIPanel} from "../../components/";
 import ActiveTrackState from "./state/ActiveTrackState";
 

@@ -1,4 +1,4 @@
-import Values from "./Values";
+import Values from "../../common/values/Values";
 
 class SongValues {
     constructor(song) {

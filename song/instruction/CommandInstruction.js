@@ -1,5 +1,5 @@
 import Instruction from "./Instruction";
-import ProgramLoader from "../program/ProgramLoader";
+import ProgramLoader from "../../common/program/ProgramLoader";
 
 class CommandInstruction extends Instruction {
 

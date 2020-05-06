@@ -1,6 +1,6 @@
 import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import React from "react";
-import ProgramLoader from "../program/ProgramLoader";
+import ProgramLoader from "../../common/program/ProgramLoader";
 
 class Library {
 

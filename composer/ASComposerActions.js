@@ -4,8 +4,9 @@ import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../son
 import ASComposerMenu from "./ASComposerMenu";
 import {ASUIDiv} from "../components";
 import {ASCTrack} from "./track";
-import Values from "../song/values/Values";
+import Values from "../common/values/Values";
 import ActiveTrackState from "./track/state/ActiveTrackState";
+import PromptManager from "../common/prompt/PromptManager";
 
 // import {TrackInfo} from "./track/";
 
@@ -138,7 +139,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     async setSongNamePrompt(newSongTitle) {
-        newSongTitle = await this.openPromptDialog("Enter a new song name", this.song.data.title);
+        newSongTitle = await PromptManager.openPromptDialog("Enter a new song name", this.song.data.title);
         this.setSongName(newSongTitle);
     }
     setSongName(newSongTitle=null) {
@@ -149,7 +150,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async setSongVersionPrompt(newSongVersion) {
-        newSongVersion = await this.openPromptDialog("Enter a new song version", this.song.data.version);
+        newSongVersion = await PromptManager.openPromptDialog("Enter a new song version", this.song.data.version);
         this.setSongVersion(newSongVersion);
     }
     setSongVersion(newSongVersion) {
@@ -281,7 +282,7 @@ class ASComposerActions extends ASComposerMenu {
     }
     async setSongPositionPrompt() {
         let songPosition = Values.formatPlaybackPosition(this.state.songPosition || 0);
-        songPosition = await this.openPromptDialog("Set playback position:", songPosition);
+        songPosition = await PromptManager.openPromptDialog("Set playback position:", songPosition);
         this.setSongPosition(songPosition);
     }
 
@@ -291,7 +292,7 @@ class ASComposerActions extends ASComposerMenu {
         const trackState = new ActiveTrackState(this, trackName);
         if (newCommand === null)
             newCommand = trackState.currentCommand;
-        newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
+        newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
         return this.instructionInsert(newCommand);
     }
 
@@ -331,7 +332,7 @@ class ASComposerActions extends ASComposerMenu {
     async instructionReplaceCommandSelectedPrompt(newCommand = null, trackName=null) {
         if (newCommand === null)
             newCommand = this.state.activeTracks[this.state.selectedTrack].currentCommand;
-        newCommand = await this.openPromptDialog("Set custom command:", newCommand || '');
+        newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
         return this.instructionReplaceCommandSelected(newCommand, trackName);
     }
 
@@ -367,7 +368,7 @@ class ASComposerActions extends ASComposerMenu {
             selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
 
         if (duration === null && promptUser)
-            duration = parseInt(await this.openPromptDialog("Set custom duration in ticks:", duration), 10);
+            duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
 
         if (typeof duration === 'string')
             duration = Values.parseDurationAsTicks(duration, this.song.data.timeDivision);
@@ -388,7 +389,7 @@ class ASComposerActions extends ASComposerMenu {
     async instructionReplaceVelocityPrompt(velocity = null, trackName = null, selectedIndices = null) {
         trackName = trackName || this.state.selectedTrack;
         const trackState = new ActiveTrackState(this, trackName);
-        velocity = parseInt(await this.openPromptDialog("Set custom velocity (0-127):", trackState.currentVelocity));
+        velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", trackState.currentVelocity));
         return this.instructionReplaceVelocitySelected(velocity, trackName, selectedIndices);
     }
 
@@ -494,7 +495,7 @@ class ASComposerActions extends ASComposerMenu {
 
         newTrackName = newTrackName || song.generateInstructionTrackName();
         if(promptUser)
-            newTrackName = await this.openPromptDialog("Create new instruction group?", newTrackName);
+            newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
             await this.trackerToggleTrack(newTrackName, true);
@@ -507,7 +508,7 @@ class ASComposerActions extends ASComposerMenu {
         const song = this.song;
 
         if(promptUser)
-            newTrackName = await this.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
+            newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
         if (newTrackName !== oldTrackName) {
             song.trackRename(oldTrackName, newTrackName);
             await this.trackerToggleTrack(newTrackName, true);
@@ -520,7 +521,7 @@ class ASComposerActions extends ASComposerMenu {
     async trackRemove(trackName, promptUser = true) {
         const song = this.song;
 
-        const result = promptUser ? await this.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
+        const result = promptUser ? await PromptManager.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
         if (result) {
             song.trackRemove(trackName);
             await this.trackerToggleTrack(trackName, true);
@@ -567,7 +568,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async trackerChangeQuantizationPrompt(trackName) {
-        const trackerQuantizationTicks = await this.composer.openPromptDialog(`Enter custom tracker quantization in ticks:`, this.track.quantizationTicks);
+        const trackerQuantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, this.track.quantizationTicks);
         await this.trackerChangeQuantization(trackName, trackerQuantizationTicks)
     }
 
@@ -582,7 +583,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async trackerChangeSegmentLengthPrompt(trackName) {
-        const trackerSegmentLengthInRows = parseInt(await this.composer.openPromptDialog(`Enter custom tracker segment length in rows:`, this.track.rowLength));
+        const trackerSegmentLengthInRows = parseInt(await PromptManager.openPromptDialog(`Enter custom tracker segment length in rows:`, this.track.rowLength));
         this.trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows);
     }
 
@@ -714,14 +715,14 @@ class ASComposerActions extends ASComposerMenu {
             trackName = this.state.selectedTrack;
         const trackState = new ActiveTrackState(this, trackName);
         let selectedIndices = (trackState.selectedIndices || []).join(', ');
-        selectedIndices = await this.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
+        selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
         this.trackerSelectIndices(trackName, selectedIndices);
     }
 
     trackerSelectIndices(trackName, selectedIndices, cursorOffset=null) {
         // console.log('trackerSelectIndices', {trackName, selectedIndices, cursorOffset, rowOffset});
         // TODO: get song position by this.props.index
-        // let selectedIndices = await this.composer.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+        // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
                 case 'all':
@@ -898,7 +899,7 @@ class ASComposerActions extends ASComposerMenu {
         if (!programClassName)
             throw new Error(`Invalid Program class`);
 
-        if (await this.openPromptDialog(`Change Program (${programID}) to ${programClassName}`)) {
+        if (await PromptManager.openPromptDialog(`Change Program (${programID}) to ${programClassName}`)) {
             await this.song.programReplace(programID, programClassName, programConfig);
             this.setStatus(`Program (${programID}) changed to: ${programClassName}`);
 
@@ -911,7 +912,7 @@ class ASComposerActions extends ASComposerMenu {
         console.log(this.song.programGetConfig(programID).title, programID);
         const oldProgramTitle = this.song.programGetConfig(programID).title;
         if (!newProgramTitle)
-            newProgramTitle = await this.openPromptDialog(`Change name for programs ${programID}: `, oldProgramTitle);
+            newProgramTitle = await PromptManager.openPromptDialog(`Change name for programs ${programID}: `, oldProgramTitle);
         if (!newProgramTitle)
             return console.error("Program name change canceled");
         this.song.programRename(programID, newProgramTitle);
@@ -954,7 +955,7 @@ class ASComposerActions extends ASComposerMenu {
 
     async batchSelect(e, searchCallbackString = null, promptUser = false) {
         if (promptUser || !searchCallbackString)
-            searchCallbackString = await this.openPromptDialog("Run custom search:", searchCallbackString ||
+            searchCallbackString = await PromptManager.openPromptDialog("Run custom search:", searchCallbackString ||
                 `/** Example Search **/ i.command === "C3"   &&   i.program === 0`);
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
@@ -988,7 +989,7 @@ class ASComposerActions extends ASComposerMenu {
         const storage = new Storage();
 
         if (promptUser || !searchCallbackString)
-            searchCallbackString = await this.openPromptDialog("Run custom search:", searchCallbackString ||
+            searchCallbackString = await PromptManager.openPromptDialog("Run custom search:", searchCallbackString ||
                 `/** Example Search **/ i.command === "C3"   &&   i.program === 0`);
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
@@ -996,7 +997,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
         if (promptUser || !commandCallbackString)
-            commandCallbackString = await this.openPromptDialog(`Run custom command:`, commandCallbackString ||
+            commandCallbackString = await PromptManager.openPromptDialog(`Run custom command:`, commandCallbackString ||
                 `/** Example Command **/ i.command='C4';`);
         if (!commandCallbackString)
             throw new Error("Batch command canceled: Invalid command");

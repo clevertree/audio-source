@@ -6,7 +6,7 @@ import PolyphonyInstrument from "./instrument/poly/PolyphonyInstrument";
 import PolyphonyInstrumentRenderer from "./instrument/poly/render/PolyphonyInstrumentRenderer";
 import GMEPlayerSynthesizer from "./player/gme/GMEPlayerSynthesizer";
 import GMEPlayerSynthesizerRenderer from "./player/gme/GMEPlayerSynthesizerRenderer";
-import ProgramLoader from "../song/program/ProgramLoader";
+import ProgramLoader from "../common/program/ProgramLoader";
 import TestInstrument from "./instrument/test/TestInstrument";
 
 export default {

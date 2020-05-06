@@ -1,9 +1,7 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import {
-    ASCTrackInstructionParameter
-} from "../index";
-import {TrackInstruction} from "../../../song/instruction";
+import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
+import TrackInstruction from "../../../song/instruction/TrackInstruction";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/

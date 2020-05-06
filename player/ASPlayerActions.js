@@ -1,5 +1,5 @@
 import Song from "../song/Song";
-import Storage from "../song/storage/Storage";
+import Storage from "../common/storage/Storage";
 import ASPlayerMenu from "./ASPlayerMenu";
 // import Div from "../components/div/Div";
 import React from "react";
@@ -702,10 +702,6 @@ class ASPlayerActions extends ASPlayerMenu {
 
 
     /** Prompt **/
-
-    openPromptDialog(message, defaultValue='') {
-        return window.prompt(message, defaultValue);
-    }
 
     async openFileDialog(accept=null) {
         return await new Promise((resolve, reject) => {

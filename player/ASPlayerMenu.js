@@ -2,7 +2,7 @@ import React from "react";
 
 import {ASUIMenuAction, ASUIMenuDropDown} from "../components";
 
-import Storage from "../song/storage/Storage";
+import Storage from "../common/storage/Storage";
 
 import ASPlayerRenderer from "./ASPlayerRenderer";
 

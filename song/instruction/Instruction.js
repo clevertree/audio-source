@@ -1,4 +1,4 @@
-import {Values} from "../values";
+import Values from "../../common/values/Values";
 
 class Instruction {
     constructor(instructionData = [0]) {

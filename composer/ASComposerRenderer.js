@@ -1,12 +1,11 @@
 import React from "react";
 
-import ASUIMenuOverlayContainer from "../components/menu/ASUIMenuOverlayContainer";
-import {ASUIDiv, ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown, ASUIMenuDropDown} from "../components";
+import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown, ASUIMenuDropDown} from "../components";
 import ASCProgramRenderer from "./program/ASCProgramRenderer";
-import {ASCTrack} from "./track";
-import {Values} from "../song/";
+import ASCTrack from "./track/ASCTrack";
+import Values from "../common/values/Values";
 // import "./assets/ASComposer.css";
-import style from "./ASComposerRenderer.style";
+// import style from "./ASComposerRenderer.style";
 import {ASComposerContainer} from "./container/ASComposerContainer";
 
 class ASComposerRenderer extends React.Component {

@@ -1,7 +1,7 @@
 import ASPlayerActions from "./ASPlayerActions";
 
 import {Song, SongValues}          from "../song";
-import Storage       from "../song/storage/Storage";
+import Storage       from "../common/storage/Storage";
 
 /**
  * ASPlayer requires a modern browser

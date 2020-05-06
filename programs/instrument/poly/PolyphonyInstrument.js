@@ -1,4 +1,4 @@
-import ProgramLoader from "../../../song/program/ProgramLoader";
+import ProgramLoader from "../../../common/program/ProgramLoader";
 // import Values from "../../song/Values";
 
 class PolyphonyInstrument {

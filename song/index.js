@@ -1,10 +1,10 @@
 
 import Song from "./Song";
-import Storage from "./storage/Storage";
-import Keyboard from "./keyboard/Keyboard"
-import {ProgramLoader} from "./program";
+import Storage from "../common/storage/Storage";
+import Keyboard from "../common/keyboard/Keyboard"
+import {ProgramLoader} from "../common/program";
 import {Instruction, NoteInstruction, TrackInstruction, InstructionIterator} from "./instruction";
-import {Values, SongValues} from "./values";
+import SongValues from "./values/SongValues";
 import {TrackIterator, TrackPlayback} from "./track";
 import Library from "./library/Library";
 export {
@@ -24,6 +24,5 @@ export {
 
     Keyboard,
 
-    Values,
     SongValues,
 }

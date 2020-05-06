@@ -1,15 +1,12 @@
 import React from 'react';
 import {
-    // Button,
-    // InputSelect,
-    ASUIDiv,
     ASUIMenuAction,
     ASUIMenuBreak,
-    ASUIIcon,
     ASUIInputRange,
     ASUIMenuDropDown,
 } from "../../../../components";
-import {Library, Values} from "../../../../song";
+import Library from "../../../../song/library/Library";
+import Values from "../../../../common/values/Values";
 
 
 class OscillatorInstrumentRendererBase extends React.Component {

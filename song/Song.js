@@ -1,7 +1,7 @@
-import ProgramLoader from "./program/ProgramLoader";
-import {SongValues} from "./values/";
+import ProgramLoader from "../common/program/ProgramLoader";
+import SongValues from "./values/SongValues";
 
-import Storage from "./storage/Storage";
+import Storage from "../common/storage/Storage";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import FileService from "./file/FileService";
@@ -10,7 +10,7 @@ import {Instruction, InstructionIterator, QuantizedInstructionIterator} from "./
 
 
 import ProgramList from "../programs";
-import Values from "./values/Values";
+import Values from "../common/values/Values";
 import TrackIterator from "./track/TrackIterator";
 import TrackPlayback from "./track/TrackPlayback";
 

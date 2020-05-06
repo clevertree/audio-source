@@ -3,7 +3,7 @@ import {Text, View} from 'react-native';
 
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
 import {ASUIButtonDropDown} from "../../../../components";
-import {ProgramLoader} from "../../../../song/program";
+import {ProgramLoader} from "../../../../common/program";
 
 import styles from "./PolyphonyInstrumentRenderer.style";
 

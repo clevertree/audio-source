@@ -2,6 +2,7 @@ import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/
 import {ASUIInputRange} from "../../components";
 import ProgramLoader from "../program/ProgramLoader";
 import React from "react";
+import PromptManager from "../prompt/PromptManager";
 
 class Values {
 
@@ -15,7 +16,7 @@ class Values {
             <ASUIMenuBreak />
             <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>
             <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</ASUIMenuDropDown>
-            <ASUIMenuAction onAction={async e => onSelectValue(await this.openPromptDialog("Insert custom command"))}      >Custom Command</ASUIMenuAction>
+            <ASUIMenuAction onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}      >Custom Command</ASUIMenuAction>
         </>);
 
     }
@@ -152,7 +153,7 @@ class Values {
 
     static renderMenuSelectVelocity(onSelectValue, currentVelocity=null) {
         const customAction = async () => {
-            const velocity = await this.openPromptDialog("Enter custom velocity (1-127)", 127);
+            const velocity = await PromptManager.openPromptDialog("Enter custom velocity (1-127)", 127);
             onSelectValue(velocity);
         };
         return (<>
@@ -180,16 +181,6 @@ class Values {
         </>);
     }
 
-
-    /** Prompt **/
-
-    static async openPromptDialog(message, defaultValue='') {
-        return window.prompt(message, defaultValue);
-    }
-
-    static async openConfirmDialog(message) {
-        return window.confirm(message);
-    }
 
     /** UUID **/
     static generateUUID() {

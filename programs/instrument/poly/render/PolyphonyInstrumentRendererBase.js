@@ -4,8 +4,9 @@ import {
     ASUIMenuAction, ASUIMenuBreak,
 } from "../../../../components";
 
-import {ProgramLoader, Library, Values} from "../../../../song";
-
+import ProgramLoader from "../../../../common/program/ProgramLoader";
+import Library from "../../../../song/library/Library";
+import PromptManager from "../../../../common/prompt/PromptManager";
 
 /** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {
@@ -37,7 +38,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
 
 //         e.target.form.elements['instrumentURL'].value = '';
-        if (promptUser === false || await Values.openConfirmDialog(`Add voice class '${title}' to Instrument?`)) {
+        if (promptUser === false || await PromptManager.openConfirmDialog(`Add voice class '${title}' to Instrument?`)) {
             const newVoiceID = this.props.config.voices.length;
             this.props.config.voices[newVoiceID] = [instrumentClassName, instrumentConfig];
             this.setStatus(`Instrument '${instrumentClassName}' added as voice ${newVoiceID}`);
