@@ -2,7 +2,7 @@ import React from 'react';
 
 import "./PolyphonyInstrumentRenderer.css";
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
-import {ASUIButtonDropDown, ASUIDiv} from "../../../../components";
+import {ASUIButtonDropDown} from "../../../../components";
 import {ProgramLoader} from "../../../../common/program";
 
 /** PolyphonyInstrumentRenderer **/
@@ -39,4 +39,3 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
     }
 
 }
-r

@@ -1,10 +1,10 @@
 import * as React from "react";
+import PropTypes from "prop-types";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASUIDropDownContainer from "../../../components/menu/dropdown/ASUIDropDownContainer";
-import PropTypes from "prop-types";
 
 export default class ASCTrackRow extends React.Component {
     constructor(props) {

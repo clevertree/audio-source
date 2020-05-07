@@ -1,5 +1,3 @@
-import React from "react";
-
 import {Song} from "../song";
 import ASComposerActions from "./ASComposerActions";
 

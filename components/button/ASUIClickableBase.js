@@ -1,9 +1,6 @@
 import React from "react";
-import {Text, TouchableHighlight, View, ImageBackground} from "react-native";
-import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
-import styles from './ASUIButtonBase.style';
 
 export default class ASUIClickableBase extends React.Component {
     /** Context **/
@@ -41,10 +38,7 @@ export default class ASUIClickableBase extends React.Component {
     }
 
     renderChildren(props={}) {
-        let children = this.props.children;
-        if(typeof children !== 'object')
-            children = <Text children={children} style={styles.text} {...props}></Text>;
-        return children;
+        return this.props.children;
     }
 
     /** User Input **/

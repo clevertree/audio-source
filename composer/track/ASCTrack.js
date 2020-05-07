@@ -6,6 +6,10 @@ import "./ASCTrack.css";
 import ASCTrackBase from "./ASCTrackBase";
 
 export default class ASCTrack extends ASCTrackBase {
+    constructor(props) {
+        super(props);
+        this.container = React.createRef();
+    }
 
     componentDidMount() {
         this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });

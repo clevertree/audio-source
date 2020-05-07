@@ -31,7 +31,7 @@ export default class ASUIButton extends ASUIClickableBase {
 
 
     render() {
-        let className = this.getClassName();
+        let className = 'asui-menu-item';
         if(this.props.className)
             className += ' ' + this.props.className;
         if(this.props.disabled)

@@ -30,7 +30,8 @@ export default class ASCTrackInstructionBase extends React.Component {
     getInstructionIndex() { return this.props.index; }
 
     render() {
-        throw new Error("Unimplemented");
+        // throw new Error("Unimplemented");
+        return null;
     }
 
     renderParameters() {

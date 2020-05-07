@@ -1,6 +1,7 @@
 import React from "react";
 import {ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
-import {Storage, Values, ProgramLoader} from "../song";
+import Values from "../common/values/Values";
+import {Storage, ProgramLoader} from "../song";
 import ASComposerRenderer from "./ASComposerRenderer";
 
 class ASComposerMenu extends ASComposerRenderer {

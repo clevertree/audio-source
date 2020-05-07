@@ -1,6 +1,7 @@
 import * as React from "react";
+import PropTypes from "prop-types";
 import ASCTrackPosition from "../position/ASCTrackPosition";
-import ASCTrackInstructionAdd from "./ASCTrackInstructionAdd";
+import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASUIDropDownContainer from "../../../components/menu/dropdown/ASUIDropDownContainer";
 import "./ASCTrackRow.css";

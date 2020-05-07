@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
-import {ASUIButton, ASUIButtonDropDown, ASUIPanel} from "../../components/";
+import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import ActiveTrackState from "./state/ActiveTrackState";
 
 export default class ASCTrackBase extends React.Component {

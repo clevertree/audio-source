@@ -1,21 +1,21 @@
 import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
-import {ASUIDiv, ASUIIcon} from "../../components";
+import {ASUIIcon} from "../../components";
 import PropTypes from 'prop-types';
 import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
-import {View} from "react-native";
 
 export class ASComposerContainer extends React.Component {
     /** Property validation **/
     static propTypes = {
-        children: PropTypes.any.required,
-        portrait: PropTypes.bool.required
+        children: PropTypes.any.isRequired,
+        portrait: PropTypes.bool.isRequired
     };
 
 
     render() {
+        const state = this.props.composer.state;
         return (
-            <div className={["asc-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
+            <div className={["asc-container", state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <ASUIMenuOverlayContainer
                     isActive={this.props.portrait}
                 >
@@ -55,12 +55,13 @@ export class ASComposerContainer extends React.Component {
     }
 
     renderFooter() {
+        const state = this.props.composer.state;
         return (
             <div key="footer" className="asp-footer-container">
-                <div className="asp-status-text">{this.state.status}</div>
+                <div className="asp-status-text">{state.status}</div>
                 <div className="asp-version-text"
                      ref={this.footerVersionText}
-                >{this.state.version}</div>
+                >{state.version}</div>
             </div>
         );
     }

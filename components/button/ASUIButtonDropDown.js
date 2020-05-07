@@ -1,11 +1,10 @@
-import {ASUIMenuDropDown} from "../menu/";
 import "./assets/ASUIButton.css"
-import ASUIButtonBase from "./ASUIButtonBase.native";
 import PropTypes from "prop-types";
 import React from "react";
 import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer.native";
+import ASUIClickableBase from "./ASUIClickableBase.native";
 
-export default class ASUIButtonDropDown extends ASUIButtonBase {
+export default class ASUIButtonDropDown extends ASUIClickableBase {
     // Default Properties
     static defaultProps = {
         arrow:          true,

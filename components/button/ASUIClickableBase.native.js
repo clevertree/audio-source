@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, TouchableHighlight, View, ImageBackground, StyleSheet} from "react-native";
+import {Text, TouchableHighlight, View} from "react-native";
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
 

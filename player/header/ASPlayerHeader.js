@@ -1,6 +1,6 @@
 import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
-import {ASUIDiv, ASUIIcon} from "../../components";
+import {ASUIIcon} from "../../components";
 
 export class ASPlayerHeader extends React.Component {
     render() {
