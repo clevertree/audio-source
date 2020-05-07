@@ -9,7 +9,8 @@ export default class SongProxyWebView extends React.Component {
         }
         this.webView = React.createRef();
         this.cb = {
-            onMessage: data => this.onMessage(data)
+            onMessage: data => this.onMessage(data),
+            onLoad: () => this.sendSongCommand("Loaded"),
         }
     }
 
@@ -25,11 +26,15 @@ export default class SongProxyWebView extends React.Component {
 // htmlPath = "file:///android_asset/Resources/index.html"; //file path from native directory;
 //         Platform.OS==='android'?'file:///android_asset/widget/index.html':'./external/widget/index.html'
         return <WebView
+            originWhitelist={['file://*', 'https://*', 'http://*']}
             source={{
-                uri: 'http://kittenton.local:3000/proxy'
+                uri: 'http://kittenton.local:3000/blank',
+                // uri: 'file:///android_asset/proxy/index.html'
             }}
             ref={this.webView}
-            onMessage={this.onMessage}
+            onError={e => console.error("WebView: ", e)}
+            onMessage={this.cb.onMessage}
+            onLoadEnd={this.cb.onLoad}
             />
     }
 
@@ -37,6 +42,8 @@ export default class SongProxyWebView extends React.Component {
         args.unshift('song');
         const argString = JSON.stringify(args);
         const webView = this.webView.current;
+        if(!webView)
+            return console.error("Webview ref is not set");
         webView.postMessage(argString);
         console.log('postMessage', argString);
     }
