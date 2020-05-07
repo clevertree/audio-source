@@ -4,7 +4,7 @@ import {StyleSheet} from "react-native";
 
 export default StyleSheet.create({
 
-    background: {
+    container: {
         flexWrap:'wrap',
         flexDirection:'row',
 

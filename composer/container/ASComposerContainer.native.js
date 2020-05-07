@@ -1,9 +1,8 @@
 import React from "react";
-import {ASUIMenuDropDown} from "../../components/menu";
-import {ASUIIcon} from "../../components";
-import PropTypes from 'prop-types';
-import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
 import {Text, View, ScrollView, TouchableHighlight} from 'react-native';
+import PropTypes from 'prop-types';
+import {ASUIIcon, ASUIMenuDropDown} from "../../components";
+import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
 
 import styles from "./ASComposerContainer.style";
 
@@ -43,7 +42,7 @@ export class ASComposerContainer extends React.Component {
             return (
                 <TouchableHighlight
                     onPress={this.cb.onPress}
-                >
+                    >
                     <View style={styles.container}>
                         <ASUIMenuDropDown
                             ref={this.dropdown}
@@ -51,7 +50,7 @@ export class ASComposerContainer extends React.Component {
                             key="menu-button"
                             arrow={false}
                             options={() => this.props.composer.renderRootMenu()}
-                        >
+                            >
                             <ASUIIcon size="large" source="menu"/>
                         </ASUIMenuDropDown>
                         <Text style={styles.title}>{state.title}</Text>
@@ -85,6 +84,7 @@ export class ASComposerContainer extends React.Component {
     }
 
     onPress(e) {
+        console.log(e);
         this.dropdown.current.toggleMenu();
     }
 }

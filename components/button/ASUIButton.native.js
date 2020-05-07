@@ -22,9 +22,9 @@ export default class ASUIButton extends ASUIClickableBase {
         return (
             <ImageBackground
                 source={require('./assets/img/bg.png')}
-                style={styles.background}
+                style={styles.container}
                 children={super.renderChildren(props)}
-            />
+                />
         );
     }
 

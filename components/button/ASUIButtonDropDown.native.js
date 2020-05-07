@@ -28,8 +28,7 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
         return <ImageBackground
                 source={require('./assets/img/bg.png')}
-                style={styles.background}
-                children={super.renderChildren(props)}
+                style={styles.container}
             >
             {super.renderChildren(props)}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}

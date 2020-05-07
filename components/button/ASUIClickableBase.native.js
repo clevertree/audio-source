@@ -1,6 +1,5 @@
 import React from "react";
 import {Text, TouchableHighlight, View, ImageBackground, StyleSheet} from "react-native";
-import PropTypes from 'prop-types';
 
 import ASUIMenuContext from "../menu/ASUIMenuContext";
 
@@ -17,15 +16,7 @@ export default class ASUIClickableBase extends React.Component {
     }
 
 
-
     render() {
-        const style = [styles.default];
-        if(this.props.style)
-            style.push(this.props.style);
-        if(this.props.disabled)
-            style.push(styles.disabled);
-        // if(this.props.selected)
-        //     style.push(styles.selected)
 
         return (
             <TouchableHighlight
@@ -33,17 +24,16 @@ export default class ASUIClickableBase extends React.Component {
                 onLongPress={this.cb.onMouseInput}
             >
                 <View
-                    style={style}
                     children={this.renderChildren()}
                     />
             </TouchableHighlight>
         );
     }
 
-    renderChildren(props={}) {
+    renderChildren(textProps={}) {
         let children = this.props.children;
         if(typeof children !== 'object')
-            children = <Text children={children} style={styles.text} {...props}></Text>;
+            children = <Text children={children} {...textProps}></Text>;
         return children;
     }
 
@@ -88,18 +78,3 @@ export default class ASUIClickableBase extends React.Component {
     }
 
 }
-
-
-const styles = StyleSheet.create({
-
-    default: {
-    },
-
-    background: {
-    },
-
-    text: {
-        // fontSize: 17.5,
-    }
-
-});
