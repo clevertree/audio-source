@@ -46,8 +46,12 @@ export default class ASComposerPlayback extends ASComposerActions {
     }
 
 
-        /** Playback **/
+    /** Playback **/
 
+
+    getAudioDestination() {
+        return this.getAudioContext().destination;
+    }
 
     getAudioContext() {
         if (this.audioContext)
@@ -62,7 +66,7 @@ export default class ASComposerPlayback extends ASComposerActions {
     /** Song Playback **/
 
     async songPlay() {
-        await this.song.play(this.getVolumeGain(), this.state.songPosition);
+        await this.song.play(this.getAudioDestination(), this.state.songPosition);
     }
 
     async songPause() {

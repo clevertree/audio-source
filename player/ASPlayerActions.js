@@ -118,12 +118,15 @@ class ASPlayerActions extends ASPlayerMenu {
     }
     setVolume (volume) {
         console.info("Setting volume: ", volume);
-        const gain = this.getVolumeGain();
-        if(gain.gain.value !== volume) {
-            gain.gain.value = volume;
-        }
+        if(this.song)
+            this.song.setVolume(volume);
+
+        // const gain = this.getVolumeGain();
+        // if(gain.gain.value !== volume) {
+        //     gain.gain.value = volume;
+        // }
         // this.state.volume = volume;
-        this.fieldSongVolume.value = volume * 100;
+        // this.fieldSongVolume.value = volume * 100;
     }
 
 
@@ -403,7 +406,7 @@ class ASPlayerActions extends ASPlayerMenu {
                 throw new Error("Song is already playing");
             await this.setCurrentSong(this.song);
             this.setStatus("Playing: " + this.song.data.title);
-            return await this.song.play(this.getVolumeGain());
+            return await this.song.play(this.getAudioContext());
         }
         // let entry = await this.playlist.getCurrentEntry();
         // if(entry instanceof PlaylistPlaylistEntry)
@@ -418,7 +421,7 @@ class ASPlayerActions extends ASPlayerMenu {
             const currentSong = await this.loadSongFromPlaylistEntry();
             await this.setCurrentSong(currentSong);
             this.setStatus("Playing: " + currentSong.data.title);
-            await currentSong.play(this.getVolumeGain());
+            await currentSong.play(this.getAudioContext());
             if(!this.state.playing)
                 break;
             // currentEntry = await this.playlistMoveToNextSongEntry();

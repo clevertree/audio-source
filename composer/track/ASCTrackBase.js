@@ -51,7 +51,7 @@ export default class ASCTrackBase extends React.Component {
         if(this.destination)
             return this.destination;
         console.warn('TODO: calculate correct destination');
-        return this.destination = this.getComposer().getVolumeGain();
+        return this.destination = this.getComposer().getAudioContext();
     }
     getComposer()               { return this.props.composer; }
     getSong()                   { return this.props.composer.song; }

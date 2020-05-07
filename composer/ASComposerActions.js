@@ -266,7 +266,6 @@ class ASComposerActions extends ASComposerMenu {
         storage.saveSongToFile(songData);
     }
 
-
     /** Song Playback **/
 
     setSongPositionPercentage(playbackPercentage) {
@@ -282,10 +281,15 @@ class ASComposerActions extends ASComposerMenu {
             throw new Error("Invalid song position: " + songPosition);
         this.setState({songPosition})
     }
+
     async setSongPositionPrompt() {
         let songPosition = Values.formatPlaybackPosition(this.state.songPosition || 0);
         songPosition = await PromptManager.openPromptDialog("Set playback position:", songPosition);
         this.setSongPosition(songPosition);
+    }
+
+    updateSongPositionValue(playbackPositionInSeconds) {
+        this.setState({songPosition:playbackPositionInSeconds})
     }
 
     /** Instruction Modification **/
@@ -474,7 +478,8 @@ class ASComposerActions extends ASComposerMenu {
         if(stopPlayback && song.isPlaying())
             song.stopPlayback();
 
-        let destination = this.getVolumeGain(); // TODO: get track destination
+        const audioContext = this.getAudioContext();
+        let destination = audioContext.destination; // TODO: get track destination
 
 
         // destination = destination || this.getDestination();

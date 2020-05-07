@@ -44,7 +44,7 @@ export default class ASComposerPlayback extends ASComposerActions {
     /** Song Playback **/
 
     async songPlay() {
-        await this.song.play(this.getVolumeGain(), this.state.songPosition);
+        await this.song.play(this.getAudioContext(), this.state.songPosition);
     }
 
     async songPause() {

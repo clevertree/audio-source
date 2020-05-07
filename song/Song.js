@@ -67,6 +67,7 @@ class Song {
                     [64, 'A4', 64],
                 ],
                 track1: [
+                    ['!p', 1],
                     [64, 'A3', 64],
                     // [64, 'Aq3', 64],
                     // [64, 'A#3', 64],
@@ -688,7 +689,7 @@ class Song {
 
     /** Playback **/
 
-    setVolumeGain(newVolume) {
+    setVolume(newVolume) {
         this.volume = newVolume;
         if(this.lastVolumeGain)
             this.lastVolumeGain.gain.value = newVolume;

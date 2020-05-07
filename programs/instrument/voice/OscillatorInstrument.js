@@ -22,7 +22,7 @@ class OscillatorInstrument {
 
         // TODO: Detect config changes on the fly. Leave caching to browser. Destination cache?
 
-//         console.log('playFrequency', destination, frequency, startTime, duration, velocity)
+        console.log('playFrequency', destination, frequency, startTime, duration, velocity)
 
 
         //         // Filter voice playback
