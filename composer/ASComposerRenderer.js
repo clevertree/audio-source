@@ -271,7 +271,14 @@ class ASComposerRenderer extends React.Component {
                             composer={this}
                         />
                     ))}
+                    {this.renderWebViewProxy()}
                 </ASComposerContainer>;
+    }
+
+
+    /** Render WebView Proxy **/
+    renderWebViewProxy() {
+        return null;
     }
 
 }

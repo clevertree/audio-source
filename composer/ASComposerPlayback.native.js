@@ -2,6 +2,9 @@ import React from "react";
 
 import {Song} from "../song";
 import ASComposerActions from "./ASComposerActions";
+import SongProxyListener from "../song/proxy/SongProxyListener";
+import SongProxyWebView from "../song/proxy/SongProxyWebView";
+import {ConfigListener} from "../song/config/ConfigListener";
 
 // import {TrackInfo} from "./track/";
 
@@ -10,18 +13,26 @@ export default class ASComposerPlayback extends ASComposerActions {
     constructor(props) {
         super(props);
         this.audioContext = null;
+        this.webViewProxy = React.createRef();
     }
 
 
     loadMIDIInterface(callback) {
     }
 
+    /** Render WebView Proxy **/
+    renderWebViewProxy() {
+        return <SongProxyWebView
+            ref={this.webViewProxy}
+        />
+    }
 
     /** Song Proxy **/
 
     setCurrentSong(song) {
         if(!song instanceof Song)
             throw new Error("Invalid Song object");
+        song = new Proxy(song, new SongProxyListener(song, this.webViewProxy));
         return super.setCurrentSong(song);
     }
 
