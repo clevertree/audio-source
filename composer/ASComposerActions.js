@@ -93,9 +93,9 @@ class ASComposerActions extends ASComposerMenu {
 
     /** State **/
 
-    loadState() {
+    async loadState() {
         const storage = new Storage();
-        const state = storage.loadState('audio-source-composer-state');
+        const state = await storage.loadState('audio-source-composer-state');
         console.log('Loading State: ', state);
 
 
