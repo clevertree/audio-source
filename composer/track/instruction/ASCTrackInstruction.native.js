@@ -1,5 +1,5 @@
 import * as React from "react";
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
 import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
 
@@ -11,7 +11,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             // onKeyDown: (e) => this.onKeyDown(e),
-            onMouseInput: e => this.onMouseInput(e),
+            onPress: e => this.onPress(e),
         };
         this.commandParam = React.createRef();
     }
@@ -27,13 +27,23 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             style.push(styles.playing)
 
         const parameters = this.renderParameters();
-        return <View
-            style={style}
-            onMouseDown={this.cb.onMouseInput}
-        >
-            {parameters}
-        </View>;
+        return (
+            <TouchableOpacity
+                onPress={this.cb.onPress}
+                >
+                <View
+                    style={style}
+                >
+                    {parameters}
+                </View>
+            </TouchableOpacity>
+        );
     }
+
+    onPress(e) {
+        this.selectInstructionWithAction(!e.ctrlKey);
+    }
+
 }
 
 
@@ -41,6 +51,8 @@ const styles = StyleSheet.create({
 
     cell: {
         display: 'flex',
+        // flexWrap:'wrap',
+        flexDirection:'row',
 
         color: '#666',
 
@@ -56,4 +68,10 @@ const styles = StyleSheet.create({
         paddingRight: 2,
     },
 
+    selected: {
+        backgroundColor: '#FFF',
+    },
+    playing: {
+        backgroundColor: '#80d55c'
+    }
 });

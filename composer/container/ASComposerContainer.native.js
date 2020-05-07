@@ -1,10 +1,9 @@
 import React from "react";
-import {Text, View, ScrollView, TouchableHighlight} from 'react-native';
+import {Text, View, ScrollView, TouchableHighlight, StyleSheet} from 'react-native';
 import PropTypes from 'prop-types';
 import {ASUIIcon, ASUIMenuDropDown} from "../../components";
 import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
 
-import styles from "./ASComposerContainer.style";
 
 export class ASComposerContainer extends React.Component {
     /** Property validation **/
@@ -43,7 +42,7 @@ export class ASComposerContainer extends React.Component {
                 <TouchableHighlight
                     onPress={this.cb.onPress}
                     >
-                    <View style={styles.container}>
+                    <View style={styles.header}>
                         <ASUIMenuDropDown
                             ref={this.dropdown}
                             style={styles.menuButton}
@@ -84,7 +83,44 @@ export class ASComposerContainer extends React.Component {
     }
 
     onPress(e) {
-        console.log(e);
         this.dropdown.current.toggleMenu();
     }
 }
+
+const styles = StyleSheet.create({
+
+    header: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#555'
+        // display: 'flex',
+        // justifyContent: 'space-between',
+        // flexDirection:'row',
+        // flexWrap:'wrap',
+    },
+
+    menuButton: {
+        position: 'absolute'
+    },
+
+    title: {
+        fontWeight: 'bold',
+        textAlign: 'center',
+        paddingTop: 6,
+        paddingBottom: 6,
+    },
+
+    default: {
+        display: 'flex',
+    },
+
+    footer: {
+        paddingLeft: 2,
+        paddingRight: 2,
+        borderTopWidth: 1,
+        borderTopColor: '#555',
+        // display: 'flex',
+        flexDirection:'row',
+        justifyContent: 'space-between',
+    }
+
+});

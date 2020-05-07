@@ -1,5 +1,5 @@
 import * as React from "react";
-import {StyleSheet, Text, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
@@ -13,7 +13,7 @@ export default class ASCTrackRow extends React.Component {
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             // onKeyDown: (e) => this.onKeyDown(e),
-            onPress: e => this.onMouseInput(e),
+            onPress: e => this.onPress(e),
         };
     }
 
@@ -50,23 +50,26 @@ export default class ASCTrackRow extends React.Component {
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (
-            <View
-                style={style}
-                // onClick={this.cb.onMouseInput}
+            <TouchableOpacity
                 onPress={this.cb.onPress}
-            >
-                <ASCTrackPosition positionTicks={this.props.positionTicks}/>
-                {this.props.children}
-                {this.props.cursor ? <ASCTrackInstructionAdd
-                    cursorPosition={this.props.cursorPosition}
-                /> : null}
-                <ASCTrackDelta duration={rowDeltaDuration}/>
-                <ASUIDropDownContainer
-                    ref={this.dropdown}
-                    options={this.props.options}
-                    vertical={this.props.vertical}
-                />
-            </View>
+                >
+                <View
+                    style={style}
+                    // onClick={this.cb.onMouseInput}
+                    >
+                    <ASCTrackPosition positionTicks={this.props.positionTicks}/>
+                    {this.props.children}
+                    {this.props.cursor ? <ASCTrackInstructionAdd
+                        cursorPosition={this.props.cursorPosition}
+                    /> : null}
+                    <ASCTrackDelta duration={rowDeltaDuration}/>
+                    <ASUIDropDownContainer
+                        ref={this.dropdown}
+                        options={this.props.options}
+                        vertical={this.props.vertical}
+                    />
+                </View>
+            </TouchableOpacity>
         )
     }
 
@@ -82,28 +85,15 @@ export default class ASCTrackRow extends React.Component {
 
     /** User Input **/
 
-    onMouseInput(e) {
-        if (e.defaultPrevented)
-            return;
-        e.preventDefault();
-        // console.log(e.type, e.button);
-
-        switch (e.type) {
-            case 'mousedown':
-            case 'click':
-                if (e.button === 0)
-                    this.selectRow(!e.ctrlKey);
-                else if (e.button === 1)
-                    throw new Error("Unimplemented middle button");
-                else if (e.button === 2)
-                    this.toggleMenu();
-                else
-                    throw new Error("Unknown mouse button");
-
-                break;
-            default:
-                throw new Error("Unknown Mouse event: " + e.type);
-        }
+    onPress(e) {
+        // if (e.button === 0)
+            this.selectRow(!e.ctrlKey);
+        // else if (e.button === 1)
+        //     throw new Error("Unimplemented middle button");
+        // else if (e.button === 2)
+        //     this.toggleMenu();
+        // else
+        //     throw new Error("Unknown mouse button");
     }
 
 
