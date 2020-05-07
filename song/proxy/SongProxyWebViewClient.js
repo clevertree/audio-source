@@ -1,12 +1,11 @@
 import React from "react";
 import {View} from "react-native";
+import Song from "../Song";
 
 export default class SongProxyWebViewClient extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            song: null
-        }
+        this.song = null;
         this.webView = React.createRef();
         this.cb = {
             onMessage: data => this.onMessage(data)
@@ -31,21 +30,25 @@ export default class SongProxyWebViewClient extends React.Component {
         window.ReactNativeWebView.postMessage(args);
     }
 
-    render() {
+    handleMessage(args) {
+        console.log("Host: ", args);
+        this.postMessage('echo ' + args);
+    }
 
-        if(window && !window._AUDIOSOURCE) {
-            window._AUDIOSOURCE = {
-                SONGCLASSES: require('../')
-            }
+    render() {
+        if(!this.song) {
+            // window._AUDIOSOURCE = {
+            //     SONGCLASSES: require('../')
+            // }
+            this.song = new Song();
+            window._SONG = this.song;
 
 
             document.addEventListener("message", (event) => {
-                console.log("Received post message", event.data);
-                this.postMessage('echo ' + event.data);
-
+                this.handleMessage(event.data);
             }, false);
 
-            this.postMessage(['load']);
+            this.postMessage(['load', this.song.data.title]);
         }
 
         return <View/>;
