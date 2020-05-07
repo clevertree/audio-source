@@ -19,17 +19,6 @@ export default class SongProxyWebView extends React.Component {
 
     render() {
         console.log('SongProxyWebView.render');
-        const javascript = `
-document.addEventListener("message", function(event) {
-    console.log("Received post message", event.data);
-    window.ReactNativeWebView.postMessage('echo ' + event.data);
-
-
-}, false);
-
-window.ReactNativeWebView.postMessage(['load']);
-
-`;
 
 // Android: <react-native-project>/android/app/src/main/assets/
 // iOS: <react-native-project>/ios/<new group as folder>/ (Note: “New group as folder” will ensure all its contents are bundled into the IPA file.)
@@ -37,10 +26,9 @@ window.ReactNativeWebView.postMessage(['load']);
 //         Platform.OS==='android'?'file:///android_asset/widget/index.html':'./external/widget/index.html'
         return <WebView
             source={{
-                uri: 'http://kittenton.local:3000/blank'
+                uri: 'http://kittenton.local:3000/proxy'
             }}
             ref={this.webView}
-            injectedJavaScript={javascript}
             onMessage={this.onMessage}
             />
     }
