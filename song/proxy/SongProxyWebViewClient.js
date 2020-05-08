@@ -30,11 +30,6 @@ export default class SongProxyWebViewClient extends React.Component {
         window.ReactNativeWebView.postMessage(args);
     }
 
-    handleMessage(args) {
-        console.log("Host: ", args);
-        this.postMessage('echo ' + args);
-    }
-
     render() {
         if(!this.song) {
             // window._AUDIOSOURCE = {
@@ -45,13 +40,59 @@ export default class SongProxyWebViewClient extends React.Component {
 
 
             document.addEventListener("message", (event) => {
-                this.handleMessage(event.data);
+                this.onMessage(event.data);
             }, false);
 
-            this.postMessage(['load', this.song.data.title]);
+            this.postMessage(['song:load', this.song.data.title]);
         }
 
         return <View/>;
+    }
+
+    onMessage(data) {
+        if(data[0] === '[') {
+            data = JSON.parse(data);
+            this.handleCommand.apply(this, data);
+        } else {
+            console.warn("Unhandled message: " + data);
+        }
+    }
+
+    handleCommand(command, ...args) {
+        switch(command) {
+            case 'song:load':
+                let songData = args[0];
+                songData = JSON.parse(songData);
+                this.song.loadSongData(songData);
+                console.log('song', this.song);
+                break;
+
+            case 'song':
+                const songMethod = args.shift();
+                switch(songMethod) {
+                    case 'playSelectedInstructions':
+                        if(args[0] === null)
+                            args[0] = this.getAudioContext().destination;
+                        break;
+                    default:
+                        break;
+                }
+                console.log(`song${songMethod}(${args.join(', ')})`);
+                this.song[songMethod].apply(this.song, args);
+                break;
+
+            default:
+                console.error("Unknown command: " + command);
+        }
+    }
+
+    getAudioContext()               {
+        if (this.audioContext)
+            return this.audioContext;
+
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.audioContext = audioContext;
+        return audioContext;
     }
 
     // sendSongCommand(...args) {
