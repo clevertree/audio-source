@@ -23,6 +23,7 @@ export default class ASComposerPlayback extends ASComposerActions {
     /** Render WebView Proxy **/
     renderWebViewProxy() {
         return <SongProxyWebView
+            composer={this}
             ref={this.webViewProxy}
         />
     }
