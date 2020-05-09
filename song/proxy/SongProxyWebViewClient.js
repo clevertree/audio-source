@@ -78,8 +78,8 @@ export default class SongProxyWebViewClient extends React.Component {
                     default:
                         break;
                 }
-                console.log(`song${songMethod}(${args.join(', ')})`);
-                this.song[songMethod].apply(this.song, args);
+                console.log(`song.${songMethod}(`, ...args, `)`);
+                this.song[songMethod](...args);
                 break;
 
             default:
