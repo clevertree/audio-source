@@ -5,12 +5,6 @@ import ASComposerActions from "./ASComposerActions";
 
 export default class ASComposerPlayback extends ASComposerActions {
 
-    constructor(props) {
-        super(props);
-        this.audioContext = null;
-    }
-
-
     loadMIDIInterface(callback) {
         // TODO: wait for user input
         if (navigator.requestMIDIAccess) {
@@ -43,6 +37,20 @@ export default class ASComposerPlayback extends ASComposerActions {
         if(!song instanceof Song)
             throw new Error("Invalid Song object");
         return super.setCurrentSong(song);
+    }
+
+    getVolumeGain(destination) {
+        if(!destination || !destination.context)
+            throw new Error("Invalid destination");
+        // if (this.volume !== null) {
+        const context = destination.context;
+        let gain = context.createGain();
+        gain.gain.value = this.volume === null ? 1 : this.volume;
+        gain.connect(destination);
+        this.lastVolumeGain = gain;
+        return gain;
+        // }
+        // return destination;
     }
 
 

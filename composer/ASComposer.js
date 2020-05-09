@@ -4,7 +4,7 @@ import {
     Keyboard,
     Library}          from "../song";
 import ActiveTrackState from "./track/state/ActiveTrackState";
-import ASComposerInput from "./ASComposerInput";
+import ASComposerInput from "./ASComposerInput.native";
 
 export default class ASComposer extends ASComposerInput {
     constructor(props) {
@@ -36,7 +36,7 @@ export default class ASComposer extends ASComposerInput {
             selectedTrack: 'root',
             activeTracks: {
                 root:{
-                    destination: this.getAudioContext(),
+                    // destination: null,
                     currentCommand: 'C4',
                     currentVelocity: null,
                     currentDuration: '1B',
@@ -64,7 +64,8 @@ export default class ASComposer extends ASComposerInput {
         console.log('library', this.library);
 
         this.song = new Song();
-
+        this.audioContext = null;
+        this.lastVolumeGain = null;
         // this.onSongEvent = (e) => this.onSongEvent(e);
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);

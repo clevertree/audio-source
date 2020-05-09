@@ -1,12 +1,12 @@
 import React from "react";
 
 import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
-import ASComposerMenu from "./ASComposerMenu";
 import {ASUIDiv} from "../components";
 import {ASCTrack} from "./track";
 import Values from "../common/values/Values";
 import ActiveTrackState from "./track/state/ActiveTrackState";
 import PromptManager from "../common/prompt/PromptManager";
+import ASComposerMenu from "./ASComposerMenu";
 
 // import {TrackInfo} from "./track/";
 
@@ -130,11 +130,12 @@ class ASComposerActions extends ASComposerMenu {
     getVolume () {
         return this.state.volume;
     }
+
     setVolume (volume) {
         console.info("Setting volume: ", volume);
         this.setState({volume});
-        if(this.song)
-            this.song.setVolume(volume);
+        if(this.lastVolumeGain)
+            this.lastVolumeGain.gain.value = volume;
     }
 
     /** Song actions **/
@@ -462,7 +463,31 @@ class ASComposerActions extends ASComposerMenu {
     // }
 
 
-    /** Playback **/
+
+    /** Song Playback **/
+
+    getDestination() {
+        const audioContext = this.getAudioContext();
+        return this.getVolumeGain(audioContext);        // TODO: get track destination
+    }
+
+    songPlay(songPosition=null, onended=null) {
+        this.song.play(this.getDestination(),
+            songPosition === null ? this.state.songPosition : songPosition,
+            onended);
+    }
+
+    songPause() {
+        this.song.stopPlayback();
+    }
+
+    songStop() {
+        if (this.song.playback)
+            this.song.stopPlayback();
+        this.song.setPlaybackPositionInTicks(0);
+    }
+
+    /** Track Playback **/
 
 
     trackerPlaySelected(trackName=null, stopPlayback=true) {
@@ -478,8 +503,8 @@ class ASComposerActions extends ASComposerMenu {
         if(stopPlayback && song.isPlaying())
             song.stopPlayback();
 
-        const audioContext = this.getAudioContext();
-        let destination = audioContext.destination; // TODO: get track destination
+        let destination = this.getDestination();
+        // let destination = audioContext.destination;
 
 
         // destination = destination || this.getDestination();

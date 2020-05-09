@@ -695,20 +695,6 @@ class Song {
             this.lastVolumeGain.gain.value = newVolume;
     }
 
-    getVolumeGain(destination) {
-        if(!destination || !destination.context)
-            throw new Error("Invalid destination");
-        // if (this.volume !== null) {
-        const context = destination.context;
-        let gain = context.createGain();
-        gain.gain.value = this.volume === null ? 1 : this.volume;
-        gain.connect(destination);
-        this.lastVolumeGain = gain;
-        return gain;
-        // }
-        // return destination;
-    }
-
 
     getSongPlaybackPosition() {
         if (this.playback)
@@ -759,8 +745,8 @@ class Song {
     }
 
 
-    async play(destination, startPosition=null) {
-        destination = this.getVolumeGain(destination);
+    play(destination, startPosition=null, onended=null) {
+        // destination = this.getVolumeGain(destination);
         // const audioContext = destination.context;
         if (this.playback) {
             this.stopPlayback();
@@ -783,16 +769,20 @@ class Song {
             song: this
         });
 
-        await playback.awaitPlaybackReachedEnd();
+        playback.awaitPlaybackReachedEnd()
+            .then(() => {
+                if(onended)
+                    onended();
+                this.dispatchEvent({
+                    type: 'song:end',
+                    playback: this.playback,
+                    // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
+                    song: this
+                });
+                // if(this.playback)
+                //     this.stopPlayback();
+            });
 
-        this.dispatchEvent({
-            type: 'song:end',
-            playback: this.playback,
-            // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
-            song: this
-        });
-        if(this.playback)
-            this.stopPlayback()
 
         return playback;
         // const reachedEnding = await this.playback.awaitPlaybackReachedEnd();
@@ -856,7 +846,7 @@ class Song {
 
 
     playSelectedInstructions(destination, trackName, selectedIndices) {
-        destination = this.getVolumeGain(destination);
+        // destination = this.getVolumeGain(destination);
 
         // TrackIterator find playback position of first index start point
         if(this.playback)
@@ -897,7 +887,7 @@ class Song {
     // }
 
     playInstruction(destination, instruction, program, noteStartTime = null, onstart=null, onended=null) {
-        destination = this.getVolumeGain(destination);
+        // destination = this.getVolumeGain(destination);
 
         const audioContext = destination.context;
         if (!instruction instanceof Instruction)

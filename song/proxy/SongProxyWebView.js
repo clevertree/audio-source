@@ -32,7 +32,7 @@ export default class SongProxyWebView extends React.Component {
                 uri: 'file:///android_asset/proxy/index.html'
             }}
             ref={this.webView}
-            onError={e => console.error("WebView: ", e)}
+            // onError={e => console.error("WebView: ", e.nativeEvent)}
             onMessage={this.cb.onMessage}
             // onLoadEnd={this.cb.onLoad}
             />

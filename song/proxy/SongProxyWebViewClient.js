@@ -36,8 +36,8 @@ export default class SongProxyWebViewClient extends React.Component {
             //     SONGCLASSES: require('../')
             // }
             this.song = new Song();
-            window._SONG = this.song;
-
+            document._SONG = this.song;
+            document.addEventListener('error', (...args) => this.postMessage(['error'].concat(args)))
 
             document.addEventListener("message", (event) => {
                 this.onMessage(event.data);
@@ -70,6 +70,7 @@ export default class SongProxyWebViewClient extends React.Component {
             case 'song':
                 const songMethod = args.shift();
                 switch(songMethod) {
+                    case 'play':
                     case 'playSelectedInstructions':
                         if(args[0] === null)
                             args[0] = this.getAudioContext().destination;
