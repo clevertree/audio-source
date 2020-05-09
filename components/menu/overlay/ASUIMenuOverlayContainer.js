@@ -9,13 +9,12 @@ export default class ASUIMenuOverlayContainer extends ASUIMenuOverlayContainerBa
 
 
     renderContent() {
-        return (
-            <div className="asui-menu-overlay-container">
-                {this.props.children}
-                {this.state.openOverlay ? this.renderOverlay() : null}
-                {this.state.open ? this.renderDropDown() : null}
-            </div>
-        );
+        // <div className="asui-menu-overlay-container">
+        return [
+            this.props.children,
+            this.state.openOverlay ? this.renderOverlay() : null,
+            this.state.open ? this.renderDropDown() : null
+        ];
     }
 
     renderOverlay() {

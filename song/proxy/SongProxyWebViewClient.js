@@ -8,7 +8,8 @@ export default class SongProxyWebViewClient extends React.Component {
         this.song = null;
         this.webView = React.createRef();
         this.cb = {
-            onMessage: data => this.onMessage(data)
+            onMessage: data => this.onMessage(data),
+            onSongEvent: this.onSongEvent.bind(this)
         }
     }
 
@@ -18,6 +19,14 @@ export default class SongProxyWebViewClient extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         return false;
+    }
+
+    onSongEvent(e) {
+        switch(e.type) {
+            case 'song:modified':
+                this.postMessage(e.type, e.historyAction)
+                break;
+        }
     }
 
     postMessage(args) {
@@ -42,6 +51,8 @@ export default class SongProxyWebViewClient extends React.Component {
             document.addEventListener("message", (event) => {
                 this.onMessage(event.data);
             }, false);
+
+            this.song.addEventListener('*', this.cb.onSongEvent)
 
             this.postMessage(['song:load', this.song.data.title]);
         }

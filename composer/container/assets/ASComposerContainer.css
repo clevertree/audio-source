@@ -41,10 +41,6 @@ div.asc-container {
 /** Header **/
 
 
-
-
-/** Header Container **/
-
 div.asc-header-container {
     background-color: #bdc3c7;
 }
@@ -52,41 +48,46 @@ div.asc-header-container {
 
 /** Portrait Header Container **/
 
-div.asc-header-container.portrait {
-}
+div.asc-container.portrait div.asc-header-container {}
+div.asc-container.landscape div.asc-header-container {}
 
-/** Portrait Menu Items **/
-div.asc-header-container.portrait > div.asui-menu-item {
-    padding: 0px 8px 0px 4px;
-}
 
 /** Title **/
 
 
-
-
 div.asc-title-text {
-    position: absolute;
-    top: 8px;
-    width: 100%;
     text-align: center;
     font-weight: bold;
     /*background-color: #888;*/
     color: #333;
-    padding: 2px;
+    padding: 3px 0 1px 0;
+}
+
+/** Portrait Title **/
+
+
+div.asc-container.portrait div.asc-title-text {
+    position: absolute;
+    top: 8px;
+    width: 100%;
 }
 
 /** Menu Container **/
 
 
 div.asc-menu-container {
-    background-color: #bdc3c7;
+    background-color: #AAA;
     display: flex;
     flex-direction: row;
     position: relative;
     z-index: 3;
 }
 
+/** Menu Items **/
+
+div.asc-container.landscape div.asc-menu-container > div.asui-menu-item {
+    padding: 0px 8px 0px 4px;
+}
 
 
 /** Portrait Menu Button **/
@@ -108,6 +109,12 @@ div.asc-menu-button-toggle > div.asui-icon {
 
 div.asui-menu-overlay-dropdown > div.asui-menu-item {
     padding: 0.5em;
+}
+
+
+/** UI Panels **/
+div.asc-container.landscape div.asui-panel {
+    display: inline-block;
 }
 
 

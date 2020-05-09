@@ -45,7 +45,7 @@ export default class ASComposerPlayback extends ASComposerActions {
         // if (this.volume !== null) {
         const context = destination.context;
         let gain = context.createGain();
-        gain.gain.value = this.volume === null ? 1 : this.volume;
+        gain.gain.value = this.state.volume === null ? 1 : this.state.volume;
         gain.connect(destination);
         this.lastVolumeGain = gain;
         return gain;

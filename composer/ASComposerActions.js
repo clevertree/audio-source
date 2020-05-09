@@ -84,7 +84,7 @@ class ASComposerActions extends ASComposerMenu {
 
     onResize() {
         const aspectRatio = window.innerWidth / window.innerHeight;
-        const portrait = aspectRatio < 14/16;
+        const portrait = aspectRatio < 8/13; // Near golden ratio
         if(!this.state.portrait === portrait) {
             console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
             this.setState({portrait});
@@ -406,7 +406,7 @@ class ASComposerActions extends ASComposerMenu {
         if(selectedIndices === null)
             selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
 
-        if (duration === null && promptUser)
+        if (promptUser)
             duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
 
         if (typeof duration === 'string')

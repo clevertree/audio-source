@@ -24,6 +24,7 @@ export default class ActiveTrackState {
 
     get selectedIndices() { return this.state.selectedIndices || []; }
     get cursorOffset() { return this.state.cursorOffset || 0; }
+    get cursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
     get playingIndices() { return this.state.playingIndices || []; }
 
     get currentCommand() { return this.state.currentCommand || 'C4'; }

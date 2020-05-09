@@ -10,14 +10,19 @@ export class ConfigListener {
         // TODO: allow fast changes. trigger update slowly
     }
 
-    addChangeListener(listener) {
-        this.changeListeners(listener);
-    }
-    removeChangeListener(listener) {
-        const i = this.changeListeners.indexOf(listener)
-        if(i !== -1)
-            this.changeListeners.splice(i);
-    }
+    /** @deprecated **/
+    // addChangeListener(listener) {
+    //     const i = this.changeListeners.indexOf(listener)
+    //     if(i === -1)
+    //         this.changeListeners.push(listener);
+    // }
+    //
+    // /** @deprecated **/
+    // removeChangeListener(listener) {
+    //     const i = this.changeListeners.indexOf(listener)
+    //     if(i !== -1)
+    //         this.changeListeners.splice(i);
+    // }
 
 
     get(obj, prop) {
@@ -51,9 +56,9 @@ export class ConfigListener {
 
     queueChange(action, path) {
         this.song.queueHistoryAction(action, path);
-        for(let i=0; i<this.changeListeners.length; i++) {
-            this.changeListeners[i](action, path);
-        }
+        // for(let i=0; i<this.changeListeners.length; i++) {
+        //     this.changeListeners[i](action, path);
+        // }
     }
 
 

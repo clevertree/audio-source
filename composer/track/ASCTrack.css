@@ -21,7 +21,7 @@ div.asc-track {
     /* height: 100%; */
     /*overflow: auto;*/
     vertical-align: top;
-    display: inline-block;
+    /*display: inline-block;*/
     /*min-width: 30vw;*/
 }
 div.asc-track:not(.selected) > div.header {

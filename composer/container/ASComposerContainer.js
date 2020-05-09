@@ -40,7 +40,7 @@ export class ASComposerContainer extends React.Component {
         const state = this.props.composer.state;
         if (state.portrait)
             return (
-                <div className="asc-header-container portrait">
+                <div className="asc-header-container">
                     <div className="asc-title-text">{state.title}</div>
                     <ASUIMenuDropDown
                         arrow={false}

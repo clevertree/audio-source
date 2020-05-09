@@ -7,6 +7,7 @@ import Values from "../common/values/Values";
 // import "./assets/ASComposer.css";
 // import style from "./ASComposerRenderer.style";
 import {ASComposerContainer} from "./container/ASComposerContainer";
+import ASCTracksContainer from "./track/container/ASCTracksContainer";
 
 class ASComposerRenderer extends React.Component {
 
@@ -158,7 +159,7 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="instruction-delete" header="Rem">
                             <ASUIButton
                                 // className="instruction-delete"
-                                onAction={e => this.instructionDeleteSelected(e)}
+                                onAction={e => this.instructionDeleteSelected()}
                                 title="Delete Instruction"
                                 disabled={selectedIndices.length === 0}
                             >
@@ -178,7 +179,7 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="instruction-velocity" header="Velocity">
                             <ASUIInputRange
                                 // className="velocity"
-                                onChange={(e, newVelocity) => this.instructionReplaceVelocity(newVelocity)}
+                                onChange={(e, newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
                                 value={trackState.currentVelocity || 0}
                                 min={1}
                                 max={127}
@@ -202,7 +203,7 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="tracker-selection" header="Selection">
                             <ASUIButton
                                 // className="track-selection"
-                                onAction={(e) => this.trackerSelectIndicesPrompt()}
+                                onAction={() => this.trackerSelectIndicesPrompt()}
                                 title="Tracker Note Selection"
                                 children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
                             />
@@ -259,18 +260,10 @@ class ASComposerRenderer extends React.Component {
                     {/*    /!*</Form>*!/*/}
                     {/*</ASUIPanel>*/}
 
-
-                    {Object.keys(this.state.activeTracks).map(trackName => (
-                        <ASCTrack
-                            key={trackName}
-                            trackName={trackName}
-                            trackState={this.state.activeTracks[trackName]}
-                            selected={trackName === selectedTrackName}
-                            // TODO bad idea? {...this.state.activeTracks[trackName]}
-                            // destination={this.getAudioContext()}
-                            composer={this}
+                    <ASCTracksContainer
+                        composer={this}
+                        selectedTrackName={selectedTrackName}
                         />
-                    ))}
                     {this.renderWebViewProxy()}
                 </ASComposerContainer>;
     }

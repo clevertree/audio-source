@@ -122,7 +122,7 @@ class Song {
         };
 
         this.getProxiedData = function() { return data; };
-        this.data = new Proxy(data, new ConfigListener(this));
+        this.data = new Proxy(data, new ConfigListener(this, []));
         this.history = [];
         this.values = new SongValues(this);
 
@@ -161,6 +161,7 @@ class Song {
             }
         }
     }
+
 
     unloadAll() {
         this.programLoader.unloadAllPrograms();

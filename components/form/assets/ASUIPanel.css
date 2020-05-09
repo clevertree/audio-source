@@ -4,7 +4,7 @@
 
 div.asui-panel {
     vertical-align: top;
-    display: inline-block;
+    /*display: inline-block;*/
     margin: 1px 3px 0px 1px;
     /*width: 100%;*/
 }

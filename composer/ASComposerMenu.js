@@ -247,7 +247,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditSetDuration() {
         return this.renderMenuSelectDuration(durationTicks => {
-            this.instructionReplaceDuration(durationTicks)
+            this.instructionReplaceDurationSelected(durationTicks)
         });
     }
 
