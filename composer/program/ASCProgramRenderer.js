@@ -1,6 +1,5 @@
 import React from "react";
 import {
-    ASUIDiv,
     ASUIIcon,
     ASUIButtonDropDown,
     ASUIButton,
@@ -26,8 +25,8 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             titleHTML = `Empty`;
         }
         return (
-            <ASUIDiv className="asc-instrument-renderer-empty">
-                <ASUIDiv className="header">
+            <div className="asc-instrument-renderer-empty">
+                <div className="header">
                     <ASUIButton
                         className="toggle-container"
                         onAction={e => this.toggleContainer()}
@@ -39,11 +38,11 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     >
                         <ASUIIcon source="config"/>
                     </ASUIButtonDropDown>
-                </ASUIDiv>
-                {this.state.open ? <ASUIDiv className="content">
+                </div>
+                {this.state.open ? <div className="content">
                     {this.renderProgramContent()}
-                </ASUIDiv> : null}
-            </ASUIDiv>
+                </div> : null}
+            </div>
         );
 
         // return content;

@@ -1,7 +1,7 @@
 import React from "react";
 import {View, TouchableHighlight, Text, ImageBackground, StyleSheet} from 'react-native';
 import PropTypes from "prop-types";
-import ASUIDropDownContainer from "./ASUIDropDownContainer.native";
+import ASUIDropDownContainer from "./ASUIDropDownContainer";
 import ASUIClickableBase from "../../button/ASUIClickableBase";
 
 import styles from "../ASUIMenu.style"

@@ -62,11 +62,7 @@ class ASUIDropDownContainer extends React.Component {
         if(this.props.disabled)
             return 'Disabled';
 
-        let options = this.props.options;
-        if (typeof options === "function")
-            options = options(this);
-        if (!options)
-            console.warn("Empty options returned by ", this);
+        let options = this.state.options;
 
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
@@ -86,7 +82,6 @@ class ASUIDropDownContainer extends React.Component {
     }
 
     toggleMenu() {
-
         if (!this.state.open)
             this.openMenu();
         else if (!this.state.stick)
@@ -95,7 +90,7 @@ class ASUIDropDownContainer extends React.Component {
             this.closeMenu();
     }
 
-    openMenu() {
+    async openMenu() {
         if (this.props.disabled)
             return console.error("Menu is disabled");
         if (this.state.open)
@@ -103,20 +98,29 @@ class ASUIDropDownContainer extends React.Component {
 
         // Try open menu handler
         if(this.getOverlay()) {
-            const res = this.getOverlay().openMenu(this.props.options);
+            const res = await this.getOverlay().openMenu(this.props.options);
             if (res !== false) {
 //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
                 return;
             }
+
+            setTimeout(() => {
+                this.getOverlay().closeMenus(this.getAncestorMenus());
+            }, 100);
         }
+
+        let options = this.props.options;
+        if (typeof options === "function")
+            options = options(this);
+        if(options instanceof Promise)
+            options = await options;
+        if (!options)
+            console.warn("Empty options returned by ", this);
 
         this.setState({
             open: true,
+            options
         });
-
-        setTimeout(() => {
-            this.getOverlay().closeMenus(this.getAncestorMenus());
-        }, 100);
     }
 
     stickMenu() {

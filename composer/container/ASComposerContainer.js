@@ -1,14 +1,15 @@
 import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIIcon} from "../../components";
-import PropTypes from 'prop-types';
 import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
+
+import "./assets/ASComposerContainer.css";
 
 export class ASComposerContainer extends React.Component {
     /** Property validation **/
     static propTypes = {
-        children: PropTypes.any.isRequired,
-        portrait: PropTypes.bool.isRequired
+        // children: PropTypes.any.isRequired,
+        // portrait: PropTypes.bool.isRequired
     };
 
 
@@ -17,49 +18,56 @@ export class ASComposerContainer extends React.Component {
         return (
             <div className={["asc-container", state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <ASUIMenuOverlayContainer
-                    isActive={this.props.portrait}
+                    isActive={state.portrait}
                 >
                     {this.renderHeader()}
-                    {this.props.children}
+                    {this.renderContent()}
                     {this.renderFooter()}
                 </ASUIMenuOverlayContainer>
             </div>
         );
     }
 
-    renderHeader() {
-        if (this.props.portrait)
-            return [
-                <div key="title" className="asp-title-text">{this.props.title}</div>,
-                <ASUIMenuDropDown
-                    key="menu-button"
-                    arrow={false}
-                    className="asp-menu-button-toggle"
-                    options={this.props.menuContent}
-                >
-                    <ASUIIcon source="menu"/>
-                </ASUIMenuDropDown>,
-                this.props.children
-            ];
-
-        let menuContent = this.props.menuContent;
-        if(typeof menuContent === "function")
-            menuContent = menuContent();
-
-        return [
-            <div key="title" className="asp-title-text">{this.props.title}</div>,
-            <div className="asp-menu-container">
-                {menuContent}
+    renderContent() {
+        return (
+            <div className="asc-content-container">
+                {this.props.children}
             </div>
-        ];
+        );
+    }
+
+    renderHeader() {
+        const state = this.props.composer.state;
+        if (state.portrait)
+            return (
+                <div className="asc-header-container portrait">
+                    <div className="asc-title-text">{state.title}</div>
+                    <ASUIMenuDropDown
+                        arrow={false}
+                        className="asc-menu-button-toggle"
+                        options={() => this.props.composer.renderRootMenu()}
+                    >
+                        <ASUIIcon source="menu"/>
+                    </ASUIMenuDropDown>
+                </div>
+            );
+
+        return (
+            <div className="asc-header-container">
+                <div key="title" className="asc-title-text">{state.title}</div>
+                <div className="asc-menu-container">
+                    {this.props.composer.renderRootMenu()}
+                </div>
+            </div>
+        );
     }
 
     renderFooter() {
         const state = this.props.composer.state;
         return (
-            <div key="footer" className="asp-footer-container">
-                <div className="asp-status-text">{state.status}</div>
-                <div className="asp-version-text"
+            <div key="footer" className="asc-footer-container">
+                <div className="asc-status-text">{state.status}</div>
+                <div className="asc-version-text"
                      ref={this.footerVersionText}
                 >{state.version}</div>
             </div>

@@ -80,7 +80,6 @@ class ASUIDropDownContainer extends React.Component {
     }
 
     toggleMenu() {
-
         if (!this.state.open)
             this.openMenu();
         else if (!this.state.stick)
@@ -97,11 +96,15 @@ class ASUIDropDownContainer extends React.Component {
 
         // Try open menu handler
         if(this.getOverlay()) {
-            const res = this.getOverlay().openMenu(this.props.options);
+            const res = await this.getOverlay().openMenu(this.props.options);
             if (res !== false) {
 //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
                 return;
             }
+
+            setTimeout(() => {
+                this.getOverlay().closeMenus(this.getAncestorMenus());
+            }, 100);
         }
 
         let options = this.props.options;
@@ -116,10 +119,6 @@ class ASUIDropDownContainer extends React.Component {
             open: true,
             options
         });
-
-        setTimeout(() => {
-            this.getOverlay().closeMenus(this.getAncestorMenus());
-        }, 100);
     }
 
     stickMenu() {

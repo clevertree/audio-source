@@ -7,6 +7,7 @@ import Values from "../common/values/Values";
 import ActiveTrackState from "./track/state/ActiveTrackState";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
+import FileService from "../song/file/FileService";
 
 // import {TrackInfo} from "./track/";
 
@@ -175,31 +176,20 @@ class ASComposerActions extends ASComposerMenu {
         this.loadSongFromFileInput(e, file);
     }
 
-    async loadSongFromFileInput(e, file=null, accept=null) {
-        if(file === null)
-            file = await this.openFileDialog(accept);
-        if (!file)
-            throw new Error("Invalid file input");
-        const song = await Song.loadSongFromFileInput(file);
-        this.setCurrentSong(song);
-        // await this.song.loadSongFromFileInput(file);
-        // this.render();
-    }
-
 
     /** Song Loading **/
 
-    loadDefaultSong(recentSongUUID = null) {
+    async loadDefaultSong(recentSongUUID = null) {
         const src = this.props.src || this.props.url;
         if (src) {
-            this.loadSongFromURL(src);
+            await this.loadSongFromURL(src);
             return true;
         }
 
 
         if (recentSongUUID) {
             try {
-                this.loadSongFromMemory(recentSongUUID);
+                await this.loadSongFromMemory(recentSongUUID);
                 return;
             } catch (e) {
                 console.error(e);
@@ -235,27 +225,69 @@ class ASComposerActions extends ASComposerMenu {
         return false;
     }
 
+    async loadSongFromURL(url) {
+        const library = Song.getFileSupportModule(url);
+        if (typeof library.loadSongDataFromBuffer !== "function")
+            throw new Error("Invalid library.loadSongDataFromURL method: " + url);
 
-    loadSongFromMemory(songUUID) {
-        const song = Song.loadSongFromMemory(this.audioContext, songUUID);
+        const fileService = new FileService();
+        const buffer = await fileService.loadBufferFromURL(url);
+        // const buffer = await response.arrayBuffer();
+        const songData = library.loadSongDataFromBuffer(buffer, url);
+        const song = new Song();
+        song.loadSongData(songData);
+        this.setStatus("Loaded from url: " + url);
+        return song;
+    }
+
+    async loadSongFromFileInput(e, file=null, accept=null) {
+        if(file === null)
+            file = await this.openFileDialog(accept);
+        if (!file)
+            throw new Error("Invalid file input");
+
+        const library = Song.getFileSupportModule(file.name);
+        if (typeof library.loadSongDataFromFileInput !== "function")
+            throw new Error("Invalid library.loadSongDataFromFileInput method");
+
+        const buffer = await this.loadBufferFromFileInput(file);
+        const songData = library.loadSongDataFromBuffer(buffer, file.name);
+        const song = new Song();
+        song.loadSongData(songData);
+        this.setCurrentSong(song);
+        return song;
+    }
+
+    async loadBufferFromFileInput(file) {
+        return await new Promise((resolve, reject) => {
+            let reader = new FileReader();                                      // prepare the file Reader
+            reader.readAsArrayBuffer(file);                 // read the binary data
+            reader.onload =  (e) => {
+                resolve(e.target.result);
+            };
+        });
+    }
+
+
+    async loadSongFromMemory(songUUID) {
+        const storage = new Storage();
+        const songData = await storage.loadSongFromMemory(songUUID);
+        const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
+        const song = new Song(songData);
+        song.loadSongData(songData);
+        song.loadSongHistory(songHistory);
         this.setCurrentSong(song);
         this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
-//         console.info(songData);
     }
 
-    loadSongFromURL(url) {
-        const song = Song.loadSongFromURL(this.audioContext, url);
-        this.setCurrentSong(song);
-        this.setStatus("Loaded from url: " + url);
-    }
 
-    saveSongToMemory() {
+    async saveSongToMemory() {
         const song = this.song;
         const songData = song.data;
         const songHistory = song.history;
         const storage = new Storage();
         this.setStatus("Saving song to memory...");
-        storage.saveSongToMemory(songData, songHistory);
+        await storage.saveSongToMemory(songData, songHistory);
         this.setStatus("Saved song to memory: " + songData.uuid);
     }
 

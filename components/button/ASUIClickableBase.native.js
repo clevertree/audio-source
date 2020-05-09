@@ -33,7 +33,7 @@ export default class ASUIClickableBase extends React.Component {
     renderChildren(textProps={}) {
         let children = this.props.children;
         if(typeof children !== 'object')
-            children = <Text children={children} {...textProps}></Text>;
+            children = <Text children={children} {...textProps} />;
         return children;
     }
 
@@ -75,6 +75,8 @@ export default class ASUIClickableBase extends React.Component {
     closeAllDropDownMenus() {
         if(this.getOverlay())
             this.getOverlay().closeAllMenus();
+        else
+            console.warn("Could not close all dropdown menus", this.getOverlay());
     }
 
 }

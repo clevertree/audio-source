@@ -4,7 +4,7 @@ import {
     Keyboard,
     Library}          from "../song";
 import ActiveTrackState from "./track/state/ActiveTrackState";
-import ASComposerInput from "./ASComposerInput.native";
+import ASComposerInput from "./ASComposerInput";
 
 export default class ASComposer extends ASComposerInput {
     constructor(props) {

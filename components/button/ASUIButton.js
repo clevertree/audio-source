@@ -1,12 +1,8 @@
-import React from "react";
 import PropTypes from 'prop-types';
 
-import ASUIMenuContext from "../menu/ASUIMenuContext";
-import ASUIClickableBase from "./ASUIClickableBase.native";
+import ASUIClickableBase from "./ASUIClickableBase";
 
 export default class ASUIButton extends ASUIClickableBase {
-    /** Context **/
-    static contextType = ASUIMenuContext;
 
     /** Default Properties **/
     static defaultProps = {
@@ -29,33 +25,12 @@ export default class ASUIButton extends ASUIClickableBase {
 
     getOverlay() { return this.context.overlay; }
 
-
-    render() {
-        let className = 'asui-menu-item';
-        if(this.props.className)
-            className += ' ' + this.props.className;
-        if(this.props.disabled)
-            className += ' disabled';
-        if(this.props.selected)
-            className += ' selected';
-
-        return (
-            <div
-                title={this.props.title}
-                className={className}
-                onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
-                tabIndex={0}
-            >
-                {this.props.children}
-            </div>
-        );
-    }
+    getClassName() { return 'asui-button'; }
 
 
     /** Actions **/
 
-    doAction(e) {
+    async doAction(e) {
         if(this.props.disabled) {
             console.warn(this.constructor.name + " is disabled.", this);
             return;
@@ -63,7 +38,7 @@ export default class ASUIButton extends ASUIClickableBase {
 
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
-        const result = this.props.onAction(e, this);
+        const result = await this.props.onAction(e, this);
         if (result !== false)
             this.closeAllDropDownMenus();
     }

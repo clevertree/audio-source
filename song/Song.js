@@ -1,10 +1,8 @@
 import ProgramLoader from "../common/program/ProgramLoader";
 import SongValues from "./values/SongValues";
 
-import Storage from "../common/storage/Storage";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
-import FileService from "./file/FileService";
 import {ConfigListener} from "./config/ConfigListener";
 import {Instruction, InstructionIterator, QuantizedInstructionIterator} from "./instruction/";
 
@@ -1010,65 +1008,6 @@ class Song {
     //     this.instructionProcessGroupData();
     // }
 
-
-    /** Static Song Loading **/
-
-    /** @deprecated **/
-    static loadSongFromData(audioContext, songData) {
-        const song = new Song();
-        song.loadSongData(songData);
-        return song;
-    }
-
-    /** @deprecated **/
-    static loadSongFromMemory(audioContext, songUUID) {
-        const storage = new Storage();
-        const songData = storage.loadSongFromMemory(songUUID);
-        const songHistory = storage.loadSongHistoryFromMemory(songUUID);
-        const song = new Song(songData);
-        song.loadSongData(songData);
-        song.loadSongHistory(songHistory);
-        return song;
-    }
-
-    /** @deprecated **/
-    static loadSongFromFileInput(audioContext, file) {
-        const library = Song.getFileSupportModule(file.name);
-        if (typeof library.loadSongDataFromFileInput !== "function")
-            throw new Error("Invalid library.loadSongDataFromFileInput method");
-
-        const buffer = Song.loadBufferFromFileInput(file);
-        const songData = library.loadSongDataFromBuffer(buffer, file.name);
-        const song = new Song();
-        song.loadSongData(songData);
-        return song;
-    }
-
-    /** @deprecated **/
-    static async loadSongFromURL(audioContext, src) {
-        const library = Song.getFileSupportModule(src);
-        if (typeof library.loadSongDataFromBuffer !== "function")
-            throw new Error("Invalid library.loadSongDataFromURL method: " + src);
-
-        const fileService = new FileService();
-        const buffer = await fileService.loadBufferFromURL(src);
-        // const buffer = await response.arrayBuffer();
-        const songData = library.loadSongDataFromBuffer(buffer, src);
-        const song = new Song();
-        song.loadSongData(songData);
-        return song;
-    }
-
-    /** @deprecated **/
-    static async loadBufferFromFileInput(file) {
-        return await new Promise((resolve, reject) => {
-            let reader = new FileReader();                                      // prepare the file Reader
-            reader.readAsArrayBuffer(file);                 // read the binary data
-            reader.onload =  (e) => {
-                resolve(e.target.result);
-            };
-        });
-    }
 
     /** Static Fle Support Module **/
 

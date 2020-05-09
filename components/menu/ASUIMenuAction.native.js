@@ -31,7 +31,7 @@ class ASUIMenuAction extends ASUIClickableBase {
 
     /** Actions **/
 
-    doAction(e) {
+    async doAction(e) {
         if(this.props.disabled) {
             console.warn(this.constructor.name + " is disabled.", this);
             return;
@@ -39,7 +39,7 @@ class ASUIMenuAction extends ASUIClickableBase {
 
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
-        const result = this.props.onAction(e, this);
+        const result = await this.props.onAction(e, this);
         if (result !== false)
             this.closeAllDropDownMenus();
     }

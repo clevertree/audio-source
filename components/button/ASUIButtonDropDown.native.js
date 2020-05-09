@@ -1,7 +1,7 @@
 import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
 import React from "react";
 import PropTypes from "prop-types";
-import {ImageBackground, StyleSheet, Text, TouchableHighlight} from "react-native";
+import {ImageBackground, Text} from "react-native";
 import ASUIClickableBase from "./ASUIClickableBase";
 
 import styles from "./ASUIButton.style";

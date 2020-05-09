@@ -14,6 +14,7 @@ export default class ASUIClickableBase extends React.Component {
         };
     }
 
+    getClassName() { return 'asui-clickable'; }
 
     render() {
         let className = this.getClassName();
@@ -79,6 +80,8 @@ export default class ASUIClickableBase extends React.Component {
     closeAllDropDownMenus() {
         if(this.getOverlay())
             this.getOverlay().closeAllMenus();
+        else
+            console.warn("Could not close all dropdown menus", this.getOverlay());
     }
 
 }

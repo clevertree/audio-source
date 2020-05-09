@@ -1,8 +1,9 @@
-import "./assets/ASUIButton.css"
-import PropTypes from "prop-types";
 import React from "react";
-import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer.native";
-import ASUIClickableBase from "./ASUIClickableBase.native";
+import PropTypes from "prop-types";
+import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
+import ASUIClickableBase from "./ASUIClickableBase";
+
+import "./assets/ASUIButton.css"
 
 export default class ASUIButtonDropDown extends ASUIClickableBase {
     // Default Properties
@@ -21,13 +22,16 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
         this.dropdown = React.createRef();
     }
 
+    getClassName() { return 'asui-button'; }
+
 
     renderChildren(props = {}) {
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
         return [
             super.renderChildren(props),
-            arrow ? <div className="arrow">{arrow}</div> : null,
+            arrow ? <div className="arrow" key="arrow">{arrow}</div> : null,
             <ASUIDropDownContainer
+                key="dropdown"
                 ref={this.dropdown}
                 disabled={this.props.disabled}
                 options={this.props.options}

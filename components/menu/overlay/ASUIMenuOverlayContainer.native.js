@@ -1,8 +1,5 @@
 import React from "react";
 import {StyleSheet, View, TouchableHighlight, TouchableOpacity, Animated, Easing, Dimensions} from "react-native";
-// import Div from "../div/Div";
-
-
 import ASUIMenuBreak from "../ASUIMenuBreak";
 import ASUIMenuAction from "../ASUIMenuAction";
 import ASUIMenuOverlayContainerBase from "./ASUIMenuOverlayContainerBase";

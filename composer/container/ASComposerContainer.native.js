@@ -27,11 +27,17 @@ export class ASComposerContainer extends React.Component {
                     isActive={state.portrait}
                     >
                     {this.renderHeader()}
-                    <ScrollView>
-                        {this.props.children}
-                    </ScrollView>
+                    {this.renderContent()}
                     {this.renderFooter()}
                 </ASUIMenuOverlayContainer>
+        );
+    }
+
+    renderContent() {
+        return (
+            <ScrollView>
+                {this.props.children}
+            </ScrollView>
         );
     }
 
