@@ -22,19 +22,19 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="playback" header="Playback">
                             <ASUIButton
                                 className="song-play"
-                                onAction={e => this.songPlay(e)}
+                                onAction={e => this.songPlay()}
                             >
                                 <ASUIIcon source="play"/>
                             </ASUIButton>
                             <ASUIButton
                                 className="song-pause"
-                                onAction={e => this.songPause(e)}
+                                onAction={e => this.songPause()}
                             >
                                 <ASUIIcon source="pause"/>
                             </ASUIButton>
                             <ASUIButton
                                 className="song-stop"
-                                onAction={e => this.songStop(e)}
+                                onAction={e => this.songStop()}
                             >
                                 <ASUIIcon source="stop"/>
                             </ASUIButton>

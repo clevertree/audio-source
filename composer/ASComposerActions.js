@@ -468,7 +468,7 @@ class ASComposerActions extends ASComposerMenu {
 
     getDestination() {
         const audioContext = this.getAudioContext();
-        return this.getVolumeGain(audioContext);        // TODO: get track destination
+        return this.getVolumeGain(audioContext.destination);        // TODO: get track destination
     }
 
     songPlay(songPosition=null, onended=null) {

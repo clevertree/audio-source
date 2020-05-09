@@ -18,7 +18,7 @@ export default class TrackPlayback extends TrackIterator {
             this.endResolve = resolve;
         });
 
-        this.playTrackInstructionCallback = this.playTrackInstruction.bind(this);
+        this.playInstructionCallback = this.playInstruction.bind(this);
 
     }
 
@@ -34,8 +34,8 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     addInstructionFilter(filterCallback) {
-        const oldCallback = this.playTrackInstructionCallback;
-        this.playTrackInstructionCallback = function(instruction, trackStats) {
+        const oldCallback = this.playInstructionCallback;
+        this.playInstructionCallback = function(instruction, trackStats) {
             instruction = filterCallback(instruction, trackStats);
             if(!instruction)
                 return;
@@ -99,7 +99,7 @@ export default class TrackPlayback extends TrackIterator {
             else
                 this.stopPlayback();
         } else {
-            this.seekToPosition(currentPositionSeconds + this.seekLength, this.playTrackInstructionCallback);
+            this.seekToPosition(currentPositionSeconds + this.seekLength, this.playInstructionCallback);
         }
     }
 
@@ -111,10 +111,10 @@ export default class TrackPlayback extends TrackIterator {
         // this.endPromise = true;
     }
 
-    playTrackInstruction(instruction, trackStats) {
-        if(typeof trackStats.program === "undefined")
-            return console.error("ASCTrack has no program set: ", trackStats.trackName);
+    playInstruction(instruction, trackStats) {
         if(instruction instanceof NoteInstruction) {
+            if(typeof trackStats.program === "undefined")
+                return console.error(`Track '${trackStats.trackName}' has no program set`);
             const destination = trackStats.destination || this.destination;
             const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // ASCTrack start time equals current track's start + playback times
             if(noteStartTime > 0) {

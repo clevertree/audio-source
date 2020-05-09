@@ -28,8 +28,8 @@ export default class SongProxyWebView extends React.Component {
         return <WebView
             originWhitelist={['file://*', 'https://*', 'http://*']}
             source={{
-                // uri: 'http://kittenton.local:3000/blank',
-                uri: 'file:///android_asset/proxy/index.html'
+                uri: 'http://kittenton.local:3000/blank',
+                // uri: 'file:///android_asset/proxy/index.html'
             }}
             ref={this.webView}
             // onError={e => console.error("WebView: ", e.nativeEvent)}
@@ -40,16 +40,16 @@ export default class SongProxyWebView extends React.Component {
 
     sendSongCommand(...args) {
         args.unshift('song');
-        this.sendCommand.apply(this, args);
+        this.sendCommand(...args);
     }
 
     sendCommand(...args) {
+        console.log('sendCommand', ...args);
         const argString = JSON.stringify(args);
         const webView = this.webView.current;
         if(!webView)
             return console.error("Webview ref is not set");
         webView.postMessage(argString);
-        console.log('postMessage', argString);
     }
 
     onMessage(data) {

@@ -71,22 +71,5 @@ export default class ASComposerPlayback extends ASComposerActions {
     }
 
 
-    /** Song Playback **/
-
-    async songPlay() {
-        await this.song.play(this.getAudioDestination(), this.state.songPosition);
-    }
-
-    async songPause() {
-        this.song.stopPlayback();
-    }
-
-    async songStop() {
-        if (this.song.playback)
-            this.song.stopPlayback();
-        this.song.setPlaybackPositionInTicks(0);
-    }
-
-
 }
 

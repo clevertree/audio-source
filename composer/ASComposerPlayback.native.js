@@ -51,9 +51,7 @@ export default class ASComposerPlayback extends ASComposerActions {
 
         const audioContext = {
             proxy: true,
-            destination: {
-                context: {}
-            }
+            destination: null
         };
         this.audioContext = audioContext;
         return audioContext;

@@ -55,6 +55,12 @@ class Song {
                 root: [
                     ['@track0', 288],
                     ['@track1'],
+                    [2000, '@track0', 288],
+                    ['@track1'],
+                    [2000, '@track0', 288],
+                    ['@track1'],
+                    [2000, '@track0', 288],
+                    ['@track1'],
                 ],
                 track0: [
                     // ['!d', 'Effect'],
