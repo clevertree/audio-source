@@ -2,12 +2,12 @@ export default class SongProxyListener {
     constructor(song, webViewProxy) {
         this.song = song;
         this.webViewProxy = webViewProxy;
-
+        song.addEventListener('*', (e) => this.onSongEvent(e))
     }
 
     sendSongProxyCommand(...args) {
-        const webProxy = this.webViewProxy.current;
-        return webProxy.sendSongCommand(...args);
+        const webViewProxy = this.webViewProxy.current;
+        return webViewProxy.sendSongCommand(...args);
     }
 
     get(obj, prop) {
@@ -29,4 +29,13 @@ export default class SongProxyListener {
         return (...args) => this.sendSongProxyCommand(methodName, ...args);
     }
 
+
+    onSongEvent(e) {
+        const webViewProxy = this.webViewProxy.current;
+        switch(e.type) {
+            case 'song:modified':
+                webViewProxy.sendCommand(e.type, e.historyAction);
+                break;
+        }
+    }
 }

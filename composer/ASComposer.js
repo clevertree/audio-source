@@ -162,7 +162,7 @@ export default class ASComposer extends ASComposerInput {
                 // this.renderProgram(e.detail.programID);
 
                 clearTimeout(this.timeouts.saveSongToMemory);
-                this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
+                this.timeouts.saveSongToMemory = setTimeout(e => this.saveAll(), this.autoSaveTimeout);
                 break;
 
             case 'song:modified':
@@ -170,7 +170,7 @@ export default class ASComposer extends ASComposerInput {
                 this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
                 clearTimeout(this.timeouts.saveSongToMemory);
-                this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(e), this.autoSaveTimeout);
+                this.timeouts.saveSongToMemory = setTimeout(e => this.saveAll(), this.autoSaveTimeout);
                 break;
 
             case 'programs:library':

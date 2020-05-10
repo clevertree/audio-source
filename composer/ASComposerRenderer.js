@@ -63,7 +63,7 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="volume" header="Volume">
                             <ASUIInputRange
                                 className="volume"
-                                onChange={(e, newVolume) => this.setVolume(newVolume)}
+                                onChange={(newVolume) => this.setVolume(newVolume)}
                                 value={this.state.volume}
                                 min={0}
                                 max={1}
@@ -75,7 +75,7 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="position" header="Position">
                             <ASUIInputRange
                                 className="position"
-                                onChange={(e, pos) => this.setSongPositionPercentage(pos)}
+                                onChange={(pos) => this.setSongPositionPercentage(pos)}
                                 value={Math.floor(this.state.songPosition / (this.state.songLength || 1) * 100)}
                                 min={0}
                                 max={100}
@@ -179,7 +179,7 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="instruction-velocity" header="Velocity">
                             <ASUIInputRange
                                 // className="velocity"
-                                onChange={(e, newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
+                                onChange={(newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
                                 value={trackState.currentVelocity || 0}
                                 min={1}
                                 max={127}

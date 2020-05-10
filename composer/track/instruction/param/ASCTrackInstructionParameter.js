@@ -30,8 +30,8 @@ class ASCTrackInstructionParameter extends React.Component {
 
     render() {
         let className = "asct-parameter";
-        if(this.props.className)
-            className += ' ' + this.props.className;
+        if(this.props.type)
+            className += ' ' + this.props.type;
 
         return <div
             // onClick={this.cb.onMouseInput}

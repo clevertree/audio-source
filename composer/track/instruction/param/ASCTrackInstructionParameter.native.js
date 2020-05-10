@@ -28,19 +28,23 @@ class ASCTrackInstructionParameter extends React.Component {
     }
 
     render() {
-        let className = "asct-parameter";
-        if(this.props.className)
-            className += ' ' + this.props.className;
+        const styleView = [styles.parameterView];
+        if(this.props.type)
+            styleView.push(styles[this.props.type + 'View'])
+
+        const styleText = [styles.parameterText];
+        if(this.props.type)
+            styleText.push(styles[this.props.type + 'Text'])
 
         return <View
+            style={styleView}
             // onClick={this.cb.onMouseInput}
             onKeyDown={this.cb.onKeyDown}
             onContextMenu={this.cb.onContextMenu}
-            className={className}
             title={this.props.title}
             // tabIndex={0}
         >
-            {textify(this.props.children)}
+            {textify(this.props.children, {style: styleText})}
             <ASUIDropDownContainer
                 ref={this.dropdown}
                 options={this.props.options}
@@ -116,12 +120,39 @@ export default ASCTrackInstructionParameter;
 
 const styles = StyleSheet.create({
 
-    default: {
-        display: 'flex',
+    parameterView: {
+        borderLeftWidth: 1,
+        borderLeftColor: '#AAA',
+        paddingLeft: 2,
+        paddingRight: 2
     },
 
-});
+    parameterText: {
+    },
 
+    commandView: {
+        borderLeftWidth: 0,
+        paddingLeft: 0,
+    },
+
+    velocityView: {
+    },
+
+    durationView: {
+    },
+
+    commandText: {
+        color: 'darkred',
+    },
+
+    velocityText: {
+        color: 'green',
+    },
+
+    durationText: {
+        color: 'purple',
+    }
+});
 
 function textify(content, props={}) {
     return typeof content !== "object" ? <Text children={content} {...props}/> : content;

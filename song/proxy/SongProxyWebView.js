@@ -18,6 +18,10 @@ export default class SongProxyWebView extends React.Component {
         return false;
     }
 
+    addSongListeners(song) {
+
+    }
+
     render() {
         console.log('SongProxyWebView.render');
 
@@ -28,8 +32,8 @@ export default class SongProxyWebView extends React.Component {
         return <WebView
             originWhitelist={['file://*', 'https://*', 'http://*']}
             source={{
-                // uri: 'http://kittenton.local:3000/?blank',
-                uri: 'file:///android_asset/proxy/index.html?blank'
+                uri: 'http://kittenton.local:3000/?blank',
+                // uri: 'file:///android_asset/proxy/index.html?blank'
             }}
             ref={this.webView}
             // onError={e => console.error("WebView: ", e.nativeEvent)}

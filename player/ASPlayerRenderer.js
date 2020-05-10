@@ -96,7 +96,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                             <ASUIForm className="volume" header="Volume">
                                 <ASUIInputRange
                                     className="volume"
-                                    onChange={(e, newVolume) => this.setVolume(newVolume / 100)}
+                                    onChange={(newVolume) => this.setVolume(newVolume / 100)}
                                     value={this.state.volume}
                                     min={1}
                                     max={100}
@@ -108,7 +108,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                             <ASUIForm className="position" header="Position">
                                 <ASUIInputRange
                                     className="position"
-                                    onChange={(e, pos) => this.setSongPosition(pos)}
+                                    onChange={(pos) => this.setSongPosition(pos)}
                                     value={0}
                                     min={0}
                                     max={Math.ceil(this.state.songLength) || 1}

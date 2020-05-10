@@ -14,16 +14,11 @@ class Storage {
     /** Encoding / Decoding **/
 
     encodeForStorage(json, replacer = null, space = null) {
-        let encodedString = JSON.stringify(json, replacer, space);
-//             console.log(`Compression: ${compressedString.length} / ${encodedString.length} = ${Math.round((compressedString.length / encodedString.length)*100)/100}`);
-        return LZString.compress(encodedString);
+        return LocalStorage.encodeForStorage(json, replacer, space);
     }
 
     decodeForStorage(encodedString) {
-        if (!encodedString)
-            return null;
-        encodedString = LZString.decompress(encodedString) || encodedString;
-        return JSON.parse(encodedString);
+        return LocalStorage.decodeForStorage(encodedString);
     }
 
     /** Saving **/
@@ -45,19 +40,21 @@ class Storage {
             songData.uuid = Values.generateUUID();
         let songRecentUUIDs = [];
         try {
-            songRecentUUIDs = this.decodeForStorage(await LocalStorage.getItem('song-recent-list') || '[]');
+            songRecentUUIDs = this.decodeForStorage((await LocalStorage.getItem('song-recent-list')) || '[]');
         } catch (e) {
             console.error(e);
         }
         songRecentUUIDs = songRecentUUIDs.filter((entry) => entry.uuid !== songData.uuid);
         songRecentUUIDs.unshift({uuid: songData.uuid, title: songData.title});
-        await LocalStorage.setItem('song-recent-list', this.encodeForStorage(songRecentUUIDs));
+        const encodedSongRecentUUIDs = this.encodeForStorage(songRecentUUIDs);
+        await LocalStorage.setItem('song-recent-list', encodedSongRecentUUIDs);
 
 
-        await LocalStorage.setItem('song:' + songData.uuid, this.encodeForStorage(songData));
-        await LocalStorage.setItem('song-history:' + songData.uuid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
+        const encodedSongData = this.encodeForStorage(songData);
+        await LocalStorage.setItem('song:' + songData.uuid, encodedSongData);
+        // await LocalStorage.setItem('song-history:' + songData.uuid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
         // this.querySelector('.song-menu').outerHTML = renderEditorMenuContent(this);
-        console.info("Song saved to memory: " + songData.uuid, songData);
+        // console.info("Song saved to memory: " + songData.uuid, songData);
     }
 
     saveSongToFile(songData, prompt = true) {

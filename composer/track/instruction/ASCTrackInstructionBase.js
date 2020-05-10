@@ -44,7 +44,7 @@ export default class ASCTrackInstructionBase extends React.Component {
             key="command"
             title={`Command: ${instruction.command}`}
             trackerInstruction={this}
-            className="command"
+            type="command"
             options={() => this.renderMenuSelectCommand()}
             ref={this.commandParam}
         >{instruction.command}</ASCTrackInstructionParameter>);
@@ -59,7 +59,7 @@ export default class ASCTrackInstructionBase extends React.Component {
                     key="velocity"
                     title={`Velocity: ${instruction.velocity}`}
                     trackerInstruction={this}
-                    className="velocity"
+                    type="velocity"
                     options={() => this.renderMenuSelectVelocity(instruction.velocity)}
                 >{instruction.velocity}</ASCTrackInstructionParameter>);
             if(typeof instruction.durationTicks !== "undefined")
@@ -67,7 +67,7 @@ export default class ASCTrackInstructionBase extends React.Component {
                     key="duration"
                     title={`Duration: ${durationString}`}
                     trackerInstruction={this}
-                    className="duration"
+                    type="duration"
                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
                 >{durationString||'-'}</ASCTrackInstructionParameter>);
         }

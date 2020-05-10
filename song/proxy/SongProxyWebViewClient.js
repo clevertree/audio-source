@@ -24,7 +24,8 @@ export default class SongProxyWebViewClient extends React.Component {
     onSongEvent(e) {
         switch(e.type) {
             case 'song:modified':
-                this.postMessage(e.type, e.historyAction)
+                console.log('TODO', e);
+                // this.postMessage(e.type, e.historyAction)
                 break;
         }
     }
@@ -61,6 +62,7 @@ export default class SongProxyWebViewClient extends React.Component {
     }
 
     onMessage(data) {
+        console.log('onMessage', data);
         if(data[0] === '[') {
             data = JSON.parse(data);
             this.handleCommand.apply(this, data);
@@ -71,6 +73,11 @@ export default class SongProxyWebViewClient extends React.Component {
 
     handleCommand(command, ...args) {
         switch(command) {
+            case 'song:modified':
+                console.log('TODO', e);
+                // this.postMessage(e.type, e.historyAction)
+                break;
+
             case 'song:load':
                 let songData = args[0];
                 songData = JSON.parse(songData);

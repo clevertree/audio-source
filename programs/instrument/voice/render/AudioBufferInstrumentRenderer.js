@@ -135,7 +135,7 @@ class AudioBufferInstrumentRenderer extends AudioBufferInstrumentRendererStyle {
             min={0}
             max={100}
             value={typeof sample.mixer !== "undefined" ? sample.mixer : 100}
-            onChange={(e, mixerValue) => this.changeMixer(mixerValue)}
+            onChange={(mixerValue) => this.changeMixer(mixerValue)}
         />);
     }
 
@@ -145,7 +145,7 @@ class AudioBufferInstrumentRenderer extends AudioBufferInstrumentRendererStyle {
             min={-1000}
             max={1000}
             value={typeof sample.detune !== "undefined" ? sample.detune : 100}
-            onChange={(e, detuneValue) => this.changeDetune(detuneValue)}
+            onChange={(detuneValue) => this.changeDetune(detuneValue)}
         />);
     }
 

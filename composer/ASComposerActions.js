@@ -105,22 +105,27 @@ class ASComposerActions extends ASComposerMenu {
                 this.setVolume(state.volume);
             delete state.volume;
             // if(state.songUUID)
-            this.loadDefaultSong(state.songUUID);
+            await this.loadDefaultSong(state.songUUID);
             delete state.songUUID;
             this.setState(state);
             this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
         } else {
-            this.loadDefaultSong();
+            await this.loadDefaultSong();
         }
     }
 
 
-    saveState(e) {
+    async saveAll() {
+        await this.saveSongToMemory();
+        await this.saveState()
+    }
+
+    async saveState() {
         const storage = new Storage();
-        storage.saveState(this.state, 'audio-source-composer-state');
         console.log('Saving State: ', this.state);
+        await storage.saveState(this.state, 'audio-source-composer-state');
     }
 
 
@@ -283,16 +288,16 @@ class ASComposerActions extends ASComposerMenu {
 
     async saveSongToMemory() {
         const song = this.song;
-        const songData = song.data;
+        const songData = song.getProxiedData();
         const songHistory = song.history;
         const storage = new Storage();
-        this.setStatus("Saving song to memory...");
+        this.setStatus("Saving song to memory...", songData);
         await storage.saveSongToMemory(songData, songHistory);
         this.setStatus("Saved song to memory: " + songData.uuid);
     }
 
     saveSongToFile() {
-        const songData = this.song.data;
+        const songData = this.song.getProxiedData();
         // const songHistory = this.song.history;
         const storage = new Storage();
         this.setStatus("Saving song to file");
@@ -441,7 +446,7 @@ class ASComposerActions extends ASComposerMenu {
 
         velocity = parseFloat(velocity);
         if (velocity === null || isNaN(velocity))
-            throw new Error("Invalid velocity: " + typeof velocity);
+            throw new Error(`Invalid velocity (${typeof velocity}): ${velocity}`);
         for (let i = 0; i < selectedIndices.length; i++) {
             song.instructionReplaceVelocity(trackName, selectedIndices[i], velocity);
         }

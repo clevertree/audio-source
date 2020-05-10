@@ -162,7 +162,7 @@ class Values {
                 min={0}
                 max={127}
                 value={currentVelocity}
-                onChange={(e, mixerValue) => onSelectValue(mixerValue)}
+                onChange={(mixerValue) => onSelectValue(mixerValue)}
             />
             <ASUIMenuBreak/>
             {this.getNoteVelocities((velocity) =>

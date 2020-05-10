@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
         borderRightColor: '#666',
         borderBottomColor: '#666',
 
-        paddingLeft: 2,
-        paddingRight: 2,
+        paddingLeft: 4,
+        paddingRight: 4,
     },
 
     text: {
