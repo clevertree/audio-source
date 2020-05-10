@@ -297,16 +297,16 @@ class Song {
     }
 
 
-    programAdd(config) {
-        if (typeof config !== 'object')
+    programAdd(programClassName, programConfig={}) {
+        if (typeof programConfig !== 'object')
             throw new Error("Invalid programs config object");
-        if (!config.className)
+        if (!programClassName)
             throw new Error("Invalid Program Class");
 
         const programList = this.data.programs;
         const programID = programList.length;
 
-        this.data.programs[programID] = config;
+        this.data.programs[programID] = [programClassName, programConfig];
         this.programLoadInstanceFromID(programID);
         // this.dispatchEvent({
         //     type: 'programs:added',

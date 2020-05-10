@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {PanResponder, StyleSheet, Text, TouchableWithoutFeedback, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
@@ -50,8 +50,8 @@ export default class ASCTrackRow extends React.Component {
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (
-            <TouchableOpacity
-                onPress={this.cb.onPress}
+            <TouchableWithoutFeedback
+                onPressIn={this.cb.onPress}
                 >
                 <View
                     style={style}
@@ -69,7 +69,7 @@ export default class ASCTrackRow extends React.Component {
                         vertical={this.props.vertical}
                     />
                 </View>
-            </TouchableOpacity>
+            </TouchableWithoutFeedback>
         )
     }
 
@@ -100,7 +100,6 @@ export default class ASCTrackRow extends React.Component {
 }
 
 
-
 const styles = StyleSheet.create({
 
     default: {
@@ -118,13 +117,13 @@ const styles = StyleSheet.create({
     },
 
     position: {
-
-    },
-    selected: {
-
+        backgroundColor: '#609060',
     },
     cursor: {
-
+        backgroundColor: '#ffeedd',
+    },
+    selected: {
+        backgroundColor: '#ffeedd',
     },
 
     'measure-start': {

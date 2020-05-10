@@ -16,6 +16,10 @@ export default StyleSheet.create({
         // borderBottomColor: '#666',
     },
 
+    disabled: {
+        opacity: 0.5,
+    },
+
     arrow: {
         marginLeft: 'auto'
     },

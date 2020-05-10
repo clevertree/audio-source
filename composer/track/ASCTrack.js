@@ -20,6 +20,19 @@ export default class ASCTrack extends ASCTrackBase {
     }
 
 
+    /** User Input **/
+
+    onWheel(e) {
+        e.preventDefault();
+        let newRowOffset = this.getTrackState().rowOffset;
+        newRowOffset += e.deltaY > 0 ? 1 : -1;
+        if(newRowOffset < 0)
+            newRowOffset = 0; // return console.log("Unable to scroll past beginning");
+        this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
+        // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
+        // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
+    }
+
     /** Render **/
 
     render() {

@@ -127,9 +127,7 @@ class ASComposerRenderer extends React.Component {
                            <ASUIMenuDropDown
                                arrow={'▼'}
                                className="program-add"
-                               options={() => this.renderMenuSelectAvailableProgram(programClass =>
-                                       this.programAdd(programClass)
-                                   , 'Add New Program')}
+                               options={() => this.renderMenuProgramAdd()}
                                title="Add Program"
                            >Select...</ASUIMenuDropDown>
                        </ASUIForm>

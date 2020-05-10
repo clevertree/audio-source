@@ -30,7 +30,7 @@ class ASUIInputRange extends React.Component {
     }
 
     onChange(e) {
-        console.log(e);
+        // console.log(e);
         e.preventDefault();
         const newValue = parseFloat(e.target.value);
         this.props.onChange(newValue)

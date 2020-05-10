@@ -16,7 +16,10 @@ class Values {
             <ASUIMenuBreak />
             <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>
             <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</ASUIMenuDropDown>
-            <ASUIMenuAction onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}      >Custom Command</ASUIMenuAction>
+            <ASUIMenuAction
+                disabled
+                onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
+                >Custom Command</ASUIMenuAction>
         </>);
 
     }
@@ -68,10 +71,10 @@ class Values {
     // TODO: move into lower menu?
     static renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, keyboardOctave=null) {
         return (<>
-            {keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{noteName+''+keyboardOctave} (Current)</ASUIMenuAction> : null}
+            {keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{`${noteName}${keyboardOctave} (Current)`}</ASUIMenuAction> : null}
             {this.getNoteOctaves((octave) =>
                 <ASUIMenuAction key={octave} onAction={() => onSelectValue(noteName+''+octave)}>
-                    {noteName+''+octave}
+                    {`${noteName}${octave}`}
                 </ASUIMenuAction>
             )}
         </>)
@@ -80,7 +83,7 @@ class Values {
     static renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave=null) {
         return (<>
             {keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>
-                {keyboardOctave} (Current)
+                {`${keyboardOctave} (Current)`}
             </ASUIMenuDropDown> : null}
             {this.getNoteOctaves((octave) =>
                 <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}>

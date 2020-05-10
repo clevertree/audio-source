@@ -140,9 +140,9 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
-        return Values.renderMenuSelectAvailableProgram(onSelectValue, menuTitle);
-    }
+    // renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
+    //     return Values.renderMenuSelectAvailableProgram(onSelectValue, menuTitle);
+    // }
 
 
 
@@ -361,6 +361,8 @@ class ASComposerMenu extends ASComposerRenderer {
 
     }
 
+    /** Program Menus **/
+
     renderMenuProgram() {
         return (<>
             <ASUIMenuDropDown key="add" options={() => this.renderMenuProgramAdd()}    >Add program to song</ASUIMenuDropDown>
@@ -372,10 +374,13 @@ class ASComposerMenu extends ASComposerRenderer {
         </>);
     }
 
-    renderMenuProgramAdd() {
-        return ProgramLoader.getRegisteredPrograms().map((config, i) =>
+    renderMenuProgramAdd(menuTitle= "Add New Program") {
+        return (<>
+            {menuTitle ? <><ASUIMenuAction disabled onAction={() => {}}>{menuTitle}</ASUIMenuAction><ASUIMenuBreak/></> : null}
+            {ProgramLoader.getRegisteredPrograms().map((config, i) =>
             <ASUIMenuAction key={i} onAction={e => this.programAdd(config.className)}       >{config.title}</ASUIMenuAction>
-        );
+            )}
+        </>);
     }
 
     renderMenuProgramEdit(programID) {

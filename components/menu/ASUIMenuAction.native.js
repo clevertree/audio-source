@@ -21,6 +21,8 @@ class ASUIMenuAction extends ASUIClickableBase {
         let style = [styles.container];
         if(this.props.style)
             style.push(this.props.style);
+        if(this.props.disabled)
+            style.push(styles.disabled);
 
         return <View
             style={style}
@@ -33,7 +35,7 @@ class ASUIMenuAction extends ASUIClickableBase {
 
     async doAction(e) {
         if(this.props.disabled) {
-            console.warn(this.constructor.name + " is disabled.", this);
+            console.warn(this.constructor.name + " is disabled.");
             return;
         }
 

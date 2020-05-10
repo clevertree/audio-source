@@ -16,7 +16,7 @@ class ASUIMenuAction extends ASUIClickableBase {
 
     async doAction(e) {
         if(this.props.disabled) {
-            console.warn(this.constructor.name + " is disabled.", this);
+            console.warn(this.constructor.name + " is disabled.");
             return;
         }
 

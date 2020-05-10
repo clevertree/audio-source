@@ -142,7 +142,7 @@ class OscillatorInstrumentRendererBase extends React.Component {
 
     renderMenuRoot() {
         return (<>
-            <ASUIMenuAction onAction={()=>{}} disabled>Oscillator: {this.getTitle()}</ASUIMenuAction>
+            <ASUIMenuAction onAction={()=>{}} disabled>{`Oscillator: ${this.getTitle()}`}</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</ASUIMenuDropDown>
             <ASUIMenuBreak />

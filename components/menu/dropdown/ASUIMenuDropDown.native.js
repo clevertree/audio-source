@@ -28,6 +28,8 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
         let style = [styles.container];
         if(this.props.style)
             style.push(this.props.style);
+        if(this.props.disabled)
+            style.push(styles.disabled);
 
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
         return <View
@@ -50,7 +52,7 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
     hoverMenu()     { return this.dropdown.current.hoverMenu(); }
 
     doAction(e) {
-        console.log(e);
+        // console.log(e);
         this.toggleMenu();
     }
 }

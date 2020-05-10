@@ -121,7 +121,10 @@ class ProgramLoader {
         classes.push({classProgram, classRenderer, className, title})
     }
 
-    static getRegisteredPrograms() { return ProgramLoader.registeredProgramClasses; }
+    static getRegisteredPrograms() {
+        // console.log('programs', programs)
+        return ProgramLoader.registeredProgramClasses;
+    }
         // const classes = ProgramLoader.registeredProgramClasses;
         // const results = [];
         // for(let i=0; i<classes.length; i++) {

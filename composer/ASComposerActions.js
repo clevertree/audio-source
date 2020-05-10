@@ -941,25 +941,19 @@ class ASComposerActions extends ASComposerMenu {
     /** Programs **/
 
 
-    async programAdd(programClassName, programConfig = {}, promptUser=false) {
+    async programAddPrompt(programClassName, programConfig = {}) {
+        this.setError(`New program canceled: ${programClassName}`);
+    }
+
+    programAdd(programClassName, programConfig = {}) {
         if (!programClassName)
             throw new Error(`Invalid program class`);
-        const {title} = ProgramLoader.getProgramClassInfo(programClassName);
-        // programConfig = ProgramLoader.createProgramConfig(programClassName, programConfig);
-        // programConfig.libraryURL = this.defaultLibraryURL;
-        // programConfig.name = programConfig.name || programURL.split('/').pop();
 
-//         e.target.form.elements['programURL'].value = '';
-        if (promptUser === false || await this.openConfirmDialog(`Add '${title}' to Song?`)) {
-            const programID = this.song.programAdd(programConfig);
-            this.setStatus(`New program class '${programClassName}' added to song at position ${programID}`);
-            // this.forceUpdate();
-            // this.fieldInstructionProgram.setValue(programID);
-            // await this.panelPrograms.forceUpdate();
+        // Verify program class name
+        ProgramLoader.getProgramClassInfo(programClassName);
 
-        } else {
-            this.setError(`New program canceled: ${programClassName}`);
-        }
+        const programID = this.song.programAdd(programClassName, programConfig);
+        this.setStatus(`New program class '${programClassName}' added to song at position ${programID}`);
     }
 
     async programReplace(programID, programClassName, programConfig = {}) {
