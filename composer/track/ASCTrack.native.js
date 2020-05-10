@@ -1,8 +1,7 @@
 import * as React from "react";
-import {Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {ASUIPanel} from "../../components/";
 
-import styles from "./ASCTrack.style";
 import ASCTrackBase from "./ASCTrackBase";
 
 export default class ASCTrack extends ASCTrackBase {
@@ -15,34 +14,83 @@ export default class ASCTrack extends ASCTrackBase {
 
     render() {
         return (
-            <ASUIPanel
+            <View
                 style={styles.containerPanel}
-                styleContainer={{}}
-                header={this.getTrackName()}
-                title={`Track: ${this.getTrackName()}`}
                 >
-                <View style={styles.default}>
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>
+                        {this.getTrackName()}
+                    </Text>
+                </View>
+                <View style={styles.subHeader}>
                     <View
-                        key="segments"
                         style={styles.containerSegments}
                         children={this.renderRowSegments()}
-                        />
-                    <View
-                        key="rows"
-                        style={styles.containerRows}
-                        onKeyDown={this.cb.onKeyDown}
-                        onWheel={this.cb.onWheel}
-                        >
-                        {this.renderRowContent()}
-                    </View>
-                    <View
-                        key="options"
-                        style={styles.containerOptions}
-                        children={this.renderRowOptions()}
                     />
+                    <View
+                        style={styles.containerButtons}
+                        >
+                        {this.renderRowOptions()}
+                        {this.renderQuantizationButton()}
+                    </View>
                 </View>
-            </ASUIPanel>
+                <View
+                    key="rows"
+                    style={styles.containerRows}
+                    onKeyDown={this.cb.onKeyDown}
+                    onWheel={this.cb.onWheel}
+                    >
+                    {this.renderRowContent()}
+                </View>
+            </View>
         );
     }
 }
+
+const styles = StyleSheet.create({
+
+    default: {
+        // display: 'flex',
+        // padding: 2,
+        // flexDirection:'column',
+        // flexWrap:'nowrap',
+    },
+
+    headerText: {
+        textAlign: 'center',
+        color: '#FFF',
+    },
+
+    header: {
+        backgroundColor: '#333',
+        borderTopRightRadius: 8,
+        borderTopLeftRadius: 8,
+    },
+
+    subHeader: {
+        display: 'flex',
+        flexDirection:'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#888',
+    },
+
+    containerRows: {
+        // flexDirection:'column',
+        // flexWrap:'nowrap',
+    },
+
+    containerPanel: {
+    },
+
+    containerSegments: {
+        display: 'flex',
+        flexDirection:'row',
+    },
+
+    containerButtons: {
+        display: 'flex',
+        flexDirection:'row',
+    }
+});
+
 

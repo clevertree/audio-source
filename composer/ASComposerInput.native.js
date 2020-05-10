@@ -1,3 +1,4 @@
+import {AppState} from "react-native";
 import ASComposerPlayback from "./ASComposerPlayback";
 
 export default class ASComposerInput extends ASComposerPlayback {
@@ -5,19 +6,29 @@ export default class ASComposerInput extends ASComposerPlayback {
         super(props);
         this.onResizeCallback = e => this.onResize(e);
         this.onUnloadCallback = e => this.saveState(e);
+        this.onAppStateChangeCallback = (e) => this.onAppStateChange(e);
     }
 
     componentDidMount() {
-        // window.addEventListener('unload', this.onUnloadCallback);
-        // window.addEventListener('resize', this.onResizeCallback);
+        AppState.addEventListener('change', this.onAppStateChangeCallback);
     }
 
     componentWillUnmount() {
-        // window.removeEventListener('unload', this.onUnloadCallback);
-        // window.removeEventListener('resize', this.onResizeCallback);
+        AppState.removeEventListener('change', this.onAppStateChangeCallback);
     }
 
+    async onAppStateChange(state) {
+        // console.log('AppState', state);
+        switch(state) {
+            case 'inactive':
+            case 'background':
+                await this.saveState();
+                break;
 
+            default:
+                break;
+        }
+    }
 
     /** Input **/
 
@@ -54,14 +65,14 @@ export default class ASComposerInput extends ASComposerPlayback {
                         // TODO: refactor
                         e.preventDefault();
                         throw new Error("TODO: Implement");
-                        // const midiImport = new MIDIImport();
-                        // let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
-                        // let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
-                        // console.log("MIDI ", newMIDICommand, newMIDIVelocity);
+                    // const midiImport = new MIDIImport();
+                    // let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
+                    // let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
+                    // console.log("MIDI ", newMIDICommand, newMIDIVelocity);
 
-                        // this.instructionInsertOrUpdate(e, newMIDICommand);
-                        // this.playSelectedInstructions(e);
-                        // this.focus();
+                    // this.instructionInsertOrUpdate(e, newMIDICommand);
+                    // this.playSelectedInstructions(e);
+                    // this.focus();
                     case 128:   // Note Off
                         // TODO: turn off playing note, optionally set duration of note
                         break;

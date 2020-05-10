@@ -119,7 +119,7 @@ class ASComposerActions extends ASComposerMenu {
 
     async saveAll() {
         await this.saveSongToMemory();
-        await this.saveState()
+        // await this.saveState()
     }
 
     async saveState() {

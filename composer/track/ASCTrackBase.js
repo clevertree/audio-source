@@ -227,8 +227,16 @@ export default class ASCTrackBase extends React.Component {
             />);
         }
 
+        return buttons;
+    }
+
+
+    renderQuantizationButton() {
+        const composer = this.props.composer;
+        const trackState = this.getTrackState();
+
         const rowDeltaDuration = composer.values.formatSongDuration(trackState.quantizationTicks);
-        buttons.push(<ASUIButtonDropDown
+        return (<ASUIButtonDropDown
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
@@ -236,8 +244,6 @@ export default class ASCTrackBase extends React.Component {
             options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
             children={rowDeltaDuration}
         />);
-
-        return buttons;
     }
 
     renderRowOptions() {

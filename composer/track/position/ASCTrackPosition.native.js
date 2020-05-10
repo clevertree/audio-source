@@ -1,14 +1,12 @@
 import * as React from "react";
-import {Text, View} from 'react-native';
-
-import style from "./ASCTrackPosition.style";
+import {StyleSheet, Text, View} from 'react-native';
 
 class ASCTrackPosition extends React.Component {
     render() {
         return <View
-            style={style.default}
+            style={styles.default}
             >
-            <Text>
+            <Text numberOfLines={1}>
                 {this.props.positionTicks}
             </Text>
         </View>;
@@ -16,3 +14,13 @@ class ASCTrackPosition extends React.Component {
 }
 
 export default ASCTrackPosition;
+
+const styles = StyleSheet.create({
+
+    default: {
+        display: 'flex',
+        width: 42,
+        paddingLeft: 2,
+    },
+
+});

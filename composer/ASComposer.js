@@ -61,7 +61,7 @@ export default class ASComposer extends ASComposerInput {
         this.keyboard = new Keyboard();
 
         this.library = Library.loadDefault();
-        console.log('library', this.library);
+        // console.log('library', this.library);
 
         this.song = new Song();
         this.audioContext = null;
