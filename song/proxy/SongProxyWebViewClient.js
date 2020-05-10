@@ -74,7 +74,8 @@ export default class SongProxyWebViewClient extends React.Component {
     handleCommand(command, ...args) {
         switch(command) {
             case 'song:modified':
-                console.log('TODO', e);
+                console.log('applyHistoryAction', args[0]);
+                this.song.applyHistoryAction(...args[0])
                 // this.postMessage(e.type, e.historyAction)
                 break;
 

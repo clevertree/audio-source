@@ -958,7 +958,7 @@ class Song {
         if(Array.isArray(pathList))
             pathList = pathList.join('.');
         const historyAction = [
-            action + ':' + pathList,
+            action, pathList,
         ];
         if (data !== null || oldData !== null)
             historyAction.push(data);
@@ -981,29 +981,47 @@ class Song {
 
     /** History **/
 
-    // applyHistoryActions(songHistory) {
-    //     for (let i = 0; i < songHistory.length; i++) {
-    //         const historyAction = songHistory[i];
-    //         switch (historyAction.action) {
-    //             case 'reset':
-    //                 Object.assign(this.data, historyAction.data);
-    //                 break;
-    //             case 'insert':
-    //                 this.insertDataPath(historyAction.path, historyAction.data);
-    //                 break;
-    //             case 'delete':
-    //                 this.deleteDataPath(historyAction.path);
-    //                 break;
-    //             case 'replace':
-    //                 this.updateData(historyAction.path, historyAction.data);
-    //                 break;
-    //             default:
-    //                 throw new Error("Unknown history action: " + historyAction.action);
-    //         }
-    //     }
-    //     this.history = [];
-    //     this.instructionProcessGroupData();
-    // }
+    applyHistoryActions(songHistory) {
+        for (let i = 0; i < songHistory.length; i++) {
+            const historyAction = songHistory[i];
+            this.applyHistoryAction(historyAction);
+        }
+    }
+
+    applyHistoryAction(...args) {
+        const historyAction = args.shift();
+        const path = args.shift().split('.');
+        const lastPath = path.pop();
+        const songData = this.getProxiedData();
+
+        let target = songData;
+
+        for(let i=0; i<path.length; i++) {
+            target = target[path[i]];
+        }
+        switch (historyAction) {
+            // case 'reset':
+            //     Object.assign(this.data, historyAction.data);
+            //     break;
+            case 'set':
+                const newValue = args.shift();
+                target[lastPath] = newValue;
+                break;
+            case 'delete':
+                delete target[lastPath];
+                break;
+            case 'replace':
+                const replaceValue = args.shift();
+                const oldValue = args.shift();
+                if(oldValue !== target[lastPath]) {
+                    console.warn(`Replace value mismatch: ${oldValue} !== ${songData[lastPath]}`)
+                }
+                target[lastPath] = replaceValue;
+                break;
+            default:
+                throw new Error("Unknown history action: " + historyAction);
+        }
+    }
 
 
     /** Static Fle Support Module **/
