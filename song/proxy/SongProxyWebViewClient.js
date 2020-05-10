@@ -27,6 +27,9 @@ export default class SongProxyWebViewClient extends React.Component {
                 console.log('TODO', e);
                 // this.postMessage(e.type, e.historyAction)
                 break;
+
+            default:
+                break;
         }
     }
 

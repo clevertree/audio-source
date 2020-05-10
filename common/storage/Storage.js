@@ -1,4 +1,3 @@
-import LZString from 'lz-string';
 import Values from "../values/Values";
 
 import LocalStorage from "./LocalStorage";
