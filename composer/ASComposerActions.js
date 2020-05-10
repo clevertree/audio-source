@@ -863,22 +863,22 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
-    trackerSetCursorOffset(trackName, newCursorOffset, selectedIndices=[]) {
-        if (!Number.isInteger(newCursorOffset))
-            throw new Error("Invalid cursor offset");
-        if(newCursorOffset < 0)
-            throw new Error("Cursor offset must be >= 0");
-        return this.trackerSelectIndices(trackName, selectedIndices, newCursorOffset);
-    }
-
-    trackerSetScrollPosition(trackName, newScrollPositionTicks) {
-        if (!Number.isInteger(newScrollPositionTicks))
-            throw new Error("Invalid row offset");
-        this.setState(state => {
-            state.activeTracks[trackName].scrollPositionTicks = newScrollPositionTicks;
-            return state;
-        });
-    }
+    // trackerSetCursorOffset(trackName, newCursorOffset, selectedIndices=[]) {
+    //     if (!Number.isInteger(newCursorOffset))
+    //         throw new Error("Invalid cursor offset");
+    //     if(newCursorOffset < 0)
+    //         throw new Error("Cursor offset must be >= 0");
+    //     return this.trackerSelectIndices(trackName, selectedIndices, newCursorOffset);
+    // }
+    //
+    // trackerSetScrollPosition(trackName, newScrollPositionTicks) {
+    //     if (!Number.isInteger(newScrollPositionTicks))
+    //         throw new Error("Invalid row offset");
+    //     this.setState(state => {
+    //         state.activeTracks[trackName].scrollPositionTicks = newScrollPositionTicks;
+    //         return state;
+    //     });
+    // }
 
     // trackerSetRowOffset
 
@@ -892,7 +892,7 @@ class ASComposerActions extends ASComposerMenu {
             throw new Error("Invalid row offset");
         // console.log('trackerSetRowOffset', {trackName, newRowOffset});
         this.setState(state => {
-            state.selectedTrack = trackName;
+            // state.selectedTrack = trackName;
             state.activeTracks[trackName].rowOffset = newRowOffset;
             return state;
         });
