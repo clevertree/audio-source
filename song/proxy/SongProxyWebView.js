@@ -23,7 +23,7 @@ export default class SongProxyWebView extends React.Component {
     }
 
     render() {
-        console.log('SongProxyWebView.render');
+        // console.log('SongProxyWebView.render');
 
 // Android: <react-native-project>/android/app/src/main/assets/
 // iOS: <react-native-project>/ios/<new group as folder>/ (Note: “New group as folder” will ensure all its contents are bundled into the IPA file.)
@@ -48,7 +48,7 @@ export default class SongProxyWebView extends React.Component {
     }
 
     sendCommand(...args) {
-        console.log('sendCommand', ...args);
+        // console.log('sendCommand', ...args);
         const argString = JSON.stringify(args);
         const webView = this.webView.current;
         if(!webView)

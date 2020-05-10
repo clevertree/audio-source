@@ -293,7 +293,7 @@ class ASComposerActions extends ASComposerMenu {
         const storage = new Storage();
         this.setStatus("Saving song to memory...", songData);
         await storage.saveSongToMemory(songData, songHistory);
-        this.setStatus("Saved song to memory: " + songData.uuid);
+        this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
     }
 
     saveSongToFile() {

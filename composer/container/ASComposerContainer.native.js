@@ -81,8 +81,10 @@ export class ASComposerContainer extends React.Component {
         const state = this.props.composer.state;
         return (
             <View key="footer" style={styles.footer}>
-                <Text style={styles.footerStatus}>{state.status}</Text>
-                <Text style={styles.footerVersion} ref={this.props.composer.footerVersionText}
+                <Text style={styles.footerStatus}
+                      numberOfLines={1}>{state.status}</Text>
+                <Text style={styles.footerVersion}
+                      numberOfLines={1}
                 >{state.version}</Text>
             </View>
         );
@@ -127,6 +129,14 @@ const styles = StyleSheet.create({
         // display: 'flex',
         flexDirection:'row',
         justifyContent: 'space-between',
+    },
+
+    footerStatus: {
+
+    },
+
+    footerVersion: {
+
     }
 
 });
