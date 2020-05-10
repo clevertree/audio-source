@@ -29,7 +29,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         const parameters = this.renderParameters();
         return (
             <TouchableOpacity
-                onPress={this.cb.onPress}
+                onPressIn={this.cb.onPress}
+                // onPress={this.cb.onPress}
                 >
                 <View
                     style={style}
@@ -70,6 +71,14 @@ const styles = StyleSheet.create({
 
     selected: {
         backgroundColor: '#FFF',
+    },
+
+    cursor: {
+        backgroundColor: '#DDD',
+        borderLeftColor: '#F00',
+        borderTopColor: '#F00',
+        borderRightColor: '#A00',
+        borderBottomColor: '#A00',
     },
     playing: {
         backgroundColor: '#80d55c'

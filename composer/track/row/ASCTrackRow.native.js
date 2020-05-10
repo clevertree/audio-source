@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import {PanResponder, StyleSheet, Text, TouchableWithoutFeedback, View} from "react-native";
+import {PanResponder, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
@@ -13,8 +13,11 @@ export default class ASCTrackRow extends React.Component {
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             // onKeyDown: (e) => this.onKeyDown(e),
-            onPress: e => this.onPress(e),
+            onPress: e => this.onPress(e, 'press'),
+            // onPressIn: e => this.onPress(e, 'in'),
+            // onPressOut: e => this.onPress(e, 'out'),
         };
+        this.lastPressInTime = null;
     }
 
     /** Default Properties **/
@@ -50,26 +53,31 @@ export default class ASCTrackRow extends React.Component {
         const composer = this.props.tracker.getComposer();
         const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
         return (
-            <TouchableWithoutFeedback
-                onPressIn={this.cb.onPress}
-                >
+            // <TouchableOpacity
+            //     onPressIn={this.cb.onPressIn}
+            //     onPressOut={this.cb.onPressOut}
+            // >
                 <View
                     style={style}
                     // onClick={this.cb.onMouseInput}
-                    >
-                    <ASCTrackPosition positionTicks={this.props.positionTicks}/>
+                >
+                    <ASCTrackPosition
+                        onPressIn={this.cb.onPress}
+                        positionTicks={this.props.positionTicks}/>
                     {this.props.children}
                     {this.props.cursor ? <ASCTrackInstructionAdd
                         cursorPosition={this.props.cursorPosition}
                     /> : null}
-                    <ASCTrackDelta duration={rowDeltaDuration}/>
+                    <ASCTrackDelta
+                        onPressIn={this.cb.onPress}
+                        duration={rowDeltaDuration}/>
                     <ASUIDropDownContainer
                         ref={this.dropdown}
                         options={this.props.options}
                         vertical={this.props.vertical}
                     />
                 </View>
-            </TouchableWithoutFeedback>
+            // </TouchableOpacity>
         )
     }
 
@@ -85,9 +93,22 @@ export default class ASCTrackRow extends React.Component {
 
     /** User Input **/
 
-    onPress(e) {
+    onPress(e, state) {
+        this.selectRow(!e.ctrlKey);
+        // switch(state) {
+            // case 'in':
+            //     this.lastPressInTime = new Date().getTime();
+            //     console.log('lastPressInTime', this.lastPressInTime);
+            //     break;
+            // case 'out':
+            //     const pressTime = new Date().getTime() - this.lastPressInTime;
+            //     console.log('pressTime', pressTime);
+            //     if(pressTime < 500)
+            //         this.selectRow(!e.ctrlKey);
+            //     break;
+
+        // }
         // if (e.button === 0)
-            this.selectRow(!e.ctrlKey);
         // else if (e.button === 1)
         //     throw new Error("Unimplemented middle button");
         // else if (e.button === 2)

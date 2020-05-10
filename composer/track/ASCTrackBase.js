@@ -67,7 +67,7 @@ export default class ASCTrackBase extends React.Component {
     // getStartPosition()          { return this.getTrackState().startPosition; }
 
 
-    trackerGetCursorInfo(cursorOffset=null) {
+    cursorGetInfo(cursorOffset=null) {
         return this.getComposer().trackerGetCursorInfo(this.getTrackName(), cursorOffset);
     }
 
@@ -93,7 +93,7 @@ export default class ASCTrackBase extends React.Component {
 
     setCursorOffset(cursorOffset, selectedIndices=null, rowOffset=null) {
         if(selectedIndices === null) {
-            const {cursorIndex} = this.trackerGetCursorInfo(cursorOffset);
+            const {cursorIndex} = this.cursorGetInfo(cursorOffset);
             selectedIndices = [];
             if(cursorIndex !== null)
                 selectedIndices = [cursorIndex];
@@ -119,6 +119,7 @@ export default class ASCTrackBase extends React.Component {
         const trackState = this.getTrackState();
         const songPosition = this.getComposer().state.songPosition;
         const trackSongPosition = songPosition - trackState.startPosition;
+        const cursorOffset = trackState.cursorOffset;
         let trackSongPositionFound = false;
         // const quantizationTicks = trackState.quantizationTicks || this.getSong().data.timeDivision;
 
@@ -166,7 +167,7 @@ export default class ASCTrackBase extends React.Component {
                 positionSeconds={iterator.positionSeconds}
                 deltaDuration={rowDeltaDuration}
                 cursorPosition={iterator.cursorPosition}
-                cursor={iterator.cursorPosition === trackState.cursorOffset}
+                cursor={iterator.cursorPosition === cursorOffset}
                 highlight={highlight}
 
             >{rowInstructionElms}</ASCTrackRow>;
@@ -183,7 +184,7 @@ export default class ASCTrackBase extends React.Component {
                 instruction={instruction}
                 tracker={this}
                 cursorPosition={iterator.cursorPosition}
-                cursor={iterator.cursorPosition === trackState.cursorOffset}
+                cursor={iterator.cursorPosition === cursorOffset}
                 selected={selectedIndices.indexOf(index) !== -1}
                 playing={playingIndices.indexOf(index) !== -1}
             />)
@@ -305,7 +306,7 @@ export default class ASCTrackBase extends React.Component {
                 break;
 
             case 'ArrowRight':
-                const {nextOffset} = this.trackerGetCursorInfo();
+                const {nextOffset} = this.cursorGetInfo();
                 e.preventDefault();
                 selectedIndices = this.setCursorOffset(nextOffset);
                 this.playInstructions(selectedIndices);
@@ -313,7 +314,7 @@ export default class ASCTrackBase extends React.Component {
 
             case 'ArrowLeft':
                 e.preventDefault();
-                const {previousOffset} = this.trackerGetCursorInfo();
+                const {previousOffset} = this.cursorGetInfo();
                 if(previousOffset >= 0) {
                     selectedIndices = this.setCursorOffset(previousOffset);
                     this.playInstructions(selectedIndices);
@@ -322,7 +323,7 @@ export default class ASCTrackBase extends React.Component {
 
             case 'ArrowUp':
                 e.preventDefault();
-                const {previousRowOffset} = this.trackerGetCursorInfo();
+                const {previousRowOffset} = this.cursorGetInfo();
                 if(previousRowOffset >= 0) {
                     selectedIndices = this.setCursorOffset(previousRowOffset);
                     this.playInstructions(selectedIndices);
@@ -331,7 +332,7 @@ export default class ASCTrackBase extends React.Component {
 
             case 'ArrowDown':
                 e.preventDefault();
-                const {nextRowOffset} = this.trackerGetCursorInfo();
+                const {nextRowOffset} = this.cursorGetInfo();
                 selectedIndices = this.setCursorOffset(nextRowOffset);
                 this.playInstructions(selectedIndices);
                 break;
