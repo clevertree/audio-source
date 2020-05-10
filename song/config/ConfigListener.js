@@ -54,8 +54,8 @@ export class ConfigListener {
         return true;
     }
 
-    queueChange(action, path) {
-        this.song.queueHistoryAction(action, path);
+    queueChange(action, path, data = null, oldData = null) {
+        this.song.queueHistoryAction(action, path, data, oldData);
         // for(let i=0; i<this.changeListeners.length; i++) {
         //     this.changeListeners[i](action, path);
         // }
