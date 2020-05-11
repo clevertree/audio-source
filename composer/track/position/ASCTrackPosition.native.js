@@ -1,15 +1,21 @@
 import * as React from "react";
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
 class ASCTrackPosition extends React.Component {
     render() {
-        return <View
-            style={styles.default}
-            >
-            <Text numberOfLines={1}>
-                {this.props.positionTicks}
-            </Text>
-        </View>;
+        return (
+            <View
+                style={styles.default}
+                >
+                <TouchableOpacity
+                    onPressIn={this.props.onPressIn}
+                    >
+                    <Text numberOfLines={1}>
+                        {this.props.positionTicks}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        );
     }
 }
 

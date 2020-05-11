@@ -2,6 +2,7 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
 import TrackInstruction from "../../../song/instruction/TrackInstruction";
+import {clear} from "react-native/Libraries/LogBox/Data/LogBoxData";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -100,6 +101,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     }
 
     async selectInstructionWithAction(clearSelection=true, toggleValue = null) {
+        console.log('selectInstructionWithAction', clearSelection, toggleValue);
         const selectedIndices = await this.selectInstruction(clearSelection, toggleValue);
         const instruction = this.getInstruction();
         if(instruction instanceof TrackInstruction) {

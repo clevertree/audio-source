@@ -909,6 +909,17 @@ class ASComposerActions extends ASComposerMenu {
         });
     }
 
+    trackerSetCursorOffset(trackName, newCursorOffset) {
+        if (!Number.isInteger(newCursorOffset))
+            throw new Error("Invalid cursor offset");
+        // console.log('trackerSetRowOffset', {trackName, newRowOffset});
+        this.setState(state => {
+            state.selectedTrack = trackName;
+            state.activeTracks[trackName].cursorOffset = newCursorOffset;
+            return state;
+        });
+    }
+
 
     // trackerUpdateCurrentInstruction(trackName) {
     //     this.setState(state => {

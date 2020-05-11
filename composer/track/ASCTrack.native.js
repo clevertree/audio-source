@@ -6,30 +6,58 @@ import ASCTrackBase from "./ASCTrackBase";
 export default class ASCTrack extends ASCTrackBase {
     constructor(props) {
         super(props);
-        let last=null;
+        this.last=null;
+        this.currentCursorOffset = null;
+        this.currentSelectedIndex = null;
+        this.currentRowOffset = null;
+        // this.longPressTimeout = null;
+        // this.longPressEnabled = false;
         this.panResponderConfig = {
-            // Ask to be the responder:
-            onMoveShouldSetPanResponder: (evt, gestureState) => true,
-            // onMoveShouldSetPanResponderCapture: (evt, gestureState) =>
-            //     true,
 
             onPanResponderGrant: (evt, gestureState) => {
-                last=null;
+                console.log(gestureState);
+                this.longPressEnabled = false;
+                this.last=null;
+                this.currentRowOffset = this.getTrackState().rowOffset;
+                this.currentCursorOffset = this.getTrackState().cursorOffset;
+                // this.longPressTimeout = setTimeout(() => {
+                //     this.longPressEnabled = true;
+                //     console.log('longPressEnabled', this.longPressEnabled);
+                // }, 4000)
+                // console.log('longPressEnabled', this.longPressEnabled);
+
                 // console.log('onPanResponderGrant', gestureState);
                 // The gesture has started. Show visual feedback so the user knows
                 // what is happening!
                 // gestureState.d{x,y} will be set to zero now
             },
+
+            // Ask to be the responder:
+            onMoveShouldSetPanResponder: (evt, gestureState) =>  true,
+            onMoveShouldSetPanResponderCapture: (evt, gestureState) =>  true,
+            //     true,
             onPanResponderMove: (evt, gestureState) => {
                 const {dx, dy, numberActiveTouches} = gestureState;
                 let diffX=0, diffY=0;
-                if(last) {
-                    diffX = dx - last.dx;
-                    diffY = dy - last.dy;
+                if(this.last) {
+                    diffX = dx - this.last.dx;
+                    diffY = dy - this.last.dy;
                 }
-                last = {dx, dy};
+                this.last = {dx, dy};
+
+
+                if(Math.abs(dy) < 0.5 && Math.abs(dx) < 0.5)
+                    return;
+                // clearTimeout(this.longPressTimeout);
+
+
                 if(Math.abs(diffY) > Math.abs(diffX))
-                    this.onVerticalPan(diffY);
+                    this.onVerticalPan(diffY, numberActiveTouches > 1);
+                else
+                    this.onHorizontalPan(diffX, numberActiveTouches > 1);
+
+                // TODO: horizontal panning changes selection
+
                 // The most recent move distance is gestureState.move{X,Y}
                 // The accumulated gesture distance since becoming responder is
                 // gestureState.d{x,y}
@@ -37,8 +65,7 @@ export default class ASCTrack extends ASCTrackBase {
             // onPanResponderTerminationRequest: (evt, gestureState) =>
             //     true,
             onPanResponderRelease: (evt, gestureState) => {
-                last=null;
-                // console.log('onPanResponderRelease', gestureState);
+                console.log('onPanResponderRelease', gestureState);
                 // The user has released all touches while this view is the
                 // responder. This typically means a gesture has succeeded
             },
@@ -69,12 +96,43 @@ export default class ASCTrack extends ASCTrackBase {
             return;
         const offsetDY = (Math.abs(dy) / 10) * (Math.abs(-dy) / -dy);
         // console.log('onVerticalPan', dy, offsetDY);
-        let newRowOffset = this.getTrackState().rowOffset;
+        let newRowOffset = this.currentRowOffset;
         newRowOffset += offsetDY > 0 ? Math.ceil(offsetDY) : Math.floor(offsetDY);
         // newRowOffset += dy < 0 ? 1 : -1;
         if(newRowOffset < 0)
             newRowOffset = 0; // return console.log("Unable to scroll past beginning");
-        this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
+        this.currentRowOffset = newRowOffset;
+
+        this.getComposer().trackerSetRowOffset(this.getTrackName(), Math.round(newRowOffset))
+        // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
+        // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
+    }
+
+
+    onHorizontalPan(dx, selectIndex=false) {
+        dx = dx / 10;
+        // if(Math.abs(dx) < 0.5)
+        //     dx = (dx < 0 ? -0.5 : 0.5)
+        // if(Math.abs(dx) < 0.5)
+        //     return;
+        let newCursorOffset = this.currentCursorOffset;
+        newCursorOffset += dx; //  < 0 ? 1 : -1;
+        if(newCursorOffset < 0)
+            newCursorOffset = 0; // return console.log("Unable to scroll past beginning");
+        console.log('onHorizontalPan', dx, newCursorOffset);
+        this.currentCursorOffset = newCursorOffset;
+
+
+        newCursorOffset = Math.round(newCursorOffset);
+        if(selectIndex) {
+            const cursorInfo = this.getComposer().trackerGetCursorInfo(this.getTrackName(), newCursorOffset);
+            if(cursorInfo.cursorIndex !== null && this.currentSelectedIndex !== cursorInfo.cursorIndex) {
+                this.currentSelectedIndex = cursorInfo.cursorIndex;
+                this.getComposer().trackerSelectIndices(this.getTrackName(), [cursorInfo.cursorIndex], newCursorOffset);
+                this.getComposer().trackerPlaySelected(this.getTrackName(), false);
+            }
+        }
+        this.getComposer().trackerSetCursorOffset(this.getTrackName(), newCursorOffset);
         // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
         // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
     }
@@ -107,7 +165,6 @@ export default class ASCTrack extends ASCTrackBase {
                     style={styles.containerRows}
                     panResponderConfig={this.panResponderConfig}
                     >
-                    {/*{this.renderRowContent(this.panResponderConfig)}*/}
                     {this.renderRowContent()}
                 </PanResponderContainer>}
             </View>
