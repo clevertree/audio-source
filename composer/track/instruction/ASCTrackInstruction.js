@@ -33,7 +33,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             className={className}
             onKeyDown={this.cb.onKeyDown}
             // onClick={this.cb.onMouseInput}
-            onMouseDown={this.cb.onMouseInput}
+            // onMouseDown={this.cb.onMouseInput} // TODO: fix inputs
             >
             {parameters}
         </div>;

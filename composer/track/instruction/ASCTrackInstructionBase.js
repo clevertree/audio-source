@@ -133,7 +133,8 @@ export default class ASCTrackInstructionBase extends React.Component {
                 else if(e.button === 1)
                     throw new Error("Unimplemented middle button");
                 else if(e.button === 2)
-                    throw new Error("Unimplemented right button");
+                    this.toggleDropDownMenu();
+                    // throw new Error("Unimplemented right button");
                 else
                     throw new Error("Unknown mouse button");
 
@@ -144,6 +145,10 @@ export default class ASCTrackInstructionBase extends React.Component {
     }
 
     /** Menus **/
+
+    toggleDropDownMenu() {
+        this.commandParam.current.toggleMenu();
+    }
 
     // }
     renderMenuSelectCommand(e) {

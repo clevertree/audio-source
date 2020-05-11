@@ -65,7 +65,7 @@ export default class ASComposerPlayback extends ASComposerActions {
         if (this.audioContext)
             return this.audioContext;
 
-        const audioContext = new (window.AudioContext)();
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.audioContext = audioContext;
         return audioContext;
     }

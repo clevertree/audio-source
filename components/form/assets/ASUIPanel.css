@@ -21,6 +21,9 @@ div.asui-panel > div.header {
     border-bottom: 1px solid #BBB;
 }
 
+
 div.asui-panel > div.container {
-    /*display: flex;*/
+    overflow-y: auto;
+    display: flex;
+    min-height: 1.4em;
 }

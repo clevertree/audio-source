@@ -29,6 +29,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                 <div className="header">
                     <ASUIButton
                         className="toggle-container"
+                        selected={this.state.open}
                         onAction={e => this.toggleContainer()}
                     >{programIDHTML}: {titleHTML}</ASUIButton>
                     <ASUIButtonDropDown

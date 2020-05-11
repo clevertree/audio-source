@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import "./assets/ASUIPanel.css"
 
 class ASUIPanel extends React.Component {
+
     /** Default Properties **/
     static defaultProps = {
     };
@@ -13,22 +14,18 @@ class ASUIPanel extends React.Component {
         header: PropTypes.any,
     };
 
+
     render() {
         let className = 'asui-panel';
         if(this.props.className)
             className += ' ' + this.props.className;
 
-        let children = this.props.children;
-        if(typeof children === "function")
-            children = children(this);
-
         return (
-            <div
-                {...this.props}
-                className={className}
-                >
+            <div className={className}>
                 {this.props.header ? <div className="header">{this.props.header}</div> : null}
-                {children}
+                <div className="container">
+                    {this.props.children}
+                </div>
             </div>
         )
     }

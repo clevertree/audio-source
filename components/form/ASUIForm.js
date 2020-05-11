@@ -1,6 +1,7 @@
 import React from "react";
-import "./assets/ASUIForm.css"
 import PropTypes from "prop-types";
+
+import "./assets/ASUIForm.css"
 
 class ASUIForm extends React.Component {
     /** Default Properties **/
@@ -13,20 +14,17 @@ class ASUIForm extends React.Component {
         header: PropTypes.any,
     };
 
+
     render() {
         let className = 'asui-form';
         if(this.props.className)
             className += ' ' + this.props.className;
 
-        let children = this.props.children;
-        if(typeof children === "function")
-            children = children(this);
-
         return (
             <div className={className}>
                 {this.props.header ? <div className="header">{this.props.header}</div> : null}
                 <div className="container">
-                    {children}
+                    {this.props.children}
                 </div>
             </div>
         )

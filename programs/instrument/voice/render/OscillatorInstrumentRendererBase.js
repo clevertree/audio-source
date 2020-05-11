@@ -17,6 +17,7 @@ class OscillatorInstrumentRendererBase extends React.Component {
         };
         this.cb = {
             onClick: e => this.toggleOpen(),
+            renderMenuRoot: () => this.renderMenuRoot()
         };
         this.library = Library.loadDefault();
     }

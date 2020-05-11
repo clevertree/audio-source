@@ -1,9 +1,7 @@
-/* eslint-disable no-loop-func */
 import * as React from "react";
-import {ASUIPanel} from "../../components/";
+import ASCTrackBase from "./ASCTrackBase";
 
 import "./ASCTrack.css";
-import ASCTrackBase from "./ASCTrackBase";
 
 export default class ASCTrack extends ASCTrackBase {
     constructor(props) {
@@ -12,11 +10,13 @@ export default class ASCTrack extends ASCTrackBase {
     }
 
     componentDidMount() {
-        this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
+        if(!this.props.collapsed)
+            this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
     }
 
     componentWillUnmount() {
-        this.container.current.removeEventListener('wheel', this.cb.onWheel);
+        if(!this.props.collapsed)
+            this.container.current.removeEventListener('wheel', this.cb.onWheel);
     }
 
 
@@ -43,30 +43,48 @@ export default class ASCTrack extends ASCTrackBase {
         if(this.props.selected)
             className += ' selected';
         return (
-            <ASUIPanel
+            <div
                 className={className}
-                header={this.getTrackName()}
-                title={`Track: ${this.getTrackName()}`}
                 >
-                <div
-                    className="asct-segments"
-                    children={this.renderRowSegments()}
-                    />
-                <div
-                    className="asct-container"
-                    ref={this.container}
-                    tabIndex={0}
-                    onKeyDown={this.cb.onKeyDown}
-                    // onWheel={this.cb.onWheel}
-                    >
-                    {this.renderRowContent()}
+                <div className="header">
+                    {this.getTrackName()}
                 </div>
-                <div
-                    className="asct-options"
-                    children={this.renderRowOptions()}
-                />
-            </ASUIPanel>
+                {this.renderContent()}
+            </div>
         );
+    }
+
+    renderContent() {
+        if(this.props.collapsed) {
+            return (
+                <div className="buttons-select-track">
+                    {this.renderSelectTrackButton()}
+                </div>
+            )
+        }
+        return [
+            <div
+                key="buttons"
+                className="buttons">
+                <div className="segments">
+                    {this.renderRowSegments()}
+                </div>
+                <div className="options">
+                    {this.renderRowOptions()}
+                    {this.renderQuantizationButton()}
+                </div>
+            </div>,
+            <div
+                key="row-container"
+                className="row-container"
+                ref={this.container}
+                tabIndex={0}
+                onKeyDown={this.cb.onKeyDown}
+                // onWheel={this.cb.onWheel}
+            >
+                {this.renderRowContent()}
+            </div>
+        ]
     }
 
 }

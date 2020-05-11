@@ -2,9 +2,15 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import OscillatorInstrumentRendererBase from "./OscillatorInstrumentRendererBase";
 import {ASUIIcon, ASUIMenuDropDown} from "../../../../components";
+import {TouchableHighlight} from "react-native-web";
 
 
 class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
+    constructor(props) {
+        super(props);
+
+    }
+
 
     render() {
         const style = [styles.container];
@@ -14,18 +20,22 @@ class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
 
 
         return <View style={style}>
-            <View
-                style={styles.title}
-                title={`Oscillator: ${title}`}
-                onClick={this.cb.onClick}
-            >
-                <Text>{title}</Text>
-            </View>
+            <TouchableHighlight
+                onPress={this.cb.onClick}
+                >
+                <View
+                    style={styles.title}
+                    title={`Oscillator: ${title}`}
+                    >
+                    <Text>{title}</Text>
+                </View>
+            </TouchableHighlight>
+
             {this.renderParameters()}
             <ASUIMenuDropDown
                 arrow={false}
                 className="config"
-                options={() => this.renderMenuRoot()}
+                options={this.cb.renderMenuRoot}
             >
                 <ASUIIcon source="config"/>
             </ASUIMenuDropDown>

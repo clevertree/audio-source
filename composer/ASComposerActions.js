@@ -68,8 +68,8 @@ class ASComposerActions extends ASComposerMenu {
             selectedTrack: song.getStartTrackName() || 'root',
             activeTracks
         });
-        this.trackerToggleTrack('track0', true);
-        this.trackerToggleTrack('track1', true);
+        // this.trackerToggleTrack('track0', true);
+        // this.trackerToggleTrack('track1', true);
     }
 
     updateCurrentSong() {
@@ -83,6 +83,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Portrait Mode **/
 
     onResize() {
+        // TODO: detect mobile as portrait excluding horizontal ipad
         const aspectRatio = window.innerWidth / window.innerHeight;
         const portrait = aspectRatio < 8/13; // Near golden ratio
         if(!this.state.portrait === portrait) {
@@ -643,7 +644,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows = null) {
-        if (!trackerSegmentLengthInRows || !Number.isInteger(trackerSegmentLengthInRows))
+        if (!Number.isInteger(trackerSegmentLengthInRows))
             throw new Error("Invalid track row length value");
         this.setState(state => {
             state.activeTracks[trackName].rowLength = trackerSegmentLengthInRows;
@@ -693,7 +694,8 @@ class ASComposerActions extends ASComposerMenu {
         // }
     }
 
-    /** Selection **/
+    /** Iterator **/
+
 
     trackerGetIterator(trackName=null) {
         const trackState = new ActiveTrackState(this, trackName);
@@ -712,6 +714,15 @@ class ASComposerActions extends ASComposerMenu {
             trackState.timeDivision, // || this.getSong().data.timeDivision,
             trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
         );
+    }
+
+    /** Selection **/
+
+    trackerSelect(trackName) {
+        this.setState(state => {
+            state.selectedTrack = trackName;
+            return state;
+        });
     }
 
     /**

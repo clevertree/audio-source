@@ -25,7 +25,7 @@ class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
             <ASUIMenuDropDown
                 arrow={false}
                 className="config"
-                options={() => this.renderMenuRoot()}
+                options={this.cb.renderMenuRoot}
             >
                 <ASUIIcon source="config"/>
             </ASUIMenuDropDown>

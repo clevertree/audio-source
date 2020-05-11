@@ -118,6 +118,14 @@ div.asc-container.landscape div.asui-panel {
 }
 
 
+/** Tracks **/
+
+div.asc-container.landscape div.asc-tracks-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
 /** Footer **/
 
 div.asc-status-text {

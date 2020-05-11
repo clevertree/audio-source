@@ -8,7 +8,7 @@ div.instrument-renderer-oscillator-node {
 
     padding: 1px;
     color: #000;
-    border: solid 1px #666;
+    border: 1px outset #EEE;
     border-radius: 4px;
     background-color: #CCC;
     position: relative;
@@ -20,8 +20,11 @@ div.instrument-renderer-oscillator-node > div {
     padding-left: 2px;
 }
 
-div.instrument-renderer-oscillator-node.open {
-    background-color: #FFF;
+div.instrument-renderer-oscillator-node.open > div.title {
+    /*border: 1px solid #FFF;*/
+    border: 1px inset;
+    border-bottom-width: 0px;
+    background: linear-gradient(#ccc, #aaa);
     /*font-weight: bold;*/
 }
 

@@ -103,13 +103,13 @@ export default class ASCTrack extends ASCTrackBase {
                         {this.renderQuantizationButton()}
                     </View>
                 </View>
-                <PanResponderContainer
+                {this.props.collapsed ? null : <PanResponderContainer
                     style={styles.containerRows}
                     panResponderConfig={this.panResponderConfig}
                     >
                     {/*{this.renderRowContent(this.panResponderConfig)}*/}
                     {this.renderRowContent()}
-                </PanResponderContainer>
+                </PanResponderContainer>}
             </View>
         );
     }

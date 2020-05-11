@@ -8,7 +8,7 @@ div.asct-instruction {
   padding: 1px;
   margin: 0;
   color: #666;
-  border: solid 1px #666;
+  border: 1px outset #EEE;
   border-radius: 4px;
   background-color: #CCC;
 }
@@ -40,6 +40,8 @@ div.asc-track.selected div.asct-instruction-add,
 div.asc-track.selected div.asct-instruction.cursor {
   border-color: red;
   box-shadow: darkred 0 0 12px;
+  position: relative;
+  z-index: 2;
 }
 
 

@@ -6,8 +6,8 @@ div.asui-form {
     border: 1px outset #FFF;
     padding: 0px 0px;
     margin: 0px 0px 0px 0px;
-    display: inline-block;
-    vertical-align: top;
+    /*display: inline-block;*/
+    /*vertical-align: top;*/
 }
 div.asui-form > div.header {
     font-size: smaller;

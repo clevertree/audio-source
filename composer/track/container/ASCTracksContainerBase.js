@@ -14,20 +14,24 @@ export default class ASCTracksContainerBase extends React.Component {
         const composer = this.props.composer;
         const selectedTrackName = this.props.selectedTrackName;
         let trackList = Object.keys(composer.state.activeTracks);
+        let collapsed = false;
         if(composer.state.portrait) {
-            const selectedTrackID = trackList.indexOf(selectedTrackName);
-            if (selectedTrackID !== -1)
-                trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
+            collapsed = true;
+            // const selectedTrackID = trackList.indexOf(selectedTrackName);
+            // if (selectedTrackID !== -1)
+            //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
         }
-        return trackList.map(trackName => (
-            <ASCTrack
+        return trackList.map(trackName => {
+            const selected = trackName === selectedTrackName;
+            return <ASCTrack
                 key={trackName}
                 trackName={trackName}
                 trackState={composer.state.activeTracks[trackName]}
-                selected={trackName === selectedTrackName}
+                selected={selected}
                 composer={composer}
-                />
-        ))
+                collapsed={collapsed && !selected}
+            />
+        })
     }
 
 }

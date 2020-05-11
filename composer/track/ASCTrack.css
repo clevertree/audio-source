@@ -17,13 +17,30 @@ div.asct-container {
 
 /** ASCTrack **/
 div.asc-track {
+
     position: relative;
+    vertical-align: top;
+
     /* height: 100%; */
     /*overflow: auto;*/
-    vertical-align: top;
     /*display: inline-block;*/
-    /*min-width: 30vw;*/
+    /*min-width: 33.3vw;*/
 }
+
+div.asc-track > div.header {
+    background-color: #333;
+    color: #FFF;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 6px 0px 6px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #BBB;
+}
+
+
+
 div.asc-track:not(.selected) > div.header {
     background-color: #777;
 }
@@ -31,42 +48,23 @@ div.asc-track:not(.selected) {
     color: #777;
 }
 
-
-
-
-:host(:not(.fullscreen)) div.asc-track {
-    /* max-height: 700px; */
-    /* margin-bottom: auto; */
+div.asc-track.selected {
+    /*flex: 0.5;*/
 }
-:host(.fullscreen) div.asc-track {
-    /*height: 700px;*/
-}
-
-/** ASCTrack Header **/
-
-
-div.asc-track > div.asui-panel {
-    display: block;
-    min-width: 126px;
-
-    /*background-color: #333;*/
-    /*color: #FFF;*/
-}
-div.asc-track > div.asui-panel > div.header {
-    /*text-align: center;*/
-}
-
 
 
 
 /** ASCTrack Segments **/
 
-div.asct-segments,
-div.asct-options {
+div.asc-track > div.buttons {
     display: flex;
 }
-
-div.asct-options > div.row-length,
-div.asct-segments > div.row-quantization {
+div.asc-track > div.buttons > div.options {
     margin-left: auto;
+}
+
+
+div.asc-track > div.buttons-select-track > div.select-track{
+    display: block;
+    text-align: center;
 }

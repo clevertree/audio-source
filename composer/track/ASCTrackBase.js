@@ -236,14 +236,22 @@ export default class ASCTrackBase extends React.Component {
         const trackState = this.getTrackState();
 
         const rowDeltaDuration = composer.values.formatSongDuration(trackState.quantizationTicks);
-        return (<ASUIButtonDropDown
+        return <ASUIButtonDropDown
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
-            key="row-quantization"
             options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
             children={rowDeltaDuration}
-        />);
+        />;
+    }
+
+    renderSelectTrackButton() {
+        return <ASUIButton
+            className="select-track"
+            title={`Select Track: ${this.getTrackName()}`}
+            onAction={() => this.getComposer().trackerSelect(this.getTrackName())}
+            children={`▼`}
+        />;
     }
 
     renderRowOptions() {

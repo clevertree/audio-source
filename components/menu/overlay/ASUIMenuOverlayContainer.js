@@ -27,7 +27,9 @@ export default class ASUIMenuOverlayContainer extends ASUIMenuOverlayContainerBa
 
     renderDropDown() {
         return (
-            <div className="asui-menu-overlay-dropdown">
+            <div
+                key="dropdown"
+                className="asui-menu-overlay-dropdown">
                 {this.state.options}
                 <ASUIMenuBreak/>
                 <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>

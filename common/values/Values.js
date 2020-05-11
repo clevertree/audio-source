@@ -267,7 +267,7 @@ class Values {
 
     static getTrackerSegmentLengthInRows(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
         const results = [];
-        [4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
+        [0, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
             .forEach(i => {
                 const result = callback(i, i + ' Rows');
                 if(!addResult(results, result)) return results;

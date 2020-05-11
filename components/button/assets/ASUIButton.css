@@ -8,9 +8,10 @@ div.asui-button {
     align-items: center;
     /*justify-content: center;*/
     cursor: pointer;
+    white-space: nowrap;
 
     background: linear-gradient(#f6f6f6, #dddddd);
-    border: 1px outset;
+    border: 1px outset #EEE;
 }
 
 div.asui-button:hover {
