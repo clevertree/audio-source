@@ -1,0 +1,21 @@
+
+
+/** Page Links **/
+
+a.aspage-link {
+
+}
+a.aspage-link-image {
+    display: flex;
+}
+
+a.aspage-link-image > img {
+    margin: auto;
+}
+
+@media only screen and (max-width: 640px) {
+    a.aspage-link-image > img {
+        width: 90vw;
+    }
+
+}

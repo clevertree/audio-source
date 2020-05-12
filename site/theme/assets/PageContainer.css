@@ -1,0 +1,88 @@
+body.themed {
+    background-color: #EEE;
+
+}
+
+div.aspage-container {
+    background-color: #333;
+    /*margin: 1vw;*/
+    min-height: 100vh;
+    color: #BBB;
+}
+
+
+div.aspage-container a {
+    /*text-decoration: none;*/
+    color: white;
+
+}
+
+/** Header / Footer **/
+
+div.aspage-header,
+div.aspage-footer {
+    text-align: center;
+}
+
+img.aspage-header-image,
+img.aspage-footer-image {
+    margin-top: 4px;
+    width: 95vw;
+}
+
+div.aspage-header-text,
+div.aspage-footer-text {
+    padding: 1vw;
+}
+
+
+div.aspage-header-links,
+div.aspage-footer-links {
+    display: flex;
+    justify-content: space-evenly;
+    background-color: #666;
+    padding: 0.2vw;
+    font-size: 4vw;
+}
+
+
+div.aspage-header-links > a,
+div.aspage-footer-links > a {
+    text-decoration: none;
+    display: block;
+    padding: 0.2vw 0.5vw;
+    background-color: transparent;
+    border-radius: 1vw;
+    transition: background-color 0.3s;
+}
+div.aspage-header-links > a:hover,
+div.aspage-footer-links > a:hover {
+    background-color: #666;
+}
+
+
+@media only screen and (min-width: 468px) {
+    img.aspage-header-image {
+        width: 468px;
+    }
+
+    div.aspage-header-links,
+    div.aspage-footer-links {
+        font-size: 18px;
+    }
+
+}
+
+
+/** Page Content **/
+
+div.aspage-content {
+    background-color: #444;
+    min-height: 50vh;
+    padding: 1vw;
+}
+
+
+div.aspage-content > p {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
