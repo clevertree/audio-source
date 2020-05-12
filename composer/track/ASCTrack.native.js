@@ -149,26 +149,44 @@ export default class ASCTrack extends ASCTrackBase {
                         {this.getTrackName()}
                     </Text>
                 </View>
-                <View style={styles.subHeader}>
-                    <View
-                        style={styles.containerSegments}
-                        children={this.renderRowSegments()}
-                    />
-                    <View
-                        style={styles.containerButtons}
-                        >
-                        {this.renderRowOptions()}
-                        {this.renderQuantizationButton()}
-                    </View>
-                </View>
-                {this.props.collapsed ? null : <PanResponderContainer
-                    style={styles.containerRows}
-                    panResponderConfig={this.panResponderConfig}
-                    >
-                    {this.renderRowContent()}
-                </PanResponderContainer>}
+                {this.renderContent()}
             </View>
         );
+    }
+
+    renderContent() {
+        if(this.props.collapsed) {
+            return (
+                <View
+                    style={styles.containerSelectTrack}
+                    >
+                    {this.renderSelectTrackButton()}
+                </View>
+            )
+        }
+        return [
+            <View
+                key="subHeader"
+                style={styles.subHeader}>
+                <View
+                    style={styles.containerSegments}
+                    children={this.renderRowSegments()}
+                />
+                <View
+                    style={styles.containerButtons}
+                >
+                    {this.renderRowOptions()}
+                    {this.renderQuantizationButton()}
+                </View>
+            </View>,
+            <PanResponderContainer
+                key="panResponder"
+                style={styles.containerRows}
+                panResponderConfig={this.panResponderConfig}
+                >
+                {this.renderRowContent()}
+            </PanResponderContainer>
+        ]
     }
 
 }
@@ -235,6 +253,10 @@ const styles = StyleSheet.create({
     containerButtons: {
         display: 'flex',
         flexDirection:'row',
+    },
+
+    containerSelectTrack: {
+        display: 'flex',
     }
 });
 
