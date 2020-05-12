@@ -1,8 +1,7 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableHighlight} from 'react-native';
 import OscillatorInstrumentRendererBase from "./OscillatorInstrumentRendererBase";
 import {ASUIIcon, ASUIMenuDropDown} from "../../../../components";
-import {TouchableHighlight} from "react-native-web";
 
 
 class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {

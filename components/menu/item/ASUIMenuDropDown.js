@@ -7,8 +7,6 @@ import ASUIClickableBase from "../../button/ASUIClickableBase";
 import ASUIMenuContext from "../ASUIMenuContext";
 
 export default class ASUIMenuDropDown extends ASUIClickableBase {
-    /** Menu Context **/
-    static contextType = ASUIMenuContext;
 
     // Default Properties
     static defaultProps = {
@@ -118,13 +116,6 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
 
     /** Overlay Context **/
 
-    getOverlay() { return this.context.overlay; }
-
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-        else
-            console.warn("Could not close all dropdown menus", this.getOverlay());
-    }
+    closeAllDropDownMenus()     { return this.dropdown.current.closeAllDropDownMenus(); }
 
 }

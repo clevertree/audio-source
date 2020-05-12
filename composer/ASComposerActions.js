@@ -204,6 +204,7 @@ class ASComposerActions extends ASComposerMenu {
         }
 
         this.loadNewSongData();
+        await this.saveSongToMemory();
 
         return false;
     }
@@ -225,7 +226,7 @@ class ASComposerActions extends ASComposerMenu {
         let songRecentUUIDs = await storage.getRecentSongList();
         if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
             this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
-            this.loadSongFromMemory(songRecentUUIDs[0].uuid);
+            await this.loadSongFromMemory(songRecentUUIDs[0].uuid);
             return true;
         }
         return false;

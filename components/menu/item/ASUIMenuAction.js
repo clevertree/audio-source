@@ -1,7 +1,12 @@
 import PropTypes from "prop-types";
 import ASUIMenuItem from "./ASUIMenuItem";
+import ASUIMenuContext from "../ASUIMenuContext";
 
 class ASUIMenuAction extends ASUIMenuItem {
+    /** Menu Context **/
+    static contextType = ASUIMenuContext;
+
+
     /** Property validation **/
     static propTypes = {
         onAction: PropTypes.func.isRequired,
@@ -24,6 +29,17 @@ class ASUIMenuAction extends ASUIMenuItem {
         const result = await this.props.onAction(e, this);
         if (result !== false)
             this.closeAllDropDownMenus();
+    }
+
+    /** Overlay Context **/
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus() {
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
+        else
+            console.warn("Could not close all dropdown menus", this.getOverlay());
     }
 }
 

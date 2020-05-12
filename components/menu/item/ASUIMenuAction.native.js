@@ -4,8 +4,12 @@ import PropTypes from "prop-types";
 
 import styles from "../style/ASUIMenu.style"
 import ASUIMenuItem from "./ASUIMenuItem";
+import ASUIMenuContext from "../ASUIMenuContext";
 
 class ASUIMenuAction extends ASUIMenuItem {
+    /** Menu Context **/
+    static contextType = ASUIMenuContext;
+
     /** Default Properties **/
     static defaultProps = {
     };
@@ -15,21 +19,6 @@ class ASUIMenuAction extends ASUIMenuItem {
         onAction: PropTypes.func.isRequired,
         disabled: PropTypes.bool,
     };
-
-
-    renderChildren(props={}) {
-        let style = [styles.container];
-        if(this.props.style)
-            style.push(this.props.style);
-        if(this.props.disabled)
-            style.push(styles.disabled);
-
-        return <View
-            style={style}
-            >
-            {super.renderChildren()}
-        </View>;
-    }
 
     /** Actions **/
 
@@ -46,6 +35,16 @@ class ASUIMenuAction extends ASUIMenuItem {
             this.closeAllDropDownMenus();
     }
 
+    /** Overlay Context **/
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus() {
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
+        else
+            console.warn("Could not close all dropdown menus", this.getOverlay());
+    }
 }
 
 export default ASUIMenuAction;

@@ -16,6 +16,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         this.commandParam = React.createRef();
     }
 
+    isOpen() { return this.props.cursor || this.props.selected; }
+
     render() {
         const style = [styles.cell];
 
@@ -26,7 +28,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         if(this.props.playing)
             style.push(styles.playing)
 
-        const parameters = this.renderParameters();
+        const instruction = this.props.instruction;
+        const open = this.isOpen();
         return (
             <TouchableOpacity
                 onPressIn={this.cb.onPress}
@@ -35,7 +38,10 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
                 <View
                     style={style}
                 >
-                    {parameters}
+                    <View>
+                        <Text>{instruction.command}</Text>
+                    </View>
+                    {open ? this.renderParameters() : null}
                 </View>
             </TouchableOpacity>
         );

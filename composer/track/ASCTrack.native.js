@@ -15,7 +15,7 @@ export default class ASCTrack extends ASCTrackBase {
         this.panResponderConfig = {
 
             onPanResponderGrant: (evt, gestureState) => {
-                console.log(gestureState);
+                // console.log(gestureState);
                 this.longPressEnabled = false;
                 this.last=null;
                 this.currentRowOffset = this.getTrackState().rowOffset;
@@ -119,7 +119,7 @@ export default class ASCTrack extends ASCTrackBase {
         newCursorOffset += dx; //  < 0 ? 1 : -1;
         if(newCursorOffset < 0)
             newCursorOffset = 0; // return console.log("Unable to scroll past beginning");
-        console.log('onHorizontalPan', dx, newCursorOffset);
+        // console.log('onHorizontalPan', dx, newCursorOffset);
         this.currentCursorOffset = newCursorOffset;
 
 
