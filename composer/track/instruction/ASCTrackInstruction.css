@@ -39,9 +39,9 @@ div.asc-track.selected div.asct-instruction.selected {
 div.asc-track.selected div.asct-instruction-add,
 div.asc-track.selected div.asct-instruction.cursor {
   border-color: red;
-  box-shadow: darkred 0 0 12px;
+  box-shadow: darkred 0 0 4px;
   position: relative;
-  z-index: 2;
+  /*z-index: 2;*/
 }
 
 

@@ -13,7 +13,7 @@ class ASCTrackRow extends React.Component {
         this.cb = {
             onContextMenu: (e) => this.onContextMenu(e),
             onKeyDown: (e) => this.onKeyDown(e),
-            onMouseInput: e => this.onMouseInput(e),
+            onMouseDown: e => this.onMouseDown(e),
         };
     }
 
@@ -51,7 +51,7 @@ class ASCTrackRow extends React.Component {
                 tabIndex={0}
                 className={className}
                 // onClick={this.cb.onMouseInput}
-                onMouseDown={this.cb.onMouseInput}
+                onMouseDown={this.cb.onMouseDown}
                 onKeyDown={this.cb.onKeyDown}
             >
                 <ASCTrackPosition positionTicks={this.props.positionTicks}/>
@@ -81,28 +81,12 @@ class ASCTrackRow extends React.Component {
 
     /** User Input **/
 
-    onMouseInput(e) {
+
+    onMouseDown(e) {
         if (e.defaultPrevented)
             return;
         e.preventDefault();
-        // console.log(e.type, e.button);
-
-        switch (e.type) {
-            case 'mousedown':
-            case 'click':
-                if (e.button === 0)
-                    this.selectRow(!e.ctrlKey);
-                else if (e.button === 1)
-                    throw new Error("Unimplemented middle button");
-                else if (e.button === 2)
-                    this.toggleMenu();
-                else
-                    throw new Error("Unknown mouse button");
-
-                break;
-            default:
-                throw new Error("Unknown Mouse event: " + e.type);
-        }
+        this.selectRow(!e.ctrlKey);
     }
 
     onContextMenu(e) {

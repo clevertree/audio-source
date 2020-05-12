@@ -1,12 +1,7 @@
 import React from "react";
 import {Text, TouchableHighlight, View} from "react-native";
 
-import ASUIMenuContext from "../menu/ASUIMenuContext";
-
 export default class ASUIClickableBase extends React.Component {
-    /** Context **/
-    static contextType = ASUIMenuContext;
-
     constructor(props) {
         super(props);
         this.cb = {
@@ -66,17 +61,6 @@ export default class ASUIClickableBase extends React.Component {
 
     doAction(e) {
         throw new Error("Not implemented");
-    }
-
-    /** Overlay Context **/
-
-    getOverlay() { return this.context.overlay; }
-
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-        else
-            console.warn("Could not close all dropdown menus", this.getOverlay());
     }
 
 }

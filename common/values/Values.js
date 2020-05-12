@@ -1,4 +1,4 @@
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
+import {ASUIMenuItem, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import {ASUIInputRange} from "../../components";
 import ProgramLoader from "../program/ProgramLoader";
 import React from "react";
@@ -9,8 +9,10 @@ class Values {
     /** Menus **/
 
     // TODO: move copy to SongValues
-    static renderMenuSelectCommand(onSelectValue, keyboardOctave=null) {
+    static renderMenuSelectCommand(onSelectValue, keyboardOctave=null, title= "Select Command") {
         return (<>
+            <ASUIMenuItem>{title}</ASUIMenuItem>
+            <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, keyboardOctave)}           >By Frequency</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave)}              >By Octave</ASUIMenuDropDown>
             <ASUIMenuBreak />
@@ -100,8 +102,10 @@ class Values {
     }
 
 
-    static renderMenuSelectDuration(onSelectValue, currentDuration, timeDivision) {
+    static renderMenuSelectDuration(onSelectValue, timeDivision, currentDuration = null, title= "Select Duration") {
         return (<>
+            <ASUIMenuItem>{title}</ASUIMenuItem>
+            <ASUIMenuBreak />
             <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</ASUIMenuDropDown>
@@ -154,13 +158,14 @@ class Values {
         }
     }
 
-    static renderMenuSelectVelocity(onSelectValue, currentVelocity=null) {
+    static renderMenuSelectVelocity(onSelectValue, currentVelocity=null, title= "Select Velocity") {
         const customAction = async () => {
             const velocity = await PromptManager.openPromptDialog("Enter custom velocity (1-127)", 127);
             onSelectValue(velocity);
         };
         return (<>
-            <ASUIMenuAction onAction={()=>{}} disabled>Set Velocity</ASUIMenuAction>
+            <ASUIMenuItem>{title}</ASUIMenuItem>
+            <ASUIMenuBreak />
             <ASUIInputRange
                 min={0}
                 max={127}

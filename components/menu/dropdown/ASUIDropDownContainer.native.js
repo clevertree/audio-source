@@ -52,20 +52,11 @@ class ASUIDropDownContainer extends React.Component {
         if (!this.state.open)
             return null;
 
-        let className = 'asui-menu-dropdown';
-        if (this.props.vertical)
-            className += ' vertical';
-        if (this.state.stick)
-            className += ' stick';
-        if(this.props.disabled)
-            return 'Disabled';
-
         let options = this.state.options;
 
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             <div
-                className={className}
                 children={options}
                 ref={this.divRef}
                 />

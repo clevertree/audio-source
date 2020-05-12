@@ -1,8 +1,9 @@
 import React from "react";
-import {ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
+import {ASUIMenuItem, ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
 import Values from "../common/values/Values";
 import {Storage, ProgramLoader} from "../song";
 import ASComposerRenderer from "./ASComposerRenderer";
+import ActiveTrackState from "./track/state/ActiveTrackState";
 
 class ASComposerMenu extends ASComposerRenderer {
 
@@ -93,6 +94,7 @@ class ASComposerMenu extends ASComposerRenderer {
     /** Deep selection menus **/
 
 
+    /** @deprecated **/
     renderMenuSelectCommand(onSelectValue) {
         return Values.renderMenuSelectCommand(onSelectValue, this.state.keyboardOctave);
     }
@@ -106,6 +108,7 @@ class ASComposerMenu extends ASComposerRenderer {
     // }
 
 
+    /** @deprecated **/
     renderMenuSelectCommandByFrequency(onSelectValue) {
         return Values.renderMenuSelectCommandByFrequency(onSelectValue, this.state.keyboardOctave);
     }
@@ -114,6 +117,7 @@ class ASComposerMenu extends ASComposerRenderer {
     //     return Values.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName);
     // }
 
+    /** @deprecated **/
     renderMenuSelectCommandByOctave(onSelectValue) {
         return Values.renderMenuSelectCommandByOctave(onSelectValue, this.state.keyboardOctave);
     }
@@ -125,19 +129,14 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
 
+    /** @deprecated **/
     renderMenuSelectSongProgram(onSelectValue) {
         return this.values.getSongPrograms((programID, programClass, programInfo) =>
             <ASUIMenuAction key={programID} onAction={() => onSelectValue(programID)}  >{programID}: {programInfo.title || programClass}</ASUIMenuAction>
         );
     }
 
-    renderMenuSelectDuration(onSelectValue, currentDuration, timeDivision=null) {
-        return Values.renderMenuSelectDuration(onSelectValue, currentDuration, timeDivision || this.song.data.timeDivision);
-    }
 
-    renderMenuSelectVelocity(onSelectValue, currentVelocity=null) {
-        return Values.renderMenuSelectVelocity(onSelectValue, currentVelocity);
-    }
 
 
     // renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
@@ -147,8 +146,9 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEdit() {
-        const trackState = this.trackGetState();
-        const selectedIndices = trackState.selectedIndices || [];
+        const selectedTrackName = this.state.selectedTrack;
+        const trackState = new ActiveTrackState(this, selectedTrackName);
+        const selectedIndices = trackState.selectedIndices;
 
         // const populateGroupCommands = (renderMenuTrack, action) => {
         //     renderMenuTrack.populate = () => {
@@ -167,6 +167,7 @@ class ASComposerMenu extends ASComposerRenderer {
         // renderMenuEditInsertCommand.action = handleAction('song:new');
         return (<>
             <ASUIMenuDropDown
+                disabled={selectedIndices.length > 0}
                 options={() => this.renderMenuEditInsert()}
                 children="Insert Command"
                 />
@@ -205,11 +206,14 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditInsert() {
         return Values.renderMenuSelectCommand(async newCommand => {
-            if(newCommand === null)
-                await this.instructionInsertPrompt();
-            else
-                this.instructionInsert(newCommand);
-        }, this.state.keyboardOctave);
+                if(newCommand === null)
+                    await this.instructionInsertPrompt();
+                else
+                    this.instructionInsert(newCommand);
+            },
+            this.state.keyboardOctave,
+            "New Command"
+            );
     }
 
 
@@ -228,13 +232,16 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
 
-    renderMenuEditSetCommand() {
+    renderMenuEditSetCommand(currentCommand=null) {
         return Values.renderMenuSelectCommand(async newCommand => {
-            if(newCommand === null)
-                await this.instructionReplaceCommandSelectedPrompt();
-            else
-                this.instructionReplaceCommandSelected(newCommand);
-        }, this.state.keyboardOctave);
+                if(newCommand === null)
+                    await this.instructionReplaceCommandSelectedPrompt();
+                else
+                    this.instructionReplaceCommandSelected(newCommand);
+            },
+            this.state.keyboardOctave,
+            "Change " + (currentCommand ? currentCommand : "Command")
+        );
     }
 
     // renderMenuEditSetProgram() {
@@ -245,18 +252,21 @@ class ASComposerMenu extends ASComposerRenderer {
     //     );
     // }
 
-    renderMenuEditSetDuration() {
-        return this.renderMenuSelectDuration(durationTicks => {
-            this.instructionReplaceDurationSelected(durationTicks)
-        });
+    renderMenuEditSetDuration(currentDuration=null) {
+        return Values.renderMenuSelectDuration(durationTicks => {
+                this.instructionReplaceDurationSelected(durationTicks)
+            },
+            this.song.data.timeDivision,
+            currentDuration,
+            "Change Duration" + (currentDuration ? ': ' + currentDuration : ''));
     }
 
-    renderMenuEditSetVelocity() {
-        return (<>
-            {Values.getNoteVelocities((velocity) =>
-                <ASUIMenuAction key={velocity} onAction={e => this.instructionReplaceVelocity(velocity)}  >{velocity}</ASUIMenuAction>)}
-            <ASUIMenuAction onAction={e => this.instructionReplaceVelocity(null, true)} hasBreak >Custom Velocity</ASUIMenuAction>
-        </>);
+    renderMenuEditSetVelocity(currentVelocity=null) {
+        return Values.renderMenuSelectVelocity(velocity => {
+                this.instructionReplaceVelocity(velocity)
+            },
+            currentVelocity,
+            "Change Velocity" + (currentVelocity ? ': ' + currentVelocity : ''));
     }
 
     renderMenuEditSetCommandFrequency() {
@@ -282,18 +292,20 @@ class ASComposerMenu extends ASComposerRenderer {
 
     }
 
-    renderMenuEditSelectBatch() {
+    async renderMenuEditSelectBatch() {
+        const recentSearches = await (new Storage()).getBatchRecentSearches();
         return (<>
-            {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
+            {recentSearches.map((recentBatchSearch, i) =>
                 <ASUIMenuAction onAction={e => this.batchSelect(recentBatchSearch, true)}      >New Selection Command</ASUIMenuAction>
             )}
             <ASUIMenuAction onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</ASUIMenuAction>
         </>);
     }
 
-    renderMenuEditBatch() {
+    async renderMenuEditBatch() {
+        const recentCommands = await (new Storage()).getBatchRecentCommands();
         return (<>
-            {(new Storage()).getBatchRecentCommands().map((recentBatchCommand, i) =>
+            {recentCommands.map((recentBatchCommand, i) =>
                 <ASUIMenuDropDown options={() => this.renderMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</ASUIMenuDropDown>
             )}
             <ASUIMenuAction onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</ASUIMenuAction>
@@ -320,11 +332,12 @@ class ASComposerMenu extends ASComposerRenderer {
 
     /** ASCTrack Menu **/
 
-    renderMenuTrackerSetQuantization(trackName) {
+    renderMenuTrackerSetQuantization(trackName, title = "Select Quantization") {
         return (<>
-            {this.renderMenuSelectDuration(durationTicks => {
-                this.trackerChangeQuantization(trackName, durationTicks);
-            })}
+            {Values.renderMenuSelectDuration(
+                durationTicks => this.trackerChangeQuantization(trackName, durationTicks),
+                this.song.data.timeDivision,
+                title)}
             <ASUIMenuAction onAction={(e) => this.trackerChangeQuantization(trackName)} hasBreak >Custom Quantization</ASUIMenuAction>
         </>);
     }
@@ -376,7 +389,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuProgramAdd(menuTitle= "Add New Program") {
         return (<>
-            {menuTitle ? <><ASUIMenuAction disabled onAction={() => {}}>{menuTitle}</ASUIMenuAction><ASUIMenuBreak/></> : null}
+            {menuTitle ? <><ASUIMenuItem>{menuTitle}</ASUIMenuItem><ASUIMenuBreak/></> : null}
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
             <ASUIMenuAction key={i} onAction={e => this.programAdd(config.className)}       >{config.title}</ASUIMenuAction>
             )}

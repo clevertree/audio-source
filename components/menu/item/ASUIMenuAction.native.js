@@ -1,16 +1,35 @@
-import ASUIClickableBase from "../button/ASUIClickableBase";
-
-import './assets/ASUIMenu.css';
+import React from "react";
+import {View} from "react-native";
 import PropTypes from "prop-types";
 
-class ASUIMenuAction extends ASUIClickableBase {
+import styles from "../style/ASUIMenu.style"
+import ASUIMenuItem from "./ASUIMenuItem";
+
+class ASUIMenuAction extends ASUIMenuItem {
+    /** Default Properties **/
+    static defaultProps = {
+    };
+
     /** Property validation **/
     static propTypes = {
         onAction: PropTypes.func.isRequired,
         disabled: PropTypes.bool,
     };
 
-    getClassName() { return 'asui-menu-item'; }
+
+    renderChildren(props={}) {
+        let style = [styles.container];
+        if(this.props.style)
+            style.push(this.props.style);
+        if(this.props.disabled)
+            style.push(styles.disabled);
+
+        return <View
+            style={style}
+            >
+            {super.renderChildren()}
+        </View>;
+    }
 
     /** Actions **/
 
@@ -26,6 +45,7 @@ class ASUIMenuAction extends ASUIClickableBase {
         if (result !== false)
             this.closeAllDropDownMenus();
     }
+
 }
 
 export default ASUIMenuAction;

@@ -23,8 +23,6 @@ export default class ASUIButton extends ASUIClickableBase {
         };
     }
 
-    getOverlay() { return this.context.overlay; }
-
     getClassName() { return 'asui-button'; }
 
 

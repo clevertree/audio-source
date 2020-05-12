@@ -7,7 +7,7 @@ div.asui-menu-overlay {
     background-color: #0008;
     width: 100%;
     height: 100%;
-    z-index: 1;
+    z-index: 2;
 }
 
 

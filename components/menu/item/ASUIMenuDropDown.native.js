@@ -1,12 +1,16 @@
 import React from "react";
 import {View, TouchableHighlight, Text, ImageBackground, StyleSheet} from 'react-native';
 import PropTypes from "prop-types";
-import ASUIDropDownContainer from "./ASUIDropDownContainer";
+import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 import ASUIClickableBase from "../../button/ASUIClickableBase";
 
-import styles from "../ASUIMenu.style"
+import styles from "../style/ASUIMenu.style"
+import ASUIMenuContext from "../ASUIMenuContext";
 
 export default class ASUIMenuDropDown extends ASUIClickableBase {
+    /** Menu Context **/
+    static contextType = ASUIMenuContext;
+
     // Default Properties
     static defaultProps = {
         arrow:          true,
@@ -54,5 +58,16 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
     doAction(e) {
         // console.log(e);
         this.toggleMenu();
+    }
+
+    /** Overlay Context **/
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus() {
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
+        else
+            console.warn("Could not close all dropdown menus", this.getOverlay());
     }
 }

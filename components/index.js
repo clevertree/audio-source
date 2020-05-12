@@ -7,6 +7,7 @@ import {
 } from "./button/";
 
 import {
+    ASUIMenuItem,
     ASUIMenuAction,
     ASUIMenuDropDown,
     ASUIMenuBreak,
@@ -27,6 +28,7 @@ export {
     ASUIButton,
     ASUIButtonDropDown,
 
+    ASUIMenuItem,
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIMenuDropDown,

@@ -54,13 +54,13 @@ class ASUIDropDownContainer extends React.Component {
         if (!this.state.open)
             return null;
 
-        let className = 'asui-menu-dropdown';
+        let className = 'asui-menu-dropdown-container';
         if (this.props.vertical)
             className += ' vertical';
         if (this.state.stick)
             className += ' stick';
-        if(this.props.disabled)
-            return 'Disabled';
+        // if(this.props.disabled)
+        //     return 'Disabled';
 
         let options = this.state.options;
 

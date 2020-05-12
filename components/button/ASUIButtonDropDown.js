@@ -2,10 +2,15 @@ import React from "react";
 import PropTypes from "prop-types";
 import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
 import ASUIClickableBase from "./ASUIClickableBase";
+import ASUIMenuContext from "../menu/ASUIMenuContext";
 
 import "./assets/ASUIButton.css"
 
 export default class ASUIButtonDropDown extends ASUIClickableBase {
+    /** Menu Context **/
+    static contextType = ASUIMenuContext;
+
+
     // Default Properties
     static defaultProps = {
         arrow:          true,
@@ -47,4 +52,16 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
     doAction(e) {
         this.toggleMenu();
     }
+
+    /** Overlay Context **/
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus() {
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
+        else
+            console.warn("Could not close all dropdown menus", this.getOverlay());
+    }
+
 }

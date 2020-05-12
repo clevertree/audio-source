@@ -2,10 +2,10 @@
 /** Menu **/
 
 div.asui-menu-item {
+    color: #777;
     /*z-index: 4;*/
     position: relative;
     /*color: black;*/
-    cursor: pointer;
     /*min-width: 1em;*/
     /*min-height: 1em;*/
     transition: background-color 0.3s;
@@ -17,11 +17,20 @@ div.asui-menu-item {
     margin: 0 0;
     white-space: nowrap;
 
+    cursor: default;
+
+}
+
+/** Action **/
+
+div.asui-menu-item.action {
+    cursor: pointer;
+    color: #000;
 }
 
 
 /** Hover **/
-div.asui-menu-item:hover {
+div.asui-menu-item.action:hover {
     background-color: #AAA;
 }
 
@@ -65,13 +74,5 @@ hr.asui-menu-break {
 /** Context Menu **/
 
 
-div.asui-menu-item[context]:not([open]) {
-    display: none;
-}
-div.asui-menu-item[context] {
-    position: absolute;
-    z-index: 4;
-    background-color: #bdc3c7;
-}
 
 

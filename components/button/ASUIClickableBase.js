@@ -1,16 +1,12 @@
 import React from "react";
 
-import ASUIMenuContext from "../menu/ASUIMenuContext";
-
 export default class ASUIClickableBase extends React.Component {
-    /** Context **/
-    static contextType = ASUIMenuContext;
-
     constructor(props) {
         super(props);
         this.cb = {
-            onMouseInput: e => this.onMouseInput(e),
+            onClick: e => this.onClick(e),
             onKeyDown: e => this.onKeyDown(e),
+            onMouseEnter: null
         };
     }
 
@@ -29,8 +25,9 @@ export default class ASUIClickableBase extends React.Component {
             <div
                 title={this.props.title}
                 className={className}
-                onClick={this.cb.onMouseInput}
+                onClick={this.cb.onClick}
                 onKeyDown={this.cb.onKeyDown}
+                onMouseEnter={this.cb.onMouseEnter}
                 tabIndex={0}
             >
                 {this.renderChildren()}
@@ -44,7 +41,8 @@ export default class ASUIClickableBase extends React.Component {
 
     /** User Input **/
 
-    onMouseInput(e) {
+    onClick(e) {
+        console.log(e.type);
         if(e.defaultPrevented)
             return;
         e.preventDefault();
@@ -71,17 +69,6 @@ export default class ASUIClickableBase extends React.Component {
 
     doAction(e) {
         throw new Error("Not implemented");
-    }
-
-    /** Overlay Context **/
-
-    getOverlay() { return this.context.overlay; }
-
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-        else
-            console.warn("Could not close all dropdown menus", this.getOverlay());
     }
 
 }

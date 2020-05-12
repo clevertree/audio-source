@@ -41,6 +41,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         );
     }
 
+    /** User Input **/
+
     onPress(e) {
         this.selectInstructionWithAction(!e.ctrlKey);
     }

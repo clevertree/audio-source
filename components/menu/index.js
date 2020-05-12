@@ -1,10 +1,12 @@
-import ASUIMenuAction from "./ASUIMenuAction";
-import ASUIMenuDropDown from "./dropdown/ASUIMenuDropDown";
+import ASUIMenuItem from "./item/ASUIMenuItem";
+import ASUIMenuAction from "./item/ASUIMenuAction";
+import ASUIMenuDropDown from "./item/ASUIMenuDropDown";
 import ASUIDropDownContainer from "./dropdown/ASUIDropDownContainer";
-import ASUIMenuBreak from "./ASUIMenuBreak";
+import ASUIMenuBreak from "./item/ASUIMenuBreak";
 import ASUIMenuOverlayContainer from "./overlay/ASUIMenuOverlayContainer";
 
 export {
+    ASUIMenuItem,
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIMenuDropDown,
