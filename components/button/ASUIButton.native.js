@@ -21,7 +21,7 @@ export default class ASUIButton extends ASUIClickableBase {
     renderChildren(props={}) {
         return (
             <ImageBackground
-                source={require('./assets/img/bg.png')}
+                source={this.props.selected ? require('./assets/img/bg-selected.png') : require('./assets/img/bg.png')} // TODO: selected background
                 style={styles.container}
                 children={super.renderChildren(props)}
                 />

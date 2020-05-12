@@ -5,8 +5,8 @@ import {StyleSheet} from "react-native";
 export default StyleSheet.create({
 
     container: {
-        flexWrap:'wrap',
         flexDirection:'row',
+        justifyContent: 'center',
 
         paddingLeft: 4,
         paddingRight: 4,

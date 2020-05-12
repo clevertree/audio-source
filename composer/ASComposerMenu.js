@@ -380,7 +380,7 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuBreak />
             {this.values.getSongPrograms((programID, programClass, programInfo) =>
                 <ASUIMenuDropDown key={programID} options={() => this.renderMenuProgramEdit(programID)}       >
-                    {programID}: {programInfo.title || programClass}
+                    {`${programID}: ${programInfo.title || programClass}`}
                 </ASUIMenuDropDown>)}
         </>);
     }

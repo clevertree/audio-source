@@ -38,7 +38,9 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
                 <View
                     style={style}
                 >
-                    <View>
+                    <View
+                        style={styles.commandView}
+                        >
                         <Text>{instruction.command}</Text>
                     </View>
                     {open ? this.renderParameters() : null}
@@ -74,6 +76,9 @@ const styles = StyleSheet.create({
         borderBottomColor: '#666',
 
         paddingLeft: 2,
+    },
+
+    commandView: {
         paddingRight: 2,
     },
 

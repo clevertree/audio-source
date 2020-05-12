@@ -12,7 +12,7 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
     // Default Properties
     static defaultProps = {
         arrow:          true,
-        vertical:       true,
+        vertical:       false,
     };
 
     // Property validation

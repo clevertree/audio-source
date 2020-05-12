@@ -52,9 +52,6 @@ class Song {
             tracks: {
                 root: [
                     ['@track0', 288],
-                    ['@track1'],
-                    [1000, '@track1', 288],
-                    [1000, '@track1', 288],
                 ],
                 track0: [
                     // ['!d', 'Effect'],
