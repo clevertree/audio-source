@@ -37,13 +37,18 @@ const styles = StyleSheet.create({
     },
 
     default: {
-        width: 19.5,
-        height: 19.5
+        width: 24,
+        height: 24
     },
 
     large: {
-        width: 32,
-        height: 32
+        width: 48,
+        height: 48
+    },
+
+    small: {
+        width: 16,
+        height: 16
     }
 
 

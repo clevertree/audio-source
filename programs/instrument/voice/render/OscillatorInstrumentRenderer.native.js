@@ -33,10 +33,10 @@ class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
             {this.renderParameters()}
             <ASUIMenuDropDown
                 arrow={false}
-                className="config"
+                style={styles.buttonConfig}
                 options={this.cb.renderMenuRoot}
             >
-                <ASUIIcon source="config"/>
+                <ASUIIcon source="config" size="small"/>
             </ASUIMenuDropDown>
         </View>;
     }
@@ -46,8 +46,9 @@ export default OscillatorInstrumentRenderer;
 
 const styles = StyleSheet.create({
     container: {
+        alignSelf: 'flex-start',
         flexDirection:'row',
-        flexWrap:'wrap',
+        // flexWrap:'wrap',
         // borderWidth: 1
 
         backgroundColor: '#CCC',
@@ -57,12 +58,19 @@ const styles = StyleSheet.create({
         borderTopColor: '#AAA',
         borderRightColor: '#666',
         borderBottomColor: '#666',
-        paddingLeft: 6,
-        paddingRight: 6
+        paddingLeft: 2,
+        paddingRight: 2
     },
 
-    buttonAddText: {
-        textAlign: 'center'
+    title: {
+        paddingRight: 4,
+        borderRightWidth: 1,
+
+    },
+
+    buttonConfig: {
+        paddingTop: 1,
+        paddingLeft: 2,
     },
 
     voices: {

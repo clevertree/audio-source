@@ -1,24 +1,20 @@
 import React from "react";
-import {View} from "react-native";
+import {Text, View} from "react-native";
 import ASUIClickableBase from "../../button/ASUIClickableBase";
 
 import styles from "../style/ASUIMenu.style"
 
 export default class ASUIMenuItem extends ASUIClickableBase {
 
-    renderChildren(props={}) {
-        let style = [styles.container];
-        if(this.props.style)
-            style.push(this.props.style);
-        if(this.props.disabled)
-            style.push(styles.disabled);
-
+    renderContainer() {
+        const style = this.getContainerStyle();
+        style.push(styles.container);
         return <View
             style={style}
-            >
-            {super.renderChildren()}
-        </View>;
+            children={this.renderChildren()}
+        />
     }
+
 
     /** Actions **/
 

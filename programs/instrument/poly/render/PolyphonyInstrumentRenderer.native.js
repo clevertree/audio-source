@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
-import {ASUIButtonDropDown} from "../../../../components";
+import {ASUIMenuDropDown} from "../../../../components";
 import {ProgramLoader} from "../../../../common/program";
 
 /** PolyphonyInstrumentRenderer **/
@@ -10,7 +10,7 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
 
     render() {
         const voices = this.props.config.voices;
-//         console.log('voices', voices);
+        // console.log('voices', voices);
         // Presets are handled by composer
         return (
             <View style={styles.container}>
@@ -25,13 +25,13 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                             config={config}
                         />
                     })}
-                    <ASUIButtonDropDown
+                    <ASUIMenuDropDown
                         style={styles.buttonAddVoice}
                         title="Add new voice"
                         arrow={false}
                         options={() => this.renderMenuAddVoice()}>
                         <Text style={styles.buttonAddText}>+</Text>
-                    </ASUIButtonDropDown>
+                    </ASUIMenuDropDown>
                 </View>
             </View>
         );
@@ -68,5 +68,6 @@ const styles = StyleSheet.create({
     voices: {
         flexDirection:'row',
         flexWrap:'wrap',
+        alignItems: 'flex-start'
     }
 });

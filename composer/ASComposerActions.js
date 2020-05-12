@@ -48,7 +48,7 @@ class ASComposerActions extends ASComposerMenu {
             this.song.unloadAll();
         }
         this.song = song;
-        // console.log("Current Song: ", song);
+        console.log("Current Song: ", song.getProxiedData());
 
         const activeTracks = {
             'root': {

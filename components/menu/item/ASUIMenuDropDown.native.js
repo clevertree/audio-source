@@ -26,18 +26,14 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
     }
 
 
-    renderChildren(props = {key:"children"}) {
-        let style = [styles.container];
-        if(this.props.style)
-            style.push(this.props.style);
-        if(this.props.disabled)
-            style.push(styles.disabled);
-
+    renderContainer() {
+        const style = this.getContainerStyle();
+        style.push(styles.container);
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
         return <View
             style={style}
-        >
-            {super.renderChildren(props)}
+            >
+            {this.renderChildren()}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}
             <ASUIDropDownContainer
                 key="dropdown"

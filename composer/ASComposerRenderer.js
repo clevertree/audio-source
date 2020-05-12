@@ -85,7 +85,6 @@ class ASComposerRenderer extends React.Component {
 
                         <ASUIForm className="timing" header="Timing">
                             <ASUIButton
-                                className="timing"
                                 onAction={(e, timingString) => this.setSongPositionPrompt(timingString)}
                                 title="Song Timing"
                                 children={Values.formatPlaybackPosition(this.state.songPosition)}
@@ -114,14 +113,14 @@ class ASComposerRenderer extends React.Component {
 
                     <ASUIPanel className="programs" header="Programs">
                        {this.song.programEach((programID, programClass, programConfig) =>
-                           <ASCProgramRenderer
+                           programClass ? <ASCProgramRenderer
                                key={programID}
                                composer={this}
                                // openMenu={(e, options) => this.renderMenu(e, options)}
                                // programClass={programClass}
                                // programConfig={programConfig}
                                programID={programID}
-                           />
+                           /> : null
                        )}
                        <ASUIForm className="program-add" header="Add Program">
                            <ASUIMenuDropDown

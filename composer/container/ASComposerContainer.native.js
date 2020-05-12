@@ -113,8 +113,9 @@ const styles = StyleSheet.create({
     title: {
         fontWeight: 'bold',
         textAlign: 'center',
-        paddingTop: 6,
-        paddingBottom: 6,
+        fontSize: 18,
+        paddingTop: 12,
+        paddingBottom: 12,
     },
 
     default: {

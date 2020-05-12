@@ -229,7 +229,7 @@ class Song {
     // All programs are sent a 0 frequency play in order to pre-load samples.
 
     hasProgram(programID) {
-        return !!this.data.programs[programID];
+        return !!this.getProxiedData().programs[programID];
     }
 
     playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
@@ -261,15 +261,17 @@ class Song {
     //     return this.data.programs;
     // }
     programEach(callback) {
-        return this.data.programs.map(function(entry, programID) {
-            const [className, config] = entry;
+        const data = this.getProxiedData();
+        return data.programs.map(function(entry, programID) {
+            const [className, config] = entry || [null, {}];
             return callback(programID, className, config);
         });
     }
 
 
     programLoadAll() {
-        const programList = this.data.programs;
+        const programList = this.getProxiedData().programs;
+        console.log('programList', programList);
         for (let programID = 0; programID < programList.length; programID++) {
             if (programList[programID]) {
                 this.programLoadInstanceFromID(programID);

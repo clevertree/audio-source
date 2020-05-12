@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from 'prop-types';
 
-import {ImageBackground} from "react-native";
+import {ImageBackground, View} from "react-native";
 import ASUIClickableBase from "./ASUIClickableBase";
 
 import styles from "./ASUIButton.style";
+import GlobalStyle from "../../common/style/GlobalStyle";
 
 export default class ASUIButton extends ASUIClickableBase {
     /** Default Properties **/
@@ -18,14 +19,14 @@ export default class ASUIButton extends ASUIClickableBase {
     };
 
 
-    renderChildren(props={}) {
-        return (
-            <ImageBackground
-                source={this.props.selected ? require('./assets/img/bg-selected.png') : require('./assets/img/bg.png')} // TODO: selected background
-                style={styles.container}
-                children={super.renderChildren(props)}
-                />
-        );
+    renderContainer() {
+        const style = this.getContainerStyle();
+        style.push(styles.container);
+        return <ImageBackground
+            source={this.props.selected ? require('./assets/img/bg-selected.png') : require('./assets/img/bg.png')} // TODO: selected background
+            style={style}
+            children={this.renderChildren()}
+        />
     }
 
     /** Actions **/

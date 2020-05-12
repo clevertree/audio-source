@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {
-    ASUIMenuAction, ASUIMenuBreak,
+    ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../../components";
 
 import ProgramLoader from "../../../../common/program/ProgramLoader";
@@ -22,31 +22,30 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     // TODO: Use Context Consumer/Provider for status/error callbacks
     setStatus(message) { console.info(this.constructor.name, 'setStatus', message); }
-    setError(message) { console.error(this.constructor.name, 'setStatus', message); }
+    setError(message) { console.warn(this.constructor.name, 'setStatus', message); }
 
     wrapVoiceWithNewInstrument(voiceID) {
 
     }
 
-    async addVoice(instrumentClassName, promptUser=true) {
-        if (!instrumentClassName)
-            throw new Error(`Invalid voice instrument class`);
+    async addVoicePrompt(instrumentClassName, instrumentConfig) {
         const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
-        const instrumentConfig = {};
-        // instrumentConfig = InstrumentLoader.createInstrumentConfig(instrumentClassName, instrumentConfig);
-        // instrumentConfig.libraryURL = this.defaultLibraryURL;
-        // instrumentConfig.name = instrumentConfig.name || instrumentURL.split('/').pop();
-
-//         e.target.form.elements['instrumentURL'].value = '';
-        if (promptUser === false || await PromptManager.openConfirmDialog(`Add voice class '${title}' to Instrument?`)) {
-            const newVoiceID = this.props.config.voices.length;
-            this.props.config.voices[newVoiceID] = [instrumentClassName, instrumentConfig];
-            this.setStatus(`Instrument '${instrumentClassName}' added as voice ${newVoiceID}`);
+        if (await PromptManager.openConfirmDialog(`Add voice class '${title}' to Instrument?`)) {
+            this.addVoice(instrumentClassName, instrumentConfig);
 
         } else {
             this.setError(`New voice canceled: ${instrumentClassName}`);
         }
 
+    }
+
+    addVoice(instrumentClassName, instrumentConfig={}) {
+        if (!instrumentClassName)
+            throw new Error(`Invalid voice instrument class`);
+
+        const newVoiceID = this.props.config.voices.length;
+        this.props.config.voices[newVoiceID] = [instrumentClassName, instrumentConfig||{}];
+        this.setStatus(`Instrument '${instrumentClassName}' added as voice ${newVoiceID}`);
     }
 
     renameVoice(voiceID, newTitle) {
@@ -63,13 +62,12 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     /** Menu **/
 
     renderMenuAddVoice() {
-        const library = Library.loadDefault();
         return (<>
-            <ASUIMenuAction disabled action={()=>{}}>Add new voice instrument</ASUIMenuAction>
+            <ASUIMenuItem>Add voice instrument</ASUIMenuItem>
             <ASUIMenuBreak/>
-            {library.songLengthAllPresets(([className, presetConfig]) => {
-                this.addVoice(className, presetConfig);
-            })}
+            {ProgramLoader.getRegisteredPrograms().map(({className, title}) =>
+                 <ASUIMenuAction onAction={() => this.addVoicePrompt(className)}>{title}</ASUIMenuAction>
+            )}
         </>)
         // return Values.renderMenuSelectAvailableInstrument((instrumentClass) => {
         //     this.addVoice(instrumentClass);

@@ -21,6 +21,7 @@ export default StyleSheet.create({
     },
 
     arrow: {
+        paddingTop: 2,
         marginLeft: 'auto'
     },
 

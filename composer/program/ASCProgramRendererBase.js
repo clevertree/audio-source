@@ -19,11 +19,15 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderProgramContent() {
-        try {
-            return this.getSong().programLoadRenderer(this.props.programID);
+        if(this.props.empty) {
+            return null;
+        } else {
+            try {
+                return this.getSong().programLoadRenderer(this.props.programID);
 
-        } catch (e) {
-            return e.message;
+            } catch (e) {
+                return e.message;
+            }
         }
     }
 

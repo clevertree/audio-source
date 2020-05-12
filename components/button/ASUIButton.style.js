@@ -19,9 +19,13 @@ export default StyleSheet.create({
         borderBottomColor: '#AAA',
     },
 
+    arrow: {
+        paddingTop: 2,
+        marginLeft: 'auto'
+    },
 
     text: {
-        // fontSize: 17.5,
+        fontSize: 18,
     }
 
 });

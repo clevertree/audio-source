@@ -72,21 +72,21 @@ const styles = StyleSheet.create({
     customMarker: {
         borderRadius: 2,
         backgroundColor: '#666',
-        marginTop: 19,
-        marginLeft: 4,
-        height: 19,
+        marginTop: 24,
+        marginLeft: 0,
+        height: 25,
         width: 4,
     },
 
     containerStyle: {
         padding: 1,
-        height: 19,
+        height: 24,
         // width: 60,
         paddingTop: 4,
         // paddingLeft: 3,
     },
     trackStyle: {
-        height: 19,
+        height: 24,
     },
     // selectedStyle: {},
     // unselectedStyle: {},

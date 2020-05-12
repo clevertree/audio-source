@@ -13,13 +13,14 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
     render() {
         const song = this.getSong();
         const programID = this.props.programID;
-        const programConfig = song.programGetData(programID);
+        let programConfig = {};
         const programIDHTML = (programID < 10 ? "0" : "") + (programID);
 
 
         // let contentClass = 'error';
         let titleHTML = '';
-        if (song.hasProgram(programID)) {
+        if (!this.props.empty) {
+            programConfig = song.programGetData(programID);
             titleHTML = programConfig.title || "No Title"
 
         } else {
