@@ -15,7 +15,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             onMouseDown: e => this.onMouseDown(e),
             onClick: e => this.onClick(e),
             onContextMenu: e => this.onContextMenu(e),
-            options: () => this.renderMenuSelectCommand()
+            options: () => this.renderMenuEditSet()
         };
     }
 

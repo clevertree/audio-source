@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
 import TrackInstruction from "../../../song/instruction/TrackInstruction";
 import Values from "../../../common/values/Values";
+import {ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -117,27 +118,52 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     /** Menus **/
 
+
+
+    renderMenuEditSet() {
+        return (<>
+            <ASUIMenuItem>Edit Instruction</ASUIMenuItem>
+            <ASUIMenuBreak/>
+            <ASUIMenuDropDown
+                options={() => this.renderMenuSelectCommand()}
+                hasBreak
+                children="Set Command"
+            />
+            <ASUIMenuDropDown
+                options={() => this.renderMenuSelectDuration()}
+                hasBreak
+                children="Set Duration"
+            />
+            <ASUIMenuDropDown
+                options={() => this.renderMenuSelectVelocity()}
+                hasBreak
+                children="Set Velocity"
+            />
+        </>);
+    }
+
     // }
     renderMenuSelectCommand() {
-        return this.getComposer().renderMenuSelectCommand((command) => {
-            this.instructionReplaceCommand(command);
-        });
+        return Values.renderMenuSelectCommand((command) => {
+                this.instructionReplaceCommand(command);
+            },
+            this.props.instruction.command,
+        );
     }
 
 
-    renderMenuSelectVelocity(currentVelocity=null) {
+    renderMenuSelectVelocity() {
         return Values.renderMenuSelectVelocity(velocity => {
             this.instructionReplaceVelocity(velocity);
-        }, currentVelocity);
+        }, this.props.instruction.velocity);
     }
 
-    renderMenuSelectDuration(currentDuration=null) {
+    renderMenuSelectDuration() {
         return Values.renderMenuSelectDuration(duration => {
                 this.instructionReplaceDuration(duration);
             },
             this.getSong().data.timeDivision,
-            currentDuration,
-            "Change Duration: " + currentDuration
+            this.props.instruction.duration,
             );
     }
 

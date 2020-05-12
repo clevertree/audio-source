@@ -9,12 +9,12 @@ class Values {
     /** Menus **/
 
     // TODO: move copy to SongValues
-    static renderMenuSelectCommand(onSelectValue, keyboardOctave=null, title= "Select Command") {
+    static renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null) {
         return (<>
-            <ASUIMenuItem>{title}</ASUIMenuItem>
+            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Edit ${currentCommand}`)}</ASUIMenuItem>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, keyboardOctave)}           >By Frequency</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave)}              >By Octave</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>
             <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</ASUIMenuDropDown>
@@ -62,18 +62,18 @@ class Values {
     // }
 
 
-    static renderMenuSelectCommandByFrequency(onSelectValue, keyboardOctave=null) {
+    static renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
         return this.getNoteFrequencies((noteName) =>
-            <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, keyboardOctave)}>
+            <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand)}>
                 {noteName}
             </ASUIMenuDropDown>
         );
     }
 
     // TODO: move into lower menu?
-    static renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, keyboardOctave=null) {
+    static renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand=null) {
         return (<>
-            {keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{`${noteName}${keyboardOctave} (Current)`}</ASUIMenuAction> : null}
+            {/*{keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{`${noteName}${keyboardOctave} (Current)`}</ASUIMenuAction> : null}*/}
             {this.getNoteOctaves((octave) =>
                 <ASUIMenuAction key={octave} onAction={() => onSelectValue(noteName+''+octave)}>
                     {`${noteName}${octave}`}
@@ -82,11 +82,11 @@ class Values {
         </>)
     }
 
-    static renderMenuSelectCommandByOctave(onSelectValue, keyboardOctave=null) {
+    static renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
         return (<>
-            {keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>
-                {`${keyboardOctave} (Current)`}
-            </ASUIMenuDropDown> : null}
+            {/*{keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>*/}
+            {/*    {`${keyboardOctave} (Current)`}*/}
+            {/*</ASUIMenuDropDown> : null}*/}
             {this.getNoteOctaves((octave) =>
                 <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}>
                     {octave}
@@ -102,15 +102,15 @@ class Values {
     }
 
 
-    static renderMenuSelectDuration(onSelectValue, timeDivision, currentDuration = null, title= "Select Duration") {
+    static renderMenuSelectDuration(onSelectValue, timeDivision, currentDuration = null, title=null) {
         return (<>
-            <ASUIMenuItem>{title}</ASUIMenuItem>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
+            <ASUIMenuItem>{title || (currentDuration === null ? 'Select Duration' : `Edit ${currentDuration}`)}</ASUIMenuItem>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => renderMenuSelect('triplet')}   >Triplet</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => renderMenuSelect('dotted')}    >Dotted</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuDropDown disabled options={() => renderMenuSelect('custom')}    >Custom</ASUIMenuDropDown>
         </>);
@@ -158,13 +158,13 @@ class Values {
         }
     }
 
-    static renderMenuSelectVelocity(onSelectValue, currentVelocity=null, title= "Select Velocity") {
+    static renderMenuSelectVelocity(onSelectValue, currentVelocity=null, title=null) {
         const customAction = async () => {
             const velocity = await PromptManager.openPromptDialog("Enter custom velocity (1-127)", 127);
             onSelectValue(velocity);
         };
         return (<>
-            <ASUIMenuItem>{title}</ASUIMenuItem>
+            <ASUIMenuItem>{title || (currentVelocity === null ? 'Select Velocity' : `Edit ${currentVelocity}`)}</ASUIMenuItem>
             <ASUIMenuBreak />
             <ASUIInputRange
                 min={0}
@@ -190,6 +190,10 @@ class Values {
     }
 
 
+
+
+    /** Values **/
+
     /** UUID **/
     static generateUUID() {
         var d = new Date().getTime();
@@ -204,7 +208,6 @@ class Values {
         });
     }
 
-    /** Values **/
 
     static getNoteFrequencies(callback = (freq) => freq) {
         const results = [];
