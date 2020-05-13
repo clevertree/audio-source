@@ -91,7 +91,7 @@ class ASComposerRenderer extends React.Component {
                             />
                         </ASUIForm>
 
-                        {this.state.portrait && false ? null : <ASUIForm className="name" header="Name">
+                        {this.state.portrait ? null : <ASUIForm className="name" header="Name">
                             <ASUIButton
                                 className="name"
                                 onAction={(e) => this.setSongNamePrompt()}

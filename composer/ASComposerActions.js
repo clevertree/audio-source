@@ -105,6 +105,7 @@ class ASComposerActions extends ASComposerMenu {
             if (typeof state.volume !== "undefined")
                 this.setVolume(state.volume);
             delete state.volume;
+            delete state.version;
             // if(state.songUUID)
             await this.loadDefaultSong(state.songUUID);
             delete state.songUUID;

@@ -69,9 +69,7 @@ export class ASComposerContainer extends React.Component {
         return (
             <div key="footer" className="asc-footer-container">
                 <div className="asc-status-text">{state.status}</div>
-                <div className="asc-version-text"
-                     ref={this.footerVersionText}
-                >{state.version}</div>
+                <div className="asc-version-text">{state.version}</div>
             </div>
         );
     }

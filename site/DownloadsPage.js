@@ -17,9 +17,12 @@ export default class DownloadsPage extends React.Component {
             <PageHeader/>
             <PageHeaderLinks currentPath={this.props.location.pathname} />
             <PageContent>
-                <Header>Downloads</Header>
+                <Header>Android Downloads</Header>
                 <Paragraph>
-                    The Audio Source Composer Alpha Demo is available for download:
+                    The Audio Source Composer Alpha Demo is available for download on Android Devices:
+                </Paragraph>
+                <Paragraph>
+                    <Link href={`https://files.audiosource.io/releases/android/Audio Source Composer(v0.5.3).apk`}>Audio Source Composer(v0.5.3).apk</Link>
                 </Paragraph>
                 <Paragraph>
                     <Link href={`https://files.audiosource.io/releases/android/Audio Source Composer(v0.5.1).apk`}>Audio Source Composer(v0.5.1).apk</Link>
