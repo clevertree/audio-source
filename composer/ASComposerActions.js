@@ -86,8 +86,8 @@ class ASComposerActions extends ASComposerMenu {
         // TODO: detect mobile as portrait excluding horizontal ipad
         const aspectRatio = window.innerWidth / window.innerHeight;
         const portrait = aspectRatio < 8/13; // Near golden ratio
+        console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
         if(!this.state.portrait === portrait) {
-            console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
             this.setState({portrait});
         }
     }
@@ -108,6 +108,7 @@ class ASComposerActions extends ASComposerMenu {
             // if(state.songUUID)
             await this.loadDefaultSong(state.songUUID);
             delete state.songUUID;
+            delete state.portrait;
             this.setState(state);
             this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea

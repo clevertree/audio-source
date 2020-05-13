@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import "./PageLink.css"
+import "./Link.css"
 
-export default class PageLink extends React.Component {
+export default class Link extends React.Component {
     render() {
         return <a className="aspage-link" href={this.props.href}>
             {this.props.children}

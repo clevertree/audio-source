@@ -11,8 +11,8 @@ div.aspage-container {
 }
 
 
-div.aspage-container a {
-    /*text-decoration: none;*/
+div.aspage-container a:not(:hover) {
+    text-decoration: none;
     color: white;
 
 }
@@ -39,7 +39,7 @@ div.aspage-footer-text {
 div.aspage-header-links,
 div.aspage-footer-links {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     background-color: #666;
     padding: 0.2vw;
     font-size: 4vw;
@@ -50,14 +50,19 @@ div.aspage-header-links > a,
 div.aspage-footer-links > a {
     text-decoration: none;
     display: block;
-    padding: 0.2vw 0.5vw;
+    padding: 0.2vw 3vw;
+    margin: 0 1vw;
     background-color: transparent;
     border-radius: 1vw;
     transition: background-color 0.3s;
 }
 div.aspage-header-links > a:hover,
 div.aspage-footer-links > a:hover {
-    background-color: #666;
+    background-color: #777;
+}
+div.aspage-header-links > a.selected,
+div.aspage-footer-links > a.selected {
+    background-color: #888;
 }
 
 
@@ -77,12 +82,21 @@ div.aspage-footer-links > a:hover {
 /** Page Content **/
 
 div.aspage-content {
+    position: relative;
     background-color: #444;
     min-height: 50vh;
     padding: 1vw;
+    max-width: 800px;
+    margin: auto;
 }
 
 
 div.aspage-content > p {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/** Page Images **/
+
+div.aspage-container img {
+    max-width: 640px;
 }

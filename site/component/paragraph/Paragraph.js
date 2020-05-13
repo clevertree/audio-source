@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import "./PageParagraph.css"
+import "./Paragraph.css"
 
-export default class PageParagraph extends React.Component {
+export default class Paragraph extends React.Component {
     render() {
         return <p className="aspage-paragraph" {...this.props} />;
     }
