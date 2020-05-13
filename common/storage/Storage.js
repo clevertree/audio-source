@@ -36,7 +36,7 @@ class Storage {
     async saveSongToMemory(songData, songHistory) {
         // const song = this.data;
         if (!songData.uuid)
-            songData.uuid = Values.generateUUID();
+            songData.uuid = new Values().generateUUID();
         let songRecentUUIDs = [];
         try {
             songRecentUUIDs = this.decodeForStorage((await LocalStorage.getItem('song-recent-list')) || '[]');
@@ -58,7 +58,7 @@ class Storage {
 
     saveSongToFile(songData, prompt = true) {
         // const song = this.data;
-        const instructionsKey = "/** INSTRUCTIONS-" + Values.generateUUID() + ' **/';
+        const instructionsKey = "/** INSTRUCTIONS-" + new Values().generateUUID() + ' **/';
         let jsonStringInstructions = JSON.stringify(songData.tracks);
         let jsonString = JSON.stringify(Object.assign({}, songData, {
             tracks: instructionsKey

@@ -1,8 +1,6 @@
 import * as React from "react";
 import PageContainer from "./page/PageContainer";
 import Paragraph from "./component/paragraph/Paragraph";
-import Link from "./component/link/Link";
-import ImageLink from "./component/link/ImageLink";
 import Header from "./component/header/Header";
 
 import PageHeader from "./page/PageHeader";

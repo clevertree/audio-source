@@ -15,13 +15,6 @@ export default class ASUIButton extends ASUIClickableBase {
     };
 
 
-    constructor(props) {
-        super(props);
-        this.cb = {
-            onMouseInput: e => this.onMouseInput(e),
-            onKeyDown: e => this.onKeyDown(e),
-        };
-    }
 
     getClassName() { return 'asui-button'; }
 
@@ -37,8 +30,8 @@ export default class ASUIButton extends ASUIClickableBase {
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
         const result = await this.props.onAction(e, this);
-        if (result !== false)
-            this.closeAllDropDownMenus();
+        // if (result !== false)
+        //     this.closeAllDropDownMenus();
     }
 
 

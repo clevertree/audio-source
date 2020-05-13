@@ -22,7 +22,7 @@ export default class DownloadsPage extends React.Component {
                     The Audio Source Composer Alpha Demo is available for download:
                 </Paragraph>
                 <Paragraph>
-                    <Link href={`${process.env.PUBLIC_URL}/files/android/Audio Source Composer(v0.5.1).apk`}>Audio Source Composer(v0.5.1).apk</Link>
+                    <Link href={`https://files.audiosource.io/releases/android/Audio Source Composer(v0.5.1).apk`}>Audio Source Composer(v0.5.1).apk</Link>
                 </Paragraph>
             </PageContent>
             <PageFooterLinks />

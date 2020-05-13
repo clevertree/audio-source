@@ -17,9 +17,10 @@ export default class ASComposer extends ASComposerInput {
 
 
             portrait: true,
-            fullscreen: false,
+            fullscreen: !!this.props.fullscreen,
             showPanelSong: true,
-            showPanelPlaylist: true,
+            showPanelProgram: true,
+            showPanelInstruction: true,
 
             // Playback
             volume: Song.DEFAULT_VOLUME,

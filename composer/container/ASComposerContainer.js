@@ -16,7 +16,9 @@ export class ASComposerContainer extends React.Component {
     render() {
         const state = this.props.composer.state;
         return (
-            <div className={["asc-container", state.portrait ? 'portrait' : 'landscape'].join(' ')}>
+            <div className={"asc-container"
+                + (state.fullscreen ? ' fullscreen' : '')
+                + (state.portrait ? ' portrait' : ' landscape')}>
                 <ASUIMenuOverlayContainer
                     isActive={state.portrait}
                 >

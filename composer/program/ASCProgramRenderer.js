@@ -12,15 +12,15 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
     render() {
         const song = this.getSong();
         const programID = this.props.programID;
-        const programConfig = song.programGetData(programID);
-        const programIDHTML = (programID < 10 ? "0" : "") + (programID);
+        let programIDHTML = (programID < 10 ? "0" : "") + (programID);
 
 
         // let contentClass = 'error';
-        let titleHTML = '';
+        let titleHTML = '', renderProgram = false;
         if (song.hasProgram(programID)) {
+            const programConfig = song.programGetData(programID);
             titleHTML = programConfig.title || "No Title"
-
+            renderProgram = true;
         } else {
             titleHTML = `Empty`;
         }
@@ -40,7 +40,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         <ASUIIcon source="config"/>
                     </ASUIButtonDropDown>
                 </div>
-                {this.state.open ? <div className="content">
+                {this.state.open && renderProgram ? <div className="content">
                     {this.renderProgramContent()}
                 </div> : null}
             </div>

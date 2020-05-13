@@ -18,7 +18,7 @@ class ASComposerRenderer extends React.Component {
         return <ASComposerContainer
                     composer={this}
                     >
-                    <ASUIPanel className="song" header="Song">
+                    {this.state.showPanelSong ? <ASUIPanel className="song" header="Song">
                         <ASUIForm className="playback" header="Playback">
                             <ASUIButton
                                 className="song-play"
@@ -87,7 +87,7 @@ class ASComposerRenderer extends React.Component {
                             <ASUIButton
                                 onAction={(e, timingString) => this.setSongPositionPrompt(timingString)}
                                 title="Song Timing"
-                                children={Values.formatPlaybackPosition(this.state.songPosition)}
+                                children={this.values.formatPlaybackPosition(this.state.songPosition)}
                             />
                         </ASUIForm>
 
@@ -108,38 +108,41 @@ class ASComposerRenderer extends React.Component {
                                 children={this.song ? this.song.data.version : "0.0.0"}
                             />
                         </ASUIForm>
-                    </ASUIPanel>
+                    </ASUIPanel> : null}
 
 
-                    <ASUIPanel className="programs" header="Programs">
+                    {this.state.showPanelProgram ? <ASUIPanel
+                        className="programs"
+                        header="Programs">
                        {this.song.programEach((programID, programClass, programConfig) =>
-                           programClass ? <ASCProgramRenderer
+                           <ASCProgramRenderer
                                key={programID}
                                composer={this}
                                // openMenu={(e, options) => this.renderMenu(e, options)}
                                // programClass={programClass}
                                // programConfig={programConfig}
                                programID={programID}
-                           /> : null
+                           />
                        )}
-                       <ASUIForm className="program-add" header="Add Program">
-                           <ASUIMenuDropDown
-                               arrow={'▼'}
+                       <ASUIForm className="program-add" header="Add">
+                           <ASUIButtonDropDown
+                               arrow={false}
+                               vertical={false}
                                className="program-add"
                                options={() => this.renderMenuProgramAdd()}
-                               title="Add Program"
-                           >Select...</ASUIMenuDropDown>
+                               title="Add New Program"
+                           >+</ASUIButtonDropDown>
                        </ASUIForm>
-                    </ASUIPanel>
+                    </ASUIPanel> : null }
 
-                    <ASUIPanel
+                    {this.state.showPanelInstruction ? <ASUIPanel
                         className="instructions"
                         header={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}>
                         <ASUIForm className="instruction-command" header="Command">
                             <ASUIButtonDropDown
                                 arrow={'▼'}
                                 // className="command"
-                                options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuEditInsert()}
+                                options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuSelectCommand()}
                             >{trackState.currentCommand}</ASUIButtonDropDown>
                         </ASUIForm>
                         <ASUIForm className="instruction-insert" header="Add">
@@ -222,39 +225,8 @@ class ASComposerRenderer extends React.Component {
                         {/*        title="ASCTrack Change Octave"*/}
                         {/*    >4</Button>*/}
                         {/*</Form>*/}
-                    </ASUIPanel>
+                    </ASUIPanel> : null}
 
-                    {/*<TrackerGroupsPane -w
-                    l composer={this} />*/}
-                    {/*<TrackerRowSegmentsPanel composer={this} />*/}
-
-                    {/*<ASUIPanel className="track" header="ASCTrack">*/}
-                    {/*    <Form className="track-row-length" title="Row &#120491;">*/}
-                    {/*        <Button*/}
-                    {/*            arrow={'▼'}*/}
-                    {/*            // className="track-row-length"*/}
-                    {/*            onAction={e => this.renderMenuTrackerSetQuantization(e)}*/}
-                    {/*        >1B</Button>*/}
-                    {/*    </Form>*/}
-
-                    {/*    <Form className="track-segment-length" header="Seg &#120491;">*/}
-                    {/*        <Button*/}
-                    {/*            arrow={'▼'}*/}
-                    {/*            // className="track-segment-length"*/}
-                    {/*            onAction={e => this.renderMenuTrackerSetSegmentLength(e)}*/}
-                    {/*            title="Select ASCTrack Segment Length"*/}
-                    {/*        >16B</Button>*/}
-                    {/*    </Form>*/}
-
-                    {/*    /!*<Form className="track-program" header="Program">*!/*/}
-                    {/*    /!*    <Button*!/*/}
-                    {/*    /!*        arrow={'▼'}*!/*/}
-                    {/*    /!*        // className="track-programs"*!/*/}
-                    {/*    /!*        onAction={e => this.renderMenuTrackerSetProgramFilter(e)}*!/*/}
-                    {/*    /!*        title="Filter by ASCTrack Program"*!/*/}
-                    {/*    /!*    >Any</Button>*!/*/}
-                    {/*    /!*</Form>*!/*/}
-                    {/*</ASUIPanel>*/}
 
                     <ASCTracksContainer
                         composer={this}

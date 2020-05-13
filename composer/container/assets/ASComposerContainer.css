@@ -28,6 +28,15 @@ div.asc-container {
 }
 
 
+/** Full Screen **/
+div.asc-container.fullscreen {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
 /** Visibility **/
 
 
@@ -115,6 +124,9 @@ div.asui-menu-overlay-dropdown > div.asui-menu-item {
 /** UI Panels **/
 div.asc-container.landscape div.asui-panel {
     display: inline-block;
+}
+div.asc-container.landscape div.asui-panel > div.container {
+    overflow-y: visible;
 }
 
 

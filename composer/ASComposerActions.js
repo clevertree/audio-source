@@ -317,14 +317,14 @@ class ASComposerActions extends ASComposerMenu {
     setSongPosition(songPosition) {
         // TODO: parse % percentage
         if(typeof songPosition === 'string')
-            songPosition = Values.parsePlaybackPosition(songPosition);
+            songPosition = this.values.parsePlaybackPosition(songPosition);
         if(isNaN(songPosition))
             throw new Error("Invalid song position: " + songPosition);
         this.setState({songPosition})
     }
 
     async setSongPositionPrompt() {
-        let songPosition = Values.formatPlaybackPosition(this.state.songPosition || 0);
+        let songPosition = this.values.formatPlaybackPosition(this.state.songPosition || 0);
         songPosition = await PromptManager.openPromptDialog("Set playback position:", songPosition);
         this.setSongPosition(songPosition);
     }
@@ -344,6 +344,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     instructionInsert(newCommand = null, trackName = null) {
+        console.log('instructionInsert', newCommand, trackName);
         // const activeTracks = {...this.state.activeTracks};
         trackName = trackName || this.state.selectedTrack;
         const trackState = new ActiveTrackState(this, trackName);
@@ -418,7 +419,7 @@ class ASComposerActions extends ASComposerMenu {
             duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
 
         if (typeof duration === 'string')
-            duration = Values.parseDurationAsTicks(duration, this.song.data.timeDivision);
+            duration = this.values.parseDurationAsTicks(duration, this.song.data.timeDivision);
         else duration = parseInt(duration)
 
         if (isNaN(duration))
@@ -470,6 +471,9 @@ class ASComposerActions extends ASComposerMenu {
         for (let i = 0; i < selectedIndices.length; i++)
             this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
+        trackState.update(state => {
+            state.selectedIndices = [];
+        })
     }
 
     /** Keyboard Commands **/
@@ -1007,7 +1011,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async programRemove(programRemoveID = null) {
-        if (await this.openConfirmDialog(`Remove Program ID: ${programRemoveID}`)) {
+        if (await PromptManager.openConfirmDialog(`Remove Program ID: ${programRemoveID}`)) {
             this.song.programRemove(programRemoveID);
             this.setStatus(`Program (${programRemoveID}) removed`);
 
@@ -1019,22 +1023,10 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Toggle Panels **/
 
-    // togglePanelPrograms() {
-    //     this.classList.toggle('hide-panel-programs');
-    // }
-    //
-    // togglePanelTracker() {
-    //     this.classList.toggle('hide-panel-track');
-    // }
-    //
-    // togglePanelSong() {
-    //     this.classList.toggle('hide-panel-song');
-    // }
-    //
-    // toggleFullscreen() {
-    //     const setFullScreen = !this.classList.contains('fullscreen');
-    //     this.classList.toggle('fullscreen', setFullScreen);
-    // }
+    toggleSongPanel() { this.setState({showPanelSong: !this.state.showPanelSong}); }
+    toggleProgramPanel() { this.setState({showPanelProgram: !this.state.showPanelProgram}); }
+    toggleInstructionPanel() { this.setState({showPanelInstruction: !this.state.showPanelInstruction}); }
+    toggleFullscreen() { this.setState({fullscreen: !this.state.fullscreen}); }
 
     /** Tools **/
 

@@ -30,7 +30,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     async addVoicePrompt(instrumentClassName, instrumentConfig) {
         const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
-        if (await PromptManager.openConfirmDialog(`Add voice class '${title}' to Instrument?`)) {
+        if (await PromptManager.openConfirmDialog(`Add voice class '${title}' to this Instrument?`)) {
             this.addVoice(instrumentClassName, instrumentConfig);
 
         } else {
@@ -43,6 +43,8 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);
 
+        if(!this.props.config.voices)
+            this.props.config.voices = [];
         const newVoiceID = this.props.config.voices.length;
         this.props.config.voices[newVoiceID] = [instrumentClassName, instrumentConfig||{}];
         this.setStatus(`Instrument '${instrumentClassName}' added as voice ${newVoiceID}`);
@@ -53,7 +55,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     }
 
     removeVoice(voiceID) {
-        const voices = this.props.config.voices;
+        const voices = this.props.config.voices || []
         if(typeof voices[voiceID] === "undefined")
             throw new Error("Voice ID not found: " + voiceID);
         voices.splice(voiceID, 1);

@@ -1,9 +1,10 @@
 import React from "react";
 import {
     ASUIMenuAction,
-    ASUIMenuDropDown, ASUIMenuBreak,
+    ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
 } from "../../components";
 import {Library} from "../../song";
+import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class ASCProgramRendererBase extends React.Component {
@@ -38,7 +39,7 @@ export default class ASCProgramRendererBase extends React.Component {
         this.setState({open: !this.state.open});
     }
 
-    loadPreset(presetClassName, presetConfig) {
+    loadPreset(presetClassName, presetConfig={}) {
         console.log("Loading preset: ", presetClassName, presetConfig);
         const song = this.getSong();
         const programID = this.props.programID;
@@ -52,7 +53,7 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderMenuRoot() {
         return (<>
-            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Change Preset</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()} disabled>Change Preset</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuAction onAction={e => this.programRename()}>Rename Program</ASUIMenuAction>
@@ -60,18 +61,21 @@ export default class ASCProgramRendererBase extends React.Component {
         </>);
     }
 
-    renderMenuChangeProgram() {
-        const library = Library.loadDefault();
-        return library.renderMenuProgramAll(([className, presetConfig]) => {
-            this.loadPreset(className, presetConfig);
-        });
-
+    renderMenuChangeProgram(menuTitle = "Change Program") {
+        return (<>
+            <ASUIMenuItem>{menuTitle}</ASUIMenuItem><ASUIMenuBreak/>
+            {ProgramLoader.getRegisteredPrograms().map((config, i) =>
+                <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
+            )}
+        </>);
     }
 
     renderMenuChangePreset() {
         const library = Library.loadDefault();
         const programID = this.props.programID;
-        const programClassName = this.getSong().programGetClassName(programID);
+        let programClassName = null;
+        if(this.getSong().hasProgram(programID))
+            programClassName = this.getSong().programGetClassName(programID);
         return library.renderMenuProgramAllPresets((className, presetConfig) => {
             this.loadPreset(className, presetConfig);
         }, programClassName);

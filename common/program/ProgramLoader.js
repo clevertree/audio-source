@@ -22,7 +22,7 @@ class ProgramLoader {
     }
 
     getData(programID) {
-        if (!this.song.data.programs[programID])
+        if (!this.song.hasProgram(programID))
             throw new Error("Invalid program ID: " + programID);
         return this.song.data.programs[programID];
     }

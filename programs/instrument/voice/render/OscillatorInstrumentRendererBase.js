@@ -200,13 +200,13 @@ class OscillatorInstrumentRendererBase extends React.Component {
     }
 
     renderMenuChangeKeyRoot() {
-        return Values.renderMenuSelectCommand(noteNameOctave => {
+        return this.getComposer().values.renderMenuSelectCommand(noteNameOctave => {
             this.changeRoot(noteNameOctave)
         });
     }
 
     renderMenuChangeKeyAlias() {
-        return Values.renderMenuSelectCommand(noteNameOctave => {
+        return this.getComposer().values.renderMenuSelectCommand(noteNameOctave => {
             this.changeAlias(noteNameOctave)
         });
     }

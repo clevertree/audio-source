@@ -98,7 +98,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     }
 
     async selectInstructionWithAction(clearSelection=true, toggleValue = null) {
-        console.log('selectInstructionWithAction', clearSelection, toggleValue);
+//         console.log('selectInstructionWithAction', clearSelection, toggleValue);
         const selectedIndices = await this.selectInstruction(clearSelection, toggleValue);
         const instruction = this.getInstruction();
         if(instruction instanceof TrackInstruction) {
@@ -144,7 +144,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     // }
     renderMenuSelectCommand() {
-        return Values.renderMenuSelectCommand((command) => {
+        return this.getComposer().values.renderMenuSelectCommand((command) => {
                 this.instructionReplaceCommand(command);
             },
             this.props.instruction.command,
@@ -153,18 +153,18 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     renderMenuSelectVelocity() {
-        return Values.renderMenuSelectVelocity(velocity => {
+        return this.getComposer().values.renderMenuSelectVelocity(velocity => {
             this.instructionReplaceVelocity(velocity);
         }, this.props.instruction.velocity);
     }
 
     renderMenuSelectDuration() {
-        return Values.renderMenuSelectDuration(duration => {
+        return this.getComposer().values.renderMenuSelectDuration(duration => {
                 this.instructionReplaceDuration(duration);
             },
             this.getSong().data.timeDivision,
             this.props.instruction.duration,
-            );
+        );
     }
 
 

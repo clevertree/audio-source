@@ -80,7 +80,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     }
 
     onMouseDown(e) {
-        console.log(e.ctrlKey);
+//         console.log(e.ctrlKey);
         if(e.defaultPrevented)
             return;
         e.preventDefault();

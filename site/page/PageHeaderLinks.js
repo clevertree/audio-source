@@ -7,13 +7,13 @@ export default class PageHeaderLinks extends React.Component {
         const headerLinks = this.props.headerLinks || this.getHeaderLinks();
         return (
             <div className="aspage-header-links">
-                {headerLinks.map(linkInfo => {
+                {headerLinks.map((linkInfo, i) => {
                     const props = {
                         href: linkInfo.href
                     };
                     if(this.props.currentPath === linkInfo.href)
                         props.className = 'selected';
-                    return <a {...props}>{linkInfo.title}</a>
+                    return <a key={i} {...props}>{linkInfo.title}</a>
                 } )}
             </div>
         );

@@ -29,7 +29,7 @@ class Song {
 
         const data = {
             title: Song.generateTitle(),
-            uuid: Values.generateUUID(),
+            uuid: new SongValues(this).generateUUID(),
             version: '0.0.1',
             created: new Date().getTime(),
             timeDivision: 96 * 4,
@@ -247,7 +247,7 @@ class Song {
             setTimeout(onstart, (noteStartTime - currentTime) * 1000);
         }
         if(typeof noteFrequency === "string")
-            noteFrequency = Values.parseFrequencyString(noteFrequency);
+            noteFrequency = Values.instance.parseFrequencyString(noteFrequency);
         return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
@@ -321,7 +321,7 @@ class Song {
         // if (oldConfig && oldConfig.title && !programConfig.title)
         //     programConfig.title = oldConfig.title;
 
-        const oldConfig = this.data.programs[programID];
+        const oldConfig = this.getProxiedData().programs[programID];
         this.data.programs[programID] = [programClassName, programConfig];
         this.programLoadInstanceFromID(programID);
 
@@ -432,7 +432,7 @@ class Song {
     /** TODO: fix insertion bugs **/
     instructionInsertAtPosition(trackName, insertPositionInTicks, insertInstructionData) {
         if (typeof insertPositionInTicks === 'string')
-            insertPositionInTicks = Values.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
+            insertPositionInTicks = Values.instance.parseDurationAsTicks(insertPositionInTicks, this.data.timeDivision);
 
         if (!Number.isInteger(insertPositionInTicks))
             throw new Error("Invalid integer: " + typeof insertPositionInTicks);
@@ -514,8 +514,9 @@ class Song {
     instructionDeleteAtIndex(trackName, deleteIndex) {
         const deleteInstruction = this.instructionGetByIndex(trackName, deleteIndex);
         if (deleteInstruction.deltaDurationTicks > 0) {
-            const nextInstruction = this.instructionGetByIndex(trackName, deleteIndex + 1, false);
-            if (nextInstruction) {
+            let instructionList = this.instructionGetList(trackName);
+            if (instructionList.length > deleteIndex + 1) {
+                const nextInstruction = this.instructionGetByIndex(trackName, deleteIndex + 1, false);
                 // this.getInstruction(trackName, deleteIndex+1).deltaDuration =
                 //     nextInstruction.deltaDuration + deleteInstruction.deltaDuration;
                 this.instructionReplaceDeltaDuration(trackName, deleteIndex + 1, nextInstruction.deltaDurationTicks + deleteInstruction.deltaDurationTicks)
@@ -541,7 +542,7 @@ class Song {
 
     instructionReplaceDuration(trackName, replaceIndex, newDuration) {
         if (typeof newDuration === 'string')
-            newDuration = Values.parseDurationAsTicks(newDuration, this.data.timeDivision);
+            newDuration = Values.instance.parseDurationAsTicks(newDuration, this.data.timeDivision);
         this.instructionGetByIndex(trackName, replaceIndex).durationTicks = newDuration;
     }
 

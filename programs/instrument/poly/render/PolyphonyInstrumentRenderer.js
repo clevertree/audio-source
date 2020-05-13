@@ -9,7 +9,7 @@ import {ProgramLoader} from "../../../../common/program";
 export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererBase {
 
     render() {
-        const voices = this.props.config.voices;
+        const voices = this.props.config.voices || [];
 //         console.log('voices', voices);
         // Presets are handled by composer
         return (
@@ -31,7 +31,7 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                     className="add-voice"
                     arrow={false}
                     options={() => this.renderMenuAddVoice()}>
-                    +
+                    {voices.length === 0 ? 'Add Voice' : '+'}
                 </ASUIButtonDropDown>
             </div>
         );

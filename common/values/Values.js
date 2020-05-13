@@ -5,64 +5,13 @@ import React from "react";
 import PromptManager from "../prompt/PromptManager";
 
 class Values {
+    static instance = new Values();
 
     /** Menus **/
 
-    // TODO: move copy to SongValues
-    static renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null) {
-        return (<>
-            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Edit ${currentCommand}`)}</ASUIMenuItem>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>
-            <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Group</ASUIMenuDropDown>
-            <ASUIMenuAction
-                disabled
-                onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
-                >Custom Command</ASUIMenuAction>
-        </>);
-
-    }
 
 
-    // TODO: move copy to SongValues
-    static renderMenuSelectCommandByNamed(onSelectValue) {
-        return this.values.getAllNamedFrequencies((noteName, frequency, programID) =>
-            <ASUIMenuAction
-                key={noteName}
-                onAction={e => onSelectValue(noteName)}
-                children={noteName}
-            />
-        );
-    }
-
-    // TODO: move copy to SongValues
-    static renderMenuSelectCommandByTrack(onSelectValue, onTrackAdd=null) {
-        return (<>
-            {this.getAllSongGroups((trackName) =>
-                trackName === this.trackName ? null :
-                    <ASUIMenuAction
-                        key={trackName}
-                        disabled={trackName === this.state.selectedTrack}
-                        onAction={e => onSelectValue('@' + trackName)}
-                    >{trackName}</ASUIMenuAction>
-            )}
-            <ASUIMenuAction onAction={onTrackAdd} hasBreak  >Create New Track</ASUIMenuAction>
-        </>);
-    }
-
-
-    // renderMenuSelectCommandByCurrentOctave(onSelectValue, octave=null) {
-    //     octave = octave !== null ? octave : this.state.keyboardOctave;
-    //     return Values.getNoteFrequencies((noteName) =>
-    //         <MenuAction key={noteName} onAction={e => onSelectValue(`${noteName}${octave}`)}     >{noteName}{octave}</MenuAction>
-    //     );
-    // }
-
-
-    static renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
+    renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
         return this.getNoteFrequencies((noteName) =>
             <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand)}>
                 {noteName}
@@ -71,7 +20,7 @@ class Values {
     }
 
     // TODO: move into lower menu?
-    static renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand=null) {
+    renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand=null) {
         return (<>
             {/*{keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{`${noteName}${keyboardOctave} (Current)`}</ASUIMenuAction> : null}*/}
             {this.getNoteOctaves((octave) =>
@@ -82,7 +31,7 @@ class Values {
         </>)
     }
 
-    static renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
+    renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
         return (<>
             {/*{keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>*/}
             {/*    {`${keyboardOctave} (Current)`}*/}
@@ -95,107 +44,32 @@ class Values {
         </>)
     }
 
-    static renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
+    renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
         return this.getNoteFrequencies((noteName) =>
             <ASUIMenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</ASUIMenuAction>
         );
     }
 
-
-    static renderMenuSelectDuration(onSelectValue, timeDivision, currentDuration = null, title=null) {
+    renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
         return (<>
-            <ASUIMenuItem>{title || (currentDuration === null ? 'Select Duration' : `Edit ${currentDuration}`)}</ASUIMenuItem>
+            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Edit ${currentCommand}`)}</ASUIMenuItem>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => renderMenuSelect('triplet')}   >Triplet</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => renderMenuSelect('dotted')}    >Dotted</ASUIMenuDropDown>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown disabled options={() => renderMenuSelect('custom')}    >Custom</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
+            {additionalMenuItems}
+            <ASUIMenuAction
+                disabled
+                onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
+            >Custom Command</ASUIMenuAction>
         </>);
 
-        function renderMenuSelect(key) {
-            let results = [];
-            switch(key) {
-                case 'fraction':
-                    for (let i = 64; i > 1; i /= 2)
-                        results.push(
-                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</ASUIMenuAction>
-                        );
-                    for (let i = 1; i <= 16; i++)
-                        results.push(
-                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</ASUIMenuAction>
-                        );
-                    break;
-
-                case 'triplet':
-                    for (let i = 64; i > 1; i /= 2)
-                        results.push(
-                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</ASUIMenuAction>
-                        );
-                    for (let i = 1; i <= 16; i++)
-                        results.push(
-                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</ASUIMenuAction>
-                        );
-                    break;
-
-                case 'dotted':
-                    for (let i = 64; i > 1; i /= 2)
-                        results.push(
-                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</ASUIMenuAction>
-                        );
-                    for (let i = 1; i <= 16; i++)
-                        results.push(
-                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</ASUIMenuAction>
-                        );
-                    break;
-
-                default:
-                    throw new Error("Unknown key");
-            }
-            return results;
-        }
     }
-
-    static renderMenuSelectVelocity(onSelectValue, currentVelocity=null, title=null) {
-        const customAction = async () => {
-            const velocity = await PromptManager.openPromptDialog("Enter custom velocity (1-127)", 127);
-            onSelectValue(velocity);
-        };
-        return (<>
-            <ASUIMenuItem>{title || (currentVelocity === null ? 'Select Velocity' : `Edit ${currentVelocity}`)}</ASUIMenuItem>
-            <ASUIMenuBreak />
-            <ASUIInputRange
-                min={0}
-                max={127}
-                value={currentVelocity}
-                onChange={(mixerValue) => onSelectValue(mixerValue)}
-            />
-            <ASUIMenuBreak/>
-            {this.getNoteVelocities((velocity) =>
-                <ASUIMenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocity}</ASUIMenuAction>)}
-            <ASUIMenuAction onAction={customAction} hasBreak >Custom</ASUIMenuAction>
-        </>);
-    }
-
-    /** @deprecated moved to Library **/
-    static renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
-        return (<>
-            {menuTitle ? <><ASUIMenuAction disabled onAction={() => {}}>{menuTitle}</ASUIMenuAction><ASUIMenuBreak/></> : null}
-            {ProgramLoader.getRegisteredPrograms().map((config, i) =>
-                <ASUIMenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</ASUIMenuAction>
-            )}
-        </>);
-    }
-
-
 
 
     /** Values **/
 
     /** UUID **/
-    static generateUUID() {
+    generateUUID() {
         var d = new Date().getTime();
         if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
             d += performance.now(); //use high-precision timer if available
@@ -209,7 +83,7 @@ class Values {
     }
 
 
-    static getNoteFrequencies(callback = (freq) => freq) {
+    getNoteFrequencies(callback = (freq) => freq) {
         const results = [];
         const noteList = this.noteList();
         for (let j = 0; j < noteList.length; j++) {
@@ -220,7 +94,7 @@ class Values {
         return results;
     }
 
-    static getNoteOctaves(callback = (octave) => octave) {
+    getNoteOctaves(callback = (octave) => octave) {
         const results = [];
         for (let i = 1; i <= 8; i++) {
             const result = callback(i);
@@ -230,7 +104,7 @@ class Values {
     }
 
 
-    static getOctaveNoteFrequencies(callback = (freq) => freq) {
+    getOctaveNoteFrequencies(callback = (freq) => freq) {
         const results = [];
         const noteFrequencies = this.noteList();
         for (let i = 1; i <= 8; i++) {
@@ -244,7 +118,7 @@ class Values {
     }
 
 
-    static getNoteVelocities(callback = (velocity) => velocity) {
+    getNoteVelocities(callback = (velocity) => velocity) {
         const results = [];
         for (let vi = 100; vi >= 0; vi -= 10) {
             const result = callback(vi);
@@ -255,7 +129,7 @@ class Values {
 
 
 
-    static getBeatsPerMeasure(callback = (beatsPerMeasure, beatsPerMeasureString) => [beatsPerMeasure, beatsPerMeasureString]) {
+    getBeatsPerMeasure(callback = (beatsPerMeasure, beatsPerMeasureString) => [beatsPerMeasure, beatsPerMeasureString]) {
         const results = [];
         for (let beatPerMeasure = 1; beatPerMeasure <= 12; beatPerMeasure++) {
             const result = callback(beatPerMeasure, beatPerMeasure + ` beat${beatPerMeasure > 1 ? 's' : ''} per measure`);
@@ -264,7 +138,7 @@ class Values {
         return results;
     }
 
-    static getBeatsPerMinute(callback = (beatsPerMinute, beatsPerMinuteString) => [beatsPerMinute, beatsPerMinuteString]) {
+    getBeatsPerMinute(callback = (beatsPerMinute, beatsPerMinuteString) => [beatsPerMinute, beatsPerMinuteString]) {
         const results = [];
         for (let beatPerMinute = 40; beatPerMinute <= 300; beatPerMinute += 10) {
             const result = callback(beatPerMinute, beatPerMinute + ` beat${beatPerMinute > 1 ? 's' : ''} per minute`);
@@ -273,7 +147,7 @@ class Values {
         return results;
     }
 
-    static getTrackerSegmentLengthInRows(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
+    getTrackerSegmentLengthInRows(callback = (lengthInTicks, lengthString) => [lengthInTicks, lengthString]) {
         const results = [];
         [0, 4, 5, 6, 7, 8, 10, 12, 16, 24, 32, 48, 64, 96, 128]
             .forEach(i => {
@@ -283,7 +157,7 @@ class Values {
         return results;
     }
 
-    static formatVelocity(velocity) {
+    formatVelocity(velocity) {
         if (typeof velocity !== 'number')
             return 'N/A'; // throw new Error("Invalid Program");
         return velocity === 100 ? "Max" : velocity + '';
@@ -291,17 +165,17 @@ class Values {
 
 
 
-    static formatProgramID(programID) {
+    formatProgramID(programID) {
         if (typeof programID !== 'number')
             return 'N/A'; // throw new Error("Invalid Program");
         return programID < 10 ? "0" + programID : "" + programID;
     }
 
-    static formatCommand(commandString) {
+    formatCommand(commandString) {
         return commandString;
     }
 
-    static formatPlaybackPosition(seconds) {
+    formatPlaybackPosition(seconds) {
         let m = Math.floor(seconds / 60);
         seconds = seconds % 60;
         let ms = Math.round((seconds - Math.floor(seconds)) * 1000);
@@ -313,14 +187,14 @@ class Values {
         return `${m}:${seconds}:${ms}`;
     }
 
-    static parsePlaybackPosition(formattedSeconds) {
+    parsePlaybackPosition(formattedSeconds) {
         const parts = formattedSeconds.toString().split(':');
         return (parseInt(parts[0], 10) * 60)
             + (parseInt(parts[1], 10))
             + (parseInt(parts[2], 10) / 1000);
     }
 
-    static parseFrequencyString(note) {
+    parseFrequencyString(note) {
         if (typeof note !== "string")
             throw new Error("Frequency is not a string");
         if (!note)
@@ -345,7 +219,7 @@ class Values {
 
 
     /** Duration **/
-    static parseDurationAsTicks(durationString, timeDivision) {
+    parseDurationAsTicks(durationString, timeDivision) {
         if(!timeDivision)
             throw new Error("Invalid timeDivision");
         if (typeof durationString !== 'string')
@@ -370,7 +244,7 @@ class Values {
         }
     }
 
-    static formatDuration(input, timeDivision) {
+    formatDuration(input, timeDivision) {
         let stringValue;
         this.getNoteDurations((duration, durationString) => {
             if (input === duration || input === durationString) {
@@ -390,7 +264,7 @@ class Values {
     }
 
 
-    static getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
+    getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
         const results = [];
         for (let i = 64; i > 1; i /= 2) {
             let result = callback(1 / i * timeDivision, `1/${i}B`);            // Full Beats
@@ -430,7 +304,7 @@ class Values {
     /** Frequency **/
     // const noteCommands = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
     // Uses quarter tones
-    static noteList() {
+    noteList() {
         return [
             'A',
             'A#',
@@ -453,7 +327,7 @@ class Values {
         ]
     }
 
-    static noteQuarterToneList() {
+    noteQuarterToneList() {
         return {
             'A': 0,
             'Aq': 1,
@@ -493,6 +367,7 @@ class Values {
             'Abq': 23,
         }
     }
+
 }
 
 function addResult (results, result) {

@@ -9,8 +9,8 @@ class SPCPlayerSynthesizer {
         this.form = null;
 
         this.audioContext = null;
-        if(typeof config.name === "undefined")
-            config.name = 'SPC ASPlayer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
+        if(typeof config.title === "undefined")
+            config.title = 'SPC ASPlayer ' + (instrumentID < 10 ? "0" : "") + (instrumentID);
         this.config = config || {};
         this.spcPlayers = [];
         this.spcBuffer = null;

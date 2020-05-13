@@ -148,11 +148,11 @@ class ASPlayer extends ASPlayerActions {
     // get versionElm() { return this.shadowDOM.querySelector(`asui-div[key=asp-status-container] asui-div[key=version-text]`); }
 
 
-    toggleFullscreen(e) {
-        const setFullScreen = !this.classList.contains('fullscreen');
-        this.containerElm.classList.toggle('fullscreen', setFullScreen);
-        this.classList.toggle('fullscreen', setFullScreen);
-    }
+    // toggleFullscreen(e) {
+    //     const setFullScreen = !this.classList.contains('fullscreen');
+    //     this.containerElm.classList.toggle('fullscreen', setFullScreen);
+    //     this.classList.toggle('fullscreen', setFullScreen);
+    // }
 
     async onSongEvent(e) {
         // console.log(e.type, e);
