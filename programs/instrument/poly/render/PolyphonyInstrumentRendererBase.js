@@ -39,18 +39,12 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     }
 
-    addChildProgram(instrumentClassName, instrumentConfig={}) {
-        this.addVoice(instrumentClassName, instrumentConfig);
-    }
 
     addVoice(instrumentClassName, instrumentConfig={}) {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);
 
-        if(!this.props.config.voices)
-            this.props.config.voices = [];
-        const newVoiceID = this.props.config.voices.length;
-        this.props.config.voices[newVoiceID] = [instrumentClassName, instrumentConfig||{}];
+        const newVoiceID = this.constructor.addChildProgramToConfig(this.props.config, instrumentClassName, instrumentConfig || {})
         this.setStatus(`Instrument '${instrumentClassName}' added as voice ${newVoiceID}`);
     }
 
@@ -78,6 +72,16 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         // return Values.renderMenuSelectAvailableInstrument((instrumentClass) => {
         //     this.addVoice(instrumentClass);
         // }, "Add new program as voice")
+    }
+
+    /** Static **/
+
+    static addChildProgramToConfig(config, childProgramClassName, childProgramConfig={}) {
+        if(!config.voices)
+            config.voices = [];
+        const newVoiceID = config.voices.length;
+        config.voices[newVoiceID] = [childProgramClassName, childProgramConfig||{}];
+        return newVoiceID;
     }
 }
 

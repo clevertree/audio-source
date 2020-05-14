@@ -17,6 +17,12 @@ export default class ASCProgramRendererBase extends React.Component {
 
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
+    getProgramEntry(proxiedData=true) {
+        let songData = this.getSong().data;
+        if(!proxiedData)
+            songData = this.getSong().getProxiedData();
+        return songData.programs[this.props.programID] || ['Empty', {}];
+    }
 
 
     renderProgramContent() {
@@ -47,7 +53,10 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
     wrapPreset(presetClassName, presetConfig={}) {
-
+        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(presetClassName);
+        const [oldClassName, oldConfig] = this.getProgramEntry();
+        Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
+        this.loadPreset(presetClassName, presetConfig);
     }
 
     /** Menu **/
@@ -66,6 +75,8 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderMenuChangeProgram(menuTitle = "Change Program") {
         return (<>
+            <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
+            <ASUIMenuBreak/>
             <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
             <ASUIMenuBreak />
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
@@ -75,14 +86,16 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
 
-    renderMenuWrapProgram(menuTitle = "Change Program") {
+    renderMenuWrapProgram(menuTitle = "Wrap Program") {
         return (<>
+            <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
+            <ASUIMenuBreak/>
             <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
             <ASUIMenuBreak />
             {ProgramLoader.getRegisteredPrograms().filter((config, i) => {
-                return config.classRenderer && config.classRenderer.prototype.addChildProgram;
+                return config.classRenderer && config.classRenderer.addChildProgramToConfig;
             }).map((config, i) =>
-                <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
+                <ASUIMenuAction key={i} onAction={e => this.wrapPreset(config.className)}       >{config.title}</ASUIMenuAction>
             )}
         </>);
     }
