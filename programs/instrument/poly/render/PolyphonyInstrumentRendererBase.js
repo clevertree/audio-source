@@ -39,6 +39,10 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     }
 
+    addChildProgram(instrumentClassName, instrumentConfig={}) {
+        this.addVoice(instrumentClassName, instrumentConfig);
+    }
+
     addVoice(instrumentClassName, instrumentConfig={}) {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);

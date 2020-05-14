@@ -43,6 +43,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             // onMouseDown={this.cb.onMouseInput} // TODO: fix inputs
             >
             <div
+                className="command"
                 onMouseDown={this.cb.onMouseDown}
                 >
                 {instruction.command}

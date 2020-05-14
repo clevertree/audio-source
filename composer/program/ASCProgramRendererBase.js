@@ -57,7 +57,7 @@ export default class ASCProgramRendererBase extends React.Component {
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Wrap Program</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>
             <ASUIMenuBreak />
             <ASUIMenuAction onAction={e => this.programRename()}>Rename Program</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.programRemove()}>Remove Program</ASUIMenuAction>
@@ -69,6 +69,19 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
             <ASUIMenuBreak />
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
+                <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
+            )}
+        </>);
+    }
+
+
+    renderMenuWrapProgram(menuTitle = "Change Program") {
+        return (<>
+            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            {ProgramLoader.getRegisteredPrograms().filter((config, i) => {
+                return config.classRenderer && config.classRenderer.prototype.addChildProgram;
+            }).map((config, i) =>
                 <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
             )}
         </>);

@@ -5,7 +5,7 @@ div.asct-row {
     display: flex;
     cursor: pointer;
     background-color: #C0C0C0;
-    height: 1.45em;
+    /*height: 1.45em;*/
     position: relative;
     border: 1px outset #DDD;
     padding: 0px;

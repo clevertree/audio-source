@@ -21,10 +21,11 @@ class ProgramLoader {
         // return programs[programID];
     }
 
-    getData(programID) {
-        if (!this.song.hasProgram(programID))
-            throw new Error("Invalid program ID: " + programID);
-        return this.song.data.programs[programID];
+    getData(programID, proxiedData=true) {
+        let songData = this.song.data;
+        if(!proxiedData)
+            songData = this.song.getProxiedData();
+        return songData.programs[programID];
     }
 
 
@@ -43,7 +44,7 @@ class ProgramLoader {
     }
 
     loadInstanceFromID(programID) {
-        const [className, config] = this.getData(programID);
+        const [className, config] = this.getData(programID, false);
         return ProgramLoader.loadInstance(className, config);
     }
 
