@@ -13,6 +13,7 @@ export default class ASUIClickableBase extends React.Component {
     getClassName() { return 'asui-clickable'; }
 
     render() {
+        console.log(this.constructor.name + '.render()', this.props);
         let className = this.getClassName();
         if(this.props.className)
             className += ' ' + this.props.className;

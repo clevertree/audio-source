@@ -69,7 +69,7 @@ export default class ASComposerContainer extends React.Component {
         const state = this.props.composer.state;
         return (
             <div key="footer" className="asc-footer-container">
-                <div className={`asp-status-text ${this.state.statusType}`}>{this.state.statusText}</div>
+                <div className={`asc-status-text ${state.statusType}`}>{state.statusText}</div>
                 <div className="asc-version-text">{state.version}</div>
             </div>
         );

@@ -61,7 +61,8 @@ class ASPlayer extends ASPlayerActions {
 
     get values() { return new SongValues(this.song); }
 
-    componentDidMount(e) {
+    componentDidMount() {
+        super.componentDidMount();
         const url = this.props.src || this.props.url;
         if(url)
             this.loadURLAsPlaylist(url);
@@ -76,7 +77,7 @@ class ASPlayer extends ASPlayerActions {
     }
 
     componentWillUnmount() {
-
+        super.componentWillUnmount();
         if(window)
             window.removeEventListener('resize', this.onResizeCallback);
         this.saveState();

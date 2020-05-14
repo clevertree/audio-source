@@ -27,9 +27,11 @@ export default class ActiveTrackState {
     get cursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
     get playingIndices() { return this.state.playingIndices || []; }
 
+    get currentInstructionType() { return this.state.currentInstructionType || 'custom'; }
     get currentCommand() { return this.state.currentCommand || 'C4'; }
     get currentDuration() { return this.state.currentDuration || '1B'; }
     get currentVelocity() { return this.state.currentVelocity || null; }
+    get currentArguments() { return this.state.currentArguments || []; }
 
     get destinationList() { return this.state.destinationList || []; }
     get rowLength() { return typeof this.state.rowLength !== "undefined" ? this.state.rowLength : ActiveTrackState.DEFAULT_ROW_LENGTH; }

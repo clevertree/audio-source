@@ -13,6 +13,11 @@ class Instruction {
         this.data[1] = newCommand;
     }
 
+    get commandArgs() {
+        return this.data.slice(2);
+    }
+
+    // TODO: set commandArgs
 
     get deltaDurationTicks() {
         return this.data[0];
@@ -68,25 +73,32 @@ class Instruction {
         return this.getInstruction(instructionData);
     }
 
-    static getInstruction(instructionData) {
+    static getInstructionClass(instructionData) {
         if(!instructionData)
             throw new Error("Invalid Instruction data");
         const commandString = instructionData[1];
         if(typeof commandString === "string") {
             switch(commandString[0]) {
                 case '@':
-                    return new (require("./TrackInstruction").default)(instructionData);
+                    return require("./TrackInstruction").default;
                 case '!':
-                    return new (require("./CommandInstruction").default)(instructionData);
+                    return require("./CommandInstruction").default;
                 default:
-                    return new (require("./NoteInstruction").default)(instructionData);
+                    return require("./NoteInstruction").default;
             }
 
         } else if(typeof commandString === "number") {
-            return new (require("./MIDIInstruction").default)(instructionData);
+            return require("./MIDIInstruction").default;
         }
         throw new Error("Unknown Instruction");
         // if(this.isMIDIInstruction(instructionData))
+    }
+
+    static getInstruction(instructionData) {
+        if(!instructionData)
+            throw new Error("Invalid Instruction data");
+        const instructionClass = this.getInstructionClass(instructionData);
+        return new instructionClass(instructionData);
     }
 
 

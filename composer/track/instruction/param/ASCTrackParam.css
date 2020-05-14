@@ -7,9 +7,9 @@ div.asct-parameter {
     position: relative;
 }
 
-div.asct-parameter.program,
 div.asct-parameter.velocity,
-div.asct-parameter.duration {
+div.asct-parameter.duration,
+div.asct-parameter.custom {
     /*overflow: hidden;*/
     border-left: 1px solid #888;
     /*animation: slide-open 1s;*/
@@ -34,11 +34,12 @@ div.asct-parameter.velocity {
 }
 
 div.asct-parameter.command,
-div.asct-parameter.program,
 div.asct-parameter.velocity,
-div.asct-parameter.duration {
+div.asct-parameter.duration,
+div.asct-parameter.custom {
     /*overflow: hidden;*/
     padding: 0 2px;
+    margin: 0;
 }
 
 

@@ -128,6 +128,9 @@ div.asui-menu-overlay-dropdown > div.asui-menu-item > div.title {
 div.asp-status-text {
     padding-left: 4px;
 }
+div.asp-status-text.error {
+    color: red;
+}
 div.asp-version-text {
     /* float: right; */
     padding-right: 4px;

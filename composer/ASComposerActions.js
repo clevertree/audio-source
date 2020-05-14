@@ -847,10 +847,14 @@ class ASComposerActions extends ASComposerMenu {
                 const firstSelectedInstruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
                 trackState.currentCommand = firstSelectedInstruction.command;
                 if(firstSelectedInstruction instanceof NoteInstruction) {
+                    trackState.currentInstructionType = 'note';
                     if(typeof firstSelectedInstruction.durationTicks !== "undefined")
                         trackState.currentDuration = firstSelectedInstruction.getDurationString(trackState.timeDivision || this.getSong().data.timeDivision);
                     if(typeof firstSelectedInstruction.velocity !== "undefined")
                         trackState.currentVelocity = firstSelectedInstruction.velocity;
+                } else {
+                    trackState.currentInstructionType = 'custom';
+                    trackState.currentArguments = firstSelectedInstruction.commandArgs;
                 }
             }
             return state;

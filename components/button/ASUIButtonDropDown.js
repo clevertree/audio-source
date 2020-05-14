@@ -23,7 +23,7 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
         this.dropdown = React.createRef();
     }
 
-    getClassName() { return 'asui-button'; }
+    getClassName() { return 'asui-button dropdown'; }
 
 
     renderChildren(props = {}) {

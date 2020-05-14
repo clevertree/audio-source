@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
 import TrackInstruction from "../../../song/instruction/TrackInstruction";
 import {ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
+import {NoteInstruction} from "../../../song";
+import CommandInstruction from "../../../song/instruction/CommandInstruction";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -39,35 +41,40 @@ export default class ASCTrackInstructionBase extends React.Component {
         const instruction = this.props.instruction;
         const parameters = [];
 
-        // parameters.push(<ASCTrackInstructionParameter
-        //     key="command"
-        //     title={`Command: ${instruction.command}`}
-        //     trackerInstruction={this}
-        //     type="command"
-        //     options={() => this.renderMenuSelectCommand()}
-        //     ref={this.commandParam}
-        // >{instruction.command}</ASCTrackInstructionParameter>);
+        if(instruction instanceof NoteInstruction) {
+            const durationString = instruction.durationTicks === null ? 'N/A'
+                : this.getComposer().values.formatSongDuration(instruction.durationTicks);
 
-        // console.log('instruction', this.props, className);
-        const durationString = instruction.durationTicks === null ? 'N/A'
-            : this.getComposer().values.formatSongDuration(instruction.durationTicks);
+            if(typeof instruction.velocity !== "undefined")
+                parameters.push(<ASCTrackInstructionParameter
+                    key="velocity"
+                    title={`Velocity: ${instruction.velocity}`}
+                    trackerInstruction={this}
+                    type="velocity"
+                    options={() => this.renderMenuSelectVelocity(instruction.velocity)}
+                >{instruction.velocity}</ASCTrackInstructionParameter>);
+            if(typeof instruction.durationTicks !== "undefined")
+                parameters.push(<ASCTrackInstructionParameter
+                    key="duration"
+                    title={`Duration: ${durationString}`}
+                    trackerInstruction={this}
+                    type="duration"
+                    options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
+                >{durationString||'-'}</ASCTrackInstructionParameter>);
 
-        if(typeof instruction.velocity !== "undefined")
-            parameters.push(<ASCTrackInstructionParameter
-                key="velocity"
-                title={`Velocity: ${instruction.velocity}`}
-                trackerInstruction={this}
-                type="velocity"
-                options={() => this.renderMenuSelectVelocity(instruction.velocity)}
-            >{instruction.velocity}</ASCTrackInstructionParameter>);
-        if(typeof instruction.durationTicks !== "undefined")
-            parameters.push(<ASCTrackInstructionParameter
-                key="duration"
-                title={`Duration: ${durationString}`}
-                trackerInstruction={this}
-                type="duration"
-                options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-            >{durationString||'-'}</ASCTrackInstructionParameter>);
+        } else {
+            const args = this.props.instruction.commandArgs;
+            for(let i=0; i<args.length; i++) {
+                parameters.push(<ASCTrackInstructionParameter
+                    key={i}
+                    title={`Parameter: ${i}`}
+                    trackerInstruction={this}
+                    type="custom"
+                    options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
+                >{args[i]}</ASCTrackInstructionParameter>);
+            }
+        }
+
         return parameters;
     }
 

@@ -4,19 +4,30 @@ import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDro
 import ASCProgramRenderer from "./program/ASCProgramRenderer";
 import ASComposerContainer from "./container/ASComposerContainer";
 import ASCTracksContainer from "./track/container/ASCTracksContainer";
+import ActiveTrackState from "./track/state/ActiveTrackState";
 
 class ASComposerRenderer extends React.Component {
     constructor(props) {
         super(props);
         this.containerRef = React.createRef();
+        this.cb = {
+            songPlay: this.songPlay.bind(this),
+            songPause: this.songPause.bind(this),
+            songStop: this.songStop.bind(this),
+            loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
+            saveSongToFile: this.saveSongToFile.bind(this),
+        }
     }
 
 
     render() {
+        console.log('ASComposerRenderer.render()');
         const selectedTrackName = this.state.selectedTrack;
-        const trackState = this.state.activeTracks[selectedTrackName];
+        const trackState = new ActiveTrackState(this, selectedTrackName);
         // console.log('trackState', trackState);
-        const selectedIndices = trackState.selectedIndices || [];
+        const selectedIndices = trackState.selectedIndices;
+
+
         return <ASComposerContainer
                     containerRef={this.containerRef}
                     composer={this}
@@ -25,19 +36,19 @@ class ASComposerRenderer extends React.Component {
                         <ASUIForm className="playback" header="Playback">
                             <ASUIButton
                                 className="song-play"
-                                onAction={e => this.songPlay()}
+                                onAction={this.cb.songPlay}
                             >
                                 <ASUIIcon source="play"/>
                             </ASUIButton>
                             <ASUIButton
                                 className="song-pause"
-                                onAction={e => this.songPause()}
+                                onAction={this.cb.songPause}
                             >
                                 <ASUIIcon source="pause"/>
                             </ASUIButton>
                             <ASUIButton
                                 className="song-stop"
-                                onAction={e => this.songStop()}
+                                onAction={this.cb.songStop}
                             >
                                 <ASUIIcon source="stop"/>
                             </ASUIButton>
@@ -46,7 +57,7 @@ class ASComposerRenderer extends React.Component {
                         {this.state.portrait ? null : <ASUIForm className="file" header="File">
                             <ASUIButton
                                 className="file-load"
-                                onAction={(e) => this.loadSongFromFileInput(e)}
+                                onAction={this.cb.loadSongFromFileInput}
                                 accept=".json,.mid,.midi"
                                 ref={ref => this.fieldSongFileLoad = ref}
                                 title="Load Song from File"
@@ -55,7 +66,7 @@ class ASComposerRenderer extends React.Component {
                             </ASUIButton>
                             <ASUIButton
                                 className="file-save"
-                                onAction={e => this.saveSongToFile(e)}
+                                onAction={this.cb.saveSongToFile}
                                 title="Save Song to File"
                             >
                                 <ASUIIcon source="file-save"/>
@@ -127,20 +138,19 @@ class ASComposerRenderer extends React.Component {
                                programID={programID}
                            />
                        )}
-                       <ASUIForm className="program-add" header="Add">
-                           <ASUIButtonDropDown
-                               arrow={false}
-                               vertical={false}
-                               className="program-add"
-                               options={() => this.renderMenuProgramAdd()}
-                               title="Add New Program"
-                           >+</ASUIButtonDropDown>
-                       </ASUIForm>
+                       <ASUIButtonDropDown
+                           arrow={false}
+                           vertical={false}
+                           className="program-add"
+                           options={() => this.renderMenuProgramAdd()}
+                           title="Add New Program"
+                       >Add</ASUIButtonDropDown>
                     </ASUIPanel> : null }
 
                     {this.state.showPanelInstruction ? <ASUIPanel
                         className="instructions"
                         header={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}>
+
                         <ASUIForm className="instruction-command" header="Command">
                             <ASUIButtonDropDown
                                 arrow={'▼'}
@@ -148,6 +158,54 @@ class ASComposerRenderer extends React.Component {
                                 options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuSelectCommand()}
                             >{trackState.currentCommand}</ASUIButtonDropDown>
                         </ASUIForm>
+
+                        {trackState.currentInstructionType === 'note' ? [
+                            <ASUIForm key="instruction-velocity" header="Velocity">
+                                <ASUIInputRange
+                                    // className="velocity"
+                                    onChange={(newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
+                                    value={trackState.currentVelocity || 0}
+                                    min={1}
+                                    max={127}
+                                    // ref={ref => this.fieldProgramVelocity = ref}
+                                    title="Program Velocity"
+                                    disabled={selectedIndices.length === 0}
+                                />
+                            </ASUIForm>,
+
+                            <ASUIForm key="instruction-duration" header="Duration">
+                                <ASUIButtonDropDown
+                                    arrow={'▼'}
+                                    // className="instruction-duration"
+                                    options={() => this.renderMenuEditSetDuration()}
+                                    title="Program Duration"
+                                    disabled={selectedIndices.length === 0}
+                                >{trackState.currentDuration}</ASUIButtonDropDown>
+                            </ASUIForm>
+                        ] : [
+                            <ASUIForm key="instruction-arguments" header="Arguments">
+                                <ASUIButton
+                                    onAction={() => this.renderMenuEditSetDuration()}
+                                    title="Program Duration"
+                                    disabled={selectedIndices.length === 0}
+                                >{trackState.currentArguments.join(', ')}</ASUIButton>
+                            </ASUIForm>
+                        ]}
+
+
+
+
+
+
+                        <ASUIForm className="tracker-selection" header="Selection">
+                            <ASUIButton
+                                // className="track-selection"
+                                onAction={() => this.trackerSelectIndicesPrompt()}
+                                title="Tracker Note Selection"
+                                children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
+                            />
+                        </ASUIForm>
+
                         <ASUIForm className="instruction-insert" header="Add">
                             <ASUIButton
                                 // className="instruction-insert"
@@ -169,48 +227,12 @@ class ASComposerRenderer extends React.Component {
                             </ASUIButton>
                         </ASUIForm>
 
-                        {/*<Form className="instruction-program" header="Program">*/}
-                        {/*    <ButtonDropDown*/}
-                        {/*        arrow={'▼'}*/}
-                        {/*        // className="programs-programs"*/}
-                        {/*        options={() => this.renderMenuEditSetProgram()}*/}
-                        {/*        header="Song Programs"*/}
-                        {/*    >Select</ButtonDropDown>*/}
-                        {/*</Form>*/}
 
-                        <ASUIForm className="instruction-velocity" header="Velocity">
-                            <ASUIInputRange
-                                // className="velocity"
-                                onChange={(newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
-                                value={trackState.currentVelocity || 0}
-                                min={1}
-                                max={127}
-                                // ref={ref => this.fieldProgramVelocity = ref}
-                                title="Program Velocity"
-                                disabled={selectedIndices.length === 0}
-                                />
-                        </ASUIForm>
+                    </ASUIPanel> : null}
 
-
-                        <ASUIForm className="instruction-duration" header="Duration">
-                            <ASUIButtonDropDown
-                                arrow={'▼'}
-                                // className="instruction-duration"
-                                options={() => this.renderMenuEditSetDuration()}
-                                title="Program Duration"
-                                disabled={selectedIndices.length === 0}
-                            >{trackState.currentDuration}</ASUIButtonDropDown>
-                        </ASUIForm>
-
-                        <ASUIForm className="tracker-selection" header="Selection">
-                            <ASUIButton
-                                // className="track-selection"
-                                onAction={() => this.trackerSelectIndicesPrompt()}
-                                title="Tracker Note Selection"
-                                children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
-                            />
-                        </ASUIForm>
-
+                    {this.state.showPanelKeyboard ? <ASUIPanel
+                        className="keyboard"
+                        header="Keyboard">
                         <ASUIForm className="keyboard-octave" header="Octave">
                             <ASUIButtonDropDown
                                 arrow={'▼'}
@@ -219,15 +241,6 @@ class ASComposerRenderer extends React.Component {
                                 title="Change Keyboard Octave"
                             >{this.state.keyboardOctave}</ASUIButtonDropDown>
                         </ASUIForm>
-
-                        {/*<Form className="track-octave" header="Octave">*/}
-                        {/*    <Button*/}
-                        {/*        arrow={'▼'}*/}
-                        {/*        className="track-selection"*/}
-                        {/*        onAction={e => this.renderMenuKeyboardSetOctave(e)}*/}
-                        {/*        title="ASCTrack Change Octave"*/}
-                        {/*    >4</Button>*/}
-                        {/*</Form>*/}
                     </ASUIPanel> : null}
 
 

@@ -1,8 +1,8 @@
 import * as React from "react";
 import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
+import {ASUIDropDownContainer} from "../../../components/menu";
 
 import "./ASCTrackInstruction.css";
-import {ASUIDropDownContainer} from "../../../components/menu";
 
 export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     constructor(props) {
@@ -43,7 +43,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             // onMouseDown={this.cb.onMouseInput} // TODO: fix inputs
             >
             <div
-                className="command"
+                className="asct-parameter command"
                 onMouseDown={this.cb.onMouseDown}
                 >
                 {instruction.command}

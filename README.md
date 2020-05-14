@@ -10,7 +10,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Add, edit, and delete notes and tracks
 * Recursively play-back note tracks
 * Note velocity, duration, sample key ranges
-* OOP-oriented Instruments and Effects can be wraped in each other to build complex presets
+* OOP-oriented Instruments and Effects can be wrapped in each other to build complex presets
 * Hierarchical track views 
 * Works on any modern browser on any phone, tablet or pc
 
@@ -25,7 +25,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 
 
 
-# Website Installation
+## Website Repo Installation
 
 `$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive`
 
@@ -40,7 +40,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 http://localhost:3000
 
 
-# App Installation
+## App Repo Installation
 
 `$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive`
 

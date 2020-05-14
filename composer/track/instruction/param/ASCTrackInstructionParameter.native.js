@@ -29,12 +29,12 @@ class ASCTrackInstructionParameter extends React.Component {
 
     render() {
         const styleView = [styles.parameterView];
-        if(this.props.type)
-            styleView.push(styles[this.props.type + 'View'])
-
         const styleText = [styles.parameterText];
-        if(this.props.type)
+
+        if(this.props.type) {
+            styleView.push(styles[this.props.type + 'View'])
             styleText.push(styles[this.props.type + 'Text'])
+        }
 
         return <View
             style={styleView}
@@ -150,6 +150,10 @@ const styles = StyleSheet.create({
     },
 
     durationText: {
+        color: 'purple',
+    },
+
+    customText: {
         color: 'purple',
     }
 });
