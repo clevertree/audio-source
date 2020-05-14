@@ -20,7 +20,8 @@ class ASPlayerRenderer extends ASPlayerStyle {
         super(props);
         this.state = {
             title: "Audio Source Player",
-            status: "[No Song Loaded]",
+            statusText: "[No Song Loaded]",
+            statusType: "log",
             version: require('../package.json').version,
             menuKey: 'root',
             fullscreen: false,
@@ -164,7 +165,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                         </ASUIPanel>
                     </ASUIDiv>
                     <ASUIDiv key="footer" className="asp-footer-container">
-                        <ASUIDiv className="asp-status-text">{this.state.status}</ASUIDiv>
+                        <ASUIDiv className={`asp-status-text ${this.state.statusType}`}>{this.state.statusText}</ASUIDiv>
                         <ASUIDiv className="asp-version-text"
                              ref={this.footerVersionText}
                         >{this.state.version}</ASUIDiv>

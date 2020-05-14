@@ -57,6 +57,7 @@ export default class ASCProgramRendererBase extends React.Component {
         const [oldClassName, oldConfig] = this.getProgramEntry();
         Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
         this.loadPreset(presetClassName, presetConfig);
+        // TODO: if classes match, prompt confirm
     }
 
     /** Menu **/

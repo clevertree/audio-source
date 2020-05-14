@@ -2,7 +2,6 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
 import TrackInstruction from "../../../song/instruction/TrackInstruction";
-import Values from "../../../common/values/Values";
 import {ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
 
 export default class ASCTrackInstructionBase extends React.Component {

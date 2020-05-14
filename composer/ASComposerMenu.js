@@ -1,6 +1,5 @@
 import React from "react";
 import {ASUIMenuItem, ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
-import Values from "../common/values/Values";
 import {Storage, ProgramLoader} from "../song";
 import ASComposerRenderer from "./ASComposerRenderer";
 import ActiveTrackState from "./track/state/ActiveTrackState";

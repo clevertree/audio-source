@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
 import ASUIClickableBase from "./ASUIClickableBase";
-import ASUIMenuContext from "../menu/ASUIMenuContext";
 
 import "./assets/ASUIButton.css"
 

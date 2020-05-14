@@ -5,7 +5,6 @@ import {
 } from "../../../../components";
 
 import ProgramLoader from "../../../../common/program/ProgramLoader";
-import Library from "../../../../song/library/Library";
 import PromptManager from "../../../../common/prompt/PromptManager";
 
 /** PolyphonyInstrumentRenderer **/

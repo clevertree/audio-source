@@ -29,8 +29,8 @@ export default class ASUIButton extends ASUIClickableBase {
 
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
-        const result = await this.props.onAction(e, this);
-        // if (result !== false)
+        await this.props.onAction(e, this);
+        // const result = if (result !== false)
         //     this.closeAllDropDownMenus();
     }
 

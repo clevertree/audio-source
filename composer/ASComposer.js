@@ -11,7 +11,8 @@ export default class ASComposer extends ASComposerInput {
         super(props);
         this.state = {
             title: "Audio Source Composer",
-            status: "[No Song Loaded]",
+            statusText: "[No Song Loaded]",
+            statusType: 'log',
             version: require('../package.json').version,
             menuKey: 'root',
 

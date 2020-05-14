@@ -142,6 +142,7 @@ export default class ASCTrackBase extends React.Component {
 
         const rowContent = [];
         let rowInstructionElms = [];
+        // eslint-disable-next-line no-loop-func
         while(iterator.nextQuantizedInstructionRow(() => {
             let highlight = false;
             if(iterator.positionTicks % beatsPerMeasureTicks === 0)
@@ -174,6 +175,7 @@ export default class ASCTrackBase extends React.Component {
             rowContent.push(newRowElm);
             rowInstructionElms = [];
 
+            // eslint-disable-next-line no-loop-func
         }, (instruction) => {
             if(iterator.rowCount < trackState.rowOffset)
                 return;

@@ -1,9 +1,5 @@
-import React from "react";
-
 import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
-import {ASUIDiv} from "../components";
 import {ASCTrack} from "./track";
-import Values from "../common/values/Values";
 import ActiveTrackState from "./track/state/ActiveTrackState";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
@@ -16,18 +12,15 @@ class ASComposerActions extends ASComposerMenu {
     //     super(props);
     // }
 
-    setStatus(newStatus) {
+    setStatus(statusText, statusType='log') {
         console.info.apply(null, arguments); // (newStatus);
-        this.setState({status: newStatus});
+        this.setState({statusText, statusType});
     }
 
-    setError(newStatus) {
-        this.setStatus(<ASUIDiv className="error">{newStatus}</ASUIDiv>);
+    setError(statusText) {
+        this.setStatus(statusText, 'error');
     }
 
-    setVersion(versionString) {
-        this.setState({version: versionString});
-    }
 
     /** Song rendering **/
     getSong() { return this.song; }

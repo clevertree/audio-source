@@ -7,7 +7,7 @@ export default class PageFooter extends React.Component {
         return (
             <div className="aspage-footer" >
                 <div className="aspage-footer-text">
-                    Created by <a href="https://github.com/clevertree/" target="_blank">Ari Asulin</a>
+                    Created by <a href="https://github.com/clevertree/" target="_blank" rel="noopener noreferrer">Ari Asulin</a>
                 </div>
             </div>
         );

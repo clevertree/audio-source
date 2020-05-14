@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import "../style/ASUIMenu.css";
 import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 import ASUIClickableBase from "../../button/ASUIClickableBase";
-import ASUIMenuContext from "../ASUIMenuContext";
 
 export default class ASUIMenuDropDown extends ASUIClickableBase {
 

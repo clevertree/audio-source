@@ -1,8 +1,6 @@
 import Song from "../song/Song";
 import Storage from "../common/storage/Storage";
 import ASPlayerMenu from "./ASPlayerMenu";
-// import Div from "../components/div/Div";
-import React from "react";
 
 
 class ASPlayerActions extends ASPlayerMenu {
@@ -54,17 +52,13 @@ class ASPlayerActions extends ASPlayerMenu {
     //     // if(this.webSocket)
     // }
 
-    setStatus(newStatus) {
+    setStatus(statusText, statusType='log') {
         console.info.apply(null, arguments); // (newStatus);
-        this.setState({status: newStatus});
+        this.setState({statusText, statusType});
     }
 
-    setError(newStatus) {
-        this.setStatus(<div className="error">{newStatus}</div>);
-    }
-
-    setVersion(versionString) {
-        this.setState({version: versionString});
+    setError(statusText) {
+        this.setStatus(statusText, 'error');
     }
 
 

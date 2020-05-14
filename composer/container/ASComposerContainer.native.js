@@ -82,7 +82,7 @@ export default class ASComposerContainer extends React.Component {
         return (
             <View key="footer" style={styles.footer}>
                 <Text style={styles.footerStatus}
-                      numberOfLines={1}>{state.status}</Text>
+                      numberOfLines={1}>{state.statusText}</Text>
                 <Text style={styles.footerVersion}
                       numberOfLines={1}
                 >{state.version}</Text>
