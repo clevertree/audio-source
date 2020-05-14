@@ -6,6 +6,8 @@ import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import ActiveTrackState from "./state/ActiveTrackState";
 
+
+// TODO: ASCTrackRowContainer
 export default class ASCTrackBase extends React.Component {
     /** Default Properties **/
     static defaultProps = {
@@ -32,7 +34,9 @@ export default class ASCTrackBase extends React.Component {
 
         if(!props.composer)
             throw new Error("Invalid composer");
-
+        this.state = { // TODO: Composer State is delayed
+            rowOffset: 0,
+        }
         this.cb = {
             onKeyDown: (e) => this.onKeyDown(e),
             onWheel: e => this.onWheel(e)
@@ -120,6 +124,7 @@ export default class ASCTrackBase extends React.Component {
         const songPosition = this.getComposer().state.songPosition;
         const trackSongPosition = songPosition - trackState.startPosition;
         const cursorOffset = trackState.cursorOffset;
+        const rowOffset = this.state.rowOffset;
         let trackSongPositionFound = false;
         // const quantizationTicks = trackState.quantizationTicks || this.getSong().data.timeDivision;
 
@@ -152,7 +157,7 @@ export default class ASCTrackBase extends React.Component {
                 highlight = 'position';
             }
 
-            if(iterator.rowCount < trackState.rowOffset)
+            if(iterator.rowCount < rowOffset)
                 return;
 
             let nextRowPositionTicks = iterator.getNextRowPositionTicks();
@@ -177,7 +182,7 @@ export default class ASCTrackBase extends React.Component {
 
             // eslint-disable-next-line no-loop-func
         }, (instruction) => {
-            if(iterator.rowCount < trackState.rowOffset)
+            if(iterator.rowCount < rowOffset)
                 return;
             const index = iterator.currentIndex;
             rowInstructionElms.push(<ASCTrackInstruction
@@ -205,7 +210,7 @@ export default class ASCTrackBase extends React.Component {
     renderRowSegments() {
         const composer = this.props.composer;
         const trackState = this.getTrackState();
-        const rowOffset = trackState.rowOffset;
+        const rowOffset = this.state.rowOffset;
         const rowLength = trackState.rowLength;
 
         // TODO: add next position segment

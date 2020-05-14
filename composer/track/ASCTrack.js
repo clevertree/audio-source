@@ -24,11 +24,12 @@ export default class ASCTrack extends ASCTrackBase {
 
     onWheel(e) {
         e.preventDefault();
-        let newRowOffset = this.getTrackState().rowOffset;
-        newRowOffset += e.deltaY > 0 ? 1 : -1;
-        if(newRowOffset < 0)
-            newRowOffset = 0; // return console.log("Unable to scroll past beginning");
-        this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
+        let rowOffset = this.state.rowOffset; // this.getTrackState().rowOffset;
+        rowOffset += e.deltaY > 0 ? 1 : -1;
+        if(rowOffset < 0)
+            rowOffset = 0; // return console.log("Unable to scroll past beginning");
+        this.setState({rowOffset});
+        // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
         // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
         // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
     }

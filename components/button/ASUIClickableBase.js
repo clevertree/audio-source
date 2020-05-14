@@ -10,6 +10,10 @@ export default class ASUIClickableBase extends React.Component {
         };
     }
 
+    // shouldComponentUpdate(nextProps, nextState, nextContext) {
+    //     return nextProps.children !== this.props.children;
+    // }
+
     getClassName() { return 'asui-clickable'; }
 
     render() {

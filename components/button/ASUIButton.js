@@ -14,8 +14,6 @@ export default class ASUIButton extends ASUIClickableBase {
         disabled: PropTypes.bool,
     };
 
-
-
     getClassName() { return 'asui-button'; }
 
 
