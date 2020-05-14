@@ -307,12 +307,6 @@ class Song {
 
         this.data.programs[programID] = [programClassName, programConfig];
         this.programLoadInstanceFromID(programID);
-        // this.dispatchEvent({
-        //     type: 'programs:added',
-        //     programID,
-        //     config,
-        //     song: this
-        // });
         return programID;
     }
 
@@ -325,12 +319,6 @@ class Song {
         this.data.programs[programID] = [programClassName, programConfig];
         this.programLoadInstanceFromID(programID);
 
-        // this.dispatchEvent({
-        //     type: 'programs:modified',
-        //     programID,
-        //     oldConfig,
-        //     song: this
-        // });
         return oldConfig;
     }
 
@@ -352,12 +340,6 @@ class Song {
             programList[programID] = null;
         }
         // this.programUnload(programID);
-
-        // this.dispatchEvent({
-        //     type: 'programs:removed',
-        //     programID,
-        //     song: this
-        // });
         return oldConfig;
     }
 

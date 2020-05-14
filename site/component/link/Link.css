@@ -10,7 +10,7 @@ a.aspage-link-image {
 }
 
 a.aspage-link-image > img {
-    margin: auto;
+    margin: 0 auto;
 }
 
 @media only screen and (max-width: 640px) {

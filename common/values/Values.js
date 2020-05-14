@@ -58,7 +58,6 @@ class Values {
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
             {additionalMenuItems}
             <ASUIMenuAction
-                disabled
                 onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
             >Custom Command</ASUIMenuAction>
         </>);

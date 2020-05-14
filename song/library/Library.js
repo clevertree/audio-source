@@ -50,41 +50,41 @@ class Library {
         </>);
     }
 
-    renderMenuProgramAllPresets(onSelectPreset, programClass=null, includeRecent=true) {
+    renderMenuProgramAllPresets(onSelectPreset, programClassFilter=null, includeRecent=true) {
         return (<>
             {includeRecent && false ? <ASUIMenuDropDown
                 disabled={true}
-                options={() => this.renderMenuProgramRecentPresets(onSelectPreset, programClass)}>
+                options={() => this.renderMenuProgramRecentPresets(onSelectPreset, programClassFilter)}>
                 Recent Presets
             </ASUIMenuDropDown> : null}
             {includeRecent && Library.lastSelectedLibrary ? <ASUIMenuDropDown
                 disabled={Library.lastSelectedLibrary.getPresets().length === 0}
-                options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClass)}>
+                options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>
                 Current Library
             </ASUIMenuDropDown> : null }
             <ASUIMenuDropDown
                 disabled={this.getPresets().length === 0}
-                options={() => this.renderMenuProgramPresets(onSelectPreset, programClass)}>
+                options={() => this.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>
                 Presets
             </ASUIMenuDropDown>
             <ASUIMenuDropDown
                 disabled={this.getLibraries().length === 0}
                 options={() => this.renderMenuLibraryOptions(library =>
-                    library.renderMenuProgramAllPresets(onSelectPreset, programClass, false)
-                    , programClass)}>
+                    library.renderMenuProgramAllPresets(onSelectPreset, programClassFilter, false)
+                    , programClassFilter)}>
                 Other Libraries
             </ASUIMenuDropDown>
         </>);
     }
 
 
-    renderMenuProgramRecentPresets(onSelectPreset, programClass=null) {
+    renderMenuProgramRecentPresets(onSelectPreset, programClassFilter=null) {
         // let recentLibrary = Library.lastSelectedLibrary; // TODO: move to state?
         return (<>
             <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
             <ASUIMenuBreak />
             {this.getPresets().map(([className, presetConfig], i) => {
-                return programClass === null || programClass === className
+                return programClassFilter === null || programClassFilter === className
                     ? <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
                     : null;
             })}
@@ -92,19 +92,19 @@ class Library {
     }
 
 
-    renderMenuProgramPresets(onSelectPreset, programClass=null) {
+    renderMenuProgramPresets(onSelectPreset, programClassFilter=null) {
         return (<>
             <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
             <ASUIMenuBreak />
             {this.getPresets().map(([className, presetConfig], i) => {
-                return programClass === null || programClass === className
+                return programClassFilter === null || programClassFilter === className
                     ? <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
                     : null;
             })}
         </>);
     }
 
-    renderMenuLibraryOptions(onSelectLibraryOptions, programClass=null) {
+    renderMenuLibraryOptions(onSelectLibraryOptions, programClassFilter=null) {
         return this.getLibraries().map((library, i) => {
             // if (programClass !== null && !library.supportsProgram(programClass))
             //     return null;

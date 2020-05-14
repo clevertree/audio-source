@@ -49,10 +49,12 @@ class ProgramLoader {
 
 
     programLoadRenderer(programID) {
-        const [className, config] = this.getData(programID);
+        const program = this.getData(programID);
+        const [className, config] = program;
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
         return <Renderer
             programID={programID}
+            program={program}
             config={config}
         />;
     }

@@ -127,6 +127,19 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
+    renderMenuSelectCommand(onSelectCommand, title="New Command") {
+        const selectedTrackName = this.state.selectedTrack;
+        const trackState = new ActiveTrackState(this, selectedTrackName);
+        return this.values.renderMenuSelectCommand(async newCommand => {
+                trackState.update(state => state.currentCommand = newCommand).then(
+                    () => onSelectCommand(newCommand)
+                );
+            },
+            trackState.currentCommand,
+            title
+        );
+    }
+
 
 
     // renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
@@ -187,19 +200,6 @@ class ASComposerMenu extends ASComposerRenderer {
         );
     }
 
-    renderMenuSelectCommand(onSelectCommand, title="New Command") {
-        const selectedTrackName = this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, selectedTrackName);
-        return this.values.renderMenuSelectCommand(async newCommand => {
-                trackState.update(state => state.currentCommand = newCommand).then(
-                    onSelectCommand
-                );
-            },
-            trackState.currentCommand,
-            title
-        );
-    }
-
 
     renderMenuEditInsertCommandFrequency() {
         return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsert(noteNameOctave, false));
@@ -239,15 +239,12 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEditSetCommand(currentCommand=null) {
-        const selectedTrackName = this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, selectedTrackName);
-        return this.values.renderMenuSelectCommand(async newCommand => {
+        return this.renderMenuSelectCommand(async newCommand => {
                 if(newCommand === null)
                     await this.instructionReplaceCommandSelectedPrompt();
                 else
                     this.instructionReplaceCommandSelected(newCommand);
             },
-            trackState.currentCommand,
         );
     }
 

@@ -75,7 +75,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     /** Actions **/
 
     playInstruction(destination=null) {
-        this.getTracker().getTrackInfo().updateCurrentInstruction(); // Hack
+        // this.getTracker().getTrackInfo().updateCurrentInstruction(); // Hack
         return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
     }
 

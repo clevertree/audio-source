@@ -133,10 +133,13 @@ class OscillatorInstrumentRendererBase extends React.Component {
         this.props.config.loop = newLoopValue?1:0;
     }
 
-    loadPreset(preset) {
-        console.log("Loading preset: ", preset);
-        preset.type = 'custom';
-        Object.assign(this.props.config, preset);
+    loadPreset(className, presetConfig) {
+        if(className !== this.props.program[0])
+            throw new Error(`This preset is for class ${className}, not ${this.props.program[0]}`);
+        if(!presetConfig.type)
+            presetConfig.type = 'custom';
+        this.props.program[1] = presetConfig;
+        console.log("Loaded preset: ", presetConfig);
     }
 
     /** Menus **/
@@ -162,9 +165,9 @@ class OscillatorInstrumentRendererBase extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</ASUIMenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
             <ASUIMenuBreak/>
-            {this.library.renderMenuProgramAllPresets(([className, presetConfig]) => {
+            {this.library.renderMenuProgramAllPresets((className, presetConfig) => {
                 this.loadPreset(className, presetConfig);
-            })}
+            }, this.props.program[0])}
         </>);
     }
 
@@ -200,13 +203,13 @@ class OscillatorInstrumentRendererBase extends React.Component {
     }
 
     renderMenuChangeKeyRoot() {
-        return this.getComposer().values.renderMenuSelectCommand(noteNameOctave => {
+        return new Values().renderMenuSelectCommand(noteNameOctave => {
             this.changeRoot(noteNameOctave)
         });
     }
 
     renderMenuChangeKeyAlias() {
-        return this.getComposer().values.renderMenuSelectCommand(noteNameOctave => {
+        return new Values().renderMenuSelectCommand(noteNameOctave => {
             this.changeAlias(noteNameOctave)
         });
     }

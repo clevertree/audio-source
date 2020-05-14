@@ -67,8 +67,8 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         return (<>
             <ASUIMenuItem>Add voice instrument</ASUIMenuItem>
             <ASUIMenuBreak/>
-            {ProgramLoader.getRegisteredPrograms().map(({className, title}) =>
-                 <ASUIMenuAction onAction={() => this.addVoicePrompt(className)}>{title}</ASUIMenuAction>
+            {ProgramLoader.getRegisteredPrograms().map(({className, title}, i) =>
+                 <ASUIMenuAction key={i} onAction={() => this.addVoicePrompt(className)}>{title}</ASUIMenuAction>
             )}
         </>)
         // return Values.renderMenuSelectAvailableInstrument((instrumentClass) => {

@@ -46,16 +46,19 @@ export default class ASCProgramRendererBase extends React.Component {
         song.programReplace(programID, presetClassName, presetConfig);
     }
 
+    wrapPreset(presetClassName, presetConfig={}) {
+
+    }
+
     /** Menu **/
-
-
 
 
     renderMenuRoot() {
         return (<>
-            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()} disabled>Change Preset</ASUIMenuDropDown>
-            <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Wrap Program</ASUIMenuDropDown>
+            <ASUIMenuBreak />
             <ASUIMenuAction onAction={e => this.programRename()}>Rename Program</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.programRemove()}>Remove Program</ASUIMenuAction>
         </>);
@@ -63,7 +66,8 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderMenuChangeProgram(menuTitle = "Change Program") {
         return (<>
-            <ASUIMenuItem>{menuTitle}</ASUIMenuItem><ASUIMenuBreak/>
+            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
+            <ASUIMenuBreak />
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>
                 <ASUIMenuAction key={i} onAction={e => this.loadPreset(config.className)}       >{config.title}</ASUIMenuAction>
             )}
@@ -82,17 +86,17 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
 
-    programReplace(e, programClassName, programConfig={}) {
-        const programID = this.props.programID;
-        // programConfig = ProgramLoader.createProgramConfig(programClassName, programConfig);
-        this.getSong().programReplace(programID, programClassName, programConfig);
-    }
-    programRename() {
-        const programID = this.props.programID;
-        this.getComposer().programRename(programID);
-    }
-    programRemove() {
-        const programID = this.props.programID;
-        this.getSong().programRemove(programID);
-    }
+    // programReplace(e, programClassName, programConfig={}) {
+    //     const programID = this.props.programID;
+    //     // programConfig = ProgramLoader.createProgramConfig(programClassName, programConfig);
+    //     this.getSong().programReplace(programID, programClassName, programConfig);
+    // }
+    // programRename() {
+    //     const programID = this.props.programID;
+    //     this.getComposer().programRename(programID);
+    // }
+    // programRemove() {
+    //     const programID = this.props.programID;
+    //     this.getSong().programRemove(programID);
+    // }
 }

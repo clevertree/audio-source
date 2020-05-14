@@ -24,7 +24,7 @@ export default class PageHeaderLinks extends React.Component {
         return [
             {title: 'Home', href: '/'},
             {title: 'About', href: '/about'},
-            {title: 'Browser Demo', href: '/composer'},
+            {title: 'Demo', href: '/composer'},
             // {title: 'Try Player', href: '/player'},
             {title: 'Downloads', href: '/downloads'},
         ]

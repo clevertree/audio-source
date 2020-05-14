@@ -99,7 +99,15 @@ class ASCTrackInstructionParameter extends React.Component {
         if(e.defaultPrevented || e.shiftKey)
             return;
         e.preventDefault();
-        this.toggleMenu();
+        if(e.button === 0)
+            this.toggleMenu();
+        // else if(e.button === 1)
+        //     throw new Error("Unimplemented middle button");
+        // else if(e.button === 2)
+        //     this.toggleMenu();
+        // else
+        //     throw new Error("Unknown mouse button");
+
     }
 
 
