@@ -3,7 +3,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIIcon} from "../../components";
 
-export class ASPlayerHeader extends React.Component {
+export default class ASPlayerHeader extends React.Component {
     render() {
         if(!this.props.portrait)
             console.error("ASPlayerHeader.render does not support portrait !== true");

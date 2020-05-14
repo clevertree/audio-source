@@ -5,7 +5,7 @@ import {ASUIIcon, ASUIMenuDropDown} from "../../components";
 import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
 
 
-export class ASComposerContainer extends React.Component {
+export default class ASComposerContainer extends React.Component {
     /** Property validation **/
     static propTypes = {
         // composer: PropTypes.required

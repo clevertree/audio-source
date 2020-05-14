@@ -1,7 +1,7 @@
 const TARGET = Symbol('proxy_target');
 const LISTENER = Symbol('proxy_listener');
 
-export class ConfigListener {
+export default class ConfigListener {
     constructor(song, path=[]) {
         this.path = path;
         this.song = song;

@@ -1,4 +1,4 @@
-export class Preset {
+export default class Preset {
     constructor(presetData) {
         this.data = presetData;
     }

@@ -1,14 +1,16 @@
 import React from "react";
 
-import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown, ASUIMenuDropDown} from "../components";
+import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown} from "../components";
 import ASCProgramRenderer from "./program/ASCProgramRenderer";
-import Values from "../common/values/Values";
-// import "./assets/ASComposer.css";
-// import style from "./ASComposerRenderer.style";
-import {ASComposerContainer} from "./container/ASComposerContainer";
+import ASComposerContainer from "./container/ASComposerContainer";
 import ASCTracksContainer from "./track/container/ASCTracksContainer";
 
 class ASComposerRenderer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.containerRef = React.createRef();
+    }
+
 
     render() {
         const selectedTrackName = this.state.selectedTrack;
@@ -16,6 +18,7 @@ class ASComposerRenderer extends React.Component {
         // console.log('trackState', trackState);
         const selectedIndices = trackState.selectedIndices || [];
         return <ASComposerContainer
+                    containerRef={this.containerRef}
                     composer={this}
                     >
                     {this.state.showPanelSong ? <ASUIPanel className="song" header="Song">

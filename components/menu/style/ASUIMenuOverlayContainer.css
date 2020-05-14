@@ -21,7 +21,7 @@ div.asui-menu-overlay-dropdown {
     /*transform: translate(-100%);*/
 
     min-width: 20vw;
-    min-height: 100vh;
+    height: 100%;
     animation: menuSlideIn 0.2s ease-out;
 }
 

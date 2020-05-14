@@ -79,20 +79,6 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-
-    /** Portrait Mode **/
-
-    onResize() {
-        // TODO: detect mobile as portrait excluding horizontal ipad
-        const aspectRatio = window.innerWidth / window.innerHeight;
-        const portrait = aspectRatio < 8/13; // Near golden ratio
-        console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio);
-        if(!this.state.portrait === portrait) {
-            this.setState({portrait});
-        }
-    }
-
-
     /** State **/
 
     async loadState() {
@@ -1027,7 +1013,10 @@ class ASComposerActions extends ASComposerMenu {
     toggleSongPanel() { this.setState({showPanelSong: !this.state.showPanelSong}); }
     toggleProgramPanel() { this.setState({showPanelProgram: !this.state.showPanelProgram}); }
     toggleInstructionPanel() { this.setState({showPanelInstruction: !this.state.showPanelInstruction}); }
-    toggleFullscreen() { this.setState({fullscreen: !this.state.fullscreen}); }
+    toggleFullscreen() {
+        this.setState({fullscreen: !this.state.fullscreen});
+        setTimeout(() => this.onResize(), 200);
+    }
 
     /** Tools **/
 

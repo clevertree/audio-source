@@ -30,6 +30,14 @@ export default class ASComposerInput extends ASComposerPlayback {
         }
     }
 
+
+
+    /** Portrait Mode **/
+
+    onResize() {
+    }
+
+
     /** Input **/
 
     onInput(e) {

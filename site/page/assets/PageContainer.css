@@ -8,6 +8,10 @@ div.aspage-container {
     /*margin: 1vw;*/
     min-height: 100vh;
     color: #BBB;
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
 }
 
 

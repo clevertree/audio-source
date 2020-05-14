@@ -13,7 +13,7 @@ import {
 
 import ASPPlaylist from "./playlist/ASPPlaylist";
 import ASPlayerStyle from "./ASPlayerStyle";
-import {ASPlayerHeader} from "./header/ASPlayerHeader";
+import ASPlayerHeader from "./header/ASPlayerHeader";
 
 class ASPlayerRenderer extends ASPlayerStyle {
     constructor(props={}) {

@@ -18,6 +18,7 @@ span.error {
 /** Container **/
 /** Font Style **/
 div.asc-container {
+    position: relative;
     font-family: monospace;
     color: #000;
     background-color: #EEE;

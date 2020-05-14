@@ -3,7 +3,7 @@ import SongValues from "./values/SongValues";
 
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
-import {ConfigListener} from "./config/ConfigListener";
+import ConfigListener from "./config/ConfigListener";
 import {Instruction, InstructionIterator, QuantizedInstructionIterator} from "./instruction/";
 
 

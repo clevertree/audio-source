@@ -1,4 +1,4 @@
-export class IconList {
+export default class IconList {
     getSource(sourceName) {
         switch (sourceName) {
             case 'menu':        return require('./img/menu.icon.png');

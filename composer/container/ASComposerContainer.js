@@ -5,7 +5,7 @@ import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOver
 
 import "./assets/ASComposerContainer.css";
 
-export class ASComposerContainer extends React.Component {
+export default class ASComposerContainer extends React.Component {
     /** Property validation **/
     static propTypes = {
         // children: PropTypes.any.isRequired,
@@ -18,7 +18,8 @@ export class ASComposerContainer extends React.Component {
         return (
             <div className={"asc-container"
                 + (state.fullscreen ? ' fullscreen' : '')
-                + (state.portrait ? ' portrait' : ' landscape')}>
+                + (state.portrait ? ' portrait' : ' landscape')}
+                ref={this.props.containerRef}>
                 <ASUIMenuOverlayContainer
                     isActive={state.portrait}
                 >

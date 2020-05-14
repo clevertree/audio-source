@@ -2,7 +2,7 @@ import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIIcon} from "../../components";
 
-export class ASPlayerHeader extends React.Component {
+export default class ASPlayerHeader extends React.Component {
     render() {
         if (this.props.portrait)
             return [
