@@ -717,10 +717,9 @@ class ASComposerActions extends ASComposerMenu {
      * @param cursorOffset
      * @returns {{positionTicks: PositionTickInfo[] | number, cursorRow, positionSeconds, previousOffset: number, nextRowOffset, cursorIndex: null, adjustedCursorRow, nextOffset: *, previousRowOffset}}
      */
-    trackerGetCursorInfo(trackName=null, cursorOffset=null) {
-        trackName = trackName || this.state.selectedTrack;
+    trackerGetCursorInfo(trackName, cursorOffset) {
         const trackState = new ActiveTrackState(this, trackName);
-        cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
+        // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
         const iterator = this.trackerGetQuantizedIterator(trackName);
         let cursorIndex = null;
         let currentRowStartPosition=0, lastRowStartPosition=0
@@ -832,16 +831,7 @@ class ASComposerActions extends ASComposerMenu {
             state.selectedTrack = trackName;
             const trackState = state.activeTracks[trackName];
             trackState.selectedIndices = selectedIndices;
-            if(cursorOffset !== null) {
-                const cursorInfo = this.trackerGetCursorInfo(trackName, cursorOffset);
-                trackState.cursorOffset = cursorOffset;
-                // TODO: rowOffset = this.trackerGetCursorInfo(cursorOffset).adjustedCursorRow;
-                // if (rowOffset !== null)
-                if(cursorInfo.adjustedCursorRow !== null)
-                    trackState.rowOffset = cursorInfo.adjustedCursorRow;
-                trackState.cursorPositionTicks = cursorInfo.positionTicks;
-                state.songPosition = cursorInfo.positionSeconds + (trackState.startPosition || 0);
-            }
+
             // If selected, update default instruction params
             if(selectedIndices.length > 0) {
                 const firstSelectedInstruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);

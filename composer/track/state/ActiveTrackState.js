@@ -23,6 +23,7 @@ export default class ActiveTrackState {
     get programID() { return this.state.programID; }
 
     get selectedIndices() { return this.state.selectedIndices || []; }
+    /** @deprecated **/
     get cursorOffset() { return this.state.cursorOffset || 0; }
     get cursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
     get playingIndices() { return this.state.playingIndices || []; }

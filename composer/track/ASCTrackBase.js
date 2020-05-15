@@ -36,6 +36,7 @@ export default class ASCTrackBase extends React.Component {
             throw new Error("Invalid composer");
         this.state = { // TODO: Composer State is delayed
             rowOffset: 0,
+            cursorOffset: 0,
         }
         this.cb = {
             onKeyDown: (e) => this.onKeyDown(e),
@@ -102,13 +103,29 @@ export default class ASCTrackBase extends React.Component {
             if(cursorIndex !== null)
                 selectedIndices = [cursorIndex];
         }
+        if(selectedIndices) {
+            this.selectIndices(selectedIndices, cursorOffset, rowOffset);
+        }
+        this.setState({cursorOffset});
         // if(selectedIndices === null)
         //     selectedIndices = [];
-        return this.selectIndices(selectedIndices, cursorOffset, rowOffset);
 
         // const selectedIndex = this.findInstructionIndexFromCursorOffset(cursorOffset);
         // console.log('setCursorOffset', cursorOffset, selectedIndex);
         // this.playSelectedInstructions();
+
+
+        // TODO: calculate row offset by segment:
+        //     if(cursorOffset !== null) {
+        //         const cursorInfo = this.trackerGetCursorInfo(trackName, cursorOffset);
+        //         // trackState.cursorOffset = cursorOffset;
+        //         // TODO: rowOffset = this.trackerGetCursorInfo(cursorOffset).adjustedCursorRow;
+        //         // if (rowOffset !== null)
+        //         if(cursorInfo.adjustedCursorRow !== null)
+        //             trackState.rowOffset = cursorInfo.adjustedCursorRow;
+        //         trackState.cursorPositionTicks = cursorInfo.positionTicks;
+        //         state.songPosition = cursorInfo.positionSeconds + (trackState.startPosition || 0);
+        //     }
     }
 
     selectIndices(selectedIndices, cursorOffset=null, rowOffset=null) {
