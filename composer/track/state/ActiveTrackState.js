@@ -22,10 +22,12 @@ export default class ActiveTrackState {
 
     get programID() { return this.state.programID; }
 
-    get selectedIndices() { return this.state.selectedIndices || []; }
     /** @deprecated **/
     get cursorOffset() { return this.state.cursorOffset || 0; }
+    /** @deprecated **/
     get cursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
+
+    get selectedIndices() { return this.state.selectedIndices || []; }
     get playingIndices() { return this.state.playingIndices || []; }
 
     get currentInstructionType() { return this.state.currentInstructionType || 'custom'; }

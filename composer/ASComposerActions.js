@@ -715,9 +715,12 @@ class ASComposerActions extends ASComposerMenu {
      * Used when selecting
      * @param trackName
      * @param cursorOffset
+     * @param rowOffset
      * @returns {{positionTicks: PositionTickInfo[] | number, cursorRow, positionSeconds, previousOffset: number, nextRowOffset, cursorIndex: null, adjustedCursorRow, nextOffset: *, previousRowOffset}}
      */
-    trackerGetCursorInfo(trackName, cursorOffset) {
+    trackerGetCursorInfo(trackName, cursorOffset, rowOffset) {
+        if(!Number.isInteger(cursorOffset))
+            throw new Error("Invalid cursorOffset: " + cursorOffset);
         const trackState = new ActiveTrackState(this, trackName);
         // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
         const iterator = this.trackerGetQuantizedIterator(trackName);
@@ -738,12 +741,11 @@ class ASComposerActions extends ASComposerMenu {
         const column = cursorOffset - currentRowStartPosition;
 
         const cursorRow = iterator.rowCount;
-        const currentRowOffset = trackState.rowOffset || 0;
         const rowLength = trackState.rowLength || 16;
         let adjustedCursorRow = null;
-        if(currentRowOffset + rowLength <= cursorRow)
+        if(rowOffset + rowLength <= cursorRow)
             adjustedCursorRow = cursorRow - rowLength; //  - Math.floor(currentRowLength * 0.8);
-        if(currentRowOffset >= cursorRow)
+        if(rowOffset >= cursorRow)
             adjustedCursorRow = cursorRow - 1; // - Math.ceil(currentRowLength * 0.2);
 
 
@@ -757,12 +759,12 @@ class ASComposerActions extends ASComposerMenu {
             cursorIndex,
             cursorRow,
             adjustedCursorRow,
-            previousOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
-            nextOffset: cursorOffset + 1,
+            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
+            nextCursorOffset: cursorOffset + 1,
             previousRowOffset,
             nextRowOffset
         };
-        // console.log(ret);
+        console.log(cursorOffset, ret);
         return ret;
     }
 

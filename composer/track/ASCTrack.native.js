@@ -125,7 +125,7 @@ export default class ASCTrack extends ASCTrackBase {
 
         newCursorOffset = Math.round(newCursorOffset);
         if(selectIndex) {
-            const cursorInfo = this.getComposer().trackerGetCursorInfo(this.getTrackName(), newCursorOffset);
+            const cursorInfo = this.cursorGetInfo(newCursorOffset);
             if(cursorInfo.cursorIndex !== null && this.currentSelectedIndex !== cursorInfo.cursorIndex) {
                 this.currentSelectedIndex = cursorInfo.cursorIndex;
                 this.getComposer().trackerSelectIndices(this.getTrackName(), [cursorInfo.cursorIndex], newCursorOffset);

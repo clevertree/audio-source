@@ -75,7 +75,7 @@ class ASCTrackRow extends React.Component {
 
     async selectRow(clearSelection = true) {
         // const selectedIndices = clearSelection ? [] : null;
-        await this.getTracker().setCursorOffset(this.props.cursorPosition, clearSelection ? [] : null);
+        await this.getTracker().selectCursorOffset(this.props.cursorPosition, clearSelection ? [] : null);
     }
 
 
