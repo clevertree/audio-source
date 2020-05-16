@@ -5,7 +5,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
     constructor(instructionList, quantizationTicks, timeDivision, beatsPerMinute) {
         super(instructionList, timeDivision, beatsPerMinute);
         if(!quantizationTicks)
-            throw new Error("Invalid quantizationTicks");
+            throw new Error("Invalid quantizationTicks: " + typeof quantizationTicks);
         this.quantizationTicks = quantizationTicks;
         // Initiate quantization breaks
         this.nextQuantizationBreakInTicks = 0;

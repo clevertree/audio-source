@@ -2,6 +2,7 @@ import * as React from "react";
 import ASCTrack from "../ASCTrack";
 
 export default class ASCTracksContainerBase extends React.Component {
+
     /** Render **/
 
     render() {
@@ -12,6 +13,8 @@ export default class ASCTracksContainerBase extends React.Component {
 
     renderTracks() {
         const composer = this.props.composer;
+        composer.activeTracks = {};
+
         const selectedTrackName = composer.state.selectedTrack;
         let trackList = Object.keys(composer.state.activeTracks);
         let collapsed = false;
@@ -21,9 +24,11 @@ export default class ASCTracksContainerBase extends React.Component {
             // if (selectedTrackID !== -1)
             //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
         }
-        return trackList.map(trackName => {
+        return trackList.map((trackName) => {
+            composer.activeTracks[trackName] = React.createRef();
             const selected = trackName === selectedTrackName;
             return <ASCTrack
+                ref={composer.activeTracks[trackName]}
                 key={trackName}
                 trackName={trackName}
                 trackState={composer.state.activeTracks[trackName]}

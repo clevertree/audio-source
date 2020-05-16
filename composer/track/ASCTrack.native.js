@@ -18,8 +18,8 @@ export default class ASCTrack extends ASCTrackBase {
                 // console.log(gestureState);
                 this.longPressEnabled = false;
                 this.last=null;
-                this.currentRowOffset = this.getTrackState().rowOffset;
-                this.currentCursorOffset = this.getTrackState().cursorOffset;
+                this.currentRowOffset = this.getRowOffset();
+                this.currentCursorOffset = this.getCursorOffset();
                 // this.longPressTimeout = setTimeout(() => {
                 //     this.longPressEnabled = true;
                 //     console.log('longPressEnabled', this.longPressEnabled);

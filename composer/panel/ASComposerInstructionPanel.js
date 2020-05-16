@@ -1,17 +1,23 @@
 import React from "react";
 
 import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown} from "../../components";
-import ActiveTrackState from "../track/state/ActiveTrackState";
 
 export default class ASComposerInstructionPanel extends React.Component {
 
 
+
+    // TODO
+    // getCurrentInstructionType() { return this.state.currentInstructionType || 'custom'; }
+    // getCurrentCommand() { return this.state.currentCommand || 'C4'; }
+    // getCurrentDuration() { return this.state.currentDuration || '1B'; }
+    // getCurrentVelocity() { return this.state.currentVelocity || null; }
+    // getCurrentArguments() { return this.state.currentArguments || []; }
+
     render() {
         const composer = this.props.composer;
         const selectedTrackName = composer.state.selectedTrack;
-        const trackState = new ActiveTrackState(composer, selectedTrackName);
-        // console.log('trackState', trackState);
-        const selectedIndices = trackState.selectedIndices;
+        const activeTrack = composer.hasActiveTrack(selectedTrackName) ? composer.getActiveTrack(selectedTrackName) : null;
+        const selectedIndices = activeTrack ? activeTrack.getSelectedIndices() : [];
 
 
         return (
@@ -24,15 +30,15 @@ export default class ASComposerInstructionPanel extends React.Component {
                         arrow={'▼'}
                         // className="command"
                         options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuSelectCommand()}
-                    >{trackState.currentCommand}</ASUIButtonDropDown>
+                    >{composer.state.currentCommand}</ASUIButtonDropDown>
                 </ASUIForm>
 
-                {trackState.currentInstructionType === 'note' ? [
+                {composer.state.currentInstructionType === 'note' ? [
                     <ASUIForm key="instruction-velocity" header="Velocity">
                         <ASUIInputRange
                             // className="velocity"
                             onChange={(newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
-                            value={trackState.currentVelocity || 0}
+                            value={composer.state.currentVelocity || 0}
                             min={1}
                             max={127}
                             // ref={ref => this.fieldProgramVelocity = ref}
@@ -48,7 +54,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                             options={() => this.renderMenuEditSetDuration()}
                             title="Program Duration"
                             disabled={selectedIndices.length === 0}
-                        >{trackState.currentDuration}</ASUIButtonDropDown>
+                        >{composer.state.currentDuration}</ASUIButtonDropDown>
                     </ASUIForm>
                 ] : [
                     <ASUIForm key="instruction-arguments" header="Arguments">
@@ -56,7 +62,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                             onAction={() => this.renderMenuEditSetDuration()}
                             title="Program Duration"
                             disabled={selectedIndices.length === 0}
-                        >{trackState.currentArguments.join(', ')}</ASUIButton>
+                        >{composer.state.currentArguments.join(', ')}</ASUIButton>
                     </ASUIForm>
                 ]}
 

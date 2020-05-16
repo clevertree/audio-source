@@ -3,7 +3,6 @@ import {
     SongValues,
     Keyboard,
     Library}          from "../song";
-import ActiveTrackState from "./track/state/ActiveTrackState";
 import ASComposerInput from "./ASComposerInput";
 
 export default class ASComposer extends ASComposerInput {
@@ -36,6 +35,7 @@ export default class ASComposer extends ASComposerInput {
 
             // Trackers
             selectedTrack: 'root',
+            /** @deprecated **/
             activeTracks: {
                 root:{
                     // destination: null,
@@ -45,6 +45,11 @@ export default class ASComposer extends ASComposerInput {
                 }
             },
 
+            currentInstructionType: 'note',
+            currentCommand: 'C4',
+            currentDuration: '1B',
+            currentVelocity: null,
+            currentArguments: [],
 
             /** UI **/
 
@@ -53,7 +58,7 @@ export default class ASComposer extends ASComposerInput {
 
 
         };
-
+        this.activeTracks = {};
         this.timeouts = {
             saveSongToMemory: null,
             renderPrograms: null
@@ -71,6 +76,8 @@ export default class ASComposer extends ASComposerInput {
         // this.onSongEvent = (e) => this.onSongEvent(e);
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);
+
+        setTimeout(() => console.log(this.activeTracks), 1000);
     }
 
 
@@ -113,10 +120,8 @@ export default class ASComposer extends ASComposerInput {
             case 'instruction:play':
             case 'instruction:stop':
                 // console.log(e.type, e.playingIndices);
-                const trackState = new ActiveTrackState(this, e.trackStats.trackName);
-                await trackState.update(state => {
-                    state.playingIndices = e.playingIndices;
-                })
+                const activeTrack = this.getActiveTrack(e.trackStats.trackName);
+                activeTrack.updatePlayingIndices(e.playingIndices);
                 // this.forceUpdate();
                 break;
 

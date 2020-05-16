@@ -2,7 +2,6 @@ import React from "react";
 import {ASUIMenuItem, ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
 import {Storage, ProgramLoader} from "../song";
 import ASComposerRenderer from "./ASComposerRenderer";
-import ActiveTrackState from "./track/state/ActiveTrackState";
 
 class ASComposerMenu extends ASComposerRenderer {
 
@@ -127,14 +126,12 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuSelectCommand(onSelectCommand, title="New Command") {
-        const selectedTrackName = this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, selectedTrackName);
         return this.values.renderMenuSelectCommand(async newCommand => {
-                trackState.update(state => state.currentCommand = newCommand).then(
+                this.setStatus(state => state.currentCommand = newCommand,
                     () => onSelectCommand(newCommand)
                 );
             },
-            trackState.currentCommand,
+            this.state.currentCommand,
             title
         );
     }
@@ -149,8 +146,8 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEdit(currentCommand=null) {
         const selectedTrackName = this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, selectedTrackName);
-        const selectedIndices = trackState.selectedIndices;
+        const activeTrack = this.getActiveTrack(selectedTrackName);
+        const selectedIndices = activeTrack.getSelectedIndices();
 
         return (<>
             <ASUIMenuDropDown

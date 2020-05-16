@@ -20,7 +20,6 @@ class ASComposerRenderer extends React.Component {
         }
     }
 
-
     render() {
         console.log('ASComposerRenderer.render()');
 

@@ -87,7 +87,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     async selectInstruction(clearSelection=true, toggleValue = null) {
         // const trackName = this.getTracker().getTrackName();
-        const selectedIndices = clearSelection ? [] : this.getTracker().getTrackState().selectedIndices;
+        const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
         // const instruction = this.getInstruction();
         const i = selectedIndices.indexOf(this.props.index);
         if(toggleValue === true || i === -1) {
@@ -112,7 +112,7 @@ export default class ASCTrackInstructionBase extends React.Component {
                 instruction.getTrackName(),
                 null,
                 {
-                    destinationList: this.getTracker().getTrackState().destinationList.concat(this.getTracker().getTrackName())
+                    destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())
                 }
             );
         } else {

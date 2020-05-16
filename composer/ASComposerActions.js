@@ -1,6 +1,5 @@
 import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
 import {ASCTrack} from "./track";
-import ActiveTrackState from "./track/state/ActiveTrackState";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
@@ -316,9 +315,8 @@ class ASComposerActions extends ASComposerMenu {
     /** Instruction Modification **/
 
     async instructionInsertPrompt(newCommand = null, trackName = null, promptUser = false) {
-        const trackState = new ActiveTrackState(this, trackName);
         if (newCommand === null)
-            newCommand = trackState.currentCommand;
+            newCommand = this.state.currentCommand;
         newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
         return this.instructionInsert(newCommand);
     }
@@ -327,7 +325,6 @@ class ASComposerActions extends ASComposerMenu {
         console.log('instructionInsert', newCommand, trackName);
         // const activeTracks = {...this.state.activeTracks};
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
         // if (programID !== null)
         //     newInstruction.program = programID;
 
@@ -338,20 +335,22 @@ class ASComposerActions extends ASComposerMenu {
         // if(selectedIndices.length === 0)
         //     throw new Error("No selection");
         if (newCommand === null)
-            newCommand = trackState.currentCommand;
+            newCommand = this.state.currentCommand;
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
         const newInstruction = Instruction.parseInstruction([0, newCommand]);
-        trackState.update(state => state.currentCommand = newInstruction.command).then();
-        if(trackState.currentDuration)
-            newInstruction.durationTicks = song.values.parseDurationAsTicks(trackState.currentDuration);
-        if(trackState.currentVelocity)
-            newInstruction.velocity = trackState.currentVelocity;
+        this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
+        if(this.state.currentDuration)
+            newInstruction.durationTicks = song.values.parseDurationAsTicks(this.state.currentDuration);
+        if(this.state.currentVelocity)
+            newInstruction.velocity = this.state.currentVelocity;
         // this.setState({activeTracks});
 
-        const songPositionTicks = trackState.cursorPositionTicks; // Using cursorPositionTicks is more accurate for insert
-        let insertIndex = song.instructionInsertAtPosition(trackName, songPositionTicks, newInstruction);
+        const activeTrack = this.getActiveTrack(trackName);
+        const {cursorPositionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
+        // const songPositionTicks = this.state.cursorPositionTicks; // Using cursorPositionTicks is more accurate for insert
+        let insertIndex = song.instructionInsertAtPosition(trackName, cursorPositionTicks, newInstruction);
         this.trackerSelectIndices(trackName, [insertIndex]);
 
         this.trackerPlay(trackName, [insertIndex]);
@@ -367,9 +366,9 @@ class ASComposerActions extends ASComposerMenu {
     instructionReplaceCommandSelected(newCommand, trackName=null, selectedIndices=null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
-            selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
+            selectedIndices = activeTrack.getSelectedIndices(); // .getSelectedIndices();
 
         if (selectedIndices.length === 0)
             throw new Error("No selection");
@@ -391,9 +390,9 @@ class ASComposerActions extends ASComposerMenu {
     async instructionReplaceDurationSelected(duration = null, trackName = null, selectedIndices = null, promptUser = false) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
-            selectedIndices = trackState.selectedIndices; // .getSelectedIndices();
+            selectedIndices = activeTrack.getSelectedIndices();
 
         if (promptUser)
             duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
@@ -408,25 +407,22 @@ class ASComposerActions extends ASComposerMenu {
             song.instructionReplaceDuration(trackName, selectedIndices[i], duration);
         }
         this.trackerPlay(trackName, selectedIndices);
-        this.setState(state => {
-            state.activeTracks[trackName].currentDuration = duration;
-        })
+        this.setState({currentDuration: duration})
         // trackState.updateCurrentInstruction();
     }
 
     async instructionReplaceVelocityPrompt(velocity = null, trackName = null, selectedIndices = null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
-        velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", trackState.currentVelocity));
+        velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", this.state.currentVelocity));
         return this.instructionReplaceVelocitySelected(velocity, trackName, selectedIndices);
     }
 
     instructionReplaceVelocitySelected(velocity = null, trackName = null, selectedIndices = null) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
-            selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
+            selectedIndices = activeTrack.getSelectedIndices();
 
         velocity = parseFloat(velocity);
         if (velocity === null || isNaN(velocity))
@@ -435,25 +431,20 @@ class ASComposerActions extends ASComposerMenu {
             song.instructionReplaceVelocity(trackName, selectedIndices[i], velocity);
         }
         this.trackerPlay(trackName, selectedIndices);
-        this.setState(state => {
-            state.activeTracks[trackName].currentVelocity = velocity;
-            return state;
-        })
+        this.setState({currentVelocity: velocity})
         // trackInfo.updateCurrentInstruction();
     }
 
     instructionDeleteSelected(trackName=null, selectedIndices=null) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
-            selectedIndices = trackState.selectedIndices || []; // .getSelectedIndices();
+            selectedIndices = activeTrack.getSelectedIndices();
 
         for (let i = 0; i < selectedIndices.length; i++)
             this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
-        trackState.update(state => {
-            state.selectedIndices = [];
-        })
+        activeTrack.setState({selectedIndices: []})
     }
 
     /** Keyboard Commands **/
@@ -515,8 +506,8 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackerPlaySelected(trackName=null, stopPlayback=true) {
-        const trackState = new ActiveTrackState(this, trackName);
-        return this.trackerPlay(trackName, trackState.selectedIndices, stopPlayback);
+        const activeTrack = this.getActiveTrack(trackName);
+        return this.trackerPlay(trackName, activeTrack.getSelectedIndices(), stopPlayback);
     }
 
     trackerPlay(trackName, selectedIndices, stopPlayback=true) {
@@ -648,15 +639,15 @@ class ASComposerActions extends ASComposerMenu {
      * @param trackName
      * @returns {Promise<void>}
      */
-    async trackerUpdateSegmentInfo(trackName) {
+    trackerUpdateSegmentInfo(trackName) {
         trackName = trackName || this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         const iterator = this.trackerGetIterator(trackName);
         iterator.seekToEnd();
         const trackLengthTicks = iterator.positionTicks;
 
         const qIterator = this.trackerGetQuantizedIterator(trackName);
-        const segmentLengthTicks = trackState.segmentLengthTicks;
+        const segmentLengthTicks = activeTrack.getSegmentLengthTicks();
         const segmentPositions = [];
         let lastSegmentPositionTicks = 0;
         while ( qIterator.positionTicks < trackLengthTicks
@@ -672,7 +663,7 @@ class ASComposerActions extends ASComposerMenu {
         // qIterator.seekToPosition()
 
         // if (!trackState.trackLengthTicks || trackLengthTicks > trackState.trackLengthTicks) {
-            await trackState.update(state => {
+            activeTrack.setStatus(state => {
                 state.trackLengthTicks = trackLengthTicks;
                 state.segmentPositions = segmentPositions;
                 // console.log('trackLengthTicks', {segmentPositions, trackLengthTicks, qIterator});
@@ -684,22 +675,34 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackerGetIterator(trackName=null) {
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         return this.getSong().instructionGetIterator(
             trackName,
-            trackState.timeDivision, // || this.getSong().data.timeDivision,
-            trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
+            activeTrack.getTimeDivision(),
+            activeTrack.getBeatsPerMinute()
         );
     }
 
     trackerGetQuantizedIterator(trackName=null) {
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         return this.getSong().instructionGetQuantizedIterator(
             trackName,
-            trackState.quantizationTicks,
-            trackState.timeDivision, // || this.getSong().data.timeDivision,
-            trackState.beatsPerMinute //  || this.getSong().data.beatsPerMinute
+            activeTrack.getQuantizationTicks(),
+            activeTrack.getTimeDivision(),
+            activeTrack.getBeatsPerMinute()
         );
+    }
+
+    /** Track State **/
+
+    hasActiveTrack(trackName) {
+        return !!this.activeTracks[trackName];
+    }
+
+    getActiveTrack(trackName) {
+        if(!this.activeTracks[trackName])
+            throw new Error("Active track not found: " + trackName);
+        return this.activeTracks[trackName].current;
     }
 
     /** Selection **/
@@ -711,6 +714,8 @@ class ASComposerActions extends ASComposerMenu {
         });
     }
 
+
+    // TODO: move to track?
     /**
      * Used when selecting
      * @param trackName
@@ -721,7 +726,7 @@ class ASComposerActions extends ASComposerMenu {
     trackerGetCursorInfo(trackName, cursorOffset, rowOffset) {
         if(!Number.isInteger(cursorOffset))
             throw new Error("Invalid cursorOffset: " + cursorOffset);
-        const trackState = new ActiveTrackState(this, trackName);
+        const activeTrack = this.getActiveTrack(trackName);
         // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
         const iterator = this.trackerGetQuantizedIterator(trackName);
         let cursorIndex = null;
@@ -741,7 +746,7 @@ class ASComposerActions extends ASComposerMenu {
         const column = cursorOffset - currentRowStartPosition;
 
         const cursorRow = iterator.rowCount;
-        const rowLength = trackState.rowLength || 16;
+        const rowLength = activeTrack.getRowLength || 16;
         let adjustedCursorRow = null;
         if(rowOffset + rowLength <= cursorRow)
             adjustedCursorRow = cursorRow - rowLength; //  - Math.floor(currentRowLength * 0.8);
@@ -780,8 +785,8 @@ class ASComposerActions extends ASComposerMenu {
     async trackerSelectIndicesPrompt(trackName=null) {
         if(trackName === null)
             trackName = this.state.selectedTrack;
-        const trackState = new ActiveTrackState(this, trackName);
-        let selectedIndices = (trackState.selectedIndices || []).join(', ');
+        const activeTrack = this.getActiveTrack(trackName);
+        let selectedIndices = activeTrack.getSelectedIndices().join(', ');
         selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
         this.trackerSelectIndices(trackName, selectedIndices);
     }
