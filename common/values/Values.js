@@ -7,6 +7,21 @@ class Values {
 
     /** Menus **/
 
+    /** Select Command **/
+
+    renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
+        return (<>
+            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Edit ${currentCommand}`)}</ASUIMenuItem>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
+            {additionalMenuItems}
+            <ASUIMenuAction
+                onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
+            >Custom Command</ASUIMenuAction>
+        </>);
+
+    }
 
 
     renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
@@ -46,20 +61,6 @@ class Values {
         return this.getNoteFrequencies((noteName) =>
             <ASUIMenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</ASUIMenuAction>
         );
-    }
-
-    renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
-        return (<>
-            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Edit ${currentCommand}`)}</ASUIMenuItem>
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
-            {additionalMenuItems}
-            <ASUIMenuAction
-                onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
-            >Custom Command</ASUIMenuAction>
-        </>);
-
     }
 
 

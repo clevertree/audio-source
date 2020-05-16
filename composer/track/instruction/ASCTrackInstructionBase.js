@@ -133,17 +133,14 @@ export default class ASCTrackInstructionBase extends React.Component {
             <ASUIMenuBreak/>
             <ASUIMenuDropDown
                 options={() => this.renderMenuSelectCommand()}
-                hasBreak
                 children="Set Command"
             />
             <ASUIMenuDropDown
                 options={() => this.renderMenuSelectDuration()}
-                hasBreak
                 children="Set Duration"
             />
             <ASUIMenuDropDown
                 options={() => this.renderMenuSelectVelocity()}
-                hasBreak
                 children="Set Velocity"
             />
         </>);

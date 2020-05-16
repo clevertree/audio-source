@@ -335,34 +335,37 @@ class ASComposerActions extends ASComposerMenu {
     instructionInsertAtCursor(trackName = null, newCommand = null) {
         // console.log('instructionInsert', newCommand, trackName);
 
-        //: TODO: check for recursive group
-        const song = this.song;
         // let selectedIndices = this.getSelectedIndices();
 
         // if(selectedIndices.length === 0)
         //     throw new Error("No selection");
+
+        const activeTrack = this.getActiveTrack(trackName);
+        const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
+        // const songPositionTicks = this.state.cursorPositionTicks; // Using cursorPositionTicks is more accurate for insert
+        // this.trackerSelectIndices(trackName, [insertIndex]);
+
+        // this.trackerPlay(trackName, [insertIndex]);
+        // activeTrack.selectIndicesAndPlay(insertIndex);
+        return this.instructionInsertAtPosition(trackName, positionTicks, newCommand);
+    }
+
+    instructionInsertAtPosition(trackName, positionTicks, newCommand = null) {
+        //: TODO: check for recursive group
+
         if (newCommand === null)
             newCommand = this.state.currentCommand;
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        const newInstruction = Instruction.parseInstruction([0, newCommand]);
+        const newInstruction = Instruction.parseInstruction([0, newCommand]); // TODO: support instruction object too
         this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
         if(this.state.currentDuration)
-            newInstruction.durationTicks = song.values.parseDurationAsTicks(this.state.currentDuration);
+            newInstruction.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
         if(this.state.currentVelocity)
             newInstruction.velocity = this.state.currentVelocity;
         // this.setState({activeTracks});
-
-        const activeTrack = this.getActiveTrack(trackName);
-        const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
-        // const songPositionTicks = this.state.cursorPositionTicks; // Using cursorPositionTicks is more accurate for insert
-        let insertIndex = song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);
-        this.trackerSelectIndices(trackName, [insertIndex]);
-
-        this.trackerPlay(trackName, [insertIndex]);
-        activeTrack.selectIndicesAndPlay(insertIndex);
-        return insertIndex;
+        return this.song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);
     }
 
     /** Instruction Command **/

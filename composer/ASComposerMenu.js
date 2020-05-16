@@ -95,19 +95,20 @@ class ASComposerMenu extends ASComposerRenderer {
     //     );
     // }
 
+    renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
+        return this.values.renderMenuSelectCommand(onSelectValue, currentCommand || this.state.currentCommand, title, additionalMenuItems)
+    }
 
-    /** @deprecated **/
-    renderMenuSelectCommandByFrequency(onSelectValue) {
-        return this.values.renderMenuSelectCommandByFrequency(onSelectValue, this.state.keyboardOctave);
+    renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
+        return this.values.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand || this.state.currentCommand);
     }
 
     // renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName) {
     //     return this.values.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName);
     // }
 
-    /** @deprecated **/
-    renderMenuSelectCommandByOctave(onSelectValue) {
-        return this.values.renderMenuSelectCommandByOctave(onSelectValue, this.state.keyboardOctave);
+    renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
+        return this.values.renderMenuSelectCommandByOctave(onSelectValue, currentCommand || this.state.currentCommand);
     }
 
     // renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
@@ -121,18 +122,6 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuSelectSongProgram(onSelectValue) {
         return this.values.getSongPrograms((programID, programClass, programInfo) =>
             <ASUIMenuAction key={programID} onAction={() => onSelectValue(programID)}  >{programID}: {programInfo.title || programClass}</ASUIMenuAction>
-        );
-    }
-
-
-    renderMenuSelectCommand(onSelectCommand, title="New Command") {
-        return this.values.renderMenuSelectCommand(async newCommand => {
-                this.setStatus(state => state.currentCommand = newCommand,
-                    () => onSelectCommand(newCommand)
-                );
-            },
-            this.state.currentCommand,
-            title
         );
     }
 

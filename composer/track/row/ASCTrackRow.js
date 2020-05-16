@@ -5,6 +5,7 @@ import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASUIDropDownContainer from "../../../components/menu/dropdown/ASUIDropDownContainer";
 import "./ASCTrackRow.css";
+import {ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
 
 class ASCTrackRow extends React.Component {
     constructor(props) {
@@ -52,6 +53,7 @@ class ASCTrackRow extends React.Component {
                 className={className}
                 // onClick={this.cb.onMouseInput}
                 onClick={this.cb.onClick}
+                onContextMenu={this.cb.onContextMenu}
                 onKeyDown={this.cb.onKeyDown}
             >
                 <ASCTrackPosition positionTicks={this.props.positionTicks}/>
@@ -62,7 +64,7 @@ class ASCTrackRow extends React.Component {
                 <ASCTrackDelta duration={rowDeltaDuration}/>
                 <ASUIDropDownContainer
                     ref={this.dropdown}
-                    options={this.props.options}
+                    options={() => this.renderRowMenu()}
                     vertical={this.props.vertical}
                 />
             </div>
@@ -80,6 +82,44 @@ class ASCTrackRow extends React.Component {
         tracker.selectIndices([], true);
     }
 
+
+    instructionInsert(command) {
+        this.getComposer().instructionInsertAtPosition(
+            this.getTrackName(),
+            this.props.positionTicks,
+            command,
+        )
+    }
+
+    /** Menus **/
+
+
+    renderRowMenu() {
+        return (<>
+            <ASUIMenuItem>Row</ASUIMenuItem>
+            <ASUIMenuBreak/>
+            <ASUIMenuDropDown
+                options={() => this.renderRowInsertCommandMenu()}
+                children="Insert new command"
+            />
+            <ASUIMenuDropDown
+                options={() => this.renderMenuSelectDuration()}
+                children="Select Row"
+                disabled
+            />
+            <ASUIMenuDropDown
+                options={() => this.renderMenuSelectVelocity()}
+                children="Set Cursor Position"
+                disabled
+            />
+        </>);
+    }
+
+    renderRowInsertCommandMenu() {
+        return this.getComposer().renderMenuSelectCommand(selectedCommand => {
+
+        }, null, "Insert new command");
+    }
 
     /** User Input **/
 
