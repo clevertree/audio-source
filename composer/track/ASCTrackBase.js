@@ -121,7 +121,7 @@ export default class ASCTrackBase extends React.Component {
     /** Actions **/
 
     setCursorPosition(cursorOffset, rowOffset=null) {
-        console.log('setCursorPosition', cursorOffset, rowOffset);
+        // console.log('setCursorPosition', cursorOffset, rowOffset);
         if(cursorOffset < 0)
             cursorOffset = 0;
         rowOffset = rowOffset === null ? this.state.rowOffset : rowOffset;
@@ -138,6 +138,10 @@ export default class ASCTrackBase extends React.Component {
         // }
     }
 
+    selectIndicesAndPlay(selectedIndices, clearSelection=true, stopPlayback=true) {
+        selectedIndices = this.selectIndices(selectedIndices, clearSelection);
+        this.playInstructions(selectedIndices, stopPlayback)
+    }
 
     selectIndices(selectedIndices, clearSelection=true) {
         // TODO: get song position by this.props.index
@@ -168,7 +172,7 @@ export default class ASCTrackBase extends React.Component {
             selectedIndices = [selectedIndices];
         if(!clearSelection && this.getSelectedIndices().length > 0)
             selectedIndices = selectedIndices.concat(this.getSelectedIndices());
-        console.log('selectIndices', Array.isArray(selectedIndices), selectedIndices);
+        // console.log('selectIndices', Array.isArray(selectedIndices), selectedIndices);
         if (!Array.isArray(selectedIndices))
             throw new Error("Invalid selection: " + selectedIndices);
 
@@ -385,7 +389,8 @@ export default class ASCTrackBase extends React.Component {
             //     break;
             //
             case 'Enter':
-                this.getComposer().instructionInsert();
+                await this.getComposer().instructionInsertAtCursorPrompt(null, null, false);
+                await this.playSelectedInstructions();
                 break;
             //
             case ' ':
@@ -422,8 +427,7 @@ export default class ASCTrackBase extends React.Component {
                 const targetCursorInfo = this.cursorGetInfo(targetCursorOffset)
                 this.setCursorPosition(targetCursorOffset, targetCursorInfo.adjustedCursorRow);
                 if(e.ctrlKey && targetCursorInfo.cursorIndex !== null) {
-                    const selectedIndices = this.selectIndices(targetCursorInfo.cursorIndex, !e.shiftKey);
-                    this.playInstructions(selectedIndices);
+                    this.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey);
                 }
                 break;
 
@@ -442,13 +446,13 @@ export default class ASCTrackBase extends React.Component {
             default:
                 const keyboardCommand = this.getComposer().keyboard.getKeyboardCommand(e.key, this.getComposer().state.keyboardOctave);
                 if(keyboardCommand) {
-                    const selectedIndices = this.getSelectedIndices();
-                    // const cursorOffset = this.getCursorOffset();
-                    if(selectedIndices.length > 0) {
-                        await this.getComposer().instructionReplaceCommandSelected(keyboardCommand);
+                    // const selectedIndices = this.getSelectedIndices();
+                    const {cursorIndex} = this.cursorGetInfo()
+                    if(cursorIndex !== null) {
+                        this.getComposer().instructionReplaceCommand(this.getTrackName(), cursorIndex, keyboardCommand);
 
                     } else {
-                        await this.getComposer().instructionInsert(keyboardCommand);
+                        this.getComposer().instructionInsert(keyboardCommand);
                     }
                     // console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
                     return;

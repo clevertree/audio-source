@@ -29,7 +29,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                     <ASUIButtonDropDown
                         arrow={'▼'}
                         // className="command"
-                        options={() => selectedIndices.length > 0 ? this.renderMenuEditSetCommand() : this.renderMenuSelectCommand()}
+                        options={() => selectedIndices.length > 0 ? composer.renderMenuEditSetCommand() : composer.renderMenuSelectCommand()}
                     >{composer.state.currentCommand}</ASUIButtonDropDown>
                 </ASUIForm>
 
@@ -37,7 +37,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                     <ASUIForm key="instruction-velocity" header="Velocity">
                         <ASUIInputRange
                             // className="velocity"
-                            onChange={(newVelocity) => this.instructionReplaceVelocitySelected(newVelocity)}
+                            onChange={(newVelocity) => composer.instructionReplaceVelocitySelected(newVelocity)}
                             value={composer.state.currentVelocity || 0}
                             min={1}
                             max={127}
@@ -51,7 +51,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                         <ASUIButtonDropDown
                             arrow={'▼'}
                             // className="instruction-duration"
-                            options={() => this.renderMenuEditSetDuration()}
+                            options={() => composer.renderMenuEditSetDuration()}
                             title="Program Duration"
                             disabled={selectedIndices.length === 0}
                         >{composer.state.currentDuration}</ASUIButtonDropDown>
@@ -59,7 +59,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                 ] : [
                     <ASUIForm key="instruction-arguments" header="Arguments">
                         <ASUIButton
-                            onAction={() => this.renderMenuEditSetDuration()}
+                            onAction={() => composer.renderMenuEditSetDuration()}
                             title="Program Duration"
                             disabled={selectedIndices.length === 0}
                         >{composer.state.currentArguments.join(', ')}</ASUIButton>
@@ -74,7 +74,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                 <ASUIForm className="tracker-selection" header="Selection">
                     <ASUIButton
                         // className="track-selection"
-                        onAction={() => this.trackerSelectIndicesPrompt()}
+                        onAction={() => composer.trackerSelectIndicesPrompt()}
                         title="Tracker Note Selection"
                         children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
                     />
@@ -83,7 +83,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                 <ASUIForm className="instruction-insert" header="Add">
                     <ASUIButton
                         // className="instruction-insert"
-                        onAction={e => this.instructionInsert()}
+                        onAction={e => composer.instructionInsert()}
                         title="Insert Instruction"
                         disabled={selectedIndices.length > 0}
                     >
@@ -93,7 +93,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                 <ASUIForm className="instruction-delete" header="Rem">
                     <ASUIButton
                         // className="instruction-delete"
-                        onAction={e => this.instructionDeleteSelected()}
+                        onAction={e => composer.instructionDeleteSelected()}
                         title="Delete Instruction"
                         disabled={selectedIndices.length === 0}
                     >

@@ -509,23 +509,26 @@ class Song {
     }
 
     instructionReplaceDeltaDuration(trackName, replaceIndex, newDelta) {
-        this.instructionGetByIndex(trackName, replaceIndex).deltaDurationTicks = newDelta;
+        const instruction = this.instructionGetByIndex(trackName, replaceIndex);
+        instruction.deltaDurationTicks = newDelta;
         // return this.instructionReplaceParam(trackName, replaceIndex, 0, newDelta);
     }
 
     instructionReplaceCommand(trackName, replaceIndex, newCommand) {
         //: TODO: check for recursive group
-        this.instructionGetByIndex(trackName, replaceIndex).command = newCommand;
+        const instruction = this.instructionGetByIndex(trackName, replaceIndex);
+        instruction.command = newCommand;
     }
 
-    instructionReplaceProgram(trackName, replaceIndex, programID) {
-        this.instructionGetByIndex(trackName, replaceIndex).program = programID;
-    }
+    // instructionReplaceProgram(trackName, replaceIndex, programID) {
+    //     this.instructionGetByIndex(trackName, replaceIndex).program = programID;
+    // }
 
     instructionReplaceDuration(trackName, replaceIndex, newDuration) {
         if (typeof newDuration === 'string')
             newDuration = Values.instance.parseDurationAsTicks(newDuration, this.data.timeDivision);
-        this.instructionGetByIndex(trackName, replaceIndex).durationTicks = newDuration;
+        const instruction = this.instructionGetByIndex(trackName, replaceIndex);
+        instruction.durationTicks = newDuration;
     }
 
     instructionReplaceVelocity(trackName, replaceIndex, newVelocity) {

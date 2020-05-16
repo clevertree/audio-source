@@ -185,25 +185,22 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    renderMenuEditInsert() {
+    renderMenuEditInsert(trackName=null) {
         return this.renderMenuSelectCommand(async newCommand => {
-                if(newCommand === null)
-                    await this.instructionInsertPrompt();
-                else
-                    this.instructionInsert(newCommand);
+               this.instructionInsertAtCursorPrompt(trackName, newCommand, newCommand === null);
             },
             "New Command"
         );
     }
 
 
-    renderMenuEditInsertCommandFrequency() {
-        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsert(noteNameOctave, false));
+    renderMenuEditInsertCommandFrequency(trackName=null) {
+        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
     }
 
 
-    renderMenuEditInsertCommandOctave() {
-        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsert(noteNameOctave, false));
+    renderMenuEditInsertCommandOctave(trackName=null) {
+        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
     }
 
     // renderMenuEditInsertCommandCurrentOctave(octave=null) {
@@ -234,12 +231,12 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    renderMenuEditSetCommand(currentCommand=null) {
+    renderMenuEditSetCommand(trackName = null, currentCommand=null) {
         return this.renderMenuSelectCommand(async newCommand => {
                 if(newCommand === null)
-                    await this.instructionReplaceCommandSelectedPrompt();
+                    await this.instructionReplaceCommandPrompt();
                 else
-                    this.instructionReplaceCommandSelected(newCommand);
+                    this.instructionReplaceCommandSelected(trackName, newCommand);
             },
         );
     }
