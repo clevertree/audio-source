@@ -105,8 +105,18 @@ class ASComposerActions extends ASComposerMenu {
 
     async saveState() {
         const storage = new Storage();
-        console.log('Saving State: ', this.state);
-        await storage.saveState(this.state, 'audio-source-composer-state');
+        const state = this.state;
+        state.activeTracks = {};
+        for(let key in this.activeTracks) {
+            if(this.activeTracks.hasOwnProperty(key)) {
+                const activeTrack = this.activeTracks[key];
+                if(activeTrack.current) {
+                    state.activeTracks[key] = activeTrack.current.state;
+                }
+            }
+        }
+        console.log('Saving State: ', state);
+        await storage.saveState(state, 'audio-source-composer-state');
     }
 
 
@@ -361,7 +371,7 @@ class ASComposerActions extends ASComposerMenu {
     async instructionReplaceCommandPrompt(trackName=null, newCommand = null, promptUser=true) {
         trackName = trackName || this.state.selectedTrack;
         if (newCommand === null)
-            newCommand = this.state.activeTracks[this.state.selectedTrack].currentCommand;
+            newCommand = this.state.currentCommand;
         if(promptUser)
             newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
         const activeTrack = this.getActiveTrack(trackName);
@@ -390,8 +400,7 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Duration **/
 
-    async instructionReplaceDurationSelected(duration = null, trackName = null, selectedIndices = null, promptUser = false) {
-        const song = this.song;
+    async instructionReplaceDurationPrompt(trackName = null, selectedIndices = null, duration = null, promptUser = false) {
         trackName = trackName || this.state.selectedTrack;
         const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
@@ -400,9 +409,16 @@ class ASComposerActions extends ASComposerMenu {
         if (promptUser)
             duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
 
+        this.instructionReplaceDuration(trackName, selectedIndices, duration);
+    }
+
+    instructionReplaceDuration(trackName, selectedIndices, duration) {
+        const song = this.song;
+
         if (typeof duration === 'string')
             duration = this.values.parseDurationAsTicks(duration, this.song.data.timeDivision);
-        else duration = parseInt(duration)
+        else
+            duration = parseInt(duration)
 
         if (isNaN(duration))
             throw new Error("Invalid duration: " + typeof duration);
@@ -410,24 +426,26 @@ class ASComposerActions extends ASComposerMenu {
             song.instructionReplaceDuration(trackName, selectedIndices[i], duration);
         }
         this.trackerPlay(trackName, selectedIndices);
-        this.setState({currentDuration: duration})
+        this.setState({currentDuration: this.values.formatDuration(duration)})
         // trackState.updateCurrentInstruction();
     }
 
     /** Instruction Velocity **/
 
-    async instructionReplaceVelocityPrompt(velocity = null, trackName = null, selectedIndices = null) {
+    async instructionReplaceVelocityPrompt(trackName = null, selectedIndices = null, velocity = null, promptUser=true) {
         trackName = trackName || this.state.selectedTrack;
-        velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", this.state.currentVelocity));
-        return this.instructionReplaceVelocitySelected(velocity, trackName, selectedIndices);
-    }
-
-    instructionReplaceVelocitySelected(velocity = null, trackName = null, selectedIndices = null) {
-        const song = this.song;
-        trackName = trackName || this.state.selectedTrack;
+        velocity = velocity || this.state.currentVelocity;
         const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
             selectedIndices = activeTrack.getSelectedIndices();
+        if(promptUser)
+            velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", velocity));
+        return this.instructionReplaceVelocity(trackName, selectedIndices, velocity);
+    }
+
+    instructionReplaceVelocity(trackName, selectedIndices, velocity) {
+        const song = this.song;
+        trackName = trackName || this.state.selectedTrack;
 
         velocity = parseFloat(velocity);
         if (velocity === null || isNaN(velocity))
@@ -439,6 +457,8 @@ class ASComposerActions extends ASComposerMenu {
         this.setState({currentVelocity: velocity})
         // trackInfo.updateCurrentInstruction();
     }
+
+    /** Instruction Delete **/
 
     instructionDeleteSelected(trackName=null, selectedIndices=null) {
         trackName = trackName || this.state.selectedTrack;
@@ -654,9 +674,10 @@ class ASComposerActions extends ASComposerMenu {
         const qIterator = this.trackerGetQuantizedIterator(trackName);
         const segmentLengthTicks = activeTrack.getSegmentLengthTicks();
         const segmentPositions = [];
+        const segmentLimit = ASCTrack.DEFAULT_MIN_SEGMENTS || 3;
         let lastSegmentPositionTicks = 0;
         while ( qIterator.positionTicks < trackLengthTicks
-                || segmentPositions.length < ASCTrack.DEFAULT_MIN_SEGMENTS) {
+                || segmentPositions.length < segmentLimit) {
             if(lastSegmentPositionTicks <= qIterator.positionTicks) {
                 // Found end of segment
                 segmentPositions.push(qIterator.rowCount);
@@ -665,15 +686,10 @@ class ASComposerActions extends ASComposerMenu {
             qIterator.nextQuantizedInstructionRow();
         }
 
-        // qIterator.seekToPosition()
-
-        // if (!trackState.trackLengthTicks || trackLengthTicks > trackState.trackLengthTicks) {
-            activeTrack.setStatus(state => {
-                state.trackLengthTicks = trackLengthTicks;
-                state.segmentPositions = segmentPositions;
-                // console.log('trackLengthTicks', {segmentPositions, trackLengthTicks, qIterator});
-            });
-        // }
+        activeTrack.setState({
+            trackLengthTicks,
+            segmentPositions,
+        });
     }
 
     /** Iterator **/
@@ -705,9 +721,12 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     getActiveTrack(trackName) {
-        if(!this.activeTracks[trackName])
+        const activeTrack = this.activeTracks[trackName];
+        if(!activeTrack)
             throw new Error("Active track not found: " + trackName);
-        return this.activeTracks[trackName].current;
+        if(!activeTrack.current)
+            throw new Error("Active track not available: " + trackName);
+        return activeTrack.current;
     }
 
     /** Selection **/
@@ -774,7 +793,7 @@ class ASComposerActions extends ASComposerMenu {
             previousRowOffset,
             nextRowOffset
         };
-        console.log(cursorOffset, ret);
+//         console.log(cursorOffset, ret);
         return ret;
     }
 

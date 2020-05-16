@@ -37,7 +37,7 @@ export default class ASComposerInstructionPanel extends React.Component {
                     <ASUIForm key="instruction-velocity" header="Velocity">
                         <ASUIInputRange
                             // className="velocity"
-                            onChange={(newVelocity) => composer.instructionReplaceVelocitySelected(newVelocity)}
+                            onChange={(newVelocity) => composer.instructionReplaceVelocityPrompt(null, null, newVelocity, false)}
                             value={composer.state.currentVelocity || 0}
                             min={1}
                             max={127}

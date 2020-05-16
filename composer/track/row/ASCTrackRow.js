@@ -13,7 +13,7 @@ class ASCTrackRow extends React.Component {
         this.cb = {
             onContextMenu: (e) => this.onContextMenu(e),
             onKeyDown: (e) => this.onKeyDown(e),
-            onMouseDown: e => this.onMouseDown(e),
+            onClick: e => this.onClick(e),
         };
     }
 
@@ -51,7 +51,7 @@ class ASCTrackRow extends React.Component {
                 tabIndex={0}
                 className={className}
                 // onClick={this.cb.onMouseInput}
-                onMouseDown={this.cb.onMouseDown}
+                onClick={this.cb.onClick}
                 onKeyDown={this.cb.onKeyDown}
             >
                 <ASCTrackPosition positionTicks={this.props.positionTicks}/>
@@ -84,7 +84,7 @@ class ASCTrackRow extends React.Component {
     /** User Input **/
 
 
-    onMouseDown(e) {
+    onClick(e) {
         if (e.defaultPrevented)
             return;
         e.preventDefault();

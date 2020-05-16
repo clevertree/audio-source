@@ -35,7 +35,7 @@ class ASCTrackInstructionParameter extends React.Component {
 
         return <div
             // onClick={this.cb.onContextMenu}
-            onMouseDown={this.cb.onContextMenu}
+            onClick={this.cb.onContextMenu}
             onKeyDown={this.cb.onKeyDown}
             // onContextMenu={this.cb.onContextMenu}
             className={className}

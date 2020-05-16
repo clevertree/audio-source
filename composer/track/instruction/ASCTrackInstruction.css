@@ -22,11 +22,15 @@ div.asct-instruction:last-child {
   margin-right: 0;
 }
 
-
 /*div.asct-instruction-add,*/
+div.asct-instruction:active {
+  background-color: #EEE;
+}
+
 div.asct-instruction.selected {
   background-color: white;
 }
+
 
 div.asc-track.selected div.asct-instruction-add,
 div.asc-track.selected div.asct-instruction.selected {

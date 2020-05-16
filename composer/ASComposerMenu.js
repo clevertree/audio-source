@@ -251,7 +251,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditSetDuration(currentDuration=null) {
         return this.values.renderMenuSelectDuration(durationTicks => {
-                this.instructionReplaceDurationSelected(durationTicks)
+                this.instructionReplaceDurationPrompt(null, null, durationTicks)
             },
             this.song.data.timeDivision,
             currentDuration,
@@ -261,7 +261,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditSetVelocity(currentVelocity=null) {
         return this.values.renderMenuSelectVelocity(velocity => {
-                this.instructionReplaceVelocity(velocity)
+                this.instructionReplaceVelocityPrompt(null, null, velocity, false)
             },
             currentVelocity,
         );

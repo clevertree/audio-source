@@ -176,10 +176,10 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     instructionReplaceCommand(command) {
-        this.getComposer().instructionReplaceCommandSelected(
-            command,
+        this.getComposer().instructionReplaceCommand(
             this.getTrackName(),
             this.props.index,
+            command,
         )
     }
 
@@ -193,7 +193,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     // }
 
     instructionReplaceVelocity(velocity) {
-        this.getSong().instructionReplaceVelocity(
+        this.getComposer().instructionReplaceVelocity(
             this.getTrackName(),
             this.props.index,
             velocity);
@@ -201,7 +201,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     }
 
     instructionReplaceDuration(duration) {
-        this.getSong().instructionReplaceDuration(
+        this.getComposer().instructionReplaceDuration(
             this.getTrackName(),
             this.props.index,
             duration);

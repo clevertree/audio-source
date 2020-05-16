@@ -57,7 +57,7 @@ export default class ASCTrackBase extends React.Component {
     getDestinationList() { return this.state.destinationList || []; }
 
     getTrackLengthTicks() { return this.state.trackLengthTicks || null; }
-    getSegmentLengthTicks() { return this.state.segmentLengthTicks || (this.timeDivision * ASCTrackBase.DEFAULT_BEATS_PER_SEGMENT); }
+    getSegmentLengthTicks() { return this.state.segmentLengthTicks || (this.getTimeDivision() * ASCTrackBase.DEFAULT_BEATS_PER_SEGMENT); }
     getSegmentPositions() { return this.state.segmentPositions || [0]; }
 
     getStartPosition() { return this.state.startPosition || 0; }
@@ -452,7 +452,7 @@ export default class ASCTrackBase extends React.Component {
                         this.getComposer().instructionReplaceCommand(this.getTrackName(), cursorIndex, keyboardCommand);
 
                     } else {
-                        this.getComposer().instructionInsert(keyboardCommand);
+                        this.getComposer().instructionInsertAtCursor(this.getTrackName(), keyboardCommand);
                     }
                     // console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
                     return;

@@ -12,15 +12,14 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             // onKeyDown: (e) => this.onKeyDown(e),
-            onMouseDown: e => this.onMouseDown(e),
+            // onMouseDown: e => this.onMouseDown(e),
             onClick: e => this.onClick(e),
             onContextMenu: e => this.onContextMenu(e),
             options: () => this.renderMenuEditSet()
         };
     }
 
-    isOpen() { return this.props.cursor || this.props.selected; }
-
+    isOpen() { return this.props.cursor; } // || this.props.selected; }
     render() {
         let className = "asct-instruction";
         // if(this.props.className)
@@ -44,7 +43,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             >
             <div
                 className="asct-parameter command"
-                onMouseDown={this.cb.onMouseDown}
+                onClick={this.cb.onClick}
                 >
                 {instruction.command}
             </div>
@@ -63,13 +62,17 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         console.log(e.type);
         if(e.defaultPrevented)
             return;
+        e.preventDefault();
 
         if(e.button === 2) {
             e.preventDefault();
             e.stopPropagation();
             this.toggleDropDownMenu();
+        } else {
+            this.selectInstructionWithAction(!e.ctrlKey);
         }
     }
+
 
     onContextMenu(e) {
         if(e.defaultPrevented || e.altKey)
@@ -80,14 +83,6 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         this.toggleDropDownMenu();
     }
 
-    onMouseDown(e) {
-//         console.log(e.ctrlKey);
-        if(e.defaultPrevented)
-            return;
-        e.preventDefault();
-
-        this.selectInstructionWithAction(!e.ctrlKey);
-    }
 
     /** Actions **/
 
