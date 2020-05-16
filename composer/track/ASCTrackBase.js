@@ -43,13 +43,13 @@ export default class ASCTrackBase extends React.Component {
     getBeatsPerMinute() { return this.state.beatsPerMinute || this.props.composer.song.data.beatsPerMinute; }
     getBeatsPerMeasure() { return this.state.beatsPerMeasure || this.props.composer.song.data.beatsPerMeasure || ASCTrackBase.DEFAULT_BEATS_PER_MEASURE; }
 
-    getProgramID() { return this.state.programID; }
+    // getProgramID() { return this.state.programID; }
 
     getCursorOffset() { return this.state.cursorOffset || 0; }
     getCursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
 
-    getSelectedIndices() { return this.state.selectedIndices; }
-    getPlayingIndices() { return this.state.playingIndices; }
+    getSelectedIndices() { return this.state.selectedIndices || []; }
+    getPlayingIndices() { return this.state.playingIndices || []; }
 
     getRowLength() { return typeof this.state.rowLength !== "undefined" ? this.state.rowLength : ASCTrackBase.DEFAULT_ROW_LENGTH; }
     getRowOffset() { return this.state.rowOffset || 0; }
@@ -69,7 +69,7 @@ export default class ASCTrackBase extends React.Component {
 
         if(!props.composer)
             throw new Error("Invalid composer");
-        this.state = { // TODO: Composer State is delayed
+        this.state = this.props.trackState || { // TODO: Composer State is delayed
             selectedIndices: [],
             playingIndices: [],
             rowOffset: 0,
@@ -84,6 +84,7 @@ export default class ASCTrackBase extends React.Component {
         this.destination = null;
         // this.cursorInstruction = React.createRef();
         // this.trackerGetCursorInfo();
+        console.log('ASCTrackBase.constructor', this.state)
     }
 
     // getTrackInfo() {
@@ -115,48 +116,74 @@ export default class ASCTrackBase extends React.Component {
         )
     }
 
-    // getQuantizationInTicks() {
-    //     return this.props.quantizationTicks || this.props.composer.song.data.timeDivision;
-    // }
-
-    getSegmentInfo() {
-    }
 
 
     /** Actions **/
 
-    setCursorOffset(cursorOffset, rowOffset, select=false) {
+    setCursorPosition(cursorOffset, rowOffset=null) {
+        console.log('setCursorPosition', cursorOffset, rowOffset);
         if(cursorOffset < 0)
             cursorOffset = 0;
         rowOffset = rowOffset === null ? this.state.rowOffset : rowOffset;
         this.setState({cursorOffset, rowOffset});
-        if(select) {
-
-            const cursorInfo = this.cursorGetInfo(cursorOffset);
-            const selectedIndices = this.getSelectedIndices();
-            if(cursorInfo.cursorIndex !== null)
-                selectedIndices.unshift(cursorInfo.cursorIndex);
-            this.setState({cursorOffset, cursorPositionTicks:cursorInfo.positionTicks});
-            this.getComposer().setSongPosition(cursorInfo.positionSeconds + this.getStartPosition());
-            this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices);
-        }
+        // if(select) {
+        //
+        //     const cursorInfo = this.cursorGetInfo(cursorOffset);
+        //     const selectedIndices = this.getSelectedIndices();
+        //     if(cursorInfo.cursorIndex !== null) {
+        //         selectedIndices.unshift(cursorInfo.cursorIndex);
+        //         this.selectIndices(selectedIndices);
+        //     }
+        //     this.getComposer().setSongPosition(cursorInfo.positionSeconds + this.getStartPosition());
+        // }
     }
 
-    selectCursorOffset(cursorOffset, selectedIndices=[]) {
-        const cursorInfo = this.cursorGetInfo(cursorOffset);
-        if(cursorInfo.cursorIndex !== null)
-            selectedIndices.unshift(cursorInfo.cursorIndex);
-        this.setState({cursorOffset, cursorPositionTicks:cursorInfo.positionTicks});
-        this.getComposer().setSongPosition(cursorInfo.positionSeconds + this.getStartPosition());
-        this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices)
 
-        //         trackState.cursorPositionTicks = cursorInfo.positionTicks;
-        //         state.songPosition = cursorInfo.positionSeconds + (trackState.startPosition || 0);
-    }
-
-    selectIndices(selectedIndices) {
-        return this.getComposer().trackerSelectIndices(this.getTrackName(), selectedIndices);
+    selectIndices(selectedIndices, clearSelection=true) {
         // TODO: get song position by this.props.index
+        // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+        if (typeof selectedIndices === "string") {
+            switch (selectedIndices) {
+                case 'all':
+                    selectedIndices = [];
+                    const maxLength = this.song.instructionFindGroupLength(this.trackName);
+                    for (let i = 0; i < maxLength; i++)
+                        selectedIndices.push(i);
+                    break;
+                case 'segment':
+                    selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                    break;
+                case 'row':
+                    throw new Error('TODO');
+                case 'none':
+                    selectedIndices = [];
+                    break;
+                default:
+                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+                // throw new Error("Invalid selection: " + selectedIndices);
+            }
+        }
+
+        if (typeof selectedIndices === 'number')
+            selectedIndices = [selectedIndices];
+        if(!clearSelection && this.getSelectedIndices().length > 0)
+            selectedIndices = selectedIndices.concat(this.getSelectedIndices());
+        console.log('selectIndices', Array.isArray(selectedIndices), selectedIndices);
+        if (!Array.isArray(selectedIndices))
+            throw new Error("Invalid selection: " + selectedIndices);
+
+        selectedIndices.forEach((index, i) => {
+            if(typeof index !== "number")
+                throw new Error(`Invalid selection index (${i}): ${index}`);
+        });
+
+        // Filter unique indices
+        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
+        // Sort indices
+        selectedIndices.sort((a, b) => a - b);
+
+        this.setState({selectedIndices});
+        return selectedIndices;
     }
 
     updatePlayingIndices(playingIndices) {
@@ -393,7 +420,11 @@ export default class ASCTrackBase extends React.Component {
                         throw new Error("Invalid: " + e.key);
                 }
                 const targetCursorInfo = this.cursorGetInfo(targetCursorOffset)
-                this.setCursorOffset(targetCursorOffset, targetCursorInfo.adjustedCursorRow);
+                this.setCursorPosition(targetCursorOffset, targetCursorInfo.adjustedCursorRow);
+                if(e.ctrlKey && targetCursorInfo.cursorIndex !== null) {
+                    const selectedIndices = this.selectIndices(targetCursorInfo.cursorIndex, !e.shiftKey);
+                    this.playInstructions(selectedIndices);
+                }
                 break;
 
             //

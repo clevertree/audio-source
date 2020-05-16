@@ -23,7 +23,7 @@ div.asct-instruction:last-child {
 }
 
 
-div.asct-instruction-add,
+/*div.asct-instruction-add,*/
 div.asct-instruction.selected {
   background-color: white;
 }

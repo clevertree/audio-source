@@ -4,7 +4,6 @@ import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructi
 import TrackInstruction from "../../../song/instruction/TrackInstruction";
 import {ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
 import {NoteInstruction} from "../../../song";
-import CommandInstruction from "../../../song/instruction/CommandInstruction";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -26,6 +25,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     //     composer.song.playInstructionAtIndex(destination, this.state.track.currentGroup, this.index, composer.song.getAudioContext().currentTime);
     //     return this;
     getTracker() { return this.props.tracker; }
+    getTrackName() { return this.getTracker().getTrackName(); }
     getComposer() { return this.getTracker().props.composer; }
     getSong() { return this.getComposer().getSong(); }
     /** @returns Instruction **/
@@ -85,7 +85,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
     }
 
-    async selectInstruction(clearSelection=true, toggleValue = null) {
+    selectInstruction(clearSelection=true, toggleValue = null) {
         // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
         // const instruction = this.getInstruction();
@@ -99,13 +99,14 @@ export default class ASCTrackInstructionBase extends React.Component {
         }
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
         // this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
-        await this.getTracker().setCursorOffset(this.props.cursorPosition, selectedIndices);
+        this.getTracker().selectIndices(this.props.index);
+        this.getTracker().setCursorPosition(this.props.cursorPosition);
         return selectedIndices;
     }
 
-    async selectInstructionWithAction(clearSelection=true, toggleValue = null) {
+    selectInstructionWithAction(clearSelection=true, toggleValue = null) {
 //         console.log('selectInstructionWithAction', clearSelection, toggleValue);
-        const selectedIndices = await this.selectInstruction(clearSelection, toggleValue);
+        const selectedIndices = this.selectInstruction(clearSelection, toggleValue);
         const instruction = this.getInstruction();
         if(instruction instanceof TrackInstruction) {
             this.getComposer().trackerToggleTrack(
@@ -177,7 +178,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     instructionReplaceCommand(command) {
         this.getComposer().instructionReplaceCommandSelected(
             command,
-            this.getComposer().state.selectedTrack,
+            this.getTrackName(),
             this.props.index,
         )
     }
@@ -193,7 +194,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     instructionReplaceVelocity(velocity) {
         this.getSong().instructionReplaceVelocity(
-            this.getComposer().state.selectedTrack,
+            this.getTrackName(),
             this.props.index,
             velocity);
         this.playInstruction();
@@ -201,7 +202,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     instructionReplaceDuration(duration) {
         this.getSong().instructionReplaceDuration(
-            this.getComposer().state.selectedTrack,
+            this.getTrackName(),
             this.props.index,
             duration);
         this.playInstruction();

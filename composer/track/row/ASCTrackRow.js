@@ -73,9 +73,11 @@ class ASCTrackRow extends React.Component {
         return this.dropdown.current.toggleMenu();
     }
 
-    async selectRow(clearSelection = true) {
+    selectRow(clearSelection = true) {
         // const selectedIndices = clearSelection ? [] : null;
-        await this.getTracker().selectCursorOffset(this.props.cursorPosition, clearSelection ? [] : null);
+        const tracker = this.getTracker();
+        tracker.setCursorPosition(this.props.cursorPosition, clearSelection ? [] : null);
+        tracker.selectIndices([], true);
     }
 
 

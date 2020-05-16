@@ -746,7 +746,7 @@ class ASComposerActions extends ASComposerMenu {
         const column = cursorOffset - currentRowStartPosition;
 
         const cursorRow = iterator.rowCount;
-        const rowLength = activeTrack.getRowLength || 16;
+        const rowLength = activeTrack.getRowLength();
         let adjustedCursorRow = null;
         if(rowOffset + rowLength <= cursorRow)
             adjustedCursorRow = cursorRow - rowLength; //  - Math.floor(currentRowLength * 0.8);
@@ -791,47 +791,7 @@ class ASComposerActions extends ASComposerMenu {
         this.trackerSelectIndices(trackName, selectedIndices);
     }
 
-    trackerSelectIndices(trackName, selectedIndices, cursorOffset=null) {
-        // console.log('trackerSelectIndices', {trackName, selectedIndices, cursorOffset, rowOffset});
-        // TODO: get song position by this.props.index
-        // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
-        if (typeof selectedIndices === "string") {
-            switch (selectedIndices) {
-                case 'all':
-                    selectedIndices = [];
-                    const maxLength = this.song.instructionFindGroupLength(this.trackName);
-                    for (let i = 0; i < maxLength; i++)
-                        selectedIndices.push(i);
-                    break;
-                case 'segment':
-                    selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                    break;
-                case 'row':
-                    throw new Error('TODO');
-                case 'none':
-                    selectedIndices = [];
-                    break;
-                default:
-                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-                    // throw new Error("Invalid selection: " + selectedIndices);
-            }
-        }
-
-        if (typeof selectedIndices === 'number')
-            selectedIndices = [selectedIndices];
-        if (!Array.isArray(selectedIndices))
-            throw new Error("Invalid selection: " + selectedIndices);
-
-        selectedIndices.forEach((index, i) => {
-            if(typeof index !== "number")
-                throw new Error(`Invalid selection index (${i}): ${index}`);
-        });
-
-        // Filter unique indices
-        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
-        // Sort indices
-        selectedIndices.sort((a, b) => a - b);
-        // console.info('ASComposerActions.trackerSelectIndices', trackName, selectedIndices);
+    trackerSelectIndices(trackName, selectedIndices, clearSelection=true) {
 
 
         this.setState(state => {
