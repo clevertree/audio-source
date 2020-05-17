@@ -59,7 +59,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     /** User Input **/
 
     onClick(e) {
-        console.log(e.type);
+        // console.log(e.type);
         if(e.defaultPrevented)
             return;
         e.preventDefault();

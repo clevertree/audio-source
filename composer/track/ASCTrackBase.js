@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown} from "../../components/";
+import {NoteInstruction} from "../../song/instruction";
 
 
 // TODO: ASCTrackRowContainer
@@ -150,12 +151,13 @@ export default class ASCTrackBase extends React.Component {
             switch (selectedIndices) {
                 case 'all':
                     selectedIndices = [];
-                    const maxLength = this.song.instructionFindGroupLength(this.trackName);
+                    const maxLength = this.getSong().instructionGetList(this.getTrackName()).length;
                     for (let i = 0; i < maxLength; i++)
                         selectedIndices.push(i);
                     break;
                 case 'segment':
-                    selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                    throw new Error('TODO');
+                    // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
                     break;
                 case 'row':
                     throw new Error('TODO');
@@ -186,7 +188,11 @@ export default class ASCTrackBase extends React.Component {
         // Sort indices
         selectedIndices.sort((a, b) => a - b);
 
+
+
+
         this.setState({selectedIndices});
+        this.getComposer().updateCurrentInstruction(this.getTrackName(), selectedIndices);
         return selectedIndices;
     }
 

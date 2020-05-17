@@ -131,7 +131,10 @@ class ASComposerMenu extends ASComposerRenderer {
     //     return this.values.renderMenuSelectAvailableProgram(onSelectValue, menuTitle);
     // }
 
+    renderTrackIndexSelection
 
+
+    /** Edit Menu **/
 
     renderMenuEdit(currentCommand=null) {
         const selectedTrackName = this.state.selectedTrack;
@@ -140,36 +143,28 @@ class ASComposerMenu extends ASComposerRenderer {
 
         return (<>
             <ASUIMenuDropDown
-                disabled={selectedIndices.length > 0}
                 options={() => this.renderMenuEditInsert()}
-                children="Insert Command"
+                children="Insert"
             />
 
+            <ASUIMenuDropDown
+                disabled={selectedIndices.length === 0}
+                options={() => this.renderMenuEditSet()}
+                children="Set"
+            />
 
-            <ASUIMenuDropDown
-                disabled={selectedIndices.length === 0}
-                options={() => this.renderMenuEditSetCommand(currentCommand)}
-                hasBreak
-                children="Set Command"
-            />
-            <ASUIMenuDropDown
-                disabled={selectedIndices.length === 0}
-                options={() => this.renderMenuEditSetDuration()}
-                hasBreak
-                children="Set Duration"
-            />
-            <ASUIMenuDropDown
-                disabled={selectedIndices.length === 0}
-                options={() => this.renderMenuEditSetVelocity()}
-                hasBreak
-                children="Set Velocity"
-            />
 
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditSelect()} hasBreak   >Select</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Cut</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Copy</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Paste</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Delete</ASUIMenuDropDown>
 
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditBatch()} hasBreak   >Batch</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
+
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuEditBatch()}   >Batch</ASUIMenuDropDown>
         </>);
     }
 
@@ -178,6 +173,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return this.renderMenuSelectCommand(async newCommand => {
                this.instructionInsertAtCursorPrompt(trackName, newCommand, newCommand === null);
             },
+            null,
             "New Command"
         );
     }
@@ -203,17 +199,14 @@ class ASComposerMenu extends ASComposerRenderer {
         return (<>
             <ASUIMenuDropDown
                 options={() => this.renderMenuEditSetCommand(currentCommand)}
-                hasBreak
                 children="Set Command"
             />
             <ASUIMenuDropDown
                 options={() => this.renderMenuEditSetDuration(currentDuration)}
-                hasBreak
                 children="Set Duration"
             />
             <ASUIMenuDropDown
                 options={() => this.renderMenuEditSetVelocity(currentVelocity)}
-                hasBreak
                 children="Set Velocity"
             />
         </>);
@@ -268,24 +261,26 @@ class ASComposerMenu extends ASComposerRenderer {
         return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
     }
 
-    renderMenuEditSelect() {
+    renderMenuEditTrackSelectIndices() {
+        const selectedTrack = this.state.selectedTrack;
         return (<>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices('segment')}      >Select Segment Instructions</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices('all')}       >Select All Song Instructions</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices('none')}       >Select No Instructions</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'all')}       >Select Track Instructions</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'segment')}      >Select Segment Instructions</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'row')}       >Select Row Instructions</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'none')}       >Clear Selection</ASUIMenuAction>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditSelectBatch()} hasBreak                        >Batch Select</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>
         </>);
 
     }
 
-    async renderMenuEditSelectBatch() {
+    async renderMenuEditTrackSelectIndicesBatch() {
         const recentSearches = await (new Storage()).getBatchRecentSearches();
         return (<>
             {recentSearches.map((recentBatchSearch, i) =>
                 <ASUIMenuAction onAction={e => this.batchSelect(recentBatchSearch, true)}      >New Selection Command</ASUIMenuAction>
             )}
-            <ASUIMenuAction onAction={e => this.batchSelect(e)} hasBreak      >New Selection Command</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.batchSelect(e)}      >New Selection Command</ASUIMenuAction>
         </>);
     }
 
@@ -295,7 +290,7 @@ class ASComposerMenu extends ASComposerRenderer {
             {recentCommands.map((recentBatchCommand, i) =>
                 <ASUIMenuDropDown options={() => this.renderMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</ASUIMenuDropDown>
             )}
-            <ASUIMenuAction onAction={e => this.batchRunCommand(e)} hasBreak      >New Batch Command</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.batchRunCommand(e)}      >New Batch Command</ASUIMenuAction>
         </>);
     }
 
@@ -325,7 +320,7 @@ class ASComposerMenu extends ASComposerRenderer {
                 durationTicks => this.trackerChangeQuantization(trackName, durationTicks),
                 this.song.data.timeDivision,
                 title)}
-            <ASUIMenuAction onAction={(e) => this.trackerChangeQuantization(trackName)} hasBreak >Custom Quantization</ASUIMenuAction>
+            <ASUIMenuAction onAction={(e) => this.trackerChangeQuantization(trackName)} >Custom Quantization</ASUIMenuAction>
         </>);
     }
 
@@ -336,7 +331,7 @@ class ASComposerMenu extends ASComposerRenderer {
             {this.values.getTrackerSegmentLengthInRows((length, title) =>
                 <ASUIMenuAction key={length} onAction={(e) => this.trackerChangeSegmentLength(trackName, length)}>{title}</ASUIMenuAction>
             )}
-            <ASUIMenuAction onAction={(e) => this.trackerChangeSegmentLength(trackName)} hasBreak >Custom Length</ASUIMenuAction>
+            <ASUIMenuAction onAction={(e) => this.trackerChangeSegmentLength(trackName)} >Custom Length</ASUIMenuAction>
         </>);
     }
 
@@ -402,7 +397,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuTrack() {
         return (<>
-            <ASUIMenuAction onAction={e => this.trackAdd()} hasBreak     >Add new group</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackAdd()}     >Add new group</ASUIMenuAction>
             <ASUIMenuBreak />
             {this.values.getAllSongTracks((trackName) =>
                 <ASUIMenuDropDown
@@ -417,8 +412,8 @@ class ASComposerMenu extends ASComposerRenderer {
 
         // const trackName = menuParam;
         return (<>
-            <ASUIMenuAction onAction={e => this.trackRename(trackName)} hasBreak     >Rename group {trackName}</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackRemove(trackName)} hasBreak     >Delete group {trackName}</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackRename(trackName)}     >Rename group {trackName}</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackRemove(trackName)}     >Delete group {trackName}</ASUIMenuAction>
         </>);
     }
 

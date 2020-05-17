@@ -322,6 +322,34 @@ class ASComposerActions extends ASComposerMenu {
         this.setState({songPosition:playbackPositionInSeconds})
     }
 
+    /** Current Instruction Args **/
+
+    updateCurrentInstruction(trackName, selectedIndices) {
+        if(selectedIndices.length === 0)
+            return;
+
+        const activeTrack = this.getActiveTrack(trackName);
+        const instruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
+
+        const state = {
+            currentCommand: instruction.command
+        }
+        if(instruction instanceof NoteInstruction) {
+            state.currentInstructionType = 'note';
+            if(typeof instruction.durationTicks !== "undefined")
+                state.currentDuration = instruction.getDurationString(activeTrack.getTimeDivision());
+            if(typeof instruction.velocity !== "undefined")
+                state.currentVelocity = instruction.velocity;
+        } else {
+            state.currentInstructionType = 'custom';
+            state.currentArguments = instruction.commandArgs;
+        }
+        state.currentSelectedIndices = selectedIndices;
+        state.selectedTrack = trackName;
+
+        this.setState(state);
+    }
+
     /** Instruction Modification **/
 
     async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false) {
@@ -819,31 +847,8 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     trackerSelectIndices(trackName, selectedIndices, clearSelection=true) {
-
-
-        this.setState(state => {
-            state.selectedTrack = trackName;
-            const trackState = state.activeTracks[trackName];
-            trackState.selectedIndices = selectedIndices;
-
-            // If selected, update default instruction params
-            if(selectedIndices.length > 0) {
-                const firstSelectedInstruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
-                trackState.currentCommand = firstSelectedInstruction.command;
-                if(firstSelectedInstruction instanceof NoteInstruction) {
-                    trackState.currentInstructionType = 'note';
-                    if(typeof firstSelectedInstruction.durationTicks !== "undefined")
-                        trackState.currentDuration = firstSelectedInstruction.getDurationString(trackState.timeDivision || this.getSong().data.timeDivision);
-                    if(typeof firstSelectedInstruction.velocity !== "undefined")
-                        trackState.currentVelocity = firstSelectedInstruction.velocity;
-                } else {
-                    trackState.currentInstructionType = 'custom';
-                    trackState.currentArguments = firstSelectedInstruction.commandArgs;
-                }
-            }
-            return state;
-        });
-        return selectedIndices;
+        return this.getActiveTrack(trackName)
+            .selectIndices(selectedIndices, clearSelection);
     }
 
 

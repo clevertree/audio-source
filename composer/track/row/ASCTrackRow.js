@@ -5,7 +5,7 @@ import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASUIDropDownContainer from "../../../components/menu/dropdown/ASUIDropDownContainer";
 import "./ASCTrackRow.css";
-import {ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
 
 class ASCTrackRow extends React.Component {
     constructor(props) {
@@ -32,13 +32,9 @@ class ASCTrackRow extends React.Component {
         cursorPosition: PropTypes.number.isRequired // TODO: inefficient?
     };
 
-    getTracker() {
-        return this.props.tracker;
-    }
+    getTracker() { return this.props.tracker; }
 
-    getComposer() {
-        return this.getTracker().getComposer();
-    }
+    getComposer() { return this.getTracker().getComposer(); }
 
     render() {
         let className = "asct-row";
@@ -65,7 +61,7 @@ class ASCTrackRow extends React.Component {
                 <ASUIDropDownContainer
                     ref={this.dropdown}
                     options={() => this.renderRowMenu()}
-                    vertical={this.props.vertical}
+                    vertical={true}
                 />
             </div>
         )
@@ -84,10 +80,13 @@ class ASCTrackRow extends React.Component {
 
 
     instructionInsert(command) {
-        this.getComposer().instructionInsertAtPosition(
-            this.getTrackName(),
+        const insertIndex = this.getComposer().instructionInsertAtPosition(
+            this.getTracker().getTrackName(),
             this.props.positionTicks,
             command,
+        )
+        this.getTracker().selectIndices(
+            insertIndex
         )
     }
 
@@ -96,28 +95,23 @@ class ASCTrackRow extends React.Component {
 
     renderRowMenu() {
         return (<>
-            <ASUIMenuItem>Row</ASUIMenuItem>
-            <ASUIMenuBreak/>
+            {/*<ASUIMenuItem>Row</ASUIMenuItem>*/}
+            {/*<ASUIMenuBreak/>*/}
+            <ASUIMenuDropDown
+                options={() => this.getComposer().renderMenuEditTrackSelectIndices()}
+                children="Select"
+            />
+            <ASUIMenuBreak />
             <ASUIMenuDropDown
                 options={() => this.renderRowInsertCommandMenu()}
-                children="Insert new command"
-            />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuSelectDuration()}
-                children="Select Row"
-                disabled
-            />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuSelectVelocity()}
-                children="Set Cursor Position"
-                disabled
+                children="Insert"
             />
         </>);
     }
 
     renderRowInsertCommandMenu() {
         return this.getComposer().renderMenuSelectCommand(selectedCommand => {
-
+            this.instructionInsert(selectedCommand);
         }, null, "Insert new command");
     }
 

@@ -50,6 +50,7 @@ export default class ASComposer extends ASComposerInput {
             currentDuration: '1B',
             currentVelocity: null,
             currentArguments: [],
+            currentSelectedIndices: [],
 
             /** UI **/
 
