@@ -22,6 +22,9 @@ export default class DownloadsPage extends React.Component {
                     The Audio Source Composer Alpha Demo is available for download on Android Devices:
                 </Paragraph>
                 <Paragraph>
+                    <Link href={`https://files.audiosource.io/releases/android/Audio Source Composer(v0.5.4).apk`}>Audio Source Composer(v0.5.4).apk</Link>
+                </Paragraph>
+                <Paragraph>
                     <Link href={`https://files.audiosource.io/releases/android/Audio Source Composer(v0.5.3).apk`}>Audio Source Composer(v0.5.3).apk</Link>
                 </Paragraph>
                 <Paragraph>
