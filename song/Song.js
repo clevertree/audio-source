@@ -542,7 +542,9 @@ class Song {
             throw new Error("Velocity must be an integer: " + newVelocity);
         if (newVelocity < 0)
             throw new Error("Velocity must be a positive integer: " + newVelocity);
-        this.instructionGetByIndex(trackName, replaceIndex).velocity = newVelocity;
+        const instruction = this.instructionGetByIndex(trackName, replaceIndex);
+        instruction.velocity = newVelocity;
+        console.log('instruction', instruction);
     }
 
 
@@ -833,7 +835,7 @@ class Song {
     }
 
     isPlaying() {
-        return !!this.playback;
+        return this.playback && this.playback.isActive();
     }
 
 

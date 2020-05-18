@@ -439,6 +439,8 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionReplaceDuration(trackName, selectedIndices, duration) {
         const song = this.song;
+        if(Number.isInteger(selectedIndices))
+            selectedIndices = [selectedIndices];
 
         if (typeof duration === 'string')
             duration = this.values.parseDurationAsTicks(duration, this.song.data.timeDivision);
@@ -471,6 +473,8 @@ class ASComposerActions extends ASComposerMenu {
     instructionReplaceVelocity(trackName, selectedIndices, velocity) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
+        if(Number.isInteger(selectedIndices))
+            selectedIndices = [selectedIndices];
 
         velocity = parseFloat(velocity);
         if (velocity === null || isNaN(velocity))
@@ -490,6 +494,8 @@ class ASComposerActions extends ASComposerMenu {
         const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
             selectedIndices = activeTrack.getSelectedIndices();
+        if(Number.isInteger(selectedIndices))
+            selectedIndices = [selectedIndices];
 
         selectedIndices.sort((a, b) => a - b);
         for (let i=selectedIndices.length-1; i>=0; i--)

@@ -149,7 +149,7 @@ export default class ASComposer extends ASComposerInput {
                         this.setState({playing: false, paused: false});
                     }
                     this.updateSongPositionValue(this.song.getSongPlaybackPosition());
-                }, 10);
+                }, 33);
                 break;
 
             case 'song:pause':

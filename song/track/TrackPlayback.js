@@ -22,6 +22,8 @@ export default class TrackPlayback extends TrackIterator {
 
     }
 
+    isActive() { return this.active; }
+
     startTrackIteration(trackStats) {
         super.startTrackIteration(trackStats)
         if(!trackStats.playingIndices)
