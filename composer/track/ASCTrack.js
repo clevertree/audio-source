@@ -10,6 +10,7 @@ export default class ASCTrack extends ASCTrackBase {
     }
 
     // componentDidMount() {
+    //     console.log(this.container.current, this.props);
     //     if(this.container.current)
     //         this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
     // }
@@ -80,10 +81,13 @@ export default class ASCTrack extends ASCTrackBase {
             <div
                 key="row-container"
                 className="row-container"
-                ref={this.container}
+                ref={elm => {
+                    elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
+                    // TODO: prevent refresh. use sub component for row content
+                }}
                 tabIndex={0}
                 onKeyDown={this.cb.onKeyDown}
-                onWheel={this.cb.onWheel}
+                // onWheel={this.cb.onWheel}
             >
                 {this.renderRowContent()}
             </div>

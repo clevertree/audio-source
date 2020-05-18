@@ -28,10 +28,12 @@ export default class ASComposerInput extends ASComposerPlayback {
         if(!containerElm)
             return console.warn("containerElm not found");
         // TODO: detect mobile as portrait excluding horizontal ipad
-        const box = containerElm.getBoundingClientRect();
-        const aspectRatio = box.width / box.height;
+        let {width, height} = containerElm.getBoundingClientRect();
+        if(window && window.innerHeight < height)
+            height = window.innerHeight;
+        const aspectRatio = width / height;
         let portrait = aspectRatio < 8/13; // Near golden ratio
-        if(box.width <= 800)
+        if(width <= 800)
             portrait = true;
         // console.log("Setting portrait mode to ", portrait, ". Aspect ratio: ", aspectRatio, containerElm, box);
         if(!this.state.portrait === portrait) {
