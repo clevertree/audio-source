@@ -377,6 +377,7 @@ class ASComposerActions extends ASComposerMenu {
             throw new Error("Invalid Instruction command");
 
         newInstruction = Instruction.parseInstruction(newInstruction);
+        newInstruction.deltaDuration = 0;
         // this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
         if(this.state.currentDuration)
             newInstruction.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
@@ -693,7 +694,7 @@ class ASComposerActions extends ASComposerMenu {
         const iterator = activeTrack.getIterator();
         let startPosition = null, lastPosition=null, copyTrack=[];
         iterator.seekToEnd((instruction) => {
-            const instructionData = instruction.data;
+            const instructionData = instruction.data.slice();
 
             const index = iterator.currentIndex;
             for(let i=0; i<selectedIndices.length; i++)

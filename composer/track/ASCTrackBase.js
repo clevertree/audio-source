@@ -506,9 +506,15 @@ export default class ASCTrackBase extends React.Component {
     /** User Input **/
 
     async onKeyDown(e) {
-        // console.log(e.type);
+        // console.log(e.type, e.key, e.ctrlKey);
         if(e.isDefaultPrevented())
             return;
+        if(e.ctrlKey) switch(e.key) {
+            case 'x': this.getComposer().instructionCut(this.getTrackName()); return;
+            case 'c': this.getComposer().instructionCopy(this.getTrackName()); return;
+            case 'v': this.getComposer().instructionPasteAtCursor(this.getTrackName()); return;
+            default: break;
+        }
         // let selectedIndices;
         switch(e.key) {
             case 'Delete':

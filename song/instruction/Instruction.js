@@ -61,7 +61,7 @@ class Instruction {
 
     static parseInstruction(instructionData) {
         if (instructionData instanceof Instruction)
-            return instructionData;
+            instructionData = instructionData.data.slice();
         if(typeof instructionData === "number")
             instructionData = [instructionData];
         if(typeof instructionData === "string")
