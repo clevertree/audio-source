@@ -165,10 +165,10 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Cut</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Copy</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Paste</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Delete</ASUIMenuDropDown>
+            <ASUIMenuAction onAction={() => this.instructionCut()}   >Cut</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionCopy()}   >Copy</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionPasteAtCursor()}   >Paste</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionDeleteSelected()}   >Delete</ASUIMenuAction>
 
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>

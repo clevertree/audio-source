@@ -5,6 +5,8 @@ import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import {NoteInstruction} from "../../song/instruction";
+import PromptManager from "../../common/prompt/PromptManager.native";
+import {ASCTrack} from "./index";
 
 
 // TODO: ASCTrackRowContainer
@@ -85,7 +87,9 @@ export default class ASCTrackBase extends React.Component {
         this.destination = null;
         // this.cursorInstruction = React.createRef();
         // this.trackerGetCursorInfo();
-        console.log('ASCTrackBase.constructor', this.state)
+        if(!this.state.trackLengthTicks)
+            this.updateSegmentInfo();
+        console.log('ASCTrackBase.constructor', this.state);
     }
 
     // getTrackInfo() {
@@ -98,13 +102,6 @@ export default class ASCTrackBase extends React.Component {
             return this.destination;
         console.warn('TODO: calculate correct destination');
         return this.destination = this.getComposer().getAudioContext();
-    }
-
-    cursorGetInfo(cursorOffset=null, rowOffset=null) {
-        return this.getComposer().trackerGetCursorInfo(
-            this.getTrackName(),
-            cursorOffset === null ? this.state.cursorOffset : cursorOffset,
-            rowOffset === null ? this.state.rowOffset : rowOffset);
     }
 
 
@@ -121,30 +118,26 @@ export default class ASCTrackBase extends React.Component {
 
     /** Actions **/
 
+    setRowOffset(rowOffset) {
+        // console.log('rowOffset', rowOffset);
+        this.setState({rowOffset});
+    }
+
     setCursorPosition(cursorOffset, rowOffset=null) {
         // console.log('setCursorPosition', cursorOffset, rowOffset);
         if(cursorOffset < 0)
             cursorOffset = 0;
         rowOffset = rowOffset === null ? this.state.rowOffset : rowOffset;
         this.setState({cursorOffset, rowOffset});
-        // if(select) {
-        //
-        //     const cursorInfo = this.cursorGetInfo(cursorOffset);
-        //     const selectedIndices = this.getSelectedIndices();
-        //     if(cursorInfo.cursorIndex !== null) {
-        //         selectedIndices.unshift(cursorInfo.cursorIndex);
-        //         this.selectIndices(selectedIndices);
-        //     }
-        //     this.getComposer().setSongPosition(cursorInfo.positionSeconds + this.getStartPosition());
-        // }
     }
+
 
     selectIndicesAndPlay(selectedIndices, clearSelection=true, stopPlayback=true) {
         selectedIndices = this.selectIndices(selectedIndices, clearSelection);
         this.playInstructions(selectedIndices, stopPlayback)
     }
 
-    selectIndices(selectedIndices, clearSelection=true) {
+    selectIndices(selectedIndices, clearSelection=true, selectTrack=true) {
         // TODO: get song position by this.props.index
         // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
         if (typeof selectedIndices === "string") {
@@ -189,10 +182,10 @@ export default class ASCTrackBase extends React.Component {
         selectedIndices.sort((a, b) => a - b);
 
 
-
-
         this.setState({selectedIndices});
         this.getComposer().updateCurrentInstruction(this.getTrackName(), selectedIndices);
+        if(selectTrack)
+            this.getComposer().trackSelect(this.getTrackName());
         return selectedIndices;
     }
 
@@ -363,6 +356,138 @@ export default class ASCTrackBase extends React.Component {
 
         return buttons;
     }
+
+    /** Actions **/
+
+
+    changeQuantization(quantizationTicks) {
+        if (!quantizationTicks || !Number.isInteger(quantizationTicks))
+            throw new Error("Invalid quantization value");
+        this.setState({quantizationTicks})
+        this.updateSegmentInfo();
+    }
+
+    async changeQuantizationPrompt(quantizationTicks = null) {
+        quantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, quantizationTicks || this.track.quantizationTicks);
+        this.changeQuantization(quantizationTicks)
+    }
+
+
+    changeRowLength(rowLength = null) {
+        if (!Number.isInteger(rowLength))
+            throw new Error("Invalid track row length value");
+        this.setState({rowLength})
+    }
+
+    async changeRowLengthPrompt(rowLength=null) {
+        rowLength = parseInt(await PromptManager.openPromptDialog(`Enter custom tracker segment length in rows:`, rowLength || this.track.rowLength));
+        this.changeSegmentLength(rowLength);
+    }
+
+    /**
+     * Used when track has been modified
+     */
+    updateSegmentInfo() {
+        const iterator = this.getIterator();
+        iterator.seekToEnd();
+        const trackLengthTicks = iterator.positionTicks;
+
+        const qIterator = this.getQuantizedIterator();
+        const segmentLengthTicks = this.getSegmentLengthTicks();
+        const segmentPositions = [];
+        const segmentLimit = ASCTrack.DEFAULT_MIN_SEGMENTS || 3;
+        let lastSegmentPositionTicks = 0;
+        while ( qIterator.positionTicks < trackLengthTicks
+        || segmentPositions.length < segmentLimit) {
+            if(lastSegmentPositionTicks <= qIterator.positionTicks) {
+                // Found end of segment
+                segmentPositions.push(qIterator.rowCount);
+                lastSegmentPositionTicks += segmentLengthTicks;
+            }
+            qIterator.nextQuantizedInstructionRow();
+        }
+
+        this.setState({
+            trackLengthTicks,
+            segmentPositions,
+        });
+    }
+
+    getIterator() {
+        return this.getSong().instructionGetIterator(
+            this.getTrackName(),
+            this.getTimeDivision(),
+            this.getBeatsPerMinute()
+        );
+    }
+
+    getQuantizedIterator() {
+        return this.getSong().instructionGetQuantizedIterator(
+            this.getTrackName(),
+            this.getQuantizationTicks(),
+            this.getTimeDivision(),
+            this.getBeatsPerMinute()
+        );
+    }
+
+
+    /**
+     * Used when selecting
+     * @param cursorOffset
+     * @param rowOffset
+     * @returns {{positionTicks: PositionTickInfo[] | number, cursorRow, positionSeconds, previousOffset: number, nextRowOffset, cursorIndex: null, adjustedCursorRow, nextOffset: *, previousRowOffset}}
+     */
+    cursorGetInfo(cursorOffset=null, rowOffset=null) {
+        cursorOffset = cursorOffset === null ? this.state.cursorOffset : cursorOffset;
+        rowOffset = rowOffset === null ? this.state.rowOffset : rowOffset;
+        if(!Number.isInteger(cursorOffset))
+            throw new Error("Invalid cursorOffset: " + cursorOffset);
+        // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
+        const iterator = this.getQuantizedIterator();
+        let cursorIndex = null;
+        let currentRowStartPosition=0, lastRowStartPosition=0
+        // let indexFound = null;
+        while(iterator.cursorPosition <= cursorOffset) {
+            lastRowStartPosition = currentRowStartPosition;
+            currentRowStartPosition = iterator.cursorPosition;
+            // eslint-disable-next-line no-loop-func
+            iterator.nextQuantizedInstructionRow(null, function() {
+                if(iterator.cursorPosition === cursorOffset) {
+                    cursorIndex = iterator.currentIndex;
+                }
+            });
+
+        }
+        const column = cursorOffset - currentRowStartPosition;
+
+        const cursorRow = iterator.rowCount;
+        const rowLength = this.getRowLength();
+        let adjustedCursorRow = null;
+        if(rowOffset + rowLength <= cursorRow)
+            adjustedCursorRow = cursorRow - rowLength; //  - Math.floor(currentRowLength * 0.8);
+        if(rowOffset >= cursorRow)
+            adjustedCursorRow = cursorRow - 1; // - Math.ceil(currentRowLength * 0.2);
+
+
+
+        const nextRowOffset = iterator.cursorPosition + column;
+        const previousRowOffset = lastRowStartPosition + column;
+        // console.log({p: iterator.cursorPosition, cursorOffset, column, previousRowOffset, nextRowOffset});
+        const ret = {
+            positionTicks: iterator.positionTicks,
+            positionSeconds: iterator.positionSeconds,
+            cursorIndex,
+            cursorRow,
+            adjustedCursorRow,
+            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
+            nextCursorOffset: cursorOffset + 1,
+            previousRowOffset,
+            nextRowOffset
+        };
+//         console.log(cursorOffset, ret);
+        return ret;
+    }
+
 
     /** Playback **/
 

@@ -368,16 +368,16 @@ class ASComposerActions extends ASComposerMenu {
         return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
     }
 
-    instructionInsertAtPosition(trackName, positionTicks, newCommand = null, select=false, playback=false) {
+    instructionInsertAtPosition(trackName, positionTicks, newInstruction = null, select=false, playback=false) {
         //: TODO: check for recursive group
 
-        if (newCommand === null)
-            newCommand = this.state.currentCommand;
-        if (!newCommand)
+        if (newInstruction === null)
+            newInstruction = this.state.currentCommand;
+        if (!newInstruction)
             throw new Error("Invalid Instruction command");
 
-        const newInstruction = Instruction.parseInstruction([0, newCommand]); // TODO: support instruction object too
-        this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
+        newInstruction = Instruction.parseInstruction(newInstruction);
+        // this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
         if(this.state.currentDuration)
             newInstruction.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
         if(this.state.currentVelocity)
@@ -585,7 +585,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    /** ASCTrack Commands **/
+    /** Track Commands **/
 
     async trackAdd(newTrackName = null, promptUser = true) {
         const song = this.song;
@@ -621,25 +621,31 @@ class ASComposerActions extends ASComposerMenu {
         const result = promptUser ? await PromptManager.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
         if (result) {
             song.trackRemove(trackName);
-            await this.trackerToggleTrack(trackName, true);
+            this.trackerToggleTrack(trackName, true);
         } else {
             this.setStatus("<span class='error'>Remove instruction group canceled</span>");
         }
 
     }
 
-    async trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
+    trackSelect(selectedTrack = null) {
+        if(this.state.selectedTrack !== selectedTrack)
+            this.setState({selectedTrack});
+    }
+
+    // TODO: messy
+    trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
         // const trackState = this.trackGetState(trackName);
         // const activeTracks = {...this.state.activeTracks};
         let selectedTrack = trackName;
         if(toggleValue === true || typeof this.state.activeTracks[trackName] === "undefined") {
             // const currentTrackData = activeTracks[this.state.selectedTrack];
             // activeTracks[trackName] = trackData; //Object.assign({}, currentTrackData, trackData);
-            await this.updateState(state => {
+            this.setState(state => {
                 state.selectedTrack = selectedTrack;
                 state.activeTracks[trackName] = trackData
             })
-            await this.trackerUpdateSegmentInfo(trackName);
+            // await this.trackerUpdateSegmentInfo(trackName);
 
         } else {
             trackData = this.state.activeTracks[trackName];
@@ -647,79 +653,94 @@ class ASComposerActions extends ASComposerMenu {
                 selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
             else
                 selectedTrack = this.getSong().getStartTrackName();
-            await this.updateState(state => {
+            this.setState(state => {
                 state.selectedTrack = selectedTrack;
                 delete state.activeTracks[trackName];
             })
         }
     }
 
-    async trackerChangeQuantization(trackName, trackerQuantizationTicks) {
-        if (!trackerQuantizationTicks || !Number.isInteger(trackerQuantizationTicks))
-            throw new Error("Invalid quantization value");
-        await this.updateState(state => {
-            state.selectedTrack = trackName;
-            state.activeTracks[trackName].quantizationTicks = trackerQuantizationTicks;
-        });
-        await this.trackerUpdateSegmentInfo(trackName);
+    trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
+        return this.getActiveTrack(trackName || this.state.selectedTrack)
+            .changeQuantization(trackerQuantizationTicks)
     }
 
     async trackerChangeQuantizationPrompt(trackName) {
-        const trackerQuantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, this.track.quantizationTicks);
-        await this.trackerChangeQuantization(trackName, trackerQuantizationTicks)
+        return this.getActiveTrack(trackName || this.state.selectedTrack)
+            .changeQuantizationPrompt();
     }
 
 
-    trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows = null) {
-        if (!Number.isInteger(trackerSegmentLengthInRows))
-            throw new Error("Invalid track row length value");
-        this.setState(state => {
-            state.activeTracks[trackName].rowLength = trackerSegmentLengthInRows;
-            return state;
-        });
+    trackerChangeSegmentLength(trackName, rowLength = null) {
+        return this.getActiveTrack(trackName || this.state.selectedTrack)
+            .changeRowLength(rowLength)
     }
 
     async trackerChangeSegmentLengthPrompt(trackName) {
-        const trackerSegmentLengthInRows = parseInt(await PromptManager.openPromptDialog(`Enter custom tracker segment length in rows:`, this.track.rowLength));
-        this.trackerChangeSegmentLength(trackName, trackerSegmentLengthInRows);
+        return this.getActiveTrack(trackName || this.state.selectedTrack)
+            .changeRowLengthPrompt()
     }
 
-    /**
-     * Used when track has been modified
-     * @param trackName
-     * @returns {Promise<void>}
-     */
-    trackerUpdateSegmentInfo(trackName) {
+
+
+    /** Tracker Clip Board **/
+
+    instructionCopy(trackName=null, selectedIndices=null) {
         trackName = trackName || this.state.selectedTrack;
         const activeTrack = this.getActiveTrack(trackName);
-        const iterator = this.trackerGetIterator(trackName);
-        iterator.seekToEnd();
-        const trackLengthTicks = iterator.positionTicks;
+        if(selectedIndices === null)
+            selectedIndices = activeTrack.getSelectedIndices();
+        const iterator = activeTrack.getIterator();
+        let startPosition = null, lastPosition=null, copyTrack=[];
+        iterator.seekToEnd((instruction) => {
+            const instructionData = instruction.data;
 
-        const qIterator = this.trackerGetQuantizedIterator(trackName);
-        const segmentLengthTicks = activeTrack.getSegmentLengthTicks();
-        const segmentPositions = [];
-        const segmentLimit = ASCTrack.DEFAULT_MIN_SEGMENTS || 3;
-        let lastSegmentPositionTicks = 0;
-        while ( qIterator.positionTicks < trackLengthTicks
-                || segmentPositions.length < segmentLimit) {
-            if(lastSegmentPositionTicks <= qIterator.positionTicks) {
-                // Found end of segment
-                segmentPositions.push(qIterator.rowCount);
-                lastSegmentPositionTicks += segmentLengthTicks;
-            }
-            qIterator.nextQuantizedInstructionRow();
+            const index = iterator.currentIndex;
+            for(let i=0; i<selectedIndices.length; i++)
+                if(selectedIndices[i] === index) {
+                    if(startPosition === null)
+                        lastPosition = startPosition = iterator.positionTicks;
+                    instructionData[0] = iterator.positionTicks - lastPosition;
+                    lastPosition = iterator.positionTicks;
+                    copyTrack.push(instructionData)
+                    return instruction;
+                }
+        });
+        console.log("Clipboard:", copyTrack);
+        this.setState({clipboard: copyTrack});
+
+    }
+
+    instructionCut(trackName=null, selectedIndices=null) {
+        this.instructionCopy(trackName, selectedIndices);
+        this.instructionDeleteSelected(trackName, selectedIndices);
+    }
+
+    instructionPasteAtCursor(trackName=null) {
+        trackName = trackName || this.state.selectedTrack;
+
+        const copyTrack = this.state.clipboard;
+        if(!Array.isArray(copyTrack))
+            throw new Error("Invalid clipboard data: " + typeof copyTrack);
+
+        const activeTrack = this.getActiveTrack(trackName);
+        const {positionTicks: startPositionTicks} = activeTrack.cursorGetInfo();
+
+        const selectedIndices = [];
+        for(let i=0; i<copyTrack.length; i++) {
+            const copyInstructionData = copyTrack[i];
+            const insertPositionTicks = startPositionTicks + copyInstructionData[0];
+            const insertIndex = this.instructionInsertAtPosition(trackName, insertPositionTicks, copyInstructionData, false, false);
+            selectedIndices.push(insertIndex);
         }
 
-        activeTrack.setState({
-            trackLengthTicks,
-            segmentPositions,
-        });
+        console.log('pastedIndices', selectedIndices);
+        this.trackerSelectIndices(trackName, selectedIndices);
     }
 
     /** Iterator **/
 
-
+    /** @deprecated **/
     trackerGetIterator(trackName=null) {
         const activeTrack = this.getActiveTrack(trackName);
         return this.getSong().instructionGetIterator(
@@ -729,6 +750,7 @@ class ASComposerActions extends ASComposerMenu {
         );
     }
 
+    /** @deprecated **/
     trackerGetQuantizedIterator(trackName=null) {
         const activeTrack = this.getActiveTrack(trackName);
         return this.getSong().instructionGetQuantizedIterator(
@@ -761,65 +783,6 @@ class ASComposerActions extends ASComposerMenu {
             state.selectedTrack = trackName;
             return state;
         });
-    }
-
-
-    // TODO: move to track?
-    /**
-     * Used when selecting
-     * @param trackName
-     * @param cursorOffset
-     * @param rowOffset
-     * @returns {{positionTicks: PositionTickInfo[] | number, cursorRow, positionSeconds, previousOffset: number, nextRowOffset, cursorIndex: null, adjustedCursorRow, nextOffset: *, previousRowOffset}}
-     */
-    trackerGetCursorInfo(trackName, cursorOffset, rowOffset) {
-        if(!Number.isInteger(cursorOffset))
-            throw new Error("Invalid cursorOffset: " + cursorOffset);
-        const activeTrack = this.getActiveTrack(trackName);
-        // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
-        const iterator = this.trackerGetQuantizedIterator(trackName);
-        let cursorIndex = null;
-        let currentRowStartPosition=0, lastRowStartPosition=0
-        // let indexFound = null;
-        while(iterator.cursorPosition <= cursorOffset) {
-            lastRowStartPosition = currentRowStartPosition;
-            currentRowStartPosition = iterator.cursorPosition;
-            // eslint-disable-next-line no-loop-func
-            iterator.nextQuantizedInstructionRow(null, function() {
-                if(iterator.cursorPosition === cursorOffset) {
-                    cursorIndex = iterator.currentIndex;
-                }
-            });
-
-        }
-        const column = cursorOffset - currentRowStartPosition;
-
-        const cursorRow = iterator.rowCount;
-        const rowLength = activeTrack.getRowLength();
-        let adjustedCursorRow = null;
-        if(rowOffset + rowLength <= cursorRow)
-            adjustedCursorRow = cursorRow - rowLength; //  - Math.floor(currentRowLength * 0.8);
-        if(rowOffset >= cursorRow)
-            adjustedCursorRow = cursorRow - 1; // - Math.ceil(currentRowLength * 0.2);
-
-
-
-        const nextRowOffset = iterator.cursorPosition + column;
-        const previousRowOffset = lastRowStartPosition + column;
-        // console.log({p: iterator.cursorPosition, cursorOffset, column, previousRowOffset, nextRowOffset});
-        const ret = {
-            positionTicks: iterator.positionTicks,
-            positionSeconds: iterator.positionSeconds,
-            cursorIndex,
-            cursorRow,
-            adjustedCursorRow,
-            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
-            nextCursorOffset: cursorOffset + 1,
-            previousRowOffset,
-            nextRowOffset
-        };
-//         console.log(cursorOffset, ret);
-        return ret;
     }
 
     // trackerFindRowOffsetFromPosition(trackName, trackPositionTicks) {
@@ -871,27 +834,27 @@ class ASComposerActions extends ASComposerMenu {
     //     this.trackerSetRowOffset(trackName, rowOffset);
     // }
 
-    trackerSetRowOffset(trackName, newRowOffset) {
-        if (!Number.isInteger(newRowOffset))
-            throw new Error("Invalid row offset");
-        // console.log('trackerSetRowOffset', {trackName, newRowOffset});
-        this.setState(state => {
-            // state.selectedTrack = trackName;
-            state.activeTracks[trackName].rowOffset = newRowOffset;
-            return state;
-        });
-    }
-
-    trackerSetCursorOffset(trackName, newCursorOffset) {
-        if (!Number.isInteger(newCursorOffset))
-            throw new Error("Invalid cursor offset");
-        // console.log('trackerSetRowOffset', {trackName, newRowOffset});
-        this.setState(state => {
-            state.selectedTrack = trackName;
-            state.activeTracks[trackName].cursorOffset = newCursorOffset;
-            return state;
-        });
-    }
+    // trackerSetRowOffset(trackName, newRowOffset) {
+    //     if (!Number.isInteger(newRowOffset))
+    //         throw new Error("Invalid row offset");
+    //     // console.log('trackerSetRowOffset', {trackName, newRowOffset});
+    //     this.setState(state => {
+    //         // state.selectedTrack = trackName;
+    //         state.activeTracks[trackName].rowOffset = newRowOffset;
+    //         return state;
+    //     });
+    // }
+    //
+    // trackerSetCursorOffset(trackName, newCursorOffset) {
+    //     if (!Number.isInteger(newCursorOffset))
+    //         throw new Error("Invalid cursor offset");
+    //     // console.log('trackerSetRowOffset', {trackName, newRowOffset});
+    //     this.setState(state => {
+    //         state.selectedTrack = trackName;
+    //         state.activeTracks[trackName].cursorOffset = newCursorOffset;
+    //         return state;
+    //     });
+    // }
 
 
     // trackerUpdateCurrentInstruction(trackName) {
@@ -912,16 +875,6 @@ class ASComposerActions extends ASComposerMenu {
     //     });
     //
     // }
-
-    /** @deprecated **/
-    trackerCalculateRowOffset(trackName, cursorOffset=null) {
-        return this.trackerGetTrackInfo(trackName).calculateRowOffset(trackName, cursorOffset);
-    }
-
-    /** @deprecated **/
-    trackerFindCursorRow(trackName, cursorOffset=null) {
-        return this.trackerGetTrackInfo(trackName).findCursorRow(trackName, cursorOffset);
-    }
 
 
 

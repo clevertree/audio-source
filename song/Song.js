@@ -388,27 +388,29 @@ class Song {
 
 
     instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
-        if(!this.data.tracks[trackName])
+        const songData = this.getProxiedData();
+        if(!songData.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        const instructionList = this.data.tracks[trackName];
+        const instructionList = songData.tracks[trackName];
 
         return new InstructionIterator(
             instructionList,
-            timeDivision || this.data.timeDivision,
-            beatsPerMinute || this.data.beatsPerMinute,
+            timeDivision || songData.timeDivision,
+            beatsPerMinute || songData.beatsPerMinute,
         );
     }
 
     instructionGetQuantizedIterator(trackName, quantizationTicks, timeDivision=null, beatsPerMinute=null) {
-        if(!this.data.tracks[trackName])
+        const songData = this.getProxiedData();
+        if(!songData.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
-        const instructionList = this.data.tracks[trackName];
+        const instructionList = songData.tracks[trackName];
 
         return new QuantizedInstructionIterator(
             instructionList,
             quantizationTicks,
-            timeDivision || this.data.timeDivision,
-            beatsPerMinute || this.data.beatsPerMinute,
+            timeDivision || songData.timeDivision,
+            beatsPerMinute || songData.beatsPerMinute,
         );
     }
 

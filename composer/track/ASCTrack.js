@@ -9,26 +9,28 @@ export default class ASCTrack extends ASCTrackBase {
         this.container = React.createRef();
     }
 
-    componentDidMount() {
-        if(!this.props.collapsed)
-            this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
-    }
-
-    componentWillUnmount() {
-        if(!this.props.collapsed)
-            this.container.current.removeEventListener('wheel', this.cb.onWheel);
-    }
+    // componentDidMount() {
+    //     if(this.container.current)
+    //         this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
+    // }
+    //
+    // componentWillUnmount() {
+    //     if(this.container.current)
+    //         this.container.current.removeEventListener('wheel', this.cb.onWheel);
+    // }
 
 
     /** User Input **/
 
     onWheel(e) {
         e.preventDefault();
-        let rowOffset = this.state.rowOffset; // this.getTrackState().rowOffset;
+        let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
         rowOffset += e.deltaY > 0 ? 1 : -1;
         if(rowOffset < 0)
             rowOffset = 0; // return console.log("Unable to scroll past beginning");
-        this.setState({rowOffset});
+
+        this.setRowOffset(rowOffset);
+        // console.log('onWheel', e.deltaY);
         // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
         // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
         // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
@@ -81,7 +83,7 @@ export default class ASCTrack extends ASCTrackBase {
                 ref={this.container}
                 tabIndex={0}
                 onKeyDown={this.cb.onKeyDown}
-                // onWheel={this.cb.onWheel}
+                onWheel={this.cb.onWheel}
             >
                 {this.renderRowContent()}
             </div>

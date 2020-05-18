@@ -54,7 +54,7 @@ class ASCTrackRow extends React.Component {
             >
                 <ASCTrackPosition positionTicks={this.props.positionTicks}/>
                 {this.props.children}
-                {this.props.cursor ? <ASCTrackInstructionAdd
+                {this.props.cursor ? <ASCTrackInstructionAdd // TODO: render on hover
                     cursorPosition={this.props.cursorPosition}
                 /> : null}
                 <ASCTrackDelta duration={rowDeltaDuration}/>
@@ -74,7 +74,7 @@ class ASCTrackRow extends React.Component {
     selectRow(clearSelection = true) {
         // const selectedIndices = clearSelection ? [] : null;
         const tracker = this.getTracker();
-        tracker.setCursorPosition(this.props.cursorPosition, clearSelection ? [] : null);
+        tracker.setCursorPosition(this.props.cursorPosition);
         tracker.selectIndices([], true);
     }
 
@@ -86,29 +86,30 @@ class ASCTrackRow extends React.Component {
             command,
             true,
             true
-        )
+        );
         this.getTracker().selectIndices(
             insertIndex
-        )
+        );
     }
+
 
     /** Menus **/
 
-
     renderRowMenu() {
-        return (<>
-            {/*<ASUIMenuItem>Row</ASUIMenuItem>*/}
-            {/*<ASUIMenuBreak/>*/}
-            <ASUIMenuDropDown
-                options={() => this.getComposer().renderMenuEditTrackSelectIndices()}
-                children="Select"
-            />
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown
-                options={() => this.renderRowInsertCommandMenu()}
-                children="Insert"
-            />
-        </>);
+        return this.getComposer().renderMenuEdit(null);
+        // return (<>
+        //     {/*<ASUIMenuItem>Row</ASUIMenuItem>*/}
+        //     {/*<ASUIMenuBreak/>*/}
+        //     <ASUIMenuDropDown
+        //         options={() => this.getComposer().renderMenuEditTrackSelectIndices()}
+        //         children="Select"
+        //     />
+        //     <ASUIMenuBreak />
+        //     <ASUIMenuDropDown
+        //         options={() => this.renderRowInsertCommandMenu()}
+        //         children="Insert"
+        //     />
+        // </>);
     }
 
     renderRowInsertCommandMenu() {

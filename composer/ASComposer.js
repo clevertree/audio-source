@@ -15,6 +15,7 @@ export default class ASComposer extends ASComposerInput {
             version: require('../package.json').version,
             menuKey: 'root',
 
+            clipboard: null,
 
             portrait: true,
             fullscreen: !!this.props.fullscreen,
