@@ -78,7 +78,7 @@ export default class ASComposer extends ASComposerInput {
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);
 
-        setTimeout(() => console.log(this.activeTracks), 1000);
+//         setTimeout(() => console.log(this.activeTracks), 1000);
     }
 
 

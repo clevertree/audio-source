@@ -84,6 +84,8 @@ class ASCTrackRow extends React.Component {
             this.getTracker().getTrackName(),
             this.props.positionTicks,
             command,
+            true,
+            true
         )
         this.getTracker().selectIndices(
             insertIndex

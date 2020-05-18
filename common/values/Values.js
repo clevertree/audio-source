@@ -1,17 +1,19 @@
 import {ASUIMenuItem, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import React from "react";
 import PromptManager from "../prompt/PromptManager";
+import {ASUIInputRange} from "../../components";
+import ProgramLoader from "../program/ProgramLoader";
 
 class Values {
     static instance = new Values();
 
     /** Menus **/
 
-    /** Select Command **/
+    /** Command Menu **/
 
     renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
         return (<>
-            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Edit ${currentCommand}`)}</ASUIMenuItem>
+            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Change ${currentCommand}`)}</ASUIMenuItem>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
@@ -25,6 +27,7 @@ class Values {
 
 
     renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
+        console.log('currentCommand', currentCommand);
         return this.getNoteFrequencies((noteName) =>
             <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand)}>
                 {noteName}
@@ -34,8 +37,12 @@ class Values {
 
     // TODO: move into lower menu?
     renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand=null) {
+        let currentOctave = null;
+        if(currentCommand)
+            try {currentOctave = this.parseFrequencyParts(currentCommand).octave;} catch (e) {}
+
         return (<>
-            {/*{keyboardOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+keyboardOctave)}>{`${noteName}${keyboardOctave} (Current)`}</ASUIMenuAction> : null}*/}
+            {currentOctave !== null ? <ASUIMenuAction onAction={() => onSelectValue(noteName+''+currentOctave)}>{`${noteName}${currentOctave} (Current)`}</ASUIMenuAction> : null}
             {this.getNoteOctaves((octave) =>
                 <ASUIMenuAction key={octave} onAction={() => onSelectValue(noteName+''+octave)}>
                     {`${noteName}${octave}`}
@@ -45,10 +52,13 @@ class Values {
     }
 
     renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
+        let currentOctave = null;
+        if(currentCommand)
+            try {currentOctave = this.parseFrequencyParts(currentCommand).octave;} catch (e) {}
         return (<>
-            {/*{keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>*/}
-            {/*    {`${keyboardOctave} (Current)`}*/}
-            {/*</ASUIMenuDropDown> : null}*/}
+            {currentOctave !== null ? <ASUIMenuDropDown key={currentOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, currentOctave)}>
+                {`${currentOctave} (Current)`}
+            </ASUIMenuDropDown> : null}
             {this.getNoteOctaves((octave) =>
                 <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}>
                     {octave}
@@ -62,6 +72,102 @@ class Values {
             <ASUIMenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</ASUIMenuAction>
         );
     }
+
+    /** Duration Menu **/
+
+    renderMenuSelectDuration(onSelectValue, timeDivision, currentDuration = null, title=null) {
+        return (<>
+            <ASUIMenuItem>{title || (currentDuration === null ? 'Select Duration' : `Change ${currentDuration}`)}</ASUIMenuItem>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => renderMenuSelect('triplet')}   >Triplet</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => renderMenuSelect('dotted')}    >Dotted</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
+            <ASUIMenuBreak />
+            <ASUIMenuAction onAction={() => {
+                PromptManager.openPromptDialog("Enter a duration string or number of ticks", currentDuration)
+                    .then(onSelectValue)
+            }}    >Custom</ASUIMenuAction>
+        </>);
+
+        function renderMenuSelect(key) {
+            let results = [];
+            switch(key) {
+                case 'fraction':
+                    for (let i = 64; i > 1; i /= 2)
+                        results.push(
+                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</ASUIMenuAction>
+                        );
+                    for (let i = 1; i <= 16; i++)
+                        results.push(
+                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</ASUIMenuAction>
+                        );
+                    break;
+
+                case 'triplet':
+                    for (let i = 64; i > 1; i /= 2)
+                        results.push(
+                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</ASUIMenuAction>
+                        );
+                    for (let i = 1; i <= 16; i++)
+                        results.push(
+                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</ASUIMenuAction>
+                        );
+                    break;
+
+                case 'dotted':
+                    for (let i = 64; i > 1; i /= 2)
+                        results.push(
+                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</ASUIMenuAction>
+                        );
+                    for (let i = 1; i <= 16; i++)
+                        results.push(
+                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</ASUIMenuAction>
+                        );
+                    break;
+
+                default:
+                    throw new Error("Unknown key");
+            }
+            return results;
+        }
+    }
+
+    /** Velocity Menu **/
+
+
+    renderMenuSelectVelocity(onSelectValue, currentVelocity=null, title=null) {
+        const customAction = () => {
+            PromptManager.openPromptDialog("Enter custom velocity (1-127)", 127)
+                .then(onSelectValue)
+        };
+        return (<>
+            <ASUIMenuItem>{title || (currentVelocity === null ? 'Select Velocity' : `Edit ${currentVelocity}`)}</ASUIMenuItem>
+            <ASUIMenuBreak />
+            <ASUIInputRange
+                min={0}
+                max={127}
+                value={currentVelocity}
+                onChange={(mixerValue) => onSelectValue(mixerValue)}
+            />
+            <ASUIMenuBreak/>
+            {this.getNoteVelocities((velocity, velocityTitle) =>
+                <ASUIMenuAction key={velocity} onAction={() => onSelectValue(velocity)}  >{velocityTitle}</ASUIMenuAction>)}
+            <ASUIMenuAction onAction={customAction} hasBreak >Custom</ASUIMenuAction>
+        </>);
+    }
+
+    /** @deprecated moved to Library **/
+    renderMenuSelectAvailableProgram(onSelectValue, menuTitle=null) {
+        return (<>
+            {menuTitle ? <><ASUIMenuAction disabled onAction={() => {}}>{menuTitle}</ASUIMenuAction><ASUIMenuBreak/></> : null}
+            {ProgramLoader.getRegisteredPrograms().map((config, i) =>
+                <ASUIMenuAction key={i} onAction={() => onSelectValue(config.className)}       >{config.title}</ASUIMenuAction>
+            )}
+        </>);
+    }
+
 
 
     /** Values **/
@@ -118,8 +224,10 @@ class Values {
 
     getNoteVelocities(callback = (velocity) => velocity) {
         const results = [];
-        for (let vi = 100; vi >= 0; vi -= 10) {
-            const result = callback(vi);
+        const result = callback(127, 'Max');
+        if(!addResult(results, result)) return results;
+        for (let vi = 120; vi >= 0; vi -= 10) {
+            const result = callback(vi, vi);
             if(!addResult(results, result)) return results;
         }
         return results;
@@ -192,27 +300,32 @@ class Values {
             + (parseInt(parts[2], 10) / 1000);
     }
 
-    parseFrequencyString(note) {
-        if (typeof note !== "string")
+    parseFrequency(noteString) {
+        const {keyNumber} = this.parseFrequencyParts(noteString);
+        return 440 * Math.pow(2, (keyNumber - 98) / 24);
+    }
+
+    parseFrequencyParts(noteString) {
+        if (typeof noteString !== "string")
             throw new Error("Frequency is not a string");
-        if (!note)
+        if (!noteString)
             throw new Error("Frequency is null");
 
         const noteQuarterToneList = this.noteQuarterToneList();
-        const noteScale = note.slice(0, -1);
-        const octave = parseInt(note.slice(-1));
-        if(isNaN(octave))
-            throw new Error("Invalid octave value: " + note);
-        if(typeof noteQuarterToneList[noteScale] === "undefined")
-            throw new Error("Unrecognized Note: " + noteScale);
-        let keyNumber = noteQuarterToneList[noteScale];
-
-        if (keyNumber < 6)
-            keyNumber = keyNumber + 24 + ((octave - 1) * 24) + 2;
+        const ret = {
+            note: noteString.slice(0, -1),
+        }
+        ret.octave = parseInt(noteString.slice(-1));
+        if(isNaN(ret.octave))
+            throw new Error("Invalid octave value: " + noteString);
+        if(typeof noteQuarterToneList[ret.note] === "undefined")
+            throw new Error("Unrecognized Note: " + ret.note);
+        ret.keyNumber = noteQuarterToneList[ret.note];
+        if (ret.keyNumber < 6)
+            ret.keyNumber = ret.keyNumber + 24 + ((ret.octave - 1) * 24) + 2;
         else
-            keyNumber = keyNumber + ((octave - 1) * 24) + 2;
-
-        return 440 * Math.pow(2, (keyNumber - 98) / 24);
+            ret.keyNumber = ret.keyNumber + ((ret.octave - 1) * 24) + 2;
+        return ret;
     }
 
 

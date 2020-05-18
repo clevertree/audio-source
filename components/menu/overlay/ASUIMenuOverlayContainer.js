@@ -21,14 +21,17 @@ export default class ASUIMenuOverlayContainer extends ASUIMenuOverlayContainerBa
         return (
             <div className="asui-menu-overlay-container"
                 >
-                <div
+                {this.state.open ? <div
                     className="dropdown">
                     {this.state.options}
                     <ASUIMenuBreak/>
                     <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>
-                </div>
-                <div
+                </div> : null}
+                {this.state.openOverlay ? <div
                     onClick={this.cb.closeAllMenus}
+                    className="overlay">
+                </div> : null}
+                <div
                     className="content">
                     {this.props.children}
                 </div>

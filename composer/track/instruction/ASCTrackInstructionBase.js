@@ -129,22 +129,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     renderMenuEditSet() {
-        return (<>
-            <ASUIMenuItem>Edit Instruction</ASUIMenuItem>
-            <ASUIMenuBreak/>
-            <ASUIMenuDropDown
-                options={() => this.renderMenuSelectCommand()}
-                children="Set Command"
-            />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuSelectDuration()}
-                children="Set Duration"
-            />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuSelectVelocity()}
-                children="Set Velocity"
-            />
-        </>);
+        return this.getComposer().renderMenuEdit();
     }
 
     // }

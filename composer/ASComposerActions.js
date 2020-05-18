@@ -351,34 +351,24 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     /** Instruction Modification **/
-
-    async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false) {
+// TODO: where is auto-select auto-playback handled?
+    async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
         trackName = trackName || this.state.selectedTrack;
         newCommand = newCommand || this.state.currentCommand;
         if(promptUser)
             newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-        return this.instructionInsertAtCursor(trackName, newCommand);
+        return this.instructionInsertAtCursor(trackName, newCommand, select, playback);
     }
 
-    instructionInsertAtCursor(trackName = null, newCommand = null) {
+    instructionInsertAtCursor(trackName = null, newCommand = null, select=true, playback=true) {
         // console.log('instructionInsert', newCommand, trackName);
-
-        // let selectedIndices = this.getSelectedIndices();
-
-        // if(selectedIndices.length === 0)
-        //     throw new Error("No selection");
 
         const activeTrack = this.getActiveTrack(trackName);
         const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
-        // const songPositionTicks = this.state.cursorPositionTicks; // Using cursorPositionTicks is more accurate for insert
-        // this.trackerSelectIndices(trackName, [insertIndex]);
-
-        // this.trackerPlay(trackName, [insertIndex]);
-        // activeTrack.selectIndicesAndPlay(insertIndex);
-        return this.instructionInsertAtPosition(trackName, positionTicks, newCommand);
+        return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
     }
 
-    instructionInsertAtPosition(trackName, positionTicks, newCommand = null) {
+    instructionInsertAtPosition(trackName, positionTicks, newCommand = null, select=false, playback=false) {
         //: TODO: check for recursive group
 
         if (newCommand === null)
@@ -393,21 +383,24 @@ class ASComposerActions extends ASComposerMenu {
         if(this.state.currentVelocity)
             newInstruction.velocity = this.state.currentVelocity;
         // this.setState({activeTracks});
-        return this.song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);
+        const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);
+        if(select)      this.trackerSelectIndices(trackName, index);
+        if(playback)    this.trackerPlay(trackName, index);
+        return index;
     }
 
     /** Instruction Command **/
 
 
-    async instructionReplaceCommandPrompt(trackName=null, newCommand = null, promptUser=true) {
+    async instructionReplaceCommandPrompt(trackName=null, selectedIndices=null, newCommand = null, promptUser=false) {
         trackName = trackName || this.state.selectedTrack;
         if (newCommand === null)
             newCommand = this.state.currentCommand;
         if(promptUser)
             newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-        const activeTrack = this.getActiveTrack(trackName);
-        const selectedIndices = activeTrack.getSelectedIndices(); // .getSelectedIndices();
-        return this.instructionReplaceCommand(newCommand, trackName, selectedIndices);
+        if(selectedIndices === null)
+            selectedIndices = this.getActiveTrack(trackName).getSelectedIndices();
+        return this.instructionReplaceCommand(trackName, selectedIndices, newCommand);
     }
 
     instructionReplaceCommand(trackName, selectedIndices, newCommand) {
@@ -420,7 +413,7 @@ class ASComposerActions extends ASComposerMenu {
         if (!newCommand)
             throw new Error("Invalid Instruction command");
 
-        // this.setState({currentTrackerCommand: newCommand});
+        this.setState({currentCommand: newCommand});
         for (let i = 0; i < selectedIndices.length; i++) {
             song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
         }
@@ -431,7 +424,7 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Duration **/
 
-    async instructionReplaceDurationPrompt(trackName = null, selectedIndices = null, duration = null, promptUser = false) {
+    async instructionReplaceDurationPrompt(trackName = null, selectedIndices = null, duration = null, promptUser=false) {
         trackName = trackName || this.state.selectedTrack;
         const activeTrack = this.getActiveTrack(trackName);
         if(selectedIndices === null)
@@ -497,7 +490,8 @@ class ASComposerActions extends ASComposerMenu {
         if(selectedIndices === null)
             selectedIndices = activeTrack.getSelectedIndices();
 
-        for (let i = 0; i < selectedIndices.length; i++)
+        selectedIndices.sort((a, b) => a - b);
+        for (let i=selectedIndices.length-1; i>=0; i--)
             this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
         activeTrack.setState({selectedIndices: []})

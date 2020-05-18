@@ -149,8 +149,18 @@ class ASComposerMenu extends ASComposerRenderer {
 
             <ASUIMenuDropDown
                 disabled={selectedIndices.length === 0}
-                options={() => this.renderMenuEditSet()}
-                children="Set"
+                options={() => this.renderMenuEditSetCommand(currentCommand)}
+                children="Set Command"
+            />
+            <ASUIMenuDropDown
+                disabled={selectedIndices.length === 0}
+                options={() => this.renderMenuEditSetDuration()}
+                children="Set Duration"
+            />
+            <ASUIMenuDropDown
+                disabled={selectedIndices.length === 0}
+                options={() => this.renderMenuEditSetVelocity()}
+                children="Set Velocity"
             />
 
 
@@ -214,11 +224,8 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEditSetCommand(trackName = null, currentCommand=null) {
-        return this.renderMenuSelectCommand(async newCommand => {
-                if(newCommand === null)
-                    await this.instructionReplaceCommandPrompt();
-                else
-                    this.instructionReplaceCommandSelected(trackName, newCommand);
+        return this.renderMenuSelectCommand(newCommand => {
+                this.instructionReplaceCommandPrompt(trackName, null, newCommand, false);
             },
         );
     }
@@ -233,19 +240,19 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditSetDuration(currentDuration=null) {
         return this.values.renderMenuSelectDuration(durationTicks => {
-                this.instructionReplaceDurationPrompt(null, null, durationTicks)
+                this.instructionReplaceDurationPrompt(null, null, durationTicks, false);
             },
             this.song.data.timeDivision,
-            currentDuration,
+            currentDuration || this.state.currentDuration,
         );
 
     }
 
     renderMenuEditSetVelocity(currentVelocity=null) {
         return this.values.renderMenuSelectVelocity(velocity => {
-                this.instructionReplaceVelocityPrompt(null, null, velocity, false)
+                this.instructionReplaceVelocityPrompt(null, null, velocity, false);
             },
-            currentVelocity,
+            currentVelocity || this.state.currentVelocity,
         );
     }
 
@@ -264,9 +271,9 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditTrackSelectIndices() {
         const selectedTrack = this.state.selectedTrack;
         return (<>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'all')}       >Select Track Instructions</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'segment')}      >Select Segment Instructions</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'row')}       >Select Row Instructions</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'all')}       >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'segment')}      >Select Segment</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'row')}       >Select Row</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'none')}       >Clear Selection</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>

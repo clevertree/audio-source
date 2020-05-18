@@ -30,7 +30,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     render() {
         return <ASUIMenuContext.Provider
             value={{overlay:this, parentDropDown:null}}>
-            {this.state.open || this.state.openOverlay ? this.renderContent() : this.props.children}
+            {this.renderContent()}
         </ASUIMenuContext.Provider>;
     }
 

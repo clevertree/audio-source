@@ -246,8 +246,12 @@ class Song {
             let currentTime = destination.context.currentTime;
             setTimeout(onstart, (noteStartTime - currentTime) * 1000);
         }
-        if(typeof noteFrequency === "string")
-            noteFrequency = Values.instance.parseFrequencyString(noteFrequency);
+        if(typeof noteFrequency === "string") try {
+            noteFrequency = Values.instance.parseFrequency(noteFrequency);
+        } catch (e) {
+            console.warn(e.message);
+            return;
+        }
         return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
@@ -743,7 +747,7 @@ class Song {
         // await this.init(audioContext);
         if(startPosition === null)
             startPosition = this.playbackPosition;
-        console.log("Start playback:", startPosition);
+        console.log("Start playback:", destination, startPosition, onended);
         const playback = new TrackPlayback(this, this.getStartTrackName(), this.dispatchEventCallback);
         this.playback = playback;
         playback.play(destination, startPosition)

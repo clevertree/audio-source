@@ -12,9 +12,9 @@ class ASComposerRenderer extends React.Component {
         super(props);
         this.containerRef = React.createRef();
         this.cb = {
-            songPlay: this.songPlay.bind(this),
-            songPause: this.songPause.bind(this),
-            songStop: this.songStop.bind(this),
+            songPlay: () => this.songPlay(),
+            songPause: () => this.songPause(),
+            songStop: () => this.songStop(),
             loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
         }

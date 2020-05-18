@@ -83,9 +83,9 @@ export default class ASComposerInstructionPanel extends React.Component {
                 <ASUIForm className="instruction-insert" header="Add">
                     <ASUIButton
                         // className="instruction-insert"
-                        onAction={e => composer.instructionInsert()}
+                        onAction={e => composer.instructionInsertAtCursorPrompt(null, null, false)}
                         title="Insert Instruction"
-                        disabled={selectedIndices.length > 0}
+                        // disabled={selectedIndices.length > 0}
                     >
                         <ASUIIcon source="insert"/>
                     </ASUIButton>
