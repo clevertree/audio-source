@@ -101,7 +101,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         // this.getComposer().trackerSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
         // this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
         this.getTracker().selectIndices(selectedIndices);
-        this.getTracker().setCursorPosition(this.props.cursorPosition);
+        this.getTracker().setCursorPositionOffset(this.props.cursorPosition);
         return selectedIndices;
     }
 
