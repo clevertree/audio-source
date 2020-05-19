@@ -1,5 +1,5 @@
-import React, {useRef} from "react";
-import {PanResponder, StyleSheet, Text, View, ScrollView} from 'react-native';
+import React from "react";
+import {PanResponder, StyleSheet, Text, View} from 'react-native';
 
 import ASCTrackBase from "./ASCTrackBase";
 

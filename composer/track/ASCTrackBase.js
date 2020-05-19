@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown} from "../../components/";
-import {NoteInstruction} from "../../song/instruction";
 import PromptManager from "../../common/prompt/PromptManager.native";
 import {ASCTrack} from "./index";
 
@@ -164,7 +163,6 @@ export default class ASCTrackBase extends React.Component {
                 case 'segment':
                     throw new Error('TODO');
                     // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                    break;
                 case 'row':
                     throw new Error('TODO');
                 case 'none':
@@ -233,9 +231,10 @@ export default class ASCTrackBase extends React.Component {
 
         const rowContent = [];
         let rowInstructionElms = [];
-        // eslint-disable-next-line no-loop-func
         // this.firstCursorRowOffset = null;
         // this.lastCursorRowOffset = null;
+
+        // eslint-disable-next-line no-loop-func
         while(iterator.nextQuantizedInstructionRow(() => {
             let highlight = false;
             if(iterator.positionTicks % beatsPerMeasureTicks === 0)
@@ -307,7 +306,7 @@ export default class ASCTrackBase extends React.Component {
         let buttons = [], selectedSegmentID = null;
         const segmentPositions = this.getSegmentPositions();
 
-        console.log('renderRowSegments', segmentPositions);
+        // console.log('renderRowSegments', segmentPositions);
         for(let segmentID=0; segmentID<segmentPositions.length; segmentID++) {
             if(segmentID > ASCTrackBase.DEFAULT_MAX_SEGMENTS)
                 break;
@@ -499,7 +498,7 @@ export default class ASCTrackBase extends React.Component {
             previousRowOffset,
             nextRowOffset
         };
-//         console.log(cursorOffset, ret);
+        // console.log(cursorOffset, ret);
         return ret;
     }
 
@@ -509,16 +508,18 @@ export default class ASCTrackBase extends React.Component {
 
         const iterator = this.getQuantizedIterator();
         // let indexFound = null;
-        while(iterator.positionTicks <= positionTicks) {
+        while(iterator.positionTicks < positionTicks) {
             iterator.nextQuantizedInstructionRow();
         }
 
         const ret = {
             positionIndex: iterator.currentIndex,
+            positionSeconds: iterator.positionSeconds,
             cursorOffset: iterator.cursorPosition,
             rowCount: iterator.rowCount,
         }
-        console.info('getPositionInfo', ret);
+        // console.info('getPositionInfo', ret);
+        return ret;
     }
 
     /** Playback **/

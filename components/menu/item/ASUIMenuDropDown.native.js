@@ -1,11 +1,10 @@
 import React from "react";
-import {View, TouchableHighlight, Text, ImageBackground, StyleSheet} from 'react-native';
+import {View, Text} from 'react-native';
 import PropTypes from "prop-types";
 import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 import ASUIClickableBase from "../../button/ASUIClickableBase";
 
 import styles from "../style/ASUIMenu.style"
-import ASUIMenuContext from "../ASUIMenuContext";
 
 export default class ASUIMenuDropDown extends ASUIClickableBase {
 

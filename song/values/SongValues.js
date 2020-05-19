@@ -1,9 +1,6 @@
 import Values from "../../common/values/Values";
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/menu";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import React from "react";
-import PromptManager from "../../common/prompt/PromptManager.native";
-import {ASUIInputRange} from "../../components";
-import ProgramLoader from "../../common/program/ProgramLoader";
 
 class SongValues extends Values {
     constructor(song) {

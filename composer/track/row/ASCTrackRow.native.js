@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import {PanResponder, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";

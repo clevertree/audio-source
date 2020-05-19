@@ -1,6 +1,5 @@
 import React from "react";
 import {Text, View, ScrollView, TouchableHighlight, StyleSheet} from 'react-native';
-import PropTypes from 'prop-types';
 import {ASUIIcon, ASUIMenuDropDown} from "../../components";
 import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
 

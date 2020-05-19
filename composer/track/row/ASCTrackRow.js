@@ -5,7 +5,6 @@ import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
 import ASUIDropDownContainer from "../../../components/menu/dropdown/ASUIDropDownContainer";
 import "./ASCTrackRow.css";
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../../components/menu";
 
 class ASCTrackRow extends React.Component {
     constructor(props) {
@@ -75,7 +74,9 @@ class ASCTrackRow extends React.Component {
         // const selectedIndices = clearSelection ? [] : null;
         const tracker = this.getTracker();
         tracker.setCursorPositionOffset(this.props.cursorPosition);
-        tracker.selectIndices([], true);
+        tracker.selectIndices([], clearSelection);
+        const {positionSeconds} = this.getTracker().getPositionInfo(this.props.positionTicks);
+        this.getComposer().setSongPosition(this.getTracker().getStartPosition() + positionSeconds)
     }
 
 

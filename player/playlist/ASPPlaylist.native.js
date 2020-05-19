@@ -1,5 +1,5 @@
 import React from "react";
-import {Text, TouchableHighlight, View} from "react-native";
+import {Text, View} from "react-native";
 // import {ASUIDiv as Div} from "../../components/";
 import ASPPlaylistEntry from "./ASPPlaylistEntry";
 

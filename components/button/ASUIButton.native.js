@@ -1,11 +1,10 @@
 import React from "react";
 import PropTypes from 'prop-types';
 
-import {ImageBackground, View} from "react-native";
+import {ImageBackground} from "react-native";
 import ASUIClickableBase from "./ASUIClickableBase";
 
 import styles from "./ASUIButton.style";
-import GlobalStyle from "../../common/style/GlobalStyle";
 
 export default class ASUIButton extends ASUIClickableBase {
     /** Default Properties **/

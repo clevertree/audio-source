@@ -1,5 +1,4 @@
 import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
-import {ASCTrack} from "./track";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
