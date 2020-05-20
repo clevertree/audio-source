@@ -1,40 +1,61 @@
 import Instruction from "./Instruction";
 
 class InstructionIterator {
-    constructor(instructionList, timeDivision, beatsPerMinute) {
+    constructor(instructionList, timeDivision, beatsPerMinute, quantizationTicks=null) {
         this.instructions = instructionList;
         this.beatsPerMinute = beatsPerMinute;
         this.timeDivision = timeDivision;
 
-        this.currentIndex = -1; // TODO: rename to index?
         this.positionTicks = 0;
         this.endPositionTicks = 0;
         this.positionSeconds = 0;
         this.endPositionSeconds = 0;
         this.lastInstructionPositionInTicks = 0;
         this.lastInstructionPositionInSeconds = 0;
-        this.rowCount = 0;
-        this.cursorPosition = 0;
 
-        // this.nextQuantizationBreakInTicks = null;
-        // this.stats = stats || {};
-
+        this.currentIndex = -1; // TODO: rename to index?
     }
+
 
     hasReachedEnd() {
         return this.currentIndex >= this.instructions.length - 1;
     }
 
-    incrementPositionByInstruction(instruction, callback=null) {
-        const deltaDurationTicks = instruction.deltaDurationTicks;
+    doCallback(callback=null, instruction, deltaDurationTicks, elapsedTime) {
+        if(!callback)
+            return true;
+        return callback(instruction, deltaDurationTicks, elapsedTime);
+    }
+
+    incrementPositionByDelta(deltaDurationTicks, callback=null) {
+        // console.log('incrementPositionByDelta', deltaDurationTicks);
         this.positionTicks = this.lastInstructionPositionInTicks + deltaDurationTicks;
         this.lastInstructionPositionInTicks = this.positionTicks;
 
         const elapsedTime = (deltaDurationTicks / this.timeDivision) / (this.beatsPerMinute / 60);
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
         this.lastInstructionPositionInSeconds = this.positionSeconds;
+        // this.cursorPosition++;
+        // this.rowCount++;
+        this.doCallback(callback);
+    }
 
-        const durationTicks = instruction.durationTicks || 0;
+    incrementPositionByInstruction(instruction, callback=null) {
+        let deltaDurationTicks = instruction.deltaDurationTicks;
+
+        if(deltaDurationTicks > 0) {
+            // if(this.quantizationTicks !== null)
+            //     deltaDurationTicks = this.incrementPositionByQuantizedDelta(deltaDurationTicks, this.quantizationTicks, callback);
+
+
+            this.incrementPositionByDelta(deltaDurationTicks, callback);
+        }
+
+        this.currentIndex++;
+        // this.cursorPosition++;
+
+        // Calculate song end point
+        const durationTicks = instruction.durationTicks;
         if(durationTicks) {
 
             const trackEndPositionInTicks = this.positionTicks + durationTicks;
@@ -47,7 +68,6 @@ class InstructionIterator {
         }
         if(callback)
             callback(instruction);
-        this.cursorPosition++;
 
         // TODO: calculate bpm changes
     }
@@ -68,44 +88,44 @@ class InstructionIterator {
         if (this.hasReachedEnd())
             return null;
 
-        this.currentIndex++;
-        let currentInstruction = this.currentInstruction(); // new SongInstruction(this.instructionList[this.trackIndex]);
+        let currentInstruction = this.getInstruction(this.currentIndex + 1); // new SongInstruction(this.instructionList[this.trackIndex]);
         this.incrementPositionByInstruction(currentInstruction, callback); // , currentInstruction.duration);
         return currentInstruction;
     }
 
-    nextInstructionRow(rowCallback=null, instructionCallback=null) {
-        if(this.hasReachedEnd())
-            return null;
-
-        const instructionList = [];
-        while(true) {
-            const instruction = this.nextInstruction(instructionCallback);
-            // Add instruction to the list
-            instructionList.push(instruction);
-
-            if(this.hasReachedEnd())
-                break;
-
-            // Check next instruction
-            const nextInstruction = this.getInstruction(this.currentIndex + 1);
-
-            // If the next instruction has a delta, then the current row ends
-            if (nextInstruction.deltaDurationTicks > 0) {
-                // Finish last row
-                break;
-            }
-
-            // Get next instruction
-            // instruction = this.nextInstruction(instructionCallback);
-        }
-
-        if(rowCallback)
-            rowCallback(instructionList);
-        this.rowCount++;
-        this.cursorPosition++;
-        return instructionList;
-    }
+    /** @deprecated **/
+    // nextInstructionRow(rowCallback=null, instructionCallback=null) {
+    //     if(this.hasReachedEnd())
+    //         return null;
+    //
+    //     const instructionList = [];
+    //     while(true) {
+    //         const instruction = this.nextInstruction(instructionCallback);
+    //         // Add instruction to the list
+    //         instructionList.push(instruction);
+    //
+    //         if(this.hasReachedEnd())
+    //             break;
+    //
+    //         // Check next instruction
+    //         const nextInstruction = this.getInstruction(this.currentIndex + 1);
+    //
+    //         // If the next instruction has a delta, then the current row ends
+    //         if (nextInstruction.deltaDurationTicks > 0) {
+    //             // Finish last row
+    //             break;
+    //         }
+    //
+    //         // Get next instruction
+    //         // instruction = this.nextInstruction(instructionCallback);
+    //     }
+    //
+    //     if(rowCallback)
+    //         rowCallback(instructionList);
+    //     // this.rowCount++;
+    //     this.cursorPosition++;
+    //     return instructionList;
+    // }
 
 
     /** Seeking **/
@@ -145,6 +165,24 @@ class InstructionIterator {
             }
             this.nextInstruction(callback);
         }
+        // TODO
+        // const remainingTicks = positionTicks - this.positionTicks;
+        // deltaDurationTicks = this.incrementPositionByQuantizedDelta(deltaDurationTicks, this.quantizationTicks, callback);
+    }
+
+    /** Static **/
+
+    static getIteratorFromSong(song, trackName, timeDivision=null, beatsPerMinute=null) {
+        const songData = song.getProxiedData();
+        if(!songData.tracks[trackName])
+            throw new Error("Invalid instruction track: " + trackName);
+        const instructionList = songData.tracks[trackName];
+
+        return new InstructionIterator(
+            instructionList,
+            timeDivision || songData.timeDivision,
+            beatsPerMinute || songData.beatsPerMinute,
+        )
     }
 }
 

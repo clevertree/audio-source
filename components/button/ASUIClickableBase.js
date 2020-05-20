@@ -47,7 +47,7 @@ export default class ASUIClickableBase extends React.Component {
     /** User Input **/
 
     onClick(e) {
-        console.log(e.type);
+//         console.log(e.type);
         if(e.defaultPrevented)
             return;
         e.preventDefault();

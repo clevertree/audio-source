@@ -21,7 +21,7 @@ class ASComposerRenderer extends React.Component {
     }
 
     render() {
-        console.log('ASComposerRenderer.render()');
+//         console.log('ASComposerRenderer.render()');
 
         return <ASComposerContainer
                     containerRef={this.containerRef}

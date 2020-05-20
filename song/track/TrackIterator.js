@@ -31,7 +31,7 @@ export default class TrackIterator {
         this.startTrackIteration(startingStats);
     }
 
-    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
+    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
         if(!this.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = this.tracks[trackName];
@@ -40,6 +40,7 @@ export default class TrackIterator {
             instructionList,
             timeDivision || this.startingTimeDivision,
             beatsPerMinute || this.startingBeatsPerMinute,
+            quantizationTicks
         );
     }
 

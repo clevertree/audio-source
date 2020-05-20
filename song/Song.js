@@ -275,7 +275,7 @@ class Song {
 
     programLoadAll() {
         const programList = this.getProxiedData().programs;
-        console.log('programList', programList);
+        // console.log('programList', programList);
         for (let programID = 0; programID < programList.length; programID++) {
             if (programList[programID]) {
                 this.programLoadInstanceFromID(programID);
@@ -387,17 +387,8 @@ class Song {
     }
 
 
-    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
-        const songData = this.getProxiedData();
-        if(!songData.tracks[trackName])
-            throw new Error("Invalid instruction track: " + trackName);
-        const instructionList = songData.tracks[trackName];
-
-        return new InstructionIterator(
-            instructionList,
-            timeDivision || songData.timeDivision,
-            beatsPerMinute || songData.beatsPerMinute,
-        );
+    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
+        return InstructionIterator.getIteratorFromSong(this, trackName, timeDivision, beatsPerMinute);
     }
 
     instructionGetQuantizedIterator(trackName, quantizationTicks, timeDivision=null, beatsPerMinute=null) {
@@ -725,7 +716,7 @@ class Song {
             song: this
         });
 
-        console.log('setPlaybackPosition', songPosition);
+        // console.log('setPlaybackPosition', songPosition);
 
         // if (isPlaying) {
         //     const oldDestination = this.playback.destination;
@@ -751,7 +742,7 @@ class Song {
         // await this.init(audioContext);
         if(startPosition === null)
             startPosition = this.playbackPosition;
-        console.log("Start playback:", destination, startPosition, onended);
+        // console.log("Start playback:", destination, startPosition, onended);
         const playback = new TrackPlayback(this, this.getStartTrackName(), this.dispatchEventCallback);
         this.playback = playback;
         playback.play(destination, startPosition)

@@ -50,6 +50,7 @@ export default class QuantizedInstructionIterator extends InstructionIterator {
     }
 
 
+    /** @deprecated **/
     nextQuantizedInstructionRow(rowCallback=null, instructionCallback=null) {
         // if(toPositionTicks !== null && this.positionTicks >= toPositionTicks)
         //     return null; // Reached the end
