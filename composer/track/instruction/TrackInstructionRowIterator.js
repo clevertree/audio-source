@@ -12,83 +12,116 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
         this.cursorPosition = -1;
         this.cursorPositionIsInstruction = true;
     }
-
+    //
     // incrementPositionByDelta(deltaDurationTicks, callback = null) {
-    //     // Skip quantized rows
-    //     while(this.nextQuantizationBreakInTicks <= this.positionTicks)
-    //         this.nextQuantizationBreakInTicks += this.quantizationTicks;
+    //     super.incrementPositionByDelta(deltaDurationTicks, callback);
     //
-    //     // Check for quantized rows
-    //     while(this.nextQuantizationBreakInTicks < this.positionTicks + deltaDurationTicks) {
-    //         const quantizedRowDelta = this.nextQuantizationBreakInTicks - this.positionTicks;
-    //         deltaDurationTicks -= quantizedRowDelta;
-    //         this.nextQuantizationBreakInTicks += this.quantizationTicks;
-    //         super.incrementPositionByDelta(quantizedRowDelta, callback);
-    //     }
-    //
-    //     return super.incrementPositionByDelta(deltaDurationTicks, callback);
     // }
 
-    incrementPositionByDelta(deltaDurationTicks, callback = null) {
-        super.incrementPositionByDelta(deltaDurationTicks, callback);
-
-        // Update next quantized row position
-        while(this.nextQuantizationBreakInTicks <= this.positionTicks)
-            this.nextQuantizationBreakInTicks += this.quantizationTicks;
-    }
-
-    nextCursorPosition(callback=null) {
+    nextCursorPosition() {
         this.cursorPosition++;
 
-        if(!this.hasReachedEnd()) {
-            // Seek ahead to next instruction
-            let nextInstruction = this.getInstruction(this.currentIndex+1);
-            const nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
-            if(this.cursorPositionIsInstruction) {
-                // If the current position is an instruction, and the next instruction has a delta, then end the row
-                if(nextInstruction.deltaDurationTicks > 0) {
-                    // Add cursor position for end of the row
+        if(this.cursorPositionIsInstruction) {
+            // Collect instructions
+            if (!this.hasReachedEnd()) {
+                // Seek ahead to next instruction
+                let nextInstruction = this.getInstruction(this.currentIndex + 1);
+                let nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+                if (nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
+                    // If next instruction occurs before next quantization break
+                    if (nextInstruction.deltaDurationTicks <= 0) {
+                        // and instruction has no delta duration, then return it
+                        return this.nextInstruction();
+                    }
+                    // End the current row by returning the new delta difference
                     this.cursorPositionIsInstruction = false;
-                    // If next instruction occurs before next quantization break, return it's position
-                    if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks)
-                        return nextInstructionPositionTicks - this.positionTicks;
-
-                    // Render quantization row
-                    const quantizedRowDelta = this.nextQuantizationBreakInTicks - this.positionTicks;
-                    this.nextQuantizationBreakInTicks += this.quantizationTicks;
-                    if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks)
-                        return nextInstructionPositionTicks - this.positionTicks;
-                    return this.nextQuantizationBreakInTicks - this.positionTicks;
-                    // this.incrementPositionByDelta(quantizedRowDelta, callback);
-                    // this.rowCount++;
-                    // return quantizedRowDelta;
+                    return nextInstructionPositionTicks - this.positionTicks;
                 }
-                // Return instruction
-                return this.nextInstruction(callback);
-            } else {
-                // If the next instruction position is before the next quantization break, render it first
-                if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
-                    this.rowCount++;
-                    this.cursorPositionIsInstruction = true;
-                    // Return instruction
-                    return this.nextInstruction(callback);
-                }
-
-                // Otherwise, render another quantization row ..
             }
-        }
 
-        // Render quantization row
-        const quantizedRowDelta = this.nextQuantizationBreakInTicks - this.positionTicks;
-        this.incrementPositionByDelta(quantizedRowDelta, callback);
-        this.cursorPositionIsInstruction = false;
-        this.rowCount++;
-        return quantizedRowDelta;
+            // Update next quantized row position //TODO: if cursorPosition === 0
+            while(this.nextQuantizationBreakInTicks <= this.positionTicks)
+                this.nextQuantizationBreakInTicks += this.quantizationTicks;
+
+            // End the current row by returning the quantized delta difference
+            this.cursorPositionIsInstruction = false;
+            return this.nextQuantizationBreakInTicks - this.positionTicks;
+
+        } else {
+            // Start a new row
+            this.rowCount++;
+            // If we haven't reached the end,
+            if(!this.hasReachedEnd()) {
+                let nextInstruction = this.nextInstruction();
+                if(nextInstruction.deltaDurationTicks === 0)
+                    console.error("New row instruction should not have a zero delta")
+                if(!this.hasReachedEnd())
+                    this.cursorPositionIsInstruction = true;
+
+                return nextInstruction;
+            }
+
+            // Update next quantized row position
+            while(this.nextQuantizationBreakInTicks <= this.positionTicks)
+                this.nextQuantizationBreakInTicks += this.quantizationTicks;
+
+            // End the current row by returning the quantized delta difference
+            const rowDeltaTicks = this.nextQuantizationBreakInTicks - this.positionTicks;
+            this.incrementPositionByDelta(rowDeltaTicks);
+            return rowDeltaTicks;
+        }
+        //
+        // if(this.cursorPositionIsInstruction) {
+        //     // If the current position is an instruction, and the next instruction has a delta, then end the row
+        //     if(nextInstruction.deltaDurationTicks > 0) {
+        //         // Add cursor position for end of the row
+        //         this.cursorPositionIsInstruction = false;
+        //         // If next instruction occurs before next quantization break, return it's position
+        //         if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks)
+        //             return nextInstructionPositionTicks - this.positionTicks;
+        //
+        //         // Render quantization row
+        //         // const quantizedRowDelta = this.nextQuantizationBreakInTicks - this.positionTicks;
+        //         if(this.positionTicks === 0) {
+        //             this.nextQuantizationBreakInTicks += this.quantizationTicks;
+        //             if (nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks)
+        //                 return nextInstructionPositionTicks - this.positionTicks;
+        //         }
+        //         return this.nextQuantizationBreakInTicks - this.positionTicks;
+        //         // this.incrementPositionByDelta(quantizedRowDelta, callback);
+        //         // this.rowCount++;
+        //         // return quantizedRowDelta;
+        //     }
+        //     // Return instruction
+        //     return this.nextInstruction(callback);
+        // } else {
+        //     // If the next instruction position is before the next quantization break, render it first
+        //     if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
+        //         this.rowCount++;
+        //         this.cursorPositionIsInstruction = true;
+        //         // Return instruction
+        //         return this.nextInstruction(callback);
+        //     }
+        //
+        //     // Otherwise, render another quantization row ..
+        //     const quantizedRowDelta = (this.positionTicks === 0)
+        //         ? (this.nextQuantizationBreakInTicks + this.quantizationTicks)
+        //         : (this.nextQuantizationBreakInTicks - this.positionTicks);
+        //     this.incrementPositionByDelta(quantizedRowDelta, callback);
+        //     this.cursorPositionIsInstruction = false;
+        //     this.rowCount++;
+        //     return quantizedRowDelta;
+        // }
+
     }
 
     nextRowPosition(callback=null) {
         // TODO:
     }
+
+
+
+
 
 
     // seekToNextOffset(callback) {
@@ -109,6 +142,7 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
         }
     }
 
+    /** Static **/
 
     static getIteratorFromSong(song, trackName, quantizationTicks, timeDivision=null, beatsPerMinute=null) {
         const songData = song.getProxiedData();

@@ -87,7 +87,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     selectInstruction(clearSelection=true, toggleValue = null) {
         // const trackName = this.getTracker().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
-        console.log('selectInstruction', clearSelection, selectedIndices);
+        // console.log('selectInstruction', clearSelection, selectedIndices);
         // const instruction = this.getInstruction();
         const i = selectedIndices.indexOf(this.props.index);
         if(toggleValue === true || i === -1) {
