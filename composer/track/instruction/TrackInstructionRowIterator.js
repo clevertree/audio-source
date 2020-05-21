@@ -49,9 +49,19 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
                 if(nextInstruction.deltaDurationTicks > 0) {
                     // Add cursor position for end of the row
                     this.cursorPositionIsInstruction = false;
+                    // If next instruction occurs before next quantization break, return it's position
+                    if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks)
+                        return nextInstructionPositionTicks - this.positionTicks;
+
+                    // Render quantization row
+                    const quantizedRowDelta = this.nextQuantizationBreakInTicks - this.positionTicks;
+                    this.nextQuantizationBreakInTicks += this.quantizationTicks;
                     if(nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks)
                         return nextInstructionPositionTicks - this.positionTicks;
                     return this.nextQuantizationBreakInTicks - this.positionTicks;
+                    // this.incrementPositionByDelta(quantizedRowDelta, callback);
+                    // this.rowCount++;
+                    // return quantizedRowDelta;
                 }
                 // Return instruction
                 return this.nextInstruction(callback);
@@ -64,7 +74,7 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
                     return this.nextInstruction(callback);
                 }
 
-                // Otherwise, render another quantization row
+                // Otherwise, render another quantization row ..
             }
         }
 

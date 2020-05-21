@@ -254,8 +254,6 @@ export default class ASCTrackBase extends React.Component {
                     highlight = 'position';
                 }
 
-                if(iterator.rowCount < rowOffset)
-                    return;
                 // if(this.firstCursorRowOffset === null)
                 //     this.firstCursorRowOffset = iterator.cursorPosition;
 
@@ -265,18 +263,21 @@ export default class ASCTrackBase extends React.Component {
                     console.warn("rowDeltaTicks is ", rowDeltaTicks);
                 }
 
-                const newRowElm = <ASCTrackRow
-                    key={iterator.rowCount}
-                    tracker={this}
-                    positionTicks={iterator.positionTicks}
-                    positionSeconds={iterator.positionSeconds}
-                    deltaDuration={rowDeltaTicks}
-                    cursorPosition={iterator.cursorPosition}
-                    cursor={iterator.cursorPosition === cursorOffset}
-                    highlight={highlight}
+                if(iterator.rowCount >= rowOffset) {
+                    const newRowElm = <ASCTrackRow
+                        key={iterator.rowCount}
+                        tracker={this}
+                        positionTicks={iterator.positionTicks}
+                        positionSeconds={iterator.positionSeconds}
+                        deltaDuration={rowDeltaTicks}
+                        cursorPosition={iterator.cursorPosition}
+                        cursor={iterator.cursorPosition === cursorOffset}
+                        highlight={highlight}
 
-                >{rowInstructionElms}</ASCTrackRow>;
-                rowContent.push(newRowElm);
+                    >{rowInstructionElms}</ASCTrackRow>;
+                    rowContent.push(newRowElm);
+                }
+
                 rowInstructionElms = [];
             }
         }

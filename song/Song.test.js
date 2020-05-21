@@ -131,7 +131,7 @@ class SongTest {
       for(let i=0; i<textNotes.insert.length; i++) {
         const [expPos, delta, insertNote] = textNotes.insert[i];
         const index = song.instructionInsertAtIndex(testTrackName, testTrack.length, [delta, insertNote]);
-        const iterator = song.instructionGetIterator(testTrackName);
+        let iterator = InstructionIterator.getIteratorFromSong(song, testTrackName);
         iterator.seekToIndex(index);
         expect(iterator.positionTicks).toBe(expPos);
       }
@@ -140,7 +140,7 @@ class SongTest {
       for(let i=0; i<textNotes.position.length; i++) {
         const [expPos, insPos, insertNote] = textNotes.position[i];
         const index = song.instructionInsertAtPosition(testTrackName, insPos, insertNote);
-        const iterator = song.instructionGetIterator(testTrackName);
+        let iterator = InstructionIterator.getIteratorFromSong(song, testTrackName);
         iterator.seekToIndex(index);
         expect(iterator.positionTicks).toBe(expPos);
       }
