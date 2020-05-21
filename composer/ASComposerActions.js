@@ -756,17 +756,6 @@ class ASComposerActions extends ASComposerMenu {
         );
     }
 
-    /** @deprecated **/
-    trackerGetQuantizedIterator(trackName=null) {
-        const activeTrack = this.getActiveTrack(trackName);
-        return this.getSong().instructionGetQuantizedIterator(
-            trackName,
-            activeTrack.getQuantizationTicks(),
-            activeTrack.getTimeDivision(),
-            activeTrack.getBeatsPerMinute()
-        );
-    }
-
     /** Track State **/
 
     hasActiveTrack(trackName) {

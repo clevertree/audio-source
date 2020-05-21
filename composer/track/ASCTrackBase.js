@@ -112,16 +112,15 @@ export default class ASCTrackBase extends React.Component {
         return this.destination = this.getComposer().getAudioContext();
     }
 
-
-    instructionGetQuantizedIterator() {
-        return this.getSong().instructionGetQuantizedIterator(
+    getIterator() {
+        return TrackInstructionRowIterator.getIteratorFromSong(
+            this.getSong(),
             this.getTrackName(),
             this.getQuantizationTicks(),
-            this.getTimeDivision(),
-            this.getBeatsPerMinute()
+            this.getTimeDivision(), // || this.getSong().data.timeDivision,
+            this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
         )
     }
-
 
 
     /** Actions **/
@@ -225,20 +224,16 @@ export default class ASCTrackBase extends React.Component {
 
 
         // Get Iterator
-        const iterator = TrackInstructionRowIterator.getIteratorFromSong(
-            this.getSong(),
-            this.getTrackName(),
-            quantizationTicks,
-            this.getTimeDivision(), // || this.getSong().data.timeDivision,
-            this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
-        )
+        const iterator = this.getIterator();
 
         const rowContent = [];
         let rowInstructionElms = [];
 
         while(rowContent.length < this.getRowLength()) {
+            const rowDeltaTicks = iterator.nextCursorPosition();
             if(iterator.cursorPositionIsInstruction) {
-                const instruction = iterator.nextCursorPosition();
+                const instruction = iterator.currentInstruction();
+                // console.log('instruction', instruction);
                 const index = iterator.currentIndex;
                 rowInstructionElms.push(<ASCTrackInstruction
                     key={index}
@@ -251,7 +246,6 @@ export default class ASCTrackBase extends React.Component {
                     playing={playingIndices.indexOf(index) !== -1}
                 />)
             } else {
-                const rowDeltaTicks = iterator.nextCursorPosition();
                 let highlight = false;
                 if(iterator.positionTicks % beatsPerMeasureTicks === 0)
                     highlight = 'measure-start';
@@ -523,23 +517,6 @@ export default class ASCTrackBase extends React.Component {
         });
     }
 
-    getIterator() {
-        return this.getSong().instructionGetIterator(
-            this.getTrackName(),
-            this.getTimeDivision(),
-            this.getBeatsPerMinute()
-        );
-    }
-
-    getQuantizedIterator() {
-        return this.getSong().instructionGetQuantizedIterator(
-            this.getTrackName(),
-            this.getQuantizationTicks(),
-            this.getTimeDivision(),
-            this.getBeatsPerMinute()
-        );
-    }
-
 
     /**
      * Used when selecting
@@ -604,7 +581,7 @@ export default class ASCTrackBase extends React.Component {
         if(!Number.isInteger(positionTicks))
             throw new Error("Invalid positionTicks: " + positionTicks);
 
-        const iterator = this.getQuantizedIterator();
+        const iterator = this.getIterator();
         iterator.seekToPositionTicks(positionTicks)
         // let indexFound = null;
         // while(iterator.positionTicks < positionTicks) {

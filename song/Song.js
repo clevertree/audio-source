@@ -4,7 +4,7 @@ import SongValues from "./values/SongValues";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import ConfigListener from "./config/ConfigListener";
-import {Instruction, InstructionIterator, QuantizedInstructionIterator} from "./instruction/";
+import {Instruction, InstructionIterator} from "./instruction/";
 
 
 import ProgramList from "../programs";
@@ -387,23 +387,6 @@ class Song {
     }
 
 
-    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
-        return InstructionIterator.getIteratorFromSong(this, trackName, timeDivision, beatsPerMinute);
-    }
-
-    instructionGetQuantizedIterator(trackName, quantizationTicks, timeDivision=null, beatsPerMinute=null) {
-        const songData = this.getProxiedData();
-        if(!songData.tracks[trackName])
-            throw new Error("Invalid instruction track: " + trackName);
-        const instructionList = songData.tracks[trackName];
-
-        return new QuantizedInstructionIterator(
-            instructionList,
-            quantizationTicks,
-            timeDivision || songData.timeDivision,
-            beatsPerMinute || songData.beatsPerMinute,
-        );
-    }
 
 
     /** Modify Instructions **/
@@ -421,7 +404,7 @@ class Song {
         let instructionList = this.data.tracks[trackName];
 
 
-        const iterator = this.instructionGetIterator(trackName);
+        const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
 
         let instruction = iterator.nextInstruction();
         while (instruction) {
@@ -606,13 +589,15 @@ class Song {
     // }
 
 
+    /** @deprecated **/
     getSongPositionFromTicks(songPositionInTicks) {
         return this.getGroupPositionFromTicks(this.getStartTrackName(), songPositionInTicks);
     }
 
     // Refactor
+    /** @deprecated **/
     getGroupPositionFromTicks(trackName, groupPositionInTicks) {
-        const iterator = this.instructionGetIterator(trackName);
+        const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
         while (true) {
             if (iterator.positionTicks >= groupPositionInTicks || !iterator.nextInstruction())
                 break;
@@ -642,8 +627,10 @@ class Song {
     }
 
 
+
+    /** @deprecated **/
     getGroupPositionInTicks(trackName, positionInSeconds) {
-        const iterator = this.instructionGetIterator(trackName);
+        const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
         while (true) {
             if (iterator.positionSeconds >= positionInSeconds || !iterator.nextInstruction())
                 break;
