@@ -84,10 +84,10 @@ export default class TrackIterator {
     hasReachedEnd() {
         for(let i=0; i<this.activeTracks.length; i++) {
             const {iterator} = this.activeTracks[i];
-            if(iterator.hasReachedEnd())
-                return true;
+            if(!iterator.hasReachedEnd())
+                return false;
         }
-        return false;
+        return true;
     }
 
 

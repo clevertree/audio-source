@@ -67,6 +67,14 @@ class ASComposerActions extends ASComposerMenu {
         this.setState({
             songLength: this.song.getSongLengthInSeconds(),
         });
+        for(let key in this.activeTracks) {
+            if(this.activeTracks.hasOwnProperty(key)) {
+                const activeTrack = this.activeTracks[key];
+                if(activeTrack.current) {
+                    activeTrack.current.updateTrackLengthInTicks();
+                }
+            }
+        }
     }
 
 
@@ -511,6 +519,7 @@ class ASComposerActions extends ASComposerMenu {
             this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
 
         activeTrack.setState({selectedIndices: []})
+        this.updateCurrentSong();
     }
 
     /** Keyboard Commands **/

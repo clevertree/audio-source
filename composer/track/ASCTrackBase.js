@@ -322,7 +322,7 @@ export default class ASCTrackBase extends React.Component {
         const selectedSegmentID = Math.floor(cursorPositionTicks / segmentLengthTicks)
         // const segmentPositions = this.getSegmentPositions();
 
-        console.log('selectedSegmentID', selectedSegmentID, cursorPositionTicks, segmentLengthTicks);
+        // console.log('selectedSegmentID', selectedSegmentID, cursorPositionTicks, segmentLengthTicks);
         for(let i=0; i<=10; i++) {
             const positionTicks = i * segmentLengthTicks;
             if(buttons.length > ASCTrackBase.DEFAULT_MAX_SEGMENTS
@@ -428,29 +428,8 @@ export default class ASCTrackBase extends React.Component {
             iterator.seekToEnd();
             trackLengthTicks = iterator.getPositionInTicks();
         }
-        if(this.state.trackLengthTicks !== trackLengthTicks)
-            this.setState({
-                trackLengthTicks,
-            });
-        // const qIterator = this.getQuantizedIterator();
-        // const segmentLengthTicks = this.getSegmentLengthTicks();
-        // const segmentPositions = [];
-        // const segmentLimit = ASCTrack.DEFAULT_MIN_SEGMENTS || 3;
-        // let lastSegmentPositionTicks = 0;
-        // while ( qiterator.getPositionInTicks() < trackLengthTicks
-        // || segmentPositions.length < segmentLimit) {
-        //     if(lastSegmentPositionTicks <= qiterator.getPositionInTicks()) {
-        //         // Found end of segment
-        //         segmentPositions.push(qIterator.rowCount);
-        //         lastSegmentPositionTicks += segmentLengthTicks;
-        //     }
-        //     qIterator.nextQuantizedInstructionRow();
-        // }
-
-        // console.log('updateSegmentInfo', segmentPositions, trackLengthTicks, this.state);
         this.setState({
             trackLengthTicks,
-            // segmentPositions,
         });
     }
 

@@ -16,7 +16,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 ## WebAudio for Mobile Devices:
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
 * Songs, instruments, and samples written for Audio Source will work on any platform. 
-* Instruments render responsive UI on the UI threat while rendering audio in the WebView proxy. 
+* Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy. 
 
 ## Planned Features:
 * Import MIDI files
