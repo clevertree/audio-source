@@ -965,6 +965,11 @@ class ASComposerActions extends ASComposerMenu {
         setTimeout(() => this.onResize(), 200);
     }
 
+    /** Toggle Track Formatting **/
+    toggleTrackRowPositionInTicks() { this.setState({showTrackRowPositionInTicks: !this.state.showTrackRowPositionInTicks}); }
+    toggleTrackRowDurationInTicks() { this.setState({showTrackRowDurationInTicks: !this.state.showTrackRowDurationInTicks}); }
+
+
     /** Tools **/
 
 

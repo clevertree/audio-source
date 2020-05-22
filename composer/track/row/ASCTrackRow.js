@@ -40,7 +40,8 @@ class ASCTrackRow extends React.Component {
         if (this.props.highlight)
             className += ` ${this.props.highlight}`; // ' highlight';
         const composer = this.props.tracker.getComposer();
-        const rowDeltaDuration = composer.values.formatSongDuration(this.props.deltaDuration);
+        const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : composer.values.formatSongDuration(this.props.deltaDuration);
+        const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatSongDuration(this.props.positionTicks);
         return (
             <div
                 ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
@@ -51,7 +52,7 @@ class ASCTrackRow extends React.Component {
                 onContextMenu={this.cb.onContextMenu}
                 onKeyDown={this.cb.onKeyDown}
             >
-                <ASCTrackPosition positionTicks={this.props.positionTicks}/>
+                <ASCTrackPosition position={rowPosition}/>
                 {this.props.children}
                 {this.props.cursor ? <ASCTrackInstructionAdd // TODO: render on hover
                     cursorPosition={this.props.cursorPosition}

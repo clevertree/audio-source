@@ -356,6 +356,11 @@ class Values {
     }
 
     formatDuration(input, timeDivision) {
+        const beatDivisor = input / timeDivision;
+        if(beatDivisor === Math.round(beatDivisor))
+            return beatDivisor + 'B';
+
+        // TODO: this part is inefficient
         let stringValue;
         this.getNoteDurations((duration, durationString) => {
             if (input === duration || input === durationString) {
@@ -363,12 +368,10 @@ class Values {
                 return false;
             }
         }, timeDivision);
+        console.log('formatDuration', {input, stringValue})
 
         if (stringValue)
             return stringValue;
-        const beatDivisor = input / timeDivision;
-        if(beatDivisor === Math.round(beatDivisor))
-            return beatDivisor + 'B';
 
         input = parseFloat(input).toFixed(2);
         return input.replace('.00', 't');
@@ -381,17 +384,14 @@ class Values {
             let result = callback(1 / i * timeDivision, `1/${i}B`);            // Full Beats
             if(!addResult(results, result)) return results;
         }
-        for (let i = 64; i > 1; i /= 2) {
-            let result = callback((1 / i) / 1.5 * timeDivision, `1/${i}T`); // Triplet
-            if(!addResult(results, result)) return results;
-        }
-        for (let i = 64; i > 1; i /= 2) {
-            let result = callback(1 / i * 1.5 * timeDivision, `1/${i}D`);      // Dotted
+        for (let i = 1; i <= 16; i++) {
+            let result = callback(i * timeDivision, `${i}B`);            // Full Beats
             if(!addResult(results, result)) return results;
         }
 
-        for (let i = 1; i <= 16; i++) {
-            let result = callback(i * timeDivision, `${i}B`);            // Full Beats
+
+        for (let i = 64; i > 1; i /= 2) {
+            let result = callback((1 / i) / 1.5 * timeDivision, `1/${i}T`); // Triplet
             if(!addResult(results, result)) return results;
         }
 
@@ -400,6 +400,11 @@ class Values {
             if(!addResult(results, result)) return results;
         }
 
+
+        for (let i = 64; i > 1; i /= 2) {
+            let result = callback(1 / i * 1.5 * timeDivision, `1/${i}D`);      // Dotted
+            if(!addResult(results, result)) return results;
+        }
         for (let i = 1; i <= 16; i++) {
             let result = callback(i * 1.5 * timeDivision, `${i}D`);      // Dotted
             if(!addResult(results, result)) return results;

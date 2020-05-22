@@ -182,19 +182,24 @@ class SongTest {
     // let currentIndex = 0;
     test(`TrackInstructionRowIterator.nextCursorPosition`, () => {
       const quantizedTicks = 5;
-      let iterator = TrackInstructionRowIterator.getIteratorFromSong(song, testTrackName, quantizedTicks);
+      let rowIterator = TrackInstructionRowIterator.getIteratorFromSong(song, testTrackName, quantizedTicks);
       let rowCount=0, cursorPosition=-1;
+      let positionInTicks=0, durationInTicks=0;
 
       // eslint-disable-next-line no-loop-func
-      while(iterator.rowCount < 20) {
-        const instruction = iterator.nextCursorPosition();
+      while(rowIterator.rowCount < 20) {
+        const instruction = rowIterator.nextCursorPosition();
         cursorPosition++;
-        expect(iterator.cursorPosition).toBe(cursorPosition);
-        expect(iterator.rowCount).toBe(rowCount);
+        expect(rowIterator.cursorPosition).toBe(cursorPosition);
+        expect(rowIterator.rowCount).toBe(rowCount);
         if(!(instruction instanceof Instruction)) {
           rowCount++;
+          positionInTicks += instruction;
+        } else {
+          positionInTicks += instruction.deltaDurationTicks;
         }
-        console.log(iterator.getPositionInTicks(), iterator.cursorPosition, iterator.rowCount);
+        expect(rowIterator.getPositionInTicks()).toBe(positionInTicks);
+        console.log(rowIterator.getPositionInTicks(), rowIterator.cursorPosition, rowIterator.rowCount);
       }
     });
 

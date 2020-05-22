@@ -11,7 +11,7 @@ class ASCTrackPosition extends React.Component {
                     onPressIn={this.props.onPressIn}
                     >
                     <Text numberOfLines={1}>
-                        {this.props.positionTicks}
+                        {this.props.position}
                     </Text>
                 </TouchableOpacity>
             </View>

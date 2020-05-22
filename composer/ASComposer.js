@@ -22,6 +22,8 @@ export default class ASComposer extends ASComposerInput {
             showPanelSong: true,
             showPanelProgram: true,
             showPanelInstruction: true,
+            showTrackRowPositionInTicks: false,
+            showTrackRowDurationInTicks: false,
 
             // Playback
             volume: Song.DEFAULT_VOLUME,
