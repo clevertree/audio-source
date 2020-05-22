@@ -8,11 +8,15 @@ to work on all platforms from web browsers to desktops applications to mobile de
 
 ## What's Currently Working:
 * Add, edit, and delete notes and tracks
-* Recursively play-back note tracks
-* Note velocity, duration, sample key ranges
+* Recursively play-back note tracks & Hierarchical track views
+* Edit Note velocity and duration
 * OOP-oriented Instruments and Effects can be wrapped in each other to build complex presets
-* Hierarchical track views 
 * Works on any modern browser on any phone, tablet or pc
+
+## WebAudio for Mobile Devices:
+* Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
+* Songs, instruments, and samples written for Audio Source will work on any platform. 
+* Instruments render responsive UI on the UI threat while rendering audio in the WebView proxy. 
 
 ## Planned Features:
 * Import MIDI files
@@ -20,8 +24,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Track XY Grid for easy mouse-click composition
 * Real-time editing between multiple users (like Google Docs)
 * Server-side song rendering
-* Export MIDI files
-
+* Export as MIDI files
 
 
 
@@ -38,6 +41,8 @@ to work on all platforms from web browsers to desktops applications to mobile de
 
 ### Browse to Local Server
 http://localhost:3000
+
+
 
 
 ## App Repo Installation
