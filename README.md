@@ -1,30 +1,33 @@
 # Audio Source Composer
-https://audiosource.io/ 
+[AudioSource.io](https://audiosource.io/)
 
 The Audio Source Composer is an Open-Source Digital Audio Workstation 
 built on the [WebAudioAPI](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 to work on all platforms from web browsers to desktops applications to mobile devices.
 
 
-## What's Currently Working:
-* Add, edit, and delete notes and tracks
-* Recursively play-back note tracks & Hierarchical track views
-* Edit Note velocity and duration
-* OOP-oriented Instruments and Effects can be wrapped in each other to build complex presets
-* Works on any modern browser on any phone, tablet or pc
+## Features:
+* Works on any modern browser on any phone, tablet or pc.
+* Instruments and Effects can be wrapped in each other to build complex presets.
+* Note tracks can be called recursively for a highly structured song.
 
-## WebAudio for Mobile Devices:
+## What's Currently Working:
+* Add, edit, and delete notes and note tracks.
+* Recursively play back tracks by adding a 'Track Note'.
+* Edit note velocity and duration.
+
+## Under the Hood:
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
 * Songs, instruments, and samples written for Audio Source will work on any platform. 
 * Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy. 
 
 ## Planned Features:
-* Import MIDI files
+* Sample libraries
 * Audio recording and editing
 * Track XY Grid for easy mouse-click composition
 * Real-time editing between multiple users (like Google Docs)
 * Server-side song rendering
-* Export as MIDI files
+* Import/Export MIDI files
 
 
 

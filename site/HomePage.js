@@ -26,6 +26,34 @@ export default class HomePage extends React.Component {
                     to work on all platforms from browsers to desktops to mobile devices.
                 </Paragraph>
 
+                <Header>Features</Header>
+                <Paragraph>
+                    Audio Source Composer works on any modern browser on any phone, tablet or pc.
+                    Instruments and Effects can be wrapped in each other to build complex presets.
+                    Note tracks can be called recursively for a highly structured song.
+                </Paragraph>
+
+
+
+                <Header>What's currently working</Header>
+                <Paragraph>
+                    Add, edit, and delete notes and note tracks.
+                    Recursively play back tracks by adding a 'Track Note'.
+                    Edit note velocity and duration.
+                </Paragraph>
+
+
+
+                <Header>Under the Hood: WebAudio API</Header>
+                <Paragraph>
+                    Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
+                    Songs, instruments, and samples written for Audio Source will work on any platform.
+                    Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy.
+                </Paragraph>
+
+
+
+
                 <Header>Web Browser Demo (Alpha)</Header>
                 <Paragraph>
                     Click the image below to try Audio Source Composer (Alpha) on your browser.
@@ -33,7 +61,7 @@ export default class HomePage extends React.Component {
                 <ImageLink
                     href="/composer"
                     src={require("../assets/screenshots/browser-portrait1.png")}
-                />
+                    />
 
                 <Header>Android Demo (Alpha)</Header>
                 <Paragraph>
@@ -42,7 +70,7 @@ export default class HomePage extends React.Component {
                 <ImageLink
                     href="/downloads"
                     src={require("../assets/screenshots/android-portrait1.png")}
-                />
+                    />
 
                 <Header>iOS Demo (Unreleased)</Header>
                 <Paragraph>
@@ -52,7 +80,7 @@ export default class HomePage extends React.Component {
                 <ImageLink
                     href="/downloads"
                     src={require("../assets/screenshots/ios-portrait1.png")}
-                />
+                    />
 
                 <Header>Instruments</Header>
             </PageContent>
@@ -61,5 +89,3 @@ export default class HomePage extends React.Component {
         </PageContainer>;
     }
 }
-
-
