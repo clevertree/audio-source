@@ -296,6 +296,7 @@ export default class ASCTrackBase extends React.Component {
 
                     >{rowInstructionElms}</ASCTrackRow>;
                     rowContent.push(newRowElm);
+                    console.log(rowID, iterator.getPositionInTicks(), rowDeltaTicks, iterator.getPositionInTicks() + rowDeltaTicks);
                 }
 
                 rowInstructionElms = [];

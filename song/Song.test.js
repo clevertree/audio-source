@@ -149,7 +149,7 @@ class SongTest {
 
     // Test Get Instructions
 
-    test(`Test instructionGetByIndex`, () => {
+    test(`Song.instructionGetByIndex`, () => {
       [1, 2].forEach(i => {
         const testInstruction = song.instructionGetByIndex(testTrackName, i);
         console.assert(song.instructionIndexOf(testTrackName, testInstruction) === i, 'instructionFindIndex');
@@ -159,21 +159,18 @@ class SongTest {
     // Test Iterator
     // let currentIndex = 0;
     test(`Iterator.nextInstruction`, () => {
-      let iterator = InstructionIterator.getIteratorFromSong(song, testTrackName);
-      let positionInTicks=0;
-      let currentIndex=-1;
+      Object.keys(song.data.tracks).forEach(trackName => {
+        let iterator = InstructionIterator.getIteratorFromSong(song, trackName);
+        let positionInTicks=0;
+        let currentIndex=-1;
 
-      // eslint-disable-next-line no-loop-func
-      while(iterator.nextInstruction(function(instruction, deltaDurationTicks, elapsedTime) {
-        if(instruction) {
+        for(const instruction of iterator) {
           positionInTicks += instruction.deltaDurationTicks;
           currentIndex++;
-        } else {
+          expect(iterator.getPositionInTicks()).toBe(positionInTicks);
+          expect(iterator.currentIndex).toBe(currentIndex);
         }
-      })) {
-        expect(iterator.getPositionInTicks()).toBe(positionInTicks);
-        expect(iterator.currentIndex).toBe(currentIndex);
-      }
+      });
     });
 
 
@@ -182,55 +179,30 @@ class SongTest {
     // let currentIndex = 0;
     test(`TrackInstructionRowIterator.nextCursorPosition`, () => {
       const quantizedTicks = 5;
-      let rowIterator = TrackInstructionRowIterator.getIteratorFromSong(song, testTrackName, quantizedTicks);
-      let rowCount=0, cursorPosition=-1;
-      let positionInTicks=0, durationInTicks=0;
+      Object.keys(song.data.tracks).forEach(trackName => {
+        let rowIterator = TrackInstructionRowIterator.getIteratorFromSong(song, trackName, quantizedTicks);
+        let rowCount=0, cursorPosition=-1;
+        let positionInTicks=0, durationInTicks=0;
 
-      // eslint-disable-next-line no-loop-func
-      while(rowIterator.rowCount < 20) {
-        const instruction = rowIterator.nextCursorPosition();
-        cursorPosition++;
-        expect(rowIterator.cursorPosition).toBe(cursorPosition);
-        expect(rowIterator.rowCount).toBe(rowCount);
-        if(!(instruction instanceof Instruction)) {
-          rowCount++;
-          positionInTicks += instruction;
-        } else {
-          positionInTicks += instruction.deltaDurationTicks;
+        // eslint-disable-next-line no-loop-func
+        for(const instruction of rowIterator) {
+          cursorPosition++;
+          expect(rowIterator.cursorPosition).toBe(cursorPosition);
+          expect(rowIterator.rowCount).toBe(rowCount);
+          expect(rowIterator.getPositionInTicks()).toBe(positionInTicks);
+          if(!(instruction instanceof Instruction)) {
+            rowCount++;
+            positionInTicks += instruction;
+          } else {
+            // positionInTicks += instruction.deltaDurationTicks;
+          }
+          if(rowCount > 100)
+            break;
+          // console.log(instruction, rowIterator.getPositionInTicks(), rowIterator.nextQuantizationBreakInTicks);
         }
-        expect(rowIterator.getPositionInTicks()).toBe(positionInTicks);
-        console.log(rowIterator.getPositionInTicks(), rowIterator.cursorPosition, rowIterator.rowCount);
-      }
+      });
     });
 
-    // Test Iterator
-    // let currentIndex = 0;
-    false && test(`Quantized Iterator test`, () => {
-      const quantizedTicks = 5;
-      let iterator = TrackInstructionRowIterator.getIteratorFromSong(song, testTrackName, quantizedTicks);
-      let positionInTicks=0;
-      let currentIndex=0-1, currentRow=0, cursorPosition=-1;
-
-      // eslint-disable-next-line no-loop-func
-      while(iterator.nextInstruction(function(instruction, deltaDurationTicks, elapsedTime) {
-        // console.log(instruction, deltaDurationTicks, elapsedTime);
-        if(instruction) {
-          positionInTicks += instruction.deltaDurationTicks;
-          cursorPosition++;
-          currentIndex++;
-        } else {
-          expect(deltaDurationTicks).toBe(quantizedTicks);
-          expect(iterator.rowCount).toBe(currentRow);
-          currentRow++;
-          cursorPosition++;
-        }
-      })) {
-        expect(iterator.getPositionInTicks()).toBe(positionInTicks);
-        expect(iterator.currentIndex).toBe(currentIndex);
-        expect(iterator.rowCount).toBe(currentRow);
-        expect(iterator.cursorPosition).toBe(cursorPosition);
-      }
-    });
 
     //
     //
@@ -276,26 +248,27 @@ class SongTest {
     });
 
     test(`Song Length test`, () => {
-        const songLength = song.getSongLengthInSeconds();
-        expect(songLength).toBeGreaterThan(0);
+      const songLength = song.getSongLengthInSeconds();
+      expect(songLength).toBeGreaterThan(0);
+      // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
+
+      // TODO: set position
+
+      song.setPlaybackPosition(0.01);
+      song.setPlaybackPosition(0.1);
+      song.setPlaybackPosition(1);
+      song.setPlaybackPositionInTicks(10);
+      song.setPlaybackPositionInTicks(100);
+      song.setPlaybackPositionInTicks(1000);
+
+      // Get Song Info
+      if(song.getSongPlaybackPosition() === 0) throw new Error("songPlaybackPosition");
+      if(song.getSongLengthInSeconds() === 0) throw new Error("getSongLengthInSeconds()");
+      // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
+
+      song.setPlaybackPosition(0);
     });
-    // console.info("Test song: ", Math.round(songLength * 10000) / 10000 + 's');
 
-    // TODO: set position
-
-    song.setPlaybackPosition(0.01);
-    song.setPlaybackPosition(0.1);
-    song.setPlaybackPosition(1);
-    song.setPlaybackPositionInTicks(10);
-    song.setPlaybackPositionInTicks(100);
-    song.setPlaybackPositionInTicks(1000);
-
-    // Get Song Info
-    if(song.getSongPlaybackPosition() === 0) throw new Error("songPlaybackPosition");
-    if(song.getSongLengthInSeconds() === 0) throw new Error("getSongLengthInSeconds()");
-    // console.assert(r.getSongPositionInTicks() > 0, "getSongPositionInTicks");
-
-    song.setPlaybackPosition(0);
     // const playback = song.play(this.destination);
     // await playback.awaitPlaybackReachedEnd();
 
