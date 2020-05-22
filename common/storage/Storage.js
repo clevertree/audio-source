@@ -22,8 +22,10 @@ class Storage {
 
     /** Saving **/
 
+    // TODO: this may not trigger in time
     async saveState(state, key='audio-source-state') {
         await LocalStorage.setItem(key, JSON.stringify(state));
+        console.log("Item saved: ", key);
     }
 
     async loadState(key='audio-source-state') {

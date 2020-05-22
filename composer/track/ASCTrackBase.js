@@ -7,6 +7,7 @@ import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager.native";
 import {ASCTrack} from "./index";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
+import {Instruction} from "../../song";
 
 
 // TODO: ASCTrackRowContainer
@@ -231,9 +232,9 @@ export default class ASCTrackBase extends React.Component {
         let rowInstructionElms = [];
 
         while(rowContent.length < this.getRowLength()) {
-            const rowDeltaTicks = iterator.nextCursorPosition();
-            if(iterator.cursorPositionIsInstruction) {
-                const instruction = iterator.currentInstruction();
+            const nextCursorEntry = iterator.nextCursorPosition();
+            if(nextCursorEntry instanceof Instruction) {
+                const instruction = nextCursorEntry; //iterator.currentInstruction();
                 // console.log('instruction', instruction);
                 const index = iterator.currentIndex;
                 rowInstructionElms.push(<ASCTrackInstruction
@@ -247,6 +248,7 @@ export default class ASCTrackBase extends React.Component {
                     playing={playingIndices.indexOf(index) !== -1}
                 />)
             } else {
+                const rowDeltaTicks = nextCursorEntry;
                 let highlight = false;
                 if(iterator.positionTicks % beatsPerMeasureTicks === 0)
                     highlight = 'measure-start';
@@ -443,8 +445,8 @@ export default class ASCTrackBase extends React.Component {
             throw new Error("Invalid cursorOffset: " + cursorOffset);
         // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
         const iterator = this.getIterator();
-        let cursorIndex = null;
-        let lastRowPositions=[], positions=[lastRowPositions];
+        let cursorIndex = null, cursorRow=null;
+        let lastRowPositions=[], positions=[[0]];
         // let indexFound = null;
         while(positions.length < 3 || positions[2][0] <= cursorOffset) {
             iterator.nextCursorPosition();
@@ -456,19 +458,22 @@ export default class ASCTrackBase extends React.Component {
                     positions.shift();
                 lastRowPositions = [];
             }
-            if(cursorOffset === iterator.cursorPosition && iterator.currentIndex !== null)
-                cursorIndex = iterator.currentIndex;
+            if(cursorOffset === iterator.cursorPosition) {
+                cursorRow = iterator.rowCount;
+                if (iterator.currentIndex !== null)
+                    cursorIndex = iterator.currentIndex;
+            }
         }
         const column = positions[1].indexOf(cursorOffset);
 
         const ret = {
             cursorIndex,
             // column,
-            cursorRow: iterator.rowCount,
+            cursorRow,
+            nextRowOffset: positions[2][column] || positions[2][positions[2].length-1],
+            previousRowOffset: positions[0][column] || 0,
             nextCursorOffset: cursorOffset + 1,
             previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
-            nextRowOffset: positions[2][column] || positions[2][positions[2].length-1],
-            previousRowOffset: positions[0][column] || positions[0][positions[0].length-1],
             positionTicks: iterator.positionTicks,
             positionSeconds: iterator.positionSeconds,
             // cursorRowLow: cursorRow - this.getRowLength(),
@@ -573,12 +578,18 @@ export default class ASCTrackBase extends React.Component {
                         throw new Error("Invalid: " + e.key);
                 }
                 this.setCursorPositionOffset(targetCursorOffset);
-                if(e.ctrlKey) {
-                    const targetCursorInfo = this.cursorGetInfo(targetCursorOffset)
+                const targetCursorInfo = this.cursorGetInfo(targetCursorOffset)
                     //, targetCursorInfo.adjustedCursorRow
-                    if(targetCursorInfo.cursorIndex !== null)
+                if(targetCursorInfo.cursorIndex !== null) {
+                    if(e.ctrlKey) {
                         this.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey);
+                    }
                 }
+
+                if(targetCursorInfo.cursorRow > this.getRowOffset() + (this.getRowLength() - 1))
+                    this.setRowOffset(targetCursorInfo.cursorRow - (this.getRowLength() - 1))
+                else if(targetCursorInfo.cursorRow < this.getRowOffset())
+                    this.setRowOffset(targetCursorInfo.cursorRow)
                 break;
 
             //

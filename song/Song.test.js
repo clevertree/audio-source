@@ -194,7 +194,7 @@ class SongTest {
         if(!(instruction instanceof Instruction)) {
           rowCount++;
         }
-        // console.log(instruction, iterator.positionTicks, iterator.cursorPosition, iterator.rowCount);
+        console.log(iterator.positionTicks, iterator.cursorPosition, iterator.rowCount);
       }
     });
 

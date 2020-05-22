@@ -11,8 +11,7 @@ class ASComposerActions extends ASComposerMenu {
     // }
 
     setStatus(statusText, statusType='log') {
-        console.info.apply(null, arguments); // (newStatus);
-        this.setState({statusText, statusType});
+        this.setState({statusText, statusType: statusType + ''});
     }
 
     setError(statusText) {
@@ -52,7 +51,8 @@ class ASComposerActions extends ASComposerMenu {
         // this.song.connect(this.getAudioContext());
         // this.setStatus("Loaded song: " + song.data.title);
         this.setState({
-            status: "Loaded song: " + song.data.title,
+            statusText: "Loaded song: " + song.data.title,
+            statusType: 'log',
             title: song.data.title,
             songUUID: song.data.uuid,
             songLength: song.getSongLengthInSeconds(),
@@ -81,12 +81,10 @@ class ASComposerActions extends ASComposerMenu {
         if (state) {
             if (typeof state.volume !== "undefined")
                 this.setVolume(state.volume);
-            delete state.volume;
-            delete state.version;
+            // delete state.volume;
             // if(state.songUUID)
             await this.loadDefaultSong(state.songUUID);
             delete state.songUUID;
-            delete state.portrait;
             this.setState(state);
             this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
@@ -104,8 +102,9 @@ class ASComposerActions extends ASComposerMenu {
 
     async saveState() {
         const storage = new Storage();
-        const state = this.state;
-        state.activeTracks = {};
+        const state = Object.assign({}, this.state, {
+            activeTracks: {}
+        });
         for(let key in this.activeTracks) {
             if(this.activeTracks.hasOwnProperty(key)) {
                 const activeTrack = this.activeTracks[key];
@@ -114,6 +113,13 @@ class ASComposerActions extends ASComposerMenu {
                 }
             }
         }
+        delete state.paused;
+        delete state.playing;
+        delete state.statusText;
+        delete state.statusType;
+        delete state.version;
+        delete state.portrait;
+        state.songUUID = this.song.data.uuid;
         console.log('Saving State: ', state);
         await storage.saveState(state, 'audio-source-composer-state');
     }
@@ -273,7 +279,8 @@ class ASComposerActions extends ASComposerMenu {
         song.loadSongData(songData);
         song.loadSongHistory(songHistory);
         this.setCurrentSong(song);
-        this.setStatus("Song loaded from memory: " + songUUID, this.song, this.state);
+        this.setStatus("Song loaded from memory: " + songUUID);
+        this.saveState();
     }
 
 
@@ -282,9 +289,10 @@ class ASComposerActions extends ASComposerMenu {
         const songData = song.getProxiedData();
         const songHistory = song.history;
         const storage = new Storage();
-        this.setStatus("Saving song to memory...", songData);
+        this.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
         this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
+        this.saveState();
     }
 
     saveSongToFile() {
@@ -603,7 +611,7 @@ class ASComposerActions extends ASComposerMenu {
             song.trackAdd(newTrackName, []);
             await this.trackerToggleTrack(newTrackName, true);
         } else {
-            this.setStatus("<span class='error'>Create instruction group canceled</span>");
+            this.setError("Create instruction group canceled");
         }
     }
 
@@ -617,7 +625,7 @@ class ASComposerActions extends ASComposerMenu {
             await this.trackerToggleTrack(newTrackName, true);
             await this.trackerToggleTrack(oldTrackName, false);
         } else {
-            this.setStatus("<span class='error'>Rename instruction group canceled</span>");
+            this.setError("Rename instruction group canceled");
         }
     }
 
@@ -629,7 +637,7 @@ class ASComposerActions extends ASComposerMenu {
             song.trackRemove(trackName);
             this.trackerToggleTrack(trackName, true);
         } else {
-            this.setStatus("<span class='error'>Remove instruction group canceled</span>");
+            this.setError("Remove instruction group canceled");
         }
 
     }

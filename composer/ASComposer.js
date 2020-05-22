@@ -13,7 +13,7 @@ export default class ASComposer extends ASComposerInput {
             statusText: "[No Song Loaded]",
             statusType: 'log',
             version: require('../package.json').version,
-            menuKey: 'root',
+            // menuKey: 'root',
 
             clipboard: null,
 

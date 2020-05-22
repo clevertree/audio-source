@@ -23,7 +23,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
             statusText: "[No Song Loaded]",
             statusType: "log",
             version: require('../package.json').version,
-            menuKey: 'root',
+            // menuKey: 'root',
             fullscreen: false,
             portrait: true,
             showPanelSong: true,

@@ -29,8 +29,7 @@ class InstructionIterator {
 
     incrementPositionByDelta(deltaDurationTicks, callback=null) {
         // console.log('incrementPositionByDelta', deltaDurationTicks);
-        this.positionTicks = this.lastInstructionPositionInTicks + deltaDurationTicks;
-        this.lastInstructionPositionInTicks = this.positionTicks;
+        this.positionTicks += deltaDurationTicks;
 
         const elapsedTime = (deltaDurationTicks / this.timeDivision) / (this.beatsPerMinute / 60);
         this.positionSeconds = this.lastInstructionPositionInSeconds + elapsedTime;
@@ -47,8 +46,11 @@ class InstructionIterator {
             // if(this.quantizationTicks !== null)
             //     deltaDurationTicks = this.incrementPositionByQuantizedDelta(deltaDurationTicks, this.quantizationTicks, callback);
 
-
-            this.incrementPositionByDelta(deltaDurationTicks, callback);
+            const instructionPositionTicks = this.lastInstructionPositionInTicks + deltaDurationTicks;
+            this.lastInstructionPositionInTicks = instructionPositionTicks;
+            if(this.positionTicks >= instructionPositionTicks)
+                console.warn(`Next instruction appears before current position ${this.positionTicks} >= ${instructionPositionTicks}`);
+            this.incrementPositionByDelta(instructionPositionTicks - this.positionTicks, callback);
         }
 
         this.currentIndex++;
@@ -92,41 +94,6 @@ class InstructionIterator {
         this.incrementPositionByInstruction(currentInstruction, callback); // , currentInstruction.duration);
         return currentInstruction;
     }
-
-    /** @deprecated **/
-    // nextInstructionRow(rowCallback=null, instructionCallback=null) {
-    //     if(this.hasReachedEnd())
-    //         return null;
-    //
-    //     const instructionList = [];
-    //     while(true) {
-    //         const instruction = this.nextInstruction(instructionCallback);
-    //         // Add instruction to the list
-    //         instructionList.push(instruction);
-    //
-    //         if(this.hasReachedEnd())
-    //             break;
-    //
-    //         // Check next instruction
-    //         const nextInstruction = this.getInstruction(this.currentIndex + 1);
-    //
-    //         // If the next instruction has a delta, then the current row ends
-    //         if (nextInstruction.deltaDurationTicks > 0) {
-    //             // Finish last row
-    //             break;
-    //         }
-    //
-    //         // Get next instruction
-    //         // instruction = this.nextInstruction(instructionCallback);
-    //     }
-    //
-    //     if(rowCallback)
-    //         rowCallback(instructionList);
-    //     // this.rowCount++;
-    //     this.cursorPosition++;
-    //     return instructionList;
-    // }
-
 
     /** Seeking **/
 

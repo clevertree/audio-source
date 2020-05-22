@@ -21,27 +21,37 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
     nextCursorPosition() {
         this.cursorPosition++;
 
+        let nextInstruction=null, nextInstructionPositionTicks=null;
+        if(!this.hasReachedEnd()) {
+            nextInstruction = this.getInstruction(this.currentIndex + 1);
+            nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+        }
+
+
+        // Update next quantized row position //TODO: if cursorPosition === 0
+        while(this.nextQuantizationBreakInTicks <= this.positionTicks)
+            this.nextQuantizationBreakInTicks += this.quantizationTicks;
+
         if(this.cursorPositionIsInstruction) {
             // Collect instructions
-            if (!this.hasReachedEnd()) {
+            // let nextInstructionPositionTicks = null;
+            if (nextInstruction) {
                 // Seek ahead to next instruction
-                let nextInstruction = this.getInstruction(this.currentIndex + 1);
-                let nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+
+                // If next instruction occurs before next quantization break
+                if (nextInstruction.deltaDurationTicks <= 0) {
+                    // and instruction has no delta duration, then return it
+                    return this.nextInstruction();
+                }
+
+                // let nextInstruction = this.getInstruction(this.currentIndex + 1);
+                // nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
                 if (nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
-                    // If next instruction occurs before next quantization break
-                    if (nextInstruction.deltaDurationTicks <= 0) {
-                        // and instruction has no delta duration, then return it
-                        return this.nextInstruction();
-                    }
                     // End the current row by returning the new delta difference
                     this.cursorPositionIsInstruction = false;
                     return nextInstructionPositionTicks - this.positionTicks;
                 }
             }
-
-            // Update next quantized row position //TODO: if cursorPosition === 0
-            while(this.nextQuantizationBreakInTicks <= this.positionTicks)
-                this.nextQuantizationBreakInTicks += this.quantizationTicks;
 
             // End the current row by returning the quantized delta difference
             this.cursorPositionIsInstruction = false;
@@ -51,22 +61,23 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
             // Start a new row
             this.rowCount++;
             // If we haven't reached the end,
-            if(!this.hasReachedEnd()) {
-                let nextInstruction = this.nextInstruction();
-                if(nextInstruction.deltaDurationTicks === 0)
-                    console.error("New row instruction should not have a zero delta")
-                if(!this.hasReachedEnd())
+            if (nextInstruction) {
+                // let nextInstruction = this.nextInstruction();
+                if (nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
+                    if (nextInstruction.deltaDurationTicks === 0) {
+                        console.error("New row instruction should not have a zero delta")
+                    }
+                    // if(!this.hasReachedEnd())
                     this.cursorPositionIsInstruction = true;
-
-                return nextInstruction;
+                    return this.nextInstruction();
+                }
             }
 
-            // Update next quantized row position
-            while(this.nextQuantizationBreakInTicks <= this.positionTicks)
-                this.nextQuantizationBreakInTicks += this.quantizationTicks;
-
             // End the current row by returning the quantized delta difference
-            const rowDeltaTicks = this.nextQuantizationBreakInTicks - this.positionTicks;
+            let rowDeltaTicks = this.nextQuantizationBreakInTicks - this.positionTicks;
+            this.nextQuantizationBreakInTicks += this.quantizationTicks;
+            // if(nextInstructionPositionTicks !== null && nextInstructionPositionTicks < this.nextQuantizationBreakInTicks)
+            //     rowDeltaTicks = nextInstructionPositionTicks - this.positionTicks;
             this.incrementPositionByDelta(rowDeltaTicks);
             return rowDeltaTicks;
         }
