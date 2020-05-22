@@ -317,6 +317,7 @@ class ASComposerActions extends ASComposerMenu {
         if(isNaN(songPosition))
             throw new Error("Invalid song position: " + songPosition);
         this.setState({songPosition})
+//         console.info('setSongPosition', songPosition);
     }
 
     async setSongPositionPrompt() {
@@ -394,6 +395,7 @@ class ASComposerActions extends ASComposerMenu {
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);
         if(select)      this.trackerSelectIndices(trackName, index);
         if(playback)    this.trackerPlay(trackName, index);
+        this.updateCurrentSong();
         return index;
     }
 
@@ -713,9 +715,9 @@ class ASComposerActions extends ASComposerMenu {
             for(let i=0; i<selectedIndices.length; i++)
                 if(selectedIndices[i] === index) {
                     if(startPosition === null)
-                        lastPosition = startPosition = iterator.positionTicks;
-                    instructionData[0] = iterator.positionTicks - lastPosition;
-                    lastPosition = iterator.positionTicks;
+                        lastPosition = startPosition = iterator.getPositionInTicks();
+                    instructionData[0] = iterator.getPositionInTicks() - lastPosition;
+                    lastPosition = iterator.getPositionInTicks();
                     copyTrack.push(instructionData)
                     return instruction;
                 }

@@ -133,7 +133,7 @@ class SongTest {
         const index = song.instructionInsertAtIndex(testTrackName, testTrack.length, [delta, insertNote]);
         let iterator = InstructionIterator.getIteratorFromSong(song, testTrackName);
         iterator.seekToIndex(index);
-        expect(iterator.positionTicks).toBe(expPos);
+        expect(iterator.getPositionInTicks()).toBe(expPos);
       }
     });
     test(`Insert at position`, () => {
@@ -142,7 +142,7 @@ class SongTest {
         const index = song.instructionInsertAtPosition(testTrackName, insPos, insertNote);
         let iterator = InstructionIterator.getIteratorFromSong(song, testTrackName);
         iterator.seekToIndex(index);
-        expect(iterator.positionTicks).toBe(expPos);
+        expect(iterator.getPositionInTicks()).toBe(expPos);
       }
     });
 
@@ -171,7 +171,7 @@ class SongTest {
         } else {
         }
       })) {
-        expect(iterator.positionTicks).toBe(positionInTicks);
+        expect(iterator.getPositionInTicks()).toBe(positionInTicks);
         expect(iterator.currentIndex).toBe(currentIndex);
       }
     });
@@ -194,7 +194,7 @@ class SongTest {
         if(!(instruction instanceof Instruction)) {
           rowCount++;
         }
-        console.log(iterator.positionTicks, iterator.cursorPosition, iterator.rowCount);
+        console.log(iterator.getPositionInTicks(), iterator.cursorPosition, iterator.rowCount);
       }
     });
 
@@ -220,7 +220,7 @@ class SongTest {
           cursorPosition++;
         }
       })) {
-        expect(iterator.positionTicks).toBe(positionInTicks);
+        expect(iterator.getPositionInTicks()).toBe(positionInTicks);
         expect(iterator.currentIndex).toBe(currentIndex);
         expect(iterator.rowCount).toBe(currentRow);
         expect(iterator.cursorPosition).toBe(cursorPosition);
@@ -237,7 +237,7 @@ class SongTest {
     //   const iterator = song.instructionGetIterator(testTrackName);
     //   while(row = iterator.nextInstructionRow()) {
     //     positionInTicks += row[0].deltaDurationTicks;
-    //     expect(iterator.positionTicks).toBe(positionInTicks);
+    //     expect(iterator.getPositionInTicks()).toBe(positionInTicks);
     //   }
     // });
     //
@@ -248,11 +248,11 @@ class SongTest {
     //   // let rowIterator = song.instructionGetRowIterator(testTrackName);
     //   const iterator = song.instructionGetQuantizedIterator(testTrackName, 5);
     //   let row;
-    //   while(iterator.positionTicks < 65
+    //   while(iterator.getPositionInTicks() < 65
     //     && (row = iterator.nextQuantizedInstructionRow())) {
     //     switch(true) {
-    //       case iterator.positionTicks <= 30:
-    //       case iterator.positionTicks === 60:
+    //       case iterator.getPositionInTicks() <= 30:
+    //       case iterator.getPositionInTicks() === 60:
     //         expect(row.length).toBeGreaterThanOrEqual(1);
     //         break;
     //       default:

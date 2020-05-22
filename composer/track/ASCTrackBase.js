@@ -7,7 +7,7 @@ import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager.native";
 import {ASCTrack} from "./index";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
-import {Instruction} from "../../song";
+import {Instruction, InstructionIterator} from "../../song";
 
 
 // TODO: ASCTrackRowContainer
@@ -50,7 +50,7 @@ export default class ASCTrackBase extends React.Component {
     // getProgramID() { return this.state.programID; }
 
     getCursorOffset() { return this.state.cursorOffset || 0; }
-    // getCursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
+    getCursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
 
     getSelectedIndices() { return this.state.selectedIndices || []; }
     getPlayingIndices() { return this.state.playingIndices || []; }
@@ -113,7 +113,7 @@ export default class ASCTrackBase extends React.Component {
         return this.destination = this.getComposer().getAudioContext();
     }
 
-    getIterator() {
+    getRowIterator() {
         return TrackInstructionRowIterator.getIteratorFromSong(
             this.getSong(),
             this.getTrackName(),
@@ -124,13 +124,27 @@ export default class ASCTrackBase extends React.Component {
     }
 
 
+    getIterator() {
+        return InstructionIterator.getIteratorFromSong(
+            this.getSong(),
+            this.getTrackName(),
+            this.getTimeDivision(), // || this.getSong().data.timeDivision,
+            this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
+        )
+    }
+
+
+
     /** Actions **/
 
+    // TODO: should set song position?
     setCursorPositionTicks(positionTicks) {
-        const {cursorOffset, rowCount} = this.getPositionInfo(positionTicks);
-        console.log('setCursorPositionTicks', {positionTicks, cursorOffset, rowCount});
-        this.setCursorPositionOffset(cursorOffset);
+        const {cursorOffset, rowCount, positionSeconds} = this.getPositionInfo(positionTicks);
+        console.log('setCursorPositionTicks', {positionTicks, cursorOffset, rowCount, positionSeconds});
+        this.setCursorPositionOffset(cursorOffset, positionTicks);
         this.setRowOffset(rowCount);
+        this.getComposer().setSongPosition(this.getStartPosition() + positionSeconds);
+
     }
 
     setRowOffset(rowOffset) {
@@ -140,11 +154,13 @@ export default class ASCTrackBase extends React.Component {
         this.setState({rowOffset});
     }
 
-    setCursorPositionOffset(cursorOffset) {
+    setCursorPositionOffset(cursorOffset, cursorPositionTicks=null) {
         // console.log('setCursorPositionOffset', cursorOffset);
         if(cursorOffset < 0)
             cursorOffset = 0;
-        this.setState({cursorOffset});
+        if(cursorPositionTicks === null)
+            cursorPositionTicks = this.cursorGetInfo(cursorOffset).positionTicks;
+        this.setState({cursorOffset, cursorPositionTicks});
     }
 
 
@@ -226,7 +242,7 @@ export default class ASCTrackBase extends React.Component {
 
 
         // Get Iterator
-        const iterator = this.getIterator();
+        const iterator = this.getRowIterator();
 
         const rowContent = [];
         let rowInstructionElms = [];
@@ -236,23 +252,23 @@ export default class ASCTrackBase extends React.Component {
             if(nextCursorEntry instanceof Instruction) {
                 const instruction = nextCursorEntry; //iterator.currentInstruction();
                 // console.log('instruction', instruction);
-                const index = iterator.currentIndex;
+                const index = iterator.getCurrentIndex();
                 rowInstructionElms.push(<ASCTrackInstruction
                     key={index}
                     index={index}
                     instruction={instruction}
                     tracker={this}
-                    cursorPosition={iterator.cursorPosition}
-                    cursor={iterator.cursorPosition === cursorOffset}
+                    cursorPosition={iterator.getCursorPosition()}
+                    cursor={iterator.getCursorPosition() === cursorOffset}
                     selected={selectedIndices.indexOf(index) !== -1}
                     playing={playingIndices.indexOf(index) !== -1}
                 />)
             } else {
                 const rowDeltaTicks = nextCursorEntry;
                 let highlight = false;
-                if(iterator.positionTicks % beatsPerMeasureTicks === 0)
+                if(iterator.getPositionInTicks() % beatsPerMeasureTicks === 0)
                     highlight = 'measure-start';
-                if(!trackSongPositionFound && trackSongPosition <= iterator.positionSeconds) {
+                if(!trackSongPositionFound && trackSongPosition <= iterator.getPositionInSeconds()) {
                     trackSongPositionFound = true;
                     highlight = 'position';
                 }
@@ -261,7 +277,7 @@ export default class ASCTrackBase extends React.Component {
                 //     this.firstCursorRowOffset = iterator.cursorPosition;
 
                 // let nextRowPositionTicks = iterator.getNextRowPositionTicks();
-                // let rowDeltaDuration = nextRowPositionTicks - iterator.positionTicks;
+                // let rowDeltaDuration = nextRowPositionTicks - iterator.getPositionInTicks();
                 if (rowDeltaTicks <= 0 || rowDeltaTicks > quantizationTicks) {
                     console.warn(`rowDeltaTicks is ${rowDeltaTicks} > ${quantizationTicks}`);
                 }
@@ -271,11 +287,11 @@ export default class ASCTrackBase extends React.Component {
                     const newRowElm = <ASCTrackRow
                         key={rowID}
                         tracker={this}
-                        positionTicks={iterator.positionTicks}
-                        positionSeconds={iterator.positionSeconds}
+                        positionTicks={iterator.getPositionInTicks()}
+                        positionSeconds={iterator.getPositionInSeconds()}
                         deltaDuration={rowDeltaTicks}
-                        cursorPosition={iterator.cursorPosition}
-                        cursor={iterator.cursorPosition === cursorOffset}
+                        cursorPosition={iterator.getCursorPosition()}
+                        cursor={iterator.getCursorPosition() === cursorOffset}
                         highlight={highlight}
 
                     >{rowInstructionElms}</ASCTrackRow>;
@@ -295,16 +311,19 @@ export default class ASCTrackBase extends React.Component {
 
 
     renderRowSegments() {
+        let trackSongPositionFound = false;
         // const rowOffset = this.state.rowOffset;
         // const rowLength = this.getRowLength();
+        const cursorPositionTicks = this.getCursorPositionTicks();
         const segmentLengthTicks = this.getSegmentLengthTicks();
         const trackLengthTicks = this.getTrackLengthTicks() + segmentLengthTicks;
 
         let buttons = [];
+        const selectedSegmentID = Math.floor(cursorPositionTicks / segmentLengthTicks)
         // const segmentPositions = this.getSegmentPositions();
 
-        // console.log('renderRowSegments', segmentPositions);
-        for(let i=0; i<=ASCTrackBase.DEFAULT_MIN_SEGMENTS+1; i++) {
+        console.log('selectedSegmentID', selectedSegmentID, cursorPositionTicks, segmentLengthTicks);
+        for(let i=0; i<=10; i++) {
             const positionTicks = i * segmentLengthTicks;
             if(buttons.length > ASCTrackBase.DEFAULT_MAX_SEGMENTS
             || positionTicks > trackLengthTicks)
@@ -313,10 +332,13 @@ export default class ASCTrackBase extends React.Component {
                 onAction: e => this.setCursorPositionTicks(positionTicks),
                 children: i
             }
-            // if(selectedSegmentID === null && rowOffset - rowLength < positionTicks) {
-            //     selectedSegmentID = positionTicks;
-            //     props.selected = true;
-            // }
+            if(!trackSongPositionFound && cursorPositionTicks <= positionTicks) {
+                trackSongPositionFound = true;
+                props.highlight = 'position';
+            }
+            if(selectedSegmentID === i) {
+                props.selected = true;
+            }
             buttons.push(<ASUIButton
                 key={positionTicks}
                 {...props}
@@ -404,7 +426,7 @@ export default class ASCTrackBase extends React.Component {
         if(trackLengthTicks === null) {
             const iterator = this.getIterator();
             iterator.seekToEnd();
-            trackLengthTicks = iterator.positionTicks;
+            trackLengthTicks = iterator.getPositionInTicks();
         }
         if(this.state.trackLengthTicks !== trackLengthTicks)
             this.setState({
@@ -415,9 +437,9 @@ export default class ASCTrackBase extends React.Component {
         // const segmentPositions = [];
         // const segmentLimit = ASCTrack.DEFAULT_MIN_SEGMENTS || 3;
         // let lastSegmentPositionTicks = 0;
-        // while ( qIterator.positionTicks < trackLengthTicks
+        // while ( qiterator.getPositionInTicks() < trackLengthTicks
         // || segmentPositions.length < segmentLimit) {
-        //     if(lastSegmentPositionTicks <= qIterator.positionTicks) {
+        //     if(lastSegmentPositionTicks <= qiterator.getPositionInTicks()) {
         //         // Found end of segment
         //         segmentPositions.push(qIterator.rowCount);
         //         lastSegmentPositionTicks += segmentLengthTicks;
@@ -444,13 +466,24 @@ export default class ASCTrackBase extends React.Component {
         if(!Number.isInteger(cursorOffset))
             throw new Error("Invalid cursorOffset: " + cursorOffset);
         // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
-        const iterator = this.getIterator();
-        let cursorIndex = null, cursorRow=null;
+        const iterator = this.getRowIterator();
+
+        const ret = {
+            cursorIndex: null,
+            cursorRow: null,
+            nextCursorOffset: cursorOffset + 1,
+            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
+            positionTicks: null,
+            positionSeconds: 0,
+            // cursorRowLow: cursorRow - this.getRowLength(),
+            // cursorRowHigh: cursorRow - 1,
+        };
+
         let lastRowPositions=[], positions=[[0]];
         // let indexFound = null;
         while(positions.length < 3 || positions[2][0] <= cursorOffset) {
             iterator.nextCursorPosition();
-            lastRowPositions.push(iterator.cursorPosition);
+            lastRowPositions.push(iterator.getCursorPosition());
             if(iterator.cursorPositionIsInstruction) {
             } else {
                 positions.push(lastRowPositions);
@@ -458,27 +491,18 @@ export default class ASCTrackBase extends React.Component {
                     positions.shift();
                 lastRowPositions = [];
             }
-            if(cursorOffset === iterator.cursorPosition) {
-                cursorRow = iterator.rowCount;
-                if (iterator.currentIndex !== null)
-                    cursorIndex = iterator.currentIndex;
+            if(cursorOffset === iterator.getCursorPosition()) {
+                ret.cursorRow = iterator.getRowCount();
+                ret.positionTicks = iterator.getPositionInTicks();
+                ret.positionSeconds = iterator.getPositionInSeconds();
+                if (iterator.getCurrentIndex() !== null)
+                    ret.cursorIndex = iterator.getCurrentIndex();
             }
         }
         const column = positions[1].indexOf(cursorOffset);
 
-        const ret = {
-            cursorIndex,
-            // column,
-            cursorRow,
-            nextRowOffset: positions[2][column] || positions[2][positions[2].length-1],
-            previousRowOffset: positions[0][column] || 0,
-            nextCursorOffset: cursorOffset + 1,
-            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
-            positionTicks: iterator.positionTicks,
-            positionSeconds: iterator.positionSeconds,
-            // cursorRowLow: cursorRow - this.getRowLength(),
-            // cursorRowHigh: cursorRow - 1,
-        };
+        ret.nextRowOffset = positions[2][column] || positions[2][positions[2].length-1];
+        ret.previousRowOffset = positions[0][column] || 0;
         // console.log(cursorOffset, ret);
         return ret;
     }
@@ -487,21 +511,21 @@ export default class ASCTrackBase extends React.Component {
         if(!Number.isInteger(positionTicks))
             throw new Error("Invalid positionTicks: " + positionTicks);
 
-        const iterator = this.getIterator();
+        const iterator = this.getRowIterator();
         iterator.seekToPositionTicks(positionTicks)
         // let indexFound = null;
-        // while(iterator.positionTicks < positionTicks) {
+        // while(iterator.getPositionInTicks() < positionTicks) {
         //     iterator.nextQuantizedInstructionRow();
         // }
 
         const ret = {
             positionTicks,
-            positionIndex: iterator.currentIndex,
-            positionSeconds: iterator.positionSeconds,
-            cursorOffset: iterator.cursorPosition,
-            rowCount: iterator.rowCount,
+            positionIndex: iterator.getCurrentIndex(),
+            positionSeconds: iterator.getPositionInSeconds(),
+            cursorOffset: iterator.getCursorPosition(),
+            rowCount: iterator.getRowCount(),
         }
-        console.info('getPositionInfo', ret);
+        // console.info('getPositionInfo', ret);
         return ret;
     }
 
@@ -577,8 +601,8 @@ export default class ASCTrackBase extends React.Component {
                     default:
                         throw new Error("Invalid: " + e.key);
                 }
-                this.setCursorPositionOffset(targetCursorOffset);
                 const targetCursorInfo = this.cursorGetInfo(targetCursorOffset)
+                this.setCursorPositionOffset(targetCursorOffset, targetCursorInfo.positionTicks);
                     //, targetCursorInfo.adjustedCursorRow
                 if(targetCursorInfo.cursorIndex !== null) {
                     if(e.ctrlKey) {
@@ -607,10 +631,10 @@ export default class ASCTrackBase extends React.Component {
             default:
                 const keyboardCommand = this.getComposer().keyboard.getKeyboardCommand(e.key, this.getComposer().state.keyboardOctave);
                 if(keyboardCommand) {
-                    // const selectedIndices = this.getSelectedIndices();
-                    const {cursorIndex} = this.cursorGetInfo()
-                    if(cursorIndex !== null) {
-                        this.getComposer().instructionReplaceCommand(this.getTrackName(), cursorIndex, keyboardCommand);
+                    const selectedIndices = this.getSelectedIndices();
+                    // const {cursorIndex} = this.cursorGetInfo()
+                    if(selectedIndices && selectedIndices.length > 0) {
+                        this.getComposer().instructionReplaceCommand(this.getTrackName(), selectedIndices, keyboardCommand);
 
                     } else {
                         this.getComposer().instructionInsertAtCursor(this.getTrackName(), keyboardCommand);

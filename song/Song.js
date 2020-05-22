@@ -409,7 +409,7 @@ class Song {
         let instruction = iterator.nextInstruction();
         while (instruction) {
             // if(instruction.deltaDuration > 0) {
-            const currentPositionInTicks = iterator.positionTicks;
+            const currentPositionInTicks = iterator.getPositionInTicks();
             if (currentPositionInTicks > insertPositionInTicks) {
                 // Delta note appears after note to be inserted
                 const splitDuration = [
@@ -448,7 +448,7 @@ class Song {
             instruction = iterator.nextInstruction();
         }
 
-        if (iterator.positionTicks >= insertPositionInTicks)
+        if (iterator.getPositionInTicks() >= insertPositionInTicks)
             throw new Error("Something went wrong");
         // Insert a new pause at the end of the song, lasting until the new note?
         let lastPauseIndex = instructionList.length;
@@ -457,7 +457,7 @@ class Song {
         //     duration: insertPosition - groupPosition
         // });
         // Insert new note
-        insertInstruction.deltaDurationTicks = insertPositionInTicks - iterator.positionTicks;
+        insertInstruction.deltaDurationTicks = insertPositionInTicks - iterator.getPositionInTicks();
         this.instructionInsertAtIndex(trackName, lastPauseIndex, insertInstruction);
         return lastPauseIndex;
     }
@@ -599,19 +599,19 @@ class Song {
     getGroupPositionFromTicks(trackName, groupPositionInTicks) {
         const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
         while (true) {
-            if (iterator.positionTicks >= groupPositionInTicks || !iterator.nextInstruction())
+            if (iterator.getPositionInTicks() >= groupPositionInTicks || !iterator.nextInstruction())
                 break;
         }
 
 
         let currentPosition = iterator.positionSeconds;
 
-        if (groupPositionInTicks > iterator.positionTicks) {
-            const elapsedTicks = groupPositionInTicks - iterator.positionTicks;
+        if (groupPositionInTicks > iterator.getPositionInTicks()) {
+            const elapsedTicks = groupPositionInTicks - iterator.getPositionInTicks();
             currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.beatsPerMinute, iterator.timeDivision);
 
-        } else if (groupPositionInTicks < iterator.positionTicks) {
-            const elapsedTicks = iterator.positionTicks - groupPositionInTicks;
+        } else if (groupPositionInTicks < iterator.getPositionInTicks()) {
+            const elapsedTicks = iterator.getPositionInTicks() - groupPositionInTicks;
             currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.beatsPerMinute, iterator.timeDivision);
         }
 
@@ -636,7 +636,7 @@ class Song {
                 break;
         }
 
-        let currentPositionInTicks = iterator.positionTicks;
+        let currentPositionInTicks = iterator.getPositionInTicks();
         if (positionInSeconds > iterator.positionSeconds) {
             const elapsedTime = positionInSeconds - iterator.positionSeconds;
             currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.beatsPerMinute);

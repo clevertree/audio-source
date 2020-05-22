@@ -16,6 +16,10 @@ class InstructionIterator {
         this.currentIndex = -1; // TODO: rename to index?
     }
 
+    getPositionInTicks() { return this.positionTicks; }
+    getPositionInSeconds() { return this.positionSeconds; }
+    getCurrentIndex() { return this.currentIndex; }
+
 
     hasReachedEnd() {
         return this.currentIndex >= this.instructions.length - 1;

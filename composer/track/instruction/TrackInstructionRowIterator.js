@@ -1,13 +1,12 @@
 import {InstructionIterator} from "../../../song";
 
-
-export default class TrackInstructionRowIterator extends InstructionIterator {
-    constructor(instructionList, timeDivision, beatsPerMinute, quantizationTicks) {
-        super(instructionList, timeDivision, beatsPerMinute);
+export default class TrackInstructionRowIterator {
+    constructor(instructionIterator, quantizationTicks) {
+        this.iterator = instructionIterator;
+        this.quantizationTicks = quantizationTicks;
 
 
         this.nextQuantizationBreakInTicks = 0;
-        this.quantizationTicks = quantizationTicks;
         this.rowCount = 0;
         this.cursorPosition = -1;
         this.cursorPositionIsInstruction = true;
@@ -18,18 +17,24 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
     //
     // }
 
+    getPositionInTicks() { return this.iterator.getPositionInTicks(); }
+    getPositionInSeconds() { return this.iterator.getPositionInSeconds(); }
+    getCursorPosition() { return this.cursorPosition; }
+    getCurrentIndex() { return this.iterator.getCurrentIndex(); }
+    getRowCount() { return this.rowCount; }
+
     nextCursorPosition() {
         this.cursorPosition++;
 
         let nextInstruction=null, nextInstructionPositionTicks=null;
-        if(!this.hasReachedEnd()) {
-            nextInstruction = this.getInstruction(this.currentIndex + 1);
-            nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+        if(!this.iterator.hasReachedEnd()) {
+            nextInstruction = this.iterator.getInstruction(this.iterator.currentIndex + 1);
+            nextInstructionPositionTicks = this.iterator.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
         }
 
 
         // Update next quantized row position //TODO: if cursorPosition === 0
-        while(this.nextQuantizationBreakInTicks <= this.positionTicks)
+        while(this.nextQuantizationBreakInTicks <= this.iterator.getPositionInTicks())
             this.nextQuantizationBreakInTicks += this.quantizationTicks;
 
         if(this.cursorPositionIsInstruction) {
@@ -41,44 +46,44 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
                 // If next instruction occurs before next quantization break
                 if (nextInstruction.deltaDurationTicks <= 0) {
                     // and instruction has no delta duration, then return it
-                    return this.nextInstruction();
+                    return this.iterator.nextInstruction();
                 }
 
-                // let nextInstruction = this.getInstruction(this.currentIndex + 1);
-                // nextInstructionPositionTicks = this.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+                // let nextInstruction = this.iterator.getInstruction(this.iterator.currentIndex + 1);
+                // nextInstructionPositionTicks = this.iterator.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
                 if (nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
                     // End the current row by returning the new delta difference
                     this.cursorPositionIsInstruction = false;
-                    return nextInstructionPositionTicks - this.positionTicks;
+                    return nextInstructionPositionTicks - this.iterator.getPositionInTicks();
                 }
             }
 
             // End the current row by returning the quantized delta difference
             this.cursorPositionIsInstruction = false;
-            return this.nextQuantizationBreakInTicks - this.positionTicks;
+            return this.nextQuantizationBreakInTicks - this.iterator.getPositionInTicks();
 
         } else {
             // Start a new row
             this.rowCount++;
             // If we haven't reached the end,
             if (nextInstruction) {
-                // let nextInstruction = this.nextInstruction();
+                // let nextInstruction = this.iterator.nextInstruction();
                 if (nextInstructionPositionTicks <= this.nextQuantizationBreakInTicks) {
                     if (nextInstruction.deltaDurationTicks === 0) {
                         console.error("New row instruction should not have a zero delta")
                     }
                     // if(!this.hasReachedEnd())
                     this.cursorPositionIsInstruction = true;
-                    return this.nextInstruction();
+                    return this.iterator.nextInstruction();
                 }
             }
 
             // End the current row by returning the quantized delta difference
-            let rowDeltaTicks = this.nextQuantizationBreakInTicks - this.positionTicks;
+            let rowDeltaTicks = this.nextQuantizationBreakInTicks - this.iterator.getPositionInTicks();
             this.nextQuantizationBreakInTicks += this.quantizationTicks;
-            // if(nextInstructionPositionTicks !== null && nextInstructionPositionTicks < this.nextQuantizationBreakInTicks)
-            //     rowDeltaTicks = nextInstructionPositionTicks - this.positionTicks;
-            this.incrementPositionByDelta(rowDeltaTicks);
+            // if(nextInstructionPositionTicks !== null && nextInstructionPositionTicks < this.iterator.nextQuantizationBreakInTicks)
+            //     rowDeltaTicks = nextInstructionPositionTicks - this.iterator.getPositionInTicks();
+            this.iterator.incrementPositionByDelta(rowDeltaTicks);
             return rowDeltaTicks;
         }
         //
@@ -134,6 +139,11 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
 
 
 
+    seekToPositionTicks(positionTicks, callback=null) {
+        while (this.iterator.getPositionInTicks() < positionTicks) {
+            this.nextCursorPosition();
+        }
+    }
 
     // seekToNextOffset(callback) {
     //     if(!this.hasReachedEnd()) {
@@ -161,10 +171,13 @@ export default class TrackInstructionRowIterator extends InstructionIterator {
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = songData.tracks[trackName];
 
-        return new TrackInstructionRowIterator(
+        const instructionIterator = new InstructionIterator(
             instructionList,
             timeDivision || songData.timeDivision,
             beatsPerMinute || songData.beatsPerMinute,
+        )
+        return new TrackInstructionRowIterator(
+            instructionIterator,
             quantizationTicks
         )
     }
