@@ -40,8 +40,8 @@ class ASCTrackRow extends React.Component {
         if (this.props.highlight)
             className += ` ${this.props.highlight}`; // ' highlight';
         const composer = this.props.tracker.getComposer();
-        const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : composer.values.formatSongDuration(this.props.deltaDuration);
-        const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatSongDuration(this.props.positionTicks);
+        const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : composer.values.formatDuration(this.props.deltaDuration);
+        const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatDurationAsDecimal(this.props.positionTicks);
         return (
             <div
                 ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}

@@ -355,28 +355,42 @@ class Values {
         }
     }
 
-    formatDuration(input, timeDivision) {
-        const beatDivisor = input / timeDivision;
+    formatDuration(durationTicks, timeDivision) {
+        const beatDivisor = durationTicks / timeDivision;
         if(beatDivisor === Math.round(beatDivisor))
             return beatDivisor + 'B';
 
         // TODO: this part is inefficient
         let stringValue;
         this.getNoteDurations((duration, durationString) => {
-            if (input === duration || input === durationString) {
+            if (durationTicks === duration || durationTicks === durationString) {
                 stringValue = durationString;
                 return false;
             }
         }, timeDivision);
-        console.log('formatDuration', {input, stringValue})
+        console.log('formatDuration', {input: durationTicks, stringValue})
 
         if (stringValue)
             return stringValue;
 
-        input = parseFloat(input).toFixed(2);
-        return input.replace('.00', 't');
+        durationTicks = parseFloat(durationTicks).toFixed(2);
+        return durationTicks.replace('.00', 't');
     }
 
+    formatDurationAsDecimal(durationTicks, timeDivision, fractionDigits=2) {
+        const fraction = durationTicks / timeDivision;
+        // const integer = Math.floor(fraction);
+        // const divisor = fraction - integer;
+        // console.log({fraction, integer, divisor});
+        // if(divisor === 1/3)
+        //     return integer + ' 1/3B';
+        return fraction.toFixed(fractionDigits)
+            // .replace('.25', '¼')
+            // .replace('.50', '½')
+            // .replace('.75', '¾')
+            .replace('.00', '')
+            + 'B';
+    }
 
     getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
         const results = [];

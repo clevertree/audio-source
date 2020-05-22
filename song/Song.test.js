@@ -181,21 +181,22 @@ class SongTest {
       const quantizedTicks = 5;
       Object.keys(song.data.tracks).forEach(trackName => {
         let rowIterator = TrackInstructionRowIterator.getIteratorFromSong(song, trackName, quantizedTicks);
-        let rowCount=0, cursorPosition=-1;
+        let rowCount=0, cursorPosition=0;
         let positionInTicks=0, durationInTicks=0;
 
         // eslint-disable-next-line no-loop-func
         for(const instruction of rowIterator) {
-          cursorPosition++;
           expect(rowIterator.cursorPosition).toBe(cursorPosition);
           expect(rowIterator.rowCount).toBe(rowCount);
           expect(rowIterator.getPositionInTicks()).toBe(positionInTicks);
           if(!(instruction instanceof Instruction)) {
             rowCount++;
             positionInTicks += instruction;
+            expect(instruction).not.toBeLessThanOrEqual(0);
           } else {
             // positionInTicks += instruction.deltaDurationTicks;
           }
+          cursorPosition++;
           if(rowCount > 100)
             break;
           // console.log(instruction, rowIterator.getPositionInTicks(), rowIterator.nextQuantizationBreakInTicks);

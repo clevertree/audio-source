@@ -19,12 +19,6 @@ export default class InstructionIterator {
         this.generator = this.run();
     }
 
-    [Symbol.iterator]() {
-        return {
-            next: () => this.generator.next()
-        }
-    }
-
     * run() {
         const count = this.instructions.length;
         for(this.currentIndex=0; this.currentIndex<count; this.currentIndex++) {
@@ -153,6 +147,10 @@ export default class InstructionIterator {
         // const remainingTicks = positionTicks - this.positionTicks;
         // deltaDurationTicks = this.incrementPositionByQuantizedDelta(deltaDurationTicks, this.quantizationTicks, callback);
     }
+
+    /** Iterator **/
+
+    [Symbol.iterator]() { return this.generator; }
 
     /** Static **/
 

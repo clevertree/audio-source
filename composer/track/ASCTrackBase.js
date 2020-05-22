@@ -296,7 +296,7 @@ export default class ASCTrackBase extends React.Component {
 
                     >{rowInstructionElms}</ASCTrackRow>;
                     rowContent.push(newRowElm);
-                    console.log(rowID, iterator.getPositionInTicks(), rowDeltaTicks, iterator.getPositionInTicks() + rowDeltaTicks);
+                    // console.log(rowID, iterator.getPositionInTicks(), rowDeltaTicks, iterator.getPositionInTicks() + rowDeltaTicks);
                 }
 
                 rowInstructionElms = [];
@@ -462,9 +462,10 @@ export default class ASCTrackBase extends React.Component {
         let lastRowPositions=[], positions=[[0]];
         // let indexFound = null;
         while(positions.length < 3 || positions[2][0] <= cursorOffset) {
-            iterator.nextCursorPosition();
+            const instruction = iterator.nextCursorPosition();
             lastRowPositions.push(iterator.getCursorPosition());
-            if(iterator.cursorPositionIsInstruction) {
+            if(instruction instanceof Instruction) {
+
             } else {
                 positions.push(lastRowPositions);
                 if(positions.length > 3)
@@ -483,7 +484,7 @@ export default class ASCTrackBase extends React.Component {
 
         ret.nextRowOffset = positions[2][column] || positions[2][positions[2].length-1];
         ret.previousRowOffset = positions[0][column] || 0;
-        // console.log(cursorOffset, ret);
+        console.log(cursorOffset, ret);
         return ret;
     }
 

@@ -10,20 +10,15 @@ export default class TrackInstructionRowIterator {
         this.nextQuantizationBreakInTicks = 0;
         this.rowCount = 0;
         this.cursorPosition = 0;
-        // this.cursorPositionIsInstruction = true;
         this.generator = this.run();
     }
-    //
-    // incrementPositionByDelta(deltaDurationTicks, callback = null) {
-    //     super.incrementPositionByDelta(deltaDurationTicks, callback);
-    //
-    // }
 
-    [Symbol.iterator]() {
-        return {
-            next: () => this.generator.next()
-        }
-    }
+
+    getPositionInTicks() { return this.iterator.getPositionInTicks(); }
+    getPositionInSeconds() { return this.iterator.getPositionInSeconds(); }
+    getCursorPosition() { return this.cursorPosition; }
+    getCurrentIndex() { return this.iterator.getCurrentIndex(); }
+    getRowCount() { return this.rowCount; }
 
     updateNextQuantizationBreakInTicks() {
         let currentPositionTicks = this.iterator.getPositionInTicks();
@@ -45,14 +40,15 @@ export default class TrackInstructionRowIterator {
                 // if(rowDeltaTicks < 0)
                 //     throw new Error("Invalid row delta: " + rowDeltaTicks);
                 this.nextQuantizationBreakInTicks += this.quantizationTicks;
-                if(rowDeltaTicks > 0)
+                if(rowDeltaTicks > 0) {
                     yield rowDeltaTicks;
 
-                // Increment by quantized row after yielding the row delta
-                this.iterator.incrementPositionByDelta(rowDeltaTicks);
-                this.cursorPosition++;
-                this.rowCount++;
-                currentPositionTicks = this.iterator.getPositionInTicks();
+                    // Increment by quantized row after yielding the row delta
+                    this.iterator.incrementPositionByDelta(rowDeltaTicks);
+                    this.cursorPosition++;
+                    this.rowCount++;
+                    currentPositionTicks = this.iterator.getPositionInTicks();
+                }
             }
 
             if(nextInstruction.deltaDurationTicks > 0) {
@@ -90,12 +86,6 @@ export default class TrackInstructionRowIterator {
         }
     }
 
-    getPositionInTicks() { return this.iterator.getPositionInTicks(); }
-    getPositionInSeconds() { return this.iterator.getPositionInSeconds(); }
-    getCursorPosition() { return this.cursorPosition; }
-    getCurrentIndex() { return this.iterator.getCurrentIndex(); }
-    getRowCount() { return this.rowCount; }
-
     nextCursorPosition() {
         return this.generator.next().value;
     }
@@ -131,6 +121,10 @@ export default class TrackInstructionRowIterator {
 
         }
     }
+
+    /** Iterator **/
+
+    [Symbol.iterator]() { return this.generator; }
 
     /** Static **/
 

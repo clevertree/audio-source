@@ -24,7 +24,7 @@ div.asc-track {
     /* height: 100%; */
     /*overflow: auto;*/
     /*display: inline-block;*/
-    min-width: 240px;
+    min-width: 400px;
 }
 
 div.asc-track > div.header {

@@ -75,10 +75,12 @@ class SongValues extends Values {
         return super.parseDurationAsTicks(durationString, timeDivision || this.song.data.timeDivision);
     }
 
-    formatDuration(input, timeDivision=null) {
-        return super.formatDuration(input, timeDivision || this.song.data.timeDivision);
+    formatDuration(durationTicks, timeDivision=null) {
+        return super.formatDuration(durationTicks, timeDivision || this.song.data.timeDivision);
     }
-
+    formatDurationAsDecimal(durationTicks, timeDivision=null, fractionDigits=2) {
+        return super.formatDurationAsDecimal(durationTicks, timeDivision || this.song.data.timeDivision, fractionDigits);
+    }
 
     getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
         return super.getNoteDurations(callback, this.song.data.timeDivision);
