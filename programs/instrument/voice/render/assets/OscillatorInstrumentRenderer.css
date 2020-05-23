@@ -14,17 +14,21 @@ div.instrument-renderer-oscillator-node {
     position: relative;
 }
 
+div.instrument-renderer-oscillator-node.open {
+    background-color: #FFF;
+}
+
 div.instrument-renderer-oscillator-node > div {
     border-left: 1px solid #888;
-    padding-right: 2px;
-    padding-left: 2px;
+    padding-right: 4px;
+    padding-left: 4px;
 }
 
 div.instrument-renderer-oscillator-node.open > div.title {
     /*border: 1px solid #FFF;*/
-    border: 1px inset;
+    /*border: 1px inset;*/
     border-bottom-width: 0px;
-    background: linear-gradient(#ccc, #aaa);
+    /*background: linear-gradient(#FFF, #CCC, #FFF);*/
     /*font-weight: bold;*/
 }
 

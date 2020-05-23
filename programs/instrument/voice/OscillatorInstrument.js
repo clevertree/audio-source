@@ -48,6 +48,7 @@ class OscillatorInstrument {
             destination = velocityGain;
         }
 
+        // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
         const osc = destination.context.createOscillator();   // instantiate an oscillator
         osc.frequency.value = frequency;    // set Frequency (hz)
         if (typeof this.config.detune !== "undefined")
@@ -70,6 +71,20 @@ class OscillatorInstrument {
                 }
                 break;
         }
+
+        // TODO: vibrato LFO effect on parameters? don't wrap effect, just include it in instrument
+        let vibratoLFO = destination.context.createOscillator();
+        vibratoLFO.frequency.value = 5;
+
+        let gainLFO = destination.context.createGain();
+        gainLFO.gain.value = 10;
+        gainLFO.connect(osc.frequency);
+
+        vibratoLFO.connect(gainLFO);
+        vibratoLFO.start(startTime);
+
+        // TODO: mixer AudioParam
+
 
         osc.connect(destination);
         osc.start(startTime);

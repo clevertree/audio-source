@@ -13,7 +13,7 @@ class OscillatorInstrumentRendererBase extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: false
+            open: true
         };
         this.cb = {
             onClick: e => this.toggleOpen(),
@@ -77,14 +77,14 @@ class OscillatorInstrumentRendererBase extends React.Component {
                                               vertical>
                 {config.range ? config.range : "-"}
             </ASUIMenuDropDown> : null}
-            <ASUIMenuAction
-                    className="loop"
-                    title="Toggle Loop"
-                    onAction={e => this.changeLoop(!config.loop)}
-                    arrow={false}
-                    vertical>
-                    {config.loop?'∞':'1'}
-            </ASUIMenuAction>
+            {/*<ASUIMenuAction*/}
+            {/*        className="loop"*/}
+            {/*        title="Toggle Loop"*/}
+            {/*        onAction={e => this.changeLoop(!config.loop)}*/}
+            {/*        arrow={false}*/}
+            {/*        vertical>*/}
+            {/*        {config.loop?'∞':'1'}*/}
+            {/*</ASUIMenuAction>*/}
         </>);
     }
 
@@ -127,11 +127,11 @@ class OscillatorInstrumentRendererBase extends React.Component {
         }
     }
 
-    changeLoop(newLoopValue=null) {
-        if(newLoopValue === null)
-            newLoopValue = !this.props.config.loop;
-        this.props.config.loop = newLoopValue?1:0;
-    }
+    // changeLoop(newLoopValue=null) {
+    //     if(newLoopValue === null)
+    //         newLoopValue = !this.props.config.loop;
+    //     this.props.config.loop = newLoopValue?1:0;
+    // }
 
     loadPreset(className, presetConfig) {
         if(className !== this.props.program[0])
@@ -155,7 +155,7 @@ class OscillatorInstrumentRendererBase extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
             <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</ASUIMenuAction>
         </>);
     }
@@ -219,9 +219,9 @@ class OscillatorInstrumentRendererBase extends React.Component {
         return (<>TODO</>);
     }
 
-    renderMenuChangeLoop() {
-        return (<>TODO</>);
-    }
+    // renderMenuChangeLoop() {
+    //     return (<>TODO</>);
+    // }
 }
 
 export default OscillatorInstrumentRendererBase;
