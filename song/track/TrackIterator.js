@@ -1,5 +1,5 @@
-import TrackInstruction from "../instruction/TrackInstruction";
-import CommandInstruction from "../instruction/CommandInstruction";
+import TrackInstruction from "../instruction/track/TrackInstruction";
+import CommandInstruction from "../instruction/command/CommandInstruction";
 import {InstructionIterator} from "../instruction";
 
 

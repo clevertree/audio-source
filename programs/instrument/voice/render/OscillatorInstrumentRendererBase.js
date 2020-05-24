@@ -41,40 +41,42 @@ class OscillatorInstrumentRendererBase extends React.Component {
         if(!this.state.open)
             return [];
         const config = this.props.config;
+
+        // TODO: Add frequency LFO
         return (<>
             <ASUIMenuDropDown title="Edit Mixer"
-                              className="mixer"
-                              options={() => this.renderMenuChangeMixer()}
-                              arrow={false}
-                              vertical>
+                  className="mixer"
+                  options={() => this.renderMenuChangeMixer()}
+                  arrow={false}
+                  vertical>
                 {typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
             </ASUIMenuDropDown>
             <ASUIMenuDropDown title={`Detune by ${config.detune} cents`}
-                              className="detune"
-                              options={() => this.renderMenuChangeDetune()}
-                              arrow={false}
-                              vertical>
+                  className="detune"
+                  options={() => this.renderMenuChangeDetune()}
+                  arrow={false}
+                  vertical>
                 {typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
             </ASUIMenuDropDown>
             {config.root ? <ASUIMenuDropDown title={`Key Root is ${config.root}`}
-                                             className="root"
-                                             options={() => this.renderMenuChangeKeyRoot()}
-                                             arrow={false}
-                                             vertical>
+                 className="root"
+                 options={() => this.renderMenuChangeKeyRoot()}
+                 arrow={false}
+                 vertical>
                 {config.root ? config.root : "-"}
             </ASUIMenuDropDown> : null}
             {config.alias ? <ASUIMenuDropDown title={`Key Alias is ${config.alias}`}
-                                              className="alias"
-                                              options={() => this.renderMenuChangeKeyAlias()}
-                                              arrow={false}
-                                              vertical>
+                  className="alias"
+                  options={() => this.renderMenuChangeKeyAlias()}
+                  arrow={false}
+                  vertical>
                 {config.alias ? config.alias : "-"}
             </ASUIMenuDropDown> : null}
             {config.range ? <ASUIMenuDropDown title={`Key Range is ${config.range}`}
-                                              className="range"
-                                              options={() => this.renderMenuChangeKeyRange()}
-                                              arrow={false}
-                                              vertical>
+                  className="range"
+                  options={() => this.renderMenuChangeKeyRange()}
+                  arrow={false}
+                  vertical>
                 {config.range ? config.range : "-"}
             </ASUIMenuDropDown> : null}
             {/*<ASUIMenuAction*/}

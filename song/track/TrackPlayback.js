@@ -113,6 +113,8 @@ export default class TrackPlayback extends TrackIterator {
         // this.endPromise = true;
     }
 
+
+    /** @deprecated **/
     playInstruction(instruction, trackStats) {
         if(instruction instanceof NoteInstruction) {
             if(typeof trackStats.program === "undefined")
@@ -159,6 +161,7 @@ export default class TrackPlayback extends TrackIterator {
      */
     processCommandInstruction(instruction, trackStats) {
         instruction.processCommandInstruction(this.song, trackStats);
+        // TODO: play notes through this
     }
 
 }

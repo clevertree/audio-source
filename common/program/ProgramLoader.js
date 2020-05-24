@@ -1,6 +1,5 @@
-import React from "react";
 
-class ProgramLoader {
+export default class ProgramLoader {
     constructor(song) {
         this.song = song;
         // this.audioContext = audioContext;
@@ -142,5 +141,4 @@ class ProgramLoader {
     static registeredProgramClasses = []
 }
 
-export default ProgramLoader;
 

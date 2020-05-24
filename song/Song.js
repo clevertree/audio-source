@@ -225,130 +225,6 @@ class Song {
 
 
 
-    /** Programs **/
-    // All programs are sent a 0 frequency play in order to pre-load samples.
-
-    hasProgram(programID) {
-        return !!this.getProxiedData().programs[programID];
-    }
-
-    playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
-        // if (!programID && programID !== 0)
-        //     throw new Error("Invalid program ID");
-        // if (!programID && programID !== 0) {
-        //     console.warn("No programs set for instruction. Using programs 0");
-        //     programID = 0;
-        //     // return;
-        // }
-        // let program = this.programLoader.loadInstanceFromID(programID);
-        // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
-        if(onstart !== null) {
-            let currentTime = destination.context.currentTime;
-            setTimeout(onstart, (noteStartTime - currentTime) * 1000);
-        }
-        if(typeof noteFrequency === "string") try {
-            noteFrequency = Values.instance.parseFrequency(noteFrequency);
-        } catch (e) {
-            console.warn(e.message);
-            return;
-        }
-        return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
-    }
-
-    programGetData(programID)         { return this.programLoader.getData(programID); }
-    programGetClassName(programID)    { return this.programLoader.getClassName(programID); }
-    programGetClass(programID)        { return this.programLoader.getClass(programID); }
-    programGetConfig(programID)       { return this.programLoader.getConfig(programID); }
-
-
-    // programGetList() {
-    //     return this.data.programs;
-    // }
-    programEach(callback) {
-        const data = this.getProxiedData();
-        return data.programs.map(function(entry, programID) {
-            const [className, config] = entry || [null, {}];
-            return callback(programID, className, config);
-        });
-    }
-
-
-    programLoadAll() {
-        const programList = this.getProxiedData().programs;
-        // console.log('programList', programList);
-        for (let programID = 0; programID < programList.length; programID++) {
-            if (programList[programID]) {
-                this.programLoadInstanceFromID(programID);
-                // TODO wait for init?
-            }
-        }
-    }
-
-
-    programLoadInstanceFromID(programID) {
-        return this.programLoader.loadInstanceFromID(programID);
-        // this.dispatchEvent({
-        //     type: 'programs:instance',
-        //     program,
-        //     programID,
-        //     song: this
-        // });
-    }
-
-    programLoadRenderer(programID) {
-        return this.programLoader.programLoadRenderer(programID);
-    }
-
-
-    programAdd(programClassName, programConfig={}) {
-        if (typeof programConfig !== 'object')
-            throw new Error("Invalid programs config object");
-        if (!programClassName)
-            throw new Error("Invalid Program Class");
-
-        const programList = this.data.programs;
-        const programID = programList.length;
-
-        this.data.programs[programID] = [programClassName, programConfig];
-        this.programLoadInstanceFromID(programID);
-        return programID;
-    }
-
-    programReplace(programID, programClassName, programConfig={}) {
-        // Preserve old programs name
-        // if (oldConfig && oldConfig.title && !programConfig.title)
-        //     programConfig.title = oldConfig.title;
-
-        const oldConfig = this.getProxiedData().programs[programID];
-        this.data.programs[programID] = [programClassName, programConfig];
-        this.programLoadInstanceFromID(programID);
-
-        return oldConfig;
-    }
-
-    programRename(programID, newTitle) {
-        const config = this.programGetConfig(programID);
-        config.title = newTitle;
-    }
-
-    programRemove(programID) {
-        const programList = this.data.programs;
-        if (!programList[programID])
-            return console.error("Invalid programs ID: " + programID);
-        const isLastProgram = programID === programList.length - 1;
-
-        const oldConfig = programList[programID];
-        if(isLastProgram) {
-            delete programList[programID];
-        } else {
-            programList[programID] = null;
-        }
-        // this.programUnload(programID);
-        return oldConfig;
-    }
-
-
-
 
     /** Instructions **/
 
@@ -657,6 +533,130 @@ class Song {
     static secondsToTicks(elapsedTime, beatsPerMinute, timeDivision) {
         return Math.round((elapsedTime * timeDivision) / (60 / beatsPerMinute));
     }
+
+
+    /** Programs **/
+    // All programs are sent a 0 frequency play in order to pre-load samples.
+
+    hasProgram(programID) {
+        return !!this.getProxiedData().programs[programID];
+    }
+
+    playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
+        // if (!programID && programID !== 0)
+        //     throw new Error("Invalid program ID");
+        // if (!programID && programID !== 0) {
+        //     console.warn("No programs set for instruction. Using programs 0");
+        //     programID = 0;
+        //     // return;
+        // }
+        // let program = this.programLoader.loadInstanceFromID(programID);
+        // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
+        if(onstart !== null) {
+            let currentTime = destination.context.currentTime;
+            setTimeout(onstart, (noteStartTime - currentTime) * 1000);
+        }
+        // if(typeof noteFrequency === "string") try {
+        //     noteFrequency = Values.instance.parseFrequency(noteFrequency);
+        // } catch (e) {
+        //     console.warn(e.message);
+        //     return;
+        // }
+        return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
+    }
+
+    programGetData(programID)         { return this.programLoader.getData(programID); }
+    programGetClassName(programID)    { return this.programLoader.getClassName(programID); }
+    programGetClass(programID)        { return this.programLoader.getClass(programID); }
+    programGetConfig(programID)       { return this.programLoader.getConfig(programID); }
+
+
+    // programGetList() {
+    //     return this.data.programs;
+    // }
+    programEach(callback) {
+        const data = this.getProxiedData();
+        return data.programs.map(function(entry, programID) {
+            const [className, config] = entry || [null, {}];
+            return callback(programID, className, config);
+        });
+    }
+
+
+    programLoadAll() {
+        const programList = this.getProxiedData().programs;
+        // console.log('programList', programList);
+        for (let programID = 0; programID < programList.length; programID++) {
+            if (programList[programID]) {
+                this.programLoadInstanceFromID(programID);
+                // TODO wait for init?
+            }
+        }
+    }
+
+
+    programLoadInstanceFromID(programID) {
+        return this.programLoader.loadInstanceFromID(programID);
+        // this.dispatchEvent({
+        //     type: 'programs:instance',
+        //     program,
+        //     programID,
+        //     song: this
+        // });
+    }
+
+    programLoadRenderer(programID) {
+        return this.programLoader.programLoadRenderer(programID);
+    }
+
+
+    programAdd(programClassName, programConfig={}) {
+        if (typeof programConfig !== 'object')
+            throw new Error("Invalid programs config object");
+        if (!programClassName)
+            throw new Error("Invalid Program Class");
+
+        const programList = this.data.programs;
+        const programID = programList.length;
+
+        this.data.programs[programID] = [programClassName, programConfig];
+        this.programLoadInstanceFromID(programID);
+        return programID;
+    }
+
+    programReplace(programID, programClassName, programConfig={}) {
+        // Preserve old programs name
+        // if (oldConfig && oldConfig.title && !programConfig.title)
+        //     programConfig.title = oldConfig.title;
+
+        const oldConfig = this.getProxiedData().programs[programID];
+        this.data.programs[programID] = [programClassName, programConfig];
+        this.programLoadInstanceFromID(programID);
+
+        return oldConfig;
+    }
+
+    programRename(programID, newTitle) {
+        const config = this.programGetConfig(programID);
+        config.title = newTitle;
+    }
+
+    programRemove(programID) {
+        const programList = this.data.programs;
+        if (!programList[programID])
+            return console.error("Invalid programs ID: " + programID);
+        const isLastProgram = programID === programList.length - 1;
+
+        const oldConfig = programList[programID];
+        if(isLastProgram) {
+            delete programList[programID];
+        } else {
+            programList[programID] = null;
+        }
+        // this.programUnload(programID);
+        return oldConfig;
+    }
+
 
 
     /** Playback **/

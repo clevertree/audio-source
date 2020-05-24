@@ -300,7 +300,7 @@ class Values {
             + (parseInt(parts[2], 10) / 1000);
     }
 
-    parseFrequency(noteString) {
+    parseFrequencyString(noteString) {
         const {keyNumber} = this.parseFrequencyParts(noteString);
         return 440 * Math.pow(2, (keyNumber - 98) / 24);
     }

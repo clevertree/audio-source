@@ -58,7 +58,7 @@ class SongTest {
     ];
     for(let i=0; i<values.length; i++) {
       const [note, expFreq] = values[i];
-      const freq = (new Values()).parseFrequency(note);
+      const freq = (new Values()).parseFrequencyString(note);
       expect(Math.round(expFreq)).toBe(Math.round(freq));
     }
 

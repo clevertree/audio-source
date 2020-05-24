@@ -80,15 +80,15 @@ class Instruction {
         if(typeof commandString === "string") {
             switch(commandString[0]) {
                 case '@':
-                    return require("./TrackInstruction").default;
+                    return require("./track/TrackInstruction").default;
                 case '!':
-                    return require("./CommandInstruction").default;
+                    return require("./command/CommandInstruction").default;
                 default:
-                    return require("./NoteInstruction").default;
+                    return require("./note/NoteInstruction").default;
             }
 
         } else if(typeof commandString === "number") {
-            return require("./MIDIInstruction").default;
+            return require("./midi/MIDIInstruction").default;
         }
         throw new Error("Unknown Instruction");
         // if(this.isMIDIInstruction(instructionData))

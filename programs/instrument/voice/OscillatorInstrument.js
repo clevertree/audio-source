@@ -1,11 +1,29 @@
 import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
+import {ArgType} from "../../../common/";
 
 
 class OscillatorInstrument {
     constructor(config={}) {
         // console.log('OscillatorInstrument', config);
         this.config = config;
+        this.playingOSCs = [];
     }
+
+    /** Command Args **/
+    static argTypes = {
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
+        pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
+    };
+
+    /** Command Aliases **/
+    static commandAliases = {
+        pf: "playFrequency",
+        bt: "pitchBendTo",
+    }
+
+
+    /** Command Routing **/
+
 
     /** Effect **/
 
@@ -19,6 +37,9 @@ class OscillatorInstrument {
         const audioContext = destination.context;
         const waveLoader = new PeriodicWaveLoader(audioContext);
 
+        // Convert frequency from string
+        // if(typeof frequency === "string")
+        //     frequency = Values.instance.parseFrequencyString(frequency);
 
         // TODO: Detect config changes on the fly. Leave caching to browser. Destination cache?
 
@@ -90,40 +111,48 @@ class OscillatorInstrument {
         osc.start(startTime);
         osc.stop(startTime + duration);
 
-        OscillatorInstrument.playingOSCs.push(osc);
-        osc.onended = function() {
-            const i = OscillatorInstrument.playingOSCs.indexOf(osc);
+        this.playingOSCs.push(osc);
+        osc.onended = () => {
+            const i = this.playingOSCs.indexOf(osc);
             if(i !== -1)
-                OscillatorInstrument.playingOSCs.splice(i, 1);
+                this.playingOSCs.splice(i, 1);
             onended && onended();
         };
 
     }
 
+    pitchBendTo(frequency, startTime, duration) {
+        // if(typeof frequency === "string")
+        //     frequency = Values.instance.parseFrequencyString(frequency);
+
+        for (let i = 0; i < this.playingOSCs.length; i++) {
+            this.playingOSCs[i].frequency.setValueCurveAtTime(values, startTime, duration)
+        }
+    }
 
 
-    /** Static **/
 
-    static playingOSCs = [];
 
-    static stopPlayback() {
+
+    stopPlayback() {
         // Stop all active sources
         //     console.log("this.playingOSCs", this.playingOSCs);
         for (let i = 0; i < this.playingOSCs.length; i++) {
-            try {
+            // try {
                 this.playingOSCs[i].stop();
-            } catch (e) {
-                console.warn(e);
-            }
+            // } catch (e) {
+            //     console.warn(e);
+            // }
         }
         this.playingOSCs = [];
     }
 
 
-    static waveURLCache = {};
+    /** Static **/
+
 
     static unloadAll() {
-        this.waveURLCache = {}
+        // this.waveURLCache = {}
         // Unload all cached samples from this program type
     }
 }

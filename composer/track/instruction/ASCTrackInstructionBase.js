@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
-import TrackInstruction from "../../../song/instruction/TrackInstruction";
+import TrackInstruction from "../../../song/instruction/track/TrackInstruction";
 import {NoteInstruction} from "../../../song";
 
 export default class ASCTrackInstructionBase extends React.Component {
