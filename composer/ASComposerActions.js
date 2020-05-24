@@ -395,9 +395,9 @@ class ASComposerActions extends ASComposerMenu {
         newInstruction = Instruction.parseInstruction(newInstruction);
         newInstruction.deltaDuration = 0;
         // this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
-        if(this.state.currentDuration)
+        if(this.state.currentDuration) // TODO: append all current args
             newInstruction.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
-        if(this.state.currentVelocity)
+        if(this.state.currentVelocity) // TODO: append all current args
             newInstruction.velocity = this.state.currentVelocity;
         // this.setState({activeTracks});
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);

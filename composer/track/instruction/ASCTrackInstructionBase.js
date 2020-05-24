@@ -40,6 +40,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         const instruction = this.props.instruction;
         const parameters = [];
 
+// TODO: append all current args
         if(instruction instanceof NoteInstruction) {
             const durationString = instruction.durationTicks === null ? 'N/A'
                 : this.getComposer().values.formatSongDuration(instruction.durationTicks);

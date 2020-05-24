@@ -259,7 +259,7 @@ class Song {
             throw new Error("Index is out or range: " + index);
         if(!instructionList[index])
             throw new Error("Invalid instruction index: " + index);
-        return Instruction.getInstruction(instructionList[index]);
+        return new Instruction(instructionList[index]);
     }
 
 
@@ -380,6 +380,7 @@ class Song {
     //     this.instructionGetByIndex(trackName, replaceIndex).program = programID;
     // }
 
+    /** @deprecated Use custom arg renderer **/
     instructionReplaceDuration(trackName, replaceIndex, newDuration) {
         if (typeof newDuration === 'string')
             newDuration = Values.instance.parseDurationAsTicks(newDuration, this.data.timeDivision);
@@ -387,6 +388,7 @@ class Song {
         instruction.durationTicks = newDuration;
     }
 
+    /** @deprecated Use custom arg renderer **/
     instructionReplaceVelocity(trackName, replaceIndex, newVelocity) {
         if (!Number.isInteger(newVelocity))
             throw new Error("Velocity must be an integer: " + newVelocity);
@@ -858,6 +860,7 @@ class Song {
     //         console.warn("No instruction at index");
     // }
 
+    /** @deprecated Use custom arg processor **/
     playInstruction(destination, instruction, program, noteStartTime = null, onstart=null, onended=null) {
         // destination = this.getVolumeGain(destination);
 

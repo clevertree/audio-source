@@ -23,7 +23,7 @@ export default class InstructionIterator {
         const count = this.instructions.length;
         for(this.currentIndex=0; this.currentIndex<count; this.currentIndex++) {
             const instructionData = this.instructions[this.currentIndex];
-            const instruction = Instruction.getInstruction(instructionData);
+            const instruction = new Instruction(instructionData);
             this.incrementPositionByInstruction(instruction);
             yield instruction;
         }
@@ -46,6 +46,10 @@ export default class InstructionIterator {
         // this.lastInstructionPositionInSeconds = this.positionSeconds;
     }
 
+    /**
+     * @param {Instruction} instruction
+     */
+    // TODO: replace with processInstruction
     incrementPositionByInstruction(instruction) {
         let deltaDurationTicks = instruction.deltaDurationTicks;
 
@@ -62,6 +66,7 @@ export default class InstructionIterator {
         }
 
 
+        // TODO: replace with processInstruction
         // Calculate song end point
         const durationTicks = instruction.durationTicks;
         if(durationTicks) {
@@ -80,7 +85,9 @@ export default class InstructionIterator {
 
     getInstruction(index) {
         const instructionData = this.instructions[index];
-        return Instruction.getInstruction(instructionData);
+        if(!instructionData)
+            throw new Error("Invalid Instruction data");
+        return new Instruction(instructionData);
     }
 
 

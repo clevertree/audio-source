@@ -33,7 +33,9 @@ class Instruction {
             return 'N/A';
         return Values.instance.formatDuration(durationTicks, timeDivision);
     }
+    /** @deprecated **/
     set durationTicks(newDuration)  { throw new Error("TODO: Implement for " + this.constructor.name);}
+    /** @deprecated **/
     get durationTicks()             { throw new Error("TODO: Implement for " + this.constructor.name);}
     get clone()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 
@@ -70,7 +72,7 @@ class Instruction {
             throw new Error("Invalid instruction data");
         if(typeof instructionData[0] === "string")
             instructionData.unshift(0);
-        return this.getInstruction(instructionData);
+        return new Instruction(instructionData);
     }
 
     static getInstructionClass(instructionData) {
