@@ -1,6 +1,8 @@
-import ProgramLoader from "./ProgramLoader";
+import {ArgType} from "../index";
 
 export default class InstructionProcessor {
+
+
     constructor(onLoadProgram=function(){}, onExecuteProgram=function(){}, onPlayTrack=function(){}) {
         this.onLoadProgram = onLoadProgram;
         this.onExecuteProgram = onExecuteProgram;
@@ -9,32 +11,31 @@ export default class InstructionProcessor {
 
     /**
      * @param {Instruction} instruction
-     * @param {object} trackStats
+     * @param {object} stats
      */
-    processCommandInstruction(instruction, trackStats) {
-        const song = this.song;
+    processCommandInstruction(instruction, stats) {
+        // const song = this.song;
         let commandString = instruction.getCommandString();
         const params = instruction.getArgs();
 
-        let commandName = null;
         if(commandString[0] === '!') {
-            commandName = commandString.substr(1);
+            commandString = commandString.substr(1);
         } else if(commandString[0] === '@') {
-            commandName = 'playTrack';
             params.unshift(commandString.substr(1));
+            commandString = 'playTrack';
         } else {
-            commandName = 'playFrequency';
             params.unshift(commandString);
+            commandString = 'playFrequency';
         }
-        switch(commandName) {
+        switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
             case 'p':
-                this.onLoadProgram(trackStats, params)
+                this.onLoadProgram(stats, params)
                 break;
 
             case 'playTrack':
             case 't':
-                this.onPlayTrack(trackStats, params)
+                this.onPlayTrack(stats, params)
                 break;
 
             // case 'playFrequency':
@@ -42,28 +43,41 @@ export default class InstructionProcessor {
             //     break;
 
             default:
-                const program = trackStats.program;
-                const argTypes = program.constructor.argTypes;
-                const commandAliases = program.constructor.commandAliases;
+                const program = stats.program || new DummyProgram();
+                const argTypes = program.constructor.argTypes || DummyProgram.argTypes;
+                const commandAliases = program.constructor.commandAliases || DummyProgram.commandAliases;
                 if(commandAliases[commandString])
                     commandString = commandAliases[commandString];
 
+                if(typeof program[commandString] !== "function")
+                    return console.error(`Program ${program.constructor.name} does not have method: ${commandString}`);
+
+
                 let newParams = [];
                 let paramPosition = 0;
-                if(argTypes) {
-                    for (let i = 0; i < argTypes.length; i++) {
-                        if (argTypes[i].consumesArgument) {
-                            newParams[i] = argTypes[i].processArgument(params[paramPosition++], trackStats);
+                const argTypeList = argTypes[commandString];
+                if(argTypeList) {
+                    for (let i = 0; i < argTypeList.length; i++) {
+                        const argType = argTypeList[i];
+                        if (argType.consumesArgument) {
+                            if(typeof params[paramPosition] !== "undefined") {
+                                newParams[i] = argType.processArgument(params[paramPosition++], stats);
+                                if (argType === ArgType.duration)
+                                    this.processDuration(newParams[i], stats);
+                            }
                         } else {
-                            newParams[i] = argTypes[i].processArgument(null, trackStats);
+                            newParams[i] = argType.processArgument(null, stats);
                         }
                     }
                 } else {
                     newParams = params;
                 }
 
+                // TODO: calculate bpm changes
+
                 // Execute command:
-                this.onExecuteProgram(trackStats, commandString, newParams);
+                this.onExecuteProgram(stats, commandString, newParams);
+                break;
 
 
                 // case 'destination':     // Append destination (does not handle note processing)
@@ -76,10 +90,32 @@ export default class InstructionProcessor {
                 //     break;
 
                 // default:
-                return console.error("Unknown command instruction: " + commandString);
         }
     }
 
+    processDuration(durationTicks, stats) {
+        const trackEndPositionInTicks = stats.positionTicks + durationTicks;
+        if (trackEndPositionInTicks > stats.endPositionTicks)
+            stats.endPositionTicks = trackEndPositionInTicks;
+        const trackPlaybackEndTime = stats.positionSeconds + (durationTicks / stats.timeDivision) / (stats.beatsPerMinute / 60);
+        if (trackPlaybackEndTime > stats.endPositionSeconds)
+            stats.endPositionSeconds = trackPlaybackEndTime;
+    }
 
 }
 
+class DummyProgram {
+    /** Command Args **/
+    static argTypes = {
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
+    };
+
+    /** Command Aliases **/
+    static commandAliases = {
+        pf: "playFrequency",
+    }
+
+    playFrequency(...args) {
+        console.log('DummyProgram.playFrequency', ...args);
+    }
+}

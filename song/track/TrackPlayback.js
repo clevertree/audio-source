@@ -1,25 +1,20 @@
 import TrackIterator from "./TrackIterator";
-import {Instruction, NoteInstruction} from "../instruction";
+import Instruction from "../instruction/Instruction";
 import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class TrackPlayback extends TrackIterator {
     constructor(song, startingTrackName = null, onEvent=null) {
-        super(song.data.tracks,
+        super(song,
             startingTrackName || song.getStartTrackName(),
-            song.data.beatsPerMinute,
-            song.data.timeDivision,
             onEvent)
 
-        this.song = song;
         this.seekLength = 10;
         this.active = true;
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
-
-        this.playInstructionCallback = this.playInstruction.bind(this);
 
     }
 
@@ -70,7 +65,7 @@ export default class TrackPlayback extends TrackIterator {
         const trackStats = this.activeIterators[0];
         const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
         iterator.seekToIndex(index, callback);
-        const startPosition = iterator.positionSeconds;
+        const startPosition = iterator.getPositionInSeconds();
         this.play(destination, startPosition);
         // console.log('playAtStartingTrackIndex', index, startPosition);
         // this.seekToPosition(startPosition, callback);
@@ -114,58 +109,51 @@ export default class TrackPlayback extends TrackIterator {
         // this.endPromise = true;
     }
 
-
-    /** @deprecated **/
-    playInstruction(instruction, trackStats) {
-        if(instruction instanceof NoteInstruction) {
-            if(typeof trackStats.program === "undefined")
-                return console.error(`Track '${trackStats.trackName}' has no program set`);
-            const destination = trackStats.destination || this.destination;
-            const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.positionSeconds; // ASCTrack start time equals current track's start + playback times
-            if(noteStartTime > 0) {
-                const noteIndex = trackStats.iterator.currentIndex;
-                const playingIndices = trackStats.playingIndices;
-                const onEvent = this.onEvent;
-                this.song.playInstruction(destination, instruction, trackStats.program, noteStartTime,
-                    () => {
-                        if(playingIndices.indexOf(noteIndex) === -1) {
-                            playingIndices.push(noteIndex);
-                            // console.log('playingIndices.push', playingIndices);
-
-                            onEvent({
-                                type: 'instruction:play',
-                                playback: this,
-                                playingIndices,
-                                trackStats
-                            });
-                        }
-                    },
-                    () => {
-                        playingIndices.splice(playingIndices.indexOf(noteIndex), 1);
-                        // console.log('playingIndices.splice', playingIndices);
-                        onEvent({
-                            type: 'instruction:stop',
-                            playback: this,
-                            playingIndices,
-                            trackStats
-                        });
-
-
-                    });
-            }
-        }
+    // TODO:
+    onExecuteProgram(trackStats, commandString, params) {
+        const program = trackStats.program;
+        program[commandString].apply(program, params);
     }
 
-    /**
-     * @param {CommandInstruction} instruction
-     * @param trackStats
-     */
-    processCommandInstruction(instruction, trackStats) {
-        instruction.processCommandInstruction(this.song, trackStats);
-        // TODO: play notes through this
-    }
-
-
+    // playInstruction(instruction, trackStats) {
+    //     if(instruction instanceof NoteInstruction) {
+    //         if(typeof trackStats.program === "undefined")
+    //             return console.error(`Track '${trackStats.trackName}' has no program set`);
+    //         const destination = trackStats.destination || this.destination;
+    //         const noteStartTime = this.startTime + trackStats.startPosition + trackStats.iterator.getPositionInSeconds(); // ASCTrack start time equals current track's start + playback times
+    //         if(noteStartTime > 0) {
+    //             const noteIndex = trackStats.currentIndex;
+    //             const playingIndices = trackStats.playingIndices;
+    //             const onEvent = this.onEvent;
+    //             this.song.playInstruction(destination, instruction, trackStats.program, noteStartTime,
+    //                 () => {
+    //                     if(playingIndices.indexOf(noteIndex) === -1) {
+    //                         playingIndices.push(noteIndex);
+    //                         // console.log('playingIndices.push', playingIndices);
+    //
+    //                         onEvent({
+    //                             type: 'instruction:play',
+    //                             playback: this,
+    //                             playingIndices,
+    //                             trackStats
+    //                         });
+    //                     }
+    //                 },
+    //                 () => {
+    //                     playingIndices.splice(playingIndices.indexOf(noteIndex), 1);
+    //                     // console.log('playingIndices.splice', playingIndices);
+    //                     onEvent({
+    //                         type: 'instruction:stop',
+    //                         playback: this,
+    //                         playingIndices,
+    //                         trackStats
+    //                     });
+    //
+    //
+    //                 });
+    //         }
+    //     }
+    // }
 
     onLoadProgram(trackStats, params) {
 
@@ -186,12 +174,6 @@ export default class TrackPlayback extends TrackIterator {
         // useProgram allows for both note processing and audio processing effects
         if(typeof programInstance.useProgram === 'function')
             programInstance.useProgram(oldProgram);
-    }
-
-    // Execute program
-    onExecuteProgram(trackStats, commandString, params) {
-        const program = trackStats.program;
-        program[commandString].apply(program, params);
     }
 
 

@@ -10,8 +10,20 @@ export default class ArgType {
 
 ArgType.destination = new ArgType(
     () => {
+        return null;
     },
-() => {
+    () => {
+
+    },
+    false
+)
+
+
+ArgType.startTime = new ArgType(
+    () => {
+        return null;
+    },
+    () => {
 
     },
     false
@@ -50,7 +62,7 @@ ArgType.velocity = new ArgType(
     velocity => {
         if(Number.isInteger(velocity))
             return velocity;
-        throw new Error("Invalid velocity: " + velocity);
+        console.error("Invalid velocity: " + velocity);
     },
     velocity => {
 

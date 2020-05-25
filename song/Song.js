@@ -4,7 +4,8 @@ import SongValues from "./values/SongValues";
 import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import ConfigListener from "./config/ConfigListener";
-import {Instruction, InstructionIterator} from "./instruction/";
+import Instruction from "./instruction/Instruction";
+import InstructionIterator from "./instruction/iterator/InstructionIterator";
 
 
 import ProgramList from "../programs";
@@ -63,58 +64,58 @@ class Song {
                     [96, 'G4', 96],
                     [96, 'A4', 96],
                 ],
-                track1: [
-                    ['!p', 1],
-                    [64, 'A3', 64],
-                    // [64, 'Aq3', 64],
-                    // [64, 'A#3', 64],
-                    [64, 'A#q3', 64],
-                    // [64, 'B3', 64],
-                    // [64, 'Bq3', 64],
-                    [64, 'C4', 64],
-                    // [64, 'Cq4', 64],
-                    // [64, 'C#4', 64],
-                    [64, 'C#q4', 64],
-                    // [64, 'D4', 64],
-                    // [64, 'Dq4', 64],
-                    [64, 'D#4', 64],
-                    // [64, 'D#q4', 64],
-                    // [64, 'E4', 64],
-                    [64, 'Eq4', 64],
-                    // [64, 'E#4', 64],
-                    // [64, 'E#q4', 64],
-                    [64, 'F#4', 64],
-                    // [64, 'F#q4', 64],
-                    // [64, 'G4', 64],
-                    [64, 'Gq4', 64],
-                    // [64, 'G#4', 64],
-                    // [64, 'G#q4', 64],
-                    [64, 'A4', 64],
-                    // [64, 'Aq4', 64],
-                    // [64, 'A#4', 64],
-                    [64, 'A#q4', 64],
-                    // [64, 'B4', 64],
-                    // [64, 'Bq4', 64],
-                    [64, 'C5', 64],
-                    // [64, 'Cq4', 64],
-                    // [64, 'C#4', 64],
-                    [64, 'C#q5', 64],
-                    // [64, 'D4', 64],
-                    // [64, 'Dq4', 64],
-                    [64, 'D#5', 64],
-                    // [64, 'D#q4', 64],
-                    // [64, 'E4', 64],
-                    [64, 'Eq5', 64],
-                    // [64, 'E#4', 64],
-                    // [64, 'E#q4', 64],
-                    [64, 'F#5', 64],
-                    // [64, 'F#q4', 64],
-                    // [64, 'G4', 64],
-                    [64, 'Gq5', 64],
-                    // [64, 'G#4', 64],
-                    // [64, 'G#q4', 64],
-                    [64, 'A5', 64],
-                ]
+                // track1: [
+                //     ['!p', 1],
+                //     [64, 'A3', 64],
+                //     // [64, 'Aq3', 64],
+                //     // [64, 'A#3', 64],
+                //     [64, 'A#q3', 64],
+                //     // [64, 'B3', 64],
+                //     // [64, 'Bq3', 64],
+                //     [64, 'C4', 64],
+                //     // [64, 'Cq4', 64],
+                //     // [64, 'C#4', 64],
+                //     [64, 'C#q4', 64],
+                //     // [64, 'D4', 64],
+                //     // [64, 'Dq4', 64],
+                //     [64, 'D#4', 64],
+                //     // [64, 'D#q4', 64],
+                //     // [64, 'E4', 64],
+                //     [64, 'Eq4', 64],
+                //     // [64, 'E#4', 64],
+                //     // [64, 'E#q4', 64],
+                //     [64, 'F#4', 64],
+                //     // [64, 'F#q4', 64],
+                //     // [64, 'G4', 64],
+                //     [64, 'Gq4', 64],
+                //     // [64, 'G#4', 64],
+                //     // [64, 'G#q4', 64],
+                //     [64, 'A4', 64],
+                //     // [64, 'Aq4', 64],
+                //     // [64, 'A#4', 64],
+                //     [64, 'A#q4', 64],
+                //     // [64, 'B4', 64],
+                //     // [64, 'Bq4', 64],
+                //     [64, 'C5', 64],
+                //     // [64, 'Cq4', 64],
+                //     // [64, 'C#4', 64],
+                //     [64, 'C#q5', 64],
+                //     // [64, 'D4', 64],
+                //     // [64, 'Dq4', 64],
+                //     [64, 'D#5', 64],
+                //     // [64, 'D#q4', 64],
+                //     // [64, 'E4', 64],
+                //     [64, 'Eq5', 64],
+                //     // [64, 'E#4', 64],
+                //     // [64, 'E#q4', 64],
+                //     [64, 'F#5', 64],
+                //     // [64, 'F#q4', 64],
+                //     // [64, 'G4', 64],
+                //     [64, 'Gq5', 64],
+                //     // [64, 'G#4', 64],
+                //     // [64, 'G#q4', 64],
+                //     [64, 'A5', 64],
+                // ]
             }
         };
 
@@ -293,7 +294,7 @@ class Song {
                     currentPositionInTicks - insertPositionInTicks
                 ];
 
-                const modifyIndex = iterator.currentIndex;
+                const modifyIndex = iterator.getIndex();
                 // Make following delta note smaller
                 this.instructionReplaceDeltaDuration(trackName, modifyIndex, splitDuration[1]);
 
@@ -308,7 +309,7 @@ class Song {
 
                 let lastInsertIndex;
                 // Search for last insert position
-                for (lastInsertIndex = iterator.currentIndex + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
+                for (lastInsertIndex = iterator.getIndex() + 1; lastInsertIndex < instructionList.length; lastInsertIndex++)
                     if (new Instruction(instructionList[lastInsertIndex]).deltaDurationTicks > 0)
                         break;
 
@@ -440,7 +441,7 @@ class Song {
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        const iterator = new TrackIterator(this.data.tracks, this.getStartTrackName(), this.data.beatsPerMinute, this.data.timeDivision);
+        const iterator = new TrackIterator(this, this.getStartTrackName(), this.data.beatsPerMinute, this.data.timeDivision);
         iterator.seekToEnd();
         // console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
         return iterator.getEndPositionInSeconds();
@@ -482,15 +483,15 @@ class Song {
         }
 
 
-        let currentPosition = iterator.positionSeconds;
+        let currentPosition = iterator.getPositionInSeconds();
 
         if (groupPositionInTicks > iterator.getPositionInTicks()) {
             const elapsedTicks = groupPositionInTicks - iterator.getPositionInTicks();
-            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.beatsPerMinute, iterator.timeDivision);
+            currentPosition += Song.ticksToSeconds(elapsedTicks, iterator.getBeatsPerMinute(), iterator.getTimeDivision());
 
         } else if (groupPositionInTicks < iterator.getPositionInTicks()) {
             const elapsedTicks = iterator.getPositionInTicks() - groupPositionInTicks;
-            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.beatsPerMinute, iterator.timeDivision);
+            currentPosition -= Song.ticksToSeconds(elapsedTicks, iterator.getBeatsPerMinute(), iterator.getTimeDivision());
         }
 
         // console.info("getGroupPositionFromTicks", groupPositionInTicks, currentPosition);
@@ -510,18 +511,18 @@ class Song {
     getGroupPositionInTicks(trackName, positionInSeconds) {
         const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
         while (true) {
-            if (iterator.positionSeconds >= positionInSeconds || !iterator.nextInstruction())
+            if (iterator.getPositionInSeconds() >= positionInSeconds || !iterator.nextInstruction())
                 break;
         }
 
         let currentPositionInTicks = iterator.getPositionInTicks();
-        if (positionInSeconds > iterator.positionSeconds) {
-            const elapsedTime = positionInSeconds - iterator.positionSeconds;
-            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.beatsPerMinute);
+        if (positionInSeconds > iterator.getPositionInSeconds()) {
+            const elapsedTime = positionInSeconds - iterator.getPositionInSeconds();
+            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.getBeatsPerMinute());
 
-        } else if (positionInSeconds < iterator.positionSeconds) {
-            const elapsedTime = iterator.positionSeconds - positionInSeconds;
-            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.beatsPerMinute);
+        } else if (positionInSeconds < iterator.getPositionInSeconds()) {
+            const elapsedTime = iterator.getPositionInSeconds() - positionInSeconds;
+            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.getBeatsPerMinute());
         }
 
         // console.info("getSongPositionInTicks", positionInSeconds, currentPositionInTicks);
@@ -830,7 +831,7 @@ class Song {
         playback.addInstructionFilter(function(instruction, trackStats) {
             if(trackStats.trackName !== trackName)
                 return null;
-            const index = trackStats.iterator.currentIndex;
+            const index = trackStats.currentIndex;
             for(let i=0; i<selectedIndices.length; i++)
                 if(selectedIndices[i] === index) {
                     // console.log("Playing instruction ", index, instruction);

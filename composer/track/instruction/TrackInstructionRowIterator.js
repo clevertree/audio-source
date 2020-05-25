@@ -2,87 +2,90 @@ import {InstructionIterator} from "../../../song";
 // import Instruction from "../../../song/instruction/Instruction";
 
 export default class TrackInstructionRowIterator {
-    constructor(instructionIterator, quantizationTicks) {
+    constructor(instructionIterator, quantizationTicks=null) {
         this.iterator = instructionIterator;
-        this.quantizationTicks = quantizationTicks;
+        const stats = this.iterator.stats;
+        if(quantizationTicks)
+            stats.quantizationTicks = quantizationTicks;
+        stats.nextQuantizationBreakInTicks = 0;
+
+        stats.cursorPosition = 0;
+        stats.rowCount = 0;
 
 
-        this.nextQuantizationBreakInTicks = 0;
-        this.rowCount = 0;
-        this.cursorPosition = 0;
+
+        // this.rowCount = 0;
+        // this.cursorPosition = 0;
         this.generator = this.run();
     }
 
 
     getPositionInTicks() { return this.iterator.getPositionInTicks(); }
     getPositionInSeconds() { return this.iterator.getPositionInSeconds(); }
-    getCursorPosition() { return this.cursorPosition; }
+    getCursorPosition() { return this.iterator.stats.cursorPosition; }
     getIndex() { return this.iterator.getIndex(); }
-    getRowCount() { return this.rowCount; }
+    getRowCount() { return this.iterator.stats.rowCount; }
 
     updateNextQuantizationBreakInTicks() {
         let currentPositionTicks = this.iterator.getPositionInTicks();
-        while(this.nextQuantizationBreakInTicks <= currentPositionTicks)
-            this.nextQuantizationBreakInTicks += this.quantizationTicks;
+        const stats = this.iterator.stats;
+        while(stats.nextQuantizationBreakInTicks <= currentPositionTicks)
+            stats.nextQuantizationBreakInTicks += stats.quantizationTicks;
     }
 
     * run() {
+        const stats = this.iterator.stats;
         while(!this.iterator.hasReachedEnd()) {
-            let currentPositionTicks = this.iterator.getPositionInTicks();
+            let currentPositionTicks = stats.positionTicks;
 
-            let nextInstruction = this.iterator.getInstruction(this.iterator.currentIndex + 1);
-            let nextInstructionPositionTicks = this.iterator.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
-            while(this.nextQuantizationBreakInTicks < nextInstructionPositionTicks) {
-                let rowDeltaTicks = this.nextQuantizationBreakInTicks - currentPositionTicks;
+            let nextInstruction = this.iterator.getInstruction(stats.currentIndex + 1);
+            let nextInstructionPositionTicks = stats.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+            while(stats.nextQuantizationBreakInTicks < nextInstructionPositionTicks) {
+                let rowDeltaTicks = stats.nextQuantizationBreakInTicks - currentPositionTicks;
                 // if(currentPositionTicks === 0 && rowDeltaTicks === 0) {
                 //     rowDeltaTicks = this.quantizationTicks;
                 // }
                 // if(rowDeltaTicks < 0)
                 //     throw new Error("Invalid row delta: " + rowDeltaTicks);
-                this.nextQuantizationBreakInTicks += this.quantizationTicks;
+                stats.nextQuantizationBreakInTicks += stats.quantizationTicks;
                 if(rowDeltaTicks > 0) {
                     yield rowDeltaTicks;
 
                     // Increment by quantized row after yielding the row delta
                     this.iterator.incrementPositionByDelta(rowDeltaTicks);
-                    this.cursorPosition++;
-                    this.rowCount++;
-                    currentPositionTicks = this.iterator.getPositionInTicks();
+                    stats.cursorPosition++;
+                    stats.rowCount++;
+                    currentPositionTicks = stats.positionTicks;
                 }
             }
 
-            if(nextInstruction.deltaDurationTicks > 0) {
-                // End the current row
-                const rowDeltaTicks = nextInstructionPositionTicks - currentPositionTicks;
-                if(rowDeltaTicks <= 0)
-                    throw new Error("Invalid row delta: " + rowDeltaTicks);
+            const rowDeltaTicks = nextInstructionPositionTicks - currentPositionTicks;
+            if(rowDeltaTicks > 0) {
+                // Bring iterator to the next instruction position, and end the last row
                 this.updateNextQuantizationBreakInTicks();
                 yield rowDeltaTicks;
-
-                // End the current row after yielding the row delta
-                nextInstruction = this.iterator.nextInstruction();
-                this.cursorPosition++;
-                this.rowCount++;
-            } else {
-                nextInstruction = this.iterator.nextInstruction();
+                stats.cursorPosition++;
+                stats.rowCount++;
             }
 
             // Increment by instruction
+            nextInstruction = this.iterator.nextInstruction();
+
             yield nextInstruction;
-            this.cursorPosition++;
+            stats.cursorPosition++;
         }
 
         this.updateNextQuantizationBreakInTicks();
         while(true) {
             const currentPositionTicks = this.iterator.getPositionInTicks();
-            const rowDeltaTicks = this.nextQuantizationBreakInTicks - currentPositionTicks;
-            if(rowDeltaTicks <= 0 || rowDeltaTicks > this.quantizationTicks)
+            const rowDeltaTicks = stats.nextQuantizationBreakInTicks - currentPositionTicks;
+            if(rowDeltaTicks <= 0 || rowDeltaTicks > stats.quantizationTicks)
                 throw new Error("Invalid row delta");
-            this.nextQuantizationBreakInTicks += this.quantizationTicks;
+            stats.nextQuantizationBreakInTicks += stats.quantizationTicks;
             yield rowDeltaTicks;
             this.iterator.incrementPositionByDelta(rowDeltaTicks);
-            this.cursorPosition++;
-            this.rowCount++;
+            stats.cursorPosition++;
+            stats.rowCount++;
         }
     }
 
@@ -117,7 +120,8 @@ export default class TrackInstructionRowIterator {
     }
 
     seekToRowOffset(rowOffset) {
-        while(this.rowCount < rowOffset) {
+        const stats = this.iterator.stats;
+        while(stats.rowCount < rowOffset) {
 
         }
     }
@@ -128,20 +132,12 @@ export default class TrackInstructionRowIterator {
 
     /** Static **/
 
-    static getIteratorFromSong(song, trackName, quantizationTicks, timeDivision=null, beatsPerMinute=null) {
-        const songData = song.getProxiedData();
-        if(!songData.tracks[trackName])
-            throw new Error("Invalid instruction track: " + trackName);
-        const instructionList = songData.tracks[trackName];
-
-        const instructionIterator = new InstructionIterator(
-            instructionList,
-            timeDivision || songData.timeDivision,
-            beatsPerMinute || songData.beatsPerMinute,
-        )
+    static getIteratorFromSong(song, trackName, stats={}, instructionCallback=null) {
+        const instructionIterator = InstructionIterator.getIteratorFromSong(song, trackName, stats, instructionCallback);
+        if(!stats.quantizationTicks)
+            stats.quantizationTicks = stats.timeDivision;
         return new TrackInstructionRowIterator(
             instructionIterator,
-            quantizationTicks
         )
     }
 }

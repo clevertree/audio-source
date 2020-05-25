@@ -1,4 +1,4 @@
-import {Instruction, NoteInstruction, ProgramLoader, Song, Storage} from "../song";
+import {Instruction, ProgramLoader, Song, Storage} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
@@ -350,16 +350,16 @@ class ASComposerActions extends ASComposerMenu {
         const state = {
             currentCommand: instruction.command
         }
-        if(instruction instanceof NoteInstruction) {
-            state.currentInstructionType = 'note';
-            if(typeof instruction.durationTicks !== "undefined")
-                state.currentDuration = instruction.getDurationString(activeTrack.getTimeDivision());
-            if(typeof instruction.velocity !== "undefined")
-                state.currentVelocity = instruction.velocity;
-        } else {
+        // if(instruction instanceof NoteInstruction) {
+        //     state.currentInstructionType = 'note';
+        //     if(typeof instruction.durationTicks !== "undefined")
+        //         state.currentDuration = instruction.getDurationString(activeTrack.getTimeDivision());
+        //     if(typeof instruction.velocity !== "undefined")
+        //         state.currentVelocity = instruction.velocity;
+        // } else {
             state.currentInstructionType = 'custom';
             state.currentArguments = instruction.commandArgs;
-        }
+        // }
         state.currentSelectedIndices = selectedIndices;
         state.selectedTrack = trackName;
 
@@ -720,7 +720,7 @@ class ASComposerActions extends ASComposerMenu {
         iterator.seekToEnd((instruction) => {
             const instructionData = instruction.data.slice();
 
-            const index = iterator.currentIndex;
+            const index = iterator.getCurrentIndex();
             for(let i=0; i<selectedIndices.length; i++)
                 if(selectedIndices[i] === index) {
                     if(startPosition === null)

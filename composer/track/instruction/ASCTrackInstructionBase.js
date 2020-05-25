@@ -1,8 +1,7 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
-import TrackInstruction from "../../../song/instruction/track/TrackInstruction";
-import {NoteInstruction} from "../../../song";
+import {TrackInstruction} from "../../../song/";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -41,28 +40,28 @@ export default class ASCTrackInstructionBase extends React.Component {
         const parameters = [];
 
 // TODO: append all current args
-        if(instruction instanceof NoteInstruction) {
-            const durationString = instruction.durationTicks === null ? 'N/A'
-                : this.getComposer().values.formatSongDuration(instruction.durationTicks);
-
-            if(typeof instruction.velocity !== "undefined")
-                parameters.push(<ASCTrackInstructionParameter
-                    key="velocity"
-                    title={`Velocity: ${instruction.velocity}`}
-                    trackerInstruction={this}
-                    type="velocity"
-                    options={() => this.renderMenuSelectVelocity(instruction.velocity)}
-                >{instruction.velocity}</ASCTrackInstructionParameter>);
-            if(typeof instruction.durationTicks !== "undefined")
-                parameters.push(<ASCTrackInstructionParameter
-                    key="duration"
-                    title={`Duration: ${durationString}`}
-                    trackerInstruction={this}
-                    type="duration"
-                    options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-                >{durationString||'-'}</ASCTrackInstructionParameter>);
-
-        } else {
+//         if(instruction instanceof NoteInstruction) {
+//             const durationString = instruction.durationTicks === null ? 'N/A'
+//                 : this.getComposer().values.formatSongDuration(instruction.durationTicks);
+//
+//             if(typeof instruction.velocity !== "undefined")
+//                 parameters.push(<ASCTrackInstructionParameter
+//                     key="velocity"
+//                     title={`Velocity: ${instruction.velocity}`}
+//                     trackerInstruction={this}
+//                     type="velocity"
+//                     options={() => this.renderMenuSelectVelocity(instruction.velocity)}
+//                 >{instruction.velocity}</ASCTrackInstructionParameter>);
+//             if(typeof instruction.durationTicks !== "undefined")
+//                 parameters.push(<ASCTrackInstructionParameter
+//                     key="duration"
+//                     title={`Duration: ${durationString}`}
+//                     trackerInstruction={this}
+//                     type="duration"
+//                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
+//                 >{durationString||'-'}</ASCTrackInstructionParameter>);
+//
+//         } else {
             const args = this.props.instruction.commandArgs;
             for(let i=0; i<args.length; i++) {
                 parameters.push(<ASCTrackInstructionParameter
@@ -73,7 +72,7 @@ export default class ASCTrackInstructionBase extends React.Component {
                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
                 >{args[i]}</ASCTrackInstructionParameter>);
             }
-        }
+        // }
 
         return parameters;
     }

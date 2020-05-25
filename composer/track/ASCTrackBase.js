@@ -117,9 +117,11 @@ export default class ASCTrackBase extends React.Component {
         return TrackInstructionRowIterator.getIteratorFromSong(
             this.getSong(),
             this.getTrackName(),
-            this.getQuantizationTicks(),
-            this.getTimeDivision(), // || this.getSong().data.timeDivision,
-            this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
+            {
+                quantizationTicks: this.getQuantizationTicks(),
+                timeDivision: this.getTimeDivision(), // || this.getSong().data.timeDivision,
+                beatsPerMinute: this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
+            }
         )
     }
 
@@ -128,8 +130,10 @@ export default class ASCTrackBase extends React.Component {
         return InstructionIterator.getIteratorFromSong(
             this.getSong(),
             this.getTrackName(),
-            this.getTimeDivision(), // || this.getSong().data.timeDivision,
-            this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
+            {
+                timeDivision: this.getTimeDivision(), // || this.getSong().data.timeDivision,
+                beatsPerMinute: this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
+            }
         )
     }
 

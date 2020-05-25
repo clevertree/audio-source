@@ -1,14 +1,11 @@
-import TrackInstruction from "../instruction/track/TrackInstruction";
-import CommandInstruction from "../instruction/command/CommandInstruction";
-import {InstructionIterator} from "../instruction";
+import InstructionIterator from "../instruction/iterator/InstructionIterator";
 import InstructionProcessor from "../../common/program/InstructionProcessor";
-import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class TrackIterator {
-    constructor(tracks, startingTrackName, startingBeatsPerMinute, startingTimeDivision, onEvent=null) {
-        this.tracks = tracks;
-        if (!this.tracks[startingTrackName])
+    constructor(song, startingTrackName, onEvent=null) {
+        this.song = song;
+        if (!this.song.hasTrack(startingTrackName))
             throw new Error("Invalid instruction track: " + startingTrackName);
 
         this.onEvent = onEvent || function() {};
@@ -24,19 +21,17 @@ export default class TrackIterator {
             // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             startPosition: 0,
             trackName: startingTrackName,
-            endPositionTicks: 0,
-            endPositionSeconds: 0,
-            beatsPerMinute: startingBeatsPerMinute,
-            startingTimeDivision: startingTimeDivision, // Time division is passed to sub-groups
+            beatsPerMinute: song.data.beatsPerMinute,
+            timeDivision: song.data.timeDivision, // Time division is passed to sub-groups
         };
-        this.startTrackIteration(startingStats);
-        this.processInstructionCallback = (instruction, stats) =>
-            this.processor.processCommandInstruction(instruction, stats);
         this.processor = new InstructionProcessor(
             (trackStats, params) => this.onLoadProgram(trackStats, params),
             (trackStats, commandString, params) => this.onExecuteProgram(trackStats, commandString, params),
             (trackStats, params) => this.onPlayTrack(trackStats, params),
         )
+
+        // Start Track iteration
+        this.startTrackIteration(startingStats);
     }
 
     onLoadProgram(trackStats, params) {
@@ -69,21 +64,23 @@ export default class TrackIterator {
     }
 
 
-    instructionGetIterator(trackStats) {
-        const trackName = trackStats.trackName;
-        if(!this.tracks[trackName])
-            throw new Error("Invalid instruction track: " + trackName);
-        const instructionList = this.tracks[trackName];
+    processCommandInstruction(instruction, stats) {
+        this.processor.processCommandInstruction(instruction, stats);
+    }
 
-        return new InstructionIterator(
-            instructionList,
+    instructionGetIterator(trackStats) {
+        return InstructionIterator.getIteratorFromSong(
+            this.song,
+            trackStats.trackName,
             trackStats,
-            this.processInstructionCallback
-        );
+            (instruction, stats) => this.processCommandInstruction(instruction, stats)
+        )
     }
 
 
     startTrackIteration(trackStats) {
+        trackStats.endPositionTicks = 0;
+        trackStats.endPositionSeconds = 0;
         const iterator = this.instructionGetIterator(trackStats);
         this.activeIterators.push(iterator);
         return trackStats;
@@ -106,8 +103,8 @@ export default class TrackIterator {
     getEndPositionInSeconds() {
         let totalEndPositionSeconds = 0;
         for(let i=0; i<this.activeIterators.length; i++) {
-            const {iterator, startPosition} = this.activeIterators[i];
-            const endPositionSeconds = startPosition + iterator.endPositionSeconds;
+            const iterator = this.activeIterators[i];
+            const endPositionSeconds = iterator.stats.startPosition + iterator.stats.endPositionSeconds;
             if (endPositionSeconds > totalEndPositionSeconds)
                 totalEndPositionSeconds = endPositionSeconds;
         }
@@ -123,7 +120,7 @@ export default class TrackIterator {
 
     hasReachedEnd() {
         for(let i=0; i<this.activeIterators.length; i++) {
-            const {iterator} = this.activeIterators[i];
+            const iterator = this.activeIterators[i];
             if(!iterator.hasReachedEnd())
                 return false;
         }
@@ -131,22 +128,6 @@ export default class TrackIterator {
     }
 
 
-    /**
-     * @param {CommandInstruction} instruction
-     * @param trackStats
-     */
-    processCommandInstruction(instruction, trackStats) {
-
-    }
-
-    // processInstruction(instruction, trackStats, callback=null) {
-    //     if(instruction instanceof CommandInstruction)
-    //         this.processCommandInstruction(instruction, trackStats);
-    //     else if(instruction instanceof TrackInstruction)
-    //         this.processTrackInstruction(instruction, trackStats);
-    //     callback && callback(instruction, trackStats);
-    //     // console.log("Note Playback: ", instruction, callback);
-    // }
 
 
     /** Seeking **/
@@ -164,25 +145,29 @@ export default class TrackIterator {
     seekToPosition(positionSeconds, callback=null) {
         let finished = true;
         for(let i=0; i<this.activeIterators.length; i++) {
-            const trackStats = this.activeIterators[i];
-            const {iterator, startPosition} = trackStats;
-            positionSeconds -= startPosition;
+            const iterator = this.activeIterators[i];
+            const stats = iterator.stats;
             if(!iterator.hasReachedEnd()) {
-                iterator.seekToPosition(positionSeconds);
-                if (!iterator.hasReachedEnd())
-                    finished = false;
+                iterator.seekToPosition(positionSeconds - stats.startPosition);
+            }
+
+            if (!iterator.hasReachedEnd()) {
+                finished = false;
+            } else {
+                const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
+                // console.log("Track ends: ", endPositionSeconds);
             }
         }
         return finished;
     }
 
-    seekToStartingTrackIndex(index, callback=null) {
-        const trackStats = this.activeIterators[0];
-        const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
-        iterator.seekToIndex(index, callback);
-        const startPosition = iterator.positionSeconds;
-        this.seekToPosition(startPosition, callback);
-    }
+    // seekToStartingTrackIndex(index, callback=null) {
+    //     const trackStats = this.activeIterators[0];
+    //     const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
+    //     iterator.seekToIndex(index, callback);
+    //     const startPosition = iterator.getPositionInSeconds();
+    //     this.seekToPosition(startPosition, callback);
+    // }
 
     // seekToPositionTicks(positionTicks, callback=null) {
     //     while (this.positionTicks < positionTicks)

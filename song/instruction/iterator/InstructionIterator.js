@@ -3,7 +3,7 @@ import Instruction from "../Instruction";
 
 
 export default class InstructionIterator {
-    constructor(instructionList, stats={}, instructionCallback=function() {}) {
+    constructor(instructionList, stats={}, instructionCallback=null) {
         this.instructions = instructionList;
         if(!stats.beatsPerMinute)
             throw new Error("Missing stats.beatsPerMinute");
@@ -11,7 +11,7 @@ export default class InstructionIterator {
             throw new Error("Missing stats.timeDivision");
 
         this.stats = stats;
-        this.instructionCallback = instructionCallback;
+        this.instructionCallback = instructionCallback || function() {};
 
         stats.currentIndex = 0;        // TODO: rename to index?
         stats.positionTicks = 0;
@@ -84,26 +84,6 @@ export default class InstructionIterator {
     }
 
 
-
-
-    // incrementPositionByInstruction(instruction) {
-    //
-    //
-    //     // Calculate song end point
-    //     const durationTicks = instruction.durationTicks;
-    //     if(durationTicks) {
-    //
-    //         const trackEndPositionInTicks = this.positionTicks + durationTicks;
-    //         if (trackEndPositionInTicks > this.endPositionTicks)
-    //             this.endPositionTicks = trackEndPositionInTicks;
-    //         const trackPlaybackEndTime = this.positionSeconds + (durationTicks / this.timeDivision) / (this.beatsPerMinute / 60);
-    //         if (trackPlaybackEndTime > this.endPositionSeconds)
-    //             this.endPositionSeconds = trackPlaybackEndTime;
-    //
-    //     }
-    //
-    //     // TODO: calculate bpm changes
-    // }
 
     getInstruction(index) {
         if(index >= this.instructions.length)
@@ -186,16 +166,21 @@ export default class InstructionIterator {
 
     /** Static **/
 
-    static getIteratorFromSong(song, trackName, timeDivision=null, beatsPerMinute=null) {
+    static getIteratorFromSong(song, trackName, stats={}, instructionCallback=null) {
         const songData = song.getProxiedData();
         if(!songData.tracks[trackName])
             throw new Error("Invalid instruction track: " + trackName);
         const instructionList = songData.tracks[trackName];
 
+        if(!stats.timeDivision)
+            stats.timeDivision = songData.timeDivision;
+        if(!stats.beatsPerMinute)
+            stats.beatsPerMinute = songData.beatsPerMinute;
+
         return new InstructionIterator(
             instructionList,
-            timeDivision || songData.timeDivision,
-            beatsPerMinute || songData.beatsPerMinute,
+            stats,
+            instructionCallback
         )
     }
 }
