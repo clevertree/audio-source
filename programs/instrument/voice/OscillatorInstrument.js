@@ -11,7 +11,7 @@ class OscillatorInstrument {
 
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
         pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
     };
 

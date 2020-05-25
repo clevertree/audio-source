@@ -107,7 +107,7 @@ class SongTest {
     // Insert Instructions
     const textNotes = {
       insert: [
-        [0, 'Cq4'],
+        [0, 0, 'Cq4'],
         [10, 10, 'Dq4'],
         [30, 20, 'Dbq4'],
         [60, 30, 'E#4'],

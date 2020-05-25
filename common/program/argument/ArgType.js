@@ -9,10 +9,10 @@ export default class ArgType {
 }
 
 ArgType.destination = new ArgType(
-    () => {
-        return null;
+    (param, stats) => {
+        return stats.destination;
     },
-    () => {
+    (param, stats) => {
 
     },
     false
@@ -20,10 +20,11 @@ ArgType.destination = new ArgType(
 
 
 ArgType.startTime = new ArgType(
-    () => {
-        return null;
+    (param, stats) => {
+        return stats.startTime
+            + stats.positionSeconds; // start time equals current track's start + playback times
     },
-    () => {
+    (param, stats) => {
 
     },
     false
@@ -45,9 +46,9 @@ ArgType.frequency = new ArgType(
 
 // ** Convert from ticks to seconds
 ArgType.duration = new ArgType(
-    (durationTicks, trackStats) => {
-        let beatsPerMinute = trackStats.beatsPerMinute; // getStartingBeatsPerMinute();
-        let timeDivision = trackStats.timeDivision;
+    (durationTicks, stats) => {
+        let beatsPerMinute = stats.beatsPerMinute; // getStartingBeatsPerMinute();
+        let timeDivision = stats.timeDivision;
         const durationSeconds = (durationTicks / timeDivision) / (beatsPerMinute / 60);
         return durationSeconds;
     },
@@ -82,4 +83,3 @@ ArgType.onended = new ArgType(
 
 
 
-ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended

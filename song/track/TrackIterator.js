@@ -3,12 +3,12 @@ import InstructionProcessor from "../../common/program/InstructionProcessor";
 
 
 export default class TrackIterator {
-    constructor(song, startingTrackName, onEvent=null) {
+    constructor(song, startingTrackName, startingStats= {}) {
         this.song = song;
         if (!this.song.hasTrack(startingTrackName))
             throw new Error("Invalid instruction track: " + startingTrackName);
 
-        this.onEvent = onEvent || function() {};
+        // this.onEvent = onEvent || function() {};
 
         // this.onEvent = onEvent;
         // this.positionSeconds = 0;
@@ -16,14 +16,17 @@ export default class TrackIterator {
         this.activeIterators = [];
         // this.currentTrackID = -1;
 
-        const startingStats = {
-            // program: trackStats.program,            // Current program which all notes route through
-            // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
-            startPosition: 0,
-            trackName: startingTrackName,
-            beatsPerMinute: song.data.beatsPerMinute,
-            timeDivision: song.data.timeDivision, // Time division is passed to sub-groups
-        };
+        // program: trackStats.program,            // Current program which all notes route through
+        // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
+
+        startingStats.startTime = 0;
+        startingStats.startPosition = 0;            // Necessary for position calculations
+        startingStats.trackName = startingTrackName;
+        if(!startingStats.beatsPerMinute)
+            startingStats.beatsPerMinute = song.data.beatsPerMinute;
+        if(!startingStats.timeDivision)
+            startingStats.timeDivision = song.data.timeDivision; // Time division is passed to sub-groups
+
         this.processor = new InstructionProcessor(
             (trackStats, params) => this.onLoadProgram(trackStats, params),
             (trackStats, commandString, params) => this.onExecuteProgram(trackStats, commandString, params),
@@ -39,28 +42,26 @@ export default class TrackIterator {
     }
 
     onExecuteProgram(trackStats, commandString, params) {
-        console.log("onExecuteProgram", trackStats.trackName, commandString, params);
+        // console.log("onExecuteProgram", trackStats.trackName, commandString, params);
     }
 
 
     onPlayTrack(trackStats, params) {
         const trackName = params[0];
-        console.log("onPlayTrack", trackStats.trackName, params);
+        // console.log("onPlayTrack", trackStats.trackName, params);
         const subTrackStats = {
             // program: trackStats.program,            // Current program which all notes route through
             // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
+            startTime: trackStats.startTime + trackStats.positionSeconds,
             startPosition: trackStats.positionSeconds,
             trackName,
             beatsPerMinute: trackStats.beatsPerMinute,
             timeDivision: trackStats.timeDivision, // Time division is passed to sub-groups
         };
-        if(typeof trackStats.program !== "undefined" && trackStats.program)
-            subTrackStats.program = trackStats.program;
-        if(typeof trackStats.destination !== "undefined" && trackStats.destination)
-            subTrackStats.destination = trackStats.destination;
         // TODO: process track instruction parameters
         this.startTrackIteration(subTrackStats);
+        return subTrackStats;
     }
 
 
@@ -99,7 +100,6 @@ export default class TrackIterator {
         return totalPositionSeconds;
     }
 
-    /** @deprecated **/
     getEndPositionInSeconds() {
         let totalEndPositionSeconds = 0;
         for(let i=0; i<this.activeIterators.length; i++) {

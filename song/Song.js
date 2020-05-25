@@ -441,7 +441,7 @@ class Song {
     /** Playback Timing **/
 
     getSongLengthInSeconds() {
-        const iterator = new TrackIterator(this, this.getStartTrackName(), this.data.beatsPerMinute, this.data.timeDivision);
+        const iterator = new TrackIterator(this, this.getStartTrackName());
         iterator.seekToEnd();
         // console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
         return iterator.getEndPositionInSeconds();
@@ -733,9 +733,9 @@ class Song {
         if(startPosition === null)
             startPosition = this.playbackPosition;
         // console.log("Start playback:", destination, startPosition, onended);
-        const playback = new TrackPlayback(this, this.getStartTrackName(), this.dispatchEventCallback);
+        const playback = new TrackPlayback(destination, this, this.getStartTrackName(), this.dispatchEventCallback);
         this.playback = playback;
-        playback.play(destination, startPosition)
+        playback.play(startPosition)
 
         this.dispatchEvent({
             type: 'song:play',
@@ -826,7 +826,7 @@ class Song {
         // TrackIterator find playback position of first index start point
         if(this.playback)
             this.stopPlayback();
-        const playback = new TrackPlayback(this, trackName, this.dispatchEventCallback);
+        const playback = new TrackPlayback(destination, this, trackName, this.dispatchEventCallback);
         this.playback = playback;
         playback.addInstructionFilter(function(instruction, trackStats) {
             if(trackStats.trackName !== trackName)
@@ -841,7 +841,7 @@ class Song {
         })
         // TrackPlayback with selective callback
         if(selectedIndices.length > 0)
-            playback.playAtStartingTrackIndex(destination, selectedIndices[0])
+            playback.playAtStartingTrackIndex(selectedIndices[0])
         // playback.play(destination);
 
 

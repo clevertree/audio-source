@@ -4,13 +4,22 @@ import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class TrackPlayback extends TrackIterator {
-    constructor(song, startingTrackName = null, onEvent=null) {
+    constructor(destination, song, startingTrackName = null) {
         super(song,
             startingTrackName || song.getStartTrackName(),
-            onEvent)
+            {
+                destination,
+                startTime: null,
+            })
 
+        if (!destination || !destination.context)
+            throw new Error("Invalid destination");
+        this.audioContext = destination.context;
+        this.destination = destination;
+
+        // this.startTime = null;
         this.seekLength = 10;
-        this.active = true;
+        this.active = false;
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
@@ -20,15 +29,27 @@ export default class TrackPlayback extends TrackIterator {
 
     isActive() { return this.active; }
 
+
+
+    onPlayTrack(trackStats, params) {
+        const subTrackStats = super.onPlayTrack(trackStats, params)
+
+        subTrackStats.program = trackStats.program;
+        subTrackStats.destination = trackStats.destination;
+    }
+
+
+    /** Actions **/
+
     startTrackIteration(trackStats) {
         super.startTrackIteration(trackStats)
         if(!trackStats.playingIndices)
             trackStats.playingIndices = [];
-        this.onEvent({
-            type: 'track:start',
-            playback: this,
-            trackStats
-        });
+        // this.onEvent({
+        //     type: 'track:start',
+        //     playback: this,
+        //     trackStats
+        // });
     }
 
     addInstructionFilter(filterCallback) {
@@ -43,36 +64,36 @@ export default class TrackPlayback extends TrackIterator {
         }
     }
 
-    play(destination, startPosition=null) {
-        if (!destination || !destination.context)
-            throw new Error("Invalid destination");
-        this.audioContext = destination.context;
-        this.destination = destination;
+    play(startPosition=null) {
+        const stats = this.activeIterators[0].stats;
+        this.active = true;
 
-        this.startTime = this.audioContext.currentTime; // this.audioContext.currentTime
+        stats.startTime = this.audioContext.currentTime; // this.audioContext.currentTime
+
 
         this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
         if(startPosition !== null) {
             this.seekToPosition(startPosition);
-            this.startTime -= startPosition;
+            stats.startTime -= startPosition;
         }
         this.renderPlayback();
     }
 
 
-    playAtStartingTrackIndex(destination, index, callback=null) {
-        const trackStats = this.activeIterators[0];
-        const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
+    playAtStartingTrackIndex(index, callback=null) {
+        const stats = this.activeIterators[0].stats;
+        const iterator = this.instructionGetIterator(stats.trackName, stats.timeDivision, stats.beatsPerMinute);
         iterator.seekToIndex(index, callback);
         const startPosition = iterator.getPositionInSeconds();
-        this.play(destination, startPosition);
+        this.play(startPosition);
         // console.log('playAtStartingTrackIndex', index, startPosition);
         // this.seekToPosition(startPosition, callback);
     }
 
     getPlaybackPosition() {
-        return this.audioContext.currentTime - this.startTime;
+        const stats = this.activeIterators[0].stats;
+        return this.audioContext.currentTime - stats.startTime;
 
     }
 

@@ -61,12 +61,15 @@ export default class InstructionProcessor {
                         const argType = argTypeList[i];
                         if (argType.consumesArgument) {
                             if(typeof params[paramPosition] !== "undefined") {
-                                newParams[i] = argType.processArgument(params[paramPosition++], stats);
+                                const arg = argType.processArgument(params[paramPosition], stats);
+                                newParams.push(arg);
+                                paramPosition++
                                 if (argType === ArgType.duration)
                                     this.processDuration(newParams[i], stats);
                             }
                         } else {
-                            newParams[i] = argType.processArgument(null, stats);
+                            const arg = argType.processArgument(null, stats);
+                            newParams.push(arg);
                         }
                     }
                 } else {
@@ -107,7 +110,7 @@ export default class InstructionProcessor {
 class DummyProgram {
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity, ArgType.onended],
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
     };
 
     /** Command Aliases **/
