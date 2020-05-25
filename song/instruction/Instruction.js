@@ -13,7 +13,11 @@ class Instruction {
         this.data[1] = newCommand;
     }
 
-    get commandArgs() {
+    getCommandString() {
+        return this.data[1];
+    }
+
+    getArgs() {
         return this.data.slice(2);
     }
 

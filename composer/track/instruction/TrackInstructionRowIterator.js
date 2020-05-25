@@ -17,7 +17,7 @@ export default class TrackInstructionRowIterator {
     getPositionInTicks() { return this.iterator.getPositionInTicks(); }
     getPositionInSeconds() { return this.iterator.getPositionInSeconds(); }
     getCursorPosition() { return this.cursorPosition; }
-    getCurrentIndex() { return this.iterator.getCurrentIndex(); }
+    getIndex() { return this.iterator.getIndex(); }
     getRowCount() { return this.rowCount; }
 
     updateNextQuantizationBreakInTicks() {

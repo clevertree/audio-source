@@ -1,5 +1,5 @@
 import Instruction from "../Instruction";
-import CommandProcessor from "./CommandProcessor";
+import InstructionProcessor from "../../../common/program/CommandProcessor";
 
 export default class CommandInstruction extends Instruction {
 
@@ -29,7 +29,7 @@ export default class CommandInstruction extends Instruction {
      * @param trackStats
      */
     processCommandInstruction(song, trackStats) {
-        CommandProcessor.processCommandInstruction(song, this, trackStats)
+        InstructionProcessor.processCommandInstruction(song, this, trackStats)
     }
 
 

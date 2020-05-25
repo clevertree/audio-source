@@ -1,5 +1,6 @@
 import TrackIterator from "./TrackIterator";
 import {Instruction, NoteInstruction} from "../instruction";
+import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class TrackPlayback extends TrackIterator {
@@ -66,7 +67,7 @@ export default class TrackPlayback extends TrackIterator {
 
 
     playAtStartingTrackIndex(destination, index, callback=null) {
-        const trackStats = this.activeTracks[0];
+        const trackStats = this.activeIterators[0];
         const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
         iterator.seekToIndex(index, callback);
         const startPosition = iterator.positionSeconds;
@@ -164,4 +165,37 @@ export default class TrackPlayback extends TrackIterator {
         // TODO: play notes through this
     }
 
+
+
+    onLoadProgram(trackStats, params) {
+
+        const oldProgram = trackStats.program;
+        const oldDestination = trackStats.destination;
+        let programInstance;
+        if(typeof params[0] === "string") {
+            programInstance = ProgramLoader.loadInstance(params[0], params[1]);
+        } else {
+            programInstance = this.song.programLoadInstanceFromID(params[0]);
+        }
+        trackStats.program = programInstance;
+
+        // useDestination allows for audio processing (i.e. effects)
+        if(typeof programInstance.useDestination === 'function')
+            trackStats.destination = programInstance.useDestination(oldDestination);
+
+        // useProgram allows for both note processing and audio processing effects
+        if(typeof programInstance.useProgram === 'function')
+            programInstance.useProgram(oldProgram);
+    }
+
+    // Execute program
+    onExecuteProgram(trackStats, commandString, params) {
+        const program = trackStats.program;
+        program[commandString].apply(program, params);
+    }
+
+
+    // onPlayTrack(trackStats, params) {
+    //     super.onPlayTrack(trackStats, params);
+    // }
 }
