@@ -154,7 +154,8 @@ export default class TrackIterator {
             if (!iterator.hasReachedEnd()) {
                 finished = false;
             } else {
-                const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
+                // TODO: update parent stats with end position?
+                // const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
                 // console.log("Track ends: ", endPositionSeconds);
             }
         }

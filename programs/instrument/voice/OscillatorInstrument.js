@@ -124,6 +124,7 @@ class OscillatorInstrument {
     pitchBendTo(frequency, startTime, duration) {
         // if(typeof frequency === "string")
         //     frequency = Values.instance.parseFrequencyString(frequency);
+        const values = [frequency, frequency*2]
 
         for (let i = 0; i < this.playingOSCs.length; i++) {
             this.playingOSCs[i].frequency.setValueCurveAtTime(values, startTime, duration)

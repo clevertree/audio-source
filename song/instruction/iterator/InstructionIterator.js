@@ -13,7 +13,7 @@ export default class InstructionIterator {
         this.stats = stats;
         this.instructionCallback = instructionCallback || function() {};
 
-        stats.currentIndex = 0;        // TODO: rename to index?
+        stats.currentIndex = -1;        // TODO: rename to index?
         stats.positionTicks = 0;
         stats.positionSeconds = 0;
         stats.lastInstructionPositionInTicks = 0;

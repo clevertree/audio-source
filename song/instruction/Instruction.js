@@ -1,4 +1,5 @@
 import Values from "../../common/values/Values";
+import InstructionProcessor from "../../common/program/InstructionProcessor";
 
 class Instruction {
     constructor(instructionData = [0]) {
@@ -19,6 +20,14 @@ class Instruction {
 
     getArgs() {
         return this.data.slice(2);
+    }
+
+    isTrackInstruction() {
+        return InstructionProcessor.isTrackCommand(this.getCommandString());
+    }
+
+    getTrackNameFromInstruction() {
+        return InstructionProcessor.getTrackNameFromInstruction(this);
     }
 
     // TODO: set commandArgs
@@ -77,34 +86,6 @@ class Instruction {
         if(typeof instructionData[0] === "string")
             instructionData.unshift(0);
         return new Instruction(instructionData);
-    }
-
-    static getInstructionClass(instructionData) {
-        if(!instructionData)
-            throw new Error("Invalid Instruction data");
-        const commandString = instructionData[1];
-        if(typeof commandString === "string") {
-            switch(commandString[0]) {
-                case '@':
-                    return require("./track/TrackInstruction").default;
-                case '!':
-                    return require("./command/CommandInstruction").default;
-                default:
-                    return require("./note/NoteInstruction").default;
-            }
-
-        } else if(typeof commandString === "number") {
-            return require("./midi/MIDIInstruction").default;
-        }
-        throw new Error("Unknown Instruction");
-        // if(this.isMIDIInstruction(instructionData))
-    }
-
-    static getInstruction(instructionData) {
-        if(!instructionData)
-            throw new Error("Invalid Instruction data");
-        const instructionClass = this.getInstructionClass(instructionData);
-        return new instructionClass(instructionData);
     }
 
 

@@ -344,12 +344,15 @@ class ASComposerActions extends ASComposerMenu {
         if(selectedIndices.length === 0)
             return;
 
-        const activeTrack = this.getActiveTrack(trackName);
+        // const activeTrack = this.getActiveTrack(trackName);
         const instruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
 
         const state = {
-            currentCommand: instruction.command
+            currentInstruction: instruction.data.slice(),
+            selectedIndices,
+            selectedTrack: trackName
         }
+        this.setState(state);
         // if(instruction instanceof NoteInstruction) {
         //     state.currentInstructionType = 'note';
         //     if(typeof instruction.durationTicks !== "undefined")
@@ -357,13 +360,12 @@ class ASComposerActions extends ASComposerMenu {
         //     if(typeof instruction.velocity !== "undefined")
         //         state.currentVelocity = instruction.velocity;
         // } else {
-            state.currentInstructionType = 'custom';
-            state.currentArguments = instruction.commandArgs;
+        //     state.currentInstructionType = 'custom';
+        //     state.currentArguments = instruction.commandArgs;
         // }
-        state.currentSelectedIndices = selectedIndices;
-        state.selectedTrack = trackName;
+        // state.currentSelectedIndices = selectedIndices;
+        // state.selectedTrack = trackName;
 
-        this.setState(state);
     }
 
     /** Instruction Modification **/

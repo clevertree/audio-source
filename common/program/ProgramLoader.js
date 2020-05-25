@@ -1,3 +1,4 @@
+import React from "react";
 
 export default class ProgramLoader {
     constructor(song) {

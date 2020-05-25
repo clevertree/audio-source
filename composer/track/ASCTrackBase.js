@@ -5,7 +5,6 @@ import ASCTrackInstruction from "./instruction/ASCTrackInstruction";
 import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager.native";
-import {ASCTrack} from "./index";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
 import {Instruction, InstructionIterator} from "../../song";
 
@@ -286,7 +285,7 @@ export default class ASCTrackBase extends React.Component {
                     console.warn(`rowDeltaTicks is ${rowDeltaTicks} > ${quantizationTicks}`);
                 }
 
-                const rowID = iterator.rowCount;
+                const rowID = iterator.getRowCount();
                 if(rowID >= rowOffset) {
                     const newRowElm = <ASCTrackRow
                         key={rowID}

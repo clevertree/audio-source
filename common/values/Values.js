@@ -368,7 +368,7 @@ class Values {
                 return false;
             }
         }, timeDivision);
-        console.log('formatDuration', {input: durationTicks, stringValue})
+        // console.log('formatDuration', {input: durationTicks, stringValue})
 
         if (stringValue)
             return stringValue;

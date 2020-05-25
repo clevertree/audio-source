@@ -30,6 +30,11 @@ export default class TrackPlayback extends TrackIterator {
     isActive() { return this.active; }
 
 
+    onExecuteProgram(trackStats, commandString, params) {
+        const program = trackStats.program;
+        program[commandString].apply(program, params);
+    }
+
 
     onPlayTrack(trackStats, params) {
         const subTrackStats = super.onPlayTrack(trackStats, params)
@@ -83,7 +88,7 @@ export default class TrackPlayback extends TrackIterator {
 
     playAtStartingTrackIndex(index, callback=null) {
         const stats = this.activeIterators[0].stats;
-        const iterator = this.instructionGetIterator(stats.trackName, stats.timeDivision, stats.beatsPerMinute);
+        const iterator = this.instructionGetIterator(stats);
         iterator.seekToIndex(index, callback);
         const startPosition = iterator.getPositionInSeconds();
         this.play(startPosition);
@@ -128,12 +133,6 @@ export default class TrackPlayback extends TrackIterator {
             this.endResolve();
         }
         // this.endPromise = true;
-    }
-
-    // TODO:
-    onExecuteProgram(trackStats, commandString, params) {
-        const program = trackStats.program;
-        program[commandString].apply(program, params);
     }
 
     // playInstruction(instruction, trackStats) {

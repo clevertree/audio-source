@@ -3,10 +3,10 @@ import {ArgType} from "../index";
 export default class InstructionProcessor {
 
 
-    constructor(onLoadProgram=function(){}, onExecuteProgram=function(){}, onPlayTrack=function(){}) {
-        this.onLoadProgram = onLoadProgram;
-        this.onExecuteProgram = onExecuteProgram;
-        this.onPlayTrack = onPlayTrack;
+    constructor(onLoadProgram=null, onExecuteProgram=null, onPlayTrack=null) {
+        this.onLoadProgram = onLoadProgram || function(){};
+        this.onExecuteProgram = onExecuteProgram || function(){};
+        this.onPlayTrack = onPlayTrack || function(){};
     }
 
     /**
@@ -103,6 +103,25 @@ export default class InstructionProcessor {
         const trackPlaybackEndTime = stats.positionSeconds + (durationTicks / stats.timeDivision) / (stats.beatsPerMinute / 60);
         if (trackPlaybackEndTime > stats.endPositionSeconds)
             stats.endPositionSeconds = trackPlaybackEndTime;
+    }
+
+    /** Static **/
+
+    static isTrackCommand(commandString) {
+        return (
+            commandString[0] === '@'
+            || commandString === 't'
+            || commandString === 'playTrack')
+
+    }
+
+    static getTrackNameFromInstruction(instruction) {
+        const commandString = instruction.getCommandString();
+        if(!this.isTrackCommand(commandString))
+            throw new Error("Invalid Track command: " + commandString);
+        if(commandString[0] === '@')
+            return commandString.substr(1);
+        return instruction.getArgs()[0];
     }
 
 }

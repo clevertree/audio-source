@@ -826,7 +826,7 @@ class Song {
         // TrackIterator find playback position of first index start point
         if(this.playback)
             this.stopPlayback();
-        const playback = new TrackPlayback(destination, this, trackName, this.dispatchEventCallback);
+        const playback = new TrackPlayback(destination, this, trackName); // , this.dispatchEventCallback);
         this.playback = playback;
         playback.addInstructionFilter(function(instruction, trackStats) {
             if(trackStats.trackName !== trackName)

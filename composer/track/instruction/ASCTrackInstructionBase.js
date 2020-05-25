@@ -1,7 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import ASCTrackInstructionParameter from "../instruction/param/ASCTrackInstructionParameter";
-import {TrackInstruction} from "../../../song/";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -62,17 +61,18 @@ export default class ASCTrackInstructionBase extends React.Component {
 //                 >{durationString||'-'}</ASCTrackInstructionParameter>);
 //
 //         } else {
-            const args = this.props.instruction.commandArgs;
-            for(let i=0; i<args.length; i++) {
-                parameters.push(<ASCTrackInstructionParameter
-                    key={i}
-                    title={`Parameter: ${i}`}
-                    trackerInstruction={this}
-                    type="custom"
-                    options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-                >{args[i]}</ASCTrackInstructionParameter>);
-            }
+//             const args = this.props.instruction.commandArgs;
+//             for(let i=0; i<args.length; i++) {
+//                 parameters.push(<ASCTrackInstructionParameter
+//                     key={i}
+//                     title={`Parameter: ${i}`}
+//                     trackerInstruction={this}
+//                     type="custom"
+//                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
+//                 >{args[i]}</ASCTrackInstructionParameter>);
+//             }
         // }
+        // console.log("TODO: custom args", instruction);
 
         return parameters;
     }
@@ -108,9 +108,9 @@ export default class ASCTrackInstructionBase extends React.Component {
 //         console.log('selectInstructionWithAction', clearSelection, toggleValue);
         const selectedIndices = this.selectInstruction(clearSelection, toggleValue);
         const instruction = this.getInstruction();
-        if(instruction instanceof TrackInstruction) {
+        if(instruction.isTrackInstruction()) {
             this.getComposer().trackerToggleTrack(
-                instruction.getTrackName(),
+                instruction.getTrackNameFromInstruction(),
                 null,
                 {
                     destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())

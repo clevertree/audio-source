@@ -76,7 +76,7 @@ export default class TrackInstructionRowIterator {
         }
 
         this.updateNextQuantizationBreakInTicks();
-        while(true) {
+        for(let i=0; i<99999; i++) {
             const currentPositionTicks = this.iterator.getPositionInTicks();
             const rowDeltaTicks = stats.nextQuantizationBreakInTicks - currentPositionTicks;
             if(rowDeltaTicks <= 0 || rowDeltaTicks > stats.quantizationTicks)
@@ -87,6 +87,7 @@ export default class TrackInstructionRowIterator {
             stats.cursorPosition++;
             stats.rowCount++;
         }
+        throw new Error("Row limit");
     }
 
     nextCursorPosition() {
