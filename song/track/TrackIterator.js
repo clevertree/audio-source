@@ -3,7 +3,7 @@ import InstructionProcessor from "../../common/program/InstructionProcessor";
 
 
 export default class TrackIterator {
-    constructor(song, startingTrackName, startingStats= {}) {
+    constructor(song, startingTrackName, startingStats= {}, filterProgramCommand=null) {
         this.song = song;
         if (!this.song.hasTrack(startingTrackName))
             throw new Error("Invalid instruction track: " + startingTrackName);
@@ -31,6 +31,7 @@ export default class TrackIterator {
             (trackStats, params) => this.onLoadProgram(trackStats, params),
             (trackStats, commandString, params) => this.onExecuteProgram(trackStats, commandString, params),
             (trackStats, params) => this.onPlayTrack(trackStats, params),
+            filterProgramCommand
         )
 
         this.processCommandInstructionCallback = (instruction, stats) => this.processCommandInstruction(instruction, stats);
@@ -72,6 +73,8 @@ export default class TrackIterator {
     }
 
     instructionGetIterator(trackStats, instructionCallback=null) {
+        if(!trackStats.trackName)
+            throw new Error("Invalid trackStats.trackName");
         return InstructionIterator.getIteratorFromSong(
             this.song,
             trackStats.trackName,

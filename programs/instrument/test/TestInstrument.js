@@ -1,8 +1,8 @@
 
 class TestInstrument {
-    constructor(config={}, audioContext=null) {
-        this.config = {};
-        this.audioContext = audioContext;
+    constructor(config={}) {
+        // console.log(this.constructor.name, config);
+        this.config = config;
     }
 
 
@@ -12,6 +12,9 @@ class TestInstrument {
         // console.info('playFrequency(', frequency, startTime, duration, velocity, ')')
     }
 
+    stopPlayback() {
+
+    }
 
 }
 

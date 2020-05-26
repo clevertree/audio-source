@@ -3,20 +3,22 @@ import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class TrackPlayback extends TrackIterator {
-    constructor(destination, song, startingTrackName = null) {
+    constructor(destination, song, startingTrackName = null, filterProgramCommand=null) {
         super(song,
             startingTrackName || song.getStartTrackName(),
             {
                 destination,
                 startTime: null,
-            })
+            },
+            filterProgramCommand
+            )
 
         if (!destination || !destination.context)
             throw new Error("Invalid destination");
         this.audioContext = destination.context;
         this.destination = destination;
 
-        // this.startTime = null;
+        this.startTime = null;
         this.seekLength = 10;
         this.active = false;
         this.activePrograms = [];
@@ -24,18 +26,22 @@ export default class TrackPlayback extends TrackIterator {
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
-        this.executionFilter = function() { return true; }
     }
 
     isActive() { return this.active; }
 
     /** Command Processing Interface **/
 
+
+
+    processCommandInstruction(instruction, stats) {
+        super.processCommandInstruction(instruction, stats);
+    }
+
+
     onExecuteProgram(trackStats, commandString, params) {
-        if(this.executionFilter(trackStats, commandString, params)) {
-            const program = trackStats.program;
-            program[commandString].apply(program, params);
-        }
+        const program = trackStats.program;
+        program[commandString].apply(program, params);
     }
 
 
@@ -77,6 +83,16 @@ export default class TrackPlayback extends TrackIterator {
         super.startTrackIteration(trackStats)
         if(!trackStats.playingIndices)
             trackStats.playingIndices = [];
+        const playingIndices = trackStats.playingIndices;
+        trackStats.onInstructionStart = function(startTime, stats) {
+            playingIndices.push(stats.currentIndex);
+            console.log('startTime', startTime, stats, playingIndices);
+                                    // console.log('playingIndices.push', playingIndices);
+        }
+        trackStats.onInstructionEnd = function(endTime, stats) {
+            playingIndices.splice(playingIndices.indexOf(stats.currentIndex), 1);
+            console.log('endTime', endTime, stats, playingIndices);
+        }
         // this.onEvent({
         //     type: 'track:start',
         //     playback: this,
@@ -84,23 +100,19 @@ export default class TrackPlayback extends TrackIterator {
         // });
     }
 
-    setExecutionFilter(executionFilter) {
-        this.executionFilter = executionFilter;
-    }
 
     play(startPosition=null) {
         const stats = this.activeIterators[0].stats;
         this.active = true;
 
-        stats.startTime = this.audioContext.currentTime; // this.audioContext.currentTime
 
+        this.startTime = this.audioContext.currentTime; // this.audioContext.currentTime
+        if(startPosition !== null)
+            this.startTime -= startPosition;
+        stats.startTime = this.startTime; // TODO: redundant?
 
         this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
-        if(startPosition !== null) {
-            stats.startTime -= startPosition;
-            // this.seekToPosition(startPosition);
-        }
         this.renderPlayback();
     }
 
@@ -118,8 +130,7 @@ export default class TrackPlayback extends TrackIterator {
     }
 
     getPlaybackPosition() {
-        const stats = this.activeIterators[0].stats;
-        return this.audioContext.currentTime - stats.startTime;
+        return this.audioContext.currentTime - this.startTime;
 
     }
 
@@ -154,10 +165,11 @@ export default class TrackPlayback extends TrackIterator {
             this.active = false;
             this.endResolve();
         }
-        this.activePrograms.forEach(program => {
-            try {  program.stopPlayback() }
-            catch (e) { console.log(e); }
-        });
+        // TODO: unnecessary?
+        // this.activePrograms.forEach(program => {
+        //     try {  program.stopPlayback() }
+        //     catch (e) { console.log(program.constructor.name, e); }
+        // });
         this.activePrograms = [];
         // this.endPromise = true;
     }

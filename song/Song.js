@@ -62,7 +62,7 @@ class Song {
                     [96, 'E4', 96],
                     [96, 'F4', 96],
                     [96, 'G4', 96],
-                    [96, 'A4', 96],
+                    [96, 'A4', 96 * 8],
                 ],
                 // track1: [
                 //     ['!p', 1],
@@ -545,26 +545,12 @@ class Song {
         return !!this.getProxiedData().programs[programID];
     }
 
+    /** @deprecated Use custom arg processor **/
     playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
-        // if (!programID && programID !== 0)
-        //     throw new Error("Invalid program ID");
-        // if (!programID && programID !== 0) {
-        //     console.warn("No programs set for instruction. Using programs 0");
-        //     programID = 0;
-        //     // return;
-        // }
-        // let program = this.programLoader.loadInstanceFromID(programID);
-        // return await program.play(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity);
         if(onstart !== null) {
             let currentTime = destination.context.currentTime;
             setTimeout(onstart, (noteStartTime - currentTime) * 1000);
         }
-        // if(typeof noteFrequency === "string") try {
-        //     noteFrequency = Values.instance.parseFrequency(noteFrequency);
-        // } catch (e) {
-        //     console.warn(e.message);
-        //     return;
-        // }
         return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
@@ -673,7 +659,7 @@ class Song {
 
     getSongPlaybackPosition() {
         if (this.playback)
-            return this.playback.audioContext.currentTime - this.playback.startTime;
+            return this.playback.getPlaybackPosition();
         return this.playbackPosition;
     }
 
@@ -725,15 +711,19 @@ class Song {
         // const audioContext = destination.context;
         if (this.playback) {
             this.stopPlayback();
-            this.setPlaybackPosition(0);
+            // this.setPlaybackPosition(0);
             // throw new Error("Song is already playing");
         }
 
         // await this.init(audioContext);
         if(startPosition === null)
             startPosition = this.playbackPosition;
+        if(startPosition > 0) {
+            if(startPosition >= this.getSongLengthInSeconds())
+                startPosition = 0;
+        }
         // console.log("Start playback:", destination, startPosition, onended);
-        const playback = new TrackPlayback(destination, this, this.getStartTrackName(), this.dispatchEventCallback);
+        const playback = new TrackPlayback(destination, this, this.getStartTrackName()); // , this.dispatchEventCallback);
         this.playback = playback;
         playback.play(startPosition)
 
@@ -754,6 +744,7 @@ class Song {
                     // positionInTicks: this.getSongPositionInTicks(this.playbackPosition), // TODO: use iterator
                     song: this
                 });
+                // this.setPlaybackPosition(0);
                 // if(this.playback)
                 //     this.stopPlayback();
             });
@@ -827,14 +818,13 @@ class Song {
         if(this.playback)
             this.stopPlayback();
         if(selectedIndices.length > 0) {
-            const playback = new TrackPlayback(destination, this, trackName); // , this.dispatchEventCallback);
-            this.playback = playback;
-            playback.setExecutionFilter(function (trackStats, commandString, params) {
+            const playback = new TrackPlayback(destination, this, trackName, function (commandString, trackStats) {
                 if (trackStats.trackName !== trackName)
                     return null;
                 const index = trackStats.currentIndex;
                 return selectedIndices.indexOf(index) !== -1;
             })
+            this.playback = playback;
             // TrackPlayback with selective callback
             playback.playAtStartingTrackIndex(selectedIndices[0])
             // playback.play(destination);

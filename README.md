@@ -15,6 +15,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Add, edit, and delete notes and note tracks.
 * Recursively play back tracks by adding a 'Track Note'.
 * Edit note velocity and duration.
+* Quarter Tone Compatibility 
 
 ## Under the Hood:
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.

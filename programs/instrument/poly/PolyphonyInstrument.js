@@ -4,16 +4,21 @@ import ProgramLoader from "../../../common/program/ProgramLoader";
 class PolyphonyInstrument {
     constructor(config={}) {
         this.config = config;
+        this.loadedVoices = [];
     }
 
     /** Loading **/
 
     loadVoice(voiceID) {
+        if(this.loadedVoices[voiceID])
+            return this.loadedVoices[voiceID];
         if(!this.config.voices[voiceID])
             throw new Error("Voice config is missing: " + voiceID);
         const [voiceClassName, voiceConfig] = this.config.voices[voiceID];
         let {classProgram:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
-        return new voiceClass(voiceConfig);
+        const loadedVoice = new voiceClass(voiceConfig);
+        this.loadedVoices[voiceID] = loadedVoice;
+        return loadedVoice;
     }
 
 
@@ -27,18 +32,7 @@ class PolyphonyInstrument {
     }
 
     stopPlayback() {
-        console.log("TODO PolyphonyInstrument.stopPlayback", this.playingVoices);
-        // Stop all active sources
-//             console.log("activeSources!", this.activeSources);
-        for (let i = 0; i < this.config.voices.length; i++) {
-            try {
-                const voice = this.loadVoice(i);
-                voice.stopPlayback(); // TODO: hacky?
-            } catch (e) {
-                console.warn(e);
-            }
-        }
-
+        this.loadedVoices.forEach(loadedVoice => loadedVoice.stopPlayback())
     }
 
     /** Static **/
@@ -46,7 +40,6 @@ class PolyphonyInstrument {
     unloadAll() {
         // Unload all cached samples from this program type
     }
-
 
 
 }

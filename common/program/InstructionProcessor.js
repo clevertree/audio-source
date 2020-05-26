@@ -3,10 +3,11 @@ import {ArgType} from "../index";
 export default class InstructionProcessor {
 
 
-    constructor(onLoadProgram=null, onExecuteProgram=null, onPlayTrack=null) {
+    constructor(onLoadProgram=null, onExecuteProgram=null, onPlayTrack=null, filterProgramCommand=null) {
         this.onLoadProgram = onLoadProgram || function(){};
         this.onExecuteProgram = onExecuteProgram || function(){};
         this.onPlayTrack = onPlayTrack || function(){};
+        this.filterProgramCommand = filterProgramCommand || function(){ return true; };
     }
 
     /**
@@ -27,6 +28,7 @@ export default class InstructionProcessor {
             params.unshift(commandString);
             commandString = 'playFrequency';
         }
+
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
             case 'p':
@@ -34,7 +36,7 @@ export default class InstructionProcessor {
                 break;
 
             case 'playTrack':
-            case 't':
+            // case 't':
                 this.onPlayTrack(stats, params)
                 break;
 
@@ -43,6 +45,8 @@ export default class InstructionProcessor {
             //     break;
 
             default:
+                if(!this.filterProgramCommand(commandString, stats))
+                    break;
                 const program = stats.program || new DummyProgram();
                 const argTypes = program.constructor.argTypes || DummyProgram.argTypes;
                 const commandAliases = program.constructor.commandAliases || DummyProgram.commandAliases;
@@ -63,9 +67,9 @@ export default class InstructionProcessor {
                             if(typeof params[paramPosition] !== "undefined") {
                                 const arg = argType.processArgument(params[paramPosition], stats);
                                 newParams.push(arg);
-                                paramPosition++
                                 if (argType === ArgType.duration)
-                                    this.processDuration(newParams[i], stats);
+                                    this.processDuration(params[paramPosition], newParams[i], stats);
+                                paramPosition++
                             }
                         } else {
                             const arg = argType.processArgument(null, stats);
@@ -96,11 +100,11 @@ export default class InstructionProcessor {
         }
     }
 
-    processDuration(durationTicks, stats) {
+    processDuration(durationTicks, durationSeconds, stats) {
         const trackEndPositionInTicks = stats.positionTicks + durationTicks;
         if (trackEndPositionInTicks > stats.endPositionTicks)
             stats.endPositionTicks = trackEndPositionInTicks;
-        const trackPlaybackEndTime = stats.positionSeconds + (durationTicks / stats.timeDivision) / (stats.beatsPerMinute / 60);
+        const trackPlaybackEndTime = stats.positionSeconds + durationSeconds;
         if (trackPlaybackEndTime > stats.endPositionSeconds)
             stats.endPositionSeconds = trackPlaybackEndTime;
     }

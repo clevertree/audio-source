@@ -34,6 +34,9 @@ class OscillatorInstrument {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
+        console.log('playFrequency', startTime, duration, destination.context.currentTime);
+
+
         const audioContext = destination.context;
         const waveLoader = new PeriodicWaveLoader(audioContext);
 
