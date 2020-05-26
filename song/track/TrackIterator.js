@@ -33,6 +33,8 @@ export default class TrackIterator {
             (trackStats, params) => this.onPlayTrack(trackStats, params),
         )
 
+        this.processCommandInstructionCallback = (instruction, stats) => this.processCommandInstruction(instruction, stats);
+
         // Start Track iteration
         this.startTrackIteration(startingStats);
     }
@@ -69,12 +71,13 @@ export default class TrackIterator {
         this.processor.processCommandInstruction(instruction, stats);
     }
 
-    instructionGetIterator(trackStats) {
+    instructionGetIterator(trackStats, instructionCallback=null) {
         return InstructionIterator.getIteratorFromSong(
             this.song,
             trackStats.trackName,
             trackStats,
-            (instruction, stats) => this.processCommandInstruction(instruction, stats)
+            instructionCallback
+            // (instruction, stats) => this.processCommandInstruction(instruction, stats)
         )
     }
 
@@ -82,7 +85,7 @@ export default class TrackIterator {
     startTrackIteration(trackStats) {
         trackStats.endPositionTicks = 0;
         trackStats.endPositionSeconds = 0;
-        const iterator = this.instructionGetIterator(trackStats);
+        const iterator = this.instructionGetIterator(trackStats, this.processCommandInstructionCallback);
         this.activeIterators.push(iterator);
         return trackStats;
     }
@@ -142,7 +145,7 @@ export default class TrackIterator {
         // return this;
     }
 
-    seekToPosition(positionSeconds, callback=null) {
+    seekToPosition(positionSeconds) {
         let finished = true;
         for(let i=0; i<this.activeIterators.length; i++) {
             const iterator = this.activeIterators[i];

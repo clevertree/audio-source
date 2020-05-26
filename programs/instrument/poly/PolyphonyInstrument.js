@@ -27,6 +27,7 @@ class PolyphonyInstrument {
     }
 
     stopPlayback() {
+        console.log("TODO PolyphonyInstrument.stopPlayback", this.playingVoices);
         // Stop all active sources
 //             console.log("activeSources!", this.activeSources);
         for (let i = 0; i < this.config.voices.length; i++) {

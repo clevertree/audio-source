@@ -137,7 +137,7 @@ class OscillatorInstrument {
 
     stopPlayback() {
         // Stop all active sources
-        //     console.log("this.playingOSCs", this.playingOSCs);
+        console.log("OscillatorInstrument.stopPlayback", this.playingOSCs);
         for (let i = 0; i < this.playingOSCs.length; i++) {
             // try {
                 this.playingOSCs[i].stop();

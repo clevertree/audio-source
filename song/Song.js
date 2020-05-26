@@ -826,24 +826,19 @@ class Song {
         // TrackIterator find playback position of first index start point
         if(this.playback)
             this.stopPlayback();
-        const playback = new TrackPlayback(destination, this, trackName); // , this.dispatchEventCallback);
-        this.playback = playback;
-        playback.addInstructionFilter(function(instruction, trackStats) {
-            if(trackStats.trackName !== trackName)
-                return null;
-            const index = trackStats.currentIndex;
-            for(let i=0; i<selectedIndices.length; i++)
-                if(selectedIndices[i] === index) {
-                    // console.log("Playing instruction ", index, instruction);
-                    return instruction;
-                }
-            // console.log("Skipping instruction ", index, instruction);
-        })
-        // TrackPlayback with selective callback
-        if(selectedIndices.length > 0)
+        if(selectedIndices.length > 0) {
+            const playback = new TrackPlayback(destination, this, trackName); // , this.dispatchEventCallback);
+            this.playback = playback;
+            playback.setExecutionFilter(function (trackStats, commandString, params) {
+                if (trackStats.trackName !== trackName)
+                    return null;
+                const index = trackStats.currentIndex;
+                return selectedIndices.indexOf(index) !== -1;
+            })
+            // TrackPlayback with selective callback
             playback.playAtStartingTrackIndex(selectedIndices[0])
-        // playback.play(destination);
-
+            // playback.play(destination);
+        }
 
         // for(let i=0; i<selectedIndices.length; i++) {
         //     const selectedIndex = selectedIndices[i];

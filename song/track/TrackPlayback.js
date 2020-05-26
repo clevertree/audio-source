@@ -1,5 +1,4 @@
 import TrackIterator from "./TrackIterator";
-import Instruction from "../instruction/Instruction";
 import ProgramLoader from "../../common/program/ProgramLoader";
 
 
@@ -20,19 +19,23 @@ export default class TrackPlayback extends TrackIterator {
         // this.startTime = null;
         this.seekLength = 10;
         this.active = false;
+        this.activePrograms = [];
 
         this.endPromise = new Promise((resolve, reject) => {
             this.endResolve = resolve;
         });
-
+        this.executionFilter = function() { return true; }
     }
 
     isActive() { return this.active; }
 
+    /** Command Processing Interface **/
 
     onExecuteProgram(trackStats, commandString, params) {
-        const program = trackStats.program;
-        program[commandString].apply(program, params);
+        if(this.executionFilter(trackStats, commandString, params)) {
+            const program = trackStats.program;
+            program[commandString].apply(program, params);
+        }
     }
 
 
@@ -42,6 +45,30 @@ export default class TrackPlayback extends TrackIterator {
         subTrackStats.program = trackStats.program;
         subTrackStats.destination = trackStats.destination;
     }
+
+    onLoadProgram(trackStats, params) {
+
+        const oldProgram = trackStats.program;
+        const oldDestination = trackStats.destination;
+        let programInstance;
+        if(typeof params[0] === "string") {
+            programInstance = ProgramLoader.loadInstance(params[0], params[1]);
+        } else {
+            programInstance = this.song.programLoadInstanceFromID(params[0]);
+        }
+        trackStats.program = programInstance;
+
+        // useDestination allows for audio processing (i.e. effects)
+        if(typeof programInstance.useDestination === 'function')
+            trackStats.destination = programInstance.useDestination(oldDestination);
+
+        // useProgram allows for both note processing and audio processing effects
+        if(typeof programInstance.useProgram === 'function')
+            programInstance.useProgram(oldProgram);
+
+        this.activePrograms.push(programInstance);
+    }
+
 
 
     /** Actions **/
@@ -57,16 +84,8 @@ export default class TrackPlayback extends TrackIterator {
         // });
     }
 
-    addInstructionFilter(filterCallback) {
-        const oldCallback = this.playInstructionCallback;
-        this.playInstructionCallback = function(instruction, trackStats) {
-            instruction = filterCallback(instruction, trackStats);
-            if(!instruction)
-                return;
-            if(!instruction instanceof Instruction)
-                throw new Error("Invalid Instruction");
-            oldCallback(instruction, trackStats);
-        }
+    setExecutionFilter(executionFilter) {
+        this.executionFilter = executionFilter;
     }
 
     play(startPosition=null) {
@@ -79,8 +98,8 @@ export default class TrackPlayback extends TrackIterator {
         this.seekInterval = setInterval(() => this.renderPlayback(), this.seekLength / 10);
 
         if(startPosition !== null) {
-            this.seekToPosition(startPosition);
             stats.startTime -= startPosition;
+            // this.seekToPosition(startPosition);
         }
         this.renderPlayback();
     }
@@ -88,7 +107,9 @@ export default class TrackPlayback extends TrackIterator {
 
     playAtStartingTrackIndex(index, callback=null) {
         const stats = this.activeIterators[0].stats;
-        const iterator = this.instructionGetIterator(stats);
+        const iterator = this.instructionGetIterator({
+            trackName: stats.trackName,
+        });
         iterator.seekToIndex(index, callback);
         const startPosition = iterator.getPositionInSeconds();
         this.play(startPosition);
@@ -112,6 +133,7 @@ export default class TrackPlayback extends TrackIterator {
 
     renderPlayback() {
         const currentPositionSeconds = this.getPlaybackPosition();
+        // console.log('currentPositionSeconds', currentPositionSeconds);
 
         if(!this.active || this.hasReachedEnd()) {
             clearInterval(this.seekInterval);
@@ -123,7 +145,7 @@ export default class TrackPlayback extends TrackIterator {
             else
                 this.stopPlayback();
         } else {
-            this.seekToPosition(currentPositionSeconds + this.seekLength, this.playInstructionCallback);
+            this.seekToPosition(currentPositionSeconds + this.seekLength);
         }
     }
 
@@ -132,6 +154,11 @@ export default class TrackPlayback extends TrackIterator {
             this.active = false;
             this.endResolve();
         }
+        this.activePrograms.forEach(program => {
+            try {  program.stopPlayback() }
+            catch (e) { console.log(e); }
+        });
+        this.activePrograms = [];
         // this.endPromise = true;
     }
 
@@ -174,28 +201,6 @@ export default class TrackPlayback extends TrackIterator {
     //         }
     //     }
     // }
-
-    onLoadProgram(trackStats, params) {
-
-        const oldProgram = trackStats.program;
-        const oldDestination = trackStats.destination;
-        let programInstance;
-        if(typeof params[0] === "string") {
-            programInstance = ProgramLoader.loadInstance(params[0], params[1]);
-        } else {
-            programInstance = this.song.programLoadInstanceFromID(params[0]);
-        }
-        trackStats.program = programInstance;
-
-        // useDestination allows for audio processing (i.e. effects)
-        if(typeof programInstance.useDestination === 'function')
-            trackStats.destination = programInstance.useDestination(oldDestination);
-
-        // useProgram allows for both note processing and audio processing effects
-        if(typeof programInstance.useProgram === 'function')
-            programInstance.useProgram(oldProgram);
-    }
-
 
     // onPlayTrack(trackStats, params) {
     //     super.onPlayTrack(trackStats, params);

@@ -126,7 +126,7 @@ export default class InstructionIterator {
         }
     }
 
-    seekToPosition(positionSeconds, callback=null) {
+    seekToPosition(positionSeconds) {
         const stats = this.stats;
         while (!this.hasReachedEnd()) {
             const nextInstruction = this.getInstruction(stats.currentIndex + 1);
@@ -137,8 +137,6 @@ export default class InstructionIterator {
             const instruction = this.nextInstruction();
             if(!instruction)
                 break;
-            if(callback)
-                callback(instruction);
         }
     }
 
