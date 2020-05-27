@@ -348,7 +348,7 @@ class ASComposerActions extends ASComposerMenu {
         const instruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
 
         const state = {
-            currentInstruction: instruction.data.slice(),
+            currentInstructionArgs: instruction.data.slice(1),
             selectedIndices,
             selectedTrack: trackName
         }

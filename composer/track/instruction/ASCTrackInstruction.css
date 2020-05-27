@@ -82,6 +82,7 @@ div.asct-parameter.custom {
   100% { max-width: 99px; }
 }
 
+div.asct-parameter.frequency,
 div.asct-parameter.command {
   color: darkred;
 }

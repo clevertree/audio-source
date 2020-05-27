@@ -79,11 +79,28 @@ ArgType.velocity = new ArgType(
 
 
 ArgType.onended = new ArgType(
-    velocity => {
-    },
-    velocity => {
+    value => { return value; },
+    value => { return value; },
+    false
+)
 
-    },
+
+ArgType.command = new ArgType(
+    value => { return value; },
+    value => { return value; },
+    false
+)
+
+
+ArgType.trackName = new ArgType(
+    value => { return value; },
+    value => { return value; },
+    false
+)
+
+ArgType.program = new ArgType(
+    value => { return value; },
+    value => { return value; },
     false
 )
 

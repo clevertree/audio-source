@@ -1,6 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import {InstructionProcessor} from "../../../common/";
+import {ArgType, InstructionProcessor} from "../../../common/";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -34,7 +34,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         return null;
     }
 
-    renderParameter(i, param, argType) {
+    renderParameter(i, param, className) {
         throw new Error("Unimplemented");
     }
 
@@ -43,56 +43,49 @@ export default class ASCTrackInstructionBase extends React.Component {
         let commandString = instruction.getCommandString();
         const params = instruction.getArgs();
         commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
+        let argTypes = [];
         switch(commandString) {
+            case 'playFrequency':
+                argTypes = [ArgType.frequency, ArgType.duration, ArgType.velocity];
+                break;
+
             case 'playTrack':
                 params.unshift('!playTrack');
+                argTypes = [ArgType.command, ArgType.trackName, ArgType.duration];
                 // params[0] = '@' + params[0];
                 break;
 
             case 'program':
                 params.unshift('!program');
+                argTypes = [ArgType.command, ArgType.program];
+                break;
+
 
         }
-        console.log('commandString', commandString, params);
-        return params.map((param, i) => this.renderParameter(i, param));
+        // console.log('commandString', commandString, params);
+        return params.map((param, i) => {
+            let className = 'asct-parameter';
+            switch(argTypes[i]) {
+                case ArgType.frequency:
+                    className += ' frequency';
+                    break;
 
-// TODO: append all current args
-//         if(instruction instanceof NoteInstruction) {
-//             const durationString = instruction.durationTicks === null ? 'N/A'
-//                 : this.getComposer().values.formatSongDuration(instruction.durationTicks);
-//
-//             if(typeof instruction.velocity !== "undefined")
-//                 parameters.push(<ASCTrackInstructionParameter
-//                     key="velocity"
-//                     title={`Velocity: ${instruction.velocity}`}
-//                     trackerInstruction={this}
-//                     type="velocity"
-//                     options={() => this.renderMenuSelectVelocity(instruction.velocity)}
-//                 >{instruction.velocity}</ASCTrackInstructionParameter>);
-//             if(typeof instruction.durationTicks !== "undefined")
-//                 parameters.push(<ASCTrackInstructionParameter
-//                     key="duration"
-//                     title={`Duration: ${durationString}`}
-//                     trackerInstruction={this}
-//                     type="duration"
-//                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-//                 >{durationString||'-'}</ASCTrackInstructionParameter>);
-//
-//         } else {
-//             const args = this.props.instruction.commandArgs;
-//             for(let i=0; i<args.length; i++) {
-//                 parameters.push(<ASCTrackInstructionParameter
-//                     key={i}
-//                     title={`Parameter: ${i}`}
-//                     trackerInstruction={this}
-//                     type="custom"
-//                     options={() => this.renderMenuSelectDuration(instruction.durationTicks)}
-//                 >{args[i]}</ASCTrackInstructionParameter>);
-//             }
-        // }
-        // console.log("TODO: custom args", instruction);
+                case ArgType.duration:
+                    className += ' duration';
+                    param = param === null ? 'N/A'
+                        : this.getComposer().values.formatSongDuration(param);
+                    break;
 
-        return [];
+                case ArgType.velocity:
+                    className += ' velocity';
+                    break;
+
+                default:
+                    className += ' unknown';
+                    break;
+            }
+            return this.renderParameter(i, param, className)
+        });
     }
 
     /** Actions **/

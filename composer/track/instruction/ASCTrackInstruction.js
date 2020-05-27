@@ -3,6 +3,7 @@ import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
 import {ASUIDropDownContainer} from "../../../components/menu";
 
 import "./ASCTrackInstruction.css";
+import {ArgType} from "../../../common";
 
 export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     constructor(props) {
@@ -61,10 +62,10 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         </div>;
     }
 
-    renderParameter(i, param, argType) {
+    renderParameter(i, param, className) {
         return <div
             key={i}
-            className="asct-parameter"
+            className={className}
             // title={title}
             children={param}
         />

@@ -48,7 +48,8 @@ export default class ASComposer extends ASComposerInput {
                 }
             },
 
-            currentInstructionType: 'note',
+            currentInstructionArgs: ['C4', '1B'],
+            // currentInstructionType: 'note',
             currentCommand: 'C4',
             currentDuration: '1B',
             currentVelocity: null,
