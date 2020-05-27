@@ -121,10 +121,10 @@ export default class ASComposer extends ASComposerInput {
             case 'track:end':
                 break;
 
-            case 'instruction:play':
-            case 'instruction:stop':
+            case 'instruction:start':
+            case 'instruction:end':
                 // console.log(e.type, e.playingIndices);
-                const activeTrack = this.getActiveTrack(e.trackStats.trackName);
+                const activeTrack = this.getActiveTrack(e.trackName);
                 activeTrack.updatePlayingIndices(e.playingIndices);
                 // this.forceUpdate();
                 break;

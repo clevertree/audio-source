@@ -79,20 +79,40 @@ export default class TrackPlayback extends TrackIterator {
 
     /** Actions **/
 
-    startTrackIteration(trackStats) {
-        super.startTrackIteration(trackStats)
-        if(!trackStats.playingIndices)
-            trackStats.playingIndices = [];
-        const playingIndices = trackStats.playingIndices;
-        trackStats.onInstructionStart = function(startTime, stats) {
-            playingIndices.push(stats.currentIndex);
-            console.log('startTime', startTime, stats, playingIndices);
+    startTrackIteration(stats) {
+        super.startTrackIteration(stats)
+        if(!stats.playingIndices)
+            stats.playingIndices = [];
+        const playingIndices = stats.playingIndices;
+        stats.onInstructionStart = (startTime, stats) => {
+            const waitTime = startTime -this.audioContext.currentTime;
+            // console.log('onInstructionStart', startTime, waitTime);
+            const event = {
+                type: 'instruction:start',
+                trackName: stats.trackName,
+                index: stats.currentIndex,
+                playingIndices,
+            }
+            setTimeout(() => {
+                playingIndices.push(event.index);
+                this.song.dispatchEvent(event)
+            }, waitTime * 1000);
                                     // console.log('playingIndices.push', playingIndices);
-        }
-        trackStats.onInstructionEnd = function(endTime, stats) {
-            playingIndices.splice(playingIndices.indexOf(stats.currentIndex), 1);
-            console.log('endTime', endTime, stats, playingIndices);
-        }
+        };
+        stats.onInstructionEnd = (endTime, stats) => {
+            const waitTime = endTime - this.audioContext.currentTime;
+            // console.log('onInstructionStart', endTime, waitTime);
+            const event = {
+                type: 'instruction:end',
+                trackName: stats.trackName,
+                index: stats.currentIndex,
+                playingIndices,
+            }
+            setTimeout(() => {
+                playingIndices.splice(playingIndices.indexOf(event.index), 1);
+                this.song.dispatchEvent(event)
+            }, waitTime * 1000);
+        };
         // this.onEvent({
         //     type: 'track:start',
         //     playback: this,

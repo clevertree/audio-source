@@ -34,10 +34,17 @@ class OscillatorInstrument {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
-        console.log('playFrequency', startTime, duration, destination.context.currentTime);
+        const endTime = startTime + duration;
 
 
         const audioContext = destination.context;
+        if(endTime < audioContext.currentTime) {
+            console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
+            return false;
+        }
+        // console.log('playFrequency', startTime, duration, destination.context.currentTime);
+
+
         const waveLoader = new PeriodicWaveLoader(audioContext);
 
         // Convert frequency from string
@@ -112,7 +119,7 @@ class OscillatorInstrument {
 
         osc.connect(destination);
         osc.start(startTime);
-        osc.stop(startTime + duration);
+        osc.stop(endTime);
 
         this.playingOSCs.push(osc);
         osc.onended = () => {
