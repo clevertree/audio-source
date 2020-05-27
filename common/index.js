@@ -5,6 +5,7 @@ import PromptManager from "./prompt/PromptManager";
 import LocalStorage from "./storage/LocalStorage";
 import Storage from "./storage/Storage";
 import Values from "./values/Values";
+import InstructionProcessor from "./program/InstructionProcessor"
 export {
     Keyboard,
     ProgramLoader,
@@ -13,6 +14,7 @@ export {
     LocalStorage,
     Storage,
     Values,
+    InstructionProcessor
 }
 
 

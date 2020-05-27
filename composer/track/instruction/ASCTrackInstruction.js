@@ -38,22 +38,36 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             tabIndex={0}
             className={className}
             onKeyDown={this.cb.onKeyDown}
+            onClick={this.cb.onClick}
             onContextMenu={this.cb.onContextMenu}
-            // onMouseDown={this.cb.onMouseInput} // TODO: fix inputs
+            // onMouseDown={this.cb.onMouseInput} // TODO
+            //  : fix inputs
             >
-            <div
-                className="asct-parameter command"
-                onClick={this.cb.onClick}
-                >
-                {instruction.command}
-            </div>
-            <ASUIDropDownContainer
-                ref={this.dropdown}
-                options={this.cb.options}
-                vertical={true}
-            />
-            {open ? this.renderParameters() : null}
+
+            {!open ? <div
+                    className="asct-parameter command"
+                    >
+                    {instruction.command}
+                </div>
+            : [
+                this.renderParameters(),
+                <ASUIDropDownContainer // TODO: no dropdown unless open?
+                    key="dropdown"
+                    ref={this.dropdown}
+                    options={this.cb.options}
+                    vertical={true}
+                />
+            ]}
         </div>;
+    }
+
+    renderParameter(i, param, argType) {
+        return <div
+            key={i}
+            className="asct-parameter"
+            // title={title}
+            children={param}
+        />
     }
 
     /** User Input **/

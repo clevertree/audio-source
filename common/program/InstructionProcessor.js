@@ -10,6 +10,7 @@ export default class InstructionProcessor {
         this.filterProgramCommand = filterProgramCommand || function(){ return true; };
     }
 
+
     /**
      * @param {Instruction} instruction
      * @param {object} stats
@@ -19,19 +20,10 @@ export default class InstructionProcessor {
         let commandString = instruction.getCommandString();
         const params = instruction.getArgs();
 
-        if(commandString[0] === '!') {
-            commandString = commandString.substr(1);
-        } else if(commandString[0] === '@') {
-            params.unshift(commandString.substr(1));
-            commandString = 'playTrack';
-        } else {
-            params.unshift(commandString);
-            commandString = 'playFrequency';
-        }
+        commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
 
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
-            case 'p':
                 this.onLoadProgram(stats, params)
                 break;
 
@@ -57,27 +49,10 @@ export default class InstructionProcessor {
                     return console.error(`Program ${program.constructor.name} does not have method: ${commandString}`);
 
 
-                let newParams = [];
-                let paramPosition = 0;
+                let newParams = params;
                 const argTypeList = argTypes[commandString];
                 if(argTypeList) {
-                    for (let i = 0; i < argTypeList.length; i++) {
-                        const argType = argTypeList[i];
-                        if (argType.consumesArgument) {
-                            if(typeof params[paramPosition] !== "undefined") {
-                                const arg = argType.processArgument(params[paramPosition], stats);
-                                newParams.push(arg);
-                                if (argType === ArgType.duration)
-                                    this.processDuration(params[paramPosition], newParams[i], stats);
-                                paramPosition++
-                            }
-                        } else {
-                            const arg = argType.processArgument(null, stats);
-                            newParams.push(arg);
-                        }
-                    }
-                } else {
-                    newParams = params;
+                    newParams = this.processArgList(argTypeList, params, stats);
                 }
 
                 // TODO: calculate bpm changes
@@ -100,6 +75,28 @@ export default class InstructionProcessor {
         }
     }
 
+    processArgList(argTypeList, params, stats) {
+        let paramPosition = 0;
+
+        let newParams = [];
+        for (let i = 0; i < argTypeList.length; i++) {
+            const argType = argTypeList[i];
+            if (argType.consumesArgument) {
+                if(typeof params[paramPosition] !== "undefined") {
+                    const arg = argType.processArgument(params[paramPosition], stats);
+                    newParams.push(arg);
+                    if (argType === ArgType.duration)
+                        this.processDuration(params[paramPosition], newParams[i], stats);
+                    paramPosition++
+                }
+            } else {
+                const arg = argType.processArgument(null, stats);
+                newParams.push(arg);
+            }
+        }
+        return newParams;
+    }
+
     processDuration(durationTicks, durationSeconds, stats) {
         const trackEndPositionInTicks = stats.positionTicks + durationTicks;
         if (trackEndPositionInTicks > stats.endPositionTicks)
@@ -110,6 +107,27 @@ export default class InstructionProcessor {
     }
 
     /** Static **/
+
+    static getCommandStringFromInstruction(commandString, params) {
+        if(commandString[0] === '!') {
+            commandString = commandString.substr(1);
+            switch(commandString) {
+                case 'p':
+                    commandString = 'program';
+                    break;
+                default: break;
+            }
+
+        } else if(commandString[0] === '@') {
+            params.unshift(commandString.substr(1));
+            commandString = 'playTrack';
+
+        } else {
+            params.unshift(commandString);
+            commandString = 'playFrequency';
+        }
+        return commandString;
+    }
 
     static isTrackCommand(commandString) {
         return (

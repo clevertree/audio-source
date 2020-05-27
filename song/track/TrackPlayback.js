@@ -170,26 +170,28 @@ export default class TrackPlayback extends TrackIterator {
             clearInterval(this.seekInterval);
             const endPositionSeconds = this.getEndPositionInSeconds();
             const timeTillFinished = endPositionSeconds - currentPositionSeconds;
-            console.log(`Song is ending in ${timeTillFinished} seconds`);
+            // console.log(`Song is ending in ${timeTillFinished} seconds`);
             if(timeTillFinished > 0)
-                setTimeout(() => this.stopPlayback(), timeTillFinished * 1000);
+                setTimeout(() => this.stopPlayback(false), timeTillFinished * 1000);
             else
-                this.stopPlayback();
+                this.stopPlayback(false);
         } else {
             this.seekToPosition(currentPositionSeconds + this.seekLength);
         }
     }
 
-    stopPlayback() {
+    stopPlayback(stopAllNotes=true) {
         if(this.active) {
             this.active = false;
             this.endResolve();
         }
         // TODO: unnecessary?
-        // this.activePrograms.forEach(program => {
-        //     try {  program.stopPlayback() }
-        //     catch (e) { console.log(program.constructor.name, e); }
-        // });
+        if(stopAllNotes) {
+            this.activePrograms.forEach(program => {
+                try {  program.stopPlayback() }
+                catch (e) { console.log(program.constructor.name, e); }
+            });
+        }
         this.activePrograms = [];
         // this.endPromise = true;
     }

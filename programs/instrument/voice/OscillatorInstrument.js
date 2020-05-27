@@ -42,6 +42,8 @@ class OscillatorInstrument {
             console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
             return false;
         }
+        if(startTime < 0)
+            startTime = 0; // Negative start time fix.
         // console.log('playFrequency', startTime, duration, destination.context.currentTime);
 
 
@@ -147,7 +149,7 @@ class OscillatorInstrument {
 
     stopPlayback() {
         // Stop all active sources
-        console.log("OscillatorInstrument.stopPlayback", this.playingOSCs);
+        // console.log("OscillatorInstrument.stopPlayback", this.playingOSCs);
         for (let i = 0; i < this.playingOSCs.length; i++) {
             // try {
                 this.playingOSCs[i].stop();

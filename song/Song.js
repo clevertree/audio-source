@@ -783,7 +783,7 @@ class Song {
         // this.waitCancels = [];
 
 
-        console.log("End playback:", this.playbackPosition);
+        // console.log("End playback:", this.playbackPosition);
 
 
         this.dispatchEvent({
