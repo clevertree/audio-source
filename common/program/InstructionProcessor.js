@@ -14,12 +14,13 @@ export default class InstructionProcessor {
     /**
      * @param {[]} instructionData
      * @param {object} stats
+     * @deprecated
      */
     processCommandInstruction(instructionData, stats) {
         // const song = this.song;
         let [deltaDurationTicks, commandString, ...params] = instructionData;
 
-        commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
+        commandString = InstructionProcessor.getCommandStringFromInstruction(commandString);
 
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
@@ -74,7 +75,9 @@ export default class InstructionProcessor {
         }
     }
 
-    processArgList(argTypeList, params, stats) {
+    /** Static **/
+
+    static processArgList(argTypeList, params, stats) {
         let paramPosition = 0;
 
         let newParams = [];
@@ -96,7 +99,7 @@ export default class InstructionProcessor {
         return newParams;
     }
 
-    processDuration(durationTicks, durationSeconds, stats) {
+    static processDuration(durationTicks, durationSeconds, stats) {
         const trackEndPositionInTicks = stats.positionTicks + durationTicks;
         if (trackEndPositionInTicks > stats.endPositionTicks)
             stats.endPositionTicks = trackEndPositionInTicks;
@@ -105,27 +108,52 @@ export default class InstructionProcessor {
             stats.endPositionSeconds = trackPlaybackEndTime;
     }
 
-    /** Static **/
 
-    static getCommandStringFromInstruction(commandString, params) {
+
+    static processInstructionArgs(instructionData, programClass=DummyProgram) {
+        const argTypes = programClass.argTypes;
+        const commandAliases = programClass.commandAliases;
+        // let argOffset = 1;
+        let prependList = [];
+
+        let commandString = instructionData[1];
         if(commandString[0] === '!') {
             commandString = commandString.substr(1);
             switch(commandString) {
+                case 'playTrack':
+                    return [commandString, [ArgType.command, ArgType.trackName]];
                 case 'p':
-                    commandString = 'program';
-                    break;
-                default: break;
+                case 'program':
+                    return [commandString, [ArgType.command, ArgType.program]];
             }
+            prependList.push(ArgType.command);
 
         } else if(commandString[0] === '@') {
-            params.unshift(commandString.substr(1));
-            commandString = 'playTrack';
+            return ['playTrack', [ArgType.trackName]];
 
         } else {
-            params.unshift(commandString);
             commandString = 'playFrequency';
         }
-        return commandString;
+        if(commandAliases[commandString])
+            commandString = commandAliases[commandString];
+
+        const argTypeList = argTypes[commandString];
+        if(!argTypeList)
+            throw new Error(`Program ${programClass.name} does not have method: ${commandString}`);
+
+        return [commandString, prependList.concat(argTypeList)];
+    }
+
+    static getCommandStringFromInstruction(commandString) {
+        if(commandString[0] === '!') {
+            return commandString.substr(1);
+
+        } else if(commandString[0] === '@') {
+            return 'playTrack';
+
+        } else {
+            return 'playFrequency';
+        }
     }
 
     static isTrackCommand(commandString) {
@@ -151,6 +179,7 @@ class DummyProgram {
     /** Command Args **/
     static argTypes = {
         playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        playTrack: [ArgType.trackName, ArgType.duration],
     };
 
     /** Command Aliases **/

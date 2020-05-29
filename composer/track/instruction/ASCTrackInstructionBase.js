@@ -40,33 +40,16 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     renderParameters() {
         const instructionData = this.getInstructionData();
-        let [deltaDurationTicks, commandString, ...params] = instructionData;
-        // let commandString = instructionData.getCommandString();
-        // const params = instructionData.getArgs();
-        commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
-        let argTypes = [];
-        switch(commandString) {
-            case 'playFrequency':
-                argTypes = [ArgType.frequency, ArgType.duration, ArgType.velocity];
-                break;
-
-            case 'playTrack':
-                params.unshift('!playTrack');
-                argTypes = [ArgType.command, ArgType.trackName, ArgType.duration];
-                // params[0] = '@' + params[0];
-                break;
-
-            case 'program':
-                params.unshift('!program');
-                argTypes = [ArgType.command, ArgType.program];
-                break;
-
-
-        }
-        // console.log('commandString', commandString, params);
-        return params.map((param, i) => {
+        const params = [];
+        const [commandString, argTypeList] = InstructionProcessor.processInstructionArgs(instructionData);
+        let paramPosition = 1;
+        for(let i=0; i<argTypeList.length; i++) {
+            const argType = argTypeList[i];
+            if(!argType.consumesArgument)
+                continue;
             let className = 'asct-parameter';
-            switch(argTypes[i]) {
+            let param = instructionData[paramPosition++];
+            switch(argType) {
                 case ArgType.frequency:
                     className += ' frequency';
                     break;
@@ -85,8 +68,10 @@ export default class ASCTrackInstructionBase extends React.Component {
                     className += ' unknown';
                     break;
             }
-            return this.renderParameter(i, param, className)
-        });
+            params.push(this.renderParameter(i, param, className));
+        }
+
+        return params;
     }
 
     /** Actions **/

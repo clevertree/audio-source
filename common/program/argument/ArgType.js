@@ -88,20 +88,20 @@ ArgType.onended = new ArgType(
 ArgType.command = new ArgType(
     value => { return value; },
     value => { return value; },
-    false
+    true
 )
 
 
 ArgType.trackName = new ArgType(
     value => { return value; },
     value => { return value; },
-    false
+    true
 )
 
 ArgType.program = new ArgType(
     value => { return value; },
     value => { return value; },
-    false
+    true
 )
 
 

@@ -487,7 +487,7 @@ export default class ASCTrackBase extends React.Component {
 
         ret.nextRowOffset = positions[2][column] || positions[2][positions[2].length-1];
         ret.previousRowOffset = positions[0][column] || 0;
-        console.log(cursorOffset, ret);
+        // console.log(cursorOffset, ret);
         return ret;
     }
 

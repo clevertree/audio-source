@@ -19,34 +19,18 @@ export default class ASComposerInstructionPanel extends React.Component {
     renderInstructionForms() {
         const composer = this.props.composer;
         // const params = composer.state.currentInstructionArgs;
-        let [commandString, ...params] = composer.state.currentInstructionArgs;
+        const instructionData = [0].concat(composer.state.currentInstructionArgs);
+        // let [commandString, ...params] = composer.state.currentInstructionArgs;
         // let commandString = params.shift();
-        commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
-        let argTypes = [];
-        switch(commandString) {
-            case 'playFrequency':
-                argTypes = [ArgType.frequency, ArgType.duration, ArgType.velocity];
-                break;
-
-            case 'playTrack':
-                params.unshift('!playTrack');
-                argTypes = [ArgType.command, ArgType.trackName, ArgType.duration];
-                // params[0] = '@' + params[0];
-                break;
-
-            case 'program':
-                params.unshift('!program');
-                argTypes = [ArgType.command, ArgType.program];
-                break;
-
-            default:
-                break;
-
-        }
-        console.log('commandString', commandString, params);
-        return argTypes.map((argType, i) => {
-            let param = params[i];
-            switch(argTypes[i]) {
+        const [commandString, argTypeList] = InstructionProcessor.processInstructionArgs(instructionData);
+        // commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
+        // console.log('commandString', commandString, params);
+        let paramPosition = 1;
+        return argTypeList.map((argType, i) => {
+            if(!argType.consumesArgument)
+                return;
+            let param = instructionData[paramPosition++];
+            switch(argType) {
                 case ArgType.command: // TODO: resolve conflict?
                 case ArgType.frequency:
                     return <ASUIForm key="arg-command" header="Command">
