@@ -79,28 +79,49 @@ ArgType.velocity = new ArgType(
 
 
 ArgType.onended = new ArgType(
-    value => { return value; },
-    value => { return value; },
+    callback => { return callback; },
+    callback => { return callback; },
     false
 )
 
 
 ArgType.command = new ArgType(
-    value => { return value; },
-    value => { return value; },
+    command => { return command; },
+    command => { return command; },
     true
 )
 
+/** Track Args **/
 
 ArgType.trackName = new ArgType(
-    value => { return value; },
-    value => { return value; },
+    trackName => { return trackName; },
+    trackName => { return trackName; },
     true
 )
 
+ArgType.trackDuration = new ArgType(
+    trackDuration => { return trackDuration; },
+    trackDuration => { return trackDuration; },
+    true
+)
+
+ArgType.trackOffset = new ArgType(
+    trackOffset => { return trackOffset; },
+    trackOffset => { return trackOffset; },
+    true
+)
+
+ArgType.trackKey = new ArgType(
+    trackKey => { return trackKey; },
+    trackKey => { return trackKey; },
+    true
+)
+
+/** Program Args **/
+
 ArgType.program = new ArgType(
-    value => { return value; },
-    value => { return value; },
+    program => { return program; },
+    program => { return program; },
     true
 )
 

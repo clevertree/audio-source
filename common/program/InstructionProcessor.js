@@ -112,36 +112,44 @@ export default class InstructionProcessor {
 
     static processInstructionArgs(instructionData, programClass=DummyProgram) {
         const argTypes = programClass.argTypes;
-        const commandAliases = programClass.commandAliases;
         // let argOffset = 1;
-        let prependList = [];
+        let prependList = null;
+        let argTypeList = null;
 
         let commandString = instructionData[1];
         if(commandString[0] === '!') {
             commandString = commandString.substr(1);
             switch(commandString) {
-                case 'playTrack':
-                    return [commandString, [ArgType.command, ArgType.trackName]];
-                case 'p':
-                case 'program':
-                    return [commandString, [ArgType.command, ArgType.program]];
+                case 'p': commandString = 'program'; break;
+                case '@': commandString = 'playTrack'; break;
             }
-            prependList.push(ArgType.command);
+            prependList = [ArgType.command];
 
         } else if(commandString[0] === '@') {
-            return ['playTrack', [ArgType.trackName]];
+            commandString = 'playTrack';
 
         } else {
             commandString = 'playFrequency';
         }
-        if(commandAliases[commandString])
-            commandString = commandAliases[commandString];
 
-        const argTypeList = argTypes[commandString];
-        if(!argTypeList)
-            throw new Error(`Program ${programClass.name} does not have method: ${commandString}`);
+        switch(commandString) {
+            case 'playTrack':
+                argTypeList = [ArgType.trackName, ArgType.trackKey, ArgType.trackOffset, ArgType.trackDuration];
+                break;
+            case 'program':
+                argTypeList = [ArgType.program];
+                break;
+            default:
+                const commandAliases = programClass.commandAliases;
+                if(commandAliases[commandString])
+                    commandString = commandAliases[commandString];
+                argTypeList = argTypes[commandString];
+                if(!argTypeList)
+                    throw new Error(`Program ${programClass.name} does not have method: ${commandString}`);
+        }
 
-        return [commandString, prependList.concat(argTypeList)];
+
+        return [commandString, prependList ? prependList.concat(argTypeList) : argTypeList];
     }
 
     static getCommandStringFromInstruction(commandString) {

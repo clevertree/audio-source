@@ -23,7 +23,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         }
     }
 
-    isOpen() { return this.props.cursor; } // || this.props.selected; }
+    isOpen() { return this.props.cursor || this.props.selected; }
     render() {
         let className = "asct-instruction";
         // if(this.props.className)

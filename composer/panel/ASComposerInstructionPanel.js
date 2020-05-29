@@ -28,7 +28,7 @@ export default class ASComposerInstructionPanel extends React.Component {
         let paramPosition = 1;
         return argTypeList.map((argType, i) => {
             if(!argType.consumesArgument)
-                return;
+                return null;
             let param = instructionData[paramPosition++];
             switch(argType) {
                 case ArgType.command: // TODO: resolve conflict?
@@ -43,16 +43,13 @@ export default class ASComposerInstructionPanel extends React.Component {
                     </ASUIForm>
 
                 case ArgType.duration:
-                    const durationString = param === null ? 'N/A'
-                        : composer.values.formatSongDuration(param);
-                    return <ASUIForm key="arg-duration" header="Duration">
-                        <ASUIButtonDropDown
-                            arrow={'▼'}
-                            // className="instruction-duration"
-                            options={() => composer.renderMenuEditSetDuration()}
-                            title="Instruction Duration"
-                        >{durationString}</ASUIButtonDropDown>
-                    </ASUIForm>
+                    return this.renderDurationForm(param, 'Duration', 'Instruction Duration');
+
+                case ArgType.trackDuration:
+                    return this.renderDurationForm(param, 'Duration', 'Track Duration');
+
+                case ArgType.trackOffset:
+                    return this.renderDurationForm(param, 'Offset', 'Track Offset');
 
                 case ArgType.velocity:
                     return <ASUIForm key="arg-velocity" header="Velocity">
@@ -79,6 +76,22 @@ export default class ASComposerInstructionPanel extends React.Component {
                     </ASUIForm>
             }
         });
+    }
+
+    renderDurationForm(param, header, title) {
+        const composer = this.props.composer;
+
+        const durationString = param === null ? 'N/A'
+            : composer.values.formatSongDuration(param);
+
+        return <ASUIForm key="arg-duration" header={header}>
+            <ASUIButtonDropDown
+                arrow={'▼'}
+                // className="instruction-duration"
+                options={() => composer.renderMenuEditSetDuration()}
+                title={title}
+            >{durationString}</ASUIButtonDropDown>
+        </ASUIForm>
     }
 
 
@@ -132,4 +145,4 @@ export default class ASComposerInstructionPanel extends React.Component {
         );
     }
 }
-
+// TODO: Track Panel

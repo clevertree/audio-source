@@ -77,7 +77,7 @@ export default class TrackIterator {
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
                 const program = instructionData[2];
-                this.onLoadProgram(stats, program);
+                this.onLoadProgram(stats, program); // TODO: support OTG program
                 break;
 
             case 'playTrack':

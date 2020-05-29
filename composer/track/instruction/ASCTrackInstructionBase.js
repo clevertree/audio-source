@@ -54,10 +54,15 @@ export default class ASCTrackInstructionBase extends React.Component {
                     className += ' frequency';
                     break;
 
+                case ArgType.trackOffset:
+                    className += ' offset';
+                    param = this.formatDuration(param);
+                    break;
+
+                case ArgType.trackDuration:
                 case ArgType.duration:
                     className += ' duration';
-                    param = param === null ? 'N/A'
-                        : this.getComposer().values.formatSongDuration(param);
+                    param = this.formatDuration(param);
                     break;
 
                 case ArgType.velocity:
@@ -72,6 +77,11 @@ export default class ASCTrackInstructionBase extends React.Component {
         }
 
         return params;
+    }
+
+    formatDuration(param) {
+        return param === null ? 'N/A'
+            : this.getComposer().values.formatSongDuration(param);
     }
 
     /** Actions **/
