@@ -1,8 +1,8 @@
-import ASUIClickableBase from "../../button/ASUIClickableBase";
+import ASUIClickable from "../../button/ASUIClickable";
 
 import '../style/ASUIMenu.css';
 
-export default class ASUIMenuItem extends ASUIClickableBase {
+export default class ASUIMenuItem extends ASUIClickable {
     getClassName() { return 'asui-menu-item'; }
 
     /** Actions **/

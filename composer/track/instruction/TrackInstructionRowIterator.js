@@ -38,8 +38,8 @@ export default class TrackInstructionRowIterator {
         while(!this.iterator.hasReachedEnd()) {
             let currentPositionTicks = stats.positionTicks;
 
-            let nextInstruction = this.iterator.getInstruction(stats.currentIndex + 1);
-            let nextInstructionPositionTicks = stats.lastInstructionPositionInTicks + nextInstruction.deltaDurationTicks;
+            let nextInstructionData = this.iterator.getInstructionData(stats.currentIndex + 1);
+            let nextInstructionPositionTicks = stats.lastInstructionPositionInTicks + nextInstructionData[0];
             while(stats.nextQuantizationBreakInTicks < nextInstructionPositionTicks) {
                 let rowDeltaTicks = stats.nextQuantizationBreakInTicks - currentPositionTicks;
                 // if(currentPositionTicks === 0 && rowDeltaTicks === 0) {
@@ -69,9 +69,9 @@ export default class TrackInstructionRowIterator {
             }
 
             // Increment by instruction
-            nextInstruction = this.iterator.nextInstruction();
+            nextInstructionData = this.iterator.nextInstructionData();
 
-            yield nextInstruction;
+            yield nextInstructionData;
             stats.cursorPosition++;
         }
 

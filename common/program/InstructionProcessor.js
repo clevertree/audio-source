@@ -12,13 +12,12 @@ export default class InstructionProcessor {
 
 
     /**
-     * @param {Instruction} instruction
+     * @param {[]} instructionData
      * @param {object} stats
      */
-    processCommandInstruction(instruction, stats) {
+    processCommandInstruction(instructionData, stats) {
         // const song = this.song;
-        let commandString = instruction.getCommandString();
-        const params = instruction.getArgs();
+        let [deltaDurationTicks, commandString, ...params] = instructionData;
 
         commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
 
@@ -137,13 +136,13 @@ export default class InstructionProcessor {
 
     }
 
-    static getTrackNameFromInstruction(instruction) {
-        const commandString = instruction.getCommandString();
+    static getTrackNameFromInstructionData(instructionData) {
+        const commandString = instructionData[1]; // .getCommandString();
         if(!this.isTrackCommand(commandString))
             throw new Error("Invalid Track command: " + commandString);
         if(commandString[0] === '@')
             return commandString.substr(1);
-        return instruction.getArgs()[0];
+        return instructionData[2];
     }
 
 }

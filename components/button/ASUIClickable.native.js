@@ -1,8 +1,9 @@
 import React from "react";
 import {Text, TouchableHighlight, View} from "react-native";
 import GlobalStyle from "../../common/style/GlobalStyle";
+import ASUIClickableBase from "./ASUIClickableBase";
 
-export default class ASUIClickableBase extends React.Component {
+export default class ASUIClickable extends ASUIClickableBase {
     constructor(props) {
         super(props);
         this.cb = {
@@ -45,37 +46,6 @@ export default class ASUIClickableBase extends React.Component {
 
     getTextStyle() {
         return GlobalStyle.getDefaultTextStyle();
-    }
-
-    /** User Input **/
-
-    onMouseInput(e) {
-        if(e.defaultPrevented)
-            return;
-        e.preventDefault();
-        this.doAction(e);
-    }
-
-
-    onKeyDown(e) {
-        if(e.isDefaultPrevented())
-            return;
-        switch(e.key) {
-            case ' ':
-            case 'Enter':
-                this.doAction(e);
-                break;
-
-            default:
-                console.info("Unhandled key: ", e.key);
-                break;
-        }
-    }
-
-    /** Actions **/
-
-    doAction(e) {
-        throw new Error("Not implemented");
     }
 
 }

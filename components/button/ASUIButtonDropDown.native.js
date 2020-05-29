@@ -2,11 +2,11 @@ import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
 import React from "react";
 import PropTypes from "prop-types";
 import {ImageBackground, Text} from "react-native";
-import ASUIClickableBase from "./ASUIClickableBase";
+import ASUIClickable from "./ASUIClickable";
 
 import styles from "./ASUIButton.style";
 
-export default class ASUIButtonDropDown extends ASUIClickableBase {
+export default class ASUIButtonDropDown extends ASUIClickable {
     // Default Properties
     static defaultProps = {
         arrow:          true,
@@ -20,11 +20,19 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
 
     constructor(props) {
         super(props);
-        this.dropdown = React.createRef();
+        // this.dropdown = React.createRef();
+        this.state = {
+            open: false,
+            stick: false
+        }
     }
 
 
     renderContainer() {
+        // TODO disabled={this.props.disabled}
+        // if (this.state.stick)
+        //     className += ' stick';
+
         const style = this.getContainerStyle();
         style.push(styles.container);
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
@@ -34,26 +42,46 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
             >
             {this.renderChildren()}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}
-            <ASUIDropDownContainer
+            {this.state.open ? <ASUIDropDownContainer
                 key="dropdown"
                 ref={this.dropdown}
-                disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}
-            />
+                onClose={() => this.closeDropDown()}
+            /> : null}
         </ImageBackground>;
     }
 
+    openDropDown() {
+        this.setState({open: true, stick: false});
+    }
 
-    toggleMenu()    { return this.dropdown.current.toggleMenu(); }
-    hoverMenu()     { return this.dropdown.current.hoverMenu(); }
+    stickDropDown() {
+        this.setState({open: true, stick: true});
+    }
+
+    closeDropDown() {
+        this.setState({open: false, stick: false});
+    }
+
+
+    toggleMenu() {
+        if (!this.state.open)
+            this.openDropDown();
+        else if (!this.state.stick)
+            this.stickDropDown();
+        else
+            this.closeDropDown();
+    }
+
+    // hoverMenu() {
+    //     if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
+    //         return;
+    //     this.openMenu();
+    // }
 
     doAction(e) {
         this.toggleMenu();
     }
-
-    /** Overlay Context **/
-
-    closeAllDropDownMenus()     { return this.dropdown.current.closeAllDropDownMenus(); }
 
 }

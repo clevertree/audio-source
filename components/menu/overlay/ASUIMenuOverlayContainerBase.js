@@ -49,6 +49,9 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     isHoverEnabled() {
         return !this.props.isActive && (this.state.openOverlay || this.openMenus.length > 0);
     }
+    isOpen() {
+        return this.state.open;
+    }
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {
         const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);
@@ -67,7 +70,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
-        // console.log('closeMenus', butThese, stayOpenOnStick);
+        // console.log('closeMenus', butThese, this.openMenus);
         // this.overlayContext.openMenuItems = [];
         this.openMenus.forEach(openMenu => {
             const [menuItem, closeMenuCallback] = openMenu;
@@ -88,14 +91,12 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         });
     }
 
-    async openMenu(options) {
+    openMenu(options) {
         if(!this.props.isActive)
             return false;
 
         if(typeof options === "function")
             options = options(this);
-        if(options instanceof Promise)
-            options = await options;
 
         this.setState({
             open: true,
@@ -105,12 +106,10 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         return true;
     }
 
-    // openOverlay() {
-    //     this.setState({
-    //         openOverlay: true,
-    //     });
-    //     return true;
-    // }
+    openOverlay() {
+        if(this.state.openOverlay !== true)
+            this.setState({openOverlay: true});
+    }
     //
     // closeOverlay() {
     //     this.setState({

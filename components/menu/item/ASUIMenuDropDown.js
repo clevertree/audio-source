@@ -3,9 +3,10 @@ import PropTypes from "prop-types";
 
 import "../style/ASUIMenu.css";
 import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
-import ASUIClickableBase from "../../button/ASUIClickableBase";
+import ASUIClickable from "../../button/ASUIClickable";
+import ASUIMenuContext from "../ASUIMenuContext";
 
-export default class ASUIMenuDropDown extends ASUIClickableBase {
+export default class ASUIMenuDropDown extends ASUIClickable {
 
     // Default Properties
     static defaultProps = {
@@ -24,7 +25,12 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
 
             // onKeyDown: (e) => this.onKeyDown(e),
         this.cb.onMouseEnter = e => this.onMouseEnter(e);
+        this.cb.onClose = () => this.closeDropDown();
         this.dropdown = React.createRef();
+        this.state = {
+            open: false,
+            stick: false
+        }
     }
 
 
@@ -35,13 +41,14 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
         return [
             super.renderChildren(props),
             arrow ? <div className="arrow" key="arrow">{arrow}</div> : null,
-            <ASUIDropDownContainer
+            (this.state.open ? <ASUIDropDownContainer
                 key="dropdown"
                 ref={this.dropdown}
-                disabled={this.props.disabled}
+                // disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}
-            />
+                onClose={this.cb.onClose}
+            /> : null)
         ];
     }
 
@@ -76,6 +83,40 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
     //     )
     // }
 
+    /** Drop Down Menu **/
+
+    openDropDown() {
+        this.setState({open: true, stick: false});
+    }
+
+    stickDropDown() {
+        this.setState({open: true, stick: true});
+    }
+
+    closeDropDown() {
+        this.setState({open: false, stick: false});
+    }
+
+
+    toggleMenu() {
+        if (!this.state.open)
+            this.openDropDown();
+        // else if (!this.state.stick)
+        //     this.stickDropDown();
+        else
+            this.closeDropDown();
+    }
+
+    hoverDropDown() {
+        if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
+            return;
+        // this.getOverlay().closeAllMenus();
+        this.openDropDown();
+        setTimeout(() => {
+            const dropdown = this.dropdown.current;
+            dropdown && dropdown.closeAllDropDownMenusButThis();
+        }, 100);
+    }
 
     /** Actions **/
 
@@ -83,8 +124,7 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
         this.toggleMenu();
     }
 
-    toggleMenu()    { return this.dropdown.current.toggleMenu(); }
-    hoverMenu()     { return this.dropdown.current.hoverMenu(); }
+
 
     /** User Input **/
 
@@ -92,7 +132,7 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
         if(e.defaultPrevented)
             return;
         e.preventDefault();
-        this.hoverMenu();
+        this.hoverDropDown();
     }
 
 
@@ -112,9 +152,5 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
         }
     }
 
-
-    /** Overlay Context **/
-
-    closeAllDropDownMenus()     { return this.dropdown.current.closeAllDropDownMenus(); }
 
 }

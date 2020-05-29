@@ -34,8 +34,8 @@ export default class TrackPlayback extends TrackIterator {
 
 
 
-    processCommandInstruction(instruction, stats) {
-        super.processCommandInstruction(instruction, stats);
+    processCommandInstruction(instructionData, stats) {
+        super.processCommandInstruction(instructionData, stats);
     }
 
 

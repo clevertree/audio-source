@@ -2,11 +2,11 @@ import React from "react";
 import PropTypes from 'prop-types';
 
 import {ImageBackground} from "react-native";
-import ASUIClickableBase from "./ASUIClickableBase";
+import ASUIClickable from "./ASUIClickable";
 
 import styles from "./ASUIButton.style";
 
-export default class ASUIButton extends ASUIClickableBase {
+export default class ASUIButton extends ASUIClickable {
     /** Default Properties **/
     static defaultProps = {
     };
@@ -39,8 +39,8 @@ export default class ASUIButton extends ASUIClickableBase {
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
         const result = await this.props.onAction(e, this);
-        // if (result !== false)
-        //     this.closeAllDropDownMenus();
+        if (result !== false)
+            this.closeAllDropDownMenus();
     }
 
 }

@@ -15,6 +15,9 @@ class ASCTrackRow extends React.Component {
             onKeyDown: (e) => this.onKeyDown(e),
             onClick: e => this.onClick(e),
         };
+        this.state = {
+            menuOpen: false
+        }
     }
 
     /** Default Properties **/
@@ -58,18 +61,41 @@ class ASCTrackRow extends React.Component {
                     cursorPosition={this.props.cursorPosition}
                 /> : null}
                 <ASCTrackDelta duration={rowDeltaDuration}/>
-                <ASUIDropDownContainer
-                    ref={this.dropdown}
+                {this.state.menuOpen ? <ASUIDropDownContainer
+                    // ref={this.dropdown}
                     options={() => this.renderRowMenu()}
+                    onClose={() => this.closeDropDown()}
                     vertical={true}
-                />
+                /> : null}
             </div>
         )
     }
 
-    toggleMenu() {
-        return this.dropdown.current.toggleMenu();
+    /** Drop Down Menu **/
+
+    openDropDown() {
+        this.setState({open: true, stick: false});
     }
+
+    stickDropDown() {
+        this.setState({open: true, stick: true});
+    }
+
+    closeDropDown() {
+        this.setState({open: false, stick: false});
+    }
+
+
+    toggleMenu() {
+        if (!this.state.open)
+            this.openDropDown();
+        else if (!this.state.stick)
+            this.stickDropDown();
+        else
+            this.closeDropDown();
+    }
+
+    /** Actions **/
 
     selectRow(clearSelection = true) {
         // const selectedIndices = clearSelection ? [] : null;

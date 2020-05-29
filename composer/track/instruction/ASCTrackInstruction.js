@@ -18,6 +18,9 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             onContextMenu: e => this.onContextMenu(e),
             options: () => this.renderMenuEditSet()
         };
+        this.state = {
+            menuOpen: false
+        }
     }
 
     isOpen() { return this.props.cursor; } // || this.props.selected; }
@@ -32,7 +35,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         if(this.props.playing)
             className += ' playing';
 
-        const instruction = this.props.instruction;
+        const instructionData = this.getInstructionData();
         const open = this.isOpen();
         return <div
             ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
@@ -48,16 +51,16 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             {!open ? <div
                     className="asct-parameter command"
                     >
-                    {instruction.command}
+                    {instructionData[1]}
                 </div>
             : [
                 this.renderParameters(),
-                <ASUIDropDownContainer // TODO: no dropdown unless open?
+                (this.state.menuOpen ? <ASUIDropDownContainer
                     key="dropdown"
                     ref={this.dropdown}
                     options={this.cb.options}
                     vertical={true}
-                />
+                /> : null)
             ]}
         </div>;
     }

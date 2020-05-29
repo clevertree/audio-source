@@ -155,7 +155,7 @@ class SongTest {
 
     test(`Song.instructionGetByIndex`, () => {
       [1, 2].forEach(i => {
-        const testInstruction = song.instructionGetByIndex(testTrackName, i);
+        const testInstruction = song.instructionDataGetByIndex(testTrackName, i);
         console.assert(song.instructionIndexOf(testTrackName, testInstruction) === i, 'instructionFindIndex');
       });
     });
@@ -168,8 +168,8 @@ class SongTest {
         let positionInTicks=0;
         let currentIndex=-1;
 
-        for(const instruction of iterator) {
-          positionInTicks += instruction.deltaDurationTicks;
+        for(const instructionData of iterator) {
+          positionInTicks += instructionData[0];
           currentIndex++;
           expect(iterator.getPositionInTicks()).toBe(positionInTicks);
           expect(iterator.getIndex()).toBe(currentIndex);
@@ -195,7 +195,7 @@ class SongTest {
           expect(rowIterator.getCursorPosition()).toBe(cursorPosition);
           expect(rowIterator.getRowCount()).toBe(rowCount);
           expect(rowIterator.getPositionInTicks()).toBe(positionInTicks);
-          if(!(instruction instanceof Instruction)) {
+          if(!Array.isArray(instruction)) {
             rowCount++;
             positionInTicks += instruction;
             expect(instruction).not.toBeLessThanOrEqual(0);

@@ -18,32 +18,38 @@ class ASUIDropDownContainer extends React.Component {
 
     // validating prop types
     static propTypes = {
-        // closeCallback: PropTypes.func.isRequired,
+        onClose: PropTypes.func.isRequired,
         vertical: PropTypes.bool,
         disabled: PropTypes.bool,
     };
 
     constructor(props) {
         super(props);
-        this.state = {
-            open: false,
-            stick: false,
-        };
+        // this.state = {
+        //     open: false,
+        //     stick: false,
+        // };
         this.divRef = React.createRef();
+        this.deferredToOverlayMenu = false;
+        this.state = {
+            options: null
+        }
     }
+
+    /** Menu Context **/
 
     getOverlay() { return this.context.overlay; }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-//         console.log('componentDidUpdate', this.state);
-        if(this.getOverlay()) {
-            if (this.state.open)
-                this.getOverlay().addCloseMenuCallback(this, this.closeMenu.bind(this));
-            else
-                this.getOverlay().removeCloseMenuCallback(this);
-        }
-        this.updateScreenPosition();
-    }
+    // componentDidUpdate(prevProps, prevState, snapshot) {
+    //     console.log('componentDidUpdate', this.state);
+    //     if(this.getOverlay()) {
+    //         // if (this.state.open)
+    //             this.getOverlay().addCloseMenuCallback(this, this.closeMenu.bind(this));
+    //         // else
+    //         //     this.getOverlay().removeCloseMenuCallback(this);
+    //     }
+    //     this.updateScreenPosition();
+    // }
 
     componentWillUnmount() {
         if(this.getOverlay())
@@ -51,18 +57,47 @@ class ASUIDropDownContainer extends React.Component {
     }
 
     render() {
-        if (!this.state.open)
-            return null;
+        // if (!this.state.open)
+        //     return null;
 
         let className = 'asui-menu-dropdown';
         if (this.props.vertical)
             className += ' vertical';
-        if (this.state.stick)
-            className += ' stick';
         // if(this.props.disabled)
         //     return 'Disabled';
 
-        let options = this.state.options;
+        const overlay = this.getOverlay();
+
+        // Open Menu Overlay
+        // overlay.openOverlay();
+        // if(overlay.isOpen())
+        //     return null;
+
+        if(this.deferredToOverlayMenu)
+            return null;
+
+        this.getOverlay().addCloseMenuCallback(this, this.closeMenu.bind(this));
+
+        // Try open menu handler
+        const res = overlay.openMenu(this.props.options);
+        if (res !== false) {
+            this.deferredToOverlayMenu = true;
+//                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
+            return null;
+        }
+
+
+
+        let options = this.state.options || this.props.options;
+        if (typeof options === "function")
+            options = options(this);
+        if(options instanceof Promise) {
+            options.then(options => this.setState({options}));
+            options = "Loading...";
+        }
+        if (!options)
+            console.warn("Empty options returned by ", this);
+
 
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
@@ -75,20 +110,20 @@ class ASUIDropDownContainer extends React.Component {
 
     }
 
-    hoverMenu() {
-        if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
-            return;
-        this.openMenu();
-    }
+    // hoverMenu() {
+    //     if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
+    //         return;
+    //     this.openMenu();
+    // }
 
-    toggleMenu() {
-        if (!this.state.open)
-            this.openMenu();
-        else if (!this.state.stick)
-            this.stickMenu();
-        else
-            this.closeMenu();
-    }
+    // toggleMenu() {
+    //     if (!this.state.open)
+    //         this.openMenu();
+    //     else if (!this.state.stick)
+    //         this.stickMenu();
+    //     else
+    //         this.closeMenu();
+    // }
 
     async openMenu() {
         if (this.props.disabled)
@@ -104,9 +139,9 @@ class ASUIDropDownContainer extends React.Component {
                 return;
             }
 
-            setTimeout(() => {
-                this.getOverlay().closeMenus(this.getAncestorMenus());
-            }, 100);
+            // setTimeout(() => {
+            //     this.getOverlay().closeMenus(this.getAncestorMenus());
+            // }, 100);
         }
 
         let options = this.props.options;
@@ -135,15 +170,16 @@ class ASUIDropDownContainer extends React.Component {
     }
 
     closeMenu(stayOpenOnStick = false) {
-        if (this.state.stick && stayOpenOnStick === true) {
-            // console.warn("Ignoring close due to stick", this);
-            return;
-        }
-        this.setState({
-            open: false,
-            stick: false,
-            options: null
-        })
+        this.props.onClose()
+        // if (this.state.stick && stayOpenOnStick === true) {
+        //  //  console.warn("Ignoring close due to stick", this);
+            // return;
+        // }
+        // this.setState({
+        //     open: false,
+        //     stick: false,
+        //     options: null
+        // })
     }
 
     getAncestorMenus() {
@@ -162,8 +198,14 @@ class ASUIDropDownContainer extends React.Component {
             this.getOverlay().closeAllMenus();
     }
 
+    closeAllDropDownMenusButThis() {
+        if(this.getOverlay())
+            this.getOverlay().closeMenus(this.getAncestorMenus());
+
+    }
+
     updateScreenPosition() {
-        if(!this.state.open || !this.divRef.current)
+        if(!this.divRef.current)
             return;
         const div = this.divRef.current;
         const rect = div.getBoundingClientRect();

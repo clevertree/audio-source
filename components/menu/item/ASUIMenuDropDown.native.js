@@ -2,11 +2,11 @@ import React from "react";
 import {View, Text} from 'react-native';
 import PropTypes from "prop-types";
 import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
-import ASUIClickableBase from "../../button/ASUIClickableBase";
+import ASUIClickable from "../../button/ASUIClickable";
 
 import styles from "../style/ASUIMenu.style"
 
-export default class ASUIMenuDropDown extends ASUIClickableBase {
+export default class ASUIMenuDropDown extends ASUIClickable {
 
     // Default Properties
     static defaultProps = {
@@ -34,27 +34,51 @@ export default class ASUIMenuDropDown extends ASUIClickableBase {
             >
             {this.renderChildren()}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}
-            <ASUIDropDownContainer
+            {this.state.open ? <ASUIDropDownContainer
                 key="dropdown"
                 ref={this.dropdown}
                 disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}
-            />
+            /> : null}
         </View>;
     }
 
+    /** Drop Down Menu **/
 
-    toggleMenu()    { return this.dropdown.current.toggleMenu(); }
-    hoverMenu()     { return this.dropdown.current.hoverMenu(); }
+    openDropDown() {
+        this.setState({open: true, stick: false});
+    }
+
+    stickDropDown() {
+        this.setState({open: true, stick: true});
+    }
+
+    closeDropDown() {
+        this.setState({open: false, stick: false});
+    }
+
+
+    toggleMenu() {
+        if (!this.state.open)
+            this.openDropDown();
+        else if (!this.state.stick)
+            this.stickDropDown();
+        else
+            this.closeDropDown();
+    }
+
+    hoverDropDown() {
+        if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
+            return;
+        this.openMenu();
+    }
+
+    /** Actions **/
 
     doAction(e) {
-        // console.log(e);
         this.toggleMenu();
     }
 
-    /** Overlay Context **/
-
-    closeAllDropDownMenus()     { return this.dropdown.current.closeAllDropDownMenus(); }
 
 }

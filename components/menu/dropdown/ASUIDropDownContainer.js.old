@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 
 import ASUIMenuContext from "../ASUIMenuContext";
 
-export default class ASUIDropDownContainer extends React.Component {
+import "./ASUIDropDownContainer.css";
+
+class ASUIDropDownContainer extends React.Component {
     static contextType = ASUIMenuContext;
 
     // creating default props
@@ -40,6 +42,7 @@ export default class ASUIDropDownContainer extends React.Component {
             else
                 this.getOverlay().removeCloseMenuCallback(this);
         }
+        this.updateScreenPosition();
     }
 
     componentWillUnmount() {
@@ -51,11 +54,20 @@ export default class ASUIDropDownContainer extends React.Component {
         if (!this.state.open)
             return null;
 
+        let className = 'asui-menu-dropdown';
+        if (this.props.vertical)
+            className += ' vertical';
+        if (this.state.stick)
+            className += ' stick';
+        // if(this.props.disabled)
+        //     return 'Disabled';
+
         let options = this.state.options;
 
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             <div
+                className={className}
                 children={options}
                 ref={this.divRef}
                 />
@@ -92,9 +104,9 @@ export default class ASUIDropDownContainer extends React.Component {
                 return;
             }
 
-            // setTimeout(() => {
-            //     this.getOverlay().closeMenus(this.getAncestorMenus());
-            // }, 100);
+            setTimeout(() => {
+                this.getOverlay().closeMenus(this.getAncestorMenus());
+            }, 100);
         }
 
         let options = this.props.options;
@@ -150,6 +162,17 @@ export default class ASUIDropDownContainer extends React.Component {
             this.getOverlay().closeAllMenus();
     }
 
+    updateScreenPosition() {
+        if(!this.state.open || !this.divRef.current)
+            return;
+        const div = this.divRef.current;
+        const rect = div.getBoundingClientRect();
+        if(rect.right > window.innerWidth)
+            div.classList.add('overflow-right');
+        if(rect.bottom > window.innerHeight)
+            div.classList.add('overflow-bottom');
+        // console.log(rect.right, window.innerWidth, rect.bottom, window.innerHeight)
+    }
 }
 
 // class DropDownContextWrapper extends React.Component {
@@ -165,7 +188,7 @@ export default class ASUIDropDownContainer extends React.Component {
 //     }
 // }
 
-
+export default ASUIDropDownContainer;
 
 // function reactMapRecursive(children, fn) {
 //     return React.Children.map(children, child => {

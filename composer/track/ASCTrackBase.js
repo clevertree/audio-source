@@ -252,14 +252,14 @@ export default class ASCTrackBase extends React.Component {
 
         while(rowContent.length < this.getRowLength()) {
             const nextCursorEntry = iterator.nextCursorPosition();
-            if(nextCursorEntry instanceof Instruction) {
-                const instruction = nextCursorEntry; //iterator.currentInstruction();
+            if(Array.isArray(nextCursorEntry)) {
+                const instructionData = nextCursorEntry; //iterator.currentInstruction();
                 // console.log('instruction', instruction);
                 const index = iterator.getIndex();
                 rowInstructionElms.push(<ASCTrackInstruction
                     key={index}
                     index={index}
-                    instruction={instruction}
+                    instruction={instructionData}
                     tracker={this}
                     cursorPosition={iterator.getCursorPosition()}
                     cursor={iterator.getCursorPosition() === cursorOffset}
@@ -465,9 +465,9 @@ export default class ASCTrackBase extends React.Component {
         let lastRowPositions=[], positions=[[0]];
         // let indexFound = null;
         while(positions.length < 3 || positions[2][0] <= cursorOffset) {
-            const instruction = iterator.nextCursorPosition();
+            const instructionData = iterator.nextCursorPosition();
             lastRowPositions.push(iterator.getCursorPosition());
-            if(instruction instanceof Instruction) {
+            if(Array.isArray(instructionData)) {
 
             } else {
                 positions.push(lastRowPositions);

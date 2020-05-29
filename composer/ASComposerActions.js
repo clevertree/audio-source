@@ -345,10 +345,10 @@ class ASComposerActions extends ASComposerMenu {
             return;
 
         // const activeTrack = this.getActiveTrack(trackName);
-        const instruction = this.getSong().instructionGetByIndex(trackName, selectedIndices[0]);
+        const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
 
         const state = {
-            currentInstructionArgs: instruction.data.slice(1),
+            currentInstructionArgs: instructionData.slice(1),
             selectedIndices,
             selectedTrack: trackName
         }
@@ -386,23 +386,23 @@ class ASComposerActions extends ASComposerMenu {
         return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
     }
 
-    instructionInsertAtPosition(trackName, positionTicks, newInstruction = null, select=false, playback=false) {
+    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
         //: TODO: check for recursive group
 
-        if (newInstruction === null)
-            newInstruction = this.state.currentCommand;
-        if (!newInstruction)
+        if (newInstructionData === null)
+            newInstructionData = this.state.currentCommand;
+        if (!newInstructionData)
             throw new Error("Invalid Instruction command");
 
-        newInstruction = Instruction.parseInstruction(newInstruction);
-        newInstruction.deltaDuration = 0;
+        newInstructionData = Instruction.parseInstructionData(newInstructionData);
+        newInstructionData[0] = 0;
         // this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
-        if(this.state.currentDuration) // TODO: append all current args
-            newInstruction.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
-        if(this.state.currentVelocity) // TODO: append all current args
-            newInstruction.velocity = this.state.currentVelocity;
+        // if(this.state.currentDuration) // TODO: append all current args
+        //     newInstructionData.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
+        // if(this.state.currentVelocity) // TODO: append all current args
+        //     newInstructionData.velocity = this.state.currentVelocity;
         // this.setState({activeTracks});
-        const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstruction);
+        const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
         if(select)      this.trackerSelectIndices(trackName, index);
         if(playback)    this.trackerPlay(trackName, index);
         this.updateCurrentSong();
@@ -719,8 +719,8 @@ class ASComposerActions extends ASComposerMenu {
             selectedIndices = activeTrack.getSelectedIndices();
         const iterator = activeTrack.getIterator();
         let startPosition = null, lastPosition=null, copyTrack=[];
-        iterator.seekToEnd((instruction) => {
-            const instructionData = instruction.data.slice();
+        iterator.seekToEnd((instructionData) => {
+            instructionData = instructionData.slice();
 
             const index = iterator.getCurrentIndex();
             for(let i=0; i<selectedIndices.length; i++)
@@ -730,7 +730,7 @@ class ASComposerActions extends ASComposerMenu {
                     instructionData[0] = iterator.getPositionInTicks() - lastPosition;
                     lastPosition = iterator.getPositionInTicks();
                     copyTrack.push(instructionData)
-                    return instruction;
+                    return instructionData;
                 }
         });
         console.log("Clipboard:", copyTrack);

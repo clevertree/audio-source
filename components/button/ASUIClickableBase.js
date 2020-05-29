@@ -1,10 +1,11 @@
 import React from "react";
+import ASUIMenuContext from "../menu/ASUIMenuContext";
 
-export default class ASUIClickableBase extends React.Component {
+export default class ASUIClickable extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
-            onClick: e => this.onClick(e),
+            onMouseInput: e => this.onMouseInput(e),
             onKeyDown: e => this.onKeyDown(e),
             onMouseEnter: null
         };
@@ -14,31 +15,6 @@ export default class ASUIClickableBase extends React.Component {
     //     return nextProps.children !== this.props.children;
     // }
 
-    getClassName() { return 'asui-clickable'; }
-
-    render() {
-        // console.log(this.constructor.name + '.render()', this.props);
-        let className = this.getClassName();
-        if(this.props.className)
-            className += ' ' + this.props.className;
-        if(this.props.disabled)
-            className += ' disabled';
-        if(this.props.selected)
-            className += ' selected';
-
-        return (
-            <div
-                title={this.props.title}
-                className={className}
-                onClick={this.cb.onClick}
-                onKeyDown={this.cb.onKeyDown}
-                onMouseEnter={this.cb.onMouseEnter}
-                tabIndex={0}
-            >
-                {this.renderChildren()}
-            </div>
-        );
-    }
 
     renderChildren(props={}) {
         return this.props.children;
@@ -46,7 +22,7 @@ export default class ASUIClickableBase extends React.Component {
 
     /** User Input **/
 
-    onClick(e) {
+    onMouseInput(e) {
 //         console.log(e.type);
         if(e.defaultPrevented)
             return;
@@ -74,6 +50,16 @@ export default class ASUIClickableBase extends React.Component {
 
     doAction(e) {
         throw new Error("Not implemented");
+    }
+
+
+    /** Overlay Context **/
+    static contextType = ASUIMenuContext;
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus() {
+        this.getOverlay().closeAllMenus();
     }
 
 }

@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 
-import ASUIClickableBase from "./ASUIClickableBase";
+import ASUIClickable from "./ASUIClickable";
 
-export default class ASUIButton extends ASUIClickableBase {
+export default class ASUIButton extends ASUIClickable {
 
     /** Default Properties **/
     static defaultProps = {
@@ -27,9 +27,9 @@ export default class ASUIButton extends ASUIClickableBase {
 
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
-        await this.props.onAction(e, this);
-        // const result = if (result !== false)
-        //     this.closeAllDropDownMenus();
+        const result = await this.props.onAction(e, this);
+        if (result !== false)
+            this.closeAllDropDownMenus();
     }
 
 

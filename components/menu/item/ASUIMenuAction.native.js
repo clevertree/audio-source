@@ -5,8 +5,6 @@ import ASUIMenuItem from "./ASUIMenuItem";
 import ASUIMenuContext from "../ASUIMenuContext";
 
 class ASUIMenuAction extends ASUIMenuItem {
-    /** Menu Context **/
-    static contextType = ASUIMenuContext;
 
     /** Default Properties **/
     static defaultProps = {
@@ -33,16 +31,6 @@ class ASUIMenuAction extends ASUIMenuItem {
             this.closeAllDropDownMenus();
     }
 
-    /** Overlay Context **/
-
-    getOverlay() { return this.context.overlay; }
-
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-        else
-            console.warn("Could not close all dropdown menus", this.getOverlay());
-    }
 }
 
 export default ASUIMenuAction;

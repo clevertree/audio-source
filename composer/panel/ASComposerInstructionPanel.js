@@ -15,10 +15,12 @@ export default class ASComposerInstructionPanel extends React.Component {
     // getCurrentArguments() { return this.state.currentArguments || []; }
 
 
+    // TODO: combine with InstructionBase?
     renderInstructionForms() {
         const composer = this.props.composer;
-        const params = composer.state.currentInstructionArgs;
-        let commandString = params.shift();
+        // const params = composer.state.currentInstructionArgs;
+        let [commandString, ...params] = composer.state.currentInstructionArgs;
+        // let commandString = params.shift();
         commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
         let argTypes = [];
         switch(commandString) {

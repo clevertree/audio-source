@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
-import ASUIClickableBase from "./ASUIClickableBase";
+import ASUIClickable from "./ASUIClickable";
 
 import "./assets/ASUIButton.css"
 
-export default class ASUIButtonDropDown extends ASUIClickableBase {
+export default class ASUIButtonDropDown extends ASUIClickable {
 
     // Default Properties
     static defaultProps = {
@@ -20,7 +20,11 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
 
     constructor(props) {
         super(props);
-        this.dropdown = React.createRef();
+        // this.dropdown = React.createRef();
+        this.state = {
+            open: false,
+            stick: false
+        }
     }
 
     getClassName() { return 'asui-button dropdown'; }
@@ -31,26 +35,43 @@ export default class ASUIButtonDropDown extends ASUIClickableBase {
         return [
             super.renderChildren(props),
             arrow ? <div className="arrow" key="arrow">{arrow}</div> : null,
-            <ASUIDropDownContainer
+            (this.state.open ? <ASUIDropDownContainer
                 key="dropdown"
-                ref={this.dropdown}
-                disabled={this.props.disabled}
+                // ref={this.dropdown}
+                // disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}
-            />
+                onClose={() => this.closeDropDown()}
+            /> : null)
         ];
     }
 
 
-    toggleMenu()    { return this.dropdown.current.toggleMenu(); }
-    hoverMenu()     { return this.dropdown.current.hoverMenu(); }
+    openDropDown() {
+        this.setState({open: true, stick: false});
+    }
+
+    stickDropDown() {
+        this.setState({open: true, stick: true});
+    }
+
+    closeDropDown() {
+        this.setState({open: false, stick: false});
+    }
+
+
+    toggleMenu() {
+        if (!this.state.open)
+            this.openDropDown();
+        else if (!this.state.stick)
+            this.stickDropDown();
+        else
+            this.closeDropDown();
+    }
 
     doAction(e) {
         this.toggleMenu();
     }
 
-    /** Overlay Context **/
-
-    closeAllDropDownMenus()     { return this.dropdown.current.closeAllDropDownMenus(); }
 
 }

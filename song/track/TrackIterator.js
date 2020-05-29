@@ -34,7 +34,7 @@ export default class TrackIterator {
             filterProgramCommand
         )
 
-        this.processCommandInstructionCallback = (instruction, stats) => this.processCommandInstruction(instruction, stats);
+        this.processCommandInstructionCallback = (instructionData, stats) => this.processCommandInstruction(instructionData, stats);
 
         // Start Track iteration
         this.startTrackIteration(startingStats);
@@ -68,8 +68,8 @@ export default class TrackIterator {
     }
 
 
-    processCommandInstruction(instruction, stats) {
-        this.processor.processCommandInstruction(instruction, stats);
+    processCommandInstruction(instructionData, stats) {
+        this.processor.processCommandInstruction(instructionData, stats);
     }
 
     instructionGetIterator(trackStats, instructionCallback=null) {

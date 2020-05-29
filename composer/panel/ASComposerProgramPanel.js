@@ -21,7 +21,7 @@ export default class ASComposerProgramPanel extends React.Component {
                    arrow={false}
                    vertical={false}
                    className="program-add"
-                   options={() => this.renderMenuProgramAdd()}
+                   options={() => composer.renderMenuProgramAdd()}
                    title="Add New Program"
                >Add</ASUIButtonDropDown>
             </ASUIPanel>

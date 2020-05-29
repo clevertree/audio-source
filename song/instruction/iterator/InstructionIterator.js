@@ -43,8 +43,8 @@ export default class InstructionIterator {
         return this.stats.currentIndex >= this.instructions.length - 1;
     }
 
-    processInstruction(instruction) {
-        let deltaDurationTicks = instruction.deltaDurationTicks;
+    processInstructionData(instructionData) {
+        let deltaDurationTicks = instructionData[0]; // .deltaDurationTicks;
 
         if(deltaDurationTicks > 0) {
             const stats = this.stats;
@@ -59,7 +59,7 @@ export default class InstructionIterator {
             this.incrementPositionByDelta(instructionPositionTicks - stats.positionTicks);
         }
 
-        this.instructionCallback(instruction, this.stats);
+        this.instructionCallback(instructionData, this.stats);
     }
 
     incrementPositionByDelta(deltaDurationTicks) {
@@ -76,30 +76,30 @@ export default class InstructionIterator {
         const count = this.instructions.length;
         const stats = this.stats;
         for(stats.currentIndex=0; stats.currentIndex<count; stats.currentIndex++) {
-            const instruction = new Instruction(this.instructions[stats.currentIndex]);
-            this.processInstruction(instruction);
+            const instructionData = this.instructions[stats.currentIndex]; // new Instruction(this.instructions[stats.currentIndex]);
+            this.processInstructionData(instructionData);
             // this.incrementPositionByInstruction(instruction);
-            yield instruction;
+            yield instructionData;
         }
     }
 
 
 
-    getInstruction(index) {
+    getInstructionData(index) {
         if(index >= this.instructions.length)
             throw new Error("Instruction is out of index: " + index);
-        return new Instruction(this.instructions[index]);
+        return this.instructions[index];
     }
 
 
-    currentInstruction() {
-        const stats = this.stats;
-        if (stats.currentIndex === -1)
-            throw new Error("Iterator has not been started");
-        return this.getInstruction(stats.currentIndex);
-    }
+    // currentInstruction() {
+    //     const stats = this.stats;
+    //     if (stats.currentIndex === -1)
+    //         throw new Error("Iterator has not been started");
+    //     return this.getInstructionData(stats.currentIndex);
+    // }
 
-    nextInstruction() {
+    nextInstructionData() {
         return this.generator.next().value;
     }
 
@@ -110,7 +110,7 @@ export default class InstructionIterator {
             throw new Error("Invalid seek index");
         const stats = this.stats;
         while (index > stats.currentIndex) {
-            const instruction = this.nextInstruction();
+            const instruction = this.nextInstructionData();
             if(callback)
                 callback(instruction);
         }
@@ -118,7 +118,7 @@ export default class InstructionIterator {
 
     seekToEnd(callback=null) {
         while (true) {
-            const instruction = this.nextInstruction();
+            const instruction = this.nextInstructionData();
             if(!instruction)
                 break;
             if(callback)
@@ -129,12 +129,12 @@ export default class InstructionIterator {
     seekToPosition(positionSeconds) {
         const stats = this.stats;
         while (!this.hasReachedEnd()) {
-            const nextInstruction = this.getInstruction(stats.currentIndex + 1);
-            const elapsedTime = (nextInstruction.deltaDurationTicks / stats.timeDivision) / (stats.beatsPerMinute / 60);
+            const nextInstructionData = this.getInstructionData(stats.currentIndex + 1);
+            const elapsedTime = (nextInstructionData[0] / stats.timeDivision) / (stats.beatsPerMinute / 60);
             if(stats.positionSeconds + elapsedTime >= positionSeconds) {
                 break;
             }
-            const instruction = this.nextInstruction();
+            const instruction = this.nextInstructionData();
             if(!instruction)
                 break;
         }
@@ -143,11 +143,11 @@ export default class InstructionIterator {
     seekToPositionTicks(positionTicks, callback=null) {
         const stats = this.stats;
         while (!this.hasReachedEnd() && stats.positionTicks <= positionTicks) {
-            const nextInstruction = this.getInstruction(stats.currentIndex + 1);
-            if(stats.positionTicks + nextInstruction.deltaDurationTicks > positionTicks) {
+            const nextInstructionData = this.getInstructionData(stats.currentIndex + 1);
+            if(stats.positionTicks + nextInstructionData[0] > positionTicks) {
                 break;
             }
-            const instruction = this.nextInstruction();
+            const instruction = this.nextInstructionData();
             if(!instruction)
                 break;
             if(callback)

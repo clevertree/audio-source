@@ -22,13 +22,13 @@ class Instruction {
         return this.data.slice(2);
     }
 
-    isTrackInstruction() {
-        return InstructionProcessor.isTrackCommand(this.getCommandString());
-    }
+    // isTrackInstruction() {
+    //     return InstructionProcessor.isTrackCommand(this.getCommandString());
+    // }
 
-    getTrackNameFromInstruction() {
-        return InstructionProcessor.getTrackNameFromInstruction(this);
-    }
+    // getTrackNameFromInstruction() {
+    //     return InstructionProcessor.getTrackNameFromInstructionData(this);
+    // }
 
     // TODO: set commandArgs
 
@@ -50,12 +50,8 @@ class Instruction {
     set durationTicks(newDuration)  { throw new Error("TODO: Implement for " + this.constructor.name);}
     /** @deprecated **/
     get durationTicks()             { throw new Error("TODO: Implement for " + this.constructor.name);}
-    get clone()          { throw new Error("TODO: Implement for " + this.constructor.name);}
+    get clone()                     { throw new Error("TODO: Implement for " + this.constructor.name);}
 
-    /** @deprecated **/
-    set velocity(velocity)  { throw new Error("TODO: Implement for " + this.constructor.name);}
-    /** @deprecated **/
-    get velocity()          { throw new Error("TODO: Implement for " + this.constructor.name);}
 
 
 
@@ -69,14 +65,13 @@ class Instruction {
         if(!Array.isArray(instructionList))
             throw new Error("Invalid ASCTrack instruction array");
         for(let i=0; i<instructionList.length; i++) {
-            const instruction = this.parseInstruction(instructionList[i]);
-            instructionList[i] = instruction.data;
+            instructionList[i] = this.parseInstructionData(instructionList[i]);
         }
     }
 
-    static parseInstruction(instructionData) {
-        if (instructionData instanceof Instruction)
-            instructionData = instructionData.data.slice();
+    static parseInstructionData(instructionData) {
+        // if (instructionData instanceof Instruction)
+        //     instructionData = instructionData.data.slice();
         if(typeof instructionData === "number")
             instructionData = [instructionData];
         if(typeof instructionData === "string")
@@ -85,7 +80,7 @@ class Instruction {
             throw new Error("Invalid instruction data");
         if(typeof instructionData[0] === "string")
             instructionData.unshift(0);
-        return new Instruction(instructionData);
+        return instructionData;
     }
 
 

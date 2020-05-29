@@ -1,10 +1,10 @@
 import React from "react";
 import {View} from "react-native";
-import ASUIClickableBase from "../../button/ASUIClickableBase";
+import ASUIClickable from "../../button/ASUIClickable";
 
 import styles from "../style/ASUIMenu.style"
 
-export default class ASUIMenuItem extends ASUIClickableBase {
+export default class ASUIMenuItem extends ASUIClickable {
 
     renderContainer() {
         const style = this.getContainerStyle();
@@ -13,6 +13,12 @@ export default class ASUIMenuItem extends ASUIClickableBase {
             style={style}
             children={this.renderChildren()}
         />
+    }
+
+    getContainerStyle() {
+        const style = super.getContainerStyle();
+        style.push(styles.container);
+        return style;
     }
 
 
