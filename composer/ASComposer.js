@@ -22,6 +22,7 @@ export default class ASComposer extends ASComposerInput {
             showPanelSong: true,
             showPanelProgram: true,
             showPanelInstruction: true,
+            showPanelTrack: true,
             showTrackRowPositionInTicks: false,
             showTrackRowDurationInTicks: false,
 

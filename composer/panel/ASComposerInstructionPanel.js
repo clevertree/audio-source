@@ -1,19 +1,19 @@
 import React from "react";
 
-import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown} from "../../components";
+import {ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton, ASUIButtonDropDown} from "../../components";
 import {ArgType, InstructionProcessor} from "../../common";
 
 export default class ASComposerInstructionPanel extends React.Component {
 
-
-
-    // TODO
-    // getCurrentInstructionType() { return this.state.currentInstructionType || 'custom'; }
-    // getCurrentCommand() { return this.state.currentCommand || 'C4'; }
-    // getCurrentDuration() { return this.state.currentDuration || '1B'; }
-    // getCurrentVelocity() { return this.state.currentVelocity || null; }
-    // getCurrentArguments() { return this.state.currentArguments || []; }
-
+    render() {
+        return (
+            <ASUIPanel
+                className="instructions"
+                header={`Instruction`}>
+                {this.renderInstructionForms()}
+            </ASUIPanel>
+        );
+    }
 
     // TODO: combine with InstructionBase?
     renderInstructionForms() {
@@ -32,62 +32,71 @@ export default class ASComposerInstructionPanel extends React.Component {
             let param = instructionData[paramPosition++];
             switch(argType) {
                 case ArgType.command: // TODO: resolve conflict?
+                    return this.renderCommandForm(i, param);
+
                 case ArgType.frequency:
-                    return <ASUIForm key="arg-command" header="Command">
-                        <ASUIButtonDropDown
-                            arrow={'▼'}
-                            // className="command"
-                            // options={() => selectedIndices.length > 0 ? composer.renderMenuEditSetCommand() : composer.renderMenuSelectCommand()}
-                            options={() => composer.renderMenuSelectCommand()}
-                        >{param}</ASUIButtonDropDown>
-                    </ASUIForm>
+                    return this.renderFrequencyForm(i, param);
+
+                case ArgType.trackKey:
+                    return this.renderFrequencyForm(i, param, "Key", "Track Key");
 
                 case ArgType.duration:
-                    return this.renderDurationForm(param, 'Duration', 'Instruction Duration');
-
-                case ArgType.trackDuration:
-                    return this.renderDurationForm(param, 'Duration', 'Track Duration');
-
-                case ArgType.trackOffset:
-                    return this.renderDurationForm(param, 'Offset', 'Track Offset');
+                    return this.renderDurationForm(i, param, 'Duration', 'Instruction Duration');
 
                 case ArgType.velocity:
-                    return <ASUIForm key="arg-velocity" header="Velocity">
-                        <ASUIInputRange
-                            // className="velocity"
-                            onChange={(newVelocity) => composer.instructionReplaceVelocityPrompt(null, null, newVelocity, false)}
-                            value={param || 0}
-                            min={1}
-                            max={127}
-                            // ref={ref => this.fieldProgramVelocity = ref}
-                            title="Instruction Velocity"
-                            // disabled={selectedIndices.length === 0}
-                        />
-                    </ASUIForm>;
+                    return this.renderVelocityForm(i, param, "Velocity", "Instruction Velocity");
+
+                /** Track Args **/
+
+                case ArgType.trackDuration:
+                    return this.renderDurationForm(i, param, 'Duration', 'Track Duration');
+
+                case ArgType.trackOffset:
+                    return this.renderDurationForm(i, param, 'Offset', 'Track Offset');
+
+                case ArgType.trackName:
+                    return this.renderTrackNameForm(i, param, 'Track', 'Select Track');
+
 
 
                 default:
-                    return <ASUIForm key="arg-unknown" header={`Arg ${i}`}>
-                        <ASUIButton
-                            onAction={() => composer.renderMenuEditSetDuration()}
-                            title={`Instruction Argument ${i}`}
-                            // disabled={selectedIndices.length === 0}
-                        >{param}</ASUIButton>
-                    </ASUIForm>
+                    return this.renderUnknownArg(i, param);
             }
         });
     }
 
-    renderDurationForm(param, header, title) {
+    renderCommandForm(i, param, header="Select Command", title="Select Command") {
+        const composer = this.props.composer;
+        return <ASUIForm key={i} header={header}>
+            <ASUIButtonDropDown
+                arrow={'▼'}
+                title={title}
+                options={() => composer.renderMenuSelectCommand()}
+            >{param}</ASUIButtonDropDown>
+        </ASUIForm>
+    }
+
+    renderFrequencyForm(i, param, header="Select Frequency", title="Select Frequency") {
+        const composer = this.props.composer;
+        return <ASUIForm key={i} header={header}>
+            <ASUIButtonDropDown
+                arrow={'▼'}
+                title={title}
+                options={() => composer.renderMenuSelectCommand()}
+            >{param}</ASUIButtonDropDown>
+        </ASUIForm>
+
+    }
+
+    renderDurationForm(i, param, header, title) {
         const composer = this.props.composer;
 
         const durationString = param === null ? 'N/A'
             : composer.values.formatSongDuration(param);
 
-        return <ASUIForm key="arg-duration" header={header}>
+        return <ASUIForm key={i} header={header}>
             <ASUIButtonDropDown
                 arrow={'▼'}
-                // className="instruction-duration"
                 options={() => composer.renderMenuEditSetDuration()}
                 title={title}
             >{durationString}</ASUIButtonDropDown>
@@ -95,54 +104,46 @@ export default class ASComposerInstructionPanel extends React.Component {
     }
 
 
-    render() {
+    renderVelocityForm(i, param, header="Velocity", title="Instruction Velocity") {
         const composer = this.props.composer;
-        const selectedIndices = composer.state.currentSelectedIndices;
-        // const activeTrack = composer.hasActiveTrack(selectedTrackName) ? composer.getActiveTrack(selectedTrackName) : null;
-        // const selectedIndices = activeTrack ? activeTrack.getSelectedIndices() : [];
 
+        return <ASUIForm key={i} header={header}>
+            <ASUIInputRange
+                // className="velocity"
+                onChange={(newVelocity) => composer.instructionReplaceVelocityPrompt(null, null, newVelocity, false)}
+                value={param || 0}
+                min={1}
+                max={127}
+                // ref={ref => this.fieldProgramVelocity = ref}
+                title={title}
+                // disabled={selectedIndices.length === 0}
+            />
+        </ASUIForm>;
+    }
 
-        return (
-            <ASUIPanel
-                className="instructions"
-                header={`Instruction${selectedIndices.length !== 1 ? 's' : ''}`}>
+    /** Track Args **/
 
-                {this.renderInstructionForms()}
+    renderTrackNameForm(i, param, header="Track Name", title="Select Track") {
+        const composer = this.props.composer;
+        return <ASUIForm key={i} header={header}>
+            <ASUIButtonDropDown
+                arrow={'▼'}
+                title={title}
+                options={() => composer.renderMenuSelectCommand()}
+            >{param}</ASUIButtonDropDown>
+        </ASUIForm>
+    }
 
+    /** Unknown ArgType **/
 
-                <ASUIForm className="tracker-selection" header="Selection">
-                    <ASUIButton
-                        // className="track-selection"
-                        onAction={() => composer.trackerSelectIndicesPrompt()}
-                        title="Tracker Note Selection"
-                        children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
-                    />
-                </ASUIForm>
-
-                <ASUIForm className="instruction-insert" header="Add">
-                    <ASUIButton
-                        // className="instruction-insert"
-                        onAction={e => composer.instructionInsertAtCursorPrompt(null, null, false)}
-                        title="Insert Instruction"
-                        // disabled={selectedIndices.length > 0}
-                    >
-                        <ASUIIcon source="insert"/>
-                    </ASUIButton>
-                </ASUIForm>
-                <ASUIForm className="instruction-delete" header="Rem">
-                    <ASUIButton
-                        // className="instruction-delete"
-                        onAction={e => composer.instructionDeleteSelected()}
-                        title="Delete Instruction"
-                        disabled={selectedIndices.length === 0}
-                    >
-                        <ASUIIcon source="remove"/>
-                    </ASUIButton>
-                </ASUIForm>
-
-
-            </ASUIPanel>
-        );
+    renderUnknownArg(i, param) {
+        const composer = this.props.composer;
+        return <ASUIForm key={i} header={`Arg ${i}`}>
+            <ASUIButton
+                onAction={() => composer.renderMenuEditSetDuration()}
+                title={`Instruction Argument ${i}`}
+                // disabled={selectedIndices.length === 0}
+            >{param}</ASUIButton>
+        </ASUIForm>
     }
 }
-// TODO: Track Panel

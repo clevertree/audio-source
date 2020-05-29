@@ -371,14 +371,14 @@ class ASComposerActions extends ASComposerMenu {
     /** Instruction Modification **/
 // TODO: where is auto-select auto-playback handled?
     async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
-        trackName = trackName || this.state.selectedTrack;
-        newCommand = newCommand || this.state.currentCommand;
         if(promptUser)
             newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
         return this.instructionInsertAtCursor(trackName, newCommand, select, playback);
     }
 
     instructionInsertAtCursor(trackName = null, newCommand = null, select=true, playback=true) {
+        trackName = trackName || this.state.selectedTrack;
+        newCommand = newCommand || this.state.currentCommand;
         // console.log('instructionInsert', newCommand, trackName);
 
         const activeTrack = this.getActiveTrack(trackName);
