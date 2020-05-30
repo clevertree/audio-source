@@ -22,7 +22,8 @@ export default class ASComposerInstructionPanel extends React.Component {
         const instructionData = [0].concat(composer.state.currentInstructionArgs);
         // let [commandString, ...params] = composer.state.currentInstructionArgs;
         // let commandString = params.shift();
-        const [commandString, argTypeList] = InstructionProcessor.processInstructionArgs(instructionData);
+        const processor = new InstructionProcessor(instructionData);
+        const [commandString, argTypeList] = processor.processInstructionArgs();
         // commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
         // console.log('commandString', commandString, params);
         let paramPosition = 1;

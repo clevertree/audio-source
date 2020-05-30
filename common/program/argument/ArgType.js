@@ -99,6 +99,12 @@ ArgType.trackName = new ArgType(
     true
 )
 
+ArgType.trackCommand = new ArgType(
+    trackName => { return trackName; },
+    trackName => { return trackName; },
+    true
+)
+
 ArgType.trackDuration = new ArgType(
     trackDuration => { return trackDuration; },
     trackDuration => { return trackDuration; },

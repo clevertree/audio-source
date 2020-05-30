@@ -51,7 +51,8 @@ export default class ASCTrackInstructionBase extends React.Component {
     renderParameters() {
         const instructionData = this.getInstructionData();
         const params = [];
-        const [commandString, argTypeList] = InstructionProcessor.processInstructionArgs(instructionData);
+        const processor = new InstructionProcessor(instructionData);
+        const [commandString, argTypeList] = processor.processInstructionArgs();
         let paramPosition = 1;
         for(let i=0; i<argTypeList.length; i++) {
             const argType = argTypeList[i];

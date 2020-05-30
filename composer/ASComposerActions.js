@@ -640,13 +640,14 @@ class ASComposerActions extends ASComposerMenu {
         // const activeTrack = this.getActiveTrack(trackName);
 
         const state = {
-            selectedIndices,
+            // selectedIndices,
             selectedTrack: trackName,
             activeTracks: this.state.activeTracks
         }
         if(selectedIndices.length > 0) {
             const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
             state.currentInstructionArgs = instructionData.slice(1);
+            state.currentSelectedIndices = selectedIndices;
         }
         if(!state.activeTracks[trackName])
             state.activeTracks[trackName] = {};

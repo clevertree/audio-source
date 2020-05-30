@@ -72,7 +72,8 @@ export default class TrackIterator {
     processCommandInstruction(instructionData, stats) {
         // let [deltaDurationTicks, commandString, ...params] = instructionData;
 
-        const [commandString, argTypeList] = InstructionProcessor.processInstructionArgs(instructionData);
+        const processor = new InstructionProcessor(instructionData);
+        const [commandString, argTypeList] = processor.processInstructionArgs();
 
         switch(commandString) {
             case 'program':      // Set Program (can be changed many times per track)
@@ -149,28 +150,6 @@ export default class TrackIterator {
     }
 
 
-
-    processArgList(argTypeList, params, stats) {
-        let paramPosition = 0;
-
-        let newParams = [];
-        for (let i = 0; i < argTypeList.length; i++) {
-            const argType = argTypeList[i];
-            if (argType.consumesArgument) {
-                if(typeof params[paramPosition] !== "undefined") {
-                    const arg = argType.processArgument(params[paramPosition], stats);
-                    newParams.push(arg);
-                    if (argType === ArgType.duration)
-                        this.processDuration(params[paramPosition], newParams[i], stats);
-                    paramPosition++
-                }
-            } else {
-                const arg = argType.processArgument(null, stats);
-                newParams.push(arg);
-            }
-        }
-        return newParams;
-    }
 
     processDuration(durationTicks, durationSeconds, stats) {
         const trackEndPositionInTicks = stats.positionTicks + durationTicks;
