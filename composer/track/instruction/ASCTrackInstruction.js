@@ -9,7 +9,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     constructor(props) {
         super(props);
 
-        this.dropdown = React.createRef();
+        // this.dropdown = React.createRef();
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             // onKeyDown: (e) => this.onKeyDown(e),
@@ -18,9 +18,6 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             onContextMenu: e => this.onContextMenu(e),
             options: () => this.renderMenuEditSet()
         };
-        this.state = {
-            menuOpen: false
-        }
     }
 
     isOpen() { return this.props.cursor || this.props.selected; }
@@ -53,15 +50,15 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
                     >
                     {instructionData[1]}
                 </div>
-            : [
-                this.renderParameters(),
-                (this.state.menuOpen ? <ASUIDropDownContainer
-                    key="dropdown"
-                    ref={this.dropdown}
-                    options={this.cb.options}
-                    vertical={true}
-                /> : null)
-            ]}
+            : this.renderParameters()}
+
+            {this.state.menuOpen ? <ASUIDropDownContainer
+                key="dropdown"
+                ref={this.dropdown}
+                options={this.cb.options}
+                vertical={true}
+                onClose={() => this.toggleDropDownMenu(false)}
+            /> : null}
         </div>;
     }
 
@@ -101,12 +98,6 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         this.toggleDropDownMenu();
     }
 
-
-    /** Actions **/
-
-    toggleDropDownMenu() {
-        this.dropdown.current.toggleMenu();
-    }
 
 
 }

@@ -18,6 +18,15 @@ export default class ASCTrackInstructionBase extends React.Component {
         cursor: PropTypes.bool.isRequired
     };
 
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            menuOpen: false
+        }
+    }
+
+
     // play() {
     //     const composer = this.props.composer;
     //     composer.song.playInstructionAtIndex(destination, this.state.track.currentGroup, this.index, composer.song.getAudioContext().currentTime);
@@ -27,6 +36,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     getComposer() { return this.getTracker().props.composer; }
     getSong() { return this.getComposer().getSong(); }
     getInstructionData() { return this.props.instruction; }
+    getInstructionCommand() { return this.getInstructionData()[1]; }
     getInstructionIndex() { return this.props.index; }
 
     render() {
@@ -86,6 +96,10 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     /** Actions **/
 
+    toggleDropDownMenu(menuOpen = !this.state.menuOpen) {
+        this.setState({menuOpen});
+    }
+
     playInstruction(destination=null) {
         // this.getTracker().getTrackInfo().updateCurrentInstruction(); // Hack
         return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
@@ -114,18 +128,18 @@ export default class ASCTrackInstructionBase extends React.Component {
     selectInstructionWithAction(clearSelection=true, toggleValue = null) {
 //         console.log('selectInstructionWithAction', clearSelection, toggleValue);
         const selectedIndices = this.selectInstruction(clearSelection, toggleValue);
-        const instructionData = this.getInstructionData();
-        if(InstructionProcessor.isTrackCommand(instructionData[1])) {
-            this.getComposer().trackerToggleTrack(
-                InstructionProcessor.getTrackNameFromInstructionData(instructionData),
-                null,
-                {
-                    destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())
-                }
-            );
-        } else {
+        // const instructionData = this.getInstructionData();
+        // if(InstructionProcessor.isTrackCommand(instructionData[1])) {
+        //     this.getComposer().trackSelect(
+        //         InstructionProcessor.getTrackNameFromInstructionData(instructionData),
+        //         [],
+        //         {
+        //             destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())
+        //         }
+        //     );
+        // } else {
             this.getTracker().playInstructions(selectedIndices);
-        }
+        // }
 
     }
 
@@ -135,7 +149,8 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     renderMenuEditSet() {
-        return this.getComposer().renderMenuEdit();
+        const selectedIndices = this.getTracker().getSelectedIndices();
+        return this.getComposer().renderMenuEdit(this.getInstructionCommand(), selectedIndices);
     }
 
     // }

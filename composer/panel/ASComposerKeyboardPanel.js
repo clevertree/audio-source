@@ -4,6 +4,7 @@ import {ASUIForm, ASUIPanel, ASUIButtonDropDown} from "../../components";
 
 export default class ASComposerKeyboardPanel extends React.Component {
     render() {
+        const composer = this.props.composer;
         return (
             <ASUIPanel
                 className="keyboard"
@@ -14,7 +15,7 @@ export default class ASComposerKeyboardPanel extends React.Component {
                         className="keyboard-octave"
                         options={() => this.renderMenuKeyboardSetOctave()}
                         title="Change Keyboard Octave"
-                    >{this.state.keyboardOctave}</ASUIButtonDropDown>
+                    >{composer.state.keyboardOctave}</ASUIButtonDropDown>
                 </ASUIForm>
             </ASUIPanel>
         );

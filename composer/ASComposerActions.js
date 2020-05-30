@@ -340,34 +340,6 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Current Instruction Args **/
 
-    updateCurrentInstruction(trackName, selectedIndices) {
-        if(selectedIndices.length === 0)
-            return;
-
-        // const activeTrack = this.getActiveTrack(trackName);
-        const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
-
-        const state = {
-            currentInstructionArgs: instructionData.slice(1),
-            selectedIndices,
-            selectedTrack: trackName
-        }
-        this.setState(state);
-        // if(instruction instanceof NoteInstruction) {
-        //     state.currentInstructionType = 'note';
-        //     if(typeof instruction.durationTicks !== "undefined")
-        //         state.currentDuration = instruction.getDurationString(activeTrack.getTimeDivision());
-        //     if(typeof instruction.velocity !== "undefined")
-        //         state.currentVelocity = instruction.velocity;
-        // } else {
-        //     state.currentInstructionType = 'custom';
-        //     state.currentArguments = instruction.commandArgs;
-        // }
-        // state.currentSelectedIndices = selectedIndices;
-        // state.selectedTrack = trackName;
-
-    }
-
     /** Instruction Modification **/
 // TODO: where is auto-select auto-playback handled?
     async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
@@ -622,7 +594,7 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
-            await this.trackerToggleTrack(newTrackName, true);
+            await this.trackSelect(newTrackName);
         } else {
             this.setError("Create instruction group canceled");
         }
@@ -635,8 +607,8 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
         if (newTrackName !== oldTrackName) {
             song.trackRename(oldTrackName, newTrackName);
-            await this.trackerToggleTrack(newTrackName, true);
-            await this.trackerToggleTrack(oldTrackName, false);
+            this.trackSelect(newTrackName);
+            this.trackSelect(oldTrackName);
         } else {
             this.setError("Rename instruction group canceled");
         }
@@ -648,17 +620,54 @@ class ASComposerActions extends ASComposerMenu {
         const result = promptUser ? await PromptManager.openPromptDialog(`Remove instruction group (${trackName})?`) : true;
         if (result) {
             song.trackRemove(trackName);
-            this.trackerToggleTrack(trackName, true);
+            this.trackUnselect(trackName);
         } else {
             this.setError("Remove instruction group canceled");
         }
 
     }
 
-    trackSelect(selectedTrack = null) {
-        if(this.state.selectedTrack !== selectedTrack)
-            this.setState({selectedTrack});
+    /** Track Selection **/
+
+    trackUnselect(trackName) {
+
     }
+
+    trackSelect(trackName, selectedIndices=[], trackStats=null) {
+        // if(selectedIndices.length === 0)
+        //     return;
+
+        // const activeTrack = this.getActiveTrack(trackName);
+
+        const state = {
+            selectedIndices,
+            selectedTrack: trackName,
+            activeTracks: this.state.activeTracks
+        }
+        if(selectedIndices.length > 0) {
+            const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
+            state.currentInstructionArgs = instructionData.slice(1);
+        }
+        if(!state.activeTracks[trackName])
+            state.activeTracks[trackName] = {};
+        if(trackStats)
+            state.activeTracks[trackName] = trackStats;
+        this.setState(state);
+        // if(instruction instanceof NoteInstruction) {
+        //     state.currentInstructionType = 'note';
+        //     if(typeof instruction.durationTicks !== "undefined")
+        //         state.currentDuration = instruction.getDurationString(activeTrack.getTimeDivision());
+        //     if(typeof instruction.velocity !== "undefined")
+        //         state.currentVelocity = instruction.velocity;
+        // } else {
+        //     state.currentInstructionType = 'custom';
+        //     state.currentArguments = instruction.commandArgs;
+        // }
+        // state.currentSelectedIndices = selectedIndices;
+        // state.selectedTrack = trackName;
+
+    }
+
 
     // TODO: messy
     trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
@@ -686,6 +695,8 @@ class ASComposerActions extends ASComposerMenu {
             })
         }
     }
+
+
 
     trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
         return this.getActiveTrack(trackName || this.state.selectedTrack)

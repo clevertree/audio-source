@@ -136,10 +136,11 @@ class ASComposerMenu extends ASComposerRenderer {
 
     /** Edit Menu **/
 
-    renderMenuEdit(currentCommand=null) {
-        const selectedTrackName = this.state.selectedTrack;
-        const activeTrack = this.getActiveTrack(selectedTrackName);
-        const selectedIndices = activeTrack.getSelectedIndices();
+    renderMenuEdit(currentCommand=null, selectedIndices=null) {
+        // const selectedTrackName = this.state.selectedTrack;
+        // const activeTrack = this.getActiveTrack(selectedTrackName);
+        if(selectedIndices === null)
+            selectedIndices = this.state.currentSelectedIndices;
 
         return (<>
             <ASUIMenuDropDown

@@ -134,7 +134,7 @@ export default class InstructionProcessor {
 
         switch(commandString) {
             case 'playTrack':
-                argTypeList = [ArgType.trackName, ArgType.trackKey, ArgType.trackOffset, ArgType.trackDuration];
+                argTypeList = [ArgType.trackName, ArgType.trackDuration, ArgType.trackOffset, ArgType.trackKey];
                 break;
             case 'program':
                 argTypeList = [ArgType.program];

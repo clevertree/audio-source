@@ -109,16 +109,10 @@ class SongValues extends Values {
     }
 
     renderMenuSelectCommandByTrack(onSelectValue, onTrackAdd=null, selectedTrack=null) {
-        return (<>
-            {this.getAllSongTracks((trackName) =>
-                <ASUIMenuAction
-                    key={trackName}
-                    disabled={trackName === selectedTrack}
-                    onAction={e => onSelectValue('@' + trackName)}
-                >{trackName}</ASUIMenuAction>
-            )}
-            <ASUIMenuAction onAction={onTrackAdd} hasBreak  >Create New Track</ASUIMenuAction>
-        </>);
+        return this.renderMenuSelectTrack(
+            trackName => onSelectValue('@' + trackName),
+            onTrackAdd,
+            selectedTrack);
     }
 
     /** Duration Menu **/
@@ -131,6 +125,21 @@ class SongValues extends Values {
             title)
     }
 
+    /** Track menu **/
+
+
+    renderMenuSelectTrack(onSelectValue, onTrackAdd=null, selectedTrack=null) {
+        return (<>
+            {this.getAllSongTracks((trackName) =>
+                <ASUIMenuAction
+                    key={trackName}
+                    disabled={trackName === selectedTrack}
+                    onAction={e => onSelectValue(trackName)}
+                >{trackName}</ASUIMenuAction>
+            )}
+            {onTrackAdd ? <ASUIMenuAction onAction={onTrackAdd} hasBreak  >Create New Track</ASUIMenuAction> : null}
+        </>);
+    }
 
     // renderMenuSelectCommandByCurrentOctave(onSelectValue, octave=null) {
     //     octave = octave !== null ? octave : this.state.keyboardOctave;

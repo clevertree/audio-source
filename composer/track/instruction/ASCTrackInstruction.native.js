@@ -2,6 +2,7 @@ import * as React from "react";
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
 import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
+import {ASUIDropDownContainer} from "../../../components/menu";
 
 
 export default class ASCTrackInstruction extends ASCTrackInstructionBase {
@@ -38,12 +39,19 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
                 <View
                     style={style}
                 >
-                    <View
+
+                    {open ? <View
                         style={styles.commandView}
                         >
                         <Text>{instruction.command}</Text>
-                    </View>
-                    {open ? this.renderParameters() : null}
+                    </View> : this.renderParameters() }
+
+                    {this.state.menuOpen ? <ASUIDropDownContainer
+                        key="dropdown"
+                        ref={this.dropdown}
+                        options={this.cb.options}
+                        vertical={true}
+                    /> : null}
                 </View>
             </TouchableOpacity>
         );

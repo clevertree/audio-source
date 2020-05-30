@@ -217,9 +217,9 @@ export default class ASCTrackBase extends React.Component {
 
 
         this.setState({selectedIndices});
-        this.getComposer().updateCurrentInstruction(this.getTrackName(), selectedIndices);
-        if(selectTrack)
-            this.getComposer().trackSelect(this.getTrackName());
+        this.getComposer().trackSelect(this.getTrackName(), selectedIndices);
+        // if(selectTrack)
+        //     this.getComposer().trackSelect(this.getTrackName());
         return selectedIndices;
     }
 
