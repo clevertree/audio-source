@@ -12,6 +12,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
     static defaultProps = {
         arrow:          true,
         vertical:       false,
+        // openOverlay:    false
     };
 
     // Property validation
@@ -48,6 +49,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
                 options={this.props.options}
                 vertical={this.props.vertical}
                 onClose={this.cb.onClose}
+                // openOverlay={this.props.openOverlay}
             /> : null)
         ];
     }

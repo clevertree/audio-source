@@ -41,7 +41,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
     updateOverlay() {
         const openOverlay = this.state.open || this.openMenus.length > 0;
-//             console.log('updateOverlay', openOverlay);
+            // console.log('updateOverlay', openOverlay);
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay})
     }
@@ -70,7 +70,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
-        // console.log('closeMenus', butThese, this.openMenus);
+        console.log('closeMenus', butThese, this.openMenus);
         // this.overlayContext.openMenuItems = [];
         this.openMenus.forEach(openMenu => {
             const [menuItem, closeMenuCallback] = openMenu;

@@ -59,7 +59,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
         // if(this.props.disabled)
         //     return 'Disabled';
 
-        const overlay = this.getOverlay();
 
         // Open Menu Overlay
         // overlay.openOverlay();
@@ -69,6 +68,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         if(this.deferredToOverlayMenu)
             return null;
 
+        const overlay = this.getOverlay();
         overlay.addCloseMenuCallback(this, this.props.onClose);
         // if(this.props.openOverlay)
         //     overlay.openOverlay();
