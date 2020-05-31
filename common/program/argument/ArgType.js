@@ -1,53 +1,55 @@
 import {Values} from "../../index";
 
 export default class ArgType {
-    constructor(processArgumentCallback, renderArgumentCallback, consumesArgument=true) {
-        this.processArgument = processArgumentCallback;
-        this.renderArgument = renderArgumentCallback;
+    constructor(title, processArgumentCallback, formatArgumentCallback, consumesArgument=true) {
+        this.title = title;
+        this.process = processArgumentCallback;
+        this.format = formatArgumentCallback;
         this.consumesArgument = consumesArgument;
+        Object.freeze(this);
     }
 }
 
 ArgType.destination = new ArgType(
-    (param, stats) => {
+    "Destination",
+    (arg, stats) => {
         return stats.destination;
     },
-    (param, stats) => {
-    },
+    (arg, stats) => { return arg; },
     false
 )
 
 
 ArgType.startTime = new ArgType(
-    (param, stats) => {
+    "Start Time",
+    (arg, stats) => {
         const startTime = stats.startTime
             + stats.positionSeconds; // start time equals current track's start + playback times
         if(stats.onInstructionStart)
             stats.onInstructionStart(startTime, stats);
         return startTime;
     },
-    (param, stats) => {
-
-    },
+    (arg, stats) => { return arg; },
     false
 )
 
 
 ArgType.frequency = new ArgType(
-    frequency => {
+    "Frequency",
+    (frequency, stats) => {
         if(typeof frequency === "string")
             frequency = Values.instance.parseFrequencyString(frequency);
         return frequency;
     },
-    velocity => {
-
+    (frequency, song) => {
+        return frequency;
     },
     true
 )
 
 
-// ** Convert from ticks to seconds
 ArgType.duration = new ArgType(
+    "Duration",
     (durationTicks, stats) => {
         const startTime = stats.startTime
             + stats.positionSeconds; // start time equals current track's start + playback times
@@ -58,27 +60,27 @@ ArgType.duration = new ArgType(
             stats.onInstructionEnd(startTime + durationSeconds, stats);
         return durationSeconds;
     },
-    velocity => {
-
+    (durationTicks, values) => {
+        return values.formatDuration(durationTicks);
     },
     true
 )
 
 
 ArgType.velocity = new ArgType(
+    "Velocity",
     velocity => {
         if(Number.isInteger(velocity))
             return velocity;
         console.error("Invalid velocity: " + velocity);
     },
-    velocity => {
-
-    },
+    (velocity, values) => { return velocity; },
     true
 )
 
 
 ArgType.onended = new ArgType(
+    "Note End",
     callback => { return callback; },
     callback => { return callback; },
     false
@@ -86,6 +88,7 @@ ArgType.onended = new ArgType(
 
 
 ArgType.command = new ArgType(
+    "Command",
     command => { return command; },
     command => { return command; },
     true
@@ -94,30 +97,39 @@ ArgType.command = new ArgType(
 /** Track Args **/
 
 ArgType.trackName = new ArgType(
+    "Track Name",
     trackName => { return trackName; },
     trackName => { return trackName; },
     true
 )
 
 ArgType.trackCommand = new ArgType(
+    "Track Command",
     trackName => { return trackName; },
     trackName => { return trackName; },
     true
 )
 
 ArgType.trackDuration = new ArgType(
+    "Track Duration",
     trackDuration => { return trackDuration; },
-    trackDuration => { return trackDuration; },
+    (durationTicks, values) => {
+        return values.formatDuration(durationTicks);
+    },
     true
 )
 
 ArgType.trackOffset = new ArgType(
+    "Track Offset",
     trackOffset => { return trackOffset; },
-    trackOffset => { return trackOffset; },
+    (offsetTicks, values) => {
+        return values.formatDuration(offsetTicks);
+    },
     true
 )
 
 ArgType.trackKey = new ArgType(
+    "Track Key",
     trackKey => { return trackKey; },
     trackKey => { return trackKey; },
     true
@@ -126,6 +138,7 @@ ArgType.trackKey = new ArgType(
 /** Program Args **/
 
 ArgType.program = new ArgType(
+    "Program",
     program => { return program; },
     program => { return program; },
     true

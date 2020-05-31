@@ -61,9 +61,9 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         </div>;
     }
 
-    renderParameter(i, param, className) {
+    renderParameter(argIndex, param, className) {
         return <div
-            key={i}
+            key={argIndex}
             className={className}
             // title={title}
             children={param}

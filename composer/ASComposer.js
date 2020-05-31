@@ -39,12 +39,11 @@ export default class ASComposer extends ASComposerInput {
             songPosition: 0,
 
 
-            selectedInstructionArgs: ['C4', '1B'],
             // currentInstructionType: 'note',
-            currentCommand: 'C4',
-            currentDuration: '1B',
-            currentVelocity: null,
-            currentArguments: [],
+            // currentCommand: 'C4',
+            // currentDuration: '1B',
+            // currentVelocity: null,
+            // currentArguments: [],
 
             // Tracks
             activeTracks: {
@@ -57,6 +56,7 @@ export default class ASComposer extends ASComposerInput {
             },
             selectedTrack: 'root',
             selectedTrackIndices: [],
+            selectedInstructionData: [0, 'C4', '1B'],
 
             /** UI **/
 

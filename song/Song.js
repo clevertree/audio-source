@@ -367,8 +367,12 @@ class Song {
     }
 
     instructionReplaceDeltaDuration(trackName, replaceIndex, newDelta) {
+        this.instructionReplaceArg(trackName, replaceIndex, 0, newDelta);
+    }
+
+    instructionReplaceArg(trackName, replaceIndex, argIndex, newArgValue) {
         const instructionData = this.instructionDataGetByIndex(trackName, replaceIndex);
-        instructionData[0] = newDelta;
+        instructionData[argIndex] = newArgValue;
         // return this.instructionReplaceParam(trackName, replaceIndex, 0, newDelta);
     }
 

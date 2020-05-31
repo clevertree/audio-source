@@ -43,7 +43,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         return null;
     }
 
-    renderParameter(i, param, className) {
+    renderParameter(argIndex, param, className) {
         throw new Error("Unimplemented");
     }
 
@@ -52,13 +52,14 @@ export default class ASCTrackInstructionBase extends React.Component {
         const params = [];
         const processor = new InstructionProcessor(instructionData);
         const [, argTypeList] = processor.processInstructionArgs();
-        let paramPosition = 1;
+        let argIndex = 0;
         for(let i=0; i<argTypeList.length; i++) {
             const argType = argTypeList[i];
             if(!argType.consumesArgument)
                 continue;
+            argIndex++;
             let className = 'asct-parameter';
-            let param = instructionData[paramPosition++];
+            let param = instructionData[argIndex];
             switch(argType) {
                 case ArgType.frequency:
                     className += ' frequency';
@@ -83,7 +84,7 @@ export default class ASCTrackInstructionBase extends React.Component {
                     className += ' unknown';
                     break;
             }
-            params.push(this.renderParameter(i, param, className));
+            params.push(this.renderParameter(argIndex, param, className));
         }
 
         return params;
@@ -181,6 +182,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     /** Actions **/
 
 
+    /** @deprecated **/
     instructionReplaceCommand(command) {
         this.getComposer().instructionReplaceCommand(
             this.getTrackName(),
@@ -198,6 +200,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     //
     // }
 
+    /** @deprecated **/
     instructionReplaceVelocity(velocity) {
         this.getComposer().instructionReplaceVelocity(
             this.getTrackName(),
@@ -206,6 +209,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         this.playInstruction();
     }
 
+    /** @deprecated **/
     instructionReplaceDuration(duration) {
         this.getComposer().instructionReplaceDuration(
             this.getTrackName(),

@@ -174,22 +174,22 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditInsert(trackName=null) {
         return this.values.renderMenuSelectCommand(async newCommand => {
-               this.instructionInsertAtCursorPrompt(trackName, newCommand, newCommand === null);
+               this.instructionInsertAtCursor(trackName, newCommand);
             },
-            this.state.selectedInstructionArgs[1],
+            this.state.selectedInstructionData[1],
             "New Command"
         );
     }
 
 
-    renderMenuEditInsertCommandFrequency(trackName=null) {
-        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
-    }
+    // renderMenuEditInsertCommandFrequency(trackName=null) {
+    //     return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
+    // }
 
 
-    renderMenuEditInsertCommandOctave(trackName=null) {
-        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
-    }
+    // renderMenuEditInsertCommandOctave(trackName=null) {
+    //     return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
+    // }
 
     // renderMenuEditInsertCommandCurrentOctave(octave=null) {
     //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
@@ -198,31 +198,31 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
 
-    renderMenuEditSet(currentCommand=null, currentDuration=null, currentVelocity=null) {
-        return (<>
-            <ASUIMenuDropDown
-                options={() => this.renderMenuEditSetCommand(currentCommand)}
-                children="Set Command"
-            />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuEditSetDuration(currentDuration)}
-                children="Set Duration"
-            />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuEditSetVelocity(currentVelocity)}
-                children="Set Velocity"
-            />
-        </>);
-    }
+    // renderMenuEditSet(currentCommand=null, currentDuration=null, currentVelocity=null) {
+    //     return (<>
+    //         <ASUIMenuDropDown
+    //             options={() => this.renderMenuEditSetCommand(currentCommand)}
+    //             children="Set Command"
+    //         />
+    //         <ASUIMenuDropDown
+    //             options={() => this.renderMenuEditSetDuration(currentDuration)}
+    //             children="Set Duration"
+    //         />
+    //         <ASUIMenuDropDown
+    //             options={() => this.renderMenuEditSetVelocity(currentVelocity)}
+    //             children="Set Velocity"
+    //         />
+    //     </>);
+    // }
 
 
-    renderMenuEditSetCommand(trackName = null, currentCommand=null) {
-        return this.values.renderMenuSelectCommand(newCommand => {
-                this.instructionReplaceCommandPrompt(trackName, null, newCommand, false);
-            },
-            this.state.selectedInstructionArgs[1]
-        );
-    }
+    // renderMenuEditSetCommand(trackName = null, currentCommand=null) {
+    //     return this.values.renderMenuSelectCommand(newCommand => {
+    //             this.instructionReplaceCommandPrompt(trackName, null, newCommand, false);
+    //         },
+    //         this.state.selectedInstructionData[1]
+    //     );
+    // }
 
     // renderMenuEditSetProgram() {
     //     return this.values.getSongPrograms((programID, programClass, programInfo) =>
@@ -232,35 +232,35 @@ class ASComposerMenu extends ASComposerRenderer {
     //     );
     // }
 
-    renderMenuEditSetDuration(currentDuration=null) {
-        return this.values.renderMenuSelectDuration(durationTicks => {
-                this.instructionReplaceDurationPrompt(null, null, durationTicks, false);
-            },
-            this.song.data.timeDivision,
-            currentDuration || this.state.currentDuration,
-        );
+    // renderMenuEditSetDuration(currentDuration=null) {
+    //     return this.values.renderMenuSelectDuration(durationTicks => {
+    //             this.instructionReplaceDurationPrompt(null, null, durationTicks, false);
+    //         },
+    //         this.song.data.timeDivision,
+    //         currentDuration || this.state.currentDuration,
+    //     );
+    //
+    // }
 
-    }
+    // renderMenuEditSetVelocity(currentVelocity=null) {
+    //     return this.values.renderMenuSelectVelocity(velocity => {
+    //             this.instructionReplaceVelocityPrompt(null, null, velocity, false);
+    //         },
+    //         currentVelocity || this.state.currentVelocity,
+    //     );
+    // }
 
-    renderMenuEditSetVelocity(currentVelocity=null) {
-        return this.values.renderMenuSelectVelocity(velocity => {
-                this.instructionReplaceVelocityPrompt(null, null, velocity, false);
-            },
-            currentVelocity || this.state.currentVelocity,
-        );
-    }
-
-    renderMenuEditSetCommandFrequency() {
-        return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
-    }
+    // renderMenuEditSetCommandFrequency() {
+    //     return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
+    // }
 
     // renderMenuEditSetCommandCurrentOctave(octave=null) {
     //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.trackerReplaceSelectedInstructions(noteNameOctave, false), octave);
     // }
 
-    renderMenuEditSetCommandOctave() {
-        return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
-    }
+    // renderMenuEditSetCommandOctave() {
+    //     return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
+    // }
 
 
 
@@ -270,51 +270,45 @@ class ASComposerMenu extends ASComposerRenderer {
         if(!selectedIndices || selectedIndices.length === 0)
             throw new Error("No indices selected");
 
-        const instructionData = [0].concat(this.state.selectedInstructionArgs);
+        const instructionData = this.state.selectedInstructionData;
         const processor = new InstructionProcessor(instructionData);
         const [, argTypeList] = processor.processInstructionArgs();
 
-        let argPosition = 1;
+        let argIndex = 0;
         return argTypeList.map((argType, i) => {
             if(!argType.consumesArgument)
                 return null;
-            let param = instructionData[argPosition];
-            return this.renderMenuInstructionEditArg(argType, param, argPosition++, (newArgValue) => {
-                // TODO: update all selected Instructions
-            });
+            argIndex++;
+            let paramValue = instructionData[argIndex];
+            return this.renderMenuInstructionEditArg(argType, argIndex, paramValue);
         });
     }
 
-    renderMenuInstructionEditArg(argType, param, paramPosition, onSelectValue) {
-        let children = "Unknown Arg";
-        switch(argType) {
-            case ArgType.command: children = "Set Command"; break;
-            case ArgType.frequency: children = "Set Frequency"; break;
-            case ArgType.duration: children = "Set Duration"; break;
-            case ArgType.velocity: children = "Set Velocity"; break;
-
-            /** Track Args **/
-            case ArgType.trackCommand: children = "Set Track Command"; break;
-            case ArgType.trackName: children = "Set Track"; break;
-            case ArgType.trackDuration: children = "Set Track Duration"; break;
-            case ArgType.trackKey: children = "Set Track Key"; break;
-            case ArgType.trackOffset: children = "Set Track Offset"; break;
-            default:
-        }
+    renderMenuInstructionEditArg(argType, argIndex, paramValue, onSelectValue=null) {
+        let children = argType.title || "Unknown Arg";
 
         return <ASUIMenuDropDown
-            key={paramPosition}
-            options={() => this.renderMenuInstructionEditArgOptions(argType, param, paramPosition, onSelectValue)}
+            key={argIndex}
+            options={() => this.renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue)}
             children={children}
         />
     }
 
-    renderMenuInstructionEditArgOptions(argType, paramValue, paramPosition, onSelectValue) {
+    renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue=null) {
+        if(onSelectValue === null) {
+            onSelectValue = (newArgValue) => {
+                this.instructionReplaceInstructionArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
+            }
+        }
         switch(argType) {
             case ArgType.trackCommand:
             case ArgType.command:
             default:
                 return this.values.renderMenuSelectCommand(onSelectValue, paramValue);
+
+            case ArgType.trackDuration:
+            case ArgType.duration:
+                return this.values.renderMenuSelectDuration(onSelectValue, null, paramValue);
 
         }
 

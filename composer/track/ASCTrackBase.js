@@ -492,20 +492,21 @@ export default class ASCTrackBase extends React.Component {
 
     /** User Input **/
 
-    async onKeyDown(e) {
+    onKeyDown(e) {
+        const composer = this.getComposer();
         // console.log(e.type, e.key, e.ctrlKey);
         if(e.isDefaultPrevented())
             return;
         if(e.ctrlKey) switch(e.key) {
-            case 'x': this.getComposer().instructionCut(this.getTrackName()); return;
-            case 'c': this.getComposer().instructionCopy(this.getTrackName()); return;
-            case 'v': this.getComposer().instructionPasteAtCursor(this.getTrackName()); return;
+            case 'x': composer.instructionCut(this.getTrackName()); return;
+            case 'c': composer.instructionCopy(this.getTrackName()); return;
+            case 'v': composer.instructionPasteAtCursor(this.getTrackName()); return;
             default: break;
         }
         // let selectedIndices;
         switch(e.key) {
             case 'Delete':
-                this.getComposer().instructionDeleteSelected();
+                composer.instructionDeleteSelected();
                 break;
             //
             // case 'Escape':
@@ -513,13 +514,13 @@ export default class ASCTrackBase extends React.Component {
             //     break;
             //
             case 'Enter':
-                await this.getComposer().instructionInsertAtCursorPrompt(null, null, false);
-                await this.playSelectedInstructions();
+                composer.instructionInsertAtCursor(null, null);
+                this.playSelectedInstructions();
                 break;
             //
             case ' ':
             case 'Play':
-                this.getComposer().songPlay(); // TODO: play track?
+                composer.songPlay(); // TODO: play track?
                 break;
 
             case 'ArrowLeft':
@@ -576,15 +577,15 @@ export default class ASCTrackBase extends React.Component {
                 break;
 
             default:
-                const keyboardCommand = this.getComposer().keyboard.getKeyboardCommand(e.key, this.getComposer().state.keyboardOctave);
+                const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, composer.state.keyboardOctave);
                 if(keyboardCommand) {
                     const selectedIndices = this.getSelectedIndices();
                     // const {cursorIndex} = this.cursorGetInfo()
                     if(selectedIndices && selectedIndices.length > 0) {
-                        this.getComposer().instructionReplaceCommand(this.getTrackName(), selectedIndices, keyboardCommand);
+                        composer.instructionReplaceCommand(this.getTrackName(), selectedIndices, keyboardCommand);
 
                     } else {
-                        this.getComposer().instructionInsertAtCursor(this.getTrackName(), keyboardCommand);
+                        composer.instructionInsertAtCursor(this.getTrackName(), keyboardCommand);
                     }
                     // console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
                     return;

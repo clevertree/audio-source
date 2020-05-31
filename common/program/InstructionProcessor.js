@@ -68,13 +68,13 @@ export default class InstructionProcessor {
 
     findArgParameter(argType) {
         const [commandString, argTypeList] = this.processInstructionArgs();
-        let paramPosition = 1;
+        let argIndex = 1;
         for(let i=0; i<argTypeList.length; i++) {
             if(!argType.consumesArgument)
                 continue;
+            argIndex++;
             if(argTypeList[i] === argType)
-                return paramPosition;
-            paramPosition++;
+                return argIndex;
         }
         throw new Error("Unable to find argType for " + commandString);
     }

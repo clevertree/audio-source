@@ -383,18 +383,39 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Command **/
 
+    instructionReplaceInstructionArg(trackName, selectedIndices, argIndex, newArgValue) {
+        const song = this.song;
+        if(Number.isInteger(selectedIndices))
+            selectedIndices = [selectedIndices];
+        if (!selectedIndices.length)
+            throw new Error("No selection");
 
-    async instructionReplaceCommandPrompt(trackName=null, selectedIndices=null, newCommand = null, promptUser=false) {
-        trackName = trackName || this.state.selectedTrack;
-        if (newCommand === null)
-            newCommand = this.state.currentCommand;
-        if(promptUser)
-            newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-        if(selectedIndices === null)
-            selectedIndices = this.getActiveTrack(trackName).getSelectedIndices();
-        return this.instructionReplaceCommand(trackName, selectedIndices, newCommand);
+        // console.log('instructionReplaceInstructionArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
+
+        const selectedInstructionData = this.state.selectedInstructionData;
+        selectedInstructionData[argIndex] = newArgValue;
+        this.setState({selectedInstructionData});
+        for (let i = 0; i < selectedIndices.length; i++) {
+            song.instructionReplaceArg(trackName, selectedIndices[i], argIndex, newArgValue);
+        }
+
+        this.trackerPlay(trackName, selectedIndices);
+        // trackInfo.updateCurrentInstruction();
     }
 
+
+    // async instructionReplaceCommandPrompt(trackName=null, selectedIndices=null, newCommand = null, promptUser=false) {
+    //     trackName = trackName || this.state.selectedTrack;
+    //     if (newCommand === null)
+    //         newCommand = this.state.currentCommand;
+    //     if(promptUser)
+    //         newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
+    //     if(selectedIndices === null)
+    //         selectedIndices = this.getActiveTrack(trackName).getSelectedIndices();
+    //     return this.instructionReplaceCommand(trackName, selectedIndices, newCommand);
+    // }
+
+    /** @deprecated **/
     instructionReplaceCommand(trackName, selectedIndices, newCommand) {
         const song = this.song;
         if(Number.isInteger(selectedIndices))
@@ -416,18 +437,19 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Duration **/
 
-    async instructionReplaceDurationPrompt(trackName = null, selectedIndices = null, duration = null, promptUser=false) {
-        trackName = trackName || this.state.selectedTrack;
-        const activeTrack = this.getActiveTrack(trackName);
-        if(selectedIndices === null)
-            selectedIndices = activeTrack.getSelectedIndices();
+    // async instructionReplaceDurationPrompt(trackName = null, selectedIndices = null, duration = null, promptUser=false) {
+    //     trackName = trackName || this.state.selectedTrack;
+    //     const activeTrack = this.getActiveTrack(trackName);
+    //     if(selectedIndices === null)
+    //         selectedIndices = activeTrack.getSelectedIndices();
+    //
+    //     if (promptUser)
+    //         duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
+    //
+    //     this.instructionReplaceDuration(trackName, selectedIndices, duration);
+    // }
 
-        if (promptUser)
-            duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
-
-        this.instructionReplaceDuration(trackName, selectedIndices, duration);
-    }
-
+    /** @deprecated **/
     instructionReplaceDuration(trackName, selectedIndices, duration) {
         const song = this.song;
         if(Number.isInteger(selectedIndices))
@@ -450,17 +472,18 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Velocity **/
 
-    async instructionReplaceVelocityPrompt(trackName = null, selectedIndices = null, velocity = null, promptUser=true) {
-        trackName = trackName || this.state.selectedTrack;
-        velocity = velocity || this.state.currentVelocity;
-        const activeTrack = this.getActiveTrack(trackName);
-        if(selectedIndices === null)
-            selectedIndices = activeTrack.getSelectedIndices();
-        if(promptUser)
-            velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", velocity));
-        return this.instructionReplaceVelocity(trackName, selectedIndices, velocity);
-    }
+    // async instructionReplaceVelocityPrompt(trackName = null, selectedIndices = null, velocity = null, promptUser=true) {
+    //     trackName = trackName || this.state.selectedTrack;
+    //     velocity = velocity || this.state.currentVelocity;
+    //     const activeTrack = this.getActiveTrack(trackName);
+    //     if(selectedIndices === null)
+    //         selectedIndices = activeTrack.getSelectedIndices();
+    //     if(promptUser)
+    //         velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", velocity));
+    //     return this.instructionReplaceVelocity(trackName, selectedIndices, velocity);
+    // }
 
+    /** @deprecated **/
     instructionReplaceVelocity(trackName, selectedIndices, velocity) {
         const song = this.song;
         trackName = trackName || this.state.selectedTrack;
@@ -647,7 +670,7 @@ class ASComposerActions extends ASComposerMenu {
         }
         if(selectedIndices.length > 0) {
             const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
-            state.selectedInstructionArgs = instructionData.slice(1);
+            state.selectedInstructionData = instructionData.slice();
         }
 
         if(!state.activeTracks[trackName])

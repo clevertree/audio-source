@@ -58,7 +58,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         if(i === -1)
             this.openMenus.push([menuItem, closeMenuCallback]);
         // console.log('this.openMenus', this.openMenus);
-        this.updateOverlay();
+        setTimeout(() => this.updateOverlay(), 10);
     }
 
     removeCloseMenuCallback(menuItem) {
@@ -70,7 +70,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
 
     closeMenus(butThese=[], stayOpenOnStick=true) {
-        console.log('closeMenus', butThese, this.openMenus);
+        // console.log('closeMenus', butThese, this.openMenus);
         // this.overlayContext.openMenuItems = [];
         this.openMenus.forEach(openMenu => {
             const [menuItem, closeMenuCallback] = openMenu;

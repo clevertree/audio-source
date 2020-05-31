@@ -113,14 +113,14 @@ export default class TrackIterator {
                         const argType = argTypeList[i];
                         if (argType.consumesArgument) {
                             if(typeof instructionData[argPosition] !== "undefined") {
-                                const arg = argType.processArgument(instructionData[argPosition], stats);
+                                const arg = argType.process(instructionData[argPosition], stats);
                                 newArgs.push(arg);
                                 if (argType === ArgType.duration)
                                     this.processDuration(instructionData[argPosition], newArgs[i], stats);
                                 argPosition++
                             }
                         } else {
-                            const arg = argType.processArgument(null, stats);
+                            const arg = argType.process(null, stats);
                             newArgs.push(arg);
                         }
                     }
