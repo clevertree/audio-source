@@ -1,7 +1,3 @@
-import Instruction from "../Instruction";
-
-
-
 export default class InstructionIterator {
     constructor(instructionList, stats={}, instructionCallback=null) {
         this.instructions = instructionList;

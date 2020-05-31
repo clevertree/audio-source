@@ -633,22 +633,23 @@ class ASComposerActions extends ASComposerMenu {
 
     }
 
-    trackSelect(trackName, selectedIndices=[], trackStats=null) {
-        // if(selectedIndices.length === 0)
-        //     return;
 
-        // const activeTrack = this.getActiveTrack(trackName);
+
+    trackSelect(trackName, selectedIndices=[], trackStats=null) {
+
+        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
         const state = {
             // selectedIndices,
+            activeTracks: this.state.activeTracks,
             selectedTrack: trackName,
-            activeTracks: this.state.activeTracks
+            selectedTrackIndices: selectedIndices
         }
         if(selectedIndices.length > 0) {
             const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
-            state.currentInstructionArgs = instructionData.slice(1);
-            state.currentSelectedIndices = selectedIndices;
+            state.selectedInstructionArgs = instructionData.slice(1);
         }
+
         if(!state.activeTracks[trackName])
             state.activeTracks[trackName] = {};
         if(trackStats)
@@ -664,10 +665,35 @@ class ASComposerActions extends ASComposerMenu {
         //     state.currentInstructionType = 'custom';
         //     state.currentArguments = instruction.commandArgs;
         // }
-        // state.currentSelectedIndices = selectedIndices;
+        // state.selectedTrackIndices = selectedIndices;
         // state.selectedTrack = trackName;
 
     }
+
+    selectIndices(selectedIndices, clearSelection=true, selectTrack=true) {
+        // TODO: get song position by this.props.index
+        // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+
+
+        selectedIndices.forEach((index, i) => {
+            if(typeof index !== "number")
+                throw new Error(`Invalid selection index (${i}): ${index}`);
+        });
+
+        // Filter unique indices
+        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
+        // Sort indices
+        selectedIndices.sort((a, b) => a - b);
+
+
+        this.setState({selectedIndices});
+        this.getComposer().trackSelect(this.getTrackName(), selectedIndices);
+        // if(selectTrack)
+        //     this.getComposer().trackSelect(this.getTrackName());
+        return selectedIndices;
+    }
+
+
 
 
     // TODO: messy

@@ -63,6 +63,50 @@ class SongValues extends Values {
 
 
 
+    parseSelectedIndices(selectedIndices) {
+        if (typeof selectedIndices === "string") {
+            switch (selectedIndices) {
+                case 'all':
+                    selectedIndices = [];
+                    const maxLength = this.getSong().instructionGetList(this.getTrackName()).length;
+                    for (let i = 0; i < maxLength; i++)
+                        selectedIndices.push(i);
+                    break;
+                case 'segment':
+                    throw new Error('TODO');
+                // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                case 'row':
+                    throw new Error('TODO');
+                case 'none':
+                    selectedIndices = [];
+                    break;
+                default:
+                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+                // throw new Error("Invalid selection: " + selectedIndices);
+            }
+        }
+
+        if (typeof selectedIndices === 'number')
+            selectedIndices = [selectedIndices];
+
+        // if(!clearSelection && this.getSelectedIndices().length > 0)
+        //     selectedIndices = selectedIndices.concat(this.getSelectedIndices());
+        // console.log('selectIndices', Array.isArray(selectedIndices), selectedIndices);
+        if (!Array.isArray(selectedIndices))
+            throw new Error("Invalid selection: " + selectedIndices);
+
+        selectedIndices.forEach((index, i) => {
+            if(typeof index !== "number")
+                throw new Error(`Invalid selection index (${i}): ${index}`);
+        });
+
+        // Filter unique indices
+        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
+        // Sort indices
+        selectedIndices.sort((a, b) => a - b);
+        return selectedIndices;
+    }
+
 
     formatSongDuration(input) {
         return this.formatDuration(input, this.song.data.timeDivision);

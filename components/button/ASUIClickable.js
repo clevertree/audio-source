@@ -1,5 +1,4 @@
 import React from "react";
-import ASUIMenuContext from "../menu/ASUIMenuContext";
 import ASUIClickableBase from "./ASUIClickableBase";
 
 export default class ASUIClickable extends ASUIClickableBase {

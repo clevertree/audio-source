@@ -38,9 +38,15 @@ export default class ASComposer extends ASComposerInput {
             songLength: 0,
             songPosition: 0,
 
-            // Trackers
-            selectedTrack: 'root',
-            /** @deprecated **/
+
+            selectedInstructionArgs: ['C4', '1B'],
+            // currentInstructionType: 'note',
+            currentCommand: 'C4',
+            currentDuration: '1B',
+            currentVelocity: null,
+            currentArguments: [],
+
+            // Tracks
             activeTracks: {
                 root:{
                     // destination: null,
@@ -49,14 +55,8 @@ export default class ASComposer extends ASComposerInput {
                     currentDuration: '1B',
                 }
             },
-
-            currentInstructionArgs: ['C4', '1B'],
-            // currentInstructionType: 'note',
-            currentCommand: 'C4',
-            currentDuration: '1B',
-            currentVelocity: null,
-            currentArguments: [],
-            currentSelectedIndices: [],
+            selectedTrack: 'root',
+            selectedTrackIndices: [],
 
             /** UI **/
 

@@ -9,6 +9,8 @@ class TestInstrument {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+        if(!duration)
+            console.warn("Invalid Duration: ", duration);
         // console.info('playFrequency(', frequency, startTime, duration, velocity, ')')
     }
 

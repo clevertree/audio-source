@@ -1,6 +1,4 @@
 import {ArgType} from "../index";
-import {ASUIMenuDropDown} from "../../components/menu";
-import React from "react";
 
 export default class InstructionProcessor {
     static trackCommand = [ArgType.trackCommand, ArgType.trackDuration, ArgType.trackOffset, ArgType.trackKey]
@@ -23,6 +21,7 @@ export default class InstructionProcessor {
                 case 'p':
                     commandString = 'program';
                     break;
+                default:
                 // case '@': commandString = 'playTrack'; break;
             }
             prependList = [ArgType.command];

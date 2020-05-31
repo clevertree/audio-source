@@ -1,7 +1,6 @@
 import * as React from "react";
 import PropTypes from "prop-types";
 import {ArgType, InstructionProcessor} from "../../../common/";
-import {Instruction} from "../../../song";
 
 export default class ASCTrackInstructionBase extends React.Component {
     /** Default Properties **/
@@ -52,7 +51,7 @@ export default class ASCTrackInstructionBase extends React.Component {
         const instructionData = this.getInstructionData();
         const params = [];
         const processor = new InstructionProcessor(instructionData);
-        const [commandString, argTypeList] = processor.processInstructionArgs();
+        const [, argTypeList] = processor.processInstructionArgs();
         let paramPosition = 1;
         for(let i=0; i<argTypeList.length; i++) {
             const argType = argTypeList[i];

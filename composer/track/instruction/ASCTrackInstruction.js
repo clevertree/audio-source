@@ -3,7 +3,6 @@ import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
 import {ASUIDropDownContainer} from "../../../components/menu";
 
 import "./ASCTrackInstruction.css";
-import {ArgType} from "../../../common";
 
 export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     constructor(props) {

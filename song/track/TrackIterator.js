@@ -107,7 +107,7 @@ export default class TrackIterator {
 
 
                 let newArgs = [];
-                let argPosition = 2;
+                let argPosition = 1;
                 if(argTypeList) {
                     for (let i = 0; i < argTypeList.length; i++) {
                         const argType = argTypeList[i];

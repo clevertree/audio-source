@@ -18,12 +18,12 @@ export default class ASComposerInstructionPanel extends React.Component {
     // TODO: combine with InstructionBase?
     renderInstructionForms() {
         const composer = this.props.composer;
-        // const params = composer.state.currentInstructionArgs;
-        const instructionData = [0].concat(composer.state.currentInstructionArgs);
-        // let [commandString, ...params] = composer.state.currentInstructionArgs;
+        // const params = composer.state.selectedInstructionArgs;
+        const instructionData = [0].concat(composer.state.selectedInstructionArgs);
+        // let [commandString, ...params] = composer.state.selectedInstructionArgs;
         // let commandString = params.shift();
         const processor = new InstructionProcessor(instructionData);
-        const [commandString, argTypeList] = processor.processInstructionArgs();
+        const [, argTypeList] = processor.processInstructionArgs();
         // commandString = InstructionProcessor.getCommandStringFromInstruction(commandString, params);
         // console.log('commandString', commandString, params);
         let paramPosition = 1;
@@ -66,7 +66,7 @@ export default class ASComposerInstructionPanel extends React.Component {
         });
     }
 
-    renderCommandForm(i, param, header="Select Command", title="Select Command") {
+    renderCommandForm(i, param, header="Command", title="Select Command") {
         const composer = this.props.composer;
         return <ASUIForm key={i} header={header}>
             <ASUIButtonDropDown
@@ -77,7 +77,7 @@ export default class ASComposerInstructionPanel extends React.Component {
         </ASUIForm>
     }
 
-    renderFrequencyForm(i, param, header="Select Frequency", title="Select Frequency") {
+    renderFrequencyForm(i, param, header="Frequency", title="Select Frequency") {
         const composer = this.props.composer;
         return <ASUIForm key={i} header={header}>
             <ASUIButtonDropDown

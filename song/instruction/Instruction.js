@@ -1,5 +1,4 @@
 import Values from "../../common/values/Values";
-import InstructionProcessor from "../../common/program/InstructionProcessor";
 
 class Instruction {
     constructor(instructionData = [0]) {

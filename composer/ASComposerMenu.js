@@ -146,7 +146,7 @@ class ASComposerMenu extends ASComposerRenderer {
         // const selectedTrackName = this.state.selectedTrack;
         // const activeTrack = this.getActiveTrack(selectedTrackName);
         if(selectedIndices === null)
-            selectedIndices = this.state.currentSelectedIndices;
+            selectedIndices = this.state.selectedTrackIndices;
         return (<>
 
             {selectedIndices.length > 0 ? this.renderMenuInstructionEdit() : <ASUIMenuItem>No Selection</ASUIMenuItem>}
@@ -176,7 +176,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return this.values.renderMenuSelectCommand(async newCommand => {
                this.instructionInsertAtCursorPrompt(trackName, newCommand, newCommand === null);
             },
-            this.state.currentInstructionArgs[1],
+            this.state.selectedInstructionArgs[1],
             "New Command"
         );
     }
@@ -220,7 +220,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return this.values.renderMenuSelectCommand(newCommand => {
                 this.instructionReplaceCommandPrompt(trackName, null, newCommand, false);
             },
-            this.state.currentInstructionArgs[1]
+            this.state.selectedInstructionArgs[1]
         );
     }
 
@@ -266,13 +266,13 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuInstructionEdit() {
-        const selectedIndices = this.state.currentSelectedIndices;
+        const selectedIndices = this.state.selectedTrackIndices;
         if(!selectedIndices || selectedIndices.length === 0)
             throw new Error("No indices selected");
 
-        const instructionData = [0].concat(this.state.currentInstructionArgs);
+        const instructionData = [0].concat(this.state.selectedInstructionArgs);
         const processor = new InstructionProcessor(instructionData);
-        const [commandString, argTypeList] = processor.processInstructionArgs();
+        const [, argTypeList] = processor.processInstructionArgs();
 
         let argPosition = 1;
         return argTypeList.map((argType, i) => {

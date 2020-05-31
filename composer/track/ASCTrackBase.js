@@ -6,7 +6,7 @@ import ASCTrackRow from "./row/ASCTrackRow";
 import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager.native";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
-import {Instruction, InstructionIterator} from "../../song";
+import {InstructionIterator} from "../../song";
 
 
 // TODO: ASCTrackRowContainer
@@ -51,7 +51,11 @@ export default class ASCTrackBase extends React.Component {
     getCursorOffset() { return this.state.cursorOffset || 0; }
     getCursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
 
-    getSelectedIndices() { return this.state.selectedIndices || []; }
+    getSelectedIndices() {
+        if(this.isSelectedTrack())
+            return this.getComposer().state.selectedTrackIndices;
+        return [];
+    }
     getPlayingIndices() { return this.state.playingIndices || []; }
 
     getRowLength() { return typeof this.state.rowLength !== "undefined" ? this.state.rowLength : ASCTrackBase.DEFAULT_ROW_LENGTH; }
@@ -65,7 +69,9 @@ export default class ASCTrackBase extends React.Component {
 
     getStartPosition() { return this.state.startPosition || 0; }
 
-
+    isSelectedTrack() {
+        return this.props.trackName === this.props.composer.state.selectedTrack;
+    }
 
     constructor(props) {
         super(props);
@@ -73,7 +79,7 @@ export default class ASCTrackBase extends React.Component {
         if(!props.composer)
             throw new Error("Invalid composer");
         this.state = Object.assign({}, {
-            selectedIndices: [],
+            // selectedIndices: [],
             playingIndices: [],
             rowOffset: 0,
             cursorOffset: 0,
@@ -172,55 +178,11 @@ export default class ASCTrackBase extends React.Component {
         this.playInstructions(selectedIndices, stopPlayback)
     }
 
-    selectIndices(selectedIndices, clearSelection=true, selectTrack=true) {
+    selectIndices(selectedIndices, clearSelection=true) {
         // TODO: get song position by this.props.index
-        // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
-        if (typeof selectedIndices === "string") {
-            switch (selectedIndices) {
-                case 'all':
-                    selectedIndices = [];
-                    const maxLength = this.getSong().instructionGetList(this.getTrackName()).length;
-                    for (let i = 0; i < maxLength; i++)
-                        selectedIndices.push(i);
-                    break;
-                case 'segment':
-                    throw new Error('TODO');
-                    // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                case 'row':
-                    throw new Error('TODO');
-                case 'none':
-                    selectedIndices = [];
-                    break;
-                default:
-                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-                // throw new Error("Invalid selection: " + selectedIndices);
-            }
-        }
-
-        if (typeof selectedIndices === 'number')
-            selectedIndices = [selectedIndices];
         if(!clearSelection && this.getSelectedIndices().length > 0)
             selectedIndices = selectedIndices.concat(this.getSelectedIndices());
-        // console.log('selectIndices', Array.isArray(selectedIndices), selectedIndices);
-        if (!Array.isArray(selectedIndices))
-            throw new Error("Invalid selection: " + selectedIndices);
-
-        selectedIndices.forEach((index, i) => {
-            if(typeof index !== "number")
-                throw new Error(`Invalid selection index (${i}): ${index}`);
-        });
-
-        // Filter unique indices
-        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
-        // Sort indices
-        selectedIndices.sort((a, b) => a - b);
-
-
-        this.setState({selectedIndices});
-        this.getComposer().trackSelect(this.getTrackName(), selectedIndices);
-        // if(selectTrack)
-        //     this.getComposer().trackSelect(this.getTrackName());
-        return selectedIndices;
+        return this.getComposer().trackSelect(this.getTrackName(), selectedIndices);
     }
 
     updatePlayingIndices(playingIndices) {
@@ -242,6 +204,7 @@ export default class ASCTrackBase extends React.Component {
         const playingIndices = this.getPlayingIndices();
         const beatsPerMeasureTicks = this.getBeatsPerMeasure() * this.getTimeDivision();
         const quantizationTicks = this.getQuantizationTicks();
+        // const isSelectedTrack = this.isSelectedTrack();
 
 
         // Get Iterator

@@ -13,8 +13,23 @@ div.asct-instruction {
   background-color: #CCC;
 }
 
+div.asct-instruction-add,
+div.asct-instruction.cursor {
+  border-color: red;
+  box-shadow: darkred 0 0 4px;
+  position: relative;
+  /*z-index: 2;*/
+}
+
+div.asct-instruction-add,
+div.asct-instruction.selected {
+  background-color: white;
+  font-weight: bold;
+}
+
 div.asct-instruction-add {
   /*transition: opacity 0.25s;*/
+  font-weight: bold;
   padding: 1px 4px;
 }
 
@@ -27,26 +42,13 @@ div.asct-instruction:active {
   background-color: #EEE;
 }
 
-div.asct-instruction.selected {
-  background-color: white;
-}
 
 
-div.asc-track.selected div.asct-instruction-add,
-div.asc-track.selected div.asct-instruction.selected {
-  font-weight: bold;
-  /*max-width: 1000px;*/
-  box-shadow: #6b6b6b 0 0px 3px;
-  /*z-index: 1;*/
+
+div.asc-track:not(.selected) div.asct-instruction-add {
+  display: none;
 }
 
-div.asc-track.selected div.asct-instruction-add,
-div.asc-track.selected div.asct-instruction.cursor {
-  border-color: red;
-  box-shadow: darkred 0 0 4px;
-  position: relative;
-  /*z-index: 2;*/
-}
 
 
 /** Playing **/

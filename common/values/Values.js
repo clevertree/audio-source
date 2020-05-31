@@ -426,6 +426,7 @@ class Values {
         return results;
     }
 
+
     // get noteFrequencies() {
     //     return this.renderer.noteFrequencies; // ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     // }
