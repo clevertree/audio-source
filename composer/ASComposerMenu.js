@@ -297,7 +297,7 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue=null) {
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
-                this.instructionReplaceInstructionArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
+                this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
             }
         }
         switch(argType) {
@@ -306,9 +306,11 @@ class ASComposerMenu extends ASComposerRenderer {
             default:
                 return this.values.renderMenuSelectCommand(onSelectValue, paramValue);
 
-            case ArgType.trackDuration:
             case ArgType.duration:
                 return this.values.renderMenuSelectDuration(onSelectValue, null, paramValue);
+
+            case ArgType.velocity:
+                return this.values.renderMenuSelectVelocity(onSelectValue, paramValue);
 
         }
 

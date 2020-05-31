@@ -35,7 +35,6 @@ export default class ASComposerInstructionPanel extends React.Component {
                 case ArgType.trackKey:
                 case ArgType.duration:
                 case ArgType.frequency:
-                case ArgType.trackDuration:
                 case ArgType.trackOffset:
                 case ArgType.trackName:
                 default:
@@ -66,7 +65,7 @@ export default class ASComposerInstructionPanel extends React.Component {
             <ASUIInputRange
                 // className="velocity"
                 onChange={(newVelocity) => {
-                    composer.instructionReplaceInstructionArg(composer.state.selectedTrack, composer.state.selectedTrackIndices, argIndex, newVelocity);
+                    composer.instructionReplaceArg(composer.state.selectedTrack, composer.state.selectedTrackIndices, argIndex, newVelocity);
                 }}
                 value={paramValue || 0}
                 min={1}

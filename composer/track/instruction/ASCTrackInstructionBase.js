@@ -70,7 +70,6 @@ export default class ASCTrackInstructionBase extends React.Component {
                     param = this.formatDuration(param);
                     break;
 
-                case ArgType.trackDuration:
                 case ArgType.duration:
                     className += ' duration';
                     param = this.formatDuration(param);
@@ -155,29 +154,29 @@ export default class ASCTrackInstructionBase extends React.Component {
     }
 
     // }
-    renderMenuSelectCommand() {
-        return this.getComposer().values.renderMenuSelectCommand((command) => {
-                this.instructionReplaceCommand(command);
-            },
-            this.props.instruction.command,
-        );
-    }
+    // renderMenuSelectCommand() {
+    //     return this.getComposer().values.renderMenuSelectCommand((command) => {
+    //             this.instructionReplaceCommand(command);
+    //         },
+    //         this.props.instruction.command,
+    //     );
+    // }
 
 
-    renderMenuSelectVelocity() {
-        return this.getComposer().values.renderMenuSelectVelocity(velocity => {
-            this.instructionReplaceVelocity(velocity);
-        }, this.props.instruction.velocity);
-    }
+    // renderMenuSelectVelocity() {
+    //     return this.getComposer().values.renderMenuSelectVelocity(velocity => {
+    //         this.instructionReplaceVelocity(velocity);
+    //     }, this.props.instruction.velocity);
+    // }
 
-    renderMenuSelectDuration() {
-        return this.getComposer().values.renderMenuSelectDuration(duration => {
-                this.instructionReplaceDuration(duration);
-            },
-            this.getSong().data.timeDivision,
-            this.props.instruction.duration,
-        );
-    }
+    // renderMenuSelectDuration() {
+    //     return this.getComposer().values.renderMenuSelectDuration(duration => {
+    //             this.instructionReplaceDuration(duration);
+    //         },
+    //         this.getSong().data.timeDivision,
+    //         this.props.instruction.duration,
+    //     );
+    // }
 
     /** Actions **/
 

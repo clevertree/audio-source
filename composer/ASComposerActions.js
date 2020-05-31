@@ -383,14 +383,14 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Command **/
 
-    instructionReplaceInstructionArg(trackName, selectedIndices, argIndex, newArgValue) {
+    instructionReplaceArg(trackName, selectedIndices, argIndex, newArgValue) {
         const song = this.song;
         if(Number.isInteger(selectedIndices))
             selectedIndices = [selectedIndices];
         if (!selectedIndices.length)
             throw new Error("No selection");
 
-        // console.log('instructionReplaceInstructionArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
+        // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
 
         const selectedInstructionData = this.state.selectedInstructionData;
         selectedInstructionData[argIndex] = newArgValue;
@@ -417,6 +417,7 @@ class ASComposerActions extends ASComposerMenu {
 
     /** @deprecated **/
     instructionReplaceCommand(trackName, selectedIndices, newCommand) {
+        // TODO: replace first arg, preserve other args by argType
         const song = this.song;
         if(Number.isInteger(selectedIndices))
             selectedIndices = [selectedIndices];
@@ -449,26 +450,27 @@ class ASComposerActions extends ASComposerMenu {
     //     this.instructionReplaceDuration(trackName, selectedIndices, duration);
     // }
 
-    /** @deprecated **/
-    instructionReplaceDuration(trackName, selectedIndices, duration) {
-        const song = this.song;
-        if(Number.isInteger(selectedIndices))
-            selectedIndices = [selectedIndices];
-
-        if (typeof duration === 'string')
-            duration = this.values.parseDurationAsTicks(duration, this.song.data.timeDivision);
-        else
-            duration = parseInt(duration)
-
-        if (isNaN(duration))
-            throw new Error("Invalid duration: " + typeof duration);
-        for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceDuration(trackName, selectedIndices[i], duration);
-        }
-        this.trackerPlay(trackName, selectedIndices);
-        this.setState({currentDuration: this.values.formatDuration(duration)})
-        // trackState.updateCurrentInstruction();
-    }
+    // /** @deprecated **/
+    // instructionReplaceDuration(trackName, selectedIndices, duration) {
+    //     // TODO: find first duration arg
+    //     const song = this.song;
+    //     if(Number.isInteger(selectedIndices))
+    //         selectedIndices = [selectedIndices];
+    //
+    //     if (typeof duration === 'string')
+    //         duration = this.values.parseDurationAsTicks(duration, this.song.data.timeDivision);
+    //     else
+    //         duration = parseInt(duration)
+    //
+    //     if (isNaN(duration))
+    //         throw new Error("Invalid duration: " + typeof duration);
+    //     for (let i = 0; i < selectedIndices.length; i++) {
+    //         song.instructionReplaceDuration(trackName, selectedIndices[i], duration);
+    //     }
+    //     this.trackerPlay(trackName, selectedIndices);
+    //     this.setState({currentDuration: this.values.formatDuration(duration)})
+    //     // trackState.updateCurrentInstruction();
+    // }
 
     /** Instruction Velocity **/
 
@@ -483,23 +485,24 @@ class ASComposerActions extends ASComposerMenu {
     //     return this.instructionReplaceVelocity(trackName, selectedIndices, velocity);
     // }
 
-    /** @deprecated **/
-    instructionReplaceVelocity(trackName, selectedIndices, velocity) {
-        const song = this.song;
-        trackName = trackName || this.state.selectedTrack;
-        if(Number.isInteger(selectedIndices))
-            selectedIndices = [selectedIndices];
-
-        velocity = parseFloat(velocity);
-        if (velocity === null || isNaN(velocity))
-            throw new Error(`Invalid velocity (${typeof velocity}): ${velocity}`);
-        for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceVelocity(trackName, selectedIndices[i], velocity);
-        }
-        this.trackerPlay(trackName, selectedIndices);
-        this.setState({currentVelocity: velocity})
-        // trackInfo.updateCurrentInstruction();
-    }
+    // /** @deprecated **/
+    // instructionReplaceVelocity(trackName, selectedIndices, velocity) {
+    //     // TODO: find first frequency arg
+    //     const song = this.song;
+    //     trackName = trackName || this.state.selectedTrack;
+    //     if(Number.isInteger(selectedIndices))
+    //         selectedIndices = [selectedIndices];
+    //
+    //     velocity = parseFloat(velocity);
+    //     if (velocity === null || isNaN(velocity))
+    //         throw new Error(`Invalid velocity (${typeof velocity}): ${velocity}`);
+    //     for (let i = 0; i < selectedIndices.length; i++) {
+    //         song.instructionReplaceVelocity(trackName, selectedIndices[i], velocity);
+    //     }
+    //     this.trackerPlay(trackName, selectedIndices);
+    //     this.setState({currentVelocity: velocity})
+    //     // trackInfo.updateCurrentInstruction();
+    // }
 
     /** Instruction Delete **/
 

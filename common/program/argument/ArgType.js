@@ -110,14 +110,14 @@ ArgType.trackCommand = new ArgType(
     true
 )
 
-ArgType.trackDuration = new ArgType(
-    "Track Duration",
-    trackDuration => { return trackDuration; },
-    (durationTicks, values) => {
-        return values.formatDuration(durationTicks);
-    },
-    true
-)
+// ArgType.trackDuration = new ArgType(
+//     "Track Duration",
+//     trackDuration => { return trackDuration; },
+//     (durationTicks, values) => {
+//         return values.formatDuration(durationTicks);
+//     },
+//     true
+// )
 
 ArgType.trackOffset = new ArgType(
     "Track Offset",

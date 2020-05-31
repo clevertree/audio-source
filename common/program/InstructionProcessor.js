@@ -1,7 +1,7 @@
 import {ArgType} from "../index";
 
 export default class InstructionProcessor {
-    static trackCommand = [ArgType.trackCommand, ArgType.trackDuration, ArgType.trackOffset, ArgType.trackKey]
+    static trackCommand = [ArgType.trackCommand, ArgType.duration, ArgType.trackOffset, ArgType.trackKey, ArgType.velocity]
 
     constructor(instructionData, programClass=DummyProgram) {
         this.instructionData = instructionData;
@@ -115,7 +115,7 @@ class DummyProgram {
     /** Command Args **/
     static argTypes = {
         playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
-        playTrack: [ArgType.trackName, ArgType.trackDuration, ArgType.trackOffset, ArgType.trackKey],
+        playTrack: [ArgType.trackName, ArgType.duration, ArgType.trackOffset, ArgType.trackKey, ArgType.velocity],
         program: [ArgType.command, ArgType.program]
     }
 
