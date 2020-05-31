@@ -1,7 +1,7 @@
 import {ArgType} from "../index";
 
 export default class InstructionProcessor {
-    static trackCommand = [ArgType.trackCommand, ArgType.duration, ArgType.trackOffset, ArgType.trackKey, ArgType.velocity]
+    static trackCommand = [ArgType.trackCommand, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity]
 
     constructor(instructionData, programClass=DummyProgram) {
         this.instructionData = instructionData;
@@ -58,25 +58,25 @@ export default class InstructionProcessor {
 
 
 
-    updateArg(argType, newValue) {
-        let paramPosition = this.findArgParameter(argType);
-        const oldValue = this.instructionData[paramPosition];
-        this.instructionData[paramPosition] = newValue;
-        console.log("Arg updated: ", paramPosition, newValue, argType);
+    updateArg(argType, newArgValue) {
+        let argIndex = this.findArgParameter(argType);
+        const oldValue = this.instructionData[argIndex];
+        this.instructionData[argIndex] = newArgValue;
+        // console.log("Arg updated: ", argIndex, newArgValue, argType);
         return oldValue;
     }
 
     findArgParameter(argType) {
         const [commandString, argTypeList] = this.processInstructionArgs();
-        let argIndex = 1;
+        let argIndex = 0;
         for(let i=0; i<argTypeList.length; i++) {
-            if(!argType.consumesArgument)
+            if(!argTypeList[i].consumesArgument)
                 continue;
             argIndex++;
             if(argTypeList[i] === argType)
                 return argIndex;
         }
-        throw new Error("Unable to find argType for " + commandString);
+        throw new Error("Unable to find argType for " + argType.title);
     }
 
 
@@ -115,7 +115,7 @@ class DummyProgram {
     /** Command Args **/
     static argTypes = {
         playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
-        playTrack: [ArgType.trackName, ArgType.duration, ArgType.trackOffset, ArgType.trackKey, ArgType.velocity],
+        playTrack: [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity],
         program: [ArgType.command, ArgType.program]
     }
 

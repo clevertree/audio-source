@@ -2,6 +2,7 @@ import {Instruction, ProgramLoader, Song, Storage} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
+import {InstructionProcessor} from "../common";
 
 // import {TrackInfo} from "./track/";
 
@@ -381,9 +382,11 @@ class ASComposerActions extends ASComposerMenu {
         return index;
     }
 
-    /** Instruction Command **/
+    /** Instruction Args **/
 
-    instructionReplaceArg(trackName, selectedIndices, argIndex, newArgValue) {
+
+
+    instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
         const song = this.song;
         if(Number.isInteger(selectedIndices))
             selectedIndices = [selectedIndices];
@@ -393,10 +396,11 @@ class ASComposerActions extends ASComposerMenu {
         // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
 
         const selectedInstructionData = this.state.selectedInstructionData;
-        selectedInstructionData[argIndex] = newArgValue;
+        const processor = new InstructionProcessor(selectedInstructionData);
+        processor.updateArg(argType, newArgValue)
         this.setState({selectedInstructionData});
         for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceArg(trackName, selectedIndices[i], argIndex, newArgValue);
+            song.instructionReplaceArgByType(trackName, selectedIndices[i], argType, newArgValue);
         }
 
         this.trackerPlay(trackName, selectedIndices);
@@ -404,105 +408,6 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    // async instructionReplaceCommandPrompt(trackName=null, selectedIndices=null, newCommand = null, promptUser=false) {
-    //     trackName = trackName || this.state.selectedTrack;
-    //     if (newCommand === null)
-    //         newCommand = this.state.currentCommand;
-    //     if(promptUser)
-    //         newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-    //     if(selectedIndices === null)
-    //         selectedIndices = this.getActiveTrack(trackName).getSelectedIndices();
-    //     return this.instructionReplaceCommand(trackName, selectedIndices, newCommand);
-    // }
-
-    /** @deprecated **/
-    instructionReplaceCommand(trackName, selectedIndices, newCommand) {
-        // TODO: replace first arg, preserve other args by argType
-        const song = this.song;
-        if(Number.isInteger(selectedIndices))
-            selectedIndices = [selectedIndices];
-        if (!selectedIndices.length)
-            throw new Error("No selection");
-        console.log('instructionReplaceCommand', trackName, selectedIndices, selectedIndices.length, newCommand);
-        if (!newCommand)
-            throw new Error("Invalid Instruction command");
-
-        this.setState({currentCommand: newCommand});
-        for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceCommand(trackName, selectedIndices[i], newCommand);
-        }
-
-        this.trackerPlay(trackName, selectedIndices);
-        // trackInfo.updateCurrentInstruction();
-    }
-
-    /** Instruction Duration **/
-
-    // async instructionReplaceDurationPrompt(trackName = null, selectedIndices = null, duration = null, promptUser=false) {
-    //     trackName = trackName || this.state.selectedTrack;
-    //     const activeTrack = this.getActiveTrack(trackName);
-    //     if(selectedIndices === null)
-    //         selectedIndices = activeTrack.getSelectedIndices();
-    //
-    //     if (promptUser)
-    //         duration = parseInt(await PromptManager.openPromptDialog("Set custom duration in ticks:", duration), 10);
-    //
-    //     this.instructionReplaceDuration(trackName, selectedIndices, duration);
-    // }
-
-    // /** @deprecated **/
-    // instructionReplaceDuration(trackName, selectedIndices, duration) {
-    //     // TODO: find first duration arg
-    //     const song = this.song;
-    //     if(Number.isInteger(selectedIndices))
-    //         selectedIndices = [selectedIndices];
-    //
-    //     if (typeof duration === 'string')
-    //         duration = this.values.parseDurationAsTicks(duration, this.song.data.timeDivision);
-    //     else
-    //         duration = parseInt(duration)
-    //
-    //     if (isNaN(duration))
-    //         throw new Error("Invalid duration: " + typeof duration);
-    //     for (let i = 0; i < selectedIndices.length; i++) {
-    //         song.instructionReplaceDuration(trackName, selectedIndices[i], duration);
-    //     }
-    //     this.trackerPlay(trackName, selectedIndices);
-    //     this.setState({currentDuration: this.values.formatDuration(duration)})
-    //     // trackState.updateCurrentInstruction();
-    // }
-
-    /** Instruction Velocity **/
-
-    // async instructionReplaceVelocityPrompt(trackName = null, selectedIndices = null, velocity = null, promptUser=true) {
-    //     trackName = trackName || this.state.selectedTrack;
-    //     velocity = velocity || this.state.currentVelocity;
-    //     const activeTrack = this.getActiveTrack(trackName);
-    //     if(selectedIndices === null)
-    //         selectedIndices = activeTrack.getSelectedIndices();
-    //     if(promptUser)
-    //         velocity = parseInt(await PromptManager.openPromptDialog("Set custom velocity (0-127):", velocity));
-    //     return this.instructionReplaceVelocity(trackName, selectedIndices, velocity);
-    // }
-
-    // /** @deprecated **/
-    // instructionReplaceVelocity(trackName, selectedIndices, velocity) {
-    //     // TODO: find first frequency arg
-    //     const song = this.song;
-    //     trackName = trackName || this.state.selectedTrack;
-    //     if(Number.isInteger(selectedIndices))
-    //         selectedIndices = [selectedIndices];
-    //
-    //     velocity = parseFloat(velocity);
-    //     if (velocity === null || isNaN(velocity))
-    //         throw new Error(`Invalid velocity (${typeof velocity}): ${velocity}`);
-    //     for (let i = 0; i < selectedIndices.length; i++) {
-    //         song.instructionReplaceVelocity(trackName, selectedIndices[i], velocity);
-    //     }
-    //     this.trackerPlay(trackName, selectedIndices);
-    //     this.setState({currentVelocity: velocity})
-    //     // trackInfo.updateCurrentInstruction();
-    // }
 
     /** Instruction Delete **/
 
@@ -541,16 +446,6 @@ class ASComposerActions extends ASComposerMenu {
             }, resolve)
         })
     }
-
-
-    // /** @deprecated **/
-    // trackerGetTrackInfo(trackName) {
-    //     return new TrackInfo(trackName, this);
-    // }
-    // trackerGetSelectedTrackInfo() {
-    //     const trackName = this.state.selectedTrack;
-    //     return new TrackInfo(trackName, this);
-    // }
 
 
 
@@ -865,15 +760,6 @@ class ASComposerActions extends ASComposerMenu {
         });
     }
 
-    // trackerFindRowOffsetFromPosition(trackName, trackPositionTicks) {
-    //     // const trackState = new ActiveTrackState(this, trackName);
-    //     const iterator = this.trackerGetQuantizedIterator(trackName);
-    //     iterator.seekToPositionTicks(trackPositionTicks);
-    //     const rowOffset = iterator.rowCount;
-    //     console.log('trackerFindRowOffsetFromPosition', trackPositionTicks, rowOffset, iterator);
-    //     return rowOffset;
-    // }
-
     async trackerSelectIndicesPrompt(trackName=null) {
         if(trackName === null)
             trackName = this.state.selectedTrack;
@@ -888,73 +774,6 @@ class ASComposerActions extends ASComposerMenu {
             .selectIndices(selectedIndices, clearSelection);
     }
 
-
-
-    // trackerSetCursorOffset(trackName, newCursorOffset, selectedIndices=[]) {
-    //     if (!Number.isInteger(newCursorOffset))
-    //         throw new Error("Invalid cursor offset");
-    //     if(newCursorOffset < 0)
-    //         throw new Error("Cursor offset must be >= 0");
-    //     return this.trackerSelectIndices(trackName, selectedIndices, newCursorOffset);
-    // }
-    //
-    // trackerSetScrollPosition(trackName, newScrollPositionTicks) {
-    //     if (!Number.isInteger(newScrollPositionTicks))
-    //         throw new Error("Invalid row offset");
-    //     this.setState(state => {
-    //         state.activeTracks[trackName].scrollPositionTicks = newScrollPositionTicks;
-    //         return state;
-    //     });
-    // }
-
-    // trackerSetRowOffset
-
-    // trackerSetRowOffsetFromPositionTicks(trackName, trackPositionTicks) {
-    //     const rowOffset = this.trackerFindRowOffsetFromPosition(trackName, trackPositionTicks);
-    //     this.trackerSetRowOffset(trackName, rowOffset);
-    // }
-
-    // trackerSetRowOffset(trackName, newRowOffset) {
-    //     if (!Number.isInteger(newRowOffset))
-    //         throw new Error("Invalid row offset");
-    //     // console.log('trackerSetRowOffset', {trackName, newRowOffset});
-    //     this.setState(state => {
-    //         // state.selectedTrack = trackName;
-    //         state.activeTracks[trackName].rowOffset = newRowOffset;
-    //         return state;
-    //     });
-    // }
-    //
-    // trackerSetCursorOffset(trackName, newCursorOffset) {
-    //     if (!Number.isInteger(newCursorOffset))
-    //         throw new Error("Invalid cursor offset");
-    //     // console.log('trackerSetRowOffset', {trackName, newRowOffset});
-    //     this.setState(state => {
-    //         state.selectedTrack = trackName;
-    //         state.activeTracks[trackName].cursorOffset = newCursorOffset;
-    //         return state;
-    //     });
-    // }
-
-
-    // trackerUpdateCurrentInstruction(trackName) {
-    //     this.setState(state => {
-    //         const track = state.activeTracks[trackName];
-    //         const selectedIndices = track.selectedIndices;
-    //         if(selectedIndices.length > 0) {
-    //             const firstSelectedInstruction = this.getSong().instructionGetByIndex(this.getTrackName(), selectedIndices[0]);
-    //             track.currentCommand = firstSelectedInstruction.command;
-    //             if(firstSelectedInstruction instanceof NoteInstruction) {
-    //                 if(typeof firstSelectedInstruction.durationTicks !== "undefined")
-    //                     track.currentDuration = firstSelectedInstruction.getDurationString(this.getStartingTimeDivision());
-    //                 if(typeof firstSelectedInstruction.velocity !== "undefined")
-    //                     track.currentVelocity = firstSelectedInstruction.velocity;
-    //             }
-    //         }
-    //         return state;
-    //     });
-    //
-    // }
 
 
 

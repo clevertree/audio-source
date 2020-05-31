@@ -12,6 +12,7 @@ import ProgramList from "../programs";
 import Values from "../common/values/Values";
 import TrackIterator from "./track/TrackIterator";
 import TrackPlayback from "./track/TrackPlayback";
+import InstructionProcessor from "../common/program/InstructionProcessor";
 
 // TODO: can be handled cleaner
 ProgramList.addAllPrograms();
@@ -373,7 +374,12 @@ class Song {
     instructionReplaceArg(trackName, replaceIndex, argIndex, newArgValue) {
         const instructionData = this.instructionDataGetByIndex(trackName, replaceIndex);
         instructionData[argIndex] = newArgValue;
-        // return this.instructionReplaceParam(trackName, replaceIndex, 0, newDelta);
+    }
+
+    instructionReplaceArgByType(trackName, replaceIndex, argType, newArgValue) {
+        const instructionData = this.instructionDataGetByIndex(trackName, replaceIndex);
+        const processor = new InstructionProcessor(instructionData);
+        processor.updateArg(argType, newArgValue)
     }
 
     /** @deprecated Use custom arg renderer **/
@@ -453,26 +459,6 @@ class Song {
         return iterator.getEndPositionInSeconds();
     }
 
-    // getSongLengthTicks() {
-    //     return this.instructionGetIterator(this.getStartTrackName())
-    //         .seekToEnd()
-    //         .endPositionTicks;
-    // }
-
-    // getSongLength() {
-    //     return this.getGroupLength(this.getStartTrackName());
-    // }
-    //
-    // getGroupLength(trackName) {
-    //     const instructionIterator = this.getInstructionIterator(trackName);
-    //     while (instructionIterator.nextInstruction()) {}
-    //     return instructionIterator;
-    //     // return {
-    //     //     inSeconds: instructionIterator.endPositionSeconds,
-    //     //     inTicks: instructionIterator.endPositionTicks
-    //     // }
-    // }
-
 
     /** @deprecated **/
     getSongPositionFromTicks(songPositionInTicks) {
@@ -505,35 +491,34 @@ class Song {
     }
 
 
-    getSongPositionInTicks(positionInSeconds = null) {
-        if (positionInSeconds === null)
-            positionInSeconds = this.getSongPlaybackPosition();
-        return this.getGroupPositionInTicks(this.getStartTrackName(), positionInSeconds);
-    }
+    // getSongPositionInTicks(positionInSeconds = null) {
+    //     if (positionInSeconds === null)
+    //         positionInSeconds = this.getSongPlaybackPosition();
+    //     return this.getGroupPositionInTicks(this.getStartTrackName(), positionInSeconds);
+    // }
 
 
 
-    /** @deprecated **/
-    getGroupPositionInTicks(trackName, positionInSeconds) {
-        const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
-        while (true) {
-            if (iterator.getPositionInSeconds() >= positionInSeconds || !iterator.nextInstructionData())
-                break;
-        }
-
-        let currentPositionInTicks = iterator.getPositionInTicks();
-        if (positionInSeconds > iterator.getPositionInSeconds()) {
-            const elapsedTime = positionInSeconds - iterator.getPositionInSeconds();
-            currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.getBeatsPerMinute());
-
-        } else if (positionInSeconds < iterator.getPositionInSeconds()) {
-            const elapsedTime = iterator.getPositionInSeconds() - positionInSeconds;
-            currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.getBeatsPerMinute());
-        }
-
-        // console.info("getSongPositionInTicks", positionInSeconds, currentPositionInTicks);
-        return currentPositionInTicks;
-    }
+    // getGroupPositionInTicks(trackName, positionInSeconds) {
+    //     const iterator = InstructionIterator.getIteratorFromSong(this, trackName); //  this.instructionGetIterator(trackName);
+    //     while (true) {
+    //         if (iterator.getPositionInSeconds() >= positionInSeconds || !iterator.nextInstructionData())
+    //             break;
+    //     }
+    //
+    //     let currentPositionInTicks = iterator.getPositionInTicks();
+    //     if (positionInSeconds > iterator.getPositionInSeconds()) {
+    //         const elapsedTime = positionInSeconds - iterator.getPositionInSeconds();
+    //         currentPositionInTicks += Song.secondsToTicks(elapsedTime, iterator.getBeatsPerMinute());
+    //
+    //     } else if (positionInSeconds < iterator.getPositionInSeconds()) {
+    //         const elapsedTime = iterator.getPositionInSeconds() - positionInSeconds;
+    //         currentPositionInTicks -= Song.secondsToTicks(elapsedTime, iterator.getBeatsPerMinute());
+    //     }
+    //
+    //     // console.info("getSongPositionInTicks", positionInSeconds, currentPositionInTicks);
+    //     return currentPositionInTicks;
+    // }
 
     static ticksToSeconds(elapsedTicks, beatsPerMinute, timeDivision) {
         return (elapsedTicks / timeDivision) * (60 / beatsPerMinute);

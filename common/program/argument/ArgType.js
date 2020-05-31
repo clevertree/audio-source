@@ -53,9 +53,7 @@ ArgType.duration = new ArgType(
     (durationTicks, stats) => {
         const startTime = stats.startTime
             + stats.positionSeconds; // start time equals current track's start + playback times
-        let beatsPerMinute = stats.beatsPerMinute; // getStartingBeatsPerMinute();
-        let timeDivision = stats.timeDivision;
-        const durationSeconds = (durationTicks / timeDivision) / (beatsPerMinute / 60);
+        const durationSeconds = Values.durationTicksToSeconds(durationTicks, stats.timeDivision, stats.beatsPerMinute);
         if(stats.onInstructionEnd)
             stats.onInstructionEnd(startTime + durationSeconds, stats);
         return durationSeconds;
@@ -119,8 +117,8 @@ ArgType.trackCommand = new ArgType(
 //     true
 // )
 
-ArgType.trackOffset = new ArgType(
-    "Track Offset",
+ArgType.offset = new ArgType(
+    "Offset",
     trackOffset => { return trackOffset; },
     (offsetTicks, values) => {
         return values.formatDuration(offsetTicks);
@@ -128,12 +126,12 @@ ArgType.trackOffset = new ArgType(
     true
 )
 
-ArgType.trackKey = new ArgType(
-    "Track Key",
-    trackKey => { return trackKey; },
-    trackKey => { return trackKey; },
-    true
-)
+// ArgType.trackKey = new ArgType(
+//     "Track Key",
+//     trackKey => { return trackKey; },
+//     trackKey => { return trackKey; },
+//     true
+// )
 
 /** Program Args **/
 

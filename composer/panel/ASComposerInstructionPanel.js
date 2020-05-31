@@ -32,10 +32,10 @@ export default class ASComposerInstructionPanel extends React.Component {
             let paramValue = instructionData[argIndex];
             switch(argType) {
                 case ArgType.command:
-                case ArgType.trackKey:
+                // case ArgType.trackKey:
                 case ArgType.duration:
                 case ArgType.frequency:
-                case ArgType.trackOffset:
+                case ArgType.offset:
                 case ArgType.trackName:
                 default:
                     return this.renderDropDownForm(argType, argIndex, paramValue);
@@ -65,7 +65,7 @@ export default class ASComposerInstructionPanel extends React.Component {
             <ASUIInputRange
                 // className="velocity"
                 onChange={(newVelocity) => {
-                    composer.instructionReplaceArg(composer.state.selectedTrack, composer.state.selectedTrackIndices, argIndex, newVelocity);
+                    composer.instructionReplaceArgByType(composer.state.selectedTrack, composer.state.selectedTrackIndices, argType, newVelocity);
                 }}
                 value={paramValue || 0}
                 min={1}

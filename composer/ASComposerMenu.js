@@ -297,7 +297,8 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue=null) {
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
-                this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
+                // this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
+                this.instructionReplaceArgByType(this.state.selectedTrack, this.state.selectedTrackIndices, argType, newArgValue);
             }
         }
         switch(argType) {

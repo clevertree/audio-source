@@ -7,6 +7,7 @@ import {ASUIButton, ASUIButtonDropDown} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager.native";
 import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
 import {InstructionIterator} from "../../song";
+import {ArgType} from "../../common";
 
 
 // TODO: ASCTrackRowContainer
@@ -582,7 +583,7 @@ export default class ASCTrackBase extends React.Component {
                     const selectedIndices = this.getSelectedIndices();
                     // const {cursorIndex} = this.cursorGetInfo()
                     if(selectedIndices && selectedIndices.length > 0) {
-                        composer.instructionReplaceCommand(this.getTrackName(), selectedIndices, keyboardCommand);
+                        composer.instructionReplaceArgByType(this.getTrackName(), selectedIndices, ArgType.frequency, keyboardCommand);
 
                     } else {
                         composer.instructionInsertAtCursor(this.getTrackName(), keyboardCommand);

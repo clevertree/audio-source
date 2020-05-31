@@ -33,10 +33,11 @@ export default class ConfigListener {
             case 'splice': return (number, deleteCount, ...newValues) => this.splice(obj, this.path.concat(number), number, deleteCount, ...newValues);
             default:
                 const path = this.path.concat(prop);
-                if(typeof obj[prop] === 'object') {
-                    return new Proxy(obj[prop], new ConfigListener(this.song, path));
+                const value = obj[prop];
+                if(typeof value === 'object' && value !== null) {
+                    return new Proxy(value, new ConfigListener(this.song, path));
                 }
-                return obj[prop];
+                return value;
         }
     }
 

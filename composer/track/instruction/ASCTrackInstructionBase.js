@@ -65,7 +65,7 @@ export default class ASCTrackInstructionBase extends React.Component {
                     className += ' frequency';
                     break;
 
-                case ArgType.trackOffset:
+                case ArgType.offset:
                     className += ' offset';
                     param = this.formatDuration(param);
                     break;
@@ -182,13 +182,13 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     /** @deprecated **/
-    instructionReplaceCommand(command) {
-        this.getComposer().instructionReplaceCommand(
-            this.getTrackName(),
-            this.props.index,
-            command,
-        )
-    }
+    // instructionReplaceCommand(command) {
+    //     this.getComposer().instructionReplaceCommand(
+    //         this.getTrackName(),
+    //         this.props.index,
+    //         command,
+    //     )
+    // }
 
     // instructionReplaceProgram(programID) {
     //     this.getSong().instructionReplaceProgram(
@@ -200,20 +200,20 @@ export default class ASCTrackInstructionBase extends React.Component {
     // }
 
     /** @deprecated **/
-    instructionReplaceVelocity(velocity) {
-        this.getComposer().instructionReplaceVelocity(
-            this.getTrackName(),
-            this.props.index,
-            velocity);
-        this.playInstruction();
-    }
+    // instructionReplaceVelocity(velocity) {
+    //     this.getComposer().instructionReplaceVelocity(
+    //         this.getTrackName(),
+    //         this.props.index,
+    //         velocity);
+    //     this.playInstruction();
+    // }
 
     /** @deprecated **/
-    instructionReplaceDuration(duration) {
-        this.getComposer().instructionReplaceDuration(
-            this.getTrackName(),
-            this.props.index,
-            duration);
-        this.playInstruction();
-    }
+    // instructionReplaceDuration(duration) {
+    //     this.getComposer().instructionReplaceDuration(
+    //         this.getTrackName(),
+    //         this.props.index,
+    //         duration);
+    //     this.playInstruction();
+    // }
 }

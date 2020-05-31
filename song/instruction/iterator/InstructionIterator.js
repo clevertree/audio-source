@@ -1,3 +1,5 @@
+import {Values} from "../../../common";
+
 export default class InstructionIterator {
     constructor(instructionList, stats={}, instructionCallback=null) {
         this.instructions = instructionList;
@@ -63,7 +65,7 @@ export default class InstructionIterator {
         // console.log('incrementPositionByDelta', deltaDurationTicks);
         stats.positionTicks += deltaDurationTicks;
 
-        const elapsedTime = (deltaDurationTicks / stats.timeDivision) / (stats.beatsPerMinute / 60);
+        const elapsedTime = Values.durationTicksToSeconds(deltaDurationTicks, stats.timeDivision, stats.beatsPerMinute);
         stats.positionSeconds += elapsedTime;
         // this.lastInstructionPositionInSeconds = this.positionSeconds;
     }
@@ -126,7 +128,7 @@ export default class InstructionIterator {
         const stats = this.stats;
         while (!this.hasReachedEnd()) {
             const nextInstructionData = this.getInstructionData(stats.currentIndex + 1);
-            const elapsedTime = (nextInstructionData[0] / stats.timeDivision) / (stats.beatsPerMinute / 60);
+            const elapsedTime = Values.durationTicksToSeconds(nextInstructionData[0], stats.timeDivision, stats.beatsPerMinute);
             if(stats.positionSeconds + elapsedTime >= positionSeconds) {
                 break;
             }
