@@ -13,9 +13,10 @@ to work on all platforms from web browsers to desktops applications to mobile de
 
 ## What's Currently Working:
 * Add, edit, and delete notes and note tracks.
-* Recursively play back tracks by adding a 'Track Note'.
 * Edit note velocity and duration.
-* Quarter Tone Compatibility 
+* Quarter Tone Compatibility (missing in MIDI)
+* Recursively play back tracks by adding a 'Track Note'.
+* Track Note Transposing (play back tracks at different frequencies)
 
 ## Under the Hood:
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.

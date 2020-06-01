@@ -20,17 +20,11 @@ ArgType.destination = new ArgType(
 )
 
 
-ArgType.startTime = new ArgType(
-    "Start Time",
-    (arg, stats) => {
-        const startTime = stats.startTime
-            + stats.positionSeconds; // start time equals current track's start + playback times
-        if(stats.onInstructionStart)
-            stats.onInstructionStart(startTime, stats);
-        return startTime;
-    },
-    (arg, stats) => { return arg; },
-    false
+ArgType.command = new ArgType(
+    "Command",
+    command => { return command; },
+    command => { return command; },
+    true
 )
 
 
@@ -39,6 +33,8 @@ ArgType.frequency = new ArgType(
     (frequency, stats) => {
         if(typeof frequency === "string")
             frequency = Values.instance.parseFrequencyString(frequency);
+        if(stats.transpose)
+            frequency /= stats.transpose;
         return frequency;
     },
     (frequency, song) => {
@@ -51,11 +47,12 @@ ArgType.frequency = new ArgType(
 ArgType.duration = new ArgType(
     "Duration",
     (durationTicks, stats) => {
-        const startTime = stats.startTime
-            + stats.positionSeconds; // start time equals current track's start + playback times
         const durationSeconds = Values.durationTicksToSeconds(durationTicks, stats.timeDivision, stats.beatsPerMinute);
-        if(stats.onInstructionEnd)
+        if(stats.onInstructionEnd) {
+            const startTime = stats.startTime
+                + stats.positionSeconds; // start time equals current track's start + playback times
             stats.onInstructionEnd(startTime + durationSeconds, stats);
+        }
         return durationSeconds;
     },
     (durationTicks, values) => {
@@ -77,6 +74,20 @@ ArgType.velocity = new ArgType(
 )
 
 
+ArgType.startTime = new ArgType(
+    "Start Time",
+    (arg, stats) => {
+        const startTime = stats.startTime
+            + stats.positionSeconds; // start time equals current track's start + playback times
+        if(stats.onInstructionStart)
+            stats.onInstructionStart(startTime, stats);
+        return startTime;
+    },
+    (arg, stats) => { return arg; },
+    false
+)
+
+
 ArgType.onended = new ArgType(
     "Note End",
     callback => { return callback; },
@@ -84,11 +95,14 @@ ArgType.onended = new ArgType(
     false
 )
 
-
-ArgType.command = new ArgType(
-    "Command",
-    command => { return command; },
-    command => { return command; },
+ArgType.offset = new ArgType(
+    "Offset",
+    (offsetDurationTicks, stats) => {
+        return Values.durationTicksToSeconds(offsetDurationTicks, stats.timeDivision, stats.beatsPerMinute);
+    },
+    (offsetTicks, values) => {
+        return values.formatDuration(offsetTicks);
+    },
     true
 )
 
@@ -96,17 +110,21 @@ ArgType.command = new ArgType(
 
 ArgType.trackName = new ArgType(
     "Track Name",
-    trackName => { return trackName; },
+    trackName => {
+        if(trackName[0] === '@')
+            return trackName.substr(1);
+        return trackName;
+    },
     trackName => { return trackName; },
     true
 )
 
-ArgType.trackCommand = new ArgType(
-    "Track Command",
-    trackName => { return trackName; },
-    trackName => { return trackName; },
-    true
-)
+// ArgType.trackCommand = new ArgType(
+//     "Track Command",
+//     trackName => { return trackName; },
+//     trackName => { return trackName; },
+//     true
+// )
 
 // ArgType.trackDuration = new ArgType(
 //     "Track Duration",
@@ -116,15 +134,6 @@ ArgType.trackCommand = new ArgType(
 //     },
 //     true
 // )
-
-ArgType.offset = new ArgType(
-    "Offset",
-    trackOffset => { return trackOffset; },
-    (offsetTicks, values) => {
-        return values.formatDuration(offsetTicks);
-    },
-    true
-)
 
 // ArgType.trackKey = new ArgType(
 //     "Track Key",
@@ -143,4 +152,8 @@ ArgType.program = new ArgType(
 )
 
 
-
+// TF + NF
+// C4 + A4 = A4;
+// C4 + C4 = C4;
+// D4 + C4 = D4;
+// C4 + D4 = D4;

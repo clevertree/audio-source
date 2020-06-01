@@ -1,7 +1,7 @@
 import {ArgType} from "../index";
 
 export default class InstructionProcessor {
-    static trackCommand = [ArgType.trackCommand, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity]
+    static trackCommand = [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity]
 
     constructor(instructionData, programClass=DummyProgram) {
         this.instructionData = instructionData;

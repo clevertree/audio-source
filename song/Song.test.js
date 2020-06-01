@@ -46,20 +46,20 @@ class SongTest {
 
   testValues() {
     const values = [
-      ['A3', 220],
-      ['B3', 247],
-      ['C4', 262],
-      ['D4', 294],
-      ['E4', 330],
-      ['F4', 349],
-      ['G4', 392],
-      ['A4', 440],
-      ['B4', 494],
+      ['A3', 216],
+      ['B3', 242],
+      ['C4', 257],
+      ['D4', 288],
+      ['E4', 324],
+      ['F4', 343],
+      ['G4', 385],
+      ['A4', 432],
+      ['B4', 485],
     ];
     for(let i=0; i<values.length; i++) {
       const [note, expFreq] = values[i];
       const freq = (new Values()).parseFrequencyString(note);
-      expect(Math.round(expFreq)).toBe(Math.round(freq));
+      expect((expFreq)).toBe(Math.round(freq));
     }
 
   }

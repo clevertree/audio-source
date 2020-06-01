@@ -1,6 +1,6 @@
 import InstructionIterator from "../instruction/iterator/InstructionIterator";
 import InstructionProcessor from "../../common/program/InstructionProcessor";
-import {ArgType} from "../../common";
+import {ArgType, Values} from "../../common";
 
 
 export default class TrackIterator {
@@ -51,18 +51,26 @@ export default class TrackIterator {
     }
 
 
-    onPlayTrack(trackStats, trackName) {
-        // console.log("onPlayTrack", trackStats.trackName, params);
+    onPlayTrack(trackStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
         const subTrackStats = {
             // program: trackStats.program,            // Current program which all notes route through
             // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
             startTime: trackStats.startTime + trackStats.positionSeconds,
-            startPosition: trackStats.positionSeconds,
+            startPosition: trackStartTime, // trackStats.positionSeconds,
             trackName,
             beatsPerMinute: trackStats.beatsPerMinute,
             timeDivision: trackStats.timeDivision, // Time division is passed to sub-groups
         };
+        if(trackFrequency !== null)
+            subTrackStats.transpose = Values.FREQ_A4 / trackFrequency;
+
+        if(trackStats.program)
+            subTrackStats.program = trackStats.program;
+        if(trackStats.destination)
+            subTrackStats.destination = trackStats.destination;
+
+        console.log("onPlayTrack", trackName, trackDuration, trackStartTime, trackFrequency, subTrackStats);
         // TODO: process track instruction parameters
         this.startTrackIteration(subTrackStats);
         return subTrackStats;
@@ -82,11 +90,20 @@ export default class TrackIterator {
                 break;
 
             case 'playTrack':
+                if(!this.filterProgramCommand(commandString, stats))
+                    break;
                 // case 't':
-                let trackName = instructionData[1][0] === '@'
-                    ? instructionData[1].substr(1)
-                    : instructionData[2];
-                this.onPlayTrack(stats, trackName)
+
+                if(instructionData[1][0] === '@') {
+                } else {
+                    instructionData = instructionData.slice().splice(1, 1);
+                }
+                let trackArgs = this.processArgList(stats, instructionData, InstructionProcessor.trackCommand);
+
+                // let trackName = instructionData[1][0] === '@'
+                //     ? instructionData[1].substr(1)
+                //     : instructionData[2];
+                this.onPlayTrack(stats, ...trackArgs)
                 break;
 
             // case 'playFrequency':
@@ -106,32 +123,17 @@ export default class TrackIterator {
                 //     return console.error(`Program ${program.constructor.name} does not have method: ${commandString}`);
 
 
-                let newArgs = [];
-                let argPosition = 1;
+                let programArgs;
                 if(argTypeList) {
-                    for (let i = 0; i < argTypeList.length; i++) {
-                        const argType = argTypeList[i];
-                        if (argType.consumesArgument) {
-                            if(typeof instructionData[argPosition] !== "undefined") {
-                                const arg = argType.process(instructionData[argPosition], stats);
-                                newArgs.push(arg);
-                                if (argType === ArgType.duration)
-                                    this.processDuration(instructionData[argPosition], newArgs[i], stats);
-                                argPosition++
-                            }
-                        } else {
-                            const arg = argType.process(null, stats);
-                            newArgs.push(arg);
-                        }
-                    }
+                    programArgs = this.processArgList(stats, instructionData, argTypeList);
                 } else {
-                    newArgs = instructionData.slice(1);
+                    programArgs = instructionData.slice(1);
                 }
 
                 // TODO: calculate bpm changes
 
                 // Execute command:
-                this.onExecuteProgram(stats, commandString, newArgs);
+                this.onExecuteProgram(stats, commandString, programArgs);
                 break;
 
 
@@ -149,6 +151,26 @@ export default class TrackIterator {
 
     }
 
+    processArgList(stats, instructionData, argTypeList) {
+        let newArgs = [];
+        let argIndex = 1;
+        for (let i = 0; i < argTypeList.length; i++) {
+            const argType = argTypeList[i];
+            if (argType.consumesArgument) {
+                if(typeof instructionData[argIndex] !== "undefined") {
+                    const arg = argType.process(instructionData[argIndex], stats);
+                    newArgs.push(arg);
+                    if (argType === ArgType.duration)
+                        this.processDuration(instructionData[argIndex], newArgs[i], stats);
+                    argIndex++
+                }
+            } else {
+                const arg = argType.process(null, stats);
+                newArgs.push(arg);
+            }
+        }
+        return newArgs;
+    }
 
 
     processDuration(durationTicks, durationSeconds, stats) {
@@ -250,8 +272,8 @@ export default class TrackIterator {
                 finished = false;
             } else {
                 // TODO: update parent stats with end position?
-                // const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
-                // console.log("Track ends: ", endPositionSeconds);
+                const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
+                console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
             }
         }
         return finished;

@@ -302,7 +302,7 @@ class ASComposerMenu extends ASComposerRenderer {
             }
         }
         switch(argType) {
-            case ArgType.trackCommand:
+            // case ArgType.trackCommand:
             case ArgType.command:
             default:
                 return this.values.renderMenuSelectCommand(onSelectValue, paramValue);

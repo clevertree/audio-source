@@ -45,12 +45,12 @@ export default class TrackPlayback extends TrackIterator {
     }
 
 
-    onPlayTrack(trackStats, trackName) {
-        const subTrackStats = super.onPlayTrack(trackStats, trackName)
-
-        subTrackStats.program = trackStats.program;
-        subTrackStats.destination = trackStats.destination;
-    }
+    // onPlayTrack(trackStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+    //     const subTrackStats = super.onPlayTrack(trackStats, trackName, trackDuration, trackStartTime, trackFrequency);
+    //
+    //     subTrackStats.program = trackStats.program;
+    //     subTrackStats.destination = trackStats.destination;
+    // }
 
     onLoadProgram(trackStats, program) {
 

@@ -81,14 +81,14 @@ class GMEPlayerSynthesizer {
 
     }
 
-    getFrequencyFromAlias(aliasName) {
-        return null;
-    }
-
-    getCommandFrequency(command) {
-        const keyNumber = this.getCommandKeyNumber(command);
-        return 440 * Math.pow(2, (keyNumber - 49) / 12);
-    }
+    // getFrequencyFromAlias(aliasName) {
+    //     return null;
+    // }
+    //
+    // getCommandFrequency(command) {
+    //     const keyNumber = this.getCommandKeyNumber(command);
+    //     return 440 * Math.pow(2, (keyNumber - 49) / 12);
+    // }
 
     getCommandKeyNumber(command) {
         if (Number(command) === command && command % 1 !== 0)

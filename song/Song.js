@@ -811,7 +811,7 @@ class Song {
         if(selectedIndices.length > 0) {
             const playback = new TrackPlayback(destination, this, trackName, function (commandString, trackStats) {
                 if (trackStats.trackName !== trackName)
-                    return null;
+                    return true;
                 const index = trackStats.currentIndex;
                 return selectedIndices.indexOf(index) !== -1;
             })

@@ -5,6 +5,7 @@ import {ASUIInputRange} from "../../components";
 import ProgramLoader from "../program/ProgramLoader";
 
 class Values {
+    static FREQ_A4 = 432;
     static instance = new Values();
 
     /** Menus **/
@@ -302,7 +303,8 @@ class Values {
 
     parseFrequencyString(noteString) {
         const {keyNumber} = this.parseFrequencyParts(noteString);
-        return 440 * Math.pow(2, (keyNumber - 98) / 24);
+        return Values.FREQ_A4 * Math.pow(2, (keyNumber - 98) / 24);
+        // TODO: tune A4 to 440/432hz
     }
 
     parseFrequencyParts(noteString) {
