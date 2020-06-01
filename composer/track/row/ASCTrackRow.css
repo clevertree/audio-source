@@ -6,7 +6,7 @@ div.asct-row {
     cursor: pointer;
     background-color: #C0C0C0;
     /*height: 1.45em;*/
-    position: relative;
+    /*position: relative;*/
     border: 1px outset #DDD;
     padding: 0px;
 }

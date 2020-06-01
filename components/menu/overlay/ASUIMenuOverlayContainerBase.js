@@ -9,7 +9,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
             openOverlay: false
         };
         this.cb = {
-            closeAllMenus: () => this.closeAllMenus(),
+            closeAllMenus: e => this.closeAllMenus(e),
         };
         this.openMenus =  [];
         this.updateOverlayTimeout = null;
@@ -83,7 +83,8 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
 
     closeAllMenus(e) {
-        this.closeMenus(e, []);
+        e && e.preventDefault();
+        this.closeMenus([]);
         this.setState({
             open: false,
             openOverlay: false,

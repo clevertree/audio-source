@@ -1,7 +1,10 @@
 import React from "react";
 
-import "./ASUIDropDownContainer.css";
 import ASUIDropDownContainerBase from "./ASUIDropDownContainerBase";
+import "./ASUIDropDownContainer.css";
+
+
+// TODO: dropdown menus should be rendered in overlay, not within clickable
 
 export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
@@ -17,7 +20,15 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         let className = 'asui-menu-dropdown';
         if (this.props.vertical)
             className += ' vertical';
+        const style = {};
+        if(this.props.clientPosition) {
+            style.position = 'fixed';
+            style.left = this.props.clientPosition[0];
+            style.top = this.props.clientPosition[1];
+        }
+
         return <div
+            style={style}
             className={className}
             children={options}
             ref={this.divRef}
@@ -29,6 +40,7 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             return;
         const div = this.divRef.current;
         const rect = div.getBoundingClientRect();
+        // console.log(rect, this.props.clientPosition);
         if(rect.right > window.innerWidth)
             div.classList.add('overflow-right');
         if(rect.bottom > window.innerHeight)

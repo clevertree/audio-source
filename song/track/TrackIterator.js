@@ -70,7 +70,7 @@ export default class TrackIterator {
         if(trackStats.destination)
             subTrackStats.destination = trackStats.destination;
 
-        console.log("onPlayTrack", trackName, trackDuration, trackStartTime, trackFrequency, subTrackStats);
+        // console.log("onPlayTrack", trackName, trackDuration, trackStartTime, trackFrequency, subTrackStats);
         // TODO: process track instruction parameters
         this.startTrackIteration(subTrackStats);
         return subTrackStats;
@@ -273,7 +273,7 @@ export default class TrackIterator {
             } else {
                 // TODO: update parent stats with end position?
                 const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
-                console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
+                // console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
             }
         }
         return finished;

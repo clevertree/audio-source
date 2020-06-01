@@ -149,7 +149,7 @@ class Values {
             <ASUIInputRange
                 min={0}
                 max={127}
-                value={currentVelocity}
+                value={currentVelocity || 0}
                 onChange={(mixerValue) => onSelectValue(mixerValue)}
             />
             <ASUIMenuBreak/>

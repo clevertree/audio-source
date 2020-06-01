@@ -62,6 +62,7 @@ class ASCTrackRow extends React.Component {
                 /> : null}
                 <ASCTrackDelta duration={rowDeltaDuration}/>
                 {this.state.menuOpen ? <ASUIDropDownContainer
+                    clientPosition={this.state.clientPosition}
                     // ref={this.dropdown}
                     options={() => this.renderRowMenu()}
                     onClose={() => this.closeDropDown()}
@@ -74,25 +75,23 @@ class ASCTrackRow extends React.Component {
     /** Drop Down Menu **/
 
     openDropDown() {
-        this.setState({open: true, stick: false});
+        this.setState({menuOpen: true});
     }
 
-    stickDropDown() {
-        this.setState({open: true, stick: true});
-    }
+    // stickDropDown() {
+    //     this.setState({menuOpen: true});
+    // }
 
     closeDropDown() {
-        this.setState({open: false, stick: false});
+        this.setState({menuOpen: false});
     }
 
 
-    toggleMenu() {
-        if (!this.state.open)
-            this.openDropDown();
-        else if (!this.state.stick)
-            this.stickDropDown();
-        else
-            this.closeDropDown();
+    toggleMenu(e) {
+        const state = {menuOpen: !this.state.menuOpen};
+        if(e)
+            state.clientPosition = [e.clientX, e.clientY];
+        this.setState(state);
     }
 
     /** Actions **/
@@ -160,7 +159,7 @@ class ASCTrackRow extends React.Component {
         if (e.defaultPrevented || e.shiftKey)
             return;
         e.preventDefault();
-        this.toggleMenu();
+        this.toggleMenu(e);
     }
 
     onKeyDown(e) {

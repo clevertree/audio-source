@@ -58,8 +58,8 @@ export default class ASUIClickable extends React.Component {
 
     getOverlay() { return this.context.overlay; }
 
-    closeAllDropDownMenus() {
-        this.getOverlay().closeAllMenus();
+    closeAllDropDownMenus(e) {
+        this.getOverlay().closeAllMenus(e);
     }
 
 }
