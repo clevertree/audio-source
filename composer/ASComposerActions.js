@@ -369,12 +369,7 @@ class ASComposerActions extends ASComposerMenu {
 
         newInstructionData = Instruction.parseInstructionData(newInstructionData);
         newInstructionData[0] = 0;
-        // this.setState({currentCommand: newInstruction.command}); // TODO: redundant?
-        // if(this.state.currentDuration) // TODO: append all current args
-        //     newInstructionData.durationTicks = this.song.values.parseDurationAsTicks(this.state.currentDuration);
-        // if(this.state.currentVelocity) // TODO: append all current args
-        //     newInstructionData.velocity = this.state.currentVelocity;
-        // this.setState({activeTracks});
+
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
         if(select)      this.trackerSelectIndices(trackName, index);
         if(playback)    this.trackerPlay(trackName, index);
@@ -576,6 +571,7 @@ class ASComposerActions extends ASComposerMenu {
         if(trackStats)
             state.activeTracks[trackName] = trackStats;
         this.setState(state);
+        return selectedIndices;
         // if(instruction instanceof NoteInstruction) {
         //     state.currentInstructionType = 'note';
         //     if(typeof instruction.durationTicks !== "undefined")

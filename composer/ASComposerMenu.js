@@ -142,7 +142,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     /** Edit Menu **/
 
-    renderMenuEdit(currentCommand=null, selectedIndices=null) {
+    renderMenuEdit(selectedIndices=null) {
         // const selectedTrackName = this.state.selectedTrack;
         // const activeTrack = this.getActiveTrack(selectedTrackName);
         if(selectedIndices === null)
@@ -180,88 +180,6 @@ class ASComposerMenu extends ASComposerRenderer {
             "New Command"
         );
     }
-
-
-    // renderMenuEditInsertCommandFrequency(trackName=null) {
-    //     return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
-    // }
-
-
-    // renderMenuEditInsertCommandOctave(trackName=null) {
-    //     return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
-    // }
-
-    // renderMenuEditInsertCommandCurrentOctave(octave=null) {
-    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
-    // }
-
-
-
-
-    // renderMenuEditSet(currentCommand=null, currentDuration=null, currentVelocity=null) {
-    //     return (<>
-    //         <ASUIMenuDropDown
-    //             options={() => this.renderMenuEditSetCommand(currentCommand)}
-    //             children="Set Command"
-    //         />
-    //         <ASUIMenuDropDown
-    //             options={() => this.renderMenuEditSetDuration(currentDuration)}
-    //             children="Set Duration"
-    //         />
-    //         <ASUIMenuDropDown
-    //             options={() => this.renderMenuEditSetVelocity(currentVelocity)}
-    //             children="Set Velocity"
-    //         />
-    //     </>);
-    // }
-
-
-    // renderMenuEditSetCommand(trackName = null, currentCommand=null) {
-    //     return this.values.renderMenuSelectCommand(newCommand => {
-    //             this.instructionReplaceCommandPrompt(trackName, null, newCommand, false);
-    //         },
-    //         this.state.selectedInstructionData[1]
-    //     );
-    // }
-
-    // renderMenuEditSetProgram() {
-    //     return this.values.getSongPrograms((programID, programClass, programInfo) =>
-    //         <MenuAction key={programID} onAction={e => this.instructionReplaceProgram(programID)}  >
-    //             {programID}: {programInfo.title || programClass}
-    //         </MenuAction>
-    //     );
-    // }
-
-    // renderMenuEditSetDuration(currentDuration=null) {
-    //     return this.values.renderMenuSelectDuration(durationTicks => {
-    //             this.instructionReplaceDurationPrompt(null, null, durationTicks, false);
-    //         },
-    //         this.song.data.timeDivision,
-    //         currentDuration || this.state.currentDuration,
-    //     );
-    //
-    // }
-
-    // renderMenuEditSetVelocity(currentVelocity=null) {
-    //     return this.values.renderMenuSelectVelocity(velocity => {
-    //             this.instructionReplaceVelocityPrompt(null, null, velocity, false);
-    //         },
-    //         currentVelocity || this.state.currentVelocity,
-    //     );
-    // }
-
-    // renderMenuEditSetCommandFrequency() {
-    //     return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
-    // }
-
-    // renderMenuEditSetCommandCurrentOctave(octave=null) {
-    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.trackerReplaceSelectedInstructions(noteNameOctave, false), octave);
-    // }
-
-    // renderMenuEditSetCommandOctave() {
-    //     return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
-    // }
-
 
 
 
@@ -480,6 +398,89 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuAction onAction={e => this.trackRemove(trackName)}     >Delete group {trackName}</ASUIMenuAction>
         </>);
     }
+
+
+    // renderMenuEditInsertCommandFrequency(trackName=null) {
+    //     return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
+    // }
+
+
+    // renderMenuEditInsertCommandOctave(trackName=null) {
+    //     return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionInsertAtCursorPrompt(trackName, noteNameOctave, false));
+    // }
+
+    // renderMenuEditInsertCommandCurrentOctave(octave=null) {
+    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.instructionInsert(noteNameOctave, false), octave);
+    // }
+
+
+
+
+    // renderMenuEditSet(currentCommand=null, currentDuration=null, currentVelocity=null) {
+    //     return (<>
+    //         <ASUIMenuDropDown
+    //             options={() => this.renderMenuEditSetCommand(currentCommand)}
+    //             children="Set Command"
+    //         />
+    //         <ASUIMenuDropDown
+    //             options={() => this.renderMenuEditSetDuration(currentDuration)}
+    //             children="Set Duration"
+    //         />
+    //         <ASUIMenuDropDown
+    //             options={() => this.renderMenuEditSetVelocity(currentVelocity)}
+    //             children="Set Velocity"
+    //         />
+    //     </>);
+    // }
+
+
+    // renderMenuEditSetCommand(trackName = null, currentCommand=null) {
+    //     return this.values.renderMenuSelectCommand(newCommand => {
+    //             this.instructionReplaceCommandPrompt(trackName, null, newCommand, false);
+    //         },
+    //         this.state.selectedInstructionData[1]
+    //     );
+    // }
+
+    // renderMenuEditSetProgram() {
+    //     return this.values.getSongPrograms((programID, programClass, programInfo) =>
+    //         <MenuAction key={programID} onAction={e => this.instructionReplaceProgram(programID)}  >
+    //             {programID}: {programInfo.title || programClass}
+    //         </MenuAction>
+    //     );
+    // }
+
+    // renderMenuEditSetDuration(currentDuration=null) {
+    //     return this.values.renderMenuSelectDuration(durationTicks => {
+    //             this.instructionReplaceDurationPrompt(null, null, durationTicks, false);
+    //         },
+    //         this.song.data.timeDivision,
+    //         currentDuration || this.state.currentDuration,
+    //     );
+    //
+    // }
+
+    // renderMenuEditSetVelocity(currentVelocity=null) {
+    //     return this.values.renderMenuSelectVelocity(velocity => {
+    //             this.instructionReplaceVelocityPrompt(null, null, velocity, false);
+    //         },
+    //         currentVelocity || this.state.currentVelocity,
+    //     );
+    // }
+
+    // renderMenuEditSetCommandFrequency() {
+    //     return this.renderMenuSelectCommandByFrequency(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
+    // }
+
+    // renderMenuEditSetCommandCurrentOctave(octave=null) {
+    //     return this.renderMenuSelectCommandByCurrentOctave((noteNameOctave) => this.trackerReplaceSelectedInstructions(noteNameOctave, false), octave);
+    // }
+
+    // renderMenuEditSetCommandOctave() {
+    //     return this.renderMenuSelectCommandByOctave(noteNameOctave => this.instructionReplaceCommandSelected(noteNameOctave));
+    // }
+
+
 
 }
 

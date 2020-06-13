@@ -105,7 +105,7 @@ export default class InstructionIterator {
 
     seekToIndex(index, callback=null) {
         if (!Number.isInteger(index))
-            throw new Error("Invalid seek index");
+            throw new Error("Invalid seek index: " + typeof index);
         const stats = this.stats;
         while (index > stats.currentIndex) {
             const instruction = this.nextInstructionData();

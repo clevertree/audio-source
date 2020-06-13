@@ -34,7 +34,11 @@ export default class ASUIMenuDropDown extends ASUIClickable {
     }
 
 
-    getClassName() { return 'asui-menu-item action'; }
+    getClassName() {
+        return 'asui-menu-item action'
+            + (this.props.disabled ? ' disabled' : '')
+            + (this.state.open ? ' open' : '');
+    }
 
     renderChildren(props = {}) {
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
@@ -95,7 +99,9 @@ export default class ASUIMenuDropDown extends ASUIClickable {
     }
 
     closeDropDown() {
-        this.setState({open: false, stick: false});
+        this.setState({open: false, stick: false}, () => {
+            this.getOverlay().updateOverlay();
+        });
     }
 
 

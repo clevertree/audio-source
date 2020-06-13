@@ -45,6 +45,10 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay})
     }
+    openOverlay() {
+        if(this.state.openOverlay !== true)
+            this.setState({openOverlay: true});
+    }
 
     isHoverEnabled() {
         return !this.props.isActive && (this.state.openOverlay || this.openMenus.length > 0);
@@ -58,7 +62,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         if(i === -1)
             this.openMenus.push([menuItem, closeMenuCallback]);
         // console.log('this.openMenus', this.openMenus);
-        setTimeout(() => this.updateOverlay(), 10);
+        setTimeout(() => this.updateOverlay(), 10); // TODO: ugly?
     }
 
     removeCloseMenuCallback(menuItem) {
@@ -99,18 +103,17 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         if(typeof options === "function")
             options = options(this);
 
-        this.setState({
-            open: true,
-            openOverlay: true,
-            options
-        });
+        // Delay menu open
+        setTimeout(() =>
+            this.setState({
+                open: true,
+                openOverlay: true,
+                options
+            })
+            , 1);
         return true;
     }
 
-    openOverlay() {
-        if(this.state.openOverlay !== true)
-            this.setState({openOverlay: true});
-    }
     //
     // closeOverlay() {
     //     this.setState({

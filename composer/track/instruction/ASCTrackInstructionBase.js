@@ -11,10 +11,10 @@ export default class ASCTrackInstructionBase extends React.Component {
     static propTypes = {
         index: PropTypes.number.isRequired,
         instruction: PropTypes.any.isRequired,
-        tracker: PropTypes.any.isRequired,
+        track: PropTypes.any.isRequired,
         cursorPosition: PropTypes.number.isRequired,
-        selected: PropTypes.bool.isRequired,
-        cursor: PropTypes.bool.isRequired
+        // selected: PropTypes.bool.isRequired,
+        // cursor: PropTypes.bool.isRequired
     };
 
     constructor(props) {
@@ -30,7 +30,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     //     const composer = this.props.composer;
     //     composer.song.playInstructionAtIndex(destination, this.state.track.currentGroup, this.index, composer.song.getAudioContext().currentTime);
     //     return this;
-    getTracker() { return this.props.tracker; }
+    getTracker() { return this.props.track; }
     getTrackName() { return this.getTracker().getTrackName(); }
     getComposer() { return this.getTracker().props.composer; }
     getSong() { return this.getComposer().getSong(); }
@@ -96,9 +96,9 @@ export default class ASCTrackInstructionBase extends React.Component {
 
     /** Actions **/
 
-    toggleDropDownMenu(menuOpen = !this.state.menuOpen) {
-        this.setState({menuOpen});
-    }
+    // toggleDropDownMenu(menuOpen = !this.state.menuOpen) {
+    //     this.setState({menuOpen});
+    // }
 
     playInstruction(destination=null) {
         // this.getTracker().getTrackInfo().updateCurrentInstruction(); // Hack
@@ -149,8 +149,8 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     renderMenuEditSet() {
-        const selectedIndices = this.getTracker().getSelectedIndices();
-        return this.getComposer().renderMenuEdit(this.getInstructionCommand(), selectedIndices);
+        // const selectedIndices = this.getTracker().getSelectedIndices();
+        return this.getComposer().renderMenuEdit();
     }
 
     // }

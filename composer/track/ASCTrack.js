@@ -2,11 +2,16 @@ import * as React from "react";
 import ASCTrackBase from "./ASCTrackBase";
 
 import "./ASCTrack.css";
+import {ASUIDropDownContainer} from "../../components/menu";
+import ASCTrackRowContainer from "./row-container/ASCTrackRowContainer";
 
 export default class ASCTrack extends ASCTrackBase {
     constructor(props) {
         super(props);
         this.container = React.createRef();
+        // this.state.clientPosition = null;
+        // this.cb.onContextMenu = e => this.onContextMenu(e);
+
     }
 
     // componentDidMount() {
@@ -23,19 +28,27 @@ export default class ASCTrack extends ASCTrackBase {
 
     /** User Input **/
 
-    onWheel(e) {
-        e.preventDefault();
-        let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
-        rowOffset += e.deltaY > 0 ? 1 : -1;
-        if(rowOffset < 0)
-            rowOffset = 0; // return console.log("Unable to scroll past beginning");
-
-        this.setRowOffset(rowOffset);
-        // console.log('onWheel', e.deltaY);
-        // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
-        // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
-        // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
-    }
+    // onWheel(e) {
+    //     e.preventDefault();
+    //     let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
+    //     rowOffset += e.deltaY > 0 ? 1 : -1;
+    //     if(rowOffset < 0)
+    //         rowOffset = 0; // return console.log("Unable to scroll past beginning");
+    //
+    //     this.setRowOffset(rowOffset);
+    //     // console.log('onWheel', e.deltaY);
+    //     // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
+    //     // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
+    //     // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
+    // }
+    //
+    // toggleDropDownMenu(e) {
+    //     // console.log(e);
+    //     const state = {menuOpen: !this.state.menuOpen, clientPosition: null};
+    //     if(e)
+    //         state.clientPosition = [e.clientX, e.clientY];
+    //     this.setState(state);
+    // }
 
     /** Render **/
 
@@ -54,6 +67,7 @@ export default class ASCTrack extends ASCTrackBase {
                     {this.getTrackName()}
                 </div>
                 {this.renderContent()}
+
             </div>
         );
     }
@@ -78,20 +92,25 @@ export default class ASCTrack extends ASCTrackBase {
                     {this.renderQuantizationButton()}
                 </div>
             </div>,
-            <div
-                key="row-container"
-                className="row-container"
-                ref={elm => {
-                    elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
-                    // TODO: prevent refresh. use sub component for row content
-                }}
-                tabIndex={0}
-                onKeyDown={this.cb.onKeyDown}
-                // onWheel={this.cb.onWheel}
-            >
-                {this.renderRowContent()}
-            </div>
+            <ASCTrackRowContainer
+                track={this}
+                />
         ]
+    }
+
+    /** Menu **/
+
+    onContextMenu(e) {
+        if(e.defaultPrevented || e.altKey)
+            return;
+        e.preventDefault();
+        this.toggleDropDownMenu(e);
+    }
+
+
+    renderContextMenu() {
+        // const selectedIndices = this.getTracker().getSelectedIndices();
+        return this.getComposer().renderMenuEdit();
     }
 
 }

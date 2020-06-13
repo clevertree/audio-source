@@ -1,0 +1,70 @@
+
+/** ASCTrack **/
+
+/*div.asct-container {*/
+/*    flex: 1 1 auto;*/
+/*}*/
+/*:host(.fullscreen) asui-div.asc-container {*/
+/*    height: 100%;*/
+/*}*/
+
+div.asct-container {
+    /*max-height: 80vh;*/
+    /*overflow-y: auto;*/
+}
+
+
+
+/** ASCTrack **/
+div.asc-track {
+
+    position: relative;
+    vertical-align: top;
+
+    /* height: 100%; */
+    /*overflow: auto;*/
+    /*display: inline-block;*/
+    min-width: 400px;
+}
+
+div.asc-track > div.header {
+    background-color: #333;
+    color: #FFF;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    padding: 2px 6px 0px 6px;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #BBB;
+}
+
+
+
+div.asc-track:not(.selected) > div.header {
+    background-color: #777;
+}
+div.asc-track:not(.selected) {
+    color: #777;
+}
+
+div.asc-track.selected {
+    /*flex: 0.5;*/
+}
+
+
+
+/** ASCTrack Segments **/
+
+div.asc-track > div.buttons {
+    display: flex;
+}
+div.asc-track > div.buttons > div.options {
+    margin-left: auto;
+}
+
+
+div.asc-track > div.buttons-select-track > div.select-track{
+    display: block;
+    text-align: center;
+}

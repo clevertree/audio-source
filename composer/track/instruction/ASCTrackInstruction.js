@@ -14,8 +14,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             // onKeyDown: (e) => this.onKeyDown(e),
             // onMouseDown: e => this.onMouseDown(e),
             onClick: e => this.onClick(e),
-            onContextMenu: e => this.onContextMenu(e),
-            options: () => this.renderMenuEditSet()
+            // onContextMenu: e => this.onContextMenu(e),
+            // options: () => this.renderMenuEditSet()
         };
     }
 
@@ -39,7 +39,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             className={className}
             onKeyDown={this.cb.onKeyDown}
             onClick={this.cb.onClick}
-            onContextMenu={this.cb.onContextMenu}
+            // onContextMenu={this.cb.onContextMenu}
             // onMouseDown={this.cb.onMouseInput} // TODO
             //  : fix inputs
             >
@@ -51,13 +51,13 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
                 </div>
             : this.renderParameters()}
 
-            {this.state.menuOpen ? <ASUIDropDownContainer
-                key="dropdown"
-                ref={this.dropdown}
-                options={this.cb.options}
-                vertical={true}
-                onClose={() => this.toggleDropDownMenu(false)}
-            /> : null}
+            {/*{this.state.menuOpen ? <ASUIDropDownContainer*/}
+            {/*    key="dropdown"*/}
+            {/*    ref={this.dropdown}*/}
+            {/*    options={this.cb.options}*/}
+            {/*    vertical={true}*/}
+            {/*    onClose={() => this.toggleDropDownMenu(false)}*/}
+            {/*/> : null}*/}
         </div>;
     }
 
@@ -78,24 +78,24 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
-        if(e.button === 2) {
-            e.preventDefault();
-            e.stopPropagation();
-            this.toggleDropDownMenu();
-        } else {
+        // if(e.button === 2) {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        //     this.toggleDropDownMenu();
+        // } else {
             this.selectInstructionWithAction(!e.ctrlKey);
-        }
+        // }
     }
 
 
-    onContextMenu(e) {
-        if(e.defaultPrevented || e.altKey)
-            return;
-        e.preventDefault();
-
-        this.selectInstructionWithAction(!e.ctrlKey);
-        this.toggleDropDownMenu();
-    }
+    // onContextMenu(e) {
+    //     if(e.defaultPrevented || e.altKey)
+    //         return;
+    //     e.preventDefault();
+    //
+    //     this.selectInstructionWithAction(!e.ctrlKey);
+    //     this.toggleDropDownMenu();
+    // }
 
 
 

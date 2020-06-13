@@ -26,7 +26,7 @@ class Values {
 
     }
 
-
+a
     renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
         console.log('currentCommand', currentCommand);
         return this.getNoteFrequencies((noteName) =>

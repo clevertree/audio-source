@@ -30,8 +30,9 @@ div.asui-menu-item.action {
 
 
 /** Hover **/
-div.asui-menu-item.action:hover {
-    background-color: #AAA;
+div.asui-menu-item.open,
+div.asui-menu-item:hover {
+    background-color: #999;
 }
 
 /** Disabled Menu **/
