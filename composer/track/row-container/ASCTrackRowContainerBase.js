@@ -71,6 +71,8 @@ export default class ASCTrackRowContainerBase extends React.Component {
         const selectedIndices = track.getSelectedIndices();
         const playingIndices = track.getPlayingIndices();
         const beatsPerMeasureTicks = track.getBeatsPerMeasure() * track.getTimeDivision();
+        const measuresPerSegment = track.getMeasuresPerSegment();
+        const segmentLengthTicks = track.getSegmentLengthTicks();
         const quantizationTicks = track.getQuantizationTicks();
         // const isSelectedTrack = this.isSelectedTrack();
 
@@ -80,6 +82,8 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
         const rows = [];
         let rowInstructions = [];
+
+        console.log('segmentLengthTicks', segmentLengthTicks);
 
         while(rows.length < track.getRowLength()) {
             const nextCursorEntry = iterator.nextCursorPosition();
@@ -106,13 +110,6 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
             } else {
                 const rowDeltaTicks = nextCursorEntry;
-                let highlight = false;
-                if(iterator.getPositionInTicks() % beatsPerMeasureTicks === 0)
-                    highlight = 'measure-start';
-                if(!trackSongPositionFound && trackSongPosition <= iterator.getPositionInSeconds()) {
-                    trackSongPositionFound = true;
-                    highlight = 'position';
-                }
 
                 // if(this.firstCursorRowOffset === null)
                 //     this.firstCursorRowOffset = iterator.cursorPosition;
@@ -125,6 +122,31 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
                 const rowID = iterator.getRowCount();
                 if(rowID >= rowOffset) {
+                    let positionTicks = iterator.getPositionInTicks();
+                    // let segmentID = Math.floor(positionTicks / segmentLengthTicks);
+                    let beatID = Math.floor(positionTicks / quantizationTicks);
+                    let highlight = [beatID % 2 === 0 ? 'even' : 'odd'];
+
+                    // let beatOffset = positionTicks % quantizationTicks;
+                    // let segmentOffsetPerc = beatOffset / quantizationTicks;
+                    // console.log({beatID, segmentOffsetTicks: beatOffset, segmentOffsetPerc})
+
+                    if(positionTicks % segmentLengthTicks === 0) {
+                        highlight.push('segment-start');
+                        // if(rows.length>0)
+                        //     rowsngth>0)
+                        //     rows[rows.length-1].highlight.push('segment-end');
+                    } else if(positionTicks % beatsPerMeasureTicks === 0) {
+                        highlight.push('measure-start');
+                        // if(rows.length>0)
+                        //     rows[rows.length-1].highlight.push('measure-end');
+                    }
+
+                    if(!trackSongPositionFound && trackSongPosition <= iterator.getPositionInSeconds()) {
+                        trackSongPositionFound = true;
+                        highlight.push('position');
+                    }
+
                     const rowProp = {
                         key: rowID,
                         track,
@@ -132,12 +154,12 @@ export default class ASCTrackRowContainerBase extends React.Component {
                         positionSeconds: iterator.getPositionInSeconds(),
                         deltaDuration: rowDeltaTicks,
                         cursorPosition: iterator.getCursorPosition(),
-                        highlight: highlight,
+                        highlight,
                         children: rowInstructions
                     };
                     if(iterator.getCursorPosition() === cursorOffset) {
                         rowProp.cursor = true;
-                        rowProp.highlight = 'cursor';
+                        rowProp.highlight.push('cursor');
                     }
                     rows.push(rowProp);
                     // console.log(rowID, iterator.getPositionInTicks(), rowDeltaTicks, iterator.getPositionInTicks() + rowDeltaTicks);
@@ -154,7 +176,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
         return rows.map(rowProp => {
             rowProp.children = rowProp.children.map(instructionProp => {
                 if(instructionProp.cursor)
-                    rowProp.highlight = 'cursor';
+                    rowProp.highlight.push('cursor');
                 return <ASCTrackInstruction
                     {...instructionProp}
                 />

@@ -4,24 +4,51 @@
 div.asct-row {
     display: flex;
     cursor: pointer;
-    background-color: #C0C0C0;
+    background-color: #CCC;
     /*height: 1.45em;*/
     /*position: relative;*/
     border: 1px outset #DDD;
     padding: 0px;
 }
 
-
-div.asct-row:nth-child(odd) {
+div.asc-track.selected div.asct-row {
     background-color: #D0D0D0;
+}
+
+div.asc-track.selected div.asct-row.odd {
+    background-color: #C0C0C0;
 }
 
 /** Track Colors **/
 
+
+/** Measure Start/End **/
+
 div.asct-row.measure-start {
-    border-top: 1px solid #666;
-    background: linear-gradient(to bottom, #AAA 0%, #CCC 50%);
+    border-top: 1px solid #333 !important;
+    /*background: linear-gradient(to bottom, #BBB 0%, #CCC 80%);*/
 }
+/*div.asct-row.measure-end {*/
+/*    border-bottom: 1px solid #333 !important;;*/
+/*    !*background: linear-gradient(to top, #BBB 0%, #CCC 80%);*!*/
+/*}*/
+
+
+
+/** Segment Start/End **/
+
+div.asct-row.segment-start {
+    border-top: 2px solid #000 !important;
+    /*background: linear-gradient(to bottom, #BBB 0%, #CCC 100%);*/
+}
+
+/*div.asct-row.segment-end {*/
+/*    border-bottom: 1px solid #000 !important;*/
+/*    background: linear-gradient(to top, #BBB 0%, #CCC 100%);*/
+/*}*/
+
+
+
 
 div.asct-row.playing {
     background-color: #68EDC6;

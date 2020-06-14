@@ -12,7 +12,7 @@ class ASCTrackRow extends ASCTrackRowBase {
     render() {
         let className = "asct-row";
         if (this.props.highlight)
-            className += ` ${this.props.highlight}`; // ' highlight';
+            className += ' ' + (this.props.highlight||[]).join(' '); // ' highlight';
         const composer = this.getComposer();
         const rowDeltaDuration = composer.state.showTrackRowDurationInTicks ? this.props.deltaDuration : composer.values.formatDuration(this.props.deltaDuration);
         const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatDurationAsDecimal(this.props.positionTicks);
