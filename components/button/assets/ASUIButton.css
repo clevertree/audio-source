@@ -5,8 +5,8 @@ div.asui-button {
     margin: 0 0;
     position: relative;
     display: inline-flex;
-    align-items: center;
-    /*justify-content: center;*/
+    /*align-items: center;*/
+    justify-content: center;
     cursor: pointer;
     white-space: nowrap;
 

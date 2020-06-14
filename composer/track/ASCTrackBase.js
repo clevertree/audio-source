@@ -482,7 +482,6 @@ export default class ASCTrackBase extends React.Component {
 
     // TODO: pagination
     renderRowSegments() {
-        let trackSongPositionFound = false;
         const cursorRowOffset = this.getRowOffset();
         const rowLength = this.getRowLength();
         const rowOffset = this.getRowOffset();
@@ -498,26 +497,37 @@ export default class ASCTrackBase extends React.Component {
         // }
 
         let buttons = [];
+        let selectedFound = false, firstButton=null;
         for(let i=0; i<segmentRowOffsets.length; i++) {
             const rowOffset = segmentRowOffsets[i];
             const props = {
                 onAction: e => this.setRowOffset(rowOffset),
                 children: i
             }
-            if(!trackSongPositionFound && cursorRowOffset < rowOffset + rowLength) {
-                trackSongPositionFound = true;
+            if(!selectedFound && cursorRowOffset < rowOffset + rowLength) {
+                selectedFound = true;
                 props.className = 'selected';
             }
-            buttons.push(<ASUIButton
+            buttons.push(props);
+            if(buttons.length > ASCTrackBase.DEFAULT_MAX_SEGMENTS) {
+                // if(buttons[0].className) {
+                //     buttons.pop();
+                // } else {
+                    const button = buttons.shift();
+                    if(!firstButton)
+                        firstButton = button;
+                // }
+            }
+        }
+
+        if(firstButton)
+            buttons.unshift(firstButton);
+        // console.log('renderRowSegments',  this.getTrackName(), {cursorRowOffset});
+
+        return buttons.map((props, i) => <ASUIButton
                 key={i}
                 {...props}
             />);
-
-        }
-
-        // console.log('renderRowSegments',  this.getTrackName(), {cursorRowOffset});
-
-        return buttons;
     }
 
 

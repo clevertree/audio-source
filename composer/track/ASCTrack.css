@@ -59,6 +59,9 @@ div.asc-track.selected {
 div.asc-track > div.buttons {
     display: flex;
 }
+div.asc-track > div.buttons > div.segments > div.asui-button {
+    min-width: 20px;
+}
 div.asc-track > div.buttons > div.options {
     margin-left: auto;
 }
