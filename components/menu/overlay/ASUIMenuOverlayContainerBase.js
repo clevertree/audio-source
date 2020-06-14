@@ -86,8 +86,8 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     }
 
 
-    closeAllMenus(e) {
-        e && e.preventDefault();
+    closeAllMenus() {
+        // e && e.preventDefault();
         this.closeMenus([]);
         this.setState({
             open: false,

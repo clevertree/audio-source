@@ -68,6 +68,7 @@ export default class ASComposer extends ASComposerInput {
         this.activeTracks = {};
         this.timeouts = {
             saveSongToMemory: null,
+            saveState: null,
             renderPrograms: null
         };
         this.autoSaveTimeout = 4000;
@@ -167,34 +168,31 @@ export default class ASComposer extends ASComposerInput {
                 this.setState({playing: false, paused: false});
                 break;
 
-            case 'programs:instance':
-            case 'programs:added':
-            case 'programs:removed':
-                this.panelPrograms && this.panelPrograms.forceUpdate();
-                break;
-
-            case 'programs:modified':
-                this.panelPrograms && this.panelPrograms.forceUpdate();
-                // this.renderProgram(e.detail.programID);
-
-                clearTimeout(this.timeouts.saveSongToMemory);
-                this.timeouts.saveSongToMemory = setTimeout(e => this.saveAll(), this.autoSaveTimeout);
-                break;
+            // case 'programs:instance':
+            // case 'programs:added':
+            // case 'programs:removed':
+            //     this.panelPrograms && this.panelPrograms.forceUpdate();
+            //     break;
+            //
+            // case 'programs:modified':
+            //     this.panelPrograms && this.panelPrograms.forceUpdate();
+            //     // this.renderProgram(e.detail.programID);
+            //     this.saveSongToMemoryWithTimeout();
+            //     break;
 
             case 'song:modified':
                 // console.log(e.type);
                 this.forceUpdate();  // TODO: might be inefficient
                 // TODO: auto save toggle
-                clearTimeout(this.timeouts.saveSongToMemory);
-                this.timeouts.saveSongToMemory = setTimeout(e => this.saveAll(), this.autoSaveTimeout);
+                this.saveSongToMemoryWithTimeout();
                 break;
 
-            case 'programs:library':
-//                 console.log(e.type);
-                // TODO: this.programs.render();
-                // this.renderPrograms();
-                this.updateForms();
-                break;
+//             case 'programs:library':
+// //                 console.log(e.type);
+//                 // TODO: this.programs.render();
+//                 // this.renderPrograms();
+//                 this.updateForms();
+//                 break;
 
             default:
                 console.warn("Unknown song event: ", e.type);

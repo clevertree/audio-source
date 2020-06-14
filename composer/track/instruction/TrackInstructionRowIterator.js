@@ -1,6 +1,8 @@
 import {InstructionIterator} from "../../../song";
 // import Instruction from "../../../song/instruction/Instruction";
 
+// TODO: Flaw: instructionIterator might seek on it's own.
+
 export default class TrackInstructionRowIterator {
     constructor(instructionIterator, quantizationTicks=null) {
         this.iterator = instructionIterator;

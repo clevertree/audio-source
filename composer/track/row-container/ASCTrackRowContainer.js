@@ -55,12 +55,12 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
 
     onWheel(e) {
         e.preventDefault();
-        let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
+        let rowOffset = parseInt(this.getTrack().getRowOffset()) || 0; // this.getTrackState().rowOffset;
         rowOffset += e.deltaY > 0 ? 1 : -1;
         if(rowOffset < 0)
             rowOffset = 0; // return console.log("Unable to scroll past beginning");
 
-        this.setRowOffset(rowOffset);
+        this.getTrack().setRowOffset(rowOffset);
         // console.log('onWheel', e.deltaY);
         // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
         // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());

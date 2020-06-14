@@ -16,9 +16,10 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
     /** Property validation **/
     static propTypes = {
-        cursorOffset: PropTypes.number.isRequired,
+        // cursorOffset: PropTypes.number.isRequired,
         // composer: PropTypes.object.isRequired,
-        track: PropTypes.string.isRequired,
+        track: PropTypes.object.isRequired,
+        // rowOffset: PropTypes.string.isRequired,
     };
 
     // static DEFAULT_MAX_SEGMENTS = 8;
@@ -30,7 +31,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
         if(!props.track)
             throw new Error("Invalid track");
         this.state = {
-            rowOffset: 0,
+            // rowOffset: 0,
             menuOpen: false,
         };
         // this.firstCursorRowOffset = null;
@@ -49,14 +50,6 @@ export default class ASCTrackRowContainerBase extends React.Component {
     getTrack()                  { return this.props.track; }
     getComposer()               { return this.getTrack().getComposer(); }
 
-
-    setRowOffset(rowOffset) {
-        if(rowOffset < 0)
-            rowOffset = 0;
-        // console.log('rowOffset', rowOffset);
-        this.setState({rowOffset});
-    }
-
     /** Render Content **/
 
     // eslint-disable-next-line react/require-render-return
@@ -69,8 +62,8 @@ export default class ASCTrackRowContainerBase extends React.Component {
         const track = this.getTrack();
         const songPosition = composer.state.songPosition;
         const trackSongPosition = songPosition - track.getStartPosition();
-        const cursorOffset = this.props.cursorOffset;
-        const rowOffset = this.state.rowOffset;
+        const cursorOffset = track.getCursorOffset();
+        const rowOffset = track.getRowOffset();
         let trackSongPositionFound = false;
         // const quantizationTicks = this.getQuantizationTicks() || this.getSong().data.timeDivision;
 

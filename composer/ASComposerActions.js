@@ -72,12 +72,21 @@ class ASComposerActions extends ASComposerMenu {
             if(this.activeTracks.hasOwnProperty(key)) {
                 const activeTrack = this.activeTracks[key];
                 if(activeTrack.current) {
-                    activeTrack.current.updateTrackLengthInTicks();
+                    activeTrack.current.updateRenderingProps();
                 }
             }
         }
     }
 
+
+    saveSongToMemoryWithTimeout(autoSaveTimeout=null) {
+        clearTimeout(this.timeouts.saveSongToMemory);
+        this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(), autoSaveTimeout || this.autoSaveTimeout);
+    }
+    saveStateWithTimeout(autoSaveTimeout=null) {
+        clearTimeout(this.timeouts.saveState);
+        this.timeouts.saveState = setTimeout(e => this.saveState(), autoSaveTimeout || this.autoSaveTimeout);
+    }
 
     /** State **/
 
@@ -109,7 +118,7 @@ class ASComposerActions extends ASComposerMenu {
         // await this.saveState()
     }
 
-    async saveState() {
+    saveState() {
         const storage = new Storage();
         const state = Object.assign({}, this.state, {
             activeTracks: {}
@@ -130,7 +139,7 @@ class ASComposerActions extends ASComposerMenu {
         delete state.portrait;
         state.songUUID = this.song.data.uuid;
         console.log('Saving State: ', state);
-        await storage.saveState(state, 'audio-source-composer-state');
+        storage.saveState(state, 'audio-source-composer-state');
     }
 
 

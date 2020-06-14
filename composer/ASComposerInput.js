@@ -3,19 +3,19 @@ import ASComposerPlayback from "./ASComposerPlayback";
 export default class ASComposerInput extends ASComposerPlayback {
     constructor(props) {
         super(props);
-        this.onResizeCallback = e => this.onResize(e);
-        this.onUnloadCallback = e => this.saveState(e);
+        this.cb.onResizeCallback = e => this.onResize(e);
+        this.cb.onUnloadCallback = e => this.saveState(e);
     }
 
     componentDidMount() {
         setTimeout(() => this.onResize(), 100);
-        window.addEventListener('unload', this.onUnloadCallback);
-        window.addEventListener('resize', this.onResizeCallback);
+        window.addEventListener('unload', this.cb.onUnloadCallback);
+        window.addEventListener('resize', this.cb.onResizeCallback);
     }
 
     componentWillUnmount() {
-        window.removeEventListener('unload', this.onUnloadCallback);
-        window.removeEventListener('resize', this.onResizeCallback);
+        window.removeEventListener('unload', this.cb.onUnloadCallback);
+        window.removeEventListener('resize', this.cb.onResizeCallback);
     }
 
 

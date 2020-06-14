@@ -2,17 +2,15 @@ import * as React from "react";
 import ASCTrackBase from "./ASCTrackBase";
 
 import "./ASCTrack.css";
-import {ASUIDropDownContainer} from "../../components/menu";
-import ASCTrackRowContainer from "./row-container/ASCTrackRowContainer";
 
 export default class ASCTrack extends ASCTrackBase {
-    constructor(props) {
-        super(props);
-        this.container = React.createRef();
-        // this.state.clientPosition = null;
-        // this.cb.onContextMenu = e => this.onContextMenu(e);
-
-    }
+    // constructor(props) {
+    //     super(props);
+    //     // this.container = React.createRef();
+    //     // this.state.clientPosition = null;
+    //     // this.cb.onContextMenu = e => this.onContextMenu(e);
+    //
+    // }
 
     // componentDidMount() {
     //     console.log(this.container.current, this.props);
@@ -92,9 +90,7 @@ export default class ASCTrack extends ASCTrackBase {
                     {this.renderQuantizationButton()}
                 </div>
             </div>,
-            <ASCTrackRowContainer
-                track={this}
-                />
+            this.renderRowContainer()
         ]
     }
 
