@@ -223,11 +223,11 @@ export default class ASCTrackBase extends React.Component {
             }
         }
 
-        console.log('updateRenderingProps', {
-            trackLengthTicks,
-            quantizationTicks,
-            rowLength
-        }, segmentRowOffsets)
+        // console.log('updateRenderingProps', {
+        //     trackLengthTicks,
+        //     quantizationTicks,
+        //     rowLength
+        // }, segmentRowOffsets)
 
         this.setState({
             trackLengthTicks,
@@ -437,7 +437,7 @@ export default class ASCTrackBase extends React.Component {
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
-            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName())}
+            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName(), this.getQuantizationTicks())}
             children={rowDeltaDuration}
         />;
     }

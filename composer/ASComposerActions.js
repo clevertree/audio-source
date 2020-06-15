@@ -372,7 +372,12 @@ class ASComposerActions extends ASComposerMenu {
         //: TODO: check for recursive group
 
         if (newInstructionData === null)
-            newInstructionData = this.state.currentCommand;
+            newInstructionData = this.state.selectedInstructionData.slice();
+        if (!Array.isArray(newInstructionData)) {
+            const commandString = newInstructionData;
+            newInstructionData = this.state.selectedInstructionData.slice();
+            newInstructionData.splice(1, 1, commandString);
+        }
         if (!newInstructionData)
             throw new Error("Invalid Instruction command");
 
@@ -573,6 +578,7 @@ class ASComposerActions extends ASComposerMenu {
         if(selectedIndices.length > 0) {
             const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
             state.selectedInstructionData = instructionData.slice();
+            state.selectedInstructionData[0] = 0;
         }
 
         if(!state.activeTracks[trackName])

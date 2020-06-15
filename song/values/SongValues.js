@@ -126,8 +126,8 @@ class SongValues extends Values {
         return super.formatDurationAsDecimal(durationTicks, timeDivision || this.song.data.timeDivision, fractionDigits);
     }
 
-    getNoteDurations(callback = (duration, durationString) => [duration, durationString]) {
-        return super.getNoteDurations(callback, this.song.data.timeDivision);
+    getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision= null, mode='all') {
+        return super.getNoteDurations(callback, timeDivision || this.song.data.timeDivision, mode);
     }
 
     /** Menus **/

@@ -28,6 +28,10 @@ div.asui-menu-item.action {
     color: #000;
 }
 
+/** Selected **/
+div.asui-menu-item.selected {
+    background-color: #AAA;
+}
 
 /** Hover **/
 div.asui-menu-item.open,

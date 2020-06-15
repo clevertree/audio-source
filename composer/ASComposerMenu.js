@@ -158,10 +158,10 @@ class ASComposerMenu extends ASComposerRenderer {
             />
 
             <ASUIMenuBreak />
-            <ASUIMenuAction onAction={() => this.instructionCut()}   >Cut</ASUIMenuAction>
-            <ASUIMenuAction onAction={() => this.instructionCopy()}   >Copy</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionCut()} disabled={selectedIndices.length===0}   >Cut</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionCopy()} disabled={selectedIndices.length===0}   >Copy</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionPasteAtCursor()}   >Paste</ASUIMenuAction>
-            <ASUIMenuAction onAction={() => this.instructionDeleteSelected()}   >Delete</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionDeleteSelected()} disabled={selectedIndices.length===0}   >Delete</ASUIMenuAction>
 
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
@@ -293,14 +293,12 @@ class ASComposerMenu extends ASComposerRenderer {
 
     /** ASCTrack Menu **/
 
-    renderMenuTrackerSetQuantization(trackName, title = "Select Quantization") {
-        return (<>
-            {this.values.renderMenuSelectDuration(
-                durationTicks => this.trackerChangeQuantization(trackName, durationTicks),
-                this.song.data.timeDivision,
-                title)}
-            <ASUIMenuAction onAction={(e) => this.trackerChangeQuantization(trackName)} >Custom Quantization</ASUIMenuAction>
-        </>);
+    renderMenuTrackerSetQuantization(trackName, quantizationTicks, title = "Select Quantization") {
+        return this.values.renderMenuSelectDuration(
+            durationTicks => this.trackerChangeQuantization(trackName, durationTicks),
+            this.song.data.timeDivision,
+            quantizationTicks,
+            title);
     }
 
 

@@ -33,7 +33,7 @@ class OscillatorInstrument {
 
     /** Playback **/
 
-    playFrequency(destination, frequency, startTime, duration, velocity, onended=null) {
+    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         const endTime = startTime + duration;
 
 

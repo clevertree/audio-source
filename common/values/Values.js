@@ -7,6 +7,7 @@ import ProgramLoader from "../program/ProgramLoader";
 class Values {
     static FREQ_A4 = 432;
     static instance = new Values();
+    static lastModeKey = 'fraction';
 
     /** Menus **/
 
@@ -78,61 +79,37 @@ a
 
     renderMenuSelectDuration(onSelectValue, timeDivision, currentDuration = null, title=null) {
         return (<>
-            <ASUIMenuItem>{title || (currentDuration === null ? 'Select Duration' : `Change ${currentDuration}`)}</ASUIMenuItem>
+            <ASUIMenuItem>{title || (currentDuration === null ? 'Select Duration' : `Change ${this.formatDuration(currentDuration, timeDivision)}`)}</ASUIMenuItem>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => renderMenuSelect('fraction')}  >Fraction</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => renderMenuSelect('triplet')}   >Triplet</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => renderMenuSelect('dotted')}    >Dotted</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectDurationByMode('fraction', onSelectValue, timeDivision, currentDuration)}  >Fraction</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectDurationByMode('triplet', onSelectValue, timeDivision, currentDuration)}  >Triplet</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuSelectDurationByMode('dotted', onSelectValue, timeDivision, currentDuration)}  >Dotted</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>
-            <ASUIMenuBreak />
+            {/*<ASUIMenuDropDown disabled options={() => renderMenuSelect('recent')}    >Recent</ASUIMenuDropDown>*/}
             <ASUIMenuAction onAction={() => {
                 PromptManager.openPromptDialog("Enter a duration string or number of ticks", currentDuration)
                     .then(onSelectValue)
             }}    >Custom</ASUIMenuAction>
+            <ASUIMenuBreak />
+            {this.renderMenuSelectDurationByMode(Values.lastModeKey, onSelectValue, timeDivision, currentDuration)}
         </>);
+    }
 
-        function renderMenuSelect(key) {
-            let results = [];
-            switch(key) {
-                case 'fraction':
-                    for (let i = 64; i > 1; i /= 2)
-                        results.push(
-                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / i * timeDivision, `1/${i}B`)}  >{`1/${i}B`}</ASUIMenuAction>
-                        );
-                    for (let i = 1; i <= 16; i++)
-                        results.push(
-                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue(i * timeDivision, i + 'B')}  >{i + 'B'}</ASUIMenuAction>
-                        );
-                    break;
-
-                case 'triplet':
-                    for (let i = 64; i > 1; i /= 2)
-                        results.push(
-                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i / 1.5) * timeDivision, `1/${i}T`)}  >{`1/${i}T`}</ASUIMenuAction>
-                        );
-                    for (let i = 1; i <= 16; i++)
-                        results.push(
-                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i / 1.5) * timeDivision, i + 'T')}  >{i + 'T'}</ASUIMenuAction>
-                        );
-                    break;
-
-                case 'dotted':
-                    for (let i = 64; i > 1; i /= 2)
-                        results.push(
-                            <ASUIMenuAction key={`${i}a`} onAction={() => onSelectValue(1 / (i * 1.5) * timeDivision, `1/${i}D`)}  >{`1/${i}D`}</ASUIMenuAction>
-                        );
-                    for (let i = 1; i <= 16; i++)
-                        results.push(
-                            <ASUIMenuAction key={`${i}b`} onAction={() => onSelectValue((i * 1.5) * timeDivision, i + 'D')}  >{i + 'D'}</ASUIMenuAction>
-                        );
-                    break;
-
-                default:
-                    throw new Error("Unknown key");
-            }
-            return results;
+    renderMenuSelectDurationByMode(modeKey, onSelectValue, timeDivision, currentDuration) {
+        const oldCallback = onSelectValue;
+        onSelectValue = function(...args) {
+            oldCallback(...args);
+            // console.log('Values.lastModeKey', modeKey);
+            Values.lastModeKey = modeKey;
         }
+        return this.getNoteDurations((duration, durationString) =>
+            <ASUIMenuAction
+                selected={currentDuration === duration}
+                key={durationString}
+                onAction={() => onSelectValue(duration, durationString)}>{durationString}</ASUIMenuAction>,
+            timeDivision,
+            modeKey
+        )
     }
 
     /** Velocity Menu **/
@@ -404,37 +381,44 @@ a
             + 'B';
     }
 
-    getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision) {
+    getNoteDurations(callback = (duration, durationString) => [duration, durationString], timeDivision, mode='all') {
         const results = [];
-        for (let i = 64; i > 1; i /= 2) {
-            let result = callback(1 / i * timeDivision, `1/${i}B`);            // Full Beats
-            if(!addResult(results, result)) return results;
-        }
-        for (let i = 1; i <= 16; i++) {
-            let result = callback(i * timeDivision, `${i}B`);            // Full Beats
-            if(!addResult(results, result)) return results;
-        }
-
-
-        for (let i = 64; i > 1; i /= 2) {
-            let result = callback((1 / i) / 1.5 * timeDivision, `1/${i}T`); // Triplet
-            if(!addResult(results, result)) return results;
-        }
-
-        for (let i = 1; i <= 16; i++) {
-            let result = callback(i / 1.5 * timeDivision, `${i}T`); // Triplet
-            if(!addResult(results, result)) return results;
+        if(mode === 'all' || mode === 'fraction') {
+            for (let i = 64; i > 1; i /= 2) {
+                let result = callback(1 / i * timeDivision, `1/${i}B`);            // Full Beats
+                if (!addResult(results, result)) return results;
+            }
+            for (let i = 1; i <= 16; i++) {
+                let result = callback(i * timeDivision, `${i}B`);            // Full Beats
+                if (!addResult(results, result)) return results;
+            }
         }
 
 
-        for (let i = 64; i > 1; i /= 2) {
-            let result = callback(1 / i * 1.5 * timeDivision, `1/${i}D`);      // Dotted
-            if(!addResult(results, result)) return results;
+        if(mode === 'all' || mode === 'triplet') {
+            for (let i = 64; i > 1; i /= 2) {
+                let result = callback((1 / i) / 1.5 * timeDivision, `1/${i}T`); // Triplet
+                if (!addResult(results, result)) return results;
+            }
+
+            for (let i = 1; i <= 16; i++) {
+                let result = callback(i / 1.5 * timeDivision, `${i}T`); // Triplet
+                if (!addResult(results, result)) return results;
+            }
         }
-        for (let i = 1; i <= 16; i++) {
-            let result = callback(i * 1.5 * timeDivision, `${i}D`);      // Dotted
-            if(!addResult(results, result)) return results;
+
+
+        if(mode === 'all' || mode === 'dotted') {
+            for (let i = 64; i > 1; i /= 2) {
+                let result = callback(1 / i * 1.5 * timeDivision, `1/${i}D`);      // Dotted
+                if (!addResult(results, result)) return results;
+            }
+            for (let i = 1; i <= 16; i++) {
+                let result = callback(i * 1.5 * timeDivision, `${i}D`);      // Dotted
+                if (!addResult(results, result)) return results;
+            }
         }
+        // console.log('mode', mode, results);
         return results;
     }
 

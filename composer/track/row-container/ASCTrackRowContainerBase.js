@@ -83,7 +83,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
         const rows = [];
         let rowInstructions = [];
 
-        console.log('segmentLengthTicks', segmentLengthTicks);
+        // console.log('segmentLengthTicks', segmentLengthTicks);
 
         while(rows.length < track.getRowLength()) {
             const nextCursorEntry = iterator.nextCursorPosition();
@@ -203,13 +203,14 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
     onKeyDown(e) {
         const composer = this.getComposer();
+        const track = this.getTrack();
         // console.log(e.type, e.key, e.ctrlKey);
         if(e.isDefaultPrevented())
             return;
         if(e.ctrlKey) switch(e.key) {
-            case 'x': composer.instructionCut(this.getTrackName()); return;
-            case 'c': composer.instructionCopy(this.getTrackName()); return;
-            case 'v': composer.instructionPasteAtCursor(this.getTrackName()); return;
+            case 'x': composer.instructionCut(track.getTrackName()); return;
+            case 'c': composer.instructionCopy(track.getTrackName()); return;
+            case 'v': composer.instructionPasteAtCursor(track.getTrackName()); return;
             default: break;
         }
         // let selectedIndices;
@@ -224,7 +225,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
             //
             case 'Enter':
                 composer.instructionInsertAtCursor(null, null);
-                this.playSelectedInstructions();
+                track.playSelectedInstructions();
                 break;
             //
             case ' ':
@@ -237,7 +238,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
             case 'ArrowDown':
             case 'ArrowRight':
                 e.preventDefault();
-                const currentCursorInfo = this.cursorGetInfo();
+                const currentCursorInfo = track.cursorGetInfo();
                 let targetCursorOffset;
                 switch(e.key) {
                     case 'ArrowRight':
@@ -258,19 +259,19 @@ export default class ASCTrackRowContainerBase extends React.Component {
                     default:
                         throw new Error("Invalid: " + e.key);
                 }
-                const targetCursorInfo = this.cursorGetInfo(targetCursorOffset)
-                this.setCursorPositionOffset(targetCursorOffset, targetCursorInfo.positionTicks);
+                const targetCursorInfo = track.cursorGetInfo(targetCursorOffset)
+                track.setCursorPositionOffset(targetCursorOffset, targetCursorInfo.positionTicks);
                 //, targetCursorInfo.adjustedCursorRow
                 if(targetCursorInfo.cursorIndex !== null) {
                     if(e.ctrlKey) {
-                        this.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey);
+                        track.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey);
                     }
                 }
 
-                if(targetCursorInfo.cursorRow > this.getRowOffset() + (this.getRowLength() - 1))
-                    this.setRowOffset(targetCursorInfo.cursorRow - (this.getRowLength() - 1))
-                else if(targetCursorInfo.cursorRow < this.getRowOffset())
-                    this.setRowOffset(targetCursorInfo.cursorRow)
+                if(targetCursorInfo.cursorRow > track.getRowOffset() + (track.getRowLength() - 1))
+                    track.setRowOffset(targetCursorInfo.cursorRow - (track.getRowLength() - 1))
+                else if(targetCursorInfo.cursorRow < track.getRowOffset())
+                    track.setRowOffset(targetCursorInfo.cursorRow)
                 break;
 
             //
@@ -282,24 +283,24 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
             case 'ContextMenu':
                 e.preventDefault();
-                this.cursorInstruction.current.toggleMenu();
+                track.cursorInstruction.current.toggleMenu();
                 break;
 
             default:
                 const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, composer.state.keyboardOctave);
                 if(keyboardCommand) {
-                    const selectedIndices = this.getSelectedIndices();
-                    // const {cursorIndex} = this.cursorGetInfo()
+                    const selectedIndices = track.getSelectedIndices();
+                    // const {cursorIndex} = track.cursorGetInfo()
                     if(selectedIndices && selectedIndices.length > 0) {
-                        composer.instructionReplaceArgByType(this.getTrackName(), selectedIndices, ArgType.frequency, keyboardCommand);
+                        composer.instructionReplaceArgByType(track.getTrackName(), selectedIndices, ArgType.frequency, keyboardCommand);
 
                     } else {
-                        composer.instructionInsertAtCursor(this.getTrackName(), keyboardCommand);
+                        composer.instructionInsertAtCursor(track.getTrackName(), keyboardCommand);
                     }
                     // console.log('TODO: keyboardCommand', keyboardCommand, selectedIndices, cursorOffset);
                     return;
                 }
-                // this.instructionInsert
+                // track.instructionInsert
                 console.info("Unhandled key: ", e.key);
                 break;
         }
@@ -310,7 +311,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
 
     renderContextMenu() {
-        // const selectedIndices = this.getTracker().getSelectedIndices();
+        // const selectedIndices = track.getTracker().getSelectedIndices();
         return this.getComposer().renderMenuEdit();
     }
 

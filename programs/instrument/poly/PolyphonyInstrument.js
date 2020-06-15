@@ -24,7 +24,7 @@ class PolyphonyInstrument {
 
     /** Playback **/
 
-    playFrequency(destination, frequency, startTime, duration, velocity=null, onended=null) {
+    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         for (let i = 0; i < this.config.voices.length; i++) {
             const voice = this.loadVoice(i);
             voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
