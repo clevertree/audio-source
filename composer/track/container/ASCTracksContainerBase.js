@@ -25,7 +25,7 @@ export default class ASCTracksContainerBase extends React.Component {
             //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
         }
         return trackList.map((trackName) => {
-            composer.activeTracks[trackName] = React.createRef();
+            composer.activeTracks[trackName] = React.createRef(); // TODO: flaw?
             const selected = trackName === selectedTrackName;
             return <ASCTrack
                 ref={composer.activeTracks[trackName]}

@@ -54,20 +54,29 @@ export default class InstructionProcessor {
         return [commandString, prependList ? prependList.concat(argTypeList) : argTypeList];
     }
 
-
+    isTrackCommand() {
+        const [commandString, argTypeList] = this.processInstructionArgs();
+        if(commandString !== 'playTrack')
+            return false;
+        let argIndex = this.findArgParameterIndex(ArgType.trackName, argTypeList);
+        let trackName = this.instructionData[argIndex];
+        if(trackName[0] === '@')
+            trackName = trackName.substr(1);
+        return trackName;
+    }
 
 
 
     updateArg(argType, newArgValue) {
-        let argIndex = this.findArgParameter(argType);
+        const [commandString, argTypeList] = this.processInstructionArgs();
+        let argIndex = this.findArgParameterIndex(argType, argTypeList);
         const oldValue = this.instructionData[argIndex];
         this.instructionData[argIndex] = newArgValue;
         // console.log("Arg updated: ", argIndex, newArgValue, argType);
         return oldValue;
     }
 
-    findArgParameter(argType) {
-        const [commandString, argTypeList] = this.processInstructionArgs();
+    findArgParameterIndex(argType, argTypeList) {
         let argIndex = 0;
         for(let i=0; i<argTypeList.length; i++) {
             if(!argTypeList[i].consumesArgument)
@@ -108,6 +117,8 @@ export default class InstructionProcessor {
     //         return commandString.substr(1);
     //     return instructionData[2];
     // }
+
+
 
 }
 

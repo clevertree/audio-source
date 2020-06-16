@@ -147,7 +147,20 @@ class ASComposerMenu extends ASComposerRenderer {
         // const activeTrack = this.trackGetActive(selectedTrackName);
         if(selectedIndices === null)
             selectedIndices = this.state.selectedTrackIndices;
+        let firstInstructionData = null, trackName=null;
+        if(selectedIndices.length > 0) {
+            firstInstructionData = this.getSong().instructionDataGetByIndex(this.state.selectedTrack, selectedIndices[0]);
+            trackName = new InstructionProcessor(firstInstructionData).isTrackCommand();
+        }
+
         return (<>
+            {trackName ?
+                <>
+                    <ASUIMenuAction onAction={() => this.trackSelectActive(trackName, null, true)}>{`Open Track '${trackName}'`}</ASUIMenuAction>
+                    <ASUIMenuBreak />
+                </>
+            : null}
+
             <ASUIMenuDropDown
                 options={() => this.renderMenuEditInsert(null, true)}
                 children={selectedIndices.length === 0 ? "Insert At Cursor" : "Insert Before"}
@@ -164,8 +177,8 @@ class ASComposerMenu extends ASComposerRenderer {
             />
 
             <ASUIMenuBreak />
-            <ASUIMenuAction onAction={() => this.instructionCut()} disabled={selectedIndices.length===0}   >Cut</ASUIMenuAction>
-            <ASUIMenuAction onAction={() => this.instructionCopy()} disabled={selectedIndices.length===0}   >Copy</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionCutSelected()} disabled={selectedIndices.length===0}   >Cut</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionCopySelected()} disabled={selectedIndices.length===0}   >Copy</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionPasteAtCursor()}   >Paste</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionDeleteSelected()} disabled={selectedIndices.length===0}   >Delete</ASUIMenuAction>
 

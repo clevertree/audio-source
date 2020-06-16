@@ -125,25 +125,6 @@ export default class ASCTrackInstructionBase extends React.Component {
         return selectedIndices;
     }
 
-    selectInstructionWithAction(clearSelection=true, toggleValue = null) {
-//         console.log('selectInstructionWithAction', clearSelection, toggleValue);
-        const selectedIndices = this.selectInstruction(clearSelection, toggleValue);
-        // const instructionData = this.getInstructionData();
-        // if(InstructionProcessor.isTrackCommand(instructionData[1])) {
-        //     this.getComposer().trackSelect(
-        //         InstructionProcessor.getTrackNameFromInstructionData(instructionData),
-        //         [],
-        //         {
-        //             destinationList: this.getTracker().getDestinationList().concat(this.getTracker().getTrackName())
-        //         }
-        //     );
-        // } else {
-            this.getTracker().playInstructions(selectedIndices);
-        // }
-
-    }
-
-
     /** Menus **/
 
 

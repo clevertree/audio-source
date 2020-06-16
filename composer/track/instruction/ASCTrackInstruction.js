@@ -83,7 +83,9 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         //     e.stopPropagation();
         //     this.toggleDropDownMenu();
         // } else {
-            this.selectInstructionWithAction(!e.ctrlKey);
+            this.selectInstruction(!e.ctrlKey);
+            if(e.shiftKey)
+                this.playInstruction();
         // }
     }
 

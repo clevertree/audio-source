@@ -62,7 +62,7 @@ div.asct-row.selected {
     background-color: #90BEDE;
     position: relative;
     /*box-shadow: #ffeedd 0px 0px 4px;*/
-    z-index: 2;
+    /*z-index: 2;*/
 }
 
 /** Hover **/

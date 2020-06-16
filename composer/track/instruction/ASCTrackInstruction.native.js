@@ -60,7 +60,11 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
     /** User Input **/
 
     onPress(e) {
-        this.selectInstructionWithAction(!e.ctrlKey);
+
+        this.selectInstruction(!e.ctrlKey);
+        if(e.shiftKey)
+            this.playInstruction();
+        // this.selectInstructionWithAction(!e.ctrlKey);
     }
 
 }

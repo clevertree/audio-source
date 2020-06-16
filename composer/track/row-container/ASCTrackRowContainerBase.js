@@ -208,15 +208,16 @@ export default class ASCTrackRowContainerBase extends React.Component {
         if(e.isDefaultPrevented())
             return;
         if(e.ctrlKey) switch(e.key) {
-            case 'x': composer.instructionCut(track.getTrackName()); return;
-            case 'c': composer.instructionCopy(track.getTrackName()); return;
-            case 'v': composer.instructionPasteAtCursor(track.getTrackName()); return;
+            case 'x': composer.instructionCutSelected(); return;
+            case 'c': composer.instructionCopySelected(); return;
+            case 'v': composer.instructionPasteAtCursor(); return;
             default: break;
         }
         // let selectedIndices;
         switch(e.key) {
             case 'Delete':
-                composer.instructionDeleteSelected();
+                const {cursorIndex: cursorDeleteIndex} = track.cursorGetInfo();
+                composer.instructionDeleteSelected(cursorDeleteIndex !== null ? [cursorDeleteIndex] : null);
                 break;
             //
             // case 'Escape':
@@ -264,7 +265,10 @@ export default class ASCTrackRowContainerBase extends React.Component {
                 //, targetCursorInfo.adjustedCursorRow
                 if(targetCursorInfo.cursorIndex !== null) {
                     if(e.ctrlKey) {
-                        track.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey);
+                        track.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey); //TODO: shift for playback?
+                    } else if(e.shiftKey) {
+                        track.playInstructions(targetCursorInfo.cursorIndex);
+
                     }
                 }
 
@@ -284,6 +288,12 @@ export default class ASCTrackRowContainerBase extends React.Component {
             case 'ContextMenu':
                 e.preventDefault();
                 track.cursorInstruction.current.toggleMenu();
+                break;
+
+            case 'Shift':
+                const {cursorIndex: cursorShiftPlayIndex} = track.cursorGetInfo();
+                if(cursorShiftPlayIndex !== null)
+                    track.playInstructions([cursorShiftPlayIndex]);
                 break;
 
             default:

@@ -156,7 +156,7 @@ class SongValues extends Values {
             {this.getAllSongTracks((trackName) =>
                 <ASUIMenuAction
                     key={trackName}
-                    disabled={trackName === selectedTrack}
+                    selected={trackName === selectedTrack}
                     onAction={e => onSelectValue(trackName)}
                 >{trackName}</ASUIMenuAction>
             )}

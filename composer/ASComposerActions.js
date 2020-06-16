@@ -349,99 +349,6 @@ class ASComposerActions extends ASComposerMenu {
         this.setState({songPosition:playbackPositionInSeconds})
     }
 
-    /** Current Instruction Args **/
-
-    /** Instruction Modification **/
-
-    async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
-        if(promptUser)
-            newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
-        return this.instructionInsertAtCursor(trackName, newCommand, select, playback);
-    }
-
-    instructionInsertBeforeCursor(trackName = null, newCommand = null, select=true, playback=true) {
-
-    }
-
-
-    instructionInsertAtCursor(trackName = null, newCommand = null, select=true, playback=true) {
-        trackName = trackName || this.state.selectedTrack;
-        newCommand = newCommand || this.state.currentCommand;
-        // console.log('instructionInsert', newCommand, trackName);
-
-        const activeTrack = this.trackGetActive(trackName);
-        const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
-        return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
-    }
-
-    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
-        //: TODO: check for recursive group
-
-        if (newInstructionData === null)
-            newInstructionData = this.state.selectedInstructionData.slice();
-        if (!Array.isArray(newInstructionData)) {
-            const commandString = newInstructionData;
-            newInstructionData = this.state.selectedInstructionData.slice();
-            newInstructionData.splice(1, 1, commandString);
-        }
-        if (!newInstructionData)
-            throw new Error("Invalid Instruction command");
-
-        newInstructionData = Instruction.parseInstructionData(newInstructionData);
-        newInstructionData[0] = 0;
-
-        const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
-        if(select)      this.trackSelectIndices(trackName, index);
-        if(playback)    this.trackerPlay(trackName, index);
-        this.updateCurrentSong();
-        return index;
-    }
-
-    /** Instruction Args **/
-
-
-
-    instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
-        const song = this.song;
-        if(Number.isInteger(selectedIndices))
-            selectedIndices = [selectedIndices];
-        if (!selectedIndices.length)
-            throw new Error("No selection");
-
-        // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
-
-        const selectedInstructionData = this.state.selectedInstructionData;
-        const processor = new InstructionProcessor(selectedInstructionData);
-        processor.updateArg(argType, newArgValue)
-        this.setState({selectedInstructionData});
-        for (let i = 0; i < selectedIndices.length; i++) {
-            song.instructionReplaceArgByType(trackName, selectedIndices[i], argType, newArgValue);
-        }
-
-        this.trackerPlay(trackName, selectedIndices);
-        // trackInfo.updateCurrentInstruction();
-    }
-
-
-
-    /** Instruction Delete **/
-
-    instructionDeleteSelected(trackName=null, selectedIndices=null) {
-        trackName = trackName || this.state.selectedTrack;
-        const activeTrack = this.trackGetActive(trackName);
-        if(selectedIndices === null)
-            selectedIndices = activeTrack.getSelectedIndices();
-        if(Number.isInteger(selectedIndices))
-            selectedIndices = [selectedIndices];
-
-        selectedIndices.sort((a, b) => a - b);
-        for (let i=selectedIndices.length-1; i>=0; i--)
-            this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
-
-        activeTrack.setState({selectedIndices: []})
-        this.updateCurrentSong();
-    }
-
     /** Keyboard Commands **/
 
     keyboardChangeOctave(keyboardOctave = null) {
@@ -597,9 +504,14 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Track Selection **/
 
-    trackSelectActive(trackName, trackData={}) {
+    trackSelectActive(trackName, trackData=null, reorderLast=false) {
         this.setState(state => {
-            if(!state.activeTracks[trackName])
+            const oldTrackData = state.activeTracks[trackName];
+            if(reorderLast) {
+                delete state.activeTracks[trackName];
+            }
+            state.activeTracks[trackName] = oldTrackData || {};
+            if(trackData !== null)
                 state.activeTracks[trackName] = trackData;
             state.selectedTrack = trackName;
             return state;
@@ -624,7 +536,11 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackUnselect(trackName) {
-
+        this.setState(state => {
+            delete state.activeTracks[trackName];
+            state.selectedTrack = Object.keys(state.activeTracks)[0];
+            return state;
+        });
     }
 
 
@@ -743,14 +659,101 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
+    /** Current Instruction Args **/
+
+    /** Instruction Modification **/
+
+    async instructionInsertAtCursorPrompt(trackName = null, newCommand = null, promptUser = false, select=true, playback=true) {
+        if(promptUser)
+            newCommand = await PromptManager.openPromptDialog("Set custom command:", newCommand || '');
+        return this.instructionInsertAtCursor(trackName, newCommand, select, playback);
+    }
+
+    instructionInsertBeforeCursor(trackName = null, newCommand = null, select=true, playback=true) {
+
+    }
+
+
+    instructionInsertAtCursor(trackName = null, newCommand = null, select=true, playback=true) {
+        trackName = trackName || this.state.selectedTrack;
+        newCommand = newCommand || this.state.currentCommand;
+        // console.log('instructionInsert', newCommand, trackName);
+
+        const activeTrack = this.trackGetActive(trackName);
+        const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
+        return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
+    }
+
+    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
+        //: TODO: check for recursive group
+
+        if (newInstructionData === null)
+            newInstructionData = this.state.selectedInstructionData.slice();
+        if (!Array.isArray(newInstructionData)) {
+            const commandString = newInstructionData;
+            newInstructionData = this.state.selectedInstructionData.slice();
+            newInstructionData.splice(1, 1, commandString);
+        }
+        if (!newInstructionData)
+            throw new Error("Invalid Instruction command");
+
+        newInstructionData = Instruction.parseInstructionData(newInstructionData);
+        newInstructionData[0] = 0;
+
+        const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
+        if(select)      this.trackSelectIndices(trackName, index);
+        if(playback)    this.trackerPlay(trackName, index);
+        this.updateCurrentSong();
+        return index;
+    }
+
+    /** Instruction Args **/
+
+
+
+    instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
+        const song = this.song;
+        if(Number.isInteger(selectedIndices))
+            selectedIndices = [selectedIndices];
+        if (!selectedIndices.length)
+            throw new Error("No selection");
+
+        // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
+
+        const selectedInstructionData = this.state.selectedInstructionData;
+        const processor = new InstructionProcessor(selectedInstructionData);
+        processor.updateArg(argType, newArgValue)
+        this.setState({selectedInstructionData});
+        for (let i = 0; i < selectedIndices.length; i++) {
+            song.instructionReplaceArgByType(trackName, selectedIndices[i], argType, newArgValue);
+        }
+
+        this.trackerPlay(trackName, selectedIndices);
+        // trackInfo.updateCurrentInstruction();
+    }
+
+
+
+    /** Instruction Delete **/
+
+    instructionDeleteSelected(selectedIndices=null) {
+        const trackName = this.state.selectedTrack;
+        selectedIndices = selectedIndices || this.state.selectedTrackIndices;
+
+        selectedIndices.sort((a, b) => a - b);
+        for (let i=selectedIndices.length-1; i>=0; i--)
+            this.song.instructionDeleteAtIndex(trackName, selectedIndices[i]);
+
+        this.trackSelectIndices(trackName, 'none');
+        this.updateCurrentSong();
+    }
+
     /** Tracker Clip Board **/
 
-    instructionCopy(trackName=null, selectedIndices=null) {
-        trackName = trackName || this.state.selectedTrack;
-        const activeTrack = this.trackGetActive(trackName);
-        if(selectedIndices === null)
-            selectedIndices = this.state.selectedTrackIndices; // activeTrack.getSelectedIndices();
-        const iterator = activeTrack.getIterator();
+    instructionCopySelected() {
+        const trackName = this.state.selectedTrack;
+        const selectedIndices = this.state.selectedTrackIndices;
+        const iterator = this.instructionGetIterator(trackName);
         let startPosition = null, lastPosition=null, copyTrack=[];
         iterator.seekToEnd((instructionData) => {
             instructionData = instructionData.slice();
@@ -771,13 +774,14 @@ class ASComposerActions extends ASComposerMenu {
 
     }
 
-    instructionCut(trackName=null, selectedIndices=null) {
-        this.instructionCopy(trackName, selectedIndices);
-        this.instructionDeleteSelected(trackName, selectedIndices);
+    instructionCutSelected() {
+        this.instructionCopySelected();
+        this.instructionDeleteSelected();
     }
 
-    instructionPasteAtCursor(trackName=null) {
-        trackName = trackName || this.state.selectedTrack;
+    instructionPasteAtCursor() {
+        const trackName = this.state.selectedTrack;
+        // trackName = trackName || this.state.selectedTrack;
 
         const copyTrack = this.state.clipboard;
         if(!Array.isArray(copyTrack))
