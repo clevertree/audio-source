@@ -44,7 +44,7 @@ class ASComposerRenderer extends React.Component {
                     {this.state.showPanelProgram ? <ASComposerProgramPanel composer={this} /> : null}
                     {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
                     {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
-                    {this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}
+                    {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}
 
 
                     <ASCTracksContainer

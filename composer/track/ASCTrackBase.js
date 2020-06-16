@@ -277,7 +277,10 @@ export default class ASCTrackBase extends React.Component {
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
                 case 'cursor':
-                    throw new Error('TODO');
+                    const {cursorIndex} = this.cursorGetInfo();
+                    selectedIndices = [cursorIndex];
+                    break;
+
                 case 'segment':
                     const {segmentID} = this.cursorGetInfo();
                     selectedIndices = this.getComposer()
@@ -290,7 +293,14 @@ export default class ASCTrackBase extends React.Component {
                     break;
                 // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
                 case 'row':
-                    throw new Error('TODO');
+                    const {positionTicks} = this.cursorGetInfo();
+                    selectedIndices = this.getComposer()
+                        .instructionGetIndicesInRange(
+                            this.getTrackName(),
+                            positionTicks,
+                            positionTicks+1,
+                        )
+                    break;
                 // throw new Error("Invalid selection: " + selectedIndices);
             }
         }

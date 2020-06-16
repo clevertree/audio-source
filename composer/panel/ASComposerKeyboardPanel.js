@@ -9,14 +9,14 @@ export default class ASComposerKeyboardPanel extends React.Component {
             <ASUIPanel
                 className="keyboard"
                 header="Keyboard">
-                <ASUIForm className="keyboard-octave" header="Octave">
-                    <ASUIButtonDropDown
-                        arrow={'▼'}
-                        className="keyboard-octave"
-                        options={() => this.renderMenuKeyboardSetOctave()}
-                        title="Change Keyboard Octave"
-                    >{composer.state.keyboardOctave}</ASUIButtonDropDown>
-                </ASUIForm>
+                {/*<ASUIForm className="keyboard-octave" header="Octave">*/}
+                {/*    <ASUIButtonDropDown*/}
+                {/*        arrow={'▼'}*/}
+                {/*        className="keyboard-octave"*/}
+                {/*        options={() => this.renderMenuKeyboardSetOctave()}*/}
+                {/*        title="Change Keyboard Octave"*/}
+                {/*    >{composer.state.keyboardOctave}</ASUIButtonDropDown>*/}
+                {/*</ASUIForm>*/}
             </ASUIPanel>
         );
     }

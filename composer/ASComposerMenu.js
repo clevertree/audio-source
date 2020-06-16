@@ -148,21 +148,18 @@ class ASComposerMenu extends ASComposerRenderer {
         if(selectedIndices === null)
             selectedIndices = this.state.selectedTrackIndices;
         return (<>
-
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
-
-
+            <ASUIMenuDropDown
+                options={() => this.renderMenuEditInsert(null, true)}
+                children={selectedIndices.length === 0 ? "Insert At Cursor" : "Insert Before"}
+            />
 
             <ASUIMenuBreak />
-            <ASUIMenuDropDown
-                options={() => this.renderMenuEditInsert()}
-                children="Insert"
-            />
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
 
             <ASUIMenuBreak />
             <ASUIMenuDropDown
                 disabled={selectedIndices.length === 0}
-                options={() => this.renderMenuInstructionEdit()}
+                options={() => this.renderMenuEditInstruction(selectedIndices)}
                 children="Edit"
             />
 
@@ -179,21 +176,25 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    renderMenuEditInsert(trackName=null) {
+    renderMenuEditInsert(trackName=null, before=false) {
         return this.values.renderMenuSelectCommand(async newCommand => {
-               this.instructionInsertAtCursor(trackName, newCommand);
+                before
+                    ? this.instructionInsertBeforeCursor(trackName, newCommand)
+                    : this.instructionInsertAtCursor(trackName, newCommand);
             },
             this.state.selectedInstructionData[1],
-            "New Command"
+            // "New Command"
         );
     }
 
 
+    renderMenuEditInstruction(selectedIndices=null) {
+        console.log('renderMenuEditInstruction', selectedIndices);
 
-    renderMenuInstructionEdit() {
-        const selectedIndices = this.state.selectedTrackIndices;
+        if(selectedIndices === null)
+            selectedIndices = this.state.selectedTrackIndices;
         if(!selectedIndices || selectedIndices.length === 0)
-            throw new Error("No indices selected");
+            throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
 
         const instructionData = this.state.selectedInstructionData;
         const processor = new InstructionProcessor(instructionData);
@@ -205,21 +206,21 @@ class ASComposerMenu extends ASComposerRenderer {
                 return null;
             argIndex++;
             let paramValue = instructionData[argIndex];
-            return this.renderMenuInstructionEditArg(argType, argIndex, paramValue);
+            return this.renderMenuEditInstructionArg(argType, argIndex, paramValue);
         });
     }
 
-    renderMenuInstructionEditArg(argType, argIndex, paramValue, onSelectValue=null, title=null) {
+    renderMenuEditInstructionArg(argType, argIndex, paramValue, onSelectValue=null, title=null) {
         title = title || argType.title || "Unknown Arg";
 
         return <ASUIMenuDropDown
             key={argIndex}
-            options={() => this.renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue)}
+            options={() => this.renderMenuEditInstructionArgOptions(argType, argIndex, paramValue, onSelectValue)}
             children={title}
         />
     }
 
-    renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue=null) {
+    renderMenuEditInstructionArgOptions(argType, argIndex, paramValue, onSelectValue=null) {
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
                 // this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
@@ -257,10 +258,10 @@ class ASComposerMenu extends ASComposerRenderer {
         // console.log('cursorInfo', cursorInfo)
         cursorIndex = cursorInfo.cursorIndex;
         return (<>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('cursor')} disabled={cursorIndex === null}>Select Cursor</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => activeTrack.selectIndices('all')}       >Select Track</ASUIMenuAction>
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('segment')}      >Select Segment</ASUIMenuAction>
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('row')}       >Select Row</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('all')}       >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('cursor')} disabled={cursorIndex === null}>Select Cursor</ASUIMenuAction>
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('none')}       >Clear Selection</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>

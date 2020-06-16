@@ -15,8 +15,8 @@ class Values {
 
     renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
         return (<>
-            <ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Change ${currentCommand}`)}</ASUIMenuItem>
-            <ASUIMenuBreak />
+            {/*<ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Change ${currentCommand}`)}</ASUIMenuItem>*/}
+            {/*<ASUIMenuBreak />*/}
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
             {additionalMenuItems}

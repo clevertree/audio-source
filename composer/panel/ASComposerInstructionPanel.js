@@ -53,7 +53,7 @@ export default class ASComposerInstructionPanel extends React.Component {
             <ASUIButtonDropDown
                 arrow={'▼'}
                 title={`Change ${argType.title}`}
-                options={() => composer.renderMenuInstructionEditArgOptions(argType, argIndex, paramValue)}
+                options={() => composer.renderMenuEditInstructionArgOptions(argType, argIndex, paramValue)}
             >{argType.format(paramValue, composer.getSong().values)}</ASUIButtonDropDown>
         </ASUIForm>
     }

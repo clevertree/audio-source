@@ -48,7 +48,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
         return [
             super.renderChildren(props),
             arrow ? <div className="arrow" key="arrow">{arrow}</div> : null,
-            (this.state.open ? <ASUIDropDownContainer
+            (this.state.open && !this.props.disabled ? <ASUIDropDownContainer
                 key="dropdown"
                 ref={this.dropdown}
                 // disabled={this.props.disabled}

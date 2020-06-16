@@ -21,10 +21,7 @@ export default class ASComposerTrackPanel extends React.Component {
         if(selectedIndices.length <= 8) {
             return selectedIndices.join(',');
         }
-        return selectedIndices
-            .slice(0, 8)
-            .join(',')
-            + ' ...';
+        return `[${selectedIndices.length} selected]`;
     }
 
     render() {
@@ -76,7 +73,14 @@ export default class ASComposerTrackPanel extends React.Component {
                     </ASUIButton>
                 </ASUIForm>
 
-
+                <ASUIForm className="keyboard-octave" header="Octave">
+                    <ASUIButtonDropDown
+                        arrow={'▼'}
+                        className="keyboard-octave"
+                        options={() => this.renderMenuKeyboardSetOctave()}
+                        title="Change Keyboard Octave"
+                    >{composer.state.keyboardOctave}</ASUIButtonDropDown>
+                </ASUIForm>
             </ASUIPanel>
         );
     }

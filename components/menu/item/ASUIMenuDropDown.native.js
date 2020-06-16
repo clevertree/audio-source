@@ -35,7 +35,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
             >
             {this.renderChildren()}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}
-            {this.state.open ? <ASUIDropDownContainer
+            (this.state.open && !this.props.disabled ? <ASUIDropDownContainer
                 key="dropdown"
                 ref={this.dropdown}
                 disabled={this.props.disabled}
