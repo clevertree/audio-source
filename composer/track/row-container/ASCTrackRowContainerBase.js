@@ -71,7 +71,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
         const selectedIndices = track.getSelectedIndices();
         const playingIndices = track.getPlayingIndices();
         const beatsPerMeasureTicks = track.getBeatsPerMeasure() * track.getTimeDivision();
-        const measuresPerSegment = track.getMeasuresPerSegment();
+        // const measuresPerSegment = track.getMeasuresPerSegment();
         const segmentLengthTicks = track.getSegmentLengthTicks();
         const quantizationTicks = track.getQuantizationTicks();
         // const isSelectedTrack = this.isSelectedTrack();
@@ -289,10 +289,10 @@ export default class ASCTrackRowContainerBase extends React.Component {
             default:
                 const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, composer.state.keyboardOctave);
                 if(keyboardCommand) {
-                    const selectedIndices = track.getSelectedIndices();
-                    // const {cursorIndex} = track.cursorGetInfo()
-                    if(selectedIndices && selectedIndices.length > 0) {
-                        composer.instructionReplaceArgByType(track.getTrackName(), selectedIndices, ArgType.frequency, keyboardCommand);
+                    // const selectedIndices = track.getSelectedIndices();
+                    const {cursorIndex} = track.cursorGetInfo()
+                    if(cursorIndex !== null) {
+                        composer.instructionReplaceArgByType(track.getTrackName(), cursorIndex, ArgType.frequency, keyboardCommand);
 
                     } else {
                         composer.instructionInsertAtCursor(track.getTrackName(), keyboardCommand);
@@ -308,6 +308,16 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
 
     /** Menu **/
+
+
+    onContextMenu(e) {
+        if(e.defaultPrevented || e.altKey)
+            return;
+        e.preventDefault();
+        this.props.track.selectActive();
+        this.toggleDropDownMenu(e);
+    }
+
 
 
     renderContextMenu() {

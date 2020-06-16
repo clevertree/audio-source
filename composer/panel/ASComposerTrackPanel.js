@@ -9,17 +9,28 @@ export default class ASComposerTrackPanel extends React.Component {
         const composer = props.composer;
         this.cb = {
             renderMenuSelectTrack: () => this.renderMenuSelectTrack(),
-            trackerSelectIndicesPrompt: () => composer.trackerSelectIndicesPrompt(),
+            trackSelectIndicesPrompt: () => composer.trackSelectIndicesPrompt(),
             instructionInsertAtCursor: () => composer.instructionInsertAtCursor(),
             instructionDeleteSelected: () => composer.instructionDeleteSelected(),
         }
     }
 
+    getSelectedIndicesString() {
+        const composer = this.props.composer;
+        const selectedIndices = composer.state.selectedTrackIndices;
+        if(selectedIndices.length <= 8) {
+            return selectedIndices.join(',');
+        }
+        return selectedIndices
+            .slice(0, 8)
+            .join(',')
+            + ' ...';
+    }
 
     render() {
         const composer = this.props.composer;
         const selectedIndices = composer.state.selectedTrackIndices;
-        // const activeTrack = composer.hasActiveTrack(selectedTrackName) ? composer.getActiveTrack(selectedTrackName) : null;
+        // const activeTrack = composer.trackHasActive(selectedTrackName) ? composer.trackGetActive(selectedTrackName) : null;
         // const selectedIndices = activeTrack ? activeTrack.getSelectedIndices() : [];
 
 
@@ -38,9 +49,9 @@ export default class ASComposerTrackPanel extends React.Component {
                 <ASUIForm className="track-selection" header="Selection">
                     <ASUIButton
                         // className="track-selection"
-                        onAction={this.cb.trackerSelectIndicesPrompt}
+                        onAction={this.cb.trackSelectIndicesPrompt}
                         title="Selected Track Notes"
-                        children={selectedIndices.length > 0 ? selectedIndices.join(',') : "None"}
+                        children={selectedIndices.length > 0 ? this.getSelectedIndicesString() : "None"}
                     />
                 </ASUIForm>
 
@@ -73,7 +84,7 @@ export default class ASComposerTrackPanel extends React.Component {
     renderMenuSelectTrack() {
         const composer = this.props.composer;
         return composer.values.renderMenuSelectTrack(trackName => {
-            composer.trackSelect(trackName)
+            composer.trackSelectActive(trackName)
         }, null, composer.state.selectedTrack)
     }
 }

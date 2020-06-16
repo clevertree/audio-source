@@ -4,18 +4,14 @@
 div.asct-row {
     display: flex;
     cursor: pointer;
-    background-color: #CCC;
+    background-color: #D0D0D0;
     /*height: 1.45em;*/
     /*position: relative;*/
     border: 1px outset #DDD;
     padding: 0px;
 }
 
-div.asc-track.selected div.asct-row {
-    background-color: #D0D0D0;
-}
-
-div.asc-track.selected div.asct-row.odd {
+div.asct-row.odd {
     background-color: #C0C0C0;
 }
 

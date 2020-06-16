@@ -21,9 +21,21 @@ class ASComposerRenderer extends React.Component {
         }
     }
 
+    /** TODO: Error Handling **/
+
+    // static getDerivedStateFromError(error) {
+    //     console.log('getDerivedStateFromError', error);
+    //     this.setError(error);
+    //     // Update state so the next render will show the fallback UI.
+    //     return { hasError: false };
+    // }
+    // componentDidCatch(error, errorInfo) {
+    //     console.log('componentDidCatch', error, errorInfo);
+    //     this.setError(error);
+    // }
+
     render() {
 //         console.log('ASComposerRenderer.render()');
-
         return <ASComposerContainer
                     containerRef={this.containerRef}
                     composer={this}

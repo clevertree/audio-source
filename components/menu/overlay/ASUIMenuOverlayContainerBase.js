@@ -41,7 +41,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
     updateOverlay() {
         const openOverlay = this.state.open || this.openMenus.length > 0;
-            // console.log('updateOverlay', openOverlay);
+        // console.log('updateOverlay', openOverlay);
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay})
     }

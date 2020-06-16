@@ -64,27 +64,6 @@ class SongValues extends Values {
 
 
     parseSelectedIndices(selectedIndices) {
-        if (typeof selectedIndices === "string") {
-            switch (selectedIndices) {
-                case 'all':
-                    selectedIndices = [];
-                    const maxLength = this.getSong().instructionGetList(this.getTrackName()).length;
-                    for (let i = 0; i < maxLength; i++)
-                        selectedIndices.push(i);
-                    break;
-                case 'segment':
-                    throw new Error('TODO');
-                // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
-                case 'row':
-                    throw new Error('TODO');
-                case 'none':
-                    selectedIndices = [];
-                    break;
-                default:
-                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
-                // throw new Error("Invalid selection: " + selectedIndices);
-            }
-        }
 
         if (typeof selectedIndices === 'number')
             selectedIndices = [selectedIndices];

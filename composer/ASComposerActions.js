@@ -1,8 +1,9 @@
-import {Instruction, ProgramLoader, Song, Storage} from "../song";
+import {Instruction, InstructionIterator, ProgramLoader, Song, Storage} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
 import {InstructionProcessor} from "../common";
+import TrackInstructionRowIterator from "./track/instruction/TrackInstructionRowIterator";
 
 // import {TrackInfo} from "./track/";
 
@@ -363,7 +364,7 @@ class ASComposerActions extends ASComposerMenu {
         newCommand = newCommand || this.state.currentCommand;
         // console.log('instructionInsert', newCommand, trackName);
 
-        const activeTrack = this.getActiveTrack(trackName);
+        const activeTrack = this.trackGetActive(trackName);
         const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
         return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
     }
@@ -385,7 +386,7 @@ class ASComposerActions extends ASComposerMenu {
         newInstructionData[0] = 0;
 
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
-        if(select)      this.trackerSelectIndices(trackName, index);
+        if(select)      this.trackSelectIndices(trackName, index);
         if(playback)    this.trackerPlay(trackName, index);
         this.updateCurrentSong();
         return index;
@@ -422,7 +423,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionDeleteSelected(trackName=null, selectedIndices=null) {
         trackName = trackName || this.state.selectedTrack;
-        const activeTrack = this.getActiveTrack(trackName);
+        const activeTrack = this.trackGetActive(trackName);
         if(selectedIndices === null)
             selectedIndices = activeTrack.getSelectedIndices();
         if(Number.isInteger(selectedIndices))
@@ -484,9 +485,8 @@ class ASComposerActions extends ASComposerMenu {
     /** Track Playback **/
 
 
-    trackerPlaySelected(trackName=null, stopPlayback=true) {
-        const activeTrack = this.getActiveTrack(trackName);
-        return this.trackerPlay(trackName, activeTrack.getSelectedIndices(), stopPlayback);
+    trackerPlaySelected(stopPlayback=true) {
+        return this.trackerPlay(this.state.selectedTrack, this.state.selectedTrackIndices, stopPlayback);
     }
 
     trackerPlay(trackName, selectedIndices, stopPlayback=true) {
@@ -524,7 +524,7 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog("Create new instruction group?", newTrackName);
         if (newTrackName) {
             song.trackAdd(newTrackName, []);
-            await this.trackSelect(newTrackName);
+            await this.trackSelectIndices(newTrackName);
         } else {
             this.setError("Create instruction group canceled");
         }
@@ -537,8 +537,8 @@ class ASComposerActions extends ASComposerMenu {
             newTrackName = await PromptManager.openPromptDialog(`Rename instruction group (${oldTrackName})?`, oldTrackName);
         if (newTrackName !== oldTrackName) {
             song.trackRename(oldTrackName, newTrackName);
-            this.trackSelect(newTrackName);
-            this.trackSelect(oldTrackName);
+            this.trackSelectIndices(newTrackName);
+            this.trackSelectIndices(oldTrackName);
         } else {
             this.setError("Rename instruction group canceled");
         }
@@ -557,7 +557,66 @@ class ASComposerActions extends ASComposerMenu {
 
     }
 
+    /** Track State **/
+
+    trackHasActive(trackName) {
+        return this.activeTracks[trackName] && this.activeTracks[trackName].current;
+    }
+
+    trackGetActive(trackName) {
+        const activeTrack = this.activeTracks[trackName];
+        if(!activeTrack)
+            throw new Error("Active track not found: " + trackName);
+        if(!activeTrack.current)
+            throw new Error("Active track not available: " + trackName);
+        return activeTrack.current;
+    }
+
+
+    /** Track Row Iterator **/
+
+    trackGetRowIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
+        timeDivision = timeDivision || this.song.data.timeDivision;
+        beatsPerMinute = beatsPerMinute || this.song.data.beatsPerMinute;
+        quantizationTicks = quantizationTicks || this.song.data.quantizationTicks;
+        return TrackInstructionRowIterator.getIteratorFromSong(
+            this.getSong(),
+            trackName,
+            {
+                quantizationTicks,
+                timeDivision,
+                beatsPerMinute,
+            }
+        )
+    }
+
     /** Track Selection **/
+
+    trackSelectActive(trackName, trackData={}) {
+        this.setState(state => {
+            if(!state.activeTracks[trackName])
+                state.activeTracks[trackName] = trackData;
+            state.selectedTrack = trackName;
+            return state;
+        });
+
+        // TODO: parent stats
+        // trackData = this.state.activeTracks[trackName];
+        // if(trackData.destinationList)
+        //     selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
+        // else
+        //     selectedTrack = this.getSong().getStartTrackName();
+    }
+
+    async trackSelectIndicesPrompt(trackName=null) {
+        if(trackName === null)
+            trackName = this.state.selectedTrack;
+        let selectedIndices = this.state.selectedTrackIndices.join(', ');
+        selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
+        this.trackSelectIndices(trackName, selectedIndices);
+    }
+
+
 
     trackUnselect(trackName) {
 
@@ -565,9 +624,36 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
-    trackSelect(trackName, selectedIndices=[], trackStats=null) {
+    trackSelectIndices(trackName, selectedIndices=[], clearSelection=false, trackStats=null) {
+
+        if (typeof selectedIndices === "string") {
+            switch (selectedIndices) {
+                case 'cursor':
+                    throw new Error('TODO');
+                case 'all':
+                    selectedIndices = [];
+                    const maxLength = this.getSong().instructionGetList(trackName).length;
+                    for (let i = 0; i < maxLength; i++)
+                        selectedIndices.push(i);
+                    break;
+                case 'segment':
+
+
+                    break;
+                // selectedIndices = [].map.call(this.querySelectorAll('asct-instruction'), (elm => elm.index));
+                case 'row':
+                    throw new Error('TODO');
+                case 'none':
+                    selectedIndices = [];
+                    break;
+                default:
+                    selectedIndices = selectedIndices.split(/[^0-9]/).map(index => parseInt(index));
+                // throw new Error("Invalid selection: " + selectedIndices);
+            }
+        }
 
         selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        // console.log('trackSelectIndices', trackName, selectedIndices)
 
         const state = {
             // selectedIndices,
@@ -580,6 +666,8 @@ class ASComposerActions extends ASComposerMenu {
             state.selectedInstructionData = instructionData.slice();
             state.selectedInstructionData[0] = 0;
         }
+        // if (!clearSelection && this.state.selectedTrackIndices.length > 0)
+        //     selectedIndices = selectedIndices.concat(this.state.selectedTrackIndices);
 
         if(!state.activeTracks[trackName])
             state.activeTracks[trackName] = {};
@@ -602,79 +690,49 @@ class ASComposerActions extends ASComposerMenu {
 
     }
 
-    selectIndices(selectedIndices, clearSelection=true, selectTrack=true) {
-        // TODO: get song position by this.props.index
-        // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
-
-
-        selectedIndices.forEach((index, i) => {
-            if(typeof index !== "number")
-                throw new Error(`Invalid selection index (${i}): ${index}`);
-        });
-
-        // Filter unique indices
-        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
-        // Sort indices
-        selectedIndices.sort((a, b) => a - b);
-
-
-        this.setState({selectedIndices});
-        this.getComposer().trackSelect(this.getTrackName(), selectedIndices);
-        // if(selectTrack)
-        //     this.getComposer().trackSelect(this.getTrackName());
-        return selectedIndices;
-    }
-
-
-
-
-    // TODO: messy
-    trackerToggleTrack(trackName = null, toggleValue=null, trackData={}) {
-        // const trackState = this.trackGetState(trackName);
-        // const activeTracks = {...this.state.activeTracks};
-        let selectedTrack = trackName;
-        if(toggleValue === true || typeof this.state.activeTracks[trackName] === "undefined") {
-            // const currentTrackData = activeTracks[this.state.selectedTrack];
-            // activeTracks[trackName] = trackData; //Object.assign({}, currentTrackData, trackData);
-            this.setState(state => {
-                state.selectedTrack = selectedTrack;
-                state.activeTracks[trackName] = trackData
-            })
-            // await this.trackerUpdateSegmentInfo(trackName);
-
-        } else {
-            trackData = this.state.activeTracks[trackName];
-            if(trackData.destinationList)
-                selectedTrack = trackData.destinationList.slice(-1)[0]; // Select last track
-            else
-                selectedTrack = this.getSong().getStartTrackName();
-            this.setState(state => {
-                state.selectedTrack = selectedTrack;
-                delete state.activeTracks[trackName];
-            })
-        }
-    }
+    // selectIndices(selectedIndices, clearSelection=true, selectTrack=true) {
+    //     // TODO: get song position by this.props.index
+    //     // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
+    //
+    //
+    //     selectedIndices.forEach((index, i) => {
+    //         if(typeof index !== "number")
+    //             throw new Error(`Invalid selection index (${i}): ${index}`);
+    //     });
+    //
+    //     // Filter unique indices
+    //     selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
+    //     // Sort indices
+    //     selectedIndices.sort((a, b) => a - b);
+    //
+    //
+    //     this.setState({selectedIndices});
+    //     this.getComposer().trackSelectIndices(this.getTrackName(), selectedIndices);
+    //     // if(selectTrack)
+    //     //     this.getComposer().trackSelect(this.getTrackName());
+    //     return selectedIndices;
+    // }
 
 
 
     trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
-        return this.getActiveTrack(trackName || this.state.selectedTrack)
+        return this.trackGetActive(trackName || this.state.selectedTrack)
             .changeQuantization(trackerQuantizationTicks)
     }
 
     async trackerChangeQuantizationPrompt(trackName) {
-        return this.getActiveTrack(trackName || this.state.selectedTrack)
+        return this.trackGetActive(trackName || this.state.selectedTrack)
             .changeQuantizationPrompt();
     }
 
 
     trackerChangeSegmentLength(trackName, rowLength = null) {
-        return this.getActiveTrack(trackName || this.state.selectedTrack)
+        return this.trackGetActive(trackName || this.state.selectedTrack)
             .changeRowLength(rowLength)
     }
 
     async trackerChangeSegmentLengthPrompt(trackName) {
-        return this.getActiveTrack(trackName || this.state.selectedTrack)
+        return this.trackGetActive(trackName || this.state.selectedTrack)
             .changeRowLengthPrompt()
     }
 
@@ -684,15 +742,15 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionCopy(trackName=null, selectedIndices=null) {
         trackName = trackName || this.state.selectedTrack;
-        const activeTrack = this.getActiveTrack(trackName);
+        const activeTrack = this.trackGetActive(trackName);
         if(selectedIndices === null)
-            selectedIndices = activeTrack.getSelectedIndices();
+            selectedIndices = this.state.selectedTrackIndices; // activeTrack.getSelectedIndices();
         const iterator = activeTrack.getIterator();
         let startPosition = null, lastPosition=null, copyTrack=[];
         iterator.seekToEnd((instructionData) => {
             instructionData = instructionData.slice();
 
-            const index = iterator.getCurrentIndex();
+            const index = iterator.getIndex();
             for(let i=0; i<selectedIndices.length; i++)
                 if(selectedIndices[i] === index) {
                     if(startPosition === null)
@@ -720,71 +778,55 @@ class ASComposerActions extends ASComposerMenu {
         if(!Array.isArray(copyTrack))
             throw new Error("Invalid clipboard data: " + typeof copyTrack);
 
-        const activeTrack = this.getActiveTrack(trackName);
-        const {positionTicks: startPositionTicks} = activeTrack.cursorGetInfo();
+        const activeTrack = this.trackGetActive(trackName);
+        let {positionTicks: startPositionTicks} = activeTrack.cursorGetInfo();
 
         const selectedIndices = [];
         for(let i=0; i<copyTrack.length; i++) {
             const copyInstructionData = copyTrack[i];
             const insertPositionTicks = startPositionTicks + copyInstructionData[0];
+            startPositionTicks = insertPositionTicks;
             const insertIndex = this.instructionInsertAtPosition(trackName, insertPositionTicks, copyInstructionData, false, false);
             selectedIndices.push(insertIndex);
         }
 
-        console.log('pastedIndices', selectedIndices);
-        this.trackerSelectIndices(trackName, selectedIndices);
+        // console.log('pastedIndices', selectedIndices);
+        this.trackSelectIndices(trackName, selectedIndices);
     }
 
-    /** Iterator **/
 
-    /** @deprecated **/
-    trackerGetIterator(trackName=null) {
-        const activeTrack = this.getActiveTrack(trackName);
-        return this.getSong().instructionGetIterator(
+    instructionGetIndicesInRange(trackName, positionTicksStart, positionTicksEnd) {
+
+        const iterator = this.instructionGetIterator(trackName);
+        const rangeIndices = [];
+        for(const instructionData of iterator) {
+            if(iterator.getPositionInTicks() < positionTicksStart)
+                continue;
+            if(iterator.getPositionInTicks() >= positionTicksEnd)
+                continue;
+            rangeIndices.push(iterator.getIndex());
+        }
+        console.log('instructionGetIndicesInRange', trackName, positionTicksStart, positionTicksEnd, rangeIndices);
+
+        return rangeIndices;
+    }
+
+
+    /** Instruction Iterator **/
+
+
+    instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
+        timeDivision = timeDivision || this.song.data.timeDivision;
+        beatsPerMinute = beatsPerMinute || this.song.data.beatsPerMinute;
+        return InstructionIterator.getIteratorFromSong(
+            this.song,
             trackName,
-            activeTrack.getTimeDivision(),
-            activeTrack.getBeatsPerMinute()
-        );
+            {
+                timeDivision, // || this.getSong().data.timeDivision,
+                beatsPerMinute, //  || this.getSong().data.beatsPerMinute
+            }
+        )
     }
-
-    /** Track State **/
-
-    hasActiveTrack(trackName) {
-        return !!this.activeTracks[trackName];
-    }
-
-    getActiveTrack(trackName) {
-        const activeTrack = this.activeTracks[trackName];
-        if(!activeTrack)
-            throw new Error("Active track not found: " + trackName);
-        if(!activeTrack.current)
-            throw new Error("Active track not available: " + trackName);
-        return activeTrack.current;
-    }
-
-    /** Selection **/
-
-    trackerSelect(trackName) {
-        this.setState(state => {
-            state.selectedTrack = trackName;
-            return state;
-        });
-    }
-
-    async trackerSelectIndicesPrompt(trackName=null) {
-        if(trackName === null)
-            trackName = this.state.selectedTrack;
-        const activeTrack = this.getActiveTrack(trackName);
-        let selectedIndices = activeTrack.getSelectedIndices().join(', ');
-        selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
-        this.trackerSelectIndices(trackName, selectedIndices);
-    }
-
-    trackerSelectIndices(trackName, selectedIndices, clearSelection=true) {
-        return this.getActiveTrack(trackName)
-            .selectIndices(selectedIndices, clearSelection);
-    }
-
 
 
 

@@ -1,6 +1,7 @@
 import React from "react";
 import "./assets/ASUIInputRange.scss";
 import PropTypes from "prop-types";
+import ASUIMenuContext from "../menu/ASUIMenuContext";
 
 class ASUIInputRange extends React.Component {
     /** Default Properties **/
@@ -18,15 +19,16 @@ class ASUIInputRange extends React.Component {
         super(props);
         this.cb = {
             onChange: e => this.onChange(e),
-            onClick: e => this.onClick(e),
+            onMouseUp: e => this.onClick(e),
         };
     }
 
     onClick(e) {
         e.preventDefault();
         const newValue = parseFloat(e.target.value);
-        this.props.onChange(newValue)
+        this.props.onChange(newValue);
         // e.preventDefault();
+        this.closeAllDropDownMenus(e);
     }
 
     onChange(e) {
@@ -47,7 +49,7 @@ class ASUIInputRange extends React.Component {
                 type="range"
                 value={this.props.value}
                 onChange={this.cb.onChange}
-                onClick={this.cb.onClick}
+                onMouseUp={this.cb.onMouseUp}
                 min={this.props.min}
                 max={this.props.max}
                 step={this.props.step}
@@ -57,6 +59,15 @@ class ASUIInputRange extends React.Component {
         )
     }
 
+
+    /** Overlay Context **/
+    static contextType = ASUIMenuContext;
+
+    getOverlay() { return this.context.overlay; }
+
+    closeAllDropDownMenus(e) {
+        this.getOverlay().closeAllMenus(e);
+    }
 }
 
 

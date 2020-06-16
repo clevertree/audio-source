@@ -73,6 +73,8 @@ export default class ASUIDropDownContainerBase extends React.Component {
         // if(this.props.openOverlay)
         //     overlay.openOverlay();
 
+        // TODO: defer all to overlay
+
         // Try open menu handler
         const res = overlay.openMenu(this.props.options);
         if (res !== false) {

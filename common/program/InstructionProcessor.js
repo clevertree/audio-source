@@ -1,4 +1,4 @@
-import {ArgType} from "../index";
+import ArgType from "./argument/ArgType";
 
 export default class InstructionProcessor {
     static trackCommand = [ArgType.trackName, ArgType.duration, ArgType.offset, ArgType.frequency, ArgType.velocity]

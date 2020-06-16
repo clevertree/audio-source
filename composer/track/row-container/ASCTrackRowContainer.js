@@ -67,14 +67,5 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
         // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
     }
 
-
-    onContextMenu(e) {
-        if(e.defaultPrevented || e.altKey)
-            return;
-        e.preventDefault();
-        this.toggleDropDownMenu(e);
-    }
-
-
 }
 

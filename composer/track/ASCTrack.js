@@ -23,31 +23,6 @@ export default class ASCTrack extends ASCTrackBase {
     //         this.container.current.removeEventListener('wheel', this.cb.onWheel);
     // }
 
-
-    /** User Input **/
-
-    // onWheel(e) {
-    //     e.preventDefault();
-    //     let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
-    //     rowOffset += e.deltaY > 0 ? 1 : -1;
-    //     if(rowOffset < 0)
-    //         rowOffset = 0; // return console.log("Unable to scroll past beginning");
-    //
-    //     this.setRowOffset(rowOffset);
-    //     // console.log('onWheel', e.deltaY);
-    //     // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
-    //     // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
-    //     // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
-    // }
-    //
-    // toggleDropDownMenu(e) {
-    //     // console.log(e);
-    //     const state = {menuOpen: !this.state.menuOpen, clientPosition: null};
-    //     if(e)
-    //         state.clientPosition = [e.clientX, e.clientY];
-    //     this.setState(state);
-    // }
-
     /** Render **/
 
     render() {
@@ -94,20 +69,30 @@ export default class ASCTrack extends ASCTrackBase {
         ]
     }
 
-    /** Menu **/
 
-    onContextMenu(e) {
-        if(e.defaultPrevented || e.altKey)
-            return;
-        e.preventDefault();
-        this.toggleDropDownMenu(e);
-    }
+    /** User Input **/
 
-
-    renderContextMenu() {
-        // const selectedIndices = this.getTracker().getSelectedIndices();
-        return this.getComposer().renderMenuEdit();
-    }
+    // onWheel(e) {
+    //     e.preventDefault();
+    //     let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
+    //     rowOffset += e.deltaY > 0 ? 1 : -1;
+    //     if(rowOffset < 0)
+    //         rowOffset = 0; // return console.log("Unable to scroll past beginning");
+    //
+    //     this.setRowOffset(rowOffset);
+    //     // console.log('onWheel', e.deltaY);
+    //     // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
+    //     // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
+    //     // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
+    // }
+    //
+    // toggleDropDownMenu(e) {
+    //     // console.log(e);
+    //     const state = {menuOpen: !this.state.menuOpen, clientPosition: null};
+    //     if(e)
+    //         state.clientPosition = [e.clientX, e.clientY];
+    //     this.setState(state);
+    // }
 
 }
 

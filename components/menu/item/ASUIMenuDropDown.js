@@ -25,12 +25,15 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
             // onKeyDown: (e) => this.onKeyDown(e),
         this.cb.onMouseEnter = e => this.onMouseEnter(e);
+        this.cb.onMouseLeave = e => this.onMouseLeave(e);
         this.cb.onClose = () => this.closeDropDown();
         this.dropdown = React.createRef();
         this.state = {
             open: false,
             stick: false
         }
+
+        this.timeoutMouseLeave = null;
     }
 
 
@@ -136,10 +139,13 @@ export default class ASUIMenuDropDown extends ASUIClickable {
     /** User Input **/
 
     onMouseEnter(e) {
-        if(e.defaultPrevented)
-            return;
-        e.preventDefault();
+        clearTimeout(this.timeoutMouseLeave);
         this.hoverDropDown();
+    }
+
+    onMouseLeave(e) {
+        clearTimeout(this.timeoutMouseLeave);
+        this.timeoutMouseLeave = setTimeout(() => this.closeDropDown(), 1500);
     }
 
 

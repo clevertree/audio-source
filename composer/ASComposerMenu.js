@@ -144,12 +144,14 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEdit(selectedIndices=null) {
         // const selectedTrackName = this.state.selectedTrack;
-        // const activeTrack = this.getActiveTrack(selectedTrackName);
+        // const activeTrack = this.trackGetActive(selectedTrackName);
         if(selectedIndices === null)
             selectedIndices = this.state.selectedTrackIndices;
         return (<>
 
-            {selectedIndices.length > 0 ? this.renderMenuInstructionEdit() : <ASUIMenuItem>No Selection</ASUIMenuItem>}
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
+
+
 
             <ASUIMenuBreak />
             <ASUIMenuDropDown
@@ -158,16 +160,21 @@ class ASComposerMenu extends ASComposerRenderer {
             />
 
             <ASUIMenuBreak />
+            <ASUIMenuDropDown
+                disabled={selectedIndices.length === 0}
+                options={() => this.renderMenuInstructionEdit()}
+                children="Edit"
+            />
+
+            <ASUIMenuBreak />
             <ASUIMenuAction onAction={() => this.instructionCut()} disabled={selectedIndices.length===0}   >Cut</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionCopy()} disabled={selectedIndices.length===0}   >Copy</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionPasteAtCursor()}   >Paste</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionDeleteSelected()} disabled={selectedIndices.length===0}   >Delete</ASUIMenuAction>
 
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
 
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditBatch()}   >Batch</ASUIMenuDropDown>
+            {/*<ASUIMenuBreak />*/}
+            {/*<ASUIMenuDropDown options={() => this.renderMenuEditBatch()}   >Batch</ASUIMenuDropDown>*/}
         </>);
     }
 
@@ -202,13 +209,13 @@ class ASComposerMenu extends ASComposerRenderer {
         });
     }
 
-    renderMenuInstructionEditArg(argType, argIndex, paramValue, onSelectValue=null) {
-        let children = argType.title || "Unknown Arg";
+    renderMenuInstructionEditArg(argType, argIndex, paramValue, onSelectValue=null, title=null) {
+        title = title || argType.title || "Unknown Arg";
 
         return <ASUIMenuDropDown
             key={argIndex}
             options={() => this.renderMenuInstructionEditArgOptions(argType, argIndex, paramValue, onSelectValue)}
-            children={children}
+            children={title}
         />
     }
 
@@ -242,11 +249,19 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditTrackSelectIndices() {
         const selectedTrack = this.state.selectedTrack;
+        let cursorIndex = null;
+        if(!this.trackHasActive(selectedTrack))
+            return <ASUIMenuItem>{`Track is not active: ${selectedTrack}`}</ASUIMenuItem>
+        const activeTrack = this.trackGetActive(selectedTrack);
+        const cursorInfo = activeTrack.cursorGetInfo();
+        // console.log('cursorInfo', cursorInfo)
+        cursorIndex = cursorInfo.cursorIndex;
         return (<>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'all')}       >Select Track</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'segment')}      >Select Segment</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'row')}       >Select Row</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackerSelectIndices(selectedTrack, 'none')}       >Clear Selection</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('cursor')} disabled={cursorIndex === null}>Select Cursor</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('all')}       >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('segment')}      >Select Segment</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('row')}       >Select Row</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => activeTrack.selectIndices('none')}       >Clear Selection</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>
         </>);

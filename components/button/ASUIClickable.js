@@ -26,6 +26,7 @@ export default class ASUIClickable extends ASUIClickableBase {
                 onClick={this.cb.onMouseInput}
                 onKeyDown={this.cb.onKeyDown}
                 onMouseEnter={this.cb.onMouseEnter}
+                onMouseLeave={this.cb.onMouseLeave}
                 tabIndex={0}
             >
                 {this.renderChildren()}
