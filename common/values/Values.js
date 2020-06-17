@@ -27,9 +27,8 @@ class Values {
 
     }
 
-a
     renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
-        console.log('currentCommand', currentCommand);
+        // console.log('currentCommand', currentCommand);
         return this.getNoteFrequencies((noteName) =>
             <ASUIMenuDropDown key={noteName} options={() => this.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName, currentCommand)}>
                 {noteName}

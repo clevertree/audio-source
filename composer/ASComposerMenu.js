@@ -163,18 +163,19 @@ class ASComposerMenu extends ASComposerRenderer {
 
             <ASUIMenuDropDown
                 options={() => this.renderMenuEditInsert(null, true)}
-                children={selectedIndices.length === 0 ? "Insert At Cursor" : "Insert Before"}
+                children={selectedIndices.length === 0 ? "Insert Instruction" : `Insert Instruction`}
             />
-
-            <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
 
             <ASUIMenuBreak />
             <ASUIMenuDropDown
                 disabled={selectedIndices.length === 0}
                 options={() => this.renderMenuEditInstruction(selectedIndices)}
-                children="Edit"
+                children={`Edit ${selectedIndices.length} Instruction${selectedIndices.length === 1 ? '' : 's'}`}
             />
+
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
+
 
             <ASUIMenuBreak />
             <ASUIMenuAction onAction={() => this.instructionCutSelected()} disabled={selectedIndices.length===0}   >Cut</ASUIMenuAction>
@@ -191,9 +192,9 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEditInsert(trackName=null, before=false) {
         return this.values.renderMenuSelectCommand(async newCommand => {
-                before
-                    ? this.instructionInsertBeforeCursor(trackName, newCommand)
-                    : this.instructionInsertAtCursor(trackName, newCommand);
+                // before
+                //     ? this.instructionInsertAtCursor(trackName, newCommand)
+                    this.instructionInsertAtCursor(trackName, newCommand);
             },
             this.state.selectedInstructionData[1],
             // "New Command"
@@ -202,7 +203,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEditInstruction(selectedIndices=null) {
-        console.log('renderMenuEditInstruction', selectedIndices);
+        // console.log('renderMenuEditInstruction', selectedIndices);
 
         if(selectedIndices === null)
             selectedIndices = this.state.selectedTrackIndices;

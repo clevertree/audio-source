@@ -36,7 +36,7 @@ export default class ASComposer extends ASComposerInput {
             songUUID: null,
             // songLengthTicks: 0,
             songLength: 0,
-            songPosition: 0,
+            // songPosition: 0,
 
 
             // currentInstructionType: 'note',
@@ -65,6 +65,11 @@ export default class ASComposer extends ASComposerInput {
 
 
         };
+
+        this.songStats = {
+            position: 0
+        }
+
         this.activeTracks = {};
         this.timeouts = {
             saveSongToMemory: null,
@@ -150,14 +155,16 @@ export default class ASComposer extends ASComposerInput {
             case 'song:play':
                 this.setState({playing: true});
                 // this.fieldSongPlaybackPause.disabled = false;
+                let updateCount = 0;
                 const updateSongPositionInterval = setInterval(e => {
                     if (!this.song.isPlaying()) {
                         clearInterval(updateSongPositionInterval);
                         // this.fieldSongPlaybackPause.disabled = true;
                         this.setState({playing: false, paused: false});
                     }
-                    this.updateSongPositionValue(this.song.getSongPlaybackPosition());
-                }, 20);
+                    this.updateSongPositionValue(this.song.getSongPlaybackPosition(), updateCount % 5 === 0);
+                    updateCount++;
+                }, 10);
                 break;
 
             case 'song:pause':

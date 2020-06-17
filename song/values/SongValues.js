@@ -79,11 +79,26 @@ class SongValues extends Values {
                 throw new Error(`Invalid selection index (${i}): ${index}`);
         });
 
-        // Filter unique indices
-        selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
-        // Sort indices
-        selectedIndices.sort((a, b) => a - b);
+        // Filter and sort
+        selectedIndices = this.filterAndSort(selectedIndices);
         return selectedIndices;
+    }
+
+    filterAndSort(selectedIndices) {
+        // Filter unique indices
+        selectedIndices = this.filterUniqueIndices(selectedIndices);
+        // Sort indices
+        return this.sortIndices(selectedIndices);
+    }
+
+    filterUniqueIndices(selectedIndices) {
+        // Filter unique indices
+        return selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
+    }
+
+    sortIndices(selectedIndices) {
+        // Sort indices
+        return selectedIndices.sort((a, b) => a - b);
     }
 
 
@@ -116,7 +131,7 @@ class SongValues extends Values {
     renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null) {
         return super.renderMenuSelectCommand(onSelectValue, currentCommand, title, (<>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown disabled options={() => this.renderMenuSelectCommandByNamed(onSelectValue)}               >By Alias</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByTrack(onSelectValue)}               >By Track</ASUIMenuDropDown>
         </>));
     }

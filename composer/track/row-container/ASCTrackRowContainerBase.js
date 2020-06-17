@@ -60,7 +60,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
     renderRowContent() {
         const composer = this.getComposer();
         const track = this.getTrack();
-        const songPosition = composer.state.songPosition;
+        const songPosition = composer.songStats.position;
         const trackSongPosition = songPosition - track.getStartPosition();
         const cursorOffset = track.getCursorOffset();
         const rowOffset = track.getRowOffset();
@@ -265,10 +265,12 @@ export default class ASCTrackRowContainerBase extends React.Component {
                 //, targetCursorInfo.adjustedCursorRow
                 if(targetCursorInfo.cursorIndex !== null) {
                     if(e.ctrlKey) {
-                        track.selectIndicesAndPlay(targetCursorInfo.cursorIndex, !e.shiftKey); //TODO: shift for playback?
+                        const selectedIndices = track.selectIndices(targetCursorInfo.cursorIndex, false);
+                        if(e.shiftKey) {
+                            track.playInstructions(selectedIndices, true);
+                        }
                     } else if(e.shiftKey) {
-                        track.playInstructions(targetCursorInfo.cursorIndex);
-
+                        track.playInstructions(targetCursorInfo.cursorIndex, true);
                     }
                 }
 
@@ -287,13 +289,21 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
             case 'ContextMenu':
                 e.preventDefault();
-                track.cursorInstruction.current.toggleMenu();
+                track.toggleDropDownMenu(); // TODO: open composer edit menu instead
                 break;
 
             case 'Shift':
                 const {cursorIndex: cursorShiftPlayIndex} = track.cursorGetInfo();
-                if(cursorShiftPlayIndex !== null)
+                if(track.getSelectedIndices().length > 0)
+                    track.playSelectedInstructions();
+                else if(cursorShiftPlayIndex !== null)
                     track.playInstructions([cursorShiftPlayIndex]);
+                break;
+
+            case 'Control':
+                const {cursorIndex: cursorControlIndex} = track.cursorGetInfo();
+                if(cursorControlIndex !== null)
+                    track.selectIndices(cursorControlIndex, 'toggle');
                 break;
 
             default:
@@ -331,7 +341,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
 
     renderContextMenu() {
-        // const selectedIndices = track.getTracker().getSelectedIndices();
+        // const selectedIndices = track.getTrack().getSelectedIndices();
         return this.getComposer().renderMenuEdit();
     }
 

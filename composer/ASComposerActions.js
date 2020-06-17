@@ -340,13 +340,25 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async setSongPositionPrompt() {
-        let songPosition = this.values.formatPlaybackPosition(this.state.songPosition || 0);
+        let songPosition = this.values.formatPlaybackPosition(this.songStats.position || 0);
         songPosition = await PromptManager.openPromptDialog("Set playback position:", songPosition);
         this.setSongPosition(songPosition);
     }
 
-    updateSongPositionValue(playbackPositionInSeconds) {
-        this.setState({songPosition:playbackPositionInSeconds})
+    updateSongPositionValue(playbackPositionInSeconds, updateTrackPositions=true) {
+        this.songStats.position = playbackPositionInSeconds;
+        const panelSong = this.ref.panelSong.current;
+        panelSong && panelSong.forceUpdate();
+        if(updateTrackPositions) {
+            // TODO Optimize: skip update if position change is less than next row
+            for (const trackName in this.activeTracks) {
+                if (this.activeTracks.hasOwnProperty(trackName)) {
+                    const activeTrack = this.activeTracks[trackName].current;
+                    activeTrack && activeTrack.forceUpdate();
+                }
+            }
+        }
+        // this.setState({songPosition:playbackPositionInSeconds})
     }
 
     /** Keyboard Commands **/
@@ -380,7 +392,7 @@ class ASComposerActions extends ASComposerMenu {
 
     songPlay(songPosition=null, onended=null) {
         this.song.play(this.getDestination(),
-            songPosition === null ? this.state.songPosition : songPosition,
+            songPosition === null ? this.songStats.position : songPosition,
             onended);
     }
 
@@ -545,7 +557,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
-    trackSelectIndices(trackName, selectedIndices=[], clearSelection=false, trackStats=null) {
+    trackSelectIndices(trackName, selectedIndices=[], clearSelection=false) {
 
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
@@ -574,7 +586,33 @@ class ASComposerActions extends ASComposerMenu {
         }
 
         selectedIndices = this.values.parseSelectedIndices(selectedIndices);
-        // console.log('trackSelectIndices', trackName, selectedIndices)
+        switch(clearSelection) {
+            case false:
+                if (this.state.selectedTrackIndices.length > 0)
+                    selectedIndices = this.values.filterAndSort(selectedIndices.concat(this.state.selectedTrackIndices));
+                break;
+
+            default:
+            case true:
+                break;
+
+            case 'toggle':
+                if (this.state.selectedTrackIndices.length > 0) {
+                    const toggledSelectedIndices = this.state.selectedTrackIndices.slice();
+                    for(const selectedIndex of selectedIndices) {
+                        const p = toggledSelectedIndices.indexOf(selectedIndex);
+                        if(p === -1) {
+                            toggledSelectedIndices.push(selectedIndex);
+                        } else {
+                            toggledSelectedIndices.splice(p, 1);
+                        }
+                    }
+                    selectedIndices = this.values.filterAndSort(toggledSelectedIndices);
+                }
+
+                break;
+        }
+        console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
 
         const state = {
             // selectedIndices,
@@ -582,18 +620,14 @@ class ASComposerActions extends ASComposerMenu {
             selectedTrack: trackName,
             selectedTrackIndices: selectedIndices
         }
+        if(!state.activeTracks[trackName])
+            state.activeTracks[trackName] = {}; // TODO: hack
         if(selectedIndices.length > 0) {
             const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
             state.selectedInstructionData = instructionData.slice();
             state.selectedInstructionData[0] = 0;
         }
-        // if (!clearSelection && this.state.selectedTrackIndices.length > 0)
-        //     selectedIndices = selectedIndices.concat(this.state.selectedTrackIndices);
 
-        if(!state.activeTracks[trackName])
-            state.activeTracks[trackName] = {};
-        if(trackStats)
-            state.activeTracks[trackName] = trackStats;
         this.setState(state);
         return selectedIndices;
         // if(instruction instanceof NoteInstruction) {

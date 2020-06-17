@@ -30,9 +30,9 @@ export default class ASCTrackInstructionBase extends React.Component {
     //     const composer = this.props.composer;
     //     composer.song.playInstructionAtIndex(destination, this.state.track.currentGroup, this.index, composer.song.getAudioContext().currentTime);
     //     return this;
-    getTracker() { return this.props.track; }
-    getTrackName() { return this.getTracker().getTrackName(); }
-    getComposer() { return this.getTracker().props.composer; }
+    getTrack() { return this.props.track; }
+    getTrackName() { return this.getTrack().getTrackName(); }
+    getComposer() { return this.getTrack().props.composer; }
     getSong() { return this.getComposer().getSong(); }
     getInstructionData() { return this.props.instruction; }
     getInstructionCommand() { return this.getInstructionData()[1]; }
@@ -101,13 +101,13 @@ export default class ASCTrackInstructionBase extends React.Component {
     // }
 
     playInstruction(destination=null) {
-        // this.getTracker().getTrackInfo().updateCurrentInstruction(); // Hack
-        return this.getTracker().playInstructions(this.getInstructionIndex(), destination);
+        // this.getTrack().getTrackInfo().updateCurrentInstruction(); // Hack
+        return this.getTrack().playInstructions(this.getInstructionIndex(), destination);
     }
 
     selectInstruction(clearSelection=true, toggleValue = null) {
-        // const trackName = this.getTracker().getTrackName();
-        const selectedIndices = clearSelection ? [] : this.getTracker().getSelectedIndices();
+        // const trackName = this.getTrack().getTrackName();
+        const selectedIndices = clearSelection ? [] : this.getTrack().getSelectedIndices();
         // console.log('selectInstruction', clearSelection, selectedIndices);
         // const instruction = this.getInstruction();
         const i = selectedIndices.indexOf(this.props.index);
@@ -119,9 +119,9 @@ export default class ASCTrackInstructionBase extends React.Component {
                 selectedIndices.splice(i, 1);
         }
         // this.getComposer().trackSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
-        // this.getTracker().selectIndices(selectedIndices); // , this.props.cursorPosition);
-        this.getTracker().selectIndices(selectedIndices);
-        this.getTracker().setCursorPositionOffset(this.props.cursorPosition);
+        // this.getTrack().selectIndices(selectedIndices); // , this.props.cursorPosition);
+        this.getTrack().selectIndices(selectedIndices);
+        this.getTrack().setCursorPositionOffset(this.props.cursorPosition);
         return selectedIndices;
     }
 
@@ -130,7 +130,7 @@ export default class ASCTrackInstructionBase extends React.Component {
 
 
     renderMenuEditSet() {
-        // const selectedIndices = this.getTracker().getSelectedIndices();
+        // const selectedIndices = this.getTrack().getSelectedIndices();
         return this.getComposer().renderMenuEdit();
     }
 

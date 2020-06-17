@@ -18,13 +18,13 @@ class ASCTrackRow extends ASCTrackRowBase {
         const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatDurationAsDecimal(this.props.positionTicks);
         return (
             <div
-                ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
+                ref={input => this.props.cursor && this.getTrack().props.selected && input && input.focus()}
                 tabIndex={0}
                 className={className}
                 // onClick={this.cb.onMouseInput}
                 onClick={this.cb.onClick}
                 // onContextMenu={this.cb.onContextMenu}
-                onKeyDown={this.cb.onKeyDown}
+                // onKeyDown={this.cb.onKeyDown}
             >
                 <ASCTrackPosition position={rowPosition}/>
                 {this.props.children}
@@ -54,26 +54,26 @@ class ASCTrackRow extends ASCTrackRowBase {
         this.selectRow(!e.ctrlKey);
     }
 
-    onContextMenu(e) {
-        if (e.defaultPrevented || e.shiftKey)
-            return;
-        e.preventDefault();
-        this.toggleMenu(e);
-    }
-
-    onKeyDown(e) {
-        if (e.isDefaultPrevented())
-            return;
-        switch (e.key) {
-            case 'ContextMenu':
-                e.preventDefault();
-                this.toggleMenu();
-                break;
-
-            default:
-                break;
-        }
-    }
+    // onContextMenu(e) {
+    //     if (e.defaultPrevented || e.shiftKey)
+    //         return;
+    //     e.preventDefault();
+    //     this.toggleMenu(e);
+    // }
+    //
+    // onKeyDown(e) {
+    //     if (e.isDefaultPrevented())
+    //         return;
+    //     switch (e.key) {
+    //         case 'ContextMenu':
+    //             e.preventDefault();
+    //             this.toggleMenu();
+    //             break;
+    //
+    //         default:
+    //             break;
+    //     }
+    // }
 
 }
 

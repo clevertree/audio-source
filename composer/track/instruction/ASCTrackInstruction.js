@@ -14,7 +14,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             // onKeyDown: (e) => this.onKeyDown(e),
             // onMouseDown: e => this.onMouseDown(e),
             onClick: e => this.onClick(e),
-            // onContextMenu: e => this.onContextMenu(e),
+            onContextMenu: e => this.onContextMenu(e),
             // options: () => this.renderMenuEditSet()
         };
     }
@@ -34,12 +34,12 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         const instructionData = this.getInstructionData();
         const open = this.isOpen();
         return <div
-            ref={input => this.props.cursor && this.getTracker().props.selected && input && input.focus()}
+            ref={input => this.props.cursor && this.getTrack().props.selected && input && input.focus()}
             tabIndex={0}
             className={className}
             onKeyDown={this.cb.onKeyDown}
             onClick={this.cb.onClick}
-            // onContextMenu={this.cb.onContextMenu}
+            onContextMenu={this.cb.onContextMenu}
             // onMouseDown={this.cb.onMouseInput} // TODO
             //  : fix inputs
             >
@@ -78,26 +78,24 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
-        // if(e.button === 2) {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //     this.toggleDropDownMenu();
-        // } else {
-            this.selectInstruction(!e.ctrlKey);
-            if(e.shiftKey)
-                this.playInstruction();
-        // }
+        this.selectInstruction(!e.ctrlKey);
+        if(e.shiftKey)
+            this.playInstruction();
     }
 
 
-    // onContextMenu(e) {
-    //     if(e.defaultPrevented || e.altKey)
-    //         return;
-    //     e.preventDefault();
-    //
-    //     this.selectInstructionWithAction(!e.ctrlKey);
-    //     this.toggleDropDownMenu();
-    // }
+    onContextMenu(e) {
+        if(e.defaultPrevented || e.altKey)
+            return;
+        e.preventDefault();
+
+        const selectedIndices = this.getTrack().getSelectedIndices();
+        if(selectedIndices.indexOf(this.props.index) === -1)
+            this.selectInstruction(!e.ctrlKey);
+        if(e.shiftKey)
+            this.playInstruction();
+        this.getTrack().toggleDropDownMenu(e);
+    }
 
 
 

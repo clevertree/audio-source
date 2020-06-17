@@ -56,6 +56,9 @@ export default class ASCTrackBase extends React.Component {
             // onWheel: e => this.onWheel(e),
             // options: () => this.renderContextMenu()
         };
+        this.ref = {
+            rowContainer: React.createRef()
+        }
         this.destination = null;
         // this.cursorInstruction = React.createRef();
         // this.trackerGetCursorInfo();
@@ -116,6 +119,10 @@ export default class ASCTrackBase extends React.Component {
         return this.props.trackName === this.props.composer.state.selectedTrack;
     }
 
+    toggleDropDownMenu(e) {
+        const rowContainer = this.ref.rowContainer.current;
+        rowContainer && rowContainer.toggleDropDownMenu(e);
+    }
 
     // getTrackInfo() {
     //     return new TrackInfo(this.props.trackName, this.props.composer);
@@ -409,6 +416,7 @@ export default class ASCTrackBase extends React.Component {
     renderRowContainer() {
         return <ASCTrackRowContainer
             key="row-container"
+            ref={this.ref.rowContainer}
             track={this}
         />
     }

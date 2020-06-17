@@ -19,6 +19,9 @@ class ASComposerRenderer extends React.Component {
             loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
         }
+        this.ref = {
+            panelSong: React.createRef()
+        }
     }
 
     /** TODO: Error Handling **/
@@ -40,7 +43,7 @@ class ASComposerRenderer extends React.Component {
                     containerRef={this.containerRef}
                     composer={this}
                     >
-                    {this.state.showPanelSong ? <ASComposerSongPanel composer={this} /> : null}
+                    {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}
                     {this.state.showPanelProgram ? <ASComposerProgramPanel composer={this} /> : null}
                     {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
                     {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}

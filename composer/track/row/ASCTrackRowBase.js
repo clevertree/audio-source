@@ -29,9 +29,9 @@ export default class ASCTrackRowBase extends React.Component {
         cursorPosition: PropTypes.number.isRequired // TODO: inefficient?
     };
 
-    getTracker() { return this.props.track; }
+    getTrack() { return this.props.track; }
 
-    getComposer() { return this.getTracker().getComposer(); }
+    getComposer() { return this.getTrack().getComposer(); }
 
     // eslint-disable-next-line react/require-render-return
     render() {
@@ -42,23 +42,23 @@ export default class ASCTrackRowBase extends React.Component {
 
     selectRow(clearSelection = true) {
         // const selectedIndices = clearSelection ? [] : null;
-        const tracker = this.getTracker();
+        const tracker = this.getTrack();
         tracker.setCursorPositionOffset(this.props.cursorPosition, this.props.positionTicks);
         tracker.selectIndices([], clearSelection);
-        const {positionSeconds} = this.getTracker().getPositionInfo(this.props.positionTicks);
-        this.getComposer().setSongPosition(this.getTracker().getStartPosition() + positionSeconds)
+        const {positionSeconds} = this.getTrack().getPositionInfo(this.props.positionTicks);
+        this.getComposer().setSongPosition(this.getTrack().getStartPosition() + positionSeconds)
     }
 
 
     instructionInsert(command) {
         const insertIndex = this.getComposer().instructionInsertAtPosition(
-            this.getTracker().getTrackName(),
+            this.getTrack().getTrackName(),
             this.props.positionTicks,
             command,
             true,
             true
         );
-        this.getTracker().selectIndices(
+        this.getTrack().selectIndices(
             insertIndex
         );
     }
