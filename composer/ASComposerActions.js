@@ -42,36 +42,37 @@ class ASComposerActions extends ASComposerMenu {
         this.song = song;
         console.log("Current Song: ", song.getProxiedData());
 
-        const activeTracks = {
-            'root': {
-                // destination: this.getAudioContext()
-            },
-        };
-
         this.song.addEventListener('*', this.onSongEventCallback);
         // this.setStatus("Initializing song: " + song.data.title);
         // this.song.connect(this.getAudioContext());
         // this.setStatus("Loaded song: " + song.data.title);
-        this.setState({
+        const state = {
             statusText: "Loaded song: " + song.data.title,
             statusType: 'log',
             title: song.data.title,
             songUUID: song.data.uuid,
             songLength: song.getSongLengthInSeconds(),
             selectedTrack: song.getStartTrackName() || 'root',
-            activeTracks
-        });
+            activeTracks: {}
+        }
+        state.activeTracks[state.selectedTrack] = {}
+        this.setState(state);
         // this.trackerToggleTrack('track0', true);
         // this.trackerToggleTrack('track1', true);
     }
 
     updateCurrentSong() {
+        const activeTracks = this.state.activeTracks;
+        if(Object.keys(activeTracks).length === 0)
+            activeTracks[this.state.selectedTrack || 'root'] = {}
+
         this.setState({
             songLength: this.song.getSongLengthInSeconds(),
+            activeTracks
         });
-        for(let key in this.activeTracks) {
-            if(this.activeTracks.hasOwnProperty(key)) {
-                const activeTrack = this.activeTracks[key];
+        for(let key in this.activeTrackRef) {
+            if(this.activeTrackRef.hasOwnProperty(key)) {
+                const activeTrack = this.activeTrackRef[key];
                 if(activeTrack.current) {
                     activeTrack.current.updateRenderingProps();
                 }
@@ -124,9 +125,9 @@ class ASComposerActions extends ASComposerMenu {
         const state = Object.assign({}, this.state, {
             activeTracks: {}
         });
-        for(let key in this.activeTracks) {
-            if(this.activeTracks.hasOwnProperty(key)) {
-                const activeTrack = this.activeTracks[key];
+        for(let key in this.activeTrackRef) {
+            if(this.activeTrackRef.hasOwnProperty(key)) {
+                const activeTrack = this.activeTrackRef[key];
                 if(activeTrack.current) {
                     state.activeTracks[key] = activeTrack.current.state;
                 }
@@ -351,9 +352,9 @@ class ASComposerActions extends ASComposerMenu {
         panelSong && panelSong.forceUpdate();
         if(updateTrackPositions) {
             // TODO Optimize: skip update if position change is less than next row
-            for (const trackName in this.activeTracks) {
-                if (this.activeTracks.hasOwnProperty(trackName)) {
-                    const activeTrack = this.activeTracks[trackName].current;
+            for (const trackName in this.activeTrackRef) {
+                if (this.activeTrackRef.hasOwnProperty(trackName)) {
+                    const activeTrack = this.activeTrackRef[trackName].current;
                     activeTrack && activeTrack.forceUpdate();
                 }
             }
@@ -484,11 +485,11 @@ class ASComposerActions extends ASComposerMenu {
     /** Track State **/
 
     trackHasActive(trackName) {
-        return this.activeTracks[trackName] && this.activeTracks[trackName].current;
+        return this.activeTrackRef[trackName] && this.activeTrackRef[trackName].current;
     }
 
     trackGetActive(trackName) {
-        const activeTrack = this.activeTracks[trackName];
+        const activeTrack = this.activeTrackRef[trackName];
         if(!activeTrack)
             throw new Error("Active track not found: " + trackName);
         if(!activeTrack.current)

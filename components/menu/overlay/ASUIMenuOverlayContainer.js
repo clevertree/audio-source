@@ -22,6 +22,8 @@ export default class ASUIMenuOverlayContainer extends ASUIMenuOverlayContainerBa
             <div className="asui-menu-overlay-container"
                 >
                 {this.state.open ? <div
+                    ref={elm => elm.focus()}
+                    tabIndex={0}
                     className="dropdown">
                     {this.state.options}
                     <ASUIMenuBreak/>

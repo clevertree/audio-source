@@ -12,6 +12,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
             closeAllMenus: e => this.closeAllMenus(e),
         };
         this.openMenus =  [];
+        this.tabIndices = [];
         this.updateOverlayTimeout = null;
     }
     // componentDidMount() {
@@ -56,6 +57,47 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     isOpen() {
         return this.state.open;
     }
+
+
+    /** Tab Index Items **/
+
+    // getTabIndexCount() { return this.tabIndices.length; }
+
+    getNextTabIndexItem(tabIndexItem, count=1) {
+        let tabIndex = this.getTabIndex(tabIndexItem);
+        tabIndex += count;
+        if(tabIndex >= this.tabIndices.length)
+            tabIndex = 0;
+        if(tabIndex < 0 )
+            tabIndex = this.tabIndices - 1;
+        return this.tabIndices[tabIndex];
+    }
+
+    getTabIndex(tabIndexItem) {
+        return this.tabIndices.findIndex(item => item === tabIndexItem);
+    }
+
+    getTabIndexItem(tabIndex) {
+        if(!this.tabIndices[tabIndex])
+            throw new Error("Tab Index not found: " + tabIndex);
+        return this.tabIndices[tabIndex];
+    }
+
+    addTabIndexItem(tabIndexItem) {
+        const i = this.getTabIndex(tabIndexItem);
+        if(i === -1)
+            this.tabIndices.push(tabIndexItem);
+    }
+
+    removeTabIndexItem(tabIndexItem) {
+        const i = this.getTabIndex(tabIndexItem);
+        if(i !== -1)
+            this.tabIndices.splice(i, 1);
+    }
+
+
+
+    /** Open/Close Menu **/
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {
         const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);

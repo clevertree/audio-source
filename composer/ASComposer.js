@@ -70,7 +70,7 @@ export default class ASComposer extends ASComposerInput {
             position: 0
         }
 
-        this.activeTracks = {};
+        this.activeTrackRef = {};
         this.timeouts = {
             saveSongToMemory: null,
             saveState: null,
@@ -90,7 +90,7 @@ export default class ASComposer extends ASComposerInput {
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);
 
-//         setTimeout(() => console.log(this.activeTracks), 1000);
+//         setTimeout(() => console.log(this.activeTrackRef), 1000);
     }
 
 

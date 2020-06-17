@@ -32,12 +32,18 @@ export default class ASUIDropDownContainerBase extends React.Component {
         this.divRef = React.createRef();
         this.deferredToOverlayMenu = false;
         this.state = {
-            options: null
+            options: null,
+            offsetIndex: 0,
+            selectedIndex: 0
+        }
+        this.cb = {
+            onKeyDown: e => this.onKeyDown(e)
         }
     }
 
     /** Menu Context **/
 
+    /** @return {ASUIMenuOverlayContainer} **/
     getOverlay() { return this.context.overlay; }
 
     // componentDidUpdate(prevProps, prevState, snapshot) {
@@ -121,8 +127,8 @@ export default class ASUIDropDownContainerBase extends React.Component {
     async openMenu() {
         if (this.props.disabled)
             return console.error("Menu is disabled");
-        if (this.state.open)
-            throw new Error("Menu was already open");
+        // if (this.state.open)
+        //     throw new Error("Menu was already open");
 
         // Try open menu handler
         if(this.getOverlay()) {
@@ -146,7 +152,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
             console.warn("Empty options returned by ", this);
 
         this.setState({
-            open: true,
+            // open: true,
             options
         });
     }
@@ -188,6 +194,36 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     }
 
+    /** Input **/
+
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+
+        let selectedIndex = this.state.selectedIndex;
+        switch(e.key) {
+
+            // TODO: count options
+            case 'ArrowUp':
+                selectedIndex -= 1;
+                this.setState({selectedIndex})
+                break;
+            case 'ArrowDown':
+                selectedIndex += 1;
+                this.setState({selectedIndex})
+                break;
+
+            case 'ArrowLeft':
+            case 'ArrowRight':
+                e.preventDefault();
+                console.info("Unhandled key: ", e.key, e.target);
+                break;
+
+            default:
+                // console.info("Unhandled key: ", e.key, e.target);
+                break;
+        }
+    }
 }
 
 // class DropDownContextWrapper extends React.Component {

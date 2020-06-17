@@ -150,20 +150,20 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
 
 
-    onKeyDown(e) {
-        if(e.isDefaultPrevented())
-            return;
-        switch(e.key) {
-            case ' ':
-            case 'Enter':
-                this.toggleMenu();
-                break;
-
-            default:
-                console.info("Unhandled key: ", e.key);
-                break;
-        }
-    }
+    // onKeyDown(e) {
+    //     if(e.isDefaultPrevented())
+    //         return;
+    //     switch(e.key) {
+    //         case ' ':
+    //         case 'Enter':
+    //             this.toggleMenu();
+    //             break;
+    //
+    //         default:
+    //             console.info("Unhandled key: ", e.key);
+    //             break;
+    //     }
+    // }
 
 
 }

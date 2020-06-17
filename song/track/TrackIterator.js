@@ -230,7 +230,7 @@ export default class TrackIterator {
 
     // incrementTrack() {
     //     this.currentTrackID++;
-    //     if(this.currentTrackID >= this.activeTracks.length)
+    //     if(this.currentTrackID >= this.activeTrackRef.length)
     //         this.currentTrackID = 0;
     //     return this.currentTrackID;
     // }

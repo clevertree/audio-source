@@ -16,6 +16,10 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         this.getOverlay().removeCloseMenuCallback(this);
     }
 
+    componentDidMount() {
+        this.divRef.current.focus();
+    }
+
     renderDropDownContainer(options) {
         let className = 'asui-menu-dropdown';
         if (this.props.vertical)
@@ -31,6 +35,8 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             style={style}
             className={className}
             children={options}
+            tabIndex={0}
+            onKeyDown={this.cb.onKeyDown}
             ref={this.divRef}
         />;
     }

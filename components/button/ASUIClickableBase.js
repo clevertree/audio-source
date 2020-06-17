@@ -16,6 +16,12 @@ export default class ASUIClickable extends React.Component {
     //     return nextProps.children !== this.props.children;
     // }
 
+    componentDidMount() {
+        this.getOverlay().addTabIndexItem(this);
+    }
+    componentWillUnmount() {
+        this.getOverlay().removeTabIndexItem(this);
+    }
 
     renderChildren(props={}) {
         return this.props.children;
@@ -38,8 +44,23 @@ export default class ASUIClickable extends React.Component {
         switch(e.key) {
             case ' ':
             case 'Enter':
+                e.preventDefault();
                 this.doAction(e);
                 break;
+
+            case 'Tab':
+                e.preventDefault();
+                const tabIndexItem = this.getOverlay().getNextTabIndexItem(this, 1);
+                console.log('TODO tabIndexItem', tabIndexItem);
+                break;
+
+            // case 'ArrowLeft':
+            // case 'ArrowUp':
+            // case 'ArrowDown':
+            // case 'ArrowRight':
+            //     console.info("Unhandled key: ", e.key);
+            //     e.preventDefault();
+            //     break;
 
             default:
                 console.info("Unhandled key: ", e.key);
@@ -57,6 +78,7 @@ export default class ASUIClickable extends React.Component {
     /** Overlay Context **/
     static contextType = ASUIMenuContext;
 
+    /** @return {ASUIMenuOverlayContainer} **/
     getOverlay() { return this.context.overlay; }
 
     closeAllDropDownMenus(e) {
