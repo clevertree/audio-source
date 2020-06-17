@@ -11,7 +11,6 @@ import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 class ASComposerRenderer extends React.Component {
     constructor(props) {
         super(props);
-        this.containerRef = React.createRef();
         this.cb = {
             songPlay: () => this.songPlay(),
             songPause: () => this.songPause(),
@@ -20,6 +19,7 @@ class ASComposerRenderer extends React.Component {
             saveSongToFile: this.saveSongToFile.bind(this),
         }
         this.ref = {
+            container: React.createRef(),
             panelSong: React.createRef()
         }
     }
@@ -37,10 +37,14 @@ class ASComposerRenderer extends React.Component {
     //     this.setError(error);
     // }
 
+    openMenu(menuName) {
+        this.ref.container.current.openMenu(menuName);
+    }
+
     render() {
 //         console.log('ASComposerRenderer.render()');
         return <ASComposerContainer
-                    containerRef={this.containerRef}
+                    ref={this.ref.container}
                     composer={this}
                     >
                     {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}

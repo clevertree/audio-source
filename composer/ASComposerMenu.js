@@ -8,7 +8,7 @@ import {ArgType} from "../common";
 class ASComposerMenu extends ASComposerRenderer {
 
 
-    renderRootMenu() {
+    renderRootMenu(ref={}) {
         const props = {
             vertical: !this.state.portrait,
             openOnHover: false,
@@ -16,11 +16,11 @@ class ASComposerMenu extends ASComposerRenderer {
         if(!this.state.portrait)
             props.arrow = false;
         return (<>
-            <ASUIMenuDropDown {...props} options={() => this.renderMenuFile()}          >File</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} options={() => this.renderMenuEdit()}          >Edit</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} options={() => this.renderMenuTrack()}         >Track</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} options={() => this.renderMenuProgram()}    >Program</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} options={() => this.renderMenuView()}          >View</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.file} options={() => this.renderMenuFile()}          >File</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.edit} options={() => this.renderMenuEdit()}          >Edit</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.track} options={() => this.renderMenuTrack()}         >Track</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.program} options={() => this.renderMenuProgram()}    >Program</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.view} options={() => this.renderMenuView()}          >View</ASUIMenuDropDown>
         </>);
     }
 

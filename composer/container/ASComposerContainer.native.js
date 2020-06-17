@@ -17,6 +17,8 @@ export default class ASComposerContainer extends React.Component {
         this.cb = {
             onPress: e => this.onPress(e)
         }
+        this.ref = {
+        }
     }
 
     render() {
@@ -88,6 +90,19 @@ export default class ASComposerContainer extends React.Component {
             </View>
         );
     }
+
+    /** Actions **/
+
+    openMenu(menuName) {
+        const menu = this.ref[menuName];
+        if(!menu)
+            throw new Error("Menu not found: " + menu);
+        if(!menu.current)
+            throw new Error("Menu not rendered: " + menu);
+        menu.current.openDropDown();
+    }
+
+    /** Input **/
 
     onPress(e) {
         this.dropdown.current.toggleMenu();

@@ -289,15 +289,24 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
             case 'ContextMenu':
                 e.preventDefault();
-                track.toggleDropDownMenu(); // TODO: open composer edit menu instead
+                this.getComposer().openMenu('edit');
+                // track.toggleDropDownMenu(); // TODO: open composer edit menu instead
                 break;
 
             case 'Shift':
                 const {cursorIndex: cursorShiftPlayIndex} = track.cursorGetInfo();
+                if(cursorShiftPlayIndex !== null)
+                    track.playInstructions([cursorShiftPlayIndex]);
+                // else if(track.getSelectedIndices().length > 0)
+                //     track.playSelectedInstructions();
+                break;
+
+            case 'Alt':
+                // const {cursorIndex: cursorAltPlayIndex} = track.cursorGetInfo();
+                // if(cursorShiftPlayIndex !== null)
+                //     track.playInstructions([cursorShiftPlayIndex]);
                 if(track.getSelectedIndices().length > 0)
                     track.playSelectedInstructions();
-                else if(cursorShiftPlayIndex !== null)
-                    track.playInstructions([cursorShiftPlayIndex]);
                 break;
 
             case 'Control':

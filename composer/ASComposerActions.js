@@ -612,7 +612,7 @@ class ASComposerActions extends ASComposerMenu {
 
                 break;
         }
-        console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
+        // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
 
         const state = {
             // selectedIndices,

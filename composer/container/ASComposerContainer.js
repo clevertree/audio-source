@@ -12,6 +12,24 @@ export default class ASComposerContainer extends React.Component {
         // portrait: PropTypes.bool.isRequired
     };
 
+    constructor(props) {
+        super(props);
+        this.ref = {
+            container: React.createRef(),
+            menu: {
+                file: React.createRef(),
+                edit: React.createRef(),
+                track: React.createRef(),
+                program: React.createRef(),
+                view: React.createRef(),
+            }
+        }
+    }
+
+    getContainerElement() {
+        return this.ref.container.current;
+    }
+
 
     render() {
         const state = this.props.composer.state;
@@ -19,7 +37,7 @@ export default class ASComposerContainer extends React.Component {
             <div className={"asc-container"
                 + (state.fullscreen ? ' fullscreen' : '')
                 + (state.portrait ? ' portrait' : ' landscape')}
-                ref={this.props.containerRef}>
+                ref={this.ref.container}>
                 <ASUIMenuOverlayContainer
                     isActive={state.portrait}
                 >
@@ -48,7 +66,7 @@ export default class ASComposerContainer extends React.Component {
                     <ASUIMenuDropDown
                         arrow={false}
                         className="asc-menu-button-toggle"
-                        options={() => this.props.composer.renderRootMenu()}
+                        options={() => this.props.composer.renderRootMenu(this.ref.menu)}
                     >
                         <ASUIIcon source="menu"/>
                     </ASUIMenuDropDown>
@@ -59,7 +77,7 @@ export default class ASComposerContainer extends React.Component {
             <div className="asc-header-container">
                 <div key="title" className="asc-title-text">{state.title}</div>
                 <div className="asc-menu-container">
-                    {this.props.composer.renderRootMenu()}
+                    {this.props.composer.renderRootMenu(this.ref.menu)}
                 </div>
             </div>
         );
@@ -74,4 +92,17 @@ export default class ASComposerContainer extends React.Component {
             </div>
         );
     }
+
+    /** Actions **/
+
+    openMenu(menuName) {
+        const menu = this.ref.menu[menuName];
+        if(!menu)
+            throw new Error("Menu not found: " + menu);
+        if(!menu.current)
+            throw new Error("Menu not rendered: " + menu);
+        menu.current.openDropDown();
+    }
+
+    /** Input **/
 }

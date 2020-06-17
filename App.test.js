@@ -8,4 +8,4 @@ test('renders', () => {
   expect(linkElement).toBeInTheDocument();
 });
 
-require('./song/Song.test.js')
+// require('./song/Song.test.js')
