@@ -24,7 +24,7 @@ export default class ASUIClickable extends ASUIClickableBase {
                 title={this.props.title}
                 className={className}
                 onClick={this.cb.onMouseInput}
-                onKeyDown={this.cb.onKeyDown}
+                // onKeyDown={this.cb.onKeyDown}
                 onMouseEnter={this.cb.onMouseEnter}
                 onMouseLeave={this.cb.onMouseLeave}
                 tabIndex={0}

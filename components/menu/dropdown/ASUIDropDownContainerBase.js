@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import ASUIMenuContext from "../ASUIMenuContext";
+import {ASUIClickable} from "../../";
 
 import "./ASUIDropDownContainer.css";
 
@@ -34,7 +35,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         this.state = {
             options: null,
             offsetIndex: 0,
-            selectedIndex: 0
+            selectedPosition: null
         }
         this.cb = {
             onKeyDown: e => this.onKeyDown(e)
@@ -57,54 +58,80 @@ export default class ASUIDropDownContainerBase extends React.Component {
     //     this.updateScreenPosition();
     // }
 
-
-    render() {
-        // if (!this.state.open)
+    componentDidMount() {
+        console.log('ASUIDropDownContainer.componentDidMount')
+        // if(this.deferredToOverlayMenu)
         //     return null;
-
-        // if(this.props.disabled)
-        //     return 'Disabled';
-
-
-        // Open Menu Overlay
-        // overlay.openOverlay();
-        // if(overlay.isOpen())
-        //     return null;
-
-        if(this.deferredToOverlayMenu)
-            return null;
 
         const overlay = this.getOverlay();
         overlay.addCloseMenuCallback(this, this.props.onClose);
         // if(this.props.openOverlay)
         //     overlay.openOverlay();
 
-        // TODO: defer all to overlay
+        // TODO: defer all to overlay if exists?
 
         // Try open menu handler
         const res = overlay.openMenu(this.props.options);
         if (res !== false) {
-            this.deferredToOverlayMenu = true;
+            // this.deferredToOverlayMenu = true;
+            this.setState({options: "Deferred"})
 //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
             return null;
+
         }
 
+        // Process dropdown options
 
-
-        let options = this.state.options || this.props.options;
+        let options = this.props.options;
         if (typeof options === "function")
             options = options(this);
         if(options instanceof Promise) {
-            options.then(options => this.setState({options}));
+            options.then(options => this.setState({options: this.processOptions(options)}));
             options = "Loading...";
         }
         if (!options)
             console.warn("Empty options returned by ", this);
 
+        this.setState({options: this.processOptions(options)});
+    }
 
+    processOptions(options) {
+        let newOptionProps = [], firstOptionProps=null;
+        let selectedPosition = this.state.selectedPosition, currentPosition = 0;
+        recursiveMap(options, option => {
+            const i = newOptionProps.length;
+            if(selectedPosition === null && option.props.selected)
+                selectedPosition = i;
+
+            const props = {
+                key: i,
+            }
+            if(option.type.prototype instanceof ASUIClickable) {
+                props.position = currentPosition;
+                props.selected = selectedPosition === currentPosition;
+                currentPosition++;
+                if(!firstOptionProps)
+                    firstOptionProps = props;
+            }
+            newOptionProps.push([option, props]);
+        })
+
+
+        if(selectedPosition === null && firstOptionProps) {
+            firstOptionProps.selected = true;
+        }
+
+        console.log('newOptions', newOptionProps, options, firstOptionProps, selectedPosition);
+        newOptionProps = newOptionProps
+            .map(([option, props]) => React.cloneElement(option, props))
+
+        return newOptionProps;
+    }
+
+    render() {
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
-            {this.renderDropDownContainer(options)}
+            {this.renderDropDownContainer(this.state.options)}
         </ASUIMenuContext.Provider>
 
     }
@@ -124,38 +151,40 @@ export default class ASUIDropDownContainerBase extends React.Component {
     //         this.closeMenu();
     // }
 
-    async openMenu() {
-        if (this.props.disabled)
-            return console.error("Menu is disabled");
-        // if (this.state.open)
-        //     throw new Error("Menu was already open");
-
-        // Try open menu handler
-        if(this.getOverlay()) {
-            const res = await this.getOverlay().openMenu(this.props.options);
-            if (res !== false) {
-//                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
-                return;
-            }
-
-            // setTimeout(() => {
-            //     this.getOverlay().closeMenus(this.getAncestorMenus());
-            // }, 100);
-        }
-
-        let options = this.props.options;
-        if (typeof options === "function")
-            options = options(this);
-        if(options instanceof Promise)
-            options = await options;
-        if (!options)
-            console.warn("Empty options returned by ", this);
-
-        this.setState({
-            // open: true,
-            options
-        });
-    }
+//     async openMenu() {
+//         if (this.props.disabled)
+//             return console.error("Menu is disabled");
+//         // if (this.state.open)
+//         //     throw new Error("Menu was already open");
+//
+//         // Try open menu handler
+//         if(this.getOverlay()) {
+//             const res = await this.getOverlay().openMenu(this.props.options);
+//             if (res !== false) {
+// //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
+//                 return;
+//             }
+//
+//             // setTimeout(() => {
+//             //     this.getOverlay().closeMenus(this.getAncestorMenus());
+//             // }, 100);
+//         }
+//
+//         let options = this.props.options;
+//         if (typeof options === "function")
+//             options = options(this);
+//         if(options instanceof Promise)
+//             options = await options;
+//         if (!options)
+//             console.warn("Empty options returned by ", this);
+//
+//
+//         this.setState({
+//             // open: true,
+//             options,
+//             selectedPosition
+//         });
+//     }
 
     // stickMenu() {
     //     if (!this.state.open)
@@ -200,17 +229,17 @@ export default class ASUIDropDownContainerBase extends React.Component {
         if(e.isDefaultPrevented())
             return;
 
-        let selectedIndex = this.state.selectedIndex;
+        let selectedPosition = this.state.selectedPosition;
         switch(e.key) {
 
             // TODO: count options
             case 'ArrowUp':
-                selectedIndex -= 1;
-                this.setState({selectedIndex})
+                selectedPosition -= 1;
+                this.setState({selectedPosition})
                 break;
             case 'ArrowDown':
-                selectedIndex += 1;
-                this.setState({selectedIndex})
+                selectedPosition += 1;
+                this.setState({selectedPosition})
                 break;
 
             case 'ArrowLeft':
@@ -220,38 +249,26 @@ export default class ASUIDropDownContainerBase extends React.Component {
                 break;
 
             default:
-                // console.info("Unhandled key: ", e.key, e.target);
+                console.info("Unhandled key: ", e.key, e.target);
                 break;
         }
     }
 }
 
-// class DropDownContextWrapper extends React.Component {
-//     static contextType = DropDownContext;
-//
-//     render() {
-//         return <DropDownContext.Provider value={this}>
-//             <DropDownContainer
-//                 parentDropDown={this.context}
-//                 {...this.props}
-//                 />
-//         </DropDownContext.Provider>;
-//     }
-// }
 
 
-// function reactMapRecursive(children, fn) {
-//     return React.Children.map(children, child => {
-//         if (!React.isValidElement(child)) {
-//             return child;
-//         }
-//
-//         if (child.props.children) {
-//             child = React.cloneElement(child, {
-//                 children: reactMapRecursive(child.props.children, fn)
-//             });
-//         }
-//
-//         return fn(child);
-//     });
-// }
+function recursiveMap(children, fn) {
+    return React.Children.map(children, child => {
+        if (!React.isValidElement(child)) {
+            return child;
+        }
+
+        if (child.props.children) {
+            child = React.cloneElement(child, {
+                children: recursiveMap(child.props.children, fn)
+            });
+        }
+
+        return fn(child);
+    });
+}

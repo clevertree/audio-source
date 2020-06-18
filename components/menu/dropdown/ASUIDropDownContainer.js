@@ -17,6 +17,7 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
     }
 
     componentDidMount() {
+        super.componentDidMount();
         this.divRef.current.focus();
     }
 

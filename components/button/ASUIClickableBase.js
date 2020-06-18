@@ -6,7 +6,7 @@ export default class ASUIClickable extends React.Component {
         super(props);
         this.cb = {
             onMouseInput: e => this.onMouseInput(e),
-            onKeyDown: e => this.onKeyDown(e),
+            // onKeyDown: e => this.onKeyDown(e),
             onMouseEnter: null,
             onMouseLeave: null,
         };
@@ -17,10 +17,10 @@ export default class ASUIClickable extends React.Component {
     // }
 
     componentDidMount() {
-        this.getOverlay().addTabIndexItem(this);
+        // this.getOverlay().addTabIndexItem(this);
     }
     componentWillUnmount() {
-        this.getOverlay().removeTabIndexItem(this);
+        // this.getOverlay().removeTabIndexItem(this);
     }
 
     renderChildren(props={}) {
