@@ -18,7 +18,10 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
     componentDidMount() {
         super.componentDidMount();
-        this.divRef.current.focus();
+        if(this.divRef.current)
+            this.divRef.current.focus();
+        else
+            console.warn('this.divRef.current was ', this.divRef.current);
     }
 
     renderDropDownContainer(options) {
@@ -32,10 +35,18 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             style.top = this.props.clientPosition[1];
         }
 
+        const positionSelected = this.state.positionSelected;
+
         return <div
             style={style}
             className={className}
-            children={options}
+            children={options.map((option, i) => {
+                return <div
+                    key={i}
+                    className={option.props.position === positionSelected ? 'selected' : null}
+                    children={option}
+                />
+            })}
             tabIndex={0}
             onKeyDown={this.cb.onKeyDown}
             ref={this.divRef}

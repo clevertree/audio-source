@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import ASUIMenuContext from "../ASUIMenuContext";
-import {ASUIClickable} from "../../";
+import {ASUIClickable, ASUIMenuItem} from "../../";
 
 import "./ASUIDropDownContainer.css";
 
@@ -31,11 +31,11 @@ export default class ASUIDropDownContainerBase extends React.Component {
         //     stick: false,
         // };
         this.divRef = React.createRef();
-        this.deferredToOverlayMenu = false;
+        // this.deferredToOverlayMenu = false;
         this.state = {
-            options: null,
+            options: [<ASUIMenuItem>Empty</ASUIMenuItem>],
             offsetIndex: 0,
-            selectedPosition: null
+            positionSelected: this.props.positionSelected || null
         }
         this.cb = {
             onKeyDown: e => this.onKeyDown(e)
@@ -60,75 +60,84 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     componentDidMount() {
         console.log('ASUIDropDownContainer.componentDidMount')
-        // if(this.deferredToOverlayMenu)
-        //     return null;
 
         const overlay = this.getOverlay();
         overlay.addCloseMenuCallback(this, this.props.onClose);
-        // if(this.props.openOverlay)
-        //     overlay.openOverlay();
 
         // TODO: defer all to overlay if exists?
 
         // Try open menu handler
         const res = overlay.openMenu(this.props.options);
         if (res !== false) {
-            // this.deferredToOverlayMenu = true;
-            this.setState({options: "Deferred"})
+            this.setState({options: null})
 //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
-            return null;
 
+        } else {
+            // Process dropdown options
+
+            let options = this.props.options;
+            if (typeof options === "function")
+                options = options(this);
+            if(options instanceof Promise) {
+                options.then(options => this.setOptions(options));
+                options = <ASUIMenuItem>Loading...</ASUIMenuItem>;
+            }
+            if (!options)
+                console.warn("Empty options returned by ", this);
+
+            this.setOptions(options);
         }
-
-        // Process dropdown options
-
-        let options = this.props.options;
-        if (typeof options === "function")
-            options = options(this);
-        if(options instanceof Promise) {
-            options.then(options => this.setState({options: this.processOptions(options)}));
-            options = "Loading...";
-        }
-        if (!options)
-            console.warn("Empty options returned by ", this);
-
-        this.setState({options: this.processOptions(options)});
     }
 
-    processOptions(options) {
-        let newOptionProps = [], firstOptionProps=null;
-        let selectedPosition = this.state.selectedPosition, currentPosition = 0;
+    setOptions(options) {
+        let newOptions = [];
+        let positionSelected = this.state.positionSelected, currentPosition = 0;
+        let i=0;
         recursiveMap(options, option => {
-            const i = newOptionProps.length;
-            if(selectedPosition === null && option.props.selected)
-                selectedPosition = i;
+            if(positionSelected === null && option.props.selected)
+                positionSelected = currentPosition;
 
             const props = {
                 key: i,
+                position: currentPosition
             }
             if(option.type.prototype instanceof ASUIClickable) {
-                props.position = currentPosition;
-                props.selected = selectedPosition === currentPosition;
+                // props.position = currentPosition;
+                // props.selected = () => {
+                //     return this.state.positionSelected === currentPosition;
+                // }
                 currentPosition++;
-                if(!firstOptionProps)
-                    firstOptionProps = props;
+                // if(!firstOptionProps)
+                //     firstOptionProps = props;
+            } else if(option.type === React.Fragment) {
+                return;
             }
-            newOptionProps.push([option, props]);
+
+            newOptions.push(React.cloneElement(option, props));
+            i++;
         })
 
 
-        if(selectedPosition === null && firstOptionProps) {
-            firstOptionProps.selected = true;
-        }
+        // if(positionSelected === null && firstOptionProps) {
+        //     firstOptionProps.selected = true;
+        // }
 
-        console.log('newOptions', newOptionProps, options, firstOptionProps, selectedPosition);
-        newOptionProps = newOptionProps
-            .map(([option, props]) => React.cloneElement(option, props))
+        console.log('newOptions', newOptions, options, positionSelected);
+        // const newOptions = newOptions
+        //     .map(([option, props]) => {
+        //         React.cloneElement(option, props)
+        //     })
 
-        return newOptionProps;
+        this.setState({
+            options: newOptions,
+            positionSelected: positionSelected || 0,
+            positionCount: currentPosition
+        })
     }
 
     render() {
+        // if(!this.state.options)
+        //     return null;
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             {this.renderDropDownContainer(this.state.options)}
@@ -182,7 +191,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
 //         this.setState({
 //             // open: true,
 //             options,
-//             selectedPosition
+//             positionSelected
 //         });
 //     }
 
@@ -229,17 +238,24 @@ export default class ASUIDropDownContainerBase extends React.Component {
         if(e.isDefaultPrevented())
             return;
 
-        let selectedPosition = this.state.selectedPosition;
+        let positionSelected = this.state.positionSelected || 0;
+        console.info("onKeyDown", e.key, e.target, this.state.positionSelected);
         switch(e.key) {
 
-            // TODO: count options
             case 'ArrowUp':
-                selectedPosition -= 1;
-                this.setState({selectedPosition})
+                e.preventDefault();
+                positionSelected -= 1;
+                if(positionSelected < 0)
+                    positionSelected = this.state.positionCount-1;
+                this.setState({positionSelected})
                 break;
+
             case 'ArrowDown':
-                selectedPosition += 1;
-                this.setState({selectedPosition})
+                e.preventDefault();
+                positionSelected += 1;
+                if(positionSelected >= this.state.positionCount)
+                    positionSelected = 0;
+                this.setState({positionSelected})
                 break;
 
             case 'ArrowLeft':

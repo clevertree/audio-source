@@ -14,12 +14,15 @@ div.asui-menu-dropdown {
     transition: opacity 0.2s;
 }
 
-div.asui-menu-dropdown > div.asui-menu-item {
+div.asui-menu-dropdown > div > div.asui-menu-item {
     padding: 4px;
     /*border: 1px outset #AAA;*/
 }
+div.asui-menu-dropdown > div.selected {
+    background-color: #AAA;
+}
 
-div.asui-menu-dropdown > div.asui-menu-item:hover {
+div.asui-menu-dropdown > div > div.asui-menu-item:hover {
     z-index: 5;
 }
 

@@ -184,10 +184,10 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuAction onAction={() => this.instructionDeleteSelected()} disabled={selectedIndices.length===0}   >Delete</ASUIMenuAction>
 
 
-            {/*<ASUIMenuBreak />*/}
-            {/*<ASUIMenuDropDown options={() => this.renderMenuEditBatch()}   >Batch</ASUIMenuDropDown>*/}
         </>);
     }
+/*<ASUIMenuBreak />*/
+/*<ASUIMenuDropDown options={() => this.renderMenuEditBatch()}   >Batch</ASUIMenuDropDown>*/
 
 
     renderMenuEditInsert(trackName=null, before=false) {
