@@ -41,13 +41,13 @@ export default class ASUIButtonDropDown extends ASUIClickable {
                 // disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}
-                onClose={() => this.closeDropDown()}
+                onClose={() => this.closeDropDownMenu()}
             /> : null)
         ];
     }
 
 
-    openDropDown() {
+    openDropDownMenu() {
         this.setState({open: true, stick: false});
     }
 
@@ -55,18 +55,18 @@ export default class ASUIButtonDropDown extends ASUIClickable {
         this.setState({open: true, stick: true});
     }
 
-    closeDropDown() {
+    closeDropDownMenu() {
         this.setState({open: false, stick: false});
     }
 
 
     toggleMenu() {
         if (!this.state.open)
-            this.openDropDown();
+            this.openDropDownMenu();
         else if (!this.state.stick)
             this.stickDropDown();
         else
-            this.closeDropDown();
+            this.closeDropDownMenu();
     }
 
     doAction(e) {

@@ -36,7 +36,7 @@ class ASCTrackRow extends ASCTrackRowBase {
                 {/*    clientPosition={this.state.clientPosition}*/}
                 {/*    // ref={this.dropdown}*/}
                 {/*    options={() => this.renderRowMenu()}*/}
-                {/*    onClose={() => this.closeDropDown()}*/}
+                {/*    onClose={() => this.closeDropDownMenu()}*/}
                 {/*    vertical={true}*/}
                 {/*/> : null}*/}
             </div>

@@ -101,7 +101,7 @@ export default class ASComposerContainer extends React.Component {
             throw new Error("Menu not found: " + menu);
         if(!menu.current)
             throw new Error("Menu not rendered: " + menu);
-        menu.current.openDropDown();
+        menu.current.openDropDownMenu();
     }
 
     /** Input **/

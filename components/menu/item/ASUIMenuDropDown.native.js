@@ -48,7 +48,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
     /** Drop Down Menu **/
 
-    openDropDown() {
+    openDropDownMenu() {
         this.setState({open: true, stick: false});
     }
 
@@ -56,18 +56,18 @@ export default class ASUIMenuDropDown extends ASUIClickable {
         this.setState({open: true, stick: true});
     }
 
-    closeDropDown() {
+    closeDropDownMenu() {
         this.setState({open: false, stick: false});
     }
 
 
     toggleMenu() {
         if (!this.state.open)
-            this.openDropDown();
+            this.openDropDownMenu();
         else if (!this.state.stick)
             this.stickDropDown();
         else
-            this.closeDropDown();
+            this.closeDropDownMenu();
     }
 
     hoverDropDown() {

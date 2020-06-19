@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import ASUIMenuContext from "../ASUIMenuContext";
-import {ASUIClickable, ASUIMenuItem} from "../../";
+import {ASUIClickable, ASUIMenuDropDown, ASUIMenuItem} from "../../";
 
 import "./ASUIDropDownContainer.css";
 
@@ -33,9 +33,12 @@ export default class ASUIDropDownContainerBase extends React.Component {
         this.divRef = React.createRef();
         // this.deferredToOverlayMenu = false;
         this.state = {
-            options: [<ASUIMenuItem>Empty</ASUIMenuItem>],
+            optionArray: [<ASUIMenuItem>Empty</ASUIMenuItem>],
             offsetIndex: 0,
             positionSelected: this.props.positionSelected || null
+        }
+        this.ref = {
+            options: []
         }
         this.cb = {
             onKeyDown: e => this.onKeyDown(e)
@@ -46,6 +49,8 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     /** @return {ASUIMenuOverlayContainer} **/
     getOverlay() { return this.context.overlay; }
+    /** @return {ASUIDropDownContainer} **/
+    getParentDropdown() { return this.context.parentDropDown; }
 
     // componentDidUpdate(prevProps, prevState, snapshot) {
     //     console.log('componentDidUpdate', this.state);
@@ -90,7 +95,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
     }
 
     setOptions(options) {
-        let newOptions = [];
+        let optionArray = [];
         let positionSelected = this.state.positionSelected, currentPosition = 0;
         let i=0;
         recursiveMap(options, option => {
@@ -99,9 +104,12 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
             const props = {
                 key: i,
-                position: currentPosition
+                // parent: this,
             }
             if(option.type.prototype instanceof ASUIClickable) {
+                props.position = currentPosition;
+                this.ref.options[currentPosition] = React.createRef();
+                props.ref = this.ref.options[currentPosition];
                 // props.position = currentPosition;
                 // props.selected = () => {
                 //     return this.state.positionSelected === currentPosition;
@@ -113,7 +121,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
                 return;
             }
 
-            newOptions.push(React.cloneElement(option, props));
+            optionArray.push(React.cloneElement(option, props));
             i++;
         })
 
@@ -122,14 +130,14 @@ export default class ASUIDropDownContainerBase extends React.Component {
         //     firstOptionProps.selected = true;
         // }
 
-        console.log('newOptions', newOptions, options, positionSelected);
+        // console.log('optionArray', optionArray, options, positionSelected);
         // const newOptions = newOptions
         //     .map(([option, props]) => {
         //         React.cloneElement(option, props)
         //     })
 
         this.setState({
-            options: newOptions,
+            optionArray,
             positionSelected: positionSelected || 0,
             positionCount: currentPosition
         })
@@ -140,10 +148,103 @@ export default class ASUIDropDownContainerBase extends React.Component {
         //     return null;
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
-            {this.renderDropDownContainer(this.state.options)}
+            {this.renderDropDownContainer(this.state.optionArray)}
         </ASUIMenuContext.Provider>
 
     }
+
+    /** Actions **/
+
+    closeDropDownMenu() {
+        this.props.onClose()
+    }
+
+    getAncestorMenus() {
+        let menus = [];
+        let parent = this;
+        while (parent) {
+            menus.push(parent);
+            parent = parent.context.parentDropDown;
+        }
+        return menus;
+    }
+
+
+    closeAllDropDownMenus() {
+        if(this.getOverlay())
+            this.getOverlay().closeAllMenus();
+    }
+
+    closeAllDropDownMenusButThis() {
+        if(this.getOverlay())
+            this.getOverlay().closeMenus(this.getAncestorMenus());
+
+    }
+
+    focus() {
+        throw new Error("Not Implemented");
+    }
+
+    /** Input **/
+
+    onKeyDown(e) {
+        if(e.isDefaultPrevented())
+            return;
+        e.stopPropagation();
+        e.preventDefault();
+
+        let positionSelected = this.state.positionSelected || 0;
+        const optionRef = this.ref.options[positionSelected].current;
+        console.info("onKeyDown", e.key, e.target, this.state.positionSelected, optionRef);
+        switch(e.key) {
+
+            case 'ArrowUp':
+                positionSelected -= 1;
+                if(positionSelected < 0)
+                    positionSelected = this.state.positionCount-1;
+                this.setState({positionSelected})
+                break;
+
+            case 'ArrowDown':
+                positionSelected += 1;
+                if(positionSelected >= this.state.positionCount)
+                    positionSelected = 0;
+                this.setState({positionSelected})
+                break;
+
+            case 'ArrowRight':
+                if(optionRef instanceof ASUIMenuDropDown) {
+                    optionRef.openDropDownMenu();
+                } else {
+                    console.warn("No action for ", e.key);
+                }
+                // optionRef.openDropDownMenu()
+                break;
+
+            case 'ArrowLeft':
+                const parentRef = this.getParentDropdown();
+                this.closeDropDownMenu();
+                if(parentRef)
+                    parentRef.focus();
+                break;
+
+            case '':
+            case 'Enter':
+                if(optionRef instanceof ASUIClickable) {
+                    optionRef.doAction(e);
+                } else {
+                    console.warn("No action for ", e.key);
+                }
+                // optionRef.openDropDownMenu()
+                break;
+
+            default:
+                console.info("Unhandled key: ", e.key, e.target);
+                break;
+        }
+    }
+
+
 
     // hoverMenu() {
     //     if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
@@ -206,69 +307,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
     //     })
     // }
 
-    closeMenu() {
-        this.props.onClose()
-    }
-
-    getAncestorMenus() {
-        let menus = [];
-        let parent = this;
-        while (parent) {
-            menus.push(parent);
-            parent = parent.context.parentDropDown;
-        }
-        return menus;
-    }
-
-
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-    }
-
-    closeAllDropDownMenusButThis() {
-        if(this.getOverlay())
-            this.getOverlay().closeMenus(this.getAncestorMenus());
-
-    }
-
-    /** Input **/
-
-    onKeyDown(e) {
-        if(e.isDefaultPrevented())
-            return;
-
-        let positionSelected = this.state.positionSelected || 0;
-        console.info("onKeyDown", e.key, e.target, this.state.positionSelected);
-        switch(e.key) {
-
-            case 'ArrowUp':
-                e.preventDefault();
-                positionSelected -= 1;
-                if(positionSelected < 0)
-                    positionSelected = this.state.positionCount-1;
-                this.setState({positionSelected})
-                break;
-
-            case 'ArrowDown':
-                e.preventDefault();
-                positionSelected += 1;
-                if(positionSelected >= this.state.positionCount)
-                    positionSelected = 0;
-                this.setState({positionSelected})
-                break;
-
-            case 'ArrowLeft':
-            case 'ArrowRight':
-                e.preventDefault();
-                console.info("Unhandled key: ", e.key, e.target);
-                break;
-
-            default:
-                console.info("Unhandled key: ", e.key, e.target);
-                break;
-        }
-    }
 }
 
 

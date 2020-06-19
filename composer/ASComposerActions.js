@@ -488,6 +488,7 @@ class ASComposerActions extends ASComposerMenu {
         return this.activeTrackRef[trackName] && this.activeTrackRef[trackName].current;
     }
 
+    // TODO: problems
     trackGetActive(trackName) {
         const activeTrack = this.activeTrackRef[trackName];
         if(!activeTrack)

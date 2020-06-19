@@ -18,13 +18,10 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
     componentDidMount() {
         super.componentDidMount();
-        if(this.divRef.current)
-            this.divRef.current.focus();
-        else
-            console.warn('this.divRef.current was ', this.divRef.current);
+        this.focus();
     }
 
-    renderDropDownContainer(options) {
+    renderDropDownContainer(optionArray) {
         let className = 'asui-menu-dropdown';
         if (this.props.vertical)
             className += ' vertical';
@@ -40,7 +37,7 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         return <div
             style={style}
             className={className}
-            children={options.map((option, i) => {
+            children={optionArray.map((option, i) => {
                 return <div
                     key={i}
                     className={option.props.position === positionSelected ? 'selected' : null}
@@ -64,6 +61,15 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         if(rect.bottom > window.innerHeight)
             div.classList.add('overflow-bottom');
         // console.log(rect.right, window.innerWidth, rect.bottom, window.innerHeight)
+    }
+
+    /** Actions **/
+
+    focus() {
+        if(this.divRef.current)
+            this.divRef.current.focus();
+        else
+            console.warn('this.divRef.current was ', this.divRef.current);
     }
 }
 

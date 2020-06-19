@@ -26,7 +26,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
             // onKeyDown: (e) => this.onKeyDown(e),
         this.cb.onMouseEnter = e => this.onMouseEnter(e);
         this.cb.onMouseLeave = e => this.onMouseLeave(e);
-        this.cb.onClose = () => this.closeDropDown();
+        this.cb.onClose = () => this.closeDropDownMenu();
         this.dropdown = React.createRef();
         this.state = {
             open: false,
@@ -93,15 +93,15 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
     /** Drop Down Menu **/
 
-    openDropDown() {
+    openDropDownMenu() {
         this.setState({open: true, stick: false});
     }
 
-    stickDropDown() {
-        this.setState({open: true, stick: true});
-    }
+    // stickDropDown() {
+    //     this.setState({open: true, stick: true});
+    // }
 
-    closeDropDown() {
+    closeDropDownMenu() {
         this.setState({open: false, stick: false}, () => {
             this.getOverlay().updateOverlay();
         });
@@ -110,18 +110,18 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
     toggleMenu() {
         if (!this.state.open)
-            this.openDropDown();
+            this.openDropDownMenu();
         // else if (!this.state.stick)
         //     this.stickDropDown();
         else
-            this.closeDropDown();
+            this.closeDropDownMenu();
     }
 
     hoverDropDown() {
         if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
             return;
         // this.getOverlay().closeAllMenus();
-        this.openDropDown();
+        this.openDropDownMenu();
         setTimeout(() => {
             const dropdown = this.dropdown.current;
             dropdown && dropdown.closeAllDropDownMenusButThis();
@@ -145,7 +145,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
     onMouseLeave(e) {
         clearTimeout(this.timeoutMouseLeave);
-        this.timeoutMouseLeave = setTimeout(() => this.closeDropDown(), 1500);
+        this.timeoutMouseLeave = setTimeout(() => this.closeDropDownMenu(), 1500);
     }
 
 
