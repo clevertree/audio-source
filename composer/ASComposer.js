@@ -134,8 +134,7 @@ export default class ASComposer extends ASComposerInput {
             case 'instruction:end':
                 // console.log(e.type, e.playingIndices);
                 if(this.trackHasActive(e.trackName)) {
-                    const activeTrack = this.trackGetActive(e.trackName);
-                    activeTrack.updatePlayingIndices(e.playingIndices);
+                    this.trackUpdatePlayingIndices(e.trackName, e.playingIndices);
                 }
                 // this.forceUpdate();
                 break;

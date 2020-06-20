@@ -122,10 +122,10 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
         // console.log('onHorizontalPan', dx, newCursorOffset);
         this.currentCursorOffset = newCursorOffset;
 
-
+        const trackState = this.getTrack().getTrackState();
         newCursorOffset = Math.round(newCursorOffset);
         if(selectIndex) {
-            const cursorInfo = this.cursorGetInfo(newCursorOffset);
+            const cursorInfo = trackState.getCursorInfo(newCursorOffset);
             if(cursorInfo.cursorIndex !== null && this.currentSelectedIndex !== cursorInfo.cursorIndex) {
                 this.currentSelectedIndex = cursorInfo.cursorIndex;
                 this.getComposer().trackSelectIndices(this.getTrackName(), [cursorInfo.cursorIndex], newCursorOffset);

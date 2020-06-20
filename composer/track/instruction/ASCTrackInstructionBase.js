@@ -106,6 +106,7 @@ export default class ASCTrackInstructionBase extends React.Component {
     }
 
     selectInstruction(clearSelection=true, toggleValue = null) {
+        const track = this.getTrack();
         // const trackName = this.getTrack().getTrackName();
         const selectedIndices = clearSelection ? [] : this.getTrack().getSelectedIndices();
         // console.log('selectInstruction', clearSelection, selectedIndices);
@@ -120,8 +121,8 @@ export default class ASCTrackInstructionBase extends React.Component {
         }
         // this.getComposer().trackSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
         // this.getTrack().selectIndices(selectedIndices); // , this.props.cursorPosition);
-        this.getTrack().selectIndices(selectedIndices);
-        this.getTrack().setCursorPositionOffset(this.props.cursorPosition);
+        track.selectIndices(selectedIndices);
+        track.setCursorOffset(this.props.cursorPosition);
         return selectedIndices;
     }
 

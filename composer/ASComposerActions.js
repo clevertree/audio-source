@@ -4,6 +4,8 @@ import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
 import {InstructionProcessor} from "../common";
 import TrackInstructionRowIterator from "./track/instruction/TrackInstructionRowIterator";
+import ASCTrack from "./track/ASCTrack";
+import TrackState from "./track/state/TrackState";
 
 // import {TrackInfo} from "./track/";
 
@@ -70,12 +72,11 @@ class ASComposerActions extends ASComposerMenu {
             songLength: this.song.getSongLengthInSeconds(),
             activeTracks
         });
-        for(let key in this.activeTrackRef) {
-            if(this.activeTrackRef.hasOwnProperty(key)) {
-                const activeTrack = this.activeTrackRef[key];
-                if(activeTrack.current) {
-                    activeTrack.current.updateRenderingProps();
-                }
+
+        for(let trackName in this.state.activeTracks) {
+            if(this.state.activeTracks.hasOwnProperty(trackName)) {
+                const trackState = new TrackState(this, trackName);
+                trackState.updateRenderingProps();
             }
         }
     }
@@ -123,13 +124,13 @@ class ASComposerActions extends ASComposerMenu {
     saveState() {
         const storage = new Storage();
         const state = Object.assign({}, this.state, {
-            activeTracks: {}
+            // activeTracks: {}
         });
         for(let key in this.activeTrackRef) {
             if(this.activeTrackRef.hasOwnProperty(key)) {
                 const activeTrack = this.activeTrackRef[key];
                 if(activeTrack.current) {
-                    state.activeTracks[key] = activeTrack.current.state;
+                    Object.assign(state.activeTracks[key], activeTrack.current.state);
                 }
             }
         }
@@ -348,10 +349,14 @@ class ASComposerActions extends ASComposerMenu {
 
     updateSongPositionValue(playbackPositionInSeconds, updateTrackPositions=true) {
         this.songStats.position = playbackPositionInSeconds;
+
+        // Update Song Panel
         const panelSong = this.ref.panelSong.current;
         panelSong && panelSong.forceUpdate();
+
+        // Update Tracks
         if(updateTrackPositions) {
-            // TODO Optimize: skip update if position change is less than next row
+            // TODO Optimize: skip update if position change is less than next row?
             for (const trackName in this.activeTrackRef) {
                 if (this.activeTrackRef.hasOwnProperty(trackName)) {
                     const activeTrack = this.activeTrackRef[trackName].current;
@@ -406,6 +411,9 @@ class ASComposerActions extends ASComposerMenu {
             this.song.stopPlayback();
         this.song.setPlaybackPositionInTicks(0);
     }
+
+
+
 
     /** Track Playback **/
 
@@ -484,37 +492,30 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Track State **/
 
+
     trackHasActive(trackName) {
-        return this.activeTrackRef[trackName] && this.activeTrackRef[trackName].current;
+        return !!this.state.activeTracks[trackName]
     }
 
-    // TODO: problems
-    trackGetActive(trackName) {
-        const activeTrack = this.activeTrackRef[trackName];
-        if(!activeTrack)
-            throw new Error("Active track not found: " + trackName);
-        if(!activeTrack.current)
-            throw new Error("Active track not available: " + trackName);
-        return activeTrack.current;
+    trackGetState(trackName) {
+        return new TrackState(this, trackName);
     }
+
+    trackUpdatePlayingIndices(trackName, playingIndices) {
+        this.trackGetState(trackName)
+            .updatePlayingIndices(playingIndices);
+    }
+
+
+
 
 
     /** Track Row Iterator **/
 
-    trackGetRowIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
-        timeDivision = timeDivision || this.song.data.timeDivision;
-        beatsPerMinute = beatsPerMinute || this.song.data.beatsPerMinute;
-        quantizationTicks = quantizationTicks || this.song.data.quantizationTicks;
-        return TrackInstructionRowIterator.getIteratorFromSong(
-            this.getSong(),
-            trackName,
-            {
-                quantizationTicks,
-                timeDivision,
-                beatsPerMinute,
-            }
-        )
-    }
+    // trackGetRowIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
+    //     return this.trackGetState(trackName)
+    //         .getRowIterator(timeDivision, beatsPerMinute, quantizationTicks);
+    // }
 
     /** Track Selection **/
 
@@ -526,7 +527,7 @@ class ASComposerActions extends ASComposerMenu {
             }
             state.activeTracks[trackName] = oldTrackData || {};
             if(trackData !== null)
-                state.activeTracks[trackName] = trackData;
+                Object.assign(state.activeTracks[trackName], trackData);
             state.selectedTrack = trackName;
             return state;
         });
@@ -673,23 +674,23 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
-        return this.trackGetActive(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.state.selectedTrack)
             .changeQuantization(trackerQuantizationTicks)
     }
 
     async trackerChangeQuantizationPrompt(trackName) {
-        return this.trackGetActive(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.state.selectedTrack)
             .changeQuantizationPrompt();
     }
 
 
     trackerChangeSegmentLength(trackName, rowLength = null) {
-        return this.trackGetActive(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.state.selectedTrack)
             .changeRowLength(rowLength)
     }
 
     async trackerChangeSegmentLengthPrompt(trackName) {
-        return this.trackGetActive(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.state.selectedTrack)
             .changeRowLengthPrompt()
     }
 
@@ -710,14 +711,13 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    instructionInsertAtCursor(trackName = null, newCommand = null, select=true, playback=true) {
+    instructionInsertAtCursor(trackName = null, newCommand = null) {
         trackName = trackName || this.state.selectedTrack;
         newCommand = newCommand || this.state.currentCommand;
-        // console.log('instructionInsert', newCommand, trackName);
-
-        const activeTrack = this.trackGetActive(trackName);
-        const {positionTicks} = activeTrack.cursorGetInfo(); // TODO: insert between
-        return this.instructionInsertAtPosition(trackName, positionTicks, newCommand, select, playback);
+        const trackRef = this.activeTrackRef[trackName];
+        if(!trackRef || !trackRef.current)
+            throw new Error("Invalid Track ref: " + trackName);
+        trackRef.current.instructionInsertAtCursor(newCommand);
     }
 
     instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
@@ -817,14 +817,20 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionPasteAtCursor() {
         const trackName = this.state.selectedTrack;
+        const trackRef = this.activeTrackRef[trackName];
+        if(!trackRef || !trackRef.current)
+            throw new Error("Invalid Track ref: " + trackName);
+        trackRef.current.instructionPasteAtCursor();
+    }
+
+
+    instructionPasteAtPosition(trackName, startPositionTicks) {
+        // trackName = trackName || this.state.selectedTrack;
         // trackName = trackName || this.state.selectedTrack;
 
         const copyTrack = this.state.clipboard;
         if(!Array.isArray(copyTrack))
             throw new Error("Invalid clipboard data: " + typeof copyTrack);
-
-        const activeTrack = this.trackGetActive(trackName);
-        let {positionTicks: startPositionTicks} = activeTrack.cursorGetInfo();
 
         const selectedIndices = [];
         for(let i=0; i<copyTrack.length; i++) {
@@ -861,16 +867,8 @@ class ASComposerActions extends ASComposerMenu {
 
 
     instructionGetIterator(trackName, timeDivision=null, beatsPerMinute=null) {
-        timeDivision = timeDivision || this.song.data.timeDivision;
-        beatsPerMinute = beatsPerMinute || this.song.data.beatsPerMinute;
-        return InstructionIterator.getIteratorFromSong(
-            this.song,
-            trackName,
-            {
-                timeDivision, // || this.getSong().data.timeDivision,
-                beatsPerMinute, //  || this.getSong().data.beatsPerMinute
-            }
-        )
+        return this.trackGetState(trackName)
+            .getIterator(timeDivision, beatsPerMinute);
     }
 
 

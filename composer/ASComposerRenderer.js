@@ -5,7 +5,6 @@ import ASCTracksContainer from "./track/container/ASCTracksContainer";
 import ASComposerSongPanel from "./panel/ASComposerSongPanel";
 import ASComposerProgramPanel from "./panel/ASComposerProgramPanel";
 import ASComposerInstructionPanel from "./panel/ASComposerInstructionPanel";
-import ASComposerKeyboardPanel from "./panel/ASComposerKeyboardPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 
 class ASComposerRenderer extends React.Component {

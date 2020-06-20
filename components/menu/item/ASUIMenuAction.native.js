@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import ASUIMenuItem from "./ASUIMenuItem";
-import ASUIMenuContext from "../ASUIMenuContext";
 
 class ASUIMenuAction extends ASUIMenuItem {
 

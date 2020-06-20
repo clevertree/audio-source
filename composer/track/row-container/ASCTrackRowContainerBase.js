@@ -49,6 +49,9 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
     getTrack()                  { return this.props.track; }
     getComposer()               { return this.getTrack().getComposer(); }
+    getCursorOffset()           { return this.props.track.getCursorOffset(); }
+    getRowOffset()              { return this.props.track.getRowOffset(); }
+
 
     /** Render Content **/
 
@@ -60,32 +63,35 @@ export default class ASCTrackRowContainerBase extends React.Component {
     renderRowContent() {
         const composer = this.getComposer();
         const track = this.getTrack();
+        const trackState = track.getTrackState();
+
         const songPosition = composer.songStats.position;
-        const trackSongPosition = songPosition - track.getStartPosition();
-        const cursorOffset = track.getCursorOffset();
-        const rowOffset = track.getRowOffset();
+        const trackSongPosition = songPosition - trackState.getStartPosition();
+        const cursorOffset = this.getCursorOffset();
+        const rowOffset = this.getRowOffset();
         let trackSongPositionFound = false;
         // const quantizationTicks = this.getQuantizationTicks() || this.getSong().data.timeDivision;
 
         // console.time('ASCTrack.renderRowContent()');
-        const selectedIndices = track.getSelectedIndices();
-        const playingIndices = track.getPlayingIndices();
-        const beatsPerMeasureTicks = track.getBeatsPerMeasure() * track.getTimeDivision();
+        const selectedIndices = trackState.getSelectedIndices();
+        const playingIndices = trackState.getPlayingIndices();
+        const beatsPerMeasureTicks = trackState.getBeatsPerMeasure() * trackState.getTimeDivision();
         // const measuresPerSegment = track.getMeasuresPerSegment();
-        const segmentLengthTicks = track.getSegmentLengthTicks();
-        const quantizationTicks = track.getQuantizationTicks();
+        const segmentLengthTicks = trackState.getSegmentLengthTicks();
+        const quantizationTicks = trackState.getQuantizationTicks();
         // const isSelectedTrack = this.isSelectedTrack();
 
 
         // Get Iterator
-        const iterator = track.getRowIterator();
+        const iterator = trackState.getRowIterator();
 
         const rows = [];
         let rowInstructions = [];
 
         // console.log('segmentLengthTicks', segmentLengthTicks);
 
-        while(rows.length < track.getRowLength()) {
+        const rowLength = trackState.getRowLength();
+        while(rows.length < rowLength) {
             const nextCursorEntry = iterator.nextCursorPosition();
             if(Array.isArray(nextCursorEntry)) {
                 const instructionData = nextCursorEntry; //iterator.currentInstruction();
@@ -261,7 +267,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
                         throw new Error("Invalid: " + e.key);
                 }
                 const targetCursorInfo = track.cursorGetInfo(targetCursorOffset)
-                track.setCursorPositionOffset(targetCursorOffset, targetCursorInfo.positionTicks);
+                track.setCursorOffset(targetCursorOffset, targetCursorInfo.positionTicks);
                 //, targetCursorInfo.adjustedCursorRow
                 if(targetCursorInfo.cursorIndex !== null) {
                     if(e.ctrlKey) {
@@ -274,8 +280,9 @@ export default class ASCTrackRowContainerBase extends React.Component {
                     }
                 }
 
-                if(targetCursorInfo.cursorRow > track.getRowOffset() + (track.getRowLength() - 1))
-                    track.setRowOffset(targetCursorInfo.cursorRow - (track.getRowLength() - 1))
+                const rowLength = track.getTrackState().getRowLength();
+                if(targetCursorInfo.cursorRow > track.getRowOffset() + (rowLength - 1))
+                    track.setRowOffset(targetCursorInfo.cursorRow - (rowLength - 1))
                 else if(targetCursorInfo.cursorRow < track.getRowOffset())
                     track.setRowOffset(targetCursorInfo.cursorRow)
                 break;

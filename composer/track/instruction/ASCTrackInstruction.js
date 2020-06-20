@@ -1,6 +1,5 @@
 import * as React from "react";
 import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
-import {ASUIDropDownContainer} from "../../../components/menu";
 
 import "./ASCTrackInstruction.css";
 
@@ -89,7 +88,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
-        const selectedIndices = this.getTrack().getSelectedIndices();
+        const selectedIndices = this.getTrack().getTrackState().getSelectedIndices();
         if(selectedIndices.indexOf(this.props.index) === -1)
             this.selectInstruction(!e.ctrlKey);
         if(e.shiftKey)

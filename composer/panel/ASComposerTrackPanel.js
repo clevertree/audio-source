@@ -27,7 +27,7 @@ export default class ASComposerTrackPanel extends React.Component {
     render() {
         const composer = this.props.composer;
         const selectedIndices = composer.state.selectedTrackIndices;
-        // const activeTrack = composer.trackHasActive(selectedTrackName) ? composer.trackGetActive(selectedTrackName) : null;
+        // const activeTrack = composer.trackHasActive(selectedTrackName) ? composer.trackGetState(selectedTrackName) : null;
         // const selectedIndices = activeTrack ? activeTrack.getSelectedIndices() : [];
 
 

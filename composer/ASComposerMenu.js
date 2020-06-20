@@ -144,7 +144,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuEdit(selectedIndices=null) {
         // const selectedTrackName = this.state.selectedTrack;
-        // const activeTrack = this.trackGetActive(selectedTrackName);
+        // const activeTrack = this.trackGetState(selectedTrackName);
         if(selectedIndices === null)
             selectedIndices = this.state.selectedTrackIndices;
         let firstInstructionData = null, trackName=null;
@@ -267,7 +267,7 @@ class ASComposerMenu extends ASComposerRenderer {
         let cursorIndex = null;
         if(!this.trackHasActive(selectedTrack))
             return <ASUIMenuItem>{`Track is not active: ${selectedTrack}`}</ASUIMenuItem>
-        const activeTrack = this.trackGetActive(selectedTrack);
+        const activeTrack = this.trackGetState(selectedTrack);
         const cursorInfo = activeTrack.cursorGetInfo();
         // console.log('cursorInfo', cursorInfo)
         cursorIndex = cursorInfo.cursorIndex;
