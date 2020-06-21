@@ -343,6 +343,11 @@ export default class ASCTrackRowContainerBase extends React.Component {
                 //     track.playSelectedInstructions();
                 break;
 
+            case 'Shift':
+            case 'Control':
+            case 'Alt':
+                break;
+
             default:
                 const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, composer.state.keyboardOctave);
                 if(keyboardCommand) {

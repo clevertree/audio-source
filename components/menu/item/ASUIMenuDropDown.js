@@ -122,10 +122,10 @@ export default class ASUIMenuDropDown extends ASUIClickable {
             return;
         // this.getOverlay().closeAllMenus();
         this.openDropDownMenu();
-        setTimeout(() => {
-            const dropdown = this.dropdown.current;
-            dropdown && dropdown.closeAllDropDownMenusButThis();
-        }, 100);
+        // setTimeout(() => {
+        //     const dropdown = this.dropdown.current;
+        //     dropdown && dropdown.closeAllDropDownMenusButThis();
+        // }, 100);
     }
 
     /** Actions **/

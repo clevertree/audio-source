@@ -14,19 +14,14 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         this.openMenus =  [];
         this.tabIndices = [];
         this.updateOverlayTimeout = null;
+        this.ref = {
+            dropdown: React.createRef()
+        }
     }
-    // componentDidMount() {
-    //     MenuDropDown.addGlobalSubMenuHandler(this.openMenuHandler)
-    // }
-    //
-    // componentWillUnmount() {
-    //     MenuDropDown.removeGlobalSubMenuHandler(this.openMenuHandler)
-    // }
 
     renderContent() {
-        throw new Error("Not implemented");
+        throw new Error("Implement");
     }
-
 
     render() {
         return <ASUIMenuContext.Provider
@@ -35,20 +30,18 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         </ASUIMenuContext.Provider>;
     }
 
+    updateOverlay() {
+        const openOverlay = this.openMenus.length > 0;
+        // console.log('updateOverlay', openOverlay);
+        this.ref.dropdown.current.toggleOverlay(openOverlay);
+    }
 
     // getActiveMenuCount() {
     //     return this.openMenus.length;
     // }
 
-    updateOverlay() {
-        const openOverlay = this.state.open || this.openMenus.length > 0;
-        // console.log('updateOverlay', openOverlay);
-        if(this.state.openOverlay !== openOverlay)
-            this.setState({openOverlay})
-    }
-    openOverlay() {
-        if(this.state.openOverlay !== true)
-            this.setState({openOverlay: true});
+    toggleOverlay(openOverlay=null) {
+        this.ref.dropdown.current.toggleOverlay(openOverlay);
     }
 
     isHoverEnabled() {
@@ -58,45 +51,6 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         return this.state.open;
     }
 
-
-    /** Tab Index Items **/
-
-    // getTabIndexCount() { return this.tabIndices.length; }
-
-    getNextTabIndexItem(tabIndexItem, count=1) {
-        let tabIndex = this.getTabIndex(tabIndexItem);
-        tabIndex += count;
-        if(tabIndex >= this.tabIndices.length)
-            tabIndex = 0;
-        if(tabIndex < 0 )
-            tabIndex = this.tabIndices - 1;
-        return this.tabIndices[tabIndex];
-    }
-
-    getTabIndex(tabIndexItem) {
-        return this.tabIndices.findIndex(item => item === tabIndexItem);
-    }
-
-    getTabIndexItem(tabIndex) {
-        if(!this.tabIndices[tabIndex])
-            throw new Error("Tab Index not found: " + tabIndex);
-        return this.tabIndices[tabIndex];
-    }
-
-    addTabIndexItem(tabIndexItem) {
-        const i = this.getTabIndex(tabIndexItem);
-        if(i === -1)
-            this.tabIndices.push(tabIndexItem);
-    }
-
-    removeTabIndexItem(tabIndexItem) {
-        const i = this.getTabIndex(tabIndexItem);
-        if(i !== -1)
-            this.tabIndices.splice(i, 1);
-    }
-
-
-
     /** Open/Close Menu **/
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {
@@ -104,7 +58,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
         if(i === -1)
             this.openMenus.push([menuItem, closeMenuCallback]);
         // console.log('this.openMenus', this.openMenus);
-        setTimeout(() => this.updateOverlay(), 10); // TODO: ugly?
+        // setTimeout(() => this.updateOverlay(), 10); // TODO: ugly?
     }
 
     removeCloseMenuCallback(menuItem) {
@@ -131,11 +85,11 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     closeAllMenus() {
         // e && e.preventDefault();
         this.closeMenus([]);
-        this.setState({
-            open: false,
-            openOverlay: false,
-            options: null
-        });
+        // this.setState({
+        //     open: false,
+        //     openOverlay: false,
+        //     options: null
+        // });
     }
 
     openMenu(options) {
@@ -147,11 +101,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
 
         // Delay menu open
         setTimeout(() =>
-            this.setState({
-                open: true,
-                openOverlay: true,
-                options
-            })
+            this.ref.dropdown.current.openMenu(options)
             , 1);
         return true;
     }

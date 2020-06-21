@@ -24,9 +24,9 @@ export default class ASComposerInput extends ASComposerPlayback {
     /** Portrait Mode **/
 
     onResize() {
-        const containerElm = this.ref.container.current.getContainerElement();
-        if(!containerElm)
+        if(!this.ref.container.current)
             return console.warn("containerElm not found");
+        const containerElm = this.ref.container.current.getContainerElement();
         // TODO: detect mobile as portrait excluding horizontal ipad
         let {width, height} = containerElm.getBoundingClientRect();
         if(window && window.innerHeight < height)

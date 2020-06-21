@@ -68,7 +68,8 @@ export default class TrackIterator {
         };
         if(trackFrequency !== null)
             subTrackStats.transpose = Values.FREQ_A4 / trackFrequency;
-
+        if(trackDuration !== null)
+            subTrackStats.duration = trackDuration;
         if(parentStats.program)
             subTrackStats.program = parentStats.program;
         if(parentStats.destination)

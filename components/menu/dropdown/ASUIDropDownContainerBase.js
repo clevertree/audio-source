@@ -7,7 +7,6 @@ import {ASUIClickable, ASUIMenuDropDown, ASUIMenuItem} from "../../";
 import "./ASUIDropDownContainer.css";
 
 export default class ASUIDropDownContainerBase extends React.Component {
-    static contextType = ASUIMenuContext;
 
     // creating default props
     static defaultProps = {
@@ -46,7 +45,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
     }
 
     /** Menu Context **/
-
+    static contextType = ASUIMenuContext;
     /** @return {ASUIMenuOverlayContainer} **/
     getOverlay() { return this.context.overlay; }
     /** @return {ASUIDropDownContainer} **/

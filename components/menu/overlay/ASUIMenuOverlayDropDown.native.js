@@ -2,10 +2,10 @@ import React from "react";
 import {StyleSheet, View, TouchableHighlight, TouchableOpacity, Animated, Easing, Dimensions} from "react-native";
 import ASUIMenuBreak from "../item/ASUIMenuBreak";
 import ASUIMenuAction from "../item/ASUIMenuAction";
-import ASUIMenuOverlayContainerBase from "./ASUIMenuOverlayContainerBase";
+import ASUIMenuOverlayContainer from "./ASUIMenuOverlayContainerBase";
 import ASUIMenuDropDown from "../item/ASUIMenuDropDown";
 
-export default class ASUIMenuOverlayContainer extends ASUIMenuOverlayContainerBase {
+export default class ASUIMenuOverlayContainer extends ASUIMenuOverlayContainer {
 
     renderContent() {
         return (
