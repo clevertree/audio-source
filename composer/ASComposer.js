@@ -47,12 +47,6 @@ export default class ASComposer extends ASComposerInput {
 
             // Tracks
             activeTracks: {
-                root:{
-                    // destination: null,
-                    currentCommand: 'C4',
-                    currentVelocity: null,
-                    currentDuration: '1B',
-                }
             },
             selectedTrack: 'root',
             selectedTrackIndices: [],

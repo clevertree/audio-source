@@ -51,7 +51,7 @@ export default class ASCTrackRow extends ASCTrackRowBase {
     /** User Input **/
 
     onPress(e, state) {
-        this.selectRow(!e.ctrlKey);
+        this.selectRow();
         // switch(state) {
             // case 'in':
             //     this.lastPressInTime = new Date().getTime();

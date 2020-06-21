@@ -44,7 +44,7 @@ export default class ASCTrackRowBase extends React.Component {
         // const selectedIndices = clearSelection ? [] : null;
         const track = this.getTrack();
         track.setCursorOffset(this.props.cursorPosition);
-        track.selectIndices([], clearSelection);
+        track.selectIndices([], clearSelection); // TODO: Why clear selection?
 
         const trackState = track.getTrackState();
         const {positionSeconds} = trackState.getPositionInfo(this.props.positionTicks);

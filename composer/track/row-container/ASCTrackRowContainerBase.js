@@ -88,7 +88,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
         const rows = [];
         let rowInstructions = [];
 
-        // console.log('segmentLengthTicks', segmentLengthTicks);
+        // console.log('quantizationTicks', quantizationTicks, cursorOffset, rowOffset, this.props.track.state);
 
         const rowLength = trackState.getRowLength();
         while(rows.length < rowLength) {
@@ -219,23 +219,25 @@ export default class ASCTrackRowContainerBase extends React.Component {
             case 'v': composer.instructionPasteAtCursor(); return;
             default: break;
         }
+        const cursorInfo = track.cursorGetInfo();
+        const trackState = track.getTrackState();
+        // console.log('cursorInfo', cursorInfo);
+
         // let selectedIndices;
         switch(e.key) {
             case 'Delete':
-                const {cursorIndex: cursorDeleteIndex} = track.cursorGetInfo();
-                composer.instructionDeleteSelected(cursorDeleteIndex !== null ? [cursorDeleteIndex] : null);
+                if(cursorInfo.cursorIndex)
+                    composer.instructionDeleteIndices(track.getTrackName(), cursorInfo.cursorIndex);
+                else
+                    composer.instructionDeleteIndices(); // cursorDeleteIndex !== null ? [cursorDeleteIndex] : null
                 break;
             //
             // case 'Escape':
             // case 'Backspace':
             //     break;
             //
-            case 'Enter':
-                composer.instructionInsertAtCursor(null, null);
-                track.playSelectedInstructions();
-                break;
             //
-            case ' ':
+            // case ' ':
             case 'Play':
                 composer.songPlay(); // TODO: play track?
                 break;
@@ -245,23 +247,22 @@ export default class ASCTrackRowContainerBase extends React.Component {
             case 'ArrowDown':
             case 'ArrowRight':
                 e.preventDefault();
-                const currentCursorInfo = track.cursorGetInfo();
                 let targetCursorOffset;
                 switch(e.key) {
                     case 'ArrowRight':
-                        targetCursorOffset = currentCursorInfo.nextCursorOffset;
+                        targetCursorOffset = cursorInfo.nextCursorOffset;
                         break;
 
                     case 'ArrowLeft':
-                        targetCursorOffset = currentCursorInfo.previousCursorOffset;
+                        targetCursorOffset = cursorInfo.previousCursorOffset;
                         break;
 
                     case 'ArrowUp':
-                        targetCursorOffset = currentCursorInfo.previousRowOffset;
+                        targetCursorOffset = cursorInfo.previousRowOffset;
                         break;
 
                     case 'ArrowDown':
-                        targetCursorOffset = currentCursorInfo.nextRowOffset;
+                        targetCursorOffset = cursorInfo.nextRowOffset;
                         break;
                     default:
                         throw new Error("Invalid: " + e.key);
@@ -270,17 +271,27 @@ export default class ASCTrackRowContainerBase extends React.Component {
                 track.setCursorOffset(targetCursorOffset, targetCursorInfo.positionTicks);
                 //, targetCursorInfo.adjustedCursorRow
                 if(targetCursorInfo.cursorIndex !== null) {
-                    if(e.ctrlKey) {
-                        const selectedIndices = track.selectIndices(targetCursorInfo.cursorIndex, false);
-                        if(e.shiftKey) {
+                    if(e.shiftKey) {
+                        let selectedIndices = [targetCursorInfo.cursorIndex];
+                        if(cursorInfo.cursorIndex !== null)
+                            selectedIndices.push(cursorInfo.cursorIndex);
+                        selectedIndices = track.selectIndices(selectedIndices, false);
+                        if(e.ctrlKey) {
                             track.playInstructions(selectedIndices, true);
                         }
-                    } else if(e.shiftKey) {
-                        track.playInstructions(targetCursorInfo.cursorIndex, true);
+                    } else {
+                        track.selectIndices('none', true);
+                        if(e.ctrlKey) {
+                            track.playInstructions(targetCursorInfo.cursorIndex, true);
+                        }
+                    }
+                } else {
+                    if(!e.shiftKey) {
+                        track.selectIndices('none', true);
                     }
                 }
 
-                const rowLength = track.getTrackState().getRowLength();
+                const rowLength = trackState.getRowLength();
                 if(targetCursorInfo.cursorRow > track.getRowOffset() + (rowLength - 1))
                     track.setRowOffset(targetCursorInfo.cursorRow - (rowLength - 1))
                 else if(targetCursorInfo.cursorRow < track.getRowOffset())
@@ -293,6 +304,20 @@ export default class ASCTrackRowContainerBase extends React.Component {
             //
             // case 'PlayFrequency':
             //     break;
+            case 'PageDown':
+                const {cursorOffset: nextCursorOffset} = trackState.getPositionInfo(cursorInfo.positionTicks + trackState.getSegmentLengthTicks())
+                track.setCursorOffset(nextCursorOffset);
+                track.adjustRowOffset(nextCursorOffset + trackState.getRowLength() / 4);
+                // console.log('nextCursorOffset', nextCursorOffset);
+                break;
+
+            case 'PageUp':
+                const {cursorOffset: previousCursorOffset} = trackState.getPositionInfo(cursorInfo.positionTicks - trackState.getSegmentLengthTicks())
+                track.setCursorOffset(previousCursorOffset);
+                track.adjustRowOffset(previousCursorOffset);
+                // console.log('previousCursorOffset', previousCursorOffset);
+                break;
+
 
             case 'ContextMenu':
                 e.preventDefault();
@@ -300,35 +325,31 @@ export default class ASCTrackRowContainerBase extends React.Component {
                 // track.toggleDropDownMenu(); // TODO: open composer edit menu instead
                 break;
 
-            case 'Shift':
-                const {cursorIndex: cursorShiftPlayIndex} = track.cursorGetInfo();
-                if(cursorShiftPlayIndex !== null)
-                    track.playInstructions([cursorShiftPlayIndex]);
+            case 'Enter':
+                if(cursorInfo.cursorIndex !== null)
+                    track.selectIndices(cursorInfo.cursorIndex, 'toggle');
+                break;
+
+            case ' ':
+                if(e.ctrlKey)
+                    track.playSelectedInstructions();
+                else if(cursorInfo.cursorIndex !== null) {
+                    if(e.shiftKey)
+                        track.selectIndices(cursorInfo.cursorIndex, 'toggle');
+                    else
+                        track.playInstructions([cursorInfo.cursorIndex]);
+                }
                 // else if(track.getSelectedIndices().length > 0)
                 //     track.playSelectedInstructions();
-                break;
-
-            case 'Alt':
-                // const {cursorIndex: cursorAltPlayIndex} = track.cursorGetInfo();
-                // if(cursorShiftPlayIndex !== null)
-                //     track.playInstructions([cursorShiftPlayIndex]);
-                if(track.getSelectedIndices().length > 0)
-                    track.playSelectedInstructions();
-                break;
-
-            case 'Control':
-                const {cursorIndex: cursorControlIndex} = track.cursorGetInfo();
-                if(cursorControlIndex !== null)
-                    track.selectIndices(cursorControlIndex, 'toggle');
                 break;
 
             default:
                 const keyboardCommand = composer.keyboard.getKeyboardCommand(e.key, composer.state.keyboardOctave);
                 if(keyboardCommand) {
                     // const selectedIndices = track.getSelectedIndices();
-                    const {cursorIndex} = track.cursorGetInfo()
-                    if(cursorIndex !== null) {
-                        composer.instructionReplaceArgByType(track.getTrackName(), cursorIndex, ArgType.frequency, keyboardCommand);
+                    // const {cursorIndex} = track.cursorGetInfo()
+                    if(cursorInfo.cursorIndex !== null) {
+                        composer.instructionReplaceArgByType(track.getTrackName(), cursorInfo.cursorIndex, ArgType.frequency, keyboardCommand);
 
                     } else {
                         composer.instructionInsertAtCursor(track.getTrackName(), keyboardCommand);

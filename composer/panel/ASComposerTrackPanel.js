@@ -11,7 +11,7 @@ export default class ASComposerTrackPanel extends React.Component {
             renderMenuSelectTrack: () => this.renderMenuSelectTrack(),
             trackSelectIndicesPrompt: () => composer.trackSelectIndicesPrompt(),
             instructionInsertAtCursor: () => composer.instructionInsertAtCursor(),
-            instructionDeleteSelected: () => composer.instructionDeleteSelected(),
+            instructionDeleteSelected: () => composer.instructionDeleteIndices(),
         }
     }
 

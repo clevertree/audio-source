@@ -51,24 +51,28 @@ export default class TrackIterator {
     }
 
 
-    onPlayTrack(trackStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+    onPlayTrack(parentStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
+        if(parentStats.trackName === trackName) {
+            console.warn("Skipping recursive track name: " + trackName);
+            return;
+        }
         const subTrackStats = {
             // program: trackStats.program,            // Current program which all notes route through
             // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
             // parentStats: trackStats,
-            startTime: trackStats.startTime + trackStats.positionSeconds,
+            startTime: parentStats.startTime + parentStats.positionSeconds,
             startPosition: trackStartTime, // trackStats.positionSeconds,
             trackName,
-            beatsPerMinute: trackStats.beatsPerMinute,
-            timeDivision: trackStats.timeDivision, // Time division is passed to sub-groups
+            beatsPerMinute: parentStats.beatsPerMinute,
+            timeDivision: parentStats.timeDivision, // Time division is passed to sub-groups
         };
         if(trackFrequency !== null)
             subTrackStats.transpose = Values.FREQ_A4 / trackFrequency;
 
-        if(trackStats.program)
-            subTrackStats.program = trackStats.program;
-        if(trackStats.destination)
-            subTrackStats.destination = trackStats.destination;
+        if(parentStats.program)
+            subTrackStats.program = parentStats.program;
+        if(parentStats.destination)
+            subTrackStats.destination = parentStats.destination;
 
         // console.log("onPlayTrack", trackName, trackDuration, trackStartTime, trackFrequency, subTrackStats);
         // TODO: process track instruction parameters

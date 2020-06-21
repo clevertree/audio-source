@@ -33,8 +33,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         const instructionData = this.getInstructionData();
         const open = this.isOpen();
         return <div
-            ref={input => this.props.cursor && this.getTrack().props.selected && input && input.focus()}
-            tabIndex={0}
+            // ref={input => this.props.cursor && this.getTrack().props.selected && input && input.focus()}
+            // tabIndex={0}
             className={className}
             onKeyDown={this.cb.onKeyDown}
             onClick={this.cb.onClick}

@@ -57,7 +57,7 @@ class ASComposerActions extends ASComposerMenu {
             selectedTrack: song.getStartTrackName() || 'root',
             activeTracks: {}
         }
-        state.activeTracks[state.selectedTrack] = {}
+        // state.activeTracks[state.selectedTrack] = {}
         this.setState(state);
         // this.trackerToggleTrack('track0', true);
         // this.trackerToggleTrack('track1', true);
@@ -560,7 +560,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
-    trackSelectIndices(trackName, selectedIndices=[], clearSelection=false) {
+    trackSelectIndices(trackName, selectedIndices=[], clearSelection=true) {
 
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
@@ -629,6 +629,7 @@ class ASComposerActions extends ASComposerMenu {
             const instructionData = this.getSong().instructionDataGetByIndex(trackName, selectedIndices[0]);
             state.selectedInstructionData = instructionData.slice();
             state.selectedInstructionData[0] = 0;
+            // console.log('selectedInstructionData', state.selectedInstructionData);
         }
 
         this.setState(state);
@@ -711,13 +712,13 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    instructionInsertAtCursor(trackName = null, newCommand = null) {
+    instructionInsertAtCursor(trackName = null, newInstructionData = null) {
         trackName = trackName || this.state.selectedTrack;
-        newCommand = newCommand || this.state.currentCommand;
+        // newCommand = newCommand || this.state.currentCommand;
         const trackRef = this.activeTrackRef[trackName];
         if(!trackRef || !trackRef.current)
             throw new Error("Invalid Track ref: " + trackName);
-        trackRef.current.instructionInsertAtCursor(newCommand);
+        trackRef.current.instructionInsertAtCursor(newInstructionData);
     }
 
     instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
@@ -749,10 +750,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
         const song = this.song;
-        if(Number.isInteger(selectedIndices))
-            selectedIndices = [selectedIndices];
-        if (!selectedIndices.length)
-            throw new Error("No selection");
+        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
         // console.log('instructionReplaceArg', trackName, selectedIndices, argIndex, newArgValue, selectedInstructionData);
 
@@ -772,9 +770,10 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Delete **/
 
-    instructionDeleteSelected(selectedIndices=null) {
-        const trackName = this.state.selectedTrack;
+    instructionDeleteIndices(trackName=null, selectedIndices=null) {
+        trackName = trackName || this.state.selectedTrack;
         selectedIndices = selectedIndices || this.state.selectedTrackIndices;
+        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
         selectedIndices.sort((a, b) => a - b);
         for (let i=selectedIndices.length-1; i>=0; i--)
@@ -812,7 +811,7 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionCutSelected() {
         this.instructionCopySelected();
-        this.instructionDeleteSelected();
+        this.instructionDeleteIndices();
     }
 
     instructionPasteAtCursor() {

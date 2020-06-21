@@ -10,7 +10,9 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
         this.state.clientPosition = null;
         this.cb.onContextMenu = e => this.onContextMenu(e);
         this.cb.onWheel = e => this.onWheel(e);
-
+        this.ref = {
+            container: {current: null}
+        };
     }
 
     // componentDidMount() {
@@ -24,6 +26,9 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
     //         this.container.current.removeEventListener('wheel', this.cb.onWheel);
     // }
 
+    focus() {
+        this.ref.container.current.focus();
+    }
 
     render() {
         return <div
@@ -31,6 +36,7 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
                 className="row-container"
                 ref={elm => {
                     elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
+                    this.ref.container.current = elm;
                     // TODO: prevent refresh. use sub component for row content
                 }}
                 tabIndex={0}

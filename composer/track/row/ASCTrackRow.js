@@ -18,8 +18,7 @@ class ASCTrackRow extends ASCTrackRowBase {
         const rowPosition = composer.state.showTrackRowPositionInTicks ? this.props.positionTicks : composer.values.formatDurationAsDecimal(this.props.positionTicks);
         return (
             <div
-                ref={input => this.props.cursor && this.getTrack().props.selected && input && input.focus()}
-                tabIndex={0}
+                // tabIndex={0}
                 className={className}
                 // onClick={this.cb.onMouseInput}
                 onClick={this.cb.onClick}
@@ -51,7 +50,7 @@ class ASCTrackRow extends ASCTrackRowBase {
         if (e.defaultPrevented)
             return;
         e.preventDefault();
-        this.selectRow(!e.ctrlKey);
+        this.selectRow();
     }
 
     // onContextMenu(e) {

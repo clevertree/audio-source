@@ -1,5 +1,6 @@
 import TrackInstructionRowIterator from "../instruction/TrackInstructionRowIterator";
 import {InstructionIterator} from "../../../song";
+import PromptManager from "../../../common/prompt/PromptManager.native";
 
 export default class TrackState {
     static DEFAULT_ROW_LENGTH = 16;
@@ -125,6 +126,17 @@ export default class TrackState {
         });
     }
 
+    changeQuantization(quantizationTicks) {
+        if (!quantizationTicks || !Number.isInteger(quantizationTicks))
+            throw new Error("Invalid quantization value");
+        this.updateRenderingProps(quantizationTicks);
+    }
+
+    changeRowLength(rowLength = null) {
+        if (!Number.isInteger(rowLength))
+            throw new Error("Invalid track row length value");
+        this.updateRenderingProps(null, rowLength);
+    }
 
     /** Track Cursor Position **/
 
@@ -217,9 +229,9 @@ export default class TrackState {
 
     getRowIterator(timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
         const song = this.composer.getSong();
-        timeDivision = timeDivision || song.data.timeDivision;
-        beatsPerMinute = beatsPerMinute || song.data.beatsPerMinute;
-        quantizationTicks = quantizationTicks || song.data.quantizationTicks;
+        timeDivision = timeDivision || this.getTimeDivision();
+        beatsPerMinute = beatsPerMinute || this.getBeatsPerMinute();
+        quantizationTicks = quantizationTicks || this.getQuantizationTicks();
         return TrackInstructionRowIterator.getIteratorFromSong(
             song,
             this.trackName,
@@ -234,8 +246,8 @@ export default class TrackState {
 
     getIterator(timeDivision=null, beatsPerMinute=null) {
         const song = this.composer.getSong();
-        timeDivision = timeDivision || song.data.timeDivision;
-        beatsPerMinute = beatsPerMinute || song.data.beatsPerMinute;
+        timeDivision = timeDivision || this.getTimeDivision();
+        beatsPerMinute = beatsPerMinute || this.getBeatsPerMinute();
         return InstructionIterator.getIteratorFromSong(
             song,
             this.trackName,

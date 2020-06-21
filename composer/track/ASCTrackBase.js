@@ -51,7 +51,7 @@ export default class ASCTrackBase extends React.Component {
         this.destination = null;
         // this.cursorInstruction = React.createRef();
         // this.trackerGetCursorInfo();
-        console.log('ASCTrackBase.constructor', this.state);
+        console.log('ASCTrackBase.constructor', this.getTrackName(), this.state, trackState);
 
     }
 
@@ -92,25 +92,6 @@ export default class ASCTrackBase extends React.Component {
         return this.destination = this.getComposer().getAudioContext();
     }
 
-    // getRowIterator(quantizationTicks=null) {
-    //     return this.getComposer()
-    //         .trackGetRowIterator(
-    //             this.getTrackName(),
-    //             this.getTimeDivision(), // || this.getSong().data.timeDivision,
-    //             this.getBeatsPerMinute(), //  || this.getSong().data.beatsPerMinute
-    //             quantizationTicks
-    //         );
-    // }
-    //
-    //
-    // getIterator() {
-    //     return this.getComposer()
-    //         .instructionGetIterator(
-    //             this.getTrackName(),
-    //             this.getTimeDivision(), // || this.getSong().data.timeDivision,
-    //             this.getBeatsPerMinute() //  || this.getSong().data.beatsPerMinute
-    //         );
-    // }
 
     updateRenderingProps(quantizationTicks=null, rowLength=null) {
         this.getTrackState()
@@ -127,41 +108,50 @@ export default class ASCTrackBase extends React.Component {
     //     this.setState({menuOpen});
     // }
 
-    changeQuantization(quantizationTicks) {
-        if (!quantizationTicks || !Number.isInteger(quantizationTicks))
-            throw new Error("Invalid quantization value");
-        this.updateRenderingProps(quantizationTicks);
-    }
-
     async changeQuantizationPrompt(quantizationTicks = null) {
         quantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, quantizationTicks || this.track.quantizationTicks);
-        this.changeQuantization(quantizationTicks)
+        this.getTrackState().changeQuantization(quantizationTicks)
     }
 
-
-    changeRowLength(rowLength = null) {
-        if (!Number.isInteger(rowLength))
-            throw new Error("Invalid track row length value");
-        this.updateRenderingProps(null, rowLength);
-    }
 
     async changeRowLengthPrompt(rowLength=null) {
         rowLength = parseInt(await PromptManager.openPromptDialog(`Enter custom tracker segment length in rows:`, rowLength || this.track.rowLength));
-        this.changeRowLength(rowLength);
+        this.getTrackState().changeRowLength(rowLength);
     }
 
+
+    setCursorOffset(cursorOffset) {
+        if(cursorOffset < 0)
+            cursorOffset = 0;
+        this.setState({cursorOffset}, () =>
+            this.focusRowContainer());
+    }
 
     setRowOffset(rowOffset) {
         if(rowOffset < 0)
             rowOffset = 0;
         // console.log('rowOffset', rowOffset);
-        this.setState({rowOffset});
+        this.setState({rowOffset}, () =>
+            this.focusRowContainer());
     }
 
-    setCursorOffset(cursorOffset) {
-        if(cursorOffset < 0)
-            cursorOffset = 0;
-        this.setState({cursorOffset});
+    adjustRowOffset(cursorOffset=null) {
+        cursorOffset = cursorOffset === null ? this.state.cursorOffset : cursorOffset;
+        const trackState = this.getTrackState();
+        const cursorInfo = trackState.getCursorInfo(cursorOffset);
+        const rowLength = trackState.getRowLength();
+        if(cursorInfo.cursorRow > this.getRowOffset() + (rowLength - 1))
+            this.setRowOffset(cursorInfo.cursorRow - (rowLength - 1))
+        else if(cursorInfo.cursorRow < this.getRowOffset())
+            this.setRowOffset(cursorInfo.cursorRow)
+        // else
+        //     console.log("No adjustment: ", cursorInfo, cursorOffset);
+    }
+
+    focusRowContainer() {
+        // TODO: if selected?
+        // console.log('focusRowContainer');
+        this.ref.rowContainer.current.focus();
     }
 
 
@@ -358,10 +348,10 @@ export default class ASCTrackBase extends React.Component {
         this.getComposer().instructionPasteAtPosition(this.getTrackName(), startPositionTicks);
     }
 
-    instructionInsertAtCursor(newCommand, select, playback) {
+    instructionInsertAtCursor(newInstructionData) {
         const activeTrack = this.getTrackState();
         let {positionTicks: startPositionTicks} = activeTrack.getCursorInfo(this.getCursorOffset());
-        this.getComposer().instructionInsertAtPosition(this.getTrackName(), startPositionTicks);
+        this.getComposer().instructionInsertAtPosition(this.getTrackName(), startPositionTicks, newInstructionData);
     }
 }
 
