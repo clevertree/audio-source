@@ -1,19 +1,10 @@
 import React from "react";
 import ASUIMenuContext from "../ASUIMenuContext";
 
-export default class ASUIMenuOverlayContainerBase extends React.Component {
+export default class ASUIContextMenuContainerBase extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            open: false,
-            openOverlay: false
-        };
-        this.cb = {
-            closeAllMenus: e => this.closeAllMenus(e),
-        };
         this.openMenus =  [];
-        this.tabIndices = [];
-        this.updateOverlayTimeout = null;
         this.ref = {
             dropdown: React.createRef()
         }
@@ -45,7 +36,7 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     }
 
     isHoverEnabled() {
-        return !this.props.isActive && (this.state.openOverlay || this.openMenus.length > 0);
+        return false; // !this.props.isActive; //  && (this.state.openOverlay || this.openMenus.length > 0);
     }
     isOpen() {
         return this.state.open;
@@ -54,6 +45,8 @@ export default class ASUIMenuOverlayContainerBase extends React.Component {
     /** Open/Close Menu **/
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {
+        if(typeof closeMenuCallback !== "function")
+            throw new Error("Invalid menu close callback: " + typeof closeMenuCallback);
         const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);
         if(i === -1)
             this.openMenus.push([menuItem, closeMenuCallback]);

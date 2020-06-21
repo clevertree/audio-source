@@ -128,7 +128,7 @@ export default StyleSheet.create({
 // }
 //
 //
-// div.asui-menu-overlay-dropdown > div.asui-menu-item > div.title {
+// div.asui-contextmenu-dropdown > div.asui-menu-item > div.title {
 //     padding: 0.5em;
 // }
 //

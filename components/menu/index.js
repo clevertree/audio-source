@@ -3,7 +3,7 @@ import ASUIMenuAction from "./item/ASUIMenuAction";
 import ASUIMenuDropDown from "./item/ASUIMenuDropDown";
 import ASUIDropDownContainer from "./dropdown/ASUIDropDownContainer";
 import ASUIMenuBreak from "./item/ASUIMenuBreak";
-import ASUIMenuOverlayContainer from "./overlay/ASUIMenuOverlayContainer";
+import ASUIContextMenuContainer from "./overlay/ASUIContextMenuContainer";
 
 export {
     ASUIMenuItem,
@@ -11,5 +11,5 @@ export {
     ASUIMenuBreak,
     ASUIMenuDropDown,
     ASUIDropDownContainer,
-    ASUIMenuOverlayContainer
+    ASUIContextMenuContainer
 }

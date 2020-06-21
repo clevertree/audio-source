@@ -1,0 +1,73 @@
+/** Container **/
+
+div.asui-contextmenu-container {
+    display: flex;
+}
+
+div.asui-contextmenu-container > div.content {
+    flex: 1;
+}
+
+div.asui-contextmenu-container > div.overlay {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    background-color: rgba(0, 0, 0, 0.27);
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+
+
+
+/** Drop Down **/
+
+div.asui-contextmenu-dropdown {
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    height: 100%;
+
+    animation: menuSlideIn 0.2s ease-out;
+
+}
+
+.portrait > div.asui-contextmenu-dropdown {
+    overflow: hidden;
+}
+
+/*div.asui-contextmenu-dropdown > div.dropdown {*/
+/*    position: relative;*/
+/*    background-color: #bdc3c7;*/
+/*    !*position: absolute;*!*/
+/*    z-index: 3;*/
+/*    !*left: 0;*!*/
+/*    !*top: 0;*!*/
+/*    !*transition: transform 0.3s ease-out;*!*/
+/*    !*transform: translate(-100%);*!*/
+
+/*    !*min-width: 20vw;*!*/
+/*    margin-left: 0;*/
+/*    !*height: 100%;*!*/
+/*}*/
+
+
+div.asui-contextmenu-dropdown > div.dropdown > div.asui-menu-item {
+    padding: 0.7em;
+}
+
+div.asui-contextmenu-dropdown > div.content {
+    flex: 1;
+}
+
+@keyframes menuSlideIn {
+    from {
+        margin-left: -20vw;
+        /*transform: translate(-100%);*/
+        /*opacity: 0;*/
+        /*background: #5470B0;*/
+    }
+}

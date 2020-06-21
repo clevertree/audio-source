@@ -46,7 +46,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     /** Menu Context **/
     static contextType = ASUIMenuContext;
-    /** @return {ASUIMenuOverlayContainer} **/
+    /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
     /** @return {ASUIDropDownContainer} **/
     getParentDropdown() { return this.context.parentDropDown; }

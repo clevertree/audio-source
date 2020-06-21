@@ -6,7 +6,7 @@ import {
     ASUIForm,
     ASUIIcon,
     ASUIInputRange,
-    ASUIMenuOverlayContainer,
+    ASUIContextMenuContainer,
     ASUIPanel
 } from "../components";
 
@@ -36,7 +36,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
     render() {
         return (
             <ASUIDiv className={["asp-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
-                <ASUIMenuOverlayContainer
+                <ASUIContextMenuContainer
                     isActive={this.state.portrait}
                 >
                     <ASUIDiv key="header" className="asp-title-container">
@@ -170,7 +170,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                              ref={this.footerVersionText}
                         >{this.state.version}</ASUIDiv>
                     </ASUIDiv>
-                </ASUIMenuOverlayContainer>
+                </ASUIContextMenuContainer>
             </ASUIDiv>
         )
     }

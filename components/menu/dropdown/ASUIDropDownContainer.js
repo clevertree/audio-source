@@ -30,6 +30,8 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             style.position = 'fixed';
             style.left = this.props.clientPosition[0];
             style.top = this.props.clientPosition[1];
+        } else if (this.props.position) {
+            style.position = this.props.position;
         }
 
         const positionSelected = this.state.positionSelected;

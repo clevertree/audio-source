@@ -1,7 +1,7 @@
 import React from "react";
 import {Text, View, ScrollView, TouchableHighlight, StyleSheet} from 'react-native';
 import {ASUIIcon, ASUIMenuDropDown} from "../../components";
-import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
+import ASUIContextMenuContainer from "../../components/menu/overlay/ASUIContextMenuContainer";
 
 
 export default class ASComposerContainer extends React.Component {
@@ -24,13 +24,13 @@ export default class ASComposerContainer extends React.Component {
     render() {
         const state = this.props.composer.state;
         return (
-                <ASUIMenuOverlayContainer
+                <ASUIContextMenuContainer
                     isActive={state.portrait}
                     >
                     {this.renderHeader()}
                     {this.renderContent()}
                     {this.renderFooter()}
-                </ASUIMenuOverlayContainer>
+                </ASUIContextMenuContainer>
         );
     }
 

@@ -2,10 +2,10 @@ import React from "react";
 import ASUIMenuContext from "../ASUIMenuContext";
 import {ASUIMenuItem} from "../index";
 
-export default class ASUIMenuOverlayDropDownBase extends React.Component {
+export default class ASUIContextMenuDropDownBase extends React.Component {
     /** Menu Context **/
     static contextType = ASUIMenuContext;
-    /** @return {ASUIMenuOverlayContainer} **/
+    /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
     /** @return {ASUIDropDownContainer} **/
     getParentDropdown() { return this.context.parentDropDown; }
@@ -18,6 +18,7 @@ export default class ASUIMenuOverlayDropDownBase extends React.Component {
             options: [<ASUIMenuItem>TEST</ASUIMenuItem>]
         };
         this.cb = {
+            closeDropDown: e => this.closeDropDown(e),
             closeAllMenus: e => this.getOverlay().closeAllMenus(e),
         };
         this.ref = {
@@ -50,7 +51,7 @@ export default class ASUIMenuOverlayDropDownBase extends React.Component {
 
     /** Open/Close Menu **/
 
-    closeAllMenus() {
+    closeDropDown() {
         // e && e.preventDefault();
         this.setState({
             open: false,

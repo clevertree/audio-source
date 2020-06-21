@@ -78,7 +78,7 @@ export default class ASUIClickable extends React.Component {
     /** Overlay Context **/
     static contextType = ASUIMenuContext;
 
-    /** @return {ASUIMenuOverlayContainer} **/
+    /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
     getParentDropdown() { return this.context.parentDropDown; }
 

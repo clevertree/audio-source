@@ -11,7 +11,7 @@ import {
     ASUIMenuAction,
     ASUIMenuDropDown,
     ASUIMenuBreak,
-    ASUIMenuOverlayContainer
+    ASUIContextMenuContainer
 } from "./menu/";
 
 import ASUIForm from "./form/ASUIForm";
@@ -33,7 +33,7 @@ export {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIMenuDropDown,
-    ASUIMenuOverlayContainer,
+    ASUIContextMenuContainer,
 
     ASUIInputRange,
 }

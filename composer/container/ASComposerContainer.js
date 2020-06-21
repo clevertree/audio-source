@@ -1,7 +1,7 @@
 import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIIcon} from "../../components";
-import ASUIMenuOverlayContainer from "../../components/menu/overlay/ASUIMenuOverlayContainer";
+import ASUIContextMenuContainer from "../../components/menu/overlay/ASUIContextMenuContainer";
 
 import "./assets/ASComposerContainer.css";
 
@@ -38,13 +38,13 @@ export default class ASComposerContainer extends React.Component {
                 + (state.fullscreen ? ' fullscreen' : '')
                 + (state.portrait ? ' portrait' : ' landscape')}
                 ref={this.ref.container}>
-                <ASUIMenuOverlayContainer
+                <ASUIContextMenuContainer
                     isActive={state.portrait}
                 >
                     {this.renderHeader()}
                     {this.renderContent()}
                     {this.renderFooter()}
-                </ASUIMenuOverlayContainer>
+                </ASUIContextMenuContainer>
             </div>
         );
     }
