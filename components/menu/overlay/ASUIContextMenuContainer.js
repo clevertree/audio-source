@@ -11,7 +11,8 @@ export default class ASUIContextMenuContainer extends ASUIContextMenuContainerBa
             className="asui-contextmenu-container">
             <ASUIContextMenuDropDown
                 ref={this.ref.dropdown}
-                overlay={this}/>
+
+                />
             <div
                 className="content">
                 {this.props.children}

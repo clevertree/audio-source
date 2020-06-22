@@ -6,12 +6,12 @@ import ASUIDropDownContainerBase from "./ASUIDropDownContainerBase";
 
 export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
-    renderDropDownContainer(options) {
-
+    renderDropDownContainer() {
+        const optionArray = this.state.optionArray;
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             <View
-                children={options}
+                children={optionArray}
                 ref={this.divRef}
                 />
         </ASUIMenuContext.Provider>

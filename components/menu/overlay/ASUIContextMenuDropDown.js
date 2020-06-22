@@ -21,17 +21,18 @@ export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase
 
     render() {
         return [<div
-                className="asui-contextmenu-dropdown">
-            {this.state.open ? <ASUIDropDownContainer
-                position="unset"
-                ref={this.ref.dropdown}
-                onClose={this.cb.closeDropDown}
-                options={<>
-                        {this.state.options}
-                        <ASUIMenuBreak/>
-                        <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>
-                    </>}
-                /> : null}
+                className={`asui-contextmenu-dropdown${this.state.open ? ' open' : ''}`}>
+            {this.state.open ? <>
+                <ASUIDropDownContainer
+                    position="unset"
+                    ref={this.ref.dropdown}
+                    onClose={this.cb.closeDropDown}
+                    skipOverlay={true}
+                    options={this.state.options}
+                    />
+                    <ASUIMenuBreak/>
+                    <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>
+                </> : null}
             </div>,
             this.state.openOverlay ? <div
                 onClick={this.cb.closeAllMenus}

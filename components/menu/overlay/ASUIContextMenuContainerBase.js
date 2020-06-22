@@ -24,7 +24,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     updateOverlay() {
         const openOverlay = this.openMenus.length > 0;
         // console.log('updateOverlay', openOverlay);
-        this.ref.dropdown.current.toggleOverlay(openOverlay);
+        // this.ref.dropdown.current.toggleOverlay(openOverlay);
     }
 
     // getActiveMenuCount() {
@@ -36,7 +36,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     }
 
     isHoverEnabled() {
-        return false; // !this.props.isActive; //  && (this.state.openOverlay || this.openMenus.length > 0);
+        return !this.props.isActive; //  && (this.state.openOverlay || this.openMenus.length > 0);
     }
     isOpen() {
         return this.state.open;
@@ -61,7 +61,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         // this.updateOverlay();
     }
 
-
+    /** @deprecated **/
     closeMenus(butThese=[], stayOpenOnStick=true) {
         // console.log('closeMenus', butThese, this.openMenus);
         // this.overlayContext.openMenuItems = [];
@@ -89,8 +89,8 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         if(!this.props.isActive)
             return false;
 
-        if(typeof options === "function")
-            options = options(this);
+        // if(typeof options === "function")
+        //     options = options(this);
 
         // Delay menu open
         setTimeout(() =>

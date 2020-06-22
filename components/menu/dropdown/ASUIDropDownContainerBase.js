@@ -12,7 +12,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
     static defaultProps = {
         // arrow:          true,
         vertical:       false,
-        openOverlay:    false,
+        // openOverlay:    false,
         // disabled:       false,
     };
 
@@ -32,7 +32,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         this.divRef = React.createRef();
         // this.deferredToOverlayMenu = false;
         this.state = {
-            optionArray: [<ASUIMenuItem>Empty</ASUIMenuItem>],
+            optionArray: null,
             offsetIndex: 0,
             positionSelected: this.props.positionSelected || null
         }
@@ -62,38 +62,68 @@ export default class ASUIDropDownContainerBase extends React.Component {
     //     this.updateScreenPosition();
     // }
 
+    componentWillUnmount() {
+
+    }
+
     componentDidMount() {
-        console.log('ASUIDropDownContainer.componentDidMount')
+        // console.log('ASUIDropDownContainer.componentDidMount')
 
         const overlay = this.getOverlay();
         overlay.addCloseMenuCallback(this, this.props.onClose);
 
+        this.openMenu(this.props.options);
+
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('ASUIDropDownContainer.componentDidUpdate', prevState, this.state)
+        if(prevProps.options !== this.props.options)
+            this.setOptions(this.props.options);
+    }
+
+
+    render() {
+        // if(!this.state.options)
+        //     return null;
+        return <ASUIMenuContext.Provider
+            value={{overlay:this.getOverlay(), parentDropDown:this}}>
+            {this.renderDropDownContainer()}
+        </ASUIMenuContext.Provider>
+
+    }
+
+    /** Actions **/
+
+
+    openMenu(options) {
+        const overlay = this.getOverlay();
         // TODO: defer all to overlay if exists?
 
         // Try open menu handler
-        const res = overlay.openMenu(this.props.options);
+        const res = this.props.skipOverlay ? false : overlay.openMenu(options);
         if (res !== false) {
-            this.setState({options: null})
+            // this.setState({optionArray: []})
 //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
 
         } else {
             // Process dropdown options
 
-            let options = this.props.options;
-            if (typeof options === "function")
-                options = options(this);
-            if(options instanceof Promise) {
-                options.then(options => this.setOptions(options));
-                options = <ASUIMenuItem>Loading...</ASUIMenuItem>;
-            }
-            if (!options)
-                console.warn("Empty options returned by ", this);
-
             this.setOptions(options);
         }
     }
 
-    setOptions(options) {
+    async setOptions(options) {
+        if (typeof options === "function")
+            options = options(this);
+        if(options instanceof Promise) {
+            this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
+            options = await options;
+        }
+        if (!options)
+            console.warn("Empty options returned by ", this);
+
+
         let optionArray = [];
         let positionSelected = this.state.positionSelected, currentPosition = 0;
         let i=0;
@@ -129,7 +159,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         //     firstOptionProps.selected = true;
         // }
 
-        // console.log('optionArray', optionArray, options, positionSelected);
+        // console.log('setOptions', optionArray, options, positionSelected);
         // const newOptions = newOptions
         //     .map(([option, props]) => {
         //         React.cloneElement(option, props)
@@ -142,17 +172,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
         })
     }
 
-    render() {
-        // if(!this.state.options)
-        //     return null;
-        return <ASUIMenuContext.Provider
-            value={{overlay:this.getOverlay(), parentDropDown:this}}>
-            {this.renderDropDownContainer(this.state.optionArray)}
-        </ASUIMenuContext.Provider>
-
-    }
-
-    /** Actions **/
 
     closeDropDownMenu() {
         this.props.onClose()

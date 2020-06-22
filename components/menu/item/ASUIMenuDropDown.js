@@ -25,7 +25,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
             // onKeyDown: (e) => this.onKeyDown(e),
         this.cb.onMouseEnter = e => this.onMouseEnter(e);
-        this.cb.onMouseLeave = e => this.onMouseLeave(e);
+        // this.cb.onMouseLeave = e => this.onMouseLeave(e);
         this.cb.onClose = () => this.closeDropDownMenu();
         this.dropdown = React.createRef();
         this.state = {
@@ -103,7 +103,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
 
     closeDropDownMenu() {
         this.setState({open: false, stick: false}, () => {
-            this.getOverlay().updateOverlay();
+            // this.getOverlay().updateOverlay();
         });
     }
 
@@ -118,6 +118,7 @@ export default class ASUIMenuDropDown extends ASUIClickable {
     }
 
     hoverDropDown() {
+        console.log('hoverDropDown', this.state.open === true, !this.getOverlay(), !this.getOverlay().isHoverEnabled())
         if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
             return;
         // this.getOverlay().closeAllMenus();
@@ -139,13 +140,18 @@ export default class ASUIMenuDropDown extends ASUIClickable {
     /** User Input **/
 
     onMouseEnter(e) {
+        const thisElm = this.ref.container.current;
+        console.log('onMouseEnter', thisElm);
+        // TODO: close all opened that aren't hovered
         clearTimeout(this.timeoutMouseLeave);
         this.hoverDropDown();
+        // TODO: *OR* keep track of 'leaving' state?
     }
 
     onMouseLeave(e) {
         clearTimeout(this.timeoutMouseLeave);
-        this.timeoutMouseLeave = setTimeout(() => this.closeDropDownMenu(), 1500);
+        // this.closeDropDownMenu();
+        // this.timeoutMouseLeave = setTimeout(() => this.closeDropDownMenu(), 100);
     }
 
 

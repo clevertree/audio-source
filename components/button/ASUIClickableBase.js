@@ -10,6 +10,9 @@ export default class ASUIClickable extends React.Component {
             onMouseEnter: null,
             onMouseLeave: null,
         };
+        this.ref = {
+            container: React.createRef()
+        }
     }
 
     // shouldComponentUpdate(nextProps, nextState, nextContext) {

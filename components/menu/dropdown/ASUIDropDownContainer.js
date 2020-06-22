@@ -9,19 +9,26 @@ import "./ASUIDropDownContainer.css";
 export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        // super.componentDidUpdate(prevProps, prevState, snapshot);
+        super.componentDidUpdate(prevProps, prevState, snapshot);
         this.updateScreenPosition();
     }
     componentWillUnmount() {
         this.getOverlay().removeCloseMenuCallback(this);
+        return super.componentWillUnmount();
     }
 
     componentDidMount() {
         super.componentDidMount();
-        this.focus();
+        const optionArray = this.state.optionArray;
+        if(optionArray)
+            this.focus();
     }
 
-    renderDropDownContainer(optionArray) {
+    renderDropDownContainer() {
+        const optionArray = this.state.optionArray;
+        if(!optionArray)
+            return null;
+
         let className = 'asui-menu-dropdown';
         if (this.props.vertical)
             className += ' vertical';

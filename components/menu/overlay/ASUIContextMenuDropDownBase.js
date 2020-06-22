@@ -13,8 +13,8 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: true,
-            openOverlay: true,
+            open: false,
+            openOverlay: false,
             options: [<ASUIMenuItem>TEST</ASUIMenuItem>]
         };
         this.cb = {
@@ -24,6 +24,11 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
         this.ref = {
             dropdown: React.createRef()
         }
+    }
+
+    componentDidMount() {
+        this.getOverlay().addCloseMenuCallback(this, this.cb.closeDropDown);
+
     }
 
 
@@ -38,6 +43,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
     // }
 
     toggleOverlay(openOverlay=null) {
+        console.log('toggleOverlay', openOverlay);
         if(openOverlay === null)
             openOverlay = !this.state.openOverlay;
         if(this.state.openOverlay !== openOverlay)
@@ -61,8 +67,9 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
     }
 
     openMenu(options) {
-        if(typeof options === "function")
-            options = options(this);
+        console.log('openMenu', options);
+        // if(typeof options === "function")
+        //     options = options(this);
 
         // Delay menu open
         this.setState({

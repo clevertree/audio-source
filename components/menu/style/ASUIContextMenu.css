@@ -1,7 +1,10 @@
 /** Container **/
 
 div.asui-contextmenu-container {
+    position: relative;
     display: flex;
+    flex-direction: row;
+    height: 100%;
 }
 
 div.asui-contextmenu-container > div.content {
@@ -22,17 +25,17 @@ div.asui-contextmenu-container > div.overlay {
 
 
 
-
 /** Drop Down **/
 
 div.asui-contextmenu-dropdown {
-    position: relative;
-    display: inline-flex;
-    flex-direction: row;
-    height: 100%;
-
+    z-index: 3;
+    min-width: 25%;
+}
+div.asui-contextmenu-dropdown:not(.open) {
+    display: none;
+}
+div.asui-contextmenu-dropdown.open {
     animation: menuSlideIn 0.2s ease-out;
-
 }
 
 .portrait > div.asui-contextmenu-dropdown {
