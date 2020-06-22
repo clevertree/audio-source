@@ -1,6 +1,5 @@
 import TrackInstructionRowIterator from "../instruction/TrackInstructionRowIterator";
 import {InstructionIterator} from "../../../song";
-import PromptManager from "../../../common/prompt/PromptManager.native";
 
 export default class TrackState {
     static DEFAULT_ROW_LENGTH = 16;

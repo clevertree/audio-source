@@ -1,4 +1,4 @@
-import ASUIClickable from "../../button/ASUIClickable";
+import ASUIClickable from "../../clickable/ASUIClickable";
 
 import '../style/ASUIMenu.css';
 

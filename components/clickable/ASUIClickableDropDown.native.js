@@ -1,16 +1,18 @@
-import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
 import React from "react";
+import {View, Text} from 'react-native';
 import PropTypes from "prop-types";
-import {ImageBackground, Text} from "react-native";
-import ASUIClickable from "./ASUIClickable";
+import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
+import ASUIClickable from "../../clickable/ASUIClickable";
 
-import styles from "./ASUIButton.style";
+import styles from "../style/ASUIMenu.style"
 
-export default class ASUIButtonDropDown extends ASUIClickable {
+export default class ASUIClickableDropDown extends ASUIClickable {
+
     // Default Properties
     static defaultProps = {
         arrow:          true,
-        vertical:       true,
+        vertical:       false,
+        // openOverlay:    false
     };
 
     // Property validation
@@ -20,37 +22,31 @@ export default class ASUIButtonDropDown extends ASUIClickable {
 
     constructor(props) {
         super(props);
-        // this.dropdown = React.createRef();
-        this.state = {
-            open: false,
-            stick: false
-        }
+        this.dropdown = React.createRef();
     }
 
 
     renderContainer() {
-        // TODO disabled={this.props.disabled}
-        // if (this.state.stick)
-        //     className += ' stick';
-
         const style = this.getContainerStyle();
         style.push(styles.container);
         let arrow = this.props.arrow === true ? (this.props.vertical ? '▼' : '►') : this.props.arrow;
-        return <ImageBackground
-                source={require('./assets/img/bg.png')}
-                style={style}
+        return <View
+            style={style}
             >
             {this.renderChildren()}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}
-            {this.state.open ? <ASUIDropDownContainer
+            (this.state.open && !this.props.disabled ? <ASUIDropDownContainer
                 key="dropdown"
                 ref={this.dropdown}
+                disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}
-                onClose={() => this.closeDropDownMenu()}
+                // openOverlay={this.props.openOverlay}
             /> : null}
-        </ImageBackground>;
+        </View>;
     }
+
+    /** Drop Down Menu **/
 
     openDropDownMenu() {
         this.setState({open: true, stick: false});
@@ -74,14 +70,17 @@ export default class ASUIButtonDropDown extends ASUIClickable {
             this.closeDropDownMenu();
     }
 
-    // hoverMenu() {
-    //     if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
-    //         return;
-    //     this.openMenu();
-    // }
+    hoverDropDown() {
+        if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
+            return;
+        this.openMenu();
+    }
+
+    /** Actions **/
 
     doAction(e) {
         this.toggleMenu();
     }
+
 
 }

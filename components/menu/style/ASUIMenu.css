@@ -21,11 +21,16 @@ div.asui-menu-item {
 
 }
 
-/** Action **/
+/** Action & DropDown **/
 
+div.asui-menu-item.dropdown,
 div.asui-menu-item.action {
     cursor: pointer;
     color: #000;
+}
+
+div.asui-menu-item.dropdown:not(.open) > div.asui-menu-dropdown {
+    /*display: none;*/
 }
 
 /** Selected **/

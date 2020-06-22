@@ -1,6 +1,6 @@
 import React from "react";
 import {View} from "react-native";
-import ASUIClickable from "../../button/ASUIClickable";
+import ASUIClickable from "../../clickable/ASUIClickable";
 
 import styles from "../style/ASUIMenu.style"
 

@@ -268,9 +268,9 @@ class ASComposerMenu extends ASComposerRenderer {
         if(!this.trackHasActive(selectedTrack))
             return <ASUIMenuItem>{`Track is not active: ${selectedTrack}`}</ASUIMenuItem>
         const activeTrack = this.trackGetState(selectedTrack);
-        const cursorInfo = activeTrack.cursorGetInfo();
+        // const cursorInfo = activeTrack.getCursorInfo(); // TODO: move?
         // console.log('cursorInfo', cursorInfo)
-        cursorIndex = cursorInfo.cursorIndex;
+        cursorIndex = null; // cursorInfo.cursorIndex;
         return (<>
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('segment')}      >Select Segment</ASUIMenuAction>
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('row')}       >Select Row</ASUIMenuAction>

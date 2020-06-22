@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
-
-import ASUIClickable from "./ASUIClickable";
+import ASUIClickable from "../clickable/ASUIClickable";
 
 export default class ASUIButton extends ASUIClickable {
 
