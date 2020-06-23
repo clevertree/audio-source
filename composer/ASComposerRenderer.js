@@ -9,6 +9,7 @@ import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 
 class ASComposerRenderer extends React.Component {
     constructor(props) {
+        console.log('ASComposerRenderer.constructor', props);
         super(props);
         this.cb = {
             songPlay: () => this.songPlay(),

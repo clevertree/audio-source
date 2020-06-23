@@ -25,6 +25,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
         this.cb = {
             closeDropDown: e => this.closeDropDown(e),
             closeAllMenus: e => this.getOverlay().closeAllMenus(e),
+            goBackMenu: () => this.goBackMenu(),
         };
         this.ref = {
             dropdown: React.createRef()
@@ -48,14 +49,22 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
     // }
 
     toggleOverlay(openOverlay=null) {
-        console.log('toggleOverlay', openOverlay);
+        // console.log('toggleOverlay', openOverlay);
         if(openOverlay === null)
             openOverlay = !this.state.openOverlay;
         if(this.state.openOverlay !== openOverlay)
             this.setState({openOverlay});
     }
 
-
+    goBackMenu() {
+        const optionsHistory = this.state.optionsHistory;
+        optionsHistory.pop();
+        const lastOptions = optionsHistory.length > 0 ? optionsHistory[optionsHistory.length - 1] : null;
+        this.setState({optionsHistory});
+        this.openMenu(lastOptions);
+        console.log('goBackMenu', lastOptions, optionsHistory);
+        return false;
+    }
 
 
 
@@ -75,9 +84,9 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
         // if(typeof options === "function")
         //     options = options(this);
 
-        const optionsHistory = this.state.optionsHistory;
-        if(this.state.options)
-            optionsHistory.push(this.state.options);
+        const optionsHistory = this.state.optionsHistory; // TODO: fix optionsHistory.pop();
+        if(options)
+            optionsHistory.push(options);
 
         if (typeof options === "function")
             options = options(this);
@@ -93,7 +102,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
         if(this.state.optionsHistory.length > 0) {
             options.push(
                 <ASUIMenuBreak/>,
-                <ASUIMenuAction onAction={this.cb.closeAllMenus}>Go Back</ASUIMenuAction>
+                <ASUIMenuAction onAction={this.cb.goBackMenu}>Go Back</ASUIMenuAction>
             )
         }
         options.push(
@@ -101,7 +110,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
             <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>
         )
 
-        console.log('openMenu', options);
+        console.log('openMenu', options, optionsHistory);
 
         // Delay menu open
         this.setState({

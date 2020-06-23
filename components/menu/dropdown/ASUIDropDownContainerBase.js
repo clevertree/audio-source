@@ -66,9 +66,10 @@ export default class ASUIDropDownContainerBase extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('ASUIDropDownContainer.componentDidUpdate', prevState, this.state)
+        // console.log('ASUIDropDownContainer.componentDidUpdate', prevState, this.state)
         if(prevProps.options !== this.props.options)
             this.setOptions(this.props.options);
+        // TODO: Bug?
     }
 
 
@@ -93,9 +94,11 @@ export default class ASUIDropDownContainerBase extends React.Component {
         const res = this.props.skipOverlay ? false : overlay.openMenu(options);
         if (res !== false) {
             // this.setState({optionArray: []})
-//                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
+            this.closeDropDownMenu();
+            // console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
 
         } else {
+            // console.info("Sub-menu options rendered locally", options);
             // Process dropdown options
 
             this.setOptions(options);

@@ -61,6 +61,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     /** Actions **/
 
     openDropDownMenu(onUpdated=null) {
+        // console.log('ASUIClickableDropDown.openDropDownMenu')
         this.setState({open: true, stick: false}, () => {
             this.updateOverlay();
             onUpdated && onUpdated();
@@ -136,7 +137,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     }
 
     hoverDropDown() {
-        console.log('hoverDropDown', this.state.open === true, !this.isHoverEnabled())
+        // console.log('hoverDropDown', this.state.open === true, !this.isHoverEnabled())
         if(this.state.open === true || !this.isHoverEnabled())
             return;
         // this.getOverlay().closeAllMenus();
