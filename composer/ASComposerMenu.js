@@ -178,10 +178,10 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
             <ASUIMenuBreak />
-            <ASUIMenuAction onAction={() => this.instructionCutSelected()} disabled={selectedIndices.length===0}   >Cut</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionCutSelected()} disabled={selectedIndices.length===0}    >Cut</ASUIMenuAction>
             <ASUIMenuAction onAction={() => this.instructionCopySelected()} disabled={selectedIndices.length===0}   >Copy</ASUIMenuAction>
-            <ASUIMenuAction onAction={() => this.instructionPasteAtCursor()}   >Paste</ASUIMenuAction>
-            <ASUIMenuAction onAction={() => this.instructionDeleteIndices()} disabled={selectedIndices.length===0}   >Delete</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionPasteAtCursor()} disabled={!this.state.clipboard}       >Paste</ASUIMenuAction>
+            <ASUIMenuAction onAction={() => this.instructionDeleteIndices()} disabled={selectedIndices.length===0}  >Delete</ASUIMenuAction>
 
 
         </>);

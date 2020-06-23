@@ -19,6 +19,6 @@ export default class ASUIMenuDropDown extends ASUIClickableDropDown {
 
 
     getClassName() {
-        return 'asui-menu-item dropdown';
+        return 'asui-menu-item ' + super.getClassName();
     }
 }

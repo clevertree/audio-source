@@ -7,6 +7,7 @@ import ASUIMenuDropDown from "../../menu/item/ASUIMenuDropDown";
 import ASUIMenuItem from "../../menu/item/ASUIMenuItem";
 
 import "./ASUIDropDownContainer.css";
+import DropDownOptionProcessor from "./DropDownOptionProcessor";
 
 export default class ASUIDropDownContainerBase extends React.Component {
 
@@ -35,7 +36,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         // this.deferredToOverlayMenu = false;
         this.state = {
             optionArray: null,
-            offsetIndex: 0,
+            // offsetIndex: -1,
             positionSelected: this.props.positionSelected || null
         }
         this.ref = {
@@ -53,20 +54,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
     /** @return {ASUIDropDownContainer} **/
     getParentDropdown() { return this.context.parentDropDown; }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     console.log('componentDidUpdate', this.state);
-    //     if(this.getOverlay()) {
-    //         // if (this.state.open)
-    //             this.getOverlay().addCloseMenuCallback(this, this.closeMenu.bind(this));
-    //         // else
-    //         //     this.getOverlay().removeCloseMenuCallback(this);
-    //     }
-    //     this.updateScreenPosition();
-    // }
-
-    componentWillUnmount() {
-
-    }
 
     componentDidMount() {
         // console.log('ASUIDropDownContainer.componentDidMount')
@@ -126,50 +113,33 @@ export default class ASUIDropDownContainerBase extends React.Component {
             console.warn("Empty options returned by ", this);
 
 
-        let optionArray = [];
+        let optionArray = DropDownOptionProcessor.processArray(options);
         let positionSelected = this.state.positionSelected, currentPosition = 0;
-        let i=0;
-        recursiveMap(options, option => {
+        optionArray = optionArray
+            .filter(option => option.type !== React.Fragment)
+            .map((option, i) => {
+
             if(positionSelected === null && option.props.selected)
                 positionSelected = currentPosition;
 
             const props = {
                 key: i,
-                // parent: this,
             }
             if(option.type.prototype instanceof ASUIClickable) {
                 props.position = currentPosition;
                 this.ref.options[currentPosition] = React.createRef();
                 props.ref = this.ref.options[currentPosition];
-                // props.position = currentPosition;
-                // props.selected = () => {
-                //     return this.state.positionSelected === currentPosition;
-                // }
                 currentPosition++;
-                // if(!firstOptionProps)
-                //     firstOptionProps = props;
-            } else if(option.type === React.Fragment) {
-                return;
+
             }
 
-            optionArray.push(React.cloneElement(option, props));
-            i++;
-        })
+            return React.cloneElement(option, props);
+        });
 
-
-        // if(positionSelected === null && firstOptionProps) {
-        //     firstOptionProps.selected = true;
-        // }
-
-        // console.log('setOptions', optionArray, options, positionSelected);
-        // const newOptions = newOptions
-        //     .map(([option, props]) => {
-        //         React.cloneElement(option, props)
-        //     })
 
         this.setState({
             optionArray,
-            positionSelected: positionSelected || 0,
+            positionSelected: positionSelected || null,
             positionCount: currentPosition
         })
     }
@@ -214,7 +184,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         e.preventDefault();
 
         let positionSelected = this.state.positionSelected || 0;
-        const optionRef = this.ref.options[positionSelected].current;
+        const optionRef = this.ref.options[positionSelected] ? this.ref.options[positionSelected].current : null;
         console.info("onKeyDown", e.key, e.target, this.state.positionSelected, optionRef);
         switch(e.key) {
 
@@ -265,84 +235,4 @@ export default class ASUIDropDownContainerBase extends React.Component {
     }
 
 
-
-    // hoverMenu() {
-    //     if(this.state.open === true || !this.getOverlay() || !this.getOverlay().isHoverEnabled())
-    //         return;
-    //     this.openMenu();
-    // }
-
-    // toggleMenu() {
-    //     if (!this.state.open)
-    //         this.openMenu();
-    //     else if (!this.state.stick)
-    //         this.stickMenu();
-    //     else
-    //         this.closeMenu();
-    // }
-
-//     async openMenu() {
-//         if (this.props.disabled)
-//             return console.error("Menu is disabled");
-//         // if (this.state.open)
-//         //     throw new Error("Menu was already open");
-//
-//         // Try open menu handler
-//         if(this.getOverlay()) {
-//             const res = await this.getOverlay().openMenu(this.props.options);
-//             if (res !== false) {
-// //                 console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
-//                 return;
-//             }
-//
-//             // setTimeout(() => {
-//             //     this.getOverlay().closeMenus(this.getAncestorMenus());
-//             // }, 100);
-//         }
-//
-//         let options = this.props.options;
-//         if (typeof options === "function")
-//             options = options(this);
-//         if(options instanceof Promise)
-//             options = await options;
-//         if (!options)
-//             console.warn("Empty options returned by ", this);
-//
-//
-//         this.setState({
-//             // open: true,
-//             options,
-//             positionSelected
-//         });
-//     }
-
-    // stickMenu() {
-    //     if (!this.state.open)
-    //         throw new Error("Unable to stick. Menu was not yet open");
-    //
-    //     this.getAncestorMenus().forEach(menu => {
-    //         menu.setState({
-    //             stick: true,
-    //         });
-    //     })
-    // }
-
-}
-
-
-
-function recursiveMap(children, fn) {
-    return React.Children.map(children, child => {
-        if (!React.isValidElement(child)) {
-            return child;
-        }
-
-        if (child.props.children) {
-            child = React.cloneElement(child, {
-                children: recursiveMap(child.props.children, fn)
-            });
-        }
-
-        return fn(child);
-    });
 }

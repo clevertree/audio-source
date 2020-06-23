@@ -58,7 +58,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         ];
     }
 
-    /** Drop Down Menu **/
+    /** Actions **/
 
     openDropDownMenu(onUpdated=null) {
         this.setState({open: true, stick: false}, () => {
@@ -77,24 +77,28 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         });
     }
 
+    toggleMenu() {
+        if (!this.state.open)
+            this.openDropDownMenu();
+            // else if (!this.state.stick)
+        //     this.stickDropDown();
+        else
+            this.closeDropDownMenu();
+    }
+
+    /** Menu Overlay **/
 
     updateOverlay() {
         const overlay = this.getOverlay();
         if(!overlay)
             return;
 
-        const isOpen = this.getOverlayContainerElm().querySelectorAll('.asui-menu-item.dropdown.open').length > 0;
+        const isOpen = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open').length > 0;
         overlay.toggleOverlay(isOpen);
     }
 
-    toggleMenu() {
-        if (!this.state.open)
-            this.openDropDownMenu();
-        // else if (!this.state.stick)
-        //     this.stickDropDown();
-        else
-            this.closeDropDownMenu();
-    }
+
+    /** DOM elements **/
 
     getOverlayContainerElm() {
         const thisElm = this.ref.container.current;
@@ -106,18 +110,9 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         return containerElm;
     }
 
-    isHoverEnabled() {
-        if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
-            return false;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-menu-item.dropdown.open')
-        // console.log('openDropDownMenus', containerElm, openDropDownMenus);
-        return openDropDownMenus.length > 0;
-    }
-
-
     closeAllDropDownElmsButThis() {
         const thisElm = this.ref.container.current;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-menu-item.dropdown.open')
+        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open')
         openDropDownMenus.forEach(openDropDownMenu => {
             if(openDropDownMenu === thisElm
                 || openDropDownMenu.contains(thisElm))
@@ -129,8 +124,19 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         console.log('closeAllDropDownElmsButThis', openDropDownMenus);
     }
 
+
+    /** Hover **/
+
+    isHoverEnabled() {
+        if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
+            return false;
+        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open')
+        // console.log('openDropDownMenus', containerElm, openDropDownMenus);
+        return openDropDownMenus.length > 0;
+    }
+
     hoverDropDown() {
-        // console.log('hoverDropDown', this.state.open === true,!this.isHoverEnabled())
+        console.log('hoverDropDown', this.state.open === true, !this.isHoverEnabled())
         if(this.state.open === true || !this.isHoverEnabled())
             return;
         // this.getOverlay().closeAllMenus();

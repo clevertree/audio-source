@@ -1,7 +1,7 @@
 import React from "react";
 import {ASUIMenuDropDown} from "../../components/menu";
 import {ASUIIcon} from "../../components";
-import ASUIContextMenuContainer from "../../components/menu/overlay/ASUIContextMenuContainer";
+import ASUIContextMenuContainer from "../../components/menu/context/ASUIContextMenuContainer";
 
 import "./assets/ASComposerContainer.css";
 

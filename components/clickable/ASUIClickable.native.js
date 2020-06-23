@@ -4,13 +4,7 @@ import GlobalStyle from "../../common/style/GlobalStyle";
 import ASUIClickableBase from "./ASUIClickableBase";
 
 export default class ASUIClickable extends ASUIClickableBase {
-    constructor(props) {
-        super(props);
-        this.cb = {
-            onMouseInput: e => this.onMouseInput(e),
-            onKeyDown: e => this.onKeyDown(e),
-        };
-    }
+
 
     getContainerStyle() {
         let style = [];

@@ -11,18 +11,16 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
     componentDidUpdate(prevProps, prevState, snapshot) {
         super.componentDidUpdate(prevProps, prevState, snapshot);
         this.updateScreenPosition();
+        if(this.state.optionArray)
+            this.focus();
     }
     componentWillUnmount() {
         this.getOverlay().removeCloseMenuCallback(this);
-        return super.componentWillUnmount();
     }
 
-    componentDidMount() {
-        super.componentDidMount();
-        const optionArray = this.state.optionArray;
-        if(optionArray)
-            this.focus();
-    }
+    // componentDidMount() {
+    //     super.componentDidMount();
+    // }
 
     renderDropDownContainer() {
         const optionArray = this.state.optionArray;
@@ -59,6 +57,8 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         />;
     }
 
+    /** Actions **/
+
     updateScreenPosition() {
         if(!this.divRef.current)
             return;
@@ -72,7 +72,6 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         // console.log(rect.right, window.innerWidth, rect.bottom, window.innerHeight)
     }
 
-    /** Actions **/
 
     focus() {
         if(this.divRef.current)

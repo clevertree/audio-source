@@ -1,7 +1,7 @@
 import React from "react";
 import {Text, View, ScrollView, TouchableHighlight, StyleSheet} from 'react-native';
 import {ASUIIcon, ASUIMenuDropDown} from "../../components";
-import ASUIContextMenuContainer from "../../components/menu/overlay/ASUIContextMenuContainer";
+import ASUIContextMenuContainer from "../../components/menu/context/ASUIContextMenuContainer";
 
 
 export default class ASComposerContainer extends React.Component {
