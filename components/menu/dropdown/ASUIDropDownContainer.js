@@ -4,8 +4,6 @@ import ASUIDropDownContainerBase from "./ASUIDropDownContainerBase";
 import "./ASUIDropDownContainer.css";
 
 
-// TODO: dropdown menus should be rendered in overlay, not within clickable
-
 export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
     componentDidUpdate(prevProps, prevState, snapshot) {

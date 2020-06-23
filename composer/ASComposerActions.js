@@ -57,7 +57,7 @@ class ASComposerActions extends ASComposerMenu {
             selectedTrack: song.getStartTrackName() || 'root',
             activeTracks: {}
         }
-        // state.activeTracks[state.selectedTrack] = {}
+        state.activeTracks[state.selectedTrack] = {}; // TODO: open root, why not?
         this.setState(state);
         // this.trackerToggleTrack('track0', true);
         // this.trackerToggleTrack('track1', true);

@@ -122,11 +122,13 @@ export default class ASUIClickableDropDown extends ASUIClickable {
             const dropdown = findReactElement(openDropDownMenu); // Ugly Hack
             dropdown.closeDropDownMenu();
         });
-        console.log('closeAllDropDownElmsButThis', openDropDownMenus);
+        // console.log('closeAllDropDownElmsButThis', openDropDownMenus);
     }
 
 
     /** Hover **/
+
+    // TODO: move to ASUIDropDownContainer
 
     isHoverEnabled() {
         if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())

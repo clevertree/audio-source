@@ -10,16 +10,3 @@ div.asui-contextmenu-container {
 div.asui-contextmenu-container > div.content {
     flex: 1;
 }
-
-div.asui-contextmenu-container > div.overlay {
-    cursor: pointer;
-    position: absolute;
-    left: 0;
-    top: 0;
-
-    background-color: rgba(0, 0, 0, 0.27);
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-}
-
