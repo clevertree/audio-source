@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import ASUIClickableDropDown from "../../clickable/ASUIClickableDropDown";
 
-import "../style/ASUIMenu.css";
+import "./style/ASUIMenuDropDown.css";
 
 export default class ASUIMenuDropDown extends ASUIClickableDropDown {
 

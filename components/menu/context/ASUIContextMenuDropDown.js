@@ -2,8 +2,7 @@ import React from "react";
 
 import ASUIContextMenuDropDownBase from "./ASUIContextMenuDropDownBase";
 import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
-
-import "../style/ASUIContextMenu.css";
+import "./style/ASUIContextMenuDropDown.css";
 
 export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase {
 
@@ -19,9 +18,10 @@ export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase
 
     render() {
         return [<div
+                key="dropdown"
                 className={`asui-contextmenu-dropdown${this.state.open ? ' open' : ''}`}>
             {this.state.open ? <ASUIDropDownContainer
-                position="unset"
+                floating={false}
                 ref={this.ref.dropdown}
                 onClose={this.cb.closeDropDown}
                 skipOverlay={true}
@@ -29,9 +29,11 @@ export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase
                 /> : null}
             </div>,
             this.state.openOverlay ? <div
+                key="overlay"
+                className="overlay"
                 onClick={this.cb.closeAllMenus}
-                onContextMenu={this.cb.closeAllMenus}
-                className="overlay">
+                // onContextMenu={this.cb.closeAllMenus}
+                >
             </div> : null
 
         ]

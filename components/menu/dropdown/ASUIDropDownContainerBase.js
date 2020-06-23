@@ -188,7 +188,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
         let positionSelected = this.state.positionSelected || 0;
         const optionRef = this.ref.options[positionSelected] ? this.ref.options[positionSelected].current : null;
-        console.info("onKeyDown", e.key, e.target, this.state.positionSelected, optionRef);
+        // console.info("onKeyDown", e.key, e.target, this.state.positionSelected, optionRef);
         switch(e.key) {
 
             case 'ArrowUp':

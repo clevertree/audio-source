@@ -8,7 +8,7 @@ class ASUIMenuAction extends ASUIMenuItem {
         disabled: PropTypes.bool,
     };
 
-    getClassName() { return 'asui-menu-item action'; }
+    getClassName() { return super.getClassName() + ' action'; }
 
 
     /** Actions **/

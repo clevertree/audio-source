@@ -21,15 +21,6 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         </ASUIMenuContext.Provider>;
     }
 
-    updateOverlay() {
-        const openOverlay = this.openMenus.length > 0;
-        // console.log('updateOverlay', openOverlay);
-        // this.ref.dropdown.current.toggleOverlay(openOverlay);
-    }
-
-    // getActiveMenuCount() {
-    //     return this.openMenus.length;
-    // }
 
     toggleOverlay(openOverlay=null) {
         this.ref.dropdown.current.toggleOverlay(openOverlay);
@@ -37,9 +28,6 @@ export default class ASUIContextMenuContainerBase extends React.Component {
 
     isHoverEnabled() {
         return !this.props.isActive; //  && (this.state.openOverlay || this.openMenus.length > 0);
-    }
-    isOpen() {
-        return this.state.open;
     }
 
     /** Open/Close Menu **/

@@ -1,5 +1,5 @@
 
-/** Menu **/
+/** Menu Item **/
 
 div.asui-menu-item {
     color: #777;
@@ -66,22 +66,6 @@ div.asui-menu-item > div.arrow {
     margin: 2px 2px 0 auto;
     padding-left: 0.5em;
 }
-
-
-
-
-
-
-
-
-/** Menu Break **/
-
-hr.asui-menu-break {
-    margin: 0px;
-    border-top: 1px #666 solid;
-}
-
-/** Context Menu **/
 
 
 

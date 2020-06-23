@@ -1,6 +1,6 @@
 import ASUIClickable from "../../clickable/ASUIClickable";
 
-import '../style/ASUIMenu.css';
+import './style/ASUIMenuItem.css';
 
 export default class ASUIMenuItem extends ASUIClickable {
     getClassName() { return 'asui-menu-item'; }

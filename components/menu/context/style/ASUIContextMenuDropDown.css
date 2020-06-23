@@ -1,0 +1,32 @@
+
+
+
+/** Drop Down **/
+
+div.asui-contextmenu-dropdown {
+    /*z-index: 3;*/
+    width: 25%;
+    opacity: 1;
+    transition: width 0.4s ease-in;
+    overflow-x: hidden;
+}
+div.asui-contextmenu-dropdown:not(.open) {
+    transition: width 0.4s ease-out;
+    opacity: 0;
+    width: 0;
+}
+
+.portrait > div.asui-contextmenu-dropdown {
+    overflow: hidden;
+}
+
+div.asui-contextmenu-dropdown > div.asui-dropdown-container > div > div.asui-menu-item {
+    padding: 0.5em 1em;
+    border: 1px outset #DDD;
+}
+
+div.asui-contextmenu-dropdown > div.content {
+    flex: 1;
+}
+
+

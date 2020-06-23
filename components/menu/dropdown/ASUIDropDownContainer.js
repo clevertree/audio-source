@@ -10,7 +10,8 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         super.componentDidUpdate(prevProps, prevState, snapshot);
-        this.updateScreenPosition();
+        if(this.props.floating !== false)
+            this.updateScreenPosition();
         if(this.state.optionArray)
             this.focus();
     }
@@ -27,7 +28,7 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         if(!optionArray)
             return null;
 
-        let className = 'asui-menu-dropdown';
+        let className = 'asui-dropdown-container';
         if (this.props.vertical)
             className += ' vertical';
         const style = {};
@@ -35,9 +36,9 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             style.position = 'fixed';
             style.left = this.props.clientPosition[0];
             style.top = this.props.clientPosition[1];
-        } else if (this.props.position) {
-            style.position = this.props.position;
         }
+        if(this.props.floating !== false)
+            className += ' floating';
 
         const positionSelected = this.state.positionSelected;
 
