@@ -27,7 +27,11 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
     // }
 
     focus() {
-        this.ref.container.current.focus();
+        const container = this.ref.container.current;
+        if(container !== document.activeElement) {
+            container.focus();
+            console.log('ASCTrackRowContainer.focus()', container)
+        }
     }
 
     render() {
@@ -37,7 +41,6 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
                 ref={elm => {
                     elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
                     this.ref.container.current = elm;
-                    // TODO: prevent refresh. use sub component for row content
                 }}
                 tabIndex={0}
                 onKeyDown={this.cb.onKeyDown}

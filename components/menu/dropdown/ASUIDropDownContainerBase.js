@@ -32,7 +32,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         //     open: false,
         //     stick: false,
         // };
-        this.divRef = React.createRef();
+        // this.divRef = React.createRef();
         // this.deferredToOverlayMenu = false;
         this.state = {
             optionArray: null,
@@ -40,6 +40,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
             positionSelected: this.props.positionSelected || null
         }
         this.ref = {
+            container: React.createRef(),
             options: []
         }
         this.cb = {
@@ -71,6 +72,11 @@ export default class ASUIDropDownContainerBase extends React.Component {
             this.setOptions(this.props.options);
         // TODO: Bug?
     }
+
+    componentWillUnmount() {
+        this.getOverlay().removeCloseMenuCallback(this);
+    }
+
 
 
     render() {
@@ -152,27 +158,27 @@ export default class ASUIDropDownContainerBase extends React.Component {
         this.props.onClose()
     }
 
-    getAncestorMenus() {
-        let menus = [];
-        let parent = this;
-        while (parent) {
-            menus.push(parent);
-            parent = parent.context.parentDropDown;
-        }
-        return menus;
-    }
+    // getAncestorMenus() {
+    //     let menus = [];
+    //     let parent = this;
+    //     while (parent) {
+    //         menus.push(parent);
+    //         parent = parent.context.parentDropDown;
+    //     }
+    //     return menus;
+    // }
 
 
-    closeAllDropDownMenus() {
-        if(this.getOverlay())
-            this.getOverlay().closeAllMenus();
-    }
-
-    closeAllDropDownMenusButThis() {
-        if(this.getOverlay())
-            this.getOverlay().closeMenus(this.getAncestorMenus());
-
-    }
+    // closeAllDropDownMenus() {
+    //     if(this.getOverlay())
+    //         this.getOverlay().closeAllMenus();
+    // }
+    //
+    // closeAllDropDownMenusButThis() {
+    //     if(this.getOverlay())
+    //         this.getOverlay().closeMenus(this.getAncestorMenus());
+    //
+    // }
 
     focus() {
         throw new Error("Not Implemented");
@@ -214,11 +220,15 @@ export default class ASUIDropDownContainerBase extends React.Component {
                 // optionRef.openDropDownMenu()
                 break;
 
+            case 'Escape':
             case 'ArrowLeft':
                 const parentRef = this.getParentDropdown();
                 this.closeDropDownMenu();
                 if(parentRef)
                     parentRef.focus();
+                else
+                    this.getOverlay().restoreActiveElementFocus();
+
                 break;
 
             case '':

@@ -10,11 +10,16 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         super.componentDidUpdate(prevProps, prevState, snapshot);
         if(this.props.floating !== false)
             this.updateScreenPosition();
+
         if(this.state.optionArray)
             this.focus();
+
+        this.updateOverlay();
     }
+
     componentWillUnmount() {
-        this.getOverlay().removeCloseMenuCallback(this);
+        super.componentWillUnmount();
+        this.updateOverlay();
     }
 
     // componentDidMount() {
@@ -52,16 +57,16 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             })}
             tabIndex={0}
             onKeyDown={this.cb.onKeyDown}
-            ref={this.divRef}
+            ref={this.ref.container}
         />;
     }
 
     /** Actions **/
 
     updateScreenPosition() {
-        if(!this.divRef.current)
+        if(!this.ref.container.current)
             return;
-        const div = this.divRef.current;
+        const div = this.ref.container.current;
         const rect = div.getBoundingClientRect();
         // console.log(rect, this.props.clientPosition);
         if(rect.right > window.innerWidth)
@@ -73,11 +78,29 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
 
     focus() {
-        if(this.divRef.current)
-            this.divRef.current.focus();
+        if(this.ref.container.current)
+            this.ref.container.current.focus();
         else
-            console.warn('this.divRef.current was ', this.divRef.current);
+            console.warn('this.divRef.current was ', this.ref.container.current);
     }
+
+
+    /** Menu Overlay **/
+
+    updateOverlay() {
+        const overlay = this.getOverlay();
+        if(!overlay)
+            return;
+
+        const isOpen = overlay.getOpenMenuCount() > 0;
+        // const isOpen = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container').length > 0;
+        // console.log('isOpen', isOpen, overlay.openMenus);
+        overlay.toggleOverlay(isOpen);
+    }
+
+
+
+
 }
 
 

@@ -12,7 +12,7 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             <View
                 children={optionArray}
-                ref={this.divRef}
+                ref={this.ref.container}
                 />
         </ASUIMenuContext.Provider>
 

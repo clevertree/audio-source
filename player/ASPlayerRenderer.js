@@ -110,7 +110,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
                                 <ASUIInputRange
                                     className="position"
                                     onChange={(pos) => this.setSongPosition(pos)}
-                                    value={0}
+                                    value={Math.floor(this.state.songPosition / (this.state.songLength || 1) * 100)}
                                     min={0}
                                     max={Math.ceil(this.state.songLength) || 1}
                                     ref={ref => this.fieldSongPosition = ref}

@@ -148,6 +148,12 @@ export default class ASCTrackBase extends React.Component {
         //     console.log("No adjustment: ", cursorInfo, cursorOffset);
     }
 
+    /** Focus **/
+
+    focus() {
+        this.focusRowContainer();
+    }
+
     focusRowContainer() {
         // TODO: if selected?
         // console.log('focusRowContainer');

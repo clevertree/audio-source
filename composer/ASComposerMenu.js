@@ -7,6 +7,19 @@ import {ArgType} from "../common";
 
 class ASComposerMenu extends ASComposerRenderer {
 
+    renderMenuByKey(menuName) {
+        let options;
+        switch(menuName) {
+            case 'file': options = () => this.renderMenuFile(); break;
+            case 'edit': options = () => this.renderMenuEdit(); break;
+            case 'track': options = () => this.renderMenuTrack(); break;
+            case 'program': options = () => this.renderMenuProgram(); break;
+            case 'view': options = () => this.renderMenuView(); break;
+            default:
+                options = () => this.renderRootMenu(); break;
+        }
+        return options;
+    }
 
     renderRootMenu(ref={}) {
         const props = {
@@ -18,7 +31,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return (<>
             <ASUIMenuDropDown {...props} ref={ref.file} options={() => this.renderMenuFile()}          >File</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.edit} options={() => this.renderMenuEdit()}          >Edit</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.track} options={() => this.renderMenuTrack()}         >Track</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.track} options={() => this.renderMenuTrack()}        >Track</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.program} options={() => this.renderMenuProgram()}    >Program</ASUIMenuDropDown>
             <ASUIMenuDropDown {...props} ref={ref.view} options={() => this.renderMenuView()}          >View</ASUIMenuDropDown>
         </>);

@@ -91,17 +91,6 @@ export default class ASComposerContainer extends React.Component {
         );
     }
 
-    /** Actions **/
-
-    openMenu(menuName) {
-        const menu = this.ref[menuName];
-        if(!menu)
-            throw new Error("Menu not found: " + menu);
-        if(!menu.current)
-            throw new Error("Menu not rendered: " + menu);
-        menu.current.openDropDownMenu();
-    }
-
     /** Input **/
 
     onPress(e) {

@@ -30,6 +30,8 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         return !this.props.isActive; //  && (this.state.openOverlay || this.openMenus.length > 0);
     }
 
+    getOpenMenuCount() { return this.openMenus.length; }
+
     /** Open/Close Menu **/
 
     addCloseMenuCallback(menuItem, closeMenuCallback) {
@@ -49,23 +51,18 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         // this.updateOverlay();
     }
 
-    /** @deprecated **/
-    closeMenus(butThese=[], stayOpenOnStick=true) {
-        // console.log('closeMenus', butThese, this.openMenus);
-        // this.overlayContext.openMenuItems = [];
-        this.openMenus.forEach(openMenu => {
-            const [menuItem, closeMenuCallback] = openMenu;
-            if(butThese.indexOf(menuItem) !== -1)
-                return;
-            closeMenuCallback(stayOpenOnStick);
-        });
-        // this.updateOverlay();
-    }
-
 
     closeAllMenus() {
+        // console.log('closeAllMenus', document.activeElement)
         // e && e.preventDefault();
-        this.closeMenus([]);
+        const menuCount = this.getOpenMenuCount();
+        this.openMenus.forEach(openMenu => {
+            const [menuItem, closeMenuCallback] = openMenu;
+            closeMenuCallback();
+        });
+        this.openMenus = [];
+        if(menuCount > 0)
+            this.restoreActiveElementFocus();
         // this.setState({
         //     open: false,
         //     openOverlay: false,
@@ -85,6 +82,10 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             this.ref.dropdown.current.openMenu(options)
             , 1);
         return true;
+    }
+
+    restoreActiveElementFocus() {
+        this.props.composer.focusActiveTrack();
     }
 
     //

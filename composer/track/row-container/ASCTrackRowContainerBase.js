@@ -321,7 +321,7 @@ export default class ASCTrackRowContainerBase extends React.Component {
 
             case 'ContextMenu':
                 e.preventDefault();
-                this.getComposer().openMenu('edit');
+                this.getComposer().openMenuByKey('edit');
                 // track.toggleDropDownMenu(); // TODO: open composer edit menu instead
                 break;
 

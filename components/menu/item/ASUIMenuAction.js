@@ -23,7 +23,7 @@ class ASUIMenuAction extends ASUIMenuItem {
             throw new Error("Button does not contain props 'onAction'");
         const result = await this.props.onAction(e, this);
         if (result !== false)
-            this.closeAllDropDownMenus();
+            this.closeAllOpenMenus();
     }
 
 }

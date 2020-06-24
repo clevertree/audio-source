@@ -91,6 +91,13 @@ class ASComposerActions extends ASComposerMenu {
         this.timeouts.saveState = setTimeout(e => this.saveState(), autoSaveTimeout || this.autoSaveTimeout);
     }
 
+    /** Focus **/
+
+    focusActiveTrack() {
+        const trackRef = this.trackGetRef(this.state.selectedTrack);
+        trackRef.focus();
+    }
+
     /** State **/
 
     async loadState() {
@@ -126,9 +133,9 @@ class ASComposerActions extends ASComposerMenu {
         const state = Object.assign({}, this.state, {
             // activeTracks: {}
         });
-        for(let key in this.activeTrackRef) {
-            if(this.activeTrackRef.hasOwnProperty(key)) {
-                const activeTrack = this.activeTrackRef[key];
+        for(let key in this.ref.activeTracks) {
+            if(this.ref.activeTracks.hasOwnProperty(key)) {
+                const activeTrack = this.ref.activeTracks[key];
                 if(activeTrack.current) {
                     Object.assign(state.activeTracks[key], activeTrack.current.state);
                 }
@@ -337,7 +344,9 @@ class ASComposerActions extends ASComposerMenu {
             songPosition = this.values.parsePlaybackPosition(songPosition);
         if(isNaN(songPosition))
             throw new Error("Invalid song position: " + songPosition);
-        this.setState({songPosition})
+        this.updateSongPositionValue(songPosition);
+        // this.state.songPosition = songPosition;
+        // this.setState({songPosition})
 //         console.info('setSongPosition', songPosition);
     }
 
@@ -357,9 +366,9 @@ class ASComposerActions extends ASComposerMenu {
         // Update Tracks
         if(updateTrackPositions) {
             // TODO Optimize: skip update if position change is less than next row?
-            for (const trackName in this.activeTrackRef) {
-                if (this.activeTrackRef.hasOwnProperty(trackName)) {
-                    const activeTrack = this.activeTrackRef[trackName].current;
+            for (const trackName in this.ref.activeTracks) {
+                if (this.ref.activeTracks.hasOwnProperty(trackName)) {
+                    const activeTrack = this.ref.activeTracks[trackName].current;
                     activeTrack && activeTrack.forceUpdate();
                 }
             }
@@ -495,6 +504,15 @@ class ASComposerActions extends ASComposerMenu {
 
     trackHasActive(trackName) {
         return !!this.state.activeTracks[trackName]
+    }
+
+    trackGetRef(trackName) {
+        const trackRef = this.ref.activeTracks[trackName];
+        if(!trackRef)
+            throw new Error("Invalid Track ref: " + trackName);
+        if(!trackRef.current)
+            throw new Error("Track ref is not rendered: " + trackName);
+        return trackRef.current;
     }
 
     trackGetState(trackName) {
@@ -715,10 +733,8 @@ class ASComposerActions extends ASComposerMenu {
     instructionInsertAtCursor(trackName = null, newInstructionData = null) {
         trackName = trackName || this.state.selectedTrack;
         // newCommand = newCommand || this.state.currentCommand;
-        const trackRef = this.activeTrackRef[trackName];
-        if(!trackRef || !trackRef.current)
-            throw new Error("Invalid Track ref: " + trackName);
-        trackRef.current.instructionInsertAtCursor(newInstructionData);
+        const trackRef = this.trackGetRef(trackName);
+        trackRef.instructionInsertAtCursor(newInstructionData);
     }
 
     instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
@@ -816,10 +832,8 @@ class ASComposerActions extends ASComposerMenu {
 
     instructionPasteAtCursor() {
         const trackName = this.state.selectedTrack;
-        const trackRef = this.activeTrackRef[trackName];
-        if(!trackRef || !trackRef.current)
-            throw new Error("Invalid Track ref: " + trackName);
-        trackRef.current.instructionPasteAtCursor();
+        const trackRef = this.trackGetRef(trackName);
+        trackRef.instructionPasteAtCursor();
     }
 
 

@@ -15,6 +15,7 @@ export default class ASComposerContainer extends React.Component {
     constructor(props) {
         super(props);
         this.ref = {
+            menuContextContainer: React.createRef(),
             container: React.createRef(),
             menu: {
                 file: React.createRef(),
@@ -39,7 +40,9 @@ export default class ASComposerContainer extends React.Component {
                 + (state.portrait ? ' portrait' : ' landscape')}
                 ref={this.ref.container}>
                 <ASUIContextMenuContainer
+                    ref={this.ref.menuContextContainer}
                     isActive={state.portrait}
+                    composer={this.props.composer}
                 >
                     {this.renderHeader()}
                     {this.renderContent()}
@@ -95,8 +98,17 @@ export default class ASComposerContainer extends React.Component {
 
     /** Actions **/
 
-    openMenu(menuName) {
+    openMenuByKey(menuName) {
+        const composer = this.props.composer;
+        if(composer.state.portrait) {
+            let options = composer.renderMenuByKey(menuName);
+            /** @var {ASUIContextMenuContainer} **/
+            const menuContextContainer = this.ref.menuContextContainer.current;
+            menuContextContainer.openMenu(options);
+            return;
+        }
         const menu = this.ref.menu[menuName];
+        console.log('menu', menu);
         if(!menu)
             throw new Error("Menu not found: " + menu);
         if(!menu.current)

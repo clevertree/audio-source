@@ -20,7 +20,8 @@ class ASComposerRenderer extends React.Component {
         }
         this.ref = {
             container: React.createRef(),
-            panelSong: React.createRef()
+            panelSong: React.createRef(),
+            activeTracks: {}
         }
     }
 
@@ -37,8 +38,8 @@ class ASComposerRenderer extends React.Component {
     //     this.setError(error);
     // }
 
-    openMenu(menuName) {
-        this.ref.container.current.openMenu(menuName);
+    openMenuByKey(menuName) {
+        this.ref.container.current.openMenuByKey(menuName);
     }
 
     render() {

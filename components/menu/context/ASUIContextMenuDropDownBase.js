@@ -33,7 +33,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
     }
 
     componentDidMount() {
-        this.getOverlay().addCloseMenuCallback(this, this.cb.closeDropDown);
+        // this.getOverlay().addCloseMenuCallback(this, this.cb.closeDropDown);
 
     }
 

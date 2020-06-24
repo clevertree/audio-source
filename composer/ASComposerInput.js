@@ -24,6 +24,7 @@ export default class ASComposerInput extends ASComposerPlayback {
     /** Portrait Mode **/
 
     onResize() {
+        console.log(this.ref, this.ref.container);
         if(!this.ref.container.current)
             return console.warn("containerElm not found");
         const containerElm = this.ref.container.current.getContainerElement();

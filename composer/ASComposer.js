@@ -64,7 +64,6 @@ export default class ASComposer extends ASComposerInput {
             position: 0
         }
 
-        this.activeTrackRef = {};
         this.timeouts = {
             saveSongToMemory: null,
             saveState: null,

@@ -62,20 +62,15 @@ export default class ASUIClickableDropDown extends ASUIClickable {
 
     openDropDownMenu(onUpdated=null) {
         // console.log('ASUIClickableDropDown.openDropDownMenu')
-        this.setState({open: true, stick: false}, () => {
-            this.updateOverlay();
-            onUpdated && onUpdated();
-        });
+        this.setState({open: true, stick: false}, onUpdated);
     }
 
     // stickDropDown() {
     //     this.setState({open: true, stick: true});
     // }
 
-    closeDropDownMenu() {
-        this.setState({open: false, stick: false}, () => {
-            this.updateOverlay();
-        });
+    closeDropDownMenu(onUpdated=null) {
+        this.setState({open: false, stick: false}, onUpdated);
     }
 
     toggleMenu() {
@@ -85,17 +80,6 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         //     this.stickDropDown();
         else
             this.closeDropDownMenu();
-    }
-
-    /** Menu Overlay **/
-
-    updateOverlay() {
-        const overlay = this.getOverlay();
-        if(!overlay)
-            return;
-
-        const isOpen = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open').length > 0;
-        overlay.toggleOverlay(isOpen);
     }
 
 
