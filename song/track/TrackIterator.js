@@ -10,13 +10,7 @@ export default class TrackIterator {
             throw new Error("Invalid instruction track: " + startingTrackName);
 
         this.filterProgramCommand = filterProgramCommand || function() { return true; };
-        // this.onEvent = onEvent || function() {};
-
-        // this.onEvent = onEvent;
-        // this.positionSeconds = 0;
-        // this.seekLength = 10;
         this.activeIterators = [];
-        // this.currentTrackID = -1;
 
         // program: trackStats.program,            // Current program which all notes route through
         // destination: trackStats.destination,    // Current destination sent to all playFrequency calls
@@ -28,13 +22,6 @@ export default class TrackIterator {
             startingStats.beatsPerMinute = song.data.beatsPerMinute;
         if(!startingStats.timeDivision)
             startingStats.timeDivision = song.data.timeDivision; // Time division is passed to sub-groups
-
-        // this.processor = new InstructionProcessor(
-        //     (trackStats, params) => this.onLoadProgram(trackStats, params),
-        //     (trackStats, commandString, params) => this.onExecuteProgram(trackStats, commandString, params),
-        //     (trackStats, params) => this.onPlayTrack(trackStats, params),
-        //     filterProgramCommand
-        // )
 
         this.processCommandInstructionCallback = (instructionData, stats) => this.processCommandInstruction(instructionData, stats);
 
@@ -50,6 +37,72 @@ export default class TrackIterator {
         // console.log("onExecuteProgram", trackStats.trackName, commandString, params);
     }
 
+    /** Actions **/
+
+    startTrackIteration(trackStats) {
+        trackStats.endPositionTicks = 0;
+        trackStats.endPositionSeconds = 0;
+        const iterator = this.instructionGetIterator(trackStats, this.processCommandInstructionCallback);
+        this.activeIterators.push(iterator);
+        return trackStats;
+    }
+
+
+    processCommandInstruction(instructionData, stats) {
+        const processor = new InstructionProcessor(instructionData);
+        const [commandString, argTypeList] = processor.processInstructionArgs();
+
+        switch(commandString) {
+            case 'program':      // Set Program (can be changed many times per track)
+                const program = instructionData[2];
+                this.onLoadProgram(stats, program); // TODO: support OTG program
+                break;
+
+            case 'playTrack':
+                if(!this.filterProgramCommand(commandString, stats))
+                    break;
+                // case 't':
+
+                if(instructionData[1][0] === '@') {
+                } else {
+                    instructionData = instructionData.slice().splice(1, 1);
+                }
+                let trackArgs = this.processArgList(stats, instructionData, InstructionProcessor.trackCommand);
+
+                this.onPlayTrack(stats, ...trackArgs)
+                break;
+
+            default:
+                if(!this.filterProgramCommand(commandString, stats))
+                    break;
+
+                let programArgs;
+                if(argTypeList) {
+                    programArgs = this.processArgList(stats, instructionData, argTypeList);
+                } else {
+                    programArgs = instructionData.slice(1);
+                }
+
+                // TODO: calculate bpm changes
+
+                // Execute command:
+                this.onExecuteProgram(stats, commandString, programArgs);
+                break;
+
+
+            // case 'destination':     // TODO: Append destination? (does not handle note processing)
+            // case 'd':
+            //     // if(!trackStats.originalDestination)
+            //     //     trackStats.originalDestination = trackStats.destination;
+            //     trackStats.destination = instruction.loadDestinationFromParams(trackStats.destination, this.song);
+            //
+            //     // this.song.programLoadInstance()
+            //     break;
+
+            // default:
+        }
+
+    }
 
     onPlayTrack(parentStats, trackName, trackDuration=null, trackStartTime=0, trackFrequency=null) {
         if(parentStats.trackName === trackName) {
@@ -81,80 +134,6 @@ export default class TrackIterator {
         return subTrackStats;
     }
 
-
-    processCommandInstruction(instructionData, stats) {
-        // let [deltaDurationTicks, commandString, ...params] = instructionData;
-
-        const processor = new InstructionProcessor(instructionData);
-        const [commandString, argTypeList] = processor.processInstructionArgs();
-
-        switch(commandString) {
-            case 'program':      // Set Program (can be changed many times per track)
-                const program = instructionData[2];
-                this.onLoadProgram(stats, program); // TODO: support OTG program
-                break;
-
-            case 'playTrack':
-                if(!this.filterProgramCommand(commandString, stats))
-                    break;
-                // case 't':
-
-                if(instructionData[1][0] === '@') {
-                } else {
-                    instructionData = instructionData.slice().splice(1, 1);
-                }
-                let trackArgs = this.processArgList(stats, instructionData, InstructionProcessor.trackCommand);
-
-                // let trackName = instructionData[1][0] === '@'
-                //     ? instructionData[1].substr(1)
-                //     : instructionData[2];
-                this.onPlayTrack(stats, ...trackArgs)
-                break;
-
-            // case 'playFrequency':
-            // case 'pf':
-            //     break;
-
-            default:
-                if(!this.filterProgramCommand(commandString, stats))
-                    break;
-                // const program = stats.program || new DummyProgram();
-                // const argTypes = program.constructor.argTypes || DummyProgram.argTypes;
-                // const commandAliases = program.constructor.commandAliases || DummyProgram.commandAliases;
-                // if(commandAliases[commandString])
-                //     commandString = commandAliases[commandString];
-
-                // if(typeof program[commandString] !== "function")
-                //     return console.error(`Program ${program.constructor.name} does not have method: ${commandString}`);
-
-
-                let programArgs;
-                if(argTypeList) {
-                    programArgs = this.processArgList(stats, instructionData, argTypeList);
-                } else {
-                    programArgs = instructionData.slice(1);
-                }
-
-                // TODO: calculate bpm changes
-
-                // Execute command:
-                this.onExecuteProgram(stats, commandString, programArgs);
-                break;
-
-
-            // case 'destination':     // Append destination (does not handle note processing)
-            // case 'd':
-            //     // if(!trackStats.originalDestination)
-            //     //     trackStats.originalDestination = trackStats.destination;
-            //     trackStats.destination = instruction.loadDestinationFromParams(trackStats.destination, this.song);
-            //
-            //     // this.song.programLoadInstance()
-            //     break;
-
-            // default:
-        }
-
-    }
 
     processArgList(stats, instructionData, argTypeList) {
         let newArgs = [];
@@ -196,18 +175,9 @@ export default class TrackIterator {
             trackStats.trackName,
             trackStats,
             instructionCallback
-            // (instruction, stats) => this.processCommandInstruction(instruction, stats)
         )
     }
 
-
-    startTrackIteration(trackStats) {
-        trackStats.endPositionTicks = 0;
-        trackStats.endPositionSeconds = 0;
-        const iterator = this.instructionGetIterator(trackStats, this.processCommandInstructionCallback);
-        this.activeIterators.push(iterator);
-        return trackStats;
-    }
 
     /** @deprecated **/
     getPositionInSeconds() {
@@ -232,13 +202,6 @@ export default class TrackIterator {
         }
         return totalEndPositionSeconds;
     }
-
-    // incrementTrack() {
-    //     this.currentTrackID++;
-    //     if(this.currentTrackID >= this.activeTrackRef.length)
-    //         this.currentTrackID = 0;
-    //     return this.currentTrackID;
-    // }
 
     hasReachedEnd() {
         for(let i=0; i<this.activeIterators.length; i++) {
@@ -278,23 +241,10 @@ export default class TrackIterator {
             } else {
                 // TODO: update parent stats with end position?
                 const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
-                // console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
+                console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
             }
         }
         return finished;
     }
 
-    // seekToStartingTrackIndex(index, callback=null) {
-    //     const trackStats = this.activeIterators[0];
-    //     const iterator = this.instructionGetIterator(trackStats.trackName, trackStats.timeDivision, trackStats.beatsPerMinute);
-    //     iterator.seekToIndex(index, callback);
-    //     const startPosition = iterator.getPositionInSeconds();
-    //     this.seekToPosition(startPosition, callback);
-    // }
-
-    // seekToPositionTicks(positionTicks, callback=null) {
-    //     while (this.positionTicks < positionTicks)
-    //         this.nextTrackInstruction(callback);
-    //     return this;
-    // }
 }

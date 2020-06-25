@@ -6,16 +6,6 @@ import "./style/ASUIContextMenuDropDown.css";
 
 export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase {
 
-
-    // renderContent() {
-    //     // <div className="asui-contextmenu-container">
-    //     return [
-    //         this.props.children,
-    //         this.state.openOverlay ? this.renderOverlay() : null,
-    //         this.state.open ? this.renderDropDown() : null
-    //     ];
-    // }
-
     render() {
         return [
             <div

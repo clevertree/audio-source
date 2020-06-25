@@ -32,7 +32,6 @@ export default class ASComposerInstructionPanel extends React.Component {
             let paramValue = instructionData[argIndex];
             switch(argType) {
                 case ArgType.command:
-                // case ArgType.trackKey:
                 case ArgType.duration:
                 case ArgType.frequency:
                 case ArgType.offset:

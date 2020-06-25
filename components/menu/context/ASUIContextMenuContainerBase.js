@@ -41,41 +41,32 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         if(i === -1)
             this.openMenus.push([menuItem, closeMenuCallback]);
         // console.log('this.openMenus', this.openMenus);
-        // setTimeout(() => this.updateOverlay(), 10); // TODO: ugly?
     }
 
     removeCloseMenuCallback(menuItem) {
         const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);
         if(i !== -1)
             this.openMenus.splice(i, 1);
-        // this.updateOverlay();
     }
 
 
     closeAllMenus() {
         // console.log('closeAllMenus', document.activeElement)
-        // e && e.preventDefault();
         const menuCount = this.getOpenMenuCount();
         this.openMenus.forEach(openMenu => {
+            // eslint-disable-next-line no-unused-vars
             const [menuItem, closeMenuCallback] = openMenu;
             closeMenuCallback();
         });
         this.openMenus = [];
         if(menuCount > 0)
             this.restoreActiveElementFocus();
-        // this.setState({
-        //     open: false,
-        //     openOverlay: false,
-        //     options: null
-        // });
     }
 
     openMenu(options) {
         if(!this.props.isActive)
             return false;
 
-        // if(typeof options === "function")
-        //     options = options(this);
 
         // Delay menu open
         setTimeout(() =>
@@ -87,12 +78,4 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     restoreActiveElementFocus() {
         this.props.composer.focusActiveTrack();
     }
-
-    //
-    // closeOverlay() {
-    //     this.setState({
-    //         openOverlay: false,
-    //     });
-    //     return true;
-    // }
 }

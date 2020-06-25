@@ -4,24 +4,6 @@ import ASCTrackBase from "./ASCTrackBase";
 import "./ASCTrack.css";
 
 export default class ASCTrack extends ASCTrackBase {
-    // constructor(props) {
-    //     super(props);
-    //     // this.container = React.createRef();
-    //     // this.state.clientPosition = null;
-    //     // this.cb.onContextMenu = e => this.onContextMenu(e);
-    //
-    // }
-
-    // componentDidMount() {
-    //     console.log(this.container.current, this.props);
-    //     if(this.container.current)
-    //         this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
-    // }
-    //
-    // componentWillUnmount() {
-    //     if(this.container.current)
-    //         this.container.current.removeEventListener('wheel', this.cb.onWheel);
-    // }
 
     /** Render **/
 
@@ -68,31 +50,6 @@ export default class ASCTrack extends ASCTrackBase {
             this.renderRowContainer()
         ]
     }
-
-
-    /** User Input **/
-
-    // onWheel(e) {
-    //     e.preventDefault();
-    //     let rowOffset = parseInt(this.state.rowOffset) || 0; // this.getTrackState().rowOffset;
-    //     rowOffset += e.deltaY > 0 ? 1 : -1;
-    //     if(rowOffset < 0)
-    //         rowOffset = 0; // return console.log("Unable to scroll past beginning");
-    //
-    //     this.setRowOffset(rowOffset);
-    //     // console.log('onWheel', e.deltaY);
-    //     // this.getComposer().trackerSetRowOffset(this.getTrackName(), newRowOffset)
-    //     // this.getComposer().trackerUpdateSegmentInfo(this.getTrackName());
-    //     // this.getTrackInfo().changeRowOffset(this.getTrackName(), newRowOffset);
-    // }
-    //
-    // toggleDropDownMenu(e) {
-    //     // console.log(e);
-    //     const state = {menuOpen: !this.state.menuOpen, clientPosition: null};
-    //     if(e)
-    //         state.clientPosition = [e.clientX, e.clientY];
-    //     this.setState(state);
-    // }
 
 }
 

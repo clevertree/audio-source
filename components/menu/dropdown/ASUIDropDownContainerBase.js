@@ -11,15 +11,20 @@ import DropDownOptionProcessor from "./DropDownOptionProcessor";
 
 export default class ASUIDropDownContainerBase extends React.Component {
 
-    // creating default props
+    /** Menu Context **/
+    static contextType = ASUIMenuContext;
+    /** @return {ASUIContextMenuContainer} **/
+    getOverlay() { return this.context.overlay; }
+    /** @return {ASUIDropDownContainer} **/
+    getParentDropdown() { return this.context.parentDropDown; }
+
+
+    // Default Props
     static defaultProps = {
-        // arrow:          true,
         vertical:       false,
-        // openOverlay:    false,
-        // disabled:       false,
     };
 
-    // validating prop types
+    // Props Validation
     static propTypes = {
         onClose: PropTypes.func.isRequired,
         vertical: PropTypes.bool,
@@ -28,15 +33,8 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     constructor(props) {
         super(props);
-        // this.state = {
-        //     open: false,
-        //     stick: false,
-        // };
-        // this.divRef = React.createRef();
-        // this.deferredToOverlayMenu = false;
         this.state = {
             optionArray: null,
-            // offsetIndex: -1,
             positionSelected: this.props.positionSelected || null
         }
         this.ref = {
@@ -47,13 +45,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
             onKeyDown: e => this.onKeyDown(e)
         }
     }
-
-    /** Menu Context **/
-    static contextType = ASUIMenuContext;
-    /** @return {ASUIContextMenuContainer} **/
-    getOverlay() { return this.context.overlay; }
-    /** @return {ASUIDropDownContainer} **/
-    getParentDropdown() { return this.context.parentDropDown; }
 
 
     componentDidMount() {
@@ -70,7 +61,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
         // console.log('ASUIDropDownContainer.componentDidUpdate', prevState, this.state)
         if(prevProps.options !== this.props.options)
             this.setOptions(this.props.options);
-        // TODO: Bug?
     }
 
     componentWillUnmount() {
@@ -80,8 +70,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
 
     render() {
-        // if(!this.state.options)
-        //     return null;
         return <ASUIMenuContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             {this.renderDropDownContainer()}
@@ -89,24 +77,32 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     }
 
+
     /** Actions **/
 
+    focus() {
+        throw new Error("Not Implemented");
+    }
+
+
+    closeDropDownMenu() {
+        this.props.onClose()
+    }
 
     openMenu(options) {
         const overlay = this.getOverlay();
         // TODO: defer all to overlay if exists?
 
-        // Try open menu handler
+        // Try context menu open handler
         const res = this.props.skipOverlay ? false : overlay.openMenu(options);
         if (res !== false) {
-            // this.setState({optionArray: []})
             this.closeDropDownMenu();
             // console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
 
         } else {
             // console.info("Sub-menu options rendered locally", options);
-            // Process dropdown options
 
+            // Process and render dropdown options locally
             this.setOptions(options);
         }
     }
@@ -153,37 +149,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
         })
     }
 
-
-    closeDropDownMenu() {
-        this.props.onClose()
-    }
-
-    // getAncestorMenus() {
-    //     let menus = [];
-    //     let parent = this;
-    //     while (parent) {
-    //         menus.push(parent);
-    //         parent = parent.context.parentDropDown;
-    //     }
-    //     return menus;
-    // }
-
-
-    // closeAllDropDownMenus() {
-    //     if(this.getOverlay())
-    //         this.getOverlay().closeAllMenus();
-    // }
-    //
-    // closeAllDropDownMenusButThis() {
-    //     if(this.getOverlay())
-    //         this.getOverlay().closeMenus(this.getAncestorMenus());
-    //
-    // }
-
-    focus() {
-        throw new Error("Not Implemented");
-    }
-
     /** Input **/
 
     onKeyDown(e) {
@@ -192,7 +157,9 @@ export default class ASUIDropDownContainerBase extends React.Component {
         e.stopPropagation();
         e.preventDefault();
 
-        let positionSelected = this.state.positionSelected || 0;
+        let positionSelected = this.state.positionSelected;
+        if(positionSelected === null)
+            positionSelected = -1;
         const optionRef = this.ref.options[positionSelected] ? this.ref.options[positionSelected].current : null;
         // console.info("onKeyDown", e.key, e.target, this.state.positionSelected, optionRef);
         switch(e.key) {

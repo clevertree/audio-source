@@ -15,21 +15,10 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
         };
     }
 
-    // componentDidMount() {
-    //     console.log(this.container.current, this.props);
-    //     if(this.container.current)
-    //         this.container.current.addEventListener('wheel', this.cb.onWheel, { passive: false });
-    // }
-    //
-    // componentWillUnmount() {
-    //     if(this.container.current)
-    //         this.container.current.removeEventListener('wheel', this.cb.onWheel);
-    // }
-
     focus() {
         const container = this.ref.container.current;
         if(container !== document.activeElement) {
-            container.focus();
+            container.focus({ preventScroll: true });
             console.log('ASCTrackRowContainer.focus()', container)
         }
     }

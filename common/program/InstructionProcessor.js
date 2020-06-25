@@ -68,6 +68,7 @@ export default class InstructionProcessor {
 
 
     updateArg(argType, newArgValue) {
+        // eslint-disable-next-line no-unused-vars
         const [commandString, argTypeList] = this.processInstructionArgs();
         let argIndex = this.findArgParameterIndex(argType, argTypeList);
         const oldValue = this.instructionData[argIndex];

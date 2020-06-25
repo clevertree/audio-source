@@ -6,7 +6,9 @@ export default class PageHeader extends React.Component {
     render() {
         return (
             <div className="aspage-header">
-                <img src={require("./assets/img/header.png")} className="aspage-header-image" alt="Header"/>
+                <a href="/">
+                    <img src={require("./assets/img/header.png")} className="aspage-header-image" alt="Header"/>
+                </a>
             </div>
         );
     }

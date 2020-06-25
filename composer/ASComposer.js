@@ -13,7 +13,6 @@ export default class ASComposer extends ASComposerInput {
             statusText: "[No Song Loaded]",
             statusType: 'log',
             version: require('../package.json').version,
-            // menuKey: 'root',
 
             clipboard: null,
 
@@ -34,21 +33,13 @@ export default class ASComposer extends ASComposerInput {
 
             // Song Information
             songUUID: null,
-            // songLengthTicks: 0,
             songLength: 0,
-            // songPosition: 0,
-
-
-            // currentInstructionType: 'note',
-            // currentCommand: 'C4',
-            // currentDuration: '1B',
-            // currentVelocity: null,
-            // currentArguments: [],
 
             // Tracks
-            activeTracks: {
-            },
+            activeTracks: {},
             selectedTrack: 'root',
+
+            // Track instruction selection
             selectedTrackIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
 
@@ -79,11 +70,9 @@ export default class ASComposer extends ASComposerInput {
         this.song = new Song();
         this.audioContext = null;
         this.lastVolumeGain = null;
-        // this.onSongEvent = (e) => this.onSongEvent(e);
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);
 
-//         setTimeout(() => console.log(this.activeTrackRef), 1000);
     }
 
 
@@ -167,17 +156,6 @@ export default class ASComposer extends ASComposerInput {
                 this.setState({playing: false, paused: false});
                 break;
 
-            // case 'programs:instance':
-            // case 'programs:added':
-            // case 'programs:removed':
-            //     this.panelPrograms && this.panelPrograms.forceUpdate();
-            //     break;
-            //
-            // case 'programs:modified':
-            //     this.panelPrograms && this.panelPrograms.forceUpdate();
-            //     // this.renderProgram(e.detail.programID);
-            //     this.saveSongToMemoryWithTimeout();
-            //     break;
 
             case 'song:modified':
                 // console.log(e.type);
@@ -186,46 +164,10 @@ export default class ASComposer extends ASComposerInput {
                 this.saveSongToMemoryWithTimeout();
                 break;
 
-//             case 'programs:library':
-// //                 console.log(e.type);
-//                 // TODO: this.programs.render();
-//                 // this.renderPrograms();
-//                 this.updateForms();
-//                 break;
 
             default:
                 console.warn("Unknown song event: ", e.type);
 
-                //             case 'group:seek':
-// //                 console.log(e.type, e.detail);
-//                 if (e.detail.trackName === this.getTrackName())
-//                     this.setPlaybackPositionInTicks(e.detail.positionInTicks);
-//
-//                 break;
-//
-//             case 'group:play':
-//                 break;
-//
-//             case 'note:start':
-//                 if (e.detail.trackName === this.getTrackName()) {
-//                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
-//                     if (instructionElm) {
-//                         instructionElm.classList.add('playing');
-//                     }
-//                 }
-//                 break;
-//             case 'note:end':
-//                 if (e.detail.trackName === this.getTrackName()) {
-//                     let instructionElm = this.findInstructionElement(e.detail.instruction.index);
-//                     if (instructionElm) {
-//                         instructionElm.classList.remove('playing');
-//                     }
-//                 }
-//                 break;
-//
-//             default:
-//                 console.warn("Unknown song event: ", e.type);
-//         }
         }
     }
 

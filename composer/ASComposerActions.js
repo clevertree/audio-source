@@ -1,18 +1,13 @@
-import {Instruction, InstructionIterator, ProgramLoader, Song, Storage} from "../song";
+import {Instruction, ProgramLoader, Song, Storage} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
 import {InstructionProcessor} from "../common";
-import TrackInstructionRowIterator from "./track/instruction/TrackInstructionRowIterator";
-import ASCTrack from "./track/ASCTrack";
 import TrackState from "./track/state/TrackState";
 
 // import {TrackInfo} from "./track/";
 
 class ASComposerActions extends ASComposerMenu {
-    // constructor(props) {
-    //     super(props);
-    // }
 
     setStatus(statusText, statusType='log') {
         this.setState({statusText, statusType: statusType + ''});
@@ -45,9 +40,7 @@ class ASComposerActions extends ASComposerMenu {
         console.log("Current Song: ", song.getProxiedData());
 
         this.song.addEventListener('*', this.onSongEventCallback);
-        // this.setStatus("Initializing song: " + song.data.title);
-        // this.song.connect(this.getAudioContext());
-        // this.setStatus("Loaded song: " + song.data.title);
+
         const state = {
             statusText: "Loaded song: " + song.data.title,
             statusType: 'log',
@@ -59,8 +52,6 @@ class ASComposerActions extends ASComposerMenu {
         }
         state.activeTracks[state.selectedTrack] = {}; // TODO: open root, why not?
         this.setState(state);
-        // this.trackerToggleTrack('track0', true);
-        // this.trackerToggleTrack('track1', true);
     }
 
     updateCurrentSong() {
@@ -123,10 +114,10 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    async saveAll() {
-        await this.saveSongToMemory();
-        // await this.saveState()
-    }
+    // async saveAll() {
+    //     await this.saveSongToMemory();
+    //     // await this.saveState()
+    // }
 
     saveState() {
         const storage = new Storage();
@@ -525,16 +516,6 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-
-
-
-    /** Track Row Iterator **/
-
-    // trackGetRowIterator(trackName, timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
-    //     return this.trackGetState(trackName)
-    //         .getRowIterator(timeDivision, beatsPerMinute, quantizationTicks);
-    // }
-
     /** Track Selection **/
 
     trackSelectActive(trackName, trackData=null, reorderLast=false) {
@@ -652,43 +633,8 @@ class ASComposerActions extends ASComposerMenu {
 
         this.setState(state);
         return selectedIndices;
-        // if(instruction instanceof NoteInstruction) {
-        //     state.currentInstructionType = 'note';
-        //     if(typeof instruction.durationTicks !== "undefined")
-        //         state.currentDuration = instruction.getDurationString(activeTrack.getTimeDivision());
-        //     if(typeof instruction.velocity !== "undefined")
-        //         state.currentVelocity = instruction.velocity;
-        // } else {
-        //     state.currentInstructionType = 'custom';
-        //     state.currentArguments = instruction.commandArgs;
-        // }
-        // state.selectedTrackIndices = selectedIndices;
-        // state.selectedTrack = trackName;
 
     }
-
-    // selectIndices(selectedIndices, clearSelection=true, selectTrack=true) {
-    //     // TODO: get song position by this.props.index
-    //     // let selectedIndices = await PromptManager.openPromptDialog("Enter selection: ", oldSelectedIndices.join(','));
-    //
-    //
-    //     selectedIndices.forEach((index, i) => {
-    //         if(typeof index !== "number")
-    //             throw new Error(`Invalid selection index (${i}): ${index}`);
-    //     });
-    //
-    //     // Filter unique indices
-    //     selectedIndices = selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
-    //     // Sort indices
-    //     selectedIndices.sort((a, b) => a - b);
-    //
-    //
-    //     this.setState({selectedIndices});
-    //     this.getComposer().trackSelectIndices(this.getTrackName(), selectedIndices);
-    //     // if(selectTrack)
-    //     //     this.getComposer().trackSelect(this.getTrackName());
-    //     return selectedIndices;
-    // }
 
 
 
@@ -863,6 +809,7 @@ class ASComposerActions extends ASComposerMenu {
 
         const iterator = this.instructionGetIterator(trackName);
         const rangeIndices = [];
+        // eslint-disable-next-line no-unused-vars
         for(const instructionData of iterator) {
             if(iterator.getPositionInTicks() < positionTicksStart)
                 continue;
@@ -884,15 +831,6 @@ class ASComposerActions extends ASComposerMenu {
             .getIterator(timeDivision, beatsPerMinute);
     }
 
-
-
-
-
-    /** Context menu **/
-    // async openContextMenu(e) {
-    //     const contextMenu = this.menuContext;
-    //     await contextMenu.openContextMenu(e);
-    // }
 
     /** Programs **/
 
@@ -979,25 +917,6 @@ class ASComposerActions extends ASComposerMenu {
         storage.addBatchRecentSearches(searchCallbackString);
 
         throw new Error("TODO Implement");
-        // const track = this.track;
-        // this.clearselectedIndices();
-        // const trackName = track.getTrackName();
-        // try {
-        //     const stats = {count: 0};
-        //     const iterator = this.song.instructionGetIterator(trackName);
-        //     let instruction;
-        //     while (instruction = iterator.nextConditionalInstruction((instruction) => {
-        //         const i = instruction;
-        //         const window = null, document = null;
-        //         return eval(searchCallbackString);
-        //     })) {
-        //         stats.count++;
-        //         track.selectIndicies(e, iterator.currentIndex);
-        //     }
-        //     this.setStatus("Batch Search Completed: " + JSON.stringify(stats), stats);
-        // } catch (err) {
-        //     this.setStatus("Batch Search Failed: " + err.message, err);
-        // }
     }
 
     async batchRunCommand(e, commandCallbackString = null, searchCallbackString = null, promptUser = false) {
@@ -1019,33 +938,6 @@ class ASComposerActions extends ASComposerMenu {
         storage.addBatchRecentCommands(commandCallbackString);
 
         throw new Error("TODO Implement");
-        // const instructionList = [];
-        // const track = this.track;
-        // const trackName = track.getTrackName(), g = trackName;
-        // try {
-        //     const stats = {count: 0, modified: 0};
-        //     const iterator = this.song.instructionGetIterator(trackName);
-        //     let instruction;
-        //     const window = null, document = null;
-        //     while (instruction = iterator.nextConditionalInstruction((instruction) => {
-        //         const i = instruction;
-        //         return eval(searchCallbackString);
-        //     })) {
-        //         const instructionString = JSON.stringify(instruction.data);
-        //         const i = instruction;
-        //         eval(commandCallbackString);
-        //         if (instructionString !== JSON.stringify(instruction.data))
-        //             stats.modified++;
-        //
-        //         stats.count++;
-        //         track.selectIndex(e, iterator.currentIndex);
-        //     }
-        //     this.setStatus("Batch Command Completed: " + JSON.stringify(stats), stats);
-        //     return instructionList;
-        // } catch (err) {
-        //     this.setStatus("Batch Command Failed: " + err.message, err);
-        //     return [];
-        // }
     }
 
 

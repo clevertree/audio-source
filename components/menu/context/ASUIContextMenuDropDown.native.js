@@ -4,18 +4,34 @@ import ASUIMenuBreak from "../item/ASUIMenuBreak";
 import ASUIMenuAction from "../item/ASUIMenuAction";
 import ASUIMenuDropDown from "../item/ASUIMenuDropDown";
 import ASUIContextMenuDropDownBase from "./ASUIContextMenuDropDownBase";
+import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer.native";
 
 export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase {
 
-    renderContent() {
-        return (
-            <View style={styles.container}>
-                {this.props.children}
-                {this.state.openOverlay ? this.renderOverlay() : null}
-                {this.state.open ? this.renderDropDown() : null}
-            </View>
-        );
+    render() {
+        return [
+            <div
+                key="overlay"
+                className={`asui-contextmenu-overlay${this.state.openOverlay ? ' open' : ''}`}
+                onClick={this.cb.closeAllMenus}
+                // onContextMenu={this.cb.closeAllMenus}
+            >
+            </div>,
+            <div
+                key="dropdown"
+                className={`asui-contextmenu-dropdown${this.state.open ? ' open' : ''}`}
+            >
+                {this.state.open ? <ASUIDropDownContainer
+                    floating={false}
+                    ref={this.ref.dropdown}
+                    onClose={this.cb.closeDropDown}
+                    skipOverlay={true}
+                    options={this.state.options}
+                /> : null}
+            </div>
+        ]
     }
+
 
     renderOverlay() {
         return (
@@ -107,10 +123,6 @@ function recursiveMap(children, fn) {
 }
 
 const styles = StyleSheet.create({
-
-    container: {
-        flex: 1,
-    },
 
     menuItemContainer: {
         padding: 4,

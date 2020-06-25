@@ -59,12 +59,6 @@ export default class ASCTrackBase extends React.Component {
         this.updateRenderingProps();
     }
 
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     if(this.props.trackState !== prevProps.trackState) {
-    //         // console.log('componentDidUpdate', this.props.trackName, prevProps.trackState, this.props.trackState);
-    //         this.setState(this.props.trackState);
-    //     }
-    // }
 
     getComposer()           { return this.props.composer; }
 
@@ -80,17 +74,14 @@ export default class ASCTrackBase extends React.Component {
         rowContainer && rowContainer.toggleDropDownMenu(e);
     }
 
-    // getTrackInfo() {
-    //     return new TrackInfo(this.props.trackName, this.props.composer);
-    // }
 
     /** TODO: calculate correct destination **/
-    getDestination()            {
-        if(this.destination)
-            return this.destination;
-        console.warn('TODO: calculate correct destination');
-        return this.destination = this.getComposer().getAudioContext();
-    }
+    // getDestination()            {
+    //     if(this.destination)
+    //         return this.destination;
+    //     console.warn('TODO: calculate correct destination');
+    //     return this.destination = this.getComposer().getAudioContext();
+    // }
 
 
     updateRenderingProps(quantizationTicks=null, rowLength=null) {
@@ -104,9 +95,6 @@ export default class ASCTrackBase extends React.Component {
 
     /** Actions **/
 
-    // toggleDropDownMenu(menuOpen = !this.state.menuOpen) {
-    //     this.setState({menuOpen});
-    // }
 
     async changeQuantizationPrompt(quantizationTicks = null) {
         quantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, quantizationTicks || this.track.quantizationTicks);
@@ -167,10 +155,10 @@ export default class ASCTrackBase extends React.Component {
         this.getComposer().trackSelectActive(this.getTrackName());
     }
 
-    selectIndicesAndPlay(selectedIndices, clearSelection=true, stopPlayback=true) {
-        selectedIndices = this.selectIndices(selectedIndices, clearSelection);
-        this.playInstructions(selectedIndices, stopPlayback)
-    }
+    // selectIndicesAndPlay(selectedIndices, clearSelection=true, stopPlayback=true) {
+    //     selectedIndices = this.selectIndices(selectedIndices, clearSelection);
+    //     this.playInstructions(selectedIndices, stopPlayback)
+    // }
 
     selectIndices(selectedIndices, clearSelection=true) {
         if (typeof selectedIndices === "string") {
@@ -201,6 +189,8 @@ export default class ASCTrackBase extends React.Component {
                         )
                     break;
                 // throw new Error("Invalid selection: " + selectedIndices);
+                default:
+                    break;
             }
         }
 
@@ -208,17 +198,14 @@ export default class ASCTrackBase extends React.Component {
     }
 
 
-    getIndicesInRange(positionTicksStart, positionTicksEnd) {
-
-    }
 
     cursorGetInfo(cursorOffset=null) {
         return this.getTrackState().getCursorInfo(cursorOffset || this.getCursorOffset());
     }
 
-    getPositionInfo(positionTicks) {
-        return this.getTrackState().getPositionInfo(positionTicks);
-    }
+    // getPositionInfo(positionTicks) {
+    //     return this.getTrackState().getPositionInfo(positionTicks);
+    // }
 
     getTrackState() {
         return new TrackState(this.getComposer(), this.getTrackName());
@@ -309,7 +296,7 @@ export default class ASCTrackBase extends React.Component {
     renderSelectTrackButton() {
         return <ASUIButton
             className="select-track"
-            title={`Select Track: ${this.getTrackName()}`}
+            title={`Edit Track: ${this.getTrackName()}`}
             onAction={() => this.getComposer().trackSelectActive(this.getTrackName())}
             children={`▼`}
         />;

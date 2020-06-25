@@ -79,7 +79,7 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
 
     focus() {
         if(this.ref.container.current)
-            this.ref.container.current.focus();
+            this.ref.container.current.focus({ preventScroll: true });
         else
             console.warn('this.divRef.current was ', this.ref.container.current);
     }
