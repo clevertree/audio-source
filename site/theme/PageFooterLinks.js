@@ -1,8 +1,15 @@
 import * as React from "react";
 
 import "./assets/PageContainer.css";
+import PropTypes from "prop-types";
 
 export default class PageFooterLinks extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        currentPath: PropTypes.string.isRequired,
+        footerLinks: PropTypes.object,
+    };
+
     render() {
         const footerLinks = this.props.footerLinks || this.getFooterLinks();
         return (

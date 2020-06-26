@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import {ArgType, InstructionProcessor} from "../../../common/";
 
 export default class ASCTrackInstructionBase extends React.Component {
+    static TIMEOUT_LONGPRESS = 800;
+
     /** Default Properties **/
     static defaultProps = {
     };
@@ -126,76 +128,4 @@ export default class ASCTrackInstructionBase extends React.Component {
         return selectedIndices;
     }
 
-    /** Menus **/
-
-
-
-    renderMenuEditSet() {
-        // const selectedIndices = this.getTrack().getSelectedIndices();
-        return this.getComposer().renderMenuEdit();
-    }
-
-    // }
-    // renderMenuSelectCommand() {
-    //     return this.getComposer().values.renderMenuSelectCommand((command) => {
-    //             this.instructionReplaceCommand(command);
-    //         },
-    //         this.props.instruction.command,
-    //     );
-    // }
-
-
-    // renderMenuSelectVelocity() {
-    //     return this.getComposer().values.renderMenuSelectVelocity(velocity => {
-    //         this.instructionReplaceVelocity(velocity);
-    //     }, this.props.instruction.velocity);
-    // }
-
-    // renderMenuSelectDuration() {
-    //     return this.getComposer().values.renderMenuSelectDuration(duration => {
-    //             this.instructionReplaceDuration(duration);
-    //         },
-    //         this.getSong().data.timeDivision,
-    //         this.props.instruction.duration,
-    //     );
-    // }
-
-    /** Actions **/
-
-
-    /** @deprecated **/
-    // instructionReplaceCommand(command) {
-    //     this.getComposer().instructionReplaceCommand(
-    //         this.getTrackName(),
-    //         this.props.index,
-    //         command,
-    //     )
-    // }
-
-    // instructionReplaceProgram(programID) {
-    //     this.getSong().instructionReplaceProgram(
-    //         this.getComposer().state.selectedTrack,
-    //         this.props.index,
-    //         programID);
-    //     this.forceUpdate();
-    //
-    // }
-
-    /** @deprecated **/
-    // instructionReplaceVelocity(velocity) {
-    //     this.getComposer().instructionReplaceVelocity(
-    //         this.getTrackName(),
-    //         this.props.index,
-    //         velocity);
-    //     this.playInstruction();
-    // }
-
-    /** @deprecated **/
-    // instructionReplaceDuration(duration) {
-    //     this.getComposer().instructionReplaceDuration(
-    //         this.getTrackName(),
-    //         this.props.index,
-    //         duration);
-    //     this.playInstruction();
-    // }
 }

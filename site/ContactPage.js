@@ -1,29 +1,29 @@
 import * as React from "react";
-import PageContainer from "./theme/PageContainer";
-import Paragraph from "./component/paragraph/Paragraph";
-import Header from "./component/header/Header";
+import {HTML} from "./component";
 
-import PageHeader from "./theme/PageHeader";
-import PageHeaderLinks from "./theme/PageHeaderLinks";
-import PageFooter from "./theme/PageFooter";
-import PageFooterLinks from "./theme/PageFooterLinks";
-import PageContent from "./theme/PageContent";
+import PageContainer from "./theme/PageContainer";
 
 export default class ContactPage extends React.Component {
     render() {
-        console.log('this.props', this.props)
-        return <PageContainer>
-            <PageHeader/>
-            <PageHeaderLinks currentPath={this.props.location.pathname} />
-            <PageContent>
-                <Header>Contact</Header>
-                <Paragraph>
-                    Coming Soon...
-                </Paragraph>
-            </PageContent>
-            <PageFooterLinks />
-            <PageFooter />
-        </PageContainer>;
+        return (
+            <PageContainer currentPath={this.props.location.pathname}>
+                <HTML.Header>Contact</HTML.Header>
+                <HTML.P>
+                    Open-Source means the AudioSource project is free forever, and anyone can join in the development,{'\n'}
+                    so we're always looking for testers, artists, and all kinds of musician to {'\n'}
+                    <HTML.A href="https://github.com/clevertree/audio-source-composer/issues/4">contribute</HTML.A>.
+                </HTML.P>
+
+                <HTML.P>
+                    Right now the project is just me. If you want to join up, please contact me on my{'\n'}
+                    <HTML.A href="https://github.com/clevertree">GitHub page</HTML.A>.
+                </HTML.P>
+
+                <HTML.P>
+                    More to come...
+                </HTML.P>
+            </PageContainer>
+        );
     }
 }
 

@@ -2,18 +2,11 @@ import * as React from "react";
 import {HTML} from "./component";
 
 import PageContainer from "./theme/PageContainer";
-import PageHeader from "./theme/PageHeader";
-import PageHeaderLinks from "./theme/PageHeaderLinks";
-import PageFooter from "./theme/PageFooter";
-import PageFooterLinks from "./theme/PageFooterLinks";
-import PageContent from "./theme/PageContent";
 
 export default class AboutPage extends React.Component {
     render() {
-        return <PageContainer>
-            <PageHeader/>
-            <PageHeaderLinks currentPath={this.props.location.pathname} />
-            <PageContent>
+        return (
+            <PageContainer currentPath={this.props.location.pathname}>
                 <HTML.Header>About Audio Source</HTML.Header>
                 <HTML.P>
                     The main goal of the AudioSource project is to provide an easy all-platform music composer pre-loaded with as many free sample libraries we can compile.{'\n'}
@@ -57,11 +50,8 @@ export default class AboutPage extends React.Component {
                     Songs, instruments, and samples written for Audio Source will work on any platform.
                     Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy.
                 </HTML.P>
-
-            </PageContent>
-            <PageFooterLinks />
-            <PageFooter />
-        </PageContainer>;
+            </PageContainer>
+        );
     }
 }
 

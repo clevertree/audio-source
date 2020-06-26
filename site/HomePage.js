@@ -2,19 +2,11 @@ import * as React from "react";
 import PageContainer from "./theme/PageContainer";
 import {HTML, ImageLink} from "./component/";
 
-import PageHeader from "./theme/PageHeader";
-import PageHeaderLinks from "./theme/PageHeaderLinks";
-import PageFooter from "./theme/PageFooter";
-import PageFooterLinks from "./theme/PageFooterLinks";
-import PageContent from "./theme/PageContent";
-
 
 export default class HomePage extends React.Component {
     render() {
-        return <PageContainer>
-            <PageHeader/>
-            <PageHeaderLinks currentPath={this.props.location.pathname} />
-            <PageContent>
+        return (
+            <PageContainer currentPath={this.props.location.pathname}>
                 <HTML.Header>Introduction to Audio Source</HTML.Header>
 
                 <HTML.P>
@@ -73,9 +65,7 @@ export default class HomePage extends React.Component {
                     />
 
                 <HTML.Header>Instruments</HTML.Header>
-            </PageContent>
-            <PageFooterLinks />
-            <PageFooter />
-        </PageContainer>;
+            </PageContainer>
+        );
     }
 }

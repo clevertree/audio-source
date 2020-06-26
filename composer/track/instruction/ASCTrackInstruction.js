@@ -11,11 +11,15 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             // onKeyDown: (e) => this.onKeyDown(e),
-            // onMouseDown: e => this.onMouseDown(e),
+            onMouseUp: e => this.onMouseUp(e),
+            onMouseDown: e => this.onMouseDown(e),
             onClick: e => this.onClick(e),
             onContextMenu: e => this.onContextMenu(e),
             // options: () => this.renderMenuEditSet()
         };
+        this.timeout = {
+            mouseDown: null
+        }
     }
 
     isOpen() { return this.props.cursor || this.props.selected; }
@@ -37,7 +41,9 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             // tabIndex={0}
             className={className}
             onKeyDown={this.cb.onKeyDown}
-            onClick={this.cb.onClick}
+            // onClick={this.cb.onClick}
+            onMouseUp={this.cb.onMouseUp}
+            onMouseDown={this.cb.onMouseDown}
             onContextMenu={this.cb.onContextMenu}
             // onMouseDown={this.cb.onMouseInput} // TODO
             //  : fix inputs
@@ -78,10 +84,33 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         e.preventDefault();
 
         this.selectInstruction(!e.ctrlKey);
-        if(e.shiftKey)
-            this.playInstruction();
+        // if(e.shiftKey)
+        //     this.playInstruction();
     }
 
+
+    onMouseUp(e) {
+        clearTimeout(this.timeout.mouseDown);
+    }
+
+    onMouseDown(e) {
+        if(e.defaultPrevented)
+            return;
+        e.preventDefault();
+
+        this.selectInstruction(!e.ctrlKey);
+        // if(e.shiftKey)
+        //     this.playInstruction();
+
+        const newEvent = {
+            ctrlKey: e.ctrlKey,
+            clientX: e.clientX,
+            clientY: e.clientY,
+        }
+        this.timeout.mouseDown = setTimeout(() => {
+            this.getTrack().toggleDropDownMenu(newEvent);
+        }, ASCTrackInstructionBase.TIMEOUT_LONGPRESS)
+    }
 
     onContextMenu(e) {
         if(e.defaultPrevented || e.altKey)
@@ -91,8 +120,8 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         const selectedIndices = this.getTrack().getTrackState().getSelectedIndices();
         if(selectedIndices.indexOf(this.props.index) === -1)
             this.selectInstruction(!e.ctrlKey);
-        if(e.shiftKey)
-            this.playInstruction();
+        // if(e.shiftKey)
+        //     this.playInstruction();
         this.getTrack().toggleDropDownMenu(e);
     }
 

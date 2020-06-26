@@ -30,6 +30,7 @@ div.asui-contextmenu-dropdown > div.asui-dropdown-container > div > div.asui-men
 
 div.asui-contextmenu-overlay {
     flex: 0;
+    transition: background-color 1s;
 }
 
 div.asui-contextmenu-overlay.open {
