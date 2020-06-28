@@ -7,7 +7,10 @@ import ASCTrackRowBase from "./ASCTrackRowBase";
 import "./ASCTrackRow.css";
 
 class ASCTrackRow extends ASCTrackRowBase {
-
+    constructor(props) {
+        super(props);
+        this.cb.onMouseDown = (e) => this.onMouseDown(e);
+    }
 
     render() {
         let className = "asct-row";
@@ -21,7 +24,7 @@ class ASCTrackRow extends ASCTrackRowBase {
                 // tabIndex={0}
                 className={className}
                 // onClick={this.cb.onMouseInput}
-                onClick={this.cb.onClick}
+                onMouseDown={this.cb.onMouseDown}
                 // onContextMenu={this.cb.onContextMenu}
                 // onKeyDown={this.cb.onKeyDown}
             >
@@ -46,10 +49,11 @@ class ASCTrackRow extends ASCTrackRowBase {
     /** User Input **/
 
 
-    onClick(e) {
+    onMouseDown(e) {
         if (e.defaultPrevented)
             return;
         e.preventDefault();
+        console.log('ASCTrackRow.onMouseDown', e);
         this.selectRow();
     }
 

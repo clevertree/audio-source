@@ -94,9 +94,18 @@ export default class ASComposerSongPanel extends React.Component {
                 <ASUIForm className="version" header="Version">
                     <ASUIButton
                         className="version"
-                        onAction={(e) => this.setSongVersionPrompt()}
+                        onAction={(e) => composer.setSongVersionPrompt()}
                         title="Song Version"
                         children={song ? song.data.version : "0.0.0"}
+                    />
+                </ASUIForm>
+
+                <ASUIForm className="beatsPerMinute" header="BPM">
+                    <ASUIButton
+                        className="bpm"
+                        onAction={(e) => composer.setSongStartingBPMPrompt()}
+                        title="Song Beats Per Minute"
+                        children={song ? song.data.beatsPerMinute : "N/A"}
                     />
                 </ASUIForm>
             </ASUIPanel>

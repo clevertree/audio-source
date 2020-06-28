@@ -98,7 +98,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
-        this.selectInstruction(!e.ctrlKey);
+        this.selectInstruction(!e.ctrlKey, e.shiftKey ? null : true);
         // if(e.shiftKey)
         //     this.playInstruction();
 
@@ -117,6 +117,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
+        clearTimeout(this.timeout.mouseDown);
         const selectedIndices = this.getTrack().getTrackState().getSelectedIndices();
         if(selectedIndices.indexOf(this.props.index) === -1)
             this.selectInstruction(!e.ctrlKey);

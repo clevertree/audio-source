@@ -334,9 +334,9 @@ export default class ASCTrackRowContainerBase extends React.Component {
                 if(e.ctrlKey)
                     track.playSelectedInstructions();
                 else if(cursorInfo.cursorIndex !== null) {
-                    if(e.shiftKey)
-                        track.selectIndices(cursorInfo.cursorIndex, 'toggle');
-                    else
+                    // if(e.shiftKey)
+                    //     track.selectIndices(cursorInfo.cursorIndex, 'toggle');
+                    // else
                         track.playInstructions([cursorInfo.cursorIndex]);
                 }
                 // else if(track.getSelectedIndices().length > 0)

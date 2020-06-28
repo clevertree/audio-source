@@ -163,7 +163,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     async setSongNamePrompt(newSongTitle) {
-        newSongTitle = await PromptManager.openPromptDialog("Enter a new song name", this.song.data.title);
+        newSongTitle = await PromptManager.openPromptDialog("Enter a new song name:", this.song.data.title);
         this.setSongName(newSongTitle);
     }
     setSongName(newSongTitle=null) {
@@ -174,7 +174,7 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async setSongVersionPrompt(newSongVersion) {
-        newSongVersion = await PromptManager.openPromptDialog("Enter a new song version", this.song.data.version);
+        newSongVersion = await PromptManager.openPromptDialog("Enter a new song version:", this.song.data.version);
         this.setSongVersion(newSongVersion);
     }
     setSongVersion(newSongVersion) {
@@ -184,9 +184,17 @@ class ASComposerActions extends ASComposerMenu {
         this.setStatus(`Song version updated: ${newSongVersion}`);
     }
 
-    songChangeStartingBeatsPerMinute(newSongBeatsPerMinute) {
-        this.song.data.beatsPerMinute = newSongBeatsPerMinute; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
-        this.setStatus(`Song beats per minute updated: ${newSongBeatsPerMinute}`);
+    async setSongStartingBPMPrompt() {
+        const beatsPerMinute = await PromptManager.openPromptDialog("Enter a new song BPM:", this.song.data.beatsPerMinute);
+        this.setSongStartingBPM(beatsPerMinute);
+    }
+
+    setSongStartingBPM(newSongBeatsPerMinute) {
+        const bpm = Number.parseFloat(newSongBeatsPerMinute)
+        if(Number.isNaN(bpm))
+            throw new Error("Invalid BPM: " + newSongBeatsPerMinute)
+        this.song.data.beatsPerMinute = bpm; // songChangeStartingBeatsPerMinute(newSongBeatsPerMinute);
+        this.setStatus(`Song beats per minute updated: ${bpm}`);
     }
 
 
@@ -314,12 +322,21 @@ class ASComposerActions extends ASComposerMenu {
         this.saveState();
     }
 
-    saveSongToFile() {
+    async saveSongToFile(prompt=true) {
         const songData = this.song.getProxiedData();
-        // const songHistory = this.song.history;
+        let fileName = (songData.title || "untitled")
+                .replace(/\s+/g, '_')
+            + '.json';
+        if (prompt)
+            fileName = await PromptManager.openPromptDialog("Download as file?", fileName);
+        if (!fileName) {
+            this.setError("Download canceled");
+            return false;
+        }
+
         const storage = new Storage();
-        this.setStatus("Saving song to file");
-        storage.saveSongToFile(songData);
+        storage.saveSongToFile(fileName, songData) &&
+        this.setStatus("Saved song to local file: " + fileName);
     }
 
     /** Song Playback **/
@@ -418,11 +435,11 @@ class ASComposerActions extends ASComposerMenu {
     /** Track Playback **/
 
 
-    trackerPlaySelected(stopPlayback=true) {
-        return this.trackerPlay(this.state.selectedTrack, this.state.selectedTrackIndices, stopPlayback);
+    trackPlaySelected(stopPlayback=true) {
+        return this.trackPlay(this.state.selectedTrack, this.state.selectedTrackIndices, stopPlayback);
     }
 
-    trackerPlay(trackName, selectedIndices, stopPlayback=true) {
+    trackPlay(trackName, selectedIndices, stopPlayback=true) {
         // const trackState = new ActiveTrackState(this, trackName);
 
 
@@ -560,6 +577,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackSelectIndices(trackName, selectedIndices=[], clearSelection=true) {
+        // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
 
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
@@ -614,7 +632,6 @@ class ASComposerActions extends ASComposerMenu {
 
                 break;
         }
-        // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
 
         const state = {
             // selectedIndices,
@@ -630,6 +647,10 @@ class ASComposerActions extends ASComposerMenu {
             state.selectedInstructionData[0] = 0;
             // console.log('selectedInstructionData', state.selectedInstructionData);
         }
+
+        if(this.state.playbackOnSelect)
+            this.trackPlay(trackName, selectedIndices, false);
+
 
         this.setState(state);
         return selectedIndices;
@@ -683,7 +704,7 @@ class ASComposerActions extends ASComposerMenu {
         trackRef.instructionInsertAtCursor(newInstructionData);
     }
 
-    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null, select=false, playback=false) {
+    instructionInsertAtPosition(trackName, positionTicks, newInstructionData = null) {
         //: TODO: check for recursive group
 
         if (newInstructionData === null)
@@ -700,8 +721,8 @@ class ASComposerActions extends ASComposerMenu {
         newInstructionData[0] = 0;
 
         const index = this.song.instructionInsertAtPosition(trackName, positionTicks, newInstructionData);
-        if(select)      this.trackSelectIndices(trackName, index);
-        if(playback)    this.trackerPlay(trackName, index);
+        // if(select)      this.trackSelectIndices(trackName, index);
+        // if(playback)    this.trackPlay(trackName, index);
         this.updateCurrentSong();
         return index;
     }
@@ -724,7 +745,8 @@ class ASComposerActions extends ASComposerMenu {
             song.instructionReplaceArgByType(trackName, selectedIndices[i], argType, newArgValue);
         }
 
-        this.trackerPlay(trackName, selectedIndices);
+        if(this.state.playbackOnChange)
+            this.trackPlay(trackName, selectedIndices);
         // trackInfo.updateCurrentInstruction();
     }
 
@@ -796,7 +818,7 @@ class ASComposerActions extends ASComposerMenu {
             const copyInstructionData = copyTrack[i];
             const insertPositionTicks = startPositionTicks + copyInstructionData[0];
             startPositionTicks = insertPositionTicks;
-            const insertIndex = this.instructionInsertAtPosition(trackName, insertPositionTicks, copyInstructionData, false, false);
+            const insertIndex = this.instructionInsertAtPosition(trackName, insertPositionTicks, copyInstructionData);
             selectedIndices.push(insertIndex);
         }
 
@@ -887,14 +909,32 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    /** Toggle Panels **/
+    /** Settings **/
 
-    toggleSongPanel() { this.setState({showPanelSong: !this.state.showPanelSong}); }
-    toggleProgramPanel() { this.setState({showPanelProgram: !this.state.showPanelProgram}); }
-    toggleInstructionPanel() { this.setState({showPanelInstruction: !this.state.showPanelInstruction}); }
+    toggleSetting(stateKey, callback=null) {
+        if(typeof this.state[stateKey] === 'undefined')
+            throw new Error("Invalid state key: " + stateKey);
+        const newState = {};
+        newState[stateKey] = !this.state[stateKey];
+        this.setState(newState, callback);
+        return false;
+    }
+
+    /** Toggle Playback Settings **/
+
+
+    togglePlaybackOnSelection()         { return this.toggleSetting('playbackOnSelect'); }
+    togglePlaybackOnChange()            { return this.toggleSetting('playbackOnChange'); }
+
+    /** Toggle View Settings **/
+
+    toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
+    toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
+    toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
     toggleFullscreen() {
-        this.setState({fullscreen: !this.state.fullscreen});
-        setTimeout(() => this.onResize(), 200);
+        this.toggleSetting('fullscreen', () => {
+            this.onResize();
+        });
     }
 
     /** Toggle Track Formatting **/

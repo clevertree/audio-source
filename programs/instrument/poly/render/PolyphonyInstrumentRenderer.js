@@ -23,6 +23,7 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                             key={voiceID}
                             instrumentID={voiceID}
                             config={config}
+                            program={voiceData}
                         />
                     })}
                 </div>

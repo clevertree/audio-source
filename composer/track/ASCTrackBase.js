@@ -296,7 +296,7 @@ export default class ASCTrackBase extends React.Component {
     renderSelectTrackButton() {
         return <ASUIButton
             className="select-track"
-            title={`Edit Track: ${this.getTrackName()}`}
+            title={`Select Track: ${this.getTrackName()}`}
             onAction={() => this.getComposer().trackSelectActive(this.getTrackName())}
             children={`▼`}
         />;
@@ -330,7 +330,7 @@ export default class ASCTrackBase extends React.Component {
 
     playInstructions(selectedIndices, stopPlayback=true) {
         // console.log("ASCTrack.playInstructions", selectedIndices);
-        this.getComposer().trackerPlay(this.getTrackName(), selectedIndices, stopPlayback)
+        this.getComposer().trackPlay(this.getTrackName(), selectedIndices, stopPlayback)
     }
 
     /** Actions **/

@@ -37,7 +37,9 @@ ArgType.frequency = new ArgType(
             frequency /= stats.transpose;
         return frequency;
     },
-    (frequency, song) => {
+    (frequency, values) => {
+        if(frequency === null)
+            return 'N/A';
         return frequency;
     },
     true

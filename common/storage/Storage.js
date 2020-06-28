@@ -55,10 +55,10 @@ class Storage {
         await LocalStorage.setItem('song:' + songData.uuid, encodedSongData);
         // await LocalStorage.setItem('song-history:' + songData.uuid, this.encodeForStorage(songHistory)); // History stored separately due to memory limits
         // this.querySelector('.song-menu').outerHTML = renderEditorMenuContent(this);
-        // console.info("Song saved to memory: " + songData.uuid, songData);
+        console.info("Song saved to memory: " + songData.uuid, songData);
     }
 
-    saveSongToFile(songData, prompt = true) {
+    saveSongToFile(fileName, songData) {
         // const song = this.data;
         const instructionsKey = "/** INSTRUCTIONS-" + new Values().generateUUID() + ' **/';
         let jsonStringInstructions = JSON.stringify(songData.tracks);
@@ -69,18 +69,11 @@ class Storage {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonString);
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
-
-        let fileName = (songData.title || "untitled")
-                .replace(/\s+/g, '_')
-            + '.json';
-        if (prompt)
-            fileName = window.prompt("Download as file?", fileName);
-        if (!fileName)
-            return console.warn("Download canceled");
         downloadAnchorNode.setAttribute("download", fileName);
         document.body.appendChild(downloadAnchorNode); // required for firefox
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
+        return true;
     }
 
     /** Loading **/

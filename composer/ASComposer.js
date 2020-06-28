@@ -26,6 +26,7 @@ export default class ASComposer extends ASComposerInput {
             showTrackRowPositionInTicks: false,
             showTrackRowDurationInTicks: false,
 
+
             // Playback
             volume: Song.DEFAULT_VOLUME,
             playing: false,
@@ -38,6 +39,10 @@ export default class ASComposer extends ASComposerInput {
             // Tracks
             activeTracks: {},
             selectedTrack: 'root',
+
+            // Track Playback
+            playbackOnChange: true,
+            playbackOnSelect: true,
 
             // Track instruction selection
             selectedTrackIndices: [],

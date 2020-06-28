@@ -44,9 +44,6 @@ class Song {
                         ['OscillatorInstrument', {
                             type: 'sawtooth'
                         }],
-                        ['OscillatorInstrument', {
-                            type: 'sawtooth'
-                        }],
                     ]}
                 ],
                 ['OscillatorInstrument',{type: 'square'}],

@@ -41,6 +41,20 @@ export default class ASCProgramRendererBase extends React.Component {
     /** Actions **/
 
 
+    // programReplace(e, programClassName, programConfig={}) {
+    //     const programID = this.props.programID;
+    //     // programConfig = ProgramLoader.createProgramConfig(programClassName, programConfig);
+    //     this.getSong().programReplace(programID, programClassName, programConfig);
+    // }
+    programRename() {
+        const programID = this.props.programID;
+        this.getComposer().programRename(programID);
+    }
+    programRemove() {
+        const programID = this.props.programID;
+        this.getSong().programRemove(programID);
+    }
+
     toggleContainer() {
         this.setState({open: !this.state.open});
     }
@@ -112,18 +126,4 @@ export default class ASCProgramRendererBase extends React.Component {
         }, programClassName);
     }
 
-
-    // programReplace(e, programClassName, programConfig={}) {
-    //     const programID = this.props.programID;
-    //     // programConfig = ProgramLoader.createProgramConfig(programClassName, programConfig);
-    //     this.getSong().programReplace(programID, programClassName, programConfig);
-    // }
-    // programRename() {
-    //     const programID = this.props.programID;
-    //     this.getComposer().programRename(programID);
-    // }
-    // programRemove() {
-    //     const programID = this.props.programID;
-    //     this.getSong().programRemove(programID);
-    // }
 }

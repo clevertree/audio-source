@@ -8,7 +8,7 @@ export default class ASCTrackRowBase extends React.Component {
         this.cb = {
             // onContextMenu: (e) => this.onContextMenu(e),
             onKeyDown: (e) => this.onKeyDown(e),
-            onClick: e => this.onClick(e),
+            // onClick: e => this.onClick(e),
         };
         this.state = {
             // menuOpen: false
@@ -57,8 +57,6 @@ export default class ASCTrackRowBase extends React.Component {
             this.getTrack().getTrackName(),
             this.props.positionTicks,
             command,
-            true,
-            true
         );
         this.getTrack().selectIndices(
             insertIndex

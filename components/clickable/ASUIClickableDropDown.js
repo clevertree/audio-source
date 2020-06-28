@@ -102,7 +102,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
             if(openDropDownMenu === thisElm
                 || openDropDownMenu.contains(thisElm))
                 return;
-            /** @var {ASUIMenuDropDown}**/
+            /** @var {ASUIMenuDropDown}**/ // TODO: switch menu to clickable or dropdown
             const dropdown = findReactElement(openDropDownMenu); // Ugly Hack
             dropdown.closeDropDownMenu();
         });
@@ -117,8 +117,8 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     isHoverEnabled() {
         if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
             return false;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open')
-        // console.log('openDropDownMenus', containerElm, openDropDownMenus);
+        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
+        // console.log('openDropDownMenus', openDropDownMenus);
         return openDropDownMenus.length > 0;
     }
 

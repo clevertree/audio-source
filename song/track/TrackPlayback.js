@@ -85,6 +85,7 @@ export default class TrackPlayback extends TrackIterator {
             stats.playingIndices = [];
         const playingIndices = stats.playingIndices;
         stats.onInstructionStart = (startTime, stats) => {
+            if(!this.active) return;
             const waitTime = startTime -this.audioContext.currentTime;
             // console.log('onInstructionStart', startTime, waitTime);
             const event = {
@@ -94,12 +95,14 @@ export default class TrackPlayback extends TrackIterator {
                 playingIndices,
             }
             setTimeout(() => {
+                if(!this.active) return;
                 playingIndices.push(event.index);
                 this.song.dispatchEvent(event)
             }, waitTime * 1000);
                                     // console.log('playingIndices.push', playingIndices);
         };
         stats.onInstructionEnd = (endTime, stats) => {
+            if(!this.active) return;
             const waitTime = endTime - this.audioContext.currentTime;
             // console.log('onInstructionStart', endTime, waitTime);
             const event = {
@@ -109,6 +112,7 @@ export default class TrackPlayback extends TrackIterator {
                 playingIndices,
             }
             setTimeout(() => {
+                if(!this.active) return;
                 playingIndices.splice(playingIndices.indexOf(event.index), 1);
                 this.song.dispatchEvent(event)
             }, waitTime * 1000);

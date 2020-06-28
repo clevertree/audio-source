@@ -37,27 +37,27 @@ export default class ASComposerInstructionPanel extends React.Component {
                 case ArgType.offset:
                 case ArgType.trackName:
                 default:
-                    return this.renderDropDownForm(argType, argIndex, paramValue);
+                    return this.renderDropDownForm(instructionData, argType, argIndex, paramValue);
 
                 case ArgType.velocity:
-                    return this.renderVelocityForm(argType, argIndex, paramValue);
+                    return this.renderVelocityForm(instructionData, argType, argIndex, paramValue);
             }
         });
     }
 
-    renderDropDownForm(argType, argIndex, paramValue) {
+    renderDropDownForm(instructionData, argType, argIndex, paramValue) {
         let header = argType.title.split(' ').pop(); // Long text hack
         const composer = this.props.composer;
         return <ASUIForm key={argIndex} header={header}>
             <ASUIButtonDropDown
                 arrow={'▼'}
                 title={`Change ${argType.title}`}
-                options={() => composer.renderMenuEditInstructionArgOptions(argType, argIndex, paramValue)}
+                options={() => composer.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue)}
             >{argType.format(paramValue, composer.getSong().values)}</ASUIButtonDropDown>
         </ASUIForm>
     }
 
-    renderVelocityForm(argType, argIndex, paramValue, header="Velocity", title="Instruction Velocity") {
+    renderVelocityForm(instructionData, argType, argIndex, paramValue, header="Velocity", title="Instruction Velocity") {
         const composer = this.props.composer;
 
         return <ASUIForm key={argIndex} header={header}>

@@ -20,9 +20,14 @@ class Values {
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand)}           >By Frequency</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuSelectCommandByOctave(onSelectValue, currentCommand)}              >By Octave</ASUIMenuDropDown>
             {additionalMenuItems}
+            <ASUIMenuBreak />
             <ASUIMenuAction
                 onAction={async e => onSelectValue(await PromptManager.openPromptDialog("Insert custom command"))}
             >Custom Command</ASUIMenuAction>
+            <ASUIMenuBreak />
+            <ASUIMenuAction
+                onAction={async e => onSelectValue(null)}
+            >Remove Parameter</ASUIMenuAction>
         </>);
 
     }

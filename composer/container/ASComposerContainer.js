@@ -23,6 +23,7 @@ export default class ASComposerContainer extends React.Component {
                 track: React.createRef(),
                 program: React.createRef(),
                 view: React.createRef(),
+                // playback: React.createRef(),
             }
         }
     }
