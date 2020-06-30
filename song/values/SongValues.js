@@ -2,7 +2,6 @@ import Values from "../../common/values/Values";
 import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import React from "react";
 import {ArgType} from "../../common";
-import InstructionProcessor from "../../common/program/InstructionProcessor";
 
 class SongValues extends Values {
     constructor(song) {
@@ -132,8 +131,8 @@ class SongValues extends Values {
 
 
     renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue) {
-        const processor = new InstructionProcessor(instructionData);
-        const [commandString] = processor.processInstructionArgs();
+        // const processor = new InstructionProcessor(instructionData);
+        // const [commandString] = processor.processInstructionArgs();
         // console.log('commandString', commandString);
         switch(argType) {
             // case ArgType.trackCommand:

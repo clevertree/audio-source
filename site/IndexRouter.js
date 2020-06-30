@@ -8,12 +8,11 @@ import {
 import {ASPlayer} from '../player';
 import {ASComposer} from "../composer/";
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
-import HomePage from "../site/HomePage";
-import DownloadsPage from "../site/DownloadsPage";
-import AboutPage from "../site/AboutPage";
-import ComposerPage from "../site/ComposerPage";
-import ContactPage from "../site/ContactPage";
-// import MenuOverlayContainer from "../components/menu/MenuOverlayContainer";
+import HomePage from "./HomePage";
+import DownloadsPage from "./DownloadsPage";
+import AboutPage from "./AboutPage";
+import ComposerPage from "./ComposerPage";
+import ContactPage from "./ContactPage";
 
 
 export default class IndexRouter extends React.Component {

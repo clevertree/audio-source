@@ -10,7 +10,7 @@ export default class ASComposerSongPanel extends React.Component {
         const state = composer.state;
         const songStats = composer.songStats;
         return (
-            <ASUIPanel className="song" header="Song">
+            <ASUIPanel className="song" header="Song Information">
                 <ASUIForm className="playback" header="Playback">
                     <ASUIButton
                         className="song-play"

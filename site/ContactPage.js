@@ -15,13 +15,18 @@ export default class ContactPage extends React.Component {
                 </HTML.P>
 
                 <HTML.P>
-                    Right now the project is just me. If you want to join up, please contact me on my{'\n'}
+                    Currently the composer is in{'\n'}
+                    <HTML.A href="https://github.com/clevertree/audio-source-composer">active development</HTML.A>{'\n'}
+                    and has not yet been released.{'\n'}
+                    Check back often for updates as we get closer to Beta!{'\n'}
+                    If you want to join up, please contact us on the {'\n'}
                     <HTML.A href="https://github.com/clevertree">GitHub page</HTML.A>.
                 </HTML.P>
 
                 <HTML.P>
                     More to come...
                 </HTML.P>
+
             </PageContainer>
         );
     }

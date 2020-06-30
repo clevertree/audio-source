@@ -61,6 +61,8 @@ export default class ASCTrackInstructionBase extends React.Component {
                 continue;
             argIndex++;
             let className = 'asct-parameter';
+            if(argIndex >= instructionData.length)
+                break;
             let param = instructionData[argIndex];
             switch(argType) {
                 case ArgType.frequency:

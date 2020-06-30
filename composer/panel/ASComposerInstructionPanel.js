@@ -8,7 +8,7 @@ export default class ASComposerInstructionPanel extends React.Component {
     render() {
         return (
             <ASUIPanel
-                className="instructions"
+                className="Selected instruction & Parameters"
                 header={`Instruction`}>
                 {this.renderInstructionForms()}
             </ASUIPanel>

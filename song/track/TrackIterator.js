@@ -240,8 +240,8 @@ export default class TrackIterator {
                 finished = false;
             } else {
                 // TODO: update parent stats with end position?
-                const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
-                console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
+                // const endPositionSeconds = stats.startPosition + stats.endPositionSeconds;
+                // console.log("Track ends: ", i, stats.trackName, "in", endPositionSeconds);
             }
         }
         return finished;

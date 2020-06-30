@@ -9,7 +9,7 @@ export default class ASComposerProgramPanel extends React.Component {
         return (
             <ASUIPanel
                 className="programs"
-                header="Programs">
+                header="Programs (Instruments & Effects)">
                {composer.getSong().programEach((programID, programClass, programConfig) =>
                    <ASCProgramRenderer
                        key={programID}

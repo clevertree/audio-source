@@ -143,14 +143,18 @@ div.asc-container.landscape div.asc-tracks-container {
 
 div.asc-status-text {
     padding-left: 4px;
+    white-space: nowrap;
+    overflow-x: hidden;
 }
 div.asc-status-text.error {
     color: red;
 }
 
 div.asc-version-text {
+    color: #2c3e50;
     /* float: right; */
     padding-right: 4px;
+    padding-left: 8px;
     margin-left: auto;
 }
 

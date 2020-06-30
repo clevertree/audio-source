@@ -12,7 +12,7 @@ export default class AboutPage extends React.Component {
 
                 <HTML.Header>Audio Source Composer Demo</HTML.Header>
                 <HTML.P>
-                    Tips #1: Menu->View->Fullscreen to render in full screen.
+                    Tips #1: Menu->View->Enable Fullscreen to render in landscape mode.
                 </HTML.P>
 
                 <HTML.P>

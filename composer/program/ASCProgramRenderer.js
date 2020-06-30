@@ -18,7 +18,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         // let contentClass = 'error';
         let titleHTML = '', renderProgram = false;
         if (song.hasProgram(programID)) {
-            const programConfig = song.programGetData(programID);
+            const [, programConfig] = song.programGetData(programID);
             titleHTML = programConfig.title || "No Title"
             renderProgram = true;
         } else {

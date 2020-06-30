@@ -1,7 +1,10 @@
 
 /** Paragraph **/
 
+
+div.aspage-content > p,
 p.aspage-paragraph {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-indent: 1vw;
     text-align: justify;
     padding: 0 1vw;

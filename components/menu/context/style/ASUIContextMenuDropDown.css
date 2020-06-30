@@ -13,7 +13,7 @@ div.asui-contextmenu-dropdown.open {
     width: 25%;
     opacity: 1;
     transition: width 0.1s ease-in;
-    overflow-x: hidden;
+    /*overflow-x: hidden;*/
 }
 
 .portrait > div.asui-contextmenu-dropdown {

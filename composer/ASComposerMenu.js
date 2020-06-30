@@ -3,7 +3,6 @@ import {ASUIMenuItem, ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../
 import {Storage, ProgramLoader} from "../song";
 import ASComposerRenderer from "./ASComposerRenderer";
 import InstructionProcessor from "../common/program/InstructionProcessor";
-import {ArgType} from "../common";
 
 class ASComposerMenu extends ASComposerRenderer {
 
@@ -227,6 +226,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
         const instructionData = this.state.selectedInstructionData;
         const processor = new InstructionProcessor(instructionData);
+        // eslint-disable-next-line no-unused-vars
         const [commandString, argTypeList] = processor.processInstructionArgs();
 
         let argIndex = 0;

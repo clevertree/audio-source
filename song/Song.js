@@ -620,17 +620,18 @@ class Song {
 
     programRemove(programID) {
         const programList = this.data.programs;
-        if (!programList[programID])
-            return console.error("Invalid programs ID: " + programID);
+        if (typeof programList[programID] === "undefined")
+            return console.error("Invalid program ID: " + programID);
         const isLastProgram = programID === programList.length - 1;
 
         const oldConfig = programList[programID];
         if(isLastProgram) {
-            delete programList[programID];
+            programList.splice(programID, 1);
         } else {
             programList[programID] = null;
         }
         // this.programUnload(programID);
+        // console.log('programRemove', programID, this.getProxiedData().programs)
         return oldConfig;
     }
 
