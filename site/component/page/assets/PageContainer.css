@@ -94,12 +94,34 @@ div.aspage-content {
     margin: 0 auto;
 }
 
+/** Page Paragraphs **/
+
+div.aspage-content > p {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-indent: 12px;
+    text-align: justify;
+    padding: 0 1vw;
+}
 
 /** Page Images **/
 
-div.aspage-content img {
+
+div.aspage-content > p > img,
+div.aspage-content > p > a > img {
+    display: flex;
     max-width: 640px;
+    margin: 0 auto;
 }
+
+@media only screen and (max-width: 640px) {
+    div.aspage-content > p > img,
+    div.aspage-content > p > a > img {
+        width: 90vw;
+    }
+
+}
+
+
 
 /** Pre **/
 

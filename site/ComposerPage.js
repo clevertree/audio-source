@@ -1,23 +1,20 @@
 import * as React from "react";
-import PageContainer from "./theme/PageContainer";
+import {PageContainer, Markdown} from "./component";
 
 import ASComposer from "../composer/ASComposer";
-import {HTML} from "./component";
 
 export default class AboutPage extends React.Component {
     render() {
         return (
             <PageContainer currentPath={this.props.location.pathname}>
-                <ASComposer/>
-
-                <HTML.Header>Audio Source Composer Demo</HTML.Header>
-                <HTML.P>
+                <Markdown source={`
+                    # Audio Source Composer Demo
+                    
                     Tips #1: Menu->View->Enable Fullscreen to render in landscape mode.
-                </HTML.P>
-
-                <HTML.P>
+               
                     More instructions coming soon...
-                </HTML.P>
+                `}/>
+                <ASComposer/>
             </PageContainer>
         );
     }

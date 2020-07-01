@@ -1,7 +1,5 @@
 import * as React from "react";
-import {Markdown} from "./component";
-
-import PageContainer from "./theme/PageContainer";
+import {PageContainer, Markdown} from "./component";
 
 import PATH_README from '../README.md'
 
@@ -22,7 +20,8 @@ export default class AboutPage extends React.Component {
     render() {
         return (
             <PageContainer currentPath={this.props.location.pathname}>
-                <Markdown>
+                <Markdown
+                    trim={false}>
                     {this.state.readme || "Loading Readme..."}
                 </Markdown>
             </PageContainer>

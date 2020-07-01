@@ -1,21 +1,20 @@
-import Paragraph from "./paragraph/Paragraph";
-import Link from "./link/Link";
-import ImageLink from "./link/ImageLink";
-import Header from "./header/Header";
+
+import PageContainer from "./page/PageContainer";
+import PageHeader from "./page/PageHeader";
+import PageHeaderLinks from "./page/PageHeaderLinks";
+import PageContent from "./page/PageContent";
+import PageFooterLinks from "./page/PageFooterLinks";
+import PageFooter from "./page/PageFooter";
+
 import Markdown from "./markdown/Markdown"
 
-const HTML = {
-    P:Paragraph,
-    A:Link,
-    ImgA:ImageLink,
-    Header
-}
 
 export {
-    HTML,
-    Paragraph,
-    Link,
-    ImageLink,
-    Header,
+    PageContainer,
+    PageHeader,
+    PageHeaderLinks,
+    PageContent,
+    PageFooterLinks,
+    PageFooter,
     Markdown
 }

@@ -5,11 +5,14 @@ import "./MarkDown.css";
 
 export default class Markdown extends React.Component {
     render() {
+        let source = this.props.children || this.props.source;
+        if(this.props.trim !== false)
+            source = source.trim().split("\n").map(line => line.trim()).join("\n");
         return (
             // <div className="aspage-markdown">
                 <ReactMarkdown
                     escapeHtml={false}
-                    children={this.props.children}
+                    source={source}
                     />
             // </div>
         );
