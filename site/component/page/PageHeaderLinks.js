@@ -3,6 +3,8 @@ import * as React from "react";
 import "./assets/PageContainer.css";
 import PropTypes from "prop-types";
 
+import {headerLinks} from "../../index";
+
 export default class PageHeaderLinks extends React.Component {
 
     /** Property validation **/
@@ -13,30 +15,20 @@ export default class PageHeaderLinks extends React.Component {
 
 
     render() {
-        const headerLinks = this.props.headerLinks || this.getHeaderLinks();
+        const links = this.props.headerLinks || headerLinks;
         return (
             <div className="aspage-header-links">
-                {headerLinks.map((linkInfo, i) => {
+                {links.map(([href, title], i) => {
                     const props = {
-                        href: linkInfo.href
+                        href
                     };
-                    if(this.props.currentPath === linkInfo.href)
+                    if(this.props.currentPath === href)
                         props.className = 'selected';
-                    return <a key={i} {...props}>{linkInfo.title}</a>
+                    return <a key={i} {...props}>{title}</a>
                 } )}
             </div>
         );
     }
 
-
-    getHeaderLinks() {
-        return [
-            {title: 'Home', href: '/'},
-            {title: 'About', href: '/about'},
-            {title: 'Demo', href: '/composer'},
-            // {title: 'Try Player', href: '/player'},
-            {title: 'Downloads', href: '/downloads'},
-        ]
-    }
 
 }
