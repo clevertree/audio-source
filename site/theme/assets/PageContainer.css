@@ -97,6 +97,14 @@ div.aspage-content {
 
 /** Page Images **/
 
-div.aspage-container img {
+div.aspage-content img {
     max-width: 640px;
+}
+
+/** Pre **/
+
+div.aspage-content > pre {
+    padding: 1em;
+    background-color: #222;
+    border-radius: 1em;
 }

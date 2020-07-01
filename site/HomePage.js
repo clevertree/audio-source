@@ -65,6 +65,9 @@ export default class HomePage extends React.Component {
                     />
 
                 <HTML.Header>Instruments</HTML.Header>
+                <HTML.P>
+                    Updates Coming Soon...
+                </HTML.P>
             </PageContainer>
         );
     }

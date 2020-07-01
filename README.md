@@ -1,29 +1,36 @@
 # Audio Source Composer
-[AudioSource.io](https://audiosource.io/)
 
 The Audio Source Composer is an Open-Source Digital Audio Workstation 
 built on the [WebAudioAPI](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 to work on all platforms from web browsers to desktops applications to mobile devices.
 
+* [Composer Features](#features)
+* Local Repository Installation
+  + [Website Repository](#install-web)
+  + [App Repository](#install-app)
+* [Player](#player)
+* [Communities](#community)
 
-## Features:
+---
+
+## Features: <a name="features"></a>
 * Works on any modern browser on any phone, tablet or pc.
 * Instruments and Effects can be wrapped in each other to build complex presets.
 * Note tracks can be called recursively for a highly structured song.
 
-## What's Currently Working:
+### What's Currently Working:
 * Add, edit, and delete notes and note tracks.
 * Edit note velocity and duration.
 * Quarter Tone Compatibility (missing in MIDI)
 * Recursively play back tracks by adding a 'Track Note'.
 * Track Note Transposing (play back tracks at different frequencies)
 
-## Under the Hood:
+### Under the Hood:
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
 * Songs, instruments, and samples written for Audio Source will work on any platform. 
 * Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy. 
 
-## Planned Features:
+### Planned Features:
 * Sample libraries
 * Audio recording and editing
 * Track XY Grid for easy mouse-click composition
@@ -32,43 +39,55 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Import/Export MIDI files
 
 
+---
 
-## Website Repo Installation
 
-`$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive`
+## Website Installation <a name="install-web"></a>
 
-`$ cd [audio-source-app]`
-
-`$ npm install`
+~~~~
+$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive
+$ cd [audio-source-app]
+$ npm install
+~~~~
 
 ### Run Server
-`$ npm start`
+Note: This command should also open the website in your local browser.
+~~~~
+$ npm start
+~~~~
 
 ### Browse to Local Server
-http://localhost:3000
+[http://localhost:3000](http://localhost:3000)
+
+
+---
 
 
 
+## App Installation <a name="install-app"></a>
 
-## App Repo Installation
-
-`$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive`
-
-`$ cd [audio-source-app]`
-
-`$ npm install`
+~~~~
+$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive
+$ cd [audio-source-app]
+$ npm install
+~~~~
 
 ### Run in Android device
-`$ react-native run-android`
+~~~~
+$ react-native run-android
+~~~~
 
 ### Run in iOS device (MacOSX)
-`$ react-native run-ios`
+~~~~
+$ react-native run-ios
+~~~~
 
 
-#
+---
 
 
-# Audio Source Player (ASP)
+
+# Audio Source Player (ASP) <a name="player"></a>
 Coming Soon!
 
 ## Planned Features:
@@ -79,8 +98,9 @@ Coming Soon!
 * Plays MIDI files
 
 
+---
 
-# Coming soon: Audio Source Music Communities
+# Coming soon: Audio Source Music Communities <a name="community"></a>
 ### [SNESology Music Community](https://snesology.net)
 Listen to and Publish Remixes (of copyrighted music)
 

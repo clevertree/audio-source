@@ -1,10 +1,10 @@
 import * as React from "react";
-import {HTML, Markdown} from "./component";
+import {Markdown} from "./component";
 
 import PageContainer from "./theme/PageContainer";
 
 import PATH_README from '../README.md'
-console.log('README_MD', PATH_README, typeof PATH_README);
+
 export default class AboutPage extends React.Component {
     constructor(props) {
         super(props);
