@@ -14,6 +14,7 @@ export default class AboutPage extends React.Component {
                
                     More instructions coming soon...
                 `}/>
+
                 <ASComposer/>
             </PageContainer>
         );

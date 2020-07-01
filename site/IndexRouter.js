@@ -9,10 +9,8 @@ import {ASPlayer} from '../player';
 import {ASComposer} from "../composer/";
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
 import HomePage from "./HomePage";
-import DownloadsPage from "./DownloadsPage";
-import AboutPage from "./AboutPage";
 import ComposerPage from "./ComposerPage";
-import ContactPage from "./ContactPage";
+import {MarkdownRoute} from "./component";
 
 
 export default class IndexRouter extends React.Component {
@@ -31,28 +29,18 @@ export default class IndexRouter extends React.Component {
         return (
             <BrowserRouter>
                 <Switch>
-                    <Route
-                        path={['/blank', '/proxy']}
-                        render={() => <SongProxyWebViewClient/>} />
-                    <Route
-                        path={['/player', '/p']}
-                        render={p => <ASPlayer {...p}/>} />
-                    <Route
-                        path={['/composer', '/c']}
-                        render={p => <ComposerPage {...p}/>} />
+                    <Route component={SongProxyWebViewClient}   path={['/blank', '/proxy']} />
+                    <Route component={ASPlayer}                 path={['/player', '/p']}/>
+                    <Route component={ComposerPage}             path={['/composer', '/c']}/>
+
+                    <MarkdownRoute file={require("./pages/about.md")}        path={'/about'}/>
+                    <MarkdownRoute file={require("./pages/contact.md")}      path={'/contact'}/>
+                    <MarkdownRoute file={require("./pages/downloads.md")}    path={'/downloads'}/>
+
                     <Route path={['/both', '/b']}>
                         <ASComposer/>
                         <ASPlayer/>
                     </Route>
-                    <Route
-                        path={'/about'}
-                        render={p => <AboutPage {...p}/>} />
-                    <Route
-                        path={'/contact'}
-                        render={p => <ContactPage {...p}/>} />
-                    <Route
-                        path={'/downloads'}
-                        render={(p) => <DownloadsPage {...p}/>} />
                     <Route path="/"
                         render={(props) => {
                             switch(props.location.search) {

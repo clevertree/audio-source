@@ -38,18 +38,6 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Server-side song rendering
 * Import/Export MIDI files
 
-# Android Downloads
-
-The Audio Source Composer Alpha Demo is available for download on Android Devices:
-
-[Audio Source Composer(v0.5.4).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.4).apk)
-
-[Audio Source Composer(v0.5.3).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.3).apk)
-
-[Audio Source Composer(v0.5.1).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.1).apk)
-
-Check back often for updates as we get closer to Beta!
-
 
 ---
 
@@ -131,21 +119,5 @@ Git Repo: https://github.com/clevertree/audio-source-composer
 
 
 
-# Contact
-
-Open-Source means the AudioSource project is free forever, and anyone can join in the development,
-so we're always looking for testers, artists, and all kinds of musician to 
-[contribute](https://github.com/clevertree/audio-source-composer/issues/4).
-
-Currently the composer is in
-[active development](https://github.com/clevertree/audio-source-composer)
-and has not yet been released.
-Check back often for updates as we get closer to Beta!{
-If you want to join up, please contact us on the 
-[GitHub page](https://github.com/clevertree).
-
-Check back often for updates as we get closer to Beta!
-
-
-
 ###### [Created by Ari Asulin](https://github.com/clevertree/)
+

@@ -6,7 +6,9 @@ import PageContent from "./page/PageContent";
 import PageFooterLinks from "./page/PageFooterLinks";
 import PageFooter from "./page/PageFooter";
 
-import Markdown from "./markdown/Markdown"
+import Markdown from "./markdown/Markdown";
+import MarkdownPage from "./markdown/MarkdownPage";
+import MarkdownRoute from "./markdown/MarkdownRoute";
 
 
 export {
@@ -16,5 +18,7 @@ export {
     PageContent,
     PageFooterLinks,
     PageFooter,
-    Markdown
+    Markdown,
+    MarkdownPage,
+    MarkdownRoute
 }

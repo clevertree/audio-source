@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import ReactMarkdown from 'react-markdown';
-import "./MarkDown.css";
+import "./Markdown.css";
 
 export default class Markdown extends React.Component {
     render() {
