@@ -1,6 +1,6 @@
 # Audio Source Composer
 
-The Audio Source Composer is an Open-Source Digital Audio Workstation 
+The Audio Source Composer is an open-source Digital Audio Workstation (DAW) 
 built on the [WebAudioAPI](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 to work on all platforms from web browsers to desktops applications to mobile devices.
 
@@ -15,15 +15,15 @@ to work on all platforms from web browsers to desktops applications to mobile de
 
 ## Features: <a name="features"></a>
 * Works on any modern browser on any phone, tablet or pc.
-* Instruments and Effects can be wrapped in each other to build complex presets.
+* Instruments and effects can be wrapped in each other to build complex presets.
 * Note tracks can be called recursively for a highly structured song.
 
 ### What's Currently Working:
 * Add, edit, and delete notes and note tracks.
 * Edit note velocity and duration.
-* Quarter Tone Compatibility (missing in MIDI)
+* Quarter tone compatibility (missing in MIDI)
 * Recursively play back tracks by adding a 'Track Note'.
-* Track Note Transposing (play back tracks at different frequencies)
+* Track note transposing (play back tracks at different frequencies)
 
 ### Under the Hood:
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
@@ -114,10 +114,10 @@ Coming Soon!
 
 # Coming soon: Audio Source Music Communities <a name="community"></a>
 ### [SNESology Music Community](https://snesology.net)
-Listen to and Publish Remixes (of copyrighted music)
+Listen to and publish remixes and arrangements (of copyrighted music)
 
 ### [AudioSource Music Community](https://audiosource.io)
-Listen to, Publish, and Sell Original Music
+Listen to, publish, and sell original music
 
 
 
