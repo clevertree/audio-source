@@ -3,7 +3,7 @@ import * as React from "react";
 import "./assets/PageContainer.css";
 import PropTypes from "prop-types";
 
-import {headerLinks} from "../../index";
+import {pageList} from "../../pages/";
 
 export default class PageHeaderLinks extends React.Component {
 
@@ -13,9 +13,17 @@ export default class PageHeaderLinks extends React.Component {
         headerLinks: PropTypes.object,
     };
 
+    getHeaderLinks() {
+        const links = [];
+        pageList.forEach(([page, path, title, headerLink, footerLink], i) => {
+            if(headerLink)
+                links.push([path, title]);
+        });
+        return links;
+    }
 
     render() {
-        const links = this.props.headerLinks || headerLinks;
+        const links = this.props.headerLinks || this.getHeaderLinks();
         return (
             <div className="aspage-header-links">
                 {links.map(([href, title], i) => {

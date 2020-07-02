@@ -1,16 +1,5 @@
-const headerLinks = [
-    ['/',           'Home'],
-    ['/about',      'About'],
-    ['/demo',       'Demo'],
-    ['/downloads',  'Downloads'],
-];
-
-const footerLinks = [
-    ['/',           'Home'],
-    ['/contact',    'Contact'],
-];
+import IndexRouter from "./IndexRouter";
 
 export {
-    headerLinks,
-    footerLinks
+    IndexRouter,
 }

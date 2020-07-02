@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 // import './index.css';
 import * as serviceWorker from './serviceWorker';
 // eslint-disable-next-line no-unused-vars
-import IndexRouter from "./site/IndexRouter";
+import {IndexRouter} from "./site";
 // import {ASComposer} from "./composer";
 
 ReactDOM.render(<IndexRouter />, document.getElementById('root'));

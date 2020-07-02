@@ -7,44 +7,33 @@ import {
 
 import {ASPlayer} from '../player';
 import {ASComposer} from "../composer/";
-import {MarkdownRoute} from "./component";
+import {MarkdownPage, MarkdownRoute} from "./component";
 
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
-import DemoPage from "./pages/DemoPage";
 
+import {pageList} from "./pages";
 
 export default class IndexRouter extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            // menuOpen: true,
-            // menuOptions: null
-        };
-
-        // setTimeout(e => this.toggleMenu(), 200);
-    }
-
 
     render() {
+
+        const pages = pageList.map(([page, path], i) => {
+            if(typeof page === "string")
+                return <MarkdownRoute file={page} path={path} key={i} />;
+            if(page.prototype instanceof React.Component)
+                return <Route component={page} path={path} key={i} />;
+            throw new Error("Invalid page type: " + typeof page);
+        });
+        console.log(pages);
+
         return (
             <BrowserRouter>
                 <Switch>
-                    <Route path={'/composer'}>
-                        <ASComposer/>
-                    </Route>
-                    <Route path={['/both', '/b']}>
-                        <ASComposer/>
-                        <ASPlayer/>
-                    </Route>
-
-                    <Route component={DemoPage}                 path={'/demo'}/>
+                    <Route component={ASComposer}               path={'/composer'} />
                     <Route component={SongProxyWebViewClient}   path={['/blank', '/proxy']} />
                     <Route component={ASPlayer}                 path={['/player', '/p']}/>
 
-                    <MarkdownRoute file={require("./pages/About.md")} path={'/about'}/>
-                    <MarkdownRoute file={require("./pages/Contact.md")} path={'/contact'}/>
-                    <MarkdownRoute file={require("./pages/Downloads.md")} path={'/downloads'}/>
-                    <MarkdownRoute file={require("./pages/Homepage.md")} path={'/'}/>
+                    {pages}
 
                     <Route path="/"
                         render={(props) => {
@@ -53,7 +42,12 @@ export default class IndexRouter extends React.Component {
                                 case '?proxy':
                                     return <SongProxyWebViewClient/>;
                                 default:
-                                    return null;
+                                    const [Page, path] = pageList[0];
+                                    if(typeof Page === "string")
+                                        return <MarkdownPage file={Page} path={path} {...props}/>;
+                                    if(Page.prototype instanceof React.Component)
+                                        return <Page {...props} />;
+                                    throw new Error("Invalid page type: " + typeof Page);
                             }
                         }}
                     />
@@ -63,4 +57,3 @@ export default class IndexRouter extends React.Component {
     }
 
 }
-
