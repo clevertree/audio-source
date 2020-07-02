@@ -10,7 +10,6 @@ import {ASComposer} from "../composer/";
 import {MarkdownRoute} from "./component";
 
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
-import HomePage from "./HomePage";
 import DemoPage from "./DemoPage";
 
 
@@ -34,6 +33,7 @@ export default class IndexRouter extends React.Component {
                     <Route component={SongProxyWebViewClient}   path={['/blank', '/proxy']} />
                     <Route component={ASPlayer}                 path={['/player', '/p']}/>
 
+                    <MarkdownRoute file={require("./pages/homepage.md")}     path={'/'}/>
                     <MarkdownRoute file={require("./pages/about.md")}        path={'/about'}/>
                     <MarkdownRoute file={require("./pages/contact.md")}      path={'/contact'}/>
                     <MarkdownRoute file={require("./pages/downloads.md")}    path={'/downloads'}/>
@@ -52,7 +52,7 @@ export default class IndexRouter extends React.Component {
                                 case '?proxy':
                                     return <SongProxyWebViewClient/>;
                                 default:
-                                    return <HomePage {...props}/>;
+                                    return null;
                             }
                         }}
                     />
@@ -61,12 +61,5 @@ export default class IndexRouter extends React.Component {
         );
     }
 
-
-    static getFooterLinks() {
-        return [
-            {title: 'Home', href: '/'},
-            {title: 'Contact', href: '/contact'},
-        ]
-    }
 }
 
