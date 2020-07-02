@@ -10,7 +10,7 @@ import {ASComposer} from "../composer/";
 import {MarkdownRoute} from "./component";
 
 import SongProxyWebViewClient from "../song/proxy/SongProxyWebViewClient";
-import DemoPage from "./DemoPage";
+import DemoPage from "./pages/DemoPage";
 
 
 export default class IndexRouter extends React.Component {
@@ -29,15 +29,6 @@ export default class IndexRouter extends React.Component {
         return (
             <BrowserRouter>
                 <Switch>
-                    <Route component={DemoPage}                 path={'/demo'}/>
-                    <Route component={SongProxyWebViewClient}   path={['/blank', '/proxy']} />
-                    <Route component={ASPlayer}                 path={['/player', '/p']}/>
-
-                    <MarkdownRoute file={require("./pages/homepage.md")}     path={'/'}/>
-                    <MarkdownRoute file={require("./pages/about.md")}        path={'/about'}/>
-                    <MarkdownRoute file={require("./pages/contact.md")}      path={'/contact'}/>
-                    <MarkdownRoute file={require("./pages/downloads.md")}    path={'/downloads'}/>
-
                     <Route path={'/composer'}>
                         <ASComposer/>
                     </Route>
@@ -45,6 +36,16 @@ export default class IndexRouter extends React.Component {
                         <ASComposer/>
                         <ASPlayer/>
                     </Route>
+
+                    <Route component={DemoPage}                 path={'/demo'}/>
+                    <Route component={SongProxyWebViewClient}   path={['/blank', '/proxy']} />
+                    <Route component={ASPlayer}                 path={['/player', '/p']}/>
+
+                    <MarkdownRoute file={require("./pages/About.md")} path={'/about'}/>
+                    <MarkdownRoute file={require("./pages/Contact.md")} path={'/contact'}/>
+                    <MarkdownRoute file={require("./pages/Downloads.md")} path={'/downloads'}/>
+                    <MarkdownRoute file={require("./pages/Homepage.md")} path={'/'}/>
+
                     <Route path="/"
                         render={(props) => {
                             switch(props.location.search) {

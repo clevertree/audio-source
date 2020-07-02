@@ -1,7 +1,7 @@
 import * as React from "react";
-import {PageContainer, Markdown} from "./component";
+import {PageContainer, Markdown} from "../component";
 
-import ASComposer from "../composer/ASComposer";
+import ASComposer from "../../composer/ASComposer";
 
 export default class DemoPage extends React.Component {
     render() {

@@ -109,7 +109,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
         }
         options.push(
             <ASUIMenuBreak/>,
-            <ASUIMenuAction onAction={this.cb.closeAllMenus}>- Close Menu -</ASUIMenuAction>
+            <ASUIMenuAction onAction={this.cb.closeAllMenus}>[Close&nbsp;Menu]</ASUIMenuAction>
         )
 
         // console.log('openMenu', options, optionsHistory);

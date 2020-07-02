@@ -19,7 +19,7 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
         const container = this.ref.container.current;
         if(container !== document.activeElement) {
             container.focus({ preventScroll: true });
-            console.log('ASCTrackRowContainer.focus()', container)
+            // console.log('ASCTrackRowContainer.focus()', container)
         }
     }
 

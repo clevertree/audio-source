@@ -113,7 +113,7 @@ export default class TrackState {
             this.state = trackState;
             return state;
         });
-        this.composer.saveStateWithTimeout();
+        // this.composer.saveStateWithTimeout(); // TODO: why is this here?
     }
 
     updatePlayingIndices(playingIndices) {

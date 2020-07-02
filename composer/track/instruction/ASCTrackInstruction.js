@@ -14,7 +14,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             onMouseUp: e => this.onMouseUp(e),
             onMouseDown: e => this.onMouseDown(e),
             onClick: e => this.onClick(e),
-            onContextMenu: e => this.onContextMenu(e),
+            // onContextMenu: e => this.onContextMenu(e),
             // options: () => this.renderMenuEditSet()
         };
         this.timeout = {
@@ -44,7 +44,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             // onClick={this.cb.onClick}
             onMouseUp={this.cb.onMouseUp}
             onMouseDown={this.cb.onMouseDown}
-            onContextMenu={this.cb.onContextMenu}
+            // onContextMenu={this.cb.onContextMenu}
             // onMouseDown={this.cb.onMouseInput} // TODO
             //  : fix inputs
             >
@@ -100,18 +100,25 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
             return;
         e.preventDefault();
 
-        this.selectInstruction(!e.ctrlKey, e.shiftKey ? null : true);
-        // if(e.shiftKey)
-        //     this.playInstruction();
-
         const newEvent = {
             ctrlKey: e.ctrlKey,
             clientX: e.clientX,
             clientY: e.clientY,
         }
-        this.timeout.mouseDown = setTimeout(() => {
+        if(e.button === 2) {
+            this.selectInstruction(!e.ctrlKey, true, false);
             this.getTrack().toggleDropDownMenu(newEvent);
-        }, ASCTrackInstructionBase.TIMEOUT_LONGPRESS)
+
+        } else {
+            this.selectInstruction(!e.ctrlKey, e.shiftKey ? null : true);
+
+            this.timeout.mouseDown = setTimeout(() => {
+                this.getTrack().toggleDropDownMenu(newEvent);
+            }, ASCTrackInstructionBase.TIMEOUT_LONGPRESS)
+        }
+        // if(e.shiftKey)
+        //     this.playInstruction();
+
     }
 
     onContextMenu(e) {
@@ -122,7 +129,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         clearTimeout(this.timeout.mouseDown);
         const selectedIndices = this.getTrack().getTrackState().getSelectedIndices();
         if(selectedIndices.indexOf(this.props.index) === -1)
-            this.selectInstruction(!e.ctrlKey);
+            this.selectInstruction(!e.ctrlKey, null, false);
         // if(e.shiftKey)
         //     this.playInstruction();
         this.getTrack().toggleDropDownMenu(e);

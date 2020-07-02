@@ -98,8 +98,8 @@ class ASComposerActions extends ASComposerMenu {
 
 
         if (state) {
-            if (typeof state.volume !== "undefined")
-                this.setVolume(state.volume);
+            // if (typeof state.volume !== "undefined")
+            //     this.setVolume(state.volume);
             // delete state.volume;
             // if(state.songUUID)
             await this.loadDefaultSong(state.songUUID);
@@ -576,7 +576,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
 
-    trackSelectIndices(trackName, selectedIndices=[], clearSelection=true) {
+    trackSelectIndices(trackName, selectedIndices=[], clearSelection=true, playback=true) {
         // console.log('trackSelectIndices', trackName, selectedIndices, this.state.selectedTrackIndices)
 
         if (typeof selectedIndices === "string") {
@@ -648,7 +648,7 @@ class ASComposerActions extends ASComposerMenu {
             // console.log('selectedInstructionData', state.selectedInstructionData);
         }
 
-        if(this.state.playbackOnSelect)
+        if(this.state.playbackOnSelect && playback)
             this.trackPlay(trackName, selectedIndices, false);
 
 

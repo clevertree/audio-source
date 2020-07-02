@@ -452,7 +452,7 @@ class Song {
     getSongLengthInSeconds() {
         const iterator = new TrackIterator(this, this.getStartTrackName());
         iterator.seekToEnd();
-        console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
+        // console.log('getSongLengthInSeconds()', iterator.getEndPositionInSeconds())
         return iterator.getEndPositionInSeconds();
     }
 

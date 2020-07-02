@@ -9,7 +9,7 @@ import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 
 class ASComposerRenderer extends React.Component {
     constructor(props) {
-        console.log('ASComposerRenderer.constructor', props);
+        // console.log('ASComposerRenderer.constructor', props);
         super(props);
         this.cb = {
             songPlay: () => this.songPlay(),
@@ -50,8 +50,8 @@ class ASComposerRenderer extends React.Component {
                     >
                     {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}
                     {this.state.showPanelProgram ? <ASComposerProgramPanel composer={this} /> : null}
-                    {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
                     {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
+                    {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
                     {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}
 
 

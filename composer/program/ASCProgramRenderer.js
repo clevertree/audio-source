@@ -4,9 +4,9 @@ import {
     ASUIButtonDropDown,
     ASUIButton,
 } from "../../components";
+import ASCProgramRendererBase from "./ASCProgramRendererBase";
 
 import "./assets/ASCProgramRenderer.css";
-import ASCProgramRendererBase from "./ASCProgramRendererBase";
 
 export default class ASCProgramRenderer extends ASCProgramRendererBase {
     render() {
@@ -14,6 +14,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         const programID = this.props.programID;
         let programIDHTML = (programID < 10 ? "0" : "") + (programID);
 
+        let className = 'asc-instrument-renderer';
 
         // let contentClass = 'error';
         let titleHTML = '', renderProgram = false;
@@ -23,9 +24,10 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             renderProgram = true;
         } else {
             titleHTML = `Empty`;
+            className += ' empty';
         }
         return (
-            <div className="asc-instrument-renderer-empty">
+            <div className={className}>
                 <div className="header">
                     <ASUIButton
                         className="toggle-container"

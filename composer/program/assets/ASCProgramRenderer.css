@@ -1,4 +1,4 @@
-div.asc-instrument-renderer-empty {
+div.asc-instrument-renderer {
     display: inline-block;
     background: #DDD;
     border: 1px outset #FFF;
@@ -7,13 +7,13 @@ div.asc-instrument-renderer-empty {
     vertical-align: top;
 }
 
-div.asc-instrument-renderer-empty > div.header {
+div.asc-instrument-renderer > div.header {
     display: flex;
 }
 
-div.asc-instrument-renderer-empty > div.header > div.program-config {
+div.asc-instrument-renderer > div.header > div.program-config {
     padding-left: 4px;
 }
-div.asc-instrument-renderer-empty > div.header > div.error {
+div.asc-instrument-renderer > div.header > div.error {
     color: #620100;
 }

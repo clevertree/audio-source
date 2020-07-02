@@ -51,7 +51,7 @@ export default class ASCTrackBase extends React.Component {
         this.destination = null;
         // this.cursorInstruction = React.createRef();
         // this.trackerGetCursorInfo();
-        console.log('ASCTrackBase.constructor', this.getTrackName(), this.state, trackState);
+        // console.log('ASCTrackBase.constructor', this.getTrackName(), this.state, trackState);
 
     }
 
@@ -160,7 +160,7 @@ export default class ASCTrackBase extends React.Component {
     //     this.playInstructions(selectedIndices, stopPlayback)
     // }
 
-    selectIndices(selectedIndices, clearSelection=true) {
+    selectIndices(selectedIndices, clearSelection=true, playback=true) {
         if (typeof selectedIndices === "string") {
             switch (selectedIndices) {
                 case 'cursor':
@@ -194,7 +194,7 @@ export default class ASCTrackBase extends React.Component {
             }
         }
 
-        return this.getComposer().trackSelectIndices(this.getTrackName(), selectedIndices, clearSelection);
+        return this.getComposer().trackSelectIndices(this.getTrackName(), selectedIndices, clearSelection, playback);
     }
 
 

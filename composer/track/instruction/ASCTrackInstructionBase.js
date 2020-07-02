@@ -109,23 +109,23 @@ export default class ASCTrackInstructionBase extends React.Component {
         return this.getTrack().playInstructions(this.getInstructionIndex(), destination);
     }
 
-    selectInstruction(clearSelection=true, toggleValue = null) {
+    selectInstruction(clearSelection=true, toggleValue = null, playback=true) {
         const track = this.getTrack();
         // const trackName = this.getTrack().getTrackName();
-        const selectedIndices = clearSelection ? [] : this.getTrack().getSelectedIndices();
+        // const selectedIndices = clearSelection ? [] : this.getTrack().getSelectedIndices();
         // const instruction = this.getInstruction();
-        const i = selectedIndices.indexOf(this.props.index);
-        if(toggleValue === true || i === -1) {
-            if(i === -1)
-                selectedIndices.push(this.props.index);
-        } else {
-            if(i !== -1)
-                selectedIndices.splice(i, 1);
-        }
+        // const i = selectedIndices.indexOf(this.props.index);
+        // if(toggleValue === true || i === -1) {
+        //     if(i === -1)
+        //         selectedIndices.push(this.props.index);
+        // } else {
+        //     if(i !== -1)
+        //         selectedIndices.splice(i, 1);
+        // }
         // console.log('selectInstruction', clearSelection, selectedIndices, toggleValue);
         // this.getComposer().trackSelectIndices(trackName, selectedIndices, this.props.cursorPosition)
         // this.getTrack().selectIndices(selectedIndices); // , this.props.cursorPosition);
-        track.selectIndices(selectedIndices);
+        const selectedIndices = track.selectIndices([this.props.index], clearSelection, playback);
         track.setCursorOffset(this.props.cursorPosition);
         return selectedIndices;
     }
