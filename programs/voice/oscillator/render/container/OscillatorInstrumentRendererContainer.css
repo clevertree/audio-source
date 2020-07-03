@@ -1,0 +1,50 @@
+
+
+div.oscillator-instrument-renderer-container {
+    display: inline-flex;
+    /*min-width: 480px;*/
+    text-align: center;
+    margin: 2px;
+
+    padding: 1px;
+    color: #000;
+    border: 1px outset #EEE;
+    border-radius: 4px;
+    background-color: #CCC;
+    position: relative;
+}
+
+div.oscillator-instrument-renderer-container.open {
+    background-color: #FFF;
+}
+
+div.oscillator-instrument-renderer-container > div {
+    border-left: 1px solid #888;
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+div.oscillator-instrument-renderer-container.open > div.title {
+    /*border: 1px solid #FFF;*/
+    /*border: 1px inset;*/
+    border-bottom-width: 0px;
+    /*background: linear-gradient(#FFF, #CCC, #FFF);*/
+    /*font-weight: bold;*/
+}
+
+div.oscillator-instrument-renderer-container > div.title {
+    /*color: darkred;*/
+    border-left: 0px;
+    transition: max-width 0.5s;
+    /*padding-right: 2px;*/
+    padding-left: 0px;
+}
+
+div.oscillator-instrument-renderer-container:not(.open) > div.title {
+    max-width: 30vw;
+    overflow: hidden;
+}
+
+div.oscillator-instrument-renderer-container > div.sample:not(.open) > div.name {
+    max-width: 10vw;
+}

@@ -2,8 +2,8 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
-import {ASUIMenuDropDown} from "../../../../components";
-import {ProgramLoader} from "../../../../common/program";
+import {ASUIMenuDropDown} from "../../../components";
+import {ProgramLoader} from "../../../common/program";
 
 /** PolyphonyInstrumentRenderer **/
 export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererBase {

@@ -146,6 +146,7 @@ div.asc-container.portrait div.asc-content-container {
 
 div.asc-container.portrait div.asc-content-container > div.asui-panel {
     flex: 1;
+    overflow-x: auto;
 }
 div.asc-container.portrait div.asc-content-container > div.asui-panel.programs,
 div.asc-container.portrait div.asc-content-container > div.asc-tracks-container {

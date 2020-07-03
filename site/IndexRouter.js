@@ -43,8 +43,6 @@ export default class IndexRouter extends React.Component {
                                 default:
                                     const homePage = pageList[0][1];
                                     return  <Redirect  to={homePage} />
-                                    // document.location = homePage; //'/home';
-                                    // return null;
                             }
                         }}
                     />

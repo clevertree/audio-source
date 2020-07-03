@@ -3,13 +3,15 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown,
+    ASUIMenuDropDown, ASUIIcon,
 } from "../../../../components";
 import Library from "../../../../song/library/Library";
 import Values from "../../../../common/values/Values";
+import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
+import OscillatorInstrumentRendererParameter from "./parameter/OscillatorInstrumentRendererParameter";
 
 
-class OscillatorInstrumentRendererBase extends React.Component {
+class OscillatorInstrumentRenderer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -37,6 +39,25 @@ class OscillatorInstrumentRendererBase extends React.Component {
     }
 
 
+    render() {
+        let title = this.getTitle();
+
+        return <OscillatorInstrumentRendererContainer
+            onClick={this.cb.onClick}
+            open={this.state.open}
+            title={title}
+            >
+            {this.renderParameters()}
+            <OscillatorInstrumentRendererParameter
+                arrow={false}
+                className="config"
+                options={this.cb.renderMenuRoot}
+            >
+                <ASUIIcon source="config" size="small"/>
+            </OscillatorInstrumentRendererParameter>
+        </OscillatorInstrumentRendererContainer>;
+    }
+    
     renderParameters() {
         if(!this.state.open)
             return [];
@@ -44,41 +65,43 @@ class OscillatorInstrumentRendererBase extends React.Component {
 
         // TODO: Add frequency LFO
         return (<>
-            <ASUIMenuDropDown title="Edit Mixer"
-                  className="mixer"
-                  options={() => this.renderMenuChangeMixer()}
-                  arrow={false}
-                  vertical>
-                {typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
-            </ASUIMenuDropDown>
-            <ASUIMenuDropDown title={`Detune by ${config.detune} cents`}
-                  className="detune"
-                  options={() => this.renderMenuChangeDetune()}
-                  arrow={false}
-                  vertical>
-                {typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
-            </ASUIMenuDropDown>
-            {config.root ? <ASUIMenuDropDown title={`Key Root is ${config.root}`}
-                 className="root"
-                 options={() => this.renderMenuChangeKeyRoot()}
-                 arrow={false}
-                 vertical>
-                {config.root ? config.root : "-"}
-            </ASUIMenuDropDown> : null}
-            {config.alias ? <ASUIMenuDropDown title={`Key Alias is ${config.alias}`}
-                  className="alias"
-                  options={() => this.renderMenuChangeKeyAlias()}
-                  arrow={false}
-                  vertical>
-                {config.alias ? config.alias : "-"}
-            </ASUIMenuDropDown> : null}
-            {config.range ? <ASUIMenuDropDown title={`Key Range is ${config.range}`}
-                  className="range"
-                  options={() => this.renderMenuChangeKeyRange()}
-                  arrow={false}
-                  vertical>
-                {config.range ? config.range : "-"}
-            </ASUIMenuDropDown> : null}
+            <OscillatorInstrumentRendererParameter
+                className="mixer"
+                title="Edit Mixer"
+                options={() => this.renderMenuChangeMixer()}
+                arrow={false}
+                vertical
+                children={typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
+                />
+            <OscillatorInstrumentRendererParameter
+                className="detune"
+                title={`Detune by ${config.detune} cents`}
+                options={() => this.renderMenuChangeDetune()}
+                arrow={false}
+                vertical
+                children={typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
+                />
+            {config.root ? <OscillatorInstrumentRendererParameter
+                className="root"
+                title={`Key Root is ${config.root}`}
+                options={() => this.renderMenuChangeKeyRoot()}
+                arrow={false}
+                children={config.root ? config.root : "-"}
+            /> : null}
+            {config.alias ? <OscillatorInstrumentRendererParameter
+                className="alias"
+                title={`Key Alias is ${config.alias}`}
+                options={() => this.renderMenuChangeKeyAlias()}
+                arrow={false}
+                children={config.alias ? config.alias : "-"}
+            /> : null}
+            {config.range ? <OscillatorInstrumentRendererParameter
+                className="range"
+                title={`Key Range is ${config.range}`}
+                options={() => this.renderMenuChangeKeyRange()}
+                arrow={false}
+                children={config.range ? config.range : "-"}
+            /> : null}
             {/*<ASUIMenuAction*/}
             {/*        className="loop"*/}
             {/*        title="Toggle Loop"*/}
@@ -226,4 +249,4 @@ class OscillatorInstrumentRendererBase extends React.Component {
     // }
 }
 
-export default OscillatorInstrumentRendererBase;
+export default OscillatorInstrumentRenderer;

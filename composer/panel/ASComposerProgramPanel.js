@@ -6,6 +6,9 @@ import ASCProgramRenderer from "../program/ASCProgramRenderer";
 export default class ASComposerProgramPanel extends React.Component {
     render() {
         const composer = this.props.composer;
+        const openPrograms = composer.state.openPrograms || [];
+        const selectedProgramID = composer.state.selectedProgramID || 0;
+        // console.log('openPrograms', openPrograms);
         return (
             <ASUIPanel
                 className="programs"
@@ -15,6 +18,8 @@ export default class ASComposerProgramPanel extends React.Component {
                        key={programID}
                        programID={programID}
                        composer={composer}
+                       open={openPrograms.indexOf(programID) !== -1}
+                       selected={selectedProgramID === programID}
                    />
                )}
                <ASUIButtonDropDown

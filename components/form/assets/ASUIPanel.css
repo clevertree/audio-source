@@ -10,7 +10,6 @@ div.asui-panel {
     margin: 1px 3px 1px 1px;
     /*width: 100%;*/
 
-    overflow-x: auto;
 }
 
 div.asui-panel > div.header {

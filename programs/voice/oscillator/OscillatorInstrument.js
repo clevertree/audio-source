@@ -1,4 +1,4 @@
-import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
+import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
 import {ArgType} from "../../../common/";
 
 

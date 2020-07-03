@@ -2,10 +2,10 @@ import React from 'react';
 
 import {
     ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
-} from "../../../../components";
+} from "../../../components";
 
-import ProgramLoader from "../../../../common/program/ProgramLoader";
-import PromptManager from "../../../../common/prompt/PromptManager";
+import ProgramLoader from "../../../common/program/ProgramLoader";
+import PromptManager from "../../../common/prompt/PromptManager";
 
 /** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {

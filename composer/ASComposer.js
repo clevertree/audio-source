@@ -48,6 +48,10 @@ export default class ASComposer extends ASComposerInput {
             selectedTrackIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
 
+            // Programs
+            openPrograms: [],
+            selectedProgramID: 0,
+
             /** UI **/
 
             // Keyboard

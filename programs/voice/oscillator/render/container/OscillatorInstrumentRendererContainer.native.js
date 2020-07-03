@@ -1,15 +1,9 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableHighlight} from 'react-native';
-import OscillatorInstrumentRendererBase from "./OscillatorInstrumentRendererBase";
-import {ASUIIcon, ASUIMenuDropDown} from "../../../../components";
+import {ASUIIcon, ASUIMenuDropDown} from "../../../../../components";
 
 
-class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
-    constructor(props) {
-        super(props);
-
-    }
-
+export default class OscillatorInstrumentRendererContainer extends React.Component {
 
     render() {
         const style = [styles.container];
@@ -41,7 +35,6 @@ class OscillatorInstrumentRenderer extends OscillatorInstrumentRendererBase {
         </View>;
     }
 }
-export default OscillatorInstrumentRenderer;
 
 
 const styles = StyleSheet.create({

@@ -1,0 +1,33 @@
+
+
+div.oscillator-instrument-renderer-container > div.sample:not(.open) > div.name {
+    max-width: 10vw;
+}
+
+div.oscillator-instrument-renderer-container > div.name { color: #1E2526; }
+div.oscillator-instrument-renderer-container > div.root { color: #692a6a; }
+div.oscillator-instrument-renderer-container > div.loop { color: cornflowerblue; }
+div.oscillator-instrument-renderer-container > div.range { color: #92303a; }
+div.oscillator-instrument-renderer-container > div.mixer { color: green; }
+div.oscillator-instrument-renderer-container > div.detune { color: darkred; }
+div.oscillator-instrument-renderer-container > div.alias { color: #385049; }
+
+div.oscillator-instrument-renderer-container > div.root,
+div.oscillator-instrument-renderer-container > div.loop,
+div.oscillator-instrument-renderer-container > div.range,
+div.oscillator-instrument-renderer-container > div.mixer,
+div.oscillator-instrument-renderer-container > div.detune,
+div.oscillator-instrument-renderer-container > div.alias,
+div.oscillator-instrument-renderer-container > div.config {
+    /*border-left: 1px solid #888;*/
+    /*padding-right: 2px;*/
+    /*padding-left: 2px;*/
+}
+
+
+div.oscillator-instrument-renderer-container > div:hover {
+    background: #AAA;
+    color: #000;
+    cursor: pointer;
+    border-radius: 4px;
+}

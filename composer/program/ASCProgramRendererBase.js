@@ -8,12 +8,12 @@ import ProgramLoader from "../../common/program/ProgramLoader";
 
 
 export default class ASCProgramRendererBase extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            open: true
-        }
-    }
+    // constructor(props) {
+    //     super(props);
+    //     // this.state = {
+    //     //     open: false
+    //     // }
+    // }
 
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
@@ -56,7 +56,7 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
     toggleContainer() {
-        this.setState({open: !this.state.open});
+        this.getComposer().toggleProgramContainer(this.props.programID);
     }
 
     loadPreset(presetClassName, presetConfig={}) {

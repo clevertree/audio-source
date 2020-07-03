@@ -856,6 +856,15 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Programs **/
 
+    toggleProgramContainer(programID) {
+        const openPrograms = this.state.openPrograms || [];
+        const i = openPrograms.indexOf(programID);
+        if(i === -1)
+            openPrograms.push(programID);
+        else
+            openPrograms.splice(i, 1);
+        this.setState({openPrograms});
+    }
 
     async programAddPrompt(programClassName, programConfig = {}) {
         this.setError(`New program canceled: ${programClassName}`);

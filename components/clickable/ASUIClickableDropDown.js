@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
 import ASUIClickable from "./ASUIClickable";
 
+import "./ASUIClickable.css";
 
 export default class ASUIClickableDropDown extends ASUIClickable {
 

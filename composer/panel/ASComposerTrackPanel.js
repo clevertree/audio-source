@@ -12,6 +12,7 @@ export default class ASComposerTrackPanel extends React.Component {
             trackSelectIndicesPrompt: () => composer.trackSelectIndicesPrompt(),
             instructionInsertAtCursor: () => composer.instructionInsertAtCursor(),
             instructionDeleteSelected: () => composer.instructionDeleteIndices(),
+            renderMenuKeyboardSetOctave: () => composer.renderMenuKeyboardSetOctave(),
         }
     }
 
@@ -77,7 +78,7 @@ export default class ASComposerTrackPanel extends React.Component {
                     <ASUIButtonDropDown
                         arrow={'▼'}
                         className="keyboard-octave"
-                        options={() => this.renderMenuKeyboardSetOctave()}
+                        options={this.cb.renderMenuKeyboardSetOctave}
                         title="Change Keyboard Octave"
                     >{composer.state.keyboardOctave}</ASUIButtonDropDown>
                 </ASUIForm>

@@ -31,7 +31,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                 <div className="header">
                     <ASUIButton
                         className="toggle-container"
-                        selected={this.state.open}
+                        selected={this.props.open}
                         onAction={e => this.toggleContainer()}
                     >{programIDHTML}: {titleHTML}</ASUIButton>
                     <ASUIButtonDropDown
@@ -42,7 +42,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         <ASUIIcon source="config"/>
                     </ASUIButtonDropDown>
                 </div>
-                {this.state.open && renderProgram ? <div className="content">
+                {this.props.open && renderProgram ? <div className="content">
                     {this.renderProgramContent()}
                 </div> : null}
             </div>
