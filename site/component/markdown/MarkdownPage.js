@@ -16,7 +16,7 @@ export default class MarkdownPage extends React.Component {
         this.state = {
             content: null
         }
-        console.log('props', props);
+        // console.log('props', props);
     }
 
     componentDidMount() {

@@ -8,7 +8,6 @@ import PageFooter from "./page/PageFooter";
 
 import Markdown from "./markdown/Markdown";
 import MarkdownPage from "./markdown/MarkdownPage";
-import MarkdownRoute from "./markdown/MarkdownRoute";
 
 
 export {
@@ -20,5 +19,4 @@ export {
     PageFooter,
     Markdown,
     MarkdownPage,
-    MarkdownRoute
 }
