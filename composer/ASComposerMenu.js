@@ -358,9 +358,10 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuView() {
         return (<>
             <ASUIMenuAction onAction={e => this.toggleFullscreen(e)}                >{this.state.fullscreen ? 'Disable' : 'Enable'} Fullscreen</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleSongPanel()}                  >{this.state.showPanelSong ? 'Hide' : 'Show'} Song Forms</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleInstructionPanel()}           >{this.state.showPanelInstruction ? 'Hide' : 'Show'} Instruction Forms</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.toggleProgramPanel()}               >{this.state.showPanelProgram ? 'Hide' : 'Show'} Program Forms</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleSongPanel()}                  >{this.state.showPanelSong ? 'Hide' : 'Show'} Song Panel</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleTrackPanel()}                 >{this.state.showPanelTrack ? 'Hide' : 'Show'} Track Panel</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleInstructionPanel()}           >{this.state.showPanelInstruction ? 'Hide' : 'Show'} Instruction Panel</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.toggleProgramPanel()}               >{this.state.showPanelProgram ? 'Hide' : 'Show'} Program Panel</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuAction onAction={e => this.toggleTrackRowPositionInTicks()}    >Track Position {this.state.showTrackRowPositionInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.toggleTrackRowDurationInTicks()}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>

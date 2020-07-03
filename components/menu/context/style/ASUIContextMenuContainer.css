@@ -9,4 +9,5 @@ div.asui-contextmenu-container {
 
 div.asui-contextmenu-container > div.content {
     flex: 1;
+    overflow-x: auto;
 }

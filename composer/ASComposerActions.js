@@ -922,15 +922,16 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Toggle Playback Settings **/
 
-
     togglePlaybackOnSelection()         { return this.toggleSetting('playbackOnSelect'); }
     togglePlaybackOnChange()            { return this.toggleSetting('playbackOnChange'); }
+
 
     /** Toggle View Settings **/
 
     toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
     toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
     toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
+    toggleTrackPanel()                  { return this.toggleSetting('showPanelTrack'); }
     toggleFullscreen() {
         this.toggleSetting('fullscreen', () => {
             this.onResize();
@@ -938,13 +939,12 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     /** Toggle Track Formatting **/
+
     toggleTrackRowPositionInTicks() { this.setState({showTrackRowPositionInTicks: !this.state.showTrackRowPositionInTicks}); }
     toggleTrackRowDurationInTicks() { this.setState({showTrackRowDurationInTicks: !this.state.showTrackRowDurationInTicks}); }
 
 
     /** Tools **/
-
-
 
     async batchSelect(e, searchCallbackString = null, promptUser = false) {
         if (promptUser || !searchCallbackString)

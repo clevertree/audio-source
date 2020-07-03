@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Switch,
     Route,
+    Redirect,
     BrowserRouter
 } from "react-router-dom";
 
@@ -41,8 +42,9 @@ export default class IndexRouter extends React.Component {
                                     return <SongProxyWebViewClient/>;
                                 default:
                                     const homePage = pageList[0][1];
-                                    document.location = homePage; //'/home';
-                                    return null;
+                                    return  <Redirect  to={homePage} />
+                                    // document.location = homePage; //'/home';
+                                    // return null;
                             }
                         }}
                     />

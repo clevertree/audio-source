@@ -67,10 +67,12 @@ div.asc-container.landscape div.asc-header-container {}
 
 div.asc-title-text {
     text-align: center;
+    white-space: nowrap;
     font-weight: bold;
     /*background-color: #888;*/
     color: #333;
     padding: 3px 0 1px 0;
+
 }
 
 /** Portrait Title **/
