@@ -14,15 +14,15 @@ to work on all platforms from web browsers to desktops applications to mobile de
 ---
 
 ## Features: <a name="features"></a>
-* Works on any modern browser on any phone, tablet or pc.
+* Works on any modern browser on any phone, tablet or PC.
 * Instruments and effects can be wrapped in each other to build complex presets.
 * Note tracks can be called recursively for a highly structured song.
 
 ### What's Currently Working:
-* Add, edit, and delete notes and note tracks.
-* Edit note velocity and duration.
+* Add, edit, and delete notes and note tracks
+* Edit note velocity and duration
 * Quarter tone compatibility (missing in MIDI)
-* Recursively play back tracks by adding a 'track note'.
+* Recursively play back tracks by adding a 'track note'
 * Track note transposing (play back tracks at different frequencies)
 
 ### Under the Hood:
@@ -88,14 +88,14 @@ $ react-native run-ios
 
 
 # Audio Source Player (ASP) <a name="player"></a>
-Coming Soon!
+Coming soon!
 
 ## Planned Features:
 
-* Works on any modern browser on any phone, tablet or pc
-* Render songs in real-time for highest playback quality
-* Embeddable on any website with 2 lines of code
-* Plays MIDI files
+* Works on any modern browser on any phone, tablet or PC.
+* Render songs in real-time for highest playback quality.
+* Embeddable on any website with 2 lines of code.
+* Plays MIDI files.
 
 
 ---
@@ -110,7 +110,7 @@ Listen to, publish, and sell original music.
 
 
 ## How can I help? What should I help with? Are there instructions? 
-### Most of the work will be done on our github repo. Check out the README for installation instructions. 
+Most of the work will be done on our github repo. Check out the README for installation instructions. 
 We're looking for help with everything from images, css, UI, testing, programming, and feedback!
 
 Git: https://github.com/clevertree/audio-source-composer

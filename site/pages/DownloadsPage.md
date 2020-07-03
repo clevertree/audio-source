@@ -8,4 +8,4 @@ The Audio Source Composer Alpha Demo is available for download on Android Device
 
 [Audio Source Composer(v0.5.1).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.1).apk)
 
-Check back for updates as we get closer to our Beta release!
+Check back for updates as we get closer to the Beta release!

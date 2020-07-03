@@ -15,7 +15,7 @@ This means testers, artists, and all kinds of musician are welcome to
 Additionally, the AudioSource website will allow user submissions of composed songs, much like other music sites offer.
 The main difference is that songs written in Audio Source Composer will allow users to not only render the song, but view it's source.
 
-*Currently* , the composer is in
+*Currently*, the composer is in
 [active development](https://github.com/clevertree/audio-source-composer)
 and has not yet been released.
 Check back for updates as we get closer to the Beta release!
