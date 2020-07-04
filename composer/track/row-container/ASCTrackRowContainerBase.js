@@ -354,7 +354,12 @@ export default class ASCTrackRowContainerBase extends React.Component {
                     // const selectedIndices = track.getSelectedIndices();
                     // const {cursorIndex} = track.cursorGetInfo()
                     if(cursorInfo.cursorIndex !== null) {
-                        composer.instructionReplaceArgByType(track.getTrackName(), cursorInfo.cursorIndex, ArgType.frequency, keyboardCommand);
+                        try {
+                            composer.instructionReplaceArgByType(track.getTrackName(), cursorInfo.cursorIndex, ArgType.frequency, keyboardCommand);
+                        } catch (e) { // Hack
+                            console.warn(e);
+                            composer.instructionReplaceArgByType(track.getTrackName(), cursorInfo.cursorIndex, ArgType.command, keyboardCommand);
+                        }
 
                     } else {
                         composer.instructionInsertAtCursor(track.getTrackName(), keyboardCommand);

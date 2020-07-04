@@ -1,5 +1,5 @@
 import ProgramLoader from "../../common/program/ProgramLoader";
-// import Values from "../../song/Values";
+import {Values} from "../../common";
 
 class PolyphonyInstrument {
     constructor(config={}) {
@@ -25,6 +25,8 @@ class PolyphonyInstrument {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+        if(typeof frequency === "string")
+            frequency = Values.instance.parseFrequencyString(frequency);
         for (let i = 0; i < this.config.voices.length; i++) {
             const voice = this.loadVoice(i);
             voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);

@@ -1,9 +1,5 @@
 
 
-div.oscillator-instrument-renderer-container > div.sample:not(.open) > div.name {
-    max-width: 10vw;
-}
-
 div.oscillator-instrument-renderer-container > div.name { color: #1E2526; }
 div.oscillator-instrument-renderer-container > div.root { color: #692a6a; }
 div.oscillator-instrument-renderer-container > div.loop { color: cornflowerblue; }

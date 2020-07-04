@@ -369,6 +369,7 @@ class Song {
     }
 
     instructionReplaceArg(trackName, replaceIndex, argIndex, newArgValue) {
+        console.log('instructionReplaceArg', trackName, replaceIndex, argIndex, newArgValue);
         const instructionData = this.instructionDataGetByIndex(trackName, replaceIndex);
         instructionData[argIndex] = newArgValue;
     }

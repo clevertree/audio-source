@@ -107,7 +107,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
         }
         if(e.button === 2) {
             this.selectInstruction(!e.ctrlKey, true, false);
-            this.getTrack().toggleDropDownMenu(newEvent);
+            // this.getTrack().toggleDropDownMenu(newEvent); // Handled by Row Container onContextMenu
 
         } else {
             this.selectInstruction(!e.ctrlKey, e.shiftKey ? null : true);

@@ -13,6 +13,7 @@ class Values {
 
     /** Command Menu **/
 
+    // TODO: split up command and frequency
     renderMenuSelectCommand(onSelectValue, currentCommand=null, title= null, additionalMenuItems=null) {
         return (<>
             {/*<ASUIMenuItem>{title || (currentCommand === null ? 'Select Command' : `Change ${currentCommand}`)}</ASUIMenuItem>*/}

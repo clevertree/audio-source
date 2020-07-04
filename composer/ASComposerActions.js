@@ -729,7 +729,17 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Instruction Args **/
 
+    instructionReplaceArg(trackName, selectedIndices, argIndex, newArgValue) {
+        const song = this.song;
+        selectedIndices = this.values.parseSelectedIndices(selectedIndices);
+        for (let i = 0; i < selectedIndices.length; i++) {
+            song.instructionReplaceArg(trackName, selectedIndices[i], argIndex, newArgValue);
+        }
 
+        if(this.state.playbackOnChange)
+            this.trackPlay(trackName, selectedIndices);
+        // trackInfo.updateCurrentInstruction();
+    }
 
     instructionReplaceArgByType(trackName, selectedIndices, argType, newArgValue) {
         const song = this.song;
@@ -897,8 +907,9 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async programRename(programID, newProgramTitle = null) {
-        console.log(this.song.programGetConfig(programID).title, programID);
-        const oldProgramTitle = this.song.programGetConfig(programID).title;
+        const programConfig = this.song.programGetConfig(programID);
+        // console.log(programConfig, programID);
+        const oldProgramTitle = programConfig.title;
         if (!newProgramTitle)
             newProgramTitle = await PromptManager.openPromptDialog(`Change name for programs ${programID}: `, oldProgramTitle);
         if (!newProgramTitle)

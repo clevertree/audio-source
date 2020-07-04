@@ -39,7 +39,7 @@ div.asui-menu-item.selected {
 }
 
 /** Hover **/
-div.asui-menu-item.open,
+/*div.asui-menu-item.open,*/
 div.asui-menu-item:hover {
     background-color: #999;
 }

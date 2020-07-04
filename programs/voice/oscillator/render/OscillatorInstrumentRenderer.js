@@ -15,7 +15,7 @@ class OscillatorInstrumentRenderer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            open: true
+            open: false
         };
         this.cb = {
             onClick: e => this.toggleOpen(),
@@ -44,7 +44,7 @@ class OscillatorInstrumentRenderer extends React.Component {
 
         return <OscillatorInstrumentRendererContainer
             onClick={this.cb.onClick}
-            open={this.state.open}
+            open={this.props.config.open}
             title={title}
             >
             {this.renderParameters()}
@@ -57,9 +57,9 @@ class OscillatorInstrumentRenderer extends React.Component {
             </OscillatorInstrumentRendererParameter>
         </OscillatorInstrumentRendererContainer>;
     }
-    
+
     renderParameters() {
-        if(!this.state.open)
+        if(!this.props.config.open)
             return [];
         const config = this.props.config;
 
@@ -117,7 +117,11 @@ class OscillatorInstrumentRenderer extends React.Component {
     /** Actions **/
 
     toggleOpen() {
-        this.setState({open: !this.state.open});
+        const config = this.props.config;
+        if(config.open)
+            delete config.open;
+        else
+            config.open = true;
     }
 
     changeMixer(newMixerValue) {

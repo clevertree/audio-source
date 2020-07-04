@@ -71,7 +71,11 @@ export default class ASCTrackBase extends React.Component {
 
     toggleDropDownMenu(e) {
         const rowContainer = this.ref.rowContainer.current;
-        rowContainer && rowContainer.toggleDropDownMenu(e);
+        if(rowContainer) {
+            rowContainer.toggleDropDownMenu(e);
+        } else {
+            console.warn("Invalid rowContainer: ", rowContainer);
+        }
     }
 
 

@@ -65,6 +65,10 @@ export default class ASCTrackInstructionBase extends React.Component {
                 break;
             let param = instructionData[argIndex];
             switch(argType) {
+                case ArgType.command:
+                    className += ' command';
+                    break;
+
                 case ArgType.frequency:
                     className += ' frequency';
                     break;

@@ -216,13 +216,13 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    renderMenuEditInstruction(selectedIndices=null) {
+    renderMenuEditInstruction() {
         // console.log('renderMenuEditInstruction', selectedIndices);
 
-        if(selectedIndices === null)
-            selectedIndices = this.state.selectedTrackIndices;
-        if(!selectedIndices || selectedIndices.length === 0)
-            throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
+        // if(selectedIndices === null)
+        //     selectedIndices = this.state.selectedTrackIndices;
+        // if(!selectedIndices || selectedIndices.length === 0)
+        //     throw new Error(`No indices selected: ${selectedIndices === null ? 'null' : typeof selectedIndices}`);
 
         const instructionData = this.state.selectedInstructionData;
         const processor = new InstructionProcessor(instructionData);
@@ -230,13 +230,22 @@ class ASComposerMenu extends ASComposerRenderer {
         const [commandString, argTypeList] = processor.processInstructionArgs();
 
         let argIndex = 0;
-        return argTypeList.map((argType, i) => {
+        const content = [
+            <ASUIMenuItem>{`Edit Instruction`}</ASUIMenuItem>,
+            <ASUIMenuBreak />,
+            <ASUIMenuDropDown options={() => this.renderMenuEditInstructionCommand()}>Command</ASUIMenuDropDown>,
+        ];
+
+        argTypeList.forEach((argType, i) => {
             if(!argType.consumesArgument)
                 return null;
             argIndex++;
             let paramValue = instructionData[argIndex];
-            return this.renderMenuEditInstructionArg(instructionData, argType, argIndex, paramValue);
+            content.push(
+                this.renderMenuEditInstructionArg(instructionData, argType, argIndex, paramValue)
+            );
         });
+        return content;
     }
 
     renderMenuEditInstructionArg(instructionData, argType, argIndex, paramValue, onSelectValue=null, title=null) {
@@ -259,7 +268,12 @@ class ASComposerMenu extends ASComposerRenderer {
         return this.values.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue);
     }
 
-
+    renderMenuEditInstructionCommand() {
+        const instructionData = this.state.selectedInstructionData;
+        return this.values.renderMenuSelectCommand(selectedCommand => {
+            this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, 1, selectedCommand);
+        }, instructionData[1])
+    }
 
     /** Track Menu **/
 
@@ -280,7 +294,7 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('cursor')} disabled={cursorIndex === null}>Select Cursor</ASUIMenuAction>
             <ASUIMenuAction onAction={e => activeTrack.selectIndices('none')}       >Clear Selection</ASUIMenuAction>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>
+            <ASUIMenuDropDown disabled options={() => this.renderMenuEditTrackSelectIndicesBatch()}                        >Batch Select</ASUIMenuDropDown>
         </>);
 
     }
@@ -401,9 +415,15 @@ class ASComposerMenu extends ASComposerRenderer {
         </>);
     }
 
-    renderMenuProgramEdit(programID) {
+    renderMenuProgramEdit(programID, menuTitle=null) {
+        if(menuTitle === null) {
+            const [className, config] = this.song.programGetData(programID);
+            menuTitle = `${programID}: ${config.title || "No Title"} (${className})`;
+        }
         return (<>
-            <ASUIMenuDropDown key="replace" options={() => this.renderMenuProgramEditReplace(programID)}    >Replace</ASUIMenuDropDown>
+            <ASUIMenuItem>{menuTitle}</ASUIMenuItem><ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => {}} disabled>Select</ASUIMenuAction>
+            <ASUIMenuDropDown key="replace" options={() => this.renderMenuProgramEditReplace(programID)}    >Replace with</ASUIMenuDropDown>
             <ASUIMenuAction
                 key="remove"
                 onAction={e => this.programRemove(programID)}
@@ -435,9 +455,10 @@ class ASComposerMenu extends ASComposerRenderer {
 
         // const trackName = menuParam;
         return (<>
-            <ASUIMenuAction onAction={e => this.trackSelectActive(trackName)}   >Select Track {trackName}</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackRename(trackName)}         >Rename Track {trackName}</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.trackRemove(trackName)}         >Delete Track {trackName}</ASUIMenuAction>
+            <ASUIMenuItem>{`Track: '${trackName}'`}</ASUIMenuItem><ASUIMenuBreak />
+            <ASUIMenuAction onAction={e => this.trackSelectActive(trackName)}   >Select Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackRename(trackName)}         >Rename Track</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.trackRemove(trackName)}         >Delete Track</ASUIMenuAction>
         </>);
     }
 
