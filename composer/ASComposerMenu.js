@@ -117,21 +117,21 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
     /** @deprecated **/
-    renderMenuSelectCommandByFrequency(onSelectValue, currentCommand=null) {
-        return this.values.renderMenuSelectCommandByFrequency(onSelectValue, currentCommand || this.state.currentCommand);
+    renderMenuSelectFrequency(onSelectValue, currentCommand=null) {
+        return this.values.renderMenuSelectFrequency(onSelectValue, currentCommand || this.state.currentCommand);
     }
 
-    // renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName) {
-    //     return this.values.renderMenuSelectCommandByFrequencyOctave(onSelectValue, noteName);
+    // renderMenuSelectFrequencyOctave(onSelectValue, noteName) {
+    //     return this.values.renderMenuSelectFrequencyOctave(onSelectValue, noteName);
     // }
 
     /** @deprecated **/
-    renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
-        return this.values.renderMenuSelectCommandByOctave(onSelectValue, currentCommand || this.state.currentCommand);
+    renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand=null) {
+        return this.values.renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand || this.state.currentCommand);
     }
 
-    // renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
-    //     return this.values.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave);
+    // renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, octave) {
+    //     return this.values.renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, octave);
     // }
 
 
@@ -177,15 +177,13 @@ class ASComposerMenu extends ASComposerRenderer {
 
             <ASUIMenuDropDown
                 options={() => this.renderMenuEditInsert(null, true)}
-                children={selectedIndices.length === 0 ? "Insert Instruction" : `Insert Instruction`}
+                children="Insert Command"
             />
 
             <ASUIMenuBreak />
-            <ASUIMenuDropDown
-                disabled={selectedIndices.length === 0}
-                options={() => this.renderMenuEditInstruction(selectedIndices)}
-                children={`Edit ${selectedIndices.length} Instruction${selectedIndices.length === 1 ? '' : 's'}`}
-            />
+            {selectedIndices.length === 0
+                ? <ASUIMenuItem disabled>No Selection</ASUIMenuItem>
+                : this.renderMenuEditInstruction(null)}
 
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuEditTrackSelectIndices()}   >Select</ASUIMenuDropDown>
@@ -216,7 +214,7 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
 
-    renderMenuEditInstruction() {
+    renderMenuEditInstruction(title='Edit Instruction') {
         // console.log('renderMenuEditInstruction', selectedIndices);
 
         // if(selectedIndices === null)
@@ -230,11 +228,16 @@ class ASComposerMenu extends ASComposerRenderer {
         const [commandString, argTypeList] = processor.processInstructionArgs();
 
         let argIndex = 0;
-        const content = [
-            <ASUIMenuItem>{`Edit Instruction`}</ASUIMenuItem>,
-            <ASUIMenuBreak />,
-            <ASUIMenuDropDown options={() => this.renderMenuEditInstructionCommand()}>Command</ASUIMenuDropDown>,
-        ];
+        const content = [];
+        if(title) {
+            content.push(
+                <ASUIMenuItem key={-1}>{title}</ASUIMenuItem>,
+                <ASUIMenuBreak key={-2} />,
+            )
+        }
+        content.push(
+            <ASUIMenuDropDown key={0} options={() => this.renderMenuEditInstructionCommand()}>Edit Command</ASUIMenuDropDown>,
+        );
 
         argTypeList.forEach((argType, i) => {
             if(!argType.consumesArgument)
@@ -254,7 +257,7 @@ class ASComposerMenu extends ASComposerRenderer {
         return <ASUIMenuDropDown
             key={argIndex}
             options={() => this.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue)}
-            children={title}
+            children={`Edit ${title}`}
         />
     }
 

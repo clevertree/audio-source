@@ -140,6 +140,9 @@ class SongValues extends Values {
             default:
                 return this.renderMenuSelectCommand(onSelectValue, paramValue);
 
+            case ArgType.frequency:
+                return this.renderMenuSelectFrequency(onSelectValue, paramValue);
+
             case ArgType.duration:
                 return this.renderMenuSelectDuration(onSelectValue, null, paramValue);
 
@@ -210,20 +213,20 @@ class SongValues extends Values {
     // }
 
 
-    // renderMenuSelectCommandByOctave(onSelectValue, currentCommand=null) {
+    // renderMenuSelectFrequencyByOctave(onSelectValue, currentCommand=null) {
     //     return (<>
-    //         {/*{keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, keyboardOctave)}>*/}
+    //         {/*{keyboardOctave !== null ? <ASUIMenuDropDown key={keyboardOctave} options={() => this.renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, keyboardOctave)}>*/}
     //         {/*    {`${keyboardOctave} (Current)`}*/}
     //         {/*</ASUIMenuDropDown> : null}*/}
     //         {this.getNoteOctaves((octave) =>
-    //             <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave)}>
+    //             <ASUIMenuDropDown key={octave} options={() => this.renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, octave)}>
     //                 {octave}
     //             </ASUIMenuDropDown>
     //         )}
     //     </>)
     // }
     //
-    // renderMenuSelectCommandByOctaveFrequency(onSelectValue, octave) {
+    // renderMenuSelectFrequencyByOctaveFrequency(onSelectValue, octave) {
     //     return this.getNoteFrequencies((noteName) =>
     //         <ASUIMenuAction key={noteName} onAction={() => onSelectValue(noteName+''+octave)}     >{noteName+''+octave}</ASUIMenuAction>
     //     );

@@ -4,6 +4,7 @@ import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
 import {InstructionProcessor} from "../common";
 import TrackState from "./track/state/TrackState";
+import Values from "../common/values/Values";
 
 // import {TrackInfo} from "./track/";
 
@@ -103,11 +104,17 @@ class ASComposerActions extends ASComposerMenu {
             // delete state.volume;
             // if(state.songUUID)
             await this.loadDefaultSong(state.songUUID);
+            const recentValues = state.recentValues;
             delete state.songUUID;
+            delete state.recentValues;
             this.setState(state);
             this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
+            if(recentValues && recentValues.recentDurations) {
+                Values.recentDurations = recentValues.recentDurations;
+                Values.recentFrequencies = recentValues.recentFrequencies;
+            }
         } else {
             await this.loadDefaultSong();
         }
@@ -132,6 +139,13 @@ class ASComposerActions extends ASComposerMenu {
                 }
             }
         }
+
+        state.recentValues = {
+            recentFrequencies: Values.recentFrequencies,
+            recentDurations: Values.recentDurations,
+        }
+
+        // Delete playback stats
         delete state.paused;
         delete state.playing;
         delete state.statusText;
