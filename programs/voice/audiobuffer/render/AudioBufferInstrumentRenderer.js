@@ -3,7 +3,7 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIIcon, ASUIDiv, ASUIButton,
+    ASUIMenuDropDown, ASUIIcon,
 } from "../../../../components";
 import Library from "../../../../song/library/Library";
 import Values from "../../../../common/values/Values";
@@ -26,9 +26,9 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(!this.props.config.type) {
-            console.warn("No default AudioBuffer type was set. Setting to 'sawtooth'");
-            this.props.config.type = 'sawtooth';
+        if(!this.props.config.url) {
+            console.warn("No default AudioBuffer was set");
+            // this.props.config.type = 'sawtooth';
         }
     }
 

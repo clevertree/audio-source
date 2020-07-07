@@ -1,3 +1,4 @@
+import WebTorrent from "webtorrent";
 
 const archiveBuffers = {};
 const torrentCache = {};
@@ -8,6 +9,7 @@ const trackerURLS = [
     "udp://track.leechers-paradise.org:6969",
     "udp://track.opentrackr.org:1337",
     // "wss://snesology.net/wss",
+    "ws://192.168.0.200:8000",
     "wss://track.fastcast.nz",
     "wss://track.openwebtorrent.com",
     "wss://track.btorrent.xyz",
@@ -40,7 +42,9 @@ class FileService {
 
     getMagnetURL(torrentID) {
         // &dn=snes
-        const magnetURL = `magnet:?xt=urn:btih:${torrentID}&dn=torrent&${trackerURLS.map(t => 'tr='+t).join('&')}`;
+        let magnetURL = `magnet:?xt=urn:btih:${torrentID}&dn=torrent&${trackerURLS.map(t => 'tr='+t).join('&')}`;
+        // magnetURL = 'magnet:?xt=urn:btih:13d7d0f8eb6f1b8a2e2dcd1513f999ec7b138023&dn=s&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com';
+        console.log('magnetURL', magnetURL);
         return magnetURL;
     }
 
@@ -99,7 +103,7 @@ class FileService {
     }
 
     async getTorrent(torrentID) {
-        var WebTorrent = await requireWebTorrent();
+        // var WebTorrent = await requireWebTorrent();
 
         if(torrentCache[torrentID]) {
             if(torrentCache[torrentID] instanceof Promise)
@@ -113,14 +117,14 @@ class FileService {
 
         torrentCache[torrentID] = new Promise((resolve, reject) => {
             this.log("Connecting to cloud url: " + magnetURL);
-            client.add(magnetURL, function (torrent) {
+            client.add(magnetURL, (torrent) => {
+                this.log("Connected to cloud: " + torrent.infoHash);
                 // Got torrent metadata!
                 resolve(torrent);
             });
         });
         torrentCache[torrentID] = await torrentCache[torrentID];
         const torrent = torrentCache[torrentID];
-        this.log("Connected to cloud: " + torrent.infoHash);
         return torrent;
     }
 
@@ -180,32 +184,5 @@ class FileService {
     }
 }
 
-
-
-async function requireWebTorrent() {
-    const AudioSourceLoader = customElements.get('audio-source-loader');
-    const relativeScriptPath = 'node_modules/webtorrent/webtorrent.min.js';
-
-    let scriptElm = AudioSourceLoader.findScript(relativeScriptPath, false);
-    if(!scriptElm) {
-        window.exports = {};
-        window.module = {exports: window.exports};
-        // const scriptURL = findThisScript()[0].basePath + relativeScriptPath;
-        scriptElm = document.createElement('script');
-        // scriptElm.src = scriptURL;
-        scriptElm.promises = (scriptElm.promises || []).concat(new Promise(async (resolve, reject) => {
-            scriptElm.onload = e => {
-                scriptElm.exports = window.module.exports;
-                delete window.module; delete window.exports;
-                resolve();
-            };
-            document.head.appendChild(scriptElm);
-        }));
-    }
-    for (let i=0; i<scriptElm.promises.length; i++)
-        await scriptElm.promises[i];
-    return scriptElm.exports
-        || (() => { throw new Error("Script module has no exports: " + relativeScriptPath); })()
-}
 
 export default FileService;

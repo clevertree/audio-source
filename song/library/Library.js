@@ -20,8 +20,8 @@ class Library {
         return (libraryData || [])
             .map(libraryData => new Library(libraryData))
     };
-    async getPresets() {
-        let presets = await resolve(this.data.presets);
+    async getPresets(programClassFilter) {
+        let presets = await resolve(this.data.presets, programClassFilter);
         // console.log('Library.getPresets', presets);
         return presets || []
     };
@@ -31,7 +31,7 @@ class Library {
 
     /** @deprecated **/
     async supportsProgram(programClassName) {
-        const presets = await this.getPresets();
+        const presets = await this.getPresets(programClassName);
         for(let i=0; i<presets.length; i++) {
             const [className] = presets[i];
             if(className === programClassName)
@@ -60,7 +60,7 @@ class Library {
     }
 
     async renderMenuProgramAllPresets(onSelectPreset, programClassFilter=null, includeRecent=true) {
-        let presets = await this.getPresets();
+        let presets = await this.getPresets(programClassFilter);
         const libraries = await this.getLibraries();
         return (<>
             {/*{includeRecent && false ? <ASUIMenuDropDown*/}
@@ -107,7 +107,7 @@ class Library {
 
 
     async renderMenuProgramPresets(onSelectPreset, programClassFilter=null) {
-        let presets = await this.getPresets();
+        let presets = await this.getPresets(programClassFilter);
         if(programClassFilter !== null) {
             presets = presets.filter(([className, presetConfig], i) => programClassFilter === className);
         }
@@ -229,9 +229,9 @@ class Library {
 Library.cache = {};
 export default Library;
 
-async function resolve(item) {
+async function resolve(item, callbackParameter=null) {
     if(typeof item === "function")
-        item = item();
+        item = item(callbackParameter);
     if(item instanceof Promise)
         item = await item;
     return item;
