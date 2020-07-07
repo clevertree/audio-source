@@ -1,6 +1,6 @@
 import WebTorrent from "webtorrent";
 
-const archiveBuffers = {};
+// const archiveBuffers = {};
 const torrentCache = {};
 const trackerURLS = [
     "udp://explodie.org:6969",
@@ -56,38 +56,35 @@ class FileService {
         };
 
         const torrentID = parsedURL.hostname;
-        const filePath = parsedURL.pathname.substr(1);
-
         const torrent = await this.getTorrent(torrentID);
+
+        const filePath = torrent.name + '/' + parsedURL.pathname.substr(1);
+
         for(let i=0; i<torrent.files.length; i++) {
             const file = torrent.files[i];
             if(filePath === file.path) {
-                return await getBuffer(file);
+                return await new Promise((resolve, reject) => {
+                    file.getBuffer(async function(err, buffer) {
+                        if(err) throw new Error(err);
+                        resolve(buffer);
+                    });
+                })
             }
-            if(filePath.startsWith(file.path)) {
-                const archiveFilePath = filePath.substr(file.path.length);
-                let archiveBuffer;
-                if(typeof archiveBuffers[file.path] !== "undefined") {
-                    archiveBuffer = archiveBuffers[file.path];
-                } else {
-                    archiveBuffer = getBuffer(file);
-                    archiveBuffers[file.path] = archiveBuffer;
-                }
-                if(archiveBuffer instanceof Promise)
-                    archiveBuffer = await archiveBuffer;
-                return await this.getFileBufferFromArchive(archiveBuffer, archiveFilePath);
-            }
+            // if(filePath.startsWith(file.path)) {
+            //     const archiveFilePath = filePath.substr(file.path.length);
+            //     let archiveBuffer;
+            //     if(typeof archiveBuffers[file.path] !== "undefined") {
+            //         archiveBuffer = archiveBuffers[file.path];
+            //     } else {
+            //         archiveBuffer = getBuffer(file);
+            //         archiveBuffers[file.path] = archiveBuffer;
+            //     }
+            //     if(archiveBuffer instanceof Promise)
+            //         archiveBuffer = await archiveBuffer;
+            //     return await this.getFileBufferFromArchive(archiveBuffer, archiveFilePath);
+            // }
         }
         throw new Error("Archive file not found: " + filePath);
-
-        async function getBuffer(file) {
-            return await new Promise((resolve, reject) => {
-                file.getBuffer(async function(err, buffer) {
-                    if(err) throw new Error(err);
-                    resolve(buffer);
-                });
-            })
-        }
     }
 
     async getFileBufferFromArchive(archiveBuffer, filePath) {
