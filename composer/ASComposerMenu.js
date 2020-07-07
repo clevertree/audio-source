@@ -208,7 +208,7 @@ class ASComposerMenu extends ASComposerRenderer {
                 //     ? this.instructionInsertAtCursor(trackName, newCommand)
                     this.instructionInsertAtCursor(trackName, newCommand);
             },
-            this.state.selectedInstructionData[1],
+            // this.state.selectedInstructionData[1],
             // "New Command"
         );
     }

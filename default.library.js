@@ -1,23 +1,20 @@
-import WaveLibrary from "./samples/wave.library.js";
-import SampleLibrary from "./samples/sample.library";
+import WaveLibraryIndex from "./samples/wave.library.js";
+import SampleLibraryIndex from "./samples/sample.library";
+
 import MohayonaoWaveLibrary from "./samples/wave/mohayonao.library.js";
+import FWSLibrary from "./samples/gm/fws/fws.library.js";
 
-import {Library} from "./song";
 
-export default class extends Library {
-  getTitle() { return "Audio Source Index"; }
-  getLibraries() {
-    return [
-      new SampleLibrary(),
-      new WaveLibrary(),
-      new MohayonaoWaveLibrary(),
-    ];
-  }
+export default {
+  title: 'Audio Source Index',
+  libraries: [
+    MohayonaoWaveLibrary,
+    FWSLibrary,
 
-  getPlaylists() {
-    return [
-      "assets/files/test.pl.json;Test ASPPlaylist"
-    ]
-  }
+    SampleLibraryIndex,
+    WaveLibraryIndex,
+  ],
+  playlist: [
+    "assets/files/test.pl.json;Test ASPPlaylist"
+  ]
 }
-

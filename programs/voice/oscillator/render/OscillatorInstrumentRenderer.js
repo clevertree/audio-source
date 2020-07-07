@@ -189,12 +189,12 @@ class OscillatorInstrumentRenderer extends React.Component {
         </>);
     }
 
-    renderMenuChangeOscillator() {
+    async renderMenuChangeOscillator() {
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</ASUIMenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
             <ASUIMenuBreak/>
-            {this.library.renderMenuProgramAllPresets((className, presetConfig) => {
+            {await this.library.renderMenuProgramAllPresets((className, presetConfig) => {
                 this.loadPreset(className, presetConfig);
             }, this.props.program[0])}
         </>);
@@ -213,22 +213,28 @@ class OscillatorInstrumentRenderer extends React.Component {
 
     renderMenuChangeMixer() {
         const config = this.props.config;
-        return <ASUIInputRange
-            min={0}
-            max={100}
-            value={typeof config.mixer !== "undefined" ? config.mixer : 100}
-            onChange={(mixerValue) => this.changeMixer(mixerValue)}
-        />;
+        return (<>
+            <ASUIInputRange
+                min={0}
+                max={100}
+                value={typeof config.mixer !== "undefined" ? config.mixer : 100}
+                onChange={(mixerValue) => this.changeMixer(mixerValue)}
+               />
+               <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
+            </>);
     }
 
     renderMenuChangeDetune() {
         const config = this.props.config;
-        return ( <ASUIInputRange
-            min={-1000}
-            max={1000}
-            value={typeof config.detune !== "undefined" ? config.detune : 100}
-            onChange={(detuneValue) => this.changeDetune(detuneValue)}
-        />);
+        return (<>
+            <ASUIInputRange
+                min={-1000}
+                max={1000}
+                value={typeof config.detune !== "undefined" ? config.detune : 100}
+                onChange={(detuneValue) => this.changeDetune(detuneValue)}
+                />
+            <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
+        </>);
     }
 
     renderMenuChangeKeyRoot() {

@@ -3,6 +3,12 @@ import ASUIClickableBase from "./ASUIClickableBase";
 
 export default class ASUIClickable extends ASUIClickableBase {
 
+    constructor(props) {
+        super(props);
+        this.cb.onMouseEnter = e => this.onMouseEnter(e);
+        this.timeoutMouseLeave = null;
+    }
+
     // shouldComponentUpdate(nextProps, nextState, nextContext) {
     //     return nextProps.children !== this.props.children;
     // }
@@ -41,4 +47,67 @@ export default class ASUIClickable extends ASUIClickableBase {
         return this.props.children;
     }
 
+    /** User Input **/
+
+    onMouseEnter(e) {
+        // TODO: close all opened that aren't hovered
+        clearTimeout(this.timeoutMouseLeave);
+        this.hoverDropDown();
+        // TODO: *OR* keep track of 'leaving' state?
+    }
+
+
+
+    /** Hover **/
+
+    // TODO: move to ASUIDropDownContainer
+
+    isHoverEnabled() {
+        if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
+            return false;
+        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
+        // console.log('openDropDownMenus', openDropDownMenus);
+        return openDropDownMenus.length > 0;
+    }
+
+    hoverDropDown() {
+        if(!this.isHoverEnabled())
+            return;
+        this.closeAllDropDownElmsButThis();
+    }
+
+    /** DOM elements **/
+
+    getOverlayContainerElm() {
+        const thisElm = this.ref.container.current;
+        let containerElm;
+        for (containerElm = thisElm ; containerElm && containerElm !== document; containerElm = containerElm.parentNode ) {
+            if(containerElm.classList.contains('asui-contextmenu-container'))
+                break;
+        }
+        return containerElm;
+    }
+
+    closeAllDropDownElmsButThis() {
+        const thisElm = this.ref.container.current;
+        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open')
+        openDropDownMenus.forEach(openDropDownMenu => {
+            if(openDropDownMenu === thisElm
+                || openDropDownMenu.contains(thisElm))
+                return;
+            /** @var {ASUIMenuDropDown}**/ // TODO: switch menu to clickable or dropdown
+            const dropdown = findReactElement(openDropDownMenu); // Ugly Hack
+            dropdown.closeDropDownMenu();
+        });
+        // console.log('closeAllDropDownElmsButThis', openDropDownMenus);
+    }
+}
+
+function findReactElement(node) {
+    for (var key in node) {
+        if (key.startsWith("__reactInternalInstance$")) {
+            return node[key]._debugOwner.stateNode;
+        }
+    }
+    return null;
 }

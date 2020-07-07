@@ -1,9 +1,9 @@
 import React from 'react';
 import {ASUIClickableDropDown} from "../../../../../components";
 
-import "./OscillatorInstrumentRendererParameter.css";
+import "./AudioBufferInstrumentRendererParameter.css";
 
-export default class OscillatorInstrumentRendererParameter extends React.Component {
+export default class AudioBufferInstrumentRendererParameter extends React.Component {
 
     render() {
         let className = this.props.className;

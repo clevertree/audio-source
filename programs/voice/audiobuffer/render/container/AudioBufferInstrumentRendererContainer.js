@@ -1,11 +1,11 @@
 import React from 'react';
 
-import "./OscillatorInstrumentRendererContainer.css";
+import "./AudioBufferInstrumentRendererContainer.css";
 
-export default class OscillatorInstrumentRendererContainer extends React.Component {
+export default class AudioBufferInstrumentRendererContainer extends React.Component {
 
     render() {
-        let className = "oscillator-instrument-container";
+        let className = "audiobuffer-instrument-container";
         if(this.props.open)
             className += ' open';
 
@@ -14,7 +14,7 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
         return <div className={className}>
             <div
                 className="title"
-                title={`Oscillator: ${title}`}
+                title={`AudioBuffer: ${title}`}
                 onClick={this.props.onClick}
             >
                 {title}

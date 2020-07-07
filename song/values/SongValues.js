@@ -143,6 +143,7 @@ class SongValues extends Values {
             case ArgType.frequency:
                 return this.renderMenuSelectFrequency(onSelectValue, paramValue);
 
+            case ArgType.offset:
             case ArgType.duration:
                 return this.renderMenuSelectDuration(onSelectValue, null, paramValue);
 

@@ -53,7 +53,7 @@ class ASCTrackRow extends ASCTrackRowBase {
         if (e.defaultPrevented)
             return;
         e.preventDefault();
-        console.log('ASCTrackRow.onMouseDown', e);
+        // console.log('ASCTrackRow.onMouseDown', e);
         this.selectRow();
     }
 

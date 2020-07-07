@@ -25,7 +25,6 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         super(props);
 
             // onKeyDown: (e) => this.onKeyDown(e),
-        this.cb.onMouseEnter = e => this.onMouseEnter(e);
         // this.cb.onMouseLeave = e => this.onMouseLeave(e);
         this.cb.onClose = () => this.closeDropDownMenu();
         this.dropdown = React.createRef();
@@ -34,7 +33,6 @@ export default class ASUIClickableDropDown extends ASUIClickable {
             stick: false
         }
 
-        this.timeoutMouseLeave = null;
     }
 
 
@@ -84,44 +82,8 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     }
 
 
-    /** DOM elements **/
-
-    getOverlayContainerElm() {
-        const thisElm = this.ref.container.current;
-        let containerElm;
-        for (containerElm = thisElm ; containerElm && containerElm !== document; containerElm = containerElm.parentNode ) {
-            if(containerElm.classList.contains('asui-contextmenu-container'))
-                break;
-        }
-        return containerElm;
-    }
-
-    closeAllDropDownElmsButThis() {
-        const thisElm = this.ref.container.current;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open')
-        openDropDownMenus.forEach(openDropDownMenu => {
-            if(openDropDownMenu === thisElm
-                || openDropDownMenu.contains(thisElm))
-                return;
-            /** @var {ASUIMenuDropDown}**/ // TODO: switch menu to clickable or dropdown
-            const dropdown = findReactElement(openDropDownMenu); // Ugly Hack
-            dropdown.closeDropDownMenu();
-        });
-        // console.log('closeAllDropDownElmsButThis', openDropDownMenus);
-    }
-
 
     /** Hover **/
-
-    // TODO: move to ASUIDropDownContainer
-
-    isHoverEnabled() {
-        if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
-            return false;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
-        // console.log('openDropDownMenus', openDropDownMenus);
-        return openDropDownMenus.length > 0;
-    }
 
     hoverDropDown() {
         // console.log('hoverDropDown', this.state.open === true, !this.isHoverEnabled())
@@ -144,15 +106,6 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     }
 
 
-
-    /** User Input **/
-
-    onMouseEnter(e) {
-        // TODO: close all opened that aren't hovered
-        clearTimeout(this.timeoutMouseLeave);
-        this.hoverDropDown();
-        // TODO: *OR* keep track of 'leaving' state?
-    }
 
     // onMouseLeave(e) {
     //     clearTimeout(this.timeoutMouseLeave);
@@ -178,12 +131,4 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     // }
 
 
-}
-function findReactElement(node) {
-    for (var key in node) {
-        if (key.startsWith("__reactInternalInstance$")) {
-            return node[key]._debugOwner.stateNode;
-        }
-    }
-    return null;
 }

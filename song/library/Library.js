@@ -1,28 +1,37 @@
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/menu";
 import React from "react";
 import ProgramLoader from "../../common/program/ProgramLoader";
+import DefaultLibraryData from "../../default.library";
+
 
 class Library {
-
-    getTitle() {
-        return this.constructor.name;
+    constructor(libraryData) {
+        if(libraryData === null)
+            throw new Error("Invalid library data: null");
+        if(typeof libraryData !== "object")
+            throw new Error("Invalid library data: " + typeof libraryData);
+        this.data = libraryData;
     }
 
-    getLibraries() {
-        return [];
-    }
-
-
-    getPresets() {
-        return [];
-    }
+    getTitle() { return this.data.title; };
+    async getLibraries() {
+        let libraryData = await resolve(this.data.libraries);
+        // console.log('Library.getLibraries', libraryData);
+        return (libraryData || [])
+            .map(libraryData => new Library(libraryData))
+    };
+    async getPresets() {
+        let presets = await resolve(this.data.presets);
+        // console.log('Library.getPresets', presets);
+        return presets || []
+    };
 
 
     /** Shortcuts **/
 
-
-    supportsProgram(programClassName) {
-        const presets = this.getPresets();
+    /** @deprecated **/
+    async supportsProgram(programClassName) {
+        const presets = await this.getPresets();
         for(let i=0; i<presets.length; i++) {
             const [className] = presets[i];
             if(className === programClassName)
@@ -50,25 +59,27 @@ class Library {
         </>);
     }
 
-    renderMenuProgramAllPresets(onSelectPreset, programClassFilter=null, includeRecent=true) {
+    async renderMenuProgramAllPresets(onSelectPreset, programClassFilter=null, includeRecent=true) {
+        let presets = await this.getPresets();
+        const libraries = await this.getLibraries();
         return (<>
-            {includeRecent && false ? <ASUIMenuDropDown
-                disabled={true}
-                options={() => this.renderMenuProgramRecentPresets(onSelectPreset, programClassFilter)}>
-                Recent Presets
-            </ASUIMenuDropDown> : null}
-            {includeRecent && Library.lastSelectedLibrary ? <ASUIMenuDropDown
-                disabled={Library.lastSelectedLibrary.getPresets().length === 0}
-                options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>
-                Current Library
-            </ASUIMenuDropDown> : null }
+            {/*{includeRecent && false ? <ASUIMenuDropDown*/}
+            {/*    disabled={true}*/}
+            {/*    options={() => this.renderMenuProgramRecentPresets(onSelectPreset, programClassFilter)}>*/}
+            {/*    Recent Presets*/}
+            {/*</ASUIMenuDropDown> : null}*/}
+            {/*{includeRecent && Library.lastSelectedLibrary ? <ASUIMenuDropDown*/}
+            {/*    disabled={Library.lastSelectedLibrary.getPresets().length === 0}*/}
+            {/*    options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>*/}
+            {/*    Current Library*/}
+            {/*</ASUIMenuDropDown> : null }*/}
             <ASUIMenuDropDown
-                disabled={this.getPresets().length === 0}
+                disabled={presets.length === 0}
                 options={() => this.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>
                 Presets
             </ASUIMenuDropDown>
             <ASUIMenuDropDown
-                disabled={this.getLibraries().length === 0}
+                disabled={libraries.length === 0}
                 options={() => this.renderMenuLibraryOptions(library =>
                     library.renderMenuProgramAllPresets(onSelectPreset, programClassFilter, false)
                     , programClassFilter)}>
@@ -78,34 +89,41 @@ class Library {
     }
 
 
-    renderMenuProgramRecentPresets(onSelectPreset, programClassFilter=null) {
-        // let recentLibrary = Library.lastSelectedLibrary; // TODO: move to state?
+    // async renderMenuProgramRecentPresets(onSelectPreset, programClassFilter=null) {
+    //     let presets = await this.getPresets();
+    //     if(programClassFilter !== null) {
+    //         presets = presets.filter(([className, presetConfig], i) => programClassFilter === className);
+    //     }
+    //     // console.log('renderMenuProgramRecentPresets', programClassFilter);
+    //     // let recentLibrary = Library.lastSelectedLibrary; // TODO: move to state?
+    //     return (<>
+    //         <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
+    //         <ASUIMenuBreak />
+    //         {presets.length > 0 ? presets.map(([className, presetConfig], i) =>
+    //             <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
+    //         ) : <ASUIMenuItem>No Presets</ASUIMenuItem>}
+    //     </>);
+    // }
+
+
+    async renderMenuProgramPresets(onSelectPreset, programClassFilter=null) {
+        let presets = await this.getPresets();
+        if(programClassFilter !== null) {
+            presets = presets.filter(([className, presetConfig], i) => programClassFilter === className);
+        }
+        // TODO: current/selected preset
         return (<>
             <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
             <ASUIMenuBreak />
-            {this.getPresets().map(([className, presetConfig], i) => {
-                return programClassFilter === null || programClassFilter === className
-                    ? <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
-                    : null;
-            })}
+            {presets.length > 0 ? presets.map(([className, presetConfig], i) =>
+                <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
+            ) : <ASUIMenuItem>No Presets</ASUIMenuItem>}
         </>);
     }
 
-
-    renderMenuProgramPresets(onSelectPreset, programClassFilter=null) {
-        return (<>
-            <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
-            <ASUIMenuBreak />
-            {this.getPresets().map(([className, presetConfig], i) => {
-                return programClassFilter === null || programClassFilter === className
-                    ? <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
-                    : null;
-            })}
-        </>);
-    }
-
-    renderMenuLibraryOptions(onSelectLibraryOptions, programClassFilter=null) {
-        return this.getLibraries().map((library, i) => {
+    async renderMenuLibraryOptions(onSelectLibraryOptions, programClassFilter=null) {
+        const libraries = await this.getLibraries();
+        return libraries.map((library, i) => {
             // if (programClass !== null && !library.supportsProgram(programClass))
             //     return null;
             return (
@@ -170,10 +188,12 @@ class Library {
     /** @var Library **/
     static lastSelectedLibrary = null;
 
+    /** @deprecated **/
     static historicLibraryCount() {
         return Object.values(Library.cache).length;
     };
 
+    /** @deprecated **/
     static eachHistoricLibrary(callback) {
         const results = [];
         for (let cacheURL in Library.cache) {
@@ -194,60 +214,9 @@ class Library {
     }
 
     static loadDefault() {
-        const defaultLibrary = require("../../default.library.js").default;
-        return new defaultLibrary();
+        return new Library(DefaultLibraryData);
     };
 
-    /**
-     * @param url
-     * @returns {Promise<Library>}
-     */
-    static async loadFromURL(url) {
-        if (!url)
-            throw new Error("Invalid url");
-        const response = await fetch(url);
-        const libraryData = await response.json();
-        if (typeof libraryData.url === "undefined")
-            libraryData.url = url.toString();
-        console.log('library', libraryData);
-        return new Library(libraryData);
-    }
-
-    static async loadFromURL2(url) {
-        if (!url)
-            throw new Error("Invalid url");
-        url = new URL((url.toString()).split('#')[0], document.location).toString();
-
-        let libraryData;
-        if (!Library.cache[url]) {
-            Library.cache[url] = new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', url.toString(), true);
-                xhr.responseType = 'json';
-                xhr.onload = () => {
-                    if (xhr.status !== 200)
-                        return reject("Sample library not found: " + url);
-
-                    const libraryData = xhr.response;
-                    libraryData.url = url.toString();
-
-                    Object.keys(Library.cache).forEach(cacheURL => {
-                        if (Object.values(Library.cache) > 5)
-                            delete Library.cache[cacheURL];
-                    });
-                    Library.cache[url] = libraryData;
-
-                    console.info("Sample Library Loaded: ", url, Library.cache);
-                    resolve(libraryData);
-                };
-                xhr.send();
-            });
-        }
-        libraryData = Library.cache[url];
-        if (libraryData instanceof Promise)
-            libraryData = await libraryData;
-        return new Library(libraryData);
-    }
 
 }
 
@@ -256,5 +225,14 @@ class Library {
 // Library.loadDefaultLibrary = async function() {
 //     return await Library.loadFromURL(Library.defaultLibraryURL);
 // };
+/** @deprecated **/
 Library.cache = {};
 export default Library;
+
+async function resolve(item) {
+    if(typeof item === "function")
+        item = item();
+    if(item instanceof Promise)
+        item = await item;
+    return item;
+}

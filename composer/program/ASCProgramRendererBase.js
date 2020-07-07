@@ -111,13 +111,13 @@ export default class ASCProgramRendererBase extends React.Component {
         </>);
     }
 
-    renderMenuChangePreset() {
+    async renderMenuChangePreset() {
         const library = Library.loadDefault();
         const programID = this.props.programID;
         let programClassName = null;
         if(this.getSong().hasProgram(programID))
             programClassName = this.getSong().programGetClassName(programID);
-        return library.renderMenuProgramAllPresets((className, presetConfig) => {
+        return await library.renderMenuProgramAllPresets((className, presetConfig) => {
             this.loadPreset(className, presetConfig);
         }, programClassName);
     }
