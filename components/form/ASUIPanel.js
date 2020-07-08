@@ -21,7 +21,7 @@ class ASUIPanel extends React.Component {
             className += ' ' + this.props.className;
 
         return (
-            <div className={className}>
+            <div className={className} title={this.props.title}>
                 {this.props.header ? <div className="header">{this.props.header}</div> : null}
                 <div className="container">
                     {this.props.children}

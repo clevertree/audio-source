@@ -121,21 +121,17 @@ class Library {
         </>);
     }
 
-    async renderMenuLibraryOptions(onSelectLibraryOptions, programClassFilter=null) {
+    async renderMenuLibraryOptions(onSelectLibraryOptions) {
         const libraries = await this.getLibraries();
-        return libraries.map((library, i) => {
-            // if (programClass !== null && !library.supportsProgram(programClass))
-            //     return null;
-            return (
-                <ASUIMenuDropDown key={i++}
-                                  options={() => {
-                                  Library.lastSelectedLibrary = library;
-                                  return onSelectLibraryOptions(library);
-                              }}>
-                    {library.getTitle()}
-                </ASUIMenuDropDown>
-            );
-        });
+        return libraries.map((library, i) =>
+            <ASUIMenuDropDown key={i++}
+                options={() => {
+                    Library.lastSelectedLibrary = library;
+                    return onSelectLibraryOptions(library);
+                }}>
+                {library.getTitle()}
+            </ASUIMenuDropDown>
+        );
     }
 
     // renderMenuProgramLibraryPresets(onSelectPreset, programClass=null) {
@@ -213,6 +209,7 @@ class Library {
         return results;
     }
 
+    /** @returns {Library} */
     static loadDefault() {
         return new Library(DefaultLibraryData);
     };

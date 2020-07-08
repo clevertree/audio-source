@@ -10,6 +10,7 @@ const trackerURLS = [
     "udp://track.opentrackr.org:1337",
     // "wss://snesology.net/wss",
     "ws://192.168.0.200:8000",
+    "ws://localhost:8000",
     "wss://track.fastcast.nz",
     "wss://track.openwebtorrent.com",
     "wss://track.btorrent.xyz",

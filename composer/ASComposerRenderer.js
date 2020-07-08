@@ -3,9 +3,10 @@ import React from "react";
 import ASComposerContainer from "./container/ASComposerContainer";
 import ASCTracksContainer from "./track/container/ASCTracksContainer";
 import ASComposerSongPanel from "./panel/ASComposerSongPanel";
-import ASComposerProgramPanel from "./panel/ASComposerProgramPanel";
+import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerInstructionPanel from "./panel/ASComposerInstructionPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
+import ASComposerPresetBrowserPanel from "./panel/ASComposerPresetBrowserPanel";
 
 class ASComposerRenderer extends React.Component {
     constructor(props) {
@@ -49,7 +50,8 @@ class ASComposerRenderer extends React.Component {
                     composer={this}
                     >
                     {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}
-                    {this.state.showPanelProgram ? <ASComposerProgramPanel composer={this} /> : null}
+                    {this.state.showPanelProgram ? <ASComposerSongProgramsPanel composer={this} /> : null}
+                    {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
                     {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
                     {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
                     {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}

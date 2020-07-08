@@ -3,7 +3,6 @@ import React from 'react';
 import {Text, View} from 'react-native';
 
 /** Div **/
-/** @deprecated **/
 export default class ASUIDiv extends React.Component {
 
     /** @deprecated **/

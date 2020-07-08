@@ -1,4 +1,4 @@
-import {Instruction, ProgramLoader, Song, Storage} from "../song";
+import {Instruction, Library, ProgramLoader, Song, Storage} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import FileService from "../song/file/FileService";
@@ -17,6 +17,16 @@ class ASComposerActions extends ASComposerMenu {
     setError(statusText) {
         this.setStatus(statusText, 'error');
     }
+
+    /** Library **/
+
+    setLibrary(library) {
+        if(!(library instanceof Library))
+            throw new Error("Invalid library: " + typeof library);
+        this.library = library;
+        console.log('Current library: ', library);
+    }
+
 
 
     /** Song rendering **/
