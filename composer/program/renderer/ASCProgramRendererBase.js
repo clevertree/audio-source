@@ -2,9 +2,9 @@ import React from "react";
 import {
     ASUIMenuAction,
     ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
-} from "../../components";
-import {Library} from "../../song";
-import ProgramLoader from "../../common/program/ProgramLoader";
+} from "../../../components";
+import {Library} from "../../../song";
+import {ProgramLoader} from "../../../common";
 
 
 export default class ASCProgramRendererBase extends React.Component {

@@ -3,10 +3,10 @@ import {
     ASUIIcon,
     ASUIButtonDropDown,
     ASUIButton,
-} from "../../components";
+} from "../../../components";
 import ASCProgramRendererBase from "./ASCProgramRendererBase";
 
-import "./assets/ASCProgramRenderer.css";
+import "./ASCProgramRenderer.css";
 
 export default class ASCProgramRenderer extends ASCProgramRendererBase {
     render() {
