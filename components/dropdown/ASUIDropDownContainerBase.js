@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import ASUIMenuContext from "../ASUIMenuContext";
-import ASUIClickable from "../../clickable/ASUIClickable";
-import ASUIMenuDropDown from "../../menu/item/ASUIMenuDropDown";
-import ASUIMenuItem from "../../menu/item/ASUIMenuItem";
+import ASUIDropDownContext from "./context/ASUIDropDownContext";
+import ASUIClickable from "../clickable/ASUIClickable";
+import ASUIMenuDropDown from "../menu/dropdown/ASUIMenuDropDown";
+import ASUIMenuItem from "../menu/item/ASUIMenuItem";
 
 import "./ASUIDropDownContainer.css";
 import DropDownOptionProcessor from "./DropDownOptionProcessor";
@@ -12,7 +12,7 @@ import DropDownOptionProcessor from "./DropDownOptionProcessor";
 export default class ASUIDropDownContainerBase extends React.Component {
 
     /** Menu Context **/
-    static contextType = ASUIMenuContext;
+    static contextType = ASUIDropDownContext;
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
     /** @return {ASUIDropDownContainer} **/
@@ -70,10 +70,10 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
 
     render() {
-        return <ASUIMenuContext.Provider
+        return <ASUIDropDownContext.Provider
             value={{overlay:this.getOverlay(), parentDropDown:this}}>
             {this.renderDropDownContainer()}
-        </ASUIMenuContext.Provider>
+        </ASUIDropDownContext.Provider>
 
     }
 
@@ -114,8 +114,10 @@ export default class ASUIDropDownContainerBase extends React.Component {
             this.setState({optionArray: [<ASUIMenuItem>Loading...</ASUIMenuItem>]})
             options = await options;
         }
-        if (!options)
+        if (!options) {
             console.warn("Empty options returned by ", this);
+            options = [<ASUIMenuItem>No Options</ASUIMenuItem>];
+        }
 
 
         let optionArray = DropDownOptionProcessor.processArray(options);

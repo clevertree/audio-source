@@ -1,5 +1,6 @@
 import React from "react";
 import ASUIClickableBase from "./ASUIClickableBase";
+import "./ASUIClickable.css";
 
 export default class ASUIClickable extends ASUIClickableBase {
 
@@ -35,7 +36,7 @@ export default class ASUIClickable extends ASUIClickableBase {
                 onKeyDown={this.cb.onKeyDown}
                 onMouseEnter={this.cb.onMouseEnter}
                 onMouseLeave={this.cb.onMouseLeave}
-                tabIndex={0}
+                // tabIndex={0}
                 ref={this.ref.container}
             >
                 {this.renderChildren()}
@@ -90,7 +91,7 @@ export default class ASUIClickable extends ASUIClickableBase {
 
     closeAllDropDownElmsButThis() {
         const thisElm = this.ref.container.current;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable-item.dropdown.open')
+        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-clickable.dropdown.open')
         openDropDownMenus.forEach(openDropDownMenu => {
             if(openDropDownMenu === thisElm
                 || openDropDownMenu.contains(thisElm))

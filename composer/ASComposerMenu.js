@@ -379,6 +379,7 @@ class ASComposerMenu extends ASComposerRenderer {
             <ASUIMenuAction onAction={e => this.toggleTrackPanel()}                 >{this.state.showPanelTrack ? 'Hide' : 'Show'} Track Panel</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.toggleInstructionPanel()}           >{this.state.showPanelInstruction ? 'Hide' : 'Show'} Instruction Panel</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.toggleProgramPanel()}               >{this.state.showPanelProgram ? 'Hide' : 'Show'} Program Panel</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.togglePresetBrowserPanel()}         >{this.state.showPanelPresetBrowser ? 'Hide' : 'Show'} Preset Browser Panel</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuAction onAction={e => this.toggleTrackRowPositionInTicks()}    >Track Position {this.state.showTrackRowPositionInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.toggleTrackRowDurationInTicks()}    >Track Duration {this.state.showTrackRowDurationInTicks ? 'Formatted' : 'as Ticks'}</ASUIMenuAction>

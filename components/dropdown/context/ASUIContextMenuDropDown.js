@@ -1,7 +1,7 @@
 import React from "react";
 
 import ASUIContextMenuDropDownBase from "./ASUIContextMenuDropDownBase";
-import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
+import ASUIDropDownContainer from "../ASUIDropDownContainer";
 import "./style/ASUIContextMenuDropDown.css";
 
 export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase {

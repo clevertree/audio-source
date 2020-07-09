@@ -1,0 +1,17 @@
+
+/** Menu Item **/
+
+div.asui-menu-item {
+    /*color: #777;*/
+    transition: background-color 0.3s;
+
+    padding: 0 0;
+    margin: 0 0;
+
+    /*cursor: default;*/
+}
+
+
+div.asui-menu-item.disabled {
+    color: #777;
+}

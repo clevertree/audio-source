@@ -1,7 +1,7 @@
 import React from "react";
 
 const unimplemented = function() { throw new Error("MenuContext Object is unimplemented")};
-const ASUIMenuContext = React.createContext({
+const ASUIDropDownContext = React.createContext({
     openMenu: (options) =>                      unimplemented,
     closeMenus: (butThese=[]) =>           unimplemented,
     closeAllMenus: () =>                        unimplemented,
@@ -10,4 +10,4 @@ const ASUIMenuContext = React.createContext({
     addDropDownMenu: (openMenuItem) =>          unimplemented,
 });
 
-export default ASUIMenuContext;
+export default ASUIDropDownContext;

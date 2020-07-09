@@ -976,6 +976,8 @@ class ASComposerActions extends ASComposerMenu {
     toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
     toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
     toggleTrackPanel()                  { return this.toggleSetting('showPanelTrack'); }
+    togglePresetBrowserPanel()          { return this.toggleSetting('showPanelPresetBrowser'); }
+
     toggleFullscreen() {
         this.toggleSetting('fullscreen', () => {
             this.onResize();

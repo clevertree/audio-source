@@ -1,7 +1,7 @@
 import ASCTrackRowContainerBase from "./ASCTrackRowContainerBase";
 
 import "./ASCTrackRowContainer.css";
-import {ASUIDropDownContainer} from "../../../components/menu";
+import {ASUIDropDownContainer} from "../../../components";
 import * as React from "react";
 
 export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {

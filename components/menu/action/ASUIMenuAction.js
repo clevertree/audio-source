@@ -1,14 +1,17 @@
 import PropTypes from "prop-types";
-import ASUIMenuItem from "./ASUIMenuItem";
+import ASUIClickable from "../../clickable/ASUIClickable";
 
-class ASUIMenuAction extends ASUIMenuItem {
+import "../item/ASUIMenuItem.css"
+import "./ASUIMenuAction.css"
+
+class ASUIMenuAction extends ASUIClickable {
     /** Property validation **/
     static propTypes = {
         onAction: PropTypes.func.isRequired,
         disabled: PropTypes.bool,
     };
 
-    getClassName() { return super.getClassName() + ' action'; }
+    getClassName() { return super.getClassName() + ' asui-menu-item action'; }
 
 
     /** Actions **/

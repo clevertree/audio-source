@@ -13,7 +13,7 @@ export default class ASUIButton extends ASUIClickable {
         disabled: PropTypes.bool,
     };
 
-    getClassName() { return 'asui-button'; }
+    getClassName() { return 'asui-button ' + super.getClassName(); }
 
 
     /** Actions **/

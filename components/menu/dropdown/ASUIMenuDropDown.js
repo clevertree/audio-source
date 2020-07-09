@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import ASUIClickableDropDown from "../../clickable/ASUIClickableDropDown";
 
-import "./style/ASUIMenuDropDown.css";
+import "./ASUIMenuDropDown.css";
 
 export default class ASUIMenuDropDown extends ASUIClickableDropDown {
 
@@ -17,8 +17,5 @@ export default class ASUIMenuDropDown extends ASUIClickableDropDown {
         options: PropTypes.any.isRequired,
     };
 
-
-    getClassName() {
-        return 'asui-menu-item ' + super.getClassName();
-    }
+    getClassName() { return super.getClassName() + ' asui-menu-item'; }
 }

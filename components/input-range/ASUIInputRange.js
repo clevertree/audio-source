@@ -1,7 +1,7 @@
 import React from "react";
 import "./assets/ASUIInputRange.scss";
 import PropTypes from "prop-types";
-import ASUIMenuContext from "../menu/ASUIMenuContext";
+import ASUIDropDownContext from "../dropdown/context/ASUIDropDownContext";
 
 class ASUIInputRange extends React.Component {
     /** Default Properties **/
@@ -61,7 +61,7 @@ class ASUIInputRange extends React.Component {
 
 
     /** Overlay Context **/
-    static contextType = ASUIMenuContext;
+    static contextType = ASUIDropDownContext;
 
     getOverlay() { return this.context.overlay; }
 

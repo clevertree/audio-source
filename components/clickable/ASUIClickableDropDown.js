@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import ASUIDropDownContainer from "../menu/dropdown/ASUIDropDownContainer";
+import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 import ASUIClickable from "./ASUIClickable";
 
 import "./ASUIClickable.css";
@@ -37,7 +37,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
 
 
     getClassName() {
-        return 'asui-clickable-item dropdown';
+        return 'asui-clickable dropdown';
     }
 
     renderChildren(props = {}) {

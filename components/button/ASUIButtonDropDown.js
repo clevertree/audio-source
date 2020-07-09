@@ -16,7 +16,5 @@ export default class ASUIButtonDropDown extends ASUIClickableDropDown {
         options: PropTypes.any.isRequired,
     };
 
-    getClassName() {
-        return 'asui-button ' + super.getClassName();
-    }
+    getClassName() { return 'asui-button ' + super.getClassName(); }
 }

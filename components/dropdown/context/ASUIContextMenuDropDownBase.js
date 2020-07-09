@@ -1,14 +1,12 @@
 import React from "react";
-import ASUIMenuContext from "../ASUIMenuContext";
-import {ASUIMenuItem} from "../index";
-import DropDownOptionProcessor from "../dropdown/DropDownOptionProcessor";
-import ASUIMenuAction from "../item/ASUIMenuAction";
-import ASUIMenuBreak from "../item/ASUIMenuBreak";
+import ASUIDropDownContext from "./ASUIDropDownContext";
+import {ASUIMenuItem, ASUIMenuAction, ASUIMenuBreak} from "../../menu";
+import DropDownOptionProcessor from "../DropDownOptionProcessor";
 // import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 
 export default class ASUIContextMenuDropDownBase extends React.Component {
     /** Menu Context **/
-    static contextType = ASUIMenuContext;
+    static contextType = ASUIDropDownContext;
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
     /** @return {ASUIDropDownContainer} **/

@@ -1,5 +1,5 @@
 import React from "react";
-import ASUIMenuContext from "../menu/ASUIMenuContext";
+import ASUIDropDownContext from "../dropdown/context/ASUIDropDownContext";
 
 export default class ASUIClickable extends React.Component {
     constructor(props) {
@@ -79,7 +79,7 @@ export default class ASUIClickable extends React.Component {
 
 
     /** Overlay Context **/
-    static contextType = ASUIMenuContext;
+    static contextType = ASUIDropDownContext;
 
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }

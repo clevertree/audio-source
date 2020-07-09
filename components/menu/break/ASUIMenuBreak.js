@@ -1,6 +1,6 @@
 import React from "react";
 
-import './style/ASUIMenuBreak.css';
+import './ASUIMenuBreak.css';
 
 class ASUIMenuBreak extends React.Component {
     render() {

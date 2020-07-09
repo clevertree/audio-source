@@ -1,4 +1,48 @@
-div.asui-clickable-item.dropdown {
+div.asui-clickable {
+    cursor: pointer;
+    color: #000;
+    display: flex;
+}
+
+div.asui-clickable.dropdown {
     position: relative;
 
 }
+
+
+
+
+
+/** Menu Arrow **/
+div.asui-clickable > div.arrow {
+    display: inline-block;
+    font-size: small;
+    margin: 2px 2px 0 auto;
+    padding-left: 0.5em;
+}
+
+
+
+/** Selected **/
+div.asui-clickable.selected {
+    background-color: #AAA;
+}
+
+/** Hover **/
+div.asui-clickable:hover {
+    background-color: #999 !important;
+}
+
+/** Disabled Menu **/
+div.asui-clickable.disabled {
+    /*opacity: 0.5;*/
+    color: #777;
+    cursor: not-allowed;
+}
+
+/** Menu Stick **/
+div.asui-clickable.stick {
+    background-color: #999;
+}
+
+

@@ -1,13 +1,19 @@
-import ASUIClickable from "../../clickable/ASUIClickable";
+import React from "react";
 
-import './style/ASUIMenuItem.css';
+import './ASUIMenuItem.css';
 
-export default class ASUIMenuItem extends ASUIClickable {
-    getClassName() { return 'asui-menu-item'; }
+export default class ASUIMenuItem extends React.Component {
+    render() {
+        let className = 'asui-menu-item disabled';
 
-    /** Actions **/
-
-    async doAction(e) {
-        console.info(this.constructor.name + " has no action.");
+        return (
+            <div
+                title={this.props.title}
+                className={className}
+            >
+                {this.props.children}
+            </div>
+        );
     }
+
 }
