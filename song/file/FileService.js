@@ -11,9 +11,9 @@ const trackerURLS = [
     // "wss://snesology.net/wss",
     "ws://192.168.0.200:8000",
     "ws://localhost:8000",
-    "wss://track.fastcast.nz",
-    "wss://track.openwebtorrent.com",
-    "wss://track.btorrent.xyz",
+    "wss://tracker.fastcast.nz",
+    "wss://tracker.openwebtorrent.com",
+    "wss://tracker.btorrent.xyz",
 ];
 
 class FileService {
