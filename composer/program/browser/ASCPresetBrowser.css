@@ -7,16 +7,18 @@ div.asc-preset-browser {
     vertical-align: top;
 }
 
-div.asc-preset-browser > div.list {
+div.asc-preset-browser > div.library-list,
+div.asc-preset-browser > div.preset-list {
     display: flex;
     flex-direction: column;
 }
 
-div.asc-preset-browser > div.list > div {
+div.asc-preset-browser > div.library-list > div,
+div.asc-preset-browser > div.preset-list > div {
     background-color: #bdbdbd;
     padding: 4px;
     margin: 1px;
     border-radius: 4px;
-    max-width: 30vw;
+    /*max-width: 30vw;*/
 }
 

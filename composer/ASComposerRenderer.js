@@ -21,8 +21,8 @@ export default class ASComposerRenderer extends ASComposerBase {
                         {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}
                         {this.state.showPanelProgram ? <ASComposerSongProgramsPanel composer={this} /> : null}
                         <div className="asui-panel-container-horizontal">
-                            {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
                             {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
+                            {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
                         </div>
                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
                     </div>

@@ -1,7 +1,7 @@
 import React from "react";
 
 import {ASUIButtonDropDown} from "../../../components/button";
-import {ASUIClickableDropDown, ASUIDiv, ASUIMenuAction, ASUIMenuItem} from "../../../components";
+import {ASUIClickable, ASUIClickableDropDown, ASUIDiv, ASUIMenuAction, ASUIMenuItem} from "../../../components";
 import Library from "../../../song/library/Library";
 
 import "./ASCPresetBrowser.css";
@@ -11,13 +11,34 @@ export default class ASCPresetBrowser extends React.Component {
         super(props);
         this.state = {
             loading: true,
-            presets: []
+            presets: [],
+            libraries: [],
+
+            limit: 10,
+            offset: 0,
+            selected: 0
         }
     }
 
 
     componentDidMount() {
         this.updateList();
+    }
+
+    async updateList() {
+        const library = this.props.composer.library;
+        const presets = await library.getPresets();
+        const libraries = await library.getLibraries();
+        const tags = [];
+        presets.forEach(([presetClass, presetConfig]) => {
+            if(presetConfig.tags)
+                presetConfig.tags.forEach(tag => {
+                    if(tags.indexOf(tag) === -1)
+                        tags.push(tag);
+                });
+        })
+        console.log('presets', {presets, libraries, tags});
+        this.setState({presets, libraries, tags, loading: false});
     }
 
     render() {
@@ -27,12 +48,16 @@ export default class ASCPresetBrowser extends React.Component {
 
         return (
             <div className={className}>
-                <ASUIButtonDropDown
-                    className="current-library"
-                    options={() => this.renderMenuSelectLibrary()}
-                    title={`Current Library: ${library.getTitle()}`}
-                >{library.getTitle()}</ASUIButtonDropDown>
-                <div className="list">
+                <div className="library-list">
+                    <ASUIButtonDropDown
+                        className="library-current"
+                        options={() => this.renderMenuSelectLibrary()}
+                        selected={true}
+                        title={`Current Library: ${library.getTitle()}`}
+                    >{`${library.getTitle()}`}</ASUIButtonDropDown>
+                    {this.renderLibraries()}
+                </div>
+                <div className="preset-list">
                     {this.renderPresets()}
                 </div>
             </div>
@@ -42,17 +67,39 @@ export default class ASCPresetBrowser extends React.Component {
     }
 
 
-    renderPresets() {
+    renderLibraries() {
         if(this.state.loading)
-            return <ASUIDiv>Loading...</ASUIDiv>
+            return <ASUIDiv>Loading Libraries...</ASUIDiv>
 
-        return this.state.presets.map(([presetClass, presetConfig], i) =>
-            <ASUIClickableDropDown
+        return this.state.libraries.map((library, i) =>
+            <ASUIClickable
                 key={i}
-                options={() => {}}
-                children={presetConfig.title}
+                onAction={() => this.setLibrary(library)}
+                children={library.getTitle()}
             />)
     }
+
+
+    renderPresets() {
+        if(this.state.loading)
+            return <ASUIDiv>Loading Presets...</ASUIDiv>
+        const limitedList = this.state.presets
+            .slice(this.state.offset, this.state.limit);
+
+        const content = limitedList.map(([presetClass, presetConfig], i) =>
+            <ASUIClickable
+                key={i}
+                // options={() => {}}
+                children={presetConfig.title}
+            />)
+        content.push(<ASUIClickable
+            key={-1}
+            // options={() => {}}
+            children={"- More -"}
+        />);
+        return content;
+    }
+
     /** Actions **/
 
     setLibrary(library) {
@@ -61,13 +108,6 @@ export default class ASCPresetBrowser extends React.Component {
         this.updateList();
     }
 
-
-    async updateList() {
-        const library = this.props.composer.library;
-        const presets = await library.getPresets();
-        console.log('presets', presets);
-        this.setState({presets, loading: false});
-    }
 
     /** Menu **/
 
