@@ -4,7 +4,7 @@ import ASUIMenuBreak from "../item/ASUIMenuBreak";
 import ASUIMenuAction from "../item/ASUIMenuAction";
 import ASUIMenuDropDown from "../item/ASUIMenuDropDown";
 import ASUIContextMenuDropDownBase from "./ASUIContextMenuDropDownBase";
-import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer.native";
+import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 
 export default class ASUIContextMenuDropDown extends ASUIContextMenuDropDownBase {
 

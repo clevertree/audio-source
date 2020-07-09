@@ -249,13 +249,12 @@ class ASComposerActions extends ASComposerMenu {
             }
         }
 
-        this.loadNewSongData();
-        await this.saveSongToMemory();
+        await this.loadNewSongData();
 
         return false;
     }
 
-    loadNewSongData() {
+    async loadNewSongData() {
         // const storage = new Storage();
         // const defaultProgramURL = this.getDefaultProgramClass() + '';
         // let songData = storage.generateDefaultSong(defaultProgramURL);
@@ -264,6 +263,7 @@ class ASComposerActions extends ASComposerMenu {
         this.setCurrentSong(song);
         // this.forceUpdate();
         this.setStatus("Loaded new song", song.getProxiedData());
+        await this.saveSongToMemory();
     }
 
 

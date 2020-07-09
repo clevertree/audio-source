@@ -136,12 +136,16 @@ div.asc-container.landscape div.asui-panel > div.container {
     overflow-y: visible;
 }
 
+div.asc-container.landscape div.asui-panel-container-horizontal {
+    display: inline;
+}
+
 
 /** Portrait **/
 
 div.asc-container.portrait div.asc-content-container {
-    display: flex;
-    flex-wrap: wrap;
+    /*display: flex;*/
+    /*flex-wrap: wrap;*/
 }
 
 div.asc-container.portrait div.asc-content-container > div.asui-panel {
@@ -151,6 +155,17 @@ div.asc-container.portrait div.asc-content-container > div.asui-panel {
 div.asc-container.portrait div.asc-content-container > div.asui-panel.programs,
 div.asc-container.portrait div.asc-content-container > div.asc-tracks-container {
     flex: 1 100%;
+}
+
+
+
+div.asc-container.portrait div.asui-panel-container-horizontal {
+    display: flex;
+}
+
+
+div.asc-container.portrait div.asui-panel-container-horizontal > div.asui-panel {
+    flex: 1;
 }
 
 

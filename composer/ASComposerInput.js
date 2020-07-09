@@ -11,6 +11,7 @@ export default class ASComposerInput extends ASComposerPlayback {
         setTimeout(() => this.onResize(), 100);
         window.addEventListener('unload', this.cb.onUnloadCallback);
         window.addEventListener('resize', this.cb.onResizeCallback);
+        return super.componentDidMount();
     }
 
     componentWillUnmount() {

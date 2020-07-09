@@ -1,8 +1,8 @@
 import React from "react";
 import {ASUIMenuItem, ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
 import {Storage, ProgramLoader} from "../song";
-import ASComposerRenderer from "./ASComposerRenderer";
 import InstructionProcessor from "../common/program/InstructionProcessor";
+import ASComposerRenderer from "./ASComposerRenderer";
 
 class ASComposerMenu extends ASComposerRenderer {
 
