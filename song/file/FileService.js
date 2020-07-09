@@ -21,8 +21,8 @@ class FileService {
     //     this.song = song;
     // }
 
-    log(message) {
-        console.info(message);
+    log(...args) {
+        console.info(...args);
         // if(this.song) {
         //     this.song.dispatchEvent(new CustomEvent('log', {detail: message}))
         // }
@@ -116,14 +116,25 @@ class FileService {
         torrentCache[torrentID] = new Promise((resolve, reject) => {
             this.log("Connecting to cloud url: " + magnetURL);
             client.add(magnetURL, (torrent) => {
-                this.log("Connected to cloud: " + torrent.infoHash);
+                // torrent._selections = [];
+
+                // Remove default selection (whole torrent)
+                torrent.deselect(0, torrent.pieces.length - 1, false)
+
+                // Add selections (individual files)
+                // for (let i = 0; i < torrent.files.length; i++) {
+                //     const file = torrent.files[i]
+                //         // console.log('deselecting file ' + i + ' of torrent ' + torrent.name)
+                //         file.deselect()
+                // }
+
+                this.log("Connected to cloud: " + torrent.infoHash, torrent);
                 // Got torrent metadata!
                 resolve(torrent);
             });
         });
         torrentCache[torrentID] = await torrentCache[torrentID];
-        const torrent = torrentCache[torrentID];
-        return torrent;
+        return torrentCache[torrentID];
     }
 
     async decompress7ZipArchive(archiveBuffer) {
