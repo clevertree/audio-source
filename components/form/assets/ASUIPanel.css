@@ -26,7 +26,8 @@ div.asui-panel > div.header {
 
 
 div.asui-panel > div.container {
-    overflow-y: auto;
+    /*overflow-y: auto;*/
     display: flex;
+    flex-wrap: wrap;
     min-height: 1.4em;
 }

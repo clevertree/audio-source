@@ -6,9 +6,9 @@ import {ASCProgramRenderer} from "../program";
 export default class ASComposerSongProgramsPanel extends React.Component {
     render() {
         const composer = this.props.composer;
-        const openPrograms = composer.state.openPrograms || [];
+        const programStates = composer.state.programStates || [];
         const selectedProgramID = composer.state.selectedProgramID || 0;
-        // console.log('openPrograms', openPrograms);
+        // console.log('programStates', programStates);
         return (
             <ASUIPanel
                 className="song-programs"
@@ -19,7 +19,7 @@ export default class ASComposerSongProgramsPanel extends React.Component {
                        key={programID}
                        programID={programID}
                        composer={composer}
-                       open={openPrograms.indexOf(programID) !== -1}
+                       {...programStates[programID] || {}}
                        selected={selectedProgramID === programID}
                    />
                )}

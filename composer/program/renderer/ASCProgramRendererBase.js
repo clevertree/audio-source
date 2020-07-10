@@ -5,6 +5,7 @@ import {
 } from "../../../components";
 import {Library} from "../../../song";
 import {ProgramLoader} from "../../../common";
+import {ASCPresetBrowser} from "../index";
 
 
 export default class ASCProgramRendererBase extends React.Component {
@@ -34,6 +35,13 @@ export default class ASCProgramRendererBase extends React.Component {
         }
     }
 
+
+    renderPresetBrowser() {
+        return <ASCPresetBrowser
+            composer={this.getComposer()}
+            />;
+    }
+
     /** Actions **/
 
 
@@ -51,8 +59,24 @@ export default class ASCProgramRendererBase extends React.Component {
         this.getSong().programRemove(programID);
     }
 
+    getProgramState() {
+        return this.getComposer().programGetState(this.props.programID) || {};
+    }
+
+    setProgramState(state) {
+        this.getComposer().programSetState(this.props.programID, state);
+    }
+
     toggleContainer() {
-        this.getComposer().toggleProgramContainer(this.props.programID);
+        const programState = this.getProgramState();
+        programState.open = !programState.open
+        this.setProgramState(programState);
+    }
+
+    togglePresetBrowser() {
+        const programState = this.getProgramState();
+        programState.showBrowser = !programState.showBrowser;
+        this.setProgramState(programState);
     }
 
     loadPreset(presetClassName, presetConfig={}) {
@@ -74,11 +98,14 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderMenuRoot() {
+        const programState = this.getProgramState();
         return (<>
+            <ASUIMenuAction onAction={() => this.togglePresetBrowser()}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
+            <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>
-            <ASUIMenuBreak />
+            {/*<ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>*/}
+            {/*<ASUIMenuBreak />*/}
             <ASUIMenuAction onAction={e => this.programRename()}>Rename Program</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.programRemove()}>Remove Program</ASUIMenuAction>
         </>);

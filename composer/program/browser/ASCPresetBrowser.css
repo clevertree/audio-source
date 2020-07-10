@@ -1,16 +1,20 @@
 div.asc-preset-browser {
-    display: inline-block;
+    font-size: smaller;
+    display: block;
     background: #DDD;
     border: 1px outset #FFF;
     padding: 2px;
     margin: 0px 0px 0px 0px;
     vertical-align: top;
+    /*flex-basis: 100%;*/
 }
 
 div.asc-preset-browser > div.library-list,
 div.asc-preset-browser > div.preset-list {
     display: flex;
     flex-direction: column;
+    /*flex-wrap: wrap;*/
+    max-height: 50vw;
 }
 
 div.asc-preset-browser > div.library-list > div,
@@ -19,6 +23,10 @@ div.asc-preset-browser > div.preset-list > div {
     padding: 4px;
     margin: 1px;
     border-radius: 4px;
-    /*max-width: 30vw;*/
+    /*max-width: 50%;*/
 }
 
+
+div.asc-preset-browser > div.library-list > div {
+    background-color: #938dc2;
+}

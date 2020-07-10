@@ -159,10 +159,11 @@ div.asc-container.portrait div.asc-content-container > div.asc-tracks-container 
 
 
 
-div.asc-container.portrait div.asui-panel-container-horizontal {
-    display: flex;
+@media only screen and (min-width: 480px) {
+    div.asc-container.portrait div.asui-panel-container-horizontal {
+        display: flex;
+    }
 }
-
 
 div.asc-container.portrait div.asui-panel-container-horizontal > div.asui-panel {
     flex: 1;

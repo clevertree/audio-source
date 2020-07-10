@@ -47,7 +47,7 @@ class ASComposerBase extends React.Component {
             selectedInstructionData: [0, 'C4', '1B'],
 
             // Programs
-            openPrograms: [],
+            programStates: [],
             selectedProgramID: 0,
 
             /** UI **/

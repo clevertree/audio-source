@@ -6,7 +6,6 @@ import ASComposerSongPanel from "./panel/ASComposerSongPanel";
 import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerInstructionPanel from "./panel/ASComposerInstructionPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
-import ASComposerPresetBrowserPanel from "./panel/ASComposerPresetBrowserPanel";
 import ASComposerBase from "./ASComposerBase";
 
 export default class ASComposerRenderer extends ASComposerBase {
@@ -24,7 +23,6 @@ export default class ASComposerRenderer extends ASComposerBase {
                             {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
                             {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
                         </div>
-                        {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
                     </div>
                     {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}
 
@@ -34,7 +32,7 @@ export default class ASComposerRenderer extends ASComposerBase {
                     {this.renderWebViewProxy()}
                 </ASComposerContainer>;
     }
-
+//                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}
 
 }
 

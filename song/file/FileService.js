@@ -9,8 +9,8 @@ const trackerURLS = [
     "udp://track.leechers-paradise.org:6969",
     "udp://track.opentrackr.org:1337",
     // "wss://snesology.net/wss",
-    "ws://192.168.0.200:8000",
-    "ws://localhost:8000",
+    // "ws://192.168.0.200:8000",
+    // "ws://localhost:8000",
     "wss://tracker.fastcast.nz",
     "wss://tracker.openwebtorrent.com",
     "wss://tracker.btorrent.xyz",
@@ -78,7 +78,7 @@ class FileService {
             //         archiveBuffer = archiveBuffers[file.path];
             //     } else {
             //         archiveBuffer = getBuffer(file);
-            //         archiveBuffers[file.path] = archiveBuffer;
+            //         archiveBuffers[file.path] = archiveBuffer;a
             //     }
             //     if(archiveBuffer instanceof Promise)
             //         archiveBuffer = await archiveBuffer;

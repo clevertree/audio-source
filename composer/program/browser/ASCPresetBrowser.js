@@ -1,7 +1,6 @@
 import React from "react";
 
-import {ASUIButtonDropDown} from "../../../components/button";
-import {ASUIClickable, ASUIClickableDropDown, ASUIDiv, ASUIMenuAction, ASUIMenuItem} from "../../../components";
+import {ASUIClickable, ASUIDiv, ASUIMenuAction, ASUIMenuItem} from "../../../components";
 import Library from "../../../song/library/Library";
 
 import "./ASCPresetBrowser.css";
@@ -14,7 +13,7 @@ export default class ASCPresetBrowser extends React.Component {
             presets: [],
             libraries: [],
 
-            limit: 10,
+            limit: 20,
             offset: 0,
             selected: 0
         }
@@ -42,19 +41,11 @@ export default class ASCPresetBrowser extends React.Component {
     }
 
     render() {
-        const library = this.props.composer.library;
-
         let className = 'asc-preset-browser';
 
         return (
             <div className={className}>
                 <div className="library-list">
-                    <ASUIButtonDropDown
-                        className="library-current"
-                        options={() => this.renderMenuSelectLibrary()}
-                        selected={true}
-                        title={`Current Library: ${library.getTitle()}`}
-                    >{`${library.getTitle()}`}</ASUIButtonDropDown>
                     {this.renderLibraries()}
                 </div>
                 <div className="preset-list">
