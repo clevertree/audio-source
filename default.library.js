@@ -1,5 +1,5 @@
-import WaveLibraryIndex from "./samples/wave.library.js";
-import SampleLibraryIndex from "./samples/sample.library";
+// import WaveLibraryIndex from "./samples/wave.library.js";
+// import SampleLibraryIndex from "./samples/sample.library";
 
 import MohayonaoWaveLibrary from "./samples/wave/mohayonao.library.js";
 import FWSLibrary from "./samples/gm/fws.library.js";
@@ -11,8 +11,8 @@ export default {
     MohayonaoWaveLibrary,
     FWSLibrary,
 
-    SampleLibraryIndex,
-    WaveLibraryIndex,
+    // SampleLibraryIndex,
+    // WaveLibraryIndex,
   ],
   playlist: [
     "assets/files/test.pl.json;Test ASPPlaylist"

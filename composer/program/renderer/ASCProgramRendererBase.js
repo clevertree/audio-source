@@ -18,12 +18,12 @@ export default class ASCProgramRendererBase extends React.Component {
 
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
-    getProgramEntry(proxiedData=true) {
-        let songData = this.getSong().data;
-        if(!proxiedData)
-            songData = this.getSong().getProxiedData();
-        return songData.programs[this.props.programID] || ['Empty', {}];
-    }
+    // getProgramEntry(proxiedData=true) {
+    //     let songData = proxiedData
+    //         ? this.getSong().data
+    //         :this.getSong().getProxiedData();
+    //     return songData.programs[this.props.programID];
+    // }
 
 
     renderProgramContent() {
@@ -37,9 +37,12 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderPresetBrowser() {
+        const program = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
         return <ASCPresetBrowser
             composer={this.getComposer()}
-            />;
+            programID={this.props.programID}
+            program={program}
+        />;
     }
 
     /** Actions **/
@@ -86,9 +89,11 @@ export default class ASCProgramRendererBase extends React.Component {
         song.programReplace(programID, presetClassName, presetConfig);
     }
 
+
+    /** @deprecated **/
     wrapPreset(presetClassName, presetConfig={}) {
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(presetClassName);
-        const [oldClassName, oldConfig] = this.getProgramEntry();
+        const [oldClassName, oldConfig] = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
         Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
         this.loadPreset(presetClassName, presetConfig);
         // TODO: if classes match, prompt confirm

@@ -543,10 +543,10 @@ class Song {
         return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
     }
 
-    programGetData(programID)         { return this.programLoader.getData(programID); }
-    programGetClassName(programID)    { return this.programLoader.getClassName(programID); }
-    programGetClass(programID)        { return this.programLoader.getClass(programID); }
-    programGetConfig(programID)       { return this.programLoader.getConfig(programID); }
+    programGetData(programID, proxiedData=true)         { return this.programLoader.getData(programID, proxiedData); }
+    programGetClassName(programID)                              { return this.programLoader.getClassName(programID); }
+    programGetClass(programID)                                  { return this.programLoader.getClass(programID); }
+    programGetConfig(programID, proxiedData=true)       { return this.programLoader.getConfig(programID, proxiedData); }
 
 
     // programGetList() {

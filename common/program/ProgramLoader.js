@@ -22,9 +22,9 @@ export default class ProgramLoader {
     }
 
     getData(programID, proxiedData=true) {
-        let songData = this.song.data;
-        if(!proxiedData)
-            songData = this.song.getProxiedData();
+        let songData = proxiedData
+            ? this.song.data
+            : this.song.getProxiedData();
         return songData.programs[programID];
     }
 
@@ -33,8 +33,8 @@ export default class ProgramLoader {
         const [className] = this.getData(programID);
         return className;
     }
-    getConfig(programID) {
-        const [, config] = this.getData(programID);
+    getConfig(programID, proxiedData=true) {
+        const [, config] = this.getData(programID, proxiedData);
         return config;
     }
     getClass(programID) {
@@ -59,6 +59,7 @@ export default class ProgramLoader {
             config={config}
         />;
     }
+
 
 
     /** Actions **/

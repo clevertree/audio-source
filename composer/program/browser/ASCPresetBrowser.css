@@ -14,16 +14,22 @@ div.asc-preset-browser > div.preset-list {
     display: flex;
     flex-direction: column;
     /*flex-wrap: wrap;*/
-    max-height: 50vw;
+    /*max-height: 50vw;*/
 }
 
 div.asc-preset-browser > div.library-list > div,
 div.asc-preset-browser > div.preset-list > div {
-    background-color: #bdbdbd;
+    border: #EEE outset 1px;
+    background-color: #CCC;
     padding: 4px;
     margin: 1px;
     border-radius: 4px;
-    /*max-width: 50%;*/
+    max-width: 200px;
+}
+div.asc-preset-browser > div.library-list > div.selected ,
+div.asc-preset-browser > div.preset-list > div.selected {
+    border: #CCC inset 1px;
+    background-color: #AAA;
 }
 
 

@@ -2,9 +2,15 @@ import React from "react";
 import {Text, TouchableHighlight, View} from "react-native";
 import GlobalStyle from "../../common/style/GlobalStyle";
 import ASUIClickableBase from "./ASUIClickableBase";
+import PropTypes from "prop-types";
 
 export default class ASUIClickable extends ASUIClickableBase {
 
+    /** Property validation **/
+    static propTypes = {
+        onAction: PropTypes.func.isRequired,
+        disabled: PropTypes.bool,
+    };
 
     getContainerStyle() {
         let style = [];
