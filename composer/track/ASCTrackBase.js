@@ -152,6 +152,11 @@ export default class ASCTrackBase extends React.Component {
         this.ref.rowContainer.current.focus();
     }
 
+    /** Input **/
+
+    handleMIDIInput(e) {
+        console.log('handleMIDIInput', e);
+    }
 
     /** Selection **/
 

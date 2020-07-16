@@ -73,28 +73,8 @@ export default class ASComposerInput extends ASComposerPlayback {
                 break;
 
             case 'midimessage':
-                console.log("MIDI", e.data, e);
-                switch (e.data[0]) {
-                    case 144:   // Note On
-                        break;
-                        // TODO: refactor
-                        // e.preventDefault();
-                        // throw new Error("TODO: Implement");
-                        // const midiImport = new MIDIImport();
-                        // let newMIDICommand = midiImport.getCommandFromMIDINote(e.data[1]);
-                        // let newMIDIVelocity = Math.round((e.data[2] / 128) * 100);
-                        // console.log("MIDI ", newMIDICommand, newMIDIVelocity);
-
-                        // this.instructionInsertOrUpdate(e, newMIDICommand);
-                        // this.playSelectedInstructions(e);
-                        // this.focus();
-                    case 128:   // Note Off
-                        // TODO: turn off playing note, optionally set duration of note
-                        break;
-
-                    default:
-                        break;
-                }
+                const selectedComponent = this.getSelectedComponent();
+                selectedComponent.handleMIDIInput(e);
                 break;
 
             default:

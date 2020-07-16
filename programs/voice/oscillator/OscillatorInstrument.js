@@ -34,13 +34,16 @@ class OscillatorInstrument {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
-        const endTime = startTime + duration;
+        let endTime;
 
 
         const audioContext = destination.context;
-        if(endTime < audioContext.currentTime) {
-            console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
-            return false;
+        if(!Number.isNaN(duration)) {
+            endTime = startTime + duration;
+            if (endTime < audioContext.currentTime) {
+                console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
+                return false;
+            }
         }
         if(startTime < 0)
             startTime = 0; // Negative start time fix.
@@ -121,7 +124,16 @@ class OscillatorInstrument {
 
         osc.connect(destination);
         osc.start(startTime);
-        osc.stop(endTime);
+        if(duration !== null) {
+            if(duration instanceof Promise) {
+                // Support for duration promises
+                duration.then(function() {
+                    osc.stop();
+                })
+            } else {
+                osc.stop(endTime);
+            }
+        }
 
         this.playingOSCs.push(osc);
         osc.onended = () => {
@@ -131,7 +143,11 @@ class OscillatorInstrument {
             onended && onended();
         };
 
+        return osc;
     }
+
+
+    /** Pitch Bend **/
 
     pitchBendTo(frequency, startTime, duration) {
         // if(typeof frequency === "string")

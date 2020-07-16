@@ -73,7 +73,8 @@ class ASComposerBase extends React.Component {
         this.ref = {
             container: React.createRef(),
             panelSong: React.createRef(),
-            activeTracks: {}
+            activeTracks: {},
+            activePrograms: [],
         }
 
         this.songStats = {

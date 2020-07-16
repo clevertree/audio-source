@@ -39,7 +39,15 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     getSelectedComponent() {
-
+        const [type, id] = this.state.selectedComponent;
+        switch(type) {
+            case 'program':
+                return this.programGetRef(id);
+            case 'track':
+                return this.trackGetRef(id);
+            default:
+                throw new Error("Invalid component type: " + type);
+        }
     }
 
     getSelectedTrackName() {
@@ -914,6 +922,15 @@ class ASComposerActions extends ASComposerMenu {
 
 
     /** Programs **/
+
+    programGetRef(programID) {
+        const programRef = this.ref.activePrograms[programID];
+        if(!programRef)
+            throw new Error("Invalid Program ref: " + programID);
+        if(!programRef.current)
+            throw new Error("Program ref is not rendered: " + programID);
+        return programRef.current;
+    }
 
     programGetState(programID) {
         return this.state.programStates[programID];

@@ -50,6 +50,5 @@ export default class ASCTrack extends ASCTrackBase {
             this.renderRowContainer()
         ]
     }
-
 }
 

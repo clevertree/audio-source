@@ -61,6 +61,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
     /** Input **/
 
     onFocus(e) {
-        this.getComposer().setSelectedComponent('instrument', this.getProgramID());
+        this.getComposer().setSelectedComponent('program', this.getProgramID());
     }
+
 }
