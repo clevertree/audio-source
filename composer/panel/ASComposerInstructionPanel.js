@@ -64,7 +64,7 @@ export default class ASComposerInstructionPanel extends React.Component {
             <ASUIInputRange
                 // className="velocity"
                 onChange={(newVelocity) => {
-                    composer.instructionReplaceArgByType(composer.state.selectedTrack, composer.state.selectedTrackIndices, argType, newVelocity);
+                    composer.instructionReplaceArgByType(composer.getSelectedTrackName(), composer.state.selectedTrackIndices, argType, newVelocity);
                 }}
                 value={paramValue || 0}
                 min={1}

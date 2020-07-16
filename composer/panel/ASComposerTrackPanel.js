@@ -41,7 +41,7 @@ export default class ASComposerTrackPanel extends React.Component {
                         // className="track-selection"
                         options={this.cb.renderMenuSelectTrack}
                         title="Current Track"
-                        children={composer.state.selectedTrack || "N/A"}
+                        children={composer.getSelectedTrackName() || "N/A"}
                     />
                 </ASUIForm>
                 <ASUIForm className="track-selection" header="Selection">
@@ -90,6 +90,6 @@ export default class ASComposerTrackPanel extends React.Component {
         const composer = this.props.composer;
         return composer.values.renderMenuSelectTrack(trackName => {
             composer.trackSelectActive(trackName)
-        }, null, composer.state.selectedTrack)
+        }, null, composer.getSelectedTrackName())
     }
 }

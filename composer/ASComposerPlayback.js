@@ -27,6 +27,10 @@ export default class ASComposerPlayback extends ASComposerActions {
         }
     }
 
+    unloadMIDIInterface(callback) {
+
+    }
+
 
     /** Song Proxy **/
     /**

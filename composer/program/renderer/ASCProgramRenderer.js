@@ -9,9 +9,15 @@ import ASCProgramRendererBase from "./ASCProgramRendererBase";
 import "./ASCProgramRenderer.css";
 
 export default class ASCProgramRenderer extends ASCProgramRendererBase {
+    constructor(props) {
+        super(props);
+        this.cb = {
+            onFocus: e => this.onFocus(e)
+        }
+    }
     render() {
         const song = this.getSong();
-        const programID = this.props.programID;
+        const programID = this.getProgramID();
         let programIDHTML = (programID < 10 ? "0" : "") + (programID);
 
         let className = 'asc-instrument-renderer';
@@ -27,7 +33,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             className += ' empty';
         }
         return (
-            <div className={className}>
+            <div className={className} tabIndex={0} onFocus={this.cb.onFocus}>
                 <div className="header">
                     <ASUIButton
                         className="toggle-container"
@@ -51,4 +57,10 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
         // return content;
     }
 
+
+    /** Input **/
+
+    onFocus(e) {
+        this.getComposer().setSelectedComponent('instrument', this.getProgramID());
+    }
 }

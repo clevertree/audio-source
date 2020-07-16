@@ -34,17 +34,21 @@ class ASComposerBase extends React.Component {
             songUUID: null,
             songLength: 0,
 
+            // Selected Component
+            selectedComponent: ['track', 'root'],
+
             // Tracks
             activeTracks: {},
-            selectedTrack: 'root',
-
-            // Track Playback
-            playbackOnChange: true,
-            playbackOnSelect: true,
+            // selectedTrack: 'root',
 
             // Track instruction selection
             selectedTrackIndices: [],
             selectedInstructionData: [0, 'C4', '1B'],
+
+
+            // Track Playback
+            playbackOnChange: true,
+            playbackOnSelect: true,
 
             // Programs
             programStates: [],
@@ -64,6 +68,7 @@ class ASComposerBase extends React.Component {
             songStop: () => this.songStop(),
             loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
+            onInput: e => this.onInput(e)
         }
         this.ref = {
             container: React.createRef(),
@@ -113,9 +118,14 @@ class ASComposerBase extends React.Component {
 
     componentDidMount() {
         this.loadState();
+
+        this.loadMIDIInterface(this.cb.onInput);
         // TODO: get default library url from composer?
     }
 
+    componentWillUnmount() {
+        this.unloadMIDIInterface(this.cb.onInput);
+    }
 
 
     /** TODO: Error Handling **/

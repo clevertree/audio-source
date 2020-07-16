@@ -28,6 +28,26 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
+    /** Selected Component **/
+
+    setSelectedComponent(type, id) {
+        const selectedComponent = [type, id];
+        if(this.state.selectedComponent.type === type
+            && this.state.selectedComponent.id === id)
+            return;
+        this.setState({selectedComponent})
+    }
+
+    getSelectedComponent() {
+
+    }
+
+    getSelectedTrackName() {
+        const [type, name] = this.state.selectedComponent;
+        if(type === 'track')
+            return name;
+        return null;
+    }
 
     /** Song rendering **/
     getSong() { return this.song; }
@@ -52,23 +72,25 @@ class ASComposerActions extends ASComposerMenu {
 
         this.song.addEventListener('*', this.onSongEventCallback);
 
+        const startTrackName = song.getStartTrackName() || 'root';
         const state = {
             statusText: "Loaded song: " + song.data.title,
             statusType: 'log',
             title: song.data.title,
             songUUID: song.data.uuid,
             songLength: song.getSongLengthInSeconds(),
-            selectedTrack: song.getStartTrackName() || 'root',
+            selectedComponent: ['track', startTrackName],
             activeTracks: {}
         }
-        state.activeTracks[state.selectedTrack] = {}; // TODO: open root, why not?
+        state.activeTracks[startTrackName] = {}; // TODO: open root, why not?
         this.setState(state);
     }
 
     updateCurrentSong() {
+        const selectedTrack = this.getSelectedTrackName();
         const activeTracks = this.state.activeTracks;
         if(Object.keys(activeTracks).length === 0)
-            activeTracks[this.state.selectedTrack || 'root'] = {}
+            activeTracks[selectedTrack || 'root'] = {}
 
         this.setState({
             songLength: this.song.getSongLengthInSeconds(),
@@ -96,8 +118,11 @@ class ASComposerActions extends ASComposerMenu {
     /** Focus **/
 
     focusActiveTrack() {
-        const trackRef = this.trackGetRef(this.state.selectedTrack);
-        trackRef.focus();
+        const trackName = this.getSelectedTrackName();
+        if(trackName) {
+            const trackRef = this.trackGetRef(trackName);
+            trackRef.focus();
+        }
     }
 
     /** State **/
@@ -568,7 +593,7 @@ class ASComposerActions extends ASComposerMenu {
             state.activeTracks[trackName] = oldTrackData || {};
             if(trackData !== null)
                 Object.assign(state.activeTracks[trackName], trackData);
-            state.selectedTrack = trackName;
+            state.selectedComponent = ['track', trackName];
             return state;
         });
 
@@ -582,7 +607,7 @@ class ASComposerActions extends ASComposerMenu {
 
     async trackSelectIndicesPrompt(trackName=null) {
         if(trackName === null)
-            trackName = this.state.selectedTrack;
+            trackName = this.getSelectedTrackName();
         let selectedIndices = this.state.selectedTrackIndices.join(', ');
         selectedIndices = await PromptManager.openPromptDialog(`Select indices for track ${trackName}: `, selectedIndices);
         this.trackSelectIndices(trackName, selectedIndices);
@@ -593,7 +618,7 @@ class ASComposerActions extends ASComposerMenu {
     trackUnselect(trackName) {
         this.setState(state => {
             delete state.activeTracks[trackName];
-            state.selectedTrack = Object.keys(state.activeTracks)[0];
+            state.selectedComponent = ['track', Object.keys(state.activeTracks)[0]];
             return state;
         });
     }
@@ -660,7 +685,7 @@ class ASComposerActions extends ASComposerMenu {
         const state = {
             // selectedIndices,
             activeTracks: this.state.activeTracks,
-            selectedTrack: trackName,
+            selectedComponent: ['track', trackName],
             selectedTrackIndices: selectedIndices
         }
         if(!state.activeTracks[trackName])
@@ -684,23 +709,23 @@ class ASComposerActions extends ASComposerMenu {
 
 
     trackerChangeQuantization(trackName=null, trackerQuantizationTicks) {
-        return this.trackGetState(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.getSelectedTrackName())
             .changeQuantization(trackerQuantizationTicks)
     }
 
     async trackerChangeQuantizationPrompt(trackName) {
-        return this.trackGetState(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.getSelectedTrackName())
             .changeQuantizationPrompt();
     }
 
 
     trackerChangeSegmentLength(trackName, rowLength = null) {
-        return this.trackGetState(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.getSelectedTrackName())
             .changeRowLength(rowLength)
     }
 
     async trackerChangeSegmentLengthPrompt(trackName) {
-        return this.trackGetState(trackName || this.state.selectedTrack)
+        return this.trackGetState(trackName || this.getSelectedTrackName())
             .changeRowLengthPrompt()
     }
 
@@ -722,7 +747,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     instructionInsertAtCursor(trackName = null, newInstructionData = null) {
-        trackName = trackName || this.state.selectedTrack;
+        trackName = trackName || this.getSelectedTrackName();
         // newCommand = newCommand || this.state.currentCommand;
         const trackRef = this.trackGetRef(trackName);
         trackRef.instructionInsertAtCursor(newInstructionData);
@@ -789,7 +814,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Instruction Delete **/
 
     instructionDeleteIndices(trackName=null, selectedIndices=null) {
-        trackName = trackName || this.state.selectedTrack;
+        trackName = trackName || this.getSelectedTrackName();
         selectedIndices = selectedIndices || this.state.selectedTrackIndices;
         selectedIndices = this.values.parseSelectedIndices(selectedIndices);
 
@@ -804,7 +829,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Tracker Clip Board **/
 
     instructionCopySelected() {
-        const trackName = this.state.selectedTrack;
+        const trackName = this.getSelectedTrackName();
         const selectedIndices = this.state.selectedTrackIndices;
         const iterator = this.instructionGetIterator(trackName);
         let startPosition = null, lastPosition=null, copyTrack=[];
@@ -833,15 +858,15 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     instructionPasteAtCursor() {
-        const trackName = this.state.selectedTrack;
+        const trackName = this.getSelectedTrackName();
         const trackRef = this.trackGetRef(trackName);
         trackRef.instructionPasteAtCursor();
     }
 
 
     instructionPasteAtPosition(trackName, startPositionTicks) {
-        // trackName = trackName || this.state.selectedTrack;
-        // trackName = trackName || this.state.selectedTrack;
+        // trackName = trackName || this.getSelectedTrackName();
+        // trackName = trackName || this.getSelectedTrackName();
 
         const copyTrack = this.state.clipboard;
         if(!Array.isArray(copyTrack))

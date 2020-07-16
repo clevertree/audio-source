@@ -16,6 +16,7 @@ export default class ASCProgramRendererBase extends React.Component {
     //     // }
     // }
 
+    getProgramID() { return this.props.programID; }
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
     // getProgramEntry(proxiedData=true) {

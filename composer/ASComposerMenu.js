@@ -163,7 +163,7 @@ class ASComposerMenu extends ASComposerRenderer {
             selectedIndices = this.state.selectedTrackIndices;
         let firstInstructionData = null, trackName=null;
         if(selectedIndices.length > 0) {
-            firstInstructionData = this.getSong().instructionDataGetByIndex(this.state.selectedTrack, selectedIndices[0]);
+            firstInstructionData = this.getSong().instructionDataGetByIndex(this.getSelectedTrackName(), selectedIndices[0]);
             trackName = new InstructionProcessor(firstInstructionData).isTrackCommand();
         }
 
@@ -264,8 +264,8 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue=null) {
         if(onSelectValue === null) {
             onSelectValue = (newArgValue) => {
-                // this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, argIndex, newArgValue);
-                this.instructionReplaceArgByType(this.state.selectedTrack, this.state.selectedTrackIndices, argType, newArgValue);
+                // this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedTrackIndices, argIndex, newArgValue);
+                this.instructionReplaceArgByType(this.getSelectedTrackName(), this.state.selectedTrackIndices, argType, newArgValue);
             }
         }
         return this.values.renderMenuEditInstructionArgOptions(instructionData, argType, argIndex, paramValue, onSelectValue);
@@ -274,7 +274,7 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditInstructionCommand() {
         const instructionData = this.state.selectedInstructionData;
         return this.values.renderMenuSelectCommand(selectedCommand => {
-            this.instructionReplaceArg(this.state.selectedTrack, this.state.selectedTrackIndices, 1, selectedCommand);
+            this.instructionReplaceArg(this.getSelectedTrackName(), this.state.selectedTrackIndices, 1, selectedCommand);
         }, instructionData[1])
     }
 
@@ -282,7 +282,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
 
     renderMenuEditTrackSelectIndices() {
-        const selectedTrack = this.state.selectedTrack;
+        const selectedTrack = this.getSelectedTrackName();
         let cursorIndex = null;
         if(!this.trackHasActive(selectedTrack))
             return <ASUIMenuItem>{`Track is not active: ${selectedTrack}`}</ASUIMenuItem>
@@ -449,7 +449,7 @@ class ASComposerMenu extends ASComposerRenderer {
             {this.values.getAllSongTracks((trackName) =>
                 <ASUIMenuDropDown
                     key={trackName}
-                    // disabled={trackName === this.state.selectedTrack}
+                    // disabled={trackName === this.getSelectedTrackName()}
                     options={() => this.renderMenuTrackEdit(trackName)}
                 >{trackName}</ASUIMenuDropDown>)}
         </>);

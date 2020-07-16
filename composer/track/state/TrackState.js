@@ -51,7 +51,7 @@ export default class TrackState {
     getStartPosition() { return this.state.startPosition || 0; }
 
     isSelectedTrack() {
-        return this.trackName === this.composer.state.selectedTrack;
+        return this.trackName === this.composer.getSelectedTrackName();
     }
 
 

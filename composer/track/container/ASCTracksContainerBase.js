@@ -15,7 +15,7 @@ export default class ASCTracksContainerBase extends React.Component {
         const composer = this.props.composer;
         composer.activeTracks = {};
 
-        const selectedTrackName = composer.state.selectedTrack;
+        const selectedTrackName = composer.getSelectedTrackName();
         let trackList = Object.keys(composer.state.activeTracks);
         let collapsed = false;
         if(composer.state.portrait) {

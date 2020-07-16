@@ -5,7 +5,17 @@ div.asc-instrument-renderer {
     padding: 2px;
     margin: 0px 0px 0px 0px;
     vertical-align: top;
+    cursor: pointer;
 }
+
+div.asc-instrument-renderer:hover {
+    background: #90F3FF;
+}
+div.asc-instrument-renderer:focus {
+    background-color: #90BEDE;
+}
+
+
 
 div.asc-instrument-renderer > div.header {
     display: flex;
