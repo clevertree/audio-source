@@ -35,18 +35,18 @@ class OscillatorInstrument {
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         let endTime;
-
-
         const audioContext = destination.context;
-        if(!Number.isNaN(duration)) {
+        if(typeof duration === "number") {
             endTime = startTime + duration;
             if (endTime < audioContext.currentTime) {
                 console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
                 return false;
             }
         }
-        if(startTime < 0)
-            startTime = 0; // Negative start time fix.
+        if(startTime === null)
+            startTime = audioContext.currentTime;
+        else if(startTime < 0)
+            startTime = 0; // TODO: adjust buffer offset.
         // console.log('playFrequency', startTime, duration, destination.context.currentTime);
 
 

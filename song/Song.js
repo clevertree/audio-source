@@ -28,7 +28,7 @@ class Song {
         this.volume = null;
         this.lastVolumeGain = null;
         this.playback = null;
-        this.lastMIDIProgram = null;
+        this.lastMIDIProgram = null; // TODO: ugly?
 
         const data = {
             title: Song.generateTitle(),
@@ -607,6 +607,8 @@ class Song {
         // Preserve old programs name
         // if (oldConfig && oldConfig.title && !programConfig.title)
         //     programConfig.title = oldConfig.title;
+
+        this.lastMIDIProgram = null; // TODO: hack?
 
         const oldConfig = this.getProxiedData().programs[programID];
         this.data.programs[programID] = [programClassName, programConfig];
