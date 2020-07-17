@@ -1,19 +1,18 @@
-import {FileService} from "../../../song/";
+import AudioBufferLoader from "./loader/AudioBufferLoader";
 
 
 class AudioBufferInstrument {
-    constructor(config={}, audioContext=null) {
+    constructor(config={}) {
         this.config = config;
-        this.audioContext = audioContext;
         this.audioBuffer = null;
         this.loadAudioBuffer();
         console.log('AudioBufferInstrument', config);
     }
     async loadAudioBuffer() {
-
-        const service = new FileService();
-        const buffer = await service.loadBufferFromURL(this.config.url);
-        this.audioBuffer = this.audioContext.decodeAudioData(buffer);
+        const service = new AudioBufferLoader();
+        // console.log("Loaded audio buffer: ", this.config.url);
+        this.audioBuffer = await service.loadAudioBufferFromURL(this.config.url);
+        console.log("Loaded audio buffer: ", this.audioBuffer);
     }
 
     /** Playback **/

@@ -33,7 +33,7 @@ class FileService {
         if(url.toString().startsWith('torrent://')) {
             console.log('Loading: ' + url);
             const buffer = await this.getFileBufferFromTorrent(url);
-            console.log('Loaded: ' + url, buffer);
+            // console.log('Loaded: ' + url, buffer);
             return buffer;
         }
 
@@ -65,9 +65,11 @@ class FileService {
             const file = torrent.files[i];
             if(filePath === file.path) {
                 return await new Promise((resolve, reject) => {
+                    // const stream = file.createReadStream();
+                    // resolve(stream);
                     file.getBuffer(async function(err, buffer) {
                         if(err) throw new Error(err);
-                        resolve(buffer);
+                        resolve(buffer); // TODO: not a buffer?
                     });
                 })
             }
