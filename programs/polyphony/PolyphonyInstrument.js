@@ -33,6 +33,19 @@ class PolyphonyInstrument {
         }
     }
 
+    /** MIDI Events **/
+
+    playMIDIEvent(destination, eventData, onended=null) {
+        for (let i = 0; i < this.config.voices.length; i++) {
+            const voice = this.loadVoice(i);
+
+            if(voice.playMIDIEvent)
+                voice.playMIDIEvent(destination, eventData, onended);
+            else
+                console.warn("Voice " + voice.constructor.name + " has no method 'playMIDIEvent'");
+        }
+    }
+
     stopPlayback() {
         this.loadedVoices.forEach(loadedVoice => loadedVoice.stopPlayback())
     }

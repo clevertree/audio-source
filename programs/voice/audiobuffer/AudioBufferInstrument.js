@@ -1,13 +1,18 @@
+import {FileService} from "../../../song/";
+
+
 class AudioBufferInstrument {
     constructor(config={}, audioContext=null) {
         this.config = config;
         this.audioContext = audioContext;
         this.audioBuffer = null;
         this.loadAudioBuffer();
+        console.log('AudioBufferInstrument', config);
     }
     async loadAudioBuffer() {
-        const response = await fetch(this.config.url);
-        const buffer = await response.arrayBuffer();
+
+        const service = new FileService();
+        const buffer = await service.loadBufferFromURL(this.config.url);
         this.audioBuffer = this.audioContext.decodeAudioData(buffer);
     }
 
@@ -49,6 +54,11 @@ class AudioBufferInstrument {
         return source;
     }
 
+    /** MIDI Events **/
+
+    playMIDIEvent(destination, eventData, onended=null) {
+        console.log('TODO playMIDIEvent', destination, eventData);
+    }
 }
 
 export default AudioBufferInstrument;

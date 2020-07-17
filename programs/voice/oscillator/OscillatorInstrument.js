@@ -147,6 +147,12 @@ class OscillatorInstrument {
     }
 
 
+    /** MIDI Events **/
+
+    playMIDIEvent(destination, eventData, onended=null) {
+        console.log('TODO playMIDIEvent', destination, eventData);
+    }
+
     /** Pitch Bend **/
 
     pitchBendTo(frequency, startTime, duration) {

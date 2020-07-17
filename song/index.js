@@ -8,10 +8,12 @@ import InstructionIterator from "./instruction/iterator/InstructionIterator";
 import SongValues from "./values/SongValues";
 import {TrackIterator, TrackPlayback} from "./track";
 import Library from "./library/Library";
+import FileService from "./file/FileService";
 export {
     Song,
     Library,
     ProgramLoader,
+    FileService,
 
     Instruction,
     InstructionIterator,

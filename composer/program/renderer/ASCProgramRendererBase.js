@@ -50,6 +50,9 @@ export default class ASCProgramRendererBase extends React.Component {
 
     handleMIDIInput(e) {
         console.log('handleMIDIInput', e);
+        const destination = this.getComposer().getDestination();
+        this.getSong().playMIDIEvent(destination, this.getProgramID(), e.data);
+        // TODO: Send to song
 
 
         // console.log("MIDI", e.data, e, selectedComponent);

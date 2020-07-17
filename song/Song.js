@@ -28,6 +28,7 @@ class Song {
         this.volume = null;
         this.lastVolumeGain = null;
         this.playback = null;
+        this.lastMIDIProgram = null;
 
         const data = {
             title: Song.generateTitle(),
@@ -534,14 +535,14 @@ class Song {
         return !!this.getProxiedData().programs[programID];
     }
 
-    /** @deprecated Use custom arg processor **/
-    playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
-        if(onstart !== null) {
-            let currentTime = destination.context.currentTime;
-            setTimeout(onstart, (noteStartTime - currentTime) * 1000);
-        }
-        return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
-    }
+    // /** @deprecated Use custom arg processor **/
+    // playProgram(destination, program, noteFrequency, noteStartTime, noteDuration=null, noteVelocity=null, onstart=null, onended=null) {
+    //     if(onstart !== null) {
+    //         let currentTime = destination.context.currentTime;
+    //         setTimeout(onstart, (noteStartTime - currentTime) * 1000);
+    //     }
+    //     return program.playFrequency(destination, noteFrequency, noteStartTime, noteDuration, noteVelocity, onended);
+    // }
 
     programGetData(programID, proxiedData=true)         { return this.programLoader.getData(programID, proxiedData); }
     programGetClassName(programID)                              { return this.programLoader.getClassName(programID); }
@@ -826,6 +827,21 @@ class Song {
         //     song.playInstruction(destination, instruction, trackState.programID);
         // }
 
+    }
+
+    playMIDIEvent(destination, programID, eventData) {
+        let program;
+        const [lastMIDIProgramID, lastMIDIProgram] = this.lastMIDIProgram || [null, null];
+        if(programID !== lastMIDIProgramID) {
+            program = this.programLoadInstanceFromID(programID);
+            this.lastMIDIProgram = [programID, program];
+        } else {
+            program = lastMIDIProgram;
+        }
+        if(program.playMIDIEvent)
+            program.playMIDIEvent(destination, eventData);
+        else
+            console.warn("Program " + program.constructor.name + " has no method 'playMIDIEvent'");
     }
 
     // playInstructionAtIndex(destination, trackName, instructionIndex, noteStartTime = null) {

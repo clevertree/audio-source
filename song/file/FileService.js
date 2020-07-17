@@ -31,9 +31,9 @@ class FileService {
     async loadBufferFromURL(url) {
         // this.log("Loading buffer from url: " + url);
         if(url.toString().startsWith('torrent://')) {
-            console.time('getFileBufferFromTorrent');
+            console.log('Loading: ' + url);
             const buffer = await this.getFileBufferFromTorrent(url);
-            console.timeEnd('getFileBufferFromTorrent');
+            console.log('Loaded: ' + url, buffer);
             return buffer;
         }
 

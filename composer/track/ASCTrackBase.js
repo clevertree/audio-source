@@ -155,6 +155,7 @@ export default class ASCTrackBase extends React.Component {
     /** Input **/
 
     handleMIDIInput(e) {
+        // TODO: Send to song
         console.log('handleMIDIInput', e);
     }
 

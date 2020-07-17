@@ -14,6 +14,7 @@ export default class SongProxyListener {
         // console.log('SongProxy.' + prop);
         switch(prop) { // Intercept song commands
             case 'play':
+            case 'playMIDIEvent':
             case 'playSelectedInstructions':
                 return this.getProxyCommand(prop);
             // case TARGET: return obj;
