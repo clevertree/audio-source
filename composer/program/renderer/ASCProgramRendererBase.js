@@ -65,7 +65,7 @@ export default class ASCProgramRendererBase extends React.Component {
     // }
     programRename() {
         const programID = this.props.programID;
-        this.getComposer().programRename(programID);
+        this.getComposer().programRenamePrompt(programID);
     }
     programRemove() {
         const programID = this.props.programID;
@@ -89,11 +89,16 @@ export default class ASCProgramRendererBase extends React.Component {
     togglePresetBrowser() {
         const programState = this.getProgramState();
         programState.showBrowser = !programState.showBrowser;
+        if(programState.showBrowser)
+            programState.open = true;
         this.setProgramState(programState);
     }
 
-    loadPreset(presetClassName, presetConfig={}) {
+    async loadPreset(presetClassName, presetConfig={}) {
         console.log("Loading preset: ", presetClassName, presetConfig);
+        const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
+        if(typeof instance.waitForAssetLoad)
+            await instance.waitForAssetLoad();
         const song = this.getSong();
         const programID = this.props.programID;
         song.programReplace(programID, presetClassName, presetConfig);
@@ -121,8 +126,8 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuBreak />
             {/*<ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>*/}
             {/*<ASUIMenuBreak />*/}
-            <ASUIMenuAction onAction={e => this.programRename()}>Rename Program</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.programRemove()}>Remove Program</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.programRenamePrompt()}>Rename Program</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.programRemovePrompt()}>Remove Program</ASUIMenuAction>
         </>);
     }
 

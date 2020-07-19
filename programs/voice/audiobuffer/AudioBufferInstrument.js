@@ -4,23 +4,39 @@ import {Values} from "../../../common";
 
 class AudioBufferInstrument {
     constructor(config={}) {
+        // console.log("Loaded audio buffer: ", this.audioBuffer);
+        console.log('AudioBufferInstrument', config);
+
         this.config = config;
         this.audioBuffer = null;
-        this.loadAudioBuffer();
-        console.log('AudioBufferInstrument', config);
+        this.source = null;
+
+        const service = new AudioBufferLoader();
+        // console.log("Loaded audio buffer: ", this.config.url);
+        this.loading = service.loadAudioBufferFromURL(this.config.url)
+            .then(buffer => this.setBuffer(buffer));
 
         this.activeMIDINotes = []
     }
-    async loadAudioBuffer() {
-        const service = new AudioBufferLoader();
-        // console.log("Loaded audio buffer: ", this.config.url);
-        this.audioBuffer = await service.loadAudioBufferFromURL(this.config.url);
-        // console.log("Loaded audio buffer: ", this.audioBuffer);
+
+
+    setBuffer(audioBuffer) {
+        this.audioBuffer = audioBuffer;
+        if(this.source)
+            this.source.buffer = audioBuffer;
+        // console.log("Set audio buffer: ", audioBuffer, this.config.url, this.source);
+    }
+
+    /** Async loading **/
+
+    async waitForAssetLoad() {
+        await this.loading;
     }
 
     /** Playback **/
 
     playFrequency(destination, frequencyValue, startTime=null, duration=null, velocity=null, onended=null) {
+
         let endTime;
         const audioContext = destination.context;
         if(typeof duration === "number") {
@@ -43,7 +59,9 @@ class AudioBufferInstrument {
 
         // Audio Buffer
         const source = destination.context.createBufferSource();
-        source.buffer = this.audioBuffer;
+        this.source = source;
+        if(this.audioBuffer)
+            source.buffer = this.audioBuffer;
         if(typeof this.config.loop !== "undefined")
             source.loop = !!this.config.loop;
         const playbackRate = frequencyValue / (this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 440);
@@ -64,8 +82,11 @@ class AudioBufferInstrument {
                 source.stop(endTime);
             }
         }
-        if(onended)
-            source.onended = onended;
+        source.onended = function() {
+            onended && onended();
+            if(!source.buffer)
+                console.warn("Note playback ended without an audio buffer", source);
+        };
 
         return source;
     }
@@ -80,11 +101,11 @@ class AudioBufferInstrument {
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
                 const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
                 let newMIDIVelocity = Math.round((eventData[2] / 128) * 100);
-                const source = this.playFrequency(destination, newMIDIFrequency);
+                const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
                 if(this.activeMIDINotes[newMIDICommand])
                     this.activeMIDINotes[newMIDICommand].stop();
                 this.activeMIDINotes[newMIDICommand] = source;
-                console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
+                // console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
                 break;
 
             case 128:   // Note Off
@@ -92,7 +113,7 @@ class AudioBufferInstrument {
                 if(this.activeMIDINotes[newMIDICommand]) {
                     this.activeMIDINotes[newMIDICommand].stop();
                     delete this.activeMIDINotes[newMIDICommand];
-                    console.log("MIDI Off", newMIDICommand, eventData);
+                    // console.log("MIDI Off", newMIDICommand, eventData);
                 } else {
                     console.warn("No 'ON' note was found for : " + newMIDICommand);
                 }

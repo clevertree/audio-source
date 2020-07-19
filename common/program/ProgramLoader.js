@@ -8,18 +8,18 @@ export default class ProgramLoader {
     }
 
 
-    loadInstanceFromDestination(programID, destination) {
-        return this.loadInstanceFromID(programID);
-        // let programs = this.destinations.get(destination);
-        // if(!programs) {
-        //     programs = {};
-        //     this.destinations.set(destination, programs);
-        // }
-        // if(typeof programs[programID] === "undefined")
-        //     programs[programID] = this.programLoadInstance(programID);
-
-        // return programs[programID];
-    }
+    // loadInstanceFromDestination(programID, destination) {
+    //     return this.loadInstanceFromID(programID);
+    //     // let programs = this.destinations.get(destination);
+    //     // if(!programs) {
+    //     //     programs = {};
+    //     //     this.destinations.set(destination, programs);
+    //     // }
+    //     // if(typeof programs[programID] === "undefined")
+    //     //     programs[programID] = this.programLoadInstance(programID);
+    //
+    //     // return programs[programID];
+    // }
 
     getData(programID, proxiedData=true) {
         let songData = proxiedData

@@ -114,15 +114,6 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    saveSongToMemoryWithTimeout(autoSaveTimeout=null) {
-        clearTimeout(this.timeouts.saveSongToMemory);
-        this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(), autoSaveTimeout || this.autoSaveTimeout);
-    }
-    saveStateWithTimeout(autoSaveTimeout=null) {
-        clearTimeout(this.timeouts.saveState);
-        this.timeouts.saveState = setTimeout(e => this.saveState(), autoSaveTimeout || this.autoSaveTimeout);
-    }
-
     /** Focus **/
 
     focusActiveTrack() {
@@ -368,15 +359,20 @@ class ASComposerActions extends ASComposerMenu {
     }
 
 
-    async saveSongToMemory() {
+    async saveSongToMemory(setStatus=true) {
         const song = this.song;
         const songData = song.getProxiedData();
         const songHistory = song.history;
         const storage = new Storage();
-        this.setStatus("Saving song to memory...");
+        setStatus && this.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
-        this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
+        setStatus && this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
         this.saveState();
+    }
+
+    saveSongToMemoryWithTimeout(autoSaveTimeout=null, setStatus=false) {
+        clearTimeout(this.timeouts.saveSongToMemory);
+        this.timeouts.saveSongToMemory = setTimeout(e => this.saveSongToMemory(setStatus), autoSaveTimeout || this.autoSaveTimeout);
     }
 
     async saveSongToFile(prompt=true) {
@@ -967,7 +963,7 @@ class ASComposerActions extends ASComposerMenu {
         this.setStatus(`New program class '${programClassName}' added to song at position ${programID}`);
     }
 
-    async programReplace(programID, programClassName, programConfig = {}) {
+    async programReplacePrompt(programID, programClassName, programConfig = {}) {
         if (!Number.isInteger(programID))
             throw new Error(`Invalid Program ID: Not an integer`);
         if (!programClassName)
@@ -982,7 +978,7 @@ class ASComposerActions extends ASComposerMenu {
         }
     }
 
-    async programRename(programID, newProgramTitle = null) {
+    async programRenamePrompt(programID, newProgramTitle = null) {
         const programConfig = this.song.programGetConfig(programID);
         // console.log(programConfig, programID);
         const oldProgramTitle = programConfig.title;
@@ -994,7 +990,7 @@ class ASComposerActions extends ASComposerMenu {
         this.setStatus(`Program title updated: ${newProgramTitle}`);
     }
 
-    async programRemove(programRemoveID = null) {
+    async programRemovePrompt(programRemoveID = null) {
         if (await PromptManager.openConfirmDialog(`Remove Program ID: ${programRemoveID}`)) {
             this.song.programRemove(programRemoveID);
             this.setStatus(`Program (${programRemoveID}) removed`);

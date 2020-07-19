@@ -4,6 +4,7 @@ import {ASUIClickable, ASUIDiv, ASUIMenuAction, ASUIMenuItem} from "../../../com
 import Library from "../../../song/library/Library";
 
 import "./ASCPresetBrowser.css";
+import {ProgramLoader} from "../../../common";
 
 export default class ASCPresetBrowser extends React.Component {
     constructor(props) {
@@ -11,6 +12,7 @@ export default class ASCPresetBrowser extends React.Component {
         this.state = {
             loading: true,
             presets: [],
+            loadingPresets: [],
             libraries: [],
 
             limit: 12,
@@ -106,14 +108,16 @@ export default class ASCPresetBrowser extends React.Component {
 
         } else {
 
+            const loadingPresets = this.state.loadingPresets || [];
             const limitedList = this.state.presets
                 .slice(this.state.offset, this.state.limit);
 
-            content = limitedList.map(([presetClass, presetConfig], i) =>
+            content = limitedList.map(([presetClass, presetConfig], presetID) =>
                 <ASUIClickable
-                    key={i}
-                    onAction={() => this.loadPreset(presetClass, presetConfig)}
-                    selected={i === this.state.currentPresetID}
+                    key={presetID}
+                    onAction={() => this.loadPreset(presetID, presetClass, presetConfig)}
+                    selected={presetID === this.state.currentPresetID}
+                    className={loadingPresets.indexOf(presetID) === -1 ? null : 'loading'}
                     // options={() => {}}
                     children={presetConfig.title}
                 />)
@@ -130,11 +134,33 @@ export default class ASCPresetBrowser extends React.Component {
 
     /** Actions **/
 
-    loadPreset(presetClassName, presetConfig) {
-        console.log("Loading preset: ", presetClassName, presetConfig);
+    async loadPreset(presetID, presetClassName, presetConfig) {
+        const presetTitle = presetConfig.title || presetClassName;
+        const composer = this.getComposer();
+        composer.setStatus("Loading preset: " + presetTitle, presetConfig);
+
+        const loadingPresets = this.state.loadingPresets;
+        let loadingPresetsI = loadingPresets.indexOf(presetID);
+        if(loadingPresetsI === -1)
+            loadingPresets.push(presetID);
+        this.setState({loadingPresets});
+
+        const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
+        await new Promise(resolve => {
+           setTimeout(resolve, 1000);
+        });
+        if(typeof instance.waitForAssetLoad === "function")
+            await instance.waitForAssetLoad();
+
+        loadingPresetsI = loadingPresets.indexOf(presetID);
+        if(loadingPresetsI !== -1)
+            loadingPresets.splice(loadingPresetsI, 1);
+        this.setState({loadingPresets});
+
         const song = this.getComposer().getSong();
         const programID = this.getProgramID();
         song.programReplace(programID, presetClassName, presetConfig);
+        composer.setStatus("Loaded preset: " + presetTitle);
         this.updateList();
     }
 

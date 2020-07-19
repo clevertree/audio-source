@@ -438,7 +438,7 @@ class ASComposerMenu extends ASComposerRenderer {
 
     renderMenuProgramEditReplace(programID) {
         return ProgramLoader.getRegisteredPrograms().map((config, i) =>
-            <ASUIMenuAction key={i} onAction={e => this.programReplace(programID, config.className)}       >{config.title}</ASUIMenuAction>
+            <ASUIMenuAction key={i} onAction={e => this.programReplacePrompt(programID, config.className)}       >{config.title}</ASUIMenuAction>
         );
     }
 

@@ -21,6 +21,19 @@ class PolyphonyInstrument {
         return loadedVoice;
     }
 
+    /** Async loading **/
+
+    async waitForAssetLoad() {
+        const promises = [];
+        for (let i = 0; i < this.config.voices.length; i++) {
+            const voice = this.loadVoice(i);
+            if(typeof voice.waitForAssetLoad === "function")
+                promises.push(voice.waitForAssetLoad());
+        }
+        for(let i=0; i < promises.length; i++)
+            await promises[i];
+    }
+
 
     /** Playback **/
 
