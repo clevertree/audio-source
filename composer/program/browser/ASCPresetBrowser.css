@@ -24,34 +24,20 @@ div.asc-preset-browser > div.preset-list > div {
     padding: 4px;
     margin: 1px;
     border-radius: 4px;
-    max-width: 200px;
+    min-width: 240px;
+    /*max-width: 280px;*/
 }
 div.asc-preset-browser > div.library-list > div.selected ,
 div.asc-preset-browser > div.preset-list > div.selected {
     border: #CCC inset 1px;
-    background-color: #CAA;
 }
 
-div.asc-preset-browser > div.library-list > div.loading ,
-div.asc-preset-browser > div.preset-list > div.loading {
-    background: linear-gradient(-45deg, #96e76bFF, #e73c7e66, #23a6d500, #23d5ab66 );
-    background-size: 400% 400%;
-    animation: gradientBG 5s ease infinite;
+div.asc-preset-browser > div.library-list > div.centered ,
+div.asc-preset-browser > div.preset-list > div.centered {
+    text-align: center;
 }
 
 
 div.asc-preset-browser > div.library-list > div {
     background-color: #938dc2;
-}
-
-@keyframes gradientBG {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
 }

@@ -2,6 +2,7 @@
 /** Menu Item **/
 
 div.asui-menu-item {
+    display: flex;
     /*color: #777;*/
     transition: background-color 0.3s;
 

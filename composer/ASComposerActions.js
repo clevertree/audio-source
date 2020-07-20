@@ -24,7 +24,7 @@ class ASComposerActions extends ASComposerMenu {
         if(!(library instanceof Library))
             throw new Error("Invalid library: " + typeof library);
         this.library = library;
-        console.log('Current library: ', library);
+        // console.log('Current library: ', library);
     }
 
 

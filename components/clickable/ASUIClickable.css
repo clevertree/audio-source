@@ -1,7 +1,5 @@
 div.asui-clickable {
     cursor: pointer;
-    color: #000;
-    display: flex;
 }
 
 div.asui-clickable.dropdown {
@@ -25,8 +23,30 @@ div.asui-clickable > div.arrow {
 
 /** Selected **/
 div.asui-clickable.selected {
-    background-color: #AAA;
+    border-style: inset;
+    background-color: #CAA !important;
 }
+
+/** Loading **/
+div.asui-clickable.loading {
+    background: linear-gradient(-45deg, #96e76bFF, #e73c7e66, #23a6d500, #23d5ab66) !important;
+    background-size: 400% 400%;
+    animation: gradientBG 5s ease infinite;
+    cursor: progress;
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
 
 /** Hover **/
 div.asui-clickable:hover {

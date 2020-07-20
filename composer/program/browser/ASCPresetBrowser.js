@@ -1,12 +1,15 @@
 import React from "react";
 
-import {ASUIClickable, ASUIDiv, ASUIMenuAction, ASUIMenuItem} from "../../../components";
+import {ASUIClickable, ASUIMenuAction, ASUIMenuItem} from "../../../components";
 import Library from "../../../song/library/Library";
 
 import "./ASCPresetBrowser.css";
 import {ProgramLoader} from "../../../common";
+import PromptManager from "../../../common/prompt/PromptManager";
 
 export default class ASCPresetBrowser extends React.Component {
+    static DEFAULT_TIMEOUT_MS = 10000;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -17,9 +20,13 @@ export default class ASCPresetBrowser extends React.Component {
 
             limit: 12,
             offset: 0,
-            selected: 0
+            selected: 0,
+            searchString: ''
         }
         this.history = [];
+        this.cb = {
+            onWheel: e => this.onWheel(e)
+        }
     }
 
 
@@ -51,7 +58,7 @@ export default class ASCPresetBrowser extends React.Component {
                         tags.push(tag);
                 });
         })
-        console.log('presets', currentPresetConfig, {presets, libraries, tags, currentPresetID});
+        // console.log('presets', currentPresetConfig, {presets, libraries, tags, currentPresetID});
         this.setState({presets, libraries, tags, currentPresetID, loading: false});
     }
 
@@ -59,7 +66,11 @@ export default class ASCPresetBrowser extends React.Component {
         let className = 'asc-preset-browser';
 
         return (
-            <div className={className}>
+            <div className={className}
+                 ref={elm => {
+                     elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
+                 }}
+                >
                 <div className="library-list">
                     {this.renderLibraries()}
                 </div>
@@ -74,19 +85,29 @@ export default class ASCPresetBrowser extends React.Component {
 
 
     renderLibraries() {
+        const library = this.props.composer.library;
         let content = [];
 
         if(this.history.length > 0) {
             content.push(<ASUIClickable
                 key={-1}
+                className="centered"
                 // options={() => {}}
                 onAction={() => this.popLibrary()}
                 children={"- Previous Library -"}
             />);
         }
 
+        content.push(<ASUIClickable
+            key={'library-current'}
+            className="centered"
+            // options={() => {}}
+            onAction={() => this.setLibrary(library)}
+            children={library.getTitle()}
+        />)
+
         if(this.state.loading) {
-            content.push(<ASUIDiv>Loading Libraries...</ASUIDiv>);
+            content.push(<ASUIClickable loading={true} onAction={() => {}}>Loading Libraries...</ASUIClickable>);
 
         } else {
             content = content.concat(this.state.libraries.map((library, i) =>
@@ -104,32 +125,95 @@ export default class ASCPresetBrowser extends React.Component {
     renderPresets() {
         let content = [];
         if(this.state.loading) {
-            content.push(<ASUIDiv>Loading Presets...</ASUIDiv>);
+            content.push(<ASUIClickable loading={true} onAction={() => {}}>Loading Presets...</ASUIClickable>);
 
         } else {
+            const {offset, limit} = this.state;
 
             const loadingPresets = this.state.loadingPresets || [];
-            const limitedList = this.state.presets
-                .slice(this.state.offset, this.state.limit);
+            let presetList = this.state.presets;
+            if(this.state.searchString) {
+                const searchString = this.state.searchString.toLowerCase();
+                presetList = presetList.filter(([presetClass, presetConfig], presetID) => {
+                    if(presetConfig.title.toLowerCase().indexOf(searchString) !== -1)
+                        return true;
+                    if(presetConfig.tags) {
+                        for (let i = 0; i < presetConfig.tags.length; i++) {
+                            if(presetConfig.tags[i].toLowerCase().indexOf(searchString) !== -1)
+                                return true;
+                        }
+                    }
+                })
+            }
+            const limitedList = presetList
+                .slice(offset, offset + limit);
 
-            content = limitedList.map(([presetClass, presetConfig], presetID) =>
-                <ASUIClickable
+            content = limitedList.map(([presetClass, presetConfig], presetID) => {
+                presetID += offset;
+                const loading = loadingPresets.indexOf(presetID) !== -1;
+                return <ASUIClickable
                     key={presetID}
                     onAction={() => this.loadPreset(presetID, presetClass, presetConfig)}
                     selected={presetID === this.state.currentPresetID}
-                    className={loadingPresets.indexOf(presetID) === -1 ? null : 'loading'}
+                    loading={loading}
+                    title={presetConfig.title}
                     // options={() => {}}
-                    children={presetConfig.title}
-                />)
-            if(limitedList.length < this.state.presets.length) {
-                content.push(<ASUIClickable
-                    key={-1}
-                    // options={() => {}}
-                    children={"- More -"}
+                    children={loading ? 'Loading Preset...' : this.trimTitle(presetConfig.title)}
+                />;
+            });
+
+            content.unshift(<ASUIClickable
+                key="preset-search"
+                className="centered"
+                onAction={() => this.promptSearch()}
+                children={`Search${this.state.searchString ? `ing '${this.state.searchString}'` : ''}`}
+            />);
+
+            if(offset > 0) {
+                let prevOffset = offset - limit;
+                if(prevOffset < 0)
+                    prevOffset = 0;
+                content.unshift(<ASUIClickable
+                    key="preset-previous"
+                    onAction={() => this.setOffset(prevOffset)}
+                    className="centered"
+                    children={`Prev Page (${prevOffset}/${presetList.length})`}
                 />);
             }
+            let nextOffset = offset + limit;
+            if(nextOffset < presetList.length) {
+                content.push(<ASUIClickable
+                    key="preset-next"
+                    onAction={() => this.setOffset(nextOffset)}
+                    className="centered"
+                    children={`Next Page (${offset}-${nextOffset}/${presetList.length})`}
+                />);
+            }
+
         }
         return content;
+    }
+
+    addLoadingPreset(presetID) {
+        const loadingPresets = this.state.loadingPresets;
+        let i = loadingPresets.indexOf(presetID);
+        if(i === -1)
+            loadingPresets.push(presetID);
+        this.setState({loadingPresets});
+    }
+
+    removeLoadingPreset(presetID) {
+        const loadingPresets = this.state.loadingPresets;
+        let i = loadingPresets.indexOf(presetID);
+        if(i !== -1)
+            loadingPresets.splice(i, 1);
+        this.setState({loadingPresets});
+    }
+
+    trimTitle(titleString) {
+        if(titleString.length > 20)
+            titleString = titleString.substr(0, 28) + '...';
+        return titleString;
     }
 
     /** Actions **/
@@ -137,25 +221,25 @@ export default class ASCPresetBrowser extends React.Component {
     async loadPreset(presetID, presetClassName, presetConfig) {
         const presetTitle = presetConfig.title || presetClassName;
         const composer = this.getComposer();
-        composer.setStatus("Loading preset: " + presetTitle, presetConfig);
-
-        const loadingPresets = this.state.loadingPresets;
-        let loadingPresetsI = loadingPresets.indexOf(presetID);
-        if(loadingPresetsI === -1)
-            loadingPresets.push(presetID);
-        this.setState({loadingPresets});
+        composer.setStatus(`Loading preset: ${presetTitle}`, presetConfig);
+        this.addLoadingPreset(presetID);
 
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
-        await new Promise(resolve => {
-           setTimeout(resolve, 1000);
-        });
-        if(typeof instance.waitForAssetLoad === "function")
-            await instance.waitForAssetLoad();
+        let error = false;
+        if(typeof instance.waitForAssetLoad === "function") {
+            const timeout = setTimeout(() => {
+                error = true;
+                this.removeLoadingPreset(presetID);
+                composer.setError(`Preset failed to load: ${presetTitle}. Please try again.`);
+            }, ASCPresetBrowser.DEFAULT_TIMEOUT_MS);
 
-        loadingPresetsI = loadingPresets.indexOf(presetID);
-        if(loadingPresetsI !== -1)
-            loadingPresets.splice(loadingPresetsI, 1);
-        this.setState({loadingPresets});
+            await instance.waitForAssetLoad();
+            clearTimeout(timeout);
+            if(error)
+                return;
+        }
+
+        this.removeLoadingPreset(presetID);
 
         const song = this.getComposer().getSong();
         const programID = this.getProgramID();
@@ -166,7 +250,7 @@ export default class ASCPresetBrowser extends React.Component {
 
     setLibrary(library, addHistory=true) {
         const oldLibrary = this.props.composer.library;
-        this.setState({loading: true});
+        this.setState({loading: true, offset: 0});
         this.props.composer.setLibrary(library);
         this.updateList();
 
@@ -184,6 +268,29 @@ export default class ASCPresetBrowser extends React.Component {
             throw new Error("Invalid library history");
         const oldLibrary = this.history.shift();
         this.setLibrary(oldLibrary, false);
+    }
+
+    setOffset(offset) {
+        this.setState({offset})
+    }
+
+    async promptSearch() {
+        console.log("searchString", this.state.searchString);
+        const searchString = await PromptManager.openPromptDialog("Enter search keyword:", this.state.searchString);
+        console.log("searchString2", searchString);
+        this.setState({searchString, offset: 0});
+    }
+
+    /** Input **/
+
+    onWheel(e) {
+        e.preventDefault();
+        let offset = parseInt(this.state.offset) || 0;
+        offset += e.deltaY > 0 ? 1 : -1;
+        if(offset < 0)
+            offset = 0;
+
+        this.setState({offset})
     }
 
     /** Menu **/

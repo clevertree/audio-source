@@ -5,7 +5,7 @@ import {Values} from "../../../common";
 class AudioBufferInstrument {
     constructor(config={}) {
         // console.log("Loaded audio buffer: ", this.audioBuffer);
-        console.log('AudioBufferInstrument', config);
+        // console.log('AudioBufferInstrument', config);
 
         this.config = config;
         this.audioBuffer = null;

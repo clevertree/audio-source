@@ -28,7 +28,7 @@ export default class AudioBufferLoader {
         const audioBuffer = await this.audioContext.decodeAudioData(buffer.buffer || buffer);
         if(expires !== false) {
             cache[url] = [audioBuffer, expires];
-            console.log("Cached: " + url, audioBuffer);
+            // console.log("Cached: " + url, audioBuffer);
             clearInterval(cacheClearInterval);
             cacheClearInterval = setInterval(() => this.clearCache());
         }
@@ -41,7 +41,7 @@ export default class AudioBufferLoader {
         Object.keys(cache).forEach(function(cacheKey) {
             const [audioBuffer, expires] = cache[cacheKey];
             if(expireTime > expires) {
-                console.log("Uncached: " + cacheKey, audioBuffer);
+                // console.log("Uncached: " + cacheKey, audioBuffer);
                 delete cache[cacheKey];
             }
         })
