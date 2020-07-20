@@ -42,24 +42,13 @@ export default class ASCPresetBrowser extends React.Component {
         const song = this.getComposer().getSong();
         const programID = this.getProgramID();
         const [currentPresetClass, currentPresetConfig] = song.programGetData(programID, false)
-        let currentPresetID = -1;
 
         const library = this.props.composer.library;
         const presets = await library.getPresets();
         const libraries = await library.getLibraries();
-        const tags = [];
-        presets.forEach(([presetClass, presetConfig], i) => {
-            if(presetClass === currentPresetClass
-                && presetConfig.title === currentPresetConfig.title)
-                currentPresetID = i;
-            if(presetConfig.tags)
-                presetConfig.tags.forEach(tag => {
-                    if(tags.indexOf(tag) === -1)
-                        tags.push(tag);
-                });
-        })
+        const currentPresetHash = library.getTitle() + ':' + currentPresetClass + ':' + currentPresetConfig.title;
         // console.log('presets', currentPresetConfig, {presets, libraries, tags, currentPresetID});
-        this.setState({presets, libraries, tags, currentPresetID, loading: false});
+        this.setState({presets, libraries, currentPresetHash, loading: false});
     }
 
     render() {
@@ -121,6 +110,23 @@ export default class ASCPresetBrowser extends React.Component {
         return content;
     }
 
+    getFilteredPresets() {
+        let presetList = this.state.presets;
+        if(this.state.searchString) {
+            const searchString = this.state.searchString.toLowerCase();
+            presetList = presetList.filter(([presetClass, presetConfig], presetID) => {
+                if(presetConfig.title.toLowerCase().indexOf(searchString) !== -1)
+                    return true;
+                if(presetConfig.tags) {
+                    for (let i = 0; i < presetConfig.tags.length; i++) {
+                        if(presetConfig.tags[i].toLowerCase().indexOf(searchString) !== -1)
+                            return true;
+                    }
+                }
+            })
+        }
+        return presetList;
+    }
 
     renderPresets() {
         let content = [];
@@ -131,30 +137,20 @@ export default class ASCPresetBrowser extends React.Component {
             const {offset, limit} = this.state;
 
             const loadingPresets = this.state.loadingPresets || [];
-            let presetList = this.state.presets;
-            if(this.state.searchString) {
-                const searchString = this.state.searchString.toLowerCase();
-                presetList = presetList.filter(([presetClass, presetConfig], presetID) => {
-                    if(presetConfig.title.toLowerCase().indexOf(searchString) !== -1)
-                        return true;
-                    if(presetConfig.tags) {
-                        for (let i = 0; i < presetConfig.tags.length; i++) {
-                            if(presetConfig.tags[i].toLowerCase().indexOf(searchString) !== -1)
-                                return true;
-                        }
-                    }
-                })
-            }
+            let presetList = this.getFilteredPresets();
+
             const limitedList = presetList
                 .slice(offset, offset + limit);
 
+            const library = this.props.composer.library;
+
             content = limitedList.map(([presetClass, presetConfig], presetID) => {
-                presetID += offset;
-                const loading = loadingPresets.indexOf(presetID) !== -1;
+                const currentPresetHash = library.getTitle() + ':' + presetClass + ':' + presetConfig.title;
+                const loading = loadingPresets.indexOf(currentPresetHash) !== -1;
                 return <ASUIClickable
                     key={presetID}
-                    onAction={() => this.loadPreset(presetID, presetClass, presetConfig)}
-                    selected={presetID === this.state.currentPresetID}
+                    onAction={() => this.loadPreset(currentPresetHash, presetClass, presetConfig)}
+                    selected={currentPresetHash === this.state.currentPresetHash}
                     loading={loading}
                     title={presetConfig.title}
                     // options={() => {}}
@@ -194,17 +190,17 @@ export default class ASCPresetBrowser extends React.Component {
         return content;
     }
 
-    addLoadingPreset(presetID) {
+    addLoadingPreset(presetHash) {
         const loadingPresets = this.state.loadingPresets;
-        let i = loadingPresets.indexOf(presetID);
+        let i = loadingPresets.indexOf(presetHash);
         if(i === -1)
-            loadingPresets.push(presetID);
+            loadingPresets.push(presetHash);
         this.setState({loadingPresets});
     }
 
-    removeLoadingPreset(presetID) {
+    removeLoadingPreset(presetHash) {
         const loadingPresets = this.state.loadingPresets;
-        let i = loadingPresets.indexOf(presetID);
+        let i = loadingPresets.indexOf(presetHash);
         if(i !== -1)
             loadingPresets.splice(i, 1);
         this.setState({loadingPresets});
@@ -218,18 +214,18 @@ export default class ASCPresetBrowser extends React.Component {
 
     /** Actions **/
 
-    async loadPreset(presetID, presetClassName, presetConfig) {
+    async loadPreset(presetHash, presetClassName, presetConfig) {
         const presetTitle = presetConfig.title || presetClassName;
         const composer = this.getComposer();
         composer.setStatus(`Loading preset: ${presetTitle}`, presetConfig);
-        this.addLoadingPreset(presetID);
+        this.addLoadingPreset(presetHash);
 
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);
         let error = false;
         if(typeof instance.waitForAssetLoad === "function") {
             const timeout = setTimeout(() => {
                 error = true;
-                this.removeLoadingPreset(presetID);
+                this.removeLoadingPreset(presetHash);
                 composer.setError(`Preset failed to load: ${presetTitle}. Please try again.`);
             }, ASCPresetBrowser.DEFAULT_TIMEOUT_MS);
 
@@ -239,7 +235,7 @@ export default class ASCPresetBrowser extends React.Component {
                 return;
         }
 
-        this.removeLoadingPreset(presetID);
+        this.removeLoadingPreset(presetHash);
 
         const song = this.getComposer().getSong();
         const programID = this.getProgramID();
