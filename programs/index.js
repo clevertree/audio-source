@@ -7,9 +7,6 @@ import OscillatorInstrumentRenderer from "./voice/oscillator/render/OscillatorIn
 import PolyphonyInstrument from "./polyphony/PolyphonyInstrument";
 import PolyphonyInstrumentRenderer from "./polyphony/render/PolyphonyInstrumentRenderer";
 
-import GMEPlayerSynthesizer from "./player/gme/GMEPlayerSynthesizer";
-import GMEPlayerSynthesizerRenderer from "./player/gme/GMEPlayerSynthesizerRenderer";
-
 import ProgramLoader from "../common/program/ProgramLoader";
 import TestInstrument from "./test/TestInstrument";
 
@@ -20,8 +17,6 @@ export default {
     OscillatorInstrumentRenderer,
     PolyphonyInstrument,
     PolyphonyInstrumentRenderer,
-    GMEPlayerSynthesizer,
-    GMEPlayerSynthesizerRenderer,
     TestInstrument,
     addAllPrograms: function() {
         ProgramLoader.addProgramClass('PolyphonyInstrument', PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Polyphony Host');

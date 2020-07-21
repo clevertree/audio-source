@@ -209,11 +209,16 @@ class Library {
         return results;
     }
 
+    static defaultLibraryData = DefaultLibraryData;
+
     /** @returns {Library} */
     static loadDefault() {
-        return new Library(DefaultLibraryData);
+        return new Library(Library.defaultLibraryData);
     };
 
+    static setDefaultLibrary(defaultLibraryData) {
+        Library.defaultLibraryData = defaultLibraryData;
+    }
 
 }
 

@@ -1,7 +1,6 @@
 import ProgramLoader from "../common/program/ProgramLoader";
 import SongValues from "./values/SongValues";
 
-import GMESongFile from "./file/GMESongFile";
 import JSONSongFile from "./file/JSONSongFile";
 import ConfigListener from "./config/ConfigListener";
 import Instruction from "./instruction/Instruction";
@@ -1018,9 +1017,10 @@ class Song {
             case 'ay':
             case 'sgc':
             case 'kss':
-                library = new GMESongFile();
-                library.init();
-                return library;
+                throw new Error("Unsupported");
+                // library = new GMESongFile();
+                // library.init();
+                // return library;
             //
             // case 'mp3':
             //     const {MP3Support} = require('../file/MP3File.js');

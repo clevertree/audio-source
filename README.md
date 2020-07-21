@@ -18,19 +18,19 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Instruments and effects can be wrapped in each other to build complex presets.
 * Note tracks can be called recursively for a highly structured song.
 
-### What's Currently Working:
+### What's Currently Working
 * Add, edit, and delete notes and note tracks.
 * Edit note velocity and duration.
 * Quarter tone compatibility (missing in MIDI)
 * Recursively play back tracks by adding a 'Track Note'.
 * Track note transposing (play back tracks at different frequencies)
 
-### Under the Hood:
+### Under the Hood
 * Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
 * Songs, instruments, and samples written for Audio Source will work on any platform. 
 * Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy. 
 
-### Planned Features:
+### Planned Features
 * Sample libraries
 * Audio recording and editing
 * Track XY Grid for easy mouse-click composition
@@ -38,7 +38,15 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Server-side song rendering
 * Import/Export MIDI files
 
-# Android Downloads
+
+# Web Browser Demo (Alpha)
+Click the image below to try Audio Source Composer (Alpha) on your browser.
+
+[![Browser Portrait](https://files.audiosource.io/releases/browser/screenshots/browser-portrait1.png)](https://audiosource.io/demo "Demo")
+
+
+
+## Android Downloads
 
 The Audio Source Composer Alpha Demo is available for download on Android Devices:
 
@@ -57,8 +65,8 @@ Check back often for updates as we get closer to Beta!
 ## Website Installation <a name="install-web"></a>
 
 ~~~~
-$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive
-$ cd [audio-source-app]
+$ git clone ssh://git@github.com/clevertree/audio-source-web --recursive
+$ cd [audio-source-web]
 $ npm install
 ~~~~
 
@@ -99,19 +107,6 @@ $ react-native run-ios
 
 
 
-# Audio Source Player (ASP) <a name="player"></a>
-Coming Soon!
-
-## Planned Features:
-
-* Works on any modern browser on any phone, tablet or pc
-* Render song play-back in real-time for highest playback quality
-* Embeddable on any website with 2 lines of code
-* Plays MIDI files
-
-
----
-
 # Coming soon: Audio Source Music Communities <a name="community"></a>
 ### [SNESology Music Community](https://snesology.net)
 Listen to and publish remixes and arrangements (of copyrighted music)
@@ -146,6 +141,14 @@ If you want to join up, please contact us on the
 
 Check back often for updates as we get closer to Beta!
 
+### How to report a bug
+*   Go to [Github.com](https://github.com/clevertree/audio-source-composer/) and grab an account
+*   Check for [existing bugs](https://github.com/clevertree/audio-source-composer/issues/) with the same description
+*   Create a new [bug report](https://github.com/clevertree/audio-source-composer/issues/new) describing the problem
+*   List your operating-system and browser versions
+*   If possible, include the [developer's console](https://kb.mailster.co/how-can-i-open-the-browsers-console/) in the screen-shot
+*   Try to include a [screen-shot](https://northatlanticlcc.org/help/how-to-save-a-screenshot-of-a-webpage) of the issue
+*   Optionally describe your issue in the #bugs channel on [Discord](https://discord.gg/6NDH7sU)
 
 
 ###### [Created by Ari Asulin](https://github.com/clevertree/)
