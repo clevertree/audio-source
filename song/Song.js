@@ -837,7 +837,7 @@ class Song {
         if(lastMIDIProgramConfig !== programConfig) {
             program = ProgramLoader.loadInstance(className, programConfig);
             this.lastMIDIProgram = [program, programConfig];
-            console.log("Loading program for MIDI playback: ", programID, className, programConfig);
+            // console.log("Loading program for MIDI playback: ", programID, className, programConfig);
         } else {
             program = lastMIDIProgram;
         }

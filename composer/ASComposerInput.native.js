@@ -67,7 +67,7 @@ export default class ASComposerInput extends ASComposerPlayback {
                 break;
 
             case 'midimessage':
-                // console.log("MIDI", e.data, e);
+                console.log("MIDI", e.data, e);
                 switch (e.data[0]) {
                     case 144:   // Note On
                         // TODO: refactor

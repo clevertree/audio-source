@@ -1,7 +1,7 @@
 import React from "react";
 
 import {ASUIClickable, ASUIMenuAction, ASUIMenuItem} from "../../../components";
-import Library from "../../../song/library/Library";
+import {Library} from "../../../song";
 
 import "./ASCPresetBrowser.css";
 import {ProgramLoader} from "../../../common";
@@ -96,7 +96,7 @@ export default class ASCPresetBrowser extends React.Component {
         />)
 
         if(this.state.loading) {
-            content.push(<ASUIClickable loading={true} onAction={() => {}}>Loading Libraries...</ASUIClickable>);
+            content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>Loading Libraries...</ASUIClickable>);
 
         } else {
             content = content.concat(this.state.libraries.map((library, i) =>
@@ -131,7 +131,7 @@ export default class ASCPresetBrowser extends React.Component {
     renderPresets() {
         let content = [];
         if(this.state.loading) {
-            content.push(<ASUIClickable loading={true} onAction={() => {}}>Loading Presets...</ASUIClickable>);
+            content.push(<ASUIClickable key="loading" loading={true} onAction={() => {}}>Loading Presets...</ASUIClickable>);
 
         } else {
             const {offset, limit} = this.state;

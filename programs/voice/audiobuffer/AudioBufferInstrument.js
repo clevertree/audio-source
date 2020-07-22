@@ -10,6 +10,7 @@ class AudioBufferInstrument {
 
         this.config = config;
         this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
+        this.params = {}
 
 
         // Filter sample playback
@@ -26,17 +27,32 @@ class AudioBufferInstrument {
         const service = new AudioBufferLoader();
         // console.log("Loaded audio buffer: ", this.config.url);
         this.loading = service.loadAudioBufferFromURL(this.config.url)
-            .then(buffer => this.setBuffer(buffer));
+            .then(buffer => {
+                this.audioBuffer = buffer;
+                if(this.source)
+                    this.setBuffer(this.source)
+            });
 
         this.activeMIDINotes = []
     }
 
 
-    setBuffer(audioBuffer) {
-        this.audioBuffer = audioBuffer;
-        if(this.source)
-            this.source.buffer = audioBuffer;
-        // console.log("Set audio buffer: ", audioBuffer, this.config.url, this.source);
+    setBuffer(source) {
+        source.buffer = this.audioBuffer;
+
+        if(this.config.loop) {
+            source.loop = true;
+            if (Array.isArray(this.config.loop)) {
+                source.loopStart = this.config.loop[0] / this.audioBuffer.sampleRate;
+                source.loopEnd = this.config.loop[1] / this.audioBuffer.sampleRate;
+            } else {
+                if (typeof this.config.loopStart !== "undefined")
+                    source.loopStart = this.config.loopStart / this.audioBuffer.sampleRate;
+                if (typeof this.config.loopEnd !== "undefined")
+                    source.loopEnd = this.config.loopEnd / this.audioBuffer.sampleRate;
+            }
+        }
+        // console.log("Set audio buffer: ", this.audioBuffer, this.config.url, source);
     }
 
     /** Async loading **/
@@ -83,19 +99,13 @@ class AudioBufferInstrument {
         const source = destination.context.createBufferSource();
         this.source = source;
         if(this.audioBuffer)
-            source.buffer = this.audioBuffer;
+            this.setBuffer(this.source);
+
         const playbackRate = frequencyValue / this.freqRoot;
         source.playbackRate.value = playbackRate; //  Math.random()*2;
 
         if(typeof this.config.detune !== "undefined")
             source.detune.value = this.config.detune;
-
-        if(typeof this.config.loop !== "undefined")
-            source.loop = !!this.config.loop;
-        if(typeof this.config.loopStart !== "undefined")
-            source.loopStart = this.config.loopStart;
-        if(typeof this.config.loopEnd !== "undefined")
-            source.loopEnd = this.config.loopEnd;
 
 
         source.connect(destination);

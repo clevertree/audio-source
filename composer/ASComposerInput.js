@@ -73,6 +73,7 @@ export default class ASComposerInput extends ASComposerPlayback {
                 break;
 
             case 'midimessage':
+                // console.log("MIDI", e.data, e);
                 const selectedComponent = this.getSelectedComponent();
                 selectedComponent.handleMIDIInput(e);
                 break;
