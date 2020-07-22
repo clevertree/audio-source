@@ -1,5 +1,5 @@
 import Song from "../song/Song";
-import Storage from "../common/storage/Storage";
+import ClientStorage from "../common/storage/ClientStorage";
 import ASPlayerMenu from "./ASPlayerMenu";
 
 
@@ -72,7 +72,7 @@ class ASPlayerActions extends ASPlayerMenu {
     saveSongToFile() {
         const songData = this.song.data;
         // const songHistory = this.song.history;
-        const storage = new Storage();
+        const storage = new ClientStorage();
         storage.saveSongToFile(songData);
         this.setStatus("Saved song to file");
     }

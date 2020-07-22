@@ -37,7 +37,7 @@ class Values {
 
     getNoteFrequencies(callback = (freq) => freq) {
         const results = [];
-        const noteList = this.noteList();
+        const noteList = this.listNotes();
         for (let j = 0; j < noteList.length; j++) {
             const noteFrequency = noteList[j];
             const result = callback(noteFrequency);
@@ -58,7 +58,7 @@ class Values {
 
     getOctaveNoteFrequencies(callback = (freq) => freq) {
         const results = [];
-        const noteFrequencies = this.noteList();
+        const noteFrequencies = this.listNotes();
         for (let i = 1; i <= 8; i++) {
             for (let j = 0; j < noteFrequencies.length; j++) {
                 const noteFrequency = noteFrequencies[j] + i;
@@ -160,7 +160,7 @@ class Values {
         if (!noteString)
             throw new Error("Frequency is null");
 
-        const noteQuarterToneList = this.noteQuarterToneList();
+        const noteQuarterToneList = this.listQuarterToneNotes();
         const ret = {
             note: noteString.slice(0, -1),
         }
@@ -309,7 +309,7 @@ class Values {
     getCommandFromMIDINote(midiNote) {
         const octave = Math.floor(midiNote / 12);
         const pitch = midiNote % 12;
-        const noteList = this.noteMIDIList();
+        const noteList = this.listMIDINotes();
         return noteList[pitch] + octave;
     }
 
@@ -502,7 +502,7 @@ class Values {
 
     // const noteCommands = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
     // Uses quarter tones
-    noteList() {
+    listNotes() {
         return [
             'A',
             'A#',
@@ -525,7 +525,7 @@ class Values {
         ]
     }
 
-    noteQuarterToneList() {
+    listQuarterToneNotes() {
         return {
             'A': 0,
             'Aq': 1,
@@ -566,7 +566,7 @@ class Values {
         }
     }
 
-    noteMIDIList() {
+    listMIDINotes() {
         return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import {ASUIMenuItem, ASUIMenuAction, ASUIMenuDropDown, ASUIMenuBreak} from "../components";
-import {Storage, ProgramLoader} from "../song";
+import {ClientStorage, ProgramLoader} from "../song";
 import InstructionProcessor from "../common/program/InstructionProcessor";
 import ASComposerRenderer from "./ASComposerRenderer";
 
@@ -83,7 +83,7 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
     async renderMenuFileOpenMemory() {
-        const storage = new Storage();
+        const storage = new ClientStorage();
         const songRecentUUIDs = await storage.getRecentSongList() ;
         // console.log('songRecentUUIDs', songRecentUUIDs);
         return songRecentUUIDs.length > 0
@@ -303,7 +303,7 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
     async renderMenuEditTrackSelectIndicesBatch() {
-        const recentSearches = await (new Storage()).getBatchRecentSearches();
+        const recentSearches = await (new ClientStorage()).getBatchRecentSearches();
         return (<>
             {recentSearches.map((recentBatchSearch, i) =>
                 <ASUIMenuAction onAction={e => this.batchSelect(recentBatchSearch, true)}      >New Selection Command</ASUIMenuAction>
@@ -313,7 +313,7 @@ class ASComposerMenu extends ASComposerRenderer {
     }
 
     async renderMenuEditBatch() {
-        const recentCommands = await (new Storage()).getBatchRecentCommands();
+        const recentCommands = await (new ClientStorage()).getBatchRecentCommands();
         return (<>
             {recentCommands.map((recentBatchCommand, i) =>
                 <ASUIMenuDropDown options={() => this.renderMenuEditBatchRecent(recentBatchCommand)}                          >{recentBatchCommand}</ASUIMenuDropDown>
@@ -332,7 +332,7 @@ class ASComposerMenu extends ASComposerRenderer {
     renderMenuEditBatchRecentExecuteSearch(recentBatchCommand) {
         return (<>
             <ASUIMenuAction onAction={e => this.batchRunCommand(recentBatchCommand, null, true)}                   >New Search</ASUIMenuAction>
-            {(new Storage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
+            {(new ClientStorage()).getBatchRecentSearches().map((recentBatchSearch, i) =>
                 <ASUIMenuAction onAction={e => this.batchRunCommand(recentBatchCommand, recentBatchSearch)}                   >{recentBatchSearch}</ASUIMenuAction>
             )}
         </>);

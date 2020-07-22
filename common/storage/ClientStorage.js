@@ -2,7 +2,7 @@ import Values from "../values/Values";
 
 import LocalStorage from "./LocalStorage";
 
-class Storage {
+class ClientStorage {
     /** Loading **/
 
     async getRecentSongList() {
@@ -178,4 +178,4 @@ class Storage {
 }
 
 
-export default Storage;
+export default ClientStorage;

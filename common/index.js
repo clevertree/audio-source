@@ -3,7 +3,7 @@ import ProgramLoader from "./program/ProgramLoader";
 import ArgType from "./program/argument/ArgType";
 import PromptManager from "./prompt/PromptManager";
 import LocalStorage from "./storage/LocalStorage";
-import Storage from "./storage/Storage";
+import ClientStorage from "./storage/ClientStorage";
 import Values from "./values/Values";
 import InstructionProcessor from "./program/InstructionProcessor"
 export {
@@ -12,7 +12,7 @@ export {
     ArgType,
     PromptManager,
     LocalStorage,
-    Storage,
+    ClientStorage,
     Values,
     InstructionProcessor
 }

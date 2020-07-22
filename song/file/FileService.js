@@ -17,7 +17,7 @@ const trackerURLS = [
     "wss://tracker.webtorrent.io",
 ];
 
-class FileService {
+export default class FileService {
     // constructor(song) {
     //     this.song = song;
     // }
@@ -197,4 +197,3 @@ class FileService {
 }
 
 
-export default FileService;

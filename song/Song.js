@@ -12,6 +12,7 @@ import Values from "../common/values/Values";
 import TrackIterator from "./track/TrackIterator";
 import TrackPlayback from "./track/TrackPlayback";
 import InstructionProcessor from "../common/program/InstructionProcessor";
+import MIDIFileSupport from "./file/MIDIFileSupport";
 
 // TODO: can be handled cleaner
 ProgramList.addAllPrograms();
@@ -1000,8 +1001,9 @@ class Song {
         const fileExt = filePath.split('.').pop().toLowerCase();
         let library;
         switch (fileExt) {
-            // case 'mid':
-            // case 'midi':
+            case 'mid':
+            case 'midi':
+                return new MIDIFileSupport();
             //     const {MIDISupport} = require('../file/MIDIFile.js');
             //     return new MIDISupport;
             //

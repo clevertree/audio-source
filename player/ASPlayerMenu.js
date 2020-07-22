@@ -2,7 +2,7 @@ import React from "react";
 
 import {ASUIMenuAction, ASUIMenuDropDown} from "../components";
 
-import Storage from "../common/storage/Storage";
+import ClientStorage from "../common/storage/ClientStorage";
 
 import ASPlayerRenderer from "./ASPlayerRenderer";
 
@@ -49,7 +49,7 @@ class ASPlayerMenu extends ASPlayerRenderer {
     }
 
     async renderFileMemoryMenu() {
-        const storage = new Storage();
+        const storage = new ClientStorage();
         const songRecentUUIDs = await storage.getRecentSongList() ;
         return songRecentUUIDs.length > 0
             ? songRecentUUIDs.map((entry, i) =>

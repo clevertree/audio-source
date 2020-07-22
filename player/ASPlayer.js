@@ -1,7 +1,7 @@
 import ASPlayerActions from "./ASPlayerActions";
 
 import {Song, SongValues}          from "../song";
-import Storage       from "../common/storage/Storage";
+import ClientStorage       from "../common/storage/ClientStorage";
 
 /**
  * ASPlayer requires a modern browser
@@ -103,7 +103,7 @@ class ASPlayer extends ASPlayerActions {
 
     async loadState() {
 
-        const storage = new Storage();
+        const storage = new ClientStorage();
         const state = await storage.loadState('audio-source-player-state');
         console.log('loadState', state);
 
@@ -117,7 +117,7 @@ class ASPlayer extends ASPlayerActions {
     async saveState() {
         // await this.saveSongToMemory(e);
         const state = this.state;
-        const storage = new Storage();
+        const storage = new ClientStorage();
         await storage.saveState(state, 'audio-source-player-state');
         console.log('saveState', state);
     }

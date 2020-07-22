@@ -1,7 +1,6 @@
-import {Instruction, Library, ProgramLoader, Song, Storage} from "../song";
+import {Instruction, Library, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
-import FileService from "../song/file/FileService";
 import {InstructionProcessor} from "../common";
 import TrackState from "./track/state/TrackState";
 import Values from "../common/values/Values";
@@ -118,16 +117,18 @@ class ASComposerActions extends ASComposerMenu {
 
     focusActiveTrack() {
         const trackName = this.getSelectedTrackName();
-        if(trackName) {
+        if(trackName) try {
             const trackRef = this.trackGetRef(trackName);
             trackRef.focus();
+        } catch (e) {
+            console.warn(e);
         }
     }
 
     /** State **/
 
     async loadState() {
-        const storage = new Storage();
+        const storage = new ClientStorage();
         const state = await storage.loadState('audio-source-composer-state');
         console.log('Loading State: ', state);
 
@@ -161,7 +162,7 @@ class ASComposerActions extends ASComposerMenu {
     // }
 
     saveState() {
-        const storage = new Storage();
+        const storage = new ClientStorage();
         const state = Object.assign({}, this.state, {
             // activeTracks: {}
         });
@@ -283,7 +284,7 @@ class ASComposerActions extends ASComposerMenu {
         // const defaultProgramURL = this.getDefaultProgramClass() + '';
         // let songData = storage.generateDefaultSong(defaultProgramURL);
         // const song = Song.loadSongFromData(songData);
-        const song = new Song(this.audioContext);
+        const song = new Song();
         this.setCurrentSong(song);
         // this.forceUpdate();
         this.setStatus("Loaded new song", song.getProxiedData());
@@ -292,7 +293,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     async loadRecentSongData() {
-        const storage = new Storage();
+        const storage = new ClientStorage();
         let songRecentUUIDs = await storage.getRecentSongList();
         if (songRecentUUIDs[0] && songRecentUUIDs[0].uuid) {
             this.setStatus("Loading recent song: " + songRecentUUIDs[0].uuid);
@@ -303,14 +304,13 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async loadSongFromURL(url) {
-        const library = Song.getFileSupportModule(url);
-        if (typeof library.loadSongDataFromBuffer !== "function")
-            throw new Error("Invalid library.loadSongDataFromURL method: " + url);
 
         const fileService = new FileService();
         const buffer = await fileService.loadBufferFromURL(url);
         // const buffer = await response.arrayBuffer();
-        const songData = library.loadSongDataFromBuffer(buffer, url);
+        const fileSupport = new FileSupport();
+        const songData = await fileSupport.processSongFromFileBuffer(buffer, url);
+        // const songData = library.loadSongDataFromBuffer(buffer, url);
         const song = new Song();
         song.loadSongData(songData);
         this.setStatus("Loaded from url: " + url);
@@ -323,12 +323,9 @@ class ASComposerActions extends ASComposerMenu {
         if (!file)
             throw new Error("Invalid file input");
 
-        const library = Song.getFileSupportModule(file.name);
-        if (typeof library.loadSongDataFromFileInput !== "function")
-            throw new Error("Invalid library.loadSongDataFromFileInput method");
-
         const buffer = await this.loadBufferFromFileInput(file);
-        const songData = library.loadSongDataFromBuffer(buffer, file.name);
+        const fileSupport = new FileSupport();
+        const songData = await fileSupport.processSongFromFileBuffer(buffer, file.name);
         const song = new Song();
         song.loadSongData(songData);
         this.setCurrentSong(song);
@@ -347,7 +344,7 @@ class ASComposerActions extends ASComposerMenu {
 
 
     async loadSongFromMemory(songUUID) {
-        const storage = new Storage();
+        const storage = new ClientStorage();
         const songData = await storage.loadSongFromMemory(songUUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
         const song = new Song(songData);
@@ -363,7 +360,7 @@ class ASComposerActions extends ASComposerMenu {
         const song = this.song;
         const songData = song.getProxiedData();
         const songHistory = song.history;
-        const storage = new Storage();
+        const storage = new ClientStorage();
         setStatus && this.setStatus("Saving song to memory...");
         await storage.saveSongToMemory(songData, songHistory);
         setStatus && this.setStatus("Saved song to memory: " + (songData.title || songData.uuid));
@@ -387,7 +384,7 @@ class ASComposerActions extends ASComposerMenu {
             return false;
         }
 
-        const storage = new Storage();
+        const storage = new ClientStorage();
         storage.saveSongToFile(fileName, songData) &&
         this.setStatus("Saved song to local file: " + fileName);
     }
@@ -1049,14 +1046,14 @@ class ASComposerActions extends ASComposerMenu {
         if (!searchCallbackString)
             throw new Error("Batch command canceled: Invalid search");
 
-        const storage = new Storage();
+        const storage = new ClientStorage();
         storage.addBatchRecentSearches(searchCallbackString);
 
         throw new Error("TODO Implement");
     }
 
     async batchRunCommand(e, commandCallbackString = null, searchCallbackString = null, promptUser = false) {
-        const storage = new Storage();
+        const storage = new ClientStorage();
 
         if (promptUser || !searchCallbackString)
             searchCallbackString = await PromptManager.openPromptDialog("Run custom search:", searchCallbackString ||

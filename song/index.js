@@ -1,6 +1,6 @@
 
 import Song from "./Song";
-import Storage from "../common/storage/Storage";
+import ClientStorage from "../common/storage/ClientStorage";
 import Keyboard from "../common/keyboard/Keyboard"
 import {ProgramLoader} from "../common/";
 import Instruction from "./instruction/Instruction";
@@ -9,11 +9,13 @@ import SongValues from "./values/SongValues";
 import {TrackIterator, TrackPlayback} from "./track";
 import Library from "./library/Library";
 import FileService from "./file/FileService";
+import FileSupport from "./file/FileSupport";
 export {
     Song,
     Library,
     ProgramLoader,
     FileService,
+    FileSupport,
 
     Instruction,
     InstructionIterator,
@@ -21,7 +23,7 @@ export {
     TrackIterator,
     TrackPlayback,
 
-    Storage,
+    ClientStorage,
 
     Keyboard,
 
