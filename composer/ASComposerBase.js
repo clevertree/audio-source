@@ -35,7 +35,7 @@ class ASComposerBase extends React.Component {
             songLength: 0,
 
             // Selected Component
-            selectedComponent: ['track', 'root'],
+            selectedComponent: [null],
 
             // Tracks
             activeTracks: {},
@@ -73,7 +73,7 @@ class ASComposerBase extends React.Component {
         this.ref = {
             container: React.createRef(),
             panelSong: React.createRef(),
-            activeTracks: {},
+            activeTracks: [],
             activePrograms: [],
         }
 

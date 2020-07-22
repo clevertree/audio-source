@@ -607,7 +607,7 @@ class Song {
         // if (oldConfig && oldConfig.title && !programConfig.title)
         //     programConfig.title = oldConfig.title;
 
-        this.lastMIDIProgram = null; // TODO: hack?
+        this.stopPlayback();
 
         const oldConfig = this.getProxiedData().programs[programID];
         this.data.programs[programID] = [programClassName, programConfig];
@@ -764,7 +764,7 @@ class Song {
         this.playback = null;
         this.playbackPosition = playback.getPositionInSeconds();
         playback.stopPlayback();
-        this.programLoader.stopAllPlayback(); // TODO: redundant?
+        this.programLoader.stopAllPlayback(); // TODO: redundant? necessary if no playback
 
         // TODO: move to playback class
         // for (let i = 0; i < this.playbackEndCallbacks.length; i++)
@@ -832,10 +832,12 @@ class Song {
 
     playMIDIEvent(destination, programID, eventData) {
         let program;
-        const [lastMIDIProgramID, lastMIDIProgram] = this.lastMIDIProgram || [null, null];
-        if(programID !== lastMIDIProgramID) {
-            program = this.programLoadInstanceFromID(programID);
-            this.lastMIDIProgram = [programID, program];
+        const [lastMIDIProgram, lastMIDIProgramConfig] = this.lastMIDIProgram || [null, null, null];
+        const [className, programConfig] = this.programGetData(programID, false);
+        if(lastMIDIProgramConfig !== programConfig) {
+            program = ProgramLoader.loadInstance(className, programConfig);
+            this.lastMIDIProgram = [program, programConfig];
+            console.log("Loading program for MIDI playback: ", programID, className, programConfig);
         } else {
             program = lastMIDIProgram;
         }

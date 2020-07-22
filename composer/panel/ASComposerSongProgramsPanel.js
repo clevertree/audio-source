@@ -6,20 +6,23 @@ import {ASCProgramRenderer} from "../program";
 export default class ASComposerSongProgramsPanel extends React.Component {
     render() {
         const composer = this.props.composer;
-        composer.ref.activePrograms = {};
+        // composer.ref.activePrograms = {};
+        const activePrograms = composer.ref.activePrograms;
 
         const programStates = composer.state.programStates || [];
         const selectedProgramID = composer.state.selectedProgramID || 0;
         // console.log('programStates', programStates);
+        // setTimeout(() => console.log('activePrograms', activePrograms), 100);
         return (
             <ASUIPanel
                 className="song-programs"
                 header="Song Programs"
                 title="Song Programs (Instruments & Effects)">
                {composer.getSong().programEach((programID, programClass, programConfig) => {
-                   composer.ref.activePrograms[programID] = React.createRef();
+                   if(!activePrograms[programID])
+                       activePrograms[programID] = React.createRef();
                    return <ASCProgramRenderer
-                       ref={composer.ref.activePrograms[programID]}
+                       ref={activePrograms[programID]}
                        key={programID}
                        programID={programID}
                        composer={composer}

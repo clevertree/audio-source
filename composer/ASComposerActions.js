@@ -479,6 +479,8 @@ class ASComposerActions extends ASComposerMenu {
     songStop() {
         if (this.song.playback)
             this.song.stopPlayback();
+        this.song.programLoader.stopAllPlayback();
+
         this.song.setPlaybackPositionInTicks(0);
     }
 

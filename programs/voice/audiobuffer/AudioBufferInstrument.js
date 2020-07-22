@@ -1,6 +1,7 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
 import {Values} from "../../../common";
 
+let activeNotes = [];
 
 class AudioBufferInstrument {
     constructor(config={}) {
@@ -8,6 +9,17 @@ class AudioBufferInstrument {
         // console.log('AudioBufferInstrument', config);
 
         this.config = config;
+        this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
+
+
+        // Filter sample playback
+        if (config.alias) {
+            const freqAlias = Values.instance.parseFrequencyString(config.alias);
+            this.freqRange = [freqAlias, freqAlias];
+        } else {
+            this.freqRange = null;
+        }
+
         this.audioBuffer = null;
         this.source = null;
 
@@ -36,6 +48,16 @@ class AudioBufferInstrument {
     /** Playback **/
 
     playFrequency(destination, frequencyValue, startTime=null, duration=null, velocity=null, onended=null) {
+        if(this.freqRange) {
+            if(
+                this.freqRange[0] < frequencyValue
+                || this.freqRange[1] > frequencyValue
+            ) {
+                // console.log("Skipping out of range note: ", frequencyValue, this.freqRange);
+                return false;
+            }
+        }
+        // console.log('playFrequency', frequencyValue, this);
 
         let endTime;
         const audioContext = destination.context;
@@ -62,12 +84,18 @@ class AudioBufferInstrument {
         this.source = source;
         if(this.audioBuffer)
             source.buffer = this.audioBuffer;
-        if(typeof this.config.loop !== "undefined")
-            source.loop = !!this.config.loop;
-        const playbackRate = frequencyValue / (this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 440);
+        const playbackRate = frequencyValue / this.freqRoot;
         source.playbackRate.value = playbackRate; //  Math.random()*2;
+
         if(typeof this.config.detune !== "undefined")
             source.detune.value = this.config.detune;
+
+        if(typeof this.config.loop !== "undefined")
+            source.loop = !!this.config.loop;
+        if(typeof this.config.loopStart !== "undefined")
+            source.loopStart = this.config.loopStart;
+        if(typeof this.config.loopEnd !== "undefined")
+            source.loopEnd = this.config.loopEnd;
 
 
         source.connect(destination);
@@ -82,11 +110,14 @@ class AudioBufferInstrument {
                 source.stop(endTime);
             }
         }
-        source.onended = function() {
+        activeNotes.push(source);
+        source.onended = () => {
+            const i = activeNotes.indexOf(source);
+            activeNotes.splice(i, 1);
             onended && onended();
             if(!source.buffer)
-                console.warn("Note playback ended without an audio buffer", source);
-        };
+                console.warn("Note playback ended without an audio buffer: " + this.config.url, source);
+        }
 
         return source;
     }
@@ -102,29 +133,43 @@ class AudioBufferInstrument {
                 const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
                 let newMIDIVelocity = Math.round((eventData[2] / 128) * 100);
                 const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
-                if(this.activeMIDINotes[newMIDICommand])
-                    this.activeMIDINotes[newMIDICommand].stop();
-                this.activeMIDINotes[newMIDICommand] = source;
+                if(source) {
+                    if (this.activeMIDINotes[newMIDICommand])
+                        this.activeMIDINotes[newMIDICommand].stop();
+                    this.activeMIDINotes[newMIDICommand] = source;
+                }
+                return source;
                 // console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
-                break;
 
             case 128:   // Note Off
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
                 if(this.activeMIDINotes[newMIDICommand]) {
                     this.activeMIDINotes[newMIDICommand].stop();
                     delete this.activeMIDINotes[newMIDICommand];
+                    return true;
                     // console.log("MIDI Off", newMIDICommand, eventData);
                 } else {
-                    console.warn("No 'ON' note was found for : " + newMIDICommand);
+                    return false;
+                    // console.warn("No 'ON' note was found for : " + newMIDICommand);
                 }
-                // TODO: turn off playing note, optionally set duration of note
-                break;
 
             default:
                 break;
         }
     }
+
+    /** Static **/
+
+
+    static stopPlayback() {
+        for(const activeNote of activeNotes)
+            activeNote.stop();
+
+        activeNotes = [];
+    }
 }
+
+
 
 export default AudioBufferInstrument;
 

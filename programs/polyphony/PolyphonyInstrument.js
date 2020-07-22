@@ -34,29 +34,42 @@ class PolyphonyInstrument {
             await promises[i];
     }
 
+    eachVoice(callback) {
+
+        let played = false;
+        for (let i = 0; i < this.config.voices.length; i++) {
+            const voice = this.loadVoice(i);
+
+            const response = callback(voice);
+            if(response !== false)
+                played = true;
+        }
+        return played;
+    }
 
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         if(typeof frequency === "string")
             frequency = Values.instance.parseFrequencyString(frequency);
-        for (let i = 0; i < this.config.voices.length; i++) {
-            const voice = this.loadVoice(i);
-            voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
-        }
+        const played = this.eachVoice(voice => {
+            return voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
+        })
+        if(!played)
+            console.warn("No voices were played: ", this.config);
     }
 
     /** MIDI Events **/
 
     playMIDIEvent(destination, eventData, onended=null) {
-        for (let i = 0; i < this.config.voices.length; i++) {
-            const voice = this.loadVoice(i);
-
+        const played = this.eachVoice(voice => {
             if(voice.playMIDIEvent)
-                voice.playMIDIEvent(destination, eventData, onended);
-            else
-                console.warn("Voice " + voice.constructor.name + " has no method 'playMIDIEvent'");
-        }
+                return voice.playMIDIEvent(destination, eventData, onended);
+            return false;
+            // console.warn("Voice " + voice.constructor.name + " has no method 'playMIDIEvent'");
+        })
+        if(!played)
+            console.warn("No voices were played: ", this.config);
     }
 
     stopPlayback() {

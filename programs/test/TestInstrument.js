@@ -14,7 +14,7 @@ class TestInstrument {
         // console.info('playFrequency(', frequency, startTime, duration, velocity, ')')
     }
 
-    stopPlayback() {
+    static stopPlayback() {
 
     }
 

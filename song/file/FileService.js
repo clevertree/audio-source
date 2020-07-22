@@ -14,6 +14,7 @@ const trackerURLS = [
     "wss://tracker.fastcast.nz",
     "wss://tracker.openwebtorrent.com",
     "wss://tracker.btorrent.xyz",
+    "wss://tracker.webtorrent.io",
 ];
 
 class FileService {

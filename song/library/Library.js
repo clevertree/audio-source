@@ -15,13 +15,13 @@ class Library {
 
     getTitle() { return this.data.title; };
     async getLibraries() {
-        let libraryData = await resolve(this.data.libraries);
+        let libraryData = await resolve(this.data.libraries, this.data);
         // console.log('Library.getLibraries', libraryData);
         return (libraryData || [])
             .map(libraryData => new Library(libraryData))
     };
     async getPresets(programClassFilter) {
-        let presets = await resolve(this.data.presets, programClassFilter);
+        let presets = await resolve(this.data.presets, this.data, programClassFilter);
         // console.log('Library.getPresets', presets);
         return presets || []
     };
@@ -231,9 +231,9 @@ class Library {
 Library.cache = {};
 export default Library;
 
-async function resolve(item, callbackParameter=null) {
+async function resolve(item, thisItem, callbackParameter=null) {
     if(typeof item === "function")
-        item = item(callbackParameter);
+        item = item.apply(thisItem, callbackParameter);
     if(item instanceof Promise)
         item = await item;
     return item;
