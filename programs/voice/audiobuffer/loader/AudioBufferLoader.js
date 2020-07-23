@@ -39,7 +39,7 @@ export default class AudioBufferLoader {
     clearCache() {
         const expireTime = new Date().getTime();
         Object.keys(cache).forEach(function(cacheKey) {
-            const [audioBuffer, expires] = cache[cacheKey];
+            const [, expires] = cache[cacheKey];
             if(expireTime > expires) {
                 // console.log("Uncached: " + cacheKey, audioBuffer);
                 delete cache[cacheKey];

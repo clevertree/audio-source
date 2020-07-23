@@ -25,7 +25,8 @@ class PolyphonyInstrument {
 
     async waitForAssetLoad() {
         const promises = [];
-        for (let i = 0; i < this.config.voices.length; i++) {
+        const voices = this.config.voices || [];
+        for (let i = 0; i < voices.length; i++) {
             const voice = this.loadVoice(i);
             if(typeof voice.waitForAssetLoad === "function")
                 promises.push(voice.waitForAssetLoad());
@@ -37,7 +38,8 @@ class PolyphonyInstrument {
     eachVoice(callback) {
 
         let played = false;
-        for (let i = 0; i < this.config.voices.length; i++) {
+        const voices = this.config.voices || [];
+        for (let i = 0; i < voices.length; i++) {
             const voice = this.loadVoice(i);
 
             const response = callback(voice);

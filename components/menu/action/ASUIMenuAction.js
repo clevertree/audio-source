@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import ASUIClickable from "../../clickable/ASUIClickable";
 
 import "../item/ASUIMenuItem.css"

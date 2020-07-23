@@ -1,4 +1,4 @@
-import { parseArrayBuffer } from 'midi-json-parser';
+import {parseArrayBuffer} from 'midi-json-parser';
 import Values from "../../common/values/Values";
 import {Song} from "../";
 
@@ -19,10 +19,9 @@ export default class MIDIFileSupport {
 
         for (let trackID = 0; trackID < midiData.tracks.length; trackID++) {
             const trackEvents = midiData.tracks[trackID];
-            let songPositionInTicks = 0, lastInsertSongPositionInTicks = 0;
+            let songPositionInTicks = 0;
 
 
-            let notesFound = false;
             let trackName = 'track' + trackID;
 
             songPositionInTicks = 0;
@@ -33,24 +32,31 @@ export default class MIDIFileSupport {
                 }
             }
 
-            songData.programs[trackID] = []; // {url: defaultProgramURL + '', name: defaultProgramName};
-            songData.tracks[trackName] = []; // {url: defaultProgramURL + '', name: defaultProgramName};
+            songData.programs[trackID] = ['PolyphonyInstrument', {title: trackName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
+            songData.tracks[trackName] = [
+                [0, '!p', trackID],
+            ]; // {url: defaultProgramURL + '', name: defaultProgramName};
             const thisTrack = songData.tracks[trackName];
             songData.tracks.root.push([0, `@${trackName}`]);
 
 
             const lastNote = {};
             songPositionInTicks = 0;
+            let nextDelta = 0;
             for(const trackEvent of trackEvents) {
                 songPositionInTicks += trackEvent.delta;
+                nextDelta += trackEvent.delta;
+
                 if(trackEvent.setTempo) {
                     const tempo = 60 / (trackEvent.setTempo.microsecondsPerQuarter / 1000000);
                     console.log("TODO Tempo: ", tempo);
                     // trackEvent.setTempo.microsecondsPerQuarter;
                 }
+
                 if(trackEvent.programChange) {
                     // trackEvent.programChange.programNumber
                 }
+
                 if(trackEvent.noteOn) {
                     let newMIDICommandOn = this.getCommandFromMIDINote(trackEvent.noteOn.noteNumber);
                     let newMIDIVelocityOn = trackEvent.noteOn.velocity; // Math.round((trackEvent.data[1] / 128) * 100);
@@ -61,88 +67,40 @@ export default class MIDIFileSupport {
                     if (newMIDIVelocityOn === 0) {
                         // Note Off
                         if (lastNote[newMIDICommandOn]) {
-                            // const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
-                            const insertIndex = lastNote[newMIDICommandOn][1];
-                            let noteDuration = songPositionInTicks - lastInsertSongPositionInTicks;
-                            // lastNote[newMIDICommandOn][1][3] = noteDuration;
-
-                            // song.instructionReplaceDuration(currentGroup, insertIndex, noteDuration);
-//                                 console.log("OFF", lastInsertSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOn, noteDuration);
+                            const [lastNoteInsertPositionInTicks, lastNoteData] = lastNote[newMIDICommandOn];
+                            lastNoteData[2] = songPositionInTicks - lastNoteInsertPositionInTicks;
                             delete lastNote[newMIDICommandOn];
-                            break;
+                        } else {
+                            console.warn("No 'ON' note was found before 'OFF' note: " + newMIDICommandOn);
                         }
+                    } else {
+
+                        const newInstructionData = [nextDelta, newMIDICommandOn, 0, newMIDIVelocityOn];
+                        thisTrack.push(newInstructionData);
+                        nextDelta = 0;
+
+                        if(lastNote[newMIDICommandOn])
+                            console.warn("MIDI On hit same note twice: " + newMIDICommandOn)
+                        lastNote[newMIDICommandOn] = [songPositionInTicks, newInstructionData];
+
                     }
-//
-//                         // let newInstructionDelta = trackEvent.deltaTime + (songPositionInTicks - lastInsertSongPositionInTicks);
-//                         lastInsertSongPositionInTicks = songPositionInTicks;
-//                         const newInstructionData = [0, newMIDICommandOn, programID, 0, newMIDIVelocityOn];
-//                         const insertIndex = song.instructionInsertAtPosition(currentGroup, songPositionInTicks, newInstructionData);
-//
-//                         lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];
-                        // newTrack.push(newInstruction);
-
-
                 }
+
                 if(trackEvent.noteOff) {
-                    console.log("OFF", songPositionInTicks, trackEvent);
-                    // trackEvent.noteOn.noteNumber;
-                    // trackEvent.noteOn.velocity;
+                    let newMIDICommandOff = this.getCommandFromMIDINote(trackEvent.noteOff.noteNumber);
+                    console.log("OFF", newMIDICommandOff, -1, songPositionInTicks, trackEvent);
+
+                    // Note Off
+                    if (lastNote[newMIDICommandOff]) {
+                        const [lastNoteInsertPositionInTicks, lastNoteData] = lastNote[newMIDICommandOff];
+                        lastNoteData[2] = songPositionInTicks - lastNoteInsertPositionInTicks;
+                        delete lastNote[newMIDICommandOff];
+                    } else {
+                        console.warn("No 'ON' note was found before 'OFF' note: " + newMIDICommandOff);
+                    }
                 }
 
             }
-            console.log(trackName, songPositionInTicks);
-
-//             for (let eventID = 0; eventID < trackEvents.length; eventID++) {
-//                 const trackEvent = trackEvents[eventID];
-//                 // let deltaDuration = trackEvent.deltaTime; // midiData.timeDivision;
-//                 songPositionInTicks += trackEvent.deltaTime;
-//
-//                 // newTrack.push
-//                 switch (trackEvent.type) {
-//                     case 8:
-//                         let newMIDICommandOff = this.getCommandFromMIDINote(trackEvent.data[0]);
-//                         if (lastNote[newMIDICommandOff]) {
-//                             const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
-//                             const insertIndex = lastNote[newMIDICommandOff][1];
-//                             let noteDuration = songPositionInTicks - lastNoteSongPositionInTicks;
-//                             delete lastNote[newMIDICommandOff];
-//
-//                             song.instructionReplaceDuration(currentGroup, insertIndex, noteDuration);
-// //                             console.log("OFF", lastNoteSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOff, noteDuration);
-//
-//                             // lastNote[newMIDICommandOff][1][3] = noteDuration;
-//                         }
-//                         break;
-//                     case 9:
-//                         let newMIDICommandOn = this.getCommandFromMIDINote(trackEvent.data[0]);
-//                         let newMIDIVelocityOn = trackEvent.data[1]; // Math.round((trackEvent.data[1] / 128) * 100);
-//                         if (newMIDIVelocityOn === 0) {
-//                             // Note Off
-//                             if (lastNote[newMIDICommandOn]) {
-//                                 // const lastNoteSongPositionInTicks = lastNote[newMIDICommandOff][0];
-//                                 const insertIndex = lastNote[newMIDICommandOn][1];
-//                                 let noteDuration = songPositionInTicks - lastInsertSongPositionInTicks;
-//                                 // lastNote[newMIDICommandOn][1][3] = noteDuration;
-//
-//                                 song.instructionReplaceDuration(currentGroup, insertIndex, noteDuration);
-// //                                 console.log("OFF", lastInsertSongPositionInTicks, trackEvent.deltaTime, newMIDICommandOn, noteDuration);
-//                                 delete lastNote[newMIDICommandOn];
-//                                 break;
-//                             }
-//                         }
-//
-//                         // let newInstructionDelta = trackEvent.deltaTime + (songPositionInTicks - lastInsertSongPositionInTicks);
-//                         lastInsertSongPositionInTicks = songPositionInTicks;
-//                         const newInstructionData = [0, newMIDICommandOn, programID, 0, newMIDIVelocityOn];
-//                         const insertIndex = song.instructionInsertAtPosition(currentGroup, songPositionInTicks, newInstructionData);
-//
-//                         lastNote[newMIDICommandOn] = [songPositionInTicks, insertIndex];
-//                         // newTrack.push(newInstruction);
-// //                         console.log("ON ", songPositionInTicks, newMIDICommandOn, newMIDIVelocityOn);
-//                         // newTrack.push
-//                         break;
-//                 }
-//             }
         }
 
         console.log('midiData', midiData, song.getProxiedData())
@@ -298,11 +256,11 @@ export default class MIDIFileSupport {
 //     }
 }
 
-(async function() {
-    const midiFilePath = require('../../../assets/files/test2.mid');
-    const response = await fetch(midiFilePath);
-    const midiFileBuffer = await response.arrayBuffer();
-    console.log('midiFilePath', midiFilePath, midiFileBuffer);
-    new MIDIFileSupport().processSongFromFileBuffer(midiFileBuffer, 'test2.mid');
-
-})();
+// (async function() {
+//     const midiFilePath = require('../../../assets/files/test2.mid');
+//     const response = await fetch(midiFilePath);
+//     const midiFileBuffer = await response.arrayBuffer();
+//     console.log('midiFilePath', midiFilePath, midiFileBuffer);
+//     new MIDIFileSupport().processSongFromFileBuffer(midiFileBuffer, 'test2.mid');
+//
+// })();

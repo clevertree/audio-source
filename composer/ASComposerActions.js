@@ -309,10 +309,8 @@ class ASComposerActions extends ASComposerMenu {
         const buffer = await fileService.loadBufferFromURL(url);
         // const buffer = await response.arrayBuffer();
         const fileSupport = new FileSupport();
-        const songData = await fileSupport.processSongFromFileBuffer(buffer, url);
-        // const songData = library.loadSongDataFromBuffer(buffer, url);
-        const song = new Song();
-        song.loadSongData(songData);
+        const song = await fileSupport.processSongFromFileBuffer(buffer, url);
+        this.setCurrentSong(song);
         this.setStatus("Loaded from url: " + url);
         return song;
     }
@@ -325,9 +323,7 @@ class ASComposerActions extends ASComposerMenu {
 
         const buffer = await this.loadBufferFromFileInput(file);
         const fileSupport = new FileSupport();
-        const songData = await fileSupport.processSongFromFileBuffer(buffer, file.name);
-        const song = new Song();
-        song.loadSongData(songData);
+        const song = await fileSupport.processSongFromFileBuffer(buffer, file.name);
         this.setCurrentSong(song);
         return song;
     }

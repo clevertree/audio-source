@@ -123,6 +123,7 @@ export default class ASCPresetBrowser extends React.Component {
                             return true;
                     }
                 }
+                return false;
             })
         }
         return presetList;
