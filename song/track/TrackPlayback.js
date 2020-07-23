@@ -191,10 +191,11 @@ export default class TrackPlayback extends TrackIterator {
         }
         // TODO: unnecessary?
         if(stopAllNotes) {
-            this.activePrograms.forEach(program => {
-                try {  program.stopPlayback() }
-                catch (e) { console.log(program.constructor.name, e); }
-            });
+            ProgramLoader.stopAllPlayback()
+            // this.activePrograms.forEach(program => {
+            //     try {  program.stopPlayback() }
+            //     catch (e) { console.log(program.constructor.name, e); }
+            // });
         }
         this.activePrograms = [];
         // this.endPromise = true;

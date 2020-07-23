@@ -64,7 +64,7 @@ export default class ProgramLoader {
 
     /** Actions **/
 
-    stopProgramPlayback(programID) {
+    static stopProgramPlayback(programID) {
         const classes = ProgramLoader.registeredProgramClasses;
         const {classProgram} = classes[programID];
         if(!classProgram.stopPlayback) {
@@ -74,14 +74,14 @@ export default class ProgramLoader {
         }
     }
 
-    stopAllPlayback() {
+    static stopAllPlayback() {
         const classes = ProgramLoader.registeredProgramClasses;
         for(let i=0; i<classes.length; i++) {
             this.stopProgramPlayback(i);
         }
     }
 
-    unloadAllPrograms() {
+    static unloadAllPrograms() {
         const classes = ProgramLoader.registeredProgramClasses;
         for(let i=0; i<classes.length; i++) {
             const {classProgram} = classes[i];

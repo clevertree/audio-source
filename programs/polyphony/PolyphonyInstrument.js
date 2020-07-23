@@ -74,13 +74,13 @@ class PolyphonyInstrument {
             console.warn("No voices were played: ", this.config);
     }
 
-    stopPlayback() {
-        this.loadedVoices.forEach(loadedVoice => loadedVoice.stopPlayback())
-    }
-
     /** Static **/
 
-    unloadAll() {
+    static stopPlayback() {
+        // this.loadedVoices.forEach(loadedVoice => loadedVoice.stopPlayback())
+    }
+
+    static unloadAll() {
         // Unload all cached samples from this program type
     }
 

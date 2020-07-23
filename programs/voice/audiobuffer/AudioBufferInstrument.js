@@ -5,8 +5,7 @@ let activeNotes = [];
 
 class AudioBufferInstrument {
     constructor(config={}) {
-        // console.log("Loaded audio buffer: ", this.audioBuffer);
-        // console.log('AudioBufferInstrument', config);
+        console.log('AudioBufferInstrument', config);
 
         this.config = config;
         this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
@@ -25,9 +24,9 @@ class AudioBufferInstrument {
         this.source = null;
 
         const service = new AudioBufferLoader();
-        // console.log("Loaded audio buffer: ", this.config.url);
         this.loading = service.loadAudioBufferFromURL(this.config.url)
             .then(buffer => {
+                console.log("Loaded audio buffer: ", this.config.url, buffer);
                 this.audioBuffer = buffer;
                 if(this.source)
                     this.setBuffer(this.source)
@@ -39,6 +38,7 @@ class AudioBufferInstrument {
 
     setBuffer(source) {
         source.buffer = this.audioBuffer;
+        // console.log("Set audio buffer: ", this.config.url, source, this.audioBuffer);
 
         if(this.config.loop) {
             source.loop = true;
@@ -99,7 +99,9 @@ class AudioBufferInstrument {
         const source = destination.context.createBufferSource();
         this.source = source;
         if(this.audioBuffer)
-            this.setBuffer(this.source);
+            this.setBuffer(source);
+        else
+            console.warn("Note playback started without an audio buffer: " + this.config.url);
 
         const playbackRate = frequencyValue / this.freqRoot;
         source.playbackRate.value = playbackRate; //  Math.random()*2;
@@ -121,12 +123,12 @@ class AudioBufferInstrument {
             }
         }
         activeNotes.push(source);
+        // console.log("Note Start: ", this.config.url, this.audioBuffer, source);
         source.onended = () => {
             const i = activeNotes.indexOf(source);
             activeNotes.splice(i, 1);
             onended && onended();
-            if(!source.buffer)
-                console.warn("Note playback ended without an audio buffer: " + this.config.url, source);
+            // console.log("Note Ended: ", this.config.url, this.audioBuffer, source);
         }
 
         return source;

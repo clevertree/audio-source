@@ -48,7 +48,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
 
     componentDidMount() {
-        // console.log('ASUIDropDownContainer.componentDidMount')
+        console.log('ASUIDropDownContainer.componentDidMount')
 
         const overlay = this.getOverlay();
         overlay.addCloseMenuCallback(this, this.props.onClose);
@@ -58,9 +58,10 @@ export default class ASUIDropDownContainerBase extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        // console.log('ASUIDropDownContainer.componentDidUpdate', prevState, this.state)
-        if(prevProps.options !== this.props.options)
+        if(prevProps.options !== this.props.options) {
+            console.log('ASUIDropDownContainer.componentDidUpdate', prevProps.options, this.props.options)
             this.setOptions(this.props.options);
+        }
     }
 
     componentWillUnmount() {

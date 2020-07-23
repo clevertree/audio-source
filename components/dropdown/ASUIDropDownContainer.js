@@ -11,8 +11,8 @@ export default class ASUIDropDownContainer extends ASUIDropDownContainerBase {
         if(this.props.floating !== false)
             this.updateScreenPosition();
 
-        if(this.state.optionArray)
-            this.focus();
+        // if(this.state.optionArray)
+        //     this.focus(); // Dangerous
 
         this.updateOverlay();
     }

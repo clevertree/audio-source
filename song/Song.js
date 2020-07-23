@@ -163,7 +163,7 @@ class Song {
 
 
     unloadAll() {
-        this.programLoader.unloadAllPrograms();
+        ProgramLoader.unloadAllPrograms();
         this.eventListeners = [];
     }
 
@@ -750,13 +750,13 @@ class Song {
     }
 
 
-    stopProgramPlayback(programID) {
-        this.programLoader.stopProgramPlayback(programID);
-        // let programClass = this.programLoader.programGetClass(programID);
-        // if(typeof programClass.stopPlayback !== "function")
-        //     return console.error(programClass.name + ".stopPlayback is not a function");
-        // programClass.stopPlayback();
-    }
+    // stopProgramPlayback(programID) {
+    //     this.programLoader.stopProgramPlayback(programID);
+    //     // let programClass = this.programLoader.programGetClass(programID);
+    //     // if(typeof programClass.stopPlayback !== "function")
+    //     //     return console.error(programClass.name + ".stopPlayback is not a function");
+    //     // programClass.stopPlayback();
+    // }
 
     stopPlayback() {
         if (!this.playback)
@@ -765,7 +765,7 @@ class Song {
         this.playback = null;
         this.playbackPosition = playback.getPositionInSeconds();
         playback.stopPlayback();
-        this.programLoader.stopAllPlayback(); // TODO: redundant? necessary if no playback
+        ProgramLoader.stopAllPlayback(); // TODO: redundant? necessary if no playback
 
         // TODO: move to playback class
         // for (let i = 0; i < this.playbackEndCallbacks.length; i++)

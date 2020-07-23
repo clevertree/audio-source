@@ -75,7 +75,8 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         return true;
     }
 
+    /** @deprecated **/
     restoreActiveElementFocus() {
-        this.props.composer.focusActiveTrack();
+        // this.props.composer.focusActiveTrack();
     }
 }

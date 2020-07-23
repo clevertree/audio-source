@@ -37,6 +37,7 @@ to work on all platforms from web browsers to desktops applications to mobile de
 * Real-time editing between multiple users (like Google Docs)
 * Server-side song rendering
 * Import/Export MIDI files
+* Variable BPM and other globals
 
 
 # Web Browser Demo (Alpha)

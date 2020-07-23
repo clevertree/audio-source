@@ -28,7 +28,7 @@ class ASUIInputRange extends React.Component {
         const newValue = parseFloat(e.target.value);
         this.props.onChange(newValue);
         // e.preventDefault();
-        this.closeAllOpenMenus(e);
+        this.closeAllOpenMenus();
     }
 
     onChange(e) {
@@ -72,6 +72,8 @@ class ASUIInputRange extends React.Component {
             overlay.restoreActiveElementFocus();
         }
     }
+
+
 }
 
 

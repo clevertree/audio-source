@@ -13,6 +13,7 @@ export default class MIDIFileSupport {
         const song = new Song();
         const songData = song.getProxiedData();
         songData.tracks.root = [];
+        songData.title = filePath.split('/').pop();
 
         songData.timeDivision = midiData.division;
 
