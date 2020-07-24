@@ -33,7 +33,7 @@ export default class MIDIFileSupport {
                 }
             }
 
-            songData.programs[trackID] = ['PolyphonyInstrument', {title: trackName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
+            songData.programs[trackID] = ['polyphony', {title: trackName}]; // {url: defaultProgramURL + '', name: defaultProgramName};
             songData.tracks[trackName] = [
                 [0, '!p', trackID],
             ]; // {url: defaultProgramURL + '', name: defaultProgramName};

@@ -85,12 +85,12 @@ class SongTest {
   testSongClass() {
     const song = new Song({
       programs: [
-          ['PolyphonyInstrument', {
+          ['polyphony', {
             voices: [
-              ['TestInstrument'],
+              ['test'],
             ]
           }],
-          ['TestInstrument'],
+          ['test'],
       ]
     });
     song.data.title = 'test';

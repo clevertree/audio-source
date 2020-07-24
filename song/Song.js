@@ -40,14 +40,14 @@ class Song {
             beatsPerMeasure: 4,
             startTrack: 'root',
             programs: [ // Also called 'programs' or 'patches'
-                ['PolyphonyInstrument', {
+                ['polyphony', {
                     voices: [
-                        ['OscillatorInstrument', {
+                        ['oscillator', {
                             type: 'sawtooth'
                         }],
                     ]}
                 ],
-                ['OscillatorInstrument',{type: 'square'}],
+                ['oscillator',{type: 'square'}],
             ],
             tracks: {
                 root: [

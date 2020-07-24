@@ -24,13 +24,15 @@ class AudioBufferInstrument {
         this.source = null;
 
         const service = new AudioBufferLoader();
-        this.loading = service.loadAudioBufferFromURL(this.config.url)
-            .then(buffer => {
-                console.log("Loaded audio buffer: ", this.config.url, buffer);
-                this.audioBuffer = buffer;
-                if(this.source)
-                    this.setBuffer(this.source)
-            });
+        if(typeof this.config.url !== "undefined") {
+            this.loading = service.loadAudioBufferFromURL(this.config.url)
+                .then(buffer => {
+                    console.log("Loaded audio buffer: ", this.config.url, buffer);
+                    this.audioBuffer = buffer;
+                    if (this.source)
+                        this.setBuffer(this.source)
+                });
+        }
 
         this.activeMIDINotes = []
     }
@@ -42,15 +44,10 @@ class AudioBufferInstrument {
 
         if(this.config.loop) {
             source.loop = true;
-            if (Array.isArray(this.config.loop)) {
-                source.loopStart = this.config.loop[0] / this.audioBuffer.sampleRate;
-                source.loopEnd = this.config.loop[1] / this.audioBuffer.sampleRate;
-            } else {
-                if (typeof this.config.loopStart !== "undefined")
-                    source.loopStart = this.config.loopStart / this.audioBuffer.sampleRate;
-                if (typeof this.config.loopEnd !== "undefined")
-                    source.loopEnd = this.config.loopEnd / this.audioBuffer.sampleRate;
-            }
+            if (typeof this.config.loopStart !== "undefined")
+                source.loopStart = this.config.loopStart / this.audioBuffer.sampleRate;
+            if (typeof this.config.loopEnd !== "undefined")
+                source.loopEnd = this.config.loopEnd / this.audioBuffer.sampleRate;
         }
         // console.log("Set audio buffer: ", this.audioBuffer, this.config.url, source);
     }

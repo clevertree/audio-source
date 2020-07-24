@@ -4,6 +4,13 @@ import {ASUIPanel, ASUIButtonDropDown} from "../../components";
 import {ASCProgramRenderer} from "../program";
 
 export default class ASComposerSongProgramsPanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.cb = {
+            menuAdd: () => props.composer.renderMenuProgramAdd()
+        }
+    }
+
     render() {
         const composer = this.props.composer;
         // composer.ref.activePrograms = {};
@@ -34,7 +41,7 @@ export default class ASComposerSongProgramsPanel extends React.Component {
                    arrow={false}
                    vertical={false}
                    className="program-add"
-                   options={() => composer.renderMenuProgramAdd()}
+                   options={this.cb.menuAdd}
                    title="Add New Program"
                >Add</ASUIButtonDropDown>
             </ASUIPanel>

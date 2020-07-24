@@ -118,6 +118,7 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderMenuRoot() {
+        const composer = this.getComposer();
         const programState = this.getProgramState();
         return (<>
             <ASUIMenuAction onAction={() => this.togglePresetBrowser()}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
@@ -126,8 +127,8 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuBreak />
             {/*<ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>*/}
             {/*<ASUIMenuBreak />*/}
-            <ASUIMenuAction onAction={e => this.programRenamePrompt()}>Rename Program</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.programRemovePrompt()}>Remove Program</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => composer.programRenamePrompt(this.props.programID)}>Rename Program</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => composer.programRemovePrompt(this.props.programID)}>Remove Program</ASUIMenuAction>
         </>);
     }
 

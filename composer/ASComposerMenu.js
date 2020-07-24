@@ -5,20 +5,21 @@ import InstructionProcessor from "../common/program/InstructionProcessor";
 import ASComposerRenderer from "./ASComposerRenderer";
 
 class ASComposerMenu extends ASComposerRenderer {
+    constructor(props) {
+        super(props);
+        this.cb.menu = {
+            'root':     () => this.renderRootMenu(),
+            'file':     () => this.renderMenuFile(),
+            'edit':     () => this.renderMenuEdit(),
+            'track':    () => this.renderMenuTrack(),
+            'program':  () => this.renderMenuProgram(),
+            'playback': () => this.renderMenuPlayback(),
+            'view':     () => this.renderMenuView(),
+        }
+    }
 
     renderMenuByKey(menuName) {
-        let options;
-        switch(menuName) {
-            case 'file': options = () => this.renderMenuFile(); break;
-            case 'edit': options = () => this.renderMenuEdit(); break;
-            case 'track': options = () => this.renderMenuTrack(); break;
-            case 'program': options = () => this.renderMenuProgram(); break;
-            case 'playback': options = () => this.renderMenuPlayback(); break;
-            case 'view': options = () => this.renderMenuView(); break;
-            default:
-                options = () => this.renderRootMenu(); break;
-        }
-        return options;
+        return this.cb.menu[menuName] || this.cb.menu.root;
     }
 
     renderRootMenu(ref={}) {
@@ -29,12 +30,12 @@ class ASComposerMenu extends ASComposerRenderer {
         if(!this.state.portrait)
             props.arrow = false;
         return (<>
-            <ASUIMenuDropDown {...props} ref={ref.file} options={() => this.renderMenuFile()}          >File</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.edit} options={() => this.renderMenuEdit()}          >Edit</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.track} options={() => this.renderMenuTrack()}        >Track</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.program} options={() => this.renderMenuProgram()}    >Program</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.playback} options={() => this.renderMenuPlayback()}  >Playback</ASUIMenuDropDown>
-            <ASUIMenuDropDown {...props} ref={ref.view} options={() => this.renderMenuView()}          >View</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.file} options={this.cb.menu.file}          >File</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.edit} options={this.cb.menu.edit}          >Edit</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.track} options={this.cb.menu.track}        >Track</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.program} options={this.cb.menu.program}    >Program</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.playback} options={this.cb.menu.playback}  >Playback</ASUIMenuDropDown>
+            <ASUIMenuDropDown {...props} ref={ref.view} options={this.cb.menu.view}          >View</ASUIMenuDropDown>
         </>);
     }
 

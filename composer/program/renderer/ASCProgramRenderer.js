@@ -12,7 +12,9 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
     constructor(props) {
         super(props);
         this.cb = {
-            onFocus: e => this.onFocus(e)
+            toggleContainer: e => this.toggleContainer(),
+            onFocus: e => this.onFocus(e),
+            menuRoot: () => this.renderMenuRoot()
         }
     }
     render() {
@@ -38,12 +40,12 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     <ASUIButton
                         className="toggle-container"
                         selected={this.props.open}
-                        onAction={e => this.toggleContainer()}
+                        onAction={this.cb.toggleContainer}
                     >{programIDHTML}: {titleHTML}</ASUIButton>
                     <ASUIButtonDropDown
                         arrow={false}
                         className="program-config"
-                        options={() => this.renderMenuRoot()}
+                        options={this.cb.menuRoot}
                     >
                         <ASUIIcon source="config"/>
                     </ASUIButtonDropDown>

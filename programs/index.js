@@ -19,11 +19,11 @@ export default {
     PolyphonyInstrumentRenderer,
     TestInstrument,
     addAllPrograms: function() {
-        ProgramLoader.addProgramClass('PolyphonyInstrument', PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Polyphony Host');
-        ProgramLoader.addProgramClass('OscillatorInstrument', OscillatorInstrument, OscillatorInstrumentRenderer, 'OscillatorNode Instrument');
-        ProgramLoader.addProgramClass('AudioBufferInstrument', AudioBufferInstrument, AudioBufferInstrumentRenderer, 'AudioBuffer Instrument');
+        ProgramLoader.addProgramClass('polyphony',      PolyphonyInstrument, PolyphonyInstrumentRenderer, 'Polyphony Host');
+        ProgramLoader.addProgramClass('oscillator',     OscillatorInstrument, OscillatorInstrumentRenderer, 'OscillatorNode Instrument');
+        ProgramLoader.addProgramClass('buffer',         AudioBufferInstrument, AudioBufferInstrumentRenderer, 'AudioBuffer Instrument');
         // ProgramLoader.addProgramClass('GMEPlayerSynthesizer', GMEPlayerSynthesizer, GMEPlayerSynthesizerRenderer, 'Game Music ASPlayer Synthesizer');
-        ProgramLoader.addProgramClass('TestInstrument', TestInstrument, null, 'Test Instrument');
+        ProgramLoader.addProgramClass('test',           TestInstrument, null, 'Test Instrument');
     }
 }
 
