@@ -1,0 +1,68 @@
+div.asui-clickable {
+    cursor: pointer;
+}
+
+div.asui-clickable.dropdown {
+    position: relative;
+
+}
+
+
+
+
+
+/** Menu Arrow **/
+div.asui-clickable > div.arrow {
+    display: inline-block;
+    font-size: small;
+    margin: 2px 2px 0 auto;
+    padding-left: 0.5em;
+}
+
+
+
+/** Selected **/
+div.asui-clickable.selected {
+    border-style: inset;
+    background-color: #CAA !important;
+}
+
+/** Loading **/
+div.asui-clickable.loading {
+    background: linear-gradient(-45deg, #96e76bFF, #e73c7e66, #23a6d500, #23d5ab66) !important;
+    background-size: 400% 400%;
+    animation: gradientBG 5s ease infinite;
+    cursor: progress;
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+/** Hover **/
+div.asui-clickable:hover {
+    background-color: #999 !important;
+}
+
+/** Disabled Menu **/
+div.asui-clickable.disabled {
+    /*opacity: 0.5;*/
+    color: #777;
+    cursor: not-allowed;
+}
+
+/** Menu Stick **/
+div.asui-clickable.stick {
+    background-color: #999;
+}
+
+

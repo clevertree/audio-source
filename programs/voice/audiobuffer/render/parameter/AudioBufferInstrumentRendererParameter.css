@@ -1,0 +1,41 @@
+/** Parameters **/
+
+div.audiobuffer-instrument-container > div.parameter {
+    /*border-left: 1px solid #888;*/
+    /*padding-right: 2px;*/
+    /*padding-left: 2px;*/
+    border-left: 1px solid #888;
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+div.audiobuffer-instrument-container > div.name { color: #1E2526; }
+div.audiobuffer-instrument-container > div.root { color: #692a6a; }
+div.audiobuffer-instrument-container > div.loop { color: cornflowerblue; }
+div.audiobuffer-instrument-container > div.range { color: #92303a; }
+div.audiobuffer-instrument-container > div.mixer { color: green; }
+div.audiobuffer-instrument-container > div.detune { color: darkred; }
+div.audiobuffer-instrument-container > div.alias { color: #385049; }
+
+
+
+div.audiobuffer-instrument-container > div.title {
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+div.audiobuffer-instrument-container:not(.open) > div.title {
+    max-width: 30vw;
+    overflow: hidden;
+}
+
+
+/** Hover **/
+
+
+div.audiobuffer-instrument-container > div:hover {
+    background: #AAA;
+    color: #000;
+    cursor: pointer;
+    border-radius: 4px;
+}

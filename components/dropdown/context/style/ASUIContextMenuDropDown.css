@@ -1,0 +1,47 @@
+
+
+
+/** Drop Down **/
+
+div.asui-contextmenu-dropdown {
+    /*z-index: 3;*/
+    transition: width 0.4s ease-out;
+    opacity: 0;
+    width: 0;
+}
+div.asui-contextmenu-dropdown.open {
+    width: 25%;
+    opacity: 1;
+    transition: width 0.1s ease-in;
+    /*overflow-x: hidden;*/
+}
+
+.portrait > div.asui-contextmenu-dropdown {
+    overflow: hidden;
+}
+
+div.asui-contextmenu-dropdown > div.asui-dropdown-container > div > div.asui-menu-item {
+    padding: 0.5em 1em;
+    border: 1px outset #DDD;
+}
+
+
+/** Overlay **/
+
+div.asui-contextmenu-overlay {
+    flex: 0;
+    transition: background-color 1s;
+}
+
+div.asui-contextmenu-overlay.open {
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    background-color: rgba(0, 0, 0, 0.27);
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+

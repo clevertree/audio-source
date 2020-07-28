@@ -1,0 +1,61 @@
+
+/** Menu Drop Down **/
+
+
+div.asui-dropdown-container {
+    position: relative;
+    background-color: #bdc3c7;
+    /* display: inline-block; */
+    z-index: 3;
+    border: 1px solid grey;
+    text-align: left;
+    transition: opacity 0.2s;
+}
+
+
+div.asui-dropdown-container.floating {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    white-space: nowrap;
+}
+
+div.asui-dropdown-container > div > div.asui-menu-item {
+    padding: 4px;
+    /*border: 1px outset #AAA;*/
+}
+div.asui-dropdown-container > div.selected {
+    background-color: #AAA;
+}
+
+div.asui-dropdown-container > div > div.asui-menu-item:hover {
+    z-index: 5;
+}
+
+
+div.asui-dropdown-container.stick {
+    border: 2px solid black;
+    /*background-color: #9ba0a3;*/
+}
+div.asui-dropdown-container:hover {
+    z-index: 4;
+}
+
+div.asui-dropdown-container.vertical {
+    left: 0;
+    top: 100%;
+}
+
+
+
+/** Screen Overflow **/
+
+div.asui-dropdown-container.overflow-right {
+    left: inherit;
+    right: 100%;
+}
+div.asui-dropdown-container.overflow-bottom {
+    /*top: inherit;*/
+    /*bottom: -50vh;*/
+    /*bottom: 100%;*/
+}

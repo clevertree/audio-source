@@ -1,0 +1,208 @@
+
+
+/** Font styles **/
+
+div.asc-container input,
+div.asc-container button,
+div.asc-container {
+    font-size: large;
+}
+
+span.error {
+    font-color: red;
+    font-weight: bold;
+}
+
+
+
+/** Container **/
+/** Font Style **/
+div.asc-container {
+    position: relative;
+    font-family: monospace;
+    color: #000;
+    background-color: #EEE;
+    /* margin-top: -14px; */
+    user-select: none;
+    /*display: flex;*/
+    /*flex-direction: column;*/
+}
+
+
+/** Full Screen **/
+div.asc-container.fullscreen {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/** Visibility **/
+
+
+:host(:not(.playing)) .show-on-playing,
+:host(.playing) .hide-on-playing,
+:host(.hide-panel-song) asc-panel.song,
+:host(.hide-panel-playlist) asc-panel.playlist {
+    display: none;
+}
+
+/** Header **/
+
+
+div.asc-header-container {
+    background-color: #bdc3c7;
+}
+
+
+/** Portrait Header Container **/
+
+div.asc-container.portrait div.asc-header-container {}
+div.asc-container.landscape div.asc-header-container {}
+
+
+/** Title **/
+
+
+div.asc-title-text {
+    text-align: center;
+    white-space: nowrap;
+    font-weight: bold;
+    /*background-color: #888;*/
+    color: #333;
+    padding: 3px 0 1px 0;
+
+}
+
+/** Portrait Title **/
+
+
+div.asc-container.portrait div.asc-title-text {
+    position: absolute;
+    top: 8px;
+    width: 100%;
+}
+
+/** Menu Container **/
+
+
+div.asc-menu-container {
+    background-color: #AAA;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    z-index: 3;
+}
+
+/** Menu Items **/
+
+div.asc-container.landscape div.asc-menu-container > div.asui-menu-item {
+    padding: 0px 8px 0px 4px;
+}
+
+
+/** Portrait Menu Button **/
+
+div.asc-menu-button-toggle {
+
+}
+
+div.asc-menu-button-toggle > div.asui-icon {
+    height: 2em;
+    width: 2em;
+    transition: transform 0.3s ease-out;
+}
+
+/*div.asc-menu-button-toggle.stick > div.title > div.asc-icon {*/
+/*    transform: rotate(90deg);  TODO*/
+/*}*/
+
+
+div.asui-contextmenu-dropdown > div.asui-menu-item {
+    padding: 0.5em;
+}
+
+
+/** UI Panels **/
+
+
+/** Landscape **/
+
+div.asc-container.landscape div.asui-panel {
+    display: inline-block;
+}
+div.asc-container.landscape div.asui-panel > div.container {
+    overflow-y: visible;
+}
+
+div.asc-container.landscape div.asui-panel-container-horizontal {
+    display: inline;
+}
+
+
+/** Portrait **/
+
+div.asc-container.portrait div.asc-content-container {
+    /*display: flex;*/
+    /*flex-wrap: wrap;*/
+}
+
+div.asc-container.portrait div.asc-content-container > div.asui-panel {
+    flex: 1;
+    overflow-x: auto;
+}
+div.asc-container.portrait div.asc-content-container > div.asui-panel.programs,
+div.asc-container.portrait div.asc-content-container > div.asc-tracks-container {
+    flex: 1 100%;
+}
+
+
+
+@media only screen and (min-width: 480px) {
+    div.asc-container.portrait div.asui-panel-container-horizontal {
+        display: flex;
+    }
+}
+
+div.asc-container.portrait div.asui-panel-container-horizontal > div.asui-panel {
+    flex: 1;
+}
+
+
+
+/** Tracks **/
+
+div.asc-container.landscape div.asc-tracks-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+/** Footer **/
+
+div.asc-status-text {
+    padding-left: 4px;
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+div.asc-status-text.error {
+    color: red;
+}
+
+div.asc-version-text {
+    color: #2c3e50;
+    /* float: right; */
+    padding-right: 4px;
+    padding-left: 8px;
+    margin-left: auto;
+}
+
+
+/** Status Bar **/
+div.asc-footer-container {
+    display: flex;
+    background-color: #FFF;
+    color: #000;
+    padding: 0px;
+}

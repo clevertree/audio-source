@@ -1,0 +1,13 @@
+/** Container **/
+
+div.asui-contextmenu-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+div.asui-contextmenu-container > div.content {
+    flex: 1;
+    overflow-x: auto;
+}

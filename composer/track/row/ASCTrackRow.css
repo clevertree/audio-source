@@ -1,0 +1,77 @@
+
+/** ASCTrack Row **/
+
+div.asct-row {
+    display: flex;
+    cursor: pointer;
+    background-color: #D0D0D0;
+    /*height: 1.45em;*/
+    /*position: relative;*/
+    border: 1px outset #DDD;
+    padding: 0px;
+}
+
+div.asct-row.odd {
+    background-color: #C0C0C0;
+}
+
+/** Track Colors **/
+
+
+/** Measure Start/End **/
+
+div.asct-row.measure-start {
+    border-top: 1px solid #333 !important;
+    /*background: linear-gradient(to bottom, #BBB 0%, #CCC 80%);*/
+}
+/*div.asct-row.measure-end {*/
+/*    border-bottom: 1px solid #333 !important;;*/
+/*    !*background: linear-gradient(to top, #BBB 0%, #CCC 80%);*!*/
+/*}*/
+
+
+
+/** Segment Start/End **/
+
+div.asct-row.segment-start {
+    border-top: 2px solid #000 !important;
+    /*background: linear-gradient(to bottom, #BBB 0%, #CCC 100%);*/
+}
+
+/*div.asct-row.segment-end {*/
+/*    border-bottom: 1px solid #000 !important;*/
+/*    background: linear-gradient(to top, #BBB 0%, #CCC 100%);*/
+/*}*/
+
+
+
+
+div.asct-row.playing {
+    background-color: #68EDC6;
+}
+
+div.asct-row.position {
+    background-color: #87b487;
+}
+
+
+/** Selected **/
+
+div.asct-row.cursor,
+div.asct-row.selected {
+    background-color: #90BEDE;
+    position: relative;
+    /*box-shadow: #ffeedd 0px 0px 4px;*/
+    /*z-index: 2;*/
+}
+
+/** Hover **/
+
+div.asct-row:hover {
+    background: #90F3FF;
+    border: 1px outset #4EE;
+}
+
+div.asct-row.position:hover {
+    /*background: #90ffa2;*/
+}

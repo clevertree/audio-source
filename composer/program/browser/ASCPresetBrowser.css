@@ -1,0 +1,43 @@
+div.asc-preset-browser {
+    font-size: smaller;
+    display: inline-block;
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 2px;
+    margin: 0px 0px 0px 0px;
+    vertical-align: top;
+    /*flex-basis: 100%;*/
+}
+
+div.asc-preset-browser > div.library-list,
+div.asc-preset-browser > div.preset-list {
+    display: flex;
+    flex-direction: column;
+    /*flex-wrap: wrap;*/
+    /*max-height: 50vw;*/
+}
+
+div.asc-preset-browser > div.library-list > div,
+div.asc-preset-browser > div.preset-list > div {
+    border: #EEE outset 1px;
+    background-color: #CCC;
+    padding: 4px;
+    margin: 1px;
+    border-radius: 4px;
+    min-width: 240px;
+    /*max-width: 280px;*/
+}
+div.asc-preset-browser > div.library-list > div.selected ,
+div.asc-preset-browser > div.preset-list > div.selected {
+    border: #CCC inset 1px;
+}
+
+div.asc-preset-browser > div.library-list > div.centered ,
+div.asc-preset-browser > div.preset-list > div.centered {
+    text-align: center;
+}
+
+
+div.asc-preset-browser > div.library-list > div {
+    background-color: #938dc2;
+}

@@ -1,0 +1,29 @@
+div.asc-instrument-renderer {
+    display: inline-block;
+    background: #DDD;
+    border: 1px outset #FFF;
+    padding: 2px;
+    margin: 0px 0px 0px 0px;
+    vertical-align: top;
+    cursor: pointer;
+}
+
+div.asc-instrument-renderer:hover {
+    background: #90F3FF;
+}
+div.asc-instrument-renderer:focus {
+    background-color: #90BEDE;
+}
+
+
+
+div.asc-instrument-renderer > div.header {
+    display: flex;
+}
+
+div.asc-instrument-renderer > div.header > div.program-config {
+    padding-left: 4px;
+}
+div.asc-instrument-renderer > div.header > div.error {
+    color: #620100;
+}

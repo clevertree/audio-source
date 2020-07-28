@@ -1,93 +1,155 @@
 # Audio Source Composer
 
-Created by Ari Asulin
+The Audio Source Composer is an open-source Digital Audio Workstation (DAW) 
+built on the [WebAudioAPI](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
+to work on all platforms from web browsers to desktops applications to mobile devices.
 
-This is an early peak at the Audio Source Composer. Try it out at https://audiosource.io
+* [Composer Features](#features)
+* Local Repository Installation
+  + [Website Repository](#install-web)
+  + [App Repository](#install-app)
+* [Player](#player)
+* [Communities](#community)
 
-## Installation
-`$ cd [audio-source-composer]`
+---
 
-`$ npm install`
+## Features: <a name="features"></a>
+* Works on any modern browser on any phone, tablet or pc.
+* Instruments and effects can be wrapped in each other to build complex presets.
+* Note tracks can be called recursively for a highly structured song.
 
-## Run Local Server
-`$ npm start`
+### What's Currently Working
+* Add, edit, and delete notes and note tracks.
+* Edit note velocity and duration.
+* Quarter tone compatibility (missing in MIDI)
+* Recursively play back tracks by adding a 'Track Note'.
+* Track note transposing (play back tracks at different frequencies)
 
-## Browse to Local Server
-http://localhost:8090
+### Under the Hood
+* Audio Source brings the WebAudio API to mobile by using a WebView as a proxy.
+* Songs, instruments, and samples written for Audio Source will work on any platform. 
+* Instruments render using React VirtualDOM on the UI thread while rendering audio in the WebView proxy. 
 
-## Currently Working:
-* Add, edit, and delete notes and note groups (delete has a bug)
-* Recursively play back note groups
-* Note velocity, ADSR (still early), sample key ranges
-* Sample Synthesizer Instrument with GM librarys
-* Oscillator Synthesizer (No libraries yet)
-* Tracker-View which works with midi note deltas
-* Works on any modern browser on any phone, tablet or pc
-* Embeddable on any website with 2 lines of code
-* Import MIDI files (buggy)
-
-## Planned Features:
-* Audio editing
-* XY Grid for easy mouse-click composition
+### Planned Features
+* Sample libraries
+* Audio recording and editing
+* Track XY Grid for easy mouse-click composition
 * Real-time editing between multiple users (like Google Docs)
 * Server-side song rendering
-* Export MIDI files
-
-## How to put the composer element on your website
-```
-<script src="https://audiosource.io/composer/audio-source-composer-loader.js"></script>
-<audio-source-composer></audio-source-composer>
-```
+* Import/Export MIDI files
+* Variable BPM and other globals
 
 
-# Audio Source Player (ASP)
-Coming Soon!
+# Web Browser Demo (Alpha)
+Click the image below to try Audio Source Composer (Alpha) on your browser.
 
-## Planned Features:
-
-* Works on any modern browser on any phone, tablet or pc
-* Render song play-back in real-time for highest playback quality
-* Embeddable on any website with 2 lines of code
-* Plays MIDI files
-* How to put the player on your website
-```
-<script src="https://audiosource.io/player/audio-source-player-loader.js"></script>
-<audio-source-player></audio-source-player>
-```
+[![Browser Portrait](https://files.audiosource.io/releases/browser/screenshots/browser-portrait1.png)](https://audiosource.io/demo "Demo")
 
 
-# Audio Source Synthesizer
 
-## Planned Features:
-* Works on any modern browser on any phone, tablet or pc
-* Stand-alone Synthesizer can be embeddable on any website
-* Supports MIDI input events
-* Embeddable within other DAWs
+## Android Downloads
 
-## How to put the synthesizer on your website (not currently working)
-```
-<script src="https://audiosource.io/instrument/audio-source-synthesizer.js"></script>
-<audio-source-synthesizer></audio-source-synthesizer>
-```
+The Audio Source Composer Alpha Demo is available for download on Android Devices:
 
+[Audio Source Composer(v0.5.4).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.4).apk)
 
-## Coming soon: Audio Source Music Communities
-### SNESology Music Community
-Listen to and Publish Remixes (of copyrighted music)
+[Audio Source Composer(v0.5.3).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.3).apk)
 
-### AudioSource Music Community
-Listen to, Publish, and Sell Original Music
+[Audio Source Composer(v0.5.1).apk](https://files.audiosource.io/releases/android/Audio%20Source%20Composer(v0.5.1).apk)
+
+Check back often for updates as we get closer to Beta!
 
 
-# FAQ
+---
 
-##### Q: What is the Audio Source Composer vision?
-######  The vision is essentially that everyone in the future makes music where the 'source' can be viewed easily by anyone. Some kid can get inspired to make music and hit 'source' on his/her favorite composer's song, and go 'wait I can do that'
 
-##### Q: Why will artists (his favourite composer) give away the source?
-###### What artist, if he/her is willing to call themselves that, doesn't want their fans to see their source? I've always shared my song source. I've always answered questions from fans and other artists about how I pulled this or that off, or borrow a sample, or a vsti. Anyway, this concept only applies to an artist who actually builds their songs with this software in the first place, so the for-profit industry-suckers can stay in their closed-source shrinking bubble, at least while it hasn't popped yet
+## Website Installation <a name="install-web"></a>
 
-##### Q: How can I help? What should I help with? Are there instructions? 
-###### Most of the work will be done on our github repo. Check out the README for installation instructions. 
+~~~~
+$ git clone ssh://git@github.com/clevertree/audio-source-web --recursive
+$ cd [audio-source-web]
+$ npm install
+~~~~
+
+### Run Server
+Note: This command should also open the website in your local browser.
+~~~~
+$ npm start
+~~~~
+
+### Browse to Local Server
+[http://localhost:3000](http://localhost:3000)
+
+
+---
+
+
+
+## App Installation <a name="install-app"></a>
+
+~~~~
+$ git clone ssh://git@github.com/clevertree/audio-source-app --recursive
+$ cd [audio-source-app]
+$ npm install
+~~~~
+
+### Run in Android device
+~~~~
+$ react-native run-android
+~~~~
+
+### Run in iOS device (MacOSX)
+~~~~
+$ react-native run-ios
+~~~~
+
+
+---
+
+
+
+# Coming soon: Audio Source Music Communities <a name="community"></a>
+### [SNESology Music Community](https://snesology.net)
+Listen to and publish remixes and arrangements (of copyrighted music)
+
+### [AudioSource Music Community](https://audiosource.io)
+Listen to, publish, and sell original music
+
+
+
+## How can I help? What should I help with? Are there instructions? 
+### Most of the work will be done on our github repo. Check out the README for installation instructions. 
 We want help with everything from images, css, UI, testing, programming, and feedback. (And PR obviously!)
-https://github.com/clevertree/audio-source-composer
+
+Git Repo: https://github.com/clevertree/audio-source-composer
+
+
+
+
+
+# Contact
+
+Open-Source means the AudioSource project is free forever, and anyone can join in the development,
+so we're always looking for testers, artists, and all kinds of musician to 
+[contribute](https://github.com/clevertree/audio-source-composer/issues/4).
+
+Currently the composer is in
+[active development](https://github.com/clevertree/audio-source-composer)
+and has not yet been released.
+Check back often for updates as we get closer to Beta!{
+If you want to join up, please contact us on the 
+[GitHub page](https://github.com/clevertree).
+
+Check back often for updates as we get closer to Beta!
+
+### How to report a bug
+*   Go to [Github.com](https://github.com/clevertree/audio-source-composer/) and grab an account
+*   Check for [existing bugs](https://github.com/clevertree/audio-source-composer/issues/) with the same description
+*   Create a new [bug report](https://github.com/clevertree/audio-source-composer/issues/new) describing the problem
+*   List your operating-system and browser versions
+*   If possible, include the [developer's console](https://kb.mailster.co/how-can-i-open-the-browsers-console/) in the screen-shot
+*   Try to include a [screen-shot](https://northatlanticlcc.org/help/how-to-save-a-screenshot-of-a-webpage) of the issue
+*   Optionally describe your issue in the #bugs channel on [Discord](https://discord.gg/6NDH7sU)
+
+
+###### [Created by Ari Asulin](https://github.com/clevertree/)

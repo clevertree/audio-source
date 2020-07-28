@@ -1,0 +1,132 @@
+body.themed {
+    background-color: #EEE;
+
+}
+
+div.aspage-container {
+    background-color: #333;
+    /*margin: 1vw;*/
+    min-height: 100vh;
+    color: #BBB;
+
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+
+div.aspage-container a:not(:hover) {
+    text-decoration: none;
+    color: white;
+
+}
+
+/** Header / Footer **/
+
+div.aspage-header,
+div.aspage-footer {
+    text-align: center;
+}
+
+img.aspage-header-image,
+img.aspage-footer-image {
+    margin-top: 4px;
+    width: 95vw;
+}
+
+div.aspage-header-text,
+div.aspage-footer-text {
+    padding: 1vw;
+}
+
+
+div.aspage-header-links,
+div.aspage-footer-links {
+    display: flex;
+    justify-content: center;
+    background-color: #666;
+    padding: 0.2vw;
+    font-size: 4vw;
+}
+
+
+div.aspage-header-links > a,
+div.aspage-footer-links > a {
+    text-decoration: none;
+    display: block;
+    padding: 0.2vw 3vw;
+    margin: 0 1vw;
+    background-color: transparent;
+    border-radius: 1vw;
+    transition: background-color 0.3s;
+}
+div.aspage-header-links > a:hover,
+div.aspage-footer-links > a:hover {
+    background-color: #777;
+}
+div.aspage-header-links > a.selected,
+div.aspage-footer-links > a.selected {
+    background-color: #888;
+}
+
+
+@media only screen and (min-width: 468px) {
+    img.aspage-header-image {
+        width: 468px;
+    }
+
+    div.aspage-header-links,
+    div.aspage-footer-links {
+        font-size: 18px;
+    }
+
+}
+
+
+/** Page Content **/
+
+div.aspage-content {
+    position: relative;
+    background-color: #444;
+    min-height: 50vh;
+    padding: 1vw;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/** Page Paragraphs **/
+
+div.aspage-content > p {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-indent: 12px;
+    text-align: justify;
+    padding: 0 1vw;
+}
+
+/** Page Images **/
+
+
+div.aspage-content > p > img,
+div.aspage-content > p > a > img {
+    display: flex;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+@media only screen and (max-width: 640px) {
+    div.aspage-content > p > img,
+    div.aspage-content > p > a > img {
+        width: 90vw;
+    }
+
+}
+
+
+
+/** Pre **/
+
+div.aspage-content > pre {
+    padding: 1em;
+    background-color: #222;
+    border-radius: 1em;
+}
