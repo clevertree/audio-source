@@ -1,5 +1,5 @@
 import React from "react";
-import {Keyboard, Library, Song, SongValues} from "../song";
+import {Keyboard, LibraryIterator, Song, SongValues} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
@@ -90,7 +90,7 @@ class ASComposerBase extends React.Component {
 
         this.keyboard = new Keyboard();
 
-        this.library = Library.loadDefault();
+        this.library = LibraryIterator.loadDefault();
         // console.log('library', this.library, this.library.getLibraries(), this.library.getPresets());
 
         this.song = new Song();
@@ -98,6 +98,17 @@ class ASComposerBase extends React.Component {
         this.lastVolumeGain = null;
 
         this.onSongEventCallback = (e) => this.onSongEvent(e);
+
+
+        setTimeout(async () => {
+            const midiFilePath = require('../../assets/files/midi/amarbule.mid');
+            const response = await fetch(midiFilePath);
+            const midiFileBuffer = await response.arrayBuffer();
+            console.log('midiFilePath', midiFilePath, midiFileBuffer);
+            // await this.loadSongFromBuffer(midiFileBuffer, 'test.mid');
+
+        }, 1000);
+
     }
 
 

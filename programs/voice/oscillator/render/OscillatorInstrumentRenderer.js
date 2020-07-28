@@ -5,7 +5,7 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIIcon,
 } from "../../../../components";
-import Library from "../../../../song/library/Library";
+import LibraryIterator from "../../../../song/library/LibraryIterator";
 import Values from "../../../../common/values/Values";
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
 import OscillatorInstrumentRendererParameter from "./parameter/OscillatorInstrumentRendererParameter";
@@ -21,7 +21,7 @@ class OscillatorInstrumentRenderer extends React.Component {
             onClick: e => this.toggleOpen(),
             renderMenuRoot: () => this.renderMenuRoot()
         };
-        this.library = Library.loadDefault();
+        this.library = LibraryIterator.loadDefault();
     }
 
 

@@ -1,4 +1,4 @@
-import {Instruction, Library, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {Instruction, LibraryIterator, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import {InstructionProcessor} from "../common";
@@ -20,7 +20,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Library **/
 
     setLibrary(library) {
-        if(!(library instanceof Library))
+        if(!(library instanceof LibraryIterator))
             throw new Error("Invalid library: " + typeof library);
         this.library = library;
         // console.log('Current library: ', library);
@@ -99,17 +99,27 @@ class ASComposerActions extends ASComposerMenu {
         if(Object.keys(activeTracks).length === 0)
             activeTracks[selectedTrack || 'root'] = {}
 
+
+        const songData = this.song.getProxiedData();
+        for(let trackName in this.state.activeTracks) {
+            if(this.state.activeTracks.hasOwnProperty(trackName)) {
+                if (songData.tracks[trackName]) {
+                    if (this.state.activeTracks.hasOwnProperty(trackName)) {
+                        const trackState = new TrackState(this, trackName);
+                        trackState.updateRenderingProps();
+                    }
+
+                } else {
+                    delete activeTracks[trackName];
+                    console.warn("Removing unavailable active track: " + trackName);
+                }
+            }
+        }
+
         this.setState({
             songLength: this.song.getSongLengthInSeconds(),
             activeTracks
         });
-
-        for(let trackName in this.state.activeTracks) {
-            if(this.state.activeTracks.hasOwnProperty(trackName)) {
-                const trackState = new TrackState(this, trackName);
-                trackState.updateRenderingProps();
-            }
-        }
     }
 
 
@@ -304,15 +314,9 @@ class ASComposerActions extends ASComposerMenu {
     }
 
     async loadSongFromURL(url) {
-
         const fileService = new FileService();
         const buffer = await fileService.loadBufferFromURL(url);
-        // const buffer = await response.arrayBuffer();
-        const fileSupport = new FileSupport();
-        const song = await fileSupport.processSongFromFileBuffer(buffer, url);
-        this.setCurrentSong(song);
-        this.setStatus("Loaded from url: " + url);
-        return song;
+        return await this.loadSongFromBuffer(buffer, url);
     }
 
     async loadSongFromFileInput(e, file=null, accept=null) {
@@ -321,22 +325,23 @@ class ASComposerActions extends ASComposerMenu {
         if (!file)
             throw new Error("Invalid file input");
 
-        const buffer = await this.loadBufferFromFileInput(file);
-        const fileSupport = new FileSupport();
-        const song = await fileSupport.processSongFromFileBuffer(buffer, file.name);
-        this.setCurrentSong(song);
-        return song;
-    }
-
-    async loadBufferFromFileInput(file) {
-        return await new Promise((resolve, reject) => {
+        const buffer = await new Promise((resolve, reject) => {
             let reader = new FileReader();                                      // prepare the file Reader
             reader.readAsArrayBuffer(file);                 // read the binary data
             reader.onload =  (e) => {
                 resolve(e.target.result);
             };
         });
+        return await this.loadSongFromBuffer(buffer, file.name);
     }
+
+    async loadSongFromBuffer(buffer, filePath) {
+        const fileSupport = new FileSupport();
+        const song = await fileSupport.processSongFromFileBuffer(buffer, filePath);
+        this.setCurrentSong(song);
+        return song;
+    }
+
 
 
     async loadSongFromMemory(songUUID) {

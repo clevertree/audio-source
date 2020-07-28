@@ -6,6 +6,8 @@ export default class FileSupport {
 
 
     getFileSupportByPath(filePath) {
+        if(typeof filePath !== "string")
+            throw new Error("Invalid path: " + typeof filePath);
         const fileExt = filePath.split('.').pop().toLowerCase();
         for(const [fileExtensions, fileSupportClass] of classes) {
             for(const ext of fileExtensions) {

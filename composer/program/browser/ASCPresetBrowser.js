@@ -1,7 +1,7 @@
 import React from "react";
 
 import {ASUIClickable, ASUIMenuAction, ASUIMenuItem} from "../../../components";
-import {Library} from "../../../song";
+import {LibraryIterator} from "../../../song";
 
 import "./ASCPresetBrowser.css";
 import {ProgramLoader} from "../../../common";
@@ -293,7 +293,7 @@ export default class ASCPresetBrowser extends React.Component {
     /** Menu **/
 
     async renderMenuSelectLibrary() {
-        const defaultLibrary = await Library.loadDefault();
+        const defaultLibrary = await LibraryIterator.loadDefault();
         const library = this.props.composer.library;
         const libraries = await library.getLibraries();
         return (<>

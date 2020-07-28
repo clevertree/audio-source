@@ -5,7 +5,7 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIIcon,
 } from "../../../../components";
-import Library from "../../../../song/library/Library";
+import LibraryIterator from "../../../../song/library/LibraryIterator";
 import Values from "../../../../common/values/Values";
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
 import AudioBufferInstrumentRendererParameter from "./parameter/AudioBufferInstrumentRendererParameter";
@@ -21,7 +21,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
             onClick: e => this.toggleOpen(),
             renderMenuRoot: () => this.renderMenuRoot()
         };
-        this.library = Library.loadDefault();
+        this.library = LibraryIterator.loadDefault();
     }
 
 

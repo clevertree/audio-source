@@ -7,7 +7,9 @@ export default class ASComposerPlayback extends ASComposerActions {
 
     loadMIDIInterface(callback) {
         // TODO: wait for user input
+        console.log('navigator.requestMIDIAccess', navigator, navigator.requestMIDIAccess);
         if (navigator.requestMIDIAccess) {
+            console.info("MIDI initializing");
             navigator.requestMIDIAccess().then(
                 (MIDI) => {
                     console.info("MIDI initialized", MIDI);

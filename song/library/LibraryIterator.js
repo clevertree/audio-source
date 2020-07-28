@@ -4,7 +4,7 @@ import ProgramLoader from "../../common/program/ProgramLoader";
 import DefaultLibraryData from "../../default.library";
 
 
-class Library {
+class LibraryIterator {
     constructor(libraryData) {
         if(libraryData === null)
             throw new Error("Invalid library data: null");
@@ -13,32 +13,21 @@ class Library {
         this.data = libraryData;
     }
 
-    getTitle() { return this.data.title; };
+    getTitle() { return this.data.title; }
     async getLibraries() {
         let libraryData = await resolve(this.data.libraries, this.data);
         // console.log('Library.getLibraries', libraryData);
         return (libraryData || [])
-            .map(libraryData => new Library(libraryData))
-    };
+            .map(libraryData => new LibraryIterator(libraryData))
+    }
+
     async getPresets(programClassFilter) {
         let presets = await resolve(this.data.presets, this.data, programClassFilter);
         // console.log('Library.getPresets', presets);
         return presets || []
-    };
-
-
-    /** Shortcuts **/
-
-    /** @deprecated **/
-    async supportsProgram(programClassName) {
-        const presets = await this.getPresets(programClassName);
-        for(let i=0; i<presets.length; i++) {
-            const [className] = presets[i];
-            if(className === programClassName)
-                return true;
-        }
-        return false;
     }
+
+
 
     /** Menu **/
 
@@ -126,7 +115,7 @@ class Library {
         return libraries.map((library, i) =>
             <ASUIMenuDropDown key={i++}
                 options={() => {
-                    Library.lastSelectedLibrary = library;
+                    LibraryIterator.lastSelectedLibrary = library;
                     return onSelectLibraryOptions(library);
                 }}>
                 {library.getTitle()}
@@ -186,15 +175,15 @@ class Library {
 
     /** @deprecated **/
     static historicLibraryCount() {
-        return Object.values(Library.cache).length;
+        return Object.values(LibraryIterator.cache).length;
     };
 
     /** @deprecated **/
     static eachHistoricLibrary(callback) {
         const results = [];
-        for (let cacheURL in Library.cache) {
-            if (Library.cache.hasOwnProperty(cacheURL)) {
-                let libraryConfig = Library.cache[cacheURL];
+        for (let cacheURL in LibraryIterator.cache) {
+            if (LibraryIterator.cache.hasOwnProperty(cacheURL)) {
+                let libraryConfig = LibraryIterator.cache[cacheURL];
                 if (libraryConfig instanceof Promise)
                     continue;
                 // libraryConfig = await libraryConfig;
@@ -211,13 +200,13 @@ class Library {
 
     static defaultLibraryData = DefaultLibraryData;
 
-    /** @returns {Library} */
+    /** @returns {LibraryIterator} */
     static loadDefault() {
-        return new Library(Library.defaultLibraryData);
+        return new LibraryIterator(LibraryIterator.defaultLibraryData);
     };
 
     static setDefaultLibrary(defaultLibraryData) {
-        Library.defaultLibraryData = defaultLibraryData;
+        LibraryIterator.defaultLibraryData = defaultLibraryData;
     }
 
 }
@@ -228,8 +217,8 @@ class Library {
 //     return await Library.loadFromURL(Library.defaultLibraryURL);
 // };
 /** @deprecated **/
-Library.cache = {};
-export default Library;
+LibraryIterator.cache = {};
+export default LibraryIterator;
 
 async function resolve(item, thisItem, callbackParameter=null) {
     if(typeof item === "function")

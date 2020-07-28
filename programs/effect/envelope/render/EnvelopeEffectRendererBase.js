@@ -2,18 +2,19 @@ import React from 'react';
 
 import {
     ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
-} from "../../../components";
+} from "../../../../components";
 
-import {ProgramLoader, PromptManager} from "../../../common";
+import {ProgramLoader, PromptManager} from "../../../../common";
 
 /** PolyphonyInstrumentRenderer **/
-class PolyphonyInstrumentRendererBase extends React.Component {
+class EnvelopeEffectRendererBase extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
             onRemove: (voiceID) => this.removeVoice(voiceID),
-            onAction: (e) => this.addVoice()
+            onAction: (e) => this.setVoice()
         }
+        // console.log(this.constructor.name, this.props);
     }
 
     /** Actions **/
@@ -22,14 +23,11 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     setStatus(message) { console.info(this.constructor.name, 'setStatus', message); }
     setError(message) { console.warn(this.constructor.name, 'setStatus', message); }
 
-    wrapVoiceWithNewInstrument(voiceID) {
 
-    }
-
-    async addVoicePrompt(instrumentClassName, instrumentConfig) {
+    async setVoicePrompt(instrumentClassName, instrumentConfig) {
         const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
         if (await PromptManager.openConfirmDialog(`Add voice class '${title}' to this Instrument?`)) {
-            this.addVoice(instrumentClassName, instrumentConfig);
+            this.setVoice(instrumentClassName, instrumentConfig);
 
         } else {
             this.setError(`New voice canceled: ${instrumentClassName}`);
@@ -38,7 +36,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     }
 
 
-    addVoice(instrumentClassName, instrumentConfig={}) {
+    setVoice(instrumentClassName, instrumentConfig={}) {
         if (!instrumentClassName)
             throw new Error(`Invalid voice instrument class`);
 
@@ -59,16 +57,16 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     /** Menu **/
 
-    renderMenuAddVoice() {
+    renderMenuSetVoice() {
         return (<>
             <ASUIMenuItem>Add voice instrument</ASUIMenuItem>
             <ASUIMenuBreak/>
             {ProgramLoader.getRegisteredPrograms().map(({className, title}, i) =>
-                 <ASUIMenuAction key={i} onAction={() => this.addVoicePrompt(className)}>{title}</ASUIMenuAction>
+                 <ASUIMenuAction key={i} onAction={() => this.setVoicePrompt(className)}>{title}</ASUIMenuAction>
             )}
         </>)
         // return Values.renderMenuSelectAvailableInstrument((instrumentClass) => {
-        //     this.addVoice(instrumentClass);
+        //     this.setVoice(instrumentClass);
         // }, "Add new program as voice")
     }
 
@@ -83,4 +81,4 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     }
 }
 
-export default PolyphonyInstrumentRendererBase;
+export default EnvelopeEffectRendererBase;

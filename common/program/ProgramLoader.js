@@ -107,13 +107,14 @@ export default class ProgramLoader {
     }
 
     static getProgramClassInfo(className) {
+        const classNameLC = className.toLowerCase();
         const classes = ProgramLoader.registeredProgramClasses;
         for(let i=0; i<classes.length; i++) {
             const classInfo = classes[i];
-            if(classInfo.className === className)
+            if(classInfo.className.toLowerCase() === classNameLC)
                 return classInfo;
         }
-        throw new Error(`Program class ${className} was not found`);
+        throw new Error(`Program class '${className}' was not found`);
     }
 
 

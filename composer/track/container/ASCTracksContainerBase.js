@@ -13,6 +13,7 @@ export default class ASCTracksContainerBase extends React.Component {
 
     renderTracks() {
         const composer = this.props.composer;
+        const songData = composer.getSong().getProxiedData();
         composer.ref.activeTracks = {};
 
         const selectedTrackName = composer.getSelectedTrackName();
@@ -25,6 +26,8 @@ export default class ASCTracksContainerBase extends React.Component {
             //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
         }
         return trackList.map((trackName) => {
+            if(!songData.tracks[trackName])
+                return null;
             composer.ref.activeTracks[trackName] = React.createRef(); // TODO: flaw?
             const selected = trackName === selectedTrackName;
             return <ASCTrack
