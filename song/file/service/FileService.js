@@ -1,4 +1,5 @@
 import WebTorrent from "webtorrent";
+import LocalFileCache from "./LocalFileCache";
 
 // const archiveBuffers = {};
 const torrentCache = {};
@@ -17,6 +18,8 @@ const trackerURLS = [
     "wss://tracker.webtorrent.io",
 ];
 
+const fileCache = LocalFileCache.instance;
+
 export default class FileService {
     // constructor(song) {
     //     this.song = song;
@@ -30,16 +33,26 @@ export default class FileService {
     }
 
     async loadBufferFromURL(url) {
+        let buffer;
+
+        if(await fileCache.hasFile(url)) {
+            return await fileCache.getFile(url);
+        }
+
         // this.log("Loading buffer from url: " + url);
         if(url.toString().startsWith('torrent://')) {
             console.log('Loading: ' + url);
-            const buffer = await this.getFileBufferFromTorrent(url);
+            buffer = await this.getFileBufferFromTorrent(url);
             // console.log('Loaded: ' + url, buffer);
-            return buffer;
+        } else {
+            // return buffer;
+            const response = await fetch(url);
+            buffer = response.arrayBuffer();
+
         }
 
-        const response = await fetch(url);
-        return await response.arrayBuffer();
+        fileCache.putFile(buffer, url);
+        return buffer;
     }
 
     getMagnetURL(torrentID) {
@@ -194,6 +207,16 @@ export default class FileService {
             this.data = data;
         }
     }
+
+    /** Static **/
+
+    static registerServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/file-service-worker.js');
+        }
+    }
+
 }
 
+// FileService.registerServiceWorker();
 

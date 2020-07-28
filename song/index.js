@@ -8,7 +8,7 @@ import InstructionIterator from "./instruction/iterator/InstructionIterator";
 import SongValues from "./values/SongValues";
 import {TrackIterator, TrackPlayback} from "./track";
 import LibraryIterator from "./library/LibraryIterator";
-import FileService from "./file/FileService";
+import FileService from "./file/service/FileService";
 import FileSupport from "./file/FileSupport";
 export {
     Song,

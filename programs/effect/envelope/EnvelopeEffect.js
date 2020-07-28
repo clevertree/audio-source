@@ -23,6 +23,10 @@ class EnvelopeEffect {
     /** Playback **/
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+        if(duration !== null) {
+            console.log('todo duration', duration, this.config.release);
+            duration += this.config.release / 1000;
+        }
         return this.voice.playFrequency(destination, frequency, startTime, duration, velocity, onended);
     }
 
