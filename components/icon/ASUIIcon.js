@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from "prop-types";
 
 import "./assets/ASUIIcon.css";
+import IconList from "./assets/IconList";
 
 /** Icon **/
 class ASUIIcon extends React.Component {
@@ -17,10 +18,13 @@ class ASUIIcon extends React.Component {
 
     render() {
         let className = "asui-icon";
-        if(this.props.source) {
-            className += ' ' + this.props.source;
+        let source = this.props.source;
+        let alt = 'Icon';
+        if(typeof source === "string") {
+            alt = source;
+            source = new IconList().getSource(source);
         }
-        return <div className={className}/>;
+        return <img className={className} alt={alt} src={source}/>;
     }
 
 }

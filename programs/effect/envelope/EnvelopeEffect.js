@@ -9,7 +9,7 @@ class EnvelopeEffect {
         const [voiceClassName, voiceConfig] = this.config.voice;
         let {classProgram:voiceClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
         this.voice = new voiceClass(voiceConfig);
-        console.log(this.constructor.name, this);
+        // console.log(this.constructor.name, this);
     }
 
 

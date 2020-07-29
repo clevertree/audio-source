@@ -6,8 +6,9 @@ import {
     ASUIMenuDropDown, ASUIIcon,
     ASUIClickableDropDown
 } from "../../../../components";
-import LibraryIterator from "../../../../song/library/LibraryIterator";
-import Values from "../../../../common/values/Values";
+import {LibraryIterator} from "../../../../song";
+import {Values} from "../../../../common";
+
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
 
 

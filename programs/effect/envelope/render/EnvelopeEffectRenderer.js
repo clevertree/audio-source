@@ -1,9 +1,14 @@
 import React from 'react';
 
-import {ASUIButtonDropDown, ASUIIcon, ASUIClickableDropDown} from "../../../../components";
+import {
+    ASUIButtonDropDown,
+    ASUIIcon,
+    ASUIClickable,
+    ASUIClickableDropDown,
+    ASUIInputRange
+} from "../../../../components";
 import {ProgramLoader} from "../../../../common/";
 
-import "./EnvelopeEffectRenderer.css";
 import EnvelopeEffectRendererContainer from "./container/EnvelopeEffectRendererContainer";
 
 export default class EnvelopeEffectRenderer extends React.Component {
@@ -11,43 +16,74 @@ export default class EnvelopeEffectRenderer extends React.Component {
         super(props);
         this.cb = {
             onClick: e => this.toggleOpen(),
-            renderMenuRoot: () => this.renderMenuRoot()
+            renderMenuRoot: () => this.renderMenuRoot(),
+            renderMenuChange: (paramName) => this.renderMenuChange(paramName),
+            parameterMenu: {
+                attack: () => this.renderMenuChange('attack'),
+                hold: () => this.renderMenuChange('hold'),
+                delay: () => this.renderMenuChange('delay'),
+                sustain: () => this.renderMenuChange('sustain'),
+                release: () => this.renderMenuChange('release'),
+            }
         };
     }
 
 
     render() {
-        const voice = this.props.config.voice;
-//         console.log('voices', voices);
-        // Presets are handled by composer
-
+        const config = this.props.config;
         return <EnvelopeEffectRendererContainer
             onClick={this.cb.onClick}
-            open={this.props.config.open}
-        >
-            <ASUIClickableDropDown
-                arrow={false}
-                className="config"
-                options={this.cb.renderMenuRoot}
+            config={this.props.config}
+            renderMenuChange={this.cb.renderMenuChange}
+            parameters={[
+                {
+                    paramName:  'attack',
+                    title:      'Edit Envelope Attack',
+                    children:   `${Math.round((config.attack||0) / 10) / 100}s`,
+                    options:    this.cb.parameterMenu.attack
+                },
+                {
+                    paramName:  'hold',
+                    title:      'Edit Envelope Hold',
+                    children:   `${Math.round((config.hold||0) / 10) / 100}s`,
+                    options:    this.cb.parameterMenu.hold
+                },
+                {
+                    paramName:  'delay',
+                    title:      'Edit Envelope Delay',
+                    children:   `${Math.round((config.delay||0) / 10) / 100}s`,
+                    options:    this.cb.parameterMenu.delay
+                },
+                {
+                    paramName:  'sustain',
+                    title:      'Edit Envelope Sustain',
+                    children:   `${Math.round((config.sustain||0) / 10) / 100}s`,
+                    options:    this.cb.parameterMenu.sustain
+                },
+                {
+                    paramName:  'release',
+                    title:      'Edit Envelope Release',
+                    children:   `${Math.round((config.release||0) / 10) / 100}s`,
+                    options:    this.cb.parameterMenu.release
+                },
+            ]}
             >
-                <ASUIIcon source="config" size="small"/>
-            </ASUIClickableDropDown>
-            {this.renderParameters()}
-            {voice ? this.renderVoice()
-                : <ASUIButtonDropDown
-                    title="Add voice"
-                    className="add-voice"
-                    arrow={false}
-                    options={() => this.renderMenuAddVoice()}>
-                    Set Voice
-                </ASUIButtonDropDown>}
-
-
+            {this.renderVoice()}
         </EnvelopeEffectRendererContainer>;
     }
 
     renderVoice() {
         const voice = this.props.config.voice;
+        if(!voice) {
+            return <ASUIButtonDropDown
+                title="Add voice"
+                className="add-voice"
+                arrow={false}
+                options={() => this.renderMenuAddVoice()}>
+                Set Voice
+            </ASUIButtonDropDown>;
+        }
+
         const [className, config] = voice;
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
 
@@ -67,53 +103,79 @@ export default class EnvelopeEffectRenderer extends React.Component {
             return [];
         const config = this.props.config;
 
-        // TODO: Add frequency LFO
+        // TODO: rethink native parameters?
         return (<>
             <ASUIClickableDropDown
-                className="mixer"
-                title="Edit Mixer"
-                options={() => this.renderMenuChangeMixer()}
+                className="attack"
+                title="Edit Envelope Attack"
+                options={() => this.renderMenuChange('attack')}
                 arrow={false}
                 vertical
-                children={typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
+                children={`${Math.round((config.attack||0) / 10) / 100}s`}
             />
             <ASUIClickableDropDown
-                className="detune"
-                title={`Detune by ${config.detune} cents`}
-                options={() => this.renderMenuChangeDetune()}
+                className="hold"
+                title="Edit Envelope Hold"
+                options={() => this.renderMenuChange('hold')}
                 arrow={false}
                 vertical
-                children={typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
+                children={`${Math.round((config.hold||0) / 10) / 100}s`}
             />
-            {config.root ? <ASUIClickableDropDown
-                className="root"
-                title={`Key Root is ${config.root}`}
-                options={() => this.renderMenuChangeKeyRoot()}
+            <ASUIClickableDropDown
+                className="delay"
+                title="Edit Envelope Delay"
+                options={() => this.renderMenuChange('delay')}
                 arrow={false}
-                children={config.root ? config.root : "-"}
-            /> : null}
-            {config.alias ? <ASUIClickableDropDown
-                className="alias"
-                title={`Key Alias is ${config.alias}`}
-                options={() => this.renderMenuChangeKeyAlias()}
+                vertical
+                children={`${Math.round((config.delay||0) / 10) / 100}s`}
+            />
+            <ASUIClickableDropDown
+                className="sustain"
+                title="Edit Envelope Sustain"
+                options={() => this.renderMenuChange('sustain')}
                 arrow={false}
-                children={config.alias ? config.alias : "-"}
-            /> : null}
-            {config.range ? <ASUIClickableDropDown
-                className="range"
-                title={`Key Range is ${config.range}`}
-                options={() => this.renderMenuChangeKeyRange()}
+                vertical
+                children={`${Math.round((config.sustain||0) / 10) / 100}s`}
+            />
+            <ASUIClickableDropDown
+                className="release"
+                title="Edit Envelope Release"
+                options={() => this.renderMenuChange('release')}
                 arrow={false}
-                children={config.range ? config.range : "-"}
-            /> : null}
-            {/*<ASUIMenuAction*/}
-            {/*        className="loop"*/}
-            {/*        title="Toggle Loop"*/}
-            {/*        onAction={e => this.changeLoop(!config.loop)}*/}
-            {/*        arrow={false}*/}
-            {/*        vertical>*/}
-            {/*        {config.loop?'∞':'1'}*/}
-            {/*</ASUIMenuAction>*/}
+                vertical
+                children={`${Math.round((config.release||0) / 10) / 100}s`}
+            />
         </>);
+    }
+
+
+    /** Actions **/
+
+    toggleOpen() {
+        const config = this.props.config;
+        if(config.open)
+            delete config.open;
+        else
+            config.open = true;
+    }
+
+    changeMixer(newMixerValue) {
+        if(!Number.isInteger(newMixerValue))
+            throw new Error("Invalid mixer value type: " + typeof newMixerValue);
+        this.props.config.mixer = newMixerValue;
+    }
+
+    /** Menu **/
+
+
+
+    renderMenuChange(paramName) {
+        const config = this.props.config;
+        return <ASUIInputRange
+            min={0}
+            max={100}
+            value={typeof config.mixer !== "undefined" ? config.mixer : 100}
+            onChange={(mixerValue) => this.changeMixer(mixerValue)}
+        />;
     }
 }

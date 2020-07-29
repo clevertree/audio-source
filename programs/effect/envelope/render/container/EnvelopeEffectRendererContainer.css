@@ -17,3 +17,31 @@ div.envelope-effect-container {
 div.envelope-effect-container.open {
     background-color: #FFF;
 }
+
+/** Parameters **/
+div.envelope-effect-container > div.header,
+div.envelope-effect-container > div.parameters {
+    display: flex;
+}
+
+div.envelope-effect-container > div.header > div,
+div.envelope-effect-container > div.parameters > div {
+    /*border-left: 1px solid #888;*/
+    /*padding-right: 2px;*/
+    /*padding-left: 2px;*/
+    border-left: 1px solid #888;
+    padding-right: 4px;
+    padding-left: 4px;
+}
+
+
+
+/** Hover **/
+
+
+div.envelope-effect-container > div:hover {
+    background: #AAA;
+    color: #000;
+    cursor: pointer;
+    border-radius: 4px;
+}

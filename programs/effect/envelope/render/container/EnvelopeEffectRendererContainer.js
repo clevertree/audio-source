@@ -1,25 +1,53 @@
 import React from 'react';
 
 import "./EnvelopeEffectRendererContainer.css";
+import {ASUIClickableDropDown, ASUIIcon} from "../../../../../components/";
 
 export default class EnvelopeEffectRendererContainer extends React.Component {
 
     render() {
+        // console.log('EnvelopeEffectRendererContainer.render', this);
         let className = "envelope-effect-container";
-        if(this.props.open)
+        if(this.props.config.open)
             className += ' open';
 
-        const title = this.props.title;
-
-        return <div className={className}>
+        return <div
+                className={className}
+            >
             <div
                 className="title"
-                title={`AudioBuffer: ${title}`}
                 onClick={this.props.onClick}
-            >
-                {title}
+                >
+                <ASUIIcon source="effect-envelope" size="small"/>
             </div>
-            {this.props.children}
+            <div className="parameters">
+                {this.renderParameters()}
+            </div>
+            <div className="voice">
+                {this.props.children}
+            </div>
         </div>;
     }
+
+    renderParameters() {
+        if(!this.props.config.open)
+            return [];
+        const config = this.props.config;
+
+        return this.props.parameters.map((props, i) => (
+                <ASUIClickableDropDown
+                    key={i}
+                    {...props}
+                    className={props.paramName}
+                    arrow={false}
+                    vertical
+                    children={[
+                        <div key={0}>{props.paramName[0].toUpperCase()}</div>,
+                        <div key={1}>{`${Math.round((config.attack||0) / 10) / 100}s`}</div>
+                    ]}
+                />
+            )
+        );
+    }
+
 }

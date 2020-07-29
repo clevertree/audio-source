@@ -5,7 +5,7 @@ let activeNotes = [];
 
 class AudioBufferInstrument {
     constructor(config={}) {
-        console.log('AudioBufferInstrument', config);
+        // console.log('AudioBufferInstrument', config);
 
         this.config = config;
         this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
