@@ -10,6 +10,7 @@ import Values from "../common/values/Values";
 class ASComposerActions extends ASComposerMenu {
 
     setStatus(statusText, statusType='log') {
+        // console.log(`ASC.${statusType}`, statusText);
         this.setState({statusText, statusType: statusType + ''});
     }
 
@@ -78,6 +79,7 @@ class ASComposerActions extends ASComposerMenu {
         console.log("Current Song: ", song.getProxiedData());
 
         this.song.addEventListener('*', this.onSongEventCallback);
+        this.song.programLoadAll();
 
         const startTrackName = song.getStartTrackName() || 'root';
         const state = {
@@ -297,7 +299,7 @@ class ASComposerActions extends ASComposerMenu {
         const song = new Song();
         this.setCurrentSong(song);
         // this.forceUpdate();
-        this.setStatus("Loaded new song", song.getProxiedData());
+        this.setStatus("Loaded new song");
         await this.saveSongToMemory();
     }
 
@@ -349,7 +351,7 @@ class ASComposerActions extends ASComposerMenu {
         const songData = await storage.loadSongFromMemory(songUUID);
         const songHistory = await storage.loadSongHistoryFromMemory(songUUID);
         const song = new Song(songData);
-        song.loadSongData(songData);
+        // song.loadSongData(songData);
         song.loadSongHistory(songHistory);
         this.setCurrentSong(song);
         this.setStatus("Song loaded from memory: " + songUUID);

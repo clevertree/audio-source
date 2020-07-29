@@ -100,14 +100,14 @@ class ASComposerBase extends React.Component {
         this.onSongEventCallback = (e) => this.onSongEvent(e);
 
 
-        setTimeout(async () => {
-            const midiFilePath = require('../../assets/files/midi/amarbule.mid');
-            const response = await fetch(midiFilePath);
-            const midiFileBuffer = await response.arrayBuffer();
-            console.log('midiFilePath', midiFilePath, midiFileBuffer);
-            // await this.loadSongFromBuffer(midiFileBuffer, 'test.mid');
-
-        }, 1000);
+        // setTimeout(async () => {
+        //     const midiFilePath = require('../../assets/files/midi/amarbule.mid');
+        //     const response = await fetch(midiFilePath);
+        //     const midiFileBuffer = await response.arrayBuffer();
+        //     console.log('midiFilePath', midiFilePath, midiFileBuffer);
+        //     await this.loadSongFromBuffer(midiFileBuffer, 'test.mid');
+        //
+        // }, 1000);
 
     }
 

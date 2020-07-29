@@ -33,11 +33,9 @@ export default class FileService {
     }
 
     async loadBufferFromURL(url) {
-        let buffer;
-
-        if(await fileCache.hasFile(url)) {
-            return await fileCache.getFile(url);
-        }
+        let buffer = await fileCache.tryFile(url);
+        if(buffer)
+            return buffer;
 
         // this.log("Loading buffer from url: " + url);
         if(url.toString().startsWith('torrent://')) {

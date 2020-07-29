@@ -218,7 +218,7 @@ export default class ASCPresetBrowser extends React.Component {
     async loadPreset(presetHash, presetClassName, presetConfig) {
         const presetTitle = presetConfig.title || presetClassName;
         const composer = this.getComposer();
-        composer.setStatus(`Loading preset: ${presetTitle}`, presetConfig);
+        composer.setStatus(`Loading preset: ${presetTitle}`);
         this.addLoadingPreset(presetHash);
 
         const instance = ProgramLoader.loadInstance(presetClassName, presetConfig);

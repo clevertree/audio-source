@@ -1,6 +1,5 @@
 
 var indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
-    IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.OIDBTransaction || window.msIDBTransaction,
     dbVersion = 1.0,
     dbName = "file_cache";
 
@@ -10,149 +9,79 @@ export default class LocalFileCache {
     constructor() {
         // Create/open database
         this.db = null;
-        const request = indexedDB.open(dbName, dbVersion);
+    }
 
-        request.onerror = function (event) {
-            console.log("Error creating/accessing IndexedDB database");
-        };
+    async getDB() {
+        if(this.db)
+            return this.db;
 
-        request.onsuccess = (event) => {
-            console.log("Success creating/accessing IndexedDB database");
-            const db = request.result;
-            this.db = db;
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbName, dbVersion);
 
-            db.onerror = function (event) {
+            request.onerror = function (event) {
+                reject(event);
                 console.log("Error creating/accessing IndexedDB database");
             };
 
-            // Interim solution for Google Chrome to create an objectStore. Will be deprecated
-            if (db.setVersion) {
-                if (db.version !== dbVersion) {
-                    var setVersion = db.setVersion(dbVersion);
-                    setVersion.onsuccess = () => {
-                        this.createObjectStore(db);
-                    };
-                }
-            }
-        }
+            request.onsuccess = (event) => {
+                // console.log("Success creating/accessing IndexedDB database");
+                const db = request.result;
+                this.db = db;
 
-        // For future use. Currently only in latest Firefox versions
-        request.onupgradeneeded = (event) => {
-            console.log("Creating objectStore")
-            this.createObjectStore(event.target.result);
-        }
+                db.onerror = function (event) {
+                    console.log("Error creating/accessing IndexedDB database");
+                };
+
+                // Interim solution for Google Chrome to create an objectStore. Will be deprecated
+                if (db.setVersion) {
+                    if (db.version !== dbVersion) {
+                        var setVersion = db.setVersion(dbVersion);
+                        setVersion.onsuccess = () => {
+                            this.createObjectStore(db);
+                        };
+                    }
+                }
+
+                resolve(db);
+            }
+
+            // For future use. Currently only in latest Firefox versions
+            request.onupgradeneeded = (event) => {
+                this.createObjectStore(event.target.result);
+            }
+        })
     }
 
     createObjectStore(dataBase) {
         // Create an objectStore
+        console.log("Creating objectStore");
         dataBase.createObjectStore(dbName);
     }
 
-    putFile(blob, fileName) {
-        if(!this.db)
-            throw new Error("Database is not available");
-
-        const transaction = this.db.transaction(dbName, 'readwrite')
-        const put = transaction.objectStore(dbName).put(blob, fileName);
-        return put;
+    async putFile(blob, fileName) {
+        const db = await this.getDB();
+        const transaction = db.transaction(dbName, 'readwrite')
+        return transaction.objectStore(dbName).put(blob, fileName);
     }
 
-    async getFile(fileName) {
-        if(!this.db)
-            throw new Error("Database is not available");
-
-        const transaction = this.db.transaction(dbName, 'readonly')
+    async tryFile(fileName) {
+        const db = await this.getDB();
+        const transaction = db.transaction(dbName, 'readonly')
 
         return await new Promise((resolve, reject) => {
             const get = transaction.objectStore(dbName).get(fileName);
             get.onsuccess = function (event) {
-                const blob = event.target.result;
+                // console.log('tryFile.onsuccess', event);
+                const blob = event.target.result || null;
                 resolve(blob);
             };
             get.onerror = function (event) {
-                reject(event.target.result);
+                console.error('tryFile.onerror', event);
+                reject(null);
             }
 
         })
-
     }
-
-    async hasFile(fileName) {
-        if(!this.db)
-            throw new Error("Database is not available");
-
-        const transaction = this.db.transaction(dbName, 'readonly')
-
-        return await new Promise((resolve, reject) => {
-            const count = transaction.objectStore(dbName).count(fileName);
-            count.onsuccess = function (event) {
-                const count = event.target.result;
-                resolve(count > 0);
-            };
-            count.onerror = function (event) {
-                reject(event.target.result);
-            }
-
-        })
-
-    }
-
-
-
-
-    // getImageFile() {
-    //     // Create XHR
-    //     var xhr = new XMLHttpRequest(),
-    //         blob;
-    //
-    //     xhr.open("GET", "elephant.png", true);
-    //     // Set the responseType to blob
-    //     xhr.responseType = "blob";
-    //
-    //     xhr.addEventListener("load", function () {
-    //         if (xhr.status === 200) {
-    //             console.log("Image retrieved");
-    //
-    //             // Blob as response
-    //             blob = xhr.response;
-    //             console.log("Blob:" + blob);
-    //
-    //             // Put the received blob into IndexedDB
-    //             putElephantInDb(blob);
-    //         }
-    //     }, false);
-    //     // Send XHR
-    //     xhr.send();
-    // }
-    //
-    // putElephantInDb (blob) {
-    //     console.log("Putting elephants in IndexedDB");
-    //
-    //     // Open a transaction to the database
-    //     var transaction = db.transaction(["elephants"], IDBTransaction.READ_WRITE);
-    //
-    //     // Put the blob into the dabase
-    //     var put = transaction.objectStore("elephants").put(blob, "image");
-    //
-    //     // Retrieve the file that was just stored
-    //     transaction.objectStore("elephants").get("image").onsuccess = function (event) {
-    //         var imgFile = event.target.result;
-    //         console.log("Got elephant!" + imgFile);
-    //
-    //         // Get window.URL object
-    //         var URL = window.URL || window.webkitURL;
-    //
-    //         // Create and revoke ObjectURL
-    //         var imgURL = URL.createObjectURL(imgFile);
-    //
-    //         // Set img src to ObjectURL
-    //         var imgElephant = document.getElementById("elephant");
-    //         imgElephant.setAttribute("src", imgURL);
-    //
-    //         // Revoking ObjectURL
-    //         URL.revokeObjectURL(imgURL);
-    //     };
-    // }
 
 }
 

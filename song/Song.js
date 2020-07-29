@@ -29,8 +29,9 @@ class Song {
         this.lastVolumeGain = null;
         this.playback = null;
         this.lastMIDIProgram = null; // TODO: ugly?
+        this.playbackPosition = 0;
 
-        const data = {
+        const data = Object.assign({
             title: Song.generateTitle(),
             uuid: new SongValues(this).generateUUID(),
             version: '0.0.1',
@@ -118,17 +119,30 @@ class Song {
                 //     [64, 'A5', 64],
                 // ]
             }
-        };
+        }, songData);
 
         this.getProxiedData = function() { return data; };
         this.data = new Proxy(data, new ConfigListener(this, []));
         this.history = [];
         this.values = new SongValues(this);
 
-        this.loadSongData(songData);
-        this.programLoadAll();
+        // this.loadSongData(songData);
+        // this.programLoadAll();
 
         this.dispatchEventCallback = e => this.dispatchEvent(e);
+
+
+        // this.data = songData;
+
+        // Process all instructions
+        if(!data.tracks)
+            throw new Error("No tracks found in song data");
+        Instruction.processInstructionTracks(data.tracks);
+
+        // let loadingPrograms = 0;
+
+        // console.log("Song data loaded: ", songData);
+
     }
 
     /** @deprecated? **/
@@ -169,32 +183,6 @@ class Song {
 
 
     /** Song Data **/
-
-
-    loadSongData(songData) {
-        const data = this.getProxiedData();
-
-        if (this.playback)
-            this.stopPlayback();
-        Object.assign(data, songData);
-
-        // this.data = songData;
-        this.playbackPosition = 0;
-
-        // Process all instructions
-        if(!data.tracks)
-            throw new Error("No tracks found in song data");
-        Instruction.processInstructionTracks(data.tracks);
-
-        // let loadingPrograms = 0;
-
-        // console.log("Song data loaded: ", songData);
-
-        this.dispatchEvent({
-            type: 'song:loaded',
-            song: this
-        });
-    }
 
 
     loadSongHistory(songHistory) {
@@ -562,15 +550,26 @@ class Song {
     }
 
 
-    programLoadAll() {
+    /** Asset Loading **/
+    async programLoadAll() {
         const programList = this.getProxiedData().programs;
         // console.log('programList', programList);
+        const promises = [];
         for (let programID = 0; programID < programList.length; programID++) {
             if (programList[programID]) {
-                this.programLoadInstanceFromID(programID);
-                // TODO wait for init?
+                const instance = this.programLoadInstanceFromID(programID);
+                console.log('instance', instance, programID);
+                if(instance.waitForAssetLoad)
+                    promises.push(instance.waitForAssetLoad());
             }
         }
+        for(let i=0; i < promises.length; i++)
+            await promises[i];
+
+        this.dispatchEvent({
+            type: 'song:loaded',
+            song: this
+        });
     }
 
 
