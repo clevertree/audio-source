@@ -4,24 +4,20 @@ import {
     ASUIMenuBreak,
     ASUIInputRange,
     ASUIMenuDropDown, ASUIIcon,
+    ASUIClickableDropDown
 } from "../../../../components";
 import LibraryIterator from "../../../../song/library/LibraryIterator";
 import Values from "../../../../common/values/Values";
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
-import AudioBufferInstrumentRendererParameter from "./parameter/AudioBufferInstrumentRendererParameter";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            open: false
-        };
         this.cb = {
             onClick: e => this.toggleOpen(),
             renderMenuRoot: () => this.renderMenuRoot()
         };
-        this.library = LibraryIterator.loadDefault();
     }
 
 
@@ -34,8 +30,9 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
     getTitle() {
         return this.props.config.title
-            || this.props.config.type
-            || "Unknown Osc";
+            || (this.props.config.url
+                ? this.props.config.url.split('/').pop()
+                : "Empty Buffer")
     }
 
 
@@ -48,13 +45,13 @@ class AudioBufferInstrumentRenderer extends React.Component {
             title={title}
             >
             {this.renderParameters()}
-            <AudioBufferInstrumentRendererParameter
+            <ASUIClickableDropDown
                 arrow={false}
                 className="config"
                 options={this.cb.renderMenuRoot}
             >
                 <ASUIIcon source="config" size="small"/>
-            </AudioBufferInstrumentRendererParameter>
+            </ASUIClickableDropDown>
         </AudioBufferInstrumentRendererContainer>;
     }
 
@@ -65,7 +62,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
         // TODO: Add frequency LFO
         return (<>
-            <AudioBufferInstrumentRendererParameter
+            <ASUIClickableDropDown
                 className="mixer"
                 title="Edit Mixer"
                 options={() => this.renderMenuChangeMixer()}
@@ -73,7 +70,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 vertical
                 children={typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
                 />
-            <AudioBufferInstrumentRendererParameter
+            <ASUIClickableDropDown
                 className="detune"
                 title={`Detune by ${config.detune} cents`}
                 options={() => this.renderMenuChangeDetune()}
@@ -81,21 +78,21 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 vertical
                 children={typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
                 />
-            {config.root ? <AudioBufferInstrumentRendererParameter
+            {config.root ? <ASUIClickableDropDown
                 className="root"
                 title={`Key Root is ${config.root}`}
                 options={() => this.renderMenuChangeKeyRoot()}
                 arrow={false}
                 children={config.root ? config.root : "-"}
             /> : null}
-            {config.alias ? <AudioBufferInstrumentRendererParameter
+            {config.alias ? <ASUIClickableDropDown
                 className="alias"
                 title={`Key Alias is ${config.alias}`}
                 options={() => this.renderMenuChangeKeyAlias()}
                 arrow={false}
                 children={config.alias ? config.alias : "-"}
             /> : null}
-            {config.range ? <AudioBufferInstrumentRendererParameter
+            {config.range ? <ASUIClickableDropDown
                 className="range"
                 title={`Key Range is ${config.range}`}
                 options={() => this.renderMenuChangeKeyRange()}
@@ -190,11 +187,13 @@ class AudioBufferInstrumentRenderer extends React.Component {
     }
 
     async renderMenuChangeAudioBuffer() {
+
+        const library = LibraryIterator.loadDefault();
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeAudioBufferStandard()}>Standard</ASUIMenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeAudioBuffer('custom')}>Custom</MenuDropDown>*/}
             <ASUIMenuBreak/>
-            {await this.library.renderMenuProgramAllPresets((className, presetConfig) => {
+            {await library.renderMenuProgramAllPresets((className, presetConfig) => {
                 this.loadPreset(className, presetConfig);
             }, this.props.program[0])}
         </>);

@@ -4,7 +4,7 @@ const cache = {};
 let cacheClearInterval = null;
 
 export default class AudioBufferLoader {
-    static DEFAULT_EXPIRE_MS = 6000;
+    static DEFAULT_EXPIRE_MS = 60000;
 
     constructor(audioContext=null) {
         this.audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
@@ -17,17 +17,23 @@ export default class AudioBufferLoader {
         return cache[url];
     }
 
-    async loadAudioBufferFromURL(url, expires=false) {
+    tryCache(url) {
         if(cache[url])
-            return cache[url];
-        if(expires === true)
-            expires = new Date().getTime() + AudioBufferLoader.DEFAULT_EXPIRE_MS;
+            return cache[url][0];
+        return null;
+    }
+
+    async loadAudioBufferFromURL(url, expireTime=false) {
+        if(cache[url])
+            return cache[url][0];
+        if(expireTime === true)
+            expireTime = new Date().getTime() + AudioBufferLoader.DEFAULT_EXPIRE_MS;
 
         const service = new FileService();
         const buffer = await service.loadBufferFromURL(url);
         const audioBuffer = await this.audioContext.decodeAudioData(buffer.buffer || buffer);
-        if(expires !== false) {
-            cache[url] = [audioBuffer, expires];
+        if(expireTime !== false) {
+            cache[url] = [audioBuffer, expireTime];
             // console.log("Cached: " + url, audioBuffer);
             clearInterval(cacheClearInterval);
             cacheClearInterval = setInterval(() => this.clearCache());
@@ -41,7 +47,7 @@ export default class AudioBufferLoader {
         Object.keys(cache).forEach(function(cacheKey) {
             const [, expires] = cache[cacheKey];
             if(expireTime > expires) {
-                // console.log("Uncached: " + cacheKey, audioBuffer);
+                // console.log("Uncached: " + cacheKey);
                 delete cache[cacheKey];
             }
         })

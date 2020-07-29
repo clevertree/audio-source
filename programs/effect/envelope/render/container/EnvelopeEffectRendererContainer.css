@@ -1,0 +1,19 @@
+
+
+div.envelope-effect-container {
+    display: inline-flex;
+    /*min-width: 480px;*/
+    text-align: center;
+    margin: 2px;
+
+    padding: 1px;
+    color: #000;
+    border: 1px outset #EEE;
+    border-radius: 4px;
+    background-color: #CCC;
+    position: relative;
+}
+
+div.envelope-effect-container.open {
+    background-color: #FFF;
+}

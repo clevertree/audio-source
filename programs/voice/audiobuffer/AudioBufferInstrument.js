@@ -21,22 +21,31 @@ class AudioBufferInstrument {
         }
 
         this.audioBuffer = null;
-        this.source = null;
+        this.loading = false;
 
         const service = new AudioBufferLoader();
         if(typeof this.config.url !== "undefined") {
-            this.loading = service.loadAudioBufferFromURL(this.config.url)
-                .then(buffer => {
-                    console.log("Loaded audio buffer: ", this.config.url, buffer);
-                    this.audioBuffer = buffer;
-                    if (this.source)
-                        this.setBuffer(this.source)
-                });
+            let buffer = service.tryCache(this.config.url);
+            if(buffer) {
+                this.audioBuffer = buffer;
+            } else {
+                this.loadBuffer();
+            }
         }
 
         this.activeMIDINotes = []
     }
 
+    async loadBuffer() {
+        if(this.loading)
+            return this.loading;
+
+        const service = new AudioBufferLoader();
+        this.loading = service.loadAudioBufferFromURL(this.config.url, true);
+        const buffer = await this.loading;
+        console.log("Loaded audio buffer: ", this.config.url, buffer);
+        this.audioBuffer = buffer;
+    }
 
     setBuffer(source) {
         source.buffer = this.audioBuffer;
@@ -61,8 +70,8 @@ class AudioBufferInstrument {
     /** Playback **/
 
     playFrequency(destination, frequencyValue, startTime=null, duration=null, velocity=null, onended=null) {
-        if(this.freqRange) {
-            if(
+        if (this.freqRange) {
+            if (
                 this.freqRange[0] < frequencyValue
                 || this.freqRange[1] > frequencyValue
             ) {
@@ -74,16 +83,16 @@ class AudioBufferInstrument {
 
         let endTime;
         const audioContext = destination.context;
-        if(typeof duration === "number") {
+        if (typeof duration === "number") {
             endTime = startTime + duration;
             if (endTime < audioContext.currentTime) {
                 console.info("Skipping note: ", startTime, endTime, audioContext.currentTime)
                 return false;
             }
         }
-        if(startTime === null)
+        if (startTime === null)
             startTime = audioContext.currentTime;
-        else if(startTime < 0)
+        else if (startTime < 0)
             startTime = 0; // TODO: adjust buffer offset.
 
         // Velocity
@@ -94,12 +103,13 @@ class AudioBufferInstrument {
 
         // Audio Buffer
         const source = destination.context.createBufferSource();
-        this.source = source;
-        if(this.audioBuffer)
+        if (this.audioBuffer) {
             this.setBuffer(source);
-        else
+        } else {
+            this.loadBuffer()
+                .then(buffer => this.setBuffer(source))
             console.warn("Note playback started without an audio buffer: " + this.config.url);
-
+        }
         const playbackRate = frequencyValue / this.freqRoot;
         source.playbackRate.value = playbackRate; //  Math.random()*2;
 
