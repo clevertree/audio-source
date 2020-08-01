@@ -10,10 +10,15 @@ div.asui-contextmenu-dropdown {
     width: 0;
 }
 div.asui-contextmenu-dropdown.open {
-    width: 25%;
+    width: 200px;
     opacity: 1;
     transition: width 0.1s ease-in;
     /*overflow-x: hidden;*/
+}
+@media only screen and (min-width: 800px) {
+    div.asui-contextmenu-dropdown.open {
+        /*width: 25%;*/
+    }
 }
 
 .portrait > div.asui-contextmenu-dropdown {

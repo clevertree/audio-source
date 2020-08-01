@@ -2,8 +2,6 @@ import React from 'react';
 
 import {
     ASUIButtonDropDown,
-    ASUIIcon,
-    ASUIClickable,
     ASUIClickableDropDown,
     ASUIInputRange
 } from "../../../../components";
@@ -87,14 +85,12 @@ export default class EnvelopeEffectRenderer extends React.Component {
         const [className, config] = voice;
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
 
-        return <div className="voice">
-                 <Renderer
+        return <Renderer
                     onRemove={this.cb.onRemove}
                     instrumentID={0}
                     config={config}
                     program={voice}
-                />
-        </div>;
+                />;
     }
 
 

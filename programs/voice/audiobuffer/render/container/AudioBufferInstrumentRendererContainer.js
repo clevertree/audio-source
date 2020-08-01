@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {ASUIIcon, ASUIClickable} from "../../../../../components";
+
 import "./AudioBufferInstrumentRendererContainer.css";
 
 export default class AudioBufferInstrumentRendererContainer extends React.Component {
@@ -12,10 +14,16 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
         const title = this.props.title;
 
         return <div className={className}>
+            <ASUIClickable
+                arrow={false}
+                className="menu-sample"
+                onClick={this.props.onClick}
+            >
+                <ASUIIcon source="menu-sample" size="small"/>
+            </ASUIClickable>
             <div
                 className="title"
                 title={`AudioBuffer: ${title}`}
-                onClick={this.props.onClick}
             >
                 {title}
             </div>

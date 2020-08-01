@@ -46,13 +46,6 @@ class AudioBufferInstrumentRenderer extends React.Component {
             title={title}
             >
             {this.renderParameters()}
-            <ASUIClickableDropDown
-                arrow={false}
-                className="config"
-                options={this.cb.renderMenuRoot}
-            >
-                <ASUIIcon source="config" size="small"/>
-            </ASUIClickableDropDown>
         </AudioBufferInstrumentRendererContainer>;
     }
 

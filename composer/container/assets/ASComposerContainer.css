@@ -53,6 +53,7 @@ div.asc-container.fullscreen {
 
 div.asc-header-container {
     background-color: #bdc3c7;
+    /*min-height: 40px;*/
 }
 
 
@@ -169,8 +170,12 @@ div.asc-container.portrait div.asui-panel-container-horizontal > div.asui-panel 
     flex: 1;
 }
 
-
-
+/** Program Panel **/
+@media only screen and (min-width: 800px) {
+    div.asui-panel.song-programs {
+        /*float: right;*/
+    }
+}
 /** Tracks **/
 
 div.asc-container.landscape div.asc-tracks-container {

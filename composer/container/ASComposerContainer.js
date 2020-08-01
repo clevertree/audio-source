@@ -72,7 +72,7 @@ export default class ASComposerContainer extends React.Component {
                         className="asc-menu-button-toggle"
                         options={() => this.props.composer.renderRootMenu(this.ref.menu)}
                     >
-                        <ASUIIcon source="menu"/>
+                        <ASUIIcon source="menu" size="large"/>
                     </ASUIMenuDropDown>
                 </div>
             );

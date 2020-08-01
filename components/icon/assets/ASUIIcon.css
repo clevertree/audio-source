@@ -9,3 +9,8 @@ img.asui-icon {
     margin: 2px;
 }
 
+img.asui-icon.large {
+    width: 2em;
+    height: 2em;
+
+}

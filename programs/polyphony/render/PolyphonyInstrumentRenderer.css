@@ -41,7 +41,7 @@ div.polyphony-instrument-renderer > div.header > button.toggle-container {
 }
 
 div.polyphony-instrument-renderer > div.voices {
-    max-width: 50vw;
+    /*max-width: 50vw;*/
 }
 
 div.polyphony-instrument-renderer > div.add-voice {

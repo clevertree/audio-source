@@ -41,7 +41,10 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         className="toggle-container"
                         selected={this.props.open}
                         onAction={this.cb.toggleContainer}
-                    >{programIDHTML}: {titleHTML}</ASUIButton>
+                    >
+                        <ASUIIcon source="menu"/>
+                        {programIDHTML}: {titleHTML}
+                    </ASUIButton>
                     <ASUIButtonDropDown
                         arrow={false}
                         className="program-config"
