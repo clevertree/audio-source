@@ -1,33 +1,66 @@
 import React from 'react';
 
-import {ASUIIcon, ASUIClickable} from "../../../../../components";
+import {
+    ASUIIcon,
+    ASUIClickable,
+    ASUIButton,
+    ASUIButtonDropDown,
+    ASUIClickableDropDown
+} from "../../../../../components";
 
 import "./AudioBufferInstrumentRendererContainer.css";
 
 export default class AudioBufferInstrumentRendererContainer extends React.Component {
-
     render() {
         let className = "audiobuffer-instrument-container";
-        if(this.props.open)
+        const open = this.props.config.open;
+        if(open)
             className += ' open';
 
         const title = this.props.title;
 
         return <div className={className}>
-            <ASUIClickable
-                arrow={false}
-                className="menu-sample"
-                onClick={this.props.onClick}
-            >
-                <ASUIIcon source="menu-sample" size="small"/>
-            </ASUIClickable>
-            <div
-                className="title"
-                title={`AudioBuffer: ${title}`}
-            >
-                {title}
+            <div className="header">
+                <ASUIButton
+                    className="toggle-container"
+                    selected={open}
+                    onAction={this.props.onClick}
+                >
+                    {title}
+                </ASUIButton>
+                <ASUIButtonDropDown
+                    arrow={false}
+                    className="program-config"
+                    options={this.props.renderMenuRoot}
+                >
+                    <ASUIIcon source="config"/>
+                </ASUIButtonDropDown>
             </div>
-            {this.props.children}
+            {open ? this.renderParameters() : null}
         </div>;
     }
+
+    renderParameters() {
+        const config = this.props.config;
+
+        return (
+            <div className="parameters">
+                {this.props.parameters.map((props, i) => (
+                    <ASUIClickableDropDown
+                        key={i}
+                        {...props}
+                        className={props.paramName}
+                        arrow={false}
+                        vertical
+                        children={[
+                            <div key={0}>{props.paramName[0].toUpperCase()}</div>,
+                            <div key={1}>{props.children}</div>
+                        ]}
+                    />
+                ))}
+            </div>
+        )
+
+    }
+
 }

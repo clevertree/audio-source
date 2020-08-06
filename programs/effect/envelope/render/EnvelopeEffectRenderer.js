@@ -15,7 +15,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
         this.cb = {
             onClick: e => this.toggleOpen(),
             renderMenuRoot: () => this.renderMenuRoot(),
-            renderMenuChange: (paramName) => this.renderMenuChange(paramName),
+            // renderMenuChange: (paramName) => this.renderMenuChange(paramName),
             parameterMenu: {
                 attack: () => this.renderMenuChange('attack'),
                 hold: () => this.renderMenuChange('hold'),
@@ -31,37 +31,37 @@ export default class EnvelopeEffectRenderer extends React.Component {
         const config = this.props.config;
         return <EnvelopeEffectRendererContainer
             onClick={this.cb.onClick}
+            renderMenuRoot={this.cb.renderMenuRoot}
             config={this.props.config}
-            renderMenuChange={this.cb.renderMenuChange}
             parameters={[
                 {
                     paramName:  'attack',
                     title:      'Edit Envelope Attack',
-                    children:   `${Math.round((config.attack||0) / 10) / 100}s`,
+                    children:   config.attack ? `${Math.round((config.attack||0) / 10) / 100}s` : '-',
                     options:    this.cb.parameterMenu.attack
                 },
                 {
                     paramName:  'hold',
                     title:      'Edit Envelope Hold',
-                    children:   `${Math.round((config.hold||0) / 10) / 100}s`,
+                    children:   config.hold ? `${Math.round((config.hold||0) / 10) / 100}s` : '-',
                     options:    this.cb.parameterMenu.hold
                 },
                 {
                     paramName:  'delay',
                     title:      'Edit Envelope Delay',
-                    children:   `${Math.round((config.delay||0) / 10) / 100}s`,
+                    children:   config.delay ? `${Math.round((config.delay||0) / 10) / 100}s` : '-',
                     options:    this.cb.parameterMenu.delay
                 },
                 {
                     paramName:  'sustain',
                     title:      'Edit Envelope Sustain',
-                    children:   `${Math.round((config.sustain||0) / 10) / 100}s`,
+                    children:   config.sustain ? `${Math.round((config.sustain||0) / 10) / 100}s` : '-',
                     options:    this.cb.parameterMenu.sustain
                 },
                 {
                     paramName:  'release',
                     title:      'Edit Envelope Release',
-                    children:   `${Math.round((config.release||0) / 10) / 100}s`,
+                    children:   config.release ? `${Math.round((config.release||0) / 10) / 100}s` : '-',
                     options:    this.cb.parameterMenu.release
                 },
             ]}

@@ -10,6 +10,7 @@ import {LibraryIterator} from "../../../../song";
 import {Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
+import EnvelopeEffectRendererContainer from "../../../effect/envelope/render/container/EnvelopeEffectRendererContainer";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
@@ -17,7 +18,14 @@ class AudioBufferInstrumentRenderer extends React.Component {
         super(props);
         this.cb = {
             onClick: e => this.toggleOpen(),
-            renderMenuRoot: () => this.renderMenuRoot()
+            renderMenuRoot: () => this.renderMenuRoot(),
+            parameterMenu: {
+                mixer:      () => this.renderMenuChange('mixer'),
+                detune:     () => this.renderMenuChange('detune'),
+                root:      () => this.renderMenuChange('root'),
+                alias:    () => this.renderMenuChange('alias'),
+                range:    () => this.renderMenuChange('range'),
+            }
         };
     }
 
@@ -39,70 +47,49 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
     render() {
         let title = this.getTitle();
+        const config = this.props.config;
 
         return <AudioBufferInstrumentRendererContainer
             onClick={this.cb.onClick}
-            open={this.props.config.open}
+            renderMenuRoot={this.cb.renderMenuRoot}
+            config={this.props.config}
+            parameters={[
+                {
+                    paramName:  'mixer',
+                    title:      'Edit Mixer Amplitude',
+                    children:   typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%',
+                    options:    this.cb.parameterMenu.mixer
+                },
+                {
+                    paramName:  'detune',
+                    title:      `Detune by ${config.detune} cents`,
+                    children:   typeof config.detune !== "undefined" ? config.detune+'c' : '0c',
+                    options:    this.cb.parameterMenu.detune
+                },
+                {
+                    paramName:  'root',
+                    title:      `Key Root is ${config.root}`,
+                    children:   config.root ? config.root : "-",
+                    options:    this.cb.parameterMenu.root
+                },
+                {
+                    paramName:  'alias',
+                    title:      `Key Alias is ${config.alias}`,
+                    children:   config.alias ? config.alias : "-",
+                    options:    this.cb.parameterMenu.alias
+                },
+                {
+                    paramName:  'range',
+                    title:      `Key Range is ${config.range}`,
+                    children:   config.range ? config.range : "-",
+                    options:    this.cb.parameterMenu.range
+                },
+            ]}
             title={title}
             >
-            {this.renderParameters()}
         </AudioBufferInstrumentRendererContainer>;
     }
 
-    renderParameters() {
-        if(!this.props.config.open)
-            return [];
-        const config = this.props.config;
-
-        // TODO: Add frequency LFO
-        return (<>
-            <ASUIClickableDropDown
-                className="mixer"
-                title="Edit Mixer"
-                options={() => this.renderMenuChangeMixer()}
-                arrow={false}
-                vertical
-                children={typeof config.mixer !== "undefined" ? config.mixer+'%' : '100%'}
-                />
-            <ASUIClickableDropDown
-                className="detune"
-                title={`Detune by ${config.detune} cents`}
-                options={() => this.renderMenuChangeDetune()}
-                arrow={false}
-                vertical
-                children={typeof config.detune !== "undefined" ? config.detune+'c' : '0c'}
-                />
-            {config.root ? <ASUIClickableDropDown
-                className="root"
-                title={`Key Root is ${config.root}`}
-                options={() => this.renderMenuChangeKeyRoot()}
-                arrow={false}
-                children={config.root ? config.root : "-"}
-            /> : null}
-            {config.alias ? <ASUIClickableDropDown
-                className="alias"
-                title={`Key Alias is ${config.alias}`}
-                options={() => this.renderMenuChangeKeyAlias()}
-                arrow={false}
-                children={config.alias ? config.alias : "-"}
-            /> : null}
-            {config.range ? <ASUIClickableDropDown
-                className="range"
-                title={`Key Range is ${config.range}`}
-                options={() => this.renderMenuChangeKeyRange()}
-                arrow={false}
-                children={config.range ? config.range : "-"}
-            /> : null}
-            {/*<ASUIMenuAction*/}
-            {/*        className="loop"*/}
-            {/*        title="Toggle Loop"*/}
-            {/*        onAction={e => this.changeLoop(!config.loop)}*/}
-            {/*        arrow={false}*/}
-            {/*        vertical>*/}
-            {/*        {config.loop?'∞':'1'}*/}
-            {/*</ASUIMenuAction>*/}
-        </>);
-    }
 
 
     /** Actions **/

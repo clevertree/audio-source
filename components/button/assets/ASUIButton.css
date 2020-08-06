@@ -1,12 +1,12 @@
 
 div.asui-button {
     /*z-index: 3;*/
-    padding: 0 6px;
+    padding: 0 2px;
     margin: 0 0;
     /*position: relative;*/
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    /*justify-content: center;*/
     cursor: pointer;
     white-space: nowrap;
 
@@ -28,6 +28,11 @@ div.asui-button.disabled {
     cursor: not-allowed;
 }
 
+
+/** Styles **/
+div.asui-button.wide {
+    padding: 0 6px;
+}
 
 /** Menu Arrow **/
 div.asui-button > div.arrow {

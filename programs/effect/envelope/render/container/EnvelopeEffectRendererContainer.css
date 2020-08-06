@@ -3,17 +3,17 @@
 div.envelope-effect-container {
     /*display: inline-flex;*/
     /*min-width: 480px;*/
-    margin: 2px;
+    /*margin: 2px;*/
 
-    padding: 1px;
-    color: #000;
-    border: 1px outset #EEE;
-    border-radius: 4px;
-    background-color: #CCC;
-    position: relative;
+    /*padding: 1px;*/
+    /*color: #000;*/
+    /*border: 1px outset #EEE;*/
+    /*border-radius: 4px;*/
+    /*background-color: #CCC;*/
+    /*position: relative;*/
 }
 div.envelope-effect-container:not(.open) {
-    display: inline-flex;
+    /*display: inline-flex;*/
 }
 
 div.envelope-effect-container.open {
@@ -21,35 +21,27 @@ div.envelope-effect-container.open {
     background-color: #FFF;
 }
 
-/** Toggle **/
-div.envelope-effect-container > div.toggle {
+/** Header **/
+div.envelope-effect-container > div.header {
     display: flex;
-    cursor: pointer;
-    border-radius: 4px;
 }
 
-div.envelope-effect-container.open > div.toggle {
-    border: inset #FFF 1px;
-    background: #AAA;
+div.envelope-effect-container > div.header > div.toggle-container {
+    flex-basis: 100%;
 }
-
-div.envelope-effect-container:hover > div.toggle {
-    background: #BBB;
-}
-
 
 
 /** Parameters **/
 div.envelope-effect-container > div.parameters {
     text-align: center;
-    display: inline-flex;
+    display: flex;
 }
 
 div.envelope-effect-container > div.parameters > div {
     /*border-left: 1px solid #888;*/
     /*padding-right: 2px;*/
     /*padding-left: 2px;*/
-    border-left: 1px solid #888;
+    /*border-left: 1px solid #888;*/
     padding-right: 4px;
     padding-left: 4px;
 }

@@ -20,9 +20,12 @@ div.asc-instrument-renderer:focus {
 div.asc-instrument-renderer > div.header {
     display: flex;
 }
+div.asc-instrument-renderer > div.header > div.toggle-container {
+    flex-basis: 100%;
+}
 
 div.asc-instrument-renderer > div.header > div.program-config {
-    padding-left: 4px;
+    /*padding-left: 4px;*/
 }
 div.asc-instrument-renderer > div.header > div.error {
     color: #620100;

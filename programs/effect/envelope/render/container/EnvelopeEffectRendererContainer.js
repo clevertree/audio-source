@@ -1,10 +1,9 @@
 import React from 'react';
 
-import {ASUIClickableDropDown, ASUIIcon} from "../../../../../components/";
+import {ASUIButton, ASUIButtonDropDown, ASUIClickableDropDown, ASUIIcon} from "../../../../../components/";
 import "./EnvelopeEffectRendererContainer.css";
 
 export default class EnvelopeEffectRendererContainer extends React.Component {
-
     render() {
         const open = this.props.config.open;
         // console.log('EnvelopeEffectRendererContainer.render', this);
@@ -14,7 +13,7 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
         return <div
             className={className}
             >
-            {this.renderToggle()}
+            {this.renderHeader()}
             {open ? this.renderParameters() : null}
             {this.renderVoice()}
         </div>;
@@ -28,17 +27,24 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
         );
     }
 
-    renderToggle() {
+    renderHeader() {
         const open = this.props.config.open;
-        return (
-            <div
-                className="toggle"
-                onClick={this.props.onClick}
+        return <div className="header">
+            <ASUIButton
+                className="toggle-container"
+                selected={open}
+                onAction={this.props.onClick}
             >
-                <ASUIIcon source="menu-effect-envelope" size="small"/>
-                {open ? <div className="effect-title">Envelope</div> : null }
-            </div>
-        );
+                Envelope
+            </ASUIButton>
+            <ASUIButtonDropDown
+                arrow={false}
+                className="program-config"
+                options={this.props.renderMenuRoot}
+            >
+                <ASUIIcon source="config"/>
+            </ASUIButtonDropDown>
+        </div>;
     }
 
     renderParameters() {
@@ -55,7 +61,7 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
                         vertical
                         children={[
                             <div key={0}>{props.paramName[0].toUpperCase()}</div>,
-                            <div key={1}>{`${Math.round((config.attack||0) / 10) / 100}s`}</div>
+                            <div key={1}>{props.children}</div>
                         ]}
                     />
                 ))}

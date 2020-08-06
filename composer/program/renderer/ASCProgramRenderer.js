@@ -17,6 +17,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             menuRoot: () => this.renderMenuRoot()
         }
     }
+
     render() {
         const song = this.getSong();
         const programID = this.getProgramID();
@@ -42,7 +43,6 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         selected={this.props.open}
                         onAction={this.cb.toggleContainer}
                     >
-                        <ASUIIcon source="menu"/>
                         {programIDHTML}: {titleHTML}
                     </ASUIButton>
                     <ASUIButtonDropDown

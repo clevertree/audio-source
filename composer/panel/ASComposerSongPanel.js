@@ -13,19 +13,19 @@ export default class ASComposerSongPanel extends React.Component {
             <ASUIPanel className="song" header="Song Information">
                 <ASUIForm className="playback" header="Playback">
                     <ASUIButton
-                        className="song-play"
+                        className="song-play wide"
                         onAction={cb.songPlay}
                     >
                         <ASUIIcon source="play"/>
                     </ASUIButton>
                     <ASUIButton
-                        className="song-pause"
+                        className="song-pause wide"
                         onAction={cb.songPause}
                     >
                         <ASUIIcon source="pause"/>
                     </ASUIButton>
                     <ASUIButton
-                        className="song-stop"
+                        className="song-stop wide"
                         onAction={cb.songStop}
                     >
                         <ASUIIcon source="stop"/>
@@ -34,7 +34,7 @@ export default class ASComposerSongPanel extends React.Component {
 
                 {state.portrait ? null : <ASUIForm className="file" header="File">
                     <ASUIButton
-                        className="file-load"
+                        className="file-load wide"
                         onAction={cb.loadSongFromFileInput}
                         accept=".json,.mid,.midi"
                         title="Load Song from File"
@@ -42,7 +42,7 @@ export default class ASComposerSongPanel extends React.Component {
                         <ASUIIcon source="file-load"/>
                     </ASUIButton>
                     <ASUIButton
-                        className="file-save"
+                        className="file-save wide"
                         onAction={cb.saveSongToFile}
                         title="Save Song to File"
                     >
@@ -76,6 +76,7 @@ export default class ASComposerSongPanel extends React.Component {
 
                 <ASUIForm className="timing" header="Timing">
                     <ASUIButton
+                        className="timing wide"
                         onAction={(e, timingString) => composer.setSongPositionPrompt(timingString)}
                         title="Song Timing"
                         children={composer.values.formatPlaybackPosition(songStats.position)}
@@ -84,7 +85,7 @@ export default class ASComposerSongPanel extends React.Component {
 
                 {state.portrait ? null : <ASUIForm className="name" header="Name">
                     <ASUIButton
-                        className="name"
+                        className="name wide"
                         onAction={(e) => composer.setSongNamePrompt()}
                         title="Song Name"
                         children={song ? song.data.title : "no song loaded"}
@@ -93,7 +94,7 @@ export default class ASComposerSongPanel extends React.Component {
 
                 <ASUIForm className="version" header="Version">
                     <ASUIButton
-                        className="version"
+                        className="version wide"
                         onAction={(e) => composer.setSongVersionPrompt()}
                         title="Song Version"
                         children={song ? song.data.version : "0.0.0"}
@@ -102,7 +103,7 @@ export default class ASComposerSongPanel extends React.Component {
 
                 <ASUIForm className="beatsPerMinute" header="BPM">
                     <ASUIButton
-                        className="bpm"
+                        className="beats-per-minute wide"
                         onAction={(e) => composer.setSongStartingBPMPrompt()}
                         title="Song Beats Per Minute"
                         children={song ? song.data.beatsPerMinute : "N/A"}

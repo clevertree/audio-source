@@ -1,21 +1,29 @@
 
 
 div.audiobuffer-instrument-container {
-    display: inline-flex;
+    /*display: inline-flex;*/
     /*min-width: 480px;*/
-    text-align: center;
-    margin: 2px;
+    /*text-align: center;*/
+    /*margin: 2px;*/
 
-    padding: 1px;
-    color: #000;
-    border: 1px outset #EEE;
-    border-radius: 4px;
-    background-color: #CCC;
-    position: relative;
+    /*padding: 1px;*/
+    /*color: #000;*/
+    /*border: 1px outset #EEE;*/
+    /*border-radius: 4px;*/
+    /*background-color: #CCC;*/
+    /*position: relative;*/
 }
 
 div.audiobuffer-instrument-container.open {
     background-color: #FFF;
+}
+
+/** Header **/
+div.audiobuffer-instrument-container > div.header {
+    display: flex;
+}
+div.audiobuffer-instrument-container > div.header > div.toggle-container {
+    flex-basis: 100%;
 }
 
 
@@ -50,6 +58,21 @@ div.audiobuffer-instrument-container:not(.open) > div.title {
     overflow: hidden;
 }
 
+
+/** Parameters **/
+div.audiobuffer-instrument-container > div.parameters {
+    text-align: center;
+    display: flex;
+}
+
+div.audiobuffer-instrument-container > div.parameters > div {
+    /*border-left: 1px solid #888;*/
+    /*padding-right: 2px;*/
+    /*padding-left: 2px;*/
+    /*border-left: 1px solid #888;*/
+    padding-right: 4px;
+    padding-left: 4px;
+}
 
 /** Hover **/
 
