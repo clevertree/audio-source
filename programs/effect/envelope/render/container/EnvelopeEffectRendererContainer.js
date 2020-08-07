@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {ASUIButton, ASUIButtonDropDown, ASUIClickableDropDown, ASUIIcon} from "../../../../../components/";
+import {ASUIButton, ASUIButtonDropDown, ASUIIcon} from "../../../../../components/";
 import "./EnvelopeEffectRendererContainer.css";
 
 export default class EnvelopeEffectRendererContainer extends React.Component {
@@ -13,9 +13,9 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
         return <div
             className={className}
             >
+            {this.renderVoice()}
             {this.renderHeader()}
             {open ? this.renderParameters() : null}
-            {this.renderVoice()}
         </div>;
     }
 
@@ -48,26 +48,16 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
     }
 
     renderParameters() {
-        const config = this.props.config;
-
         return (
             <div className="parameters">
                 {this.props.parameters.map((props, i) => (
-                    <ASUIClickableDropDown
-                        key={i}
-                        {...props}
-                        className={props.paramName}
-                        arrow={false}
-                        vertical
-                        children={[
-                            <div key={0}>{props.paramName[0].toUpperCase()}</div>,
-                            <div key={1}>{props.children}</div>
-                        ]}
-                    />
+                    <div key={i}>
+                        {props.label ? <div className="label">{props.label}:</div> : null}
+                        <div>{props.children}</div>
+                    </div>
                 ))}
             </div>
         )
-
     }
 
 }

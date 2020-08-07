@@ -1,23 +1,4 @@
 
-
-div.audiobuffer-instrument-container {
-    /*display: inline-flex;*/
-    /*min-width: 480px;*/
-    /*text-align: center;*/
-    /*margin: 2px;*/
-
-    /*padding: 1px;*/
-    /*color: #000;*/
-    /*border: 1px outset #EEE;*/
-    /*border-radius: 4px;*/
-    /*background-color: #CCC;*/
-    /*position: relative;*/
-}
-
-div.audiobuffer-instrument-container.open {
-    background-color: #FFF;
-}
-
 /** Header **/
 div.audiobuffer-instrument-container > div.header {
     display: flex;
@@ -29,14 +10,6 @@ div.audiobuffer-instrument-container > div.header > div.toggle-container {
 
 /** Parameters **/
 
-div.audiobuffer-instrument-container > div.parameter {
-    /*border-left: 1px solid #888;*/
-    /*padding-right: 2px;*/
-    /*padding-left: 2px;*/
-    border-left: 1px solid #888;
-    padding-right: 4px;
-    padding-left: 4px;
-}
 
 div.audiobuffer-instrument-container > div.name { color: #1E2526; }
 div.audiobuffer-instrument-container > div.root { color: #692a6a; }
@@ -69,16 +42,16 @@ div.audiobuffer-instrument-container > div.parameters {
 }
 
 div.audiobuffer-instrument-container > div.parameters > div {
-    border-bottom: 1px solid #AAA;
+    /*border-bottom: 1px solid #AAA;*/
     display: flex;
     padding: 1px;
 }
-div.audiobuffer-instrument-container > div.parameters > div > div:first-child {
-    padding-right: 8px;
-    width: 60px;
+div.audiobuffer-instrument-container > div.parameters > div > div.label {
+    text-align: right;
+    font-size: small;
+    padding: 4px 4px 0 0;
+    width: 55px;
     overflow: hidden;
-}
-div.audiobuffer-instrument-container > div.parameters > div > div:last-child {
 }
 
 /** Hover **/
@@ -89,4 +62,24 @@ div.audiobuffer-instrument-container > div:hover {
     /*color: #000;*/
     /*cursor: pointer;*/
     /*border-radius: 4px;*/
+}
+
+/** Transition **/
+
+div.audiobuffer-instrument-container.open > div.parameters {
+    animation: slideDownOpen 0.4s ease-in;
+}
+
+@keyframes slideDownOpen {
+    0% {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 300px;
+    }
+    100% {
+        max-height: inherit;
+        overflow-y: inherit;
+    }
 }

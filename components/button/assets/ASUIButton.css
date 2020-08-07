@@ -33,6 +33,9 @@ div.asui-button.disabled {
 div.asui-button.wide {
     padding: 0 6px;
 }
+div.asui-button.small {
+    font-size: smaller;
+}
 
 /** Menu Arrow **/
 div.asui-button > div.arrow {

@@ -2,10 +2,8 @@ import React from 'react';
 
 import {
     ASUIIcon,
-    ASUIClickable,
     ASUIButton,
-    ASUIButtonDropDown,
-    ASUIClickableDropDown
+    ASUIButtonDropDown
 } from "../../../../../components";
 
 import "./AudioBufferInstrumentRendererContainer.css";
@@ -44,14 +42,13 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
         return (
             <div className="parameters">
                 {this.props.parameters.map((props, i) => (
-                    <div>
-                        <div>{props.label}</div>
+                    <div key={i}>
+                        {props.label ? <div className="label">{props.label}:</div> : null}
                         <div>{props.children}</div>
                     </div>
                 ))}
             </div>
         )
-
     }
 
 }

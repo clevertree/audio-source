@@ -9,6 +9,7 @@ export default class ASComposerSongPanel extends React.Component {
         const cb = composer.cb;
         const state = composer.state;
         const songStats = composer.songStats;
+        const positionString = composer.values.formatPlaybackPosition(songStats.position);
         return (
             <ASUIPanel className="song" header="Song Information">
                 <ASUIForm className="playback" header="Playback">
@@ -55,6 +56,7 @@ export default class ASComposerSongPanel extends React.Component {
                         className="volume"
                         onChange={(newVolume) => composer.setVolume(newVolume)}
                         value={state.volume}
+                        children={`${Math.round(state.volume / 0.01)}%`}
                         min={0}
                         max={1}
                         step={0.02}
@@ -67,6 +69,7 @@ export default class ASComposerSongPanel extends React.Component {
                         className="position"
                         onChange={(pos) => composer.setSongPositionPercentage(pos)}
                         value={Math.floor(songStats.position / (state.songLength || 1) * 100)}
+                        children={positionString}
                         min={0}
                         max={100}
                         // ref={ref => this.fieldSongPosition = ref}
@@ -74,14 +77,14 @@ export default class ASComposerSongPanel extends React.Component {
                     />
                 </ASUIForm>
 
-                <ASUIForm className="timing" header="Timing">
-                    <ASUIButton
-                        className="timing wide"
-                        onAction={(e, timingString) => composer.setSongPositionPrompt(timingString)}
-                        title="Song Timing"
-                        children={composer.values.formatPlaybackPosition(songStats.position)}
-                    />
-                </ASUIForm>
+                {/*<ASUIForm className="timing" header="Timing">*/}
+                {/*    <ASUIButton*/}
+                {/*        className="timing wide"*/}
+                {/*        onAction={(e, timingString) => composer.setSongPositionPrompt(timingString)}*/}
+                {/*        title="Song Timing"*/}
+                {/*        children={positionString}*/}
+                {/*    />*/}
+                {/*</ASUIForm>*/}
 
                 {state.portrait ? null : <ASUIForm className="name" header="Name">
                     <ASUIButton

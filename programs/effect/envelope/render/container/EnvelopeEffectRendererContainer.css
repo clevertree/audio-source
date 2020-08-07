@@ -1,26 +1,4 @@
 
-
-div.envelope-effect-container {
-    /*display: inline-flex;*/
-    /*min-width: 480px;*/
-    /*margin: 2px;*/
-
-    /*padding: 1px;*/
-    /*color: #000;*/
-    /*border: 1px outset #EEE;*/
-    /*border-radius: 4px;*/
-    /*background-color: #CCC;*/
-    /*position: relative;*/
-}
-div.envelope-effect-container:not(.open) {
-    /*display: inline-flex;*/
-}
-
-div.envelope-effect-container.open {
-    /*display: inline-flex;*/
-    background-color: #FFF;
-}
-
 /** Header **/
 div.envelope-effect-container > div.header {
     display: flex;
@@ -32,10 +10,6 @@ div.envelope-effect-container > div.header > div.toggle-container {
 
 
 /** Parameters **/
-div.envelope-effect-container > div.parameters {
-    text-align: center;
-    display: flex;
-}
 
 div.envelope-effect-container > div.parameters > div {
     /*border-left: 1px solid #888;*/
@@ -52,13 +26,46 @@ div.envelope-effect-container.open > div.voice {
     /*float: right;*/
 }
 
-
-/** Hover **/
-
-
-div.envelope-effect-container > div:hover {
-    background: #AAA;
-    color: #000;
-    /*cursor: pointer;*/
+/** Parameters **/
+div.envelope-effect-container > div.parameters {
+    margin: 2px;
+    padding: 4px;
     border-radius: 4px;
+    border: 1px outset #EEE;
+    background-color: #DDD;
+}
+
+div.envelope-effect-container > div.parameters > div {
+    /*border-bottom: 1px solid #AAA;*/
+    display: flex;
+    padding: 1px;
+}
+div.envelope-effect-container > div.parameters > div > div.label {
+    text-align: right;
+    font-size: small;
+    padding: 4px 4px 0 0;
+    width: 55px;
+    overflow: hidden;
+}
+
+
+
+/** Transition **/
+
+div.envelope-effect-container.open > div.parameters {
+    animation: slideDownOpen 0.4s ease-in;
+}
+
+@keyframes slideDownOpen {
+    0% {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 300px;
+    }
+    100% {
+        max-height: inherit;
+        overflow-y: inherit;
+    }
 }

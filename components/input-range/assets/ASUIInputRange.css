@@ -1,15 +1,42 @@
 
-input.asui-input-range[type='range'] {
-  -webkit-appearance: none;
-  background-color: #AAA;
-  border-radius: 0.3em;
-
+div.asui-input-range {
+  position: relative;
 }
-input.asui-input-range[type='range']::-webkit-slider-thumb {
+
+div.asui-input-range > input[type='range'] {
+  position: relative;
+  -webkit-appearance: none;
+  background-color: #9999;
+  border-radius: 0.3em;
+  cursor: col-resize;
+  z-index: 2;
+}
+
+div.asui-input-range > input[type='range']::-webkit-slider-thumb {
   vertical-align: middle;
   -webkit-appearance: none;
   background-color: #444;
   width: 0.5em;
   height: 1.0em;
   border-radius: 1em;
+}
+
+
+/** Size **/
+div.asui-input-range.small > input[type='range'] {
+  width: 100px;
+}
+
+
+/** Value **/
+
+div.asui-input-range > div.value {
+  font-size: small;
+  position: absolute;
+  padding: 4px 6px;
+  z-index: 1;
+}
+
+div.asui-input-range.value-right > div.value {
+  right: 2px;
 }

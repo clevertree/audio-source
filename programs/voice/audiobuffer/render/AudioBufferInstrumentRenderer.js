@@ -3,14 +3,12 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIIcon,
-    ASUIClickableDropDown, ASUIButtonDropDown
+    ASUIMenuDropDown, ASUIButtonDropDown
 } from "../../../../components";
 import {LibraryIterator} from "../../../../song";
 import {Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
-import EnvelopeEffectRendererContainer from "../../../effect/envelope/render/container/EnvelopeEffectRendererContainer";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
@@ -28,8 +26,8 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 source: () => this.renderMenuChangeAudioBuffer(),
             },
             changeParam: {
-                'mixer':    (newValue) => this.changeParam('mixer', newValue),
-                'detune':   (newValue) => this.changeParam('detune', newValue),
+                mixer:    (newValue) => this.changeParam('mixer', newValue),
+                detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
     }
@@ -101,6 +99,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
     /** Inputs **/
 
     renderInput(paramName) {
+        let value;
         const config = this.props.config;
         switch(paramName) {
             case 'source':
@@ -112,40 +111,48 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 if(source && source.length > 16)
                     source = '...' + source.substr(-16);
                 return <ASUIButtonDropDown
+                    className="small"
                     options={this.cb.renderParamMenu.source}
                 >{source}</ASUIButtonDropDown>
 
 
             case 'mixer':
+                value = typeof config.mixer !== "undefined" ? config.mixer : 100;
                 return <ASUIInputRange
                     className="small"
                     min={0}
                     max={100}
-                    value={typeof config.mixer !== "undefined" ? config.mixer : 100}
+                    value={value}
+                    children={`${value}%`}
                     onChange={this.cb.changeParam.mixer}
                 />;
 
             case 'detune':
+                value = typeof config.detune !== "undefined" ? config.detune : 0;
                 return <ASUIInputRange
                     className="small"
                     min={-1000}
                     max={1000}
-                    value={typeof config.detune !== "undefined" ? config.detune : 100}
+                    value={value}
+                    children={`${value}c`}
                     onChange={this.cb.changeParam.detune}
                 />
 
             case 'root':
                 return <ASUIButtonDropDown
+                    className="small"
                     options={this.cb.renderParamMenu.root}
                 >{config.root ? config.root : "No Key Root"}</ASUIButtonDropDown>
 
             case 'alias':
                 return <ASUIButtonDropDown
+                    className="small"
                     options={this.cb.renderParamMenu.alias}
                 >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
 
             case 'range':
                 return <ASUIButtonDropDown
+                    className="small"
                     options={this.cb.renderParamMenu.range}
                 >{config.range ? config.range : "-"}</ASUIButtonDropDown>
 

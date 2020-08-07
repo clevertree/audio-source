@@ -2,7 +2,6 @@ import React from 'react';
 
 import {
     ASUIButtonDropDown,
-    ASUIClickableDropDown,
     ASUIInputRange
 } from "../../../../components";
 import {ProgramLoader} from "../../../../common/";
@@ -22,47 +21,48 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 delay: () => this.renderMenuChange('delay'),
                 sustain: () => this.renderMenuChange('sustain'),
                 release: () => this.renderMenuChange('release'),
-            }
+            },
+            changeParam: {
+                attack:     (newValue) => this.changeParam('attack', newValue),
+                hold:       (newValue) => this.changeParam('hold', newValue),
+                delay:      (newValue) => this.changeParam('delay', newValue),
+                sustain:    (newValue) => this.changeParam('sustain', newValue),
+                release:    (newValue) => this.changeParam('release', newValue),
+            },
         };
     }
 
 
     render() {
-        const config = this.props.config;
         return <EnvelopeEffectRendererContainer
             onClick={this.cb.onClick}
             renderMenuRoot={this.cb.renderMenuRoot}
             config={this.props.config}
             parameters={[
                 {
-                    paramName:  'attack',
+                    label:      'Attack',
                     title:      'Edit Envelope Attack',
-                    children:   config.attack ? `${Math.round((config.attack||0) / 10) / 100}s` : '-',
-                    options:    this.cb.parameterMenu.attack
+                    children:   this.renderInput('attack'),
                 },
                 {
-                    paramName:  'hold',
+                    label:      'Hold',
                     title:      'Edit Envelope Hold',
-                    children:   config.hold ? `${Math.round((config.hold||0) / 10) / 100}s` : '-',
-                    options:    this.cb.parameterMenu.hold
+                    children:   this.renderInput('hold'),
                 },
                 {
-                    paramName:  'delay',
+                    label:      'Delay',
                     title:      'Edit Envelope Delay',
-                    children:   config.delay ? `${Math.round((config.delay||0) / 10) / 100}s` : '-',
-                    options:    this.cb.parameterMenu.delay
+                    children:   this.renderInput('delay'),
                 },
                 {
-                    paramName:  'sustain',
+                    label:      'Sustain',
                     title:      'Edit Envelope Sustain',
-                    children:   config.sustain ? `${Math.round((config.sustain||0) / 10) / 100}s` : '-',
-                    options:    this.cb.parameterMenu.sustain
+                    children:   this.renderInput('sustain'),
                 },
                 {
-                    paramName:  'release',
+                    label:      'Release',
                     title:      'Edit Envelope Release',
-                    children:   config.release ? `${Math.round((config.release||0) / 10) / 100}s` : '-',
-                    options:    this.cb.parameterMenu.release
+                    children:   this.renderInput('release'),
                 },
             ]}
             >
@@ -94,55 +94,26 @@ export default class EnvelopeEffectRenderer extends React.Component {
     }
 
 
-    renderParameters() {
-        if(!this.props.config.open)
-            return [];
-        const config = this.props.config;
+    /** Inputs **/
 
-        // TODO: rethink native parameters?
-        return (<>
-            <ASUIClickableDropDown
-                className="attack"
-                title="Edit Envelope Attack"
-                options={() => this.renderMenuChange('attack')}
-                arrow={false}
-                vertical
-                children={`${Math.round((config.attack||0) / 10) / 100}s`}
-            />
-            <ASUIClickableDropDown
-                className="hold"
-                title="Edit Envelope Hold"
-                options={() => this.renderMenuChange('hold')}
-                arrow={false}
-                vertical
-                children={`${Math.round((config.hold||0) / 10) / 100}s`}
-            />
-            <ASUIClickableDropDown
-                className="delay"
-                title="Edit Envelope Delay"
-                options={() => this.renderMenuChange('delay')}
-                arrow={false}
-                vertical
-                children={`${Math.round((config.delay||0) / 10) / 100}s`}
-            />
-            <ASUIClickableDropDown
-                className="sustain"
-                title="Edit Envelope Sustain"
-                options={() => this.renderMenuChange('sustain')}
-                arrow={false}
-                vertical
-                children={`${Math.round((config.sustain||0) / 10) / 100}s`}
-            />
-            <ASUIClickableDropDown
-                className="release"
-                title="Edit Envelope Release"
-                options={() => this.renderMenuChange('release')}
-                arrow={false}
-                vertical
-                children={`${Math.round((config.release||0) / 10) / 100}s`}
-            />
-        </>);
+    renderInput(paramName) {
+        const config = this.props.config;
+        switch(paramName) {
+            default:
+                const value = typeof config[paramName] !== "undefined" ? config[paramName] : 100;
+                return <ASUIInputRange
+                    className="small"
+                    min={0}
+                    max={100}
+                    value={value}
+                    children={`${value}%`}
+                    onChange={this.cb.changeParam[paramName]}
+                />;
+
+        }
     }
+
+
 
 
     /** Actions **/
@@ -155,10 +126,8 @@ export default class EnvelopeEffectRenderer extends React.Component {
             config.open = true;
     }
 
-    changeMixer(newMixerValue) {
-        if(!Number.isInteger(newMixerValue))
-            throw new Error("Invalid mixer value type: " + typeof newMixerValue);
-        this.props.config.mixer = newMixerValue;
+    changeParam(paramName, newValue) {
+        this.props.config[paramName] = newValue;
     }
 
     /** Menu **/
