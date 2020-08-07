@@ -59,6 +59,6 @@ div.envelope-effect-container.open > div.voice {
 div.envelope-effect-container > div:hover {
     background: #AAA;
     color: #000;
-    cursor: pointer;
+    /*cursor: pointer;*/
     border-radius: 4px;
 }

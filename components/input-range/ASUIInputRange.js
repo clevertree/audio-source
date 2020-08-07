@@ -1,7 +1,8 @@
 import React from "react";
-import "./assets/ASUIInputRange.scss";
 import PropTypes from "prop-types";
 import ASUIDropDownContext from "../dropdown/context/ASUIDropDownContext";
+
+import "./assets/ASUIInputRange.css";
 
 class ASUIInputRange extends React.Component {
     /** Default Properties **/

@@ -3,9 +3,6 @@ input.asui-input-range[type='range'] {
   -webkit-appearance: none;
   background-color: #AAA;
   border-radius: 0.3em;
-  //height: 0.3em;
-  //margin: 0 2px 0 0;
-  //margin: 0.2em 0.2em 0 0.2em
 
 }
 input.asui-input-range[type='range']::-webkit-slider-thumb {

@@ -41,22 +41,13 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
     }
 
     renderParameters() {
-        const config = this.props.config;
-
         return (
             <div className="parameters">
                 {this.props.parameters.map((props, i) => (
-                    <ASUIClickableDropDown
-                        key={i}
-                        {...props}
-                        className={props.paramName}
-                        arrow={false}
-                        vertical
-                        children={[
-                            <div key={0}>{props.paramName[0].toUpperCase()}</div>,
-                            <div key={1}>{props.children}</div>
-                        ]}
-                    />
+                    <div>
+                        <div>{props.label}</div>
+                        <div>{props.children}</div>
+                    </div>
                 ))}
             </div>
         )

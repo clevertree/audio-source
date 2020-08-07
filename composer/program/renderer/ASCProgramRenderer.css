@@ -30,3 +30,8 @@ div.asc-instrument-renderer > div.header > div.program-config {
 div.asc-instrument-renderer > div.header > div.error {
     color: #620100;
 }
+
+
+div.asc-instrument-renderer > div.content {
+    cursor: default;
+}
