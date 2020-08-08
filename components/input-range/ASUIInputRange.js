@@ -44,7 +44,7 @@ class ASUIInputRange extends React.Component {
         let className = "asui-input-range";
         if(this.props.className)
             className += ' ' + this.props.className;
-        if((this.props.value - this.props.min) / (this.props.max - this.props.min) < 0.5)
+        if((this.props.value - this.props.min) / (this.props.max - this.props.min) < 0.3)
             className += ' value-right';
         return <div
             className={className}

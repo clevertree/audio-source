@@ -1,4 +1,16 @@
 
+/** Container **/
+div.audiobuffer-instrument-container  {
+    margin: 2px;
+    padding: 4px;
+    color: #000;
+    border: 1px outset #FFF;
+    border-radius: 4px;
+    background-color: #96e2da;
+    position: relative;
+}
+
+
 /** Header **/
 div.audiobuffer-instrument-container > div.header {
     display: flex;
@@ -34,11 +46,13 @@ div.audiobuffer-instrument-container:not(.open) > div.title {
 
 /** Parameters **/
 div.audiobuffer-instrument-container > div.parameters {
-    margin: 2px;
+    margin: 0 0px 2px 0px;
     padding: 4px;
-    border-radius: 4px;
-    border: 1px outset #EEE;
-    background-color: #DDD;
+    /*border-radius: 0 0 4px 4px;*/
+    /*border: 1px inset #EEE;*/
+    /*border-top-width: 0px;*/
+    /*background-color: #CCC;*/
+    animation: slideDownOpen 0.4s ease-in;
 }
 
 div.audiobuffer-instrument-container > div.parameters > div {
@@ -66,9 +80,6 @@ div.audiobuffer-instrument-container > div:hover {
 
 /** Transition **/
 
-div.audiobuffer-instrument-container.open > div.parameters {
-    animation: slideDownOpen 0.4s ease-in;
-}
 
 @keyframes slideDownOpen {
     0% {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {ASUIButtonDropDown} from "../../../components";
+import {ASUIButtonDropDown, ASUIIcon} from "../../../components";
 import {ProgramLoader} from "../../../common/";
 
 import PolyphonyInstrumentRendererBase from "./PolyphonyInstrumentRendererBase";
@@ -31,11 +31,11 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                     })}
                 </div>
                 <ASUIButtonDropDown
-                    title="Add new voice"
+                    title="Add new Voice"
                     className="add-voice"
                     arrow={false}
                     options={() => this.renderMenuAddVoice()}>
-                    {voices.length === 0 ? 'Add Voice' : '+'}
+                    {voices.length === 0 ? 'Add Voice' : <ASUIIcon source="insert" />}
                 </ASUIButtonDropDown>
             </div>
         );

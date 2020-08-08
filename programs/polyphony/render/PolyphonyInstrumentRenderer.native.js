@@ -27,7 +27,7 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                     })}
                     <ASUIMenuDropDown
                         style={styles.buttonAddVoice}
-                        title="Add new voice"
+                        title="Add new Voice"
                         arrow={false}
                         options={() => this.renderMenuAddVoice()}>
                         <Text style={styles.buttonAddText}>+</Text>

@@ -18,8 +18,10 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
         const title = this.props.title;
 
         return <div className={className}>
-            <div className="header">
+            <div className="header"
+                 title={`Audio Buffer Sample: ${title}`}>
                 <ASUIButton
+                    title={`Audio Buffer Sample: ${title}`}
                     className="toggle-container"
                     selected={open}
                     onAction={this.props.onClick}

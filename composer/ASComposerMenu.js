@@ -411,7 +411,7 @@ class ASComposerMenu extends ASComposerRenderer {
         </>);
     }
 
-    renderMenuProgramAdd(menuTitle= "Add New Program") {
+    renderMenuProgramAdd(menuTitle= "Add new Program") {
         return (<>
             <ASUIMenuItem>{menuTitle}</ASUIMenuItem><ASUIMenuBreak/>
             {ProgramLoader.getRegisteredPrograms().map((config, i) =>

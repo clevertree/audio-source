@@ -13,9 +13,9 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
         return <div
             className={className}
             >
-            {this.renderVoice()}
             {this.renderHeader()}
             {open ? this.renderParameters() : null}
+            {this.renderVoice()}
         </div>;
     }
 
@@ -29,8 +29,11 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
 
     renderHeader() {
         const open = this.props.config.open;
-        return <div className="header">
+        return <div className="header"
+                    title={`Envelope Effect`}
+        >
             <ASUIButton
+                title={`Envelope Effect`}
                 className="toggle-container"
                 selected={open}
                 onAction={this.props.onClick}

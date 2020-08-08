@@ -63,10 +63,11 @@ export default class ASComposerContainer extends React.Component {
 
     renderHeader() {
         const state = this.props.composer.state;
+        const title = this.props.composer.song.data.title;
         if (state.portrait)
             return (
                 <div className="asc-header-container">
-                    <div className="asc-title-text">{state.title}</div>
+                    <div className="asc-title-text">{title}</div>
                     <ASUIMenuDropDown
                         arrow={false}
                         className="asc-menu-button-toggle"
@@ -79,7 +80,7 @@ export default class ASComposerContainer extends React.Component {
 
         return (
             <div className="asc-header-container">
-                <div key="title" className="asc-title-text">{state.title}</div>
+                <div key="title" className="asc-title-text">{title}</div>
                 <div className="asc-menu-container">
                     {this.props.composer.renderRootMenu(this.ref.menu)}
                 </div>

@@ -138,7 +138,7 @@ div.asc-container.landscape div.asui-panel > div.container {
 }
 
 div.asc-container.landscape div.asui-panel-container-horizontal {
-    display: inline;
+    display: block;
 }
 
 
@@ -171,15 +171,20 @@ div.asc-container.portrait div.asui-panel-container-horizontal > div.asui-panel 
 }
 
 /** Program Panel **/
-@media only screen and (min-width: 800px) {
+@media only screen and (min-width: 1200px) {
     div.asui-panel.song-programs {
-        /*float: right;*/
+        /*position: absolute;*/
+        /*top: 40px;*/
+        /*right: 0;*/
     }
+}
+div.asui-panel.song-programs div.program-add {
+    /*transform: rotate(90deg);*/
 }
 /** Tracks **/
 
 div.asc-container.landscape div.asc-tracks-container {
-    display: flex;
+    display: inline-flex;
     flex-wrap: wrap;
 }
 
