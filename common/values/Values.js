@@ -1,7 +1,6 @@
-import {ASUIMenuItem, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
 import React from "react";
+import {ASUIInputRange, ASUIMenuItem, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components";
 import PromptManager from "../prompt/PromptManager";
-import {ASUIInputRange} from "../../components";
 import ProgramLoader from "../program/ProgramLoader";
 
 class Values {

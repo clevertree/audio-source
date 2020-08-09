@@ -1,6 +1,6 @@
 import React from "react";
-import ASUIDropDownContext from "../dropdown/context/ASUIDropDownContext";
 import PropTypes from "prop-types";
+import ASUIContextMenuContext from "../menu/context/ASUIContextMenuContext";
 
 export default class ASUIClickable extends React.Component {
     /** Property validation **/
@@ -95,7 +95,7 @@ export default class ASUIClickable extends React.Component {
 
 
     /** Overlay Context **/
-    static contextType = ASUIDropDownContext;
+    static contextType = ASUIContextMenuContext;
 
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }

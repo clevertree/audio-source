@@ -1,6 +1,6 @@
 import * as React from "react";
 
-export default class DropDownOptionProcessor {
+export default class MenuOptionProcessor {
 
     static processArray(options) {
         let optionArray = [];

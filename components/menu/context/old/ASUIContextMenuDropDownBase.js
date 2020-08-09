@@ -1,15 +1,15 @@
 import React from "react";
-import ASUIDropDownContext from "./ASUIDropDownContext";
+import ASUIContextMenuContext from "./ASUIContextMenuContext";
 import {ASUIMenuItem, ASUIMenuAction, ASUIMenuBreak} from "../../menu";
-import DropDownOptionProcessor from "../DropDownOptionProcessor";
+import MenuOptionProcessor from "../MenuOptionProcessor";
 // import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 
 export default class ASUIContextMenuDropDownBase extends React.Component {
     /** Menu Context **/
-    static contextType = ASUIDropDownContext;
+    static contextType = ASUIContextMenuContext;
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
-    /** @return {ASUIDropDownContainer} **/
+    /** @return {ASUIMenuOptionList} **/
     getParentDropdown() { return this.context.parentDropDown; }
 
     constructor(props) {
@@ -97,7 +97,7 @@ export default class ASUIContextMenuDropDownBase extends React.Component {
         if (!options)
             console.warn("Empty options returned by ", this);
 
-        options = DropDownOptionProcessor.processArray(options);
+        options = MenuOptionProcessor.processArray(options);
 
         if(this.state.optionsHistory.length > 0) {
             options.push(

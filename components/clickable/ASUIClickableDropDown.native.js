@@ -1,10 +1,11 @@
 import React from "react";
 import {View, Text} from 'react-native';
 import PropTypes from "prop-types";
-import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
+import ASUIDropDownContainer from "../options/ASUIDropDownContainer";
 import ASUIClickable from "../../clickable/ASUIClickable";
 
 import styles from "../style/ASUIMenu.style"
+import ASUIContextMenu from "../menu/context/ASUIContextMenu";
 
 export default class ASUIClickableDropDown extends ASUIClickable {
 
@@ -35,7 +36,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
             >
             {this.renderChildren()}
             {arrow ? <Text key="arrow" style={styles.arrow}>{arrow}</Text> : null}
-            (this.state.open && !this.props.disabled ? <ASUIDropDownContainer
+            (this.state.open && !this.props.disabled ? <ASUIContextMenu
                 key="dropdown"
                 ref={this.dropdown}
                 disabled={this.props.disabled}

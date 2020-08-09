@@ -1,7 +1,6 @@
 import React from "react";
 import {StyleSheet, Text, View} from 'react-native';
-import {ASUIMenuDropDown} from "../../components/menu";
-import {ASUIIcon} from "../../components";
+import {ASUIMenuDropDown, ASUIIcon} from "../../components";
 
 export default class ASPlayerHeader extends React.Component {
     render() {

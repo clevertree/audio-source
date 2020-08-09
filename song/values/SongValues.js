@@ -1,5 +1,5 @@
 import Values from "../../common/values/Values";
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/menu";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown} from "../../components/";
 import React from "react";
 import {ArgType} from "../../common";
 

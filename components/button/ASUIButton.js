@@ -27,8 +27,8 @@ export default class ASUIButton extends ASUIClickable {
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
         const result = await this.props.onAction(e, this);
-        if (result !== false)
-            this.closeAllOpenMenus(100);
+        // if (result !== false)
+        //     this.closeAllOpenMenus(100);
     }
 
 

@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import ASUIDropDownContext from "../dropdown/context/ASUIDropDownContext";
 
 import "./assets/ASUIInputRange.css";
 
@@ -29,7 +28,7 @@ class ASUIInputRange extends React.Component {
         const newValue = parseFloat(e.target.value);
         this.props.onChange(newValue);
         // e.preventDefault();
-        this.closeAllOpenMenus();
+        // this.closeAllOpenMenus();
     }
 
     onChange(e) {
@@ -70,17 +69,17 @@ class ASUIInputRange extends React.Component {
 
 
     /** Overlay Context **/
-    static contextType = ASUIDropDownContext;
-
-    getOverlay() { return this.context.overlay; }
-
-    closeAllOpenMenus() {
-        const overlay = this.getOverlay();
-        if(overlay.getOpenMenuCount() > 0) {
-            overlay.closeAllMenus();
-            overlay.restoreActiveElementFocus();
-        }
-    }
+    // static contextType = ASUIContextMenuContext;
+    //
+    // getOverlay() { return this.context.overlay; }
+    //
+    // closeAllOpenMenus() {
+    //     const overlay = this.getOverlay();
+    //     if(overlay.getOpenMenuCount() > 0) {
+    //         overlay.closeAllMenus();
+    //         overlay.restoreActiveElementFocus();
+    //     }
+    // }
 
 
 }

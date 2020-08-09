@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import ASUIDropDownContainer from "../dropdown/ASUIDropDownContainer";
 import ASUIClickable from "./ASUIClickable";
+import ASUIContextMenu from "../menu/context/ASUIContextMenu";
 
 import "./ASUIClickable.css";
 
@@ -45,9 +45,8 @@ export default class ASUIClickableDropDown extends ASUIClickable {
         return [
             super.renderChildren(props),
             arrow ? <div className="arrow" key="arrow">{arrow}</div> : null,
-            (this.state.open && !this.props.disabled ? <ASUIDropDownContainer
+            (this.state.open && !this.props.disabled ? <ASUIContextMenu
                 key="dropdown"
-                ref={this.dropdown}
                 // disabled={this.props.disabled}
                 options={this.props.options}
                 vertical={this.props.vertical}

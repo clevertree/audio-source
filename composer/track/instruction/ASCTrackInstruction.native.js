@@ -2,7 +2,7 @@ import * as React from "react";
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 
 import ASCTrackInstructionBase from "./ASCTrackInstructionBase";
-import {ASUIDropDownContainer} from "../../../components/menu";
+import {ASUIContextMenu} from "../../../components/";
 
 
 export default class ASCTrackInstruction extends ASCTrackInstructionBase {
@@ -46,7 +46,7 @@ export default class ASCTrackInstruction extends ASCTrackInstructionBase {
                         <Text>{instruction.command}</Text>
                     </View> : this.renderParameters() }
 
-                    {this.state.menuOpen ? <ASUIDropDownContainer
+                    {this.state.menuOpen ? <ASUIContextMenu
                         key="dropdown"
                         ref={this.dropdown}
                         options={this.cb.options}

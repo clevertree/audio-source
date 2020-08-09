@@ -1,22 +1,24 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import ASUIDropDownContext from "./context/ASUIDropDownContext";
-import ASUIClickable from "../clickable/ASUIClickable";
-import ASUIMenuDropDown from "../menu/dropdown/ASUIMenuDropDown";
-import ASUIMenuItem from "../menu/item/ASUIMenuItem";
+import ASUIContextMenuContext from "../context/ASUIContextMenuContext";
+import ASUIClickable from "../../clickable/ASUIClickable";
+import ASUIMenuDropDown from "../dropdown/ASUIMenuDropDown";
+import ASUIMenuItem from "../item/ASUIMenuItem";
 
-import "./ASUIDropDownContainer.css";
-import DropDownOptionProcessor from "./DropDownOptionProcessor";
+import "./ASUIMenuOptionList.css";
+import MenuOptionProcessor from "./MenuOptionProcessor";
 
-export default class ASUIDropDownContainerBase extends React.Component {
+export default class ASUIMenuOptionListBase extends React.Component {
 
     /** Menu Context **/
-    static contextType = ASUIDropDownContext;
+    static contextType = ASUIContextMenuContext;
+
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
-    /** @return {ASUIDropDownContainer} **/
-    getParentDropdown() { return this.context.parentDropDown; }
+
+    /** @return {ASUIMenuOptionList} **/
+    getParentMenu() { return this.context.parentMenu; }
 
 
     // Default Props
@@ -48,35 +50,40 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
 
     componentDidMount() {
-        console.log('ASUIDropDownContainer.componentDidMount')
+        console.log(`${this.constructor.name}.componentDidMount`);
 
-        const overlay = this.getOverlay();
-        overlay.addCloseMenuCallback(this, this.props.onClose);
-
-        this.openMenu(this.props.options);
-
+        this.setOptions(this.props.options);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(prevProps.options !== this.props.options) {
-            console.log('ASUIDropDownContainer.componentDidUpdate', prevProps.options, this.props.options)
+            console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options)
             this.setOptions(this.props.options);
         }
     }
 
-    componentWillUnmount() {
-        this.getOverlay().removeCloseMenuCallback(this);
+    // componentWillUnmount() {
+    //     this.getOverlay().removeCloseMenuCallback(this);
+    // }
+
+    renderContent() {
+        throw new Error("Not Implemented");
     }
-
-
 
     render() {
-        return <ASUIDropDownContext.Provider
-            value={{overlay:this.getOverlay(), parentDropDown:this}}>
-            {this.renderDropDownContainer()}
-        </ASUIDropDownContext.Provider>
-
+        return <ASUIContextMenuContext.Provider
+            value={{overlay: this.getOverlay(), parentMenu: this}}>
+            {this.renderContent()}
+        </ASUIContextMenuContext.Provider>
     }
+
+    // render() {
+    //     return <ASUIContextMenuContext.Provider
+    //         value={{overlay:this.getOverlay(), parentDropDown:this}}>
+    //         {this.renderDropDownContainer()}
+    //     </ASUIContextMenuContext.Provider>
+    //
+    // }
 
 
     /** Actions **/
@@ -88,24 +95,6 @@ export default class ASUIDropDownContainerBase extends React.Component {
 
     closeDropDownMenu() {
         this.props.onClose()
-    }
-
-    openMenu(options) {
-        const overlay = this.getOverlay();
-        // TODO: defer all to overlay if exists?
-
-        // Try context menu open handler
-        const res = this.props.skipOverlay ? false : overlay.openMenu(options);
-        if (res !== false) {
-            this.closeDropDownMenu();
-            // console.info("Sub-menu options were sent to menu handler: ", this.getOverlay().openMenu);
-
-        } else {
-            // console.info("Sub-menu options rendered locally", options);
-
-            // Process and render dropdown options locally
-            this.setOptions(options);
-        }
     }
 
     async setOptions(options) {
@@ -121,7 +110,7 @@ export default class ASUIDropDownContainerBase extends React.Component {
         }
 
 
-        let optionArray = DropDownOptionProcessor.processArray(options);
+        let optionArray = MenuOptionProcessor.processArray(options);
         let positionSelected = this.state.positionSelected, currentPosition = 0;
         optionArray = optionArray
             .filter(option => option.type !== React.Fragment)

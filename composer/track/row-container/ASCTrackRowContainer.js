@@ -1,8 +1,8 @@
-import ASCTrackRowContainerBase from "./ASCTrackRowContainerBase";
-
-import "./ASCTrackRowContainer.css";
-import {ASUIDropDownContainer} from "../../../components";
 import * as React from "react";
+
+import {ASUIContextMenu} from "../../../components";
+import ASCTrackRowContainerBase from "./ASCTrackRowContainerBase";
+import "./ASCTrackRowContainer.css";
 
 export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
     constructor(props) {
@@ -37,7 +37,7 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
                 // onWheel={this.cb.onWheel}
             >
                 {this.renderRowContent()}
-                {this.state.menuOpen ? <ASUIDropDownContainer
+                {this.state.menuOpen ? <ASUIContextMenu
                     clientPosition={this.state.clientPosition}
                     key="dropdown"
                     ref={this.dropdown}

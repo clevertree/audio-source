@@ -1,7 +1,7 @@
 import React from 'react';
 
 import "./OscillatorInstrumentRendererContainer.css";
-import {ASUIButton, ASUIButtonDropDown} from "../../../../../components/button";
+import {ASUIButton, ASUIButtonDropDown} from "../../../../../components/";
 import {ASUIIcon} from "../../../../../components";
 
 

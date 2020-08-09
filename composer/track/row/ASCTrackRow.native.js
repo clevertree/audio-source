@@ -3,7 +3,7 @@ import {StyleSheet, View} from "react-native";
 import ASCTrackPosition from "../position/ASCTrackPosition";
 import ASCTrackInstructionAdd from "../instruction/ASCTrackInstructionAdd";
 import ASCTrackDelta from "../delta/ASCTrackDelta";
-import ASUIDropDownContainer from "../../../components/dropdown/ASUIDropDownContainer";
+import ASUIDropDownContainer from "../../../components/options/ASUIDropDownContainer";
 import ASCTrackRowBase from "./ASCTrackRowBase";
 
 export default class ASCTrackRow extends ASCTrackRowBase {
@@ -37,11 +37,6 @@ export default class ASCTrackRow extends ASCTrackRowBase {
                     <ASCTrackDelta
                         onPressIn={this.cb.onPress}
                         duration={rowDeltaDuration}/>
-                    <ASUIDropDownContainer
-                        ref={this.dropdown}
-                        options={this.props.options}
-                        vertical={this.props.vertical}
-                    />
                 </View>
             // </TouchableOpacity>
         )

@@ -1,12 +1,16 @@
 import React from "react";
-import ASUIDropDownContext from "./ASUIDropDownContext";
+import ASUIContextMenuContext from "./ASUIContextMenuContext";
 
 export default class ASUIContextMenuContainerBase extends React.Component {
     constructor(props) {
         super(props);
         this.openMenus =  [];
-        this.ref = {
-            dropdown: React.createRef()
+        this.state = {
+            openMenus: [],
+            slidingMenu: null
+        }
+        this.cb = {
+            closeAllMenus: () => this.closeAllMenus(),
         }
     }
 
@@ -15,10 +19,11 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     }
 
     render() {
-        return <ASUIDropDownContext.Provider
-            value={{overlay:this, parentDropDown:null}}>
+        return <ASUIContextMenuContext.Provider
+            value={{overlay: this, parentMenu: null}}
+            >
             {this.renderContent()}
-        </ASUIDropDownContext.Provider>;
+        </ASUIContextMenuContext.Provider>;
     }
 
 
@@ -34,6 +39,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
 
     /** Open/Close Menu **/
 
+    /** @deprecated **/
     addCloseMenuCallback(menuItem, closeMenuCallback) {
         if(typeof closeMenuCallback !== "function")
             throw new Error("Invalid menu close callback: " + typeof closeMenuCallback);
@@ -63,16 +69,27 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             this.restoreActiveElementFocus();
     }
 
-    openMenu(options) {
-        // if(!this.props.portrait)
-        //     return false;
-
-
+    openContextMenu(props, parentMenu, position) {
+        console.log('ASUIContextMenuContainerBase.openContextMenu', props, parentMenu, position)
         // Delay menu open
-        setTimeout(() =>
-            this.ref.dropdown.current.openMenu(options)
-            , 1);
-        return true;
+        setTimeout(() => {
+            if (this.props.portrait) {
+                this.setState({
+                    openMenus: [],
+                    slidingMenu: props
+                })
+            } else {
+                this.setState({
+                    openMenus: this.state.openMenus.concat(props),
+                    slidingMenu: null
+                })
+
+            }
+        } , 1);
+
+
+        //     this.ref.dropdown.current.openMenu(options)
+        // return true;
     }
 
     /** @deprecated **/

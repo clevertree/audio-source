@@ -38,6 +38,7 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
                 selected={open}
                 onAction={this.props.onClick}
             >
+                <ASUIIcon source="effect-envelope"/>
                 Envelope
             </ASUIButton>
             <ASUIButtonDropDown
