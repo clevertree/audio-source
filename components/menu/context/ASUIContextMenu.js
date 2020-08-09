@@ -28,7 +28,10 @@ export default class ASUIContextMenu extends React.Component {
     }
 
     componentDidMount() {
-        this.getOverlay().openContextMenu(this.props, this.getParentMenus());
+        const props = Object.assign({
+            parentMenu: this.getParentMenu()
+        }, this.props);
+        this.getOverlay().openContextMenu(props, this.getParentMenus());
     }
 
     render() {

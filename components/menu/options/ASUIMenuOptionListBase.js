@@ -6,8 +6,8 @@ import ASUIClickable from "../../clickable/ASUIClickable";
 import ASUIMenuDropDown from "../dropdown/ASUIMenuDropDown";
 import ASUIMenuItem from "../item/ASUIMenuItem";
 
-import "./ASUIMenuOptionList.css";
 import MenuOptionProcessor from "./MenuOptionProcessor";
+import "./ASUIMenuOptionList.css";
 
 export default class ASUIMenuOptionListBase extends React.Component {
 
@@ -18,7 +18,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
     getOverlay() { return this.context.overlay; }
 
     /** @return {ASUIMenuOptionList} **/
-    getParentMenu() { return this.context.parentMenu; }
+    getParentMenu() { return this.props.parentMenu || this.context.parentMenu; }
 
 
     // Default Props

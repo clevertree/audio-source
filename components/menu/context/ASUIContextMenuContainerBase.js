@@ -1,5 +1,6 @@
 import React from "react";
 import ASUIContextMenuContext from "./ASUIContextMenuContext";
+import ASUIMenuOptionList from "../options/ASUIMenuOptionList";
 
 export default class ASUIContextMenuContainerBase extends React.Component {
     constructor(props) {
@@ -49,12 +50,6 @@ export default class ASUIContextMenuContainerBase extends React.Component {
         // console.log('this.openMenus', this.openMenus);
     }
 
-    removeCloseMenuCallback(menuItem) {
-        const i = this.openMenus.findIndex(openMenu => openMenu[0] === menuItem);
-        if(i !== -1)
-            this.openMenus.splice(i, 1);
-    }
-
 
     closeAllMenus() {
         // console.log('closeAllMenus', document.activeElement)
@@ -69,8 +64,8 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             this.restoreActiveElementFocus();
     }
 
-    openContextMenu(props, parentMenu) {
-        console.log('ASUIContextMenuContainerBase.openContextMenu', props, parentMenu)
+    openContextMenu(props, parentMenus = []) {
+        console.log('ASUIContextMenuContainerBase.openContextMenu', props, parentMenus)
         // Delay menu open
         setTimeout(() => {
             if (this.props.portrait) {
@@ -79,8 +74,22 @@ export default class ASUIContextMenuContainerBase extends React.Component {
                     slidingMenu: props
                 })
             } else {
+                let openMenus = this.state.openMenus.filter(openMenu => {
+                    if(openMenu.parentMenu) {
+                        // TODO: check for ancestor
+                        // for (let i = 0; i < parentMenus.length; i++) {
+                        //     if (parentMenus[i] === openMenu.parentMenu) {
+                        //         return true;
+                        //     }
+                        // }
+                    }
+                    return true;
+                });
+                openMenus = openMenus.concat(props);
+
+                console.log('openMenus', openMenus);
                 this.setState({
-                    openMenus: this.state.openMenus.concat(props),
+                    openMenus,
                     slidingMenu: null
                 })
 
