@@ -6,6 +6,7 @@ import LocalStorage from "./storage/LocalStorage";
 import ClientStorage from "./storage/ClientStorage";
 import Values from "./values/Values";
 import InstructionProcessor from "./program/InstructionProcessor"
+import ASUILogContext from "./log/ASUILogContext";
 export {
     Keyboard,
     ProgramLoader,
@@ -14,7 +15,8 @@ export {
     LocalStorage,
     ClientStorage,
     Values,
-    InstructionProcessor
+    InstructionProcessor,
+    ASUILogContext
 }
 
 

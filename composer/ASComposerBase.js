@@ -68,7 +68,8 @@ class ASComposerBase extends React.Component {
             songStop: () => this.songStop(),
             loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
-            onInput: e => this.onInput(e)
+            onInput: e => this.onInput(e),
+            addLogEntry: (text, type) => this.setStatus(text, type),
         }
         this.ref = {
             container: React.createRef(),

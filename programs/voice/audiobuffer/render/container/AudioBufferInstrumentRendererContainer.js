@@ -26,6 +26,7 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
                     selected={open}
                     onAction={this.props.onClick}
                 >
+                    <ASUIIcon source="instrument-audiobuffer"/>
                     {title}
                 </ASUIButton>
                 <ASUIButtonDropDown

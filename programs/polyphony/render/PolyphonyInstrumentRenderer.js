@@ -9,6 +9,7 @@ import "./PolyphonyInstrumentRenderer.css";
 /** PolyphonyInstrumentRenderer **/
 export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRendererBase {
 
+
     render() {
         const voices = this.props.config.voices || [];
 //         console.log('voices', voices);

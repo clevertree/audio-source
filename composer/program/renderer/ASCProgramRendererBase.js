@@ -105,14 +105,13 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
 
-    /** @deprecated **/
-    wrapPreset(presetClassName, presetConfig={}) {
-        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(presetClassName);
-        const [oldClassName, oldConfig] = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
-        Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
-        this.loadPreset(presetClassName, presetConfig);
-        // TODO: if classes match, prompt confirm
-    }
+    // wrapPreset(presetClassName, presetConfig={}) {
+    //     const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(presetClassName);
+    //     const [oldClassName, oldConfig] = this.getSong().getProxiedData().programs[this.props.programID] || ['Empty', {}];
+    //     Renderer.addChildProgramToConfig(presetConfig, oldClassName, oldConfig);
+    //     this.loadPreset(presetClassName, presetConfig);
+    //     // TODO: if classes match, prompt confirm
+    // }
 
     /** Menu **/
 
@@ -145,19 +144,19 @@ export default class ASCProgramRendererBase extends React.Component {
     }
 
 
-    renderMenuWrapProgram(menuTitle = "Wrap Program") {
-        return (<>
-            <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
-            <ASUIMenuBreak/>
-            <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
-            <ASUIMenuBreak />
-            {ProgramLoader.getRegisteredPrograms().filter((config, i) => {
-                return config.classRenderer && config.classRenderer.addChildProgramToConfig;
-            }).map((config, i) =>
-                <ASUIMenuAction key={i} onAction={e => this.wrapPreset(config.className)}       >{config.title}</ASUIMenuAction>
-            )}
-        </>);
-    }
+    // renderMenuWrapProgram(menuTitle = "Wrap Program") {
+    //     return (<>
+    //         <ASUIMenuItem>{menuTitle}</ASUIMenuItem>
+    //         <ASUIMenuBreak/>
+    //         <ASUIMenuDropDown options={() => this.renderMenuChangePreset()}>Using Preset</ASUIMenuDropDown>
+    //         <ASUIMenuBreak />
+    //         {ProgramLoader.getRegisteredPrograms().filter((config, i) => {
+    //             return config.classRenderer && config.classRenderer.addChildProgramToConfig;
+    //         }).map((config, i) =>
+    //             <ASUIMenuAction key={i} onAction={e => this.wrapPreset(config.className)}       >{config.title}</ASUIMenuAction>
+    //         )}
+    //     </>);
+    // }
 
     async renderMenuChangePreset() {
         const library = LibraryIterator.loadDefault();

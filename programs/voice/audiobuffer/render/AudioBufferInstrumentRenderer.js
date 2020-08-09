@@ -35,7 +35,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(!this.props.config.url) {
-            console.warn("No default AudioBuffer was set");
+            // console.log("No default AudioBuffer was set");
             // this.props.config.type = 'sawtooth';
         }
     }
@@ -44,7 +44,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
         return this.props.config.title
             || (this.props.config.url
                 ? this.props.config.url.split('/').pop()
-                : "Empty Buffer")
+                : "empty buffer")
     }
 
 

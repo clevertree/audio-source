@@ -7,21 +7,23 @@ export default class IconList {
 }
 
 const icons = {
-    'menu':                    require('./img/menu.icon.png'),
-    'play':                    require('./img/play.icon.png'),
-    'pause':                   require('./img/pause.icon.png'),
-    'stop':                    require('./img/stop.icon.png'),
-    'next':                    require('./img/next.icon.png'),
-    'file-save':               require('./img/file-save.icon.png'),
-    'file-load':               require('./img/file-load.icon.png'),
+    'menu':                     require('./img/menu.icon.png'),
+    'play':                     require('./img/play.icon.png'),
+    'pause':                    require('./img/pause.icon.png'),
+    'stop':                     require('./img/stop.icon.png'),
+    'next':                     require('./img/next.icon.png'),
+    'file-save':                require('./img/file-save.icon.png'),
+    'file-load':                require('./img/file-load.icon.png'),
 
 
-    'insert':                  require('./img/insert.icon.png'),
-    'remove':                  require('./img/remove.icon.png'),
+    'insert':                   require('./img/insert.icon.png'),
+    'remove':                   require('./img/remove.icon.png'),
 
-    'config':                  require('./img/config.icon.png'),
-    'source':                  require('./img/source.icon.png'),
+    'config':                   require('./img/config.icon.png'),
+    'source':                   require('./img/source.icon.png'),
 
-    'menu-sample':             require('./img/menu-sample.icon.png'),
-    'menu-effect-envelope':    require('./img/menu-effect-envelope.icon.png'),
+    'effect-envelope':          require('./img/effect-envelope.icon.png'),
+
+    'instrument-oscillator':    require('./img/instrument-oscillator.icon.png'),
+    'instrument-audiobuffer':   require('./img/instrument-audiobuffer.icon.png'),
 }

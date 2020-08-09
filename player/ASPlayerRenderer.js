@@ -37,7 +37,7 @@ class ASPlayerRenderer extends ASPlayerStyle {
         return (
             <ASUIDiv className={["asp-container", this.state.portrait ? 'portrait' : 'landscape'].join(' ')}>
                 <ASUIContextMenuContainer
-                    isActive={this.state.portrait}
+                    portrait={this.state.portrait}
                 >
                     <ASUIDiv key="header" className="asp-title-container">
                         <ASPlayerHeader

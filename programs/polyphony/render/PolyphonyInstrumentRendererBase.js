@@ -4,10 +4,12 @@ import {
     ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
 
-import {ProgramLoader, PromptManager} from "../../../common";
+import {ASUILogContext, ProgramLoader, PromptManager} from "../../../common";
 
 /** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {
+
+
     constructor(props) {
         super(props);
         this.cb = {
@@ -18,13 +20,6 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     /** Actions **/
 
-    // TODO: Use Context Consumer/Provider for status/error callbacks
-    setStatus(message) { console.info(this.constructor.name, 'setStatus', message); }
-    setError(message) { console.warn(this.constructor.name, 'setStatus', message); }
-
-    wrapVoiceWithNewInstrument(voiceID) {
-
-    }
 
     async addVoicePrompt(instrumentClassName, instrumentConfig) {
         const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
@@ -81,6 +76,13 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         config.voices[newVoiceID] = [childProgramClassName, childProgramConfig||{}];
         return newVoiceID;
     }
+
+
+    /** Menu Context **/
+    static contextType = ASUILogContext;
+
+    setStatus(message) { this.context && this.context.addLogEntry(message); }
+    setError(message) { this.context && this.context.addLogEntry(message, 'error'); }
 }
 
 export default PolyphonyInstrumentRendererBase;

@@ -42,7 +42,7 @@ export default class ASComposerContainer extends React.Component {
                 ref={this.ref.container}>
                 <ASUIContextMenuContainer
                     ref={this.ref.menuContextContainer}
-                    isActive={state.portrait}
+                    portrait={state.portrait}
                     composer={this.props.composer}
                 >
                     {this.renderHeader()}

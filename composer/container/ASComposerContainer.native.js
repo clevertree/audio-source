@@ -25,7 +25,7 @@ export default class ASComposerContainer extends React.Component {
         const state = this.props.composer.state;
         return (
                 <ASUIContextMenuContainer
-                    isActive={state.portrait}
+                    portrait={state.portrait}
                     >
                     {this.renderHeader()}
                     {this.renderContent()}

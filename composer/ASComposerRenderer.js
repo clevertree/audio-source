@@ -7,31 +7,35 @@ import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerInstructionPanel from "./panel/ASComposerInstructionPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 import ASComposerBase from "./ASComposerBase";
+import ASUILogContext from "../common/log/ASUILogContext";
 
 export default class ASComposerRenderer extends ASComposerBase {
 
     render() {
 //         console.log('ASComposerRenderer.render()');
         return (
-            <ASComposerContainer
-                ref={this.ref.container}
-                composer={this}
-                >
-                {/*<div className="asui-panel-container">*/}
-                {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}
-                <div className="asui-panel-container-horizontal">
-                    {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
-                    {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
-                </div>
-                {this.state.showPanelProgram ? <ASComposerSongProgramsPanel composer={this} /> : null}
-                {/*</div>*/}
-                {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}
-
-                <ASCTracksContainer
+            <ASUILogContext.Provider
+                value={{addLogEntry: this.cb.addLogEntry}}>
+                <ASComposerContainer
+                    ref={this.ref.container}
                     composer={this}
-                    />
-                {this.renderWebViewProxy()}
-            </ASComposerContainer>
+                    >
+                    {/*<div className="asui-panel-container">*/}
+                    {this.state.showPanelSong ? <ASComposerSongPanel composer={this} ref={this.ref.panelSong} /> : null}
+                    <div className="asui-panel-container-horizontal">
+                        {this.state.showPanelInstruction ? <ASComposerInstructionPanel composer={this} /> : null}
+                        {this.state.showPanelTrack ? <ASComposerTrackPanel composer={this} /> : null}
+                    </div>
+                    {this.state.showPanelProgram ? <ASComposerSongProgramsPanel composer={this} /> : null}
+                    {/*</div>*/}
+                    {/*{this.state.showPanelKeyboard ? <ASComposerKeyboardPanel composer={this} /> : null}*/}
+
+                    <ASCTracksContainer
+                        composer={this}
+                        />
+                    {this.renderWebViewProxy()}
+                </ASComposerContainer>
+            </ASUILogContext.Provider>
         );
     }
 //                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}

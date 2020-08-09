@@ -29,6 +29,7 @@ export default class ASUIClickable extends ASUIClickableBase {
         );
     }
 
+    /** @deprecated **/
     renderContainer() {
         const style = this.getContainerStyle();
         return <View

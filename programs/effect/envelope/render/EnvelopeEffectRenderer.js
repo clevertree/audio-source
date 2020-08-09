@@ -2,9 +2,9 @@ import React from 'react';
 
 import {
     ASUIButtonDropDown,
-    ASUIInputRange
+    ASUIInputRange, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem
 } from "../../../../components";
-import {ProgramLoader} from "../../../../common/";
+import {ASUILogContext, ProgramLoader, PromptManager} from "../../../../common/";
 
 import EnvelopeEffectRendererContainer from "./container/EnvelopeEffectRendererContainer";
 
@@ -14,6 +14,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
         this.cb = {
             onClick: e => this.toggleOpen(),
             renderMenuRoot: () => this.renderMenuRoot(),
+            renderMenuAddVoice: () => this.renderMenuAddVoice(),
             // renderMenuChange: (paramName) => this.renderMenuChange(paramName),
             parameterMenu: {
                 attack: () => this.renderMenuChange('attack'),
@@ -77,7 +78,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 title="Add voice"
                 className="add-voice"
                 arrow={false}
-                options={() => this.renderMenuAddVoice()}>
+                options={this.cb.renderMenuAddVoice}>
                 Set Voice
             </ASUIButtonDropDown>;
         }
@@ -130,17 +131,84 @@ export default class EnvelopeEffectRenderer extends React.Component {
         this.props.config[paramName] = newValue;
     }
 
+
+
+    async addVoicePrompt(instrumentClassName, instrumentConfig) {
+        const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
+        if (await PromptManager.openConfirmDialog(`Add voice class '${title}' to this Instrument?`)) {
+            this.addVoice(instrumentClassName, instrumentConfig);
+
+        } else {
+            this.setError(`New voice canceled: ${instrumentClassName}`);
+        }
+
+    }
+
+
+    addVoice(instrumentClassName, instrumentConfig={}) {
+        if (!instrumentClassName)
+            throw new Error(`Invalid voice instrument class`);
+
+        const config = this.props.config;
+        config.voice = [instrumentClassName, instrumentConfig || {}];
+        this.setStatus(`Instrument '${instrumentClassName}' set as voice`);
+    }
+
+
+    removeVoice() {
+        const config = this.props.config;
+        config.voice = null;
+    }
+
     /** Menu **/
 
+    renderMenuRoot() {
+        const config = this.props.config;
+        return (<>
+            <ASUIMenuAction onAction={()=>{}} disabled>{`Envelope Effect`}</ASUIMenuAction>
+            <ASUIMenuBreak />
+            {!config.voice
+                ? <ASUIMenuDropDown options={() => this.renderMenuAddVoice()}>Add Voice</ASUIMenuDropDown>
+                : <ASUIMenuAction onAction={() => this.removeVoice()}>Remove Voice</ASUIMenuAction>}
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuChange('attack')}>Edit Mixer</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('hold')}>Edit Hold</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('delay')}>Edit Delay</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('sustain')}>Edit Sustain</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('release')}>Edit Release</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
+            <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Envelope</ASUIMenuAction>
+        </>);
+    }
+
+    renderMenuAddVoice() {
+        return (<>
+            <ASUIMenuItem>Add another Voice</ASUIMenuItem>
+            <ASUIMenuBreak/>
+            {ProgramLoader.getRegisteredPrograms().map(({className, title}, i) =>
+                <ASUIMenuAction key={i} onAction={() => this.addVoicePrompt(className)}>{title}</ASUIMenuAction>
+            )}
+        </>)
+        // return Values.renderMenuSelectAvailableInstrument((instrumentClass) => {
+        //     this.addVoice(instrumentClass);
+        // }, "Add new program as voice")
+    }
 
 
     renderMenuChange(paramName) {
         const config = this.props.config;
+        const value = config[paramName];
         return <ASUIInputRange
             min={0}
             max={100}
-            value={typeof config.mixer !== "undefined" ? config.mixer : 100}
-            onChange={(mixerValue) => this.changeMixer(mixerValue)}
+            value={typeof value !== "undefined" ? value : 100}
+            onChange={(mixerValue) => this.changeParam(mixerValue)}
         />;
     }
+
+    /** Menu Context **/
+    static contextType = ASUILogContext;
+
+    setStatus(message) { this.context && this.context.addLogEntry(message); }
+    setError(message) { this.context && this.context.addLogEntry(message, 'error'); }
 }

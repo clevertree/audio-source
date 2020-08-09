@@ -27,7 +27,7 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     }
 
     isHoverEnabled() {
-        return !this.props.isActive; //  && (this.state.openOverlay || this.openMenus.length > 0);
+        return !this.props.portrait; //  && (this.state.openOverlay || this.openMenus.length > 0);
     }
 
     getOpenMenuCount() { return this.openMenus.length; }
@@ -64,8 +64,8 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     }
 
     openMenu(options) {
-        if(!this.props.isActive)
-            return false;
+        // if(!this.props.portrait)
+        //     return false;
 
 
         // Delay menu open

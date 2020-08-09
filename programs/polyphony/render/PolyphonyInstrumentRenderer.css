@@ -48,6 +48,7 @@ div.polyphony-instrument-renderer > div.voices {
 
 div.polyphony-instrument-renderer > div.voices > div.voice {
     display: inline-flex;
+    vertical-align: top;
     /*margin: 3px;*/
 
     /*padding: 4px;*/
