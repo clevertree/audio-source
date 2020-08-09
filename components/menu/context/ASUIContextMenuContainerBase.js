@@ -69,8 +69,8 @@ export default class ASUIContextMenuContainerBase extends React.Component {
             this.restoreActiveElementFocus();
     }
 
-    openContextMenu(props, parentMenu, position) {
-        console.log('ASUIContextMenuContainerBase.openContextMenu', props, parentMenu, position)
+    openContextMenu(props, parentMenu) {
+        console.log('ASUIContextMenuContainerBase.openContextMenu', props, parentMenu)
         // Delay menu open
         setTimeout(() => {
             if (this.props.portrait) {

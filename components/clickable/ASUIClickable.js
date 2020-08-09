@@ -55,7 +55,7 @@ export default class ASUIClickable extends ASUIClickableBase {
     onMouseEnter(e) {
         // TODO: close all opened that aren't hovered
         clearTimeout(this.timeoutMouseLeave);
-        this.hoverDropDown();
+        this.hoverDropDown(e);
         // TODO: *OR* keep track of 'leaving' state?
     }
 
@@ -63,7 +63,6 @@ export default class ASUIClickable extends ASUIClickableBase {
 
     /** Hover **/
 
-    // TODO: move to ASUIDropDownContainer
 
     isHoverEnabled() {
         if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())

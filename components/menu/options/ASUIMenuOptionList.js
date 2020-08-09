@@ -35,10 +35,14 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
         if (this.props.vertical)
             className += ' vertical';
         const style = {};
-        if(this.props.clientPosition) {
+        if(this.props.x || this.props.y) {
             style.position = 'fixed';
-            style.left = this.props.clientPosition[0];
-            style.top = this.props.clientPosition[1];
+            if(typeof this.props.x !== "undefined") {
+                style.left = this.props.x;
+            }
+            if(typeof this.props.y !== "undefined") {
+                style.top = this.props.y;
+            }
         }
         if(this.props.floating !== false)
             className += ' floating';

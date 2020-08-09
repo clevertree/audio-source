@@ -13,8 +13,8 @@ export default class ASUIClickable extends React.Component {
         super(props);
         this.cb = {
             onMouseInput: e => this.onMouseInput(e),
-            onKeyDown: e => this.onKeyDown(e),
             onMouseEnter: null,
+            onKeyDown: e => this.onKeyDown(e),
             onMouseLeave: null,
         };
         this.ref = {
