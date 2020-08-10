@@ -53,10 +53,8 @@ export default class ASUIClickable extends ASUIClickableBase {
     /** User Input **/
 
     onMouseEnter(e) {
-        // TODO: close all opened that aren't hovered
         clearTimeout(this.timeoutMouseLeave);
         this.hoverDropDown(e);
-        // TODO: *OR* keep track of 'leaving' state?
     }
 
 
@@ -65,11 +63,11 @@ export default class ASUIClickable extends ASUIClickableBase {
 
 
     isHoverEnabled() {
-        if(!this.getOverlay() || !this.getOverlay().isHoverEnabled())
-            return false;
-        const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
+        return !(!this.getOverlay() || !this.getOverlay().isHoverEnabled());
+
+        // const openDropDownMenus = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container')
         // console.log('openDropDownMenus', openDropDownMenus);
-        return openDropDownMenus.length > 0;
+        // return openDropDownMenus.length > 0;
     }
 
     hoverDropDown() {

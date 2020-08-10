@@ -43,7 +43,7 @@ export default class ASCTrackRowContainer extends ASCTrackRowContainerBase {
                     ref={this.dropdown}
                     options={this.cb.options}
                     vertical={true}
-                    onClose={e => this.toggleDropDownMenu(e)}
+                    // onClose={e => this.toggleDropDownMenu(e)}
                 /> : null}
             </div>
     }

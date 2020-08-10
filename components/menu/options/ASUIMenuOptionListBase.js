@@ -46,11 +46,12 @@ export default class ASUIMenuOptionListBase extends React.Component {
         this.cb = {
             onKeyDown: e => this.onKeyDown(e)
         }
+        // console.log(`${this.constructor.name}.constructor`, props);
     }
 
 
     componentDidMount() {
-        console.log(`${this.constructor.name}.componentDidMount`);
+        // console.log(`${this.constructor.name}.componentDidMount`);
 
         this.setOptions(this.props.options);
     }

@@ -252,7 +252,7 @@ class OscillatorInstrumentRenderer extends React.Component {
                 min={0}
                 max={100}
                 value={typeof config.mixer !== "undefined" ? config.mixer : 100}
-                onChange={(mixerValue) => this.changeMixer(mixerValue)}
+                onChange={(mixerValue) => this.changeParam('mixer', mixerValue)}
                />
                <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
             </>);
@@ -265,7 +265,7 @@ class OscillatorInstrumentRenderer extends React.Component {
                 min={-1000}
                 max={1000}
                 value={typeof config.detune !== "undefined" ? config.detune : 100}
-                onChange={(detuneValue) => this.changeDetune(detuneValue)}
+                onChange={(detuneValue) => this.changeParam('detune', detuneValue)}
                 />
             <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
         </>);

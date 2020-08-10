@@ -31,21 +31,22 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
         if(!optionArray)
             return null;
 
-        let className = 'asui-dropdown-container';
+        let className = 'asui-menu-option-list';
         if (this.props.vertical)
             className += ' vertical';
         const style = {};
-        if(this.props.x || this.props.y) {
-            style.position = 'fixed';
-            if(typeof this.props.x !== "undefined") {
-                style.left = this.props.x;
-            }
-            if(typeof this.props.y !== "undefined") {
-                style.top = this.props.y;
+        if(this.props.floating !== false) {
+            className += ' floating';
+            if (this.props.x || this.props.y) {
+                style.position = 'fixed';
+                if (typeof this.props.x !== "undefined") {
+                    style.left = this.props.x;
+                }
+                if (typeof this.props.y !== "undefined") {
+                    style.top = this.props.y;
+                }
             }
         }
-        if(this.props.floating !== false)
-            className += ' floating';
 
         const positionSelected = this.state.positionSelected;
 

@@ -82,6 +82,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     }
 
     toggleMenu(e) {
+        console.log('open', this.state.open);
         if (!this.state.open)
             this.openDropDownMenu(e);
             // else if (!this.state.stick)
@@ -95,7 +96,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     /** Hover **/
 
     hoverDropDown(e) {
-        // console.log('hoverDropDown', this.state.open === true, !this.isHoverEnabled())
+        // console.log('hoverDropDown', this.state.open, this.isHoverEnabled())
         if(this.state.open === true || !this.isHoverEnabled())
             return;
         // this.getOverlay().closeAllMenus();

@@ -2,6 +2,7 @@ import React from "react";
 
 import ASUIContextMenuContext from "./ASUIContextMenuContext";
 
+let menuIDCounter=0;
 export default class ASUIContextMenu extends React.Component {
 
     constructor(props) {
@@ -15,23 +16,16 @@ export default class ASUIContextMenu extends React.Component {
     /** @return {ASUIContextMenuContainer} **/
     getOverlay() { return this.context.overlay; }
 
-    /** @return {ASUIMenuOptionList} **/
-    getParentMenu() { return this.context.parentMenu; }
-    getParentMenus() {
-        const menus = [];
-        let menu = this.getParentMenu();
-        while(menu) {
-            menus.push(menu);
-            menu = menu.getParentMenu()
-        }
-        return menus;
-    }
-
     componentDidMount() {
+        /** @return {ASUIMenuOptionList} **/
+        const parentMenu = this.context.parentMenu;
+        let menuPath = parentMenu ? parentMenu.props.menuPath : '';
+        menuPath += (menuPath ? '-' : '' ) + menuIDCounter++;
         const props = Object.assign({
-            parentMenu: this.getParentMenu()
+            menuPath,
+            parentMenu
         }, this.props);
-        this.getOverlay().openContextMenu(props, this.getParentMenus());
+        this.getOverlay().openContextMenu(props);
     }
 
     render() {
