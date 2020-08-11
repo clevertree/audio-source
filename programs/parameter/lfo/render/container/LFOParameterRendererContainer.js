@@ -1,14 +1,13 @@
 import React from 'react';
 
-import "./OscillatorInstrumentRendererContainer.css";
+import "./LFOParameterRendererContainer.css";
 import {ASUIButton, ASUIButtonDropDown} from "../../../../../components/";
 import {ASUIIcon} from "../../../../../components";
-import {ProgramLoader} from "../../../../../common";
 
 
-export default class OscillatorInstrumentRendererContainer extends React.Component {
+export default class LFOParameterRendererContainer extends React.Component {
     render() {
-        let className = "oscillator-instrument-container";
+        let className = "lfo-parameter-container";
         const open = this.props.config.open;
         if(open)
             className += ' open';
@@ -19,12 +18,11 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
             <div className="header"
                  title={title}>
                 <ASUIButton
-                    // title={`Oscillator: ${title}`}
                     className="toggle-container"
                     selected={open}
                     onAction={this.props.onClick}
                 >
-                    <ASUIIcon source="instrument-oscillator"/>
+                    <ASUIIcon source="lfo-parameter"/>
                     {title}
                 </ASUIButton>
                 <ASUIButtonDropDown
@@ -36,7 +34,6 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
                 </ASUIButtonDropDown>
             </div>
             {open ? this.renderParameters() : null}
-            {this.renderLFOs()}
         </div>;
     }
 
@@ -52,17 +49,4 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
             </div>
         )
     }
-
-    renderLFOs() {
-        const lfos = this.props.lfos;
-        if(!lfos || lfos.length === 0)
-            return null;
-
-        return (
-            <div className="lfos">
-                {lfos}
-            </div>
-        )
-    }
-
 }

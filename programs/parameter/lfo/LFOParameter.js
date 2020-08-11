@@ -5,7 +5,7 @@ export default class LFOParameter {
     constructor(config={}) {
         // console.log('OscillatorInstrument', config);
         this.config = config;
-        this.playingOSCs = [];
+        this.playingLFOs = [];
     }
 
     /** Command Args **/
@@ -16,25 +16,35 @@ export default class LFOParameter {
 
     /** Playback **/
 
-    addLFO(destination, parameter) {
-        // TODO: vibrato LFO effect on parameters? don't wrap effect, just include it in instrument
-        let vibratoLFO = destination.context.createOscillator();
-        vibratoLFO.frequency.value = 5;
-
-        let gainLFO = destination.context.createGain();
-        gainLFO.gain.value = 10;
-        gainLFO.connect(parameter);
-
-        vibratoLFO.connect(gainLFO);
-        vibratoLFO.start(startTime);
-
-
-        return vibratoLFO;
-
-    }
-
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
-        // TODO: lfo or play?
+        let LFO = destination.context.createOscillator();
+        if(typeof this.config.frequency !== "undefined")
+            LFO.frequency.value = this.config.frequency;
+
+        let amplitudeGain = destination.context.createGain();
+        if(typeof this.config.amplitude !== "undefined")
+            amplitudeGain.gain.value = this.config.amplitude;
+        amplitudeGain.connect(destination);
+
+        LFO.connect(destination);
+        LFO.start(startTime);
+
+        if(duration !== null) {
+            if(duration instanceof Promise) {                // Support for duration promises
+                duration.then(() => LFO.stop());
+            } else {
+                LFO.stop(startTime + duration);
+            }
+        }
+
+
+        this.playingLFOs.push(LFO);
+        LFO.onended = () => {
+            const i = this.playingLFOs.indexOf(LFO);
+            if(i !== -1)
+                this.playingLFOs.splice(i, 1);
+        };
+        return LFO;
     }
 
 
@@ -43,14 +53,14 @@ export default class LFOParameter {
     stopPlayback() {
         // Stop all active sources
         // console.log("OscillatorInstrument.stopPlayback", this.playingOSCs);
-        for (let i = 0; i < this.playingOSCs.length; i++) {
+        for (let i = 0; i < this.playingLFOs.length; i++) {
             // try {
-                this.playingOSCs[i].stop();
+                this.playingLFOs[i].stop();
             // } catch (e) {
             //     console.warn(e);
             // }
         }
-        this.playingOSCs = [];
+        this.playingLFOs = [];
     }
 
 

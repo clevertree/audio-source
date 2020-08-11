@@ -1,14 +1,8 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
-import {ArgType} from "../../../common/";
+import {ArgType, ProgramLoader} from "../../../common/";
 
 
 export default class OscillatorInstrument {
-    constructor(config={}) {
-        // console.log('OscillatorInstrument', config);
-        this.config = config;
-        this.playingOSCs = [];
-    }
-
     /** Command Args **/
     static argTypes = {
         playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
@@ -19,6 +13,48 @@ export default class OscillatorInstrument {
     static commandAliases = {
         pf: "playFrequency",
         bt: "pitchBendTo",
+    }
+
+
+    constructor(config={}) {
+        // console.log('OscillatorInstrument', config);
+        this.config = config;
+        this.playingOSCs = [];
+        this.loadedLFOs = [];
+        this.loading = this.loadLFOs();
+    }
+
+    /** Async loading **/
+
+    async waitForAssetLoad() {
+        await this.loading;
+    }
+
+    /** Loading **/
+
+    loadLFO(lfoID) {
+        if(this.loadedLFOs[lfoID])
+            return this.loadedLFOs[lfoID];
+        if(!this.config.lfos[lfoID])
+            throw new Error("LFO config is missing: " + lfoID);
+        const [voiceClassName, voiceConfig] = this.config.lfos[lfoID];
+        let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+        const loadedVoice = new lfoClass(voiceConfig);
+        this.loadedLFOs[lfoID] = loadedVoice;
+        return loadedVoice;
+    }
+
+    async loadLFOs() {
+
+        const promises = [];
+        const lfos = this.config.lfos || [];
+        for (let i = 0; i < lfos.length; i++) {
+            const lfo = this.loadLFO(i);
+            if(typeof lfo.waitForAssetLoad === "function")
+                promises.push(lfo.waitForAssetLoad());
+        }
+        for(let i=0; i < promises.length; i++)
+            await promises[i];
     }
 
 
@@ -77,12 +113,12 @@ export default class OscillatorInstrument {
 
         // Velocity
 //         console.log('velocity', velocity);
-        if(velocity !== null) {
-            let velocityGain = destination.context.createGain();
-            velocityGain.gain.value = parseFloat(velocity || 127) / 127;
-            velocityGain.connect(destination);
-            destination = velocityGain;
-        }
+//         if(velocity !== null) {
+//             let velocityGain = destination.context.createGain();
+//             velocityGain.gain.value = parseFloat(velocity || 127) / 127;
+//             velocityGain.connect(destination);
+//             destination = velocityGain;
+//         }
 
         // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
         const osc = destination.context.createOscillator();   // instantiate an oscillator
@@ -111,13 +147,9 @@ export default class OscillatorInstrument {
         // TODO: vibrato LFO effect on parameters? don't wrap effect, just include it in instrument
         let vibratoLFO = destination.context.createOscillator();
         vibratoLFO.frequency.value = 5;
-
-        let gainLFO = destination.context.createGain();
-        gainLFO.gain.value = 10;
-        gainLFO.connect(osc.frequency);
-
-        vibratoLFO.connect(gainLFO);
-        vibratoLFO.start(startTime);
+        for(const LFO of this.loadedLFOs) {
+            LFO.playFrequency(destination, frequency, startTime, duration, velocity);
+        }
 
         // TODO: mixer AudioParam
 

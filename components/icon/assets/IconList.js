@@ -22,6 +22,8 @@ const icons = {
     'config':                   require('./img/config.icon.png'),
     'source':                   require('./img/source.icon.png'),
 
+    'lfo-parameter':            require('./img/effect-envelope.icon.png'),
+
     'effect-envelope':          require('./img/effect-envelope.icon.png'),
 
     'instrument-oscillator':    require('./img/instrument-oscillator.icon.png'),

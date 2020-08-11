@@ -46,7 +46,7 @@ class Song {
                         type: 'sawtooth',
                         lfos: [
                             ['lfo', {
-
+                                parameter: 'frequency',
                                 frequency: 5,
                                 amplitude: 10
                             }]

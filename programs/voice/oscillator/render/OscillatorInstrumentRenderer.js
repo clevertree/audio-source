@@ -8,6 +8,7 @@ import {
 import LibraryIterator from "../../../../song/library/LibraryIterator";
 import Values from "../../../../common/values/Values";
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
+import {ProgramLoader} from "../../../../common";
 
 
 class OscillatorInstrumentRenderer extends React.Component {
@@ -88,11 +89,28 @@ class OscillatorInstrumentRenderer extends React.Component {
             },
         ];
 
+        let lfos = [];
+        if(config.lfos) {
+            lfos = config.lfos.map((lfo, i) => {
+                const [className, config] = lfo;
+                const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+
+                return <Renderer
+                    onRemove={this.cb.onRemove}
+                    instrumentID={i}
+                    config={config}
+                    program={lfo}
+                />;
+
+            })
+        }
+
         return <OscillatorInstrumentRendererContainer
             onClick={this.cb.onClick}
             renderMenuRoot={this.cb.renderMenu.root}
             config={this.props.config}
             parameters={parameters}
+            lfos={lfos}
             title={title}
         >
         </OscillatorInstrumentRendererContainer>;

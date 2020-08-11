@@ -1,0 +1,74 @@
+
+/** Container **/
+div.lfo-parameter-container  {
+    margin: 2px;
+    padding: 4px;
+    color: #000;
+    border: 1px outset #FFF;
+    border-radius: 4px;
+    background-color: #dabbf8;
+    position: relative;
+}
+
+
+/** Header **/
+div.lfo-parameter-container > div.header {
+    display: flex;
+}
+div.lfo-parameter-container > div.header > div.toggle-container {
+    flex-basis: 100%;
+}
+
+
+
+
+/** Parameters **/
+div.lfo-parameter-container > div.parameters {
+    margin: 0 0px 2px 0px;
+    padding: 4px;
+    /*border-radius: 0 0 4px 4px;*/
+    /*border: 1px inset #EEE;*/
+    /*border-top-width: 0px;*/
+    /*background-color: #CCC;*/
+    animation: slideDownOpen 0.4s ease-in;
+}
+
+div.lfo-parameter-container > div.parameters > div {
+    /*border-bottom: 1px solid #AAA;*/
+    display: flex;
+    padding: 1px;
+}
+div.lfo-parameter-container > div.parameters > div > div.label {
+    text-align: right;
+    font-size: small;
+    padding: 4px 4px 0 0;
+    width: 55px;
+    overflow: hidden;
+}
+
+/** Hover **/
+
+
+div.lfo-parameter-container > div:hover {
+    /*background: #AAA;*/
+    /*color: #000;*/
+    /*cursor: pointer;*/
+    /*border-radius: 4px;*/
+}
+
+/** Transition **/
+
+
+@keyframes slideDownOpen {
+    0% {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 300px;
+    }
+    100% {
+        max-height: inherit;
+        overflow-y: inherit;
+    }
+}
