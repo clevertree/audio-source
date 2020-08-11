@@ -41,14 +41,25 @@ class Song {
             beatsPerMeasure: 4,
             startTrack: 'root',
             programs: [ // Also called 'programs' or 'patches'
+                ['envelope', {
+                    voice: ['oscillator', {
+                        type: 'sawtooth',
+                        lfos: [
+                            ['lfo', {
+
+                                frequency: 5,
+                                amplitude: 10
+                            }]
+                        ]
+                    }],
+                }],
                 ['polyphony', {
                     voices: [
-                        ['oscillator', {
-                            type: 'sawtooth'
+                        ['audiobuffer', {
                         }],
                     ]}
                 ],
-                ['oscillator',{type: 'square'}],
+                ['oscillator', {type: 'square'}],
             ],
             tracks: {
                 root: [

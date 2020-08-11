@@ -3,6 +3,7 @@ import React from 'react';
 import "./OscillatorInstrumentRendererContainer.css";
 import {ASUIButton, ASUIButtonDropDown} from "../../../../../components/";
 import {ASUIIcon} from "../../../../../components";
+import {ProgramLoader} from "../../../../../common";
 
 
 export default class OscillatorInstrumentRendererContainer extends React.Component {
@@ -35,6 +36,7 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
                 </ASUIButtonDropDown>
             </div>
             {open ? this.renderParameters() : null}
+            {this.renderLFOs()}
         </div>;
     }
 
@@ -47,6 +49,28 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
                         <div>{props.children}</div>
                     </div>
                 ))}
+            </div>
+        )
+    }
+
+    renderLFOs() {
+        const lfos = this.props.config.lfos;
+        if(!lfos || lfos.length === 0)
+            return null;
+
+        return (
+            <div className="lfos">
+                {lfos.map((lfo, i) => {
+                    const [className, config] = lfo;
+                    const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+
+                    return <Renderer
+                        onRemove={this.cb.onRemove}
+                        instrumentID={0}
+                        config={config}
+                        program={lfo}
+                    />;
+                })}
             </div>
         )
     }

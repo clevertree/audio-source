@@ -22,7 +22,7 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
     renderVoice() {
         return (
             <div className="voice">
-                {this.props.children}
+                {this.props.voice}
             </div>
         );
     }

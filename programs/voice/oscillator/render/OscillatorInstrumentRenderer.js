@@ -61,11 +61,11 @@ class OscillatorInstrumentRenderer extends React.Component {
                 title:      'Edit Sample',
                 children:   this.renderInput('source'),
             },
-            {
-                label:      'Mixer',
-                title:      'Edit Mixer Amplitude',
-                children:   this.renderInput('mixer'),
-            },
+            // {
+            //     label:      'Mixer',
+            //     title:      'Edit Mixer Amplitude',
+            //     children:   this.renderInput('mixer'),
+            // },
             {
                 label:      'Detune',
                 title:      `Detune by ${config.detune} cents`,
@@ -119,16 +119,16 @@ class OscillatorInstrumentRenderer extends React.Component {
                 >{source}</ASUIButtonDropDown>
 
 
-            case 'mixer':
-                value = typeof config.mixer !== "undefined" ? config.mixer : 100;
-                return <ASUIInputRange
-                    className="small"
-                    min={0}
-                    max={100}
-                    value={value}
-                    children={`${value}%`}
-                    onChange={this.cb.changeParam.mixer}
-                />;
+            // case 'mixer':
+            //     value = typeof config.mixer !== "undefined" ? config.mixer : 100;
+            //     return <ASUIInputRange
+            //         className="small"
+            //         min={0}
+            //         max={100}
+            //         value={value}
+            //         children={`${value}%`}
+            //         onChange={this.cb.changeParam.mixer}
+            //     />;
 
             case 'detune':
                 value = typeof config.detune !== "undefined" ? config.detune : 0;
@@ -213,7 +213,7 @@ class OscillatorInstrumentRenderer extends React.Component {
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillator()}>Change Oscillator</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>
@@ -245,18 +245,18 @@ class OscillatorInstrumentRenderer extends React.Component {
 
 
 
-    renderMenuChangeMixer() {
-        const config = this.props.config;
-        return (<>
-            <ASUIInputRange
-                min={0}
-                max={100}
-                value={typeof config.mixer !== "undefined" ? config.mixer : 100}
-                onChange={(mixerValue) => this.changeParam('mixer', mixerValue)}
-               />
-               <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
-            </>);
-    }
+    // renderMenuChangeMixer() {
+    //     const config = this.props.config;
+    //     return (<>
+    //         <ASUIInputRange
+    //             min={0}
+    //             max={100}
+    //             value={typeof config.mixer !== "undefined" ? config.mixer : 100}
+    //             onChange={(mixerValue) => this.changeParam('mixer', mixerValue)}
+    //            />
+    //            <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
+    //         </>);
+    // }
 
     renderMenuChangeDetune() {
         const config = this.props.config;

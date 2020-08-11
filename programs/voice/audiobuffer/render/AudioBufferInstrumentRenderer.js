@@ -26,7 +26,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 source: () => this.renderMenuChangeAudioBuffer(),
             },
             changeParam: {
-                mixer:    (newValue) => this.changeParam('mixer', newValue),
+                // mixer:    (newValue) => this.changeParam('mixer', newValue),
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
@@ -58,11 +58,11 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 title:      'Edit Sample',
                 children:   this.renderInput('source'),
             },
-            {
-                label:      'Mixer',
-                title:      'Edit Mixer Amplitude',
-                children:   this.renderInput('mixer'),
-            },
+            // {
+            //     label:      'Mixer',
+            //     title:      'Edit Mixer Amplitude',
+            //     children:   this.renderInput('mixer'),
+            // },
             {
                 label:      'Detune',
                 title:      `Detune by ${config.detune} cents`,
@@ -116,16 +116,19 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 >{source}</ASUIButtonDropDown>
 
 
-            case 'mixer':
-                value = typeof config.mixer !== "undefined" ? config.mixer : 100;
-                return <ASUIInputRange
-                    className="small"
-                    min={0}
-                    max={100}
-                    value={value}
-                    children={`${value}%`}
-                    onChange={this.cb.changeParam.mixer}
-                />;
+            // case 'mixer':
+            //     value = typeof config.mixer !== "undefined" ? config.mixer : 100;
+            //     return [
+            //             <ASUIInputRange
+            //                 className="small"
+            //                 min={0}
+            //                 max={100}
+            //                 value={value}
+            //                 children={`${value}%`}
+            //                 onChange={this.cb.changeParam.mixer}
+            //             />,
+            //             <ASUIMenuAction onAction={() => true} >OK</ASUIMenuAction>
+            //         ];
 
             case 'detune':
                 value = typeof config.detune !== "undefined" ? config.detune : 0;
@@ -212,7 +215,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeAudioBuffer()}>Change AudioBuffer</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderInput('mixer')}>Edit Mixer</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderInput('mixer')}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>

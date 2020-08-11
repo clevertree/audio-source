@@ -17,6 +17,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
             renderMenuAddVoice: () => this.renderMenuAddVoice(),
             // renderMenuChange: (paramName) => this.renderMenuChange(paramName),
             parameterMenu: {
+                mixer: () => this.renderMenuChange('mixer'),
                 attack: () => this.renderMenuChange('attack'),
                 hold: () => this.renderMenuChange('hold'),
                 delay: () => this.renderMenuChange('delay'),
@@ -24,6 +25,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 release: () => this.renderMenuChange('release'),
             },
             changeParam: {
+                mixer:      (newValue) => this.changeParam('mixer', newValue),
                 attack:     (newValue) => this.changeParam('attack', newValue),
                 hold:       (newValue) => this.changeParam('hold', newValue),
                 delay:      (newValue) => this.changeParam('delay', newValue),
@@ -40,6 +42,11 @@ export default class EnvelopeEffectRenderer extends React.Component {
             renderMenuRoot={this.cb.renderMenuRoot}
             config={this.props.config}
             parameters={[
+                {
+                    label:      'Mixer',
+                    title:      'Edit Volume Mixer',
+                    children:   this.renderInput('mixer'),
+                },
                 {
                     label:      'Attack',
                     title:      'Edit Envelope Attack',
@@ -66,9 +73,8 @@ export default class EnvelopeEffectRenderer extends React.Component {
                     children:   this.renderInput('release'),
                 },
             ]}
-            >
-            {this.renderVoice()}
-        </EnvelopeEffectRendererContainer>;
+            voice={this.renderVoice()}
+            />;
     }
 
     renderVoice() {
@@ -87,11 +93,11 @@ export default class EnvelopeEffectRenderer extends React.Component {
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
 
         return <Renderer
-                    onRemove={this.cb.onRemove}
-                    instrumentID={0}
-                    config={config}
-                    program={voice}
-                />;
+            onRemove={this.cb.onRemove}
+            instrumentID={0}
+            config={config}
+            program={voice}
+        />;
     }
 
 
@@ -171,7 +177,8 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 ? <ASUIMenuDropDown options={() => this.renderMenuAddVoice()}>Add Voice</ASUIMenuDropDown>
                 : <ASUIMenuAction onAction={() => this.removeVoice()}>Remove Voice</ASUIMenuAction>}
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuChange('attack')}>Edit Mixer</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('mixer')}>Edit Mixer</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('attack')}>Edit Attack</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('hold')}>Edit Hold</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('delay')}>Edit Delay</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('sustain')}>Edit Sustain</ASUIMenuDropDown>

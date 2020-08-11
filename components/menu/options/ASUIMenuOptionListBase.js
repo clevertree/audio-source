@@ -95,7 +95,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
 
 
     closeDropDownMenu() {
-        this.props.onClose()
+        this.props.onClose();
     }
 
     async setOptions(options) {

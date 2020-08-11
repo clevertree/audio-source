@@ -2,7 +2,7 @@ import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
 import {ArgType} from "../../../common/";
 
 
-class OscillatorInstrument {
+export default class OscillatorInstrument {
     constructor(config={}) {
         // console.log('OscillatorInstrument', config);
         this.config = config;
@@ -192,4 +192,3 @@ class OscillatorInstrument {
     }
 }
 
-export default OscillatorInstrument;

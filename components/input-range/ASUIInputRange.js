@@ -21,6 +21,9 @@ class ASUIInputRange extends React.Component {
             onChange: e => this.onChange(e),
             onMouseUp: e => this.onClick(e),
         };
+        this.state = {
+            value: this.props.value
+        }
     }
 
     onClick(e) {
@@ -36,33 +39,34 @@ class ASUIInputRange extends React.Component {
         e.preventDefault();
         const newValue = parseFloat(e.target.value);
         this.props.onChange(newValue)
-        // this.setState({value: newValue});
+        this.setState({value: newValue});
     }
 
     render() {
+        const value = this.state.value;
         let className = "asui-input-range";
         if(this.props.className)
             className += ' ' + this.props.className;
-        if((this.props.value - this.props.min) / (this.props.max - this.props.min) < 0.3)
+        if((value - this.props.min) / (this.props.max - this.props.min) < 0.3)
             className += ' value-right';
         return <div
             className={className}
             >
             <div
                 className="value"
-                children={this.props.children || this.props.value}
+                children={this.props.children || value}
                 />
             <input
                 key="input"
                 type="range"
-                value={this.props.value}
+                value={value}
                 onChange={this.cb.onChange}
                 onMouseUp={this.cb.onMouseUp}
                 min={this.props.min}
                 max={this.props.max}
                 step={this.props.step}
                 name={this.props.name}
-                title={this.props.title || "Value: " + this.props.value}
+                title={this.props.title || "Value: " + value}
                 />
         </div>;
     }
