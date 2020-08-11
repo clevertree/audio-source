@@ -20,15 +20,15 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
                     {voices.map((voiceData, voiceID) => {
                         const [className, config] = voiceData;
                         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
-                        return <div className="voice">
+                        return (//<div className="voice">
                             <Renderer
                                 onRemove={this.cb.onRemove}
                                 key={voiceID}
                                 instrumentID={voiceID}
                                 config={config}
                                 program={voiceData}
-                            />
-                            </div>
+                            />);
+                            // </div>
                     })}
                 </div>
                 <ASUIButtonDropDown

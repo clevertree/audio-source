@@ -569,7 +569,7 @@ class Song {
         for (let programID = 0; programID < programList.length; programID++) {
             if (programList[programID]) {
                 const instance = this.programLoadInstanceFromID(programID);
-                console.log('instance', instance, programID);
+                // console.log('instance', instance, programID);
                 if(instance.waitForAssetLoad)
                     promises.push(instance.waitForAssetLoad());
             }

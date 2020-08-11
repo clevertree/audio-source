@@ -111,14 +111,6 @@ export default class OscillatorInstrument {
         //         if (voiceConfig.keyHigh && this.getCommandFrequency(voiceConfig.keyHigh) < frequencyValue)
         //             continue;
 
-        // Velocity
-//         console.log('velocity', velocity);
-//         if(velocity !== null) {
-//             let velocityGain = destination.context.createGain();
-//             velocityGain.gain.value = parseFloat(velocity || 127) / 127;
-//             velocityGain.connect(destination);
-//             destination = velocityGain;
-//         }
 
         // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
         const osc = destination.context.createOscillator();   // instantiate an oscillator
@@ -144,14 +136,10 @@ export default class OscillatorInstrument {
                 break;
         }
 
-        // TODO: vibrato LFO effect on parameters? don't wrap effect, just include it in instrument
-        let vibratoLFO = destination.context.createOscillator();
-        vibratoLFO.frequency.value = 5;
         for(const LFO of this.loadedLFOs) {
-            LFO.playFrequency(destination, frequency, startTime, duration, velocity);
+            LFO.playFrequency(osc, frequency, startTime, duration, velocity);
         }
 
-        // TODO: mixer AudioParam
 
 
         osc.connect(destination);

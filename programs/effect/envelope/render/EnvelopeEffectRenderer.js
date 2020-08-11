@@ -109,7 +109,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
             default:
                 const value = typeof config[paramName] !== "undefined" ? config[paramName] : 100;
                 return <ASUIInputRange
-                    className="small"
+                    // className="small"
                     min={0}
                     max={100}
                     value={value}

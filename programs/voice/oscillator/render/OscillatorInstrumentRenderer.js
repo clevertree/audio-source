@@ -3,15 +3,20 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIIcon, ASUIButtonDropDown,
+    ASUIMenuDropDown, ASUIButtonDropDown,
 } from "../../../../components";
 import LibraryIterator from "../../../../song/library/LibraryIterator";
-import Values from "../../../../common/values/Values";
+import {Values, ProgramLoader} from "../../../../common";
+
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
-import {ProgramLoader} from "../../../../common";
 
 
 class OscillatorInstrumentRenderer extends React.Component {
+    static sourceParameters = {
+        frequency: "Oscillator Frequency",
+        detune: "Oscillator Detune",
+    };
+
     constructor(props) {
         super(props);
         this.state = {
@@ -96,10 +101,12 @@ class OscillatorInstrumentRenderer extends React.Component {
                 const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
 
                 return <Renderer
+                    key={i}
                     onRemove={this.cb.onRemove}
                     instrumentID={i}
                     config={config}
                     program={lfo}
+                    parameters={this.constructor.sourceParameters}
                 />;
 
             })
@@ -151,7 +158,7 @@ class OscillatorInstrumentRenderer extends React.Component {
             case 'detune':
                 value = typeof config.detune !== "undefined" ? config.detune : 0;
                 return <ASUIInputRange
-                    className="small"
+                    // className="small"
                     min={-1000}
                     max={1000}
                     value={value}
@@ -163,7 +170,7 @@ class OscillatorInstrumentRenderer extends React.Component {
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.root}
-                >{config.root ? config.root : "No Key Root"}</ASUIButtonDropDown>
+                >{config.root ? config.root : "-"}</ASUIButtonDropDown>
 
             case 'alias':
                 return <ASUIButtonDropDown

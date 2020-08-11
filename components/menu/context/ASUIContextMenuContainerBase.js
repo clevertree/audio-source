@@ -1,6 +1,5 @@
 import React from "react";
 import ASUIContextMenuContext from "./ASUIContextMenuContext";
-import ASUIMenuOptionList from "../options/ASUIMenuOptionList";
 
 export default class ASUIContextMenuContainerBase extends React.Component {
     constructor(props) {
@@ -120,19 +119,4 @@ export default class ASUIContextMenuContainerBase extends React.Component {
     }
 
 
-}
-
-
-/**
- *
- * @param {ASUIMenuOptionList} menu
- * @returns {[]}
- */
-function getParentMenus(menu) {
-    const menus = [];
-    while(menu) {
-        menus.push(menu);
-        menu = menu.getParentMenu()
-    }
-    return menus;
 }

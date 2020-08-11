@@ -36,14 +36,19 @@ div.lfo-parameter-container > div.parameters {
 div.lfo-parameter-container > div.parameters > div {
     /*border-bottom: 1px solid #AAA;*/
     display: flex;
+    flex-direction: row;
     padding: 1px;
+}
+div.lfo-parameter-container > div.parameters > div > div {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
 }
 div.lfo-parameter-container > div.parameters > div > div.label {
     text-align: right;
     font-size: small;
-    padding: 4px 4px 0 0;
-    width: 55px;
-    overflow: hidden;
+    padding: 3px 8px 3px 0;
+    flex: 1;
 }
 
 /** Hover **/

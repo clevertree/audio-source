@@ -2,11 +2,9 @@ import React from 'react';
 import {
     ASUIMenuAction,
     ASUIMenuBreak,
-    ASUIInputRange,
-    ASUIMenuDropDown, ASUIIcon, ASUIButtonDropDown,
+    ASUIInputRange, ASUIButtonDropDown, ASUIMenuDropDown, ASUIMenuItem,
 } from "../../../../components";
 import LibraryIterator from "../../../../song/library/LibraryIterator";
-import Values from "../../../../common/values/Values";
 import LFOParameterRendererContainer from "./container/LFOParameterRendererContainer";
 
 
@@ -22,19 +20,16 @@ class LFOParameterRenderer extends React.Component {
                 root: () => this.renderMenuRoot(),
             },
             renderParamMenu: {
-                root: () => this.renderMenuChangeKeyRoot(),
-                alias: () => this.renderMenuChangeKeyAlias(),
-                range: () => this.renderMenuChangeKeyRange(),
-                source: () => this.renderMenuChangeOscillator(),
+                parameter: () => this.renderMenuChangeSourceParameter(),
             },
             changeParam: {
-                mixer:    (newValue) => this.changeParam('mixer', newValue),
-                detune:   (newValue) => this.changeParam('detune', newValue),
+                frequency:    (newValue) => this.changeParam('frequency', newValue),
+                amplitude:   (newValue) => this.changeParam('amplitude', newValue),
             },
         };
         this.library = LibraryIterator.loadDefault();
 
-        console.log(`${this.constructor.name}.constructor`, props);
+        // console.log(`${this.constructor.name}.constructor`, props);
     }
 
 
@@ -59,6 +54,11 @@ class LFOParameterRenderer extends React.Component {
         const config = this.props.config;
 
         const parameters = [
+            {
+                label:      'Parameter',
+                title:      `Parameter to automate`,
+                children:   this.renderInput('parameter'),
+            },
             {
                 label:      'Frequency',
                 title:      `Frequency in ${config.frequency} cents`,
@@ -85,13 +85,19 @@ class LFOParameterRenderer extends React.Component {
     /** Inputs **/
 
     renderInput(paramName) {
-        let value;
         const config = this.props.config;
         switch(paramName) {
+
+            case 'parameter':
+                return <ASUIButtonDropDown
+                    className="small"
+                    options={this.cb.renderParamMenu.parameter}
+                >{config.parameter ? config.parameter : "No Param"}</ASUIButtonDropDown>
+
             default:
                 const value = typeof config[paramName] !== "undefined" ? config[paramName] : 100;
                 return <ASUIInputRange
-                    className="small"
+                    // className="small"
                     min={0}
                     max={100}
                     value={value}
@@ -125,6 +131,16 @@ class LFOParameterRenderer extends React.Component {
         </>);
     }
 
+    renderMenuChangeSourceParameter() {
+        const parameters = this.props.parameters;
+        return (<>
+            <ASUIMenuItem>Choose Source Parameter</ASUIMenuItem>
+            <ASUIMenuBreak/>
+            {Object.keys(parameters).map(parameter =>
+                <ASUIMenuAction onAction={e => this.changeParam('parameter', parameter)}>{parameters[parameter]}</ASUIMenuAction>
+            )}
+        </>);
+    }
 }
 
 export default LFOParameterRenderer;

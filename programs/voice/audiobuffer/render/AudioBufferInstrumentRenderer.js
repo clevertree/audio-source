@@ -145,7 +145,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.root}
-                >{config.root ? config.root : "No Key Root"}</ASUIButtonDropDown>
+                >{config.root ? config.root : "-"}</ASUIButtonDropDown>
 
             case 'alias':
                 return <ASUIButtonDropDown

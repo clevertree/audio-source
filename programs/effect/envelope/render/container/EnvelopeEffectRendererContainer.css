@@ -49,12 +49,16 @@ div.envelope-effect-container > div.parameters > div {
     display: flex;
     padding: 1px;
 }
+div.envelope-effect-container > div.parameters > div > div {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
 div.envelope-effect-container > div.parameters > div > div.label {
     text-align: right;
     font-size: small;
     padding: 4px 4px 0 0;
-    width: 65px;
-    overflow: hidden;
+    flex: 1;
 }
 
 

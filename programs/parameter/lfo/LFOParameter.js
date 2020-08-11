@@ -24,7 +24,12 @@ export default class LFOParameter {
         let amplitudeGain = destination.context.createGain();
         if(typeof this.config.amplitude !== "undefined")
             amplitudeGain.gain.value = this.config.amplitude;
-        amplitudeGain.connect(destination);
+        let parameter = destination;
+        if(this.config.parameter)
+            parameter = destination[this.config.parameter];
+        if(!parameter instanceof AudioParam)
+            throw new Error("Invalid LFO destination");
+        amplitudeGain.connect(parameter);
 
         LFO.connect(destination);
         LFO.start(startTime);
