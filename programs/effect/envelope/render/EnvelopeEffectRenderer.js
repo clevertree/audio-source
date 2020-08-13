@@ -17,7 +17,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
             renderMenuAddVoice: () => this.renderMenuAddVoice(),
             // renderMenuChange: (paramName) => this.renderMenuChange(paramName),
             parameterMenu: {
-                mixer: () => this.renderMenuChange('mixer'),
+                // mixer: () => this.renderMenuChange('mixer'),
                 attack: () => this.renderMenuChange('attack'),
                 hold: () => this.renderMenuChange('hold'),
                 delay: () => this.renderMenuChange('delay'),
@@ -25,7 +25,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 release: () => this.renderMenuChange('release'),
             },
             changeParam: {
-                mixer:      (newValue) => this.changeParam('mixer', newValue),
+                // mixer:      (newValue) => this.changeParam('mixer', newValue),
                 attack:     (newValue) => this.changeParam('attack', newValue),
                 hold:       (newValue) => this.changeParam('hold', newValue),
                 delay:      (newValue) => this.changeParam('delay', newValue),
@@ -42,11 +42,11 @@ export default class EnvelopeEffectRenderer extends React.Component {
             renderMenuRoot={this.cb.renderMenuRoot}
             config={this.props.config}
             parameters={[
-                {
-                    label:      'Mixer',
-                    title:      'Edit Volume Mixer',
-                    children:   this.renderInput('mixer'),
-                },
+                // {
+                //     label:      'Mixer',
+                //     title:      'Edit Volume Mixer',
+                //     children:   this.renderInput('mixer'),
+                // },
                 {
                     label:      'Attack',
                     title:      'Edit Envelope Attack',
@@ -73,32 +73,32 @@ export default class EnvelopeEffectRenderer extends React.Component {
                     children:   this.renderInput('release'),
                 },
             ]}
-            voice={this.renderVoice()}
+            // voice={this.renderVoice()}
             />;
     }
 
-    renderVoice() {
-        const voice = this.props.config.voice;
-        if(!voice) {
-            return <ASUIButtonDropDown
-                title="Add voice"
-                className="add-voice"
-                arrow={false}
-                options={this.cb.renderMenuAddVoice}>
-                Set Voice
-            </ASUIButtonDropDown>;
-        }
-
-        const [className, config] = voice;
-        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
-
-        return <Renderer
-            onRemove={this.cb.onRemove}
-            instrumentID={0}
-            config={config}
-            program={voice}
-        />;
-    }
+    // renderVoice() {
+    //     const voice = this.props.config.voice;
+    //     if(!voice) {
+    //         return <ASUIButtonDropDown
+    //             title="Add voice"
+    //             className="add-voice"
+    //             arrow={false}
+    //             options={this.cb.renderMenuAddVoice}>
+    //             Set Voice
+    //         </ASUIButtonDropDown>;
+    //     }
+    //
+    //     const [className, config] = voice;
+    //     const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+    //
+    //     return <Renderer
+    //         onRemove={this.cb.onRemove}
+    //         instrumentID={0}
+    //         config={config}
+    //         program={voice}
+    //     />;
+    // }
 
 
     /** Inputs **/
@@ -177,7 +177,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 ? <ASUIMenuDropDown options={() => this.renderMenuAddVoice()}>Add Voice</ASUIMenuDropDown>
                 : <ASUIMenuAction onAction={() => this.removeVoice()}>Remove Voice</ASUIMenuAction>}
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuChange('mixer')}>Edit Mixer</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChange('mixer')}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChange('attack')}>Edit Attack</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('hold')}>Edit Hold</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('delay')}>Edit Delay</ASUIMenuDropDown>

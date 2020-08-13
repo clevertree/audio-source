@@ -41,17 +41,17 @@ class Song {
             beatsPerMeasure: 4,
             startTrack: 'root',
             programs: [ // Also called 'programs' or 'patches'
-                ['envelope', {
-                    voice: ['oscillator', {
-                        type: 'sawtooth',
-                        lfos: [
-                            ['lfo', {
-                                parameter: 'frequency',
-                                frequency: 5,
-                                amplitude: 10
-                            }]
-                        ]
-                    }],
+                ['oscillator', {
+                    type: 'sawtooth',
+                    mixer: 0.5,
+                    envelope: ['envelope', {}],
+                    lfos: [
+                        ['lfo', {
+                            parameter: 'frequency',
+                            frequency: 5,
+                            amplitude: 10
+                        }]
+                    ]
                 }],
                 ['polyphony', {
                     voices: [

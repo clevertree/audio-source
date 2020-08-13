@@ -107,6 +107,8 @@ export default class ProgramLoader {
     }
 
     static getProgramClassInfo(className) {
+        if(typeof className !== "string")
+            throw new Error("Invalid class name: " + typeof className);
         const classNameLC = className.toLowerCase();
         const classes = ProgramLoader.registeredProgramClasses;
         for(let i=0; i<classes.length; i++) {

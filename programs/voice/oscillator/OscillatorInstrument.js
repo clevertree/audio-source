@@ -15,13 +15,16 @@ export default class OscillatorInstrument {
         bt: "pitchBendTo",
     }
 
+    static defaultEnvelope = ['envelope', {}];
+
 
     constructor(config={}) {
         // console.log('OscillatorInstrument', config);
         this.config = config;
         this.playingOSCs = [];
         this.loadedLFOs = [];
-        this.loading = this.loadLFOs();
+        this.loadedEnvelope = null;
+        this.loading = this.loadPrograms();
     }
 
     /** Async loading **/
@@ -44,9 +47,18 @@ export default class OscillatorInstrument {
         return loadedVoice;
     }
 
-    async loadLFOs() {
+    loadEnvelope() {
+        const [voiceClassName, voiceConfig] = this.config.envelope || OscillatorInstrument.defaultEnvelope;
+        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+        const loadedVoice = new envelopeClass(voiceConfig);
+        this.loadedEnvelope = loadedVoice;
+        return loadedVoice;
+    }
 
-        const promises = [];
+    async loadPrograms() {
+        const promises = [
+            this.loadEnvelope()
+        ];
         const lfos = this.config.lfos || [];
         for (let i = 0; i < lfos.length; i++) {
             const lfo = this.loadLFO(i);
@@ -63,9 +75,9 @@ export default class OscillatorInstrument {
 
     /** Effect **/
 
-    useDestination(oldDestination) {
-        return null; // Null is no effect processing
-    }
+    // useDestination(oldDestination) {
+    //     return null; // Null is no effect processing
+    // }
 
     /** Playback **/
 
@@ -113,14 +125,13 @@ export default class OscillatorInstrument {
 
 
         // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-        const osc = destination.context.createOscillator();   // instantiate an oscillator
-        osc.frequency.value = frequency;    // set Frequency (hz)
+        const oscillator = destination.context.createOscillator();   // instantiate an oscillator
+        oscillator.frequency.value = frequency;    // set Frequency (hz)
         if (typeof this.config.detune !== "undefined")
-            osc.detune.value = this.config.detune;
-
+            oscillator.detune.value = this.config.detune;
         switch(this.config.type) {
             default:
-                osc.type = this.config.type;
+                oscillator.type = this.config.type;
                 break;
 
             // case null:
@@ -128,42 +139,51 @@ export default class OscillatorInstrument {
                 if(!this.config.url)
                     throw new Error("Custom osc requires a url");
                 if(waveLoader.isPeriodicWaveAvailable(this.config.url)) {
-                    osc.setPeriodicWave(waveLoader.getCachedPeriodicWaveFromURL(this.config.url))
+                    oscillator.setPeriodicWave(waveLoader.getCachedPeriodicWaveFromURL(this.config.url))
                 } else {
                     waveLoader.loadPeriodicWaveFromURL(this.config.url)
-                        .then(periodicWave => osc.setPeriodicWave(periodicWave));
+                        .then(periodicWave => oscillator.setPeriodicWave(periodicWave));
                 }
                 break;
         }
 
+
+
+        // Envelope
+
+        const gainNode = this.loadedEnvelope.playFrequency(destination, frequency, startTime, duration, velocity);
+        destination = gainNode;
+
+        // LFOs
+
         for(const LFO of this.loadedLFOs) {
-            LFO.playFrequency(osc, frequency, startTime, duration, velocity);
+            LFO.playFrequency(oscillator, frequency, startTime, duration, velocity);
         }
 
 
 
-        osc.connect(destination);
-        osc.start(startTime);
+        oscillator.connect(destination);
+        oscillator.start(startTime);
         if(duration !== null) {
             if(duration instanceof Promise) {
                 // Support for duration promises
                 duration.then(function() {
-                    osc.stop();
+                    oscillator.stop();
                 })
             } else {
-                osc.stop(endTime);
+                oscillator.stop(endTime);
             }
         }
 
-        this.playingOSCs.push(osc);
-        osc.onended = () => {
-            const i = this.playingOSCs.indexOf(osc);
+        this.playingOSCs.push(oscillator);
+        oscillator.onended = () => {
+            const i = this.playingOSCs.indexOf(oscillator);
             if(i !== -1)
                 this.playingOSCs.splice(i, 1);
             onended && onended();
         };
 
-        return osc;
+        return oscillator;
     }
 
 

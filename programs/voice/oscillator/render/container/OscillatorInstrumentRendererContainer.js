@@ -35,7 +35,8 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
                 </ASUIButtonDropDown>
             </div>
             {open ? this.renderParameters() : null}
-            {this.renderLFOs()}
+            {open ? this.renderEnvelope() : null}
+            {open ? this.renderLFOs() : null}
         </div>;
     }
 
@@ -60,6 +61,16 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
         return (
             <div className="lfos">
                 {lfos}
+            </div>
+        )
+    }
+
+    renderEnvelope() {
+        const envelope = this.props.envelope;
+
+        return (
+            <div className="envelope">
+                {envelope}
             </div>
         )
     }

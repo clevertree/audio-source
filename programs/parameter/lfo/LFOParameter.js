@@ -13,6 +13,15 @@ export default class LFOParameter {
         playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
     };
 
+    // let vibratoLFO = destination.context.createOscillator();
+    // vibratoLFO.frequency.value = 5;
+    //
+    // let gainLFO = destination.context.createGain();
+    // gainLFO.gain.value = 10;
+    // gainLFO.connect(osc.frequency);
+    //
+    // vibratoLFO.connect(gainLFO);
+    // vibratoLFO.start(startTime);
 
     /** Playback **/
 
@@ -31,7 +40,7 @@ export default class LFOParameter {
             throw new Error("Invalid LFO destination");
         amplitudeGain.connect(parameter);
 
-        LFO.connect(destination);
+        LFO.connect(amplitudeGain);
         LFO.start(startTime);
 
         if(duration !== null) {

@@ -15,17 +15,17 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
             >
             {this.renderHeader()}
             {open ? this.renderParameters() : null}
-            {this.renderVoice()}
+            {/*{this.renderVoice()}*/}
         </div>;
     }
 
-    renderVoice() {
-        return (
-            <div className="voice">
-                {this.props.voice}
-            </div>
-        );
-    }
+    // renderVoice() {
+    //     return (
+    //         <div className="voice">
+    //             {this.props.voice}
+    //         </div>
+    //     );
+    // }
 
     renderHeader() {
         const open = this.props.config.open;

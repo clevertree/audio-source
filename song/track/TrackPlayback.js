@@ -65,8 +65,8 @@ export default class TrackPlayback extends TrackIterator {
         trackStats.program = programInstance;
 
         // useDestination allows for audio processing (i.e. effects)
-        if(typeof programInstance.useDestination === 'function')
-            trackStats.destination = programInstance.useDestination(oldDestination);
+        // if(typeof programInstance.useDestination === 'function')
+        //     trackStats.destination = programInstance.useDestination(oldDestination);
 
         // useProgram allows for both note processing and audio processing effects
         if(typeof programInstance.useProgram === 'function')

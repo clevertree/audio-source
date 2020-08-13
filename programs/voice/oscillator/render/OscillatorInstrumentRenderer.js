@@ -43,9 +43,10 @@ class OscillatorInstrumentRenderer extends React.Component {
 
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(!this.props.config.type) {
-            console.warn("No default oscillator type was set. Setting to 'sawtooth'");
-            this.props.config.type = 'sawtooth';
+        const config = this.props.config;
+        if(!config.envelope) {
+            config.envelope = ['envelope', {}];
+            console.warn("Oscillator has no envelope. Defaulting to ", config.envelope);
         }
     }
 
@@ -112,11 +113,24 @@ class OscillatorInstrumentRenderer extends React.Component {
             })
         }
 
+        const envelopeProgram = config.envelope;
+        let envelope;
+        if(envelopeProgram) {
+            const [className, config] = envelopeProgram;
+            const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+            envelope = <Renderer
+                config={config}
+                program={envelopeProgram}
+                parameters={this.constructor.sourceParameters}
+            />;
+        }
+
         return <OscillatorInstrumentRendererContainer
             onClick={this.cb.onClick}
             renderMenuRoot={this.cb.renderMenu.root}
-            config={this.props.config}
+            config={config}
             parameters={parameters}
+            envelope={envelope}
             lfos={lfos}
             title={title}
         >
