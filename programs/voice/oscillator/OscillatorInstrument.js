@@ -178,7 +178,7 @@ export default class OscillatorInstrument {
                     oscillator.setPeriodicWave(periodicWave)
                 } else {
                     waveLoader.loadPeriodicWaveFromURL(this.config.url)
-                        .then(periodicWave => oscillator.setPeriodicWave(periodicWave)); // TODO: late? 
+                        .then(periodicWave => oscillator.setPeriodicWave(periodicWave)); // TODO: late?
                 }
                 break;
         }

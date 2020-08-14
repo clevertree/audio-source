@@ -7,6 +7,8 @@ export default class IconList {
 }
 
 const icons = {
+    'close':                    require('./img/close.icon.png'),
+
     'menu':                     require('./img/menu.icon.png'),
     'play':                     require('./img/play.icon.png'),
     'pause':                    require('./img/pause.icon.png'),

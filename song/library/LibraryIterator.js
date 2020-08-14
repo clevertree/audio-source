@@ -14,19 +14,33 @@ class LibraryIterator {
     }
 
     getTitle() { return this.data.title; }
-    async getLibraries() {
-        let libraryData = await resolve(this.data.libraries, this.data);
-        // console.log('Library.getLibraries', libraryData);
-        return (libraryData || [])
-            .map(libraryData => new LibraryIterator(libraryData))
+    getLibraryGenerator() {
+        let libraries = this.data.libraries;
+        if(typeof libraries === "function")
+            libraries = this.data.libraries();
+        // console.log('Library.getLibraryGenerator', libraries);
+        return libraries;
     }
 
-    async getPresets() {
-        // console.log('Library.getPresets', this.data.presets);
-        let presets = await resolve(this.data.presets, this.data);
-        return presets || []
+    getPresetGenerator() {
+        // console.log('Library.getPresetGenerator', this.data.presets);
+        let presets = this.data.presets;
+        if(typeof presets === "function")
+            presets = this.data.presets();
+        if(Array.isArray(presets)) {
+            presets = function*() {
+                for(let preset of presets)
+                    yield preset;
+            }
+            presets = presets();
+        }
+        return presets;
     }
 
+    async waitForAssetLoad() {
+        if(typeof this.data.waitForAssetLoad === "function")
+            await this.data.waitForAssetLoad();
+    }
 
 
     /** Menu **/
@@ -49,7 +63,7 @@ class LibraryIterator {
     }
 
     async renderMenuProgramAllPresets(onSelectPreset, programClassFilter=null, includeRecent=true) {
-        let presets = await this.getPresets(programClassFilter);
+        let presets = await this.getPresetGenerator(programClassFilter);
         const libraries = await this.getLibraries();
         return (<>
             {/*{includeRecent && false ? <ASUIMenuDropDown*/}
@@ -102,7 +116,7 @@ class LibraryIterator {
 
 
     async renderMenuProgramPresets(onSelectPreset, programClassFilter=null) {
-        let presets = await this.getPresets(programClassFilter);
+        let presets = await this.getPresetGenerator(programClassFilter);
         if(programClassFilter !== null) {
             presets = presets.filter(([className, presetConfig], i) => programClassFilter === className);
         }
@@ -226,10 +240,10 @@ class LibraryIterator {
 LibraryIterator.cache = {};
 export default LibraryIterator;
 
-async function resolve(item, thisItem, callbackParameter=null) {
+function resolve(item, thisItem, callbackParameter=null) {
     if(typeof item === "function")
         item = item.apply(thisItem, callbackParameter);
-    if(item instanceof Promise)
-        item = await item;
+    // if(item instanceof Promise)
+    //     item = await item;
     return item;
 }

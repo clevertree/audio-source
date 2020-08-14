@@ -622,8 +622,8 @@ class Song {
 
         const oldConfig = this.getProxiedData().programs[programID];
         this.data.programs[programID] = [programClassName, programConfig];
-        this.programLoadInstanceFromID(programID);
-
+        const instance = this.programLoadInstanceFromID(programID);
+        console.log('programReplace', programID, programClassName, programConfig, instance);
         return oldConfig;
     }
 

@@ -9,6 +9,16 @@ import {ASCPresetBrowser} from "../index";
 
 
 export default class ASCProgramRendererBase extends React.Component {
+    constructor(props) {
+        super(props);
+        this.cb = {
+            togglePresetBrowser: () => this.togglePresetBrowser(),
+            toggleContainer: e => this.toggleContainer(),
+            onFocus: e => this.onFocus(e),
+            menuRoot: () => this.renderMenuRoot()
+        }
+    }
+
     // constructor(props) {
     //     super(props);
     //     // this.state = {
@@ -120,7 +130,7 @@ export default class ASCProgramRendererBase extends React.Component {
         const composer = this.getComposer();
         const programState = this.getProgramState();
         return (<>
-            <ASUIMenuAction onAction={() => this.togglePresetBrowser()}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
+            <ASUIMenuAction onAction={this.cb.togglePresetBrowser}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuBreak />

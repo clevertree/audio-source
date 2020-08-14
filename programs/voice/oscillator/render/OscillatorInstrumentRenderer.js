@@ -53,6 +53,7 @@ class OscillatorInstrumentRenderer extends React.Component {
     getTitle() {
         return this.props.config.title
             || this.props.config.type
+            || getNameFromURL(this.props.config.url)
             || "Unknown Osc";
     }
 
@@ -149,7 +150,7 @@ class OscillatorInstrumentRenderer extends React.Component {
                 if(config.type)
                     source = config.type;
                 if(config.url)
-                    source = config.url.split('/').pop();
+                    source = getNameFromURL(config.url);
                 if(source && source.length > 16)
                     source = '...' + source.substr(-16);
                 return <ASUIButtonDropDown
@@ -304,3 +305,5 @@ class OscillatorInstrumentRenderer extends React.Component {
 }
 
 export default OscillatorInstrumentRenderer;
+
+function getNameFromURL(url) { return url.split('/').pop().replace('.json', ''); }

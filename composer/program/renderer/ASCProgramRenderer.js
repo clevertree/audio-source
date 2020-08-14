@@ -9,14 +9,6 @@ import ASCProgramRendererBase from "./ASCProgramRendererBase";
 import "./ASCProgramRenderer.css";
 
 export default class ASCProgramRenderer extends ASCProgramRendererBase {
-    constructor(props) {
-        super(props);
-        this.cb = {
-            toggleContainer: e => this.toggleContainer(),
-            onFocus: e => this.onFocus(e),
-            menuRoot: () => this.renderMenuRoot()
-        }
-    }
 
     render() {
         const song = this.getSong();
@@ -45,14 +37,19 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     >
                         {programIDHTML}: {titleHTML}
                     </ASUIButton>
-                    <ASUIButtonDropDown
+                    {!this.props.showBrowser ? <ASUIButtonDropDown
                         arrow={false}
                         className="program-config"
                         options={this.cb.menuRoot}
                     >
                         <ASUIIcon source="config"/>
-                    </ASUIButtonDropDown>
-                </div>
+                    </ASUIButtonDropDown> : <ASUIButton
+                        className="preset-browser-close"
+                        onAction={this.cb.togglePresetBrowser}
+                    >
+                        <ASUIIcon source="close"/>
+                    </ASUIButton>}
+                    </div>
                 {this.props.open ? <div className="content">
                     {this.props.showBrowser || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent()}
                 </div> : null}
