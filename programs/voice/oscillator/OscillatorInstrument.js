@@ -1,5 +1,5 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
-import {ArgType, ProgramLoader} from "../../../common/";
+import {ArgType, ProgramLoader, Values} from "../../../common/";
 
 
 export default class OscillatorInstrument {
@@ -22,9 +22,11 @@ export default class OscillatorInstrument {
         // console.log('OscillatorInstrument', config);
         this.config = config;
         this.playingOSCs = [];
+        this.loadedPeriodicWave = null;
         this.loadedLFOs = [];
         this.loadedEnvelope = null;
         this.loading = this.loadPrograms();
+        this.activeMIDINotes = []
     }
 
     /** Async loading **/
@@ -35,35 +37,68 @@ export default class OscillatorInstrument {
 
     /** Loading **/
 
-    loadLFO(lfoID) {
+    // async loadPeriodicWave() {
+    //
+    //     switch(this.config.type) {
+    //         default:
+    //             break;
+    //
+    //         // case null:
+    //         case 'custom':
+    //             if(!this.config.url)
+    //                 throw new Error("Custom osc requires a url");
+    //
+    //
+    //             const waveLoader = new PeriodicWaveLoader();
+    //             let periodicWave = waveLoader.tryCache(this.config.url);
+    //             if(periodicWave) {
+    //                 this.loadedPeriodicWave = periodicWave;
+    //
+    //             } else {
+    //                 waveLoader.loadPeriodicWaveFromURL(this.config.url)
+    //                     .then(periodicWave => {
+    //                         console.log("Loaded periodic wave: ", this.config.url, periodicWave);
+    //                         this.loadedPeriodicWave = periodicWave;
+    //                     });
+    //             }
+    //             break;
+    //     }
+    // }
+
+    async loadLFO(lfoID) {
         if(this.loadedLFOs[lfoID])
             return this.loadedLFOs[lfoID];
         if(!this.config.lfos[lfoID])
             throw new Error("LFO config is missing: " + lfoID);
         const [voiceClassName, voiceConfig] = this.config.lfos[lfoID];
         let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
-        const loadedVoice = new lfoClass(voiceConfig);
-        this.loadedLFOs[lfoID] = loadedVoice;
-        return loadedVoice;
+        const LFO = new lfoClass(voiceConfig);
+        this.loadedLFOs[lfoID] = LFO;
+
+        if(typeof LFO.waitForAssetLoad === "function")
+            await LFO.waitForAssetLoad()
+
+        return LFO;
     }
 
-    loadEnvelope() {
+    async loadEnvelope() {
         const [voiceClassName, voiceConfig] = this.config.envelope || OscillatorInstrument.defaultEnvelope;
         let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
-        const loadedVoice = new envelopeClass(voiceConfig);
-        this.loadedEnvelope = loadedVoice;
-        return loadedVoice;
+        const envelope = new envelopeClass(voiceConfig);
+        this.loadedEnvelope = envelope;
+        if(typeof envelope.waitForAssetLoad === "function")
+            await envelope.waitForAssetLoad()
+        return envelope;
     }
 
     async loadPrograms() {
         const promises = [
+            // this.loadPeriodicWave(),
             this.loadEnvelope()
         ];
         const lfos = this.config.lfos || [];
         for (let i = 0; i < lfos.length; i++) {
-            const lfo = this.loadLFO(i);
-            if(typeof lfo.waitForAssetLoad === "function")
-                promises.push(lfo.waitForAssetLoad());
+            promises.push(this.loadLFO(i));
         }
         for(let i=0; i < promises.length; i++)
             await promises[i];
@@ -138,11 +173,12 @@ export default class OscillatorInstrument {
             case 'custom':
                 if(!this.config.url)
                     throw new Error("Custom osc requires a url");
-                if(waveLoader.isPeriodicWaveAvailable(this.config.url)) {
-                    oscillator.setPeriodicWave(waveLoader.getCachedPeriodicWaveFromURL(this.config.url))
+                let periodicWave = waveLoader.tryCache(this.config.url);
+                if(periodicWave) {
+                    oscillator.setPeriodicWave(periodicWave)
                 } else {
                     waveLoader.loadPeriodicWaveFromURL(this.config.url)
-                        .then(periodicWave => oscillator.setPeriodicWave(periodicWave));
+                        .then(periodicWave => oscillator.setPeriodicWave(periodicWave)); // TODO: late? 
                 }
                 break;
         }
@@ -189,9 +225,41 @@ export default class OscillatorInstrument {
 
     /** MIDI Events **/
 
+
     playMIDIEvent(destination, eventData, onended=null) {
-        console.log('TODO playMIDIEvent', destination, eventData);
+        let newMIDICommand;
+
+        switch (eventData[0]) {
+            case 144:   // Note On
+                newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
+                const newMIDIFrequency = Values.instance.parseFrequencyString(newMIDICommand);
+                let newMIDIVelocity = Math.round((eventData[2] / 128) * 100);
+                const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
+                if(source) {
+                    if (this.activeMIDINotes[newMIDICommand])
+                        this.activeMIDINotes[newMIDICommand].stop();
+                    this.activeMIDINotes[newMIDICommand] = source;
+                }
+                return source;
+            // console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
+
+            case 128:   // Note Off
+                newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
+                if(this.activeMIDINotes[newMIDICommand]) {
+                    this.activeMIDINotes[newMIDICommand].stop();
+                    delete this.activeMIDINotes[newMIDICommand];
+                    return true;
+                    // console.log("MIDI Off", newMIDICommand, eventData);
+                } else {
+                    return false;
+                    // console.warn("No 'ON' note was found for : " + newMIDICommand);
+                }
+
+            default:
+                break;
+        }
     }
+
 
     /** Pitch Bend **/
 

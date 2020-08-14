@@ -28,13 +28,13 @@ class OscillatorInstrumentRenderer extends React.Component {
                 root: () => this.renderMenuRoot(),
             },
             renderParamMenu: {
-                root: () => this.renderMenuChangeKeyRoot(),
-                alias: () => this.renderMenuChangeKeyAlias(),
+                // root: () => this.renderMenuChangeKeyRoot(),
+                // alias: () => this.renderMenuChangeKeyAlias(),
                 range: () => this.renderMenuChangeKeyRange(),
                 source: () => this.renderMenuChangeOscillator(),
             },
             changeParam: {
-                mixer:    (newValue) => this.changeParam('mixer', newValue),
+                // mixer:    (newValue) => this.changeParam('mixer', newValue),
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
@@ -64,7 +64,7 @@ class OscillatorInstrumentRenderer extends React.Component {
 
         const parameters = [
             {
-                label:      'URL',
+                label:      'WaveForm',
                 title:      'Edit Sample',
                 children:   this.renderInput('source'),
             },
@@ -78,16 +78,16 @@ class OscillatorInstrumentRenderer extends React.Component {
                 title:      `Detune by ${config.detune} cents`,
                 children:   this.renderInput('detune'),
             },
-            {
-                label:      'Root',
-                title:      `Key Root is ${config.root}`,
-                children:   this.renderInput('root'),
-            },
-            {
-                label:      'Alias',
-                title:      `Key Alias is ${config.alias}`,
-                children:   this.renderInput('alias'),
-            },
+            // {
+            //     label:      'Root',
+            //     title:      `Key Root is ${config.root}`,
+            //     children:   this.renderInput('root'),
+            // },
+            // {
+            //     label:      'Alias',
+            //     title:      `Key Alias is ${config.alias}`,
+            //     children:   this.renderInput('alias'),
+            // },
             {
                 label:      'Range',
                 title:      `Key Range is ${config.range}`,
@@ -146,8 +146,8 @@ class OscillatorInstrumentRenderer extends React.Component {
         switch(paramName) {
             case 'source':
                 let source = "N/A";
-                // if(config.type)
-                //     source = config.type;
+                if(config.type)
+                    source = config.type;
                 if(config.url)
                     source = config.url.split('/').pop();
                 if(source && source.length > 16)
@@ -180,23 +180,23 @@ class OscillatorInstrumentRenderer extends React.Component {
                     onChange={this.cb.changeParam.detune}
                 />
 
-            case 'root':
-                return <ASUIButtonDropDown
-                    className="small"
-                    options={this.cb.renderParamMenu.root}
-                >{config.root ? config.root : "-"}</ASUIButtonDropDown>
+            // case 'root':
+            //     return <ASUIButtonDropDown
+            //         className="small"
+            //         options={this.cb.renderParamMenu.root}
+            //     >{config.root ? config.root : "-"}</ASUIButtonDropDown>
 
-            case 'alias':
-                return <ASUIButtonDropDown
-                    className="small"
-                    options={this.cb.renderParamMenu.alias}
-                >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
+            // case 'alias':
+            //     return <ASUIButtonDropDown
+            //         className="small"
+            //         options={this.cb.renderParamMenu.alias}
+            //     >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
 
             case 'range':
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.range}
-                >{config.range ? config.range : "-"}</ASUIButtonDropDown>
+                >{config.range ? config.range : "[any]"}</ASUIButtonDropDown>
 
             default:
                 return 'Unknown';
@@ -254,8 +254,8 @@ class OscillatorInstrumentRenderer extends React.Component {
             <ASUIMenuBreak />
             {/*<ASUIMenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>*/}
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</ASUIMenuDropDown>
             {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
             <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</ASUIMenuAction>
@@ -282,21 +282,6 @@ class OscillatorInstrumentRenderer extends React.Component {
         </>);
     }
 
-
-
-    // renderMenuChangeMixer() {
-    //     const config = this.props.config;
-    //     return (<>
-    //         <ASUIInputRange
-    //             min={0}
-    //             max={100}
-    //             value={typeof config.mixer !== "undefined" ? config.mixer : 100}
-    //             onChange={(mixerValue) => this.changeParam('mixer', mixerValue)}
-    //            />
-    //            <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
-    //         </>);
-    // }
-
     renderMenuChangeDetune() {
         const config = this.props.config;
         return (<>
@@ -310,26 +295,12 @@ class OscillatorInstrumentRenderer extends React.Component {
         </>);
     }
 
-    renderMenuChangeKeyRoot() {
-        return new Values().renderMenuSelectCommand(noteNameOctave => {
-            this.changeRoot(noteNameOctave)
-        });
-    }
-
-    renderMenuChangeKeyAlias() {
-        return new Values().renderMenuSelectCommand(noteNameOctave => {
-            this.changeAlias(noteNameOctave)
-        });
-    }
 
 
     renderMenuChangeKeyRange() {
         return (<>TODO</>);
     }
 
-    // renderMenuChangeLoop() {
-    //     return (<>TODO</>);
-    // }
 }
 
 export default OscillatorInstrumentRenderer;

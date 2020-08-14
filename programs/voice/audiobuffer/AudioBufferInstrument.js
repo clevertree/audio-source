@@ -29,23 +29,18 @@ class AudioBufferInstrument {
             if(buffer) {
                 this.audioBuffer = buffer;
             } else {
-                this.loadBuffer();
+                this.loading = service.loadAudioBufferFromURL(this.config.url, true)
+                    .then(audioBuffer => {
+                        console.log("Loaded audio buffer: ", this.config.url, audioBuffer);
+                        this.audioBuffer = audioBuffer;
+                    });
             }
         }
 
         this.activeMIDINotes = []
     }
 
-    async loadBuffer() {
-        if(this.loading)
-            return this.loading;
 
-        const service = new AudioBufferLoader();
-        this.loading = service.loadAudioBufferFromURL(this.config.url, true);
-        const buffer = await this.loading;
-        console.log("Loaded audio buffer: ", this.config.url, buffer);
-        this.audioBuffer = buffer;
-    }
 
     setBuffer(source) {
         source.buffer = this.audioBuffer;
@@ -158,7 +153,6 @@ class AudioBufferInstrument {
                     this.activeMIDINotes[newMIDICommand] = source;
                 }
                 return source;
-                // console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
 
             case 128:   // Note Off
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
@@ -166,10 +160,8 @@ class AudioBufferInstrument {
                     this.activeMIDINotes[newMIDICommand].stop();
                     delete this.activeMIDINotes[newMIDICommand];
                     return true;
-                    // console.log("MIDI Off", newMIDICommand, eventData);
                 } else {
                     return false;
-                    // console.warn("No 'ON' note was found for : " + newMIDICommand);
                 }
 
             default:

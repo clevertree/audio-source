@@ -28,6 +28,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
 
     // Props Validation
     static propTypes = {
+        options: PropTypes.any.isRequired,
         onClose: PropTypes.func.isRequired,
         vertical: PropTypes.bool,
         disabled: PropTypes.bool,
@@ -57,8 +58,9 @@ export default class ASUIMenuOptionListBase extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        // console.log('ASUIMenuOptionList.componentDidUpdate', this.state, prevProps.options !== this.props.options);
         if(prevProps.options !== this.props.options) {
-            console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options)
+            // console.log(`${this.constructor.name}.componentDidUpdate`, prevProps.options, this.props.options)
             this.setOptions(this.props.options);
         }
     }

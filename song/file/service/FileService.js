@@ -45,7 +45,7 @@ export default class FileService {
         } else {
             // return buffer;
             const response = await fetch(url);
-            buffer = response.arrayBuffer();
+            buffer = await response.arrayBuffer();
 
         }
 

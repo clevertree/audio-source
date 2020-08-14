@@ -40,16 +40,3 @@ div.asui-menu-dropdown.vertical {
     top: 100%;
 }
 
-
-
-/** Screen Overflow **/
-
-div.asui-menu-dropdown.overflow-right {
-    left: inherit;
-    right: 100%;
-}
-div.asui-menu-dropdown.overflow-bottom {
-    /*top: inherit;*/
-    /*bottom: -50vh;*/
-    /*bottom: 100%;*/
-}

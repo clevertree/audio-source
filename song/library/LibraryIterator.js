@@ -21,9 +21,9 @@ class LibraryIterator {
             .map(libraryData => new LibraryIterator(libraryData))
     }
 
-    async getPresets(programClassFilter) {
-        let presets = await resolve(this.data.presets, this.data, programClassFilter);
-        // console.log('Library.getPresets', presets);
+    async getPresets() {
+        // console.log('Library.getPresets', this.data.presets);
+        let presets = await resolve(this.data.presets, this.data);
         return presets || []
     }
 
@@ -62,18 +62,24 @@ class LibraryIterator {
             {/*    options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>*/}
             {/*    Current Library*/}
             {/*</ASUIMenuDropDown> : null }*/}
-            <ASUIMenuDropDown
-                disabled={presets.length === 0}
-                options={() => this.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>
-                Presets
-            </ASUIMenuDropDown>
-            <ASUIMenuDropDown
-                disabled={libraries.length === 0}
-                options={() => this.renderMenuLibraryOptions(library =>
-                    library.renderMenuProgramAllPresets(onSelectPreset, programClassFilter, false)
-                    , programClassFilter)}>
-                Other Libraries
-            </ASUIMenuDropDown>
+
+            {libraries.map((library, i) => (
+                <ASUIMenuDropDown
+                    key={i++}
+                    options={() => library.renderMenuProgramAllPresets(onSelectPreset, programClassFilter, false)}
+                >
+                    {library.getTitle()}
+                </ASUIMenuDropDown>
+            ))}
+
+            <ASUIMenuBreak />
+            {presets.length > 0 ? <>
+                <ASUIMenuItem>{this.getTitle()}</ASUIMenuItem>
+                {presets.map(([className, presetConfig], i) =>
+                    <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
+                )}
+            </> : <ASUIMenuItem>No Presets</ASUIMenuItem>}
+
         </>);
     }
 
@@ -116,7 +122,7 @@ class LibraryIterator {
             <ASUIMenuDropDown key={i++}
                 options={() => {
                     LibraryIterator.lastSelectedLibrary = library;
-                    return onSelectLibraryOptions(library);
+                    return onSelectLibraryOptions(library, i);
                 }}>
                 {library.getTitle()}
             </ASUIMenuDropDown>

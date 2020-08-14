@@ -85,6 +85,7 @@ class LFOParameterRenderer extends React.Component {
     /** Inputs **/
 
     renderInput(paramName) {
+        let value;
         const config = this.props.config;
         switch(paramName) {
 
@@ -94,14 +95,26 @@ class LFOParameterRenderer extends React.Component {
                     options={this.cb.renderParamMenu.parameter}
                 >{config.parameter ? config.parameter : "No Param"}</ASUIButtonDropDown>
 
-            default:
+
+            case 'frequency':
+                const frequency = typeof config.frequency !== "undefined" ? config.frequency : 5;
+                return <ASUIInputRange
+                    // className="small"
+                    min={0}
+                    max={100}
+                    value={frequency}
+                    children={`${frequency}hz`}
+                    onChange={this.cb.changeParam[paramName]}
+                />;
+
+            case 'amplitude':
                 const value = typeof config[paramName] !== "undefined" ? config[paramName] : 100;
                 return <ASUIInputRange
                     // className="small"
                     min={0}
                     max={100}
                     value={value}
-                    children={`${value}c`}
+                    children={`${value}x`}
                     onChange={this.cb.changeParam[paramName]}
                 />;
         }

@@ -1,9 +1,9 @@
 import React from 'react';
 
-import "./OscillatorInstrumentRendererContainer.css";
 import {ASUIButton, ASUIButtonDropDown} from "../../../../../components/";
 import {ASUIIcon} from "../../../../../components";
 
+import "./OscillatorInstrumentRendererContainer.css";
 
 export default class OscillatorInstrumentRendererContainer extends React.Component {
     render() {

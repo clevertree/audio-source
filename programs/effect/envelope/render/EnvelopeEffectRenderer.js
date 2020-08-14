@@ -20,21 +20,20 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 // mixer: () => this.renderMenuChange('mixer'),
                 attack: () => this.renderMenuChange('attack'),
                 hold: () => this.renderMenuChange('hold'),
-                delay: () => this.renderMenuChange('delay'),
+                decay: () => this.renderMenuChange('decay'),
                 sustain: () => this.renderMenuChange('sustain'),
                 release: () => this.renderMenuChange('release'),
             },
             changeParam: {
                 // mixer:      (newValue) => this.changeParam('mixer', newValue),
                 attack:     (newValue) => this.changeParam('attack', newValue),
-                hold:       (newValue) => this.changeParam('hold', newValue),
-                delay:      (newValue) => this.changeParam('delay', newValue),
+                // hold:       (newValue) => this.changeParam('hold', newValue),
+                decay:      (newValue) => this.changeParam('decay', newValue),
                 sustain:    (newValue) => this.changeParam('sustain', newValue),
                 release:    (newValue) => this.changeParam('release', newValue),
             },
         };
     }
-
 
     render() {
         return <EnvelopeEffectRendererContainer
@@ -49,27 +48,27 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 // },
                 {
                     label:      'Attack',
-                    title:      'Edit Envelope Attack',
+                    title:      'How quickly the sound reaches full volume after the initial note',
                     children:   this.renderInput('attack'),
                 },
+                // {
+                //     label:      'Hold',
+                //     title:      'Edit Envelope Hold',
+                //     children:   this.renderInput('hold'),
+                // },
                 {
-                    label:      'Hold',
-                    title:      'Edit Envelope Hold',
-                    children:   this.renderInput('hold'),
-                },
-                {
-                    label:      'Delay',
-                    title:      'Edit Envelope Delay',
-                    children:   this.renderInput('delay'),
+                    label:      'Decay',
+                    title:      'How quickly the sound drops to the sustain level after the initial peak',
+                    children:   this.renderInput('decay'),
                 },
                 {
                     label:      'Sustain',
-                    title:      'Edit Envelope Sustain',
+                    title:      'The “constant” volume that the sound takes after decay until the note is released',
                     children:   this.renderInput('sustain'),
                 },
                 {
                     label:      'Release',
-                    title:      'Edit Envelope Release',
+                    title:      'How quickly the sound fades when a note ends',
                     children:   this.renderInput('release'),
                 },
             ]}
@@ -105,15 +104,31 @@ export default class EnvelopeEffectRenderer extends React.Component {
 
     renderInput(paramName) {
         const config = this.props.config;
+        const value = typeof config[paramName] !== "undefined" ? config[paramName] : null;
         switch(paramName) {
+            case 'attack': // How quickly the sound reaches full volume after the sound
+            case 'hold':
+            case 'decay':   // How quickly the sound drops to the sustain level after the initial peak.
+            case 'release': // How quickly the sound fades when a note ends (the key is released). Often, this time is very short. An example where the release is longer might be a percussion instrument like a glockenspiel, or a piano with the sustain pedal pressed.
+                const timeValue = value || 0;
+                return <ASUIInputRange
+                    // className="small"
+                    min={0}
+                    max={1000}
+                    value={timeValue}
+                    children={`${timeValue}ms`}
+                    onChange={this.cb.changeParam[paramName]}
+                />;
+
+            case 'sustain': // The “constant” volume that the sound takes after decay until the note is released. Note that this parameter specifies a volume level rather than a time period.
             default:
-                const value = typeof config[paramName] !== "undefined" ? config[paramName] : 100;
+                const mixerValue = value || 100;
                 return <ASUIInputRange
                     // className="small"
                     min={0}
                     max={100}
-                    value={value}
-                    children={`${value}%`}
+                    value={mixerValue}
+                    children={`${mixerValue}%`}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 
@@ -180,7 +195,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
             {/*<ASUIMenuDropDown options={() => this.renderMenuChange('mixer')}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChange('attack')}>Edit Attack</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('hold')}>Edit Hold</ASUIMenuDropDown>
-            <ASUIMenuDropDown options={() => this.renderMenuChange('delay')}>Edit Delay</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuChange('decay')}>Edit Decay</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('sustain')}>Edit Sustain</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('release')}>Edit Release</ASUIMenuDropDown>
             {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
