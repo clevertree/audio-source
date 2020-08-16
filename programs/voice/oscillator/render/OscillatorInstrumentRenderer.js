@@ -5,7 +5,7 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIButtonDropDown,
 } from "../../../../components";
-import LibraryIterator from "../../../../song/library/LibraryIterator";
+import LibraryProcessor from "../../../../song/library/LibraryProcessor";
 import {Values, ProgramLoader} from "../../../../common";
 
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
@@ -38,7 +38,7 @@ class OscillatorInstrumentRenderer extends React.Component {
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
-        this.library = LibraryIterator.loadDefault();
+        this.library = LibraryProcessor.loadDefault();
     }
 
 

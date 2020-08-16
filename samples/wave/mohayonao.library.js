@@ -10,7 +10,7 @@ const Mohayonao = {
       if(typeof sample !== "object")
         sample = {url: sample, type:'custom'};
       if(!sample.title)
-        sample.title = getNameFromURL(sample.url);
+        sample.title = sample.url.split('/').pop().replace('.json', '');
       if(LibraryData.baseURL)
         sample.url = LibraryData.baseURL + sample.url;
       yield ['oscillator', sample];
@@ -18,14 +18,9 @@ const Mohayonao = {
   },
 
   /** Async loading **/
-  async waitForAssetLoad() {}
+  // async waitForAssetLoad() {}
 
 }
 
 
 export default Mohayonao;
-
-function getNameFromURL(url) { return url.split('/').pop().replace('.json', ''); }
-
-const wut = Mohayonao.presets(2);
-console.log(wut);

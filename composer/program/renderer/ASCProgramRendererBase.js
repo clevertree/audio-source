@@ -3,7 +3,7 @@ import {
     ASUIMenuAction,
     ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
-import {LibraryIterator} from "../../../song";
+import {LibraryProcessor} from "../../../song";
 import {ProgramLoader} from "../../../common";
 import {ASCPresetBrowser} from "../index";
 
@@ -169,7 +169,7 @@ export default class ASCProgramRendererBase extends React.Component {
     // }
 
     async renderMenuChangePreset() {
-        const library = LibraryIterator.loadDefault();
+        const library = LibraryProcessor.loadDefault();
         const programID = this.props.programID;
         let programClassName = null;
         if(this.getSong().hasProgram(programID))

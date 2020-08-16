@@ -5,10 +5,12 @@ import {
     ASUIInputRange,
     ASUIMenuDropDown, ASUIButtonDropDown
 } from "../../../../components";
-import {LibraryIterator} from "../../../../song";
+import {LibraryProcessor, ProgramLoader} from "../../../../song";
 import {Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
+import OscillatorInstrumentRendererContainer
+    from "../../oscillator/render/container/OscillatorInstrumentRendererContainer.native";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
@@ -85,11 +87,43 @@ class AudioBufferInstrumentRenderer extends React.Component {
             },
         ];
 
+        let lfos = [];
+        if(config.lfos) {
+            lfos = config.lfos.map((lfo, i) => {
+                const [className, config] = lfo;
+                const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+
+                return <Renderer
+                    key={i}
+                    onRemove={this.cb.onRemove}
+                    instrumentID={i}
+                    config={config}
+                    program={lfo}
+                    parameters={this.constructor.sourceParameters}
+                />;
+
+            })
+        }
+
+        const envelopeProgram = config.envelope;
+        let envelope;
+        if(envelopeProgram) {
+            const [className, config] = envelopeProgram;
+            const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+            envelope = <Renderer
+                config={config}
+                program={envelopeProgram}
+                parameters={this.constructor.sourceParameters}
+            />;
+        }
+
         return <AudioBufferInstrumentRendererContainer
             onClick={this.cb.onClick}
             renderMenuRoot={this.cb.renderMenu.root}
             config={this.props.config}
             parameters={parameters}
+            envelope={envelope}
+            lfos={lfos}
             title={title}
             >
         </AudioBufferInstrumentRendererContainer>;
@@ -227,7 +261,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
     async renderMenuChangeAudioBuffer() {
 
-        const library = LibraryIterator.loadDefault();
+        const library = LibraryProcessor.loadDefault();
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeAudioBufferStandard()}>Standard</ASUIMenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeAudioBuffer('custom')}>Custom</MenuDropDown>*/}

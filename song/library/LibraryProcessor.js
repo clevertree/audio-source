@@ -4,7 +4,7 @@ import ProgramLoader from "../../common/program/ProgramLoader";
 import DefaultLibraryData from "../../default.library";
 
 
-class LibraryIterator {
+class LibraryProcessor {
     constructor(libraryData) {
         if(libraryData === null)
             throw new Error("Invalid library data: null");
@@ -135,7 +135,7 @@ class LibraryIterator {
         return libraries.map((library, i) =>
             <ASUIMenuDropDown key={i++}
                 options={() => {
-                    LibraryIterator.lastSelectedLibrary = library;
+                    LibraryProcessor.lastSelectedLibrary = library;
                     return onSelectLibraryOptions(library, i);
                 }}>
                 {library.getTitle()}
@@ -195,15 +195,15 @@ class LibraryIterator {
 
     /** @deprecated **/
     static historicLibraryCount() {
-        return Object.values(LibraryIterator.cache).length;
+        return Object.values(LibraryProcessor.cache).length;
     };
 
     /** @deprecated **/
     static eachHistoricLibrary(callback) {
         const results = [];
-        for (let cacheURL in LibraryIterator.cache) {
-            if (LibraryIterator.cache.hasOwnProperty(cacheURL)) {
-                let libraryConfig = LibraryIterator.cache[cacheURL];
+        for (let cacheURL in LibraryProcessor.cache) {
+            if (LibraryProcessor.cache.hasOwnProperty(cacheURL)) {
+                let libraryConfig = LibraryProcessor.cache[cacheURL];
                 if (libraryConfig instanceof Promise)
                     continue;
                 // libraryConfig = await libraryConfig;
@@ -220,13 +220,13 @@ class LibraryIterator {
 
     static defaultLibraryData = DefaultLibraryData;
 
-    /** @returns {LibraryIterator} */
+    /** @returns {LibraryProcessor} */
     static loadDefault() {
-        return new LibraryIterator(LibraryIterator.defaultLibraryData);
+        return new LibraryProcessor(LibraryProcessor.defaultLibraryData);
     };
 
     static setDefaultLibrary(defaultLibraryData) {
-        LibraryIterator.defaultLibraryData = defaultLibraryData;
+        LibraryProcessor.defaultLibraryData = defaultLibraryData;
     }
 
 }
@@ -237,8 +237,8 @@ class LibraryIterator {
 //     return await Library.loadFromURL(Library.defaultLibraryURL);
 // };
 /** @deprecated **/
-LibraryIterator.cache = {};
-export default LibraryIterator;
+LibraryProcessor.cache = {};
+export default LibraryProcessor;
 
 function resolve(item, thisItem, callbackParameter=null) {
     if(typeof item === "function")

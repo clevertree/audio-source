@@ -1,4 +1,4 @@
-import {Instruction, LibraryIterator, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
+import {Instruction, LibraryProcessor, ProgramLoader, Song, ClientStorage, FileService, FileSupport} from "../song";
 import PromptManager from "../common/prompt/PromptManager";
 import ASComposerMenu from "./ASComposerMenu";
 import {InstructionProcessor} from "../common";
@@ -21,7 +21,7 @@ class ASComposerActions extends ASComposerMenu {
     /** Library **/
 
     setLibrary(library) {
-        if(!(library instanceof LibraryIterator))
+        if(!(library instanceof LibraryProcessor))
             throw new Error("Invalid library: " + typeof library);
         this.library = library;
         // console.log('Current library: ', library);

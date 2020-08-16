@@ -1,19 +1,30 @@
 import React from "react";
 
 import {ASUIClickable, ASUIMenuAction, ASUIMenuItem} from "../../../components";
-import {LibraryIterator} from "../../../song";
+import {LibraryProcessor} from "../../../song";
 
 import "./ASCPresetBrowser.css";
 import {ProgramLoader} from "../../../common";
 import PromptManager from "../../../common/prompt/PromptManager";
+import PropTypes from "prop-types";
 
 export default class ASCPresetBrowser extends React.Component {
     static DEFAULT_TIMEOUT_MS = 10000;
 
+    /** Property validation **/
+    static propTypes = {
+        composer: PropTypes.object.isRequired,
+        program: PropTypes.object.isRequired,
+        programID: PropTypes.string.isRequired,
+    };
+
     constructor(props) {
         super(props);
+        const library = props.composer.library;
+        // const [currentPresetClass, currentPresetConfig] = props.program;
         this.state = {
-            library: props.composer.library,
+            // currentPresetHash: library.getTitle() + ':' + currentPresetClass + ':' + currentPresetConfig.title,
+            library,
             loading: false,
             presets: [],
             loadingPresets: [],
@@ -28,12 +39,15 @@ export default class ASCPresetBrowser extends React.Component {
         this.cb = {
             onWheel: e => this.onWheel(e)
         }
-        console.log(this.constructor.name, props);
+
+
+        console.log(this.constructor.name, this);
     }
 
     getLibrary() { return this.state.library; }
     getComposer() { return this.props.composer; }
     getProgramID() { return this.props.programID; }
+    getProgram() { return this.props.program; }
 
     componentDidMount() {
         // this.updateList();
@@ -103,7 +117,7 @@ export default class ASCPresetBrowser extends React.Component {
                     const next = libraryGenerator.next();
                     if (next.done)
                         break;
-                    const nextLibrary = new LibraryIterator(next.value);
+                    const nextLibrary = new LibraryProcessor(next.value);
                     content.push(<ASUIClickable
                         key={i}
                         onAction={() => this.setLibrary(nextLibrary)}
@@ -149,17 +163,19 @@ export default class ASCPresetBrowser extends React.Component {
             let presetGenerator = library.getPresetGenerator();
             if(presetGenerator) {
                 const loadingPresets = this.state.loadingPresets || [];
-                const searchString = this.state.searchString.toLowerCase();
+                const searchString = (this.state.searchString || '').toLowerCase();
+                const [currentPresetClass, currentPresetConfig] = this.props.program;
+                const compareKeys = ['title', 'url'];
 
                 // const limitedList = presetList
                 //     .slice(offset, offset + limit);
-
+                let presetCount=0, endFound = false;
                 for(let presetID=0; limit>content.length; presetID++) {
                     const next = presetGenerator.next();
-                    if(next.done)
+                    if(next.done) {
+                        endFound = true;
                         break;
-                    if(presetID < offset)
-                        continue;
+                    }
                     const [presetClass, presetConfig] = next.value;
                     const currentPresetHash = library.getTitle() + ':' + presetClass + ':' + presetConfig.title;
 
@@ -177,12 +193,19 @@ export default class ASCPresetBrowser extends React.Component {
                             continue;
                     }
 
+                    presetCount++;
+
+                    if(presetCount-1 < offset)
+                        continue;
+
+                    const selected = currentPresetClass === presetClass
+                        && compareConfig(currentPresetConfig, presetConfig, compareKeys);
 
                     const loading = loadingPresets.indexOf(currentPresetHash) !== -1;
                     content.push(<ASUIClickable
                         key={presetID}
                         onAction={() => this.loadPreset(currentPresetHash, presetClass, presetConfig)}
-                        selected={currentPresetHash === this.state.currentPresetHash}
+                        selected={selected}
                         loading={loading}
                         title={presetConfig.title}
                         // options={() => {}}
@@ -191,12 +214,6 @@ export default class ASCPresetBrowser extends React.Component {
                 }
 
 
-                content.unshift(<ASUIClickable
-                    key="preset-search"
-                    className="centered"
-                    onAction={() => this.promptSearch()}
-                    children={`Search${this.state.searchString ? `ing '${this.state.searchString}'` : ''}`}
-                />);
 
                 if(offset > 0) {
                     let prevOffset = offset - limit;
@@ -206,18 +223,26 @@ export default class ASCPresetBrowser extends React.Component {
                         key="preset-previous"
                         onAction={() => this.setOffset(prevOffset)}
                         className="centered"
-                        children={`Prev Page (${prevOffset}/${presetGenerator.length})`}
+                        children={`Prev Page`}
                     />);
                 }
                 let nextOffset = offset + limit;
-                if(nextOffset < presetGenerator.length) {
+                if(!endFound) {
                     content.push(<ASUIClickable
                         key="preset-next"
                         onAction={() => this.setOffset(nextOffset)}
                         className="centered"
-                        children={`Next Page (${offset}-${nextOffset}/${presetGenerator.length})`}
+                        children={`Next Page`}
                     />);
                 }
+
+                content.unshift(<ASUIClickable
+                    key="preset-search"
+                    className="centered"
+                    onAction={() => this.promptSearch()}
+                    children={`Search${this.state.searchString ? `ing '${this.state.searchString}'` : ''}`}
+                />);
+
             }
 
         }
@@ -329,7 +354,7 @@ export default class ASCPresetBrowser extends React.Component {
     /** Menu **/
 
     async renderMenuSelectLibrary() {
-        const defaultLibrary = await LibraryIterator.loadDefault();
+        const defaultLibrary = await LibraryProcessor.loadDefault();
         const library = this.getLibrary();
         const libraries = await library.getLibraries();
         return (<>
@@ -347,4 +372,18 @@ export default class ASCPresetBrowser extends React.Component {
             </ASUIMenuAction>}
         </>);
     }
+}
+
+function compareConfig(config1, config2, compareKeys=[]) {
+    // console.log('compareConfig', config1, config2, compareKeys);
+
+    // if (keys1.length !== keys2.length)
+    //     return false;
+
+    for (let key of compareKeys) {
+        if (config1[key] !== config2[key]) {
+            return false;
+        }
+    }
+    return true;
 }

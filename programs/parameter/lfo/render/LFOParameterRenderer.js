@@ -4,7 +4,7 @@ import {
     ASUIMenuBreak,
     ASUIInputRange, ASUIButtonDropDown, ASUIMenuDropDown, ASUIMenuItem,
 } from "../../../../components";
-import LibraryIterator from "../../../../song/library/LibraryIterator";
+import LibraryProcessor from "../../../../song/library/LibraryProcessor";
 import LFOParameterRendererContainer from "./container/LFOParameterRendererContainer";
 
 
@@ -27,7 +27,7 @@ class LFOParameterRenderer extends React.Component {
                 amplitude:   (newValue) => this.changeParam('amplitude', newValue),
             },
         };
-        this.library = LibraryIterator.loadDefault();
+        this.library = LibraryProcessor.loadDefault();
 
         // console.log(`${this.constructor.name}.constructor`, props);
     }

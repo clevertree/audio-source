@@ -7,12 +7,12 @@ import Instruction from "./instruction/Instruction";
 import InstructionIterator from "./instruction/iterator/InstructionIterator";
 import SongValues from "./values/SongValues";
 import {TrackIterator, TrackPlayback} from "./track";
-import LibraryIterator from "./library/LibraryIterator";
+import LibraryProcessor from "./library/LibraryProcessor";
 import FileService from "./file/service/FileService";
 import FileSupport from "./file/FileSupport";
 export {
     Song,
-    LibraryIterator,
+    LibraryProcessor,
     ProgramLoader,
     FileService,
     FileSupport,

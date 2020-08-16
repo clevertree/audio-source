@@ -38,6 +38,8 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
                 </ASUIButtonDropDown>
             </div>
             {open ? this.renderParameters() : null}
+            {open ? this.renderEnvelope() : null}
+            {open ? this.renderLFOs() : null}
         </div>;
     }
 
@@ -50,6 +52,28 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
                         <div>{props.children}</div>
                     </div>
                 ))}
+            </div>
+        )
+    }
+
+    renderLFOs() {
+        const lfos = this.props.lfos;
+        if(!lfos || lfos.length === 0)
+            return null;
+
+        return (
+            <div className="lfos">
+                {lfos}
+            </div>
+        )
+    }
+
+    renderEnvelope() {
+        const envelope = this.props.envelope;
+
+        return (
+            <div className="envelope">
+                {envelope}
             </div>
         )
     }

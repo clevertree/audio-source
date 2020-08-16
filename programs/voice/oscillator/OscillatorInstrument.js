@@ -1,5 +1,6 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
 import {ArgType, ProgramLoader, Values} from "../../../common/";
+import AudioBufferLoader from "../audiobuffer/loader/AudioBufferLoader";
 
 
 export default class OscillatorInstrument {
@@ -23,96 +24,54 @@ export default class OscillatorInstrument {
         this.config = config;
         this.playingOSCs = [];
         this.loadedPeriodicWave = null;
+
+
+        // Envelope
+        const [voiceClassName, voiceConfig] = this.config.envelope || OscillatorInstrument.defaultEnvelope;
+        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+        this.loadedEnvelope = new envelopeClass(voiceConfig);
+
+
+        // LFOs
         this.loadedLFOs = [];
-        this.loadedEnvelope = null;
-        this.loading = this.loadPrograms();
+        const lfos = this.config.lfos || [];
+        for (let lfoID=0; lfoID<lfos.length; lfoID++) {
+            const lfo = lfos[lfoID];
+            const [voiceClassName, voiceConfig] = lfo;
+            let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+            this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
+        }
+
+        // Audio Buffer
+        this.periodicWave = null;
+        const service = new PeriodicWaveLoader();
+        if(typeof this.config.url !== "undefined") {
+            let buffer = service.tryCache(this.config.url);
+            if(buffer) {
+                this.periodicWave = buffer;
+            } else {
+                this.periodicWave = service.loadPeriodicWaveFromURL(this.config.url, true)
+                    .then(periodicWave => {
+                        console.log("Loaded periodic wave: ", this.config.url, periodicWave);
+                        this.periodicWave = periodicWave;
+                    });
+            }
+        }
+
+
         this.activeMIDINotes = []
+    }
+
+    setPeriodicWave(oscillator) {
+        oscillator.setPeriodicWave(this.periodicWave)
     }
 
     /** Async loading **/
 
     async waitForAssetLoad() {
-        await this.loading;
+        await this.periodicWave;
     }
 
-    /** Loading **/
-
-    // async loadPeriodicWave() {
-    //
-    //     switch(this.config.type) {
-    //         default:
-    //             break;
-    //
-    //         // case null:
-    //         case 'custom':
-    //             if(!this.config.url)
-    //                 throw new Error("Custom osc requires a url");
-    //
-    //
-    //             const waveLoader = new PeriodicWaveLoader();
-    //             let periodicWave = waveLoader.tryCache(this.config.url);
-    //             if(periodicWave) {
-    //                 this.loadedPeriodicWave = periodicWave;
-    //
-    //             } else {
-    //                 waveLoader.loadPeriodicWaveFromURL(this.config.url)
-    //                     .then(periodicWave => {
-    //                         console.log("Loaded periodic wave: ", this.config.url, periodicWave);
-    //                         this.loadedPeriodicWave = periodicWave;
-    //                     });
-    //             }
-    //             break;
-    //     }
-    // }
-
-    async loadLFO(lfoID) {
-        if(this.loadedLFOs[lfoID])
-            return this.loadedLFOs[lfoID];
-        if(!this.config.lfos[lfoID])
-            throw new Error("LFO config is missing: " + lfoID);
-        const [voiceClassName, voiceConfig] = this.config.lfos[lfoID];
-        let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
-        const LFO = new lfoClass(voiceConfig);
-        this.loadedLFOs[lfoID] = LFO;
-
-        if(typeof LFO.waitForAssetLoad === "function")
-            await LFO.waitForAssetLoad()
-
-        return LFO;
-    }
-
-    async loadEnvelope() {
-        const [voiceClassName, voiceConfig] = this.config.envelope || OscillatorInstrument.defaultEnvelope;
-        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
-        const envelope = new envelopeClass(voiceConfig);
-        this.loadedEnvelope = envelope;
-        if(typeof envelope.waitForAssetLoad === "function")
-            await envelope.waitForAssetLoad()
-        return envelope;
-    }
-
-    async loadPrograms() {
-        const promises = [
-            // this.loadPeriodicWave(),
-            this.loadEnvelope()
-        ];
-        const lfos = this.config.lfos || [];
-        for (let i = 0; i < lfos.length; i++) {
-            promises.push(this.loadLFO(i));
-        }
-        for(let i=0; i < promises.length; i++)
-            await promises[i];
-    }
-
-
-    /** Command Routing **/
-
-
-    /** Effect **/
-
-    // useDestination(oldDestination) {
-    //     return null; // Null is no effect processing
-    // }
 
     /** Playback **/
 
@@ -133,26 +92,9 @@ export default class OscillatorInstrument {
         // console.log('playFrequency', startTime, duration, destination.context.currentTime);
 
 
-        const waveLoader = new PeriodicWaveLoader(audioContext);
-
-        // Convert frequency from string
-        // if(typeof frequency === "string")
-        //     frequency = Values.instance.parseFrequencyString(frequency);
-
-        // TODO: Detect config changes on the fly. Leave caching to browser. Destination cache?
-
-        // console.log('playFrequency', destination, frequency, startTime, duration, velocity)
-
 
         //         // Filter voice playback
-        //         if (voiceConfig.alias) {
-        //             if(voiceConfig.alias !== commandFrequency)
-        //                 // if(voiceConfig.name !== namedFrequency)
-        //                 continue;
-        //         } else {
-        //             frequencyValue = this.getCommandFrequency(commandFrequency);
-        //         }
-        //
+
         //         if (voiceConfig.keyLow && this.getCommandFrequency(voiceConfig.keyLow) > frequencyValue)
         //             continue;
         //         if (voiceConfig.keyHigh && this.getCommandFrequency(voiceConfig.keyHigh) < frequencyValue)
@@ -171,14 +113,12 @@ export default class OscillatorInstrument {
 
             // case null:
             case 'custom':
-                if(!this.config.url)
-                    throw new Error("Custom osc requires a url");
-                let periodicWave = waveLoader.tryCache(this.config.url);
-                if(periodicWave) {
-                    oscillator.setPeriodicWave(periodicWave)
+                if(this.periodicWave instanceof Promise) {
+                    console.warn("Note playback started without an audio buffer: " + this.config.url);
+                    this.periodicWave
+                        .then(buffer => this.setPeriodicWave(oscillator))
                 } else {
-                    waveLoader.loadPeriodicWaveFromURL(this.config.url)
-                        .then(periodicWave => oscillator.setPeriodicWave(periodicWave)); // TODO: late?
+                    this.setPeriodicWave(oscillator);
                 }
                 break;
         }

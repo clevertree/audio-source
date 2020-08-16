@@ -1,5 +1,5 @@
 import React from "react";
-import {Keyboard, LibraryIterator, Song, SongValues} from "../song";
+import {Keyboard, LibraryProcessor, Song, SongValues} from "../song";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
@@ -91,7 +91,7 @@ class ASComposerBase extends React.Component {
 
         this.keyboard = new Keyboard();
 
-        this.library = LibraryIterator.loadDefault();
+        this.library = LibraryProcessor.loadDefault();
         // console.log('library', this.library, this.library.getLibraries(), this.library.getPresets());
 
         this.song = new Song();

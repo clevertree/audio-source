@@ -1,15 +1,31 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
-import {Values} from "../../../common";
+import {ArgType, ProgramLoader, Values} from "../../../common";
 
 let activeNotes = [];
 
 class AudioBufferInstrument {
+    /** Command Args **/
+    static argTypes = {
+        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        pitchBendTo: [ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.onended],
+    };
+
+    /** Command Aliases **/
+    static commandAliases = {
+        pf: "playFrequency",
+        bt: "pitchBendTo",
+    }
+
+    static defaultEnvelope = ['envelope', {}];
+
+
     constructor(config={}) {
-        // console.log('AudioBufferInstrument', config);
+        console.log('AudioBufferInstrument', config);
 
         this.config = config;
         this.freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
         this.params = {}
+        this.activeMIDINotes = []
 
 
         // Filter sample playback
@@ -20,16 +36,30 @@ class AudioBufferInstrument {
             this.freqRange = null;
         }
 
-        this.audioBuffer = null;
-        this.loading = false;
+        // Envelope
+        const [voiceClassName, voiceConfig] = this.config.envelope || AudioBufferInstrument.defaultEnvelope;
+        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+        this.loadedEnvelope = new envelopeClass(voiceConfig);
 
+
+        // LFOs
+        this.loadedLFOs = [];
+        const lfos = this.config.lfos || [];
+        for (let lfoID=0; lfoID<lfos.length; lfoID++) {
+            const lfo = lfos[lfoID];
+            const [voiceClassName, voiceConfig] = lfo;
+            let {classProgram:lfoClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
+            this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
+        }
+
+        // Audio Buffer
         const service = new AudioBufferLoader();
         if(typeof this.config.url !== "undefined") {
             let buffer = service.tryCache(this.config.url);
             if(buffer) {
                 this.audioBuffer = buffer;
             } else {
-                this.loading = service.loadAudioBufferFromURL(this.config.url, true)
+                this.audioBuffer = service.loadAudioBufferFromURL(this.config.url, true)
                     .then(audioBuffer => {
                         console.log("Loaded audio buffer: ", this.config.url, audioBuffer);
                         this.audioBuffer = audioBuffer;
@@ -37,7 +67,6 @@ class AudioBufferInstrument {
             }
         }
 
-        this.activeMIDINotes = []
     }
 
 
@@ -59,16 +88,16 @@ class AudioBufferInstrument {
     /** Async loading **/
 
     async waitForAssetLoad() {
-        await this.loading;
+        await this.audioBuffer;
     }
 
     /** Playback **/
 
-    playFrequency(destination, frequencyValue, startTime=null, duration=null, velocity=null, onended=null) {
+    playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
         if (this.freqRange) {
             if (
-                this.freqRange[0] < frequencyValue
-                || this.freqRange[1] > frequencyValue
+                this.freqRange[0] < frequency
+                || this.freqRange[1] > frequency
             ) {
                 // console.log("Skipping out of range note: ", frequencyValue, this.freqRange);
                 return false;
@@ -98,18 +127,32 @@ class AudioBufferInstrument {
 
         // Audio Buffer
         const source = destination.context.createBufferSource();
-        if (this.audioBuffer) {
-            this.setBuffer(source);
-        } else {
-            this.loadBuffer()
-                .then(buffer => this.setBuffer(source))
-            console.warn("Note playback started without an audio buffer: " + this.config.url);
-        }
-        const playbackRate = frequencyValue / this.freqRoot;
-        source.playbackRate.value = playbackRate; //  Math.random()*2;
 
+        if(this.audioBuffer instanceof Promise) {
+            console.warn("Note playback started without an audio buffer: " + this.config.url);
+            this.audioBuffer
+                .then(buffer => this.setBuffer(source))
+        } else {
+            this.setBuffer(source);
+        }
+
+        // Playback Rate
+        source.playbackRate.value = frequency / this.freqRoot; //  Math.random()*2;
+
+        // Detune
         if(typeof this.config.detune !== "undefined")
             source.detune.value = this.config.detune;
+
+        // Envelope
+
+        const gainNode = this.loadedEnvelope.playFrequency(destination, frequency, startTime, duration, velocity);
+        destination = gainNode;
+
+        // LFOs
+
+        for(const LFO of this.loadedLFOs) {
+            LFO.playFrequency(source, frequency, startTime, duration, velocity);
+        }
 
 
         source.connect(destination);
