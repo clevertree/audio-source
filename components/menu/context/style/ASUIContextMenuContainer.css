@@ -29,7 +29,7 @@ div.asui-contextmenu-container > div.overlay.open {
     background-color: rgba(0, 0, 0, 0.27);
     width: 100%;
     height: 100%;
-    z-index: 2;
+    z-index: 3;
 }
 
 

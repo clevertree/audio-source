@@ -55,7 +55,7 @@ export default class TrackPlayback extends TrackIterator {
     onLoadProgram(trackStats, program) {
 
         const oldProgram = trackStats.program;
-        const oldDestination = trackStats.destination;
+        // const oldDestination = trackStats.destination;
         let programInstance;
         if(Array.isArray(program)) {
             programInstance = ProgramLoader.loadInstance(program[0], program[1]);

@@ -3,17 +3,17 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIButtonDropDown
+    ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem
 } from "../../../../components";
 import {LibraryProcessor, ProgramLoader} from "../../../../song";
 import {Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
-import OscillatorInstrumentRendererContainer
-    from "../../oscillator/render/container/OscillatorInstrumentRendererContainer.native";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
+    static fileRegex = /\.wav$/i;
+
     constructor(props) {
         super(props);
         this.cb = {
@@ -32,6 +32,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
+        this.library = LibraryProcessor.loadDefault();
     }
 
 
@@ -45,7 +46,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
     getTitle() {
         return this.props.config.title
             || (this.props.config.url
-                ? this.props.config.url.split('/').pop()
+                ? getNameFromURL(this.props.config.url)
                 : "empty buffer")
     }
 
@@ -141,9 +142,9 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 // if(config.type)
                 //     source = config.type;
                 if(config.url)
-                    source = config.url.split('/').pop();
+                    source = getNameFromURL(config.url); // .split('/').pop();
                 if(source && source.length > 16)
-                    source = '...' + source.substr(-16);
+                    source = source.substr(0, 16) + '...';
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.source}
@@ -215,15 +216,16 @@ class AudioBufferInstrumentRenderer extends React.Component {
     }
 
 
-    changeAudioBuffer(newType) {
+    changeAudioBuffer(newType, url) {
         if(newType === 'custom') {
+            this.props.config.url = url;
         } else {
             delete this.props.config.url;
             delete this.props.config.real;
             delete this.props.config.imag;
             delete this.props.config.title;
-            this.props.config.type = newType;
         }
+        this.props.config.type = newType;
     }
 
     // changeLoop(newLoopValue=null) {
@@ -259,16 +261,13 @@ class AudioBufferInstrumentRenderer extends React.Component {
         </>);
     }
 
-    async renderMenuChangeAudioBuffer() {
+    renderMenuChangeAudioBuffer() {
 
-        const library = LibraryProcessor.loadDefault();
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeAudioBufferStandard()}>Standard</ASUIMenuDropDown>
+            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeAudioBufferCustom()}>Custom</ASUIMenuDropDown>*/}
             {/*<MenuDropDown options={() => this.renderMenuChangeAudioBuffer('custom')}>Custom</MenuDropDown>*/}
-            <ASUIMenuBreak/>
-            {await library.renderMenuProgramAllPresets((className, presetConfig) => {
-                this.loadPreset(className, presetConfig);
-            }, this.props.program[0])}
+            {this.renderMenuChangeAudioBufferCustom(this.library)}
         </>);
     }
 
@@ -279,6 +278,31 @@ class AudioBufferInstrumentRenderer extends React.Component {
             <ASUIMenuAction onAction={e => this.changeAudioBuffer('sawtooth')}>Sawtooth</ASUIMenuAction>
             <ASUIMenuAction onAction={e => this.changeAudioBuffer('triangle')}>Triangle</ASUIMenuAction>
         </>);
+    }
+
+    renderMenuChangeAudioBufferCustom(library=this.library) {
+        const libraries = library.renderMenuLibraryOptions((library) =>
+            this.renderMenuChangeAudioBufferCustom(library)
+        );
+        const samples = library.renderMenuSamples((sampleURL) =>
+            this.changeAudioBuffer('custom', sampleURL),
+        AudioBufferInstrumentRenderer.fileRegex);
+        const content = [];
+        if(samples) {
+            content.push(<>
+                <ASUIMenuBreak/>
+                <ASUIMenuItem>{library.getTitle()}</ASUIMenuItem>
+                <ASUIMenuBreak/>
+                {samples}
+            </>)
+        }
+        if(libraries) {
+            content.push(<>
+                <ASUIMenuBreak/>
+                {libraries}
+            </>)
+        }
+        return content.length === 0 ? <ASUIMenuItem>No Samples</ASUIMenuItem> : content;
     }
 
 
@@ -307,3 +331,5 @@ class AudioBufferInstrumentRenderer extends React.Component {
 }
 
 export default AudioBufferInstrumentRenderer;
+
+function getNameFromURL(url) { return url.split('/').pop().replace('.wav', ''); }

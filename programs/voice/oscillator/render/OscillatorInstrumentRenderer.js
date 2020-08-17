@@ -6,7 +6,7 @@ import {
     ASUIMenuDropDown, ASUIButtonDropDown,
 } from "../../../../components";
 import LibraryProcessor from "../../../../song/library/LibraryProcessor";
-import {Values, ProgramLoader} from "../../../../common";
+import {ProgramLoader} from "../../../../common";
 
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
 
@@ -268,7 +268,7 @@ class OscillatorInstrumentRenderer extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</ASUIMenuDropDown>
             {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
             <ASUIMenuBreak/>
-            {await this.library.renderMenuProgramAllPresets((className, presetConfig) => {
+            {await this.library.renderMenuPresets((className, presetConfig) => {
                 this.loadPreset(className, presetConfig);
             }, this.props.program[0])}
         </>);

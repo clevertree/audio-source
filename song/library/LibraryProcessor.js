@@ -37,6 +37,21 @@ class LibraryProcessor {
         return presets;
     }
 
+    getSampleGenerator() {
+        // console.log('Library.getPresetGenerator', this.data.presets);
+        let samples = this.data.samples;
+        if(typeof samples === "function")
+            samples = this.data.samples();
+        if(Array.isArray(samples)) {
+            samples = function*() {
+                for(let preset of samples)
+                    yield preset;
+            }
+            samples = samples();
+        }
+        return samples;
+    }
+
     async waitForAssetLoad() {
         if(typeof this.data.waitForAssetLoad === "function")
             await this.data.waitForAssetLoad();
@@ -50,7 +65,7 @@ class LibraryProcessor {
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuProgramNew(onSelectPreset, programClass)}>New Program</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            <ASUIMenuDropDown options={() => this.renderMenuProgramAllPresets(onSelectPreset, programClass, true)}>Using Preset</ASUIMenuDropDown>
+            <ASUIMenuDropDown options={() => this.renderMenuPresets(onSelectPreset, programClass, true)}>Using Preset</ASUIMenuDropDown>
         </>);
     }
 
@@ -62,40 +77,100 @@ class LibraryProcessor {
         </>);
     }
 
-    async renderMenuProgramAllPresets(onSelectPreset, programClassFilter=null, includeRecent=true) {
-        let presets = await this.getPresetGenerator(programClassFilter);
-        const libraries = await this.getLibraries();
-        return (<>
-            {/*{includeRecent && false ? <ASUIMenuDropDown*/}
-            {/*    disabled={true}*/}
-            {/*    options={() => this.renderMenuProgramRecentPresets(onSelectPreset, programClassFilter)}>*/}
-            {/*    Recent Presets*/}
-            {/*</ASUIMenuDropDown> : null}*/}
-            {/*{includeRecent && Library.lastSelectedLibrary ? <ASUIMenuDropDown*/}
-            {/*    disabled={Library.lastSelectedLibrary.getPresets().length === 0}*/}
-            {/*    options={() => Library.lastSelectedLibrary.renderMenuProgramPresets(onSelectPreset, programClassFilter)}>*/}
-            {/*    Current Library*/}
-            {/*</ASUIMenuDropDown> : null }*/}
+    renderMenuSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
+        let samples = this.getSampleGenerator();
 
-            {libraries.map((library, i) => (
-                <ASUIMenuDropDown
-                    key={i++}
-                    options={() => library.renderMenuProgramAllPresets(onSelectPreset, programClassFilter, false)}
-                >
-                    {library.getTitle()}
-                </ASUIMenuDropDown>
-            ))}
-
-            <ASUIMenuBreak />
-            {presets.length > 0 ? <>
-                <ASUIMenuItem>{this.getTitle()}</ASUIMenuItem>
-                {presets.map(([className, presetConfig], i) =>
-                    <ASUIMenuAction key={i} onAction={e => onSelectPreset(className, presetConfig)}>{presetConfig.title || 'Untitled Preset #' + i}</ASUIMenuAction>
-                )}
-            </> : <ASUIMenuItem>No Presets</ASUIMenuItem>}
-
-        </>);
+        let i=0;
+        const content = [];
+        if(samples) {
+            let nextSample = samples.next();
+            while (!nextSample.done) {
+                const sampleURL = nextSample.value.toString();
+                nextSample = samples.next();
+                if (fileRegex !== null) {
+                    if (!fileRegex.test(sampleURL))
+                        continue;
+                }
+                const title = sampleURL.split('/').pop();
+                content.push(
+                    <ASUIMenuAction key={i} onAction={e => onSelectSample(sampleURL)}>
+                        {title || 'Untitled Sample'}
+                    </ASUIMenuAction>
+                )
+            }
+        }
+        return content.length === 0 ? null : content;
     }
+
+
+    renderMenuPresets(onSelectPreset) {
+        let presets = this.getPresetGenerator();
+
+        let i=0;
+        const content = [];
+
+        if(presets) {
+            let nextPreset = presets.next();
+            while (!nextPreset.done) {
+                const [presetClassName, presetConfig] = nextPreset.value;
+                nextPreset = presets.next();
+                content.push(
+                    <ASUIMenuAction key={i} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
+                        {presetConfig.title || 'Untitled Preset #' + i}
+                    </ASUIMenuAction>
+                )
+            }
+        }
+        return content.length === 0 ? null : content;
+    }
+
+
+    renderMenuLibraries(onSelectPreset) {
+        let i=0;
+        const content = [];
+        const libraries = this.getLibraryGenerator();
+
+        if(libraries) {
+            let nextLibrary = libraries.next();
+            while (!nextLibrary.done) {
+                const library = new LibraryProcessor(nextLibrary.value);
+                nextLibrary = libraries.next();
+                content.push(
+                    <ASUIMenuDropDown
+                        key={i}
+                        options={() => library.renderMenuPresets(onSelectPreset)}
+                    >
+                        {library.getTitle()}
+                    </ASUIMenuDropDown>
+                )
+            }
+        }
+        return content.length === 0 ? null : content;
+    }
+
+    renderMenuLibraryOptions(onSelectLibraryOptions) {
+        let i=0;
+        const content = [];
+        const libraries = this.getLibraryGenerator();
+
+        if(libraries) {
+            let nextLibrary = libraries.next();
+            while(!nextLibrary.done) {
+                const library = new LibraryProcessor(nextLibrary.value);
+                content.push(
+                    <ASUIMenuDropDown
+                        key={i}
+                        options={onSelectLibraryOptions(library)}
+                    >
+                        {library.getTitle()}
+                    </ASUIMenuDropDown>
+                )
+                nextLibrary = libraries.next();
+            }
+        }
+        return content.length === 0 ? null : content;
+    }
+
 
 
     // async renderMenuProgramRecentPresets(onSelectPreset, programClassFilter=null) {
@@ -129,20 +204,6 @@ class LibraryProcessor {
             ) : <ASUIMenuItem>No Presets</ASUIMenuItem>}
         </>);
     }
-
-    async renderMenuLibraryOptions(onSelectLibraryOptions) {
-        const libraries = await this.getLibraries();
-        return libraries.map((library, i) =>
-            <ASUIMenuDropDown key={i++}
-                options={() => {
-                    LibraryProcessor.lastSelectedLibrary = library;
-                    return onSelectLibraryOptions(library, i);
-                }}>
-                {library.getTitle()}
-            </ASUIMenuDropDown>
-        );
-    }
-
     // renderMenuProgramLibraryPresets(onSelectPreset, programClass=null) {
     //     return this.renderMenuLibraryOptions(programClass, library =>
     //         library.renderSubMenuProgramPresets(onSelectPreset, programClass)
@@ -240,10 +301,3 @@ class LibraryProcessor {
 LibraryProcessor.cache = {};
 export default LibraryProcessor;
 
-function resolve(item, thisItem, callbackParameter=null) {
-    if(typeof item === "function")
-        item = item.apply(thisItem, callbackParameter);
-    // if(item instanceof Promise)
-    //     item = await item;
-    return item;
-}

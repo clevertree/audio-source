@@ -2,7 +2,7 @@ import React from 'react';
 import {
     ASUIMenuAction,
     ASUIMenuBreak,
-    ASUIInputRange, ASUIButtonDropDown, ASUIMenuDropDown, ASUIMenuItem,
+    ASUIInputRange, ASUIButtonDropDown, ASUIMenuItem,
 } from "../../../../components";
 import LibraryProcessor from "../../../../song/library/LibraryProcessor";
 import LFOParameterRendererContainer from "./container/LFOParameterRendererContainer";
@@ -85,7 +85,6 @@ class LFOParameterRenderer extends React.Component {
     /** Inputs **/
 
     renderInput(paramName) {
-        let value;
         const config = this.props.config;
         switch(paramName) {
 
@@ -117,6 +116,9 @@ class LFOParameterRenderer extends React.Component {
                     children={`${value}x`}
                     onChange={this.cb.changeParam[paramName]}
                 />;
+
+            default:
+                throw new Error("Unknown parameter: " + paramName);
         }
     }
 

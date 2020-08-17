@@ -1,5 +1,3 @@
-import {ProgramLoader} from "../../../common";
-
 class EnvelopeEffect {
     constructor(config={}) {
         this.config = config;

@@ -174,7 +174,7 @@ export default class ASCProgramRendererBase extends React.Component {
         let programClassName = null;
         if(this.getSong().hasProgram(programID))
             programClassName = this.getSong().programGetClassName(programID);
-        return await library.renderMenuProgramAllPresets((className, presetConfig) => {
+        return await library.renderMenuPresets((className, presetConfig) => {
             this.loadPreset(className, presetConfig);
         }, programClassName);
     }

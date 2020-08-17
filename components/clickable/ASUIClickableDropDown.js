@@ -82,7 +82,7 @@ export default class ASUIClickableDropDown extends ASUIClickable {
     }
 
     toggleMenu(e) {
-        console.log('open', this.state.open);
+        // console.log('open', this.state.open);
         if (!this.state.open)
             this.openDropDownMenu(e);
             // else if (!this.state.stick)
