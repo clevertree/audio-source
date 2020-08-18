@@ -3,38 +3,46 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIButtonDropDown,
+    ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem,
 } from "../../../../components";
-import LibraryProcessor from "../../../../song/library/LibraryProcessor";
-import {ProgramLoader} from "../../../../common";
+import {LibraryProcessor, ProgramLoader} from "../../../../song";
 
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
+import PropTypes from "prop-types";
+import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
 
 
-class OscillatorInstrumentRenderer extends React.Component {
-    static sourceParameters = {
-        frequency: "Oscillator Frequency",
-        detune: "Oscillator Detune",
+export default class OscillatorInstrumentRenderer extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        parentMenu: PropTypes.func,
     };
-    static fileRegex = /\.json$/i;
+
+    /** Automation Parameters **/
+    static sourceParameters = {
+        frequency: "Osc Frequency",
+        detune: "Osc Detune",
+    };
+
+    /** Formatting Callbacks **/
     static formats = {
         cents: value => `${value}c`
     }
 
+    static fileRegex = /\.json$/i;
+
     constructor(props) {
         super(props);
-        this.state = {
-            open: false
-        };
         this.cb = {
             onClick: e => this.toggleOpen(),
+            renderLFOMenu: lfoID => this.renderLFOMenu(lfoID),
             renderMenu: {
                 root: () => this.renderMenuRoot(),
             },
             renderParamMenu: {
                 // root: () => this.renderMenuChangeKeyRoot(),
                 // alias: () => this.renderMenuChangeKeyAlias(),
-                range: () => this.renderMenuChangeKeyRange(),
+                // range: () => this.renderMenuChangeKeyRange(),
                 source: () => this.renderMenuChangeOscillator(),
             },
             changeParam: {
@@ -93,12 +101,13 @@ class OscillatorInstrumentRenderer extends React.Component {
             //     title:      `Key Alias is ${config.alias}`,
             //     children:   this.renderInput('alias'),
             // },
-            {
-                label:      'Range',
-                title:      `Key Range is ${config.range}`,
-                children:   this.renderInput('range'),
-            },
+            // {
+            //     label:      'Range',
+            //     title:      `Key Range is ${config.range}`,
+            //     children:   this.renderInput('range'),
+            // },
         ];
+
 
         let lfos = [];
         if(config.lfos) {
@@ -108,9 +117,9 @@ class OscillatorInstrumentRenderer extends React.Component {
 
                 return <Renderer
                     key={i}
-                    onRemove={this.cb.onRemove}
-                    instrumentID={i}
+                    parentMenu={this.cb.renderLFOMenu}
                     config={config}
+                    programID={i}
                     program={lfo}
                     parameters={this.constructor.sourceParameters}
                 />;
@@ -197,11 +206,11 @@ class OscillatorInstrumentRenderer extends React.Component {
             //         options={this.cb.renderParamMenu.alias}
             //     >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
 
-            case 'range':
-                return <ASUIButtonDropDown
-                    className="small"
-                    options={this.cb.renderParamMenu.range}
-                >{config.range ? config.range : "[any]"}</ASUIButtonDropDown>
+            // case 'range':
+            //     return <ASUIButtonDropDown
+            //         className="small"
+            //         options={this.cb.renderParamMenu.range}
+            //     >{config.range ? config.range : "[any]"}</ASUIButtonDropDown>
 
             default:
                 return 'Unknown';
@@ -223,15 +232,21 @@ class OscillatorInstrumentRenderer extends React.Component {
         this.props.config[paramName] = newValue;
     }
 
-    changeOscillator(newType) {
-        if(newType === 'custom') {
-        } else {
-            delete this.props.config.url;
-            delete this.props.config.real;
-            delete this.props.config.imag;
-            delete this.props.config.title;
-            this.props.config.type = newType;
-        }
+    removeParam(paramName) {
+        const oldValue = this.props.config[paramName];
+        console.log(`Removing parameter ${paramName}: ${oldValue}`);
+        delete this.props.config[paramName];
+    }
+
+    changeOscillatorStandard(newType) {
+        delete this.props.config.url;
+        this.props.config.type = newType;
+    }
+
+    changeSampleURL(url) {
+        // TODO: const service = new PeriodicWaveLoader();
+        this.props.config.url = url;
+        this.props.config.type = 'custom';
     }
 
     // changeLoop(newLoopValue=null) {
@@ -249,6 +264,24 @@ class OscillatorInstrumentRenderer extends React.Component {
         console.log("Loaded preset: ", presetConfig);
     }
 
+    /** LFO Actions **/
+
+    addLFO(parameterName) {
+        const lfos = this.props.config.lfos || [];
+        lfos.push(['LFO', {
+            parameter: parameterName
+        }])
+        this.props.config.lfos = lfos;
+    }
+
+    removeLFO(lfoID) {
+        const lfos = this.props.config.lfos;
+        if(!lfos[lfoID])
+            throw new Error("LFO not found: " + lfoID);
+        lfos.splice(lfoID, 1);
+        this.props.config.lfos = lfos;
+    }
+
     /** Menus **/
 
     renderMenuRoot() {
@@ -259,55 +292,103 @@ class OscillatorInstrumentRenderer extends React.Component {
             <ASUIMenuBreak />
             {/*<ASUIMenuDropDown options={() => this.renderMenuChangeMixer()}>Edit Mixer</ASUIMenuDropDown>*/}
             <ASUIMenuDropDown options={() => this.renderMenuChangeDetune()}>Edit Detune</ASUIMenuDropDown>
-            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>*/}
-            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>*/}
-            <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</ASUIMenuDropDown>
-            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
-            <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Oscillator</ASUIMenuAction>
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuAddLFO()}>Add LFO</ASUIMenuDropDown>
+
+            {this.props.parentMenu ? <>
+                <ASUIMenuBreak />
+                {this.props.parentMenu(this.props.programID)}
+            </> : null}
         </>);
     }
 
-    async renderMenuChangeOscillator() {
+    renderMenuChangeOscillator() {
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</ASUIMenuDropDown>
-            {/*<MenuDropDown options={() => this.renderMenuChangeOscillator('custom')}>Custom</MenuDropDown>*/}
-            <ASUIMenuBreak/>
-            {await this.library.renderMenuPresets((className, presetConfig) => {
-                this.loadPreset(className, presetConfig);
-            }, this.props.program[0])}
+            <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorSample()}>Sample</ASUIMenuDropDown>
+            {/*{await this.library.renderMenuPresets((className, presetConfig) => {*/}
+            {/*    this.loadPreset(className, presetConfig);*/}
+            {/*}, this.props.program[0])}*/}
         </>);
     }
 
     renderMenuChangeOscillatorStandard() {
         return (<>
-            <ASUIMenuAction onAction={e => this.changeOscillator('sine')}>Sine</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.changeOscillator('square')}>Square</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.changeOscillator('sawtooth')}>Sawtooth</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.changeOscillator('triangle')}>Triangle</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillatorStandard('sine')}>Sine</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillatorStandard('square')}>Square</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillatorStandard('sawtooth')}>Sawtooth</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => this.changeOscillatorStandard('triangle')}>Triangle</ASUIMenuAction>
         </>);
+    }
+
+    renderMenuChangeOscillatorSample() {
+        const recentSamples = LibraryProcessor.renderMenuRecentSamples(
+            sampleURL => this.changeAudioBufferURL(sampleURL),
+            OscillatorInstrumentRenderer.fileRegex
+        )
+        return (
+            <>
+                <ASUIMenuItem>Select New Sample</ASUIMenuItem>
+                <ASUIMenuBreak />
+                {this.renderMenuChangeOscillatorSampleWithLibrary(this.library)}
+                {recentSamples ? <>
+                    <ASUIMenuBreak />
+                    <ASUIMenuItem>Recent Samples</ASUIMenuItem>
+                    {recentSamples}
+                </> : null}
+            </>
+        );
+    }
+
+    renderMenuChangeOscillatorSampleWithLibrary(library) {
+        const libraries = library.renderMenuLibraryOptions((library) =>
+            this.renderMenuChangeOscillatorSampleWithLibrary(library)
+        );
+        const samples = library.renderMenuSamples(
+            (sampleURL) => this.changeSampleURL(sampleURL),
+            OscillatorInstrumentRenderer.fileRegex);
+        let content = [];
+        if(libraries) {
+            content = content.concat(libraries);
+        }
+        if(samples) {
+            if(content.length > 0)
+                content.push(<ASUIMenuBreak key="break-section"/>);
+            content.push(<ASUIMenuItem>{library.getTitle()}</ASUIMenuItem>);
+            content.push(<ASUIMenuBreak key="break-samples"/>);
+            content = content.concat(samples);
+        }
+        return content.length === 0 ? <ASUIMenuItem>No Samples</ASUIMenuItem> : content;
     }
 
     renderMenuChangeDetune() {
-        const config = this.props.config;
         return (<>
-            <ASUIInputRange
-                min={-1000}
-                max={1000}
-                value={typeof config.detune !== "undefined" ? config.detune : 100}
-                onChange={(detuneValue) => this.changeParam('detune', detuneValue)}
-                />
-            <ASUIMenuAction onAction={() => {}} disabled>Add LFO</ASUIMenuAction>
+            {this.renderInput('detune')}
+            <ASUIMenuAction onAction={() => true}>- Close -</ASUIMenuAction>
+            <ASUIMenuBreak/>I
+            <ASUIMenuAction onAction={() => this.removeParam('detune')}>Clear Detune</ASUIMenuAction>
         </>);
     }
 
 
 
-    renderMenuChangeKeyRange() {
-        return (<>TODO</>);
+    /** LFO **/
+
+    renderMenuAddLFO() {
+        const sourceParameters = OscillatorInstrumentRenderer.sourceParameters;
+        return Object.keys(sourceParameters).map((sourceParameter, i) => <ASUIMenuAction
+            key={i++}
+            onAction={() => this.addLFO(sourceParameter)}
+        >{`on ${sourceParameters[sourceParameter]}`}</ASUIMenuAction>)
     }
 
+    renderLFOMenu(lfoID) {
+        let i=0;
+        return [
+            <ASUIMenuAction key={i++} onAction={e => this.removeLFO(lfoID)}>Remove LFO</ASUIMenuAction>
+        ];
+    }
 }
 
-export default OscillatorInstrumentRenderer;
 
 function getNameFromURL(url) { return url.split('/').pop().replace('.json', ''); }

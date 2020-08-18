@@ -1,5 +1,6 @@
 
 div.asui-button {
+    min-height: 20px;
     /*z-index: 3;*/
     padding: 0 2px;
     margin: 0 0;
@@ -34,7 +35,7 @@ div.asui-button.wide {
     padding: 0 6px;
 }
 div.asui-button.small {
-    font-size: smaller;
+    font-size: small;
 }
 
 /** Menu Arrow **/

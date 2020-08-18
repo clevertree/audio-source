@@ -18,7 +18,7 @@ export default class LFOParameterRendererContainer extends React.Component {
             <div className="header"
                  title={title}>
                 <ASUIButton
-                    className="toggle-container"
+                    className="toggle-container small"
                     selected={open}
                     onAction={this.props.onClick}
                 >

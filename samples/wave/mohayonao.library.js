@@ -17,6 +17,16 @@ const Mohayonao = {
     }
   },
 
+
+
+  samples: function* () {
+    const samples = LibraryData.samples;
+    for(let i=0; i<samples.length; i++) {
+      let sample = samples[i];
+      yield LibraryData.baseURL + sample;
+    }
+  }
+
   /** Async loading **/
   // async waitForAssetLoad() {}
 

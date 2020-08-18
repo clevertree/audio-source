@@ -49,7 +49,7 @@ export default class ProgramLoader {
     }
 
 
-    programLoadRenderer(programID) {
+    programLoadRenderer(programID, props={}) {
         const program = this.getData(programID);
         const [className, config] = program;
         const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
@@ -57,6 +57,7 @@ export default class ProgramLoader {
             programID={programID}
             program={program}
             config={config}
+            {...props}
         />;
     }
 

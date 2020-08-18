@@ -15,7 +15,8 @@ export default class ASCProgramRendererBase extends React.Component {
             togglePresetBrowser: () => this.togglePresetBrowser(),
             toggleContainer: e => this.toggleContainer(),
             onFocus: e => this.onFocus(e),
-            menuRoot: () => this.renderMenuRoot()
+            menuRoot: () => this.renderMenuRoot(),
+            parentMenu: programID => this.renderMenuManageProgram(programID)
         }
     }
 
@@ -37,9 +38,9 @@ export default class ASCProgramRendererBase extends React.Component {
     // }
 
 
-    renderProgramContent() {
+    renderProgramContent(props={}) {
         try {
-            return this.getSong().programLoadRenderer(this.props.programID);
+            return this.getSong().programLoadRenderer(this.props.programID, props);
 
         } catch (e) {
             return e.message;
@@ -126,6 +127,15 @@ export default class ASCProgramRendererBase extends React.Component {
     /** Menu **/
 
 
+    renderMenuManageProgram() {
+        const composer = this.getComposer();
+        return (<>
+            <ASUIMenuAction onAction={e => composer.programRenamePrompt(this.props.programID)}>Rename Program</ASUIMenuAction>
+            <ASUIMenuAction onAction={e => composer.programRemovePrompt(this.props.programID)}>Remove Program</ASUIMenuAction>
+        </>);
+    }
+
+
     renderMenuRoot() {
         const composer = this.getComposer();
         const programState = this.getProgramState();
@@ -134,10 +144,7 @@ export default class ASCProgramRendererBase extends React.Component {
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuBreak />
-            {/*<ASUIMenuDropDown options={() => this.renderMenuWrapProgram()}>Wrap Program</ASUIMenuDropDown>*/}
-            {/*<ASUIMenuBreak />*/}
-            <ASUIMenuAction onAction={e => composer.programRenamePrompt(this.props.programID)}>Rename Program</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => composer.programRemovePrompt(this.props.programID)}>Remove Program</ASUIMenuAction>
+            {this.renderMenuManageProgram()}
         </>);
     }
 

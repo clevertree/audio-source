@@ -34,7 +34,7 @@ export default class EnvelopeEffectRendererContainer extends React.Component {
         >
             <ASUIButton
                 title={`Envelope Effect`}
-                className="toggle-container"
+                className="toggle-container small"
                 selected={open}
                 onAction={this.props.onClick}
             >

@@ -9,18 +9,33 @@ import {LibraryProcessor, ProgramLoader} from "../../../../song";
 import {Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
+import PropTypes from "prop-types";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
-    static fileRegex = /\.wav$/i;
+    /** Property validation **/
+    static propTypes = {
+        parentMenu: PropTypes.func,
+    };
+
+    /** Automation Parameters **/
+    static sourceParameters = {
+        playbackRate: "Playback Rate",
+        detune: "Detune",
+    };
+
+    /** Formatting Callbacks **/
     static formats = {
         cents: value => `${value}c`
     }
+
+    static fileRegex = /\.wav$/i;
 
     constructor(props) {
         super(props);
         this.cb = {
             onClick: e => this.toggleOpen(),
+            renderLFOMenu: lfoID => this.renderLFOMenu(lfoID),
             renderMenu: {
                 root: () => this.renderMenuRoot(),
             },
@@ -99,9 +114,9 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
                 return <Renderer
                     key={i}
-                    onRemove={this.cb.onRemove}
-                    instrumentID={i}
+                    parentMenu={this.cb.renderLFOMenu}
                     config={config}
+                    programID={i}
                     program={lfo}
                     parameters={this.constructor.sourceParameters}
                 />;
@@ -192,10 +207,13 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 >{config.alias ? config.alias : "-"}</ASUIButtonDropDown>
 
             case 'range':
+                let range = '[all]';
+                if(config.rangeStart || config.rangeEnd)
+                    range = `${config.rangeStart||'[low]'} to ${config.rangeEnd||'[high]'}`;
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.range}
-                >{config.range ? config.range : "[any]"}</ASUIButtonDropDown>
+                >{range}</ASUIButtonDropDown>
 
             default:
                 return 'Unknown';
@@ -220,15 +238,33 @@ class AudioBufferInstrumentRenderer extends React.Component {
         this.props.config[paramName] = newValue;
     }
 
-    removeParam(paramName,) {
+    removeParam(paramName) {
         const oldValue = this.props.config[paramName];
         console.log(`Removing parameter ${paramName}: ${oldValue}`);
         delete this.props.config[paramName];
     }
 
 
-    changeAudioBufferURL(url) {
+    changeSampleURL(url) {
         this.props.config.url = url;
+    }
+
+    /** LFO Actions **/
+
+    addLFO(parameterName) {
+        const lfos = this.props.config.lfos || [];
+        lfos.push(['LFO', {
+            parameter: parameterName
+        }])
+        this.props.config.lfos = lfos;
+    }
+
+    removeLFO(lfoID) {
+        const lfos = this.props.config.lfos;
+        if(!lfos[lfoID])
+            throw new Error("LFO not found: " + lfoID);
+        lfos.splice(lfoID, 1);
+        this.props.config.lfos = lfos;
     }
 
     // changeLoop(newLoopValue=null) {
@@ -251,14 +287,21 @@ class AudioBufferInstrumentRenderer extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRoot()}>Edit Key Root</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyAlias()}>Edit Key Alias</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeKeyRange()}>Edit Key Range</ASUIMenuDropDown>
+
+            <ASUIMenuBreak />
+            <ASUIMenuDropDown options={() => this.renderMenuAddLFO()}>Add LFO</ASUIMenuDropDown>
+
             {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
-            <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove AudioBuffer</ASUIMenuAction>
+            {this.props.parentMenu ? <>
+                <ASUIMenuBreak />
+                {this.props.parentMenu(this.props.programID)}
+            </> : null}
         </>);
     }
 
     renderMenuChangeAudioBuffer() {
         const recentSamples = LibraryProcessor.renderMenuRecentSamples(
-            sampleURL => this.changeAudioBufferURL(sampleURL),
+            sampleURL => this.changeSampleURL(sampleURL),
             AudioBufferInstrumentRenderer.fileRegex
         )
         return (
@@ -266,8 +309,8 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 <ASUIMenuItem>Select New Sample</ASUIMenuItem>
                 <ASUIMenuBreak />
                 {this.renderMenuChangeAudioBufferWithLibrary(this.library)}
-                <ASUIMenuBreak />
                 {recentSamples ? <>
+                    <ASUIMenuBreak />
                     <ASUIMenuItem>Recent Samples</ASUIMenuItem>
                     {recentSamples}
                 </> : null}
@@ -281,7 +324,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
             this.renderMenuChangeAudioBufferWithLibrary(library)
         );
         const samples = library.renderMenuSamples(
-            (sampleURL) => this.changeAudioBufferURL(sampleURL),
+            (sampleURL) => this.changeSampleURL(sampleURL),
             AudioBufferInstrumentRenderer.fileRegex);
         let content = [];
         if(libraries) {
@@ -300,6 +343,8 @@ class AudioBufferInstrumentRenderer extends React.Component {
     renderMenuChangeDetune() {
         return (<>
             {this.renderInput('detune')}
+            <ASUIMenuAction onAction={() => true}>- Close -</ASUIMenuAction>
+            <ASUIMenuBreak/>I
             <ASUIMenuAction onAction={() => this.removeParam('detune')}>Clear Detune</ASUIMenuAction>
         </>);
     }
@@ -325,7 +370,51 @@ class AudioBufferInstrumentRenderer extends React.Component {
 
 
     renderMenuChangeKeyRange() {
-        return (<>TODO</>);
+        let i=0;
+        return [
+            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeStart()}>Range Start</ASUIMenuDropDown>,
+            <ASUIMenuDropDown key={i++} options={() => this.renderMenuChangeKeyRangeEnd()}>Range End</ASUIMenuDropDown>,
+            <ASUIMenuBreak key={i++} />,
+            <ASUIMenuAction  key={i++} onAction={() => {
+                this.removeParam('rangeStart');
+                this.removeParam('rangeEnd');
+            }}>Clear Range</ASUIMenuAction>,
+        ];
+    }
+    renderMenuChangeKeyRangeStart() {
+        return (<>
+            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+                this.changeParam('rangeStart', noteNameOctave)
+            }, this.props.config.rangeStart, "Change Range Start")}
+            <ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => this.removeParam('rangeStart')}>Clear Range Start</ASUIMenuAction>
+        </>);
+    }
+    renderMenuChangeKeyRangeEnd() {
+        return (<>
+            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+                this.changeParam('rangeEnd', noteNameOctave)
+            }, this.props.config.rangeEnd, "Change Range End")}
+            <ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => this.removeParam('rangeEnd')}>Clear Range End</ASUIMenuAction>
+        </>);
+    }
+
+    /** LFO **/
+
+    renderMenuAddLFO() {
+        const sourceParameters = AudioBufferInstrumentRenderer.sourceParameters;
+        return Object.keys(sourceParameters).map((sourceParameter, i) => <ASUIMenuAction
+            key={i++}
+            onAction={() => this.addLFO(sourceParameter)}
+        >{`on ${sourceParameters[sourceParameter]}`}</ASUIMenuAction>)
+    }
+
+    renderLFOMenu(lfoID) {
+        let i=0;
+        return [
+            <ASUIMenuAction key={i++} onAction={e => this.removeLFO(lfoID)}>Remove LFO</ASUIMenuAction>
+        ];
     }
 
     // renderMenuChangeLoop() {

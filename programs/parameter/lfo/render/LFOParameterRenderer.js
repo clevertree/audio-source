@@ -6,9 +6,21 @@ import {
 } from "../../../../components";
 import LibraryProcessor from "../../../../song/library/LibraryProcessor";
 import LFOParameterRendererContainer from "./container/LFOParameterRendererContainer";
+import PropTypes from "prop-types";
 
 
 class LFOParameterRenderer extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        parentMenu: PropTypes.func,
+    };
+
+    /** Formatting Callbacks **/
+    static formats = {
+        hz: value => `${value}hz`,
+        x: value => `${value}x`
+    }
+
     constructor(props) {
         super(props);
         this.state = {
@@ -42,8 +54,10 @@ class LFOParameterRenderer extends React.Component {
 
     getTitle() {
         const config = this.props.config;
-        if(config.parameter)
-            return "LFO: " + config.parameter;
+        if(config.parameter) {
+            const parameters = this.props.parameters;
+            return "LFO: " + (parameters[config.parameter] || config.parameter);
+        }
         return "LFO";
     }
 
@@ -102,18 +116,19 @@ class LFOParameterRenderer extends React.Component {
                     min={0}
                     max={100}
                     value={frequency}
-                    children={`${frequency}hz`}
+                    format={LFOParameterRenderer.formats.hz}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 
             case 'amplitude':
-                const value = typeof config[paramName] !== "undefined" ? config[paramName] : 100;
+                const value = typeof config[paramName] !== "undefined" ? config[paramName] : 1;
                 return <ASUIInputRange
                     // className="small"
                     min={0}
-                    max={100}
+                    max={10}
+                    step={0.1}
                     value={value}
-                    children={`${value}x`}
+                    format={LFOParameterRenderer.formats.x}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 
@@ -142,7 +157,10 @@ class LFOParameterRenderer extends React.Component {
     renderMenuRoot() {
         return (<>
             <ASUIMenuAction onAction={()=>{}} disabled>{this.getTitle()}</ASUIMenuAction>
-            <ASUIMenuBreak />
+            {this.props.parentMenu ? <>
+                <ASUIMenuBreak />
+                {this.props.parentMenu(this.props.programID)}
+            </> : null}
         </>);
     }
 
@@ -151,8 +169,8 @@ class LFOParameterRenderer extends React.Component {
         return (<>
             <ASUIMenuItem>Choose Source Parameter</ASUIMenuItem>
             <ASUIMenuBreak/>
-            {Object.keys(parameters).map(parameter =>
-                <ASUIMenuAction onAction={e => this.changeParam('parameter', parameter)}>{parameters[parameter]}</ASUIMenuAction>
+            {Object.keys(parameters).map((parameter, i) =>
+                <ASUIMenuAction key={i} onAction={e => this.changeParam('parameter', parameter)}>{parameters[parameter]}</ASUIMenuAction>
             )}
         </>);
     }

@@ -6,9 +6,15 @@ import {
 import {ASUILogContext, ProgramLoader, PromptManager} from "../../../../common/";
 
 import EnvelopeEffectRendererContainer from "./container/EnvelopeEffectRendererContainer";
+import PropTypes from "prop-types";
 
 export default class EnvelopeEffectRenderer extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        parentMenu: PropTypes.func,
+    };
 
+    /** Formatting Callbacks **/
     static formats = {
         ms: value => `${value}ms`
     }
@@ -203,8 +209,10 @@ export default class EnvelopeEffectRenderer extends React.Component {
             <ASUIMenuDropDown options={() => this.renderMenuChange('decay')}>Edit Decay</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('sustain')}>Edit Sustain</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChange('release')}>Edit Release</ASUIMenuDropDown>
-            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeLoop()}>Toggle Loop</ASUIMenuDropDown>*/}
-            <ASUIMenuAction disabled={!this.props.onRemove} onAction={(e) => this.props.onRemove(this.props.instrumentID)}>Remove Envelope</ASUIMenuAction>
+            {this.props.parentMenu ? <>
+                <ASUIMenuBreak />
+                {this.props.parentMenu(this.props.programID)}
+            </> : null}
         </>);
     }
 

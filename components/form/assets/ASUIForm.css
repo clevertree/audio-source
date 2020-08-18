@@ -19,5 +19,9 @@ div.asui-form > div.header {
 
 div.asui-form > div.container {
     display: flex;
-    min-height: 1.4em;
+    /*min-height: 1.4em;*/
+}
+
+div.asui-form:not(.horizontal) > div.container {
+    flex-direction: column;
 }

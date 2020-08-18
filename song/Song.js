@@ -594,8 +594,8 @@ class Song {
         // });
     }
 
-    programLoadRenderer(programID) {
-        return this.programLoader.programLoadRenderer(programID);
+    programLoadRenderer(programID, props={}) {
+        return this.programLoader.programLoadRenderer(programID, props);
     }
 
 

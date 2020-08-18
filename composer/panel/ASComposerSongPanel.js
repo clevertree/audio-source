@@ -21,7 +21,7 @@ export default class ASComposerSongPanel extends React.Component {
         const positionString = composer.values.formatPlaybackPosition(songStats.position);
         return (
             <ASUIPanel className="song" header="Song Information">
-                <ASUIForm className="playback" header="Playback">
+                <ASUIForm className="playback horizontal" header="Playback">
                     <ASUIButton
                         className="song-play wide"
                         onAction={cb.songPlay}
@@ -42,7 +42,7 @@ export default class ASComposerSongPanel extends React.Component {
                     </ASUIButton>
                 </ASUIForm>
 
-                {state.portrait ? null : <ASUIForm className="file" header="File">
+                {state.portrait ? null : <ASUIForm className="file horizontal" header="File">
                     <ASUIButton
                         className="file-load wide"
                         onAction={cb.loadSongFromFileInput}
@@ -60,7 +60,7 @@ export default class ASComposerSongPanel extends React.Component {
                     </ASUIButton>
                 </ASUIForm>}
 
-                <ASUIForm className="volume" header="Volume">
+                <ASUIForm className="volume horizontal" header="Volume">
                     <ASUIInputRange
                         className="volume"
                         onChange={(newVolume) => composer.setVolume(newVolume/100)}
