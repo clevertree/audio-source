@@ -6,6 +6,11 @@ import "./ASUIMenuOptionList.css";
 
 export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
 
+    constructor(props) {
+        super(props);
+        this.cb.onWheel = e => this.onWheel(e)
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         super.componentDidUpdate(prevProps, prevState, snapshot);
 
@@ -29,9 +34,7 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
     // }
 
     renderContent() {
-        const optionArray = this.state.optionArray;
-        if(!optionArray)
-            return null;
+        let optionArray = this.getFilteredOptions();
 
         let className = 'asui-menu-option-list';
         if (this.props.vertical)
@@ -60,6 +63,7 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
         return <div
             style={style}
             className={className}
+            onWheel={this.cb.onWheel}
             children={optionArray.map((option, i) => {
                 return <div
                     key={i}

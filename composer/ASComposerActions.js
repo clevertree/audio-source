@@ -158,9 +158,10 @@ class ASComposerActions extends ASComposerMenu {
             this.updateCurrentSong();
             // this.setCurrentSong(this.song); // Hack: resetting current song after setting state, bad idea
 
-            if(recentValues && recentValues.recentDurations) {
-                Values.recentDurations = recentValues.recentDurations;
-                Values.recentFrequencies = recentValues.recentFrequencies;
+            if(recentValues) {
+                Values.recentDurations = recentValues.recentDurations || [];
+                Values.recentFrequencies = recentValues.recentFrequencies || [];
+                LibraryProcessor.recentSampleURLs = recentValues.recentLibrarySampleURLs || [];
             }
         } else {
             await this.loadDefaultSong();
@@ -190,6 +191,7 @@ class ASComposerActions extends ASComposerMenu {
         state.recentValues = {
             recentFrequencies: Values.recentFrequencies,
             recentDurations: Values.recentDurations,
+            recentLibrarySampleURLs: LibraryProcessor.recentSampleURLs,
         }
 
         // Delete playback stats

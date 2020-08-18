@@ -1,4 +1,4 @@
-import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/";
+import {ASUIClickable, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/";
 import React from "react";
 import ProgramLoader from "../../common/program/ProgramLoader";
 import DefaultLibraryData from "../../default.library";
@@ -77,7 +77,14 @@ class LibraryProcessor {
         </>);
     }
 
+    /** Sample Menu **/
+
     renderMenuSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
+        const callback = onSelectSample;
+        onSelectSample = function(sampleURL) {
+            addUnique(sampleURL, LibraryProcessor.recentSampleURLs);
+            callback(sampleURL);
+        }
         let samples = this.getSampleGenerator();
 
         let i=0;
@@ -93,17 +100,35 @@ class LibraryProcessor {
                 }
                 const title = sampleURL.split('/').pop();
                 content.push(
-                    <ASUIMenuAction key={i} onAction={e => onSelectSample(sampleURL)}>
+                    <ASUIMenuAction
+                        key={`sample-${i}`}
+                        onAction={e => onSelectSample(sampleURL)}>
                         {title || 'Untitled Sample'}
                     </ASUIMenuAction>
                 )
+                // TODO: scrollable container?
             }
         }
         return content.length === 0 ? null : content;
     }
 
+    static recentSampleURLs = [];
+    static renderMenuRecentSamples(onSelectSample, fileRegex=null) { ///^(.*\.(?!(htm|html|class|js)$))?[^.]*$/i
+        const content = LibraryProcessor.recentSampleURLs
+            .filter(sampleURL => !fileRegex || fileRegex.test(sampleURL))
+            .map((sampleURL, i) => (
+                <ASUIMenuAction key={i} onAction={e => onSelectSample(sampleURL)}>
+                    {sampleURL.split('/').pop() || 'Untitled Sample'}
+                </ASUIMenuAction>)
+            );
+
+        return content.length === 0 ? null : content;
+    }
+
+    /** Preset Menu **/
 
     renderMenuPresets(onSelectPreset) {
+        // TODO: recent
         let presets = this.getPresetGenerator();
 
         let i=0;
@@ -115,15 +140,28 @@ class LibraryProcessor {
                 const [presetClassName, presetConfig] = nextPreset.value;
                 nextPreset = presets.next();
                 content.push(
-                    <ASUIMenuAction key={i} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
+                    <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
                         {presetConfig.title || 'Untitled Preset #' + i}
                     </ASUIMenuAction>
                 )
+                // TODO: scrollable container?
             }
         }
         return content.length === 0 ? null : content;
     }
 
+    static recentPresets = [];
+    static renderMenuRecentPresets(onSelectPreset, classFilter=null) {
+        const content = LibraryProcessor.recentPresets
+            .filter(([presetClassName, presetConfig]) => !classFilter || classFilter === presetClassName)
+            .map(([presetClassName, presetConfig], i) => (
+                <ASUIMenuAction key={`preset-${i}`} onAction={e => onSelectPreset(presetClassName, presetConfig)}>
+                    {presetConfig.title || 'Untitled Preset #' + i}
+                </ASUIMenuAction>
+            ));
+
+        return content.length === 0 ? null : content;
+    }
 
     renderMenuLibraries(onSelectPreset) {
         let i=0;
@@ -137,7 +175,7 @@ class LibraryProcessor {
                 nextLibrary = libraries.next();
                 content.push(
                     <ASUIMenuDropDown
-                        key={i}
+                        key={`lib-${i}`}
                         options={() => library.renderMenuPresets(onSelectPreset)}
                     >
                         {library.getTitle()}
@@ -159,7 +197,7 @@ class LibraryProcessor {
                 const library = new LibraryProcessor(nextLibrary.value);
                 content.push(
                     <ASUIMenuDropDown
-                        key={i}
+                        key={`lib-${i}`}
                         options={onSelectLibraryOptions(library)}
                     >
                         {library.getTitle()}
@@ -259,6 +297,9 @@ class LibraryProcessor {
         return Object.values(LibraryProcessor.cache).length;
     };
 
+
+
+
     /** @deprecated **/
     static eachHistoricLibrary(callback) {
         const results = [];
@@ -300,4 +341,13 @@ class LibraryProcessor {
 /** @deprecated **/
 LibraryProcessor.cache = {};
 export default LibraryProcessor;
+
+
+function addUnique(value, array, limit=10) {
+    if(array.indexOf(value) === -1)
+        array.unshift(value);
+    while(array.length > limit)
+        array.pop();
+}
+
 

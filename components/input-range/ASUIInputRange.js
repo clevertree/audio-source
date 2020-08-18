@@ -11,9 +11,19 @@ class ASUIInputRange extends React.Component {
     /** Property validation **/
     static propTypes = {
         onChange: PropTypes.func.isRequired,
+        onMouseUp: PropTypes.func,
+        format: PropTypes.func,
     };
 
+    static formats = {
+        percent: value => `${Math.round(value*100)/100}%`
+    }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.value !== this.props.value) {
+            this.setState({value: this.props.value});
+        }
+    }
 
     constructor(props = {}) {
         super(props);
@@ -44,6 +54,9 @@ class ASUIInputRange extends React.Component {
 
     render() {
         const value = this.state.value;
+        let title = "Value: " + value;
+        if(this.props.format)
+            title = this.props.format(value);
         let className = "asui-input-range";
         if(this.props.className)
             className += ' ' + this.props.className;
@@ -54,7 +67,7 @@ class ASUIInputRange extends React.Component {
             >
             <div
                 className="value"
-                children={this.props.children || value}
+                children={title}
                 />
             <input
                 key="input"
@@ -66,7 +79,7 @@ class ASUIInputRange extends React.Component {
                 max={this.props.max}
                 step={this.props.step}
                 name={this.props.name}
-                title={this.props.title || "Value: " + value}
+                title={title}
                 />
         </div>;
     }

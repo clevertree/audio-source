@@ -3,6 +3,15 @@ import React from "react";
 import {ASUIIcon, ASUIForm, ASUIPanel, ASUIInputRange, ASUIButton} from "../../components";
 
 export default class ASComposerSongPanel extends React.Component {
+    constructor(props) {
+        super(props);
+        const composer = this.props.composer;
+        this.formats = {
+            songPosition: function(value) {
+                return composer.values.formatPlaybackPosition(composer.songStats.position);
+            }
+        }
+    }
     render() {
         const composer = this.props.composer;
         const song = this.props.composer.getSong();
@@ -54,12 +63,11 @@ export default class ASComposerSongPanel extends React.Component {
                 <ASUIForm className="volume" header="Volume">
                     <ASUIInputRange
                         className="volume"
-                        onChange={(newVolume) => composer.setVolume(newVolume)}
-                        value={state.volume}
-                        children={`${Math.round(state.volume / 0.01)}%`}
+                        onChange={(newVolume) => composer.setVolume(newVolume/100)}
+                        value={state.volume*100}
+                        format={ASUIInputRange.formats.percent}
                         min={0}
-                        max={1}
-                        step={0.02}
+                        max={100}
                         title="Song Volume"
                     />
                 </ASUIForm>
@@ -69,7 +77,7 @@ export default class ASComposerSongPanel extends React.Component {
                         className="position"
                         onChange={(pos) => composer.setSongPositionPercentage(pos)}
                         value={Math.floor(songStats.position / (state.songLength || 1) * 100)}
-                        children={positionString}
+                        format={this.formats.songPosition}
                         min={0}
                         max={100}
                         // ref={ref => this.fieldSongPosition = ref}

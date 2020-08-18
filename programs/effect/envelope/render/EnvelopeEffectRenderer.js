@@ -8,6 +8,12 @@ import {ASUILogContext, ProgramLoader, PromptManager} from "../../../../common/"
 import EnvelopeEffectRendererContainer from "./container/EnvelopeEffectRendererContainer";
 
 export default class EnvelopeEffectRenderer extends React.Component {
+
+    static formats = {
+        ms: value => `${value}ms`
+    }
+
+
     constructor(props) {
         super(props);
         this.cb = {
@@ -113,9 +119,9 @@ export default class EnvelopeEffectRenderer extends React.Component {
                 return <ASUIInputRange
                     // className="small"
                     min={0}
-                    max={1000}
+                    max={4000}
                     value={timeValue}
-                    children={`${timeValue}ms`}
+                    format={EnvelopeEffectRenderer.formats.ms}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 
@@ -127,7 +133,7 @@ export default class EnvelopeEffectRenderer extends React.Component {
                     min={0}
                     max={100}
                     value={mixerValue}
-                    children={`${mixerValue}%`}
+                    format={ASUIInputRange.formats.percent}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 

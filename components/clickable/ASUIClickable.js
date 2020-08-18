@@ -53,6 +53,7 @@ export default class ASUIClickable extends ASUIClickableBase {
     /** User Input **/
 
     onMouseEnter(e) {
+        const button = e.button;
         clearTimeout(this.timeoutMouseLeave);
         this.hoverDropDown(e);
     }

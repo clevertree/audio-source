@@ -26,7 +26,7 @@ div.asui-input-range > input[type='range']::-webkit-slider-thumb {
 
 /** Size **/
 div.asui-input-range.small > input[type='range'] {
-  width: 100px;
+  /*width: 100px;*/
 }
 
 

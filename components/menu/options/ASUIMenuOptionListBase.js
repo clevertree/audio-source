@@ -8,6 +8,8 @@ import ASUIMenuItem from "../item/ASUIMenuItem";
 
 import MenuOptionProcessor from "./MenuOptionProcessor";
 import "./ASUIMenuOptionList.css";
+import ASUIMenuBreak from "../break/ASUIMenuBreak";
+import ASUIMenuAction from "../action/ASUIMenuAction";
 
 export default class ASUIMenuOptionListBase extends React.Component {
 
@@ -37,6 +39,8 @@ export default class ASUIMenuOptionListBase extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            offset: 0,
+            limit: 25,
             optionArray: null,
             positionSelected: this.props.positionSelected || null
         }
@@ -45,7 +49,7 @@ export default class ASUIMenuOptionListBase extends React.Component {
             options: []
         }
         this.cb = {
-            onKeyDown: e => this.onKeyDown(e)
+            onKeyDown: e => this.onKeyDown(e),
         }
         // console.log(`${this.constructor.name}.constructor`, props);
     }
@@ -87,6 +91,35 @@ export default class ASUIMenuOptionListBase extends React.Component {
     //     </ASUIContextMenuContext.Provider>
     //
     // }
+
+    getFilteredOptions() {
+        let optionArray = this.state.optionArray;
+        if(!optionArray || optionArray.length === 0)
+            return [];
+        if(optionArray.length < this.state.limit)
+            return optionArray;
+        if(this.state.offset > 0) {
+            optionArray = optionArray.slice(this.state.offset);
+            optionArray.unshift(<ASUIMenuBreak />)
+            optionArray.unshift(<ASUIMenuAction
+                onAction={() => {
+                    this.setOffset(this.state.offset - this.state.limit);
+                    return false;
+                }}
+            >... Previous ...</ASUIMenuAction>)
+        }
+        if(optionArray.length > this.state.limit) {
+            optionArray = optionArray.slice(0, this.state.limit);
+            optionArray.push(<ASUIMenuBreak />)
+            optionArray.push(<ASUIMenuAction
+                onAction={() => {
+                    this.setOffset(this.state.offset + this.state.limit)
+                    return false;
+                }}
+            >... Next ...</ASUIMenuAction>)
+        }
+        return optionArray;
+    }
 
 
     /** Actions **/
@@ -144,7 +177,21 @@ export default class ASUIMenuOptionListBase extends React.Component {
         })
     }
 
+    setOffset(offset) {
+        if(offset < 0)
+            offset = 0;
+        this.setState({offset})
+
+    }
+
     /** Input **/
+
+    onWheel(e) {
+        // e.preventDefault();
+        let offset = parseInt(this.state.offset) || 0;
+        offset += e.deltaY > 0 ? 1 : -1;
+        this.setOffset(offset);
+    }
 
     onKeyDown(e) {
         if(e.isDefaultPrevented())

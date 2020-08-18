@@ -13,6 +13,9 @@ import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstr
 
 class AudioBufferInstrumentRenderer extends React.Component {
     static fileRegex = /\.wav$/i;
+    static formats = {
+        cents: value => `${value}c`
+    }
 
     constructor(props) {
         super(props);
@@ -168,11 +171,11 @@ class AudioBufferInstrumentRenderer extends React.Component {
             case 'detune':
                 value = typeof config.detune !== "undefined" ? config.detune : 0;
                 return <ASUIInputRange
-                    className="small"
+                    // className="small"
                     min={-1000}
                     max={1000}
                     value={value}
-                    children={`${value}c`}
+                    format={AudioBufferInstrumentRenderer.formats.cents}
                     onChange={this.cb.changeParam.detune}
                 />
 
@@ -192,7 +195,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 return <ASUIButtonDropDown
                     className="small"
                     options={this.cb.renderParamMenu.range}
-                >{config.range ? config.range : "-"}</ASUIButtonDropDown>
+                >{config.range ? config.range : "[any]"}</ASUIButtonDropDown>
 
             default:
                 return 'Unknown';
@@ -212,20 +215,20 @@ class AudioBufferInstrumentRenderer extends React.Component {
     }
 
     changeParam(paramName, newValue) {
+        const oldValue = this.props.config[paramName];
+        console.log(`Changing parameter ${paramName}: ${newValue} [Old: ${oldValue}]`);
         this.props.config[paramName] = newValue;
     }
 
+    removeParam(paramName,) {
+        const oldValue = this.props.config[paramName];
+        console.log(`Removing parameter ${paramName}: ${oldValue}`);
+        delete this.props.config[paramName];
+    }
 
-    changeAudioBuffer(newType, url) {
-        if(newType === 'custom') {
-            this.props.config.url = url;
-        } else {
-            delete this.props.config.url;
-            delete this.props.config.real;
-            delete this.props.config.imag;
-            delete this.props.config.title;
-        }
-        this.props.config.type = newType;
+
+    changeAudioBufferURL(url) {
+        this.props.config.url = url;
     }
 
     // changeLoop(newLoopValue=null) {
@@ -234,14 +237,6 @@ class AudioBufferInstrumentRenderer extends React.Component {
     //     this.props.config.loop = newLoopValue?1:0;
     // }
 
-    loadPreset(className, presetConfig) {
-        if(className !== this.props.program[0])
-            throw new Error(`This preset is for class ${className}, not ${this.props.program[0]}`);
-        if(!presetConfig.type)
-            presetConfig.type = 'custom';
-        this.props.program[1] = presetConfig;
-        console.log("Loaded preset: ", presetConfig);
-    }
 
     /** Menus **/
 
@@ -262,60 +257,70 @@ class AudioBufferInstrumentRenderer extends React.Component {
     }
 
     renderMenuChangeAudioBuffer() {
-
-        return (<>
-            <ASUIMenuDropDown options={() => this.renderMenuChangeAudioBufferStandard()}>Standard</ASUIMenuDropDown>
-            {/*<ASUIMenuDropDown options={() => this.renderMenuChangeAudioBufferCustom()}>Custom</ASUIMenuDropDown>*/}
-            {/*<MenuDropDown options={() => this.renderMenuChangeAudioBuffer('custom')}>Custom</MenuDropDown>*/}
-            {this.renderMenuChangeAudioBufferCustom(this.library)}
-        </>);
-    }
-
-    renderMenuChangeAudioBufferStandard() {
-        return (<>
-            <ASUIMenuAction onAction={e => this.changeAudioBuffer('sine')}>Sine</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.changeAudioBuffer('square')}>Square</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.changeAudioBuffer('sawtooth')}>Sawtooth</ASUIMenuAction>
-            <ASUIMenuAction onAction={e => this.changeAudioBuffer('triangle')}>Triangle</ASUIMenuAction>
-        </>);
-    }
-
-    renderMenuChangeAudioBufferCustom(library=this.library) {
-        const libraries = library.renderMenuLibraryOptions((library) =>
-            this.renderMenuChangeAudioBufferCustom(library)
+        const recentSamples = LibraryProcessor.renderMenuRecentSamples(
+            sampleURL => this.changeAudioBufferURL(sampleURL),
+            AudioBufferInstrumentRenderer.fileRegex
+        )
+        return (
+            <>
+                <ASUIMenuItem>Select New Sample</ASUIMenuItem>
+                <ASUIMenuBreak />
+                {this.renderMenuChangeAudioBufferWithLibrary(this.library)}
+                <ASUIMenuBreak />
+                {recentSamples ? <>
+                    <ASUIMenuItem>Recent Samples</ASUIMenuItem>
+                    {recentSamples}
+                </> : null}
+            </>
         );
-        const samples = library.renderMenuSamples((sampleURL) =>
-            this.changeAudioBuffer('custom', sampleURL),
-        AudioBufferInstrumentRenderer.fileRegex);
-        const content = [];
-        if(samples) {
-            content.push(<>
-                <ASUIMenuBreak/>
-                <ASUIMenuItem>{library.getTitle()}</ASUIMenuItem>
-                <ASUIMenuBreak/>
-                {samples}
-            </>)
-        }
+    }
+
+
+    renderMenuChangeAudioBufferWithLibrary(library) {
+        const libraries = library.renderMenuLibraryOptions((library) =>
+            this.renderMenuChangeAudioBufferWithLibrary(library)
+        );
+        const samples = library.renderMenuSamples(
+            (sampleURL) => this.changeAudioBufferURL(sampleURL),
+            AudioBufferInstrumentRenderer.fileRegex);
+        let content = [];
         if(libraries) {
-            content.push(<>
-                <ASUIMenuBreak/>
-                {libraries}
-            </>)
+            content = content.concat(libraries);
+        }
+        if(samples) {
+            if(content.length > 0)
+                content.push(<ASUIMenuBreak key="break-section"/>);
+            content.push(<ASUIMenuItem>{library.getTitle()}</ASUIMenuItem>);
+            content.push(<ASUIMenuBreak key="break-samples"/>);
+            content = content.concat(samples);
         }
         return content.length === 0 ? <ASUIMenuItem>No Samples</ASUIMenuItem> : content;
     }
 
-
-    renderMenuChangeKeyRoot() {
-        return new Values().renderMenuSelectCommand(noteNameOctave => {
-            this.changeRoot(noteNameOctave)
-        });
+    renderMenuChangeDetune() {
+        return (<>
+            {this.renderInput('detune')}
+            <ASUIMenuAction onAction={() => this.removeParam('detune')}>Clear Detune</ASUIMenuAction>
+        </>);
     }
 
+    renderMenuChangeKeyRoot() {
+        return (<>
+            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+                this.changeParam('root', noteNameOctave)
+            }, this.props.config.root, "Change Root Key")}
+            <ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => this.removeParam('root')}>Clear Root</ASUIMenuAction>
+        </>);
+    }
     renderMenuChangeKeyAlias() {
-        return new Values().renderMenuSelectCommand(noteNameOctave => {
-            this.changeAlias(noteNameOctave)
-        });
+        return (<>
+            {new Values().renderMenuSelectFrequency(noteNameOctave => {
+                this.changeParam('alias', noteNameOctave)
+            }, this.props.config.alias, "Change Alias")}
+            <ASUIMenuBreak/>
+            <ASUIMenuAction onAction={() => this.removeParam('alias')}>Clear Alias</ASUIMenuAction>
+        </>);
     }
 
 

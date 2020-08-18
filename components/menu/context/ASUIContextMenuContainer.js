@@ -32,6 +32,7 @@ export default class ASUIContextMenuContainer extends ASUIContextMenuContainerBa
                     className={`open-menus${this.state.openMenus.length > 0 ? ' open' : ''}`}>
                     {this.state.openMenus.map((openMenu, i) => <ASUIMenuOptionList
                         // ref={this.ref.openMenus[i] = React.createRef()}
+                        key={i}
                         {...openMenu}
                     />)}
                 </div>

@@ -16,6 +16,10 @@ class OscillatorInstrumentRenderer extends React.Component {
         frequency: "Oscillator Frequency",
         detune: "Oscillator Detune",
     };
+    static fileRegex = /\.json$/i;
+    static formats = {
+        cents: value => `${value}c`
+    }
 
     constructor(props) {
         super(props);
@@ -177,7 +181,7 @@ class OscillatorInstrumentRenderer extends React.Component {
                     min={-1000}
                     max={1000}
                     value={value}
-                    children={`${value}c`}
+                    format={OscillatorInstrumentRenderer.formats.cents}
                     onChange={this.cb.changeParam.detune}
                 />
 

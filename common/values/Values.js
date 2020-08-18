@@ -331,7 +331,7 @@ class Values {
             <ASUIMenuBreak />
             <ASUIMenuAction
                 onAction={async e => onSelectValue(null)}
-            >Remove Parameter</ASUIMenuAction>
+            >Clear Parameter</ASUIMenuAction>
         </>);
 
     }

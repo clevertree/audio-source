@@ -90,7 +90,7 @@ class LFOParameterRenderer extends React.Component {
 
             case 'parameter':
                 return <ASUIButtonDropDown
-                    className="small"
+                    // className="small"
                     options={this.cb.renderParamMenu.parameter}
                 >{config.parameter ? config.parameter : "No Param"}</ASUIButtonDropDown>
 
