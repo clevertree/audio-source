@@ -10,6 +10,7 @@ import {LibraryProcessor, ProgramLoader} from "../../../../song";
 import OscillatorInstrumentRendererContainer from "./container/OscillatorInstrumentRendererContainer";
 import PropTypes from "prop-types";
 import PeriodicWaveLoader from "../loader/PeriodicWaveLoader";
+import {ASUILogContext} from "../../../../common";
 
 
 export default class OscillatorInstrumentRenderer extends React.Component {
@@ -17,6 +18,11 @@ export default class OscillatorInstrumentRenderer extends React.Component {
     static propTypes = {
         parentMenu: PropTypes.func,
     };
+
+    /** Menu Context **/
+    static contextType = ASUILogContext;
+    setStatus(message) { this.context.addLogEntry(message); }
+    setError(message) { this.context.addLogEntry(message, 'error'); }
 
     /** Automation Parameters **/
     static sourceParameters = {
@@ -50,6 +56,9 @@ export default class OscillatorInstrumentRenderer extends React.Component {
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
+        this.state = {
+            status: null
+        }
         this.library = LibraryProcessor.loadDefault();
     }
 
@@ -147,6 +156,8 @@ export default class OscillatorInstrumentRenderer extends React.Component {
             envelope={envelope}
             lfos={lfos}
             title={title}
+            status={this.state.status}
+            error={this.state.error}
         >
         </OscillatorInstrumentRendererContainer>;
     }
@@ -243,10 +254,20 @@ export default class OscillatorInstrumentRenderer extends React.Component {
         this.props.config.type = newType;
     }
 
-    changeSampleURL(url) {
-        // TODO: const service = new PeriodicWaveLoader();
-        this.props.config.url = url;
-        this.props.config.type = 'custom';
+    async changeSampleURL(url) {
+        const service = new PeriodicWaveLoader();
+        try {
+            this.setState({status: 'loading', error: null});
+            this.setStatus("Loading Sample: " + url);
+            await service.loadPeriodicWaveFromURL(url);
+            this.props.config.url = url;
+            this.props.config.type = 'custom';
+            this.setState({status: 'loaded'});
+            this.setStatus("Loaded Sample: " + url);
+        } catch (e) {
+            this.setState({status: 'error', error: e.message});
+            this.setError(e);
+        }
     }
 
     // changeLoop(newLoopValue=null) {
@@ -323,7 +344,7 @@ export default class OscillatorInstrumentRenderer extends React.Component {
 
     renderMenuChangeOscillatorSample() {
         const recentSamples = LibraryProcessor.renderMenuRecentSamples(
-            sampleURL => this.changeAudioBufferURL(sampleURL),
+            sampleURL => this.changeSampleURL(sampleURL),
             OscillatorInstrumentRenderer.fileRegex
         )
         return (

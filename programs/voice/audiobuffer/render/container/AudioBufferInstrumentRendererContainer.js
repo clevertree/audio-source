@@ -14,6 +14,8 @@ export default class AudioBufferInstrumentRendererContainer extends React.Compon
         const open = this.props.config.open;
         if(open)
             className += ' open';
+        if(this.props.status)
+            className += ' ' + this.props.status;
 
         const title = this.props.title;
 

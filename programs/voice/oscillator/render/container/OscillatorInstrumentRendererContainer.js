@@ -11,6 +11,8 @@ export default class OscillatorInstrumentRendererContainer extends React.Compone
         const open = this.props.config.open;
         if(open)
             className += ' open';
+        if(this.props.status)
+            className += ' ' + this.props.status;
 
         const title = this.props.title;
 

@@ -10,6 +10,21 @@ div.oscillator-instrument-container  {
     position: relative;
 }
 
+/** Status **/
+div.oscillator-instrument-container.loading {
+    animation: loadingBG 1s infinite alternate ease-out;
+    cursor: progress;
+}
+
+@keyframes loadingBG {
+    100% { background-color: #AAA; }
+}
+
+div.oscillator-instrument-container.error {
+    background-color: #AAA;
+}
+
+
 
 /** Header **/
 div.oscillator-instrument-container > div.header {

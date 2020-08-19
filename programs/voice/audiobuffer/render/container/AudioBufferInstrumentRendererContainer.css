@@ -10,6 +10,19 @@ div.audiobuffer-instrument-container  {
     position: relative;
 }
 
+/** Status **/
+div.audiobuffer-instrument-container.loading {
+    animation: loadingBG 1s infinite alternate ease-out;
+    cursor: progress;
+}
+
+@keyframes loadingBG {
+    100% { background-color: #AAA; }
+}
+
+div.audiobuffer-instrument-container.error {
+    background-color: #AAA;
+}
 
 /** Header **/
 div.audiobuffer-instrument-container > div.header {

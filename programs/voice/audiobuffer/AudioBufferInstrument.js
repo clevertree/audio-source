@@ -59,7 +59,7 @@ class AudioBufferInstrument {
             if(buffer) {
                 this.audioBuffer = buffer;
             } else {
-                this.audioBuffer = service.loadAudioBufferFromURL(this.config.url, true)
+                this.audioBuffer = service.loadAudioBufferFromURL(this.config.url)
                     .then(audioBuffer => {
                         console.log("Loaded audio buffer: ", this.config.url, audioBuffer);
                         this.audioBuffer = audioBuffer;

@@ -4,6 +4,7 @@ const cache = {};
 let cacheClearInterval = null;
 
 export default class AudioBufferLoader {
+    static DEFAULT_TIMEOUT_MS = 10000;
     static DEFAULT_EXPIRE_MS = 60000;
 
     constructor(audioContext=null) {
@@ -23,24 +24,40 @@ export default class AudioBufferLoader {
         return null;
     }
 
-    async loadAudioBufferFromURL(url, expireTime=false) {
+    addCache(url, audioBuffer, expireTime) {
+        cache[url] = [audioBuffer, expireTime];
+        // console.log("Cached: " + url, audioBuffer);
+        clearInterval(cacheClearInterval);
+        cacheClearInterval = setInterval(() => this.clearCache());
+    }
+
+    async loadAudioBufferFromURL(url, expireTime=AudioBufferLoader.DEFAULT_EXPIRE_MS, timeoutInMS=AudioBufferLoader.DEFAULT_TIMEOUT_MS) {
         if(cache[url])
             return cache[url][0];
-        if(expireTime === true)
-            expireTime = new Date().getTime() + AudioBufferLoader.DEFAULT_EXPIRE_MS;
 
-        const service = new FileService();
-        const buffer = await service.loadBufferFromURL(url);
-        const audioBuffer = await this.audioContext.decodeAudioData(buffer.buffer || buffer);
-        if(expireTime !== false) {
-            cache[url] = [audioBuffer, expireTime];
-            // console.log("Cached: " + url, audioBuffer);
-            clearInterval(cacheClearInterval);
-            cacheClearInterval = setInterval(() => this.clearCache());
-        }
+        return await new Promise((resolve, reject) => {
+            const timeout = setTimeout(function () {
+                console.error(`URL failed to load: ${url}. Please try again.`);
+                reject(`URL failed to load: ${url}. Please try again.`);
+            }, timeoutInMS);
 
-        return audioBuffer;
+            const service = new FileService();
+            const bufferPromise = service.loadBufferFromURL(url);
+            bufferPromise.then(async buffer => {
+                clearTimeout(timeout);
+                const audioBuffer = await this.audioContext.decodeAudioData(buffer.buffer || buffer);
+
+                /** Cache **/
+                if(expireTime !== false)
+                    this.addCache(url, audioBuffer, new Date().getTime() + expireTime);
+
+
+                resolve(cache[url]);
+            })
+        })
     }
+
+
 
     clearCache() {
         const expireTime = new Date().getTime();

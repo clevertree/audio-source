@@ -6,10 +6,14 @@ import {
     ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem
 } from "../../../../components";
 import {LibraryProcessor, ProgramLoader} from "../../../../song";
-import {Values} from "../../../../common";
+import {ASUILogContext, Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
 import PropTypes from "prop-types";
+import PeriodicWaveLoader from "../../oscillator/loader/PeriodicWaveLoader";
+import AudioBufferLoader from "../loader/AudioBufferLoader";
+import OscillatorInstrumentRendererContainer
+    from "../../oscillator/render/container/OscillatorInstrumentRendererContainer.native";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {
@@ -17,6 +21,11 @@ class AudioBufferInstrumentRenderer extends React.Component {
     static propTypes = {
         parentMenu: PropTypes.func,
     };
+
+    /** Menu Context **/
+    static contextType = ASUILogContext;
+    setStatus(message) { this.context.addLogEntry(message); }
+    setError(message) { this.context.addLogEntry(message, 'error'); }
 
     /** Automation Parameters **/
     static sourceParameters = {
@@ -50,6 +59,9 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
+        this.state = {
+            status: null
+        }
         this.library = LibraryProcessor.loadDefault();
     }
 
@@ -144,6 +156,8 @@ class AudioBufferInstrumentRenderer extends React.Component {
             envelope={envelope}
             lfos={lfos}
             title={title}
+            status={this.state.status}
+            error={this.state.error}
             >
         </AudioBufferInstrumentRendererContainer>;
     }
@@ -245,8 +259,19 @@ class AudioBufferInstrumentRenderer extends React.Component {
     }
 
 
-    changeSampleURL(url) {
-        this.props.config.url = url;
+    async changeSampleURL(url) {
+        const service = new AudioBufferLoader();
+        try {
+            this.setState({status: 'loading', error: null});
+            this.setStatus("Loading Sample: " + url);
+            await service.loadAudioBufferFromURL(url);
+            this.props.config.url = url;
+            this.setState({status: 'loaded'});
+            this.setStatus("Loaded Sample: " + url);
+        } catch (e) {
+            this.setState({status: 'error', error: e.message});
+            this.setError(e);
+        }
     }
 
     /** LFO Actions **/

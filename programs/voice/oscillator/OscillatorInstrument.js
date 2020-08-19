@@ -49,7 +49,7 @@ export default class OscillatorInstrument {
             if(buffer) {
                 this.periodicWave = buffer;
             } else {
-                this.periodicWave = service.loadPeriodicWaveFromURL(this.config.url, true)
+                this.periodicWave = service.loadPeriodicWaveFromURL(this.config.url)
                     .then(periodicWave => {
                         console.log("Loaded periodic wave: ", this.config.url, periodicWave);
                         this.periodicWave = periodicWave;

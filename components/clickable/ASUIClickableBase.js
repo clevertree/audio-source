@@ -80,7 +80,7 @@ export default class ASUIClickable extends React.Component {
 
     /** Actions **/
 
-    async doAction(e) {
+    doAction(e) {
         if(this.props.disabled) {
             console.warn(this.constructor.name + " is disabled.");
             return;
@@ -88,7 +88,7 @@ export default class ASUIClickable extends React.Component {
 
         if(!this.props.onAction)
             throw new Error("Button does not contain props 'onAction'");
-        const result = await this.props.onAction(e, this);
+        const result = this.props.onAction(e, this);
         if (result !== false)
             this.closeAllOpenMenus();
     }
