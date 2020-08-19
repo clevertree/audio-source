@@ -114,21 +114,22 @@ class LFOParameterRenderer extends React.Component {
                 return <ASUIInputRange
                     // className="small"
                     min={0}
-                    max={100}
+                    max={24}
+                    step={0.1}
                     value={frequency}
                     format={LFOParameterRenderer.formats.hz}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 
             case 'amplitude':
-                const value = typeof config[paramName] !== "undefined" ? config[paramName] : 1;
+                const value = typeof config[paramName] !== "undefined" ? config[paramName] : 0;
                 return <ASUIInputRange
                     // className="small"
                     min={0}
-                    max={10}
-                    step={0.1}
+                    max={100}
+                    step={1}
                     value={value}
-                    format={LFOParameterRenderer.formats.x}
+                    format={ASUIInputRange.formats.percent}
                     onChange={this.cb.changeParam[paramName]}
                 />;
 

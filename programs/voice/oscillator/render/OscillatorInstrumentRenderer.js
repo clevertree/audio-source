@@ -52,7 +52,7 @@ export default class OscillatorInstrumentRenderer extends React.Component {
                 source: () => this.renderMenuChangeOscillator(),
             },
             changeParam: {
-                // mixer:    (newValue) => this.changeParam('mixer', newValue),
+                mixer:    (newValue) => this.changeParam('mixer', newValue),
                 detune:   (newValue) => this.changeParam('detune', newValue),
             },
         };
@@ -90,11 +90,11 @@ export default class OscillatorInstrumentRenderer extends React.Component {
                 title:      'Edit Sample',
                 children:   this.renderInput('source'),
             },
-            // {
-            //     label:      'Mixer',
-            //     title:      'Edit Mixer Amplitude',
-            //     children:   this.renderInput('mixer'),
-            // },
+            {
+                label:      'Mixer',
+                title:      'Edit Mixer Amplitude',
+                children:   this.renderInput('mixer'),
+            },
             {
                 label:      'Detune',
                 title:      `Detune by ${config.detune} cents`,
@@ -183,16 +183,16 @@ export default class OscillatorInstrumentRenderer extends React.Component {
                 >{source}</ASUIButtonDropDown>
 
 
-            // case 'mixer':
-            //     value = typeof config.mixer !== "undefined" ? config.mixer : 100;
-            //     return <ASUIInputRange
-            //         className="small"
-            //         min={0}
-            //         max={100}
-            //         value={value}
-            //         children={`${value}%`}
-            //         onChange={this.cb.changeParam.mixer}
-            //     />;
+            case 'mixer':
+                value = typeof config.mixer !== "undefined" ? config.mixer : 100;
+                return <ASUIInputRange
+                    className="small"
+                    min={0}
+                    max={100}
+                    value={value}
+                    format={ASUIInputRange.formats.percent}
+                    onChange={this.cb.changeParam.mixer}
+                />;
 
             case 'detune':
                 value = typeof config.detune !== "undefined" ? config.detune : 0;
@@ -327,6 +327,7 @@ export default class OscillatorInstrumentRenderer extends React.Component {
         return (<>
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorStandard()}>Standard</ASUIMenuDropDown>
             <ASUIMenuDropDown options={() => this.renderMenuChangeOscillatorSample()}>Sample</ASUIMenuDropDown>
+            {this.renderMenuChangeOscillatorSampleRecent()}
             {/*{await this.library.renderMenuPresets((className, presetConfig) => {*/}
             {/*    this.loadPreset(className, presetConfig);*/}
             {/*}, this.props.program[0])}*/}
@@ -343,22 +344,26 @@ export default class OscillatorInstrumentRenderer extends React.Component {
     }
 
     renderMenuChangeOscillatorSample() {
-        const recentSamples = LibraryProcessor.renderMenuRecentSamples(
-            sampleURL => this.changeSampleURL(sampleURL),
-            OscillatorInstrumentRenderer.fileRegex
-        )
         return (
             <>
                 <ASUIMenuItem>Select New Sample</ASUIMenuItem>
                 <ASUIMenuBreak />
                 {this.renderMenuChangeOscillatorSampleWithLibrary(this.library)}
-                {recentSamples ? <>
-                    <ASUIMenuBreak />
-                    <ASUIMenuItem>Recent Samples</ASUIMenuItem>
-                    {recentSamples}
-                </> : null}
+                {this.renderMenuChangeOscillatorSampleRecent()}
             </>
         );
+    }
+
+    renderMenuChangeOscillatorSampleRecent() {
+        const recentSamples = LibraryProcessor.renderMenuRecentSamples(
+            sampleURL => this.changeSampleURL(sampleURL),
+            OscillatorInstrumentRenderer.fileRegex
+        )
+        return recentSamples ? <>
+            <ASUIMenuBreak />
+            <ASUIMenuItem>Recent Samples</ASUIMenuItem>
+            {recentSamples}
+        </> : null;
     }
 
     renderMenuChangeOscillatorSampleWithLibrary(library) {
@@ -385,9 +390,10 @@ export default class OscillatorInstrumentRenderer extends React.Component {
     renderMenuChangeDetune() {
         return (<>
             {this.renderInput('detune')}
-            <ASUIMenuAction onAction={() => true}>- Close -</ASUIMenuAction>
             <ASUIMenuBreak/>I
             <ASUIMenuAction onAction={() => this.removeParam('detune')}>Clear Detune</ASUIMenuAction>
+            <ASUIMenuBreak/>I
+            <ASUIMenuAction onAction={() => true}>Done</ASUIMenuAction>
         </>);
     }
 

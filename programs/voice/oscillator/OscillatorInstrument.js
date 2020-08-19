@@ -61,8 +61,10 @@ export default class OscillatorInstrument {
         this.activeMIDINotes = []
     }
 
-    setPeriodicWave(oscillator) {
-        oscillator.setPeriodicWave(this.periodicWave)
+    setPeriodicWave(oscillator, periodicWave) {
+        if(!periodicWave instanceof PeriodicWave)
+            throw new Error("Invalid Periodic Wave: " + typeof periodicWave);
+        oscillator.setPeriodicWave(periodicWave)
     }
 
     /** Async loading **/
@@ -115,9 +117,9 @@ export default class OscillatorInstrument {
                 if(this.periodicWave instanceof Promise) {
                     console.warn("Note playback started without an audio buffer: " + this.config.url);
                     this.periodicWave
-                        .then(buffer => this.setPeriodicWave(oscillator))
+                        .then(periodicWave => this.setPeriodicWave(oscillator, periodicWave))
                 } else {
-                    this.setPeriodicWave(oscillator);
+                    this.setPeriodicWave(oscillator, this.periodicWave);
                 }
                 break;
         }

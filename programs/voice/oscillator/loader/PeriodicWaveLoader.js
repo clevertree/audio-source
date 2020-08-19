@@ -15,7 +15,9 @@ export default class PeriodicWaveLoader {
     /** Cache **/
 
     tryCache(url) {
-        return cache[url];
+        if(!cache[url])
+            return null;
+        return cache[url][0];
     }
 
 
@@ -42,7 +44,7 @@ export default class PeriodicWaveLoader {
 
     async loadPeriodicWaveFromURL(url, expireTime=PeriodicWaveLoader.DEFAULT_EXPIRE_MS, timeoutInMS=PeriodicWaveLoader.DEFAULT_TIMEOUT_MS) {
         if(cache[url])
-            return cache[url];
+            return cache[url][0];
 
         return await new Promise((resolve, reject) => {
             const timeout = setTimeout(function () {
@@ -69,7 +71,7 @@ export default class PeriodicWaveLoader {
                     this.addCache(url, periodicWave, new Date().getTime() + expireTime);
 
 
-                resolve(cache[url]);
+                resolve(cache[url][0]);
             })
         })
 

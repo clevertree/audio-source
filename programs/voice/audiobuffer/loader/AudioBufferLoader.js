@@ -19,9 +19,9 @@ export default class AudioBufferLoader {
     }
 
     tryCache(url) {
-        if(cache[url])
-            return cache[url][0];
-        return null;
+        if(!cache[url])
+            return null;
+        return cache[url][0];
     }
 
     addCache(url, audioBuffer, expireTime) {
@@ -52,7 +52,7 @@ export default class AudioBufferLoader {
                     this.addCache(url, audioBuffer, new Date().getTime() + expireTime);
 
 
-                resolve(cache[url]);
+                resolve(cache[url][0]);
             })
         })
     }
