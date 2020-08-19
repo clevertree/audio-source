@@ -3,14 +3,14 @@ import {ArgType} from "../../../common/";
 let activeNotes = [];
 export default class LFOParameter {
     constructor(config={}) {
-        // console.log('OscillatorInstrument', config);
+        console.log('LFOParameter', config);
         this.config = config;
         // this.playingLFOs = [];
     }
 
     /** Command Args **/
     static argTypes = {
-        playFrequency: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
+        createLFO: [ArgType.destination, ArgType.frequency, ArgType.startTime, ArgType.duration, ArgType.velocity],
     };
 
     // let vibratoLFO = destination.context.createOscillator();
@@ -25,7 +25,8 @@ export default class LFOParameter {
 
     /** Playback **/
 
-    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+    createLFO(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+        // console.log('createLFO', destination, frequency, startTime, duration, velocity, this.config);
         let source = destination.context.createOscillator();
         if(typeof this.config.frequency !== "undefined")
             source.frequency.value = this.config.frequency;
@@ -44,11 +45,10 @@ export default class LFOParameter {
         source.start(startTime);
 
 
-        source.noteOff = (endTime=null) => {
+        source.noteOff = (endTime=destination.context.currentTime) => {
             const i = activeNotes.indexOf(source);
             if(i !== -1) {
                 activeNotes.splice(i, 1);
-                // Release is the time taken for the level to decay from the sustain level to zero after the key is released.[4]
                 source.stop(endTime)
                 onended && onended();
             }
@@ -74,6 +74,13 @@ export default class LFOParameter {
 
 
 
+    /** Playback **/
+
+    // playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+    // }
+
+
+
 
     // stopPlayback() {
     //     // Stop all active sources
@@ -88,13 +95,13 @@ export default class LFOParameter {
     //     this.playingLFOs = [];
     // }
 
-
     /** Static **/
 
 
-    // static unloadAll() {
-    //     // this.waveURLCache = {}
-    //     // Unload all cached samples from this program type
-    // }
+    static stopPlayback() {
+        for(const activeNote of activeNotes)
+            activeNote.stop();
+        activeNotes = [];
+    }
 }
 

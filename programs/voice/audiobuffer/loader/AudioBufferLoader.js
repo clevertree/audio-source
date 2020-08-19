@@ -1,11 +1,13 @@
 import {FileService} from "../../../../song";
 
 const cache = {};
+const promises = {};
 let cacheClearInterval = null;
 
 export default class AudioBufferLoader {
     static DEFAULT_TIMEOUT_MS = 10000;
     static DEFAULT_EXPIRE_MS = 60000;
+    static CACHE_CLEAR_INTERVAL = 6000;
 
     constructor(audioContext=null) {
         this.audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
@@ -14,28 +16,14 @@ export default class AudioBufferLoader {
     isAudioBufferAvailable(url) {
         return !!cache[url];
     }
-    getCachedAudioBufferFromURL(url) {
-        return cache[url];
-    }
-
-    tryCache(url) {
-        if(!cache[url])
-            return null;
-        return cache[url][0];
-    }
-
-    addCache(url, audioBuffer, expireTime) {
-        cache[url] = [audioBuffer, expireTime];
-        // console.log("Cached: " + url, audioBuffer);
-        clearInterval(cacheClearInterval);
-        cacheClearInterval = setInterval(() => this.clearCache());
-    }
 
     async loadAudioBufferFromURL(url, expireTime=AudioBufferLoader.DEFAULT_EXPIRE_MS, timeoutInMS=AudioBufferLoader.DEFAULT_TIMEOUT_MS) {
         if(cache[url])
             return cache[url][0];
+        if(promises[url])
+            return await promises[url];
 
-        return await new Promise((resolve, reject) => {
+        const cachePromise = new Promise((resolve, reject) => {
             const timeout = setTimeout(function () {
                 console.error(`URL failed to load: ${url}. Please try again.`);
                 reject(`URL failed to load: ${url}. Please try again.`);
@@ -51,12 +39,30 @@ export default class AudioBufferLoader {
                 if(expireTime !== false)
                     this.addCache(url, audioBuffer, new Date().getTime() + expireTime);
 
-
-                resolve(cache[url][0]);
+                console.log("Loaded audio buffer: ", url, audioBuffer);
+                resolve(audioBuffer);
+                delete promises[url];
             })
         })
+        promises[url] = cachePromise;
+        return await cachePromise;
     }
 
+
+    /** Cache **/
+
+    tryCache(url) {
+        if(!cache[url])
+            return null;
+        return cache[url][0];
+    }
+
+    addCache(url, audioBuffer, expireTime) {
+        cache[url] = [audioBuffer, expireTime];
+        // console.log("Cached: " + url, audioBuffer);
+        clearInterval(cacheClearInterval);
+        cacheClearInterval = setInterval(() => this.clearCache(), AudioBufferLoader.CACHE_CLEAR_INTERVAL);
+    }
 
 
     clearCache() {

@@ -846,6 +846,7 @@ class Song {
         const [lastMIDIProgram, lastMIDIProgramConfig] = this.lastMIDIProgram || [null, null, null];
         const [className, programConfig] = this.programGetData(programID, false);
         if(lastMIDIProgramConfig !== programConfig) {
+            ProgramLoader.stopAllPlayback();
             program = ProgramLoader.loadInstance(className, programConfig);
             this.lastMIDIProgram = [program, programConfig];
             // console.log("Loading program for MIDI playback: ", programID, className, programConfig);

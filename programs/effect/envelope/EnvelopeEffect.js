@@ -27,23 +27,25 @@ export default class EnvelopeEffect {
     increaseDurationByRelease(duration) {
         if(typeof duration !== "number")
             throw new Error("Invalid duration: " + typeof duration);
+        if(typeof this.config.release === "undefined")
+            return duration;
         return duration + this.config.release / 1000;
     }
 
-    /** Playback **/
+    /** Create Envelope **/
 
-    playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
+    createEnvelope(destination, startTime, amplitude=1, onended=null) {
+        // console.log('playFrequency(', destination, frequency, startTime, duration, velocity);
         const audioContext = destination.context;
 
-        const velocityValue = parseFloat(velocity || 127) / 127;
         let source = destination.context.createGain();
 
         // Attack is the time taken for initial run-up of level from nil to peak, beginning when the key is pressed.
         if(this.config.attack) {
             source.gain.value = 0;
-            source.gain.linearRampToValueAtTime(velocityValue, startTime + (this.config.attack / 1000));
+            source.gain.linearRampToValueAtTime(amplitude, startTime + (this.config.attack / 1000));
         } else {
-            source.gain.value = velocityValue;
+            source.gain.value = amplitude;
         }
 
         // Decay is the time taken for the subsequent run down from the attack level to the designated sustain level.
@@ -65,22 +67,9 @@ export default class EnvelopeEffect {
 
         activeNotes.push(source);
 
-
-
-        if(duration !== null) {
-            if(duration instanceof Promise) {
-                // Support for duration promises
-                duration.then(function() {
-                    source.noteOff(audioContext.currentTime);
-                })
-            } else {
-                source.noteOff(startTime + duration);
-            }
-        }
         return source;
         // return this.voice.playFrequency(velocityGain, frequency, startTime, duration, velocity, onended);
     }
-
 
     /** MIDI Events **/
 
@@ -91,6 +80,9 @@ export default class EnvelopeEffect {
     /** Static **/
 
     static stopPlayback() {
+        for(const activeNote of activeNotes)
+            activeNote.stop();
+        activeNotes = [];
     }
 
     static unloadAll() {

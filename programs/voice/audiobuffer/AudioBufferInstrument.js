@@ -1,5 +1,6 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
 import {ArgType, ProgramLoader, Values} from "../../../common";
+import PeriodicWaveLoader from "../oscillator/loader/PeriodicWaveLoader";
 
 let activeNotes = [];
 
@@ -46,12 +47,6 @@ class AudioBufferInstrument {
             this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
         }
 
-        this.loadAudioBuffer();
-    }
-
-    loadAudioBuffer() {
-        // Audio Buffer
-
     }
 
 
@@ -71,14 +66,19 @@ class AudioBufferInstrument {
 
     /** Async loading **/
 
+
     async waitForAssetLoad() {
-        await this.audioBuffer;
+        if(this.config.url) {
+            const service = new AudioBufferLoader();
+            await service.loadAudioBufferFromURL(this.config.url);
+        }
     }
 
     /** Playback **/
 
     playFrequency(destination, frequency, startTime=null, duration=null, velocity=null, onended=null) {
-        if (this.config.alias) {
+        const config = this.config;
+        if (config.alias) {
             // this.freqRange = null;
             // if (config.alias) {
             //     const freqAlias = Values.instance.parseFrequencyString(config.alias);
@@ -119,37 +119,41 @@ class AudioBufferInstrument {
 
         // Load Sample
         const service = new AudioBufferLoader();
-        let buffer = service.tryCache(this.config.url);
+        let buffer = service.tryCache(config.url);
         if(buffer) {
             this.setBuffer(source, buffer);
         } else {
-            service.loadAudioBufferFromURL(this.config.url)
+            service.loadAudioBufferFromURL(config.url)
                 .then(audioBuffer => {
-                    console.log("Loaded audio buffer: ", this.config.url, audioBuffer);
                     this.setBuffer(source, audioBuffer);
                 });
         }
 
 
         // Playback Rate
-        const freqRoot = this.config.root ? Values.instance.parseFrequencyString(this.config.root) : 220;
+        const freqRoot = config.root ? Values.instance.parseFrequencyString(config.root) : 220;
         source.playbackRate.value = frequency / freqRoot;
 
         // Detune
-        if(typeof this.config.detune !== "undefined")
-            source.detune.value = this.config.detune;
+        if(typeof config.detune !== "undefined")
+            source.detune.value = config.detune;
+
 
         // Envelope
 
-        const envelope = this.loadedEnvelope;
-        const gainNode = envelope.playFrequency(destination, frequency, startTime, null, velocity);
+        let amplitude = 1;
+        if(typeof config.mixer !== "undefined")
+            amplitude = config.mixer / 100;
+        if(velocity !== null)
+            amplitude *= parseFloat(velocity || 127) / 127;
+        const gainNode = this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
         destination = gainNode;
 
         // LFOs
 
         const activeLFOs = [];
         for(const LFO of this.loadedLFOs) {
-            activeLFOs.push(LFO.playFrequency(source, frequency, startTime, null, velocity));
+            activeLFOs.push(LFO.createLFO(source, frequency, startTime, null, velocity));
         }
 
 
@@ -170,10 +174,10 @@ class AudioBufferInstrument {
                 onended && onended();
             }
         };
-        // console.log("Note Start: ", this.config.url, this.audioBuffer, source);
+        // console.log("Note Start: ", config.url, this.audioBuffer, source);
         source.onended = () => {
             source.noteOff(audioContext.currentTime, false);
-            // console.log("Note Ended: ", this.config.url, this.audioBuffer, source);
+            // console.log("Note Ended: ", config.url, this.audioBuffer, source);
         }
 
         activeNotes.push(source);
@@ -229,7 +233,6 @@ class AudioBufferInstrument {
     static stopPlayback() {
         for(const activeNote of activeNotes)
             activeNote.stop();
-
         activeNotes = [];
     }
 }

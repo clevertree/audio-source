@@ -188,7 +188,7 @@ class AudioBufferInstrumentRenderer extends React.Component {
                 return <ASUIInputRange
                         className="small"
                         min={0}
-                        max={100}
+                        max={500}
                         value={value}
                         format={ASUIInputRange.formats.percent}
                         onChange={this.cb.changeParam.mixer}

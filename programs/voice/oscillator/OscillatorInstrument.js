@@ -1,6 +1,8 @@
 import PeriodicWaveLoader from "./loader/PeriodicWaveLoader";
 import {ArgType, ProgramLoader, Values} from "../../../common/";
+import AudioBufferLoader from "../audiobuffer/loader/AudioBufferLoader";
 
+let activeNotes = [];
 
 export default class OscillatorInstrument {
     /** Command Args **/
@@ -41,22 +43,6 @@ export default class OscillatorInstrument {
             this.loadedLFOs[lfoID] = new lfoClass(voiceConfig);
         }
 
-        // Audio Buffer
-        this.periodicWave = null;
-        const service = new PeriodicWaveLoader();
-        if(typeof this.config.url !== "undefined") {
-            let buffer = service.tryCache(this.config.url);
-            if(buffer) {
-                this.periodicWave = buffer;
-            } else {
-                this.periodicWave = service.loadPeriodicWaveFromURL(this.config.url)
-                    .then(periodicWave => {
-                        console.log("Loaded periodic wave: ", this.config.url, periodicWave);
-                        this.periodicWave = periodicWave;
-                    });
-            }
-        }
-
 
         this.activeMIDINotes = []
     }
@@ -70,7 +56,10 @@ export default class OscillatorInstrument {
     /** Async loading **/
 
     async waitForAssetLoad() {
-        await this.periodicWave;
+        if(this.config.url) {
+            const service = new PeriodicWaveLoader();
+            await service.loadPeriodicWaveFromURL(this.config.url);
+        }
     }
 
 
@@ -78,6 +67,7 @@ export default class OscillatorInstrument {
 
     playFrequency(destination, frequency, startTime, duration=null, velocity=null, onended=null) {
         let endTime;
+        const config = this.config;
         const audioContext = destination.context;
         if(typeof duration === "number") {
             endTime = startTime + duration;
@@ -90,7 +80,7 @@ export default class OscillatorInstrument {
             startTime = audioContext.currentTime;
         else if(startTime < 0)
             startTime = 0; // TODO: adjust buffer offset.
-        // console.log('playFrequency', startTime, duration, destination.context.currentTime);
+        // console.log('playFrequency', frequency, startTime, duration, velocity, config);
 
 
 
@@ -103,73 +93,96 @@ export default class OscillatorInstrument {
 
 
         // https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
-        const oscillator = destination.context.createOscillator();   // instantiate an oscillator
-        oscillator.frequency.value = frequency;    // set Frequency (hz)
-        if (typeof this.config.detune !== "undefined")
-            oscillator.detune.value = this.config.detune;
-        switch(this.config.type) {
+        const source = destination.context.createOscillator();   // instantiate an oscillator
+        source.frequency.value = frequency;    // set Frequency (hz)
+        if (typeof config.detune !== "undefined")
+            source.detune.value = config.detune;
+        switch(config.type) {
             default:
-                oscillator.type = this.config.type;
+                source.type = config.type;
                 break;
 
             // case null:
             case 'custom':
-                if(this.periodicWave instanceof Promise) {
-                    console.warn("Note playback started without an audio buffer: " + this.config.url);
-                    this.periodicWave
-                        .then(periodicWave => this.setPeriodicWave(oscillator, periodicWave))
+
+                // Load Sample
+                const service = new PeriodicWaveLoader();
+                let periodicWave = service.tryCache(this.config.url);
+                if(periodicWave) {
+                    this.setPeriodicWave(source, periodicWave);
                 } else {
-                    this.setPeriodicWave(oscillator, this.periodicWave);
+                    service.loadPeriodicWaveFromURL(this.config.url)
+                        .then(periodicWave => {
+                            console.warn("Note playback started without an audio buffer: " + config.url);
+                            this.setPeriodicWave(source, periodicWave);
+                        });
                 }
+
                 break;
         }
 
 
-
         // Envelope
 
-        const gainNode = this.loadedEnvelope.playFrequency(destination, frequency, startTime, duration, velocity);
+        let amplitude = 1;
+        if(typeof config.mixer !== "undefined")
+            amplitude = config.mixer / 100;
+        if(velocity !== null)
+            amplitude *= parseFloat(velocity || 127) / 127;
+        const gainNode = this.loadedEnvelope.createEnvelope(destination, startTime, amplitude);
         destination = gainNode;
 
         // LFOs
 
+        const activeLFOs = [];
         for(const LFO of this.loadedLFOs) {
-            LFO.playFrequency(oscillator, frequency, startTime, duration, velocity);
+            activeLFOs.push(LFO.createLFO(source, frequency, startTime, null, velocity));
         }
 
 
+        source.connect(destination);
+        source.start(startTime);
+        source.noteOff = (endTime=audioContext.currentTime, stopSource=true) => {
+            const i = activeNotes.indexOf(source);
+            if(i !== -1) {
+                activeNotes.splice(i, 1);
+                const sourceEndTime = this.loadedEnvelope.increaseDurationByRelease(endTime)
+                if(stopSource) {
+                    source.stop(sourceEndTime);
+                }
+                gainNode.noteOff(endTime);
+                for(const lfo of activeLFOs) {
+                    lfo.noteOff(sourceEndTime);
+                }
+                onended && onended();
+            }
+        };
+        // console.log("Note Start: ", this.config.url, this.audioBuffer, source);
+        source.onended = () => {
+            source.noteOff(audioContext.currentTime, false);
+            // console.log("Note Ended: ", this.config.url, this.audioBuffer, source);
+        }
 
-        oscillator.connect(destination);
-        oscillator.start(startTime);
+        activeNotes.push(source);
+
         if(duration !== null) {
             if(duration instanceof Promise) {
                 // Support for duration promises
-                duration.then(function() {
-                    oscillator.stop();
-                })
+                duration.then(() => source.noteOff())
             } else {
-                oscillator.stop(endTime);
+                source.noteOff(startTime + duration);
             }
         }
 
-        this.playingOSCs.push(oscillator);
-        oscillator.onended = () => {
-            const i = this.playingOSCs.indexOf(oscillator);
-            if(i !== -1)
-                this.playingOSCs.splice(i, 1);
-            onended && onended();
-        };
-
-        return oscillator;
+        return source;
     }
 
 
     /** MIDI Events **/
 
-
     playMIDIEvent(destination, eventData, onended=null) {
         let newMIDICommand;
-
+        // console.log('playMIDIEvent', eventData);
         switch (eventData[0]) {
             case 144:   // Note On
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
@@ -178,22 +191,19 @@ export default class OscillatorInstrument {
                 const source = this.playFrequency(destination, newMIDIFrequency, null, null, newMIDIVelocity);
                 if(source) {
                     if (this.activeMIDINotes[newMIDICommand])
-                        this.activeMIDINotes[newMIDICommand].stop();
+                        this.activeMIDINotes[newMIDICommand].noteOff();
                     this.activeMIDINotes[newMIDICommand] = source;
                 }
                 return source;
-            // console.log("MIDI On", newMIDICommand, newMIDIVelocity, eventData);
 
             case 128:   // Note Off
                 newMIDICommand = Values.instance.getCommandFromMIDINote(eventData[1]);
                 if(this.activeMIDINotes[newMIDICommand]) {
-                    this.activeMIDINotes[newMIDICommand].stop();
+                    this.activeMIDINotes[newMIDICommand].noteOff();
                     delete this.activeMIDINotes[newMIDICommand];
                     return true;
-                    // console.log("MIDI Off", newMIDICommand, eventData);
                 } else {
                     return false;
-                    // console.warn("No 'ON' note was found for : " + newMIDICommand);
                 }
 
             default:
@@ -217,23 +227,13 @@ export default class OscillatorInstrument {
 
 
 
-
-    stopPlayback() {
-        // Stop all active sources
-        // console.log("OscillatorInstrument.stopPlayback", this.playingOSCs);
-        for (let i = 0; i < this.playingOSCs.length; i++) {
-            // try {
-                this.playingOSCs[i].stop();
-            // } catch (e) {
-            //     console.warn(e);
-            // }
-        }
-        this.playingOSCs = [];
-    }
-
-
     /** Static **/
 
+    static stopPlayback() {
+        for(const activeNote of activeNotes)
+            activeNote.stop();
+        activeNotes = [];
+    }
 
     static unloadAll() {
         // this.waveURLCache = {}
