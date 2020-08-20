@@ -39,7 +39,7 @@ export default class AudioBufferLoader {
                 if(expireTime !== false)
                     this.addCache(url, audioBuffer, new Date().getTime() + expireTime);
 
-                console.log("Loaded audio buffer: ", url, audioBuffer);
+                // console.log("Loaded audio buffer: ", url, audioBuffer);
                 resolve(audioBuffer);
                 delete promises[url];
             })
@@ -59,7 +59,7 @@ export default class AudioBufferLoader {
 
     addCache(url, audioBuffer, expireTime) {
         cache[url] = [audioBuffer, expireTime];
-        // console.log("Cached: " + url, audioBuffer);
+        console.log("Cached: " + url, audioBuffer);
         clearInterval(cacheClearInterval);
         cacheClearInterval = setInterval(() => this.clearCache(), AudioBufferLoader.CACHE_CLEAR_INTERVAL);
     }
@@ -70,7 +70,7 @@ export default class AudioBufferLoader {
         Object.keys(cache).forEach(function(cacheKey) {
             const [, expires] = cache[cacheKey];
             if(expireTime > expires) {
-                // console.log("Uncached: " + cacheKey);
+                console.log("Uncached: " + cacheKey);
                 delete cache[cacheKey];
             }
         })

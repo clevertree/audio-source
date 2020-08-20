@@ -126,7 +126,7 @@ class LFOParameterRenderer extends React.Component {
                 return <ASUIInputRange
                     // className="small"
                     min={0}
-                    max={100}
+                    max={10000}
                     step={1}
                     value={value}
                     format={ASUIInputRange.formats.percent}

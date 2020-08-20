@@ -48,7 +48,7 @@ export default class PeriodicWaveLoader {
                 if(expireTime !== false)
                     this.addCache(url, periodicWave, new Date().getTime() + expireTime);
 
-                console.log("Loaded periodic wave: ", url, periodicWave);
+                // console.log("Loaded periodic wave: ", url, periodicWave);
                 resolve(periodicWave);
                 delete promises[url];
             })

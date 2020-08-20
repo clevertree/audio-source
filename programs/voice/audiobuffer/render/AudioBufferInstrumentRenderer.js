@@ -10,10 +10,7 @@ import {ASUILogContext, Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
 import PropTypes from "prop-types";
-import PeriodicWaveLoader from "../../oscillator/loader/PeriodicWaveLoader";
 import AudioBufferLoader from "../loader/AudioBufferLoader";
-import OscillatorInstrumentRendererContainer
-    from "../../oscillator/render/container/OscillatorInstrumentRendererContainer.native";
 
 
 class AudioBufferInstrumentRenderer extends React.Component {

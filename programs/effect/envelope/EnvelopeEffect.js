@@ -81,7 +81,7 @@ export default class EnvelopeEffect {
 
     static stopPlayback() {
         for(const activeNote of activeNotes)
-            activeNote.stop();
+            activeNote.noteOff();
         activeNotes = [];
     }
 

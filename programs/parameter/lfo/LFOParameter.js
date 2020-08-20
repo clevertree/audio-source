@@ -3,7 +3,7 @@ import {ArgType} from "../../../common/";
 let activeNotes = [];
 export default class LFOParameter {
     constructor(config={}) {
-        console.log('LFOParameter', config);
+        // console.log('LFOParameter', config);
         this.config = config;
         // this.playingLFOs = [];
     }
