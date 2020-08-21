@@ -8,8 +8,8 @@ div.asui-contextmenu-container {
 }
 
 div.asui-contextmenu-container > div.content {
-    flex: 1;
-    overflow-x: auto;
+    /*flex: 1;*/
+    /*overflow-x: auto;*/
 }
 
 
@@ -36,27 +36,30 @@ div.asui-contextmenu-container > div.overlay.open {
 
 /** Drop Down **/
 div.asui-contextmenu-container > div.sliding-menu {
-    /*z-index: 3;*/
+    z-index: 3;
     transition: width 0.4s ease-out;
     opacity: 0;
     width: 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 div.asui-contextmenu-container > div.sliding-menu.open {
-    width: 200px;
+    width: 35vw;
     opacity: 1;
     transition: width 0.1s ease-in;
     /*overflow-x: hidden;*/
 }
 @media only screen and (min-width: 800px) {
-    div.asui-contextmenu-dropdown.open {
+    div.asui-contextmenu-container > div.sliding-menu.open {
+        width: 30vw;
         /*width: 25%;*/
     }
 }
 
 
-div.asui-contextmenu-container > div.sliding-menu > div.asui-menu-option-list > div > div.asui-menu-item {
+div.asui-contextmenu-container > div.sliding-menu div.asui-menu-item {
     padding: 0.5em 1em;
     border: 1px outset #DDD;
+    z-index: 4;
+    /*white-space: nowrap;*/
 }
 

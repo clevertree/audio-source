@@ -1,23 +1,6 @@
 
-
-/** Font styles **/
-
-div.asc-container input,
-div.asc-container button,
-div.asc-container {
-    font-size: large;
-}
-
-span.error {
-    font-color: red;
-    font-weight: bold;
-}
-
-
-
-/** Container **/
-/** Font Style **/
-div.asc-container {
+/** Composer **/
+div.audio-source-composer {
     position: relative;
     font-family: monospace;
     color: #000;
@@ -29,8 +12,36 @@ div.asc-container {
 }
 
 
+/** Font styles **/
+
+div.audio-source-composer input,
+div.audio-source-composer button,
+div.audio-source-composer {
+    font-size: large;
+}
+
+span.error {
+    color: red;
+    font-weight: bold;
+}
+
+/** Container **/
+div.asc-container {
+    display: flex;
+    flex-direction: column;
+}
+div.audio-source-composer.fullscreen div.asc-container {
+    flex: 1;
+}
+
+/** Content **/
+div.asc-content-container {
+    flex: 1;
+}
+
+
 /** Full Screen **/
-div.asc-container.fullscreen {
+div.audio-source-composer.fullscreen {
     position: fixed;
     left: 0;
     right: 0;
@@ -38,15 +49,7 @@ div.asc-container.fullscreen {
     bottom: 0;
 }
 
-/** Visibility **/
 
-
-:host(:not(.playing)) .show-on-playing,
-:host(.playing) .hide-on-playing,
-:host(.hide-panel-song) asc-panel.song,
-:host(.hide-panel-playlist) asc-panel.playlist {
-    display: none;
-}
 
 /** Header **/
 
@@ -57,10 +60,6 @@ div.asc-header-container {
 }
 
 
-/** Portrait Header Container **/
-
-div.asc-container.portrait div.asc-header-container {}
-div.asc-container.landscape div.asc-header-container {}
 
 
 /** Title **/
@@ -79,7 +78,7 @@ div.asc-title-text {
 /** Portrait Title **/
 
 
-div.asc-container.portrait div.asc-title-text {
+div.audio-source-composer.portrait div.asc-title-text {
     position: absolute;
     top: 8px;
     width: 100%;
@@ -98,7 +97,7 @@ div.asc-menu-container {
 
 /** Menu Items **/
 
-div.asc-container.landscape div.asc-menu-container > div.asui-menu-item {
+div.audio-source-composer.landscape div.asc-menu-container > div.asui-menu-item {
     padding: 0px 8px 0px 4px;
 }
 
@@ -130,43 +129,43 @@ div.asui-contextmenu-dropdown > div.asui-menu-item {
 
 /** Landscape **/
 
-div.asc-container.landscape div.asui-panel {
+div.audio-source-composer.landscape div.asui-panel {
     display: inline-block;
 }
-div.asc-container.landscape div.asui-panel > div.container {
+div.audio-source-composer.landscape div.asui-panel > div.container {
     overflow-y: visible;
 }
 
-div.asc-container.landscape div.asui-panel-container-horizontal {
+div.audio-source-composer.landscape div.asui-panel-container-horizontal {
     display: block;
 }
 
 
 /** Portrait **/
 
-div.asc-container.portrait div.asc-content-container {
+div.audio-source-composer.portrait div.asc-content-container {
     /*display: flex;*/
     /*flex-wrap: wrap;*/
 }
 
-div.asc-container.portrait div.asc-content-container > div.asui-panel {
+div.audio-source-composer.portrait div.asc-content-container > div.asui-panel {
     flex: 1;
     overflow-x: auto;
 }
-div.asc-container.portrait div.asc-content-container > div.asui-panel.programs,
-div.asc-container.portrait div.asc-content-container > div.asc-tracks-container {
+div.audio-source-composer.portrait div.asc-content-container > div.asui-panel.programs,
+div.audio-source-composer.portrait div.asc-content-container > div.asc-tracks-container {
     flex: 1 100%;
 }
 
 
 
 @media only screen and (min-width: 480px) {
-    div.asc-container.portrait div.asui-panel-container-horizontal {
+    div.audio-source-composer.portrait div.asui-panel-container-horizontal {
         display: flex;
     }
 }
 
-div.asc-container.portrait div.asui-panel-container-horizontal > div.asui-panel {
+div.audio-source-composer.portrait div.asui-panel-container-horizontal > div.asui-panel {
     flex: 1;
 }
 
@@ -183,7 +182,7 @@ div.asui-panel.song-programs div.program-add {
 }
 /** Tracks **/
 
-div.asc-container.landscape div.asc-tracks-container {
+div.audio-source-composer.landscape div.asc-tracks-container {
     display: inline-flex;
     flex-wrap: wrap;
 }

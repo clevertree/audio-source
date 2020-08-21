@@ -103,16 +103,16 @@ export default class ASUIMenuOptionList extends ASUIMenuOptionListBase {
 
     /** Menu Overlay **/
 
-    updateOverlay() {
-        const overlay = this.getOverlay();
-        if(!overlay)
-            return;
-
-        const isOpen = overlay.getOpenMenuCount() > 0;
-        // const isOpen = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container').length > 0;
-        // console.log('isOpen', isOpen, overlay.openMenus);
-        overlay.toggleOverlay(isOpen);
-    }
+    // updateOverlay() {
+    //     const overlay = this.getOverlay();
+    //     if(!overlay)
+    //         return;
+    //
+    //     const isOpen = overlay.getOpenMenuCount() > 0;
+    //     // const isOpen = this.getOverlayContainerElm().querySelectorAll('.asui-dropdown-container').length > 0;
+    //     // console.log('isOpen', isOpen, overlay.openMenus);
+    //     overlay.toggleOverlay(isOpen);
+    // }
 
 
 

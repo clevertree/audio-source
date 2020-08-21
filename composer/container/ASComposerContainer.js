@@ -34,7 +34,7 @@ export default class ASComposerContainer extends React.Component {
     render() {
         const state = this.props.composer.state;
         return (
-            <div className={"asc-container"
+            <div className={"audio-source-composer"
                 + (state.fullscreen ? ' fullscreen' : '')
                 + (state.portrait ? ' portrait' : ' landscape')}
                 ref={this.ref.container}>
@@ -43,9 +43,12 @@ export default class ASComposerContainer extends React.Component {
                     portrait={state.portrait}
                     composer={this.props.composer}
                 >
-                    {this.renderHeader()}
-                    {this.renderContent()}
-                    {this.renderFooter()}
+                    <div
+                        className="asc-container">
+                        {this.renderHeader()}
+                        {this.renderContent()}
+                        {this.renderFooter()}
+                    </div>
                 </ASUIContextMenuContainer>
             </div>
         );

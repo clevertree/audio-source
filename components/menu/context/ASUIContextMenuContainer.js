@@ -22,11 +22,7 @@ export default class ASUIContextMenuContainer extends ASUIContextMenuContainerBa
                 </div>
                 <div
                     className={`sliding-menu${this.state.slidingMenu ? ' open' : ''}`}>
-                    {this.state.slidingMenu ? <ASUIMenuOptionList
-                        // ref={this.ref.slidingMenu = React.createRef()}
-                        {...this.state.slidingMenu}
-                        floating={false}
-                    /> : null}
+                    {this.renderSlidingMenu()}
                 </div>
                 <div
                     className={`open-menus${this.state.openMenus.length > 0 ? ' open' : ''}`}>
@@ -36,10 +32,7 @@ export default class ASUIContextMenuContainer extends ASUIContextMenuContainerBa
                         {...openMenu}
                     />)}
                 </div>
-                <div
-                    className="content">
-                    {this.props.children}
-                </div>
+                {this.props.children}
             </div>
         );
     }
