@@ -1,5 +1,6 @@
 import React from "react";
 import {Keyboard, LibraryProcessor, Song, SongValues} from "../song";
+import {ASUIStateManager} from "../components";
 
 class ASComposerBase extends React.Component {
     constructor(props) {
@@ -62,6 +63,8 @@ class ASComposerBase extends React.Component {
 
         };
 
+        this.globalState = new ASUIStateManager();
+
         this.cb = {
             songPlay: () => this.songPlay(),
             songPause: () => this.songPause(),
@@ -69,7 +72,11 @@ class ASComposerBase extends React.Component {
             loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
             onInput: e => this.onInput(e),
-            addLogEntry: (text, type) => this.setStatus(text, type),
+            global: {
+                addLogEntry: (text, type) => this.setStatus(text, type),
+                getGlobalKey: key => this.globalState.getKey(key),
+                setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
+            },
         }
         this.ref = {
             container: React.createRef(),

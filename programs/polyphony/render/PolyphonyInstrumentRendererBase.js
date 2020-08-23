@@ -1,14 +1,22 @@
 import React from 'react';
 
 import {
+    ASUIGlobalContext,
     ASUIMenuAction, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
 
-import {ASUILogContext, ProgramLoader, PromptManager} from "../../../common";
+import {ProgramLoader, PromptManager} from "../../../common";
 
 /** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {
 
+    /** Program Context **/
+    static contextType = ASUIGlobalContext;
+    getGlobalContext() { return this.context; }
+    setStatus(message) { this.context.addLogEntry(message); }
+    setError(message) { this.context.addLogEntry(message, 'error'); }
+    getGlobalKey(key)           { this.context.getGlobalKey(key); }
+    setGlobalKey(key, value)    { this.context.setGlobalKey(key, value); }
 
     constructor(props) {
         super(props);
@@ -77,12 +85,6 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         return newVoiceID;
     }
 
-
-    /** Menu Context **/
-    static contextType = ASUILogContext;
-
-    setStatus(message) { this.context && this.context.addLogEntry(message); }
-    setError(message) { this.context && this.context.addLogEntry(message, 'error'); }
 }
 
 export default PolyphonyInstrumentRendererBase;

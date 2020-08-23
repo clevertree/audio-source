@@ -66,6 +66,7 @@ div.asc-track > div.buttons {
 }
 div.asc-track > div.buttons > div.segments > div.asui-button {
     min-width: 20px;
+    justify-content: center;
 }
 div.asc-track > div.buttons > div.options {
     margin-left: auto;

@@ -3,5 +3,4 @@ import ASCPresetBrowser from "./browser/ASCPresetBrowser";
 
 export {
     ASCProgramRenderer,
-    ASCPresetBrowser,
 }

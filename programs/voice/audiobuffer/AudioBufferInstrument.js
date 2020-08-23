@@ -1,6 +1,5 @@
 import AudioBufferLoader from "./loader/AudioBufferLoader";
 import {ArgType, ProgramLoader, Values} from "../../../common";
-import PeriodicWaveLoader from "../oscillator/loader/PeriodicWaveLoader";
 
 let activeNotes = [];
 

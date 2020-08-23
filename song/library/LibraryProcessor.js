@@ -1,4 +1,4 @@
-import {ASUIClickable, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/";
+import {ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem} from "../../components/";
 import React from "react";
 import ProgramLoader from "../../common/program/ProgramLoader";
 import DefaultLibraryData from "../../default.library";

@@ -7,15 +7,15 @@ import ASComposerSongProgramsPanel from "./panel/ASComposerSongProgramsPanel";
 import ASComposerInstructionPanel from "./panel/ASComposerInstructionPanel";
 import ASComposerTrackPanel from "./panel/ASComposerTrackPanel";
 import ASComposerBase from "./ASComposerBase";
-import ASUILogContext from "../common/log/ASUILogContext";
+import ASUIGlobalContext from "../components/context/ASUIGlobalContext";
 
 export default class ASComposerRenderer extends ASComposerBase {
 
     render() {
 //         console.log('ASComposerRenderer.render()');
         return (
-            <ASUILogContext.Provider
-                value={{addLogEntry: this.cb.addLogEntry}}>
+            <ASUIGlobalContext.Provider
+                value={this.cb.global}>
                 <ASComposerContainer
                     ref={this.ref.container}
                     composer={this}
@@ -35,7 +35,7 @@ export default class ASComposerRenderer extends ASComposerBase {
                         />
                     {this.renderWebViewProxy()}
                 </ASComposerContainer>
-            </ASUILogContext.Provider>
+            </ASUIGlobalContext.Provider>
         );
     }
 //                         {this.state.showPanelPresetBrowser ? <ASComposerPresetBrowserPanel composer={this} /> : null}

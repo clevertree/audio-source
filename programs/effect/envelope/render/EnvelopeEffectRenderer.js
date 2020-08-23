@@ -1,9 +1,10 @@
 import React from 'react';
 
 import {
+    ASUIGlobalContext,
     ASUIInputRange, ASUIMenuAction, ASUIMenuBreak, ASUIMenuDropDown, ASUIMenuItem
 } from "../../../../components";
-import {ASUILogContext, ProgramLoader, PromptManager} from "../../../../common/";
+import {ProgramLoader, PromptManager} from "../../../../common/";
 
 import EnvelopeEffectRendererContainer from "./container/EnvelopeEffectRendererContainer";
 import PropTypes from "prop-types";
@@ -19,6 +20,13 @@ export default class EnvelopeEffectRenderer extends React.Component {
         ms: value => `${value}ms`
     }
 
+    /** Program Context **/
+    static contextType = ASUIGlobalContext;
+    getGlobalContext() { return this.context; }
+    setStatus(message) { this.context.addLogEntry(message); }
+    setError(message) { this.context.addLogEntry(message, 'error'); }
+    getGlobalKey(key)           { this.context.getGlobalKey(key); }
+    setGlobalKey(key, value)    { this.context.setGlobalKey(key, value); }
 
     constructor(props) {
         super(props);
@@ -241,9 +249,4 @@ export default class EnvelopeEffectRenderer extends React.Component {
         />;
     }
 
-    /** Menu Context **/
-    static contextType = ASUILogContext;
-
-    setStatus(message) { this.context && this.context.addLogEntry(message); }
-    setError(message) { this.context && this.context.addLogEntry(message, 'error'); }
 }

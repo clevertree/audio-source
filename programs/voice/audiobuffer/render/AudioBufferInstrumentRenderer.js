@@ -3,10 +3,10 @@ import {
     ASUIMenuAction,
     ASUIMenuBreak,
     ASUIInputRange,
-    ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem
+    ASUIMenuDropDown, ASUIButtonDropDown, ASUIMenuItem, ASUIGlobalContext
 } from "../../../../components";
 import {LibraryProcessor, ProgramLoader} from "../../../../song";
-import {ASUILogContext, Values} from "../../../../common";
+import {Values} from "../../../../common";
 
 import AudioBufferInstrumentRendererContainer from "./container/AudioBufferInstrumentRendererContainer";
 import PropTypes from "prop-types";
@@ -19,10 +19,13 @@ class AudioBufferInstrumentRenderer extends React.Component {
         parentMenu: PropTypes.func,
     };
 
-    /** Menu Context **/
-    static contextType = ASUILogContext;
+    /** Program Context **/
+    static contextType = ASUIGlobalContext;
+    getGlobalContext() { return this.context; }
     setStatus(message) { this.context.addLogEntry(message); }
     setError(message) { this.context.addLogEntry(message, 'error'); }
+    getGlobalKey(key)           { this.context.getGlobalKey(key); }
+    setGlobalKey(key, value)    { this.context.setGlobalKey(key, value); }
 
     /** Automation Parameters **/
     static sourceParameters = {
@@ -62,6 +65,10 @@ class AudioBufferInstrumentRenderer extends React.Component {
         this.library = LibraryProcessor.loadDefault();
     }
 
+    componentDidMount() {
+        console.log('TODO this.context', this.context);
+
+    }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(!this.props.config.url) {

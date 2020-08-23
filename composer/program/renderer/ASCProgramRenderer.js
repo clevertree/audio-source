@@ -51,9 +51,7 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                     </ASUIButton>}
                 </div>
                 {this.props.open ? <div className="content">
-                    {this.props.showBrowser || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent({
-                        parentMenu: this.cb.parentMenu
-                    })}
+                    {this.props.showBrowser || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent()}
                 </div> : null}
             </div>
         );

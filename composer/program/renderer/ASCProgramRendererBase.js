@@ -1,11 +1,12 @@
 import React from "react";
+
 import {
     ASUIMenuAction,
     ASUIMenuDropDown, ASUIMenuBreak, ASUIMenuItem,
 } from "../../../components";
 import {LibraryProcessor} from "../../../song";
 import {ProgramLoader} from "../../../common";
-import {ASCPresetBrowser} from "../index";
+import ASCPresetBrowser from "../browser/ASCPresetBrowser";
 
 
 export default class ASCProgramRendererBase extends React.Component {
@@ -30,6 +31,11 @@ export default class ASCProgramRendererBase extends React.Component {
     getProgramID() { return this.props.programID; }
     getComposer() { return this.props.composer; }
     getSong() { return this.getComposer().getSong(); }
+    getProgramData() {
+        let songData = this.getSong().getProxiedData();
+        return songData.programs[this.getProgramID()];
+
+    }
     // getProgramEntry(proxiedData=true) {
     //     let songData = proxiedData
     //         ? this.getSong().data
@@ -38,9 +44,25 @@ export default class ASCProgramRendererBase extends React.Component {
     // }
 
 
-    renderProgramContent(props={}) {
+    renderProgramContent() {
         try {
-            return this.getSong().programLoadRenderer(this.props.programID, props);
+            const programID = this.props.programID;
+            const program = this.getProgramData(programID);
+            const [className, config] = program;
+            const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+            const props = {
+                programID,
+                program,
+                config,
+                globalState: this.getComposer().globalState,
+                addLogEntry: this.getComposer().cb.addLogEntry
+            }
+            return (
+                <Renderer
+                    {...props}
+                    parentMenu={this.cb.parentMenu}
+                />
+            );
 
         } catch (e) {
             return e.message;
@@ -137,7 +159,7 @@ export default class ASCProgramRendererBase extends React.Component {
 
 
     renderMenuRoot() {
-        const composer = this.getComposer();
+        // const composer = this.getComposer();
         const programState = this.getProgramState();
         return (<>
             <ASUIMenuAction onAction={this.cb.togglePresetBrowser}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
