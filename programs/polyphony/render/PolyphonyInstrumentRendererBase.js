@@ -6,9 +6,15 @@ import {
 } from "../../../components";
 
 import {ProgramLoader, PromptManager} from "../../../common";
+import PropTypes from "prop-types";
 
 /** PolyphonyInstrumentRenderer **/
 class PolyphonyInstrumentRendererBase extends React.Component {
+    /** Property validation **/
+    static propTypes = {
+        parentMenu: PropTypes.func,
+        setProgramProps: PropTypes.func.isRequired,
+    };
 
     /** Program Context **/
     static contextType = ASUIGlobalContext;
@@ -21,6 +27,7 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     constructor(props) {
         super(props);
         this.cb = {
+            setProgramProps: (programID, props) => this.setVoiceProps(programID, props),
             onRemove: (voiceID) => this.removeVoice(voiceID),
             onAction: (e) => this.addVoice()
         }
@@ -28,6 +35,12 @@ class PolyphonyInstrumentRendererBase extends React.Component {
 
     /** Actions **/
 
+    setVoiceProps(programID, props) {
+        const voiceProps = this.props.voiceProps || [];
+        if(voiceProps[programID])   Object.assign(voiceProps[programID], props);
+        else                        voiceProps[programID] = props;
+        this.props.setProgramProps(this.props.programID, {voiceProps});
+    }
 
     async addVoicePrompt(instrumentClassName, instrumentConfig) {
         const {title} = ProgramLoader.getProgramClassInfo(instrumentClassName);
@@ -58,6 +71,27 @@ class PolyphonyInstrumentRendererBase extends React.Component {
         if(typeof voices[voiceID] === "undefined")
             throw new Error("Voice ID not found: " + voiceID);
         voices.splice(voiceID, 1);
+    }
+
+    /** Render **/
+
+    renderVoice(voiceID, voiceData) {
+        const [className, config] = voiceData;
+        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+        const voiceProps = this.props.voiceProps || [];
+        const voiceProp = voiceProps[voiceID] || {};
+        // console.log('voiceProps', voiceProps);
+        return (//<div className="voice">
+            <Renderer
+                onRemove={this.cb.onRemove}
+                key={voiceID}
+                programID={voiceID}
+                config={config}
+                program={voiceData}
+                setProgramProps={this.cb.setProgramProps}
+                {...voiceProp}
+            />);
+        // </div>
     }
 
     /** Menu **/

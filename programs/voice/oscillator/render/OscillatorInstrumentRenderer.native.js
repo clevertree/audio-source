@@ -1,9 +1,10 @@
 import React from 'react';
 import {View, Text, StyleSheet, TouchableHighlight} from 'react-native';
-import {ASUIIcon, ASUIMenuDropDown} from "../../../../../components";
+import {ASUIIcon, ASUIMenuDropDown} from "../../../../components";
 
+import OscillatorInstrumentRendererBase from "./OscillatorInstrumentRendererBase";
 
-export default class OscillatorInstrumentRendererContainer extends React.Component {
+export default class OscillatorInstrumentRendererContainer extends OscillatorInstrumentRendererBase {
 
     render() {
         const style = [styles.container];

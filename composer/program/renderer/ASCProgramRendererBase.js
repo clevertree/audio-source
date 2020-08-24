@@ -17,9 +17,14 @@ export default class ASCProgramRendererBase extends React.Component {
             toggleContainer: e => this.toggleContainer(),
             onFocus: e => this.onFocus(e),
             menuRoot: () => this.renderMenuRoot(),
-            parentMenu: programID => this.renderMenuManageProgram(programID)
+            parentMenu: programID => this.renderMenuManageProgram(programID),
+            setProgramProps: (programID, props) => this.setProgramProps(programID, props)
         }
+        // this.state = {
+        //     open: false
+        // }
     }
+
 
     // constructor(props) {
     //     super(props);
@@ -50,16 +55,20 @@ export default class ASCProgramRendererBase extends React.Component {
             const program = this.getProgramData(programID);
             const [className, config] = program;
             const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
+            const programProps = this.getProgramRendererState().programProps || {};
+            // console.log('this.getProgramRendererState()', this.getProgramRendererState(), className);
             const props = {
                 programID,
                 program,
                 config,
-                globalState: this.getComposer().globalState,
-                addLogEntry: this.getComposer().cb.addLogEntry
+                // globalState: this.getComposer().globalState,
+                // addLogEntry: this.getComposer().cb.addLogEntry,
+                ...programProps,
             }
             return (
                 <Renderer
                     {...props}
+                    setProgramProps={this.cb.setProgramProps}
                     parentMenu={this.cb.parentMenu}
                 />
             );
@@ -105,26 +114,46 @@ export default class ASCProgramRendererBase extends React.Component {
         this.getSong().programRemove(programID);
     }
 
-    getProgramState() {
-        return this.getComposer().programGetState(this.props.programID) || {};
+    // getProgramState() {
+    //     return this.getComposer().programGetState(this.props.programID) || {};
+    // }
+    //
+    // setProgramState(state) {
+    //     this.getComposer().programSetState(this.props.programID, state);
+    // }
+
+    setProgramProps(programID, props) {
+        const rendererState = this.getProgramRendererState();
+        if(!rendererState.programProps)     rendererState.programProps = props;
+        else                                Object.assign(rendererState.programProps, props);
+        this.setProgramRendererState(rendererState);
     }
 
-    setProgramState(state) {
-        this.getComposer().programSetState(this.props.programID, state);
+    getProgramRendererState() {
+        return this.props.composer.state.programStates[this.props.programID] || {};
+    }
+    setProgramRendererState(state) {
+        const programStates = this.props.composer.state.programStates;
+        const programID = this.props.programID;
+        if(!programStates[programID])   programStates[programID] = state;
+        else                            Object.assign(programStates[programID], state);
+        this.props.composer.setState({
+            programStates
+        });
     }
 
     toggleContainer() {
-        const programState = this.getProgramState();
-        programState.open = !programState.open
-        this.setProgramState(programState);
+        const rendererState = this.getProgramRendererState();
+        rendererState.open = !rendererState.open;
+        this.setProgramRendererState(rendererState);
     }
 
+
+
     togglePresetBrowser() {
-        const programState = this.getProgramState();
-        programState.showBrowser = !programState.showBrowser;
-        if(programState.showBrowser)
-            programState.open = true;
-        this.setProgramState(programState);
+        const rendererState = this.getProgramRendererState();
+        rendererState.open = rendererState.open === 'browser' ? true : 'browser';
+        this.setProgramRendererState(rendererState);
     }
 
     async loadPreset(presetClassName, presetConfig={}) {
@@ -160,9 +189,9 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderMenuRoot() {
         // const composer = this.getComposer();
-        const programState = this.getProgramState();
+        // const programState = this.getGlobalProgramState();
         return (<>
-            <ASUIMenuAction onAction={this.cb.togglePresetBrowser}>{programState.showBrowser ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
+            <ASUIMenuAction onAction={this.cb.togglePresetBrowser}>{this.props.open === 'browser' ? 'Hide' : 'Show'} Preset Browser</ASUIMenuAction>
             <ASUIMenuBreak />
             <ASUIMenuDropDown options={() => this.renderMenuChangeProgram()}>Change Program</ASUIMenuDropDown>
             <ASUIMenuBreak />

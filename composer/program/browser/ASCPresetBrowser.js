@@ -14,8 +14,8 @@ export default class ASCPresetBrowser extends React.Component {
     /** Property validation **/
     static propTypes = {
         composer: PropTypes.object.isRequired,
-        program: PropTypes.object.isRequired,
-        programID: PropTypes.string.isRequired,
+        program: PropTypes.array.isRequired,
+        programID: PropTypes.number.isRequired,
     };
 
     constructor(props) {

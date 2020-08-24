@@ -932,26 +932,6 @@ class ASComposerActions extends ASComposerMenu {
         return programRef.current;
     }
 
-    programGetState(programID) {
-        return this.state.programStates[programID];
-    }
-
-    programSetState(programID, state) {
-        const programStates = this.state.programStates || [];
-        let programState = programStates[programID] || {};
-        programState = Object.assign(programState, state);
-        programStates[programID] = programState;
-        this.setState({programStates});
-    }
-
-    toggleProgramContainer(programID) {
-        const programStates = this.state.programStates || [];
-        const programState = programStates[programID] || {};
-        programStates[programID] = programState;
-        programState.open = !programState.open;
-        this.setState({programStates});
-    }
-
     async programAddPrompt(programClassName, programConfig = {}) {
         this.setError(`New program canceled: ${programClassName}`);
     }

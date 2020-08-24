@@ -17,19 +17,7 @@ export default class PolyphonyInstrumentRenderer extends PolyphonyInstrumentRend
         return (
             <div className="polyphony-instrument-renderer">
                 <div className="voices">
-                    {voices.map((voiceData, voiceID) => {
-                        const [className, config] = voiceData;
-                        const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
-                        return (//<div className="voice">
-                            <Renderer
-                                onRemove={this.cb.onRemove}
-                                key={voiceID}
-                                instrumentID={voiceID}
-                                config={config}
-                                program={voiceData}
-                            />);
-                            // </div>
-                    })}
+                    {voices.map((voiceData, voiceID) => this.renderVoice(voiceID, voiceData))}
                 </div>
                 <ASUIButtonDropDown
                     title="Add new Voice"

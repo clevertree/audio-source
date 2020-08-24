@@ -53,7 +53,7 @@ export default class ASComposerSongPanel extends React.Component {
                     </ASUIButton>
                     <ASUIButton
                         className="file-save wide"
-                        onAction={cb.saveSongToFile}
+                        onAction={cb.saveSongToMemory}
                         title="Save Song to File"
                     >
                         <ASUIIcon source="file-save"/>

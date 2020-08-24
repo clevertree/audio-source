@@ -30,6 +30,8 @@ export default {
     PolyphonyInstrumentRenderer,
     EnvelopeEffect,
     EnvelopeEffectRenderer,
+    LFOParameter,
+    LFOParameterRenderer,
     TestInstrument,
     addAllPrograms: function() {
         /** Instruments **/

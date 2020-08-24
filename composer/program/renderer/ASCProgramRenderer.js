@@ -27,17 +27,18 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
             titleHTML = `Empty`;
             className += ' empty';
         }
+        const open = this.props.open;
         return (
             <div className={className} tabIndex={0} onFocus={this.cb.onFocus}>
                 <div className="header">
                     <ASUIButton
                         className="toggle-container"
-                        selected={this.props.open}
+                        selected={!!open}
                         onAction={this.cb.toggleContainer}
                     >
                         {programIDHTML}: {titleHTML}
                     </ASUIButton>
-                    {!this.props.showBrowser ? <ASUIButtonDropDown
+                    {open !== 'browser' ? <ASUIButtonDropDown
                         arrow={false}
                         className="program-config"
                         options={this.cb.menuRoot}
@@ -50,8 +51,8 @@ export default class ASCProgramRenderer extends ASCProgramRendererBase {
                         <ASUIIcon source="close"/>
                     </ASUIButton>}
                 </div>
-                {this.props.open ? <div className="content">
-                    {this.props.showBrowser || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent()}
+                {open ? <div className="content">
+                    {open === 'browser' || !renderProgram ? this.renderPresetBrowser() : this.renderProgramContent()}
                 </div> : null}
             </div>
         );

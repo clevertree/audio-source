@@ -63,7 +63,7 @@ class ASComposerBase extends React.Component {
 
         };
 
-        this.globalState = new ASUIStateManager();
+        // this.globalState = {};
 
         this.cb = {
             songPlay: () => this.songPlay(),
@@ -71,11 +71,12 @@ class ASComposerBase extends React.Component {
             songStop: () => this.songStop(),
             loadSongFromFileInput: this.loadSongFromFileInput.bind(this),
             saveSongToFile: this.saveSongToFile.bind(this),
+            saveSongToMemory: this.saveSongToMemory.bind(this),
             onInput: e => this.onInput(e),
             global: {
                 addLogEntry: (text, type) => this.setStatus(text, type),
-                getGlobalKey: key => this.globalState.getKey(key),
-                setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
+                // getGlobalKey: key => this.globalState.getKey(key),
+                // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },
         }
         this.ref = {
@@ -119,6 +120,13 @@ class ASComposerBase extends React.Component {
 
     }
 
+    /** @returns {object} **/
+    // getGlobalState() {
+    //     return this.globalState;
+    // }
+    // setGlobalState(globalState) {
+    //     Object.apply(this.globalState, globalState);
+    // }
 
     get values() { return new SongValues(this.song); }
 
