@@ -51,25 +51,22 @@ export default class ASCProgramRendererBase extends React.Component {
 
     renderProgramContent() {
         try {
+            let songData = this.getSong().data; // getProxiedData();
+
             const programID = this.props.programID;
-            const program = this.getProgramData(programID);
+            const program = songData.programs[programID];
             const [className, config] = program;
             const {classRenderer: Renderer} = ProgramLoader.getProgramClassInfo(className);
             const programProps = this.getProgramRendererState().programProps || {};
             // console.log('this.getProgramRendererState()', this.getProgramRendererState(), className);
-            const props = {
-                programID,
-                program,
-                config,
-                // globalState: this.getComposer().globalState,
-                // addLogEntry: this.getComposer().cb.addLogEntry,
-                ...programProps,
-            }
             return (
                 <Renderer
-                    {...props}
+                    programID={programID}
+                    program={program}
+                    config={config}
                     setProgramProps={this.cb.setProgramProps}
                     parentMenu={this.cb.parentMenu}
+                    {...programProps}
                 />
             );
 

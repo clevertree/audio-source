@@ -21,11 +21,11 @@ export default class EnvelopeEffectRendererBase extends React.Component {
 
     /** Program Context **/
     static contextType = ASUIGlobalContext;
-    getGlobalContext() { return this.context; }
-    setStatus(message) { this.context.addLogEntry(message); }
-    setError(message) { this.context.addLogEntry(message, 'error'); }
-    getGlobalKey(key)           { this.context.getGlobalKey(key); }
-    setGlobalKey(key, value)    { this.context.setGlobalKey(key, value); }
+    getGlobalContext()          { return this.context; }
+    setStatus(message)          { this.context.addLogEntry(message); }
+    setError(message)           { this.context.addLogEntry(message, 'error'); }
+    // getViewMode(viewKey)        { this.context.getViewMode(viewKey); }
+    // setViewMode(viewKey, mode)  { this.context.setViewMode(viewKey, mode); }
 
     constructor(props) {
         super(props);

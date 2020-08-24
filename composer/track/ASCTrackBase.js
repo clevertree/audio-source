@@ -1,7 +1,7 @@
 import * as React from "react";
 import PropTypes from 'prop-types';
 
-import {ASUIButton, ASUIButtonDropDown} from "../../components/";
+import {ASUIButton, ASUIButtonDropDown, ASUIGlobalContext} from "../../components/";
 import PromptManager from "../../common/prompt/PromptManager";
 import ASCTrackRowContainer from "./row-container/ASCTrackRowContainer";
 import TrackState from "./state/TrackState";
@@ -9,6 +9,14 @@ import TrackState from "./state/TrackState";
 
 // TODO: ASCTrackRowContainer
 export default class ASCTrackBase extends React.Component {
+
+    /** Program Context **/
+    static contextType = ASUIGlobalContext;
+    getGlobalContext()          { return this.context; }
+    // setStatus(message)          { this.context.addLogEntry(message); }
+    // setError(message)           { this.context.addLogEntry(message, 'error'); }
+    getViewMode(viewKey)        { return this.context.getViewMode('track:' + viewKey); }
+    setViewMode(viewKey, mode)  { return this.context.setViewMode('track:' + viewKey, mode); }
 
     /** Default Properties **/
     static defaultProps = {
@@ -41,6 +49,8 @@ export default class ASCTrackBase extends React.Component {
         // this.firstCursorRowOffset = null;
         // this.lastCursorRowOffset = null;
         this.cb = {
+            onClick: () => this.toggleViewMode()
+
             // onKeyDown: (e) => this.onKeyDown(e),
             // onWheel: e => this.onWheel(e),
             // options: () => this.renderContextMenu()
@@ -99,6 +109,14 @@ export default class ASCTrackBase extends React.Component {
 
     /** Actions **/
 
+    toggleViewMode() {
+        const viewKey = this.props.trackName;
+        if(!viewKey)
+            return console.warn("Invalid trackName prop");
+        let viewMode = this.getViewMode(viewKey);
+        viewMode = viewMode === 'minimized' ? null : 'minimized';
+        this.setViewMode(viewKey, viewMode);
+    }
 
     async changeQuantizationPrompt(quantizationTicks = null) {
         quantizationTicks = await PromptManager.openPromptDialog(`Enter custom tracker quantization in ticks:`, quantizationTicks || this.track.quantizationTicks);

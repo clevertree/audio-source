@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TouchableHighlight} from 'react-native';
 import {ASUIIcon, ASUIMenuDropDown} from "../../../../../components";
 
 
-export default class AudioBufferInstrumentRendererContainer extends React.Component {
+export default class AudioBufferInstrumentRenderer extends React.Component {
 
     render() {
         const style = [styles.container];

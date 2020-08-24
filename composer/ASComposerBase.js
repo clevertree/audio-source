@@ -55,6 +55,9 @@ class ASComposerBase extends React.Component {
             programStates: [],
             selectedProgramID: 0,
 
+            // View Modes
+            viewModes: {},
+
             /** UI **/
 
             // Keyboard
@@ -75,6 +78,8 @@ class ASComposerBase extends React.Component {
             onInput: e => this.onInput(e),
             global: {
                 addLogEntry: (text, type) => this.setStatus(text, type),
+                setViewMode: (viewKey, mode) => this.setViewMode(viewKey, mode),
+                getViewMode: (viewKey) => this.getViewMode(viewKey),
                 // getGlobalKey: key => this.globalState.getKey(key),
                 // setGlobalKey: (key,  value) => this.globalState.setKey(key,  value),
             },

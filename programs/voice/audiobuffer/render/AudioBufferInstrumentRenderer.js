@@ -7,10 +7,12 @@ import {
 } from "../../../../components";
 
 import AudioBufferInstrumentRendererBase from "./AudioBufferInstrumentRendererBase";
+import AudioBufferInstrument from "../AudioBufferInstrument";
 import "./AudioBufferInstrumentRenderer.css";
 
 export default class AudioBufferInstrumentRenderer extends AudioBufferInstrumentRendererBase {
     render() {
+        // console.log('AudioBufferInstrumentRenderer.render', this.props);
         let className = "audiobuffer-instrument-container";
         const config = this.props.config;
         const open = this.props.open;
@@ -44,9 +46,9 @@ export default class AudioBufferInstrumentRenderer extends AudioBufferInstrument
 
 
         /** Envelope Content **/
-        const envelopeContent = open && config.envelope ? (
+        const envelopeContent = open ? (
             <div className="envelope">
-                {this.renderEnvelope(config.envelope)}
+                {this.renderEnvelope(config.envelope || AudioBufferInstrument.defaultEnvelope)}
             </div>
         ) : null;
 

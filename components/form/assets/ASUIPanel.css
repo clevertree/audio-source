@@ -13,6 +13,7 @@ div.asui-panel {
 }
 
 div.asui-panel > div.header {
+    cursor: pointer;
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -22,6 +23,16 @@ div.asui-panel > div.header {
     margin: 0;
     border-radius: 8px 8px 0 0;
     border-bottom: 1px solid #BBB;
+}
+
+/** Minimized **/
+div.asui-panel.minimized {
+    display: block !important;
+}
+
+div.asui-panel.minimized > div.header {
+    border-radius: 8px;
+    padding: 8px;
 }
 
 

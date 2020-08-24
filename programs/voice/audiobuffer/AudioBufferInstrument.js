@@ -31,9 +31,9 @@ class AudioBufferInstrument {
         // Filter sample playback
 
         // Envelope
-        const [voiceClassName, voiceConfig] = this.config.envelope || AudioBufferInstrument.defaultEnvelope;
-        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(voiceClassName);
-        this.loadedEnvelope = new envelopeClass(voiceConfig);
+        const [envelopeClassName, envelopeConfig] = this.config.envelope || AudioBufferInstrument.defaultEnvelope;
+        let {classProgram:envelopeClass} = ProgramLoader.getProgramClassInfo(envelopeClassName);
+        this.loadedEnvelope = new envelopeClass(envelopeConfig);
 
 
         // LFOs

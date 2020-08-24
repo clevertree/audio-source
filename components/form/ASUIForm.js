@@ -19,6 +19,8 @@ class ASUIForm extends React.Component {
         let className = 'asui-form';
         if(this.props.className)
             className += ' ' + this.props.className;
+        if(this.props.horizontal)
+            className += ' horizontal';
 
         return (
             <div className={className}>

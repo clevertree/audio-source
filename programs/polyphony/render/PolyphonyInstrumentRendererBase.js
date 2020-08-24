@@ -21,8 +21,8 @@ class PolyphonyInstrumentRendererBase extends React.Component {
     getGlobalContext() { return this.context; }
     setStatus(message) { this.context.addLogEntry(message); }
     setError(message) { this.context.addLogEntry(message, 'error'); }
-    getGlobalKey(key)           { this.context.getGlobalKey(key); }
-    setGlobalKey(key, value)    { this.context.setGlobalKey(key, value); }
+    // getViewMode(viewKey)        { this.context.getViewMode(viewKey); }
+    // setViewMode(viewKey, mode)  { this.context.setViewMode(viewKey, mode); }
 
     constructor(props) {
         super(props);

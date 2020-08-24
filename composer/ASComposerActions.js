@@ -1004,6 +1004,18 @@ class ASComposerActions extends ASComposerMenu {
 
     /** Toggle View Settings **/
 
+    setViewMode(viewKey, mode) {
+        const viewModes = this.state.viewModes || {};
+        if(mode === null)   delete viewModes[viewKey];
+        else                viewModes[viewKey] = mode;
+        console.log('viewModes', viewModes);
+        this.setState({viewModes});
+    }
+
+    getViewMode(viewKey) {
+        return this.state.viewModes[viewKey];
+    }
+
     toggleSongPanel()                   { return this.toggleSetting('showPanelSong'); }
     toggleProgramPanel()                { return this.toggleSetting('showPanelProgram'); }
     toggleInstructionPanel()            { return this.toggleSetting('showPanelInstruction'); }
