@@ -128,16 +128,22 @@ div.asui-contextmenu-dropdown > div.asui-menu-item {
 
 
 /** Landscape **/
-
-div.audio-source-composer.landscape div.asui-panel {
+div.audio-source-composer.landscape div.asc-content-container > div {
     display: inline-block;
 }
+
+div.audio-source-composer.landscape div.asui-panel {
+    /*display: inline-block;*/
+}
 div.audio-source-composer.landscape div.asui-panel > div.container {
-    overflow-y: visible;
+    /*overflow-y: visible;*/
 }
 
 div.audio-source-composer.landscape div.asui-panel-container-horizontal {
     display: block;
+}
+div.audio-source-composer.landscape div.asui-panel-container-horizontal > div.asui-panel {
+    display: inline-block;
 }
 
 
@@ -180,13 +186,6 @@ div.audio-source-composer.portrait div.asui-panel-container-horizontal > div.asu
 div.asui-panel.song-programs div.program-add {
     /*transform: rotate(90deg);*/
 }
-/** Tracks **/
-
-div.audio-source-composer.landscape div.asc-tracks-container {
-    display: inline-flex;
-    flex-wrap: wrap;
-}
-
 
 /** Footer **/
 

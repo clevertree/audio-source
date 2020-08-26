@@ -27,12 +27,12 @@ div.asui-panel > div.header {
 
 /** Minimized **/
 div.asui-panel.minimized {
-    display: block !important;
+    /*display: block !important;*/
 }
 
 div.asui-panel.minimized > div.header {
     border-radius: 8px;
-    padding: 8px;
+    padding: 1em 2em;
 }
 
 

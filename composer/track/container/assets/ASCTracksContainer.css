@@ -4,3 +4,11 @@ div.asc-tracks-container {
 
 div.asc-tracks-container.portrait {
 }
+
+
+/** Landscape **/
+
+div.audio-source-composer.landscape div.asc-tracks-container {
+    display: inline-flex !important;
+    flex-wrap: wrap;
+}

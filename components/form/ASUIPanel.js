@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import "./assets/ASUIPanel.css"
 import {ASUIGlobalContext} from "../index";
+import "./assets/ASUIPanel.css"
 
 class ASUIPanel extends React.Component {
 
-    /** Program Context **/
+    /** Global Context **/
     static contextType = ASUIGlobalContext;
     getGlobalContext()          { return this.context; }
     // setStatus(message)          { this.context.addLogEntry(message); }
@@ -49,7 +49,7 @@ class ASUIPanel extends React.Component {
         if(this.props.className) {
             className += ' ' + this.props.className;
             viewMode = this.getViewMode(this.props.className);
-            console.log('viewMode', this.props.className, viewMode);
+            // console.log('viewMode', this.props.className, viewMode);
         }
 
         if(viewMode === false)

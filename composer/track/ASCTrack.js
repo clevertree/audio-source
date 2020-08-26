@@ -8,8 +8,21 @@ export default class ASCTrack extends ASCTrackBase {
     /** Render **/
 
     render() {
-        // console.log('ASCTrack.render');
+        const viewMode = this.getViewMode(this.props.trackName);
+        let content = null;
         let className = "asc-track";
+        switch(viewMode) {
+            case false:
+                return null;
+            default:
+            case 'minimized':
+                className += ' minimized';
+                break;
+            case true:
+                content = this.renderContent();
+        }
+
+        // console.log('ASCTrack.render', viewMode);
         // if(this.props.className)
         //     className += ' ' + this.props.className;
         if(this.props.selected)
@@ -18,23 +31,25 @@ export default class ASCTrack extends ASCTrackBase {
             <div
                 className={className}
                 >
-                <div className="header">
-                    {this.getTrackName()}
+                <div
+                    className="header"
+                    onClick={this.cb.onClick}
+                    >
+                    Track: {this.getTrackName()}
                 </div>
-                {this.renderContent()}
-
+                {content}
             </div>
         );
     }
 
     renderContent() {
-        if(this.props.collapsed) {
-            return (
-                <div className="buttons-select-track">
-                    {this.renderSelectTrackButton()}
-                </div>
-            )
-        }
+        // if(this.props.collapsed) {
+        //     return (
+        //         <div className="buttons-select-track">
+        //             {this.renderSelectTrackButton()}
+        //         </div>
+        //     )
+        // }
         return [
             <div
                 key="buttons"

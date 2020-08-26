@@ -5,12 +5,19 @@ import {ASUIButton, ASUIButtonDropDown, ASUIGlobalContext} from "../../component
 import PromptManager from "../../common/prompt/PromptManager";
 import ASCTrackRowContainer from "./row-container/ASCTrackRowContainer";
 import TrackState from "./state/TrackState";
+import TrackInstructionRowIterator from "./instruction/TrackInstructionRowIterator";
+import {InstructionIterator} from "../../song";
 
 
 // TODO: ASCTrackRowContainer
 export default class ASCTrackBase extends React.Component {
+    static DEFAULT_ROW_LENGTH = 16;
+    static DEFAULT_MEASURES_PER_SEGMENT = 4;
+    static DEFAULT_BEATS_PER_MEASURE = 4;
+    static DEFAULT_MAX_SEGMENTS = 8;
+    static DEFAULT_MIN_SEGMENTS = 4;
 
-    /** Program Context **/
+    /** Global Context **/
     static contextType = ASUIGlobalContext;
     getGlobalContext()          { return this.context; }
     // setStatus(message)          { this.context.addLogEntry(message); }
@@ -32,7 +39,7 @@ export default class ASCTrackBase extends React.Component {
     static propTypes = {
         composer: PropTypes.object.isRequired,
         trackName: PropTypes.string.isRequired,
-        trackState: PropTypes.object.isRequired
+        // trackState: PropTypes.object.isRequired
     };
 
 
@@ -77,7 +84,46 @@ export default class ASCTrackBase extends React.Component {
     getTrackName()          { return this.props.trackName; }
     getCursorOffset()       { return this.state.cursorOffset || 0; }
     getRowOffset()          { return this.state.rowOffset || 0; }
-    getSelectedIndices()    { return this.getTrackState().getSelectedIndices(); }
+
+    getRowLength() { return typeof this.state.rowLength !== "undefined" ? this.state.rowLength : ASCTrackBase.DEFAULT_ROW_LENGTH; }
+
+
+    getTimeDivision() { return this.state.timeDivision || this.props.composer.song.data.timeDivision; }
+
+    getQuantizationTicks() { return this.state.quantizationTicks || this.getTimeDivision(); }
+    getBeatsPerMinute() { return this.state.beatsPerMinute || this.props.composer.song.data.beatsPerMinute; }
+
+    getBeatsPerMeasure() { return this.state.beatsPerMeasure || this.props.composer.song.data.beatsPerMeasure || TrackState.DEFAULT_BEATS_PER_MEASURE; }
+    getMeasuresPerSegment() { return this.state.measuresPerSegment || TrackState.DEFAULT_MEASURES_PER_SEGMENT; }
+    getBeatsPerSegment() { return this.getBeatsPerMeasure() * this.getMeasuresPerSegment(); }
+    getSegmentLengthTicks() { return this.getBeatsPerSegment() * this.getTimeDivision(); }
+
+    // getProgramID() { return this.state.programID; }
+    // getCursorOffset() { return this.state.cursorOffset || 0; }
+
+    // getCursorPositionTicks() { return this.state.cursorPositionTicks || 0; }
+
+    getSelectedIndices() {
+        if(this.isSelectedTrack())
+            return this.props.composer.state.selectedTrackIndices;
+        return [];
+    }
+    getPlayingIndices() { return this.state.playingIndices || []; }
+
+
+    getDestinationList() { return this.state.destinationList || []; }
+    getTrackLengthTicks() { return this.state.trackLengthTicks || null; }
+
+    getSegmentRowOffsets() { return this.state.segmentRowOffsets || [0]; }
+
+    getStartPosition() { return this.state.startPosition || 0; }
+
+    isSelectedTrack() {
+        return this.trackName === this.props.composer.getSelectedTrackName();
+    }
+
+
+    /** Actions **/
 
     toggleDropDownMenu(e) {
         const rowContainer = this.ref.rowContainer.current;
@@ -99,11 +145,11 @@ export default class ASCTrackBase extends React.Component {
 
 
     updateRenderingProps(quantizationTicks=null, rowLength=null) {
-        this.getTrackState()
-            .updateRenderingProps(
-                quantizationTicks,
-                rowLength
-            );
+        // this.getTrackState()
+        //     .updateRenderingProps(
+        //         quantizationTicks,
+        //         rowLength
+        //     );
     }
 
 
@@ -114,7 +160,7 @@ export default class ASCTrackBase extends React.Component {
         if(!viewKey)
             return console.warn("Invalid trackName prop");
         let viewMode = this.getViewMode(viewKey);
-        viewMode = viewMode === 'minimized' ? null : 'minimized';
+        viewMode = viewMode === true ? null : true;
         this.setViewMode(viewKey, viewMode);
     }
 
@@ -149,7 +195,7 @@ export default class ASCTrackBase extends React.Component {
         cursorOffset = cursorOffset === null ? this.state.cursorOffset : cursorOffset;
         const trackState = this.getTrackState();
         const cursorInfo = trackState.getCursorInfo(cursorOffset);
-        const rowLength = trackState.getRowLength();
+        const rowLength = this.getRowLength();
         if(cursorInfo.cursorRow > this.getRowOffset() + (rowLength - 1))
             this.setRowOffset(cursorInfo.cursorRow - (rowLength - 1))
         else if(cursorInfo.cursorRow < this.getRowOffset())
@@ -157,6 +203,8 @@ export default class ASCTrackBase extends React.Component {
         // else
         //     console.log("No adjustment: ", cursorInfo, cursorOffset);
     }
+
+
 
     /** Focus **/
 
@@ -235,9 +283,11 @@ export default class ASCTrackBase extends React.Component {
     //     return this.getTrackState().getPositionInfo(positionTicks);
     // }
 
+    /** @deprecated **/
     getTrackState() {
         return new TrackState(this.getComposer(), this.getTrackName());
     }
+
 
 
     /** Render Content **/
@@ -252,10 +302,10 @@ export default class ASCTrackBase extends React.Component {
 
     // TODO: pagination
     renderRowSegments() {
-        const trackState = this.getTrackState();
+        // const trackState = this.getTrackState();
         const cursorRowOffset = this.getRowOffset();
         // const rowLength = this.getRowLength();
-        let segmentRowOffsets = trackState.getSegmentRowOffsets();
+        let segmentRowOffsets = this.getSegmentRowOffsets();
         // const segmentLengthTicks = this.getSegmentLengthTicks();
         // let nextSegmentPositionTicks = 0;
 
@@ -308,15 +358,15 @@ export default class ASCTrackBase extends React.Component {
 
 
     renderQuantizationButton() {
-        const trackState = this.getTrackState();
         const composer = this.props.composer;
 
-        const rowDeltaDuration = composer.values.formatSongDuration(trackState.getQuantizationTicks());
+        const quantizationTicks = this.getQuantizationTicks();
+        const rowDeltaDuration = composer.values.formatSongDuration(quantizationTicks);
         return <ASUIButtonDropDown
             className="row-quantization"
             title={`Quantization (Duration = ${rowDeltaDuration})`}
             arrow="▼"
-            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName(), trackState.getQuantizationTicks())}
+            options={() => this.getComposer().renderMenuTrackerSetQuantization(this.getTrackName(), quantizationTicks)}
             children={rowDeltaDuration}
         />;
     }
@@ -331,12 +381,11 @@ export default class ASCTrackBase extends React.Component {
     }
 
     renderRowOptions() {
-        const trackState = this.getTrackState();
         // const composer = this.props.composer;
 
         const buttons = [];
 
-        const rowLength = trackState.getRowLength();
+        const rowLength = this.getRowLength();
         buttons.push(<ASUIButtonDropDown
             className="row-length"
             title={`Segment Length (${rowLength} Rows)`}
@@ -364,15 +413,136 @@ export default class ASCTrackBase extends React.Component {
     /** Actions **/
 
     instructionPasteAtCursor() {
-        const activeTrack = this.getTrackState();
-        let {positionTicks: startPositionTicks} = activeTrack.getCursorInfo(this.getCursorOffset());
+        let {positionTicks: startPositionTicks} = this.getCursorInfo(this.getCursorOffset());
         this.getComposer().instructionPasteAtPosition(this.getTrackName(), startPositionTicks);
     }
 
     instructionInsertAtCursor(newInstructionData) {
-        const activeTrack = this.getTrackState();
-        let {positionTicks: startPositionTicks} = activeTrack.getCursorInfo(this.getCursorOffset());
+        let {positionTicks: startPositionTicks} = this.getCursorInfo(this.getCursorOffset());
         this.getComposer().instructionInsertAtPosition(this.getTrackName(), startPositionTicks, newInstructionData);
     }
+
+
+
+    /** Track Cursor Position **/
+
+
+    /**
+     * Used when selecting
+     * @param {Integer} cursorOffset
+     * @returns {{cursorRow: null, positionTicks: null, nextCursorOffset: *, previousCursorOffset: number, positionSeconds: number, cursorIndex: null}}
+     */
+    getCursorInfo(cursorOffset) {
+        if(!Number.isInteger(cursorOffset))
+            throw new Error("Invalid cursorOffset: " + cursorOffset);
+        // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
+        const iterator = this.getRowIterator();
+
+        const ret = {
+            segmentID: null,
+            cursorIndex: null,
+            cursorRow: null,
+            nextCursorOffset: cursorOffset + 1,
+            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
+            positionTicks: null,
+            positionSeconds: 0,
+            // cursorRowLow: cursorRow - this.getRowLength(),
+            // cursorRowHigh: cursorRow - 1,
+        };
+
+        let lastRowPositions=[], positions=[[0]];
+        // let indexFound = null;
+        while(positions.length < 3 || positions[2][0] <= cursorOffset) {
+            const instructionData = iterator.nextCursorPosition();
+            lastRowPositions.push(iterator.getCursorPosition());
+
+            if(cursorOffset === iterator.getCursorPosition()) {
+                ret.cursorRow = iterator.getRowCount();
+                ret.positionTicks = iterator.getPositionInTicks();
+                ret.positionSeconds = iterator.getPositionInSeconds();
+            }
+
+            if(Array.isArray(instructionData)) {
+
+                if(cursorOffset === iterator.getCursorPosition()) {
+                    // ret.positionTicks = iterator.getPositionInTicks();
+                    if (iterator.getIndex() !== null)
+                        ret.cursorIndex = iterator.getIndex();
+                }
+            } else {
+                positions.push(lastRowPositions);
+                if(positions.length > 3)
+                    positions.shift();
+                lastRowPositions = [];
+            }
+        }
+        const column = positions[1].indexOf(cursorOffset);
+
+        ret.nextRowOffset = positions[2][column] || positions[2][positions[2].length-1];
+        ret.previousRowOffset = positions[0][column] || 0;
+
+        if(ret.positionTicks !== null) {
+            ret.segmentID = Math.floor(ret.positionTicks / this.getSegmentLengthTicks());
+        }
+        // console.log(cursorOffset, ret);
+        return ret;
+    }
+
+    getPositionInfo(positionTicks) {
+        if(!Number.isInteger(positionTicks))
+            throw new Error("Invalid positionTicks: " + positionTicks);
+
+        const iterator = this.getRowIterator();
+        iterator.seekToPositionTicks(positionTicks)
+        // let indexFound = null;
+        // while(iterator.getPositionInTicks() < positionTicks) {
+        //     iterator.nextQuantizedInstructionRow();
+        // }
+
+        const ret = {
+            positionTicks,
+            positionIndex: iterator.getIndex(),
+            positionSeconds: iterator.getPositionInSeconds(),
+            cursorOffset: iterator.getCursorPosition(),
+            rowCount: iterator.getRowCount(),
+        }
+        // console.info('getPositionInfo', ret);
+        return ret;
+    }
+
+
+    /** Iterator **/
+
+    getRowIterator(timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
+        const song = this.props.composer.getSong();
+        timeDivision = timeDivision || this.getTimeDivision();
+        beatsPerMinute = beatsPerMinute || this.getBeatsPerMinute();
+        quantizationTicks = quantizationTicks || this.getQuantizationTicks();
+        return TrackInstructionRowIterator.getIteratorFromSong(
+            song,
+            this.props.trackName,
+            {
+                quantizationTicks,
+                timeDivision,
+                beatsPerMinute,
+            }
+        )
+    }
+
+
+    getIterator(timeDivision=null, beatsPerMinute=null) {
+        const song = this.props.composer.getSong();
+        timeDivision = timeDivision || this.getTimeDivision();
+        beatsPerMinute = beatsPerMinute || this.getBeatsPerMinute();
+        return InstructionIterator.getIteratorFromSong(
+            song,
+            this.props.trackName,
+            {
+                timeDivision, // || this.getSong().data.timeDivision,
+                beatsPerMinute, //  || this.getSong().data.beatsPerMinute
+            }
+        )
+    }
+
 }
 

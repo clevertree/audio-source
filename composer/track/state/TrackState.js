@@ -12,8 +12,8 @@ export default class TrackState {
         this.composer = composer;
         this.trackName = trackName;
         this.state = composer.state.activeTracks[trackName];
-        if(!this.state)
-            throw new Error("Invalid Track State: " + trackName);
+        // if(!this.state)
+        //     throw new Error("Invalid Track State: " + trackName);
     }
 
 
@@ -61,6 +61,7 @@ export default class TrackState {
 
     /**
      * Used when track has been modified
+     * @deprecated
      */
     updateRenderingProps(quantizationTicks=null, rowLength=null) {
         quantizationTicks = quantizationTicks || this.getQuantizationTicks();
@@ -135,126 +136,6 @@ export default class TrackState {
         if (!Number.isInteger(rowLength))
             throw new Error("Invalid track row length value");
         this.updateRenderingProps(null, rowLength);
-    }
-
-    /** Track Cursor Position **/
-
-
-    /**
-     * Used when selecting
-     * @param {Integer} cursorOffset
-     * @returns {{cursorRow: null, positionTicks: null, nextCursorOffset: *, previousCursorOffset: number, positionSeconds: number, cursorIndex: null}}
-     */
-    getCursorInfo(cursorOffset) {
-        if(!Number.isInteger(cursorOffset))
-            throw new Error("Invalid cursorOffset: " + cursorOffset);
-        // cursorOffset = cursorOffset === null ? trackState.cursorOffset : cursorOffset;
-        const iterator = this.getRowIterator();
-
-        const ret = {
-            segmentID: null,
-            cursorIndex: null,
-            cursorRow: null,
-            nextCursorOffset: cursorOffset + 1,
-            previousCursorOffset: cursorOffset > 0 ? cursorOffset - 1 : 0,
-            positionTicks: null,
-            positionSeconds: 0,
-            // cursorRowLow: cursorRow - this.getRowLength(),
-            // cursorRowHigh: cursorRow - 1,
-        };
-
-        let lastRowPositions=[], positions=[[0]];
-        // let indexFound = null;
-        while(positions.length < 3 || positions[2][0] <= cursorOffset) {
-            const instructionData = iterator.nextCursorPosition();
-            lastRowPositions.push(iterator.getCursorPosition());
-
-            if(cursorOffset === iterator.getCursorPosition()) {
-                ret.cursorRow = iterator.getRowCount();
-                ret.positionTicks = iterator.getPositionInTicks();
-                ret.positionSeconds = iterator.getPositionInSeconds();
-            }
-
-            if(Array.isArray(instructionData)) {
-
-                if(cursorOffset === iterator.getCursorPosition()) {
-                    // ret.positionTicks = iterator.getPositionInTicks();
-                    if (iterator.getIndex() !== null)
-                        ret.cursorIndex = iterator.getIndex();
-                }
-            } else {
-                positions.push(lastRowPositions);
-                if(positions.length > 3)
-                    positions.shift();
-                lastRowPositions = [];
-            }
-        }
-        const column = positions[1].indexOf(cursorOffset);
-
-        ret.nextRowOffset = positions[2][column] || positions[2][positions[2].length-1];
-        ret.previousRowOffset = positions[0][column] || 0;
-
-        if(ret.positionTicks !== null) {
-            ret.segmentID = Math.floor(ret.positionTicks / this.getSegmentLengthTicks());
-        }
-        // console.log(cursorOffset, ret);
-        return ret;
-    }
-
-    getPositionInfo(positionTicks) {
-        if(!Number.isInteger(positionTicks))
-            throw new Error("Invalid positionTicks: " + positionTicks);
-
-        const iterator = this.getRowIterator();
-        iterator.seekToPositionTicks(positionTicks)
-        // let indexFound = null;
-        // while(iterator.getPositionInTicks() < positionTicks) {
-        //     iterator.nextQuantizedInstructionRow();
-        // }
-
-        const ret = {
-            positionTicks,
-            positionIndex: iterator.getIndex(),
-            positionSeconds: iterator.getPositionInSeconds(),
-            cursorOffset: iterator.getCursorPosition(),
-            rowCount: iterator.getRowCount(),
-        }
-        // console.info('getPositionInfo', ret);
-        return ret;
-    }
-
-
-    /** Iterator **/
-
-    getRowIterator(timeDivision=null, beatsPerMinute=null, quantizationTicks=null) {
-        const song = this.composer.getSong();
-        timeDivision = timeDivision || this.getTimeDivision();
-        beatsPerMinute = beatsPerMinute || this.getBeatsPerMinute();
-        quantizationTicks = quantizationTicks || this.getQuantizationTicks();
-        return TrackInstructionRowIterator.getIteratorFromSong(
-            song,
-            this.trackName,
-            {
-                quantizationTicks,
-                timeDivision,
-                beatsPerMinute,
-            }
-        )
-    }
-
-
-    getIterator(timeDivision=null, beatsPerMinute=null) {
-        const song = this.composer.getSong();
-        timeDivision = timeDivision || this.getTimeDivision();
-        beatsPerMinute = beatsPerMinute || this.getBeatsPerMinute();
-        return InstructionIterator.getIteratorFromSong(
-            song,
-            this.trackName,
-            {
-                timeDivision, // || this.getSong().data.timeDivision,
-                beatsPerMinute, //  || this.getSong().data.beatsPerMinute
-            }
-        )
     }
 
 

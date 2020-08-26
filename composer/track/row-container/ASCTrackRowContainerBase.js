@@ -63,34 +63,34 @@ export default class ASCTrackRowContainerBase extends React.Component {
     renderRowContent() {
         const composer = this.getComposer();
         const track = this.getTrack();
-        const trackState = track.getTrackState();
+        // const track = track.getTrackState();
 
         const songPosition = composer.songStats.position;
-        const trackSongPosition = songPosition - trackState.getStartPosition();
+        const trackSongPosition = songPosition - track.getStartPosition();
         const cursorOffset = this.getCursorOffset();
         const rowOffset = this.getRowOffset();
         let trackSongPositionFound = false;
         // const quantizationTicks = this.getQuantizationTicks() || this.getSong().data.timeDivision;
 
         // console.time('ASCTrack.renderRowContent()');
-        const selectedIndices = trackState.getSelectedIndices();
-        const playingIndices = trackState.getPlayingIndices();
-        const beatsPerMeasureTicks = trackState.getBeatsPerMeasure() * trackState.getTimeDivision();
+        const selectedIndices = track.getSelectedIndices();
+        const playingIndices = track.getPlayingIndices();
+        const beatsPerMeasureTicks = track.getBeatsPerMeasure() * track.getTimeDivision();
         // const measuresPerSegment = track.getMeasuresPerSegment();
-        const segmentLengthTicks = trackState.getSegmentLengthTicks();
-        const quantizationTicks = trackState.getQuantizationTicks();
+        const segmentLengthTicks = track.getSegmentLengthTicks();
+        const quantizationTicks = track.getQuantizationTicks();
         // const isSelectedTrack = this.isSelectedTrack();
 
 
         // Get Iterator
-        const iterator = trackState.getRowIterator();
+        const iterator = track.getRowIterator();
 
         const rows = [];
         let rowInstructions = [];
 
         // console.log('quantizationTicks', quantizationTicks, cursorOffset, rowOffset, this.props.track.state);
 
-        const rowLength = trackState.getRowLength();
+        const rowLength = track.getRowLength();
         while(rows.length < rowLength) {
             const nextCursorEntry = iterator.nextCursorPosition();
             if(Array.isArray(nextCursorEntry)) {

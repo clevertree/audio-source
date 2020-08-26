@@ -17,7 +17,7 @@ div.asct-container {
 
 /** ASCTrack **/
 div.asc-track {
-
+    margin: 1px;
     position: relative;
     vertical-align: top;
     /* height: 100%; */
@@ -25,7 +25,7 @@ div.asc-track {
     /*display: inline-block;*/
 }
 @media only screen and (min-width: 640px) {
-    div.asc-track {
+    div.asc-track:not(.minimized) {
         min-width: 400px;
     }
 
@@ -33,6 +33,7 @@ div.asc-track {
 
 
 div.asc-track > div.header {
+    cursor: pointer;
     background-color: #333;
     color: #FFF;
     font-size: 11px;
@@ -44,6 +45,11 @@ div.asc-track > div.header {
     border-bottom: 1px solid #BBB;
 }
 
+
+div.asc-track.minimized > div.header {
+    border-radius: 8px;
+    padding: 1em 2em;
+}
 
 
 div.asc-track:not(.selected) > div.header {

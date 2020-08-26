@@ -106,13 +106,13 @@ class ASComposerActions extends ASComposerMenu {
         for(let trackName in this.state.activeTracks) {
             if(this.state.activeTracks.hasOwnProperty(trackName)) {
                 if (songData.tracks[trackName]) {
-                    if (this.state.activeTracks.hasOwnProperty(trackName)) {
-                        const trackState = new TrackState(this, trackName);
-                        trackState.updateRenderingProps();
-                    }
-
+                    // if (this.state.activeTracks.hasOwnProperty(trackName)) {
+                        // const trackState = new TrackState(this, trackName);
+                        // trackState.updateRenderingProps();
+                    // }
+                    console.log("TODO finish")
                 } else {
-                    delete activeTracks[trackName];
+                    // delete activeTracks[trackName];
                     console.warn("Removing unavailable active track: " + trackName);
                 }
             }

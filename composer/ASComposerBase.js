@@ -16,12 +16,11 @@ class ASComposerBase extends React.Component {
 
             portrait: true,
             fullscreen: !!this.props.fullscreen,
-            showPanelSong: true,
-            showPanelProgram: true,
-            showPanelInstruction: true,
-            showPanelTrack: true,
-            showPanelKeyboard: true,
-            showPanelPresetBrowser: true,
+            // showPanelSong: true,
+            // showPanelProgram: true,
+            // showPanelInstruction: true,
+            // showPanelTrack: true,
+            // showPanelKeyboard: true,
             showTrackRowPositionInTicks: false,
             showTrackRowDurationInTicks: false,
 

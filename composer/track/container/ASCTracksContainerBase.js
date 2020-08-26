@@ -17,17 +17,17 @@ export default class ASCTracksContainerBase extends React.Component {
         composer.ref.activeTracks = {};
 
         const selectedTrackName = composer.getSelectedTrackName();
-        let trackList = Object.keys(composer.state.activeTracks);
-        let collapsed = false;
-        if(composer.state.portrait) {
-            collapsed = true;
+        let trackList = Object.keys(songData.tracks);
+        // let collapsed = false;
+        // if(composer.state.portrait) {
+            // collapsed = true;
             // const selectedTrackID = trackList.indexOf(selectedTrackName);
             // if (selectedTrackID !== -1)
             //     trackList.unshift(trackList.splice(selectedTrackID, 1)[0])
-        }
+        // }
         return trackList.map((trackName) => {
-            if(!songData.tracks[trackName])
-                return null;
+            // if(!songData.tracks[trackName])
+            //     return null;
             composer.ref.activeTracks[trackName] = React.createRef(); // TODO: flaw?
             const selected = trackName === selectedTrackName;
             return <ASCTrack
@@ -37,7 +37,7 @@ export default class ASCTracksContainerBase extends React.Component {
                 trackState={composer.state.activeTracks[trackName]}
                 selected={selected}
                 composer={composer}
-                collapsed={collapsed && !selected}
+                // collapsed={collapsed && !selected}
             />
         })
     }
