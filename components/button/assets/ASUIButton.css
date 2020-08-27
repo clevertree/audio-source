@@ -39,9 +39,9 @@ div.asui-button.small {
 }
 
 /** Menu Arrow **/
-div.asui-button > div.arrow {
-    display: inline-block;
-    font-size: small;
-    margin: 2px 2px 0 auto;
-    padding-left: 0.5em;
-}
+/*div.asui-button > div.arrow {*/
+/*    display: inline-block;*/
+/*    font-size: small;*/
+/*    margin: 2px 2px 0 auto;*/
+/*    padding-left: 0.5em;*/
+/*}*/

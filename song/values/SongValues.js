@@ -64,44 +64,6 @@ class SongValues extends Values {
 
 
 
-    parseSelectedIndices(selectedIndices) {
-
-        if (typeof selectedIndices === 'number')
-            selectedIndices = [selectedIndices];
-
-        // if(!clearSelection && this.getSelectedIndices().length > 0)
-        //     selectedIndices = selectedIndices.concat(this.getSelectedIndices());
-        // console.log('selectIndices', Array.isArray(selectedIndices), selectedIndices);
-        if (!Array.isArray(selectedIndices))
-            throw new Error("Invalid selection: " + selectedIndices);
-
-        selectedIndices.forEach((index, i) => {
-            if(typeof index !== "number")
-                throw new Error(`Invalid selection index (${i}): ${index}`);
-        });
-
-        // Filter and sort
-        selectedIndices = this.filterAndSort(selectedIndices);
-        return selectedIndices;
-    }
-
-    filterAndSort(selectedIndices) {
-        // Filter unique indices
-        selectedIndices = this.filterUniqueIndices(selectedIndices);
-        // Sort indices
-        return this.sortIndices(selectedIndices);
-    }
-
-    filterUniqueIndices(selectedIndices) {
-        // Filter unique indices
-        return selectedIndices.filter((v, i, a) => a.indexOf(v) === i && v !== null);
-    }
-
-    sortIndices(selectedIndices) {
-        // Sort indices
-        return selectedIndices.sort((a, b) => a - b);
-    }
-
 
     formatSongDuration(input) {
         return this.formatDuration(input, this.song.data.timeDivision);

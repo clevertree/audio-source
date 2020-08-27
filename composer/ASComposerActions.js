@@ -49,6 +49,12 @@ class ASComposerActions extends ASComposerMenu {
         }
     }
 
+
+    getSelectedViewKey() {
+        return this.state.selectedViewKey;
+    }
+
+    /** @deprecated **/
     getSelectedTrackName() {
         const [type, name] = this.state.selectedComponent;
         if(type === 'track')

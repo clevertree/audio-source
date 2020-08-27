@@ -56,6 +56,7 @@ class ASComposerBase extends React.Component {
 
             // View Modes
             viewModes: {},
+            selectedViewKey: null,
 
             /** UI **/
 

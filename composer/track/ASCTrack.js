@@ -2,6 +2,7 @@ import * as React from "react";
 import ASCTrackBase from "./ASCTrackBase";
 
 import "./ASCTrack.css";
+import {ASUIContextMenu} from "../../components";
 
 export default class ASCTrack extends ASCTrackBase {
 
@@ -62,7 +63,28 @@ export default class ASCTrack extends ASCTrackBase {
                     {this.renderQuantizationButton()}
                 </div>
             </div>,
-            this.renderRowContainer()
+            <div
+                key="row-container"
+                className="row-container"
+                ref={elm => {
+                    elm && elm.addEventListener('wheel', this.cb.onWheel, {passive: false});
+                    this.ref.rowContainer.current = elm;
+                }}
+                tabIndex={0}
+                onKeyDown={this.cb.onKeyDown}
+                onContextMenu={this.cb.onContextMenu}
+                // onWheel={this.cb.onWheel}
+            >
+                {this.renderRowContent()}
+                {this.state.menuOpen ? <ASUIContextMenu
+                    clientPosition={this.state.clientPosition}
+                    key="dropdown"
+                    ref={this.dropdown}
+                    options={this.cb.options}
+                    vertical={true}
+                    // onClose={e => this.toggleDropDownMenu(e)}
+                /> : null}
+            </div>
         ]
     }
 }

@@ -16,7 +16,7 @@ export default class ASCTracksContainerBase extends React.Component {
         const songData = composer.getSong().getProxiedData();
         composer.ref.activeTracks = {};
 
-        const selectedTrackName = composer.getSelectedTrackName();
+        const selectedViewKey = composer.getSelectedViewKey();
         let trackList = Object.keys(songData.tracks);
         // let collapsed = false;
         // if(composer.state.portrait) {
@@ -29,7 +29,7 @@ export default class ASCTracksContainerBase extends React.Component {
             // if(!songData.tracks[trackName])
             //     return null;
             composer.ref.activeTracks[trackName] = React.createRef(); // TODO: flaw?
-            const selected = trackName === selectedTrackName;
+            const selected = 'track:' + trackName === selectedViewKey;
             return <ASCTrack
                 ref={composer.ref.activeTracks[trackName]}
                 key={trackName}

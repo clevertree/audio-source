@@ -15,7 +15,7 @@ div.asui-clickable.dropdown {
 div.asui-clickable > div.arrow {
     display: inline-block;
     font-size: small;
-    margin: 2px 2px 0 auto;
+    margin: 1px 2px 1px auto;
     padding-left: 0.5em;
 }
 
